@@ -19,6 +19,7 @@
 */
 
 #include <Python.h>
+
 #include "pgcompat.h"
 
 /* Buffer_TYPE states:
@@ -49,12 +50,13 @@
 #define BUFOBJ_MEMFREE 0x0002
 #define BUFOBJ_MUTABLE 0x0004
 
-static PyObject *BufferSubtype_New(PyTypeObject *, Py_buffer *, int, int);
-static PyObject *Buffer_New(Py_buffer *, int, int);
+static PyObject *
+BufferSubtype_New(PyTypeObject *, Py_buffer *, int, int);
+static PyObject *
+Buffer_New(Py_buffer *, int, int);
 
 typedef struct buffer_object_t {
-    PyObject_HEAD
-    Py_buffer *view_p;
+    PyObject_HEAD Py_buffer *view_p;
     int flags;
 } BufferObject;
 
@@ -90,8 +92,8 @@ check_view_set(BufferObject *op, const char *name)
 {
     if (op->view_p) {
         if (op->flags & BUFOBJ_FILLED) {
-            PyErr_Format(PyExc_AttributeError,
-                         "property %400s is read-only", name);
+            PyErr_Format(PyExc_AttributeError, "property %400s is read-only",
+                         name);
             return -1;
         }
     }
@@ -108,8 +110,8 @@ static int
 check_value(PyObject *o, const char *name)
 {
     if (!o) {
-        PyErr_Format(PyExc_AttributeError,
-                     "property %400s cannot be deleted", name);
+        PyErr_Format(PyExc_AttributeError, "property %400s cannot be deleted",
+                     name);
         return -1;
     }
     return 0;
@@ -176,7 +178,8 @@ set_py_ssize_t(Py_ssize_t *ip, PyObject *o, const char *name)
  * with a null Py_buffer address.
  */
 static void
-Buffer_Reset(BufferObject *bp) {
+Buffer_Reset(BufferObject *bp)
+{
     Py_buffer *view_p;
     int flags;
 
@@ -307,8 +310,8 @@ buffer_get_buffer(BufferObject *self, PyObject *args, PyObject *kwds)
     int bufobj_flags = self->flags;
     char *keywords[] = {"obj", "flags", 0};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds,
-                                     "O|i", keywords, &obj, &flags)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", keywords, &obj,
+                                     &flags)) {
         return 0;
     }
     if (bufobj_flags & BUFOBJ_FILLED) {
@@ -342,7 +345,7 @@ buffer_release_buffer(BufferObject *self)
     Py_buffer *view_p = self->view_p;
 
     if ((flags & BUFOBJ_FILLED) && (flags & BUFOBJ_MUTABLE)) {
-        self->flags = BUFOBJ_FILLED;  /* Guard against reentrant calls */
+        self->flags = BUFOBJ_FILLED; /* Guard against reentrant calls */
         PyBuffer_Release(view_p);
         self->flags = BUFOBJ_MUTABLE;
         if (flags & BUFOBJ_MEMFREE) {
@@ -367,12 +370,12 @@ buffer_release_buffer(BufferObject *self)
 }
 
 static struct PyMethodDef buffer_methods[] = {
-    {"get_buffer", (PyCFunction)buffer_get_buffer, METH_VARARGS | METH_KEYWORDS,
+    {"get_buffer", (PyCFunction)buffer_get_buffer,
+     METH_VARARGS | METH_KEYWORDS,
      "fill in Py_buffer fields with a PyObject_GetBuffer call"},
     {"release_buffer", (PyCFunction)buffer_release_buffer, METH_NOARGS,
      "release the Py_buffer with a PyBuffer_Release call"},
-    {0, 0, 0, 0}
-};
+    {0, 0, 0, 0}};
 
 static PyObject *
 buffer_get_obj(BufferObject *self, void *closure)
@@ -626,7 +629,8 @@ buffer_set_itemsize(BufferObject *self, PyObject *value, void *closure)
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
-    return set_py_ssize_t(&self->view_p->itemsize, value, (const char *)closure);
+    return set_py_ssize_t(&self->view_p->itemsize, value,
+                          (const char *)closure);
 }
 
 static PyObject *
@@ -651,31 +655,24 @@ buffer_set_internal(BufferObject *self, PyObject *value, void *closure)
 }
 
 static PyGetSetDef buffer_getset[] = {
-    {"obj",
-     (getter)buffer_get_obj, (setter)buffer_set_obj, 0, "obj"},
-    {"buf",
-     (getter)buffer_get_buf, (setter)buffer_set_buf, 0, "buf"},
-    {"len",
-     (getter)buffer_get_len, (setter)buffer_set_len, 0, "len"},
-    {"readonly",
-     (getter)buffer_get_readonly, (setter)buffer_set_readonly, 0, "readonly"},
-    {"format",
-     (getter)buffer_get_format, (setter)buffer_set_format, 0, "format"},
-    {"ndim",
-     (getter)buffer_get_ndim, (setter)buffer_set_ndim, 0, "ndim"},
-    {"shape",
-     (getter)buffer_get_shape, (setter)buffer_set_shape, 0, "shape"},
-    {"strides",
-     (getter)buffer_get_strides, (setter)buffer_set_strides, 0, "shape"},
-    {"suboffsets",
-     (getter)buffer_get_suboffsets, (setter)buffer_set_suboffsets, 0,
-     "suboffsets"},
-    {"itemsize",
-     (getter)buffer_get_itemsize, (setter)buffer_set_itemsize, 0, "itemsize"},
-    {"internal",
-     (getter)buffer_get_internal, (setter)buffer_set_internal, 0, "internal"},
-    {0, 0, 0, 0, 0}
-};
+    {"obj", (getter)buffer_get_obj, (setter)buffer_set_obj, 0, "obj"},
+    {"buf", (getter)buffer_get_buf, (setter)buffer_set_buf, 0, "buf"},
+    {"len", (getter)buffer_get_len, (setter)buffer_set_len, 0, "len"},
+    {"readonly", (getter)buffer_get_readonly, (setter)buffer_set_readonly, 0,
+     "readonly"},
+    {"format", (getter)buffer_get_format, (setter)buffer_set_format, 0,
+     "format"},
+    {"ndim", (getter)buffer_get_ndim, (setter)buffer_set_ndim, 0, "ndim"},
+    {"shape", (getter)buffer_get_shape, (setter)buffer_set_shape, 0, "shape"},
+    {"strides", (getter)buffer_get_strides, (setter)buffer_set_strides, 0,
+     "shape"},
+    {"suboffsets", (getter)buffer_get_suboffsets,
+     (setter)buffer_set_suboffsets, 0, "suboffsets"},
+    {"itemsize", (getter)buffer_get_itemsize, (setter)buffer_set_itemsize, 0,
+     "itemsize"},
+    {"internal", (getter)buffer_get_internal, (setter)buffer_set_internal, 0,
+     "internal"},
+    {0, 0, 0, 0, 0}};
 
 static int
 buffer_bool(BufferObject *self)
@@ -684,112 +681,108 @@ buffer_bool(BufferObject *self)
 }
 
 static PyNumberMethods buffer_as_number = {
-    (binaryfunc)0,                              /* nb_add */
-    (binaryfunc)0,                              /* nb_subtract */
-    (binaryfunc)0,                              /* nb_multiply */
+    (binaryfunc)0, /* nb_add */
+    (binaryfunc)0, /* nb_subtract */
+    (binaryfunc)0, /* nb_multiply */
 #if PY_MAJOR_VERSION < 3
-    (binaryfunc)0,                              /* nb_divide */
+    (binaryfunc)0, /* nb_divide */
 #endif
-    (binaryfunc)0,                              /* nb_remainder */
-    (binaryfunc)0,                              /* nb_divmod */
-    (ternaryfunc)0,                             /* nb_power */
-    (unaryfunc)0,                               /* nb_negative */
-    (unaryfunc)0,                               /* nb_positive */
-    (unaryfunc)0,                               /* nb_absolute */
-    (inquiry)buffer_bool,                       /* nb_nonzero / nb_bool */
-    (unaryfunc)0,                               /* nb_invert */
-    (binaryfunc)0,                              /* nb_lshift */
-    (binaryfunc)0,                              /* nb_rshift */
-    (binaryfunc)0,                              /* nb_and */
-    (binaryfunc)0,                              /* nb_xor */
-    (binaryfunc)0,                              /* nb_or */
+    (binaryfunc)0,        /* nb_remainder */
+    (binaryfunc)0,        /* nb_divmod */
+    (ternaryfunc)0,       /* nb_power */
+    (unaryfunc)0,         /* nb_negative */
+    (unaryfunc)0,         /* nb_positive */
+    (unaryfunc)0,         /* nb_absolute */
+    (inquiry)buffer_bool, /* nb_nonzero / nb_bool */
+    (unaryfunc)0,         /* nb_invert */
+    (binaryfunc)0,        /* nb_lshift */
+    (binaryfunc)0,        /* nb_rshift */
+    (binaryfunc)0,        /* nb_and */
+    (binaryfunc)0,        /* nb_xor */
+    (binaryfunc)0,        /* nb_or */
 #if PY_MAJOR_VERSION < 3
-    (coercion)0,                                /* nb_coerce */
+    (coercion)0, /* nb_coerce */
 #endif
-    (unaryfunc)0,                               /* nb_int */
+    (unaryfunc)0, /* nb_int */
 #if PY_MAJOR_VERSION < 3
-    (unaryfunc)0,                               /* nb_long */
+    (unaryfunc)0, /* nb_long */
 #else
-    0,                                          /* nb_reserved */
+    0, /* nb_reserved */
 #endif
-    (unaryfunc)0,                               /* nb_float */
+    (unaryfunc)0, /* nb_float */
 #if PY_MAJOR_VERSION < 3
-    (unaryfunc)0,                               /* nb_oct */
-    (unaryfunc)0,                               /* nb_hex */
+    (unaryfunc)0, /* nb_oct */
+    (unaryfunc)0, /* nb_hex */
 #endif
-    (binaryfunc)0,                              /* nb_inplace_add */
-    (binaryfunc)0,                              /* nb_inplace_subtract */
-    (binaryfunc)0,                              /* nb_inplace_multiply */
+    (binaryfunc)0, /* nb_inplace_add */
+    (binaryfunc)0, /* nb_inplace_subtract */
+    (binaryfunc)0, /* nb_inplace_multiply */
 #if PY_MAJOR_VERSION < 3
-    (binaryfunc)0,                              /* nb_inplace_divide */
+    (binaryfunc)0, /* nb_inplace_divide */
 #endif
-    (binaryfunc)0,                              /* nb_inplace_remainder */
-    (ternaryfunc)0,                             /* nb_inplace_power */
-    (binaryfunc)0,                              /* nb_inplace_lshift */
-    (binaryfunc)0,                              /* nb_inplace_rshift */
-    (binaryfunc)0,                              /* nb_inplace_and */
-    (binaryfunc)0,                              /* nb_inplace_xor */
-    (binaryfunc)0,                              /* nb_inplace_or */
-    (binaryfunc)0,                              /* nb_floor_divide */
-    (binaryfunc)0,                              /* nb_true_divide */
-    (binaryfunc)0,                              /* nb_inplace_floor_divide */
-    (binaryfunc)0,                              /* nb_inplace_true_divide */
+    (binaryfunc)0,  /* nb_inplace_remainder */
+    (ternaryfunc)0, /* nb_inplace_power */
+    (binaryfunc)0,  /* nb_inplace_lshift */
+    (binaryfunc)0,  /* nb_inplace_rshift */
+    (binaryfunc)0,  /* nb_inplace_and */
+    (binaryfunc)0,  /* nb_inplace_xor */
+    (binaryfunc)0,  /* nb_inplace_or */
+    (binaryfunc)0,  /* nb_floor_divide */
+    (binaryfunc)0,  /* nb_true_divide */
+    (binaryfunc)0,  /* nb_inplace_floor_divide */
+    (binaryfunc)0,  /* nb_inplace_true_divide */
 #if PY_VERSION_HEX >= 0x02050000
-    (unaryfunc)0,                               /* nb_index */
+    (unaryfunc)0, /* nb_index */
 #endif
 };
 
 #define BUFFER_TYPE_FULLNAME "newbuffer.Py_buffer"
-#define BUFFER_TPFLAGS (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | \
-                        Py_TPFLAGS_HAVE_GC)
+#define BUFFER_TPFLAGS \
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
-static PyTypeObject Py_buffer_Type =
-{
-    TYPE_HEAD(NULL, 0)
-    BUFFER_TYPE_FULLNAME,       /* tp_name */
-    sizeof (BufferObject),      /* tp_basicsize */
-    0,                          /* tp_itemsize */
-    (destructor)buffer_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    0,                          /* tp_repr */
-    &buffer_as_number,          /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    0,                          /* tp_hash */
-    0,                          /* tp_call */
-    0,                          /* tp_str */
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    0,                          /* tp_as_buffer */
-    BUFFER_TPFLAGS,             /* tp_flags */
+static PyTypeObject Py_buffer_Type = {
+    TYPE_HEAD(NULL, 0) BUFFER_TYPE_FULLNAME, /* tp_name */
+    sizeof(BufferObject),                    /* tp_basicsize */
+    0,                                       /* tp_itemsize */
+    (destructor)buffer_dealloc,              /* tp_dealloc */
+    0,                                       /* tp_print */
+    0,                                       /* tp_getattr */
+    0,                                       /* tp_setattr */
+    0,                                       /* tp_compare */
+    0,                                       /* tp_repr */
+    &buffer_as_number,                       /* tp_as_number */
+    0,                                       /* tp_as_sequence */
+    0,                                       /* tp_as_mapping */
+    0,                                       /* tp_hash */
+    0,                                       /* tp_call */
+    0,                                       /* tp_str */
+    0,                                       /* tp_getattro */
+    0,                                       /* tp_setattro */
+    0,                                       /* tp_as_buffer */
+    BUFFER_TPFLAGS,                          /* tp_flags */
     "Python level Py_buffer struct wrapper\n",
-    (traverseproc)buffer_traverse,  /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
-    0,                          /* tp_weaklistoffset */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    buffer_methods,             /* tp_methods */
-    0,                          /* tp_members */
-    buffer_getset,              /* tp_getset */
-    0,                          /* tp_base */
-    0,                          /* tp_dict */
-    0,                          /* tp_descr_get */
-    0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
-    (initproc)buffer_init,      /* tp_init */
-    PyType_GenericAlloc,        /* tp_alloc */
-    buffer_new,                 /* tp_new */
-    PyObject_GC_Del,            /* tp_free */
+    (traverseproc)buffer_traverse, /* tp_traverse */
+    0,                             /* tp_clear */
+    0,                             /* tp_richcompare */
+    0,                             /* tp_weaklistoffset */
+    0,                             /* tp_iter */
+    0,                             /* tp_iternext */
+    buffer_methods,                /* tp_methods */
+    0,                             /* tp_members */
+    buffer_getset,                 /* tp_getset */
+    0,                             /* tp_base */
+    0,                             /* tp_dict */
+    0,                             /* tp_descr_get */
+    0,                             /* tp_descr_set */
+    0,                             /* tp_dictoffset */
+    (initproc)buffer_init,         /* tp_init */
+    PyType_GenericAlloc,           /* tp_alloc */
+    buffer_new,                    /* tp_new */
+    PyObject_GC_Del,               /* tp_free */
 };
 
 static PyObject *
-BufferSubtype_New(PyTypeObject *subtype,
-                  Py_buffer *view_p,
-                  int filled,
+BufferSubtype_New(PyTypeObject *subtype, Py_buffer *view_p, int filled,
                   int preserve)
 {
     BufferObject *bp = (BufferObject *)Py_buffer_Type.tp_alloc(subtype, 0);
@@ -839,8 +832,7 @@ static PyMethodDef mixin_methods[] = {
      "new buffer protocol default bf_getbuffer handler"},
     {"_release_buffer", (PyCFunction)mixin__release_buffer, METH_O,
      "new buffer protocol default bf_releasebuffer handler"},
-    {0, 0, 0, 0}
-};
+    {0, 0, 0, 0}};
 
 static int
 mixin_getbuffer(PyObject *self, Py_buffer *view_p, int flags)
@@ -851,8 +843,8 @@ mixin_getbuffer(PyObject *self, Py_buffer *view_p, int flags)
 
     if (py_view) {
         view_p->obj = 0;
-        py_rval = PyObject_CallMethod(self, "_get_buffer", "(Oi)",
-                                      py_view, flags);
+        py_rval =
+            PyObject_CallMethod(self, "_get_buffer", "(Oi)", py_view, flags);
         Buffer_Reset((BufferObject *)py_view);
         Py_DECREF(py_view);
         if (py_rval == Py_None) {
@@ -898,84 +890,82 @@ static PyBufferProcs mixin_bufferprocs = {
     0,
 #endif
     (getbufferproc)mixin_getbuffer,
-    (releasebufferproc)mixin_releasebuffer
-};
+    (releasebufferproc)mixin_releasebuffer};
 
 #if PY_VERSION_HEX < 0x03000000
 #define MIXIN_TPFLAGS \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |  Py_TPFLAGS_HAVE_NEWBUFFER)
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER)
 #else
-#define MIXIN_TPFLAGS \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
+#define MIXIN_TPFLAGS (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
 #endif
 
 #define BUFFER_MIXIN_TYPE_FULLNAME "newbuffer.BufferMixin"
 
-static PyTypeObject BufferMixin_Type =
-{
-    TYPE_HEAD(NULL, 0)
-    BUFFER_MIXIN_TYPE_FULLNAME, /* tp_name */
-    sizeof (PyObject),          /* tp_basicsize */
-    0,                          /* tp_itemsize */
-    0,                          /* tp_dealloc */
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    0,                          /* tp_repr */
-    0,                          /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    0,                          /* tp_hash */
-    0,                          /* tp_call */
-    0,                          /* tp_str */
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    &mixin_bufferprocs,         /* tp_as_buffer */
-    MIXIN_TPFLAGS,              /* tp_flags */
+static PyTypeObject BufferMixin_Type = {
+    TYPE_HEAD(NULL, 0) BUFFER_MIXIN_TYPE_FULLNAME, /* tp_name */
+    sizeof(PyObject),                              /* tp_basicsize */
+    0,                                             /* tp_itemsize */
+    0,                                             /* tp_dealloc */
+    0,                                             /* tp_print */
+    0,                                             /* tp_getattr */
+    0,                                             /* tp_setattr */
+    0,                                             /* tp_compare */
+    0,                                             /* tp_repr */
+    0,                                             /* tp_as_number */
+    0,                                             /* tp_as_sequence */
+    0,                                             /* tp_as_mapping */
+    0,                                             /* tp_hash */
+    0,                                             /* tp_call */
+    0,                                             /* tp_str */
+    0,                                             /* tp_getattro */
+    0,                                             /* tp_setattro */
+    &mixin_bufferprocs,                            /* tp_as_buffer */
+    MIXIN_TPFLAGS,                                 /* tp_flags */
     "Python level new buffer protocol exporter\n",
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
-    0,                          /* tp_weaklistoffset */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    mixin_methods,              /* tp_methods */
-    0,                          /* tp_members */
-    0,                          /* tp_getset */
-    0,                          /* tp_base */
-    0,                          /* tp_dict */
-    0,                          /* tp_descr_get */
-    0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
-    PyType_GenericAlloc,        /* tp_alloc */
-    PyType_GenericNew,          /* tp_new */
-    PyObject_Del,               /* tp_free */
-    0,                          /* tp_is_gc */
-    0,                          /* tp_bases */
-    0,                          /* tp_mro */
-    0,                          /* tp_cache */
-    0,                          /* tp_subclasses */
-    0,                          /* tp_weaklist */
-    0                           /* tp_del */
+    0,                   /* tp_traverse */
+    0,                   /* tp_clear */
+    0,                   /* tp_richcompare */
+    0,                   /* tp_weaklistoffset */
+    0,                   /* tp_iter */
+    0,                   /* tp_iternext */
+    mixin_methods,       /* tp_methods */
+    0,                   /* tp_members */
+    0,                   /* tp_getset */
+    0,                   /* tp_base */
+    0,                   /* tp_dict */
+    0,                   /* tp_descr_get */
+    0,                   /* tp_descr_set */
+    0,                   /* tp_dictoffset */
+    0,                   /* tp_init */
+    PyType_GenericAlloc, /* tp_alloc */
+    PyType_GenericNew,   /* tp_new */
+    PyObject_Del,        /* tp_free */
+    0,                   /* tp_is_gc */
+    0,                   /* tp_bases */
+    0,                   /* tp_mro */
+    0,                   /* tp_cache */
+    0,                   /* tp_subclasses */
+    0,                   /* tp_weaklist */
+    0                    /* tp_del */
 };
 
 /*DOC*/ static char newbuffer_doc[] =
-/*DOC*/    "exports BufferMixin, add a new buffer interface to a class";
+    /*DOC*/ "exports BufferMixin, add a new buffer interface to a class";
 
 MODINIT_DEFINE(newbuffer)
 {
     PyObject *module;
 
 #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "newbuffer",
-        newbuffer_doc,
-        -1,
-        NULL, NULL, NULL, NULL, NULL
-    };
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "newbuffer",
+                                         newbuffer_doc,
+                                         -1,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL};
 #endif
 
     /* prepare exported types */
@@ -996,8 +986,7 @@ MODINIT_DEFINE(newbuffer)
 #endif
 
     Py_INCREF(&BufferMixin_Type);
-    if (PyModule_AddObject(module,
-                           "BufferMixin",
+    if (PyModule_AddObject(module, "BufferMixin",
                            (PyObject *)&BufferMixin_Type)) {
         Py_DECREF(&BufferMixin_Type);
         DECREF_MOD(module);
@@ -1009,9 +998,8 @@ MODINIT_DEFINE(newbuffer)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    if (Module_AddSsize_tConstant(module,
-                                  "PyBUFFER_SIZEOF",
-                                  sizeof (Py_buffer)) ||
+    if (Module_AddSsize_tConstant(module, "PyBUFFER_SIZEOF",
+                                  sizeof(Py_buffer)) ||
         PyModule_AddIntMacro(module, PyBUF_SIMPLE) ||
         PyModule_AddIntMacro(module, PyBUF_WRITABLE) ||
         PyModule_AddIntMacro(module, PyBUF_STRIDES) ||
