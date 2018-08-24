@@ -357,7 +357,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def NEWBUF_export_check(self):
         freq, fmt, channels = mixer.get_init()
-        ndim = 1 (if channels == 1) else 2
+        ndim = 1 if (channels == 1) else 2
         itemsize = abs(fmt) // 8
         formats = {8: 'B', -8: 'b',
                    16: '=H', -16: '=h',
