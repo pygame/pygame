@@ -267,26 +267,6 @@ class AsyncTest(unittest.TestCase):
         self.assert_( 'successfully terminated' in ret_code )
 
 ################################################################################
-
-def _example():
-    if sys.platform == 'win32':
-        shell, commands, tail = ('cmd', ('echo "hello"', 'echo "HELLO WORLD"'), '\r\n')
-    else:
-        shell, commands, tail = ('sh', ('ls', 'echo HELLO WORLD'), '\n')
-    
-    a = Popen(shell, stdin=PIPE, stdout=PIPE)
-    sys.stdout.write(a.read_async())
-    sys.stdout.write(" ")
-    for cmd in commands:
-        a.send_all(cmd + tail)
-        sys.stdout.write(a.read_async())
-        sys.stdout.write(" ")
-    a.send_all('exit' + tail)
-    print (a.read_async(e=0))
-    a.wait()
-
-################################################################################
     
 if __name__ == '__main__':
-    if 1: unittest.main()
-    else: _example()
+    unittest.main()
