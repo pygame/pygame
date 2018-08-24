@@ -1,11 +1,12 @@
 import sys
 import os
 import unittest
+import time
 
 from pygame.tests.test_utils import example_path
 import pygame
 from pygame import mixer
-from pygame.compat import xrange_, unicode_, as_bytes, geterror, bytes_
+from pygame.compat import unicode_, as_bytes, geterror, bytes_
 
 
 ################################### CONSTANTS ##################################
@@ -94,7 +95,7 @@ class MixerModuleTest(unittest.TestCase):
             mixer.pre_init(0, 0, 0, 0)
 
     def test_get_init__returns_exact_values_used_for_init(self):
-        return
+        return  # oups FIXME
         # fix in 1.9 - I think it's a SDL_mixer bug.
 
         # TODO: When this bug is fixed, testing through every combination
@@ -104,20 +105,16 @@ class MixerModuleTest(unittest.TestCase):
         configs = []
         for f in FREQUENCIES:
             for s in SIZES:
+                if (f, s) == (22050, 16):
+                    continue
                 for c in CHANNELS:
-                    configs.append ((f,s,c))
-
-        print (configs)
-
+                    configs.append((f, s, c))
 
         for init_conf in configs:
-            print (init_conf)
-            f,s,c = init_conf
-            if (f,s) == (22050,16):continue
+            f, s, c = init_conf
             mixer.init(f,s,c)
 
             mixer_conf = mixer.get_init()
-            import time
             time.sleep(0.1)
 
             mixer.quit()
@@ -139,7 +136,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init()
 
         default_num_channels = mixer.get_num_channels()
-        for i in xrange_(1, default_num_channels + 1):
+        for i in range(1, default_num_channels + 1):
             mixer.set_num_channels(i)
             self.assertEqual(mixer.get_num_channels(), i)
 
@@ -360,10 +357,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def NEWBUF_export_check(self):
         freq, fmt, channels = mixer.get_init()
-        if channels == 1:
-            ndim = 1
-        else:
-            ndim = 2
+        ndim = 1 (if channels == 1) else 2
         itemsize = abs(fmt) // 8
         formats = {8: 'B', -8: 'b',
                    16: '=H', -16: '=h',
@@ -458,7 +452,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(imp.ndim, ndim)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.strides, strides)
-        if (ndim == 1):
+        if ndim == 1:
             imp = Importer(snd, buftools.PyBUF_F_CONTIGUOUS)
             self.assertEqual(imp.ndim, 1)
             self.assertTrue(imp.format is None)
