@@ -43,25 +43,33 @@ static Time _cliptime = CurrentTime;
 static Time _selectiontime = CurrentTime;
 
 /* Maximum size to send or receive per request. */
-#define MAX_CHUNK_SIZE(display)                                    \
-    MIN(262144, /* 65536 * 4 */                                    \
-        (XExtendedMaxRequestSize (display)) == 0                   \
-        ? XMaxRequestSize (display) - 100                          \
-        : XExtendedMaxRequestSize (display) - 100)
+#define MAX_CHUNK_SIZE(display)                 \
+    MIN(262144, /* 65536 * 4 */                 \
+        (XExtendedMaxRequestSize(display)) == 0 \
+            ? XMaxRequestSize(display) - 100    \
+            : XExtendedMaxRequestSize(display) - 100)
 
 #define GET_CLIPATOM(x) ((x == SCRAP_SELECTION) ? XA_PRIMARY : _atom_CLIPBOARD)
 
-static Atom _convert_format (char *type);
-static void _init_atom_types (void);
-static char* _atom_to_string (Atom a);
-static void _add_clip_data (Atom type, char *data, int srclen);
-static int _clipboard_filter (const SDL_Event *event);
-static void _set_targets (PyObject *data, Display *display, Window window,
-                          Atom property);
-static int _set_data (PyObject *dict, Display *display, Window window,
-                      Atom property, Atom target);
-static Window _get_scrap_owner (Atom *selection);
-static char* _get_data_as (Atom source, Atom format, unsigned long *length);
+static Atom
+_convert_format(char *type);
+static void
+_init_atom_types(void);
+static char *
+_atom_to_string(Atom a);
+static void
+_add_clip_data(Atom type, char *data, int srclen);
+static int
+_clipboard_filter(const SDL_Event *event);
+static void
+_set_targets(PyObject *data, Display *display, Window window, Atom property);
+static int
+_set_data(PyObject *dict, Display *display, Window window, Atom property,
+          Atom target);
+static Window
+_get_scrap_owner(Atom *selection);
+static char *
+_get_data_as(Atom source, Atom format, unsigned long *length);
 
 /**
  * \brief Converts the passed type into a system specific type to use
@@ -71,32 +79,32 @@ static char* _get_data_as (Atom source, Atom format, unsigned long *length);
  * \return A system specific type.
  */
 static Atom
-_convert_format (char *type)
+_convert_format(char *type)
 {
-    if (strcmp (type, PYGAME_SCRAP_PPM) == 0)
+    if (strcmp(type, PYGAME_SCRAP_PPM) == 0)
         return XA_PIXMAP;
-    if (strcmp (type, PYGAME_SCRAP_PBM) == 0)
+    if (strcmp(type, PYGAME_SCRAP_PBM) == 0)
         return XA_BITMAP;
-    return XInternAtom (SDL_Display, type, False);
+    return XInternAtom(SDL_Display, type, False);
 }
 
 /**
  * \brief Initializes the used atom types.
  */
 static void
-_init_atom_types (void)
+_init_atom_types(void)
 {
-    _atom_UTF8 = XInternAtom (SDL_Display, "UTF8_STRING", False);
-    _atom_TEXT = XInternAtom (SDL_Display, "TEXT", False);
-    _atom_COMPOUND = XInternAtom (SDL_Display, "COMPOUND_TEXT", False);
-    _atom_MIME_PLAIN = XInternAtom (SDL_Display, "text/plain", False);
-    _atom_MIME_UTF8  = XInternAtom (SDL_Display, "text/plain;charset=utf-8",
-                                    False);
-    _atom_TARGETS = XInternAtom (SDL_Display, "TARGETS", False);
-    _atom_TIMESTAMP = XInternAtom (SDL_Display, "TIMESTAMP", False);
-    _atom_SDL = XInternAtom (SDL_Display, "SDL_SELECTION", False);
-    _atom_BMP = XInternAtom (SDL_Display, PYGAME_SCRAP_BMP, False);
-    _atom_CLIPBOARD = XInternAtom (SDL_Display, "CLIPBOARD", False);
+    _atom_UTF8 = XInternAtom(SDL_Display, "UTF8_STRING", False);
+    _atom_TEXT = XInternAtom(SDL_Display, "TEXT", False);
+    _atom_COMPOUND = XInternAtom(SDL_Display, "COMPOUND_TEXT", False);
+    _atom_MIME_PLAIN = XInternAtom(SDL_Display, "text/plain", False);
+    _atom_MIME_UTF8 =
+        XInternAtom(SDL_Display, "text/plain;charset=utf-8", False);
+    _atom_TARGETS = XInternAtom(SDL_Display, "TARGETS", False);
+    _atom_TIMESTAMP = XInternAtom(SDL_Display, "TIMESTAMP", False);
+    _atom_SDL = XInternAtom(SDL_Display, "SDL_SELECTION", False);
+    _atom_BMP = XInternAtom(SDL_Display, PYGAME_SCRAP_BMP, False);
+    _atom_CLIPBOARD = XInternAtom(SDL_Display, "CLIPBOARD", False);
 }
 
 /**
@@ -106,17 +114,17 @@ _init_atom_types (void)
  * \param a The Atom to get the name for.
  * \return The name of the Atom.
  */
-static char*
-_atom_to_string (Atom a)
+static char *
+_atom_to_string(Atom a)
 {
     char *name;
     char *retval;
 
     if (!a)
         return NULL;
-    name = XGetAtomName (SDL_Display, a);
-    retval = strdup (name);
-    XFree (name);
+    name = XGetAtomName(SDL_Display, a);
+    retval = strdup(name);
+    XFree(name);
     return retval;
 }
 
@@ -129,20 +137,20 @@ _atom_to_string (Atom a)
  * \param srclen The length of the data.
  */
 static void
-_add_clip_data (Atom cliptype, char *data, int srclen)
+_add_clip_data(Atom cliptype, char *data, int srclen)
 {
     Atom clip = GET_CLIPATOM(_currentmode);
-    PyObject* dict = (_currentmode == SCRAP_CLIPBOARD) ? _clipdata :
-        _selectiondata;
+    PyObject *dict =
+        (_currentmode == SCRAP_CLIPBOARD) ? _clipdata : _selectiondata;
     PyObject *tmp;
-    char *key = _atom_to_string (cliptype);
+    char *key = _atom_to_string(cliptype);
 
-    tmp = Bytes_FromStringAndSize (data, srclen);
-    PyDict_SetItemString (dict, key, tmp);
-    Py_DECREF (tmp);
-    XChangeProperty (SDL_Display, SDL_Window, clip, cliptype,
-                     8, PropModeReplace, (unsigned char *) data, srclen);
-    free (key);
+    tmp = Bytes_FromStringAndSize(data, srclen);
+    PyDict_SetItemString(dict, key, tmp);
+    Py_DECREF(tmp);
+    XChangeProperty(SDL_Display, SDL_Window, clip, cliptype, 8,
+                    PropModeReplace, (unsigned char *)data, srclen);
+    free(key);
 }
 
 /**
@@ -152,7 +160,7 @@ _add_clip_data (Atom cliptype, char *data, int srclen)
  * \return Always 1.
  */
 static int
-_clipboard_filter (const SDL_Event *event)
+_clipboard_filter(const SDL_Event *event)
 {
     PyObject *dict = NULL;
     Time timestamp = CurrentTime;
@@ -164,116 +172,110 @@ _clipboard_filter (const SDL_Event *event)
     XEvent xevent = event->syswm.msg->event.xevent;
 
     /* Handle window-manager specific clipboard events */
-    switch (xevent.type)
-    {
-    case PropertyNotify:
-    {
-        /* Handled in pygame_scrap_put(). */
-        break;
-    }
-    case SelectionClear:
-    {
-        XSelectionClearEvent *clear = &xevent.xselectionclear;
+    switch (xevent.type) {
+        case PropertyNotify: {
+            /* Handled in pygame_scrap_put(). */
+            break;
+        }
+        case SelectionClear: {
+            XSelectionClearEvent *clear = &xevent.xselectionclear;
 
-        /* Looks like another window takes control over the clipboard.
-         * Release the internally saved buffer, if any.
-         */
-        if (clear->selection == XA_PRIMARY)
-            timestamp = _selectiontime;
-        else if(clear->selection == _atom_CLIPBOARD)
-            timestamp = _cliptime;
-        else
+            /* Looks like another window takes control over the clipboard.
+             * Release the internally saved buffer, if any.
+             */
+            if (clear->selection == XA_PRIMARY)
+                timestamp = _selectiontime;
+            else if (clear->selection == _atom_CLIPBOARD)
+                timestamp = _cliptime;
+            else
+                break;
+
+            /* Do not do anything, if the times do not match. */
+            if (timestamp != CurrentTime &&
+                xevent.xselectionclear.time < timestamp)
+                break;
+
+            /* Clean the dictionaries. */
+            if (clear->selection == XA_PRIMARY)
+                PyDict_Clear(_selectiondata);
+            else if (clear->selection != _atom_CLIPBOARD)
+                PyDict_Clear(_clipdata);
+            break;
+        }
+        case SelectionNotify:
+            /* This one will be handled directly in the pygame_scrap_get ()
+             * function.
+             */
             break;
 
-        /* Do not do anything, if the times do not match. */
-        if (timestamp != CurrentTime && xevent.xselectionclear.time < timestamp)
+        case SelectionRequest: {
+            XSelectionRequestEvent *req = &xevent.xselectionrequest;
+            XEvent ev;
+
+            /* Prepare answer. */
+            ev.xselection.type = SelectionNotify;
+            ev.xselection.display = req->display;
+            ev.xselection.requestor = req->requestor;
+            ev.xselection.selection = req->selection;
+            ev.xselection.target = req->target;
+            ev.xselection.property = None;
+            ev.xselection.time = req->time;
+
+            /* Which clipboard type was requested? */
+            if (req->selection == XA_PRIMARY) {
+                dict = _selectiondata;
+                timestamp = _selectiontime;
+            }
+            else if (req->selection == _atom_CLIPBOARD) {
+                dict = _clipdata;
+                timestamp = _cliptime;
+            }
+            else /* Anything else's not supported. */
+            {
+                XSendEvent(req->display, req->requestor, False, NoEventMask,
+                           &ev);
+                return 1;
+            }
+
+            /* No data? */
+            if (PyDict_Size(dict) == 0) {
+                XSendEvent(req->display, req->requestor, False, NoEventMask,
+                           &ev);
+                return 1;
+            }
+
+            /* We do not own the selection anymore. */
+            if (timestamp == CurrentTime ||
+                (req->time != CurrentTime && timestamp > req->time)) {
+                XSendEvent(req->display, req->requestor, False, NoEventMask,
+                           &ev);
+                return 1;
+            }
+
+            /*
+             * TODO: We have to make it ICCCM compatible at some point by
+             * implementing the MULTIPLE atom request.
+             */
+
+            /* Old client? */
+            if (req->property == None)
+                ev.xselection.property = req->target;
+
+            if (req->target == _atom_TARGETS) {
+                /* The requestor wants to know, what we've got. */
+                _set_targets(dict, req->display, req->requestor,
+                             req->property);
+            }
+            else {
+                _set_data(dict, req->display, req->requestor, req->property,
+                          req->target);
+            }
+
+            ev.xselection.property = req->property;
+            /* Post the event for X11 clipboard reading above */
+            XSendEvent(req->display, req->requestor, False, 0, &ev);
             break;
-
-        /* Clean the dictionaries. */
-        if (clear->selection == XA_PRIMARY)
-            PyDict_Clear (_selectiondata);
-        else if (clear->selection != _atom_CLIPBOARD)
-            PyDict_Clear (_clipdata);
-        break;
-    }
-    case SelectionNotify:
-        /* This one will be handled directly in the pygame_scrap_get ()
-         * function.
-         */
-        break;
-
-    case SelectionRequest:
-    {
-        XSelectionRequestEvent *req = &xevent.xselectionrequest;
-        XEvent ev;
-
-        /* Prepare answer. */
-        ev.xselection.type      = SelectionNotify;
-        ev.xselection.display   = req->display;
-        ev.xselection.requestor = req->requestor;
-        ev.xselection.selection = req->selection;
-        ev.xselection.target    = req->target;
-        ev.xselection.property  = None;
-        ev.xselection.time      = req->time;
-
-        /* Which clipboard type was requested? */
-        if (req->selection == XA_PRIMARY)
-        {
-            dict = _selectiondata;
-            timestamp = _selectiontime;
         }
-        else if (req->selection == _atom_CLIPBOARD)
-        {
-            dict = _clipdata;
-            timestamp = _cliptime;
-
-        }
-        else /* Anything else's not supported. */
-        {
-            XSendEvent (req->display, req->requestor, False, NoEventMask, &ev);
-            return 1;
-        }
-
-        /* No data? */
-        if (PyDict_Size (dict) == 0)
-        {
-            XSendEvent (req->display, req->requestor, False, NoEventMask, &ev);
-            return 1;
-        }
-
-        /* We do not own the selection anymore. */
-        if (timestamp == CurrentTime
-            || (req->time != CurrentTime && timestamp > req->time))
-        {
-            XSendEvent (req->display, req->requestor, False, NoEventMask, &ev);
-            return 1;
-        }
-
-        /*
-         * TODO: We have to make it ICCCM compatible at some point by
-         * implementing the MULTIPLE atom request.
-         */
-
-        /* Old client? */
-        if (req->property == None)
-            ev.xselection.property = req->target;
-
-        if (req->target == _atom_TARGETS)
-        {
-            /* The requestor wants to know, what we've got. */
-            _set_targets (dict, req->display, req->requestor, req->property);
-        }
-        else
-        {
-            _set_data (dict, req->display, req->requestor, req->property,
-                       req->target);
-        }
-
-        ev.xselection.property = req->property;
-        /* Post the event for X11 clipboard reading above */
-        XSendEvent (req->display, req->requestor, False, 0, &ev);
-        break;
-    }
     }
     return 1;
 }
@@ -287,40 +289,39 @@ _clipboard_filter (const SDL_Event *event)
  * \param property The request property to place the list into.
  */
 static void
-_set_targets (PyObject *data, Display *display, Window window, Atom property)
+_set_targets(PyObject *data, Display *display, Window window, Atom property)
 {
     int i;
     char *format;
-    PyObject *list = PyDict_Keys (data);
+    PyObject *list = PyDict_Keys(data);
 #if PY3
     PyObject *chars;
 #endif
-    int amount = PyList_Size (list);
+    int amount = PyList_Size(list);
     /* All types plus the TARGETS and a TIMESTAMP atom. */
-    Atom *targets = malloc ((amount + 2) * sizeof (Atom));
+    Atom *targets = malloc((amount + 2) * sizeof(Atom));
     if (targets == NULL)
         return;
-    memset (targets, 0, (amount + 2) * sizeof (Atom));
+    memset(targets, 0, (amount + 2) * sizeof(Atom));
     targets[0] = _atom_TARGETS;
     targets[1] = _atom_TIMESTAMP;
-    for (i = 0; i < amount; i++)
-    {
+    for (i = 0; i < amount; i++) {
 #if PY3
-        chars = PyUnicode_AsASCIIString (PyList_GetItem (list, i));
+        chars = PyUnicode_AsASCIIString(PyList_GetItem(list, i));
         if (!chars) {
             return;
         }
-        format = PyBytes_AsString (chars);
+        format = PyBytes_AsString(chars);
 #else
-        format = PyString_AsString (PyList_GetItem(list, i));
+        format = PyString_AsString(PyList_GetItem(list, i));
 #endif
-        targets[i + 2] = _convert_format (format);
+        targets[i + 2] = _convert_format(format);
 #if PY3
-        Py_DECREF (chars);
+        Py_DECREF(chars);
 #endif
     }
-    XChangeProperty (display, window, property, XA_ATOM, 32, PropModeReplace,
-                     (unsigned char*) targets, amount + 2);
+    XChangeProperty(display, window, property, XA_ATOM, 32, PropModeReplace,
+                    (unsigned char *)targets, amount + 2);
 }
 
 /**
@@ -334,26 +335,25 @@ _set_targets (PyObject *data, Display *display, Window window, Atom property)
  * \return 0 if no data for the target is available, 1 on success.
  */
 static int
-_set_data (PyObject *data, Display *display, Window window, Atom property,
-           Atom target)
+_set_data(PyObject *data, Display *display, Window window, Atom property,
+          Atom target)
 {
-    char *name = _atom_to_string (target);
-    PyObject *val = PyDict_GetItemString (data, name);
+    char *name = _atom_to_string(target);
+    PyObject *val = PyDict_GetItemString(data, name);
     char *value = NULL;
     int size;
 
-    if (!val)
-    {
-        XFree (name);
+    if (!val) {
+        XFree(name);
         return 0;
     }
-    size = Bytes_Size (val);
-    value = Bytes_AsString (val);
+    size = Bytes_Size(val);
+    value = Bytes_AsString(val);
 
     /* Send data. */
-    XChangeProperty (display, window, property, target, 8, PropModeReplace,
-                     (unsigned char *) value, size);
-    XFree (name);
+    XChangeProperty(display, window, property, target, 8, PropModeReplace,
+                    (unsigned char *)value, size);
+    XFree(name);
     return 1;
 }
 
@@ -374,27 +374,25 @@ _set_data (PyObject *data, Display *display, Window window, Atom property,
  *         found.
  */
 static Window
-_get_scrap_owner (Atom *selection)
+_get_scrap_owner(Atom *selection)
 {
     int i = 0;
-    static Atom buffers[] = { XA_PRIMARY, XA_SECONDARY, XA_CUT_BUFFER0,
-                              XA_CUT_BUFFER1, XA_CUT_BUFFER2, XA_CUT_BUFFER3,
-                              XA_CUT_BUFFER4, XA_CUT_BUFFER5, XA_CUT_BUFFER6,
-                              XA_CUT_BUFFER7 };
+    static Atom buffers[] = {XA_PRIMARY,     XA_SECONDARY,   XA_CUT_BUFFER0,
+                             XA_CUT_BUFFER1, XA_CUT_BUFFER2, XA_CUT_BUFFER3,
+                             XA_CUT_BUFFER4, XA_CUT_BUFFER5, XA_CUT_BUFFER6,
+                             XA_CUT_BUFFER7};
 
-    Window owner = XGetSelectionOwner (SDL_Display, *selection);
+    Window owner = XGetSelectionOwner(SDL_Display, *selection);
     if (owner != None)
         return owner;
 
-    owner = XGetSelectionOwner (SDL_Display, _atom_CLIPBOARD);
+    owner = XGetSelectionOwner(SDL_Display, _atom_CLIPBOARD);
     if (owner != None)
         return owner;
 
-    while (i < 10)
-    {
-        owner = XGetSelectionOwner (SDL_Display, buffers[i]);
-        if (owner != None)
-        {
+    while (i < 10) {
+        owner = XGetSelectionOwner(SDL_Display, buffers[i]);
+        if (owner != None) {
             *selection = buffers[i];
             return owner;
         }
@@ -415,8 +413,8 @@ _get_scrap_owner (Atom *selection)
  * \return The requested content or NULL in case no content exists or an
  * error occured.
  */
-static char*
-_get_data_as (Atom source, Atom format, unsigned long *length)
+static char *
+_get_data_as(Atom source, Atom format, unsigned long *length)
 {
     unsigned char *retval = NULL;
     Window owner;
@@ -436,56 +434,51 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     /* If we are the owner, simply return the clip buffer, if it matches
      * the request type.
      */
-    if (!pygame_scrap_lost ())
-    {
+    if (!pygame_scrap_lost()) {
         char *fmt;
         char *data;
 
-        fmt = _atom_to_string (format);
+        fmt = _atom_to_string(format);
 
         if (_currentmode == SCRAP_SELECTION)
-            data = Bytes_AsString
-                (PyDict_GetItemString (_selectiondata, fmt));
+            data = Bytes_AsString(PyDict_GetItemString(_selectiondata, fmt));
         else
-            data = Bytes_AsString (PyDict_GetItemString (_clipdata, fmt));
-        free (fmt);
+            data = Bytes_AsString(PyDict_GetItemString(_clipdata, fmt));
+        free(fmt);
 
         return data;
     }
 
-    Lock_Display ();
+    Lock_Display();
 
     /* Find a selection owner. */
-    owner = _get_scrap_owner (&source);
-    if (owner == None)
-    {
-        Unlock_Display ();
+    owner = _get_scrap_owner(&source);
+    if (owner == None) {
+        Unlock_Display();
         return NULL;
     }
 
-    timestamp = (source == XA_PRIMARY) ?  _selectiontime : _cliptime;
+    timestamp = (source == XA_PRIMARY) ? _selectiontime : _cliptime;
 
     /* Copy and convert the selection into our SDL_SELECTION atom of the
      * window.
      * Flush afterwards, so we have an immediate effect and do not receive
      * the old buffer anymore.
      */
-    XConvertSelection (SDL_Display, source, format, _atom_SDL, SDL_Window,
-                       timestamp);
-    XSync (SDL_Display, False);
+    XConvertSelection(SDL_Display, source, format, _atom_SDL, SDL_Window,
+                      timestamp);
+    XSync(SDL_Display, False);
 
     /* Let's wait for the SelectionNotify event from the callee and
      * react upon it as soon as it is received.
      */
-    for (start = time (0);;)
-    {
-        if (XCheckTypedWindowEvent (SDL_Display, SDL_Window,
-                                    SelectionNotify, &ev))
+    for (start = time(0);;) {
+        if (XCheckTypedWindowEvent(SDL_Display, SDL_Window, SelectionNotify,
+                                   &ev))
             break;
-        if (time (0) - start >= 5)
-        {
+        if (time(0) - start >= 5) {
             /* Timeout, damn. */
-            Unlock_Display ();
+            Unlock_Display();
             return NULL;
         }
     }
@@ -493,13 +486,11 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     /* Get any property type and check the sel_type afterwards to decide
      * what to do.
      */
-    if (XGetWindowProperty (SDL_Display, ev.xselection.requestor,
-                            _atom_SDL, 0, 0, True,
-                            AnyPropertyType, &sel_type, &sel_format,
-                            &nbytes, &overflow, &src) != Success)
-    {
-        XFree (src);
-        Unlock_Display ();
+    if (XGetWindowProperty(SDL_Display, ev.xselection.requestor, _atom_SDL, 0,
+                           0, True, AnyPropertyType, &sel_type, &sel_format,
+                           &nbytes, &overflow, &src) != Success) {
+        XFree(src);
+        Unlock_Display();
         return NULL;
     }
 
@@ -507,60 +498,55 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
      * XA_STRING, XA_COMPOUND_TEXT, UTF8_STRING and TEXT is valid.
      */
     if (format == _atom_MIME_PLAIN &&
-        (sel_type != _atom_UTF8 && sel_type != _atom_TEXT
-         && sel_type != _atom_COMPOUND && sel_type != XA_STRING))
-    {
+        (sel_type != _atom_UTF8 && sel_type != _atom_TEXT &&
+         sel_type != _atom_COMPOUND && sel_type != XA_STRING)) {
         /* No matching text type found. Return nothing then. */
-        XFree (src);
-        Unlock_Display ();
+        XFree(src);
+        Unlock_Display();
         return NULL;
     }
 
     /* Anything is fine, so copy the buffer and return it. */
-    switch (sel_format)
-    {
-    case 16:
-        step = sizeof (short) / 2;
-        break;
-    case 32:
-        step = sizeof (long) / 4;
-        break;
-    case 8:
-    default:
-        step = sizeof (char);
-        *length = overflow; /* 8 bit size is already correctly set in nbytes.*/
-        break;
+    switch (sel_format) {
+        case 16:
+            step = sizeof(short) / 2;
+            break;
+        case 32:
+            step = sizeof(long) / 4;
+            break;
+        case 8:
+        default:
+            step = sizeof(char);
+            *length =
+                overflow; /* 8 bit size is already correctly set in nbytes.*/
+            break;
     }
 
     /* X11 guarantees NULL termination, add an extra byte. */
     *length = step * overflow;
-    retval = malloc (*length + 1);
-    if (retval)
-    {
+    retval = malloc(*length + 1);
+    if (retval) {
         unsigned long boffset = 0;
         chunk = MAX_CHUNK_SIZE(SDL_Display);
-        memset (retval, 0, (size_t) (*length + 1));
+        memset(retval, 0, (size_t)(*length + 1));
 
         /* Read as long as there is data. */
-        while (overflow)
-        {
-            if (XGetWindowProperty (SDL_Display, ev.xselection.requestor,
-                                    _atom_SDL, offset, chunk, True,
-                                    AnyPropertyType, &sel_type, &sel_format,
-                                    &nbytes, &overflow, &src) != Success)
-            {
+        while (overflow) {
+            if (XGetWindowProperty(SDL_Display, ev.xselection.requestor,
+                                   _atom_SDL, offset, chunk, True,
+                                   AnyPropertyType, &sel_type, &sel_format,
+                                   &nbytes, &overflow, &src) != Success) {
                 break;
             }
 
             offset += nbytes / (32 / sel_format);
             nbytes *= step * sel_format / 8;
-            memcpy (retval + boffset, src, nbytes);
+            memcpy(retval + boffset, src, nbytes);
             boffset += nbytes;
-            XFree (src);
+            XFree(src);
         }
     }
-    else
-    {
+    else {
         /* ENOMEM */
         return NULL;
     }
@@ -568,8 +554,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     /* In case we've got a COMPOUND_TEXT, convert it to the current
      * multibyte locale.
      */
-    if (sel_type == _atom_COMPOUND && sel_format == 8)
-    {
+    if (sel_type == _atom_COMPOUND && sel_format == 8) {
         char **list = NULL;
         int count;
         int status = 0;
@@ -580,71 +565,63 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
         p.nitems = nbytes;
         p.value = retval;
 
-        status = XmbTextPropertyToTextList (SDL_Display, &p, &list, &count);
-        if (status == XLocaleNotSupported || status == XConverterNotFound)
-        {
-            free (retval);
-            PyErr_SetString (pgExc_SDLError,
-                             "current locale is not supported for conversion.");
+        status = XmbTextPropertyToTextList(SDL_Display, &p, &list, &count);
+        if (status == XLocaleNotSupported || status == XConverterNotFound) {
+            free(retval);
+            PyErr_SetString(pgExc_SDLError,
+                            "current locale is not supported for conversion.");
             return NULL;
         }
-        else if (status == XNoMemory)
-        {
-            free (retval);
+        else if (status == XNoMemory) {
+            free(retval);
             return NULL;
         }
-        else if (status == Success)
-        {
-            if (count && list)
-            {
+        else if (status == Success) {
+            if (count && list) {
                 int i = 0;
                 int ioffset = 0;
                 unsigned char *tmp;
 
-                free (retval);
+                free(retval);
                 retval = NULL;
-                for (i = 0; i < count; i++)
-                {
-                    *length = strlen (list[i]);
+                for (i = 0; i < count; i++) {
+                    *length = strlen(list[i]);
                     tmp = retval;
-                    retval = realloc (retval, (*length) + 1);
-                    if (!retval)
-                    {
-                        free (tmp);
+                    retval = realloc(retval, (*length) + 1);
+                    if (!retval) {
+                        free(tmp);
                         return NULL;
                     }
                     ioffset += *length;
 
-                    memcpy (retval, list[i], *length);
-                    memset (retval + ioffset, '\n', 1);
+                    memcpy(retval, list[i], *length);
+                    memset(retval + ioffset, '\n', 1);
                 }
-                memset (retval + ioffset, 0, 1);
+                memset(retval + ioffset, 0, 1);
             }
         }
 
         if (list)
-            XFreeStringList (list);
+            XFreeStringList(list);
     }
 
-    Unlock_Display ();
+    Unlock_Display();
     return (char *)retval;
 }
 
 int
-pygame_scrap_init (void)
+pygame_scrap_init(void)
 {
     SDL_SysWMinfo info;
     int retval = 0;
 
     /* Grab the window manager specific information */
-    SDL_SetError ("SDL is not running on known window manager");
+    SDL_SetError("SDL is not running on known window manager");
 
-    SDL_VERSION (&info.version);
-    if (SDL_GetWMInfo (&info))
-    {
+    SDL_VERSION(&info.version);
+    if (SDL_GetWMInfo(&info)) {
         /* Save the information for later use */
-        if (info.subsystem == SDL_SYSWM_X11)
-        {
+        if (info.subsystem == SDL_SYSWM_X11) {
             XWindowAttributes setattrs;
             XSetWindowAttributes newattrs;
 
@@ -655,29 +632,29 @@ pygame_scrap_init (void)
             Lock_Display = info.info.x11.lock_func;
             Unlock_Display = info.info.x11.unlock_func;
 
-            Lock_Display ();
+            Lock_Display();
 
             /* We need the PropertyNotify event for the timestap, so
              * modify the event attributes.
              */
-            XGetWindowAttributes (SDL_Display, SDL_Window, &setattrs);
+            XGetWindowAttributes(SDL_Display, SDL_Window, &setattrs);
             newattrs.event_mask |= setattrs.all_event_masks;
-            XChangeWindowAttributes
-                (SDL_Display, SDL_Window, CWEventMask, &newattrs);
+            XChangeWindowAttributes(SDL_Display, SDL_Window, CWEventMask,
+                                    &newattrs);
 
-            Unlock_Display ();
+            Unlock_Display();
 
             /* Enable the special window hook events */
-            SDL_EventState (SDL_SYSWMEVENT, SDL_ENABLE);
-            SDL_SetEventFilter (_clipboard_filter);
+            SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+            SDL_SetEventFilter(_clipboard_filter);
 
             /* Create the atom types we need. */
-            _init_atom_types ();
+            _init_atom_types();
 
             retval = 1;
         }
         else
-            SDL_SetError ("SDL is not running on X11");
+            SDL_SetError("SDL is not running on X11");
     }
     if (retval)
         _scrapinitialized = 1;
@@ -686,26 +663,25 @@ pygame_scrap_init (void)
 }
 
 int
-pygame_scrap_lost (void)
+pygame_scrap_lost(void)
 {
     int retval;
 
-    if (!pygame_scrap_initialized ())
-    {
-        PyErr_SetString (pgExc_SDLError, "scrap system not initialized.");
+    if (!pygame_scrap_initialized()) {
+        PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
 
-    Lock_Display ();
-    retval = (XGetSelectionOwner (SDL_Display, GET_CLIPATOM (_currentmode))
-              != SDL_Window);
-    Unlock_Display ();
+    Lock_Display();
+    retval = (XGetSelectionOwner(SDL_Display, GET_CLIPATOM(_currentmode)) !=
+              SDL_Window);
+    Unlock_Display();
 
     return retval;
 }
 
 int
-pygame_scrap_put (char *type, int srclen, char *src)
+pygame_scrap_put(char *type, int srclen, char *src)
 {
     Atom clip;
     Atom cliptype;
@@ -713,56 +689,50 @@ pygame_scrap_put (char *type, int srclen, char *src)
     time_t start;
     XEvent ev;
 
-    if (!pygame_scrap_initialized ())
-    {
-        PyErr_SetString (pgExc_SDLError, "scrap system not initialized.");
+    if (!pygame_scrap_initialized()) {
+        PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
 
-    Lock_Display ();
+    Lock_Display();
 
-    clip = GET_CLIPATOM (_currentmode);
-    cliptype = _convert_format (type);
+    clip = GET_CLIPATOM(_currentmode);
+    cliptype = _convert_format(type);
 
     /* We've some types which should not be set by the user. */
-    if (cliptype == _atom_TARGETS || cliptype == _atom_SDL
-        || cliptype == _atom_TIMESTAMP)
-    {
-        PyErr_SetString (PyExc_ValueError, "the requested type is reserved.");
-        Unlock_Display ();
+    if (cliptype == _atom_TARGETS || cliptype == _atom_SDL ||
+        cliptype == _atom_TIMESTAMP) {
+        PyErr_SetString(PyExc_ValueError, "the requested type is reserved.");
+        Unlock_Display();
         return 0;
     }
 
     /* Update the clipboard property with the buffer. */
-    XChangeProperty (SDL_Display, SDL_Window, clip, cliptype,
-                     8, PropModeReplace, (unsigned char *) src, srclen);
+    XChangeProperty(SDL_Display, SDL_Window, clip, cliptype, 8,
+                    PropModeReplace, (unsigned char *)src, srclen);
 
-    if (cliptype == _atom_MIME_PLAIN)
-    {
+    if (cliptype == _atom_MIME_PLAIN) {
         /* Set PYGAME_SCRAP_TEXT. Also set XA_STRING, TEXT and
          * UTF8_STRING if they are not set in the dictionary.
          */
-        _add_clip_data (XA_STRING, src, srclen);
-        _add_clip_data (_atom_UTF8, src, srclen);
-        _add_clip_data (_atom_TEXT, src, srclen);
+        _add_clip_data(XA_STRING, src, srclen);
+        _add_clip_data(_atom_UTF8, src, srclen);
+        _add_clip_data(_atom_TEXT, src, srclen);
     }
-    XSync (SDL_Display, False);
+    XSync(SDL_Display, False);
 
     /* Update the timestamp */
-    for (start = time (0);;)
-    {
-        if (XCheckTypedWindowEvent (SDL_Display, SDL_Window,
-                                    PropertyNotify, &ev))
+    for (start = time(0);;) {
+        if (XCheckTypedWindowEvent(SDL_Display, SDL_Window, PropertyNotify,
+                                   &ev))
             break;
-        if (time (0) - start >= 5)
-        {
+        if (time(0) - start >= 5) {
             /* Timeout, damn. */
-            Unlock_Display ();
+            Unlock_Display();
             goto SETSELECTIONOWNER;
         }
     }
-    if (ev.xproperty.atom == clip)
-    {
+    if (ev.xproperty.atom == clip) {
         timestamp = ev.xproperty.time;
 
         if (clip == XA_PRIMARY)
@@ -775,94 +745,87 @@ pygame_scrap_put (char *type, int srclen, char *src)
 
 SETSELECTIONOWNER:
     /* Set the selection owner to the own window. */
-    XSetSelectionOwner (SDL_Display, clip, SDL_Window, timestamp);
-    if (XGetSelectionOwner (SDL_Display, clip) != SDL_Window)
-    {
+    XSetSelectionOwner(SDL_Display, clip, SDL_Window, timestamp);
+    if (XGetSelectionOwner(SDL_Display, clip) != SDL_Window) {
         /* Ouch, we could not toggle the selection owner. Raise an
          * error, as it's not guaranteed, that the clipboard
          * contains valid data.
          */
-        Unlock_Display ();
+        Unlock_Display();
         return 0;
     }
 
-    Unlock_Display ();
+    Unlock_Display();
     return 1;
 }
 
-char*
-pygame_scrap_get (char *type, unsigned long *count)
+char *
+pygame_scrap_get(char *type, unsigned long *count)
 {
-    if (!pygame_scrap_initialized ())
-    {
-        PyErr_SetString (pgExc_SDLError, "scrap system not initialized.");
+    if (!pygame_scrap_initialized()) {
+        PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return NULL;
     }
-    return _get_data_as (GET_CLIPATOM (_currentmode),
-                         _convert_format (type), count);
+    return _get_data_as(GET_CLIPATOM(_currentmode), _convert_format(type),
+                        count);
 }
 
 int
-pygame_scrap_contains (char *type)
+pygame_scrap_contains(char *type)
 {
     int i = 0;
-    char **types = pygame_scrap_get_types ();
-    while (types[i])
-    {
-        if (strcmp (type, types[i]) == 0)
+    char **types = pygame_scrap_get_types();
+    while (types[i]) {
+        if (strcmp(type, types[i]) == 0)
             return 1;
         i++;
     }
     return 0;
 }
 
-char**
-pygame_scrap_get_types (void)
+char **
+pygame_scrap_get_types(void)
 {
     char **types;
     Atom *targetdata;
     unsigned long length;
 
-    if (!pygame_scrap_lost ())
-    {
+    if (!pygame_scrap_lost()) {
         PyObject *key;
 #if PY3
         PyObject *chars;
 #endif
         int pos = 0;
         int i = 0;
-        PyObject *dict = (_currentmode == SCRAP_SELECTION) ? _selectiondata :
-            _clipdata;
+        PyObject *dict =
+            (_currentmode == SCRAP_SELECTION) ? _selectiondata : _clipdata;
 
-        types = malloc (sizeof (char*) * (PyDict_Size (dict) + 1));
+        types = malloc(sizeof(char *) * (PyDict_Size(dict) + 1));
         if (!types)
             return NULL;
 
-        memset (types, 0, (size_t) (PyDict_Size (dict) + 1));
-        while (PyDict_Next (dict, &pos, &key, NULL))
-        {
+        memset(types, 0, (size_t)(PyDict_Size(dict) + 1));
+        while (PyDict_Next(dict, &pos, &key, NULL)) {
 #if PY3
-            chars = PyUnicode_AsASCIIString (key);
+            chars = PyUnicode_AsASCIIString(key);
             if (chars) {
-                types[i] = strdup (PyBytes_AsString (chars));
-                Py_DECREF (chars);
+                types[i] = strdup(PyBytes_AsString(chars));
+                Py_DECREF(chars);
             }
             else {
                 types[i] = NULL;
             }
 #else
-             types[i] = strdup (PyString_AsString (key));
+            types[i] = strdup(PyString_AsString(key));
 #endif
-            if (!types[i])
-            {
+            if (!types[i]) {
                 /* Could not allocate memory, free anything. */
                 int j = 0;
-                while (types[j])
-                {
-                    free (types[j]);
+                while (types[j]) {
+                    free(types[j]);
                     j++;
                 }
-                free (types);
+                free(types);
                 return NULL;
             }
             i++;
@@ -871,27 +834,25 @@ pygame_scrap_get_types (void)
         return types;
     }
 
-    targetdata = (Atom *) _get_data_as (GET_CLIPATOM (_currentmode),
-                                        _atom_TARGETS, &length);
-    if (length > 0 && targetdata != NULL)
-    {
-        Atom *data =  targetdata;
-        int count = length / sizeof (Atom);
+    targetdata = (Atom *)_get_data_as(GET_CLIPATOM(_currentmode),
+                                      _atom_TARGETS, &length);
+    if (length > 0 && targetdata != NULL) {
+        Atom *data = targetdata;
+        int count = length / sizeof(Atom);
         int i;
-        char **targets  = malloc (sizeof (char *) * (count + 1));
+        char **targets = malloc(sizeof(char *) * (count + 1));
 
-        if (targets == NULL)
-        {
-            free (targetdata);
+        if (targets == NULL) {
+            free(targetdata);
             return NULL;
         }
-        memset (targets, 0, sizeof (char *) * (count + 1));
+        memset(targets, 0, sizeof(char *) * (count + 1));
 
         for (i = 0; i < count; i++)
-            targets[i] = _atom_to_string (data[i]);
+            targets[i] = _atom_to_string(data[i]);
 
-        free (targetdata);
+        free(targetdata);
         return targets;
-   }
+    }
     return NULL;
 }
