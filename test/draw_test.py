@@ -257,48 +257,61 @@ class DrawModuleTest(unittest.TestCase):
           # filled.
           #
 
-        sizes = [(4, 4), (5, 4), (4, 5), (5, 5)]
+        left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        sizes = [(5, 4)]
         color = (1, 13, 24, 255)
+<<<<<<< HEAD
+=======
+    
+        def get_border_values(surface, width, height):
+            """
+            Returns a list containing lists with the values of the surface's
+            borders.
+            """
+            border_top = [surface.get_at((x, 0)) for x in range(width)]
+            border_left = [surface.get_at((0, y)) for y in range(height)]
+            border_right = [
+                surface.get_at((width - 1, y)) for y in range(height)]
+            border_bottom = [
+                surface.get_at((x, height - 1)) for x in range(width)]
+
+            return [border_top, border_left, border_right, border_bottom]
+
+        def same_size(width, height, border_width):
+            """
+            Test for ellipses with the same size as the surface.
+            """
+            surface = pygame.Surface((width, height))
+
+            draw.ellipse(
+                surface, color, (0, 0, height, width), border_width)            
+
+            # For each of the four borders check if it contains the color
+            borders = get_border_values(surface, width, height)
+            for border in borders:
+                self.assertTrue(color in border)
+
+        def not_same_size(width, height, border_width, left, top):
+            """
+            Test for ellipses that aren't the same size as the surface.
+            """
+            surface = pygame.Surface((width, height))
+
+            draw.ellipse(surface, color, (left, top, width - 1, height - 1),
+                         border_width)
+
+            borders = get_border_values(surface, width, height)
+
+            # Check if two sides of the ellipse are touching the surface's border
+            sides_touching = [color in border for border in borders].count(True)
+            self.assertEqual(sides_touching, 2)
+>>>>>>> Update test_ellipse for ellipses not same size surface
 
         for width, height in sizes:
             for border_width in (0, 1):
-                surface = pygame.Surface((width, height))
-
-                draw.ellipse(
-                    surface, color, (0, 0, height, width), border_width)
-
-                # Get all positions of the surface's borders
-                border_top = []
-                border_left = []
-                border_right = []
-                border_bottom = []
-                for x in range(width):
-                    for y in range(height):
-                        try:
-                            surface.get_at((x, y - 1))
-                        except IndexError:
-                            border_top.append((x, y))
-
-                        try:
-                            surface.get_at((x - 1, y))
-                        except IndexError:
-                            border_left.append((x, y))
-
-                        try:
-                            surface.get_at((x + 1, y))
-                        except IndexError:
-                            border_right.append((x, y))
-
-                        try:
-                            surface.get_at((x, y + 1))
-                        except IndexError:
-                            border_bottom.append((x, y))
-
-                # For each of the four borders check if it contains the color
-                borders = [border_top, border_left, border_right, border_bottom]
-                for border in borders:
-                    colors = [surface.get_at(position) for position in border]
-                    self.assertTrue(color in colors)
+                same_size(width, height, border_width)
+                for left, top in left_top:
+                    not_same_size(width, height, border_width, left, top)
 
     def todo_test_lines(self):
 
