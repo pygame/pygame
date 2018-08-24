@@ -667,11 +667,11 @@ class GfxdrawDefaultTest( unittest.TestCase ):
 
         # Alpha blit to 8 bits-per-pixel surface forbidden.
         texture = pygame.Surface(self.default_size, SRCALPHA, 32)
-        self.failUnlessRaises(ValueError,
-                              pygame.gfxdraw.textured_polygon,
-                              self.surfaces[0],
-                              points,
-                              texture, 0, 0)
+        self.assertRaises(ValueError,
+                          pygame.gfxdraw.textured_polygon,
+                          self.surfaces[0],
+                          points,
+                          texture, 0, 0)
 
     def test_bezier(self):
         """bezier(surface, points, steps, color): return None"""

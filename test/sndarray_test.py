@@ -144,7 +144,7 @@ class SndarrayTest (unittest.TestCase):
         pygame.sndarray.use_arraytype('numpy')
         self.assertEqual(pygame.sndarray.get_arraytype(), 'numpy')
 
-        self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
+        self.assertRaises(ValueError, do_use_arraytype, 'not an option')
 
 
 if __name__ == '__main__':

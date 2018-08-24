@@ -1,31 +1,13 @@
 import sys
-
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
+
 import platform
 IS_PYPY = 'PyPy' == platform.python_implementation()
 
-if is_pygame_pkg:
-    try:
-        from pygame.tests.test_utils import arrinter
-    except NameError:
-        pass
-else:
-    try:
-        from test.test_utils import arrinter
-    except NameError:
-        pass
+try:
+    from pygame.tests.test_utils import arrinter
+except NameError:
+    pass
 import pygame
 
 
@@ -44,7 +26,9 @@ def quit_hook():
     global quit_hook_ran
     quit_hook_ran = 1
 
+
 class BaseModuleTest(unittest.TestCase):
+
     def testAutoInit(self):
         pygame.init()
         pygame.quit()
@@ -221,7 +205,8 @@ class BaseModuleTest(unittest.TestCase):
             o = Exporter(shape, typechar, itemsize)
             self.assertEqual(getrefcount(o.__array_struct__), 1)
 
-    if (pygame.HAVE_NEWBUF):
+    if pygame.HAVE_NEWBUF:
+        from pygame.tests.test_utils import buftools
         def test_newbuf(self):
             self.NEWBUF_test_newbuf()
         def test_PgDict_AsBuffer_PyBUF_flags(self):
@@ -230,10 +215,6 @@ class BaseModuleTest(unittest.TestCase):
             self.NEWBUF_test_PgObject_AsBuffer_PyBUF_flags()
         def test_bad_format(self):
             self.NEWBUF_test_bad_format()
-        if is_pygame_pkg:
-            from pygame.tests.test_utils import buftools
-        else:
-            from test.test_utils import buftools
 
     def NEWBUF_assertSame(self, proxy, exp):
         buftools = self.buftools
