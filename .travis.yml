@@ -3,9 +3,8 @@ language: python
 cache:
   directories:
     - $HOME/.cache/pip
+    - $HOME/Library/Caches/Homebrew
     - /Library/Caches/Homebrew
-#     - $HOME/.ccache
-#     - $HOME/Library/Caches/pip
 
 matrix:
   include:
@@ -25,9 +24,11 @@ matrix:
       sudo: required
       python: 3.7
       dist: xenial
-    - os: linux
-      sudo: required
-      python: pypy
+
+    # pypy build is broken. The pypy on travis is really old.
+    # - os: linux
+    #   sudo: required
+    #   python: pypy
 
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
