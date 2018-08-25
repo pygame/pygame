@@ -2,6 +2,74 @@ import unittest
 from pygame.tests import test_utils
 import pygame
 from pygame import draw
+from pygame.locals import SRCALPHA
+
+
+def get_border_values(surface, width, height):
+    """
+    Returns a list containing lists with the values of the surface's
+    borders.
+    """
+    border_top = [surface.get_at((x, 0)) for x in range(width)]
+    border_left = [surface.get_at((0, y)) for y in range(height)]
+    border_right = [
+        surface.get_at((width - 1, y)) for y in range(height)]
+    border_bottom = [
+        surface.get_at((x, height - 1)) for x in range(width)]
+
+    return [border_top, border_left, border_right, border_bottom]
+
+
+def lines_are_color(surface, color, line_type="lines"):
+    """
+    Draws aalines around the border of the given surface and checks if
+    all borders of the surface contain the given color.
+    """
+    width = surface.get_width()
+    height = surface.get_height()
+    points = [(0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1)]
+
+    if line_type == "aalines":
+        draw.aalines(surface, color, True, points)
+    else:
+        draw.lines(surface, color, True, points)
+
+    borders = get_border_values(surface, width, height)
+    return [color in border for border in borders]
+
+
+def lines_set_up():
+    """
+    Returns the colors and surfaces needed in the tests for draw.line,
+    draw.aaline, draw.lines and draw.aalines.
+    """
+    colors = [
+            (0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+            (255, 0, 255), (0, 255, 255), (255, 255, 255)]
+        
+    # Create each possible surface type
+    surface_default = pygame.display.set_mode((50, 50))
+    surface_default_SRCALPHA = pygame.Surface((50, 50), SRCALPHA)
+    surface_alpha = surface_default.convert_alpha()
+    surface_alpha_SRCALPHA = surface_default_SRCALPHA.convert_alpha()
+
+    surfaces = [surface_default, surface_alpha, surface_alpha_SRCALPHA,
+                surface_alpha_SRCALPHA]
+
+    return colors, surfaces
+
+
+def line_is_color(surface, color, line_type="line"):
+    """
+    Returns True if the line is drawn with the correct color on the
+    given surface.
+    """
+    if line_type == "aaline":
+        draw.aaline(surface, color, (0, 0), (1, 0))
+    else:
+        draw.line(surface, color, (0, 0), (1, 0))
+
+    return surface.get_at((0, 0)) == color
 
 
 class DrawModuleTest(unittest.TestCase):
@@ -145,42 +213,15 @@ class DrawModuleTest(unittest.TestCase):
             msg += ", %s" % (rec,)
             self.assert_(rec == (rx, ry, w, h), msg)
 
-    def test_line_for_gaps(self):
-        """ |tags: ignore|
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                self.assertTrue(line_is_color(surface, color))
+
+    def test_aaline(self):
+        """ |tags: ignore| 
         """
-        # __doc__ (as of 2008-06-25) for pygame.draw.line:
-
-          # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
-          # draw a straight line segment
-
-        # This checks bug Thick Line Bug #448
-
-        width = 200
-        height = 200
-        surf = pygame.Surface((width, height), pygame.SRCALPHA)
-
-        def white_surrounded_pixels(x, y):
-            offsets = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-            WHITE = (255, 255, 255, 255)
-            return len([1 for dx, dy in offsets
-                        if surf.get_at((x+dx, y+dy)) == WHITE])
-
-        def check_white_line(start, end):
-            surf.fill((0, 0, 0))
-            pygame.draw.line(surf, (255, 255, 255), start, end, 30)
-
-            BLACK = (0, 0, 0, 255)
-            for x in range(1, width-1):
-                for y in range(1, height-1):
-                    if surf.get_at((x, y)) == BLACK:
-                        self.assertTrue(white_surrounded_pixels(x, y) < 3)
-
-        check_white_line((50, 50), (140, 0))
-        check_white_line((50, 50), (0, 120))
-        check_white_line((50, 50), (199, 198))
-
-    def todo_test_aaline(self):
-
         # __doc__ (as of 2008-08-02) for pygame.draw.aaline:
 
           # pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect
@@ -193,10 +234,15 @@ class DrawModuleTest(unittest.TestCase):
           # function accepts floating point values for the end points.
           #
 
-        self.fail()
+        colors, surfaces = lines_set_up()
+        
+        for surface in surfaces:
+            for color in colors:
+                self.assertTrue(line_is_color(surface, color, "aaline"))
 
-    def todo_test_aalines(self):
-
+    def test_aalines(self):
+        """ |tags: ignore| 
+        """
         # __doc__ (as of 2008-08-02) for pygame.draw.aalines:
 
           # pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
@@ -209,7 +255,12 @@ class DrawModuleTest(unittest.TestCase):
           # floating point values for the end points.
           #
 
-        self.fail()
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                in_border = lines_are_color(surface, color, "aalines")
+                self.assertTrue(in_border.count(True) == 4)
 
     def todo_test_arc(self):
 
@@ -260,8 +311,6 @@ class DrawModuleTest(unittest.TestCase):
         left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
         sizes = [(5, 4)]
         color = (1, 13, 24, 255)
-<<<<<<< HEAD
-=======
     
         def get_border_values(surface, width, height):
             """
@@ -305,7 +354,6 @@ class DrawModuleTest(unittest.TestCase):
             # Check if two sides of the ellipse are touching the surface's border
             sides_touching = [color in border for border in borders].count(True)
             self.assertEqual(sides_touching, 2)
->>>>>>> Update test_ellipse for ellipses not same size surface
 
         for width, height in sizes:
             for border_width in (0, 1):
@@ -313,7 +361,7 @@ class DrawModuleTest(unittest.TestCase):
                 for left, top in left_top:
                     not_same_size(width, height, border_width, left, top)
 
-    def todo_test_lines(self):
+    def test_lines(self):
 
         # __doc__ (as of 2008-08-02) for pygame.draw.lines:
 
@@ -329,7 +377,12 @@ class DrawModuleTest(unittest.TestCase):
           # corners and wide line widths can have improper looking corners.
           #
 
-        self.fail()
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                in_border = lines_are_color(surface, color)
+                self.assertTrue(in_border.count(True) == 4)
 
     def todo_test_polygon(self):
 
