@@ -68,8 +68,6 @@ class MidiTest( unittest.TestCase ):
             o.note_on(5, 30, 0)
             o.note_off(5, 30, 0)
 
-
-
     def test_note_on(self):
         """|tags: interactive|
         """
@@ -98,32 +96,39 @@ class MidiTest( unittest.TestCase ):
 
         self.fail()
 
-    def todo_test_write(self):
+    def test_write(self):
 
-        # __doc__ (as of 2009-05-19) for pygame.midi.Output.write:
+        m_id = pygame.midi.get_default_output_id()
+        if m_id == -1:
+            self.skipTest('No midi device')
+        out = pygame.midi.Output(m_id)
+        data = []
+        out.write([[[0xc0, 0, 0], 20000]])
+        # is equivalent to
+        out.write([[[0xc0], 20000]])
+        # example from the docstring :
+        # 1. choose program change 1 at time 20000 and
+        # 2. send note 65 with velocity 100 500 ms later
+        out.write([
+            [[0xc0, 0, 0], 20000],
+            [[0x90, 60, 100], 20500]
+        ])
 
-          # writes a list of midi data to the Output.
-          # Output.write(data)
-          #
-          # writes series of MIDI information in the form of a list:
-          #      write([[[status <,data1><,data2><,data3>],timestamp],
-          #             [[status <,data1><,data2><,data3>],timestamp],...])
-          # <data> fields are optional
-          # example: choose program change 1 at time 20000 and
-          # send note 65 with velocity 100 500 ms later.
-          #      write([[[0xc0,0,0],20000],[[0x90,60,100],20500]])
-          # notes:
-          #   1. timestamps will be ignored if latency = 0.
-          #   2. To get a note to play immediately, send MIDI info with
-          #      timestamp read from function Time.
-          #   3. understanding optional data fields:
-          #        write([[[0xc0,0,0],20000]]) is equivalent to
-          #        write([[[0xc0],20000]])
-          #
-          # Can send up to 1024 elements in your data list, otherwise an
-          #  IndexError exception is raised.
+        out.write([])
+        verrry_long = [[[0x90, 60, i // 100], 20000 + 100 * i] for i in range(1024)]
+        out.write(verrry_long)
 
-        self.fail()
+        too_long = [[[0x90, 60, i // 100], 20000 + 100 * i] for i in range(1025)]
+        self.assertRaises(IndexError, out.write, too_long)
+        # test wrong data
+        with self.assertRaises(TypeError) as cm:
+            out.write('Non sens ?')
+        error_msg = "unsupported operand type(s) for &: 'str' and 'int'"
+        self.assertEqual(cm.exception.message, error_msg)
+
+        with self.assertRaises(TypeError) as cm:
+            out.write(["Hey what's that?"])
+        self.assertEqual(cm.exception.message, error_msg)
 
     def test_write_short(self):
         """|tags: interactive|
