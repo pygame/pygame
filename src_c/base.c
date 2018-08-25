@@ -21,12 +21,13 @@
 */
 #define NO_PYGAME_C_API
 #define PYGAMEAPI_BASE_INTERNAL
+
 #include "pygame.h"
+
+#include <signal.h>
+#include "doc/pygame_doc.h"
 #include "pgarrinter.h"
 #include "pgcompat.h"
-#include "doc/pygame_doc.h"
-#include <signal.h>
-
 
 /* This file controls all the initialization of
  * the module and the various SDL subsystems
@@ -37,12 +38,13 @@
 #ifdef MS_WIN32 /*python gives us MS_WIN32*/
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
-#include<windows.h>
-extern int SDL_RegisterApp(char*, Uint32, void*);
+#include <windows.h>
+extern int
+SDL_RegisterApp(char *, Uint32, void *);
 #endif
 
 #if defined(macintosh)
-#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
+#if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
 QDGlobals pg_qd;
 #endif
 #endif
@@ -72,81 +74,117 @@ typedef struct pg_capsule_interface_s {
 
 /* Py_buffer internal data for an array interface/struct */
 typedef struct pg_view_internals_s {
-    char format[4];      /* make 4 byte word sized */
+    char format[4]; /* make 4 byte word sized */
     Py_ssize_t imem[1];
 } pgViewInternals;
 
 /* Custom exceptions */
-static PyObject* pgExc_BufferError = NULL;
+static PyObject *pgExc_BufferError = NULL;
 
 /* Only one instance of the state per process. */
-static PyObject* pg_quit_functions = NULL;
+static PyObject *pg_quit_functions = NULL;
 static int pg_sdl_was_init = 0;
 #if IS_SDLv2
-SDL_Window* pg_default_window = NULL;
-PyObject* pg_default_screen = NULL;
+SDL_Window *pg_default_window = NULL;
+PyObject *pg_default_screen = NULL;
 #endif /* IS_SDLv2 */
 
-static void pg_install_parachute(void);
-static void pg_uninstall_parachute(void);
-static void _pg_quit(void);
-static void pg_atexit_quit(void);
-static int pgVideo_AutoInit(void);
-static void pgVideo_AutoQuit(void);
-static int pgGetArrayStruct(PyObject*, PyObject**, PyArrayInterface**);
-static PyObject* pgArrayStruct_AsDict(PyArrayInterface*);
-static PyObject* pgBuffer_AsArrayInterface(Py_buffer*);
-static PyObject* pgBuffer_AsArrayStruct(Py_buffer*);
-static int _pg_buffer_is_byteswapped(Py_buffer*);
-static void pgBuffer_Release(pg_buffer*);
-static int pgObject_GetBuffer(PyObject*, pg_buffer*, int);
-static int pgGetArrayInterface(PyObject**, PyObject*);
-static int pgArrayStruct_AsBuffer(pg_buffer*,
-                                  PyObject*,
-                                  PyArrayInterface*,
-                                  int);
-static int _pg_arraystruct_as_buffer(Py_buffer*,
-                                     PyObject*,
-                                     PyArrayInterface*,
-                                     int);
-static int _pg_arraystruct_to_format(char*, PyArrayInterface*, int);
-static int pgDict_AsBuffer(pg_buffer*, PyObject*, int);
-static int _pg_shape_check(PyObject*);
-static int _pg_typestr_check(PyObject*);
-static int _pg_strides_check(PyObject*);
-static int _pg_data_check(PyObject*);
-static int _pg_is_int_tuple(PyObject*);
-static int _pg_values_as_buffer(Py_buffer*,
-                                int,
-                                PyObject*,
-                                PyObject*,
-                                PyObject*,
-                                PyObject*);
-static int _pg_int_tuple_as_ssize_arr(PyObject*, Py_ssize_t*);
-static int _pg_typestr_as_format(PyObject*, char*, Py_ssize_t*);
-static PyObject* pg_view_get_typestr_obj(Py_buffer*);
-static PyObject* pg_view_get_shape_obj(Py_buffer*);
-static PyObject* pg_view_get_strides_obj(Py_buffer*);
-static PyObject* pg_view_get_data_obj(Py_buffer*);
-static char _pg_as_arrayinter_typekind(Py_buffer*);
-static char _pg_as_arrayinter_byteorder(Py_buffer*);
-static int _pg_as_arrayinter_flags(Py_buffer*);
-static pgCapsuleInterface* _pg_new_capsuleinterface(Py_buffer*);
+static void
+pg_install_parachute(void);
+static void
+pg_uninstall_parachute(void);
+static void
+_pg_quit(void);
+static void
+pg_atexit_quit(void);
+static int
+pgVideo_AutoInit(void);
+static void
+pgVideo_AutoQuit(void);
+static int
+pgGetArrayStruct(PyObject *, PyObject **, PyArrayInterface **);
+static PyObject *
+pgArrayStruct_AsDict(PyArrayInterface *);
+static PyObject *
+pgBuffer_AsArrayInterface(Py_buffer *);
+static PyObject *
+pgBuffer_AsArrayStruct(Py_buffer *);
+static int
+_pg_buffer_is_byteswapped(Py_buffer *);
+static void
+pgBuffer_Release(pg_buffer *);
+static int
+pgObject_GetBuffer(PyObject *, pg_buffer *, int);
+static int
+pgGetArrayInterface(PyObject **, PyObject *);
+static int
+pgArrayStruct_AsBuffer(pg_buffer *, PyObject *, PyArrayInterface *, int);
+static int
+_pg_arraystruct_as_buffer(Py_buffer *, PyObject *, PyArrayInterface *, int);
+static int
+_pg_arraystruct_to_format(char *, PyArrayInterface *, int);
+static int
+pgDict_AsBuffer(pg_buffer *, PyObject *, int);
+static int
+_pg_shape_check(PyObject *);
+static int
+_pg_typestr_check(PyObject *);
+static int
+_pg_strides_check(PyObject *);
+static int
+_pg_data_check(PyObject *);
+static int
+_pg_is_int_tuple(PyObject *);
+static int
+_pg_values_as_buffer(Py_buffer *, int, PyObject *, PyObject *, PyObject *,
+                     PyObject *);
+static int
+_pg_int_tuple_as_ssize_arr(PyObject *, Py_ssize_t *);
+static int
+_pg_typestr_as_format(PyObject *, char *, Py_ssize_t *);
+static PyObject *
+pg_view_get_typestr_obj(Py_buffer *);
+static PyObject *
+pg_view_get_shape_obj(Py_buffer *);
+static PyObject *
+pg_view_get_strides_obj(Py_buffer *);
+static PyObject *
+pg_view_get_data_obj(Py_buffer *);
+static char
+_pg_as_arrayinter_typekind(Py_buffer *);
+static char
+_pg_as_arrayinter_byteorder(Py_buffer *);
+static int
+_pg_as_arrayinter_flags(Py_buffer *);
+static pgCapsuleInterface *
+_pg_new_capsuleinterface(Py_buffer *);
 #if PY3
-static void _pg_capsule_PyMem_Free(PyObject*);
+static void
+_pg_capsule_PyMem_Free(PyObject *);
 #endif
-static PyObject* _pg_shape_as_tuple(PyArrayInterface*);
-static PyObject* _pg_typekind_as_str(PyArrayInterface*);
-static PyObject* _pg_strides_as_tuple(PyArrayInterface*);
-static PyObject* _pg_data_as_tuple(PyArrayInterface*);
-static PyObject* pg_get_array_interface(PyObject*, PyObject*);
-static void _pg_release_buffer_array(Py_buffer*);
-static void _pg_release_buffer_generic(Py_buffer*);
+static PyObject *
+_pg_shape_as_tuple(PyArrayInterface *);
+static PyObject *
+_pg_typekind_as_str(PyArrayInterface *);
+static PyObject *
+_pg_strides_as_tuple(PyArrayInterface *);
+static PyObject *
+_pg_data_as_tuple(PyArrayInterface *);
+static PyObject *
+pg_get_array_interface(PyObject *, PyObject *);
+static void
+_pg_release_buffer_array(Py_buffer *);
+static void
+_pg_release_buffer_generic(Py_buffer *);
 #if IS_SDLv2
-static SDL_Window* pg_GetDefaultWindow(void);
-static void pg_SetDefaultWindow(SDL_Window*);
-static PyObject* pg_GetDefaultWindowSurface(void);
-static void pg_SetDefaultWindowSurface(PyObject*);
+static SDL_Window *
+pg_GetDefaultWindow(void);
+static void
+pg_SetDefaultWindow(SDL_Window *);
+static PyObject *
+pg_GetDefaultWindowSurface(void);
+static void
+pg_SetDefaultWindowSurface(PyObject *);
 #endif /* IS_SDLv2 */
 
 #if PY_VERSION_HEX < 0x02060000
@@ -156,7 +194,8 @@ _IsFortranContiguous(Py_buffer *view)
     Py_ssize_t sd, dim;
     int i;
 
-    if (view->ndim == 0) return 1;
+    if (view->ndim == 0)
+        return 1;
     if (view->strides == NULL) {
         return view->ndim == 1
     };
@@ -165,7 +204,7 @@ _IsFortranContiguous(Py_buffer *view)
     if (view->ndim == 1) {
         return view->shape[0] == 1 || sd == view->strides[0];
     }
-    for (i=0; i<view->ndim; i++) {
+    for (i = 0; i < view->ndim; i++) {
         dim = view->shape[i];
         if (dim == 0) {
             return 1;
@@ -195,7 +234,7 @@ _IsCContiguous(Py_buffer *view)
     if (view->ndim == 1) {
         return view->shape[0] == 1 || sd == view->strides[0];
     }
-    for (i=view->ndim-1; i>=0; i--) {
+    for (i = view->ndim - 1; i >= 0; i--) {
         dim = view->shape[i];
         if (dim == 0) {
             return 1;
@@ -211,7 +250,6 @@ _IsCContiguous(Py_buffer *view)
 static int
 PyBuffer_IsContiguous(Py_buffer *view, char fort)
 {
-
     if (view->suboffsets != NULL) {
         return 0;
     }
@@ -234,7 +272,7 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
 #if IS_SDLv1
     SDL_version compiled;
-    const SDL_version* linked;
+    const SDL_version *linked;
 
     SDL_VERSION(&compiled);
     linked = SDL_Linked_Version();
@@ -249,7 +287,7 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      linked->major, linked->minor, linked->patch);
         return 0;
     }
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
     SDL_version compiled;
     SDL_version linked;
 
@@ -272,9 +310,9 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
 }
 
 void
-pg_RegisterQuit(void(*func)(void))
+pg_RegisterQuit(void (*func)(void))
 {
-    PyObject* obj;
+    PyObject *obj;
 
     if (!pg_quit_functions) {
         pg_quit_functions = PyList_New(0);
@@ -289,8 +327,8 @@ pg_RegisterQuit(void(*func)(void))
     }
 }
 
-static PyObject*
-pg_register_quit(PyObject* self, PyObject* value)
+static PyObject *
+pg_register_quit(PyObject *self, PyObject *value)
 {
     if (!pg_quit_functions) {
         pg_quit_functions = PyList_New(0);
@@ -303,13 +341,13 @@ pg_register_quit(PyObject* self, PyObject* value)
     Py_RETURN_NONE;
 }
 
-static PyObject*
-pg_init(PyObject* self)
+static PyObject *
+pg_init(PyObject *self)
 {
     PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
     int loop, num;
 
-    int success=0, fail=0;
+    int success = 0, fail = 0;
 
     if (!pg_CheckSDLVersions()) {
         return NULL;
@@ -317,9 +355,8 @@ pg_init(PyObject* self)
 
     /*nice to initialize timer, so startup time will reflec pg_init() time*/
 #if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
-    pg_sdl_was_init = SDL_Init(SDL_INIT_EVENTTHREAD |
-                            SDL_INIT_TIMER |
-                            SDL_INIT_NOPARACHUTE) == 0;
+    pg_sdl_was_init = SDL_Init(SDL_INIT_EVENTTHREAD | SDL_INIT_TIMER |
+                               SDL_INIT_NOPARACHUTE) == 0;
 #else
     pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
 #endif
@@ -346,7 +383,7 @@ pg_init(PyObject* self)
         }
         dict = PyModule_GetDict(mod);
         func = PyDict_GetItemString(dict, "__PYGAMEinit__");
-        if(func && PyCallable_Check(func)) {
+        if (func && PyCallable_Check(func)) {
             result = PyObject_CallObject(func, NULL);
             if (result && PyObject_IsTrue(result)) {
                 ++success;
@@ -378,15 +415,15 @@ pg_atexit_quit(void)
     }
 }
 
-static PyObject*
-pg_get_sdl_version(PyObject* self)
+static PyObject *
+pg_get_sdl_version(PyObject *self)
 {
 #if IS_SDLv1
     const SDL_version *v;
 
     v = SDL_Linked_Version();
     return Py_BuildValue("iii", v->major, v->minor, v->patch);
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
     SDL_version v;
 
     SDL_GetVersion(&v);
@@ -394,14 +431,14 @@ pg_get_sdl_version(PyObject* self)
 #endif /* IS_SDLv2 */
 }
 
-static PyObject*
+static PyObject *
 pg_get_sdl_byteorder(PyObject *self)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
-static PyObject*
-pg_quit(PyObject* self)
+static PyObject *
+pg_quit(PyObject *self)
 {
     _pg_quit();
     Py_RETURN_NONE;
@@ -410,8 +447,8 @@ pg_quit(PyObject* self)
 static void
 _pg_quit(void)
 {
-    PyObject* quit;
-    PyObject* privatefuncs;
+    PyObject *quit;
+    PyObject *privatefuncs;
     int num;
 
     if (!pg_quit_functions) {
@@ -431,8 +468,8 @@ _pg_quit(void)
             PyObject_CallObject(quit, NULL);
         }
         else if (PyCapsule_CheckExact(quit)) {
-            void* ptr = PyCapsule_GetPointer(quit, "quit");
-            (*(void(*)(void)) ptr)();
+            void *ptr = PyCapsule_GetPointer(quit, "quit");
+            (*(void (*)(void))ptr)();
         }
     }
     Py_DECREF(privatefuncs);
@@ -442,7 +479,8 @@ _pg_quit(void)
 
 /* internal C API utility functions */
 static int
-pg_IntFromObj(PyObject* obj, int* val) {
+pg_IntFromObj(PyObject *obj, int *val)
+{
     int tmp_val = PyInt_AsLong(obj);
 
     if (tmp_val == -1 && PyErr_Occurred()) {
@@ -454,10 +492,10 @@ pg_IntFromObj(PyObject* obj, int* val) {
 }
 
 static int
-pg_IntFromObjIndex(PyObject* obj, int _index, int* val)
+pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
 {
     int result = 0;
-    PyObject* item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, _index);
 
     if (item) {
         result = pg_IntFromObj(item, val);
@@ -467,7 +505,7 @@ pg_IntFromObjIndex(PyObject* obj, int _index, int* val)
 }
 
 static int
-pg_TwoIntsFromObj(PyObject* obj, int* val1, int* val2)
+pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 {
     if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
         return pg_TwoIntsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
@@ -475,18 +513,19 @@ pg_TwoIntsFromObj(PyObject* obj, int* val1, int* val2)
     if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
         return 0;
     }
-    if (!pg_IntFromObjIndex(obj, 0, val1) || !pg_IntFromObjIndex(obj, 1, val2)) {
+    if (!pg_IntFromObjIndex(obj, 0, val1) ||
+        !pg_IntFromObjIndex(obj, 1, val2)) {
         return 0;
     }
     return 1;
 }
 
 static int
-pg_FloatFromObj(PyObject* obj, float* val)
+pg_FloatFromObj(PyObject *obj, float *val)
 {
-    float f= (float)PyFloat_AsDouble(obj);
+    float f = (float)PyFloat_AsDouble(obj);
 
-    if (f==-1 && PyErr_Occurred()) {
+    if (f == -1 && PyErr_Occurred()) {
         PyErr_Clear();
         return 0;
     }
@@ -496,10 +535,10 @@ pg_FloatFromObj(PyObject* obj, float* val)
 }
 
 static int
-pg_FloatFromObjIndex(PyObject* obj, int _index, float* val)
+pg_FloatFromObjIndex(PyObject *obj, int _index, float *val)
 {
     int result = 0;
-    PyObject* item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, _index);
 
     if (item) {
         result = pg_FloatFromObj(item, val);
@@ -509,7 +548,7 @@ pg_FloatFromObjIndex(PyObject* obj, int _index, float* val)
 }
 
 static int
-pg_TwoFloatsFromObj(PyObject* obj, float* val1, float* val2)
+pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 {
     if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
         return pg_TwoFloatsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
@@ -518,22 +557,22 @@ pg_TwoFloatsFromObj(PyObject* obj, float* val1, float* val2)
         return 0;
     }
     if (!pg_FloatFromObjIndex(obj, 0, val1) ||
-        !pg_FloatFromObjIndex(obj, 1, val2)    ) {
+        !pg_FloatFromObjIndex(obj, 1, val2)) {
         return 0;
     }
     return 1;
 }
 
 static int
-pg_UintFromObj(PyObject* obj, Uint32* val)
+pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
-    PyObject* longobj;
+    PyObject *longobj;
 
     if (PyNumber_Check(obj)) {
         if (!(longobj = PyNumber_Long(obj))) {
             return 0;
         }
-        *val = (Uint32) PyLong_AsUnsignedLong(longobj);
+        *val = (Uint32)PyLong_AsUnsignedLong(longobj);
         Py_DECREF(longobj);
         return 1;
     }
@@ -541,10 +580,10 @@ pg_UintFromObj(PyObject* obj, Uint32* val)
 }
 
 static int
-pg_UintFromObjIndex(PyObject* obj, int _index, Uint32* val)
+pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
 {
     int result = 0;
-    PyObject* item = PySequence_GetItem(obj, _index);
+    PyObject *item = PySequence_GetItem(obj, _index);
 
     if (item) {
         result = pg_UintFromObj(item, val);
@@ -554,7 +593,7 @@ pg_UintFromObjIndex(PyObject* obj, int _index, Uint32* val)
 }
 
 static int
-pg_RGBAFromObj(PyObject* obj, Uint8* RGBA)
+pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 {
     int length;
     Uint32 val;
@@ -593,13 +632,13 @@ pg_RGBAFromObj(PyObject* obj, Uint8* RGBA)
     return 1;
 }
 
-static PyObject*
-pg_get_error(PyObject* self)
+static PyObject *
+pg_get_error(PyObject *self)
 {
     return Text_FromUTF8(SDL_GetError());
 }
 
-static PyObject*
+static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
@@ -610,7 +649,6 @@ pg_set_error(PyObject *s, PyObject *args)
     SDL_SetError("%s", errstring);
     Py_RETURN_NONE;
 }
-
 
 /*video init needs to be here, because of it's
  *important init order priority
@@ -668,18 +706,15 @@ pgVideo_AutoInit(void)
 /*array interface*/
 
 static int
-pgGetArrayStruct(PyObject* obj,
-                 PyObject** cobj_p,
-                 PyArrayInterface** inter_p)
+pgGetArrayStruct(PyObject *obj, PyObject **cobj_p, PyArrayInterface **inter_p)
 {
-    PyObject* cobj = PyObject_GetAttrString(obj, "__array_struct__");
-    PyArrayInterface* inter = NULL;
+    PyObject *cobj = PyObject_GetAttrString(obj, "__array_struct__");
+    PyArrayInterface *inter = NULL;
 
     if (cobj == NULL) {
         if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
             PyErr_Clear();
-            PyErr_SetString(PyExc_ValueError,
-                            "no C-struct array interface");
+            PyErr_SetString(PyExc_ValueError, "no C-struct array interface");
         }
         return -1;
     }
@@ -691,7 +726,7 @@ pgGetArrayStruct(PyObject* obj,
 #endif
 #if PG_HAVE_CAPSULE
     if (PyCapsule_IsValid(cobj, NULL)) {
-        inter = (PyArrayInterface*)PyCapsule_GetPointer(cobj, NULL);
+        inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
     }
 #endif
     if (inter == NULL || inter->two != 2 /* conditional or */) {
@@ -705,11 +740,10 @@ pgGetArrayStruct(PyObject* obj,
     return 0;
 }
 
-static PyObject*
-pgArrayStruct_AsDict(PyArrayInterface* inter_p)
+static PyObject *
+pgArrayStruct_AsDict(PyArrayInterface *inter_p)
 {
-    PyObject *dictobj = Py_BuildValue("{sisNsNsNsN}",
-                                      "version", (int)3,
+    PyObject *dictobj = Py_BuildValue("{sisNsNsNsN}", "version", (int)3,
                                       "typestr", _pg_typekind_as_str(inter_p),
                                       "shape", _pg_shape_as_tuple(inter_p),
                                       "strides", _pg_strides_as_tuple(inter_p),
@@ -734,21 +768,20 @@ pgArrayStruct_AsDict(PyArrayInterface* inter_p)
     return dictobj;
 }
 
-static PyObject*
-pgBuffer_AsArrayInterface(Py_buffer* view_p)
+static PyObject *
+pgBuffer_AsArrayInterface(Py_buffer *view_p)
 {
-    return Py_BuildValue("{sisNsNsNsN}",
-                         "version", (int)3,
-                         "typestr", pg_view_get_typestr_obj(view_p),
-                         "shape", pg_view_get_shape_obj(view_p),
-                         "strides", pg_view_get_strides_obj(view_p),
-                         "data", pg_view_get_data_obj(view_p));
+    return Py_BuildValue("{sisNsNsNsN}", "version", (int)3, "typestr",
+                         pg_view_get_typestr_obj(view_p), "shape",
+                         pg_view_get_shape_obj(view_p), "strides",
+                         pg_view_get_strides_obj(view_p), "data",
+                         pg_view_get_data_obj(view_p));
 }
 
-static PyObject*
-pgBuffer_AsArrayStruct(Py_buffer* view_p)
+static PyObject *
+pgBuffer_AsArrayStruct(Py_buffer *view_p)
 {
-    void *cinter_p  = _pg_new_capsuleinterface(view_p);
+    void *cinter_p = _pg_new_capsuleinterface(view_p);
     PyObject *capsule;
 
     if (!cinter_p) {
@@ -766,7 +799,7 @@ pgBuffer_AsArrayStruct(Py_buffer* view_p)
     return capsule;
 }
 
-static pgCapsuleInterface*
+static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *view_p)
 {
     int ndim = view_p->ndim;
@@ -774,8 +807,8 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     pgCapsuleInterface *cinter_p;
     int i;
 
-    cinter_size = (sizeof(pgCapsuleInterface) +
-                   sizeof(Py_intptr_t) * (2 * ndim - 1));
+    cinter_size =
+        (sizeof(pgCapsuleInterface) + sizeof(Py_intptr_t) * (2 * ndim - 1));
     cinter_p = (pgCapsuleInterface *)PyMem_Malloc(cinter_size);
     if (!cinter_p) {
         PyErr_NoMemory();
@@ -812,7 +845,7 @@ _pg_capsule_PyMem_Free(PyObject *capsule)
 #endif
 
 static int
-_pg_as_arrayinter_flags(Py_buffer* view_p)
+_pg_as_arrayinter_flags(Py_buffer *view_p)
 {
     int inter_flags = PAI_ALIGNED; /* atomic int types always aligned */
 
@@ -829,17 +862,16 @@ _pg_as_arrayinter_flags(Py_buffer* view_p)
     return inter_flags;
 }
 
-static PyObject*
-pg_view_get_typestr_obj(Py_buffer* view)
+static PyObject *
+pg_view_get_typestr_obj(Py_buffer *view)
 {
-    return Text_FromFormat("%c%c%i",
-                           _pg_as_arrayinter_byteorder(view),
+    return Text_FromFormat("%c%c%i", _pg_as_arrayinter_byteorder(view),
                            _pg_as_arrayinter_typekind(view),
                            (int)view->itemsize);
 }
 
-static PyObject*
-pg_view_get_shape_obj(Py_buffer* view)
+static PyObject *
+pg_view_get_shape_obj(Py_buffer *view)
 {
     PyObject *shapeobj = PyTuple_New(view->ndim);
     PyObject *lengthobj;
@@ -859,8 +891,8 @@ pg_view_get_shape_obj(Py_buffer* view)
     return shapeobj;
 }
 
-static PyObject*
-pg_view_get_strides_obj(Py_buffer* view)
+static PyObject *
+pg_view_get_strides_obj(Py_buffer *view)
 {
     PyObject *shapeobj = PyTuple_New(view->ndim);
     PyObject *lengthobj;
@@ -880,58 +912,55 @@ pg_view_get_strides_obj(Py_buffer* view)
     return shapeobj;
 }
 
-static PyObject*
-pg_view_get_data_obj(Py_buffer* view)
+static PyObject *
+pg_view_get_data_obj(Py_buffer *view)
 {
-    return Py_BuildValue("NN",
-                         PyLong_FromVoidPtr(view->buf),
+    return Py_BuildValue("NN", PyLong_FromVoidPtr(view->buf),
                          PyBool_FromLong((long)view->readonly));
 }
 
 static char
-_pg_as_arrayinter_typekind(Py_buffer* view)
+_pg_as_arrayinter_typekind(Py_buffer *view)
 {
     char type = view->format ? view->format[0] : 'B';
     char typekind = 'V';
 
     switch (type) {
-
-    case '<':
-    case '>':
-    case '=':
-    case '@':
-    case '!':
-        type = view->format[1];
+        case '<':
+        case '>':
+        case '=':
+        case '@':
+        case '!':
+            type = view->format[1];
     }
     switch (type) {
-
-    case 'b':
-    case 'h':
-    case 'i':
-    case 'l':
-    case 'q':
-        typekind = 'i';
-        break;
-    case 'B':
-    case 'H':
-    case 'I':
-    case 'L':
-    case 'Q':
-        typekind = 'u';
-        break;
-    case 'f':
-    case 'd':
-        typekind = 'f';
-        break;
-    default:
-        /* Unknown type */
-        typekind = 'V';
+        case 'b':
+        case 'h':
+        case 'i':
+        case 'l':
+        case 'q':
+            typekind = 'i';
+            break;
+        case 'B':
+        case 'H':
+        case 'I':
+        case 'L':
+        case 'Q':
+            typekind = 'u';
+            break;
+        case 'f':
+        case 'd':
+            typekind = 'f';
+            break;
+        default:
+            /* Unknown type */
+            typekind = 'V';
     }
     return typekind;
 }
 
 static char
-_pg_as_arrayinter_byteorder(Py_buffer* view)
+_pg_as_arrayinter_byteorder(Py_buffer *view)
 {
     char format_0 = view->format ? view->format[0] : 'B';
     char byteorder;
@@ -941,31 +970,29 @@ _pg_as_arrayinter_byteorder(Py_buffer* view)
     }
     else {
         switch (format_0) {
-
-        case '<':
-        case '>':
-            byteorder = format_0;
-            break;
-        case '!':
-            byteorder = '>';
-            break;
-        case 'c':
-        case 's':
-        case 'p':
-        case 'b':
-        case 'B':
-            byteorder = '|';
-            break;
-        default:
-            byteorder = PAI_MY_ENDIAN;
+            case '<':
+            case '>':
+                byteorder = format_0;
+                break;
+            case '!':
+                byteorder = '>';
+                break;
+            case 'c':
+            case 's':
+            case 'p':
+            case 'b':
+            case 'B':
+                byteorder = '|';
+                break;
+            default:
+                byteorder = PAI_MY_ENDIAN;
         }
     }
     return byteorder;
 }
 
-
-static PyObject*
-_pg_shape_as_tuple(PyArrayInterface* inter_p)
+static PyObject *
+_pg_shape_as_tuple(PyArrayInterface *inter_p)
 {
     PyObject *shapeobj = PyTuple_New((Py_ssize_t)inter_p->nd);
     PyObject *lengthobj;
@@ -985,20 +1012,20 @@ _pg_shape_as_tuple(PyArrayInterface* inter_p)
     return shapeobj;
 }
 
-static PyObject*
-_pg_typekind_as_str(PyArrayInterface* inter_p)
+static PyObject *
+_pg_typekind_as_str(PyArrayInterface *inter_p)
 {
-    return Text_FromFormat("%c%c%i",
-                           inter_p->itemsize > 1 ?
-                               (inter_p->flags & PAI_NOTSWAPPED ?
-                                    PAI_MY_ENDIAN :
-                                    PAI_OTHER_ENDIAN) :
-                               '|',
-                           inter_p->typekind, inter_p->itemsize);
+    return Text_FromFormat(
+        "%c%c%i",
+        inter_p->itemsize > 1
+            ? (inter_p->flags & PAI_NOTSWAPPED ? PAI_MY_ENDIAN
+                                               : PAI_OTHER_ENDIAN)
+            : '|',
+        inter_p->typekind, inter_p->itemsize);
 }
 
-static PyObject*
-_pg_strides_as_tuple(PyArrayInterface* inter_p)
+static PyObject *
+_pg_strides_as_tuple(PyArrayInterface *inter_p)
 {
     PyObject *stridesobj = PyTuple_New((Py_ssize_t)inter_p->nd);
     PyObject *lengthobj;
@@ -1018,18 +1045,17 @@ _pg_strides_as_tuple(PyArrayInterface* inter_p)
     return stridesobj;
 }
 
-static PyObject*
-_pg_data_as_tuple(PyArrayInterface* inter_p)
+static PyObject *
+_pg_data_as_tuple(PyArrayInterface *inter_p)
 {
     long readonly = (inter_p->flags & PAI_WRITEABLE) == 0;
 
-    return Py_BuildValue("NN",
-                         PyLong_FromVoidPtr(inter_p->data),
+    return Py_BuildValue("NN", PyLong_FromVoidPtr(inter_p->data),
                          PyBool_FromLong(readonly));
 }
 
-static PyObject*
-pg_get_array_interface(PyObject* self, PyObject* arg)
+static PyObject *
+pg_get_array_interface(PyObject *self, PyObject *arg)
 {
     PyObject *cobj;
     PyArrayInterface *inter_p;
@@ -1044,12 +1070,12 @@ pg_get_array_interface(PyObject* self, PyObject* arg)
 }
 
 static int
-pgObject_GetBuffer(PyObject* obj, pg_buffer* pg_view_p, int flags)
+pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
 {
-    Py_buffer* view_p = (Py_buffer*)pg_view_p;
-    PyObject* cobj = 0;
-    PyObject* dict = 0;
-    PyArrayInterface* inter_p = 0;
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+    PyObject *cobj = 0;
+    PyObject *dict = 0;
+    PyArrayInterface *inter_p = 0;
     char *fchar_p;
     int success = 0;
 
@@ -1075,63 +1101,61 @@ pgObject_GetBuffer(PyObject* obj, pg_buffer* pg_view_p, int flags)
         fchar_p = view_p->format;
         /* Skip valid size/byte order code */
         switch (*fchar_p) {
+            case '@':
+            case '=':
+            case '<':
+            case '>':
+            case '!':
+                ++fchar_p;
+                break;
 
-        case '@':
-        case '=':
-        case '<':
-        case '>':
-        case '!':
-            ++fchar_p;
-            break;
-
-        /* default: assume it is a format type character or item count */
+                /* default: assume it is a format type character or item count
+                 */
         }
         /* Skip a leading digit */
         switch (*fchar_p) {
-
-        case '1':
-            /* valid count for all item types */
-            ++fchar_p;
-            break;
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            /* only valid as a pad byte count */
-            if (*(fchar_p + 1) == 'x') {
+            case '1':
+                /* valid count for all item types */
                 ++fchar_p;
-            }
-            break;
+                break;
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                /* only valid as a pad byte count */
+                if (*(fchar_p + 1) == 'x') {
+                    ++fchar_p;
+                }
+                break;
 
-        /* default: assume it is a format character */
+                /* default: assume it is a format character */
         }
         /* verify is a format type character */
         switch (*fchar_p) {
-
-        case 'b':
-        case 'B':
-        case 'h':
-        case 'H':
-        case 'i':
-        case 'I':
-        case 'l':
-        case 'L':
-        case 'q':
-        case 'Q':
-        case 'f':
-        case 'd':
-        case 'x':
-            ++fchar_p;
-            break;
-        default:
-            pgBuffer_Release(pg_view_p);
-            PyErr_SetString(PyExc_ValueError,
-                            "Unsupported array element type");
-            return -1;
+            case 'b':
+            case 'B':
+            case 'h':
+            case 'H':
+            case 'i':
+            case 'I':
+            case 'l':
+            case 'L':
+            case 'q':
+            case 'Q':
+            case 'f':
+            case 'd':
+            case 'x':
+                ++fchar_p;
+                break;
+            default:
+                pgBuffer_Release(pg_view_p);
+                PyErr_SetString(PyExc_ValueError,
+                                "Unsupported array element type");
+                return -1;
         }
         if (*fchar_p != '\0') {
             pgBuffer_Release(pg_view_p);
@@ -1173,22 +1197,22 @@ pgObject_GetBuffer(PyObject* obj, pg_buffer* pg_view_p, int flags)
 
     if (!success) {
         PyErr_Format(PyExc_ValueError,
-                      "%s object does not export an array buffer",
-                      Py_TYPE(obj)->tp_name);
+                     "%s object does not export an array buffer",
+                     Py_TYPE(obj)->tp_name);
         return -1;
     }
     return 0;
 }
 
 static void
-pgBuffer_Release(pg_buffer* pg_view_p)
+pgBuffer_Release(pg_buffer *pg_view_p)
 {
     assert(pg_view_p && pg_view_p->release_buffer);
-    pg_view_p->release_buffer((Py_buffer*)pg_view_p);
+    pg_view_p->release_buffer((Py_buffer *)pg_view_p);
 }
 
 static void
-_pg_release_buffer_generic(Py_buffer* view_p)
+_pg_release_buffer_generic(Py_buffer *view_p)
 {
     if (view_p->obj) {
         Py_XDECREF(view_p->obj);
@@ -1197,7 +1221,7 @@ _pg_release_buffer_generic(Py_buffer* view_p)
 }
 
 static void
-_pg_release_buffer_array(Py_buffer* view_p)
+_pg_release_buffer_array(Py_buffer *view_p)
 {
     /* This is deliberately made safe for use on an unitialized *view_p */
     if (view_p->internal) {
@@ -1208,16 +1232,15 @@ _pg_release_buffer_array(Py_buffer* view_p)
 }
 
 static int
-_pg_buffer_is_byteswapped(Py_buffer* view)
+_pg_buffer_is_byteswapped(Py_buffer *view)
 {
     if (view->format) {
         switch (view->format[0]) {
-
-        case '<':
-            return SDL_BYTEORDER != SDL_LIL_ENDIAN;
-        case '>':
-        case '!':
-            return SDL_BYTEORDER != SDL_BIG_ENDIAN;
+            case '<':
+                return SDL_BYTEORDER != SDL_LIL_ENDIAN;
+            case '>':
+            case '!':
+                return SDL_BYTEORDER != SDL_BIG_ENDIAN;
         }
     }
     return 0;
@@ -1226,12 +1249,12 @@ _pg_buffer_is_byteswapped(Py_buffer* view)
 static int
 pgGetArrayInterface(PyObject **dict, PyObject *obj)
 {
-    PyObject* inter = PyObject_GetAttrString(obj, "__array_interface__");
+    PyObject *inter = PyObject_GetAttrString(obj, "__array_interface__");
 
     if (inter == NULL) {
         if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
-                PyErr_Clear();
-                PyErr_SetString(PyExc_ValueError, "no array interface");
+            PyErr_Clear();
+            PyErr_SetString(PyExc_ValueError, "no array interface");
         }
         return -1;
     }
@@ -1247,12 +1270,12 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
 }
 
 static int
-pgArrayStruct_AsBuffer(pg_buffer* pg_view_p, PyObject* cobj,
-                       PyArrayInterface* inter_p, int flags)
+pgArrayStruct_AsBuffer(pg_buffer *pg_view_p, PyObject *cobj,
+                       PyArrayInterface *inter_p, int flags)
 {
     pg_view_p->release_buffer = _pg_release_buffer_array;
-    if (_pg_arraystruct_as_buffer((Py_buffer*)pg_view_p,
-                                cobj, inter_p, flags)) {
+    if (_pg_arraystruct_as_buffer((Py_buffer *)pg_view_p, cobj, inter_p,
+                                  flags)) {
         pgBuffer_Release(pg_view_p);
         return -1;
     }
@@ -1260,12 +1283,12 @@ pgArrayStruct_AsBuffer(pg_buffer* pg_view_p, PyObject* cobj,
 }
 
 static int
-_pg_arraystruct_as_buffer(Py_buffer* view_p, PyObject* cobj,
-                          PyArrayInterface* inter_p, int flags)
+_pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
+                          PyArrayInterface *inter_p, int flags)
 {
-    pgViewInternals* internal_p;
-    Py_ssize_t sz = (sizeof(pgViewInternals)
-                     + (2 * inter_p->nd - 1) * sizeof(Py_ssize_t));
+    pgViewInternals *internal_p;
+    Py_ssize_t sz =
+        (sizeof(pgViewInternals) + (2 * inter_p->nd - 1) * sizeof(Py_ssize_t));
     int readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
     Py_ssize_t i;
 
@@ -1297,19 +1320,18 @@ _pg_arraystruct_as_buffer(Py_buffer* view_p, PyObject* cobj,
             return -1;
         }
     }
-    internal_p = (pgViewInternals*)PyMem_Malloc(sz);
+    internal_p = (pgViewInternals *)PyMem_Malloc(sz);
     if (!internal_p) {
         PyErr_NoMemory();
         return -1;
     }
     view_p->internal = internal_p;
     if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
-        if (_pg_arraystruct_to_format(internal_p->format,
-                                   inter_p,
-                                   sizeof(internal_p->format))) {
+        if (_pg_arraystruct_to_format(internal_p->format, inter_p,
+                                      sizeof(internal_p->format))) {
             return -1;
         }
-    view_p->format = internal_p->format;
+        view_p->format = internal_p->format;
     }
     else {
         view_p->format = 0;
@@ -1355,134 +1377,125 @@ _pg_arraystruct_as_buffer(Py_buffer* view_p, PyObject* cobj,
     return 0;
 }
 
-static int _pg_arraystruct_to_format(char* format,
-                                     PyArrayInterface* inter_p,
-                                     int max_format_len)
+static int
+_pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
+                          int max_format_len)
 {
-    char* fchar_p = format;
+    char *fchar_p = format;
 
     assert(max_format_len >= 4);
     switch (inter_p->typekind) {
-
-    case 'i':
-        *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
-                    BUF_MY_ENDIAN : BUF_OTHER_ENDIAN);
-        ++fchar_p;
-        switch (inter_p->itemsize) {
-
-        case 1:
-            *fchar_p = 'b';
+        case 'i':
+            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
+                                                        : BUF_OTHER_ENDIAN);
+            ++fchar_p;
+            switch (inter_p->itemsize) {
+                case 1:
+                    *fchar_p = 'b';
+                    break;
+                case 2:
+                    *fchar_p = 'h';
+                    break;
+                case 4:
+                    *fchar_p = 'i';
+                    break;
+                case 8:
+                    *fchar_p = 'q';
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError,
+                                 "Unsupported signed integer size %d",
+                                 (int)inter_p->itemsize);
+                    return -1;
+            }
             break;
-        case 2:
-            *fchar_p = 'h';
+        case 'u':
+            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
+                                                        : BUF_OTHER_ENDIAN);
+            ++fchar_p;
+            switch (inter_p->itemsize) {
+                case 1:
+                    *fchar_p = 'B';
+                    break;
+                case 2:
+                    *fchar_p = 'H';
+                    break;
+                case 4:
+                    *fchar_p = 'I';
+                    break;
+                case 8:
+                    *fchar_p = 'Q';
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError,
+                                 "Unsupported unsigned integer size %d",
+                                 (int)inter_p->itemsize);
+                    return -1;
+            }
             break;
-        case 4:
-            *fchar_p = 'i';
+        case 'f':
+            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
+                                                        : BUF_OTHER_ENDIAN);
+            ++fchar_p;
+            switch (inter_p->itemsize) {
+                case 4:
+                    *fchar_p = 'f';
+                    break;
+                case 8:
+                    *fchar_p = 'd';
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError, "Unsupported float size %d",
+                                 (int)inter_p->itemsize);
+                    return -1;
+            }
             break;
-        case 8:
-            *fchar_p = 'q';
+        case 'V':
+            if (inter_p->itemsize > 9) {
+                PyErr_Format(PyExc_ValueError, "Unsupported void size %d",
+                             (int)inter_p->itemsize);
+                return -1;
+            }
+            switch (inter_p->itemsize) {
+                case 1:
+                    *fchar_p = '1';
+                    break;
+                case 2:
+                    *fchar_p = '2';
+                    break;
+                case 3:
+                    *fchar_p = '3';
+                    break;
+                case 4:
+                    *fchar_p = '4';
+                    break;
+                case 5:
+                    *fchar_p = '5';
+                    break;
+                case 6:
+                    *fchar_p = '6';
+                    break;
+                case 7:
+                    *fchar_p = '7';
+                    break;
+                case 8:
+                    *fchar_p = '8';
+                    break;
+                case 9:
+                    *fchar_p = '9';
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError, "Unsupported void size %d",
+                                 (int)inter_p->itemsize);
+                    return -1;
+            }
+            ++fchar_p;
+            *fchar_p = 'x';
             break;
         default:
-            PyErr_Format(PyExc_ValueError,
-                         "Unsupported signed integer size %d",
-                         (int)inter_p->itemsize);
+            PyErr_Format(PyExc_ValueError, "Unsupported value type '%c'",
+                         (int)inter_p->typekind);
             return -1;
-        }
-        break;
-    case 'u':
-        *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
-                    BUF_MY_ENDIAN : BUF_OTHER_ENDIAN);
-        ++fchar_p;
-        switch (inter_p->itemsize) {
-
-        case 1:
-            *fchar_p = 'B';
-            break;
-        case 2:
-            *fchar_p = 'H';
-            break;
-        case 4:
-            *fchar_p = 'I';
-            break;
-        case 8:
-            *fchar_p = 'Q';
-            break;
-        default:
-            PyErr_Format(PyExc_ValueError,
-                         "Unsupported unsigned integer size %d",
-                         (int)inter_p->itemsize);
-            return -1;
-        }
-        break;
-    case 'f':
-        *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
-                    BUF_MY_ENDIAN : BUF_OTHER_ENDIAN);
-        ++fchar_p;
-        switch (inter_p->itemsize) {
-
-        case 4:
-            *fchar_p = 'f';
-            break;
-        case 8:
-            *fchar_p = 'd';
-            break;
-        default:
-            PyErr_Format(PyExc_ValueError,
-                         "Unsupported float size %d",
-                         (int)inter_p->itemsize);
-            return -1;
-        }
-        break;
-    case 'V':
-        if (inter_p->itemsize > 9) {
-            PyErr_Format(PyExc_ValueError,
-                         "Unsupported void size %d",
-                         (int)inter_p->itemsize);
-            return -1;
-        }
-        switch (inter_p->itemsize) {
-
-        case 1:
-            *fchar_p = '1';
-            break;
-        case 2:
-            *fchar_p = '2';
-            break;
-        case 3:
-            *fchar_p = '3';
-            break;
-        case 4:
-            *fchar_p = '4';
-            break;
-        case 5:
-            *fchar_p = '5';
-            break;
-        case 6:
-            *fchar_p = '6';
-            break;
-        case 7:
-            *fchar_p = '7';
-            break;
-        case 8:
-            *fchar_p = '8';
-            break;
-        case 9:
-            *fchar_p = '9';
-            break;
-        default:
-            PyErr_Format(PyExc_ValueError,
-                         "Unsupported void size %d",
-                         (int)inter_p->itemsize);
-            return -1;
-        }
-        ++fchar_p;
-        *fchar_p = 'x';
-        break;
-    default:
-        PyErr_Format(PyExc_ValueError,
-                     "Unsupported value type '%c'",
-                     (int)inter_p->typekind);
-        return -1;
     }
     ++fchar_p;
     *fchar_p = '\0';
@@ -1490,12 +1503,12 @@ static int _pg_arraystruct_to_format(char* format,
 }
 
 static int
-pgDict_AsBuffer(pg_buffer* pg_view_p, PyObject* dict, int flags)
+pgDict_AsBuffer(pg_buffer *pg_view_p, PyObject *dict, int flags)
 {
-    PyObject* shape = PyDict_GetItemString(dict, "shape");
-    PyObject* typestr = PyDict_GetItemString(dict, "typestr");
-    PyObject* data = PyDict_GetItemString(dict, "data");
-    PyObject* strides = PyDict_GetItemString(dict, "strides");
+    PyObject *shape = PyDict_GetItemString(dict, "shape");
+    PyObject *typestr = PyDict_GetItemString(dict, "typestr");
+    PyObject *data = PyDict_GetItemString(dict, "data");
+    PyObject *strides = PyDict_GetItemString(dict, "strides");
 
     if (_pg_shape_check(shape)) {
         return -1;
@@ -1510,8 +1523,8 @@ pgDict_AsBuffer(pg_buffer* pg_view_p, PyObject* dict, int flags)
         return -1;
     }
     pg_view_p->release_buffer = _pg_release_buffer_array;
-    if (_pg_values_as_buffer((Py_buffer*)pg_view_p, flags,
-                             typestr, shape, data, strides)) {
+    if (_pg_values_as_buffer((Py_buffer *)pg_view_p, flags, typestr, shape,
+                             data, strides)) {
         pgBuffer_Release(pg_view_p);
         return -1;
     }
@@ -1519,11 +1532,10 @@ pgDict_AsBuffer(pg_buffer* pg_view_p, PyObject* dict, int flags)
 }
 
 static int
-_pg_shape_check(PyObject* op)
+_pg_shape_check(PyObject *op)
 {
     if (!op) {
-        PyErr_SetString(PyExc_ValueError,
-                        "required 'shape' item is missing");
+        PyErr_SetString(PyExc_ValueError, "required 'shape' item is missing");
         return -1;
     }
     if (!_pg_is_int_tuple(op)) {
@@ -1562,8 +1574,7 @@ _pg_typestr_check(PyObject *op)
         }
     }
     else {
-        PyErr_SetString(PyExc_ValueError,
-                        "expected a string for 'typestr'");
+        PyErr_SetString(PyExc_ValueError, "expected a string for 'typestr'");
         return -1;
     }
     return 0;
@@ -1572,16 +1583,14 @@ _pg_typestr_check(PyObject *op)
 static int
 _pg_data_check(PyObject *op)
 {
-    PyObject* item;
+    PyObject *item;
 
     if (!op) {
-        PyErr_SetString(PyExc_ValueError,
-                        "required 'data' item is missing");
+        PyErr_SetString(PyExc_ValueError, "required 'data' item is missing");
         return -1;
     }
     if (!PyTuple_Check(op)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "expected a tuple for 'data'");
+        PyErr_SetString(PyExc_ValueError, "expected a tuple for 'data'");
         return -1;
     }
     if (PyTuple_GET_SIZE(op) != 2) {
@@ -1610,11 +1619,11 @@ _pg_strides_check(PyObject *op)
 }
 
 static int
-_pg_is_int_tuple(PyObject* op)
+_pg_is_int_tuple(PyObject *op)
 {
     Py_ssize_t i;
     Py_ssize_t n;
-    PyObject* ip;
+    PyObject *ip;
 
     if (!PyTuple_Check(op)) {
         return 0;
@@ -1630,14 +1639,11 @@ _pg_is_int_tuple(PyObject* op)
 }
 
 static int
-_pg_values_as_buffer(Py_buffer* view_p, int flags,
-                     PyObject* typestr,
-                     PyObject* shape,
-                     PyObject* data,
-                     PyObject* strides)
+_pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
+                     PyObject *shape, PyObject *data, PyObject *strides)
 {
     Py_ssize_t ndim = PyTuple_GET_SIZE(shape);
-    pgViewInternals* internal_p;
+    pgViewInternals *internal_p;
     Py_ssize_t sz;
     int i;
 
@@ -1663,8 +1669,8 @@ _pg_values_as_buffer(Py_buffer* view_p, int flags,
                         "require writable buffer, but it is read-only");
         return -1;
     }
-    sz = sizeof (pgViewInternals) + (2 * ndim - 1) * sizeof(Py_ssize_t);
-    internal_p = (pgViewInternals*)PyMem_Malloc(sz);
+    sz = sizeof(pgViewInternals) + (2 * ndim - 1) * sizeof(Py_ssize_t);
+    internal_p = (pgViewInternals *)PyMem_Malloc(sz);
     if (!internal_p) {
         PyErr_NoMemory();
         return -1;
@@ -1749,7 +1755,7 @@ _pg_values_as_buffer(Py_buffer* view_p, int flags,
 }
 
 static int
-_pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t* arr)
+_pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t *arr)
 {
     Py_ssize_t i;
     Py_ssize_t n = PyTuple_GET_SIZE(tp);
@@ -1764,9 +1770,9 @@ _pg_int_tuple_as_ssize_arr(PyObject *tp, Py_ssize_t* arr)
 }
 
 static int
-_pg_typestr_as_format(PyObject* sp, char* format, Py_ssize_t* itemsize_p)
+_pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
 {
-    const char* typestr;
+    const char *typestr;
     char *fchar_p = format;
     int is_swapped = 0;
     Py_ssize_t itemsize = 0;
@@ -1782,156 +1788,154 @@ _pg_typestr_as_format(PyObject* sp, char* format, Py_ssize_t* itemsize_p)
     }
     typestr = Bytes_AsString(sp);
     switch (typestr[0]) {
-
-    case PAI_MY_ENDIAN:
-    case '|':
-        break;
-    case PAI_OTHER_ENDIAN:
-        is_swapped = 1;
-        break;
-    default:
-        PyErr_Format(PyExc_ValueError, "unsupported typestr %s", typestr);
-        Py_DECREF(sp);
-        return -1;
+        case PAI_MY_ENDIAN:
+        case '|':
+            break;
+        case PAI_OTHER_ENDIAN:
+            is_swapped = 1;
+            break;
+        default:
+            PyErr_Format(PyExc_ValueError, "unsupported typestr %s", typestr);
+            Py_DECREF(sp);
+            return -1;
     }
     switch (typestr[1]) {
-
-    case 'i':
-    case 'u':
-        switch (typestr[2]) {
-
-        case '1':
-            *fchar_p = 'B';
-            itemsize = 1;
+        case 'i':
+        case 'u':
+            switch (typestr[2]) {
+                case '1':
+                    *fchar_p = 'B';
+                    itemsize = 1;
+                    break;
+                case '2':
+                    *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
+                    ++fchar_p;
+                    *fchar_p = 'H';
+                    itemsize = 2;
+                    break;
+                case '3':
+                    *fchar_p = '3';
+                    ++fchar_p;
+                    *fchar_p = 'x';
+                    itemsize = 3;
+                    break;
+                case '4':
+                    *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
+                    ++fchar_p;
+                    *fchar_p = 'I';
+                    itemsize = 4;
+                    break;
+                case '5':
+                    *fchar_p = '5';
+                    ++fchar_p;
+                    *fchar_p = 'x';
+                    itemsize = 5;
+                    break;
+                case '6':
+                    *fchar_p = '6';
+                    ++fchar_p;
+                    *fchar_p = 'x';
+                    itemsize = 6;
+                    break;
+                case '7':
+                    *fchar_p = '7';
+                    ++fchar_p;
+                    *fchar_p = 'x';
+                    itemsize = 7;
+                    break;
+                case '8':
+                    *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
+                    ++fchar_p;
+                    *fchar_p = 'Q';
+                    itemsize = 8;
+                    break;
+                case '9':
+                    *fchar_p = '9';
+                    ++fchar_p;
+                    *fchar_p = 'x';
+                    itemsize = 9;
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError, "unsupported typestr %s",
+                                 typestr);
+                    Py_DECREF(sp);
+                    return -1;
+            }
+            if (typestr[1] == 'i') {
+                /* This leaves 'x' uneffected. */
+                *fchar_p = tolower(*fchar_p);
+            }
             break;
-        case '2':
+        case 'f':
             *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
             ++fchar_p;
-            *fchar_p = 'H';
-            itemsize = 2;
+            switch (typestr[2]) {
+                case '4':
+                    *fchar_p = 'f';
+                    itemsize = 4;
+                    break;
+                case '8':
+                    *fchar_p = 'd';
+                    itemsize = 8;
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError, "unsupported typestr %s",
+                                 typestr);
+                    Py_DECREF(sp);
+                    return -1;
+            }
             break;
-        case '3':
-            *fchar_p = '3';
+        case 'V':
+            switch (typestr[2]) {
+                case '1':
+                    *fchar_p = '1';
+                    itemsize = 1;
+                    break;
+                case '2':
+                    *fchar_p = '2';
+                    itemsize = 2;
+                    break;
+                case '3':
+                    *fchar_p = '3';
+                    itemsize = 3;
+                    break;
+                case '4':
+                    *fchar_p = '4';
+                    itemsize = 4;
+                    break;
+                case '5':
+                    *fchar_p = '5';
+                    itemsize = 5;
+                    break;
+                case '6':
+                    *fchar_p = '6';
+                    itemsize = 6;
+                    break;
+                case '7':
+                    *fchar_p = '7';
+                    itemsize = 7;
+                    break;
+                case '8':
+                    *fchar_p = '8';
+                    itemsize = 8;
+                    break;
+                case '9':
+                    *fchar_p = '9';
+                    itemsize = 9;
+                    break;
+                default:
+                    PyErr_Format(PyExc_ValueError, "unsupported typestr %s",
+                                 typestr);
+                    Py_DECREF(sp);
+                    return -1;
+            }
             ++fchar_p;
             *fchar_p = 'x';
-            itemsize = 3;
-            break;
-        case '4':
-            *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
-            ++fchar_p;
-            *fchar_p = 'I';
-            itemsize = 4;
-            break;
-        case '5':
-            *fchar_p = '5';
-            ++fchar_p;
-            *fchar_p = 'x';
-            itemsize = 5;
-            break;
-        case '6':
-            *fchar_p = '6';
-            ++fchar_p;
-            *fchar_p = 'x';
-            itemsize = 6;
-            break;
-        case '7':
-            *fchar_p = '7';
-            ++fchar_p;
-            *fchar_p = 'x';
-            itemsize = 7;
-            break;
-        case '8':
-            *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
-            ++fchar_p;
-            *fchar_p = 'Q';
-            itemsize = 8;
-            break;
-        case '9':
-            *fchar_p = '9';
-            ++fchar_p;
-            *fchar_p = 'x';
-            itemsize = 9;
             break;
         default:
             PyErr_Format(PyExc_ValueError, "unsupported typestr %s", typestr);
             Py_DECREF(sp);
             return -1;
-        }
-        if (typestr[1] == 'i') {
-            /* This leaves 'x' uneffected. */
-            *fchar_p = tolower(*fchar_p);
-        }
-        break;
-    case 'f':
-        *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
-        ++fchar_p;
-        switch (typestr[2]) {
-
-        case '4':
-            *fchar_p = 'f';
-            itemsize = 4;
-            break;
-        case '8':
-            *fchar_p = 'd';
-            itemsize = 8;
-            break;
-        default:
-            PyErr_Format(PyExc_ValueError, "unsupported typestr %s", typestr);
-            Py_DECREF(sp);
-            return -1;
-        }
-        break;
-    case 'V':
-        switch (typestr[2]) {
-
-        case '1':
-            *fchar_p = '1';
-            itemsize = 1;
-            break;
-        case '2':
-            *fchar_p = '2';
-            itemsize = 2;
-            break;
-        case '3':
-            *fchar_p = '3';
-            itemsize = 3;
-            break;
-        case '4':
-            *fchar_p = '4';
-            itemsize = 4;
-            break;
-        case '5':
-            *fchar_p = '5';
-            itemsize = 5;
-            break;
-        case '6':
-            *fchar_p = '6';
-            itemsize = 6;
-            break;
-        case '7':
-            *fchar_p = '7';
-            itemsize = 7;
-            break;
-        case '8':
-            *fchar_p = '8';
-            itemsize = 8;
-            break;
-        case '9':
-            *fchar_p = '9';
-            itemsize = 9;
-            break;
-        default:
-            PyErr_Format(PyExc_ValueError, "unsupported typestr %s", typestr);
-            Py_DECREF(sp);
-            return -1;
-        }
-        ++fchar_p;
-        *fchar_p = 'x';
-        break;
-    default:
-        PyErr_Format(PyExc_ValueError, "unsupported typestr %s", typestr);
-        Py_DECREF(sp);
-        return -1;
     }
     Py_DECREF(sp);
     ++fchar_p;
@@ -1940,17 +1944,16 @@ _pg_typestr_as_format(PyObject* sp, char* format, Py_ssize_t* itemsize_p)
     return 0;
 }
 
-
 #if IS_SDLv2
 /*Default window(display)*/
-static SDL_Window*
+static SDL_Window *
 pg_GetDefaultWindow(void)
 {
     return pg_default_window;
 }
 
 static void
-pg_SetDefaultWindow(SDL_Window* win)
+pg_SetDefaultWindow(SDL_Window *win)
 {
     /*Allows a window to be replaced by itself*/
     if (win == pg_default_window) {
@@ -1962,7 +1965,7 @@ pg_SetDefaultWindow(SDL_Window* win)
     pg_default_window = win;
 }
 
-static PyObject*
+static PyObject *
 pg_GetDefaultWindowSurface(void)
 {
     /*return a borrowed reference*/
@@ -1970,7 +1973,7 @@ pg_GetDefaultWindowSurface(void)
 }
 
 static void
-pg_SetDefaultWindowSurface(PyObject* screen)
+pg_SetDefaultWindowSurface(PyObject *screen)
 {
     /*a screen surface can be replaced with itself*/
     if (screen == pg_default_screen) {
@@ -1990,34 +1993,33 @@ static void
 pygame_parachute(int sig)
 {
 #ifdef HAVE_SIGNAL_H
-    char* signaltype;
+    char *signaltype;
 
     signal(sig, SIG_DFL);
     switch (sig) {
-
-    case SIGSEGV:
-        signaltype = "(pygame parachute) Segmentation Fault";
-        break;
+        case SIGSEGV:
+            signaltype = "(pygame parachute) Segmentation Fault";
+            break;
 #ifdef SIGBUS
 #if SIGBUS != SIGSEGV
-    case SIGBUS:
-        signaltype = "(pygame parachute) Bus Error";
-        break;
+        case SIGBUS:
+            signaltype = "(pygame parachute) Bus Error";
+            break;
 #endif
 #endif
 #ifdef SIGFPE
-    case SIGFPE:
-        signaltype = "(pygame parachute) Floating Point Exception";
-        break;
+        case SIGFPE:
+            signaltype = "(pygame parachute) Floating Point Exception";
+            break;
 #endif
 #ifdef SIGQUIT
-    case SIGQUIT:
-        signaltype = "(pygame parachute) Keyboard Abort";
-        break;
+        case SIGQUIT:
+            signaltype = "(pygame parachute) Keyboard Abort";
+            break;
 #endif
-    default:
-        signaltype = "(pygame parachute) Unknown Signal";
-        break;
+        default:
+            signaltype = "(pygame parachute) Unknown Signal";
+            break;
     }
 
     _pg_quit();
@@ -2025,9 +2027,7 @@ pygame_parachute(int sig)
 #endif
 }
 
-
-static int fatal_signals[] =
-{
+static int fatal_signals[] = {
     SIGSEGV,
 #ifdef SIGBUS
     SIGBUS,
@@ -2056,14 +2056,14 @@ pg_install_parachute(void)
 
     /* Set a handler for any fatal signal not already handled */
     for (i = 0; fatal_signals[i]; ++i) {
-        ohandler = (void(*)(int))signal(fatal_signals[i], pygame_parachute);
+        ohandler = (void (*)(int))signal(fatal_signals[i], pygame_parachute);
         if (ohandler != SIG_DFL) {
             signal(fatal_signals[i], ohandler);
         }
     }
 
 #if defined(SIGALRM) && defined(HAVE_SIGACTION)
-    {/* Set SIGALRM to be ignored -- necessary on Solaris */
+    { /* Set SIGALRM to be ignored -- necessary on Solaris */
         struct sigaction action, oaction;
 
         /* Set SIG_IGN action */
@@ -2094,7 +2094,7 @@ pg_uninstall_parachute(void)
 
     /* Remove a handler for any fatal signal handled */
     for (i = 0; fatal_signals[i]; ++i) {
-        ohandler = (void(*)(int))signal(fatal_signals[i], SIG_DFL);
+        ohandler = (void (*)(int))signal(fatal_signals[i], SIG_DFL);
         if (ohandler != pygame_parachute) {
             signal(fatal_signals[i], ohandler);
         }
@@ -2104,33 +2104,31 @@ pg_uninstall_parachute(void)
 
 /* bind functions to python */
 
-static PyObject*
-pg_do_segfault(PyObject* self)
+static PyObject *
+pg_do_segfault(PyObject *self)
 {
-    //force crash
-    *((int*)1) = 45;
-    memcpy((char*)2, (char*)3, 10);
+    // force crash
+    *((int *)1) = 45;
+    memcpy((char *)2, (char *)3, 10);
     Py_RETURN_NONE;
 }
 
-static PyMethodDef _base_methods[] =
-{
-    { "init", (PyCFunction) pg_init, METH_NOARGS, DOC_PYGAMEINIT },
-    { "quit", (PyCFunction) pg_quit, METH_NOARGS, DOC_PYGAMEQUIT },
-    { "register_quit", pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT },
-    { "get_error", (PyCFunction) pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR },
-    { "set_error", (PyCFunction) pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR },
-    { "get_sdl_version", (PyCFunction) pg_get_sdl_version, METH_NOARGS,
-      DOC_PYGAMEGETSDLVERSION },
-    { "get_sdl_byteorder", (PyCFunction) pg_get_sdl_byteorder, METH_NOARGS,
-      DOC_PYGAMEGETSDLBYTEORDER },
+static PyMethodDef _base_methods[] = {
+    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
+    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
+    {"register_quit", pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
+    {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
+    {"set_error", (PyCFunction)pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
+    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,
+     DOC_PYGAMEGETSDLVERSION},
+    {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
+     DOC_PYGAMEGETSDLBYTEORDER},
 
-    { "get_array_interface", (PyCFunction) pg_get_array_interface, METH_O,
-      "return an array struct interface as an interface dictionary" },
+    {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
+     "return an array struct interface as an interface dictionary"},
 
-    { "segfault", (PyCFunction) pg_do_segfault, METH_NOARGS, "crash" },
-    { NULL, NULL, 0, NULL }
-};
+    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
+    {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
 {
@@ -2139,17 +2137,18 @@ MODINIT_DEFINE(base)
     PyObject *atexit, *atexit_register = NULL, *quit, *rval;
     PyObject *pgExc_SDLError;
     int ecode;
-    static void* c_api[PYGAMEAPI_BASE_NUMSLOTS];
+    static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
 #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "base",
-        "",
-        -1,
-        _base_methods,
-        NULL, NULL, NULL, NULL
-    };
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "base",
+                                         "",
+                                         -1,
+                                         _base_methods,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL};
 #endif
 
     if (!is_loaded) {
@@ -2179,8 +2178,8 @@ MODINIT_DEFINE(base)
     dict = PyModule_GetDict(module);
 
     /* create the exceptions */
-    pgExc_SDLError = PyErr_NewException("pygame.error", PyExc_RuntimeError,
-                                         NULL);
+    pgExc_SDLError =
+        PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
     if (pgExc_SDLError == NULL) {
         Py_XDECREF(atexit_register);
         DECREF_MOD(module);
@@ -2195,11 +2194,11 @@ MODINIT_DEFINE(base)
     }
 
 #if PG_ENABLE_NEWBUF
-    pgExc_BufferError = PyErr_NewException("pygame.BufferError",
-                                           PyExc_BufferError, NULL);
+    pgExc_BufferError =
+        PyErr_NewException("pygame.BufferError", PyExc_BufferError, NULL);
 #else
-    pgExc_BufferError = PyErr_NewException("pygame.BufferError",
-                                            PyExc_RuntimeError, NULL);
+    pgExc_BufferError =
+        PyErr_NewException("pygame.BufferError", PyExc_RuntimeError, NULL);
 #endif
     if (pgExc_SDLError == NULL) {
         Py_XDECREF(atexit_register);
@@ -2215,16 +2214,16 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
-    c_api[0]  = pgExc_SDLError;
-    c_api[1]  = pg_RegisterQuit;
-    c_api[2]  = pg_IntFromObj;
-    c_api[3]  = pg_IntFromObjIndex;
-    c_api[4]  = pg_TwoIntsFromObj;
-    c_api[5]  = pg_FloatFromObj;
-    c_api[6]  = pg_FloatFromObjIndex;
-    c_api[7]  = pg_TwoFloatsFromObj;
-    c_api[8]  = pg_UintFromObj;
-    c_api[9]  = pg_UintFromObjIndex;
+    c_api[0] = pgExc_SDLError;
+    c_api[1] = pg_RegisterQuit;
+    c_api[2] = pg_IntFromObj;
+    c_api[3] = pg_IntFromObjIndex;
+    c_api[4] = pg_TwoIntsFromObj;
+    c_api[5] = pg_FloatFromObj;
+    c_api[6] = pg_FloatFromObjIndex;
+    c_api[7] = pg_TwoFloatsFromObj;
+    c_api[8] = pg_UintFromObj;
+    c_api[9] = pg_UintFromObjIndex;
     c_api[10] = pgVideo_AutoQuit;
     c_api[11] = pgVideo_AutoInit;
     c_api[12] = pg_RGBAFromObj;
@@ -2274,7 +2273,7 @@ MODINIT_DEFINE(base)
     if (!is_loaded) {
         /*some intialization*/
         quit = PyObject_GetAttrString(module, "quit");
-        if (quit == NULL) {  /* assertion */
+        if (quit == NULL) { /* assertion */
             Py_DECREF(atexit_register);
             Py_DECREF(pgExc_BufferError);
             DECREF_MOD(module);
@@ -2294,16 +2293,15 @@ MODINIT_DEFINE(base)
         pg_install_parachute();
 #endif
 
-
 #ifdef MS_WIN32
         SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
 #if defined(macintosh)
-#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
+#if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
         SDL_InitQuickDraw(&pg_qd);
 #endif
 #endif
-        }
+    }
     is_loaded = 1;
     MODINIT_RETURN(module);
 }

@@ -1,37 +1,37 @@
 import unittest
 import pygame, pygame.transform
 
-class DisplayModuleTest( unittest.TestCase ):
-    def test_update( self ):
+class DisplayModuleTest(unittest.TestCase):
+
+    def test_update(self):
         """ see if pygame.display.update takes rects with negative values.
             "|Tags:display|"
         """
 
-        if 1:
-            pygame.init()
-            screen = pygame.display.set_mode((100,100))
-            screen.fill((55,55,55))
+        pygame.init()
+        screen = pygame.display.set_mode((100, 100))
+        screen.fill((55, 55, 55))
 
-            r1 = pygame.Rect(0,0,100,100)
-            pygame.display.update(r1)
+        r1 = pygame.Rect(0, 0, 100, 100)
+        pygame.display.update(r1)
 
-            r2 = pygame.Rect(-10,0,100,100)
-            pygame.display.update(r2)
+        r2 = pygame.Rect(-10, 0, 100, 100)
+        pygame.display.update(r2)
 
-            r3 = pygame.Rect(-10,0,-100,-100)
-            pygame.display.update(r3)
+        r3 = pygame.Rect(-10, 0, -100, -100)
+        pygame.display.update(r3)
 
-            # NOTE: if I don't call pygame.quit there is a segfault.  hrmm.
-            pygame.quit()
-            #  I think it's because unittest runs stuff in threads
-            # here's a stack trace...
+        # NOTE: if I don't call pygame.quit there is a segfault.  hrmm.
+        pygame.quit()
+        #  I think it's because unittest runs stuff in threads
+        # here's a stack trace...
 
-            # NOTE to author of above:
-            #   unittest doesn't run tests in threads
-            #   segfault was probably caused by another tests need
-            #   for a "clean slate"
+        # NOTE to author of above:
+        #   unittest doesn't run tests in threads
+        #   segfault was probably caused by another tests need 
+        #   for a "clean slate"
 
-            """
+        """
     #0  0x08103b7c in PyFrame_New ()
     #1  0x080bd666 in PyEval_EvalCodeEx ()
     #2  0x08105202 in PyFunction_SetClosure ()
@@ -44,7 +44,7 @@ class DisplayModuleTest( unittest.TestCase ):
     #9  0xb7e04eb0 in __libc_start_main () from /lib/tls/libc.so.6
     #10 0x08054e31 in _start ()
 
-            """
+        """
 
     def todo_test_Info(self):
 
@@ -81,7 +81,7 @@ class DisplayModuleTest( unittest.TestCase ):
 
         self.fail()
 
-        if 0:
+        if 0: # XXX FIXME
 
             pygame.init()
             inf = pygame.display.Info()

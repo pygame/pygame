@@ -622,15 +622,4 @@ class MaskModuleTest(unittest.TestCase):
                 self.assertEqual(rects, [])
 
 if __name__ == '__main__':
-    if 1:
-        unittest.main()
-    else:
-        mask_from_surface = maskFromSurface
-
-        surf = pygame.Surface((70,70), SRCALPHA, 32)
-        #surf = surf.convert_alpha()
-        surf.set_at((0,0), (255,255,255,0))
-        print (surf.get_at((0,0)))
-
-        print ("asdf")
-        print (surf)
+    unittest.main()

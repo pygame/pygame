@@ -21,8 +21,11 @@
 #define PYGAMEAPI_PIXELARRAY_INTERNAL
 
 #include "pygame.h"
+
 #include "pgcompat.h"
+
 #include "doc/pixelarray_doc.h"
+
 #include "surface.h"
 
 #if PY_VERSION_HEX < 0x02050000
@@ -43,82 +46,104 @@ struct _pixelarray_t;
    surface. If shape[1] is 0 the array is one dimensional.
  */
 typedef struct _pixelarray_t {
-    PyObject_HEAD
-    PyObject *dict;        /* dict for subclassing */
-    PyObject *weakrefs;    /* Weakrefs for subclassing */
-    PyObject *surface;     /* Surface associated with the array */
-    Py_ssize_t shape[2];   /* (row,col) shape of array in pixels */
-    Py_ssize_t strides[2]; /* (row,col) offsets in bytes */
-    Uint8  *pixels;        /* Start of array data */
+    PyObject_HEAD PyObject *dict; /* dict for subclassing */
+    PyObject *weakrefs;           /* Weakrefs for subclassing */
+    PyObject *surface;            /* Surface associated with the array */
+    Py_ssize_t shape[2];          /* (row,col) shape of array in pixels */
+    Py_ssize_t strides[2];        /* (row,col) offsets in bytes */
+    Uint8 *pixels;                /* Start of array data */
     struct _pixelarray_t *parent;
-                           /* Parent pixel array: NULL if no parent */
+    /* Parent pixel array: NULL if no parent */
 } pgPixelArrayObject;
 
-static int array_is_contiguous(pgPixelArrayObject *, char);
+static int
+array_is_contiguous(pgPixelArrayObject *, char);
 
-static pgPixelArrayObject *_pxarray_new_internal(
-    PyTypeObject *, PyObject *, pgPixelArrayObject *, Uint8 *,
-    Py_ssize_t, Py_ssize_t, Py_ssize_t, Py_ssize_t
-    );
+static pgPixelArrayObject *
+_pxarray_new_internal(PyTypeObject *, PyObject *, pgPixelArrayObject *,
+                      Uint8 *, Py_ssize_t, Py_ssize_t, Py_ssize_t, Py_ssize_t);
 
-static PyObject *_pxarray_new(PyTypeObject *, PyObject *, PyObject *);
-static void _pxarray_dealloc(pgPixelArrayObject *);
-static int _pxarray_traverse(pgPixelArrayObject *, visitproc, void *);
+static PyObject *
+_pxarray_new(PyTypeObject *, PyObject *, PyObject *);
+static void
+_pxarray_dealloc(pgPixelArrayObject *);
+static int
+_pxarray_traverse(pgPixelArrayObject *, visitproc, void *);
 
-static PyObject *_pxarray_get_dict(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_surface(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_itemsize(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_shape(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_strides(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_ndim(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_arraystruct(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_arrayinterface(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_get_pixelsaddress(pgPixelArrayObject *, void *);
-static PyObject *_pxarray_repr(pgPixelArrayObject *);
+static PyObject *
+_pxarray_get_dict(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_surface(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_itemsize(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_shape(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_strides(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_ndim(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_arraystruct(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_arrayinterface(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_get_pixelsaddress(pgPixelArrayObject *, void *);
+static PyObject *
+_pxarray_repr(pgPixelArrayObject *);
 
-static PyObject *_array_slice_internal(
-    pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, Py_ssize_t);
+static PyObject *
+_array_slice_internal(pgPixelArrayObject *, Py_ssize_t, Py_ssize_t,
+                      Py_ssize_t);
 
 /* Sequence methods */
-static Py_ssize_t _pxarray_length(pgPixelArrayObject *);
-static PyObject *_pxarray_item(pgPixelArrayObject *, Py_ssize_t);
-static int _array_assign_array(
-    pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, pgPixelArrayObject *);
-static int _array_assign_sequence(
-    pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, PyObject *);
-static int _array_assign_slice(
-    pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, Uint32);
-static int _pxarray_ass_item(
-    pgPixelArrayObject *, Py_ssize_t, PyObject *);
-static int _pxarray_ass_slice(
-    pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, PyObject *);
-static int _pxarray_contains(pgPixelArrayObject *, PyObject *);
+static Py_ssize_t
+_pxarray_length(pgPixelArrayObject *);
+static PyObject *
+_pxarray_item(pgPixelArrayObject *, Py_ssize_t);
+static int
+_array_assign_array(pgPixelArrayObject *, Py_ssize_t, Py_ssize_t,
+                    pgPixelArrayObject *);
+static int
+_array_assign_sequence(pgPixelArrayObject *, Py_ssize_t, Py_ssize_t,
+                       PyObject *);
+static int
+_array_assign_slice(pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, Uint32);
+static int
+_pxarray_ass_item(pgPixelArrayObject *, Py_ssize_t, PyObject *);
+static int
+_pxarray_ass_slice(pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, PyObject *);
+static int
+_pxarray_contains(pgPixelArrayObject *, PyObject *);
 
 /* Mapping methods */
-static int _get_subslice(
-    PyObject *, Py_ssize_t, Py_ssize_t *, Py_ssize_t *, Py_ssize_t *);
-static PyObject *_pxarray_subscript(pgPixelArrayObject *, PyObject *);
-static int _pxarray_ass_subscript(pgPixelArrayObject *, PyObject *, PyObject *);
+static int
+_get_subslice(PyObject *, Py_ssize_t, Py_ssize_t *, Py_ssize_t *,
+              Py_ssize_t *);
+static PyObject *
+_pxarray_subscript(pgPixelArrayObject *, PyObject *);
+static int
+_pxarray_ass_subscript(pgPixelArrayObject *, PyObject *, PyObject *);
 
 /* New buffer protocol; also used for internally for array interface */
-static int _pxarray_getbuffer(pgPixelArrayObject *, Py_buffer *, int);
+static int
+_pxarray_getbuffer(pgPixelArrayObject *, Py_buffer *, int);
 
-static PyObject *_pxarray_subscript_internal(
-    pgPixelArrayObject *, Py_ssize_t, Py_ssize_t, Py_ssize_t,
-    Py_ssize_t, Py_ssize_t, Py_ssize_t
-    );
+static PyObject *
+_pxarray_subscript_internal(pgPixelArrayObject *, Py_ssize_t, Py_ssize_t,
+                            Py_ssize_t, Py_ssize_t, Py_ssize_t, Py_ssize_t);
 
 /* C API interfaces */
-static PyObject* pgPixelArray_New(PyObject *);
+static PyObject *
+pgPixelArray_New(PyObject *);
 
 /* Incomplete forward declaration so we can use it in the methods included
  * below.
  */
 static PyTypeObject pgPixelArray_Type;
 #define pgPixelArrayObject_Check(o) \
-    (Py_TYPE (o) == (PyTypeObject *) &pgPixelArray_Type)
+    (Py_TYPE(o) == (PyTypeObject *)&pgPixelArray_Type)
 
-#define SURFACE_EQUALS(x,y) \
+#define SURFACE_EQUALS(x, y) \
     (((pgPixelArrayObject *)x)->surface == ((pgPixelArrayObject *)y)->surface)
 
 static int
@@ -139,7 +164,8 @@ array_is_contiguous(pgPixelArrayObject *ap, char fortran)
 }
 
 void
-_cleanup_array(pgPixelArrayObject *array) {
+_cleanup_array(pgPixelArrayObject *array)
+{
     PyObject_GC_UnTrack(array);
     if (array->parent) {
         Py_DECREF(array->parent);
@@ -156,32 +182,28 @@ _cleanup_array(pgPixelArrayObject *array) {
     array->surface = NULL;
 }
 
-
 #include "pixelarray_methods.c"
 
 /**
  * Methods, which are bound to the pgPixelArrayObject type.
  */
-static PyMethodDef _pxarray_methods[] =
-{
-    { "compare", (PyCFunction)_compare, METH_VARARGS | METH_KEYWORDS,
-      DOC_PIXELARRAYCOMPARE },
-    { "extract", (PyCFunction)_extract_color, METH_VARARGS | METH_KEYWORDS,
-      DOC_PIXELARRAYEXTRACT },
-    { "make_surface", (PyCFunction)_make_surface, METH_NOARGS,
-      DOC_PIXELARRAYMAKESURFACE },
-    { "close", (PyCFunction)_close_array, METH_NOARGS,
-      DOC_PIXELARRAYCLOSE },
-    { "__enter__", (PyCFunction)_enter_context, METH_NOARGS,
-      DOC_PIXELARRAYCLOSE },
-    { "__exit__", (PyCFunction)_exit_context, METH_VARARGS | METH_KEYWORDS,
-      DOC_PIXELARRAYEXTRACT },
-    { "replace", (PyCFunction)_replace_color, METH_VARARGS | METH_KEYWORDS,
-      DOC_PIXELARRAYREPLACE },
-    { "transpose", (PyCFunction)_transpose, METH_NOARGS,
-      DOC_PIXELARRAYTRANSPOSE },
-    { NULL, NULL, 0, NULL }
-};
+static PyMethodDef _pxarray_methods[] = {
+    {"compare", (PyCFunction)_compare, METH_VARARGS | METH_KEYWORDS,
+     DOC_PIXELARRAYCOMPARE},
+    {"extract", (PyCFunction)_extract_color, METH_VARARGS | METH_KEYWORDS,
+     DOC_PIXELARRAYEXTRACT},
+    {"make_surface", (PyCFunction)_make_surface, METH_NOARGS,
+     DOC_PIXELARRAYMAKESURFACE},
+    {"close", (PyCFunction)_close_array, METH_NOARGS, DOC_PIXELARRAYCLOSE},
+    {"__enter__", (PyCFunction)_enter_context, METH_NOARGS,
+     DOC_PIXELARRAYCLOSE},
+    {"__exit__", (PyCFunction)_exit_context, METH_VARARGS | METH_KEYWORDS,
+     DOC_PIXELARRAYEXTRACT},
+    {"replace", (PyCFunction)_replace_color, METH_VARARGS | METH_KEYWORDS,
+     DOC_PIXELARRAYREPLACE},
+    {"transpose", (PyCFunction)_transpose, METH_NOARGS,
+     DOC_PIXELARRAYTRANSPOSE},
+    {NULL, NULL, 0, NULL}};
 
 #if PY3
 static void
@@ -206,46 +228,42 @@ Text_ConcatAndDel(PyObject **string, PyObject *newpart)
 /**
  * Getters and setters for the pgPixelArrayObject.
  */
-static PyGetSetDef _pxarray_getsets[] =
-{
-    { "__dict__", (getter)_pxarray_get_dict, 0, 0, 0 },
-    { "surface", (getter)_pxarray_get_surface, 0, DOC_PIXELARRAYSURFACE, 0 },
-    { "itemsize", (getter)_pxarray_get_itemsize, 0, DOC_PIXELARRAYITEMSIZE, 0 },
-    { "shape", (getter)_pxarray_get_shape, 0, DOC_PIXELARRAYSHAPE, 0 },
-    { "strides", (getter)_pxarray_get_strides, 0, DOC_PIXELARRAYSTRIDES, 0 },
-    { "ndim", (getter)_pxarray_get_ndim, 0, DOC_PIXELARRAYNDIM, 0 },
-    { "__array_struct__", (getter)_pxarray_get_arraystruct, 0, "Version 3", 0 },
-    { "__array_interface__", (getter)_pxarray_get_arrayinterface, 0,
-      "Version 3", 0},
-    { "_pixels_address", (getter)_pxarray_get_pixelsaddress, 0,
-          "pixel buffer address (readonly)", 0 },
-    { 0, 0, 0, 0, 0 }
-};
+static PyGetSetDef _pxarray_getsets[] = {
+    {"__dict__", (getter)_pxarray_get_dict, 0, 0, 0},
+    {"surface", (getter)_pxarray_get_surface, 0, DOC_PIXELARRAYSURFACE, 0},
+    {"itemsize", (getter)_pxarray_get_itemsize, 0, DOC_PIXELARRAYITEMSIZE, 0},
+    {"shape", (getter)_pxarray_get_shape, 0, DOC_PIXELARRAYSHAPE, 0},
+    {"strides", (getter)_pxarray_get_strides, 0, DOC_PIXELARRAYSTRIDES, 0},
+    {"ndim", (getter)_pxarray_get_ndim, 0, DOC_PIXELARRAYNDIM, 0},
+    {"__array_struct__", (getter)_pxarray_get_arraystruct, 0, "Version 3", 0},
+    {"__array_interface__", (getter)_pxarray_get_arrayinterface, 0,
+     "Version 3", 0},
+    {"_pixels_address", (getter)_pxarray_get_pixelsaddress, 0,
+     "pixel buffer address (readonly)", 0},
+    {0, 0, 0, 0, 0}};
 
 /**
  * Sequence interface support for the pgPixelArrayObject.
  * concat and repeat are not implemented due to the possible confusion
  * of their behaviour (see lists numpy array).
  */
-static PySequenceMethods _pxarray_sequence =
-{
-    (lenfunc)_pxarray_length,              /*sq_length*/
-    0,                                     /*sq_concat*/
-    0,                                     /*sq_repeat*/
-    (ssizeargfunc)_pxarray_item,           /*sq_item*/
-    0,                                     /*reserved*/
-    (ssizeobjargproc)_pxarray_ass_item,    /*sq_ass_item*/
-    0,                                     /*reserved*/
-    (objobjproc)_pxarray_contains,         /*sq_contains*/
-    0,                                     /*sq_inplace_concat*/
-    0                                      /*sq_inplace_repeat*/
+static PySequenceMethods _pxarray_sequence = {
+    (lenfunc)_pxarray_length,           /*sq_length*/
+    0,                                  /*sq_concat*/
+    0,                                  /*sq_repeat*/
+    (ssizeargfunc)_pxarray_item,        /*sq_item*/
+    0,                                  /*reserved*/
+    (ssizeobjargproc)_pxarray_ass_item, /*sq_ass_item*/
+    0,                                  /*reserved*/
+    (objobjproc)_pxarray_contains,      /*sq_contains*/
+    0,                                  /*sq_inplace_concat*/
+    0                                   /*sq_inplace_repeat*/
 };
 
 /**
  * Mapping interface support for the pgPixelArrayObject.
  */
-static PyMappingMethods _pxarray_mapping =
-{
+static PyMappingMethods _pxarray_mapping = {
     (lenfunc)_pxarray_length,              /*mp_length*/
     (binaryfunc)_pxarray_subscript,        /*mp_subscript*/
     (objobjargproc)_pxarray_ass_subscript, /*mp_ass_subscript*/
@@ -261,8 +279,7 @@ static PyBufferProcs _pxarray_bufferprocs = {
     0,
 #endif
     (getbufferproc)_pxarray_getbuffer,
-    0
-};
+    0};
 
 #define PXARRAY_BUFFERPROCS &_pxarray_bufferprocs
 
@@ -271,7 +288,7 @@ static PyBufferProcs _pxarray_bufferprocs = {
 #endif /* #if PG_ENABLE_NEWBUF */
 
 #if PY2 && PG_ENABLE_NEWBUF
-#define PXARRAY_TPFLAGS \
+#define PXARRAY_TPFLAGS                                              \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
      Py_TPFLAGS_HAVE_NEWBUFFER)
 #else
@@ -279,64 +296,61 @@ static PyBufferProcs _pxarray_bufferprocs = {
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 #endif
 
-
-static PyTypeObject pgPixelArray_Type =
-{
-    TYPE_HEAD (NULL, 0)
-    "pygame.PixelArray",        /* tp_name */
-    sizeof (pgPixelArrayObject),      /* tp_basicsize */
-    0,                          /* tp_itemsize */
-    (destructor)_pxarray_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    (reprfunc)_pxarray_repr,    /* tp_repr */
-    0,                          /* tp_as_number */
-    &_pxarray_sequence,         /* tp_as_sequence */
-    &_pxarray_mapping,          /* tp_as_mapping */
-    0,                          /* tp_hash */
-    0,                          /* tp_call */
-    0,                          /* tp_str */
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    PXARRAY_BUFFERPROCS,        /* tp_as_buffer */
+static PyTypeObject pgPixelArray_Type = {
+    TYPE_HEAD(NULL, 0) "pygame.PixelArray", /* tp_name */
+    sizeof(pgPixelArrayObject),             /* tp_basicsize */
+    0,                                      /* tp_itemsize */
+    (destructor)_pxarray_dealloc,           /* tp_dealloc */
+    0,                                      /* tp_print */
+    0,                                      /* tp_getattr */
+    0,                                      /* tp_setattr */
+    0,                                      /* tp_compare */
+    (reprfunc)_pxarray_repr,                /* tp_repr */
+    0,                                      /* tp_as_number */
+    &_pxarray_sequence,                     /* tp_as_sequence */
+    &_pxarray_mapping,                      /* tp_as_mapping */
+    0,                                      /* tp_hash */
+    0,                                      /* tp_call */
+    0,                                      /* tp_str */
+    0,                                      /* tp_getattro */
+    0,                                      /* tp_setattro */
+    PXARRAY_BUFFERPROCS,                    /* tp_as_buffer */
     PXARRAY_TPFLAGS,
-    DOC_PYGAMEPIXELARRAY,       /* tp_doc */
-    (traverseproc)_pxarray_traverse,  /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
-    offsetof(pgPixelArrayObject, weakrefs),  /* tp_weaklistoffset */
-    PySeqIter_New,              /* tp_iter */
-    0,                          /* tp_iternext */
-    _pxarray_methods,           /* tp_methods */
-    0,                          /* tp_members */
-    _pxarray_getsets,           /* tp_getset */
-    0,                          /* tp_base */
-    0,                          /* tp_dict */
-    0,                          /* tp_descr_get */
-    0,                          /* tp_descr_set */
-    offsetof(pgPixelArrayObject, dict), /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                          /* tp_alloc */
-    _pxarray_new,               /* tp_new */
+    DOC_PYGAMEPIXELARRAY,                   /* tp_doc */
+    (traverseproc)_pxarray_traverse,        /* tp_traverse */
+    0,                                      /* tp_clear */
+    0,                                      /* tp_richcompare */
+    offsetof(pgPixelArrayObject, weakrefs), /* tp_weaklistoffset */
+    PySeqIter_New,                          /* tp_iter */
+    0,                                      /* tp_iternext */
+    _pxarray_methods,                       /* tp_methods */
+    0,                                      /* tp_members */
+    _pxarray_getsets,                       /* tp_getset */
+    0,                                      /* tp_base */
+    0,                                      /* tp_dict */
+    0,                                      /* tp_descr_get */
+    0,                                      /* tp_descr_set */
+    offsetof(pgPixelArrayObject, dict),     /* tp_dictoffset */
+    0,                                      /* tp_init */
+    0,                                      /* tp_alloc */
+    _pxarray_new,                           /* tp_new */
 #ifndef __SYMBIAN32__
-    0,                          /* tp_free */
-    0,                          /* tp_is_gc */
-    0,                          /* tp_bases */
-    0,                          /* tp_mro */
-    0,                          /* tp_cache */
-    0,                          /* tp_subclasses */
-    0,                          /* tp_weaklist */
-    0                           /* tp_del */
+    0, /* tp_free */
+    0, /* tp_is_gc */
+    0, /* tp_bases */
+    0, /* tp_mro */
+    0, /* tp_cache */
+    0, /* tp_subclasses */
+    0, /* tp_weaklist */
+    0  /* tp_del */
 #endif
 };
 
 static pgPixelArrayObject *
-_pxarray_new_internal(PyTypeObject *type,
-                      PyObject *surface, pgPixelArrayObject *parent, Uint8 *pixels,
-                      Py_ssize_t dim0, Py_ssize_t dim1,
-                      Py_ssize_t stride0, Py_ssize_t stride1)
+_pxarray_new_internal(PyTypeObject *type, PyObject *surface,
+                      pgPixelArrayObject *parent, Uint8 *pixels,
+                      Py_ssize_t dim0, Py_ssize_t dim1, Py_ssize_t stride0,
+                      Py_ssize_t stride1)
 {
     pgPixelArrayObject *self;
 
@@ -404,13 +418,13 @@ _pxarray_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     stride0 = (Py_ssize_t)surf->format->BytesPerPixel;
     stride1 = (Py_ssize_t)surf->pitch;
     pixels = surf->pixels;
-    if (stride0 < 1  || stride0 > 4) {
+    if (stride0 < 1 || stride0 > 4) {
         return RAISE(PyExc_ValueError,
                      "unsupport bit depth for reference array");
     }
 
-    return (PyObject *)_pxarray_new_internal(type, surfobj, 0, pixels,
-                                             dim0, dim1, stride0, stride1);
+    return (PyObject *)_pxarray_new_internal(type, surfobj, 0, pixels, dim0,
+                                             dim1, stride0, stride1);
 }
 
 /**
@@ -468,7 +482,7 @@ _pxarray_get_dict(pgPixelArrayObject *self, void *closure)
 /**
  * Getter for PixelArray.surface
  */
-static PyObject*
+static PyObject *
 _pxarray_get_surface(pgPixelArrayObject *self, void *closure)
 {
     Py_INCREF(self->surface);
@@ -610,8 +624,9 @@ _pxarray_getbuffer(pgPixelArrayObject *self, Py_buffer *view_p, int flags)
             strides = self->strides;
         }
         else if (!array_is_contiguous(self, 'C')) {
-            PyErr_SetString(pgExc_BufferError,
-                            "this pixel array is not contiguous: need strides");
+            PyErr_SetString(
+                pgExc_BufferError,
+                "this pixel array is not contiguous: need strides");
             return -1;
         }
     }
@@ -626,31 +641,31 @@ _pxarray_getbuffer(pgPixelArrayObject *self, Py_buffer *view_p, int flags)
     if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
         /* Find the appropriate format for given pixel size */
         switch (itemsize) {
-            /* This switch statement is exhaustive over possible itemsize
-               values, the supported surface pixel byte sizes */
+                /* This switch statement is exhaustive over possible itemsize
+                   values, the supported surface pixel byte sizes */
 
-        case 1:
-            view_p->format = FormatUint8;
-            break;
-        case 2:
-            view_p->format = FormatUint16;
-            break;
-        case 3:
-            view_p->format = FormatUint24;
-            break;
-        case 4:
-            view_p->format = FormatUint32;
-            break;
+            case 1:
+                view_p->format = FormatUint8;
+                break;
+            case 2:
+                view_p->format = FormatUint16;
+                break;
+            case 3:
+                view_p->format = FormatUint24;
+                break;
+            case 4:
+                view_p->format = FormatUint32;
+                break;
 
 #ifndef NDEBUG
-            /* Assert that itemsize is valid */
-        default:
-            /* Should not get here */
-            PyErr_Format(PyExc_SystemError,
-                         "Internal Pygame error at line %d in %s: "
-                         "unknown item size %d; please report",
-                         (int)__LINE__, __FILE__, (int)itemsize);
-            return -1;
+                /* Assert that itemsize is valid */
+            default:
+                /* Should not get here */
+                PyErr_Format(PyExc_SystemError,
+                             "Internal Pygame error at line %d in %s: "
+                             "unknown item size %d; please report",
+                             (int)__LINE__, __FILE__, (int)itemsize);
+                return -1;
 #endif
         }
     }
@@ -694,14 +709,14 @@ _pxarray_repr(pgPixelArrayObject *array)
     Uint8 *pixelrow;
     Uint8 *pixel_p;
 
-    if(array->surface == NULL) {
+    if (array->surface == NULL) {
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
 
     surf = pgSurface_AsSurface(array->surface);
     bpp = surf->format->BytesPerPixel;
 
-    string = Text_FromUTF8 ("PixelArray(");
+    string = Text_FromUTF8("PixelArray(");
     if (!string) {
         return 0;
     }
@@ -715,130 +730,126 @@ _pxarray_repr(pgPixelArrayObject *array)
     }
 
     switch (bpp) {
-
-    case 1:
-        for (y = 0; y < dim1; ++y) {
-            Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
-            if (!string) {
-                return 0;
-            }
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0 - 1; ++x) {
-                Text_ConcatAndDel(&string,
-                                  Text_FromFormat("%ld, ", (long)*pixel_p));
+        case 1:
+            for (y = 0; y < dim1; ++y) {
+                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
                 if (!string) {
                     return 0;
                 }
-                pixel_p += stride0;
-            }
-            Text_ConcatAndDel(&string,
-                              Text_FromFormat("%ld]", (long)*pixel_p));
-            if (!string) {
-                return 0;
-            }
-            pixelrow += stride1;
-        }
-        break;
-    case 2:
-        for (y = 0; y < dim1; ++y) {
-            Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
-            if (!string) {
-                return 0;
-            }
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0 - 1; ++x) {
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0 - 1; ++x) {
+                    Text_ConcatAndDel(
+                        &string, Text_FromFormat("%ld, ", (long)*pixel_p));
+                    if (!string) {
+                        return 0;
+                    }
+                    pixel_p += stride0;
+                }
                 Text_ConcatAndDel(&string,
-                                  Text_FromFormat("%ld, ",
-                                                  (long)*(Uint16 *)pixel_p));
+                                  Text_FromFormat("%ld]", (long)*pixel_p));
                 if (!string) {
                     return 0;
                 }
-                pixel_p += stride0;
+                pixelrow += stride1;
             }
-            Text_ConcatAndDel(&string,
-                              Text_FromFormat("%ld]",
-                                              (long)*(Uint16 *)pixel_p));
-            if (string == NULL) {
-                return NULL;
+            break;
+        case 2:
+            for (y = 0; y < dim1; ++y) {
+                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                if (!string) {
+                    return 0;
+                }
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0 - 1; ++x) {
+                    Text_ConcatAndDel(
+                        &string,
+                        Text_FromFormat("%ld, ", (long)*(Uint16 *)pixel_p));
+                    if (!string) {
+                        return 0;
+                    }
+                    pixel_p += stride0;
+                }
+                Text_ConcatAndDel(
+                    &string,
+                    Text_FromFormat("%ld]", (long)*(Uint16 *)pixel_p));
+                if (string == NULL) {
+                    return NULL;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
-    case 3:
-        for (y = 0; y < dim1; ++y) {
-            Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0 - 1; ++x) {
+            break;
+        case 3:
+            for (y = 0; y < dim1; ++y) {
+                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0 - 1; ++x) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    pixel =
+                        (pixel_p[0]) + (pixel_p[1] << 8) + (pixel_p[2] << 16);
+#else
+                    pixel =
+                        (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
+#endif
+                    Text_ConcatAndDel(&string,
+                                      Text_FromFormat("%ld, ", (long)pixel));
+                    if (!string) {
+                        return 0;
+                    }
+                    pixel_p += stride0;
+                }
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 pixel = (pixel_p[0]) + (pixel_p[1] << 8) + (pixel_p[2] << 16);
 #else
                 pixel = (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
 #endif
                 Text_ConcatAndDel(&string,
-                                  Text_FromFormat("%ld, ", (long)pixel));
+                                  Text_FromFormat("%ld]", (long)pixel));
                 if (!string) {
                     return 0;
                 }
-                pixel_p += stride0;
+                pixelrow += stride1;
             }
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            pixel = (pixel_p[0]) + (pixel_p[1] << 8) + (pixel_p[2] << 16);
-#else
-            pixel = (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
-#endif
-            Text_ConcatAndDel(&string,
-                              Text_FromFormat("%ld]", (long)pixel));
-            if (!string) {
-                return 0;
-            }
-            pixelrow += stride1;
-        }
-        break;
-    default: /* case 4: */
-        for (y = 0; y < dim1; ++y) {
-            Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
-            if (!string) {
-                return 0;
-            }
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0 - 1; ++x) {
-                Text_ConcatAndDel(&string,
-                                  Text_FromFormat("%ld, ",
-                                                  (long)*(Uint32 *)pixel_p));
-                if (!string)
-                {
+            break;
+        default: /* case 4: */
+            for (y = 0; y < dim1; ++y) {
+                Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
+                if (!string) {
                     return 0;
                 }
-                pixel_p += stride0;
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0 - 1; ++x) {
+                    Text_ConcatAndDel(
+                        &string,
+                        Text_FromFormat("%ld, ", (long)*(Uint32 *)pixel_p));
+                    if (!string) {
+                        return 0;
+                    }
+                    pixel_p += stride0;
+                }
+                Text_ConcatAndDel(
+                    &string,
+                    Text_FromFormat("%ld]", (long)*(Uint32 *)pixel_p));
+                if (string == NULL) {
+                    return NULL;
+                }
+                pixelrow += stride1;
             }
-            Text_ConcatAndDel(&string,
-                              Text_FromFormat("%ld]",
-                                              (long)*(Uint32 *)pixel_p));
-            if (string == NULL)
-            {
-                return NULL;
-            }
-            pixelrow += stride1;
-        }
-        break;
+            break;
     }
 
     if (ndim == 2) {
-        Text_ConcatAndDel(&string, Text_FromUTF8 ("]\n)"));
+        Text_ConcatAndDel(&string, Text_FromUTF8("]\n)"));
     }
     else {
-        Text_ConcatAndDel (&string, Text_FromUTF8 ("\n)"));
+        Text_ConcatAndDel(&string, Text_FromUTF8("\n)"));
     }
     return string;
 }
 
 static PyObject *
-_pxarray_subscript_internal(pgPixelArrayObject *array,
-                            Py_ssize_t xstart,
-                            Py_ssize_t xstop,
-                            Py_ssize_t xstep,
-                            Py_ssize_t ystart,
-                            Py_ssize_t ystop,
+_pxarray_subscript_internal(pgPixelArrayObject *array, Py_ssize_t xstart,
+                            Py_ssize_t xstop, Py_ssize_t xstep,
+                            Py_ssize_t ystart, Py_ssize_t ystop,
                             Py_ssize_t ystep)
 {
     /* Special case: if xstep or ystep are zero, then the corresponding
@@ -855,7 +866,7 @@ _pxarray_subscript_internal(pgPixelArrayObject *array,
     Py_ssize_t dx = xstop - xstart;
     Py_ssize_t dy = ystop - ystart;
 
-    if(array->surface == NULL) {
+    if (array->surface == NULL) {
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
 
@@ -885,22 +896,20 @@ _pxarray_subscript_internal(pgPixelArrayObject *array,
         dim1 = 0;
         stride1 = 0;
     }
-    pixels = (array->pixels +
-              xstart * array->strides[0] +
+    pixels = (array->pixels + xstart * array->strides[0] +
               ystart * array->strides[1]);
-    return (PyObject *)_pxarray_new_internal(&pgPixelArray_Type, 0,
-                                             array, pixels,
-                                             dim0, dim1, stride0, stride1);
+    return (PyObject *)_pxarray_new_internal(
+        &pgPixelArray_Type, 0, array, pixels, dim0, dim1, stride0, stride1);
 }
 
 /**
  * Creates a 2D slice of the array.
  */
 static PyObject *
-_array_slice_internal(pgPixelArrayObject *array,
-                      Py_ssize_t start, Py_ssize_t end, Py_ssize_t step)
+_array_slice_internal(pgPixelArrayObject *array, Py_ssize_t start,
+                      Py_ssize_t end, Py_ssize_t step)
 {
-    if(array->surface == NULL) {
+    if (array->surface == NULL) {
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
     if (end == start) {
@@ -910,11 +919,9 @@ _array_slice_internal(pgPixelArrayObject *array,
     if (start >= array->shape[0]) {
         return RAISE(PyExc_IndexError, "array index out of range");
     }
-    return _pxarray_subscript_internal(array,
-                                       start, end, step,
-                                       0, array->shape[1], 1);
+    return _pxarray_subscript_internal(array, start, end, step, 0,
+                                       array->shape[1], 1);
 }
-
 
 /**** Sequence interfaces ****/
 
@@ -933,7 +940,7 @@ _pxarray_length(pgPixelArrayObject *array)
 static PyObject *
 _pxarray_item(pgPixelArrayObject *array, Py_ssize_t index)
 {
-    if(array->surface == NULL) {
+    if (array->surface == NULL) {
         PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
@@ -946,13 +953,12 @@ _pxarray_item(pgPixelArrayObject *array, Py_ssize_t index)
     if (index >= array->shape[0]) {
         return RAISE(PyExc_IndexError, "array index out of range");
     }
-    return _pxarray_subscript_internal(array, index, 0, 0, 0,
-                                       array->shape[1], 1);
+    return _pxarray_subscript_internal(array, index, 0, 0, 0, array->shape[1],
+                                       1);
 }
 
 static int
-_array_assign_array(pgPixelArrayObject *array,
-                    Py_ssize_t low, Py_ssize_t high,
+_array_assign_array(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
                     pgPixelArrayObject *val)
 {
     SDL_Surface *surf;
@@ -978,7 +984,7 @@ _array_assign_array(pgPixelArrayObject *array,
     Py_ssize_t y;
     int sizes_match = 0;
 
-    if(array->surface == NULL) {
+    if (array->surface == NULL) {
         PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
         return -1;
     }
@@ -1006,7 +1012,7 @@ _array_assign_array(pgPixelArrayObject *array,
         sizes_match = (dim0 == val_dim0);
     }
     if (!sizes_match) {
-         /* Bounds do not match. */
+        /* Bounds do not match. */
         PyErr_SetString(PyExc_ValueError, "array sizes do not match");
         return -1;
     }
@@ -1043,78 +1049,75 @@ _array_assign_array(pgPixelArrayObject *array,
     val_pixelrow = val_pixels;
 
     switch (bpp) {
-
-    case 1:
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_pixel_p = val_pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                *pixel_p = *val_pixel_p;
-                pixel_p += stride0;
-                val_pixel_p += val_stride0;
+        case 1:
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_pixel_p = val_pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    *pixel_p = *val_pixel_p;
+                    pixel_p += stride0;
+                    val_pixel_p += val_stride0;
+                }
+                pixelrow += stride1;
+                val_pixelrow += val_stride1;
             }
-            pixelrow += stride1;
-            val_pixelrow += val_stride1;
-        }
-        break;
-    case 2:
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_pixel_p = val_pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                *((Uint16 *)pixel_p) = *((Uint16 *)val_pixel_p);
-                pixel_p += stride0;
-                val_pixel_p += val_stride0;
+            break;
+        case 2:
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_pixel_p = val_pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    *((Uint16 *)pixel_p) = *((Uint16 *)val_pixel_p);
+                    pixel_p += stride0;
+                    val_pixel_p += val_stride0;
+                }
+                pixelrow += stride1;
+                val_pixelrow += val_stride1;
             }
-            pixelrow += stride1;
-            val_pixelrow += val_stride1;
-        }
-        break;
-    case 3:
-    {
+            break;
+        case 3: {
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        Uint32 Roffset = surf->format->Rshift >> 3;
-        Uint32 Goffset = surf->format->Gshift >> 3;
-        Uint32 Boffset = surf->format->Bshift >> 3;
-        Uint32 vRoffset = val_surf->format->Rshift >> 3;
-        Uint32 vGoffset = val_surf->format->Gshift >> 3;
-        Uint32 vBoffset = val_surf->format->Bshift >> 3;
+            Uint32 Roffset = surf->format->Rshift >> 3;
+            Uint32 Goffset = surf->format->Gshift >> 3;
+            Uint32 Boffset = surf->format->Bshift >> 3;
+            Uint32 vRoffset = val_surf->format->Rshift >> 3;
+            Uint32 vGoffset = val_surf->format->Gshift >> 3;
+            Uint32 vBoffset = val_surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
-        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
-        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
-        Uint32 vRoffset = 2 - (val_surf->format->Rshift >> 3);
-        Uint32 vGoffset = 2 - (val_surf->format->Gshift >> 3);
-        Uint32 vBoffset = 2 - (val_surf->format->Bshift >> 3);
+            Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+            Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+            Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
+            Uint32 vRoffset = 2 - (val_surf->format->Rshift >> 3);
+            Uint32 vGoffset = 2 - (val_surf->format->Gshift >> 3);
+            Uint32 vBoffset = 2 - (val_surf->format->Bshift >> 3);
 #endif
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_pixel_p = val_pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                pixel_p[Roffset] = val_pixel_p[vRoffset];
-                pixel_p[Goffset] = val_pixel_p[vGoffset];
-                pixel_p[Boffset] = val_pixel_p[vBoffset];
-                pixel_p += stride0;
-                val_pixel_p += val_stride0;
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_pixel_p = val_pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    pixel_p[Roffset] = val_pixel_p[vRoffset];
+                    pixel_p[Goffset] = val_pixel_p[vGoffset];
+                    pixel_p[Boffset] = val_pixel_p[vBoffset];
+                    pixel_p += stride0;
+                    val_pixel_p += val_stride0;
+                }
+                pixelrow += stride1;
+                val_pixelrow += val_stride1;
             }
-            pixelrow += stride1;
-            val_pixelrow += val_stride1;
-        }
-    }
-        break;
-    default: /* case 4: */
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_pixel_p = val_pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                *((Uint32 *)pixel_p) = *((Uint32 *)val_pixel_p);
-                pixel_p += stride0;
-                val_pixel_p += val_stride0;
+        } break;
+        default: /* case 4: */
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_pixel_p = val_pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    *((Uint32 *)pixel_p) = *((Uint32 *)val_pixel_p);
+                    pixel_p += stride0;
+                    val_pixel_p += val_stride0;
+                }
+                pixelrow += stride1;
+                val_pixelrow += val_stride1;
             }
-            pixelrow += stride1;
-            val_pixelrow += val_stride1;
-        }
-        break;
+            break;
     }
 
     if (copied_pixels) {
@@ -1124,12 +1127,12 @@ _array_assign_array(pgPixelArrayObject *array,
 }
 
 static int
-_array_assign_sequence(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
-                       PyObject *val)
+_array_assign_sequence(pgPixelArrayObject *array, Py_ssize_t low,
+                       Py_ssize_t high, PyObject *val)
 {
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
     SDL_PixelFormat *format;
-    Py_ssize_t dim0 = ABS (high - low);
+    Py_ssize_t dim0 = ABS(high - low);
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = high >= low ? array->strides[0] : -array->strides[0];
     Py_ssize_t stride1 = array->strides[1];
@@ -1166,7 +1169,7 @@ _array_assign_sequence(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t hig
         item = PySequence_ITEM(val, x);
         if (!_get_color_from_object(item, format, (val_colors + x))) {
             Py_DECREF(item);
-            free (val_colors);
+            free(val_colors);
             return -1;
         }
         Py_DECREF(item);
@@ -1176,68 +1179,65 @@ _array_assign_sequence(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t hig
 
     Py_BEGIN_ALLOW_THREADS;
     switch (bpp) {
-
-    case 1:
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_color_p = val_colors;
-            for (x = 0; x < dim0; ++x) {
-                *pixel_p = (Uint8)*val_color_p;
-                pixel_p += stride0;
-                ++val_color_p;
+        case 1:
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_color_p = val_colors;
+                for (x = 0; x < dim0; ++x) {
+                    *pixel_p = (Uint8)*val_color_p;
+                    pixel_p += stride0;
+                    ++val_color_p;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
-    case 2:
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_color_p = val_colors;
-            for (x = 0; x < dim0; ++x) {
-                *((Uint16 *)pixel_p) = (Uint16)*val_color_p;
-                pixel_p += stride0;
-                ++val_color_p;
+            break;
+        case 2:
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_color_p = val_colors;
+                for (x = 0; x < dim0; ++x) {
+                    *((Uint16 *)pixel_p) = (Uint16)*val_color_p;
+                    pixel_p += stride0;
+                    ++val_color_p;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
-    case 3:
-    {
+            break;
+        case 3: {
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        Uint32 Roffset = surf->format->Rshift >> 3;
-        Uint32 Goffset = surf->format->Gshift >> 3;
-        Uint32 Boffset = surf->format->Bshift >> 3;
+            Uint32 Roffset = surf->format->Rshift >> 3;
+            Uint32 Goffset = surf->format->Gshift >> 3;
+            Uint32 Boffset = surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
-        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
-        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
+            Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+            Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+            Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
 #endif
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_color_p = val_colors;
-            for (x = 0; x < dim0; ++x) {
-                pixel_p[Roffset] = (Uint8)(*val_color_p >> 16);
-                pixel_p[Goffset] = (Uint8)(*val_color_p >> 8);
-                pixel_p[Boffset] = (Uint8)*val_color_p;
-                pixel_p += stride0;
-                ++val_color_p;
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_color_p = val_colors;
+                for (x = 0; x < dim0; ++x) {
+                    pixel_p[Roffset] = (Uint8)(*val_color_p >> 16);
+                    pixel_p[Goffset] = (Uint8)(*val_color_p >> 8);
+                    pixel_p[Boffset] = (Uint8)*val_color_p;
+                    pixel_p += stride0;
+                    ++val_color_p;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-    }
-        break;
-    default: /* case 4: */
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            val_color_p = val_colors;
-            for (x = 0; x < dim0; ++x) {
-                *((Uint32 *)pixel_p) = *val_color_p;
-                pixel_p += stride0;
-                ++val_color_p;
+        } break;
+        default: /* case 4: */
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                val_color_p = val_colors;
+                for (x = 0; x < dim0; ++x) {
+                    *((Uint32 *)pixel_p) = *val_color_p;
+                    pixel_p += stride0;
+                    ++val_color_p;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
+            break;
     }
     Py_END_ALLOW_THREADS;
 
@@ -1250,7 +1250,7 @@ _array_assign_slice(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
                     Uint32 color)
 {
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
-    Py_ssize_t dim0 = ABS (high - low);
+    Py_ssize_t dim0 = ABS(high - low);
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = high >= low ? array->strides[0] : -array->strides[0];
     Py_ssize_t stride1 = array->strides[1];
@@ -1270,72 +1270,65 @@ _array_assign_slice(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
 
     Py_BEGIN_ALLOW_THREADS;
     switch (bpp) {
+        case 1: {
+            Uint8 c = (Uint8)color;
 
-    case 1:
-    {
-        Uint8 c = (Uint8)color;
-
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                *pixel_p = c;
-                pixel_p += stride0;
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    *pixel_p = c;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-    }
-        break;
-    case 2:
-    {
-        Uint16 c = (Uint16)color;
+        } break;
+        case 2: {
+            Uint16 c = (Uint16)color;
 
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                *((Uint16 *)pixel_p) = c;
-                pixel_p += stride0;
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    *((Uint16 *)pixel_p) = c;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-    }
-        break;
-    case 3:
-    {
+        } break;
+        case 3: {
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        Uint32 Roffset = surf->format->Rshift >> 3;
-        Uint32 Goffset = surf->format->Gshift >> 3;
-        Uint32 Boffset = surf->format->Bshift >> 3;
+            Uint32 Roffset = surf->format->Rshift >> 3;
+            Uint32 Goffset = surf->format->Gshift >> 3;
+            Uint32 Boffset = surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
-        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
-        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
+            Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+            Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+            Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
 #endif
-        Uint8 r = (Uint8)(color >> 16);
-        Uint8 g = (Uint8)(color >> 8);
-        Uint8 b = (Uint8)(color);
+            Uint8 r = (Uint8)(color >> 16);
+            Uint8 g = (Uint8)(color >> 8);
+            Uint8 b = (Uint8)(color);
 
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                pixel_p[Roffset] = r;
-                pixel_p[Goffset] = g;
-                pixel_p[Boffset] = b;
-                pixel_p += stride0;
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    pixel_p[Roffset] = r;
+                    pixel_p[Goffset] = g;
+                    pixel_p[Boffset] = b;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-    }
-        break;
-    default: /* case 4: */
-        for (y = 0; y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; x < dim0; ++x) {
-                *((Uint32 *)pixel_p) = color;
-                pixel_p += stride0;
+        } break;
+        default: /* case 4: */
+            for (y = 0; y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; x < dim0; ++x) {
+                    *((Uint32 *)pixel_p) = color;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
+            break;
     }
     Py_END_ALLOW_THREADS;
 
@@ -1364,7 +1357,7 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     bpp = surf->format->BytesPerPixel;
 
     if (!_get_color_from_object(value, surf->format, &color)) {
-        if (PyTuple_Check (value)) {
+        if (PyTuple_Check(value)) {
             return -1;
         }
         if (pgPixelArrayObject_Check(value)) {
@@ -1374,15 +1367,13 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
         }
         else if (PySequence_Check(value)) {
             PyErr_Clear(); /* _get_color_from_object */
-            tmparray = (pgPixelArrayObject *)
-                _pxarray_subscript_internal(array,
-                                            index, 0, 0,
-                                            0, array->shape[1], 1);
+            tmparray = (pgPixelArrayObject *)_pxarray_subscript_internal(
+                array, index, 0, 0, 0, array->shape[1], 1);
             if (!tmparray) {
                 return -1;
             }
-            retval = _array_assign_sequence(tmparray,
-                                            0, tmparray->shape[0], value);
+            retval =
+                _array_assign_sequence(tmparray, 0, tmparray->shape[0], value);
             Py_DECREF(tmparray);
             return retval;
         }
@@ -1411,44 +1402,42 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     Py_BEGIN_ALLOW_THREADS;
     /* Single value assignment. */
     switch (bpp) {
-
-    case 1:
-        for (y = 0; y < dim1; ++y) {
-            *((Uint8 *)pixel_p) = (Uint8)color;
-            pixel_p += stride1;
-        }
-        break;
-    case 2:
-        for (y = 0; y < dim1; ++y) {
-            *((Uint16 *)pixel_p) = (Uint16)color;
-            pixel_p += stride1;
-        }
-        break;
-    case 3:
-    {
+        case 1:
+            for (y = 0; y < dim1; ++y) {
+                *((Uint8 *)pixel_p) = (Uint8)color;
+                pixel_p += stride1;
+            }
+            break;
+        case 2:
+            for (y = 0; y < dim1; ++y) {
+                *((Uint16 *)pixel_p) = (Uint16)color;
+                pixel_p += stride1;
+            }
+            break;
+        case 3: {
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        Uint32 Roffset = surf->format->Rshift >> 3;
-        Uint32 Goffset = surf->format->Gshift >> 3;
-        Uint32 Boffset = surf->format->Bshift >> 3;
+            Uint32 Roffset = surf->format->Rshift >> 3;
+            Uint32 Goffset = surf->format->Gshift >> 3;
+            Uint32 Boffset = surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
-        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
-        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
+            Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+            Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+            Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
 #endif
-        for (y = 0; y < dim1; ++y) {
-            pixel_p[Roffset] = (Uint8)(color >> 16);
-            pixel_p[Goffset] = (Uint8)(color >> 8);
-            pixel_p[Boffset] = (Uint8)color;
-            pixel_p += stride1;
+            for (y = 0; y < dim1; ++y) {
+                pixel_p[Roffset] = (Uint8)(color >> 16);
+                pixel_p[Goffset] = (Uint8)(color >> 8);
+                pixel_p[Boffset] = (Uint8)color;
+                pixel_p += stride1;
+            }
+            break;
         }
-        break;
-    }
-    default: /* case 4: */
-        for (y = 0; y < dim1; ++y) {
-            *((Uint32 *)pixel_p) = color;
-            pixel_p += stride1;
-        }
-        break;
+        default: /* case 4: */
+            for (y = 0; y < dim1; ++y) {
+                *((Uint32 *)pixel_p) = color;
+                pixel_p += stride1;
+            }
+            break;
     }
     Py_END_ALLOW_THREADS;
 
@@ -1480,12 +1469,13 @@ _pxarray_ass_slice(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
     }
 
     if (pgPixelArrayObject_Check(value)) {
-        return _array_assign_array(array, low, high, (pgPixelArrayObject *)value);
+        return _array_assign_array(array, low, high,
+                                   (pgPixelArrayObject *)value);
     }
     if (_get_color_from_object(value, surf->format, &color)) {
         return _array_assign_slice(array, low, high, color);
     }
-    if (PyTuple_Check (value)) {
+    if (PyTuple_Check(value)) {
         return -1;
     }
     PyErr_Clear(); /* In case _get_color_from_object set it */
@@ -1528,69 +1518,61 @@ _pxarray_contains(pgPixelArrayObject *array, PyObject *value)
 
     Py_BEGIN_ALLOW_THREADS;
     switch (bpp) {
+        case 1: {
+            Uint8 c = (Uint8)color;
 
-    case 1:
-    {
-        Uint8 c = (Uint8)color;
-
-        for (y = 0; !found && y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; !found && x < dim0; ++x) {
-                found = *pixel_p == c ? 1 : 0;
-                pixel_p += stride0;
+            for (y = 0; !found && y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; !found && x < dim0; ++x) {
+                    found = *pixel_p == c ? 1 : 0;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-    }
-        break;
-    case 2:
-    {
-        Uint16 c = (Uint16)color;
+        } break;
+        case 2: {
+            Uint16 c = (Uint16)color;
 
-        for (y = 0; !found && y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; !found && x < dim0; ++x) {
-                found = *((Uint16 *)pixel_p) == c ? 1 : 0;
-                pixel_p += stride0;
+            for (y = 0; !found && y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; !found && x < dim0; ++x) {
+                    found = *((Uint16 *)pixel_p) == c ? 1 : 0;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-    }
-        break;
-    case 3:
-        for (y = 0; !found && y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; !found && x < dim0; ++x) {
+        } break;
+        case 3:
+            for (y = 0; !found && y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; !found && x < dim0; ++x) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                found = (((Uint32)pixel_p[0]) +
-                         ((Uint32)pixel_p[1] << 8) +
-                         ((Uint32)pixel_p[2] << 16)  ) == color;
+                    found = (((Uint32)pixel_p[0]) + ((Uint32)pixel_p[1] << 8) +
+                             ((Uint32)pixel_p[2] << 16)) == color;
 #else
-                found = (((Uint32)pixel_p[2]) +
-                         ((Uint32)pixel_p[1] << 8) +
-                         ((Uint32)pixel_p[0] << 16)  ) == color;
+                    found = (((Uint32)pixel_p[2]) + ((Uint32)pixel_p[1] << 8) +
+                             ((Uint32)pixel_p[0] << 16)) == color;
 #endif
-                pixel_p += stride0;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
-    default: /* case 4: */
-        for (y = 0; !found && y < dim1; ++y) {
-            pixel_p = pixelrow;
-            for (x = 0; !found && x < dim0; ++x) {
-                found = *((Uint32 *)pixel_p) == color ? 1 : 0;
-                pixel_p += stride0;
+            break;
+        default: /* case 4: */
+            for (y = 0; !found && y < dim1; ++y) {
+                pixel_p = pixelrow;
+                for (x = 0; !found && x < dim0; ++x) {
+                    found = *((Uint32 *)pixel_p) == color ? 1 : 0;
+                    pixel_p += stride0;
+                }
+                pixelrow += stride1;
             }
-            pixelrow += stride1;
-        }
-        break;
+            break;
     }
     Py_END_ALLOW_THREADS;
 
     return found;
 }
-
 
 /**** Mapping interfaces ****/
 
@@ -1639,7 +1621,7 @@ _get_subslice(PyObject *op, Py_ssize_t length, Py_ssize_t *start,
                             "index too big for array access");
             return -1;
         }
-        *start = (int) val;
+        *start = (int)val;
         if (*start < 0) {
             *start += length;
         }
@@ -1723,9 +1705,8 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
             Py_RETURN_NONE;
         }
 
-        return _pxarray_subscript_internal(array,
-                                           xstart, xstop, xstep,
-                                           ystart, ystop, ystep);
+        return _pxarray_subscript_internal(array, xstart, xstop, xstep, ystart,
+                                           ystop, ystep);
     }
     else if (op == Py_Ellipsis) {
         Py_INCREF(array);
@@ -1747,13 +1728,13 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
         if (slicelen == 0) {
             Py_RETURN_NONE;
         }
-        return _pxarray_subscript_internal(array,
-                                           start, stop, step, 0, dim1, 1);
+        return _pxarray_subscript_internal(array, start, stop, step, 0, dim1,
+                                           1);
     }
     else if (PyIndex_Check(op) || PyInt_Check(op) || PyLong_Check(op)) {
         Py_ssize_t i;
 #if PY_VERSION_HEX >= 0x02050000
-        PyObject *val = PyNumber_Index (op);
+        PyObject *val = PyNumber_Index(op);
         if (!val) {
             return 0;
         }
@@ -1772,7 +1753,7 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
         if (i < 0 || i >= dim0) {
             return RAISE(PyExc_IndexError, "array index out of range");
         }
-       return _pxarray_subscript_internal(array, i, i + 1, 0, 0, dim1, 1);
+        return _pxarray_subscript_internal(array, i, i + 1, 0, 0, dim1, 1);
     }
 
     return RAISE(PyExc_TypeError,
@@ -1780,7 +1761,8 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
 }
 
 static int
-_pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
+_pxarray_ass_subscript(pgPixelArrayObject *array, PyObject *op,
+                       PyObject *value)
 {
     /* TODO: by time we can make this faster by avoiding the creation of
      * temporary subarrays.
@@ -1792,8 +1774,7 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
      * First check array[x,y], then array[x:y:z], then array[x]
      * Otherwise it'll fail.
      */
-    if (PyTuple_Check(op))
-    {
+    if (PyTuple_Check(op)) {
         pgPixelArrayObject *tmparray;
         PyObject *obj;
         Py_ssize_t size = PySequence_Size(op);
@@ -1802,7 +1783,8 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
         int retval;
 
         if (size > 2 || (size == 2 && !dim1)) {
-            PyErr_SetString(PyExc_IndexError, "too many indices for the array");
+            PyErr_SetString(PyExc_IndexError,
+                            "too many indices for the array");
             return -1;
         }
 
@@ -1848,10 +1830,8 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
 
         /* Single value? */
         if (ABS(xstop - xstart) == 1 && ABS(ystop - ystart) == 1) {
-            tmparray = (pgPixelArrayObject *)
-                _pxarray_subscript_internal(array,
-                                            xstart, xstart + 1, 1,
-                                            ystart, ystart + 1, 1);
+            tmparray = (pgPixelArrayObject *)_pxarray_subscript_internal(
+                array, xstart, xstart + 1, 1, ystart, ystart + 1, 1);
             if (!tmparray) {
                 return -1;
             }
@@ -1859,10 +1839,8 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
             Py_DECREF(tmparray);
             return retval;
         }
-        tmparray = (pgPixelArrayObject *)
-            _pxarray_subscript_internal(array,
-                                        xstart, xstop, xstep,
-                                        ystart, ystop, ystep);
+        tmparray = (pgPixelArrayObject *)_pxarray_subscript_internal(
+            array, xstart, xstop, xstep, ystart, ystop, ystep);
         if (!tmparray) {
             return -1;
         }
@@ -1874,10 +1852,9 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
     }
     else if (op == Py_Ellipsis) {
         /* A slice */
-        pgPixelArrayObject *tmparray = (pgPixelArrayObject *)
-            _pxarray_subscript_internal(array,
-                                        0, array->shape[0], 1,
-                                        0, array->shape[1], 1);
+        pgPixelArrayObject *tmparray =
+            (pgPixelArrayObject *)_pxarray_subscript_internal(
+                array, 0, array->shape[0], 1, 0, array->shape[1], 1);
         int retval;
 
         if (!tmparray) {
@@ -1898,8 +1875,8 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
         Py_ssize_t stop;
         int retval;
 
-        if (Slice_GET_INDICES_EX(op, array->shape[0],
-                                 &start, &stop, &step, &slicelen)) {
+        if (Slice_GET_INDICES_EX(op, array->shape[0], &start, &stop, &step,
+                                 &slicelen)) {
             return -1;
         }
         if (slicelen < 0) {
@@ -1910,13 +1887,13 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
         if (slicelen == 0) {
             return 0;
         }
-        tmparray = (pgPixelArrayObject *)
-            _array_slice_internal(array, start, stop, step);
+        tmparray = (pgPixelArrayObject *)_array_slice_internal(array, start,
+                                                               stop, step);
         if (!tmparray) {
             return -1;
         }
-        retval = _pxarray_ass_slice(tmparray,
-                                    0, (Py_ssize_t)tmparray->shape[0], value);
+        retval = _pxarray_ass_slice(tmparray, 0,
+                                    (Py_ssize_t)tmparray->shape[0], value);
         Py_DECREF(tmparray);
         return retval;
     }
@@ -1931,7 +1908,7 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
         i = PyNumber_AsSsize_t(val, PyExc_IndexError);
         Py_DECREF(val);
 #else
-        i = PyInt_Check(op) ? PyInt_AsLong (op) : PyLong_AsLong (op);
+        i = PyInt_Check(op) ? PyInt_AsLong(op) : PyLong_AsLong(op);
 #endif
         if (i == -1 && PyErr_Occurred()) {
             return -1;
@@ -1944,9 +1921,9 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject* op, PyObject* value)
     return -1;
 }
 
-
 /**** C API interfaces ****/
-static PyObject* pgPixelArray_New(PyObject *surfobj)
+static PyObject *
+pgPixelArray_New(PyObject *surfobj)
 {
     SDL_Surface *surf;
     Py_ssize_t dim0;
@@ -1965,32 +1942,31 @@ static PyObject* pgPixelArray_New(PyObject *surfobj)
     stride0 = (Py_ssize_t)surf->format->BytesPerPixel;
     stride1 = (Py_ssize_t)surf->pitch;
     pixels = surf->pixels;
-    if (stride0 < 1  || stride0 > 4) {
+    if (stride0 < 1 || stride0 > 4) {
         return RAISE(PyExc_ValueError,
                      "unsupported bit depth for reference array");
     }
 
-    return (PyObject *)_pxarray_new_internal(&pgPixelArray_Type, surfobj, 0,
-                                             pixels,
-                                             dim0, dim1, stride0, stride1);
+    return (PyObject *)_pxarray_new_internal(
+        &pgPixelArray_Type, surfobj, 0, pixels, dim0, dim1, stride0, stride1);
 }
-
 
 MODINIT_DEFINE(pixelarray)
 {
     PyObject *module;
     PyObject *apiobj;
-    static void* c_api[PYGAMEAPI_PIXELARRAY_NUMSLOTS];
+    static void *c_api[PYGAMEAPI_PIXELARRAY_NUMSLOTS];
 
 #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "pixelarray",
-        NULL,
-        -1,
-        NULL,
-        NULL, NULL, NULL, NULL
-    };
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "pixelarray",
+                                         NULL,
+                                         -1,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL};
 #endif
 
     /* imported needed apis; Do this first so if there is an error
@@ -2034,7 +2010,7 @@ MODINIT_DEFINE(pixelarray)
 
     c_api[0] = &pgPixelArray_Type;
     c_api[1] = pgPixelArray_New;
-    apiobj = encapsulate_api (c_api, "pixelarray");
+    apiobj = encapsulate_api(c_api, "pixelarray");
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

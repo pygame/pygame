@@ -28,32 +28,33 @@
 #include <string.h>
 
 #include "SDL.h"
+
 #include "SDL_thread.h"
 
 #include "fastevents.h"
 
 // ----------------------------------------
 //
-//error handling code
+// error handling code
 //
 
 static char *error = NULL;
 
 static __inline__ void
-setError (char *err)
+setError(char *err)
 {
     error = err;
 }
 
-char*
-FE_GetError ()
+char *
+FE_GetError()
 {
     return error;
 }
 
 //----------------------------------------
 //
-//Threads, mutexs, thread utils, and
+// Threads, mutexs, thread utils, and
 // thread safe wrappers
 //
 
@@ -67,13 +68,13 @@ static SDL_TimerID eventTimer = 0;
 //
 
 int
-FE_PushEvent (SDL_Event * ev)
+FE_PushEvent(SDL_Event *ev)
 {
-    SDL_LockMutex (eventLock);
-    while (-1 == SDL_PushEvent (ev))
-        SDL_CondWait (eventWait, eventLock);
-    SDL_CondSignal (eventWait);
-    SDL_UnlockMutex (eventLock);
+    SDL_LockMutex(eventLock);
+    while (-1 == SDL_PushEvent(ev))
+        SDL_CondWait(eventWait, eventLock);
+    SDL_CondSignal(eventWait);
+    SDL_UnlockMutex(eventLock);
 
     return 1;
 }
@@ -84,11 +85,11 @@ FE_PushEvent (SDL_Event * ev)
 //
 
 void
-FE_PumpEvents ()
+FE_PumpEvents()
 {
-    SDL_LockMutex (eventLock);
-    SDL_PumpEvents ();
-    SDL_UnlockMutex (eventLock);
+    SDL_LockMutex(eventLock);
+    SDL_PumpEvents();
+    SDL_UnlockMutex(eventLock);
 }
 
 //----------------------------------------
@@ -97,34 +98,34 @@ FE_PumpEvents ()
 //
 
 int
-FE_PollEvent (SDL_Event * event)
+FE_PollEvent(SDL_Event *event)
 {
     int val = 0;
 
-    SDL_LockMutex (eventLock);
-    val = SDL_PollEvent (event);
+    SDL_LockMutex(eventLock);
+    val = SDL_PollEvent(event);
     if (0 < val)
-        SDL_CondSignal (eventWait);
-    SDL_UnlockMutex (eventLock);
+        SDL_CondSignal(eventWait);
+    SDL_UnlockMutex(eventLock);
 
     return val;
 }
 
 //----------------------------------------
 //
-//Replacement for SDL_WaitEvent
+// Replacement for SDL_WaitEvent
 //
 
 int
-FE_WaitEvent (SDL_Event * event)
+FE_WaitEvent(SDL_Event *event)
 {
     int val = 0;
 
-    SDL_LockMutex (eventLock);
-    while (0 >= (val = SDL_PollEvent (event)))
-        SDL_CondWait (eventWait, eventLock);
-    SDL_CondSignal (eventWait);
-    SDL_UnlockMutex (eventLock);
+    SDL_LockMutex(eventLock);
+    while (0 >= (val = SDL_PollEvent(event)))
+        SDL_CondWait(eventWait, eventLock);
+    SDL_CondSignal(eventWait);
+    SDL_UnlockMutex(eventLock);
 
     return val;
 }
@@ -135,11 +136,11 @@ FE_WaitEvent (SDL_Event * event)
 //
 
 static Uint32
-timerCallback (Uint32 interval, void *param)
+timerCallback(Uint32 interval, void *param)
 {
-    SDL_LockMutex (eventLock);
-    SDL_CondBroadcast (eventWait);
-    SDL_UnlockMutex (eventLock);
+    SDL_LockMutex(eventLock);
+    SDL_CondBroadcast(eventWait);
+    SDL_UnlockMutex(eventLock);
     return interval;
 }
 
@@ -149,29 +150,26 @@ timerCallback (Uint32 interval, void *param)
 //
 
 int
-FE_Init ()
+FE_Init()
 {
-    if (0 == (SDL_INIT_TIMER & SDL_WasInit (SDL_INIT_TIMER)))
-        SDL_InitSubSystem (SDL_INIT_TIMER);
+    if (0 == (SDL_INIT_TIMER & SDL_WasInit(SDL_INIT_TIMER)))
+        SDL_InitSubSystem(SDL_INIT_TIMER);
 
-    eventLock = SDL_CreateMutex ();
-    if (NULL == eventLock)
-    {
-        setError ("FE: can't create a mutex");
+    eventLock = SDL_CreateMutex();
+    if (NULL == eventLock) {
+        setError("FE: can't create a mutex");
         return -1;
     }
 
-    eventWait = SDL_CreateCond ();
-    if (NULL == eventWait)
-    {
-        setError ("FE: can't create a condition variable");
+    eventWait = SDL_CreateCond();
+    if (NULL == eventWait) {
+        setError("FE: can't create a condition variable");
         return -1;
     }
 
-    eventTimer = SDL_AddTimer (10, timerCallback, NULL);
-    if (NULL == eventTimer)
-    {
-        setError ("FE: can't add a timer");
+    eventTimer = SDL_AddTimer(10, timerCallback, NULL);
+    if (NULL == eventTimer) {
+        setError("FE: can't add a timer");
         return -1;
     }
 
@@ -184,13 +182,13 @@ FE_Init ()
 //
 
 void
-FE_Quit ()
+FE_Quit()
 {
-    SDL_DestroyMutex (eventLock);
+    SDL_DestroyMutex(eventLock);
     eventLock = NULL;
 
-    SDL_DestroyCond (eventWait);
+    SDL_DestroyCond(eventWait);
     eventWait = NULL;
 
-    SDL_RemoveTimer (eventTimer);
+    SDL_RemoveTimer(eventTimer);
 }

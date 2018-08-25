@@ -19,9 +19,6 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 brew uninstall --force --ignore-dependencies pkg-config
 brew install pkg-config
 
-# brew install ccache
-# export PATH=/usr/local/opt/ccache/libexec:$PATH
-
 if [[ ${BUILD_UNIVERSAL} == "1" ]]; then
   UNIVERSAL_FLAG='--universal'
   echo "Using --universal option for builds"
@@ -30,49 +27,96 @@ else
   echo "Not using --universal option for builds"
 fi
 
-brew uninstall --force --ignore-dependencies sdl
-brew uninstall --force --ignore-dependencies sdl_image
-brew uninstall --force --ignore-dependencies sdl_mixer
-brew uninstall --force --ignore-dependencies sdl_ttf
-brew uninstall --force --ignore-dependencies smpeg
-brew uninstall --force --ignore-dependencies jpeg
-brew uninstall --force --ignore-dependencies libpng
-brew uninstall --force --ignore-dependencies libtiff
-brew uninstall --force --ignore-dependencies webp
-brew uninstall --force --ignore-dependencies flac
-brew uninstall --force --ignore-dependencies fluid-synth
-brew uninstall --force --ignore-dependencies libmikmod
-brew uninstall --force --ignore-dependencies libvorbis
-brew uninstall --force --ignore-dependencies smpeg
-brew uninstall --force --ignore-dependencies portmidi
-brew uninstall --force --ignore-dependencies freetype
+# Only compile from source if doing a release. on tag or master.
+# This saves compile times for normal PR testing.
+echo "About to install dependencies"
+echo $TRAVIS_TAG
+echo $TRAVIS_BRANCH
+echo $TRAVIS_PULL_REQUEST
+if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_BRANCH" = "master" ]); then
+	echo "building more things from source"
 
-export HOMEBREW_BUILD_BOTTLE=1
-export HOMEBREW_BOTTLE_ARCH=core2
+	brew uninstall --force --ignore-dependencies sdl
+	brew uninstall --force --ignore-dependencies sdl_image
+	brew uninstall --force --ignore-dependencies sdl_mixer
+	brew uninstall --force --ignore-dependencies sdl_ttf
+	brew uninstall --force --ignore-dependencies smpeg
+	brew uninstall --force --ignore-dependencies jpeg
+	brew uninstall --force --ignore-dependencies libpng
+	brew uninstall --force --ignore-dependencies libtiff
+	brew uninstall --force --ignore-dependencies webp
+	brew uninstall --force --ignore-dependencies flac
+	brew uninstall --force --ignore-dependencies fluid-synth
+	brew uninstall --force --ignore-dependencies libmikmod
+	brew uninstall --force --ignore-dependencies libvorbis
+	brew uninstall --force --ignore-dependencies smpeg
+	brew uninstall --force --ignore-dependencies portmidi
+	brew uninstall --force --ignore-dependencies freetype
 
-brew install sdl ${UNIVERSAL_FLAG}
-brew install jpeg ${UNIVERSAL_FLAG}
-brew install libpng ${UNIVERSAL_FLAG}
-brew install libtiff ${UNIVERSAL_FLAG} --with-xz
-brew install webp ${UNIVERSAL_FLAG} --with-libtiff --with-giflib
-brew install libogg ${UNIVERSAL_FLAG}
-brew install libvorbis ${UNIVERSAL_FLAG}
-brew install flac ${UNIVERSAL_FLAG} --with-libogg
-brew install fluid-synth
-brew install libmikmod ${UNIVERSAL_FLAG}
-brew install smpeg
+	# These are for building from source, with 'core2'
+	#   because otherwise homebrew will use the architecture of the build host.
+	export HOMEBREW_BUILD_BOTTLE=1
+	export HOMEBREW_BOTTLE_ARCH=core2
+fi
+
+
+function fail {
+  echo $1 >&2
+  exit 1
+}
+
+function retry {
+  local n=1
+  local max=5
+  local delay=2
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command failed. Attempt $n/$max:"
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
+function install_or_upgrade {
+	set +e
+    if brew ls --versions "$1" >/dev/null; then
+        echo "package already installed: $@"
+    else
+    	retry brew install "$@"
+    fi
+    set -e
+}
+
+
+install_or_upgrade sdl ${UNIVERSAL_FLAG}
+install_or_upgrade jpeg ${UNIVERSAL_FLAG}
+install_or_upgrade libpng ${UNIVERSAL_FLAG}
+install_or_upgrade libtiff ${UNIVERSAL_FLAG} --with-xz
+install_or_upgrade webp ${UNIVERSAL_FLAG}
+install_or_upgrade libogg ${UNIVERSAL_FLAG}
+install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
+install_or_upgrade flac ${UNIVERSAL_FLAG}
+install_or_upgrade fluid-synth
+install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
+install_or_upgrade smpeg
+
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
 brew tap pygame/portmidi
 brew install pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
 
-brew install freetype ${UNIVERSAL_FLAG}
-brew install sdl_ttf ${UNIVERSAL_FLAG}
-brew install sdl_image ${UNIVERSAL_FLAG}
-brew install sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
+install_or_upgrade freetype ${UNIVERSAL_FLAG}
+install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
+install_or_upgrade sdl_image ${UNIVERSAL_FLAG}
+install_or_upgrade sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
 
-brew install https://gist.githubusercontent.com/illume/08f9d3ca872dc2b61d80f665602233fd/raw/0fbfd6657da24c419d23a6678b5715a18cd6560a/portmidi.rb
+# brew install https://gist.githubusercontent.com/illume/08f9d3ca872dc2b61d80f665602233fd/raw/0fbfd6657da24c419d23a6678b5715a18cd6560a/portmidi.rb
 
 unset HOMEBREW_BUILD_BOTTLE
 unset HOMEBREW_BOTTLE_ARCH
