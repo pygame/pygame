@@ -1,8 +1,13 @@
 import unittest
-from pygame.tests import test_utils
+
 import pygame
 from pygame import draw
 from pygame.locals import SRCALPHA
+
+if is_pygame_pkg:
+    from pygame.tests import test_utils
+else:
+    from test import test_utils
 
 
 def get_border_values(surface, width, height):
@@ -46,7 +51,7 @@ def lines_set_up():
     colors = [
             (0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
             (255, 0, 255), (0, 255, 255), (255, 255, 255)]
-        
+
     # Create each possible surface type
     surface_default = pygame.display.set_mode((50, 50))
     surface_default_SRCALPHA = pygame.Surface((50, 50), SRCALPHA)
@@ -89,17 +94,17 @@ class DrawModuleTest(unittest.TestCase):
 
         self.assert_(drawn == rect)
 
-        #Should be colored where it's supposed to be
+        # Should be colored where it's supposed to be
         for pt in test_utils.rect_area_pts(rect):
             color_at_pt = self.surf.get_at(pt)
             self.assert_(color_at_pt == self.color)
 
-        #And not where it shouldn't
+        # And not where it shouldn't
         for pt in test_utils.rect_outer_bounds(rect):
             color_at_pt = self.surf.get_at(pt)
             self.assert_(color_at_pt != self.color)
 
-        #Issue #310: Cannot draw rectangles that are 1 pixel high
+        # Issue #310: Cannot draw rectangles that are 1 pixel high
         bgcolor = pygame.Color('black')
         self.surf.fill(bgcolor)
         hrect = pygame.Rect(1, 1, self.surf_w - 2, 1)
@@ -131,12 +136,12 @@ class DrawModuleTest(unittest.TestCase):
         drawn = draw.rect(self.surf, self.color, rect, 1)
         self.assert_(drawn == rect)
 
-        #Should be colored where it's supposed to be
+        # Should be colored where it's supposed to be
         for pt in test_utils.rect_perimeter_pts(drawn):
             color_at_pt = self.surf.get_at(pt)
             self.assert_(color_at_pt == self.color)
 
-        #And not where it shouldn't
+        # And not where it shouldn't
         for pt in test_utils.rect_outer_bounds(drawn):
             color_at_pt = self.surf.get_at(pt)
             self.assert_(color_at_pt != self.color)
@@ -148,20 +153,20 @@ class DrawModuleTest(unittest.TestCase):
           # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
           # draw a straight line segment
 
-        drawn = draw.line(self.surf, self.color, (1, 0), (200, 0)) #(l, t), (l, t)
+        # (l, t), (l, t)
+        drawn = draw.line(self.surf, self.color, (1, 0), (200, 0))
         self.assert_(drawn.right == 201,
-            "end point arg should be (or at least was) inclusive"
-        )
+                     "end point arg should be (or at least was) inclusive")
 
-        #Should be colored where it's supposed to be
+        # Should be colored where it's supposed to be
         for pt in test_utils.rect_area_pts(drawn):
             self.assert_(self.surf.get_at(pt) == self.color)
 
-        #And not where it shouldn't
+        # And not where it shouldn't
         for pt in test_utils.rect_outer_bounds(drawn):
             self.assert_(self.surf.get_at(pt) != self.color)
 
-        #Line width greater that 1
+        # Line width greater that 1
         line_width = 2
         offset = 5
         a = (offset, offset)
@@ -235,7 +240,7 @@ class DrawModuleTest(unittest.TestCase):
           #
 
         colors, surfaces = lines_set_up()
-        
+
         for surface in surfaces:
             for color in colors:
                 self.assertTrue(line_is_color(surface, color, "aaline"))
@@ -311,7 +316,7 @@ class DrawModuleTest(unittest.TestCase):
         left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
         sizes = [(5, 4)]
         color = (1, 13, 24, 255)
-    
+
         def get_border_values(surface, width, height):
             """
             Returns a list containing lists with the values of the surface's
@@ -333,7 +338,7 @@ class DrawModuleTest(unittest.TestCase):
             surface = pygame.Surface((width, height))
 
             draw.ellipse(
-                surface, color, (0, 0, height, width), border_width)            
+                surface, color, (0, 0, height, width), border_width)
 
             # For each of the four borders check if it contains the color
             borders = get_border_values(surface, width, height)
