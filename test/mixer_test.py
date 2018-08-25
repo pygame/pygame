@@ -172,21 +172,21 @@ class MixerModuleTest(unittest.TestCase):
 
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound()
-                self.assertEqual(cm.exception, arg_emsg)
+            self.assertEqual(cm.exception.message, arg_emsg)
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(wave_path, buffer=sample)
-                self.assertEqual(cm.exception, arg_emsg)
+            self.assertEqual(cm.exception.message, arg_emsg)
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(sample, file=wave_path)
-                self.assertEqual(cm.exception, arg_emsg)
+            self.assertEqual(cm.exception.message, arg_emsg)
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=sample, file=wave_path)
-                self.assertEqual(cm.exception, arg_emsg)
+            self.assertEqual(cm.exception.message, arg_emsg)
 
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(foobar=sample)
-                self.assertEqual(cm.exception,
-                                 "Unrecognized keyword argument 'foobar'")
+            self.assertEqual(cm.exception.message,
+                             "Unrecognized keyword argument 'foobar'")
 
             snd = mixer.Sound(wave_path, **{})
             self.assertEqual(get_bytes(snd), snd_bytes)
@@ -194,21 +194,21 @@ class MixerModuleTest(unittest.TestCase):
 
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound([])
-                emsg = 'Unrecognized argument (type list)'
-                self.assertEqual(cm.exception, emsg)
+            self.assertEqual(cm.exception.message,
+                             'Unrecognized argument (type list)')
 
             with self.assertRaises(TypeError) as cm:
                 snd = mixer.Sound(buffer=[])
-                emsg = 'Expected object with buffer interface: got a list'
-                self.assertEqual(cm.exception, emsg)
+            emsg = 'Expected object with buffer interface: got a list'
+            self.assertEqual(cm.exception.message, emsg)
 
             ufake_path = unicode_('12345678')
             self.assertRaises(pygame.error, mixer.Sound, ufake_path)
 
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=unicode_('something'))
-                emsg = 'Unicode object not allowed as buffer object'
-                self.assertEqual(cm.exception, emsg)
+            emsg = 'Unicode object not allowed as buffer object'
+            self.assertEqual(cm.exception.message, emsg)
             self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
             self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
             self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
@@ -217,10 +217,10 @@ class MixerModuleTest(unittest.TestCase):
             snd = mixer.Sound(wave_path)
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(wave_path, array=snd)
-                self.assertEqual(cm.exception, arg_emsg)
+            self.assertEqual(cm.exception.message, arg_emsg)
             with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=sample, array=snd)
-                self.assertEqual(cm.exception, arg_emsg)
+            self.assertEqual(cm.exception.message, arg_emsg)
             snd2 = mixer.Sound(array=snd)
             self.assertEqual(snd.get_raw(), snd2.get_raw())
 
