@@ -9,7 +9,13 @@ import pygame.compat
 from pygame.locals import *
 
 
-class MidiTest( unittest.TestCase ):
+class MidiTest(unittest.TestCase):
+
+    def setUp(self):
+        pygame.midi.init()
+
+    def tearDown(self):
+        pygame.midi.quit()
 
     def todo_test_poll(self):
 
@@ -143,13 +149,13 @@ class MidiTest( unittest.TestCase ):
 
         i = pygame.midi.get_default_output_id()
         if i != -1:
-            o = pygame.midi.Output(i)
+            out = pygame.midi.Output(i)
+            # program change
+            out.write_short(0xc0)
             # put a note on, then off.
-            o.write_short(0x90,65,100)
-            o.write_short(0x80,65,100)
-
-
-
+            out.write_short(0x90, 65, 100)
+            out.write_short(0x80, 65, 100)
+            out.write_short(0x90)
 
     def test_Input(self):
         """|tags: interactive|
@@ -210,12 +216,6 @@ class MidiTest( unittest.TestCase ):
         self.fail()
 
 
-    def tearDown(self):
-        pygame.midi.quit()
-
-    def setUp(self):
-        pygame.midi.init()
-
     def test_get_count(self):
         c = pygame.midi.get_count()
         self.assertIsInstance(c, int)
@@ -274,6 +274,8 @@ class MidiTest( unittest.TestCase ):
         # if there is a not None return make sure it is an int.
         self.assertIsInstance(c, int)
         self.assertTrue(c >= -1)
+        pygame.midi.quit()
+        self.assertRaises(RuntimeError, pygame.midi.get_default_output_id)
 
     def test_get_default_output_id(self):
 
@@ -327,6 +329,8 @@ class MidiTest( unittest.TestCase ):
         c = pygame.midi.get_default_output_id()
         self.assertIsInstance(c, int)
         self.assertTrue(c >= -1)
+        pygame.midi.quit()
+        self.assertRaises(RuntimeError, pygame.midi.get_default_output_id)
 
     def test_get_device_info(self):
 
@@ -350,10 +354,7 @@ class MidiTest( unittest.TestCase ):
         if an_in_id != -1:
             r = pygame.midi.get_device_info(an_in_id)
             # if r is None, it means that the id is out of range.
-            try:
-                interf, name, input, output, opened = r
-            except TypeError:
-                raise Exception(repr(r))
+            interf, name, input, output, opened = r
 
             self.assertEqual(output, 0)
             self.assertEqual(input, 1)
@@ -417,10 +418,10 @@ class MidiTest( unittest.TestCase ):
           # returns the current time in ms of the PortMidi timer
           # pygame.midi.time(): return time
 
-        t = pygame.midi.time()
-        self.assertIsInstance(c, int)
+        mtime = pygame.midi.time()
+        self.assertIsInstance(mtime, int)
         # should be close to 2-3... since the timer is just init'd.
-        self.assertTrue(0 <= t < 100)
+        self.assertTrue(0 <= mtime < 100)
 
 
 if __name__ == '__main__':
