@@ -110,6 +110,12 @@ class MidiOutputTest(MidiTestBase):
             out = pygame.midi.Output(m_id)
             out.note_on(5, 30, 0)
             out.note_off(5, 30, 0)
+            with self.assertRaises(ValueError) as cm:
+                out.note_off(5, 30, 25)
+            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            with self.assertRaises(ValueError) as cm:
+                out.note_off(5, 30, -1)
+            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
 
     def test_note_on(self):
         """|tags: interactive|
@@ -126,6 +132,12 @@ class MidiOutputTest(MidiTestBase):
         if m_id != -1:
             out = pygame.midi.Output(m_id)
             out.note_on(5, 30, 0)
+            with self.assertRaises(ValueError) as cm:
+                out.note_on(5, 30, 25)
+            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            with self.assertRaises(ValueError) as cm:
+                out.note_on(5, 30, -1)
+            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
 
     def todo_test_set_instrument(self):
 
