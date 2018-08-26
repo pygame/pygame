@@ -9,13 +9,35 @@ import pygame.compat
 from pygame.locals import *
 
 
-class MidiTest(unittest.TestCase):
+class MidiTestBase(unittest.TestCase):
+    """Base class for Midi tests."""
 
     def setUp(self):
         pygame.midi.init()
 
     def tearDown(self):
         pygame.midi.quit()
+
+
+class MidiInputTest(MidiTestBase):
+
+    def test_Input(self):
+        """|tags: interactive|
+        """
+
+        i = pygame.midi.get_default_input_id()
+        if i != -1:
+            _inp = pygame.midi.Input(i)
+
+        # try feeding it an input id.
+        i = pygame.midi.get_default_output_id()
+
+        # can handle some invalid input too.
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, i)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, 9009)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, -1)
+        self.assertRaises(TypeError, pygame.midi.Input, "1234")
+        self.assertRaises(OverflowError, pygame.midi.Input, pow(2, 99))
 
     def todo_test_poll(self):
 
@@ -25,7 +47,6 @@ class MidiTest(unittest.TestCase):
           # Input.poll(): return Bool
           #
           # raises a MidiException on error.
-
         self.fail()
 
     def todo_test_read(self):
@@ -41,14 +62,25 @@ class MidiTest(unittest.TestCase):
 
         self.fail()
 
-    def test_MidiException(self):
 
-        def raiseit():
-            raise pygame.midi.MidiException('Hello Midi param')
+class MidiOutputTest(MidiTestBase):
 
-        with self.assertRaises(pygame.midi.MidiException) as cm:
-            raiseit()
-        self.assertEqual(cm.exception.parameter, 'Hello Midi param')
+    def test_Output(self):
+        """|tags: interactive|
+        """
+        i = pygame.midi.get_default_output_id()
+        if i != -1:
+            _out = pygame.midi.Output(i)
+
+        # try feeding it an input id.
+        i = pygame.midi.get_default_input_id()
+
+        # can handle some invalid input too.
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, i)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, 9009)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, -1)
+        self.assertRaises(TypeError, pygame.midi.Output,"1234")
+        self.assertRaises(OverflowError, pygame.midi.Output, pow(2,99))
 
     def test_note_off(self):
         """|tags: interactive|
@@ -157,45 +189,6 @@ class MidiTest(unittest.TestCase):
             out.write_short(0x80, 65, 100)
             out.write_short(0x90)
 
-    def test_Input(self):
-        """|tags: interactive|
-        """
-
-        i = pygame.midi.get_default_input_id()
-        if i != -1:
-            o = pygame.midi.Input(i)
-            del o
-
-        # try feeding it an input id.
-        i = pygame.midi.get_default_output_id()
-
-        # can handle some invalid input too.
-        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, i)
-        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, 9009)
-        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, -1)
-        self.assertRaises(TypeError, pygame.midi.Input,"1234")
-        self.assertRaises(OverflowError, pygame.midi.Input, pow(2,99))
-
-
-    def test_Output(self):
-        """|tags: interactive|
-        """
-        i = pygame.midi.get_default_output_id()
-        if i != -1:
-            o = pygame.midi.Output(i)
-            del o
-
-        # try feeding it an input id.
-        i = pygame.midi.get_default_input_id()
-
-        # can handle some invalid input too.
-        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, i)
-        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, 9009)
-        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, -1)
-        self.assertRaises(TypeError, pygame.midi.Output,"1234")
-        self.assertRaises(OverflowError, pygame.midi.Output, pow(2,99))
-
-
     def todo_test_write_sys_ex(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.Output.write_sys_ex:
@@ -215,6 +208,17 @@ class MidiTest(unittest.TestCase):
 
         self.fail()
 
+
+class MidiModuleTest(MidiTestBase):
+
+    def test_MidiException(self):
+
+        def raiseit():
+            raise pygame.midi.MidiException('Hello Midi param')
+
+        with self.assertRaises(pygame.midi.MidiException) as cm:
+            raiseit()
+        self.assertEqual(cm.exception.parameter, 'Hello Midi param')
 
     def test_get_count(self):
         c = pygame.midi.get_count()
