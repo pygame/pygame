@@ -39,7 +39,7 @@ class MidiInputTest(MidiTestBase):
         self.assertRaises(TypeError, pygame.midi.Input, "1234")
         self.assertRaises(OverflowError, pygame.midi.Input, pow(2, 99))
 
-    def todo_test_poll(self):
+    def test_poll(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.Input.poll:
 
@@ -47,9 +47,15 @@ class MidiInputTest(MidiTestBase):
           # Input.poll(): return Bool
           #
           # raises a MidiException on error.
-        self.fail()
+        in_id = pygame.midi.get_default_input_id()
+        if in_id != -1:
+            midi_in = pygame.midi.Input(in_id)
+            self.assertFalse(midi_in.poll())
+            # TODO fake some incoming data
+            pygame.midi.quit()
+            self.assertRaises(RuntimeError, midi_in.poll)
 
-    def todo_test_read(self):
+    def test_read(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.Input.read:
 
@@ -59,8 +65,12 @@ class MidiInputTest(MidiTestBase):
           # Reads from the Input buffer and gives back midi events.
           # [[[status,data1,data2,data3],timestamp],
           #  [[status,data1,data2,data3],timestamp],...]
-
-        self.fail()
+        in_id = pygame.midi.get_default_input_id()
+        if in_id != -1:
+            midi_in = pygame.midi.Input(in_id)
+            read = midi_in.read(5)
+            self.assertEqual(read, [])
+            # TODO fake some  incoming data
 
 
 class MidiOutputTest(MidiTestBase):
