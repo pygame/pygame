@@ -37,18 +37,12 @@ class MidiTest( unittest.TestCase ):
 
     def test_MidiException(self):
 
-        # __doc__ (as of 2009-05-19) for pygame.midi.MidiException.message:
-
         def raiseit():
-            raise pygame.midi.MidiException(0)
+            raise pygame.midi.MidiException('Hello Midi param')
 
-        self.assertRaises(pygame.midi.MidiException, raiseit)
-        try:
-            raise pygame.midi.MidiException(0)
-        except pygame.midi.MidiException:
-            e = pygame.compat.geterror()
-            self.assertEqual(e.parameter, 0)
-
+        with self.assertRaises(pygame.midi.MidiException) as cm:
+            raiseit()
+        self.assertEqual(cm.exception.parameter, 'Hello Midi param')
 
     def test_note_off(self):
         """|tags: interactive|
@@ -62,16 +56,16 @@ class MidiTest( unittest.TestCase ):
           # Turn a note off in the output stream.  The note must already
           # be on for this to work correctly.
 
-        i = pygame.midi.get_default_output_id()
-        if i != -1:
-            o = pygame.midi.Output(i)
-            o.note_on(5, 30, 0)
-            o.note_off(5, 30, 0)
+
+        m_id = pygame.midi.get_default_output_id()
+        if m_id != -1:
+            out = pygame.midi.Output(m_id)
+            out.note_on(5, 30, 0)
+            out.note_off(5, 30, 0)
 
     def test_note_on(self):
         """|tags: interactive|
         """
-
         # __doc__ (as of 2009-05-19) for pygame.midi.Output.note_on:
 
           # turns a midi note on.  Note must be off.
@@ -80,12 +74,10 @@ class MidiTest( unittest.TestCase ):
           # Turn a note on in the output stream.  The note must already
           # be off for this to work correctly.
 
-
-        i = pygame.midi.get_default_output_id()
-        if i != -1:
-            o = pygame.midi.Output(i)
-            o.note_on(5, 30, 0)
-
+        m_id = pygame.midi.get_default_output_id()
+        if m_id != -1:
+            out = pygame.midi.Output(m_id)
+            out.note_on(5, 30, 0)
 
     def todo_test_set_instrument(self):
 
@@ -225,20 +217,9 @@ class MidiTest( unittest.TestCase ):
         pygame.midi.init()
 
     def test_get_count(self):
-
-        # __doc__ (as of 2009-05-19) for pygame.midi.get_count:
-
-          # gets the number of devices.
-          # pygame.midi.get_count(): return num_devices
-          #
-          #
-          # Device ids range from 0 to get_count() -1
-
         c = pygame.midi.get_count()
-        self.assertEqual(type(c), type(1))
-        self.failUnless(c >= 0)
-
-
+        self.assertIsInstance(c, int)
+        self.assertTrue(c >= 0)
 
     def test_get_default_input_id(self):
 
@@ -291,10 +272,8 @@ class MidiTest( unittest.TestCase ):
 
         c = pygame.midi.get_default_input_id()
         # if there is a not None return make sure it is an int.
-        self.assertEqual(type(c), type(1))
-        self.failUnless(c >= 0 or c == -1)
-
-
+        self.assertIsInstance(c, int)
+        self.assertTrue(c >= -1)
 
     def test_get_default_output_id(self):
 
@@ -346,11 +325,8 @@ class MidiTest( unittest.TestCase ):
           #     (the input or output device with the lowest PmDeviceID).
 
         c = pygame.midi.get_default_output_id()
-        self.assertEqual(type(c), type(1))
-        self.failUnless(c >= 0 or c == -1)
-
-
-
+        self.assertIsInstance(c, int)
+        self.assertTrue(c >= -1)
 
     def test_get_device_info(self):
 
@@ -366,14 +342,9 @@ class MidiTest( unittest.TestCase ):
         an_id = pygame.midi.get_default_output_id()
         if an_id != -1:
             interf, name, input, output, opened = pygame.midi.get_device_info(an_id)
-            #print interf
-            #print name
-            #print input, output, opened
-
             self.assertEqual(output, 1)
             self.assertEqual(input, 0)
             self.assertEqual(opened, 0)
-
 
         an_in_id = pygame.midi.get_default_input_id()
         if an_in_id != -1:
@@ -387,11 +358,6 @@ class MidiTest( unittest.TestCase ):
             self.assertEqual(output, 0)
             self.assertEqual(input, 1)
             self.assertEqual(opened, 0)
-
-
-
-
-
 
     def test_init(self):
 
@@ -410,8 +376,6 @@ class MidiTest( unittest.TestCase ):
         pygame.midi.init()
         pygame.midi.init()
         pygame.midi.init()
-
-
 
     def todo_test_midis2events(self):
 
@@ -437,7 +401,7 @@ class MidiTest( unittest.TestCase ):
           # It is safe to call this function more than once.
 
 
-          # It is safe to call this more than once.
+         # It is safe to call this more than once.
         pygame.midi.quit()
         pygame.midi.init()
         pygame.midi.quit()
@@ -454,10 +418,9 @@ class MidiTest( unittest.TestCase ):
           # pygame.midi.time(): return time
 
         t = pygame.midi.time()
-        self.assertEqual(type(t), type(1))
+        self.assertIsInstance(c, int)
         # should be close to 2-3... since the timer is just init'd.
-        self.failUnless(t >= 0 and t < 100)
-
+        self.assertTrue(0 <= t < 100)
 
 
 if __name__ == '__main__':
