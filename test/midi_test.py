@@ -72,6 +72,9 @@ class MidiInputTest(MidiTestBase):
             self.assertEqual(read, [])
             # TODO fake some  incoming data
 
+    def todo_test_close(self):
+        pass
+
 
 class MidiOutputTest(MidiTestBase):
 
@@ -132,6 +135,7 @@ class MidiOutputTest(MidiTestBase):
         if m_id != -1:
             out = pygame.midi.Output(m_id)
             out.note_on(5, 30, 0)
+            out.note_on(5, 42, 10)
             with self.assertRaises(ValueError) as cm:
                 out.note_on(5, 30, 25)
             self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
@@ -139,14 +143,30 @@ class MidiOutputTest(MidiTestBase):
                 out.note_on(5, 30, -1)
             self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
 
-    def todo_test_set_instrument(self):
+    def test_set_instrument(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.Output.set_instrument:
 
           # Select an instrument, with a value between 0 and 127.
           # Output.set_instrument(instrument_id, channel = 0)
 
-        self.fail()
+        m_id = pygame.midi.get_default_output_id()
+        if m_id != -1:
+            out = pygame.midi.Output(m_id)
+            out.set_instrument(5)
+            out.set_instrument(42, channel=2)
+            with self.assertRaises(ValueError) as cm:
+                out.set_instrument(-6)
+            self.assertEqual(cm.exception.message, "Undefined instrument id: -6")
+            with self.assertRaises(ValueError) as cm:
+                out.set_instrument(156)
+            self.assertEqual(cm.exception.message, "Undefined instrument id: 156")
+            with self.assertRaises(ValueError) as cm:
+                out.set_instrument(5, -1)
+            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            with self.assertRaises(ValueError) as cm:
+                out.set_instrument(5, 16)
+            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
 
     def test_write(self):
 
@@ -229,6 +249,16 @@ class MidiOutputTest(MidiTestBase):
           #                    [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
 
         self.fail()
+
+    def todo_test_pitch_bend(self):
+        pass
+        # FIXME : pitch_bend in the code, but not in documentation
+
+    def todo_test_close(self):
+        pass
+
+    def todo_test_abort(self):
+        pass
 
 
 class MidiModuleTest(MidiTestBase):
