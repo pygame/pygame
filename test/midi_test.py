@@ -270,10 +270,10 @@ class MidiTest(unittest.TestCase):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        c = pygame.midi.get_default_input_id()
+        midin_id = pygame.midi.get_default_input_id()
         # if there is a not None return make sure it is an int.
-        self.assertIsInstance(c, int)
-        self.assertTrue(c >= -1)
+        self.assertIsInstance(midin_id, int)
+        self.assertTrue(midin_id >= -1)
         pygame.midi.quit()
         self.assertRaises(RuntimeError, pygame.midi.get_default_output_id)
 
@@ -359,6 +359,11 @@ class MidiTest(unittest.TestCase):
             self.assertEqual(output, 0)
             self.assertEqual(input, 1)
             self.assertEqual(opened, 0)
+        out_of_range = pygame.midi.get_count()
+        for num in range(out_of_range):
+            self.assertIsNotNone(pygame.midi.get_device_info(num))
+        info = pygame.midi.get_device_info(out_of_range)
+        self.assertIsNone(info)
 
     def test_init(self):
 
