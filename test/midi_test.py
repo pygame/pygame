@@ -9,8 +9,6 @@ import pygame.compat
 from pygame.locals import *
 
 
-
-
 class MidiInputTest(unittest.TestCase):
 
     def setUp(self):
@@ -496,7 +494,7 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.init()
 
-    def todo_test_midis2events(self):
+    def test_midis2events(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.midis2events:
 
@@ -505,7 +503,22 @@ class MidiModuleTest(unittest.TestCase):
           #
           # Takes a sequence of midi events and returns list of pygame events.
 
-        self.fail()
+        midi_data = ([[0xc0, 0, 1, 2], 20000],
+                     [[0x90, 60, 100, 'blablabla'], 20000]
+                    )
+        events = pygame.midi.midis2events(midi_data, 2)
+        self.assertEqual(len(events), 2)
+
+        for eve in events:
+            print(eve, type(eve))
+            # pygame.event.Event is a function, but ...
+            self.assertEqual(eve.__class__.__name__, 'Event')
+            self.assertEqual(eve.vice_id, 2)
+            # FIXME I don't know what we want for the Event.timestamp
+            # For now it accepts  it accepts int as is:
+            self.assertIsInstance(eve.timestamp, int)
+            self.assertEqual(eve.timestamp, 20000)
+        self.assertEqual(events[1].data3, 'blablabla')
 
     def test_quit(self):
 
