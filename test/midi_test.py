@@ -258,24 +258,13 @@ class MidiOutputTest(unittest.TestCase):
         out.write_short(0x80, 65, 100)
         out.write_short(0x90)
 
-    def todo_test_write_sys_ex(self):
+    def test_write_sys_ex(self):
+        if not self.midi_output:
+           self.skipTest('No midi device')
 
-        # __doc__ (as of 2009-05-19) for pygame.midi.Output.write_sys_ex:
-
-          # writes a timestamped system-exclusive midi message.
-          # Output.write_sys_ex(when, msg)
-          #
-          # write_sys_ex(<timestamp>,<msg>)
-          #
-          # msg - can be a *list* or a *string*
-          # example:
-          #   (assuming o is an onput MIDI stream)
-          #     o.write_sys_ex(0,'\xF0\x7D\x10\x11\x12\x13\xF7')
-          #   is equivalent to
-          #     o.write_sys_ex(pygame.midi.Time,
-          #                    [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
-
-        self.fail()
+        out = self.midi_output
+        out.write_sys_ex(pygame.midi.time(),
+                         [0xF0, 0x7D, 0x10, 0x11, 0x12, 0x13, 0xF7])
 
     def test_pitch_bend(self):
         # FIXME : pitch_bend in the code, but not in documentation
