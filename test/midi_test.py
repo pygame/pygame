@@ -76,14 +76,27 @@ class MidiInputTest(MidiTestBase):
         pass
 
 
-class MidiOutputTest(MidiTestBase):
+class MidiOutputTest(unittest.TestCase):
+
+    def setUp(self):
+        pygame.midi.init()
+        m_out_id = pygame.midi.get_default_output_id()
+        if m_out_id != -1:
+            self.midi_output = pygame.midi.Output(m_out_id)
+        else:
+            self.midi_output = None
+
+    def tearDown(self):
+        if self.midi_output:
+            self.midi_output.close()
+        pygame.midi.quit()
 
     def test_Output(self):
         """|tags: interactive|
         """
         i = pygame.midi.get_default_output_id()
-        if i != -1:
-            _out = pygame.midi.Output(i)
+        if self.midi_output:
+            self.assertEqual(self.midi_output.device_id, i)
 
         # try feeding it an input id.
         i = pygame.midi.get_default_input_id()
@@ -107,10 +120,8 @@ class MidiOutputTest(MidiTestBase):
           # Turn a note off in the output stream.  The note must already
           # be on for this to work correctly.
 
-
-        m_id = pygame.midi.get_default_output_id()
-        if m_id != -1:
-            out = pygame.midi.Output(m_id)
+        if self.midi_output:
+            out = self.midi_output
             out.note_on(5, 30, 0)
             out.note_off(5, 30, 0)
             with self.assertRaises(ValueError) as cm:
@@ -131,9 +142,8 @@ class MidiOutputTest(MidiTestBase):
           # Turn a note on in the output stream.  The note must already
           # be off for this to work correctly.
 
-        m_id = pygame.midi.get_default_output_id()
-        if m_id != -1:
-            out = pygame.midi.Output(m_id)
+        if self.midi_output:
+            out = self.midi_output
             out.note_on(5, 30, 0)
             out.note_on(5, 42, 10)
             with self.assertRaises(ValueError) as cm:
@@ -150,31 +160,29 @@ class MidiOutputTest(MidiTestBase):
           # Select an instrument, with a value between 0 and 127.
           # Output.set_instrument(instrument_id, channel = 0)
 
-        m_id = pygame.midi.get_default_output_id()
-        if m_id != -1:
-            out = pygame.midi.Output(m_id)
-            out.set_instrument(5)
-            out.set_instrument(42, channel=2)
-            with self.assertRaises(ValueError) as cm:
-                out.set_instrument(-6)
-            self.assertEqual(cm.exception.message, "Undefined instrument id: -6")
-            with self.assertRaises(ValueError) as cm:
-                out.set_instrument(156)
-            self.assertEqual(cm.exception.message, "Undefined instrument id: 156")
-            with self.assertRaises(ValueError) as cm:
-                out.set_instrument(5, -1)
-            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
-            with self.assertRaises(ValueError) as cm:
-                out.set_instrument(5, 16)
-            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+        if not self.midi_output:
+           self.skipTest('No midi device')
+        out = self.midi_output
+        out.set_instrument(5)
+        out.set_instrument(42, channel=2)
+        with self.assertRaises(ValueError) as cm:
+            out.set_instrument(-6)
+        self.assertEqual(str(cm.exception), "Undefined instrument id: -6")
+        with self.assertRaises(ValueError) as cm:
+            out.set_instrument(156)
+        self.assertEqual(str(cm.exception), "Undefined instrument id: 156")
+        with self.assertRaises(ValueError) as cm:
+            out.set_instrument(5, -1)
+        self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
+        with self.assertRaises(ValueError) as cm:
+            out.set_instrument(5, 16)
+        self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
 
     def test_write(self):
+        if not self.midi_output:
+           self.skipTest('No midi device')
 
-        m_id = pygame.midi.get_default_output_id()
-        if m_id == -1:
-            self.skipTest('No midi device')
-        out = pygame.midi.Output(m_id)
-        data = []
+        out = self.midi_output
         out.write([[[0xc0, 0, 0], 20000]])
         # is equivalent to
         out.write([[[0xc0], 20000]])
@@ -187,10 +195,10 @@ class MidiOutputTest(MidiTestBase):
         ])
 
         out.write([])
-        verrry_long = [[[0x90, 60, i // 100], 20000 + 100 * i] for i in range(1024)]
+        verrry_long = [[[0x90, 60, i % 100], 20000 + 100 * i] for i in range(1024)]
         out.write(verrry_long)
 
-        too_long = [[[0x90, 60, i // 100], 20000 + 100 * i] for i in range(1025)]
+        too_long = [[[0x90, 60, i % 100], 20000 + 100 * i] for i in range(1025)]
         self.assertRaises(IndexError, out.write, too_long)
         # test wrong data
         with self.assertRaises(TypeError) as cm:
@@ -221,15 +229,16 @@ class MidiOutputTest(MidiTestBase):
           # example: note 65 on with velocity 100
           #      write_short(0x90,65,100)
 
-        i = pygame.midi.get_default_output_id()
-        if i != -1:
-            out = pygame.midi.Output(i)
-            # program change
-            out.write_short(0xc0)
-            # put a note on, then off.
-            out.write_short(0x90, 65, 100)
-            out.write_short(0x80, 65, 100)
-            out.write_short(0x90)
+        if not self.midi_output:
+           self.skipTest('No midi device')
+
+        out = self.midi_output
+        # program change
+        out.write_short(0xc0)
+        # put a note on, then off.
+        out.write_short(0x90, 65, 100)
+        out.write_short(0x80, 65, 100)
+        out.write_short(0x90)
 
     def todo_test_write_sys_ex(self):
 
