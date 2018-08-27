@@ -1,27 +1,11 @@
 #################################### IMPORTS ###################################
 
-import pygame
 import unittest
 
+import pygame
 from pygame import draw
 from pygame.locals import SRCALPHA
-
-if is_pygame_pkg:
-    from pygame.tests import test_utils
-else:
-    from test import test_utils
-
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
+from pygame.tests import test_utils
 
 
 def get_border_values(surface, width, height):
@@ -61,7 +45,7 @@ class DrawEllipseTest(unittest.TestCase):
           # 
 
         left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
-        sizes = [(5, 4)]
+        sizes = [(4, 4), (5, 4), (4, 5), (5, 5)]
         color = (1, 13, 24, 255)
 
         def same_size(width, height, border_width):
@@ -71,7 +55,7 @@ class DrawEllipseTest(unittest.TestCase):
             surface = pygame.Surface((width, height))
 
             draw.ellipse(
-                surface, color, (0, 0, height, width), border_width)            
+                surface, color, (0, 0, width, height), border_width)            
 
             # For each of the four borders check if it contains the color
             borders = get_border_values(surface, width, height)
@@ -103,8 +87,8 @@ class DrawEllipseTest(unittest.TestCase):
 
 def lines_are_color(surface, color, line_type="lines"):
     """
-    Draws aalines around the border of the given surface and checks if
-    all borders of the surface contain the given color.
+    Draws (aa)lines around the border of the given surface and checks if all
+    borders of the surface only contain the given color.
     """
     width = surface.get_width()
     height = surface.get_height()
@@ -153,19 +137,90 @@ def line_is_color(surface, color, line_type="line"):
     return surface.get_at((0, 0)) == color
 
 
+def line_has_gaps(surface, line_type="line"):
+    """
+    Returns True if the line drawn on the surface contains gaps.
+    """
+    width = surface.get_width()
+    color = (255, 255, 255)
+
+    if line_type == "aaline":
+        draw.aaline(surface, color, (0, 0), (width - 1, 0))
+    else:
+        draw.line(surface, color, (0, 0), (width - 1, 0))
+
+    colors = [surface.get_at((width, 0)) for width in range(width)]
+
+    return len(colors) == colors.count(color)
+
+
+def lines_have_gaps(surface, line_type="lines"):
+    """
+    Draws (aa)lines around the border of the given surface and checks if all
+    borders of the surface contain any gaps.
+    """
+    width = surface.get_width()
+    height = surface.get_height()
+    color = (255, 255, 255)
+    points = [(0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1)]
+
+    if line_type == "aalines":
+        draw.aalines(surface, color, True, points)
+    else:
+        draw.lines(surface, color, True, points)
+
+    borders = get_border_values(surface, width, height)
+    return [len(border) == border.count(color) for border in borders]
+
+
 class DrawLineTest(unittest.TestCase):
     """
     Class for testing line(), aaline(), lines() and aalines().
     """
+    # __doc__ (as of 2008-06-25) for pygame.draw.line:
+
+      # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
+      # draw a straight line segment
+
+    # __doc__ (as of 2008-08-02) for pygame.draw.aaline:
+
+      # pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect
+      # draw fine antialiased lines
+      # 
+      # Draws an anti-aliased line on a surface. This will respect the
+      # clipping rectangle. A bounding box of the affected area is returned
+      # returned as a rectangle. If blend is true, the shades will be be
+      # blended with existing pixel shades instead of overwriting them. This
+      # function accepts floating point values for the end points.
+
+    # __doc__ (as of 2008-08-02) for pygame.draw.lines:
+
+      # pygame.draw.lines(Surface, color, closed, pointlist, width=1): return Rect
+      # draw multiple contiguous line segments
+      # 
+      # Draw a sequence of lines on a Surface. The pointlist argument is a
+      # series of points that are connected by a line. If the closed
+      # argument is true an additional line segment is drawn between the
+      # first and last points.
+      # 
+      # This does not draw any endcaps or miter joints. Lines with sharp
+      # corners and wide line widths can have improper looking corners.
+
+    # __doc__ (as of 2008-08-02) for pygame.draw.aalines:
+
+      # pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
+      # 
+      # Draws a sequence on a surface. You must pass at least two points in
+      # the sequence of points. The closed argument is a simple boolean and
+      # if true, a line will be draw between the first and last points. The
+      # boolean blend argument set to true will blend the shades with
+      # existing shades instead of overwriting them. This function accepts
+      # floating point values for the end points.
 
     def test_line_color(self):
         """
         Checks if the line drawn with line_is_color() is the correct color.
         """
-        # __doc__ (as of 2008-06-25) for pygame.draw.line:
-
-          # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
-          # draw a straight line segment
 
         colors, surfaces = lines_set_up()
 
@@ -173,46 +228,38 @@ class DrawLineTest(unittest.TestCase):
             for color in colors:
                 self.assertTrue(line_is_color(surface, color))
 
+    def test_line_gaps(self):
+        """
+        Checks if the line drawn with line_has_gaps() contains any gaps.
+        """
+        sizes = [(49, 49), (50, 50)]
+        for size in sizes:
+            surface = pygame.Surface(size)
+            self.assertTrue(line_has_gaps(surface))
+
     def test_aaline_color(self):
         """ |tags: ignore|
         Checks if the aaline drawn with line_is_color() is the correct color.
         """
-        # __doc__ (as of 2008-08-02) for pygame.draw.aaline:
-
-          # pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect
-          # draw fine antialiased lines
-          # 
-          # Draws an anti-aliased line on a surface. This will respect the
-          # clipping rectangle. A bounding box of the affected area is returned
-          # returned as a rectangle. If blend is true, the shades will be be
-          # blended with existing pixel shades instead of overwriting them. This
-          # function accepts floating point values for the end points.
-          # 
-
         colors, surfaces = lines_set_up()
 
         for surface in surfaces:
             for color in colors:
                 self.assertTrue(line_is_color(surface, color, "aaline"))
 
+    def test_aaline_gaps(self):
+        """ |tags: ignore|
+        Checks if the aaline drawn with line_has_gaps() contains any gaps.
+        """
+        sizes = [(49, 49), (50, 50)]
+        for size in sizes:
+            surface = pygame.Surface(size)
+            self.assertTrue(line_has_gaps(surface, "aaline"))
+
     def test_lines_color(self):
         """
         Checks if the lines drawn with lines_are_color() are the correct color.
         """
-        # __doc__ (as of 2008-08-02) for pygame.draw.lines:
-
-          # pygame.draw.lines(Surface, color, closed, pointlist, width=1): return Rect
-          # draw multiple contiguous line segments
-          # 
-          # Draw a sequence of lines on a Surface. The pointlist argument is a
-          # series of points that are connected by a line. If the closed
-          # argument is true an additional line segment is drawn between the
-          # first and last points.
-          # 
-          # This does not draw any endcaps or miter joints. Lines with sharp
-          # corners and wide line widths can have improper looking corners.
-          # 
-
         colors, surfaces = lines_set_up()
 
         for surface in surfaces:
@@ -220,29 +267,41 @@ class DrawLineTest(unittest.TestCase):
                 in_border = lines_are_color(surface, color)
                 self.assertTrue(in_border.count(True) == 4)
 
+    def test_lines_gaps(self):
+        """
+        Checks if the lines drawn with lines_have_gaps() contain any gaps.
+        """
+        colors, surfaces = lines_set_up()
+
+        sizes = [(49, 49), (50, 50)]
+        for size in sizes:
+            surface = pygame.Surface(size)
+            have_gaps = lines_have_gaps(surface)
+            self.assertTrue(have_gaps.count(True) == 4)
+
     def test_aalines_color(self):
         """ |tags: ignore|
         Checks if the aalines drawn with lines_are_color() are the correct
         color.
         """
-        # __doc__ (as of 2008-08-02) for pygame.draw.aalines:
-
-          # pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
-          # 
-          # Draws a sequence on a surface. You must pass at least two points in
-          # the sequence of points. The closed argument is a simple boolean and
-          # if true, a line will be draw between the first and last points. The
-          # boolean blend argument set to true will blend the shades with
-          # existing shades instead of overwriting them. This function accepts
-          # floating point values for the end points.
-          # 
-
         colors, surfaces = lines_set_up()
 
         for surface in surfaces:
             for color in colors:
                 in_border = lines_are_color(surface, color, "aalines")
                 self.assertTrue(in_border.count(True) == 4)
+
+    def test_aalines_gaps(self):
+        """ |tags: ignore|
+        Checks if the lines drawn with lines_have_gaps() contain any gaps.
+        """
+        colors, surfaces = lines_set_up()
+
+        sizes = [(49, 49), (50, 50)]
+        for size in sizes:
+            surface = pygame.Surface(size)
+            have_gaps = lines_have_gaps(surface, "aalines")
+            self.assertTrue(have_gaps.count(True) == 4)
 
 ################################################################################
 
