@@ -259,15 +259,33 @@ class MidiOutputTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_pitch_bend(self):
-        pass
+    def test_pitch_bend(self):
         # FIXME : pitch_bend in the code, but not in documentation
+        if not self.midi_output:
+           self.skipTest('No midi device')
 
-    def todo_test_close(self):
-        pass
+        out = self.midi_output
+        with self.assertRaises(ValueError) as cm:
+            out.pitch_bend(5, channel=-1)
+        self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
+        with self.assertRaises(ValueError) as cm:
+            out.pitch_bend(5, channel=16)
+        with self.assertRaises(ValueError) as cm:
+            out.pitch_bend(-10001, 1)
+        self.assertEqual(str(cm.exception), "Pitch bend value must be between "
+                                            "-8192 and +8191, not -10001.")
+        with self.assertRaises(ValueError) as cm:
+            out.pitch_bend(10665, 2)
 
-    def todo_test_abort(self):
-        pass
+    def test_close(self):
+        self.assertIsNotNone(self.midi_output._output)
+        self.midi_output.close()
+        self.assertIsNone(self.midi_output._output)
+
+    def test_abort(self):
+        self.assertEqual(self.midi_output._aborted, 0)
+        self.midi_output.abort()
+        self.assertEqual(self.midi_output._aborted, 1)
 
 
 class MidiModuleTest(MidiTestBase):
