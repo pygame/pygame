@@ -1,6 +1,8 @@
-import unittest
+#################################### IMPORTS ###################################
 
 import pygame
+import unittest
+
 from pygame import draw
 from pygame.locals import SRCALPHA
 
@@ -8,6 +10,18 @@ if is_pygame_pkg:
     from pygame.tests import test_utils
 else:
     from test import test_utils
+
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 
 def get_border_values(surface, width, height):
@@ -23,6 +37,68 @@ def get_border_values(surface, width, height):
         surface.get_at((x, height - 1)) for x in range(width)]
 
     return [border_top, border_left, border_right, border_bottom]
+
+
+class DrawEllipseTest(unittest.TestCase):
+    """
+    Class for testing ellipse().
+    """
+    def test_ellipse(self):
+        """ |tags: ignore|
+        Draws ellipses of differing sizes on surfaces of differing sizes and
+        checks to see if the number of sides touching the border of the surface
+        is correct.
+        """
+        # __doc__ (as of 2008-08-02) for pygame.draw.ellipse:
+
+          # pygame.draw.ellipse(Surface, color, Rect, width=0): return Rect
+          # draw a round shape inside a rectangle
+          # 
+          # Draws an elliptical shape on the Surface. The given rectangle is the
+          # area that the circle will fill. The width argument is the thickness
+          # to draw the outer edge. If width is zero then the ellipse will be
+          # filled.
+          # 
+
+        left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        sizes = [(5, 4)]
+        color = (1, 13, 24, 255)
+
+        def same_size(width, height, border_width):
+            """
+            Test for ellipses with the same size as the surface.
+            """
+            surface = pygame.Surface((width, height))
+
+            draw.ellipse(
+                surface, color, (0, 0, height, width), border_width)            
+
+            # For each of the four borders check if it contains the color
+            borders = get_border_values(surface, width, height)
+            for border in borders:
+                self.assertTrue(color in border)
+
+        def not_same_size(width, height, border_width, left, top):
+            """
+            Test for ellipses that aren't the same size as the surface.
+            """
+            surface = pygame.Surface((width, height))
+
+            draw.ellipse(surface, color, (left, top, width - 1, height - 1),
+                         border_width)
+
+            borders = get_border_values(surface, width, height)
+
+            # Check if two sides of the ellipse are touching the border
+            sides_touching = [
+                color in border for border in borders].count(True)
+            self.assertEqual(sides_touching, 2)
+
+        for width, height in sizes:
+            for border_width in (0, 1):
+                same_size(width, height, border_width)
+                for left, top in left_top:
+                    not_same_size(width, height, border_width, left, top)
 
 
 def lines_are_color(surface, color, line_type="lines"):
@@ -75,6 +151,100 @@ def line_is_color(surface, color, line_type="line"):
         draw.line(surface, color, (0, 0), (1, 0))
 
     return surface.get_at((0, 0)) == color
+
+
+class DrawLineTest(unittest.TestCase):
+    """
+    Class for testing line(), aaline(), lines() and aalines().
+    """
+
+    def test_line_color(self):
+        """
+        Checks if the line drawn with line_is_color() is the correct color.
+        """
+        # __doc__ (as of 2008-06-25) for pygame.draw.line:
+
+          # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
+          # draw a straight line segment
+
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                self.assertTrue(line_is_color(surface, color))
+
+    def test_aaline_color(self):
+        """ |tags: ignore|
+        Checks if the aaline drawn with line_is_color() is the correct color.
+        """
+        # __doc__ (as of 2008-08-02) for pygame.draw.aaline:
+
+          # pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect
+          # draw fine antialiased lines
+          # 
+          # Draws an anti-aliased line on a surface. This will respect the
+          # clipping rectangle. A bounding box of the affected area is returned
+          # returned as a rectangle. If blend is true, the shades will be be
+          # blended with existing pixel shades instead of overwriting them. This
+          # function accepts floating point values for the end points.
+          # 
+
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                self.assertTrue(line_is_color(surface, color, "aaline"))
+
+    def test_lines_color(self):
+        """
+        Checks if the lines drawn with lines_are_color() are the correct color.
+        """
+        # __doc__ (as of 2008-08-02) for pygame.draw.lines:
+
+          # pygame.draw.lines(Surface, color, closed, pointlist, width=1): return Rect
+          # draw multiple contiguous line segments
+          # 
+          # Draw a sequence of lines on a Surface. The pointlist argument is a
+          # series of points that are connected by a line. If the closed
+          # argument is true an additional line segment is drawn between the
+          # first and last points.
+          # 
+          # This does not draw any endcaps or miter joints. Lines with sharp
+          # corners and wide line widths can have improper looking corners.
+          # 
+
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                in_border = lines_are_color(surface, color)
+                self.assertTrue(in_border.count(True) == 4)
+
+    def test_aalines_color(self):
+        """ |tags: ignore|
+        Checks if the aalines drawn with lines_are_color() are the correct
+        color.
+        """
+        # __doc__ (as of 2008-08-02) for pygame.draw.aalines:
+
+          # pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
+          # 
+          # Draws a sequence on a surface. You must pass at least two points in
+          # the sequence of points. The closed argument is a simple boolean and
+          # if true, a line will be draw between the first and last points. The
+          # boolean blend argument set to true will blend the shades with
+          # existing shades instead of overwriting them. This function accepts
+          # floating point values for the end points.
+          # 
+
+        colors, surfaces = lines_set_up()
+
+        for surface in surfaces:
+            for color in colors:
+                in_border = lines_are_color(surface, color, "aalines")
+                self.assertTrue(in_border.count(True) == 4)
+
+################################################################################
 
 
 class DrawModuleTest(unittest.TestCase):
@@ -218,55 +388,6 @@ class DrawModuleTest(unittest.TestCase):
             msg += ", %s" % (rec,)
             self.assert_(rec == (rx, ry, w, h), msg)
 
-        colors, surfaces = lines_set_up()
-
-        for surface in surfaces:
-            for color in colors:
-                self.assertTrue(line_is_color(surface, color))
-
-    def test_aaline(self):
-        """ |tags: ignore| 
-        """
-        # __doc__ (as of 2008-08-02) for pygame.draw.aaline:
-
-          # pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect
-          # draw fine antialiased lines
-          #
-          # Draws an anti-aliased line on a surface. This will respect the
-          # clipping rectangle. A bounding box of the affected area is returned
-          # returned as a rectangle. If blend is true, the shades will be be
-          # blended with existing pixel shades instead of overwriting them. This
-          # function accepts floating point values for the end points.
-          #
-
-        colors, surfaces = lines_set_up()
-
-        for surface in surfaces:
-            for color in colors:
-                self.assertTrue(line_is_color(surface, color, "aaline"))
-
-    def test_aalines(self):
-        """ |tags: ignore| 
-        """
-        # __doc__ (as of 2008-08-02) for pygame.draw.aalines:
-
-          # pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
-          #
-          # Draws a sequence on a surface. You must pass at least two points in
-          # the sequence of points. The closed argument is a simple boolean and
-          # if true, a line will be draw between the first and last points. The
-          # boolean blend argument set to true will blend the shades with
-          # existing shades instead of overwriting them. This function accepts
-          # floating point values for the end points.
-          #
-
-        colors, surfaces = lines_set_up()
-
-        for surface in surfaces:
-            for color in colors:
-                in_border = lines_are_color(surface, color, "aalines")
-                self.assertTrue(in_border.count(True) == 4)
-
     def todo_test_arc(self):
 
         # __doc__ (as of 2008-08-02) for pygame.draw.arc:
@@ -298,96 +419,6 @@ class DrawModuleTest(unittest.TestCase):
           #
 
         self.fail()
-
-    def test_ellipse(self):
-        """ |tags: ignore|
-        """
-        # __doc__ (as of 2008-08-02) for pygame.draw.ellipse:
-
-          # pygame.draw.ellipse(Surface, color, Rect, width=0): return Rect
-          # draw a round shape inside a rectangle
-          #
-          # Draws an elliptical shape on the Surface. The given rectangle is the
-          # area that the circle will fill. The width argument is the thickness
-          # to draw the outer edge. If width is zero then the ellipse will be
-          # filled.
-          #
-
-        left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
-        sizes = [(5, 4)]
-        color = (1, 13, 24, 255)
-
-        def get_border_values(surface, width, height):
-            """
-            Returns a list containing lists with the values of the surface's
-            borders.
-            """
-            border_top = [surface.get_at((x, 0)) for x in range(width)]
-            border_left = [surface.get_at((0, y)) for y in range(height)]
-            border_right = [
-                surface.get_at((width - 1, y)) for y in range(height)]
-            border_bottom = [
-                surface.get_at((x, height - 1)) for x in range(width)]
-
-            return [border_top, border_left, border_right, border_bottom]
-
-        def same_size(width, height, border_width):
-            """
-            Test for ellipses with the same size as the surface.
-            """
-            surface = pygame.Surface((width, height))
-
-            draw.ellipse(
-                surface, color, (0, 0, height, width), border_width)
-
-            # For each of the four borders check if it contains the color
-            borders = get_border_values(surface, width, height)
-            for border in borders:
-                self.assertTrue(color in border)
-
-        def not_same_size(width, height, border_width, left, top):
-            """
-            Test for ellipses that aren't the same size as the surface.
-            """
-            surface = pygame.Surface((width, height))
-
-            draw.ellipse(surface, color, (left, top, width - 1, height - 1),
-                         border_width)
-
-            borders = get_border_values(surface, width, height)
-
-            # Check if two sides of the ellipse are touching the surface's border
-            sides_touching = [color in border for border in borders].count(True)
-            self.assertEqual(sides_touching, 2)
-
-        for width, height in sizes:
-            for border_width in (0, 1):
-                same_size(width, height, border_width)
-                for left, top in left_top:
-                    not_same_size(width, height, border_width, left, top)
-
-    def test_lines(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.draw.lines:
-
-          # pygame.draw.lines(Surface, color, closed, pointlist, width=1): return Rect
-          # draw multiple contiguous line segments
-          #
-          # Draw a sequence of lines on a Surface. The pointlist argument is a
-          # series of points that are connected by a line. If the closed
-          # argument is true an additional line segment is drawn between the
-          # first and last points.
-          #
-          # This does not draw any endcaps or miter joints. Lines with sharp
-          # corners and wide line widths can have improper looking corners.
-          #
-
-        colors, surfaces = lines_set_up()
-
-        for surface in surfaces:
-            for color in colors:
-                in_border = lines_are_color(surface, color)
-                self.assertTrue(in_border.count(True) == 4)
 
     def todo_test_polygon(self):
 
