@@ -9,25 +9,30 @@ import pygame.compat
 from pygame.locals import *
 
 
-class MidiTestBase(unittest.TestCase):
-    """Base class for Midi tests."""
+
+
+class MidiInputTest(unittest.TestCase):
 
     def setUp(self):
         pygame.midi.init()
+        in_id = pygame.midi.get_default_input_id()
+        if in_id != -1:
+            self.midi_input = pygame.midi.Input(in_id)
+        else:
+            self.midi_input = None
 
     def tearDown(self):
+        if self.midi_input:
+            self.midi_input.close()
         pygame.midi.quit()
-
-
-class MidiInputTest(MidiTestBase):
 
     def test_Input(self):
         """|tags: interactive|
         """
 
         i = pygame.midi.get_default_input_id()
-        if i != -1:
-            _inp = pygame.midi.Input(i)
+        if self.midi_input:
+            self.assertEqual(self.midi_input.device_id, i)
 
         # try feeding it an input id.
         i = pygame.midi.get_default_output_id()
@@ -47,13 +52,17 @@ class MidiInputTest(MidiTestBase):
           # Input.poll(): return Bool
           #
           # raises a MidiException on error.
-        in_id = pygame.midi.get_default_input_id()
-        if in_id != -1:
-            midi_in = pygame.midi.Input(in_id)
-            self.assertFalse(midi_in.poll())
-            # TODO fake some incoming data
-            pygame.midi.quit()
-            self.assertRaises(RuntimeError, midi_in.poll)
+
+        if not self.midi_input:
+           self.skipTest('No midi Input device')
+
+        self.assertFalse(self.midi_input.poll())
+        # TODO fake some incoming data
+
+        pygame.midi.quit()
+        self.assertRaises(RuntimeError, self.midi_input.poll)
+        # set midi_input to None to avoid error in tearDown
+        self.midi_input = None
 
     def test_read(self):
 
@@ -65,15 +74,26 @@ class MidiInputTest(MidiTestBase):
           # Reads from the Input buffer and gives back midi events.
           # [[[status,data1,data2,data3],timestamp],
           #  [[status,data1,data2,data3],timestamp],...]
-        in_id = pygame.midi.get_default_input_id()
-        if in_id != -1:
-            midi_in = pygame.midi.Input(in_id)
-            read = midi_in.read(5)
-            self.assertEqual(read, [])
-            # TODO fake some  incoming data
 
-    def todo_test_close(self):
-        pass
+        if not self.midi_input:
+           self.skipTest('No midi Input device')
+
+        read = self.midi_input.read(5)
+        self.assertEqual(read, [])
+        # TODO fake some  incoming data
+
+        pygame.midi.quit()
+        self.assertRaises(RuntimeError, self.midi_input.read, 52)
+        # set midi_input to None to avoid error in tearDown
+        self.midi_input = None
+
+    def test_close(self):
+        if not self.midi_input:
+           self.skipTest('No midi Input device')
+
+        self.assertIsNotNone(self.midi_input._input)
+        self.midi_input.close()
+        self.assertIsNone(self.midi_input._input)
 
 
 class MidiOutputTest(unittest.TestCase):
@@ -278,17 +298,27 @@ class MidiOutputTest(unittest.TestCase):
             out.pitch_bend(10665, 2)
 
     def test_close(self):
+        if not self.midi_output:
+           self.skipTest('No midi device')
         self.assertIsNotNone(self.midi_output._output)
         self.midi_output.close()
         self.assertIsNone(self.midi_output._output)
 
     def test_abort(self):
+        if not self.midi_output:
+           self.skipTest('No midi device')
         self.assertEqual(self.midi_output._aborted, 0)
         self.midi_output.abort()
         self.assertEqual(self.midi_output._aborted, 1)
 
 
-class MidiModuleTest(MidiTestBase):
+class MidiModuleTest(unittest.TestCase):
+
+    def setUp(self):
+        pygame.midi.init()
+
+    def tearDown(self):
+        pygame.midi.quit()
 
     def test_MidiException(self):
 
