@@ -115,10 +115,10 @@ class MidiOutputTest(MidiTestBase):
             out.note_off(5, 30, 0)
             with self.assertRaises(ValueError) as cm:
                 out.note_off(5, 30, 25)
-            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
             with self.assertRaises(ValueError) as cm:
                 out.note_off(5, 30, -1)
-            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
 
     def test_note_on(self):
         """|tags: interactive|
@@ -138,10 +138,10 @@ class MidiOutputTest(MidiTestBase):
             out.note_on(5, 42, 10)
             with self.assertRaises(ValueError) as cm:
                 out.note_on(5, 30, 25)
-            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
             with self.assertRaises(ValueError) as cm:
                 out.note_on(5, 30, -1)
-            self.assertEqual(cm.exception.message, "Channel not between 0 and 15.")
+            self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
 
     def test_set_instrument(self):
 
@@ -196,11 +196,11 @@ class MidiOutputTest(MidiTestBase):
         with self.assertRaises(TypeError) as cm:
             out.write('Non sens ?')
         error_msg = "unsupported operand type(s) for &: 'str' and 'int'"
-        self.assertEqual(cm.exception.message, error_msg)
+        self.assertEqual(str(cm.exception), error_msg)
 
         with self.assertRaises(TypeError) as cm:
             out.write(["Hey what's that?"])
-        self.assertEqual(cm.exception.message, error_msg)
+        self.assertEqual(str(cm.exception), error_msg)
 
     def test_write_short(self):
         """|tags: interactive|
