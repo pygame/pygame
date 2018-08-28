@@ -67,8 +67,8 @@ static void
 draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
          double angle_start, double angle_stop, Uint32 color);
 static void
-draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height,
-                 int solid, Uint32 color);
+draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
+             Uint32 color);
 static void
 draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
 
@@ -496,8 +496,8 @@ ellipse(PyObject *self, PyObject *arg)
 
     if (!width) {
         draw_ellipse(surf, (Sint16)(rect->x + rect->w / 2),
-                         (Sint16)(rect->y + rect->h / 2), (Sint16)(rect->w),
-                         (Sint16)(rect->h), 1, color);
+                     (Sint16)(rect->y + rect->h / 2), (Sint16)(rect->w),
+                     (Sint16)(rect->h), 1, color);
     }
     else {
         width = MIN(width, MIN(rect->w, rect->h) / 2);
@@ -555,17 +555,16 @@ circle(PyObject *self, PyObject *arg)
 
     if (!width) {
         draw_ellipse(surf, (Sint16)posx, (Sint16)posy, (Sint16)radius * 2,
-                         (Sint16)radius * 2, 1, color);
+                     (Sint16)radius * 2, 1, color);
     }
     else {
         for (loop = 0; loop < width; ++loop) {
             draw_ellipse(surf, posx, posy, 2 * (radius - loop),
                          2 * (radius - loop), 0, color);
             /* To avoid moiré pattern. Don't do an extra one on the outer
-               ellipse.
-               We draw another ellipse offset by a pixel, over drawing the
-               missed
-               spots in the filled circle caused by which pixels are filled.
+             * ellipse.  We draw another ellipse offset by a pixel, over
+             * drawing the missed spots in the filled circle caused by which
+             * pixels are filled.
             */
             if (width > 1 && loop > 0)
                 draw_ellipse(surf, posx + 1, posy, 2 * (radius - loop),
@@ -1435,8 +1434,8 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
 }
 
 static void
-draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height,
-                 int solid, Uint32 color)
+draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
+             Uint32 color)
 {
     int ix, iy;
     int h, i, j, k;
@@ -1475,7 +1474,7 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height,
             if (((ok != k) && (oj != k) && (k < ry)) || !solid) {
                 if (solid) {
                     drawhorzlineclip(dst, color, x - h, y - k - yoff,
-                                 x + h - xoff);
+                                     x + h - xoff);
                     drawhorzlineclip(dst, color, x - h, y + k, x + h - xoff);
                 }
                 else {
@@ -1490,7 +1489,7 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height,
                 if (solid) {
                     drawhorzlineclip(dst, color, x - i, y + j, x + i - xoff);
                     drawhorzlineclip(dst, color, x - i, y - j - yoff,
-                                 x + i - xoff);
+                                     x + i - xoff);
                 }
                 else {
                     set_at(dst, x - i, y + j, color);
@@ -1519,7 +1518,7 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height,
                 if (solid) {
                     drawhorzlineclip(dst, color, x - j, y + i, x + j - xoff);
                     drawhorzlineclip(dst, color, x - j, y - i - yoff,
-                                 x + j - xoff);
+                                     x + j - xoff);
                 }
                 else {
                     set_at(dst, x - j, y + i, color);
@@ -1533,7 +1532,7 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height,
                 if (solid) {
                     drawhorzlineclip(dst, color, x - k, y + h, x + k - xoff);
                     drawhorzlineclip(dst, color, x - k, y - h - yoff,
-                                 x + k - xoff);
+                                     x + k - xoff);
                 }
                 else {
                     set_at(dst, x - k, y + h, color);
