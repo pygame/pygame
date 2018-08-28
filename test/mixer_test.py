@@ -1,11 +1,12 @@
 import sys
 import os
 import unittest
+import time
 
 from pygame.tests.test_utils import example_path
 import pygame
 from pygame import mixer
-from pygame.compat import xrange_, unicode_, as_bytes, geterror, bytes_
+from pygame.compat import unicode_, as_bytes, bytes_
 
 
 ################################### CONSTANTS ##################################
@@ -18,6 +19,7 @@ BUFFERS     = [3024]
 ############################## MODULE LEVEL TESTS ##############################
 
 class MixerModuleTest(unittest.TestCase):
+
     def test_init__keyword_args(self):
         # Fails on a Mac; probably older SDL_mixer
 ## Probably don't need to be so exhaustive. Besides being slow the repeated
@@ -34,7 +36,7 @@ class MixerModuleTest(unittest.TestCase):
 
             mixer_conf = mixer.get_init()
 
-            self.assertEquals(
+            self.assertEqual(
                 # Not all "sizes" are supported on all systems.
                 (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
                 (kw_conf['frequency'],
@@ -60,7 +62,7 @@ class MixerModuleTest(unittest.TestCase):
 
             mixer_conf = mixer.get_init()
 
-            self.assertEquals(
+            self.assertEqual(
                 # Not all "sizes" are supported on all systems.
                 (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
                 (kw_conf['frequency'],
@@ -93,7 +95,7 @@ class MixerModuleTest(unittest.TestCase):
             mixer.pre_init(0, 0, 0, 0)
 
     def test_get_init__returns_exact_values_used_for_init(self):
-        return
+        return  # oups FIXME
         # fix in 1.9 - I think it's a SDL_mixer bug.
 
         # TODO: When this bug is fixed, testing through every combination
@@ -103,20 +105,16 @@ class MixerModuleTest(unittest.TestCase):
         configs = []
         for f in FREQUENCIES:
             for s in SIZES:
+                if (f, s) == (22050, 16):
+                    continue
                 for c in CHANNELS:
-                    configs.append ((f,s,c))
-
-        print (configs)
-
+                    configs.append((f, s, c))
 
         for init_conf in configs:
-            print (init_conf)
-            f,s,c = init_conf
-            if (f,s) == (22050,16):continue
+            f, s, c = init_conf
             mixer.init(f,s,c)
 
             mixer_conf = mixer.get_init()
-            import time
             time.sleep(0.1)
 
             mixer.quit()
@@ -124,26 +122,23 @@ class MixerModuleTest(unittest.TestCase):
 
             if init_conf != mixer_conf:
                 continue
-            self.assertEquals(init_conf, mixer_conf)
+            self.assertEqual(init_conf, mixer_conf)
 
     def test_get_init__returns_None_if_mixer_not_initialized(self):
-        self.assert_(mixer.get_init() is None)
+        self.assertIsNone(mixer.get_init())
 
     def test_get_num_channels__defaults_eight_after_init(self):
         mixer.init()
-
-        num_channels = mixer.get_num_channels()
-
-        self.assert_(num_channels == 8)
-
+        self.assertEqual(mixer.get_num_channels(), 8)
         mixer.quit()
 
     def test_set_num_channels(self):
         mixer.init()
 
-        for i in xrange_(1, mixer.get_num_channels() + 1):
+        default_num_channels = mixer.get_num_channels()
+        for i in range(1, default_num_channels + 1):
             mixer.set_num_channels(i)
-            self.assert_(mixer.get_num_channels() == i)
+            self.assertEqual(mixer.get_num_channels(), i)
 
         mixer.quit()
 
@@ -154,9 +149,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init()
         mixer.quit()
 
-        self.assertRaises (
-            pygame.error, mixer.get_num_channels,
-        )
+        self.assertRaises(pygame.error, mixer.get_num_channels)
 
     def test_sound_args(self):
         def get_bytes(snd):
@@ -169,88 +162,65 @@ class MixerModuleTest(unittest.TestCase):
             uwave_path = unicode_(wave_path)
             bwave_path = uwave_path.encode(sys.getfilesystemencoding())
             snd = mixer.Sound(file=wave_path)
-            self.assert_(snd.get_length() > 0.5)
+            self.assertTrue(snd.get_length() > 0.5)
             snd_bytes = get_bytes(snd)
-            self.assert_(len(snd_bytes) > 1000)
-            self.assert_(get_bytes(mixer.Sound(wave_path)) == snd_bytes)
-            self.assert_(get_bytes(mixer.Sound(file=uwave_path)) == snd_bytes)
-            self.assert_(get_bytes(mixer.Sound(uwave_path)) == snd_bytes)
+            self.assertTrue(len(snd_bytes) > 1000)
+            self.assertEqual(get_bytes(mixer.Sound(wave_path)), snd_bytes)
+            self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
+            self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
             arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
-            try:
+
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound()
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+            self.assertEqual(str(cm.exception), arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(wave_path, buffer=sample)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+            self.assertEqual(str(cm.exception), arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(sample, file=wave_path)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+            self.assertEqual(str(cm.exception), arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=sample, file=wave_path)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+            self.assertEqual(str(cm.exception), arg_emsg)
+
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(foobar=sample)
-            except TypeError:
-                emsg = "Unrecognized keyword argument 'foobar'"
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
+            self.assertEqual(str(cm.exception),
+                             "Unrecognized keyword argument 'foobar'")
+
             snd = mixer.Sound(wave_path, **{})
             self.assertEqual(get_bytes(snd), snd_bytes)
             snd = mixer.Sound(*[], **{'file': wave_path})
-            try:
-               snd = mixer.Sound([])
-            except TypeError:
-                emsg = 'Unrecognized argument (type list)'
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
-            try:
+
+            with self.assertRaises(TypeError) as cm:
+                mixer.Sound([])
+            self.assertEqual(str(cm.exception),
+                             'Unrecognized argument (type list)')
+
+            with self.assertRaises(TypeError) as cm:
                 snd = mixer.Sound(buffer=[])
-            except TypeError:
-                emsg = 'Expected object with buffer interface: got a list'
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
+            emsg = 'Expected object with buffer interface: got a list'
+            self.assertEqual(str(cm.exception), emsg)
+
             ufake_path = unicode_('12345678')
             self.assertRaises(pygame.error, mixer.Sound, ufake_path)
-            try:
+
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=unicode_('something'))
-            except TypeError:
-                emsg = 'Unicode object not allowed as buffer object'
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
+            emsg = 'Unicode object not allowed as buffer object'
+            self.assertEqual(str(cm.exception), emsg)
             self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
             self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
             self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
             self.assertEqual(get_bytes(mixer.Sound(bwave_path)), snd_bytes)
 
             snd = mixer.Sound(wave_path)
-            try:
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(wave_path, array=snd)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+            self.assertEqual(str(cm.exception), arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=sample, array=snd)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
+            self.assertEqual(str(cm.exception), arg_emsg)
             snd2 = mixer.Sound(array=snd)
             self.assertEqual(snd.get_raw(), snd2.get_raw())
 
@@ -345,7 +315,7 @@ class MixerModuleTest(unittest.TestCase):
         if lshift >= 0:
             # This is asymmetric with respect to downcasting.
             a3 <<= lshift
-        self.assert_(all_(a2 == a3),
+        self.assertTrue(all_(a2 == a3),
                      "Format %i, dtype %s" % (format, a.dtype))
 
     def _test_array_interface_fail(self, a):
@@ -387,10 +357,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def NEWBUF_export_check(self):
         freq, fmt, channels = mixer.get_init()
-        if channels == 1:
-            ndim = 1
-        else:
-            ndim = 2
+        ndim = 1 if (channels == 1) else 2
         itemsize = abs(fmt) // 8
         formats = {8: 'B', -8: 'b',
                    16: '=H', -16: '=h',
@@ -485,7 +452,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(imp.ndim, ndim)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.strides, strides)
-        if (ndim == 1):
+        if ndim == 1:
             imp = Importer(snd, buftools.PyBUF_F_CONTIGUOUS)
             self.assertEqual(imp.ndim, 1)
             self.assertTrue(imp.format is None)
