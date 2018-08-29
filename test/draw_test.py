@@ -136,7 +136,7 @@ class DrawLineTest(unittest.TestCase):
 
             draw_line(surface, color, (0, 0), (width - 1, 0))
 
-            colors = [surface.get_at((width, 0)) for width in range(width)]
+            colors = [surface.get_at((x, 0)) for x in range(width)]
 
             return len(colors) == colors.count(color)
 
@@ -162,14 +162,14 @@ class DrawLineTest(unittest.TestCase):
             draw_lines(surface, color, True, points)
 
             borders = get_border_values(surface, width, height)
-            return [color in border for border in borders]
+            return [all(c == color for c in border) for border in borders]
 
         for draw_lines in [draw.lines, draw.aalines]:
             colors, surfaces = lines_set_up()
             for surface in surfaces:
                 for color in colors:
                     in_border = lines_are_color(surface, color, draw_lines)
-                    self.assertTrue(in_border.count(True) == 4)
+                    self.assertTrue(all(in_border))
 
     def test_lines_gaps(self):
         """|tags: ignore|
@@ -192,13 +192,13 @@ class DrawLineTest(unittest.TestCase):
             draw_lines(surface, color, True, points)
 
             borders = get_border_values(surface, width, height)
-            return [len(border) == border.count(color) for border in borders]
+            return [all(c == color for c in border) for border in borders]
 
         for draw_lines in [draw.lines, draw.aalines]:
             _, surfaces = lines_set_up()
             for surface in surfaces:
-                have_gaps = lines_have_gaps(surface, draw_lines)
-                self.assertTrue(have_gaps.count(True) == 4)
+                no_gaps = lines_have_gaps(surface, draw_lines)
+                self.assertTrue(all(no_gaps))
 
 
 class DrawModuleTest(unittest.TestCase):
