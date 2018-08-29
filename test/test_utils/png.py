@@ -159,24 +159,16 @@ And now, my famous members
 --------------------------
 """
 
-# http://www.python.org/doc/2.2.3/whatsnew/node5.html
-from __future__ import generators
-
 __version__ = "$URL: http://pypng.googlecode.com/svn/trunk/code/png.py $ $Rev: 228 $"
 
-from pygame.compat import geterror, next_, imap_
+from pygame.compat import geterror, imap_
 from array import array
-try: # See :pyver:old
-    import itertools
-except:
-    pass
+import itertools
 import math
-# http://www.python.org/doc/2.4.4/lib/module-operator.html
 import operator
 import struct
 import sys
 import zlib
-# http://www.python.org/doc/2.4.4/lib/module-warnings.html
 import warnings
 
 
@@ -201,27 +193,16 @@ def group(s, n):
     return zip(*[iter(s)]*n)
 
 def isarray(x):
-    """Same as ``isinstance(x, array)`` except on Python 2.2, where it
-    always returns ``False``.  This helps PyPNG work on Python 2.2.
+    """Same as ``isinstance(x, array)``.
     """
+    return isinstance(x, array)
 
-    try:
-        return isinstance(x, array)
-    except:
-        return False
 
-try:  # see :pyver:old
-    array.tostring
-except:
-    def tostring(row):
-        l = len(row)
-        return struct.pack('%dB' % l, *row)
-else:
-    def tostring(row):
-        """Convert row of bytes to string.  Expects `row` to be an
-        ``array``.
-        """
-        return row.tostring()
+def tostring(row):
+    """Convert row of bytes to string.  Expects `row` to be an
+    ``array``.
+    """
+    return row.tostring()
 
 # Conditionally convert to bytes.  Works on Python 2 and Python 3.
 try:
@@ -765,7 +746,7 @@ class Writer:
         # :todo: Certain exceptions in the call to ``.next()`` or the
         # following try would indicate no row data supplied.
         # Should catch.
-        i,row = next_(enumrows)
+        i, row = next(enumrows)
         try:
             # If this fails...
             extend(row)
@@ -1210,7 +1191,7 @@ def from_array(a, mode=None, info={}):
     # first row, which requires that we take a copy of its iterator.
     # We may also need the first row to derive width and bitdepth.
     a,t = itertools.tee(a)
-    row = next_(t)
+    row = next(t)
     del t
     try:
         row[0][0]
