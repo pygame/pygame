@@ -281,12 +281,6 @@ typedef enum {
 /* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
 
-#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 3
-#define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
-#define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
-#define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
-#endif
-
 /* Py_ssize_t availability. */
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
 typedef int Py_ssize_t;
@@ -806,36 +800,5 @@ extern void *PyGAME_C_API[PYGAMEAPI_TOTALSLOTS];
 #define PYGAME_EXPORT
 #endif
 
-#if defined(__SYMBIAN32__) && PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 2
-
-// These are missing from Python 2.2
-#ifndef Py_RETURN_NONE
-
-#define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
-#define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
-#define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
-
-#ifndef intrptr_t
-#define intptr_t int
-
-// No PySlice_GetIndicesEx on Py 2.2
-#define PySlice_GetIndicesEx(a, b, c, d, e, f) \
-    PySlice_GetIndices(a, b, c, d, e)
-
-#define PyBool_FromLong(x) Py_BuildValue("b", x)
-#endif
-
-// _symport_free and malloc are not exported in python.dll
-// See http://discussion.forum.nokia.com/forum/showthread.php?t=57874
-#undef PyObject_NEW
-#define PyObject_NEW PyObject_New
-#undef PyMem_MALLOC
-#define PyMem_MALLOC PyMem_Malloc
-#undef PyObject_DEL
-#define PyObject_DEL PyObject_Del
-
-#endif  // intptr_t
-
-#endif  // __SYMBIAN32__ Python 2.2.2
 
 #endif /* PYGAME_H */
