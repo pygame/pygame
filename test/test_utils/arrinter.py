@@ -21,10 +21,6 @@ except NameError:
         c_ssize_t = c_longlong
 
 
-PY3 = 0
-if sys.version_info >= (3,):
-    PY3 = 1
-
 SIZEOF_VOID_P = sizeof(c_void_p)
 if SIZEOF_VOID_P <= sizeof(c_int):
     Py_intptr_t = c_int
@@ -69,7 +65,7 @@ else:
     PyCapsule_GetContext.restype = c_void_p
     PyCapsule_GetContext.argtypes = [py_object]
 
-if PY3:
+if sys.version_info >= (3,): # Python3
     PyCapsule_Destructor = CFUNCTYPE(None, py_object)
     PyCapsule_New = pythonapi.PyCapsule_New
     PyCapsule_New.restype = py_object
