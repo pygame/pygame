@@ -5,9 +5,9 @@ import sys
 
 __all__ = ['geterror', 'long_', 'xrange_', 'ord_', 'unichr_',
            'unicode_', 'raw_input_', 'as_bytes', 'as_unicode',
-           'bytes_', 'next_', 'imap_', 'PY_MAJOR_VERSION', 'PY_MINOR_VERSION']
+           'bytes_', 'imap_', 'PY_MAJOR_VERSION']
 
-PY_MAJOR_VERSION, PY_MINOR_VERSION = sys.version_info[0:2]
+PY_MAJOR_VERSION = sys.version_info[0]
 
 
 def geterror():
@@ -101,14 +101,3 @@ def filesystem_encode(u):
         fsencoding = 'utf-8'
     return u.encode(fsencoding, filesystem_errors)
 
-# Include a next compatible function for Python versions < 2.6
-if (PY_MAJOR_VERSION, PY_MINOR_VERSION) >= (2, 6):
-    next_ = next
-else:
-    def next_(i, *args):
-        try:
-            return i.next()
-        except StopIteration:
-            if args:
-                return args[0]
-            raise

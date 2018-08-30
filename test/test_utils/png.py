@@ -71,11 +71,6 @@ For help, type ``import png; help(png)`` in your python interpreter.
 
 A good place to start is the :class:`Reader` and :class:`Writer` classes.
 
-Requires Python 2.3.  Limited support is available for Python 2.2, but
-not everything works.  Best with Python 2.4 and higher.  Installation is
-trivial, but see the ``README.txt`` file (with the source distribution)
-for details.
-
 This file can also be used as a command-line utility to convert
 `Netpbm <http://netpbm.sourceforge.net/>`_ PNM files to PNG, and the reverse conversion from PNG to
 PNM. The interface is similar to that of the ``pnmtopng`` program from
@@ -164,24 +159,16 @@ And now, my famous members
 --------------------------
 """
 
-# http://www.python.org/doc/2.2.3/whatsnew/node5.html
-from __future__ import generators
-
 __version__ = "$URL: http://pypng.googlecode.com/svn/trunk/code/png.py $ $Rev: 228 $"
 
-from pygame.compat import geterror, next_, imap_
+from pygame.compat import geterror, imap_
 from array import array
-try: # See :pyver:old
-    import itertools
-except:
-    pass
+import itertools
 import math
-# http://www.python.org/doc/2.4.4/lib/module-operator.html
 import operator
 import struct
 import sys
 import zlib
-# http://www.python.org/doc/2.4.4/lib/module-warnings.html
 import warnings
 
 
@@ -206,27 +193,16 @@ def group(s, n):
     return zip(*[iter(s)]*n)
 
 def isarray(x):
-    """Same as ``isinstance(x, array)`` except on Python 2.2, where it
-    always returns ``False``.  This helps PyPNG work on Python 2.2.
+    """Same as ``isinstance(x, array)``.
     """
+    return isinstance(x, array)
 
-    try:
-        return isinstance(x, array)
-    except:
-        return False
 
-try:  # see :pyver:old
-    array.tostring
-except:
-    def tostring(row):
-        l = len(row)
-        return struct.pack('%dB' % l, *row)
-else:
-    def tostring(row):
-        """Convert row of bytes to string.  Expects `row` to be an
-        ``array``.
-        """
-        return row.tostring()
+def tostring(row):
+    """Convert row of bytes to string.  Expects `row` to be an
+    ``array``.
+    """
+    return row.tostring()
 
 # Conditionally convert to bytes.  Works on Python 2 and Python 3.
 try:
@@ -770,7 +746,7 @@ class Writer:
         # :todo: Certain exceptions in the call to ``.next()`` or the
         # following try would indicate no row data supplied.
         # Should catch.
-        i,row = next_(enumrows)
+        i, row = next(enumrows)
         try:
             # If this fails...
             extend(row)
@@ -1215,7 +1191,7 @@ def from_array(a, mode=None, info={}):
     # first row, which requires that we take a copy of its iterator.
     # We may also need the first row to derive width and bitdepth.
     a,t = itertools.tee(a)
-    row = next_(t)
+    row = next(t)
     del t
     try:
         row[0][0]
@@ -2203,100 +2179,6 @@ class Reader:
         return width,height,convert(),meta
 
 
-# === Legacy Version Support ===
-
-# :pyver:old:  PyPNG works on Python versions 2.3 and 2.2, but not
-# without some awkward problems.  Really PyPNG works on Python 2.4 (and
-# above); it works on Pythons 2.3 and 2.2 by virtue of fixing up
-# problems here.  It's a bit ugly (which is why it's hidden down here).
-#
-# Generally the strategy is one of pretending that we're running on
-# Python 2.4 (or above), and patching up the library support on earlier
-# versions so that it looks enough like Python 2.4.  When it comes to
-# Python 2.2 there is one thing we cannot patch: extended slices
-# http://www.python.org/doc/2.3/whatsnew/section-slices.html.
-# Instead we simply declare that features that are implemented using
-# extended slices will not work on Python 2.2.
-#
-# In order to work on Python 2.3 we fix up a recurring annoyance involving
-# the array type.  In Python 2.3 an array cannot be initialised with an
-# array, and it cannot be extended with a list (or other sequence).
-# Both of those are repeated issues in the code.  Whilst I would not
-# normally tolerate this sort of behaviour, here we "shim" a replacement
-# for array into place (and hope no-ones notices).  You never read this.
-#
-# In an amusing case of warty hacks on top of warty hacks... the array
-# shimming we try and do only works on Python 2.3 and above (you can't
-# subclass array.array in Python 2.2).  So to get it working on Python
-# 2.2 we go for something much simpler and (probably) way slower.
-try:
-    array('B').extend([])
-    array('B', array('B'))
-except:
-    # Expect to get here on Python 2.3
-    try:
-        class _array_shim(array):
-            true_array = array
-            def __new__(cls, typecode, init=None):
-                super_new = super(_array_shim, cls).__new__
-                it = super_new(cls, typecode)
-                if init is None:
-                    return it
-                it.extend(init)
-                return it
-            def extend(self, extension):
-                super_extend = super(_array_shim, self).extend
-                if isinstance(extension, self.true_array):
-                    return super_extend(extension)
-                if not isinstance(extension, (list, str)):
-                    # Convert to list.  Allows iterators to work.
-                    extension = list(extension)
-                return super_extend(self.true_array(self.typecode, extension))
-        array = _array_shim
-    except:
-        # Expect to get here on Python 2.2
-        def array(typecode, init=()):
-            if type(init) == str:
-                return map(ord, init)
-            return list(init)
-
-# Further hacks to get it limping along on Python 2.2
-try:
-    enumerate
-except:
-    def enumerate(seq):
-        i=0
-        for x in seq:
-            yield i,x
-            i += 1
-
-try:
-    reversed
-except:
-    def reversed(l):
-        l = list(l)
-        l.reverse()
-        for x in l:
-            yield x
-
-try:
-    itertools
-except:
-    class _dummy_itertools:
-        pass
-    itertools = _dummy_itertools()
-    def _itertools_imap(f, seq):
-        for x in seq:
-            yield f(x)
-    itertools.imap = _itertools_imap
-    def _itertools_chain(*iterables):
-        for it in iterables:
-            for element in it:
-                yield element
-    itertools.chain = _itertools_chain
-
-
-
 # === Internal Test Support ===
 
 # This section comprises the tests that are internally validated (as
@@ -2318,7 +2200,6 @@ try:
 except:
     from StringIO import StringIO as BytesIO
 import tempfile
-# http://www.python.org/doc/2.4.4/lib/module-unittest.html
 import unittest
 
 
