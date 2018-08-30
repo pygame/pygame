@@ -352,6 +352,36 @@ class DrawPolygonTest(unittest.TestCase):
             for y in range(2, 5):
                 self.assertEqual(self.surface.get_at((x, y)), GREEN)
 
+    def test_1_pixel_high_or_wide_shapes(self):
+        # 1. one-pixel-high, filled
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, [(x, 2) for x, y in CROSS], 0)
+        for x in range(7):
+            self.assertEqual(self.surface.get_at((x, 1)), RED)
+            self.assertEqual(self.surface.get_at((x, 2)), GREEN)
+            self.assertEqual(self.surface.get_at((x, 3)), RED)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        # 2. one-pixel-high, not filled
+        pygame.draw.polygon(self.surface, GREEN, [(x, 5) for x, y in CROSS], 1)
+        for x in range(7):
+            self.assertEqual(self.surface.get_at((x, 4)), RED)
+            self.assertEqual(self.surface.get_at((x, 5)), GREEN)
+            self.assertEqual(self.surface.get_at((x, 6)), RED)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        # 3. one-pixel-wide, filled
+        pygame.draw.polygon(self.surface, GREEN, [(3, y) for x, y in CROSS], 0)
+        for y in range(7):
+            self.assertEqual(self.surface.get_at((2, y)), RED)
+            self.assertEqual(self.surface.get_at((3, y)), GREEN)
+            self.assertEqual(self.surface.get_at((4, y)), RED)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        # 4. one-pixel-wide, not filled
+        pygame.draw.polygon(self.surface, GREEN, [(4, y) for x, y in CROSS], 1)
+        for y in range(7):
+            self.assertEqual(self.surface.get_at((3, y)), RED)
+            self.assertEqual(self.surface.get_at((4, y)), GREEN)
+            self.assertEqual(self.surface.get_at((5, y)), RED)
+
     def test_draw_symetric_cross(self):
         # issue #234 : the result is/was different wether we fill or not
         # the polygon
