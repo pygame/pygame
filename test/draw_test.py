@@ -332,7 +332,7 @@ CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
 class DrawPolygonTest(unittest.TestCase):
 
     def setUp(self):
-        self.surface = pygame.Surface((10, 10))
+        self.surface = pygame.Surface((20, 20))
 
     def test_draw_square(self):
         pygame.draw.polygon(self.surface, RED, SQUARE, 0)
@@ -356,12 +356,12 @@ class DrawPolygonTest(unittest.TestCase):
         # issue #234 : the result is/was different wether we fill or not
         # the polygon
 
-        # 1. case width = 1 (not filled: `polygon` calls the `lines` function)
+        # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         pygame.draw.polygon(self.surface, GREEN, CROSS, 1)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
-        for x in range(7):
-            for y in range(7):
+        for x in range(10):
+            for y in range(10):
                 if (x, y) in inside:
                     self.assertEqual(self.surface.get_at((x, y)), RED)
                 elif x in range(2, 5) or y in range(2, 5):
@@ -375,15 +375,56 @@ class DrawPolygonTest(unittest.TestCase):
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         pygame.draw.polygon(self.surface, GREEN, CROSS, 0)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
-        for x in range(7):
-            for y in range(7):
+        for x in range(10):
+            for y in range(10):
                 if x in range(2, 5) or y in range(2, 5):
                     # we are on the border of the cross:
-                    # FIXME currently fails for (0, 4), (1, 4), (5, 4) and (6, 4)
+                    # FIXME currently the test fails here for (0, 4), (1, 4), (5, 4) and (6, 4)
                     self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
                 else:
                     # we are outside
                     self.assertEqual(self.surface.get_at((x, y)), RED)
+
+    def test_illumine_shape(self):
+        # Extracted from bug #313 
+        rect = pygame.Rect((0, 0, 20, 20))
+        path_data = [(0, 0), (rect.width-1, 0), # upper border
+                     (rect.width-5,  5-1), (5-1, 5-1),  # upper inner
+                     (5- 1, rect.height-5), (0,  rect.height-1)]   # lower diagonal
+        # The shape looks like this (the numbers are the indices of path_data)
+
+        # 0**********************1              <-- upper border
+        # ***********************
+        # **********************
+        # *********************
+        # ****3**************2                  <-- upper inner border
+        # *****
+        # *****                   (more lines here)
+        # *****
+        # ****4
+        # ****
+        # ***
+        # **
+        # 5
+        #
+
+        # the current bug is that the "upper inner" line is not drawn, but only
+        # if 4 or some lower corner exists
+        pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
+
+        # 1. First without the corners 4 & 5
+        pygame.draw.polygon(self.surface, GREEN, path_data[:4], 0)
+        for x in range(20):
+            self.assertEqual(self.surface.get_at((x, 0)), GREEN)  # upper border
+        for x in range(4, rect.width-5 +1):
+            self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
+
+        # 2. with the corners 4 & 5
+        pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
+        pygame.draw.polygon(self.surface, GREEN, path_data, 0)
+        for x in range(4, rect.width-5 +1):
+            # FIXME known to fail
+            self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
 
 
 
