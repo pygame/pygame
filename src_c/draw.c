@@ -1627,12 +1627,10 @@ compare_int(const void *a, const void *b)
 static void
 draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
 {
-    int i;
-    int y;
+    int i, j, y;
     int miny, maxy;
     int x1, y1;
     int x2, y2;
-    int ind1, ind2;
     int ints;
     int *polyints = PyMem_New(int, n);
     if (polyints == NULL) {
@@ -1653,28 +1651,25 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         ints = 0;
         for (i = 0; (i < n); i++) {
             if (!i) {
-                ind1 = n - 1;
-                ind2 = 0;
+                j = n - 1;
             }
             else {
-                ind1 = i - 1;
-                ind2 = i;
+                j = i - 1;
             }
-            y1 = vy[ind1];
-            y2 = vy[ind2];
+            y1 = vy[j];
+            y2 = vy[i];
             if (y1 < y2) {
-                x1 = vx[ind1];
-                x2 = vx[ind2];
+                x1 = vx[j];
+                x2 = vx[i];
             }
             else if (y1 > y2) {
-                y2 = vy[ind1];
-                y1 = vy[ind2];
-                x2 = vx[ind1];
-                x1 = vx[ind2];
+                y2 = vy[j];
+                y1 = vy[i];
+                x2 = vx[j];
+                x1 = vx[i];
             }
             else if (miny == maxy) {
                 /* Special case: polygon only 1 pixel high. */
-                int j;
                 int minx, maxx;
 
                 /* Determine X bounds */
