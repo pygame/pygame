@@ -344,10 +344,11 @@ class DrawPolygonTest(unittest.TestCase):
                 self.assertEqual(self.surface.get_at((x, y)), RED)
 
     def test_draw_diamond(self):
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         pygame.draw.polygon(self.surface, GREEN, DIAMOND, 0)
         # this diamond shape is equivalent to its four corners, plus inner square
         for x, y in DIAMOND:
-            self.assertEqual(self.surface.get_at((x, y)), GREEN)
+            self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
         for x in range(2, 5):
             for y in range(2, 5):
                 self.assertEqual(self.surface.get_at((x, y)), GREEN)
@@ -394,7 +395,7 @@ class DrawPolygonTest(unittest.TestCase):
             for y in range(10):
                 if (x, y) in inside:
                     self.assertEqual(self.surface.get_at((x, y)), RED)
-                elif x in range(2, 5) or y in range(2, 5):
+                elif (x in range(2, 5) and y <7) or (y in range(2, 5) and x < 7):
                     # we are on the border of the cross:
                     self.assertEqual(self.surface.get_at((x, y)), GREEN)
                 else:
@@ -407,7 +408,7 @@ class DrawPolygonTest(unittest.TestCase):
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
-                if x in range(2, 5) or y in range(2, 5):
+                if (x in range(2, 5) and y <7) or (y in range(2, 5) and x < 7):
                     # we are on the border of the cross:
                     # FIXME currently the test fails here for (0, 4), (1, 4), (5, 4) and (6, 4)
                     self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
