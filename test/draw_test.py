@@ -321,6 +321,7 @@ class DrawModuleTest(unittest.TestCase):
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+
 SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
 DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
 CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
@@ -350,6 +351,39 @@ class DrawPolygonTest(unittest.TestCase):
         for x in range(2, 5):
             for y in range(2, 5):
                 self.assertEqual(self.surface.get_at((x, y)), GREEN)
+
+    def test_draw_symetric_cross(self):
+        # issue #234 : the result is/was different wether we fill or not
+        # the polygon
+
+        # 1. case width = 1 (not filled: `polygon` calls the `lines` function)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, CROSS, 1)
+        inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
+        for x in range(7):
+            for y in range(7):
+                if (x, y) in inside:
+                    self.assertEqual(self.surface.get_at((x, y)), RED)
+                elif x in range(2, 5) or y in range(2, 5):
+                    # we are on the border of the cross:
+                    self.assertEqual(self.surface.get_at((x, y)), GREEN)
+                else:
+                    # we are outside
+                    self.assertEqual(self.surface.get_at((x, y)), RED)
+
+        # 2. case width = 0 (filled; this is the example from #234)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, CROSS, 0)
+        inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
+        for x in range(7):
+            for y in range(7):
+                if x in range(2, 5) or y in range(2, 5):
+                    # we are on the border of the cross:
+                    # FIXME currently fails for (0, 4), (1, 4), (5, 4) and (6, 4)
+                    self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
+                else:
+                    # we are outside
+                    self.assertEqual(self.surface.get_at((x, y)), RED)
 
 
 
