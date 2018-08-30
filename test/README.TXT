@@ -14,10 +14,7 @@ The test runner for PyGame was developed for these purposes:
 
 It does this by altering the behaviour of unittest at run time. As much as
 possible each individual module was left to be fully compatible with the
-standard unittest. At one point it was discovered that the run time patching of
-unittest was incompatible with the 2.4 version so a copy of the 2.5 version now
-is included in the pygame test  directory. The test directory was made a
-package.
+standard unittest.
 
 If an individual module is run, eg ``python test/color_test.py``, then it will
 run an unmodified version of unittest. ( unittest.main() )
