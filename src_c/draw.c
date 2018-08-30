@@ -1687,10 +1687,8 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
             else {
                 continue;
             }
-            if ((y >= y1) && (y < y2)) {
-                polyints[ints++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
-            }
-            else if ((y == maxy) && (y > y1) && (y <= y2)) {
+            if ( ((y >= y1) && (y < y2)) ||
+                  ((y == maxy) && (y <= y2)) ) {
                 polyints[ints++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
             }
         }
