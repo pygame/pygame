@@ -1312,10 +1312,7 @@ drawhorzlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
     if (x2 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
         return;
 
-    if (x1 == x2)
-        set_at(surf, x1, y1, color);
-    else
-        drawhorzline(surf, color, x1, y1, x2);
+    drawhorzline(surf, color, x1, y1, x2);
 }
 
 static void
