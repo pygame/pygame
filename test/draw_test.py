@@ -318,21 +318,40 @@ class DrawModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_polygon(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.draw.polygon:
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
+DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
+CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
+         [6, 4], [4, 4], [4, 6], [2, 6],
+         [2, 4], [0, 4], [0, 2], [2, 2])
 
-          # pygame.draw.polygon(Surface, color, pointlist, width=0): return Rect
-          # draw a shape with any number of sides
-          #
-          # Draws a polygonal shape on the Surface. The pointlist argument is
-          # the vertices of the polygon. The width argument is the thickness to
-          # draw the outer edge. If width is zero then the polygon will be
-          # filled.
-          #
-          # For aapolygon, use aalines with the 'closed' parameter.
 
-        self.fail()
+class DrawPolygonTest(unittest.TestCase):
+
+    def setUp(self):
+        self.surface = pygame.Surface((10, 10))
+
+    def test_draw_square(self):
+        pygame.draw.polygon(self.surface, RED, SQUARE, 0)
+        # note : there is a discussion (#234) if draw.polygon should include or
+        # not the right or lower border; here we stick with current behavior,
+        # eg include those borders ...
+        for x in range(4):
+            for y in range(4):
+                self.assertEqual(self.surface.get_at((x, y)), RED)
+
+    def test_draw_diamond(self):
+        pygame.draw.polygon(self.surface, GREEN, DIAMOND, 0)
+        # this diamond shape is equivalent to its four corners, plus inner square
+        for x, y in DIAMOND:
+            self.assertEqual(self.surface.get_at((x, y)), GREEN)
+        for x in range(2, 5):
+            for y in range(2, 5):
+                self.assertEqual(self.surface.get_at((x, y)), GREEN)
+
+
 
 ################################################################################
 
