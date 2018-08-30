@@ -1613,7 +1613,20 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
                 x2 = vx[j];
                 x1 = vx[i];
             }
-            else {
+            else { // y1 == y2
+                if ((miny < y) && (y == y1) && (y < maxy))
+                    /* special case : just draw horizontal lines */
+                {
+                    if (vx[i] < vx[j]) {
+                        x1 = vx[i];
+                        x2 = vx[j];
+                    }
+                    else {
+                        x1 = vx[j];
+                        x2 = vx[i];
+                    }
+                    drawhorzlineclip(dst, color, x1, y, x2);
+                }
                 continue;
             }
             if ( ((y >= y1) && (y < y2)) ||

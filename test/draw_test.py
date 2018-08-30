@@ -466,7 +466,6 @@ class DrawPolygonTest(unittest.TestCase):
             for y in range(10):
                 if (x in range(2, 5) and y <7) or (y in range(2, 5) and x < 7):
                     # we are on the border of the cross:
-                    # FIXME currently the test fails here for (0, 4), (1, 4), (5, 4) and (6, 4)
                     self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
                 else:
                     # we are outside
@@ -510,7 +509,6 @@ class DrawPolygonTest(unittest.TestCase):
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
         pygame.draw.polygon(self.surface, GREEN, path_data, 0)
         for x in range(4, rect.width-5 +1):
-            # FIXME known to fail
             self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
 
 
