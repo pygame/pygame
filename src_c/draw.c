@@ -1646,6 +1646,22 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         maxy = MAX(maxy, vy[i]);
     }
 
+    if (miny == maxy) {
+        /* Special case: polygon only 1 pixel high. */
+        int minx, maxx;
+
+        /* Determine X bounds */
+        minx = vx[0];
+        maxx = vx[0];
+        for (j = 1; (j < n); j++) {
+            minx = MIN(minx, vx[j]);
+            maxx = MAX(maxx, vx[j]);
+        }
+        drawhorzlineclip(dst, color, minx, miny, maxx);
+        PyMem_Free(polyints);
+        return;
+    }
+
     /* Draw, scanning y */
     for (y = miny; (y <= maxy); y++) {
         ints = 0;
@@ -1667,23 +1683,6 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
                 y1 = vy[i];
                 x2 = vx[j];
                 x1 = vx[i];
-            }
-            else if (miny == maxy) {
-                /* Special case: polygon only 1 pixel high. */
-                int minx, maxx;
-
-                /* Determine X bounds */
-                minx = vx[0];
-                maxx = vx[0];
-                for (j = 1; (j < n); j++) {
-                    minx = MIN(minx, vx[j]);
-                    maxx = MAX(maxx, vx[j]);
-                }
-
-                /* Just a line from minimum to maximum X */
-                polyints[ints++] = minx;
-                polyints[ints++] = maxx;
-                break;
             }
             else {
                 continue;
