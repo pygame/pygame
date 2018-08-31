@@ -630,14 +630,14 @@ static PyBufferProcs proxy_bufferprocs = {
     0
 #endif
 
-#if HAVE_OLD_BUFPROTO && HAVE_NEW_BUFPROTO
+#if HAVE_OLD_BUFPROTO
     ,
 #endif
 
 #if PG_ENABLE_NEWBUF
     (getbufferproc)proxy_getbuffer,
     (releasebufferproc)proxy_releasebuffer
-#elif HAVE_NEW_BUFPROTO
+#else
     0,
     0
 #endif
