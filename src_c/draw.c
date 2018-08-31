@@ -1583,11 +1583,10 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points,
 
     if (miny == maxy) {
         /* Special case: polygon only 1 pixel high. */
-        int minx, maxx;
 
         /* Determine X bounds */
-        minx = point_x[0];
-        maxx = point_x[0];
+        int minx = point_x[0];
+        int maxx = point_x[0];
         for (i = 1; (i < num_points); i++) {
             minx = MIN(minx, point_x[i]);
             maxx = MAX(maxx, point_x[i]);
