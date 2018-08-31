@@ -1554,13 +1554,14 @@ compare_int(const void *a, const void *b)
 }
 
 static void
-draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points, Uint32 color)
+draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points,
+              Uint32 color)
 {
     /* point_x : x coordinates of the points
      * point-y : the y coordinates of the points
      * num_points : the number of points
      */
-    int i, i_previous, y; // i_previous is the index of the point before i
+    int i, i_previous, y;  // i_previous is the index of the point before i
     int miny, maxy;
     int x1, y1;
     int x2, y2;
@@ -1625,20 +1626,21 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points, Uint
                 x2 = point_x[i_previous];
                 x1 = point_x[i];
             }
-            else { // y1 == y2 : has to be handled as special case (below)
+            else {  // y1 == y2 : has to be handled as special case (below)
                 continue;
             }
-            if ( ((y >= y1) && (y < y2)) ||
-                  ((y == maxy) && (y2 == maxy)) ) {
-                // add intersection if y crosses the edge (excluding the lower end),
-                // or when we are on lowest line (maxy)
-                x_intersect[n_intersections++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
+            if (((y >= y1) && (y < y2)) || ((y == maxy) && (y2 == maxy))) {
+                // add intersection if y crosses the edge (excluding the lower
+                // end), or when we are on the lowest line (maxy)
+                x_intersect[n_intersections++] =
+                    (y - y1) * (x2 - x1) / (y2 - y1) + x1;
             }
         }
         qsort(x_intersect, n_intersections, sizeof(int), compare_int);
 
         for (i = 0; (i < n_intersections); i += 2) {
-            drawhorzlineclip(dst, color, x_intersect[i], y, x_intersect[i + 1]);
+            drawhorzlineclip(dst, color, x_intersect[i], y,
+                             x_intersect[i + 1]);
         }
     }
 
@@ -1647,16 +1649,17 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points, Uint
      * For two border points with same height miny < y < maxy,
      * sometimes the line between them is not colored:
      * this happens when the line will be a lower border line of the polygon
-     * (eg we are inside the polygon with a smaller y, and outside with a bigger y),
+     * (eg we are inside the polygon with a smaller y, and outside with a
+     * bigger y),
      * So we loop for border lines that are horizontal.
      */
     for (i = 0; (i < num_points); i++) {
-            i_previous = ((i) ? (i - 1) : (num_points - 1));
-            y = point_y[i];
+        i_previous = ((i) ? (i - 1) : (num_points - 1));
+        y = point_y[i];
 
-            if ((miny < y) &&  (point_y[i_previous] == y) && (y < maxy)) {
-                drawhorzlineclip(dst, color, point_x[i], y, point_x[i_previous]);
-            }
+        if ((miny < y) && (point_y[i_previous] == y) && (y < maxy)) {
+            drawhorzlineclip(dst, color, point_x[i], y, point_x[i_previous]);
+        }
     }
     PyMem_Free(x_intersect);
 }
