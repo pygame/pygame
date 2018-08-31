@@ -1606,10 +1606,9 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points,
      * 3. each two x-coordinates in x_intersect are then inside the polygon
      *    (drawhorzlineclip for a pair of two such points)
      */
-    // n_intersections : number of intersections with the polygon
-    int n_intersections;
     for (y = miny; (y <= maxy); y++) {
-        n_intersections = 0;
+        // n_intersections is the number of intersections with the polygon
+        int n_intersections = 0;
         for (i = 0; (i < num_points); i++) {
             i_previous = ((i) ? (i - 1) : (num_points - 1));
 
