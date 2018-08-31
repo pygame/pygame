@@ -1,40 +1,35 @@
 # -*- coding: utf-8 -*-
-
+import sys
 import unittest
 import math
 from time import clock
-from random import random
-import gc
 import platform
 
 import pygame.math
 from pygame.math import Vector2, Vector3
 
 IS_PYPY = 'PyPy' == platform.python_implementation()
+PY3 = sys.version_info.major == 3
 
 
 class Vector2TypeTest(unittest.TestCase):
+
     def setUp(self):
         pygame.math.enable_swizzling()
-#        gc.collect()
         self.zeroVec = Vector2()
         self.e1 = Vector2(1, 0)
         self.e2 = Vector2(0, 1)
-#        self.t1 = (random(), random())
         self.t1 = (1.2, 3.4)
         self.l1 = list(self.t1)
         self.v1 = Vector2(self.t1)
-#        self.t2 = (random(), random())
         self.t2 = (5.6, 7.8)
         self.l2 = list(self.t2)
         self.v2 = Vector2(self.t2)
-#        self.s1 = random()
-#        self.s2 = random()
         self.s1 = 5.6
         self.s2 = 7.8
+
     def tearDown(self):
         pygame.math.enable_swizzling()
-
 
     def testConstructionDefault(self):
         v = Vector2()
@@ -91,7 +86,6 @@ class Vector2TypeTest(unittest.TestCase):
             v = Vector2()
             v.x = "spam"
         self.assertRaises(TypeError, assign_nonfloat)
-
 
     def testSequence(self):
         v = Vector2(1.2, 3.4)
@@ -273,13 +267,10 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        # support py2.x and 3.x
-        if hasattr(it, "next"):
-            next_ = it.next
-        elif hasattr(it, "__next__"):
+        if PY3:
             next_ = it.__next__
         else:
-            self.fail("Iterator has neither a 'next' nor a '__next__' method.")
+            next_ = it.next
         self.assertEqual(next_(), self.v1[0])
         self.assertEqual(next_(), self.v1[1])
         self.assertRaises(StopIteration, lambda : next_())
@@ -444,8 +435,8 @@ class Vector2TypeTest(unittest.TestCase):
                          self.v2.distance_squared_to(self.v1))
 
     def test_swizzle(self):
-        self.assertEqual(hasattr(pygame.math, "enable_swizzling"), True)
-        self.assertEqual(hasattr(pygame.math, "disable_swizzling"), True)
+        self.assertTrue(hasattr(pygame.math, "enable_swizzling"))
+        self.assertTrue(hasattr(pygame.math, "disable_swizzling"))
         # swizzling not disabled by default
         pygame.math.disable_swizzling()
         self.assertRaises(AttributeError, lambda : self.v1.yx)
@@ -736,26 +727,19 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v, self.e1)
 
 
-
-
-
 class Vector3TypeTest(unittest.TestCase):
+
     def setUp(self):
-#        gc.collect()
         self.zeroVec = Vector3()
         self.e1 = Vector3(1, 0, 0)
         self.e2 = Vector3(0, 1, 0)
         self.e3 = Vector3(0, 0, 1)
-#        self.t1 = (random(), random())
         self.t1 = (1.2, 3.4, 9.6)
         self.l1 = list(self.t1)
         self.v1 = Vector3(self.t1)
-#        self.t2 = (random(), random())
         self.t2 = (5.6, 7.8, 2.1)
         self.l2 = list(self.t2)
         self.v2 = Vector3(self.t2)
-#        self.s1 = random()
-#        self.s2 = random()
         self.s1 = 5.6
         self.s2 = 7.8
 
@@ -1039,13 +1023,10 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        # support py2.x and 3.x
-        if hasattr(it, "next"):
-            next_ = it.next
-        elif hasattr(it, "__next__"):
+        if PY3:
             next_ = it.__next__
         else:
-            self.fail("Iterator has neither a 'next' nor a '__next__' method.")
+            next_ = it.next
         self.assertEqual(next_(), self.v1[0])
         self.assertEqual(next_(), self.v1[1])
         self.assertEqual(next_(), self.v1[2])
@@ -1349,8 +1330,8 @@ class Vector3TypeTest(unittest.TestCase):
                          self.v2.distance_squared_to(self.v1))
 
     def test_swizzle(self):
-        self.assertEqual(hasattr(pygame.math, "enable_swizzling"), True)
-        self.assertEqual(hasattr(pygame.math, "disable_swizzling"), True)
+        self.assertTrue(hasattr(pygame.math, "enable_swizzling"))
+        self.assertTrue(hasattr(pygame.math, "disable_swizzling"))
         # swizzling enabled by default
         pygame.math.disable_swizzling()
         self.assertRaises(AttributeError, lambda : self.v1.yx)
@@ -1367,6 +1348,9 @@ class Vector3TypeTest(unittest.TestCase):
         self.v1.yz = self.t2[:2]
         self.assertEqual(self.v1, (self.t2[1], self.t2[0], self.t2[1]))
         self.assertEqual(type(self.v1), Vector3)
+
+    @unittest.skipIf(IS_PYPY, "known pypy failure")
+    def test_invalid_swizzle(self):
         def invalidSwizzleX():
             Vector3().xx = (1, 2)
         def invalidSwizzleY():
@@ -1375,7 +1359,6 @@ class Vector3TypeTest(unittest.TestCase):
             Vector3().zz = (1, 2)
         def invalidSwizzleW():
             Vector3().ww = (1, 2)
-        if IS_PYPY: return #TODO: known pypy failure.
         self.assertRaises(AttributeError, invalidSwizzleX)
         self.assertRaises(AttributeError, invalidSwizzleY)
         self.assertRaises(AttributeError, invalidSwizzleZ)
@@ -1593,8 +1576,6 @@ class Vector3TypeTest(unittest.TestCase):
         v3 = Vector3(1, 2, 3)
         self.assertEqual(pickle.loads(pickle.dumps(v2)), v2)
         self.assertEqual(pickle.loads(pickle.dumps(v3)), v3)
-
-
 
 
 if __name__ == '__main__':
