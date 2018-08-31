@@ -1591,6 +1591,19 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         return;
     }
 
+    /* special case : horizontal border lines with miny < y < maxy */
+    for (i = 0; (i < n); i++) {
+            if (!i) {
+                j = n - 1;
+            }
+            else {
+                j = i - 1;
+            }
+            y = vy[i];
+            if ((miny < y) &&  (vy[j] == y) && (y < maxy)) {
+                drawhorzlineclip(dst, color, vx[i], y, vx[j]);
+            }
+    }
     /* Draw, scanning y */
     for (y = miny; (y <= maxy); y++) {
         ints = 0;
@@ -1613,20 +1626,7 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
                 x2 = vx[j];
                 x1 = vx[i];
             }
-            else { // y1 == y2
-                if ((miny < y) && (y == y1) && (y < maxy))
-                    /* special case : just draw horizontal lines */
-                {
-                    if (vx[i] < vx[j]) {
-                        x1 = vx[i];
-                        x2 = vx[j];
-                    }
-                    else {
-                        x1 = vx[j];
-                        x2 = vx[i];
-                    }
-                    drawhorzlineclip(dst, color, x1, y, x2);
-                }
+            else { // y1 == y2 : handled above
                 continue;
             }
             if ( ((y >= y1) && (y < y2)) ||
