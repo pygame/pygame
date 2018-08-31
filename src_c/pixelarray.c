@@ -28,10 +28,6 @@
 
 #include "surface.h"
 
-#if PY_VERSION_HEX < 0x02050000
-#define PyIndex_Check(op) 0
-#endif
-
 static char FormatUint8[] = "B";
 static char FormatUint16[] = "=H";
 static char FormatUint24[] = "3x";
@@ -1733,7 +1729,6 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
     }
     else if (PyIndex_Check(op) || PyInt_Check(op) || PyLong_Check(op)) {
         Py_ssize_t i;
-#if PY_VERSION_HEX >= 0x02050000
         PyObject *val = PyNumber_Index(op);
         if (!val) {
             return 0;
@@ -1741,9 +1736,6 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
         /* A simple index. */
         i = PyNumber_AsSsize_t(val, PyExc_IndexError);
         Py_DECREF(val);
-#else
-        i = PyInt_Check(op) ? PyInt_AsLong(op) : PyLong_AsLong(op);
-#endif
         if (i == -1 && PyErr_Occurred()) {
             return 0;
         }
@@ -1899,7 +1891,6 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject *op,
     }
     else if (PyIndex_Check(op) || PyInt_Check(op) || PyLong_Check(op)) {
         Py_ssize_t i;
-#if PY_VERSION_HEX >= 0x02050000
         PyObject *val = PyNumber_Index(op);
         if (!val) {
             return -1;
@@ -1907,9 +1898,6 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject *op,
         /* A simple index. */
         i = PyNumber_AsSsize_t(val, PyExc_IndexError);
         Py_DECREF(val);
-#else
-        i = PyInt_Check(op) ? PyInt_AsLong(op) : PyLong_AsLong(op);
-#endif
         if (i == -1 && PyErr_Occurred()) {
             return -1;
         }

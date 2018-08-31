@@ -1550,7 +1550,6 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         }
     }
 
-#if HAVE_NEW_BUFPROTO
 #if PY2
     if (!chunk && buffer && /* conditional and */
         PyObject_CheckBuffer(buffer)) {
@@ -1581,7 +1580,6 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             ((pgSoundObject *)self)->mem = mem;
         }
     }
-#endif
 
 #if PY2
     if (chunk == NULL && buffer != NULL) {

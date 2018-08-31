@@ -731,9 +731,7 @@ static PyNumberMethods buffer_as_number = {
     (binaryfunc)0,  /* nb_true_divide */
     (binaryfunc)0,  /* nb_inplace_floor_divide */
     (binaryfunc)0,  /* nb_inplace_true_divide */
-#if PY_VERSION_HEX >= 0x02050000
     (unaryfunc)0, /* nb_index */
-#endif
 };
 
 #define BUFFER_TYPE_FULLNAME "newbuffer.Py_buffer"
