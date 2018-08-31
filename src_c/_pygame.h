@@ -281,22 +281,6 @@ typedef enum {
 /* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
 
-/* Py_ssize_t availability. */
-#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
-typedef int Py_ssize_t;
-#define PY_SSIZE_T_MAX INT_MAX
-#define PY_SSIZE_T_MIN INT_MIN
-typedef inquiry lenfunc;
-typedef intargfunc ssizeargfunc;
-typedef intobjargproc ssizeobjargproc;
-typedef intintargfunc ssizessizeargfunc;
-typedef intintobjargproc ssizessizeobjargproc;
-typedef getreadbufferproc readbufferproc;
-typedef getwritebufferproc writebufferproc;
-typedef getsegcountproc segcountproc;
-typedef getcharbufferproc charbufferproc;
-#endif
-
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
 #define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 
