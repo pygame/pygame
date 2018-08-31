@@ -1,6 +1,7 @@
 import sys
 import os
 import unittest
+import platform
 import time
 
 from pygame.tests.test_utils import example_path
@@ -8,6 +9,8 @@ import pygame
 from pygame import mixer
 from pygame.compat import unicode_, as_bytes, bytes_
 
+
+IS_PYPY = 'PyPy' == platform.python_implementation()
 
 ################################### CONSTANTS ##################################
 
@@ -473,14 +476,10 @@ class MixerModuleTest(unittest.TestCase):
         finally:
             mixer.quit()
 
+    @unittest.skipIf(IS_PYPY, 'pypy skip')
     def test_get_raw_more(self):
         """ test the array interface a bit better.
         """
-        import platform
-        IS_PYPY = 'PyPy' == platform.python_implementation()
-
-        if IS_PYPY:
-            return
         from ctypes import pythonapi, c_void_p, py_object
 
         try:
