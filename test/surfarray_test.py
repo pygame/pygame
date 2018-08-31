@@ -19,6 +19,16 @@ IS_PYPY = 'PyPy' == platform.python_implementation()
 @unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
 class SurfarrayModuleTest (unittest.TestCase):
 
+    def setUp(self):
+        # Needed for 8 bits-per-pixel color palette surface tests.
+        pygame.init()
+
+        # Makes sure the same array package is used each time.
+        pygame.surfarray.use_arraytype(arraytype)
+
+    def tearDown(self):
+        pygame.quit()
+
     pixels2d = {8: True, 16: True, 24: False, 32: True}
     pixels3d = {8: False, 16: False, 24: True, 32: True}
     array2d = {8: True, 16: True, 24: True, 32: True}
@@ -95,20 +105,7 @@ class SurfarrayModuleTest (unittest.TestCase):
     def _make_array2d(self, dtype):
         return zeros(self.surf_size, dtype)
 
-    def setUp(self):
-        # Needed for 8 bits-per-pixel color palette surface tests.
-        pygame.init()
-
-        # Makes sure the same array package is used each time.
-        if arraytype:
-            pygame.surfarray.use_arraytype(arraytype)
-
-    def tearDown(self):
-        pygame.quit()
-
     def test_array2d(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         sources = [self._make_src_surface(8),
                    self._make_src_surface(16),
@@ -140,8 +137,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                                       surf.get_bitsize()))
 
     def test_array3d(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         sources = [self._make_src_surface(16),
                    self._make_src_surface(16, srcalpha=True),
@@ -165,8 +160,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                                  posn))
 
     def test_array_alpha(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         palette = [(0, 0, 0, 0),
                    (10, 50, 100, 255),
@@ -222,8 +215,6 @@ class SurfarrayModuleTest (unittest.TestCase):
             surf.set_alpha(blanket_alpha)
 
     def test_array_colorkey(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         palette = [(0, 0, 0, 0),
                    (10, 50, 100, 255),
@@ -258,8 +249,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                                            surf.get_bitsize())))
 
     def test_blit_array(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         # bug 24 at http://pygame.motherhamster.org/bugzilla/
         if 'numpy' in pygame.surfarray.get_arraytypes():
@@ -419,17 +408,12 @@ class SurfarrayModuleTest (unittest.TestCase):
                                          int(rint(farr[x, y])))
 
     def test_get_arraytype(self):
-        if not arraytype:
-            self.fail("no array package installed")
-
         self.failUnless((pygame.surfarray.get_arraytype() in
                          ['numpy']),
                         ("unknown array type %s" %
                          pygame.surfarray.get_arraytype()))
 
     def test_get_arraytypes(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         arraytypes = pygame.surfarray.get_arraytypes()
         self.failUnless('numpy' in arraytypes)
@@ -439,8 +423,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                             "unknown array type %s" % atype)
 
     def test_make_surface(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         # How does one properly test this with 2d arrays. It makes no sense
         # since the pixel format is not entirely dependent on element size.
@@ -475,8 +457,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                                          int(rint(farr[x, y])))
 
     def test_map_array(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         arr3d = self._make_src_array3d(uint8)
         targets = [self._make_surface(8),
@@ -501,8 +481,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                           self._make_array2d(uint8))
 
     def test_pixels2d(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         sources = [self._make_surface(8),
                    self._make_surface(16, srcalpha=True),
@@ -526,8 +504,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                           self._make_surface(24))
 
     def test_pixels3d(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         sources = [self._make_surface(24),
                    self._make_surface(32)]
@@ -563,8 +539,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                           self._make_surface(16))
 
     def test_pixels_alpha(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         palette = [(0, 0, 0, 0),
                    (127, 127, 127, 0),
@@ -620,8 +594,6 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def _test_pixels_rgb(self, operation, mask_posn):
         method_name = "pixels_" + operation
-        if not arraytype:
-            self.fail("no array package installed")
 
         pixels_rgb = getattr(pygame.surfarray, method_name)
         palette = [(0, 0, 0, 255),
@@ -659,8 +631,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                               self._make_surface(bitsize, srcalpha))
 
     def test_use_arraytype(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         def do_use_arraytype(atype):
             pygame.surfarray.use_arraytype(atype)
@@ -670,9 +640,6 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.assertRaises(ValueError, do_use_arraytype, 'not an option')
 
     def test_surf_lock (self):
-        if not arraytype:
-            self.fail("no array package installed")
-
         sf = pygame.Surface ((5, 5), 0, 32)
         for atype in pygame.surfarray.get_arraytypes ():
             pygame.surfarray.use_arraytype (atype)
@@ -691,7 +658,4 @@ class SurfarrayModuleTest (unittest.TestCase):
 
 
 if __name__ == '__main__':
-    if not arraytype:
-        print ("No array package is installed. Cannot run unit tests.")
-    else:
-        unittest.main()
+    unittest.main()
