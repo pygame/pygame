@@ -1,6 +1,7 @@
 import sys
 import os
 import unittest
+import platform
 
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
@@ -21,11 +22,12 @@ def equal_images(s1, s2):
     return True
 
 
-import platform
 IS_PYPY = 'PyPy' == platform.python_implementation()
+
 
 @unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
 class FontModuleTest( unittest.TestCase ):
+
     def setUp(self):
         pygame_font.init()
 
@@ -51,7 +53,6 @@ class FontModuleTest( unittest.TestCase ):
         fnts = pygame_font.get_fonts()
         self.failUnless(fnts)
 
-
     # to test if some files exist...
     #def XXtest_has_file_osx_10_5_sdk(self):
     #    import os
@@ -63,17 +64,10 @@ class FontModuleTest( unittest.TestCase ):
     #    f = "/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include/ft2build.h"
     #    self.assertEqual(os.path.exists(f), True)
 
-
-
-
-
     def test_get_fonts(self):
         fnts = pygame_font.get_fonts()
 
-        if not fnts:
-            raise Exception(repr(fnts))
-
-        self.failUnless(fnts)
+        self.assertTrue(fnts, msg=repr(fnts))
 
         if (PY_MAJOR_VERSION >= 3):
             # For Python 3.x, names will always be unicode strings.
@@ -108,7 +102,6 @@ class FontModuleTest( unittest.TestCase ):
             self.failUnless(os.path.isabs(path))
 
     def test_match_font_bold(self):
-
         fonts = pygame_font.get_fonts()
 
         # Look for a bold font.
@@ -119,7 +112,6 @@ class FontModuleTest( unittest.TestCase ):
             self.fail()
 
     def test_match_font_italic(self):
-
         fonts = pygame_font.get_fonts()
 
         # Look for an italic font.
@@ -129,9 +121,7 @@ class FontModuleTest( unittest.TestCase ):
         else:
             self.fail()
 
-
     def test_match_font_comma_separated(self):
-
         fonts = pygame_font.get_fonts()
 
         # Check for not found.
@@ -143,23 +133,18 @@ class FontModuleTest( unittest.TestCase ):
         names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
         self.failUnless(pygame_font.match_font(names) is None)
 
-
-
     def test_quit(self):
         pygame_font.quit()
 
 
-
-
-
 @unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
 class FontTest(unittest.TestCase):
+
     def setUp(self):
         pygame_font.init()
 
     def tearDown(self):
         pygame_font.quit()
-
 
     def test_render_args(self):
         screen = pygame.display.set_mode((600, 400))
@@ -200,12 +185,9 @@ class FontTest(unittest.TestCase):
 
 
 
-
-
-
-
 @unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
 class FontTypeTest( unittest.TestCase ):
+
     def setUp(self):
         pygame_font.init()
 
@@ -259,7 +241,7 @@ class FontTypeTest( unittest.TestCase ):
         b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
         bm = f.metrics(b)
         self.assert_(len(bm) == 2)
-        try:
+        try:  # FIXME why do we do this try/except ?
             um = f.metrics(u)
         except pygame.error:
             pass
@@ -292,9 +274,6 @@ class FontTypeTest( unittest.TestCase ):
         self.fail()
 
     def test_render(self):
-        """
-        """
-
         f = pygame_font.Font(None, 20)
         s = f.render("foo", True, [0, 0, 0], [255, 255, 255])
         s = f.render("xxx", True, [0, 0, 0], [255, 255, 255])
@@ -327,7 +306,7 @@ class FontTypeTest( unittest.TestCase ):
         u = as_unicode(r"\u212A")
         b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
         sb = f.render(b, False, [0, 0, 0], [255, 255, 255])
-        try:
+        try:  # FIXME why do we do this try/except ?
             su = f.render(u, False, [0, 0, 0], [255, 255, 255])
         except pygame.error:
             pass
@@ -347,50 +326,6 @@ class FontTypeTest( unittest.TestCase ):
         self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
         u = as_unicode("ab\x00cd")
         self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
-
-        # __doc__ (as of 2008-08-02) for pygame_font.Font.render:
-
-          # Font.render(text, antialias, color, background=None): return Surface
-          # draw text on a new Surface
-          #
-          # This creates a new Surface with the specified text rendered on it.
-          # Pygame provides no way to directly draw text on an existing Surface:
-          # instead you must use Font.render() to create an image (Surface) of
-          # the text, then blit this image onto another Surface.
-          #
-          # The text can only be a single line: newline characters are not
-          # rendered. The antialias argument is a boolean: if true the
-          # characters will have smooth edges. The color argument is the color
-          # of the text [e.g.: (0,0,255) for blue]. The optional background
-          # argument is a color to use for the text background. If no background
-          # is passed the area outside the text will be transparent.
-          #
-          # The Surface returned will be of the dimensions required to hold the
-          # text. (the same as those returned by Font.size()). If an empty
-          # string is passed for the text, a blank surface will be returned that
-          # is one pixel wide and the height of the font.
-          #
-          # Depending on the type of background and antialiasing used, this
-          # returns different types of Surfaces. For performance reasons, it is
-          # good to know what type of image will be used. If antialiasing is not
-          # used, the return image will always be an 8bit image with a two color
-          # palette. If the background is transparent a colorkey will be set.
-          # Antialiased images are rendered to 24-bit RGB images. If the
-          # background is transparent a pixel alpha will be included.
-          #
-          # Optimization: if you know that the final destination for the text
-          # (on the screen) will always have a solid background, and the text is
-          # antialiased, you can improve performance by specifying the
-          # background color. This will cause the resulting image to maintain
-          # transparency information by colorkey rather than (much less
-          # efficient) alpha values.
-          #
-          # If you render '\n' a unknown char will be rendered.  Usually a
-          # rectangle. Instead you need to handle new lines yourself.
-          #
-          # Font rendering is not thread safe: only a single thread can render
-          # text any time.
-
 
     def test_set_bold(self):
         f = pygame_font.Font(None, 20)
@@ -429,7 +364,7 @@ class FontTypeTest( unittest.TestCase ):
         text = as_unicode(r"\u212A")
         btext = text.encode("UTF-16")[2:] # Keep the byte order consistent.
         bsize = f.size(btext)
-        try:
+        try:  # FIXME why do we do this try/except ?
             size = f.size(text)
         except pygame.error:
             pass
@@ -475,7 +410,7 @@ class FontTypeTest( unittest.TestCase ):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
                                  pygame_font.get_default_font())
         filesystem_encoding = sys.getfilesystemencoding()
-        try:
+        try:  # FIXME why do we do this try/except ?
             font_path = font_path.decode(filesystem_encoding,
                                          filesystem_errors)
         except AttributeError:
@@ -487,6 +422,7 @@ class FontTypeTest( unittest.TestCase ):
 
 @unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
 class VisualTests( unittest.TestCase ):
+
     __tags__ = ['interactive']
 
     screen = None
