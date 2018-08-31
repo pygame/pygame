@@ -79,73 +79,6 @@ proxy_releasebuffer(pgBufproxyObject *, Py_buffer *);
 static void
 _release_buffer_from_dict(Py_buffer *);
 
-#if PY_VERSION_HEX < 0x02060000
-static int
-_IsFortranContiguous(Py_buffer *view)
-{
-    Py_ssize_t sd, dim;
-    int i;
-
-    if (view->ndim == 0)
-        return 1;
-    if (view->strides == NULL)
-        return (view->ndim == 1);
-
-    sd = view->itemsize;
-    if (view->ndim == 1)
-        return (view->shape[0] == 1 || sd == view->strides[0]);
-    for (i = 0; i < view->ndim; i++) {
-        dim = view->shape[i];
-        if (dim == 0)
-            return 1;
-        if (view->strides[i] != sd)
-            return 0;
-        sd *= dim;
-    }
-    return 1;
-}
-
-static int
-_IsCContiguous(Py_buffer *view)
-{
-    Py_ssize_t sd, dim;
-    int i;
-
-    if (view->ndim == 0)
-        return 1;
-    if (view->strides == NULL)
-        return 1;
-
-    sd = view->itemsize;
-    if (view->ndim == 1)
-        return (view->shape[0] == 1 || sd == view->strides[0]);
-    for (i = view->ndim - 1; i >= 0; i--) {
-        dim = view->shape[i];
-        if (dim == 0)
-            return 1;
-        if (view->strides[i] != sd)
-            return 0;
-        sd *= dim;
-    }
-    return 1;
-}
-
-static int
-PyBuffer_IsContiguous(Py_buffer *view, char fort)
-{
-    if (view->suboffsets != NULL)
-        return 0;
-
-    if (fort == 'C')
-        return _IsCContiguous(view);
-    else if (fort == 'F')
-        return _IsFortranContiguous(view);
-    else if (fort == 'A')
-        return (_IsCContiguous(view) || _IsFortranContiguous(view));
-    return 0;
-}
-#endif /* #if PY_VERSION_HEX < 0x02060000 */
-
 static int
 _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags)
 {
@@ -474,12 +407,7 @@ proxy_repr(pgBufproxyObject *self)
     if (!view_p) {
         return 0;
     }
-    /* zd is for Py_size_t which python < 2.5 doesn't have. */
-#if PY_VERSION_HEX < 0x02050000
-    return PyString_FromFormat("<BufferProxy(%d)>", view_p->len);
-#else
     return Text_FromFormat("<BufferProxy(%zd)>", view_p->len);
-#endif
 }
 
 /**
@@ -494,11 +422,7 @@ proxy_write(pgBufproxyObject *self, PyObject *args, PyObject *kwds)
     Py_ssize_t offset = 0;
     char *keywords[] = {"buffer", "offset", 0};
 
-#if Py_VERSION_HEX >= 0x02050000
 #define ARG_FORMAT "s#|n"
-#else
-#define ARG_FORMAT "s#|i" /* In this case Py_ssize_t is an int */
-#endif
     if (!PyArg_ParseTupleAndKeywords(args, kwds, ARG_FORMAT, keywords, &buf,
                                      &buflen, &offset)) {
         return 0;
