@@ -1556,15 +1556,26 @@ compare_int(const void *a, const void *b)
 static void
 draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
 {
+    /* The algorithm uses a horizontal line that moves from top to the
+     * bottom of the polygon:
+     *
+     * 1. search intersections with the border lines
+     * 2. sort intersections (x_intersect)
+     * 3. each two x-coordinates in x_intersect are then inside the polygon
+     *    (drawhorzlineclip for a pair of two such points)
+     */
     int i, j, y;
     int miny, maxy;
     int x1, y1;
     int x2, y2;
-    int ints;
-    int *polyints = PyMem_New(int, n);
-    if (polyints == NULL) {
+    /* x_intersect are the x-coordinates of intersections of the polygon
+     * with some horizontal line */
+    int *x_intersect = PyMem_New(int, n);
+    if (x_intersect == NULL) {
         PyErr_NoMemory();
         return;
+    // n_intersections : number of intersections with 
+    int n_intersections;
     }
 
     /* Determine Y maxima */
@@ -1582,16 +1593,19 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         /* Determine X bounds */
         minx = vx[0];
         maxx = vx[0];
-        for (j = 1; (j < n); j++) {
-            minx = MIN(minx, vx[j]);
-            maxx = MAX(maxx, vx[j]);
+        for (i = 1; (i < n); i++) {
+            minx = MIN(minx, vx[i]);
+            maxx = MAX(maxx, vx[i]);
         }
         drawhorzlineclip(dst, color, minx, miny, maxx);
-        PyMem_Free(polyints);
+        PyMem_Free(x_intersect);
         return;
     }
 
-    /* special case : horizontal border lines with miny < y < maxy */
+    /* Special case: Loop for border lines that are horizontal.
+     * The current algorithm misses to fill between two border pon_intersections
+     * with same height (at least in several cases), and when
+     * miny < y < maxy */
     for (i = 0; (i < n); i++) {
             j = ((i) ? (i - 1) : (n - 1));
             y = vy[i];
@@ -1602,7 +1616,7 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
     }
     /* Draw, scanning y */
     for (y = miny; (y <= maxy); y++) {
-        ints = 0;
+        n_intersections = 0;
         for (i = 0; (i < n); i++) {
             j = ((i) ? (i - 1) : (n - 1));
 
@@ -1623,16 +1637,16 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
             }
             if ( ((y >= y1) && (y < y2)) ||
                   ((y == maxy) && (y <= y2)) ) {
-                polyints[ints++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
+                x_intersect[n_intersections++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
             }
         }
-        qsort(polyints, ints, sizeof(int), compare_int);
+        qsort(x_intersect, n_intersections, sizeof(int), compare_int);
 
-        for (i = 0; (i < ints); i += 2) {
-            drawhorzlineclip(dst, color, polyints[i], y, polyints[i + 1]);
+        for (i = 0; (i < n_intersections); i += 2) {
+            drawhorzlineclip(dst, color, x_intersect[i], y, x_intersect[i + 1]);
         }
     }
-    PyMem_Free(polyints);
+    PyMem_Free(x_intersect);
 }
 
 static PyMethodDef _draw_methods[] = {
