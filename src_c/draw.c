@@ -1629,7 +1629,9 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points, Uint
                 continue;
             }
             if ( ((y >= y1) && (y < y2)) ||
-                  ((y == maxy) && (y <= y2)) ) {
+                  ((y == maxy) && (y2 == maxy)) ) {
+                // add intersection if y crosses the edge (excluding the lower end),
+                // or when we are on lowest line (maxy)
                 x_intersect[n_intersections++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
             }
         }
