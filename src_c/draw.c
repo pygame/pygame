@@ -1554,7 +1554,7 @@ compare_int(const void *a, const void *b)
 }
 
 static void
-draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
+draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n_points, Uint32 color)
 {
     /* The algorithm uses a horizontal line that moves from top to the
      * bottom of the polygon:
@@ -1564,24 +1564,22 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
      * 3. each two x-coordinates in x_intersect are then inside the polygon
      *    (drawhorzlineclip for a pair of two such points)
      */
-    int i, j, y;
+    int i, i_previous, y; // i_previous is the index of the point before i
     int miny, maxy;
     int x1, y1;
     int x2, y2;
     /* x_intersect are the x-coordinates of intersections of the polygon
      * with some horizontal line */
-    int *x_intersect = PyMem_New(int, n);
+    int *x_intersect = PyMem_New(int, n_points);
     if (x_intersect == NULL) {
         PyErr_NoMemory();
         return;
-    // n_intersections : number of intersections with 
-    int n_intersections;
     }
 
     /* Determine Y maxima */
     miny = vy[0];
     maxy = vy[0];
-    for (i = 1; (i < n); i++) {
+    for (i = 1; (i < n_points); i++) {
         miny = MIN(miny, vy[i]);
         maxy = MAX(maxy, vy[i]);
     }
@@ -1593,7 +1591,7 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         /* Determine X bounds */
         minx = vx[0];
         maxx = vx[0];
-        for (i = 1; (i < n); i++) {
+        for (i = 1; (i < n_points); i++) {
             minx = MIN(minx, vx[i]);
             maxx = MAX(maxx, vx[i]);
         }
@@ -1602,37 +1600,27 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         return;
     }
 
-    /* Special case: Loop for border lines that are horizontal.
-     * The current algorithm misses to fill between two border pon_intersections
-     * with same height (at least in several cases), and when
-     * miny < y < maxy */
-    for (i = 0; (i < n); i++) {
-            j = ((i) ? (i - 1) : (n - 1));
-            y = vy[i];
-
-            if ((miny < y) &&  (vy[j] == y) && (y < maxy)) {
-                drawhorzlineclip(dst, color, vx[i], y, vx[j]);
-            }
-    }
+    // n_intersections : number of intersections with the polygon
+    int n_intersections;
     /* Draw, scanning y */
     for (y = miny; (y <= maxy); y++) {
         n_intersections = 0;
-        for (i = 0; (i < n); i++) {
-            j = ((i) ? (i - 1) : (n - 1));
+        for (i = 0; (i < n_points); i++) {
+            i_previous = ((i) ? (i - 1) : (n_points - 1));
 
-            y1 = vy[j];
+            y1 = vy[i_previous];
             y2 = vy[i];
             if (y1 < y2) {
-                x1 = vx[j];
+                x1 = vx[i_previous];
                 x2 = vx[i];
             }
             else if (y1 > y2) {
-                y2 = vy[j];
+                y2 = vy[i_previous];
                 y1 = vy[i];
-                x2 = vx[j];
+                x2 = vx[i_previous];
                 x1 = vx[i];
             }
-            else { // y1 == y2 : handled above
+            else { // y1 == y2 : has to be handled as special case (below)
                 continue;
             }
             if ( ((y >= y1) && (y < y2)) ||
@@ -1645,6 +1633,20 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
         for (i = 0; (i < n_intersections); i += 2) {
             drawhorzlineclip(dst, color, x_intersect[i], y, x_intersect[i + 1]);
         }
+    }
+
+    /* Finally, a special case is not handled by above algorithm:
+     * For two border points with same height miny < y < maxy,
+     * (at least in several cases), the line between them is not colored.
+     * So we loop for border lines that are horizontal.
+     */
+    for (i = 0; (i < n_points); i++) {
+            i_previous = ((i) ? (i - 1) : (n_points - 1));
+            y = vy[i];
+
+            if ((miny < y) &&  (vy[i_previous] == y) && (y < maxy)) {
+                drawhorzlineclip(dst, color, vx[i], y, vx[i_previous]);
+            }
     }
     PyMem_Free(x_intersect);
 }
