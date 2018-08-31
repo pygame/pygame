@@ -192,12 +192,6 @@
                          start, stop, step, slicelength)
 #endif
 
-/* Python 2.4 (PEP 353) ssize_t */
-#if PY_VERSION_HEX < 0x02050000
-#define PyInt_AsSsize_t PyInt_AsLong
-#define PyInt_FromSsizt_t PyInt_FromLong
-#endif
-
 /* Support new buffer protocol? */
 #if !defined(PG_ENABLE_NEWBUF)  /* allow for command line override */
 #if HAVE_NEW_BUFPROTO && !defined(PYPY_VERSION)

@@ -468,20 +468,8 @@ _vector_find_string_helper(PyObject *str_obj, const char *substr,
      * ISO C 90 compatible.
      */
     PyObject *substr_obj;
-#if PY_VERSION_HEX < 0x02060000
-    PyObject *tmp;
-#endif
     Py_ssize_t pos;
-#if PY_VERSION_HEX >= 0x02060000
     substr_obj = PyUnicode_FromString(substr);
-#else
-    tmp = PyString_FromString(substr);
-    if (tmp == NULL) {
-        return -2;
-    }
-    substr_obj = PyUnicode_FromObject(tmp);
-    Py_DECREF(tmp);
-#endif
     if (substr_obj == NULL) {
         return -2;
     }
@@ -956,16 +944,8 @@ static PyObject *
 vector_subscript(pgVector *self, PyObject *key)
 {
     Py_ssize_t i;
-#if PY_VERSION_HEX >= 0x02050000
     if (PyIndex_Check(key)) {
         i = PyNumber_AsSsize_t(key, PyExc_IndexError);
-#else
-    if (PyInt_Check(key) || PyLong_Check(key)) {
-        if (PyInt_Check(key))
-            i = PyInt_AsLong(key);
-        else
-            i = PyLong_AsLong(key);
-#endif
         if (i == -1 && PyErr_Occurred())
             return NULL;
         if (i < 0)
@@ -1024,16 +1004,8 @@ static int
 vector_ass_subscript(pgVector *self, PyObject *key, PyObject *value)
 {
     Py_ssize_t i;
-#if PY_VERSION_HEX >= 0x02050000
     if (PyIndex_Check(key)) {
         i = PyNumber_AsSsize_t(key, PyExc_IndexError);
-#else
-    if (PyInt_Check(key) || PyLong_Check(key)) {
-        if (PyInt_Check(key))
-            i = PyInt_AsLong(key);
-        else
-            i = PyLong_AsLong(key);
-#endif
         if (i == -1 && PyErr_Occurred())
             return -1;
         if (i < 0)
@@ -2897,11 +2869,7 @@ vectoriter_len(vectoriter *it)
     if (it && it->vec) {
         len = it->vec->dim - it->it_index;
     }
-#if PY_VERSION_HEX >= 0x02050000
     return PyInt_FromSsize_t(len);
-#else
-    return PyInt_FromLong((long unsigned int)len);
-#endif
 }
 
 static PyMethodDef vectoriter_methods[] = {
