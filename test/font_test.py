@@ -105,21 +105,16 @@ class FontModuleTest( unittest.TestCase ):
         fonts = pygame_font.get_fonts()
 
         # Look for a bold font.
-        for font in fonts:
-            if pygame_font.match_font(font, bold=True) is not None:
-                break
-        else:
-            self.fail()
+        self.assertTrue(any(pygame_font.match_font(font, bold=True)
+                            for font in fonts))
+
 
     def test_match_font_italic(self):
         fonts = pygame_font.get_fonts()
 
         # Look for an italic font.
-        for font in fonts:
-            if pygame_font.match_font(font, italic=True) is not None:
-                break
-        else:
-            self.fail()
+        self.assertTrue(any(pygame_font.match_font(font, italic=True)
+                            for font in fonts))
 
     def test_match_font_comma_separated(self):
         fonts = pygame_font.get_fonts()
