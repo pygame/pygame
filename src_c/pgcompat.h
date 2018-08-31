@@ -141,25 +141,7 @@
 #define Unicode_AsEncodedPath(u) \
     PyUnicode_AsEncodedString ((u), UNICODE_DEF_FS_CODEC, UNICODE_DEF_FS_ERROR)
 
-/* Relative paths introduced in Python 2.6 */
-#if PY_VERSION_HEX >= 0x02060000
-#define HAVE_RELATIVE_IMPORT 1
-#else
-#define HAVE_RELATIVE_IMPORT 0
-#endif
-
-#if HAVE_RELATIVE_IMPORT
 #define RELATIVE_MODULE(m) ("." m)
-#else
-#define RELATIVE_MODULE(m) (m)
-#endif
-
-/* Python 3 (PEP 3118) buffer protocol */
-#if PY_VERSION_HEX >= 0x02060000
-#define HAVE_NEW_BUFPROTO 1
-#else
-#define HAVE_NEW_BUFPROTO 0
-#endif
 
 #define HAVE_OLD_BUFPROTO PY2
 
@@ -194,7 +176,7 @@
 
 /* Support new buffer protocol? */
 #if !defined(PG_ENABLE_NEWBUF)  /* allow for command line override */
-#if HAVE_NEW_BUFPROTO && !defined(PYPY_VERSION)
+#if !defined(PYPY_VERSION)
 #define PG_ENABLE_NEWBUF 1
 #else
 #define PG_ENABLE_NEWBUF 0
