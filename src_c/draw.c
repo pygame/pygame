@@ -1554,15 +1554,11 @@ compare_int(const void *a, const void *b)
 }
 
 static void
-draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n_points, Uint32 color)
+draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points, Uint32 color)
 {
-    /* The algorithm uses a horizontal line that moves from top to the
-     * bottom of the polygon:
-     *
-     * 1. search intersections with the border lines
-     * 2. sort intersections (x_intersect)
-     * 3. each two x-coordinates in x_intersect are then inside the polygon
-     *    (drawhorzlineclip for a pair of two such points)
+    /* point_x : x coordinates of the points
+     * point-y : the y coordinates of the points
+     * num_points : the number of points
      */
     int i, i_previous, y; // i_previous is the index of the point before i
     int miny, maxy;
@@ -1570,18 +1566,18 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n_points, Uint32 color)
     int x2, y2;
     /* x_intersect are the x-coordinates of intersections of the polygon
      * with some horizontal line */
-    int *x_intersect = PyMem_New(int, n_points);
+    int *x_intersect = PyMem_New(int, num_points);
     if (x_intersect == NULL) {
         PyErr_NoMemory();
         return;
     }
 
     /* Determine Y maxima */
-    miny = vy[0];
-    maxy = vy[0];
-    for (i = 1; (i < n_points); i++) {
-        miny = MIN(miny, vy[i]);
-        maxy = MAX(maxy, vy[i]);
+    miny = point_y[0];
+    maxy = point_y[0];
+    for (i = 1; (i < num_points); i++) {
+        miny = MIN(miny, point_y[i]);
+        maxy = MAX(maxy, point_y[i]);
     }
 
     if (miny == maxy) {
@@ -1589,36 +1585,45 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n_points, Uint32 color)
         int minx, maxx;
 
         /* Determine X bounds */
-        minx = vx[0];
-        maxx = vx[0];
-        for (i = 1; (i < n_points); i++) {
-            minx = MIN(minx, vx[i]);
-            maxx = MAX(maxx, vx[i]);
+        minx = point_x[0];
+        maxx = point_x[0];
+        for (i = 1; (i < num_points); i++) {
+            minx = MIN(minx, point_x[i]);
+            maxx = MAX(maxx, point_x[i]);
         }
         drawhorzlineclip(dst, color, minx, miny, maxx);
         PyMem_Free(x_intersect);
         return;
     }
 
+    /* Draw, scanning y
+     * ----------------
+     * The algorithm uses a horizontal line (y) that moves from top to the
+     * bottom of the polygon:
+     *
+     * 1. search intersections with the border lines
+     * 2. sort intersections (x_intersect)
+     * 3. each two x-coordinates in x_intersect are then inside the polygon
+     *    (drawhorzlineclip for a pair of two such points)
+     */
     // n_intersections : number of intersections with the polygon
     int n_intersections;
-    /* Draw, scanning y */
     for (y = miny; (y <= maxy); y++) {
         n_intersections = 0;
-        for (i = 0; (i < n_points); i++) {
-            i_previous = ((i) ? (i - 1) : (n_points - 1));
+        for (i = 0; (i < num_points); i++) {
+            i_previous = ((i) ? (i - 1) : (num_points - 1));
 
-            y1 = vy[i_previous];
-            y2 = vy[i];
+            y1 = point_y[i_previous];
+            y2 = point_y[i];
             if (y1 < y2) {
-                x1 = vx[i_previous];
-                x2 = vx[i];
+                x1 = point_x[i_previous];
+                x2 = point_x[i];
             }
             else if (y1 > y2) {
-                y2 = vy[i_previous];
-                y1 = vy[i];
-                x2 = vx[i_previous];
-                x1 = vx[i];
+                y2 = point_y[i_previous];
+                y1 = point_y[i];
+                x2 = point_x[i_previous];
+                x1 = point_x[i];
             }
             else { // y1 == y2 : has to be handled as special case (below)
                 continue;
@@ -1636,16 +1641,19 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n_points, Uint32 color)
     }
 
     /* Finally, a special case is not handled by above algorithm:
+     *
      * For two border points with same height miny < y < maxy,
-     * (at least in several cases), the line between them is not colored.
+     * sometimes the line between them is not colored:
+     * this happens when the line will be a lower border line of the polygon
+     * (eg we are inside the polygon with a smaller y, and outside with a bigger y),
      * So we loop for border lines that are horizontal.
      */
-    for (i = 0; (i < n_points); i++) {
-            i_previous = ((i) ? (i - 1) : (n_points - 1));
-            y = vy[i];
+    for (i = 0; (i < num_points); i++) {
+            i_previous = ((i) ? (i - 1) : (num_points - 1));
+            y = point_y[i];
 
-            if ((miny < y) &&  (vy[i_previous] == y) && (y < maxy)) {
-                drawhorzlineclip(dst, color, vx[i], y, vx[i_previous]);
+            if ((miny < y) &&  (point_y[i_previous] == y) && (y < maxy)) {
+                drawhorzlineclip(dst, color, point_x[i], y, point_x[i_previous]);
             }
     }
     PyMem_Free(x_intersect);
