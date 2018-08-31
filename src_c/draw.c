@@ -1593,13 +1593,9 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
 
     /* special case : horizontal border lines with miny < y < maxy */
     for (i = 0; (i < n); i++) {
-            if (!i) {
-                j = n - 1;
-            }
-            else {
-                j = i - 1;
-            }
+            j = ((i) ? (i - 1) : (n - 1));
             y = vy[i];
+
             if ((miny < y) &&  (vy[j] == y) && (y < maxy)) {
                 drawhorzlineclip(dst, color, vx[i], y, vx[j]);
             }
@@ -1608,12 +1604,8 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
     for (y = miny; (y <= maxy); y++) {
         ints = 0;
         for (i = 0; (i < n); i++) {
-            if (!i) {
-                j = n - 1;
-            }
-            else {
-                j = i - 1;
-            }
+            j = ((i) ? (i - 1) : (n - 1));
+
             y1 = vy[j];
             y2 = vy[i];
             if (y1 < y2) {
