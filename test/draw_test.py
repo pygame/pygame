@@ -375,8 +375,8 @@ class DrawModuleTest(unittest.TestCase):
         self.fail()
 
 
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+RED = pygame.Color('red')
+GREEN = pygame.Color('green')
 
 SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
 DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
@@ -413,35 +413,38 @@ class DrawPolygonTest(unittest.TestCase):
         # 1. one-pixel-high, filled
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         pygame.draw.polygon(self.surface, GREEN, [(x, 2) for x, y in CROSS], 0)
-        for x in range(7):
+        cross_size = 6 # the maxium x or y coordinate of the cross
+        for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 1)), RED)
             self.assertEqual(self.surface.get_at((x, 2)), GREEN)
             self.assertEqual(self.surface.get_at((x, 3)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 2. one-pixel-high, not filled
         pygame.draw.polygon(self.surface, GREEN, [(x, 5) for x, y in CROSS], 1)
-        for x in range(7):
+        for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 4)), RED)
             self.assertEqual(self.surface.get_at((x, 5)), GREEN)
             self.assertEqual(self.surface.get_at((x, 6)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 3. one-pixel-wide, filled
         pygame.draw.polygon(self.surface, GREEN, [(3, y) for x, y in CROSS], 0)
-        for y in range(7):
+        for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((2, y)), RED)
             self.assertEqual(self.surface.get_at((3, y)), GREEN)
             self.assertEqual(self.surface.get_at((4, y)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 4. one-pixel-wide, not filled
         pygame.draw.polygon(self.surface, GREEN, [(4, y) for x, y in CROSS], 1)
-        for y in range(7):
+        for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((3, y)), RED)
             self.assertEqual(self.surface.get_at((4, y)), GREEN)
             self.assertEqual(self.surface.get_at((5, y)), RED)
 
     def test_draw_symetric_cross(self):
-        # issue #234 : the result is/was different wether we fill or not
-        # the polygon
+        '''nonregression on issue #234 : x and y where handled inconsistently.
+
+        Also, the result is/was different wether we fill or not the polygon.
+        '''
 
         # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
@@ -472,7 +475,7 @@ class DrawPolygonTest(unittest.TestCase):
                     self.assertEqual(self.surface.get_at((x, y)), RED)
 
     def test_illumine_shape(self):
-        # Extracted from bug #313 
+        '''non regression on issue #313 '''
         rect = pygame.Rect((0, 0, 20, 20))
         path_data = [(0, 0), (rect.width-1, 0), # upper border
                      (rect.width-5,  5-1), (5-1, 5-1),  # upper inner
