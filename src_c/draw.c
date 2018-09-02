@@ -1381,10 +1381,8 @@ drawvertlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int y2)
     }
     y1 = MAX(y1, surf->clip_rect.y);
     y2 = MIN(y2, surf->clip_rect.y + surf->clip_rect.h - 1);
-    if (y2 - y1 < 1)
-        set_at(surf, x1, y1, color);
-    else
-        drawvertline(surf, color, x1, y1, y2);
+
+    drawvertline(surf, color, x1, y1, y2);
 }
 
 static void
