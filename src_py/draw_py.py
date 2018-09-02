@@ -1,18 +1,10 @@
 '''Pygame Drawing algorithms written in Python (Work in Progress)
 
 '''
-# horizontal line
-def drawhorzline(surf, color, x_from, y, x_to):
-    if x_from == x_to:
-        surf.set_at((x_from, y), color)
-        return
 
-    start, end = (x_from, x_to) if x_from <= x_to else (x_to, x_from)
-    for x in range(x_from, x_to + 1):
-        surf.set_at((x, y), color)
-
-
+# Draw Lines
 def drawhorzlineclip(surf, color, x_from, y, x_to):
+    '''draw clipped horizontal line.'''
     # check Y inside surf
     if y < surf.clip_rect.y or y >= surf.clip_rect.y + surf.clip_rect.h:
         return
@@ -25,6 +17,22 @@ def drawhorzlineclip(surf, color, x_from, y, x_to):
         return
 
     drawhorzline(surf, color, x_from, y, x_to)
+
+
+def drawvertlineclip(surf, color, x, y_from, y_to):
+    '''draw clipped vertical line.'''
+    # check X inside surf
+    if x < surf.clip_rect.x or x >= surf.clip_rect.x + surf.clip_rect.w:
+        return
+
+    y_from = max(y_from, surf.clip_rect.y)
+    y_to = min(y_to, surf.clip_rect.y + surf.clip_rect.h - 1)
+
+    # check any y inside surf
+    if y_to < surf.clip_rect.y or y_from >= surf.clip_rect.y + surf.clip_rect.h:
+        return
+
+    drawvertline(surf, color, x, y_from, y_to)
 
 
 def draw_polygon(surface, color, points, _width=0):
@@ -77,3 +85,29 @@ def draw_polygon(surface, color, points, _width=0):
         if miny < y == point_y[i_prev] < maxy:
             drawhorzlineclip(surface, color, point_x[i], y, point_x[i_prev])
 
+
+# L O W   L E V E L   F U N C T I O N S
+# (too low level to be translated into python, right?)
+
+def set_at(surf, x, y, color):
+    surf.set_at((x, y), color)
+
+
+def drawhorzline(surf, color, x_from, y, x_to):
+    if x_from == x_to:
+        surf.set_at((x_from, y), color)
+        return
+
+    start, end = (x_from, x_to) if x_from <= x_to else (x_to, x_from)
+    for x in range(x_from, x_to + 1):
+        surf.set_at((x, y), color)
+
+
+def drawvertline(surf, color, x, y_from, y_to):
+    if y_from == y_to:
+        surf.set_at((x, y_from), color)
+        return
+
+    start, end = (y_from, y_to) if y_from <= y_to else (y_to, y_from)
+    for y in range(y_from, y_to + 1):
+        surf.set_at((x, y_to), color)
