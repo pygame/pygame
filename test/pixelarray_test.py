@@ -1005,13 +1005,14 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         self.assertEqual(repr (ar),
                          type (ar).__name__ + "([\n  [42, 42, 42]]\n)")
 
-class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
+
+class PixelArrayArrayInterfaceTest(unittest.TestCase, TestMixin):
+
+    @unittest.skipIf(IS_PYPY, 'skipping for PyPy (why?)')
     def test_basic (self):
         # Check unchanging fields.
         sf = pygame.Surface ((2, 2), 0, 32)
         ar = pygame.PixelArray (sf)
-        if IS_PYPY:
-            return
 
         ai = arrinter.ArrayInterface (ar)
         self.assertEqual (ai.two, 2)
@@ -1019,9 +1020,8 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
         self.assertEqual (ai.nd, 2)
         self.assertEqual (ai.data, ar._pixels_address)
 
-    def test_shape (self):
-        if IS_PYPY:
-            return
+    @unittest.skipIf(IS_PYPY, 'skipping for PyPy (why?)')
+    def test_shape(self):
 
         for shape in [[4, 16], [5, 13]]:
             w, h = shape
@@ -1041,9 +1041,8 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
             ai_shape = [ai2.shape[i] for i in range(ai2.nd)]
             self.assertEqual (ai_shape, [w, h2])
 
+    @unittest.skipIf(IS_PYPY, 'skipping for PyPy (why?)')
     def test_itemsize (self):
-        if IS_PYPY:
-            return
         for bytes_per_pixel in range(1, 5):
             bits_per_pixel = 8 * bytes_per_pixel
             sf = pygame.Surface ((2, 2), 0, bits_per_pixel)
@@ -1051,9 +1050,8 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
             ai = arrinter.ArrayInterface (ar)
             self.assertEqual (ai.itemsize, bytes_per_pixel)
 
+    @unittest.skipIf(IS_PYPY, 'skipping for PyPy (why?)')
     def test_flags (self):
-        if IS_PYPY:
-            return
         aim = arrinter
         common_flags = (aim.PAI_NOTSWAPPED | aim.PAI_WRITEABLE |
                         aim.PAI_ALIGNED)
