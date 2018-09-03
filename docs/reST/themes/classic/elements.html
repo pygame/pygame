@@ -18,13 +18,26 @@
 	  <h5>pygame documentation</h5>
 	</td>
 	<td class="pagelinks">
-	  <p class="top">
+	  <div class="top">
 	    <a href="{{ theme_home_uri }}">Pygame Home</a> ||
 	    <a href="{{ pathto(master_doc) }}">Help Contents</a> ||
 	    <a href="{{ pathto('genindex') }}">Reference Index</a>
-	  </p>
+
+        <form action="{{ pathto('search') }}" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+{#-
+
+We render three sets of items based on how useful to most apps.
+
+#}
+{%- set basic = ['Color', 'display', 'draw', 'event', 'font', 'image', 'key', 'locals', 'mixer', 'mouse', 'music', 'pygame', 'Rect', 'Surface', 'time'] %}
+{%- set advanced = ['BufferProxy', 'freetype', 'gfxdraw', 'midi', 'Overlay', 'PixelArray', 'pixelcopy', 'sndarray', 'surfarray', 'cursors', 'joystick', 'mask', 'math', 'sprite', 'transform'] %}
 {%-   if pyg_sections %}
-	  <p class="bottom">
+	  <p class="bottom"><b>Most useful stuff</b>:
 {%      set sep = joiner(" | \n") %}
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
@@ -34,9 +47,46 @@
 {%-       if name|lower != simpledocname %}
 {%-         set uri = uri + '#' + section['refid'] %}
 {%-       endif %}
+{%-       if name in basic %}
 {{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
+{%-       endif %}
 {%-     endfor %}
 	  </p>
+
+	  <p class="bottom"><b>Advanced stuff</b>:
+{%      set sep = joiner(" | \n") %}
+{%-     for section in pyg_sections %}
+{%-       set docname = section['docname'] %}
+{%-       set simpledocname = docname.split('/')[-1] %}
+{%-       set name = section['fullname'].split('.')[-1] %}
+{%-       set uri = pathto(docname, 1) + file_suffix -%}
+{%-       if name|lower != simpledocname %}
+{%-         set uri = uri + '#' + section['refid'] %}
+{%-       endif %}
+{%-       if name in advanced %}
+{{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
+{%-       endif %}
+{%-     endfor %}
+	  </p>
+
+	  <p class="bottom"><b>Other</b>:
+{%      set sep = joiner(" | \n") %}
+{%-     for section in pyg_sections %}
+{%-       set docname = section['docname'] %}
+{%-       set simpledocname = docname.split('/')[-1] %}
+{%-       set name = section['fullname'].split('.')[-1] %}
+{%-       set uri = pathto(docname, 1) + file_suffix -%}
+{%-       if name|lower != simpledocname %}
+{%-         set uri = uri + '#' + section['refid'] %}
+{%-       endif %}
+{%-       if name not in basic and name not in advanced %}
+{{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
+{%-       endif %}
+{%-     endfor %}
+	  </p>
+
+
+
 {%-   endif  %}
 	</td>
       </tr>
