@@ -119,7 +119,7 @@ div.body table.matrix td {
     border-right: 0.1em solid black;
 }
 
-div.body table.matrix th:last-child, 
+div.body table.matrix th:last-child,
 div.body table.matrix td:last-child {
     border-right-style: none;
 }
@@ -230,11 +230,12 @@ div.header p.top {
 
 div.header p.bottom {
     margin-bottom: 0;
+    text-align: left;
 }
 
 div.header .pagelinks a {
     text-decoration: underline;
-}    
+}
 
 div.header .pagelinks a:hover {
     text-decoration: none;
@@ -411,7 +412,7 @@ dl.definition {
 dd {
     margin-left: 30px;
 }
- 
+
 dt tt {
     font-weight: bold;
     font-size: 1.1em;
@@ -763,7 +764,7 @@ header.commentHeading {
     text-align: center;
 }
 pre.commentContent {
-    overflow: auto; 
+    overflow: auto;
     max-width; 800px;
     margin-left:0px;
     border: 0;
