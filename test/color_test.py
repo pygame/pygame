@@ -1,11 +1,13 @@
 import unittest
 import math
 import operator
+import platform
 
 import pygame
 from pygame.compat import long_
 
 
+IS_PYPY = 'PyPy' == platform.python_implementation()
 ################################### CONSTANTS ##################################
 
 rgba_vals = [0, 1, 62, 63, 126, 127, 255]
@@ -833,7 +835,6 @@ class ColorTypeTest (unittest.TestCase):
         # TODO: test against statically defined verified _correct_ values
         # assert corrected.r == 125 etc.
 
-
     def test_pickle(self):
         import pickle
         c1 = pygame.Color(1,2,3,4)
@@ -845,11 +846,8 @@ class ColorTypeTest (unittest.TestCase):
 ################################################################################
 # only available if ctypes module is also available
 
+    @unittest.skipIf(IS_PYPY, 'PyPy has no ctypes')
     def test_arraystruct(self):
-        import platform
-        IS_PYPY = 'PyPy' == platform.python_implementation()
-        if IS_PYPY:
-            return
 
         import pygame.tests.test_utils.arrinter as ai
         import ctypes as ct
@@ -872,14 +870,10 @@ class ColorTypeTest (unittest.TestCase):
             for j in range(i):
                 self.assertEqual(data[j], c[j])
 
-    if pygame.HAVE_NEWBUF:
-        def test_newbuf(self):
-            self.NEWBUF_test_newbuf()
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf(self):
         from pygame.tests.test_utils import buftools
-
-    def NEWBUF_test_newbuf(self):
         from ctypes import cast, POINTER, c_uint8
-        buftools = self.buftools
 
         class ColorImporter(buftools.Importer):
             def __init__(self, color, flags):
@@ -954,13 +948,9 @@ class ColorTypeTest (unittest.TestCase):
         self.assertRaises(BufferError, ColorImporter,
                           c, buftools.PyBUF_WRITABLE)
 
-    try:
-        import ctypes
-    except ImportError:
-        del test_arraystruct
-
 
 class SubclassTest(unittest.TestCase):
+
     class MyColor(pygame.Color):
         def __init__ (self, *args, **kwds):
             super(SubclassTest.MyColor, self).__init__ (*args, **kwds)

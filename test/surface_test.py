@@ -1543,23 +1543,9 @@ class SurfaceGetBufferTest (unittest.TestCase):
                 s = pygame.Surface((4, 2), 0, 32)
                 self._check_interface_rgba(s, plane)
 
-    if pygame.HAVE_NEWBUF:
-        def test_newbuf_PyBUF_flags_bytes(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_bytes()
-        def test_newbuf_PyBUF_flags_0D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_0D()
-        def test_newbuf_PyBUF_flags_1D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_1D()
-        def test_newbuf_PyBUF_flags_2D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
-        def test_newbuf_PyBUF_flags_3D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_3D()
-        def test_newbuf_PyBUF_flags_rgba(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_rgba()
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf_PyBUF_flags_bytes(self):
         from pygame.tests.test_utils import buftools
-
-    def NEWBUF_test_newbuf_PyBUF_flags_bytes(self):
-        buftools = self.buftools
         Importer = buftools.Importer
         s = pygame.Surface((10, 6), 0, 32)
         a = s.get_buffer()
@@ -1616,10 +1602,11 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertEqual(b.ndim, 1)
         self.assertEqual(b.strides, (1,))
 
-    def NEWBUF_test_newbuf_PyBUF_flags_0D(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf_PyBUF_flags_0D(self):
         # This is the same handler as used by get_buffer(), so just
         # confirm that it succeeds for one case.
-        buftools = self.buftools
+        from pygame.tests.test_utils import buftools
         Importer = buftools.Importer
         s = pygame.Surface((10, 6), 0, 32)
         a = s.get_view('0')
@@ -1634,8 +1621,9 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, s._pixels_address)
 
-    def NEWBUF_test_newbuf_PyBUF_flags_1D(self):
-        buftools = self.buftools
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf_PyBUF_flags_1D(self):
+        from pygame.tests.test_utils import buftools
         Importer = buftools.Importer
         s = pygame.Surface((10, 6), 0, 32)
         a = s.get_view('1')
@@ -1671,8 +1659,9 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertTrue(b.format is None)
         self.assertEqual(b.strides, (s.get_bytesize(),))
 
-    def NEWBUF_test_newbuf_PyBUF_flags_2D(self):
-        buftools = self.buftools
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf_PyBUF_flags_2D(self):
+        from pygame.tests.test_utils import buftools
         Importer = buftools.Importer
         s = pygame.Surface((10, 6), 0, 32)
         a = s.get_view('2')
@@ -1745,8 +1734,9 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_ANY_CONTIGUOUS)
 
-    def NEWBUF_test_newbuf_PyBUF_flags_3D(self):
-        buftools = self.buftools
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf_PyBUF_flags_3D(self):
+        from pygame.tests.test_utils import buftools
         Importer = buftools.Importer
         s = pygame.Surface((12, 6), 0, 24)
         rmask, gmask, bmask, amask = s.get_masks()
@@ -1797,10 +1787,11 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_ANY_CONTIGUOUS)
 
-    def NEWBUF_test_newbuf_PyBUF_flags_rgba(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf_PyBUF_flags_rgba(self):
         # All color plane views are handled by the same routine,
         # so only one plane need be checked.
-        buftools = self.buftools
+        from pygame.tests.test_utils import buftools
         Importer = buftools.Importer
         s = pygame.Surface((12, 6), 0, 24)
         rmask, gmask, bmask, amask = s.get_masks()

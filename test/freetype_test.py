@@ -1043,13 +1043,10 @@ class FreeTypeFontTest(unittest.TestCase):
 
         self.assertRaises(AttributeError, setattr, f, 'fgcolor', None)
 
-    if pygame.HAVE_NEWBUF:
-        def test_newbuf(self):
-            self.NEWBUF_test_newbuf()
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf(self):
         from pygame.tests.test_utils import buftools
-
-    def NEWBUF_test_newbuf(self):
-        Exporter = self.buftools.Exporter
+        Exporter = buftools.Exporter
         font = self._TEST_FONTS['sans']
         srect = font.get_rect("Hi", size=12)
         for format in ['b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'q', 'Q',

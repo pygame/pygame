@@ -341,12 +341,8 @@ class MixerModuleTest(unittest.TestCase):
         finally:
             mixer.quit()
 
-    if pygame.HAVE_NEWBUF:
-        def test_newbuf(self):
-            self.NEWBUF_test_newbuf()
-        from pygame.tests.test_utils import buftools
-
-    def NEWBUF_test_newbuf(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf(self):
         mixer.init(22050, -16, 1)
         try:
             self.NEWBUF_export_check()
@@ -367,7 +363,7 @@ class MixerModuleTest(unittest.TestCase):
                    32: '=I', -32: '=i',  # 32 and 64 for future consideration
                    64: '=Q', -64: '=q'}
         format = formats[fmt]
-        buftools = self.buftools
+        from pygame.tests.test_utils import buftools
         Exporter = buftools.Exporter
         Importer = buftools.Importer
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
