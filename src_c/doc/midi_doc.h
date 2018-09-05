@@ -23,6 +23,8 @@
 
 #define DOC_OUTPUTSETINSTRUMENT "set_instrument(instrument_id, channel = 0) -> None\nselect an instrument, with a value between 0 and 127"
 
+#define DOC_OUTPUTPITCHBEND "set_instrument(value = 0, channel = 0) -> None\nmodify the pitch of a channel."
+
 #define DOC_OUTPUTWRITE "write(data) -> None\nwrites a list of midi data to the Output"
 
 #define DOC_OUTPUTWRITESHORT "write_short(status) -> None\nwrite_short(status, data1 = 0, data2 = 0) -> None\nwrite_short(status <, data1><, data2>)"
@@ -101,6 +103,10 @@ turns a midi note on.  Note must be off.
 pygame.midi.Output.set_instrument
  set_instrument(instrument_id, channel = 0) -> None
 select an instrument, with a value between 0 and 127
+
+pygame.midi.Output.pitch_bend
+ set_instrument(value = 0, channel = 0) -> None
+modify the pitch of a channel.
 
 pygame.midi.Output.write
  write(data) -> None

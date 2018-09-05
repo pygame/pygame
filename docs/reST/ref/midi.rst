@@ -149,6 +149,20 @@ New in pygame 1.9.0.
 
       .. ## Output.set_instrument ##
 
+   .. method:: pitch_bend
+
+      | :sl:`modify the pitch of a channel.`
+      | :sg:`set_instrument(value = 0, channel = 0) -> None`
+
+      Adjust the pitch of a channel.  The value is a signed integer
+      from -8192 to +8191.  For example, 0 means "no change", +4096 is
+      typically a semitone higher, and -8192 is 1 whole tone lower (though
+      the musical range corresponding to the pitch bend range can also be
+      changed in some synthesizers).
+
+      If no value is given, the pitch bend is returned to "no change".
+      New in pygame 1.9.4.
+
    .. method:: write
 
       | :sl:`writes a list of midi data to the Output`

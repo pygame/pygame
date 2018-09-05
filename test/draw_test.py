@@ -374,21 +374,147 @@ class DrawModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_polygon(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.draw.polygon:
+RED = pygame.Color('red')
+GREEN = pygame.Color('green')
 
-          # pygame.draw.polygon(Surface, color, pointlist, width=0): return Rect
-          # draw a shape with any number of sides
-          #
-          # Draws a polygonal shape on the Surface. The pointlist argument is
-          # the vertices of the polygon. The width argument is the thickness to
-          # draw the outer edge. If width is zero then the polygon will be
-          # filled.
-          #
-          # For aapolygon, use aalines with the 'closed' parameter.
+SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
+DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
+CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
+         [6, 4], [4, 4], [4, 6], [2, 6],
+         [2, 4], [0, 4], [0, 2], [2, 2])
 
-        self.fail()
+
+class DrawPolygonTest(unittest.TestCase):
+
+    def setUp(self):
+        self.surface = pygame.Surface((20, 20))
+
+    def test_draw_square(self):
+        pygame.draw.polygon(self.surface, RED, SQUARE, 0)
+        # note : there is a discussion (#234) if draw.polygon should include or
+        # not the right or lower border; here we stick with current behavior,
+        # eg include those borders ...
+        for x in range(4):
+            for y in range(4):
+                self.assertEqual(self.surface.get_at((x, y)), RED)
+
+    def test_draw_diamond(self):
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, DIAMOND, 0)
+        # this diamond shape is equivalent to its four corners, plus inner square
+        for x, y in DIAMOND:
+            self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
+        for x in range(2, 5):
+            for y in range(2, 5):
+                self.assertEqual(self.surface.get_at((x, y)), GREEN)
+
+    def test_1_pixel_high_or_wide_shapes(self):
+        # 1. one-pixel-high, filled
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, [(x, 2) for x, y in CROSS], 0)
+        cross_size = 6 # the maxium x or y coordinate of the cross
+        for x in range(cross_size + 1):
+            self.assertEqual(self.surface.get_at((x, 1)), RED)
+            self.assertEqual(self.surface.get_at((x, 2)), GREEN)
+            self.assertEqual(self.surface.get_at((x, 3)), RED)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        # 2. one-pixel-high, not filled
+        pygame.draw.polygon(self.surface, GREEN, [(x, 5) for x, y in CROSS], 1)
+        for x in range(cross_size + 1):
+            self.assertEqual(self.surface.get_at((x, 4)), RED)
+            self.assertEqual(self.surface.get_at((x, 5)), GREEN)
+            self.assertEqual(self.surface.get_at((x, 6)), RED)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        # 3. one-pixel-wide, filled
+        pygame.draw.polygon(self.surface, GREEN, [(3, y) for x, y in CROSS], 0)
+        for y in range(cross_size + 1):
+            self.assertEqual(self.surface.get_at((2, y)), RED)
+            self.assertEqual(self.surface.get_at((3, y)), GREEN)
+            self.assertEqual(self.surface.get_at((4, y)), RED)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        # 4. one-pixel-wide, not filled
+        pygame.draw.polygon(self.surface, GREEN, [(4, y) for x, y in CROSS], 1)
+        for y in range(cross_size + 1):
+            self.assertEqual(self.surface.get_at((3, y)), RED)
+            self.assertEqual(self.surface.get_at((4, y)), GREEN)
+            self.assertEqual(self.surface.get_at((5, y)), RED)
+
+    def test_draw_symetric_cross(self):
+        '''nonregression on issue #234 : x and y where handled inconsistently.
+
+        Also, the result is/was different wether we fill or not the polygon.
+        '''
+
+        # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, CROSS, 1)
+        inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
+        for x in range(10):
+            for y in range(10):
+                if (x, y) in inside:
+                    self.assertEqual(self.surface.get_at((x, y)), RED)
+                elif (x in range(2, 5) and y <7) or (y in range(2, 5) and x < 7):
+                    # we are on the border of the cross:
+                    self.assertEqual(self.surface.get_at((x, y)), GREEN)
+                else:
+                    # we are outside
+                    self.assertEqual(self.surface.get_at((x, y)), RED)
+
+        # 2. case width = 0 (filled; this is the example from #234)
+        pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        pygame.draw.polygon(self.surface, GREEN, CROSS, 0)
+        inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
+        for x in range(10):
+            for y in range(10):
+                if (x in range(2, 5) and y <7) or (y in range(2, 5) and x < 7):
+                    # we are on the border of the cross:
+                    self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
+                else:
+                    # we are outside
+                    self.assertEqual(self.surface.get_at((x, y)), RED)
+
+    def test_illumine_shape(self):
+        '''non regression on issue #313 '''
+        rect = pygame.Rect((0, 0, 20, 20))
+        path_data = [(0, 0), (rect.width-1, 0), # upper border
+                     (rect.width-5,  5-1), (5-1, 5-1),  # upper inner
+                     (5- 1, rect.height-5), (0,  rect.height-1)]   # lower diagonal
+        # The shape looks like this (the numbers are the indices of path_data)
+
+        # 0**********************1              <-- upper border
+        # ***********************
+        # **********************
+        # *********************
+        # ****3**************2                  <-- upper inner border
+        # *****
+        # *****                   (more lines here)
+        # *****
+        # ****4
+        # ****
+        # ***
+        # **
+        # 5
+        #
+
+        # the current bug is that the "upper inner" line is not drawn, but only
+        # if 4 or some lower corner exists
+        pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
+
+        # 1. First without the corners 4 & 5
+        pygame.draw.polygon(self.surface, GREEN, path_data[:4], 0)
+        for x in range(20):
+            self.assertEqual(self.surface.get_at((x, 0)), GREEN)  # upper border
+        for x in range(4, rect.width-5 +1):
+            self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
+
+        # 2. with the corners 4 & 5
+        pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
+        pygame.draw.polygon(self.surface, GREEN, path_data, 0)
+        for x in range(4, rect.width-5 +1):
+            self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
+
+
 
 ################################################################################
 

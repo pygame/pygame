@@ -5,7 +5,7 @@
 
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 
-#define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
+#define DOC_VECTOR2CROSS "cross(Vector2) -> Vector2\ncalculates the cross- or vector-product"
 
 #define DOC_VECTOR2MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
 
@@ -51,7 +51,7 @@
 
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
 
-#define DOC_VECTOR3CROSS "cross(Vector3) -> float\ncalculates the cross- or vector-product"
+#define DOC_VECTOR3CROSS "cross(Vector3) -> Vector3\ncalculates the cross- or vector-product"
 
 #define DOC_VECTOR3MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
 
@@ -132,7 +132,7 @@ pygame.math.Vector2.dot
 calculates the dot- or scalar-product with the other vector
 
 pygame.math.Vector2.cross
- cross(Vector2) -> float
+ cross(Vector2) -> Vector2
 calculates the cross- or vector-product
 
 pygame.math.Vector2.magnitude
@@ -229,7 +229,7 @@ pygame.math.Vector3.dot
 calculates the dot- or scalar-product with the other vector
 
 pygame.math.Vector3.cross
- cross(Vector3) -> float
+ cross(Vector3) -> Vector3
 calculates the cross- or vector-product
 
 pygame.math.Vector3.magnitude

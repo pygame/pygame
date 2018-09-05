@@ -46,7 +46,7 @@ New in pygame 1.9.2pre.
    .. method:: cross
 
       | :sl:`calculates the cross- or vector-product`
-      | :sg:`cross(Vector2) -> float`
+      | :sg:`cross(Vector2) -> Vector2`
 
       calculates the third component of the cross-product.
 
@@ -277,7 +277,7 @@ New in pygame 1.9.2pre.
    .. method:: cross
 
       | :sl:`calculates the cross- or vector-product`
-      | :sg:`cross(Vector3) -> float`
+      | :sg:`cross(Vector3) -> Vector3`
 
       calculates the cross-product.
 
