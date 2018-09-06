@@ -2,7 +2,6 @@ import sys
 import os
 import unittest
 import platform
-import time
 
 from pygame.tests.test_utils import example_path
 import pygame
@@ -19,16 +18,16 @@ SIZES       = [-16, -8, 8, 16]
 CHANNELS    = [1, 2]
 BUFFERS     = [3024]
 
-CONFIGS =  ({'frequency' : f, 'size' : s, 'channels': c }
-            for f in FREQUENCIES
-            for s in SIZES
-            for c in CHANNELS)
-# Using all CONFIGS fails on a Mac; probably older SDL_mixer.
-# And probably, we don't need to be so exhaustive:
+CONFIGS = [{'frequency' : f, 'size' : s, 'channels': c}
+           for f in FREQUENCIES
+           for s in SIZES
+           for c in CHANNELS]
+# Using all CONFIGS fails on a Mac; probably older SDL_mixer; we could do:
+# if platform.system() == 'Darwin':
+# But using all CONFIGS is very slow (> 10 sec for example)
+# And probably, we don't need to be so exhaustive, hence:
 
-if 1: # platform.system() == 'Darwin':
-    CONFIGS =  [{'frequency' : 22050, 'size' : -16, 'channels' : 2}]
-    CONFIG = CONFIGS[0]
+CONFIG = {'frequency' : 22050, 'size' : -16, 'channels' : 2} # base config
 
 ############################## MODULE LEVEL TESTS ##############################
 
@@ -75,35 +74,24 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
+    @unittest.expectedFailure
     def test_get_init__returns_exact_values_used_for_init(self):
-        return  # oups FIXME
         # fix in 1.9 - I think it's a SDL_mixer bug.
 
         # TODO: When this bug is fixed, testing through every combination
         #       will be too slow so adjust as necessary, at the moment it
         #       breaks the loop after first failure
 
-        configs = []
-        for f in FREQUENCIES:
-            for s in SIZES:
-                if (f, s) == (22050, 16):
-                    continue
-                for c in CHANNELS:
-                    configs.append((f, s, c))
-
-        for init_conf in configs:
-            f, s, c = init_conf
-            mixer.init(f,s,c)
+        for init_conf in CONFIGS:
+            frequency, size, channels
+            if (frequency, size) == (22050, 16):
+                continue
+            mixer.init(frequency, size, channels)
 
             mixer_conf = mixer.get_init()
-            time.sleep(0.1)
 
-            mixer.quit()
-            time.sleep(0.1)
-
-            if init_conf != mixer_conf:
-                continue
             self.assertEqual(init_conf, mixer_conf)
+            mixer.quit()
 
     def test_get_init__returns_None_if_mixer_not_initialized(self):
         self.assertIsNone(mixer.get_init())
@@ -307,19 +295,16 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(d['data'], (snd._samples_address, False))
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
-    def test_newbuf(self):
+    def test_newbuf__one_channel(self):
         mixer.init(22050, -16, 1)
-        try:
-            self.NEWBUF_export_check()
-        finally:
-            mixer.quit()
-        mixer.init(22050, -16, 2)
-        try:
-            self.NEWBUF_export_check()
-        finally:
-            mixer.quit()
+        self._NEWBUF_export_check()
 
-    def NEWBUF_export_check(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf__twho_channel(self):
+        mixer.init(22050, -16, 2)
+        self._NEWBUF_export_check()
+
+    def _NEWBUF_export_check(self):
         freq, fmt, channels = mixer.get_init()
         ndim = 1 if (channels == 1) else 2
         itemsize = abs(fmt) // 8
