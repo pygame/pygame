@@ -19,83 +19,61 @@ SIZES       = [-16, -8, 8, 16]
 CHANNELS    = [1, 2]
 BUFFERS     = [3024]
 
+CONFIGS =  ({'frequency' : f, 'size' : s, 'channels': c }
+            for f in FREQUENCIES
+            for s in SIZES
+            for c in CHANNELS)
+# Using all CONFIGS fails on a Mac; probably older SDL_mixer.
+# And probably, we don't need to be so exhaustive:
+
+if 1: # platform.system() == 'Darwin':
+    CONFIGS =  [{'frequency' : 22050, 'size' : -16, 'channels' : 2}]
+    CONFIG = CONFIGS[0]
+
 ############################## MODULE LEVEL TESTS ##############################
 
 class MixerModuleTest(unittest.TestCase):
 
+    def tearDown(self):
+        mixer.quit()
+        mixer.pre_init(0, 0, 0, 0)
+
     def test_init__keyword_args(self):
-        # Fails on a Mac; probably older SDL_mixer
-## Probably don't need to be so exhaustive. Besides being slow the repeated
-## init/quit calls may be causing problems on the Mac.
-##        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
-##                    for f in FREQUENCIES
-##                    for s in SIZES
-##                    for c in CHANNELS )
-####        configs = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
-        configs = [{'frequency' : 22050, 'size' : -16, 'channels' : 2}]
+        # note: this test used to loop over all CONFIGS, but it's very slow..
+        mixer.init(**CONFIG)
+        mixer_conf = mixer.get_init()
 
-        for kw_conf in configs:
-            mixer.init(**kw_conf)
+        self.assertEqual(mixer_conf[0], CONFIG['frequency'])
+        # Not all "sizes" are supported on all systems,  hence "abs".
+        self.assertEqual(abs(mixer_conf[1]), abs(CONFIG['size']))
+        self.assertEqual(mixer_conf[2], CONFIG['channels'])
 
-            mixer_conf = mixer.get_init()
+    def test_pre_init__keyword_args(self):
+        # note: this test used to loop over all CONFIGS, but it's very slow..
+        mixer.pre_init(**CONFIG)
+        mixer.init()
 
-            self.assertEqual(
-                # Not all "sizes" are supported on all systems.
-                (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
-                (kw_conf['frequency'],
-                 abs(kw_conf['size']),
-                 kw_conf['channels'])
-            )
+        mixer_conf = mixer.get_init()
 
-            mixer.quit()
+        self.assertEqual(mixer_conf[0], CONFIG['frequency'])
+        # Not all "sizes" are supported on all systems,  hence "abs".
+        self.assertEqual(abs(mixer_conf[1]), abs(CONFIG['size']))
+        self.assertEqual(mixer_conf[2], CONFIG['channels'])
 
-    def todo_test_pre_init__keyword_args(self):
-        # Fails on Mac; probably older SDL_mixer
-## Probably don't need to be so exhaustive. Besides being slow the repeated
-## init/quit calls may be causing problems on the Mac.
-##        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
-##                    for f in FREQUENCIES
-##                    for s in SIZES
-##                    for c in CHANNELS )
-        configs = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
-
-        for kw_conf in configs:
-            mixer.pre_init(**kw_conf)
-            mixer.init()
-
-            mixer_conf = mixer.get_init()
-
-            self.assertEqual(
-                # Not all "sizes" are supported on all systems.
-                (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
-                (kw_conf['frequency'],
-                 abs(kw_conf['size']),
-                 kw_conf['channels'])
-            )
-
-            mixer.quit()
-
-    def todo_test_pre_init__zero_values(self):
+    def test_pre_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
         # default values. No way to check buffer size though.
         mixer.pre_init(44100, -8, 1)  # Non default values
         mixer.pre_init(0, 0, 0)       # Should reset to default values
         mixer.init()
-        try:
-            self.assertEqual(mixer.get_init(), (22050, -16, 2))
-        finally:
-            mixer.quit()
+        self.assertEqual(mixer.get_init(), (22050, -16, 2))
 
-    def todo_test_init__zero_values(self):
+    def test_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
         # preset values. No way to check buffer size though.
         mixer.pre_init(44100, 8, 1)  # None default values
         mixer.init(0, 0, 0)
-        try:
-            self.assertEqual(mixer.get_init(), (44100, 8, 1))
-        finally:
-            mixer.quit()
-            mixer.pre_init(0, 0, 0, 0)
+        self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
     def test_get_init__returns_exact_values_used_for_init(self):
         return  # oups FIXME
@@ -133,7 +111,6 @@ class MixerModuleTest(unittest.TestCase):
     def test_get_num_channels__defaults_eight_after_init(self):
         mixer.init()
         self.assertEqual(mixer.get_num_channels(), 8)
-        mixer.quit()
 
     def test_set_num_channels(self):
         mixer.init()
@@ -143,98 +120,89 @@ class MixerModuleTest(unittest.TestCase):
             mixer.set_num_channels(i)
             self.assertEqual(mixer.get_num_channels(), i)
 
-        mixer.quit()
-
     def test_quit(self):
         """ get_num_channels() Should throw pygame.error if uninitialized
         after mixer.quit() """
-
         mixer.init()
         mixer.quit()
-
         self.assertRaises(pygame.error, mixer.get_num_channels)
 
     def test_sound_args(self):
         def get_bytes(snd):
             return snd.get_raw()
-
         mixer.init()
-        try:
-            sample = as_bytes('\x00\xff') * 24
-            wave_path = example_path(os.path.join('data', 'house_lo.wav'))
-            uwave_path = unicode_(wave_path)
-            bwave_path = uwave_path.encode(sys.getfilesystemencoding())
-            snd = mixer.Sound(file=wave_path)
-            self.assertTrue(snd.get_length() > 0.5)
-            snd_bytes = get_bytes(snd)
-            self.assertTrue(len(snd_bytes) > 1000)
-            self.assertEqual(get_bytes(mixer.Sound(wave_path)), snd_bytes)
-            self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
-            self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
-            arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
 
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound()
-            self.assertEqual(str(cm.exception), arg_emsg)
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(wave_path, buffer=sample)
-            self.assertEqual(str(cm.exception), arg_emsg)
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(sample, file=wave_path)
-            self.assertEqual(str(cm.exception), arg_emsg)
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(buffer=sample, file=wave_path)
-            self.assertEqual(str(cm.exception), arg_emsg)
+        sample = as_bytes('\x00\xff') * 24
+        wave_path = example_path(os.path.join('data', 'house_lo.wav'))
+        uwave_path = unicode_(wave_path)
+        bwave_path = uwave_path.encode(sys.getfilesystemencoding())
+        snd = mixer.Sound(file=wave_path)
+        self.assertTrue(snd.get_length() > 0.5)
+        snd_bytes = get_bytes(snd)
+        self.assertTrue(len(snd_bytes) > 1000)
+        self.assertEqual(get_bytes(mixer.Sound(wave_path)), snd_bytes)
+        self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
+        self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
+        arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
 
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(foobar=sample)
-            self.assertEqual(str(cm.exception),
-                             "Unrecognized keyword argument 'foobar'")
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound()
+        self.assertEqual(str(cm.exception), arg_emsg)
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(wave_path, buffer=sample)
+        self.assertEqual(str(cm.exception), arg_emsg)
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(sample, file=wave_path)
+        self.assertEqual(str(cm.exception), arg_emsg)
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(buffer=sample, file=wave_path)
+        self.assertEqual(str(cm.exception), arg_emsg)
 
-            snd = mixer.Sound(wave_path, **{})
-            self.assertEqual(get_bytes(snd), snd_bytes)
-            snd = mixer.Sound(*[], **{'file': wave_path})
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(foobar=sample)
+        self.assertEqual(str(cm.exception),
+                         "Unrecognized keyword argument 'foobar'")
 
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound([])
-            self.assertEqual(str(cm.exception),
-                             'Unrecognized argument (type list)')
+        snd = mixer.Sound(wave_path, **{})
+        self.assertEqual(get_bytes(snd), snd_bytes)
+        snd = mixer.Sound(*[], **{'file': wave_path})
 
-            with self.assertRaises(TypeError) as cm:
-                snd = mixer.Sound(buffer=[])
-            emsg = 'Expected object with buffer interface: got a list'
-            self.assertEqual(str(cm.exception), emsg)
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound([])
+        self.assertEqual(str(cm.exception),
+                         'Unrecognized argument (type list)')
 
-            ufake_path = unicode_('12345678')
-            self.assertRaises(pygame.error, mixer.Sound, ufake_path)
+        with self.assertRaises(TypeError) as cm:
+            snd = mixer.Sound(buffer=[])
+        emsg = 'Expected object with buffer interface: got a list'
+        self.assertEqual(str(cm.exception), emsg)
 
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(buffer=unicode_('something'))
-            emsg = 'Unicode object not allowed as buffer object'
-            self.assertEqual(str(cm.exception), emsg)
-            self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
-            self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
-            self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
-            self.assertEqual(get_bytes(mixer.Sound(bwave_path)), snd_bytes)
+        ufake_path = unicode_('12345678')
+        self.assertRaises(pygame.error, mixer.Sound, ufake_path)
 
-            snd = mixer.Sound(wave_path)
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(wave_path, array=snd)
-            self.assertEqual(str(cm.exception), arg_emsg)
-            with self.assertRaises(TypeError) as cm:
-                mixer.Sound(buffer=sample, array=snd)
-            self.assertEqual(str(cm.exception), arg_emsg)
-            snd2 = mixer.Sound(array=snd)
-            self.assertEqual(snd.get_raw(), snd2.get_raw())
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(buffer=unicode_('something'))
+        emsg = 'Unicode object not allowed as buffer object'
+        self.assertEqual(str(cm.exception), emsg)
+        self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
+        self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
+        self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
+        self.assertEqual(get_bytes(mixer.Sound(bwave_path)), snd_bytes)
 
-        finally:
-            mixer.quit()
+        snd = mixer.Sound(wave_path)
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(wave_path, array=snd)
+        self.assertEqual(str(cm.exception), arg_emsg)
+        with self.assertRaises(TypeError) as cm:
+            mixer.Sound(buffer=sample, array=snd)
+        self.assertEqual(str(cm.exception), arg_emsg)
+        snd2 = mixer.Sound(array=snd)
+        self.assertEqual(snd.get_raw(), snd2.get_raw())
 
+
+    @unittest.skipIf(os.environ.get('SDL_AUDIODRIVER') == 'disk',
+                    'this test fails without real sound card')
     def test_array_keyword(self):
-        # If we don't have a real sound card don't do this test because it will fail.
-        if os.environ.get('SDL_AUDIODRIVER') == 'disk':
-            return
-
         try:
             from numpy import (array, arange, zeros,
                                int8, uint8,
@@ -326,20 +294,17 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_array_interface(self):
         mixer.init(22050, -16, 1)
-        try:
-            snd = mixer.Sound(as_bytes('\x00\x7f') * 20)
-            d = snd.__array_interface__
-            self.assertTrue(isinstance(d, dict))
-            if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
-                typestr = '<i2'
-            else:
-                typestr = '>i2'
-            self.assertEqual(d['typestr'], typestr)
-            self.assertEqual(d['shape'], (20,))
-            self.assertEqual(d['strides'], (2,))
-            self.assertEqual(d['data'], (snd._samples_address, False))
-        finally:
-            mixer.quit()
+        snd = mixer.Sound(as_bytes('\x00\x7f') * 20)
+        d = snd.__array_interface__
+        self.assertTrue(isinstance(d, dict))
+        if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
+            typestr = '<i2'
+        else:
+            typestr = '>i2'
+        self.assertEqual(d['typestr'], typestr)
+        self.assertEqual(d['shape'], (20,))
+        self.assertEqual(d['strides'], (2,))
+        self.assertEqual(d['data'], (snd._samples_address, False))
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
     def test_newbuf(self):
@@ -461,16 +426,12 @@ class MixerModuleTest(unittest.TestCase):
                               buftools.PyBUF_F_CONTIGUOUS)
 
     def test_get_raw(self):
-
         mixer.init()
-        try:
-            samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
-            snd = mixer.Sound(buffer=samples)
-            raw = snd.get_raw()
-            self.assertTrue(isinstance(raw, bytes_))
-            self.assertEqual(raw, samples)
-        finally:
-            mixer.quit()
+        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+        snd = mixer.Sound(buffer=samples)
+        raw = snd.get_raw()
+        self.assertTrue(isinstance(raw, bytes_))
+        self.assertEqual(raw, samples)
 
     @unittest.skipIf(IS_PYPY, 'pypy skip')
     def test_get_raw_more(self):
@@ -485,15 +446,12 @@ class MixerModuleTest(unittest.TestCase):
         Bytes_FromString.restype = c_void_p
         Bytes_FromString.argtypes = [py_object]
         mixer.init()
-        try:
-            samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
-            snd = mixer.Sound(buffer=samples)
-            raw = snd.get_raw()
-            self.assertTrue(isinstance(raw, bytes_))
-            self.assertNotEqual(snd._samples_address, Bytes_FromString(samples))
-            self.assertEqual(raw, samples)
-        finally:
-            mixer.quit()
+        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+        snd = mixer.Sound(buffer=samples)
+        raw = snd.get_raw()
+        self.assertTrue(isinstance(raw, bytes_))
+        self.assertNotEqual(snd._samples_address, Bytes_FromString(samples))
+        self.assertEqual(raw, samples)
 
     def todo_test_fadeout(self):
 
@@ -540,46 +498,6 @@ class MixerModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.mixer.init:
-
-          # pygame.mixer.init(frequency=22050, size=-16, channels=2,
-          # buffer=3072): return None
-          #
-          # initialize the mixer module
-          #
-          # Initialize the mixer module for Sound loading and playback. The
-          # default arguments can be overridden to provide specific audio
-          # mixing. The size argument represents how many bits are used for each
-          # audio sample. If the value is negative then signed sample values
-          # will be used. Positive values mean unsigned audio samples will be
-          # used.
-          #
-          # The channels argument is used to specify whether to use mono or
-          # stereo.  1 for mono and 2 for stereo. No other values are supported.
-          #
-          # The buffer argument controls the number of internal samples used in
-          # the sound mixer. The default value should work for most cases. It
-          # can be lowered to reduce latency, but sound dropout may occur. It
-          # can be raised to larger values to ensure playback never skips, but
-          # it will impose latency on sound playback. The buffer size must be a
-          # power of two.
-          #
-          # Some platforms require the pygame.mixer module to be initialized
-          # after the display modules have initialized. The top level
-          # pygame.init() takes care of this automatically, but cannot pass any
-          # arguments to the mixer init. To solve this, mixer has a function
-          # pygame.mixer.pre_init() to set the proper defaults before the
-          # toplevel init is used.
-          #
-          # It is safe to call this more than once, but after the mixer is
-          # initialized you cannot change the playback arguments without first
-          # calling pygame.mixer.quit().
-          #
-
-        self.fail()
-
     def todo_test_pause(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.pause:
@@ -590,23 +508,6 @@ class MixerModuleTest(unittest.TestCase):
           # This will temporarily stop all playback on the active mixer
           # channels. The playback can later be resumed with
           # pygame.mixer.unpause()
-          #
-
-        self.fail()
-
-    def todo_test_pre_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.mixer.pre_init:
-
-          # pygame.mixer.pre_init(frequency=0, size=0, channels=0,
-          # buffersize=0): return None
-          #
-          # preset the mixer init arguments
-          #
-          # Any nonzero arguments change the default values used when the real
-          # pygame.mixer.init() is called. The best way to set custom mixer
-          # playback values is to call pygame.mixer.pre_init() before calling
-          # the top level pygame.init().
           #
 
         self.fail()
