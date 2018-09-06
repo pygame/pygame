@@ -81,14 +81,11 @@ class BaseModuleTest(unittest.TestCase):
 
     def assertSame(self, proxy, obj):
         self.assertEqual(proxy.length, obj.size)
-        d = proxy.__array_interface__
-        try:
-            self.assertEqual(d['typestr'], obj.typestr)
-            self.assertEqual(d['shape'], obj.shape)
-            self.assertEqual(d['strides'], obj.strides)
-            self.assertEqual(d['data'], obj.data)
-        finally:
-            d = None
+        iface = proxy.__array_interface__
+        self.assertEqual(iface['typestr'], obj.typestr)
+        self.assertEqual(iface['shape'], obj.shape)
+        self.assertEqual(iface['strides'], obj.strides)
+        self.assertEqual(iface['data'], obj.data)
 
     def test_PgObject_GetBuffer_array_interface(self):
         from pygame.bufferproxy import BufferProxy

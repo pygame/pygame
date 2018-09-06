@@ -492,17 +492,10 @@ class SurfaceTypeTest(unittest.TestCase):
         gc.collect()
         self.assertFalse(s.get_locked())
 
-    try:
-        pygame.bufferproxy.get_segcount
-    except AttributeError:
-        pass
-    else:
-        def test_get_buffer_oldbuf(self):
-            self.OLDBUF_get_buffer_oldbuf()
-        def test_get_view_oldbuf(self):
-            self.OLDBUF_get_view_oldbuf()
+    OLDBUF = hasattr(pygame.bufferproxy, 'get_segcount')
 
-    def OLDBUF_get_buffer_oldbuf(self):
+    @unittest.skipIf(not OLDBUF, 'old buffer not available')
+    def test_get_buffer_oldbuf(self):
         from pygame.bufferproxy import get_segcount, get_write_buffer
 
         s = pygame.Surface((2, 4), pygame.SRCALPHA, 32)
@@ -514,7 +507,8 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertEqual(segaddr, s._pixels_address)
         self.assertEqual(seglen, buflen)
 
-    def OLDBUF_get_view_oldbuf(self):
+    @unittest.skipIf(not OLDBUF, 'old buffer not available')
+    def test_get_view_oldbuf(self):
         from pygame.bufferproxy import get_segcount, get_write_buffer
 
         s = pygame.Surface((2, 4), pygame.SRCALPHA, 32)

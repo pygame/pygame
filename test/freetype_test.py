@@ -2,15 +2,16 @@ import os
 if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
     __tags__ = ('ignore', 'subprocess_ignore')
 
+import unittest
 import sys
 import ctypes
 import weakref
 import gc
 import platform
+
 IS_PYPY = 'PyPy' == platform.python_implementation()
 
 
-import unittest
 try:
     from pygame.tests.test_utils import arrinter
 except NameError:
@@ -45,6 +46,7 @@ def surf_same_image(a, b):
     a_bytes = ctypes.string_at(a._pixels_address, a_sz)
     b_bytes = ctypes.string_at(b._pixels_address, b_sz)
     return a_bytes == b_bytes
+
 
 class FreeTypeFontTest(unittest.TestCase):
 
@@ -1069,18 +1071,14 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(ft.STYLE_NORMAL, font.style)
 
         # make sure we check for style type
-        try:    font.style = "None"
-        except TypeError: pass
-        else:   self.fail("Failed style assignement")
-
-        try:    font.style = None
-        except TypeError: pass
-        else:   self.fail("Failed style assignement")
+        with self.assertRaises(TypeError):
+            font.style = "None"
+        with self.assertRaises(TypeError):
+            font.style = None
 
         # make sure we only accept valid constants
-        try:    font.style = 112
-        except ValueError: pass
-        else:   self.fail("Failed style assignement")
+        with self.assertRaises(ValueError):
+            font.style = 112
 
         # make assure no assignements happened
         self.assertEqual(ft.STYLE_NORMAL, font.style)
