@@ -215,6 +215,7 @@ class AntiAliasedLineMixin:
         self.surface = pygame.Surface((10, 10))
         draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
 
+    @unittest.expectedFailure
     def test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
         # Horizontal, vertical and diagonal lines should not be antialiased,
@@ -253,9 +254,9 @@ class AntiAliasedLineMixin:
         check_both_directions((5, 6), (6, 5), [(5, 6), (6, 5)])
         check_both_directions((6, 4), (6, 4), [(6, 4), (5, 5), (6, 4)])
 
-    def test_short_line_anti_aliasing(self):
+    def _check_antialiasing(self, from_point, to_point, should, check_points):
+        should[from_point] = should[to_point] = RED
         surf = self.surface
-        check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
         draw_line = self.draw_aaline
 
         def check_one_direction(from_point, to_point, should):
@@ -266,12 +267,17 @@ class AntiAliasedLineMixin:
             # reset
             draw.rect(surf, RED, (3, 3, 8, 8), 0)
 
-        def check_both_directions(from_point, to_point, should):
-            # it is important to test also opposite direction, the algorithm
-            # is (#512) or was not symmetric
-            should[from_point] = should[to_point] = RED
-            check_one_direction(from_point, to_point, should)
-            check_one_direction(to_point, from_point, should)
+        # it is important to test also opposite direction, the algorithm
+        # is (#512) or was not symmetric
+        check_one_direction(from_point, to_point, should)
+        check_one_direction(to_point, from_point, should)
+
+    @unittest.expectedFailure
+    def test_short_line_anti_aliasing(self):
+        check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
+
+        def check_both_directions(from_pt, to_pt, should):
+            self._check_antialiasing(from_pt, to_pt, should, check_points)
 
         # lets say dx = abs(x0 - x1) ; dy = abs(y0 - y1)
         brown = (127, 127, 0)
@@ -302,12 +308,33 @@ class AntiAliasedLineMixin:
                   (5, 4): greenish, (5, 5): brown, (5, 6): reddish}
         check_both_directions((5, 3), (4, 7), should)
 
+    @unittest.expectedFailure
+    def test_anti_aliasing_at_and_outside_the_border(self):
+        check_points = [(i, j) for i in range(10) for j in range(10)]
 
-@unittest.expectedFailure
+        reddish = (191, 63, 0)
+        brown = (127, 127, 0)
+        greenish = (63, 191, 0)
+        from_point, to_point = (3, 3), (7, 4)
+        should = {(4, 3): greenish, (5, 3): brown, (6, 3): reddish,
+                  (4, 4): reddish,  (5, 4): brown, (6, 4): greenish}
+
+        for dx, dy in ((-4, 0), (4, 0), # moved to left and right borders
+                       (0, -5), (0, -4), (0, -3), # upper border
+                       (0, 5), (0,  6), (0,  7), # lower border
+                       (-4, -4), (-4, -3), (-3, -4)):  # upper left corner
+            first = from_point[0] + dx, from_point[1] + dy
+            second = to_point[0] + dx,  to_point[1] + dy
+            expected = {(pt[0] + dx, pt[1] + dy): color
+                        for pt, color in should.items()}
+            self._check_antialiasing(first, second, expected, check_points)
+
+
 class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the C algorithm.'''
 
     draw_aaline = draw.aaline
+
 
 
 """ TODO :
