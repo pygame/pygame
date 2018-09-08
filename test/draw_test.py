@@ -220,23 +220,11 @@ class AntiAliasedLineMixin:
         """test very short not anti aliased lines in all directions."""
         # Horizontal, vertical and diagonal lines should not be antialiased,
         # even with draw.aaline ...
-        surf = self.surface
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
-        draw_line = self.draw_aaline
 
-        def check_one_direction(from_point, to_point, should):
-            draw_line(surf, GREEN, from_point, to_point)
-            for pt in check_points:
-                color = GREEN if pt in should else RED
-                self.assertEqual(surf.get_at(pt), color)
-            # reset
-            draw.rect(surf, RED, (3, 3, 8, 8), 0)
-
-        def check_both_directions(from_point, to_point, should):
-            # it is important to test also opposite direction, the algorithm
-            # is (#512) or was not symmetric
-            check_one_direction(from_point, to_point, should)
-            check_one_direction(to_point, from_point, should)
+        def check_both_directions(from_pt, to_pt, red_points):
+            should = {pt: RED for pt in red_points}
+            self._check_antialiasing(from_pt, to_pt, should, check_points)
 
         # 0. one point
         check_both_directions((5, 5), (5, 5), [(5, 5)])
@@ -265,7 +253,7 @@ class AntiAliasedLineMixin:
                 color = should.get(pt, RED)
                 self.assertEqual(surf.get_at(pt), color)
             # reset
-            draw.rect(surf, RED, (3, 3, 8, 8), 0)
+            draw.rect(surf, RED, (0, 0, 10, 10), 0)
 
         # it is important to test also opposite direction, the algorithm
         # is (#512) or was not symmetric
