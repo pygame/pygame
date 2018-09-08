@@ -2,18 +2,34 @@
 
 '''
 
-# Draw Lines
+from math import floor, ceil, trunc
+
+#   H E L P E R   F U N C T I O N S    #
+
+# fractional part of x
+
+def fpart(x):
+    '''return fractional part of x'''
+    return x - floor(x)
+
+def rfpart(x):
+    '''return inverse fractional part of x'''
+    return 1 - (x - floor(x)) # eg, 1 - fpart(x)
+
+
+#   D R A W   L I N E   F U N C T I O N S    #
 def drawhorzlineclip(surf, color, x_from, y, x_to):
     '''draw clipped horizontal line.'''
     # check Y inside surf
-    if y < surf.clip_rect.y or y >= surf.clip_rect.y + surf.clip_rect.h:
+    clip = surf.get_clip()
+    if y < clip.y or y >= clip.y + clip.h:
         return
 
-    x_from = max(x_from, surf.clip_rect.x)
-    x_to = min(x_to, surf.clip_rect + surf.clip_rect.w - 1)
+    x_from = max(x_from, clip.x)
+    x_to = min(x_to, clip.x + clip.w - 1)
 
     # check any x inside surf
-    if x_to < surf.clip_rect.x or x_from >= surf.clip_rect.x + surf.clip_rect.w:
+    if x_to < clip.x or x_from >= clip.x + clip.w:
         return
 
     drawhorzline(surf, color, x_from, y, x_to)
@@ -22,20 +38,24 @@ def drawhorzlineclip(surf, color, x_from, y, x_to):
 def drawvertlineclip(surf, color, x, y_from, y_to):
     '''draw clipped vertical line.'''
     # check X inside surf
-    if x < surf.clip_rect.x or x >= surf.clip_rect.x + surf.clip_rect.w:
+    clip = surf.get_clip()
+
+    if x < clip.x or x >= clip.x + clip.w:
         return
 
-    y_from = max(y_from, surf.clip_rect.y)
-    y_to = min(y_to, surf.clip_rect.y + surf.clip_rect.h - 1)
+    y_from = max(y_from, clip.y)
+    y_to = min(y_to, clip.y + clip.h - 1)
 
     # check any y inside surf
-    if y_to < surf.clip_rect.y or y_from >= surf.clip_rect.y + surf.clip_rect.h:
+    if y_to < clip.y or y_from >= clip.y + clip.h:
         return
 
     drawvertline(surf, color, x, y_from, y_to)
 
 
-def draw_polygon(surface, color, points, _width=0):
+#   M U L T I L I N E   F U N C T I O N S   #
+
+def draw_polygon(surface, color, points, width):
     num_points = len(points)
     point_x = [x for x, y in points]
     point_y = [y for x, y in points]
@@ -70,7 +90,6 @@ def draw_polygon(surface, color, points, _width=0):
 
             if ( ((y >= y1) and (y < y2))  or ((y == maxy) and (y <= y2))) :
                 x_sect = (y - y1) * (x2 - x1) // (y2 - y1) + x1
-                print('   i=%s   p%s   x_s = %d' % (i, points[i], x_sect))
                 x_intersect.append(x_sect)
 
         x_intersect.sort()
@@ -86,8 +105,8 @@ def draw_polygon(surface, color, points, _width=0):
             drawhorzlineclip(surface, color, point_x[i], y, point_x[i_prev])
 
 
-# L O W   L E V E L   F U N C T I O N S
-# (too low level to be translated into python, right?)
+#     L O W   L E V E L   F U N C T I O N S   #
+# (too low-level to be translated into python, right?)
 
 def set_at(surf, x, y, color):
     surf.set_at((x, y), color)

@@ -4,6 +4,7 @@ import unittest
 
 import pygame
 from pygame import draw
+from pygame import draw_py
 from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
 
@@ -514,13 +515,13 @@ CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
          [2, 4], [0, 4], [0, 2], [2, 2])
 
 
-class DrawPolygonTest(unittest.TestCase):
+class DrawPolygonMixin:
 
     def setUp(self):
         self.surface = pygame.Surface((20, 20))
 
     def test_draw_square(self):
-        pygame.draw.polygon(self.surface, RED, SQUARE, 0)
+        self.draw_polygon(RED, SQUARE, 0)
         # note : there is a discussion (#234) if draw.polygon should include or
         # not the right or lower border; here we stick with current behavior,
         # eg include those borders ...
@@ -530,7 +531,7 @@ class DrawPolygonTest(unittest.TestCase):
 
     def test_draw_diamond(self):
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, DIAMOND, 0)
+        self.draw_polygon(GREEN, DIAMOND, 0)
         # this diamond shape is equivalent to its four corners, plus inner square
         for x, y in DIAMOND:
             self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
@@ -541,7 +542,7 @@ class DrawPolygonTest(unittest.TestCase):
     def test_1_pixel_high_or_wide_shapes(self):
         # 1. one-pixel-high, filled
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, [(x, 2) for x, y in CROSS], 0)
+        self.draw_polygon(GREEN, [(x, 2) for x, y in CROSS], 0)
         cross_size = 6 # the maxium x or y coordinate of the cross
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 1)), RED)
@@ -549,21 +550,21 @@ class DrawPolygonTest(unittest.TestCase):
             self.assertEqual(self.surface.get_at((x, 3)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 2. one-pixel-high, not filled
-        pygame.draw.polygon(self.surface, GREEN, [(x, 5) for x, y in CROSS], 1)
+        self.draw_polygon(GREEN, [(x, 5) for x, y in CROSS], 1)
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 4)), RED)
             self.assertEqual(self.surface.get_at((x, 5)), GREEN)
             self.assertEqual(self.surface.get_at((x, 6)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 3. one-pixel-wide, filled
-        pygame.draw.polygon(self.surface, GREEN, [(3, y) for x, y in CROSS], 0)
+        self.draw_polygon(GREEN, [(3, y) for x, y in CROSS], 0)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((2, y)), RED)
             self.assertEqual(self.surface.get_at((3, y)), GREEN)
             self.assertEqual(self.surface.get_at((4, y)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 4. one-pixel-wide, not filled
-        pygame.draw.polygon(self.surface, GREEN, [(4, y) for x, y in CROSS], 1)
+        self.draw_polygon(GREEN, [(4, y) for x, y in CROSS], 1)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((3, y)), RED)
             self.assertEqual(self.surface.get_at((4, y)), GREEN)
@@ -577,7 +578,7 @@ class DrawPolygonTest(unittest.TestCase):
 
         # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, CROSS, 1)
+        self.draw_polygon(GREEN, CROSS, 1)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
@@ -592,7 +593,7 @@ class DrawPolygonTest(unittest.TestCase):
 
         # 2. case width = 0 (filled; this is the example from #234)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, CROSS, 0)
+        self.draw_polygon(GREEN, CROSS, 0)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
@@ -631,7 +632,7 @@ class DrawPolygonTest(unittest.TestCase):
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
 
         # 1. First without the corners 4 & 5
-        pygame.draw.polygon(self.surface, GREEN, path_data[:4], 0)
+        self.draw_polygon(GREEN, path_data[:4], 0)
         for x in range(20):
             self.assertEqual(self.surface.get_at((x, 0)), GREEN)  # upper border
         for x in range(4, rect.width-5 +1):
@@ -639,10 +640,21 @@ class DrawPolygonTest(unittest.TestCase):
 
         # 2. with the corners 4 & 5
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
-        pygame.draw.polygon(self.surface, GREEN, path_data, 0)
+        self.draw_polygon(GREEN, path_data, 0)
         for x in range(4, rect.width-5 +1):
             self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
 
+
+class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
+
+    def draw_polygon(self, color, path, width):
+        draw.polygon(self.surface, color, path, width)
+
+
+class DrawPolygonPyAlgoTest(DrawPolygonMixin, unittest.TestCase):
+
+    def draw_polygon(self, color, path, width):
+        draw_py.draw_polygon(self.surface, color, path, width)
 
 
 ################################################################################
