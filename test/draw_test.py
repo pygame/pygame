@@ -204,8 +204,10 @@ class DrawLineTest(unittest.TestCase):
                 self.assertTrue(all(no_gaps))
 
 
-# WIP ...
-class DrawAntiAliasedLineTestMixin:
+class AntiAliasedLineMixin:
+    '''Mixin for tests of Anti Aliasing of Lines.
+    This is to be used in two concrete TestCase of C and Python algorithm.
+    '''
 
     draw_aaline = None
 
@@ -250,6 +252,70 @@ class DrawAntiAliasedLineTestMixin:
         check_both_directions((5, 5), (7, 7), [(5, 5), (6, 6), (7, 7)])
         check_both_directions((5, 6), (6, 5), [(5, 6), (6, 5)])
         check_both_directions((6, 4), (6, 4), [(6, 4), (5, 5), (6, 4)])
+
+    def test_short_line_anti_aliasing(self):
+        surf = self.surface
+        check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
+        draw_line = self.draw_aaline
+
+        def check_one_direction(from_point, to_point, should):
+            draw_line(surf, GREEN, from_point, to_point)
+            for pt in check_points:
+                color = should.get(pt, RED)
+                self.assertEqual(surf.get_at(pt), color)
+            # reset
+            draw.rect(surf, RED, (3, 3, 8, 8), 0)
+
+        def check_both_directions(from_point, to_point, should):
+            # it is important to test also opposite direction, the algorithm
+            # is (#512) or was not symmetric
+            should[from_point] = should[to_point] = RED
+            check_one_direction(from_point, to_point, should)
+            check_one_direction(to_point, from_point, should)
+
+        # lets say dx = abs(x0 - x1) ; dy = abs(y0 - y1)
+        brown = (127, 127, 0)
+        # dy / dx = 0.5
+        check_both_directions((4, 4), (6, 5), {(5, 4): brown, (5, 5): brown})
+        check_both_directions((4, 5), (6, 4), {(5, 4): brown, (5, 5): brown})
+        # dy / dx = 2
+        check_both_directions((4, 4), (5, 6), {(4, 5): brown, (5, 5): brown})
+        check_both_directions((5, 4), (4, 6), {(4, 5): brown, (5, 5): brown})
+
+        # some little longer lines; so we need to check more points:
+        check_points = [(i, j) for i in range(2, 9) for j in range(2, 9)]
+        # dy / dx = 0.25
+        reddish = (191, 63, 0)
+        greenish = (63, 191, 0)
+        should = {(4, 3): greenish, (5, 3): brown, (6, 3): reddish,
+                  (4, 4): reddish,  (5, 4): brown, (6, 4): greenish}
+        check_both_directions((3, 3), (7, 4), should)
+        should = {(4, 3): reddish,  (5, 3): brown, (6, 3): greenish,
+                  (4, 4): greenish, (5, 4): brown, (6, 4): reddish}
+        check_both_directions((3, 4), (7, 3), should)
+        # dy / dx = 4
+        should = {(4, 4): greenish, (4, 5): brown, (4, 6): reddish,
+                  (5, 4): reddish,  (5, 5): brown, (5, 6): greenish,
+                 }
+        check_both_directions((4, 3), (5, 7), should)
+        should = {(4, 4): reddish,  (4, 5): brown, (4, 6): greenish,
+                  (5, 4): greenish, (5, 5): brown, (5, 6): reddish}
+        check_both_directions((5, 3), (4, 7), should)
+
+
+@unittest.expectedFailure
+class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
+    '''Line Antialising test for the C algorithm.'''
+
+    draw_aaline = draw.aaline
+
+
+""" TODO :
+@unittest.expectedFailure
+class AntiAliasingLinePyAlgoTest(AntiAliasedLineMixin, unittest.TestCase):
+    '''Line Antialising test for the Python algorithm.'''
+    from pygame.draw_py import draw_aaline
+"""
 
 
 class DrawModuleTest(unittest.TestCase):
