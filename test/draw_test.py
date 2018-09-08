@@ -7,6 +7,9 @@ from pygame import draw
 from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
 
+RED = pygame.Color('red')
+GREEN = pygame.Color('green')
+
 
 def get_border_values(surface, width, height):
     """Returns a list containing lists with the values of the surface's
@@ -201,7 +204,56 @@ class DrawLineTest(unittest.TestCase):
                 self.assertTrue(all(no_gaps))
 
 
+# WIP ...
+class DrawAntiAliasedLineTestMixin:
+
+    draw_aaline = None
+
+    def setUp(self):
+        self.surface = pygame.Surface((10, 10))
+        draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+
+    def test_short_non_antialiased_lines(self):
+        """test very short not anti aliased lines in all directions."""
+        # Horizontal, vertical and diagonal lines should not be antialiased,
+        # even with draw.aaline ...
+        surf = self.surface
+        check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
+        draw_line = self.draw_aaline
+
+        def check_one_direction(from_point, to_point, should):
+            draw_line(surf, GREEN, from_point, to_point)
+            for pt in check_points:
+                color = GREEN if pt in should else RED
+                self.assertEqual(surf.get_at(pt), color)
+            # reset
+            draw.rect(surf, RED, (3, 3, 8, 8), 0)
+
+        def check_both_directions(from_point, to_point, should):
+            # it is important to test also opposite direction, the algorithm
+            # is (#512) or was not symmetric
+            check_one_direction(from_point, to_point, should)
+            check_one_direction(to_point, from_point, should)
+
+        # 0. one point
+        check_both_directions((5, 5), (5, 5), [(5, 5)])
+        # 1. horizontal
+        check_both_directions((5, 5), (6, 5), [(5, 5), (6, 5)])
+        check_both_directions((5, 4), (7, 4), [(5, 4), (6, 4), (7, 4)])
+
+        # 2. vertical
+        check_both_directions((5, 5), (5, 6), [(5, 5), (5, 6)])
+        check_both_directions((6, 4), (6, 6), [(6, 4), (6, 5), (6, 6)])
+
+        # 3. diagonals
+        check_both_directions((5, 5), (6, 6), [(5, 5), (6, 6)])
+        check_both_directions((5, 5), (7, 7), [(5, 5), (6, 6), (7, 7)])
+        check_both_directions((5, 6), (6, 5), [(5, 6), (6, 5)])
+        check_both_directions((6, 4), (6, 4), [(6, 4), (5, 5), (6, 4)])
+
+
 class DrawModuleTest(unittest.TestCase):
+
     def setUp(self):
         (self.surf_w, self.surf_h) = self.surf_size = (320, 200)
         self.surf = pygame.Surface(self.surf_size, pygame.SRCALPHA)
@@ -373,10 +425,6 @@ class DrawModuleTest(unittest.TestCase):
           #
 
         self.fail()
-
-
-RED = pygame.Color('red')
-GREEN = pygame.Color('green')
 
 SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
 DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
