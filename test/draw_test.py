@@ -592,7 +592,7 @@ class DrawPolygonMixin:
             self.assertEqual(self.surface.get_at((4, y)), GREEN)
             self.assertEqual(self.surface.get_at((5, y)), RED)
 
-    def test_draw_symetric_cross(self):
+    def _test_draw_symetric_cross(self):
         '''nonregression on issue #234 : x and y where handled inconsistently.
 
         Also, the result is/was different wether we fill or not the polygon.
@@ -672,12 +672,19 @@ class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
     def draw_polygon(self, color, path, width):
         draw.polygon(self.surface, color, path, width)
 
+    def test_draw_symetric_cross(self):
+        self._test_draw_symetric_cross()
+
 
 class DrawPolygonPyAlgoTest(DrawPolygonMixin, unittest.TestCase):
 
     def draw_polygon(self, color, path, width):
         draw_py.draw_polygon(self.surface, color, path, width)
 
+    # TODO missing implementation of width > 0 for draw_py.draw_polygon
+    @unittest.expectedFailure
+    def test_draw_symetric_cross(self):
+        self._test_draw_symetric_cross()
 
 ################################################################################
 
