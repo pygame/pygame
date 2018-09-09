@@ -243,8 +243,10 @@ class AntiAliasedLineMixin:
         check_both_directions((5, 6), (6, 5), [(5, 6), (6, 5)])
         check_both_directions((6, 4), (6, 4), [(6, 4), (5, 5), (6, 4)])
 
-    def _check_antialiasing(self, from_point, to_point, should, check_points):
-        should[from_point] = should[to_point] = RED
+    def _check_antialiasing(self, from_point, to_point, should, check_points,
+                            set_endpoints=True):
+        if set_endpoints:
+            should[from_point] = should[to_point] = RED
         surf = self.surface
         draw_line = self.draw_aaline
 
@@ -318,6 +320,28 @@ class AntiAliasedLineMixin:
                         for pt, color in should.items()}
             self._check_antialiasing(first, second, expected, check_points)
 
+    @unittest.expectedFailure
+    def test_anti_aliasing_with_float_coordinates(self):
+        '''Float coordinates are expected to be rounded to integer values.'''
+        check_points = [(i, j) for i in range(5) for j in range(5)]
+
+        expected = {(2, 2): RED}
+        self._check_antialiasing((1.9, 1.8), (2.3, 2.4), expected,
+                                 check_points, set_endpoints=False)
+
+        expected = {(2, 2): RED, (2, 3): RED}
+        self._check_antialiasing((1.9, 1.8), (2.3, 2.6), expected,
+                                 check_points, set_endpoints=False)
+
+        expected = {(3, 2): RED, (2, 3): RED}
+        self._check_antialiasing((2.7, 1.8), (2.3, 2.6), expected,
+                                 check_points, set_endpoints=False)
+
+        brown = (127, 127, 0)
+        expected = {(4, 4): RED, (6, 5): RED, (5, 4): brown, (5, 5): brown}
+        self._check_antialiasing((4.1, 3.9), (5.8, 5.17), expected,
+                                 check_points, set_endpoints=False)
+
 
 class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the C algorithm.'''
@@ -325,13 +349,11 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     draw_aaline = draw.aaline
 
 
-
-""" TODO :
-@unittest.expectedFailure
 class AntiAliasingLinePyAlgoTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
     from pygame.draw_py import draw_aaline
-"""
+
+    draw_aaline = draw_py.draw_aaline
 
 
 class DrawModuleTest(unittest.TestCase):

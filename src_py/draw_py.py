@@ -1,8 +1,9 @@
 '''Pygame Drawing algorithms written in Python (Work in Progress)
 
 '''
-
-from math import floor, ceil, trunc
+# FIXME : the import of the builtin math module is broken, even with :
+# from __future__ import relative_imports
+# from math import floor, ceil, trunc
 
 #   H E L P E R   F U N C T I O N S    #
 
@@ -52,6 +53,9 @@ def drawvertlineclip(surf, color, x, y_from, y_to):
 
     drawvertline(surf, color, x, y_from, y_to)
 
+
+def draw_aaline(surface, color, from_point, to_point):
+    'TODO !'
 
 #   M U L T I L I N E   F U N C T I O N S   #
 
