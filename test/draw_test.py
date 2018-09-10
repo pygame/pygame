@@ -351,7 +351,6 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
 
 class AntiAliasingLinePyAlgoTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
-    from pygame.draw_py import draw_aaline
 
     draw_aaline = draw_py.draw_aaline
 

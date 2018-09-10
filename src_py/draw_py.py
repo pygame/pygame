@@ -1,5 +1,7 @@
-'''Pygame Drawing algorithms written in Python (Work in Progress)
+'''Pygame Drawing algorithms written in Python. (Work in Progress)
 
+Implement Pygame's Drawing Algorithms in a Python version for testing
+and debugging.
 '''
 # FIXME : the import of the builtin math module is broken, even with :
 # from __future__ import relative_imports
@@ -54,8 +56,126 @@ def drawvertlineclip(surf, color, x, y_from, y_to):
     drawvertline(surf, color, x, y_from, y_to)
 
 
-def draw_aaline(surface, color, from_point, to_point):
-    'TODO !'
+LEFT_EDGE = 0x1
+RIGHT_EDGE = 0x2
+BOTTOM_EDGE = 0x4
+TOP_EDGE = 0x8
+
+def encode(x, y, left, top, right, bottom):
+    return ((x < left) *  LEFT_EDGE +
+            (x > right) * RIGHT_EDGE +
+            (y < top) * TOP_EDGE +
+            (y > bottom) * BOTTOM_EDGE)
+
+
+INSIDE = lambda a: not a
+ACCEPT = lambda a, b: not (a or b)
+REJECT = lambda a, b: a and b
+
+
+def clip_line(pts, left, top, right, bottom):
+    assert isinstance(pts, list)
+    x1, y1, x2, y2 = pts
+
+    while True:
+        code1 = encode(x1, y1, left, top, right, bottom)
+        code2 = encode(x2, y2, left, top, right, bottom)
+
+        if ACCEPT(code1, code2):
+            pts[:] = x1, y1, x2, y2
+            return True
+        if REJECT(code1, code2):
+            return False
+
+        if INSIDE(code1):
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+            code1, code2 = code2, code1
+        if (x2 != x1):
+            m = (y2 - y1) / float(x2 - x1)
+        else:
+            m = 1.0
+        if code1 & LEFT_EDGE:
+            y1 += int((left - x1) * m)
+            x1 = left
+        elif code1 & RIGHT_EDGE:
+            y1 += int((right - x1) * m)
+            x1 = right
+        elif code1 & BOTTOM_EDGE:
+            if x2 != x1:
+                x1 += int((bottom - y1) / m)
+            y1 = bottom
+        elif code1 & TOP_EDGE:
+            if x2 != x1:
+                x1 += int((top - y1) / m)
+            y1 = top
+
+
+def clip_and_draw_line(surf, rect, color, pts):
+    if not clipline(pts, rect.x, rect.y, rect.x + rect.w - 1,
+                    rect.y + rect.h - 1):
+        # not crossing the rectangle...
+        return 0
+    # pts ==  x1, y1, x2, y2 ...
+    if pts[1] == pts[3]:
+        drawhorzline(surf, color, pts[0], pts[1], pts[2])
+    elif pts[0] == pts[2]:
+        drawvertline(surf, color, pts[0], pts[1], pts[3])
+    else:
+        drawline(surf, color, pts[0], pts[1], pts[2], pts[3])
+    return 1
+
+
+# Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+# This strongly differs from craw.c implementation, because we do not
+# handle BytesPerPixel, and we use "slope" and "error" variables.
+def drawline(surf, color, x1, y1, x2, y2):
+
+    if x1 == x2:
+        # This case should not happen...
+        raise ValueError
+
+    slope = abs((y2 - y1) / (x2 - x1))
+    error = 0.0
+
+    if slope < 1:
+        # Here, it's a rather horizontal line
+        # 1. check in which octants we are & set init values
+        if x2 < x1:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+        y = y1
+        dy_sign = 1 if (y1 < y2) else -1
+        # 2. step along x coordinate
+        for x in range(x1, x2 + 1):
+            set_at(surf, x, y, color)
+            error += slope
+            if error >= 0.5:
+                y += dy_sign
+                error -= 1
+    else:
+        # Case of a rather vertical line
+        # 1. check in which octants we are & set init values
+        if y1 > y2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+        x = x1
+        slope = 1 / slope
+        dx_sign = 1 if (x1 < x2) else -1
+
+        # 2. step along y coordinate
+        for y in range(y1, y2 + 1):
+            set_at(surf, x, y, color)
+            error += slope
+            if error >= 0.5:
+                x += dx_sign
+                error -= 1
+
+
+def draw_aaline(surf, color, from_point, to_point, blend):
+    '''draw anti-alisiased line between two endpoints.'''
+    # TODO 
+
 
 #   M U L T I L I N E   F U N C T I O N S   #
 
