@@ -8,8 +8,8 @@ from pygame import draw_py
 from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
 
-RED = pygame.Color('red')
-GREEN = pygame.Color('green')
+RED = BG_RED = pygame.Color('red')
+GREEN = FG_GREEN = pygame.Color('green')
 
 
 def get_border_values(surface, width, height):
@@ -214,7 +214,28 @@ class AntiAliasedLineMixin:
 
     def setUp(self):
         self.surface = pygame.Surface((10, 10))
-        draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
+        draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
+
+    def _check_antialiasing(self, from_point, to_point, should, check_points,
+                            set_endpoints=True):
+        '''Draw a line between two points and check colors of check_points.'''
+        if set_endpoints:
+            should[from_point] = should[to_point] = FG_GREEN
+        surf = self.surface
+        draw_line = self.draw_aaline
+
+        def check_one_direction(from_point, to_point, should):
+            draw_line(surf, FG_GREEN, from_point, to_point)
+            for pt in check_points:
+                color = should.get(pt, BG_RED)
+                self.assertEqual(surf.get_at(pt), color)
+            # reset
+            draw.rect(surf, FG_RED, (0, 0, 10, 10), 0)
+
+        # it is important to test also opposite direction, the algorithm
+        # is (#512) or was not symmetric
+        check_one_direction(from_point, to_point, should)
+        check_one_direction(to_point, from_point, should)
 
     @unittest.expectedFailure
     def test_short_non_antialiased_lines(self):
@@ -223,45 +244,25 @@ class AntiAliasedLineMixin:
         # even with draw.aaline ...
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
 
-        def check_both_directions(from_pt, to_pt, red_points):
-            should = {pt: RED for pt in red_points}
+        def check_both_directions(from_pt, to_pt, other_points):
+            should = {pt: FG_GREEN for pt in other_points}
             self._check_antialiasing(from_pt, to_pt, should, check_points)
 
         # 0. one point
-        check_both_directions((5, 5), (5, 5), [(5, 5)])
+        check_both_directions((5, 5), (5, 5), [])
         # 1. horizontal
-        check_both_directions((5, 5), (6, 5), [(5, 5), (6, 5)])
-        check_both_directions((5, 4), (7, 4), [(5, 4), (6, 4), (7, 4)])
+        check_both_directions((5, 5), (6, 5), [])
+        check_both_directions((5, 4), (7, 4), [(6, 4)])
 
         # 2. vertical
-        check_both_directions((5, 5), (5, 6), [(5, 5), (5, 6)])
-        check_both_directions((6, 4), (6, 6), [(6, 4), (6, 5), (6, 6)])
+        check_both_directions((5, 5), (5, 6), [])
+        check_both_directions((6, 4), (6, 6), [(6, 5)])
 
         # 3. diagonals
-        check_both_directions((5, 5), (6, 6), [(5, 5), (6, 6)])
-        check_both_directions((5, 5), (7, 7), [(5, 5), (6, 6), (7, 7)])
-        check_both_directions((5, 6), (6, 5), [(5, 6), (6, 5)])
-        check_both_directions((6, 4), (6, 4), [(6, 4), (5, 5), (6, 4)])
-
-    def _check_antialiasing(self, from_point, to_point, should, check_points,
-                            set_endpoints=True):
-        if set_endpoints:
-            should[from_point] = should[to_point] = RED
-        surf = self.surface
-        draw_line = self.draw_aaline
-
-        def check_one_direction(from_point, to_point, should):
-            draw_line(surf, GREEN, from_point, to_point)
-            for pt in check_points:
-                color = should.get(pt, RED)
-                self.assertEqual(surf.get_at(pt), color)
-            # reset
-            draw.rect(surf, RED, (0, 0, 10, 10), 0)
-
-        # it is important to test also opposite direction, the algorithm
-        # is (#512) or was not symmetric
-        check_one_direction(from_point, to_point, should)
-        check_one_direction(to_point, from_point, should)
+        check_both_directions((5, 5), (6, 6), [])
+        check_both_directions((5, 5), (7, 7), [(6, 6)])
+        check_both_directions((5, 6), (6, 5), [])
+        check_both_directions((6, 4), (6, 4), [(5, 5)])
 
     @unittest.expectedFailure
     def test_short_line_anti_aliasing(self):
@@ -325,20 +326,20 @@ class AntiAliasedLineMixin:
         '''Float coordinates are expected to be rounded to integer values.'''
         check_points = [(i, j) for i in range(5) for j in range(5)]
 
-        expected = {(2, 2): RED}
+        expected = {(2, 2): FG_GREEN}
         self._check_antialiasing((1.9, 1.8), (2.3, 2.4), expected,
                                  check_points, set_endpoints=False)
 
-        expected = {(2, 2): RED, (2, 3): RED}
+        expected = {(2, 2): FG_GREEN, (2, 3): FG_GREEN}
         self._check_antialiasing((1.9, 1.8), (2.3, 2.6), expected,
                                  check_points, set_endpoints=False)
 
-        expected = {(3, 2): RED, (2, 3): RED}
+        expected = {(3, 2): FG_GREEN, (2, 3): FG_GREEN}
         self._check_antialiasing((2.7, 1.8), (2.3, 2.6), expected,
                                  check_points, set_endpoints=False)
 
         brown = (127, 127, 0)
-        expected = {(4, 4): RED, (6, 5): RED, (5, 4): brown, (5, 5): brown}
+        expected = {(4, 4): FG_GREEN, (6, 5): FG_GREEN, (5, 4): brown, (5, 5): brown}
         self._check_antialiasing((4.1, 3.9), (5.8, 5.17), expected,
                                  check_points, set_endpoints=False)
 
@@ -349,10 +350,11 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     draw_aaline = draw.aaline
 
 
-class AntiAliasingLinePyAlgoTest(AntiAliasedLineMixin, unittest.TestCase):
+class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
 
     draw_aaline = draw_py.draw_aaline
+
 
 
 class DrawModuleTest(unittest.TestCase):
@@ -675,7 +677,7 @@ class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
         self._test_draw_symetric_cross()
 
 
-class DrawPolygonPyAlgoTest(DrawPolygonMixin, unittest.TestCase):
+class PythonDrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
 
     def draw_polygon(self, color, path, width):
         draw_py.draw_polygon(self.surface, color, path, width)
