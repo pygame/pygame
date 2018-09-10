@@ -790,6 +790,11 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
     return anydrawn;
 }
 
+#define SWAP(a, b, tmp) \
+    tmp = b;            \
+    b = a;              \
+    a = tmp;            \
+
 /*this line clipping based heavily off of code from
 http://www.ncsa.uiuc.edu/Vis/Graphics/src/clipCohSuth.c */
 #define LEFT_EDGE 0x1
@@ -921,15 +926,9 @@ clipline(int *pts, int left, int top, int right, int bottom)
             break;
         else {
             if (INSIDE(code1)) {
-                swaptmp = x2;
-                x2 = x1;
-                x1 = swaptmp;
-                swaptmp = y2;
-                y2 = y1;
-                y1 = swaptmp;
-                swaptmp = code2;
-                code2 = code1;
-                code1 = swaptmp;
+                SWAP(x1, x2, swaptmp)
+                SWAP(y1, y2, swaptmp)
+                SWAP(code1, code2, swaptmp)
             }
             if (x2 != x1)
                 m = (y2 - y1) / (float)(x2 - x1);
@@ -1072,12 +1071,8 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
 
     if (fabs(xd) > fabs(yd)) {
         if (x1 > x2) {
-            swaptmp = x1;
-            x1 = x2;
-            x2 = swaptmp;
-            swaptmp = y1;
-            y1 = y2;
-            y2 = swaptmp;
+            SWAP(x1, x2, swaptmp)
+            SWAP(y1, y2, swaptmp)
             xd = (x2 - x1);
             yd = (y2 - y1);
         }
@@ -1117,12 +1112,8 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
     }
     else {
         if (y1 > y2) {
-            swaptmp = y1;
-            y1 = y2;
-            y2 = swaptmp;
-            swaptmp = x1;
-            x1 = x2;
-            x2 = swaptmp;
+            SWAP(x1, x2, swaptmp)
+            SWAP(y1, y2, swaptmp)
             yd = (y2 - y1);
             xd = (x2 - x1);
         }
@@ -1188,12 +1179,8 @@ drawline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2)
     pixy *= signy;
     if (deltax < deltay) /*swap axis if rise > run*/
     {
-        swaptmp = deltax;
-        deltax = deltay;
-        deltay = swaptmp;
-        swaptmp = pixx;
-        pixx = pixy;
-        pixy = swaptmp;
+        SWAP(deltax, deltay, swaptmp)
+        SWAP(pixx, pixy, swaptmp)
     }
 
     switch (surf->format->BytesPerPixel) {
