@@ -200,14 +200,92 @@ def drawline(surf, color, x1, y1, x2, y2):
                 error -= 1
 
 
+def clip_and_draw_line_width(surf, rect, color, width, line):
+    yinc = xinc = 0
+    if abs(line[0] - line[2]) > abs(line[1] - line[3]):
+        yinc = 1
+    else:
+        xinc = 1
+    newpts = line[:]
+    if clip_and_draw_line(surf, rect, color, newpts):
+        anydrawn = 1
+        frame = newpts[:]
+    else:
+        anydrawn = 0
+        frame = [10000, 10000, -10000, -10000]
+
+    for loop in range(1, width // 2 + 1):
+        newpts[0] = line[0] + xinc * loop
+        newpts[1] = line[1] + yinc * loop
+        newpts[2] = line[2] + xinc * loop
+        newpts[3] = line[3] + yinc * loop
+        if clip_and_draw_line(surf, rect, color, newpts):
+            anydrawn = 1
+            frame[0] = min(newpts[0], frame[0])
+            frame[1] = min(newpts[1], frame[1])
+            frame[2] = max(newpts[2], frame[2])
+            frame[3] = max(newpts[3], frame[3])
+
+        if loop * 2 < width:
+            newpts[0] = line[0] - xinc * loop
+            newpts[1] = line[1] - yinc * loop
+            newpts[2] = line[2] - xinc * loop
+            newpts[3] = line[3] - yinc * loop
+            if clip_and_draw_line(surf, rect, color, newpts):
+                anydrawn = 1
+                frame[0] = min(newpts[0], frame[0])
+                frame[1] = min(newpts[1], frame[1])
+                frame[2] = max(newpts[2], frame[2])
+                frame[3] = max(newpts[3], frame[3])
+
+    return anydrawn
+
+
 def draw_aaline(surf, color, from_point, to_point, blend):
     '''draw anti-alisiased line between two endpoints.'''
-    # TODO 
+    # TODO
 
 
 #   M U L T I L I N E   F U N C T I O N S   #
 
+def draw_lines(surf, color, closed, points, width):
+
+    length = len(points)
+    if length <= 2:
+        raise TypeError
+    line = [0] * 4  # store x1, y1 & x2, y2 of the lines to be drawn
+
+    x, y = points[0]
+    left = right = line[0] = x
+    top = bottom = line[1] = y
+
+    for loop in range(1, length):
+        line[0] = x
+        line[1] = y
+        x, y = points[loop]
+        line[2] = x
+        line[3] = y
+        if clip_and_draw_line_width(surf, surf.get_clip(), color, width, line):
+            left = min(line[2], left)
+            top = min(line[3], top)
+            right = max(line[2], right)
+            bottom = max(line[3], bottom)
+
+    if closed:
+        line[0] = x
+        line[1] = y
+        x, y = points[0]
+        line[2] = x
+        line[3] = y
+        clip_and_draw_line_width(surf, surf.get_clip(), color, width, line)
+
+    return  # TODO Rect(...)
+
+
 def draw_polygon(surface, color, points, width):
+    if width:
+        draw_lines(surface, color, 1, points, width)
+        return  # TODO Rect(...)
     num_points = len(points)
     point_x = [x for x, y in points]
     point_y = [y for x, y in points]
@@ -219,7 +297,7 @@ def draw_polygon(surface, color, points, width):
         minx = min(point_x)
         maxx = max(point_x)
         drawhorzlineclip(surface, color, minx, miny, maxx)
-        return
+        return  # TODO Rect(...)
 
     for y in range(miny, maxy + 1):
         x_intersect = []
