@@ -20,7 +20,35 @@ def rfpart(x):
     return 1 - (x - floor(x)) # eg, 1 - fpart(x)
 
 
+#   L O W   L E V E L   D R A W   F U N C T I O N S   #
+# (They are too low-level to be translated into python, right?)
+
+def set_at(surf, x, y, color):
+    surf.set_at((x, y), color)
+
+
+def drawhorzline(surf, color, x_from, y, x_to):
+    if x_from == x_to:
+        surf.set_at((x_from, y), color)
+        return
+
+    start, end = (x_from, x_to) if x_from <= x_to else (x_to, x_from)
+    for x in range(x_from, x_to + 1):
+        surf.set_at((x, y), color)
+
+
+def drawvertline(surf, color, x, y_from, y_to):
+    if y_from == y_to:
+        surf.set_at((x, y_from), color)
+        return
+
+    start, end = (y_from, y_to) if y_from <= y_to else (y_to, y_from)
+    for y in range(y_from, y_to + 1):
+        surf.set_at((x, y_to), color)
+
+
 #   D R A W   L I N E   F U N C T I O N S    #
+
 def drawhorzlineclip(surf, color, x_from, y, x_to):
     '''draw clipped horizontal line.'''
     # check Y inside surf
@@ -228,29 +256,4 @@ def draw_polygon(surface, color, points, width):
         if miny < y == point_y[i_prev] < maxy:
             drawhorzlineclip(surface, color, point_x[i], y, point_x[i_prev])
 
-
-#     L O W   L E V E L   F U N C T I O N S   #
-# (too low-level to be translated into python, right?)
-
-def set_at(surf, x, y, color):
-    surf.set_at((x, y), color)
-
-
-def drawhorzline(surf, color, x_from, y, x_to):
-    if x_from == x_to:
-        surf.set_at((x_from, y), color)
-        return
-
-    start, end = (x_from, x_to) if x_from <= x_to else (x_to, x_from)
-    for x in range(x_from, x_to + 1):
-        surf.set_at((x, y), color)
-
-
-def drawvertline(surf, color, x, y_from, y_to):
-    if y_from == y_to:
-        surf.set_at((x, y_from), color)
-        return
-
-    start, end = (y_from, y_to) if y_from <= y_to else (y_to, y_from)
-    for y in range(y_from, y_to + 1):
-        surf.set_at((x, y_to), color)
+    return  # TODO Rect(...)

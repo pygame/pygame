@@ -194,8 +194,8 @@ line(PyObject *self, PyObject *arg)
     /*compute return rect*/
     if (!anydraw)
         return pgRect_New4(startx, starty, 0, 0);
-    rleft = (startx < endx) ? startx : endx;
-    rtop = (starty < endy) ? starty : endy;
+    rleft = MIN(startx, endx);
+    rtop = MIN(starty, endy);
     dx = abs(startx - endx);
     dy = abs(starty - endy);
     if (dx > dy) {
