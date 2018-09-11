@@ -33,7 +33,7 @@ def drawhorzline(surf, color, x_from, y, x_to):
         return
 
     start, end = (x_from, x_to) if x_from <= x_to else (x_to, x_from)
-    for x in range(x_from, x_to + 1):
+    for x in range(start, end + 1):
         surf.set_at((x, y), color)
 
 
@@ -43,8 +43,8 @@ def drawvertline(surf, color, x, y_from, y_to):
         return
 
     start, end = (y_from, y_to) if y_from <= y_to else (y_to, y_from)
-    for y in range(y_from, y_to + 1):
-        surf.set_at((x, y_to), color)
+    for y in range(start, end + 1):
+        surf.set_at((x, y), color)
 
 
 #   D R A W   L I N E   F U N C T I O N S    #
@@ -101,16 +101,16 @@ ACCEPT = lambda a, b: not (a or b)
 REJECT = lambda a, b: a and b
 
 
-def clip_line(pts, left, top, right, bottom):
-    assert isinstance(pts, list)
-    x1, y1, x2, y2 = pts
+def clip_line(line, left, top, right, bottom):
+    assert isinstance(line, list)
+    x1, y1, x2, y2 = line
 
     while True:
         code1 = encode(x1, y1, left, top, right, bottom)
         code2 = encode(x2, y2, left, top, right, bottom)
 
         if ACCEPT(code1, code2):
-            pts[:] = x1, y1, x2, y2
+            line[:] = x1, y1, x2, y2
             return True
         if REJECT(code1, code2):
             return False
@@ -140,7 +140,7 @@ def clip_line(pts, left, top, right, bottom):
 
 
 def clip_and_draw_line(surf, rect, color, pts):
-    if not clipline(pts, rect.x, rect.y, rect.x + rect.w - 1,
+    if not clip_line(pts, rect.x, rect.y, rect.x + rect.w - 1,
                     rect.y + rect.h - 1):
         # not crossing the rectangle...
         return 0
@@ -150,14 +150,14 @@ def clip_and_draw_line(surf, rect, color, pts):
     elif pts[0] == pts[2]:
         drawvertline(surf, color, pts[0], pts[1], pts[3])
     else:
-        drawline(surf, color, pts[0], pts[1], pts[2], pts[3])
+        draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
     return 1
 
 
 # Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
 # This strongly differs from craw.c implementation, because we do not
 # handle BytesPerPixel, and we use "slope" and "error" variables.
-def drawline(surf, color, x1, y1, x2, y2):
+def draw_line(surf, color, x1, y1, x2, y2):
 
     if x1 == x2:
         # This case should not happen...

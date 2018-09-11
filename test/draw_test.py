@@ -565,7 +565,7 @@ class DrawPolygonMixin:
     def test_1_pixel_high_or_wide_shapes(self):
         # 1. one-pixel-high, filled
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        self.draw_polygon(GREEN, [(x, 2) for x, y in CROSS], 0)
+        self.draw_polygon(GREEN, [(x, 2) for x, _y in CROSS], 0)
         cross_size = 6 # the maxium x or y coordinate of the cross
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 1)), RED)
@@ -573,32 +573,31 @@ class DrawPolygonMixin:
             self.assertEqual(self.surface.get_at((x, 3)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 2. one-pixel-high, not filled
-        self.draw_polygon(GREEN, [(x, 5) for x, y in CROSS], 1)
+        self.draw_polygon(GREEN, [(x, 5) for x, _y in CROSS], 1)
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 4)), RED)
             self.assertEqual(self.surface.get_at((x, 5)), GREEN)
             self.assertEqual(self.surface.get_at((x, 6)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 3. one-pixel-wide, filled
-        self.draw_polygon(GREEN, [(3, y) for x, y in CROSS], 0)
+        self.draw_polygon(GREEN, [(3, y) for _x, y in CROSS], 0)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((2, y)), RED)
             self.assertEqual(self.surface.get_at((3, y)), GREEN)
             self.assertEqual(self.surface.get_at((4, y)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 4. one-pixel-wide, not filled
-        self.draw_polygon(GREEN, [(4, y) for x, y in CROSS], 1)
+        self.draw_polygon(GREEN, [(4, y) for _x, y in CROSS], 1)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((3, y)), RED)
             self.assertEqual(self.surface.get_at((4, y)), GREEN)
             self.assertEqual(self.surface.get_at((5, y)), RED)
 
-    def _test_draw_symetric_cross(self):
+    def test_draw_symetric_cross(self):
         '''nonregression on issue #234 : x and y where handled inconsistently.
 
         Also, the result is/was different wether we fill or not the polygon.
         '''
-
         # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         self.draw_polygon(GREEN, CROSS, 1)
@@ -673,19 +672,12 @@ class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
     def draw_polygon(self, color, path, width):
         draw.polygon(self.surface, color, path, width)
 
-    def test_draw_symetric_cross(self):
-        self._test_draw_symetric_cross()
-
 
 class PythonDrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
 
     def draw_polygon(self, color, path, width):
         draw_py.draw_polygon(self.surface, color, path, width)
 
-    # TODO missing implementation of width > 0 for draw_py.draw_polygon
-    @unittest.expectedFailure
-    def test_draw_symetric_cross(self):
-        self._test_draw_symetric_cross()
 
 ################################################################################
 
