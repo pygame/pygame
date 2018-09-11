@@ -126,8 +126,6 @@ Credits
      Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
      excellent hosting.
 
-
-
 Dependencies
 ============
 
@@ -139,6 +137,16 @@ Dependencies
      transform module has an embedded version of SDL_rotozoom for its
      own rotozoom function. The surfarray module requires the python
      numpy package for its multidimensional numeric arrays.
+     Dependency versions:
+
+     * Python >= 2.7
+     * SDL >= 1.2.15
+     * SDL_mixer >= 1.2.13
+     * SDL_image (version?)
+     * SDL_tff (version ?)
+     * SDL_gfx (optional, version?)
+     * NumPy >= 1.6.2 (optional)
+
 
 Contribute
 ==========
