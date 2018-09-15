@@ -138,8 +138,60 @@ def initsysfonts_win32():
     return fonts
 
 
+def system_profiler_darwin():
+    import xml.etree.ElementTree as ET
+    
+    fonts = {}
+
+    try:
+        #Get the Font info via xml using system_profiler command
+        mac_fonts_xml, errors = subprocess.Popen(['system_profiler','-xml','SPFontsDataType'],stdout=-1).communicate()
+    except Exception:
+        return fonts
+
+    try:
+        #Get the ElementTree object from the xml string
+        mac_fonts_xml_tree = ET.fromstring(mac_fonts_xml)
+
+        #Get the elements of the tree where the font information is located
+        font_xml_elements = mac_fonts_xml_tree.iterfind("./array/dict/array/dict")
+
+
+        for font_node in font_xml_elements:
+
+            font_name = font_path = None
+
+            #Gets all the text within each tag in the node
+            tag_text = font_node.itertext()
+
+            #Cleans the list of any whitespace items
+            tag_content_list = [content for content in tag_text if content.strip() != ""]
+
+
+            for count, tag_content in enumerate(tag_content_list):
+                if tag_content == "_name":
+                    font_name = tag_content_list[count+1].lower()
+                    if splitext(font_name)[1] not in OpenType_extensions:
+                        break
+                    
+                if tag_content == "path" and font_name is not None:
+                    font_path = tag_content_list[count+1]
+                    bold = "bold" in font_name
+                    italic = "italic" in font_name
+                    _addfont(_simplename(font_name),bold,italic,font_path,fonts)
+                    break
+
+    except Exception:
+        return fonts
+
+
+    return fonts
+
+
+
 def initsysfonts_darwin():
     """read the fonts on OS X. X11 is required for this to work."""
+    fonts = {}
     # if the X11 binary exists... try and use that.
     #  Not likely to be there on pre 10.4.x ...
     if exists("/usr/X11/bin/fc-list"):
@@ -149,7 +201,7 @@ def initsysfonts_darwin():
     elif exists("/usr/X11R6/bin/fc-list"):
         fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
     else:
-        fonts = {}
+        fonts = system_profiler_darwin()
 
     return fonts
 
