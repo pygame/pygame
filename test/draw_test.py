@@ -204,6 +204,44 @@ class DrawLineTest(unittest.TestCase):
                 no_gaps = lines_have_gaps(surface, draw_lines)
                 self.assertTrue(all(no_gaps))
 
+    @unittest.expectedFailure
+    def test_path_data_validation(self):
+        '''Test validation of multi-point drawing methods.
+
+        See bug #521
+        '''
+        surf = pygame.Surface((5, 5))
+        rect = pygame.Rect(0, 0, 5, 5)
+        bad_values = ('text', b'bytes', 1 + 1j,  # string, bytes, complex,
+                       object(), (lambda x: x))  # object, function
+        bad_points = list(bad_values) + [(1,) , (1, 2, 3)] # wrong tuple length
+        bad_points.extend((1, v) for v in bad_values)  # one wrong value
+        good_path = [(1, 1), (1, 3), (3, 3), (3, 1)]
+        # A) draw.lines
+        check_pts = [(x, y) for x in range(5) for y in range(5)]
+        for method, is_polgon in ((draw.lines, 0), (draw.aalines, 0),
+                                  (draw.polygon, 1)):
+            for val in bad_values:
+                # 1. at the beginning
+                draw.rect(surf, RED, rect, 0)
+                with self.assertRaises(TypeError):
+                    if is_polgon:
+                        method(surf, GREEN, [val] + good_path, 0)
+                    else:
+                        method(surf, GREEN, True, [val] + good_path)
+                # make sure, nothing was drawn :
+                self.assertTrue(all(surf.get_at(pt) == RED for pt in check_pts))
+                # 2. not at the beginning (was not checked)
+                draw.rect(surf, RED, rect, 0)
+                with self.assertRaises(TypeError):
+                    path = good_path[:2] + [val] + good_path[2:]
+                    if is_polgon:
+                        method(surf, GREEN, path, 0)
+                    else:
+                        method(surf, GREEN, True, path)
+                # make sure, nothing was drawn :
+                self.assertTrue(all(surf.get_at(pt) == RED for pt in check_pts))
+
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
