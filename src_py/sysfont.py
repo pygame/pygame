@@ -24,6 +24,7 @@ import os
 import sys
 from pygame.compat import xrange_, PY_MAJOR_VERSION
 from os.path import basename, dirname, exists, join, splitext
+import xml.etree.ElementTree as ET
 
 
 OpenType_extensions = frozenset(('.ttf', '.ttc', '.otf'))
@@ -138,48 +139,68 @@ def initsysfonts_win32():
     return fonts
 
 
-def system_profiler_darwin():
-    import xml.etree.ElementTree as ET
-    
-    fonts = {}
+def fetch_elements_from_xmlString(xml_string, Xpath):
+    """Gets the specified element iterable"""
 
+    #Get the ElementTree object from the xml string
+    mac_fonts_xml_tree = ET.fromstring(xml_string)
+
+    #Get the elements of the tree where the font information is located
+    font_xml_elements = mac_fonts_xml_tree.iterfind(Xpath)
+
+    return font_xml_elements 
+
+def textContentList_from_xmlElement(element):
+    """Gets the content of tags (returned as a list) from the specified element and its subelements"""
+    #Gets all the text within each tag in the node
+    tag_text = element.itertext()
+
+    #Cleans the list of any whitespace items
+    tag_content_list = [content for content in tag_text if content.strip() != ""]
+
+    return tag_content_list
+
+def add_fontPaths_from_textContentList_to_fontsDictonary(text_content_list, fonts):
+    """Finds the name & path from the element list and adds it to the font dictionary"""
+    font_name = font_path = None
+    for count, tag_content in enumerate(text_content_list):
+
+        if tag_content == "_name":
+            font_name = text_content_list[count+1].lower()
+            if splitext(font_name)[1] not in OpenType_extensions:
+                break
+                    
+        if tag_content == "path" and font_name is not None:
+            font_path = text_content_list[count+1]
+            bold = "bold" in font_name
+            italic = "italic" in font_name
+            _addfont(_simplename(font_name),bold,italic,font_path,fonts)
+            break
+
+
+def system_profiler_darwin():
+    fonts = {}
     try:
         #Get the Font info via xml using system_profiler command
-        mac_fonts_xml, errors = subprocess.Popen(['system_profiler','-xml','SPFontsDataType'],stdout=-1).communicate()
+        system_profiler_process = subprocess.run(['system_profiler','-xml','SPFontsDataType'], stdout=subprocess.PIPE,text=True)
+        
+        #Check if system_profiler returned with success
+        if system_profiler_process.returncode != 0:
+            raise Exception
+
+        mac_fonts_xml = system_profiler_process.stdout
+
     except Exception:
         return fonts
 
     try:
-        #Get the ElementTree object from the xml string
-        mac_fonts_xml_tree = ET.fromstring(mac_fonts_xml)
+        #Get the wanted nodes from the XML string as an Element iterable object
+        font_xml_elements = fetch_elements_from_xmlString(mac_fonts_xml, "./array/dict/array/dict")
 
-        #Get the elements of the tree where the font information is located
-        font_xml_elements = mac_fonts_xml_tree.iterfind("./array/dict/array/dict")
-
-
+        #Iterate over the fetched object and add it to the fonts dictionary
         for font_node in font_xml_elements:
-
-            font_name = font_path = None
-
-            #Gets all the text within each tag in the node
-            tag_text = font_node.itertext()
-
-            #Cleans the list of any whitespace items
-            tag_content_list = [content for content in tag_text if content.strip() != ""]
-
-
-            for count, tag_content in enumerate(tag_content_list):
-                if tag_content == "_name":
-                    font_name = tag_content_list[count+1].lower()
-                    if splitext(font_name)[1] not in OpenType_extensions:
-                        break
-                    
-                if tag_content == "path" and font_name is not None:
-                    font_path = tag_content_list[count+1]
-                    bold = "bold" in font_name
-                    italic = "italic" in font_name
-                    _addfont(_simplename(font_name),bold,italic,font_path,fonts)
-                    break
+            text_content_list = textContentList_from_xmlElement(font_node)
+            add_fontPaths_from_textContentList_to_fontsDictonary(text_content_list, fonts)
 
     except Exception:
         return fonts
@@ -190,19 +211,8 @@ def system_profiler_darwin():
 
 
 def initsysfonts_darwin():
-    """read the fonts on OS X. X11 is required for this to work."""
-    fonts = {}
-    # if the X11 binary exists... try and use that.
-    #  Not likely to be there on pre 10.4.x ...
-    if exists("/usr/X11/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11/bin/fc-list")
-    # This fc-list path will work with the X11 from the OS X 10.3 installation
-    # disc
-    elif exists("/usr/X11R6/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
-    else:
-        fonts = system_profiler_darwin()
-
+    """Use system_profiler to provide locations of the fonts"""
+    fonts = system_profiler_darwin()
     return fonts
 
 
