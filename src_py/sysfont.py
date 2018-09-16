@@ -141,24 +141,11 @@ def initsysfonts_win32():
 
 def fetch_elements_from_xmlString(xml_string, Xpath):
     """Gets the specified element iterable"""
-
-    #Get the ElementTree object from the xml string
-    mac_fonts_xml_tree = ET.fromstring(xml_string)
-
-    #Get the elements of the tree where the font information is located
-    font_xml_elements = mac_fonts_xml_tree.iterfind(Xpath)
-
-    return font_xml_elements 
+    return ET.fromstring(xml_string).iterfind(Xpath)
 
 def textContentList_from_xmlElement(element):
     """Gets the content of tags (returned as a list) from the specified element and its subelements"""
-    #Gets all the text within each tag in the node
-    tag_text = element.itertext()
-
-    #Cleans the list of any whitespace items
-    tag_content_list = [content for content in tag_text if content.strip() != ""]
-
-    return tag_content_list
+    return [c for c in element.itertext() if c.strip()]
 
 def add_fontPaths_from_textContentList_to_fontsDictonary(text_content_list, fonts):
     """Finds the name & path from the element list and adds it to the font dictionary"""
