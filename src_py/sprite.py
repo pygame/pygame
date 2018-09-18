@@ -245,8 +245,8 @@ class DirtySprite(Sprite):
         the screen.)
 
     _layer = 0
-        A READ ONLY value, it is read when adding it to the LayeredUpdates
-        group. For details see documentation of sprite.LayeredUpdates.
+        0 is the default value but this is able to be set differently 
+        when subclassing.
 
     """
 
@@ -256,7 +256,8 @@ class DirtySprite(Sprite):
         self.blendmode = 0  # pygame 1.8, referred to as special_flags in
                             # the documentation of Surface.blit
         self._visible = 1
-        self._layer = 0     # READ ONLY by LayeredUpdates or LayeredDirty
+        self._layer = getattr(self, '_layer', 0)    # Default 0 unless 
+                                                    # initialized differently.
         self.source_rect = None
         Sprite.__init__(self, *groups)
 
