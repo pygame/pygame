@@ -143,24 +143,21 @@ def fetch_elements_from_xmlString(xml_string, Xpath):
     """Gets the specified element iterable"""
     return ET.fromstring(xml_string).iterfind(Xpath)
 
-def textContentList_from_xmlElement(element):
-    """Gets the content of tags (returned as a list) from the specified element and its subelements"""
-    return [c for c in element.itertext() if c.strip()]
-
-def add_fontPaths_from_textContentList_to_fontsDictonary(text_content_list, fonts):
-    """Finds the name & path from the element list and adds it to the font dictionary"""
+def add_fontPaths_from_subelements(sub_elements, fonts):
+    """Gets each element, checks its tag content, if wanted fetches the next value in the iterable"""
     font_name = font_path = None
-    for count, tag_content in enumerate(text_content_list):
+    for tag in sub_elements:
+        if tag.text == "_name":
+            font_name = next(sub_elements).text
 
-        if tag_content == "_name":
-            font_name = text_content_list[count+1].lower()
             if splitext(font_name)[1] not in OpenType_extensions:
                 break
-                    
-        if tag_content == "path" and font_name is not None:
-            font_path = text_content_list[count+1]
+
             bold = "bold" in font_name
             italic = "italic" in font_name
+                    
+        if tag.text == "path" and font_name is not None:
+            font_path = next(sub_elements).text
             _addfont(_simplename(font_name),bold,italic,font_path,fonts)
             break
 
@@ -186,12 +183,12 @@ def system_profiler_darwin():
 
         #Iterate over the fetched object and add it to the fonts dictionary
         for font_node in font_xml_elements:
-            text_content_list = textContentList_from_xmlElement(font_node)
-            add_fontPaths_from_textContentList_to_fontsDictonary(text_content_list, fonts)
+            #Gets all the subelements from the dict elements
+            all_sub_elements = font_node.iter("*")
+            add_fontPaths_from_subelements(all_sub_elements, fonts)
 
     except Exception:
         return fonts
-
 
     return fonts
 
