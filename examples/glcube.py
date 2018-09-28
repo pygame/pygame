@@ -4,7 +4,7 @@
 the camera around by a small amount and it appears
 the object is spinning. note i've setup some simple
 data structures here to represent a multicolored cube,
-we then go through a semi-unopimized loop to draw
+we then go through a semi-unoptimized loop to draw
 the cube points onto the screen. opengl does all the
 hard work for us. :]
 """
