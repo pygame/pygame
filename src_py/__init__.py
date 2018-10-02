@@ -83,17 +83,11 @@ elif 'DISPLAY' in os.environ and 'SDL_VIDEO_X11_WMCLASS' not in os.environ:
 class MissingModule:
     _NOT_IMPLEMENTED_ = True
 
-    def __init__(self, name, info='', urgent=0):
+    def __init__(self, name, urgent=0):
         self.name = name
-        self.info = str(info)
-        try:
-            exc = sys.exc_info()
-            if exc[0] != None:
-                self.reason = "%s: %s" % (exc[0].__name__, str(exc[1]))
-            else:
-                self.reason = ""
-        finally:
-            del exc
+        exc_type, exc_msg = sys.exc_info()[:2]
+        self.info = str(exc_msg)
+        self.reason = "%s: %s" % (exc_type.__name__, self.info)
         self.urgent = urgent
         if urgent:
             self.warn()
@@ -157,62 +151,62 @@ if get_sdl_version() < (2, 0, 0):
     try:
         import pygame.cdrom
     except (ImportError, IOError):
-        cdrom = MissingModule("cdrom", geterror(), 1)
+        cdrom = MissingModule("cdrom", urgent=1)
 
 try:
     import pygame.cursors
 except (ImportError, IOError):
-    cursors = MissingModule("cursors", geterror(), 1)
+    cursors = MissingModule("cursors", urgent=1)
 
 try:
     import pygame.display
 except (ImportError, IOError):
-    display = MissingModule("display", geterror(), 1)
+    display = MissingModule("display", urgent=1)
 
 try:
     import pygame.draw
 except (ImportError, IOError):
-    draw = MissingModule("draw", geterror(), 1)
+    draw = MissingModule("draw", urgent=1)
 
 try:
     import pygame.event
 except (ImportError, IOError):
-    event = MissingModule("event", geterror(), 1)
+    event = MissingModule("event", urgent=1)
 
 try:
     import pygame.image
 except (ImportError, IOError):
-    image = MissingModule("image", geterror(), 1)
+    image = MissingModule("image", urgent=1)
 
 try:
     import pygame.joystick
 except (ImportError, IOError):
-    joystick = MissingModule("joystick", geterror(), 1)
+    joystick = MissingModule("joystick", urgent=1)
 
 try:
     import pygame.key
 except (ImportError, IOError):
-    key = MissingModule("key", geterror(), 1)
+    key = MissingModule("key", urgent=1)
 
 try:
     import pygame.mouse
 except (ImportError, IOError):
-    mouse = MissingModule("mouse", geterror(), 1)
+    mouse = MissingModule("mouse", urgent=1)
 
 try:
     import pygame.sprite
 except (ImportError, IOError):
-    sprite = MissingModule("sprite", geterror(), 1)
+    sprite = MissingModule("sprite", urgent=1)
 
 try:
     import pygame.threads
 except (ImportError, IOError):
-    threads = MissingModule("threads", geterror(), 1)
+    threads = MissingModule("threads", urgent=1)
 
 try:
     import pygame.pixelcopy
 except (ImportError, IOError):
-    pixelcopy = MissingModule("pixelcopy", geterror(), 1)
+    pixelcopy = MissingModule("pixelcopy", urgent=1)
 
 
 def warn_unwanted_files():
@@ -294,12 +288,12 @@ except (ImportError, IOError):
 try:
     import pygame.time
 except (ImportError, IOError):
-    time = MissingModule("time", geterror(), 1)
+    time = MissingModule("time", urgent=1)
 
 try:
     import pygame.transform
 except (ImportError, IOError):
-    transform = MissingModule("transform", geterror(), 1)
+    transform = MissingModule("transform", urgent=1)
 
 # lastly, the "optional" pygame modules
 if 'PYGAME_FREETYPE' in os.environ:
@@ -315,7 +309,7 @@ try:
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError, IOError):
-    font = MissingModule("font", geterror(), 0)
+    font = MissingModule("font", urgent=0)
 
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
@@ -328,36 +322,37 @@ except (ImportError, IOError):
 try:
     import pygame.mixer
 except (ImportError, IOError):
-    mixer = MissingModule("mixer", geterror(), 0)
+    mixer = MissingModule("mixer", urgent=0)
 
 try:
     import pygame.movie
 except (ImportError, IOError):
-    movie = MissingModule("movie", geterror(), 0)
+    movie = MissingModule("movie", urgent=0)
 
-# try: import pygame.movieext
-# except (ImportError,IOError):movieext=MissingModule("movieext",
-# geterror(), 0)
+# try:
+#     import pygame.movieext
+# except (ImportError,IOError):
+#     movieext=MissingModule("movieext", urgent=0)
 
 try:
     import pygame.scrap
 except (ImportError, IOError):
-    scrap = MissingModule("scrap", geterror(), 0)
+    scrap = MissingModule("scrap", urgent=0)
 
 try:
     import pygame.surfarray
 except (ImportError, IOError):
-    surfarray = MissingModule("surfarray", geterror(), 0)
+    surfarray = MissingModule("surfarray", urgent=0)
 
 try:
     import pygame.sndarray
 except (ImportError, IOError):
-    sndarray = MissingModule("sndarray", geterror(), 0)
+    sndarray = MissingModule("sndarray", urgent=0)
 
 try:
     import pygame.fastevent
 except (ImportError, IOError):
-    fastevent = MissingModule("fastevent", geterror(), 0)
+    fastevent = MissingModule("fastevent", urgent=0)
 
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
