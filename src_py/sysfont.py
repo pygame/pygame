@@ -173,7 +173,7 @@ def _add_sys_font(current_font, multiple_fonts, fonts):
         for font_item in multiple_fonts:
             _add_sys_font_inner(font_item, fonts)
 
-    if current_font is not None:
+    if len(current_font) > 0:
         _add_sys_font_inner(current_font, fonts)
 
 
