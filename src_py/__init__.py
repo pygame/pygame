@@ -121,7 +121,7 @@ from pygame.base import *
 from pygame.constants import *
 from pygame.version import *
 from pygame.rect import Rect
-from pygame.compat import geterror, PY_MAJOR_VERSION
+from pygame.compat import PY_MAJOR_VERSION
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
@@ -393,7 +393,7 @@ copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, geterror, PY_MAJOR_VERSION
+del pygame, os, sys, surflock, MissingModule, copy_reg, PY_MAJOR_VERSION
 
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
 print('pygame %s' % ver)
