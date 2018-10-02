@@ -185,26 +185,23 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
                     continue
 
                 if parsing_font and os.path.exists(value):
-                    # add file here
 
                     bold = 'bold' in current_font['style']
                     italic = 'italic' in current_font['style']
                     oblique = 'oblique' in current_font['style']
                     
                     _addfont(
-                        _simplename(font['fullname']), bold, italic or oblique, font['path'], fonts)
+                        _simplename(current_font['fullname']), bold, italic or oblique, current_font['path'], fonts)
+
                     current_font.clear()
-                    parsingFont = False
+                    parsing_font = False
                 
                 if not parsing_font and os.path.exists(value):
                     
                     if splitext(value)[1].lower() in OpenType_extensions:
 
                         parsing_font = True
-
                         current_font['path'] = value
-
-                        print(current_font['path'])
 
                         continue
 
