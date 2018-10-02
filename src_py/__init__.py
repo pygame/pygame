@@ -269,38 +269,26 @@ def warn_unwanted_files():
 # warn_unwanted_files()
 
 
-_import_failed = False
 try:
     from pygame.surface import *
 except (ImportError, IOError):
-    _import_failed = geterror()
-if _import_failed:
     Surface = lambda: Missing_Function
 
 
-_import_failed = False
 try:
     import pygame.mask
     from pygame.mask import Mask
 except (ImportError, IOError):
-    _import_failed = geterror()
-if _import_failed:
     Mask = lambda: Missing_Function
 
-_import_failed = False
 try:
     from pygame.pixelarray import *
 except (ImportError, IOError):
-    _import_failed = geterror()
-if _import_failed:
     PixelArray = lambda: Missing_Function
 
-_import_failed = False
 try:
     from pygame.overlay import *
 except (ImportError, IOError):
-    _import_failed = geterror()
-if _import_failed:
     Overlay = lambda: Missing_Function
 
 try:
@@ -420,7 +408,7 @@ copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, geterror, PY_MAJOR_VERSION, _import_failed
+del pygame, os, sys, surflock, MissingModule, copy_reg, geterror, PY_MAJOR_VERSION
 
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
 print('pygame %s' % ver)
