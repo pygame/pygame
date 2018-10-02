@@ -158,9 +158,11 @@ def initsysfonts_darwin():
 
 def _add_sys_font_inner(current_font, fonts):
 
-    bold = 'bold' in current_font['style'].lower()
-    italic = 'italic' in current_font['style'].lower()
-    oblique = 'oblique' in current_font['style'].lower()
+    font_style = current_font['style'].lower()
+
+    bold = 'bold' in font_style
+    italic = 'italic' in font_style
+    oblique = 'oblique' in font_style
 
     _addfont(
         _simplename(current_font['full name']), bold, italic or oblique, current_font['path'],
