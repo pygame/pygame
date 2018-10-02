@@ -96,28 +96,18 @@ class MissingModule:
         if not self.urgent:
             self.warn()
             self.urgent = 1
-        MissingPygameModule = "%s module not available" % self.name
-        if self.reason:
-            MissingPygameModule += "\n(%s)" % self.reason
-        raise NotImplementedError(MissingPygameModule)
+        missing_msg = "%s module not available (%s)" % (self.name, self.reason)
+        raise NotImplementedError(missing_msg)
 
     def __nonzero__(self):
         return 0
 
     def warn(self):
-        if self.urgent:
-            type = 'import'
-        else:
-            type = 'use'
-        message = '%s %s: %s' % (type, self.name, self.info)
-        if self.reason:
-            message += "\n(%s)" % self.reason
+        msg_type = 'import' if self.urgent else 'use'
+        message = '%s %s: %s\n(%s)' % (msg_type, self.name, self.info, self.reason)
         try:
             import warnings
-            if self.urgent:
-                level = 4
-            else:
-                level = 3
+            level = 4 if self.urgent else 3
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
             print (message)
