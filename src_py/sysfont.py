@@ -156,12 +156,33 @@ def initsysfonts_darwin():
     return fonts
 
 
+def _add_sys_font_inner(current_font, fonts):
+
+    bold = 'bold' in current_font['style']
+    italic = 'italic' in current_font['style']
+    oblique = 'oblique' in current_font['style']
+
+    _addfont(
+        _simplename(current_font['full name']), bold, italic or oblique, current_font['path'],
+        fonts)
+
+
+def _add_sys_font(current_font, multiple_fonts, fonts):
+
+    if len(multiple_fonts) > 0:
+        for font_item in multiple_fonts:
+            _add_sys_font_inner(font_item, fonts)
+
+    if current_font is not None:
+        _add_sys_font_inner(current_font, fonts)
+
+
 # read the fonts using system_profiler on macOS
 def initsysfonts_macos(path="/usr/sbin/system_profiler"):
     """use system_profiler get a list of fonts"""
     fonts = {}
 
-    arguments = "SPFontsDataType | grep -i -e 'location' -e 'family' -e 'style' -e 'name' | sed 's/ //g'"
+    arguments = "SPFontsDataType | grep -i -e 'location' -e 'family' -e 'style' -e 'name'"
 
     try:
         flout, flerr = subprocess.Popen('%s : %s' % (path, arguments), shell=True,
@@ -174,28 +195,32 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
 
     parsing_font = False
     current_font = {}
+
+    multiple_fonts = []
+
+    lines = entries.split('\n')
+    lines_len = len(lines);
                 
     try:
-        for line in entries.split('\n'):
+        for idx in range(0, lines_len):
 
             try:
-                key, value = line.split(':', 1)
+                key, value = lines[idx].strip().split(':', 1)
+
+                key = key.strip()
+                value = value.strip().replace(':', "")
 
                 if not value:
                     continue
 
-                if parsing_font and os.path.exists(value):
+                if parsing_font and (os.path.exists(value)):
 
-                    bold = 'bold' in current_font['style']
-                    italic = 'italic' in current_font['style']
-                    oblique = 'oblique' in current_font['style']
-                    
-                    _addfont(
-                        _simplename(current_font['fullname']), bold, italic or oblique, current_font['path'], fonts)
+                    _add_sys_font(current_font, multiple_fonts, fonts)
 
                     current_font.clear()
+                    multiple_fonts = []
                     parsing_font = False
-                
+
                 if not parsing_font and os.path.exists(value):
                     
                     if splitext(value)[1].lower() in OpenType_extensions:
@@ -205,7 +230,17 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
 
                         continue
 
-                current_font[key.lower()] = value.lower()
+                if key.lower() in current_font:
+
+                    font_path = current_font['path']
+
+                    multiple_fonts.append(current_font.copy())
+                    current_font.clear()
+                    current_font['path'] = font_path
+                    current_font[key.lower()] = value.lower()
+
+                else:
+                    current_font[key.lower()] = value.lower()
 
             except Exception:
                 # try the next one.
@@ -213,6 +248,8 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
 
     except Exception:
         pass
+
+    _add_sys_font(current_font, multiple_fonts, fonts)
 
     return fonts
 
