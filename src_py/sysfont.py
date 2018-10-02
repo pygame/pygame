@@ -158,9 +158,9 @@ def initsysfonts_darwin():
 
 def _add_sys_font_inner(current_font, fonts):
 
-    bold = 'bold' in current_font['style']
-    italic = 'italic' in current_font['style']
-    oblique = 'oblique' in current_font['style']
+    bold = 'bold' in current_font['style'].lower()
+    italic = 'italic' in current_font['style'].lower()
+    oblique = 'oblique' in current_font['style'].lower()
 
     _addfont(
         _simplename(current_font['full name']), bold, italic or oblique, current_font['path'],
@@ -169,11 +169,10 @@ def _add_sys_font_inner(current_font, fonts):
 
 def _add_sys_font(current_font, multiple_fonts, fonts):
 
-    if len(multiple_fonts) > 0:
-        for font_item in multiple_fonts:
-            _add_sys_font_inner(font_item, fonts)
+    for font_item in multiple_fonts:
+        _add_sys_font_inner(font_item, fonts)
 
-    if len(current_font) > 0:
+    if current_font:
         _add_sys_font_inner(current_font, fonts)
 
 
@@ -199,15 +198,14 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
     multiple_fonts = []
 
     lines = entries.split('\n')
-    lines_len = len(lines);
                 
     try:
-        for idx in range(0, lines_len):
+        for line in lines:
 
             try:
-                key, value = lines[idx].strip().split(':', 1)
+                key, value = line.split(':', 1)
 
-                key = key.strip()
+                key = key.strip().lower()
                 value = value.strip().replace(':', "")
 
                 if not value:
@@ -237,10 +235,10 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
                     multiple_fonts.append(current_font.copy())
                     current_font.clear()
                     current_font['path'] = font_path
-                    current_font[key.lower()] = value.lower()
+                    current_font[key] = value
 
                 else:
-                    current_font[key.lower()] = value.lower()
+                    current_font[key] = value
 
             except Exception:
                 # try the next one.
