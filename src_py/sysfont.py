@@ -148,7 +148,7 @@ def initsysfonts_darwin():
     # disc
     elif exists("/usr/X11R6/bin/fc-list"):
         fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
-    elif exists("/usr/sbin/system_profiler":
+    elif exists("/usr/sbin/system_profiler"):
         fonts = initsysfonts_macos("/usr/sbin/system_profiler")
     else:
         fonts = {}
@@ -164,8 +164,6 @@ def initsysfonts_macos(path="/usr/sbin/system_profiler"):
     arguments = "SPFontsDataType | grep -i -e 'location' -e 'family' -e 'style' -e 'name' | sed 's/ //g'"
 
     try:
-        # note, we capture stderr so if fc-list isn't there to stop stderr
-        # printing.
         flout, flerr = subprocess.Popen('%s : %s' % (path, arguments), shell=True,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                         close_fds=True).communicate()
