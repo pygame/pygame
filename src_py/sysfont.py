@@ -148,8 +148,76 @@ def initsysfonts_darwin():
     # disc
     elif exists("/usr/X11R6/bin/fc-list"):
         fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
+    elif exists("/usr/sbin/system_profiler":
+        fonts = initsysfonts_macos("/usr/sbin/system_profiler")
     else:
         fonts = {}
+
+    return fonts
+
+
+# read the fonts using system_profiler on macOS
+def initsysfonts_macos(path="/usr/sbin/system_profiler"):
+    """use system_profiler get a list of fonts"""
+    fonts = {}
+
+    arguments = "SPFontsDataType | grep -i -e 'location' -e 'family' -e 'style' -e 'name' | sed 's/ //g'"
+
+    try:
+        # note, we capture stderr so if fc-list isn't there to stop stderr
+        # printing.
+        flout, flerr = subprocess.Popen('%s : %s' % (path, arguments), shell=True,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        close_fds=True).communicate()
+    except Exception:
+        return fonts
+
+    entries = toascii(flout)
+
+    parsing_font = False
+    current_font = {}
+                
+    try:
+        for line in entries.split('\n'):
+
+            try:
+                key, value = line.split(':', 1)
+
+                if not value:
+                    continue
+
+                if parsing_font and os.path.exists(value):
+                    # add file here
+
+                    bold = 'bold' in current_font['style']
+                    italic = 'italic' in current_font['style']
+                    oblique = 'oblique' in current_font['style']
+                    
+                    _addfont(
+                        _simplename(font['fullname']), bold, italic or oblique, font['path'], fonts)
+                    current_font.clear()
+                    parsingFont = False
+                
+                if not parsing_font and os.path.exists(value):
+                    
+                    if splitext(value)[1].lower() in OpenType_extensions:
+
+                        parsing_font = True
+
+                        current_font['path'] = value
+
+                        print(current_font['path'])
+
+                        continue
+
+                current_font[key.lower()] = value.lower()
+
+            except Exception:
+                # try the next one.
+                pass
+
+    except Exception:
+        pass
 
     return fonts
 
