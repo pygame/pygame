@@ -756,15 +756,13 @@ pg_flip(PyObject *self)
 static PyObject *
 pg_set_resolution(PyObject *self, PyObject *arg)
 {
-    SDL_Surface *surf;
 
-    int flags = SDL_SWSURFACE;
     int w = 0;
     int h = 0;
-    int depth = 0;
-    int hasbuf;
 
-    if (!PyArg_ParseTuple(arg, "|(ii)i", &w, &h, &depth))
+    SDL_Surface *currSurf = SDL_GetVideoSurface();
+
+    if (!PyArg_ParseTuple(arg, "|(ii)", &w, &h))
         return NULL;
 
     if (w < 0 || h < 0)
@@ -787,31 +785,11 @@ pg_set_resolution(PyObject *self, PyObject *arg)
             return NULL;
     }
 
-    if (flags & SDL_OPENGL) {
-        if (flags & SDL_DOUBLEBUF) {
-            flags &= ~SDL_DOUBLEBUF;
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        }
-        else
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+    int currDepth = 0;
 
-        surf = SDL_SetVideoMode(w, h, depth, flags);
-        if (!surf)
-            return RAISE(pgExc_SDLError, SDL_GetError());
-
-        SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &hasbuf);
-        if (hasbuf)
-            surf->flags |= SDL_DOUBLEBUF;
-    }
-    else {
-        if (!depth)
-            flags |= SDL_ANYFORMAT;
-        Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_SetVideoMode(w, h, depth, flags);
-        Py_END_ALLOW_THREADS;
-        if (!surf)
-            return RAISE(pgExc_SDLError, SDL_GetError());
-    }
+    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, currDepth);
+    
+    SDL_SetVideoMode(w, h, currDepth, currSurf->flags);
 
     /*probably won't do much, but can't hurt, and might help*/
     SDL_PumpEvents();
