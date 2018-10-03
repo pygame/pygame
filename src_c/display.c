@@ -785,11 +785,7 @@ pg_set_resolution(PyObject *self, PyObject *arg)
             return NULL;
     }
 
-    int currDepth = 0;
-
-    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, currDepth);
-    
-    SDL_SetVideoMode(w, h, currDepth, currSurf->flags);
+    SDL_SetVideoMode(w, h, currSurf->format->BitsPerPixel, currSurf->flags);
 
     /*probably won't do much, but can't hurt, and might help*/
     SDL_PumpEvents();
