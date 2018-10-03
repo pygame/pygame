@@ -674,6 +674,47 @@ pg_set_mode(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
+pg_set_resolution(PyObject *self, PyObject *arg)
+{
+
+    SDL_Window *window = pg_GetDefaultWindow();
+
+    int w = 0;
+    int h = 0;
+
+    if (!PyArg_ParseTuple(arg, "|(ii)", &w, &h))
+        return NULL;
+
+    if (w < 0 || h < 0)
+        return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
+
+    if (w == 0 || h == 0) {
+        SDL_version versioninfo;
+        SDL_VERSION(&versioninfo);
+        if (!(versioninfo.major != 1 ||
+              (versioninfo.major == 1 && versioninfo.minor > 2) ||
+              (versioninfo.major == 1 && versioninfo.minor == 2 &&
+               versioninfo.patch >= 10))) {
+            return RAISE(pgExc_SDLError, "Cannot set 0 sized display mode");
+        }
+    }
+
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+        if (!pg_init(NULL))
+            return NULL;
+    }
+
+    if (window) {
+
+        SDL_SetWindowSize(window, w, h);
+    }
+
+    SDL_PumpEvents();
+
+    return (PyObject*) Py_True;
+}
+
+static PyObject *
 pg_mode_ok(PyObject *self, PyObject *args)
 {
 #warning "implement pg_mode_ok for SDL2"
@@ -711,6 +752,47 @@ pg_flip(PyObject *self)
 }
 
 #else /* IS_SDLv1 */
+
+static PyObject *
+pg_set_resolution(PyObject *self, PyObject *arg)
+{
+
+    int w = 0;
+    int h = 0;
+
+    SDL_Surface *currSurf = SDL_GetVideoSurface();
+
+    if (!PyArg_ParseTuple(arg, "|(ii)", &w, &h))
+        return NULL;
+
+    if (w < 0 || h < 0)
+        return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
+
+    if (w == 0 || h == 0) {
+        SDL_version versioninfo;
+        SDL_VERSION(&versioninfo);
+        if (!(versioninfo.major > 1 ||
+              (versioninfo.major == 1 && versioninfo.minor > 2) ||
+              (versioninfo.major == 1 && versioninfo.minor == 2 &&
+               versioninfo.patch >= 10))) {
+            return RAISE(pgExc_SDLError, "Cannot set 0 sized display mode");
+        }
+    }
+
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+        /*note SDL works special like this too*/
+        if (!pg_init(NULL))
+            return NULL;
+    }
+
+    SDL_SetVideoMode(w, h, currSurf->format->BitsPerPixel, currSurf->flags);
+
+    /*probably won't do much, but can't hurt, and might help*/
+    SDL_PumpEvents();
+
+    return (PyObject*)Py_True;
+}
+
 static PyObject *
 pg_set_mode(PyObject *self, PyObject *arg)
 {
@@ -1519,6 +1601,8 @@ static PyMethodDef _pg_display_methods[] = {
 
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
+
+    {"set_resolution", pg_set_resolution, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
 
     {"set_palette", pg_set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE},
     {"set_gamma", pg_set_gamma, METH_VARARGS, DOC_PYGAMEDISPLAYSETGAMMA},
