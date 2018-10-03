@@ -682,7 +682,7 @@ pg_set_resolution(PyObject *self, PyObject *arg)
     int w = 0;
     int h = 0;
 
-    if (!PyArg_ParseTuple(arg, "|(ii)ii", &w, &h))
+    if (!PyArg_ParseTuple(arg, "|(ii)", &w, &h))
         return NULL;
 
     if (w < 0 || h < 0)
@@ -764,17 +764,11 @@ pg_set_resolution(PyObject *self, PyObject *arg)
     int depth = 0;
     int hasbuf;
 
-    if (!PyArg_ParseTuple(arg, "|(ii)ii", &w, &h, &depth))
+    if (!PyArg_ParseTuple(arg, "|(ii)i", &w, &h, &depth))
         return NULL;
 
     if (w < 0 || h < 0)
         return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
-
-    /*
-    if (depth == 0) {
-        return RAISE(pgExc_SDLError, "Cannot set depth 0");
-    }
-    */
 
     if (w == 0 || h == 0) {
         SDL_version versioninfo;
