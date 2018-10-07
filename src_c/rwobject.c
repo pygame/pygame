@@ -277,6 +277,8 @@ pgRWopsFromFileObject(PyObject *obj)
         return (SDL_RWops *)PyErr_NoMemory();
     }
     helper->fileno = PyObject_AsFileDescriptor(obj);
+    if (helper->fileno == -1)
+        PyErr_Clear();
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
@@ -547,6 +549,8 @@ pgRWopsFromFileObjectThreaded(PyObject *obj)
         return (SDL_RWops *)PyErr_NoMemory();
     }
     helper->fileno = PyObject_AsFileDescriptor(obj);
+    if (helper->fileno == -1)
+        PyErr_Clear();
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
