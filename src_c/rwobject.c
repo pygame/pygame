@@ -37,6 +37,7 @@ typedef struct {
     PyObject *seek;
     PyObject *tell;
     PyObject *close;
+    int fileno;
 } pgRWHelper;
 
 /*static const char pg_default_encoding[] = "unicode_escape";*/
@@ -275,6 +276,7 @@ pgRWopsFromFileObject(PyObject *obj)
         PyMem_Del(helper);
         return (SDL_RWops *)PyErr_NoMemory();
     }
+    helper->fileno = PyObject_AsFileDescriptor(obj);
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
@@ -435,6 +437,15 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     size_t retval;
 #endif /* IS_SDLv2 */
 
+    if (helper->fileno != -1) {
+        retval = read(helper->fileno, ptr, size * maxnum);
+        if (retval == -1) {
+            return -1;
+        }
+        retval /= size;
+        return retval;
+    }
+
     if (!helper->read)
         return -1;
 
@@ -524,6 +535,7 @@ pgRWopsFromFileObjectThreaded(PyObject *obj)
         PyMem_Del(helper);
         return (SDL_RWops *)PyErr_NoMemory();
     }
+    helper->fileno = PyObject_AsFileDescriptor(obj);
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
@@ -687,11 +699,19 @@ _pg_rw_read_th(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 #endif /* IS_SDLv2 */
     PyGILState_STATE state;
 
+    if (helper->fileno != -1) {
+        retval = read(helper->fileno, ptr, size * maxnum);
+        if (retval == -1) {
+            return -1;
+        }
+        retval /= size;
+        return retval;
+    }
+
     if (!helper->read)
         return -1;
 
     state = PyGILState_Ensure();
-
     result = PyObject_CallFunction(helper->read, "i", size * maxnum);
     if (!result) {
         PyErr_Print();
