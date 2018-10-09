@@ -81,14 +81,11 @@ class BaseModuleTest(unittest.TestCase):
 
     def assertSame(self, proxy, obj):
         self.assertEqual(proxy.length, obj.size)
-        d = proxy.__array_interface__
-        try:
-            self.assertEqual(d['typestr'], obj.typestr)
-            self.assertEqual(d['shape'], obj.shape)
-            self.assertEqual(d['strides'], obj.strides)
-            self.assertEqual(d['data'], obj.data)
-        finally:
-            d = None
+        iface = proxy.__array_interface__
+        self.assertEqual(iface['typestr'], obj.typestr)
+        self.assertEqual(iface['shape'], obj.shape)
+        self.assertEqual(iface['strides'], obj.strides)
+        self.assertEqual(iface['data'], obj.data)
 
     def test_PgObject_GetBuffer_array_interface(self):
         from pygame.bufferproxy import BufferProxy
@@ -207,32 +204,22 @@ class BaseModuleTest(unittest.TestCase):
 
     if pygame.HAVE_NEWBUF:
         from pygame.tests.test_utils import buftools
-        def test_newbuf(self):
-            self.NEWBUF_test_newbuf()
-        def test_PgDict_AsBuffer_PyBUF_flags(self):
-            self.NEWBUF_test_PgDict_AsBuffer_PyBUF_flags()
-        def test_PgObject_AsBuffer_PyBUF_flags(self):
-            self.NEWBUF_test_PgObject_AsBuffer_PyBUF_flags()
-        def test_bad_format(self):
-            self.NEWBUF_test_bad_format()
 
     def NEWBUF_assertSame(self, proxy, exp):
         buftools = self.buftools
         Importer = buftools.Importer
         self.assertEqual(proxy.length, exp.len)
         imp = Importer(proxy, buftools.PyBUF_RECORDS_RO)
-        try:
-            self.assertEqual(imp.readonly, exp.readonly)
-            self.assertEqual(imp.format, exp.format)
-            self.assertEqual(imp.itemsize, exp.itemsize)
-            self.assertEqual(imp.ndim, exp.ndim)
-            self.assertEqual(imp.shape, exp.shape)
-            self.assertEqual(imp.strides, exp.strides)
-            self.assertTrue(imp.suboffsets is None)
-        finally:
-            imp = None
+        self.assertEqual(imp.readonly, exp.readonly)
+        self.assertEqual(imp.format, exp.format)
+        self.assertEqual(imp.itemsize, exp.itemsize)
+        self.assertEqual(imp.ndim, exp.ndim)
+        self.assertEqual(imp.shape, exp.shape)
+        self.assertEqual(imp.strides, exp.strides)
+        self.assertTrue(imp.suboffsets is None)
 
-    def NEWBUF_test_newbuf(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
         Exporter = self.buftools.Exporter
@@ -250,7 +237,8 @@ class BaseModuleTest(unittest.TestCase):
             v = BufferProxy(o)
             self.NEWBUF_assertSame(v, o)
 
-    def NEWBUF_test_bad_format(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_bad_format(self):
         from pygame.bufferproxy import BufferProxy
         from pygame.newbuffer import BufferMixin
         from ctypes import create_string_buffer, addressof
@@ -266,7 +254,8 @@ class BaseModuleTest(unittest.TestCase):
             b = BufferProxy(exp)
             self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
-    def NEWBUF_test_PgDict_AsBuffer_PyBUF_flags(self):
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    def test_PgDict_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
 
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
@@ -364,10 +353,9 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(b.buf, 1000000)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_FULL)
 
-    def NEWBUF_test_PgObject_AsBuffer_PyBUF_flags(self):
+    @unittest.skipIf(IS_PYPY or (not pygame.HAVE_NEWBUF), 'newbuf with ctypes')
+    def test_PgObject_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
-        if IS_PYPY:
-            return
         import ctypes
 
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN

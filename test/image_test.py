@@ -243,8 +243,6 @@ class ImageModuleTest( unittest.TestCase ):
             finally:
                 #clean up the temp file, comment out to leave tmp file after run.
                 os.remove(temp_filename)
-                pass
-
 
     def test_save_colorkey(self):
         """ make sure the color key is not changed when saving.
@@ -261,7 +259,6 @@ class ImageModuleTest( unittest.TestCase ):
             s2 = pygame.image.load(temp_filename)
         finally:
             os.remove(temp_filename)
-
 
         colorkey2 = s.get_colorkey()
         # check that the pixel and the colorkey is correct.

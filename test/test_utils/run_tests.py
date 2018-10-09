@@ -295,8 +295,9 @@ def run(*args, **kwds):
     meta['total_failures'] = n_failures
     results.update(meta_results)
 
-    if not option_usesubprocess:
-        assert total == untrusty_total
+    if not option_usesubprocess and total != untrusty_total:
+        raise AssertionError('Something went wrong in the Test Machinery:\n'
+                             'total: %d != untrusty_total: %d' % (total, untrusty_total))
 
     if not option_dump:
         print (combined)

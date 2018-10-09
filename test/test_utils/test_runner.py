@@ -106,7 +106,7 @@ return (first 10 and last 10 lines):
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
-DOTS = re.compile("^([FE.]*)$", re.MULTILINE)
+DOTS = re.compile("^([FE.sx]*)$", re.MULTILINE)
 
 def combine_results(all_results, t):
     """
@@ -148,15 +148,16 @@ def combine_results(all_results, t):
     total_tests = len(all_dots)
 
     combined = [all_dots]
-    if failures: combined += [''.join(failures).lstrip('\n')[:-1]]
+    if failures:
+        combined += [''.join(failures).lstrip('\n')[:-1]]
     combined += ["%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)]
 
-    if not failures: combined += ['OK\n']
-    else: combined += [
-        'FAILED (%s)\n' % ', '.join (
-            (total_fails  and ["failures=%s" % total_fails] or []) +
-            (total_errors and ["errors=%s"  % total_errors] or [])
-        )]
+    if failures:
+        infos = ((["failures=%s" % total_fails] if total_fails else []) +
+                 (["errors=%s"  % total_errors] if total_errors else []))
+        combined += ['FAILED (%s)\n' % ', '.join(infos)]
+    else:
+        combined += ['OK\n']
 
     return total_tests, '\n'.join(combined)
 

@@ -542,12 +542,11 @@ class PixelCopyTestWithArray(unittest.TestCase):
         del numpy
 
 
+@unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
 class PixelCopyTestWithArray(unittest.TestCase):
-    try:
+
+    if pygame.HAVE_NEWBUF:
         from pygame.tests.test_utils import buftools
-    except ImportError:
-        pass
-    else:
         class Array2D(buftools.Exporter):
             def __init__(self, initializer):
                 from ctypes import cast, POINTER, c_uint32
@@ -645,13 +644,6 @@ class PixelCopyTestWithArray(unittest.TestCase):
                        '1x', '2x', '3x', '5x', '6x', '7x', '9x']:
             exp = Exporter(shape, format=format)
             self.assertRaises(ValueError, array_to_surface, surface, exp)
-
-    if not pygame.HAVE_NEWBUF:
-        del test_surface_to_array_newbuf
-        del test_array_to_surface_newbuf
-        del test_map_array_newbuf
-        del test_make_surface_newbuf
-        del test_format_newbuf
 
 
 if __name__ == '__main__':
