@@ -403,14 +403,7 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 #endif
 
     if (helper->fileno != -1) {
-        if (!(offset == 0 &&
-             whence == SEEK_CUR)) /* being seek'd, not just tell'd */
-        {
-            if (lseek(helper->fileno, offset, whence) == -1) {
-                return -1;
-            }
-        }
-        return lseek(helper->fileno, 0, SEEK_CUR);
+        return lseek(helper->fileno, offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
@@ -665,14 +658,7 @@ _pg_rw_seek_th(SDL_RWops *context, Sint64 offset, int whence)
     PyGILState_STATE state;
 
     if (helper->fileno != -1) {
-        if (!(offset == 0 &&
-             whence == SEEK_CUR)) /* being seek'd, not just tell'd */
-        {
-            if (lseek(helper->fileno, offset, whence) == -1) {
-                return -1;
-            }
-        }
-        return lseek(helper->fileno, 0, SEEK_CUR);
+        return lseek(helper->fileno, offset, whence);
     }
 
     if (!helper->seek || !helper->tell)
