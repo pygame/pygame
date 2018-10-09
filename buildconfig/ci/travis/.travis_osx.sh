@@ -34,6 +34,11 @@ if [[ "$PY_VERSION" == "2" ]]; then
     export PATH="/usr/local/opt/python/libexec/bin:$PATH"
 fi
 
+if [ -e /usr/local/opt/python/libexec/bin/pip3 ]
+then
+	ln -s /usr/local/opt/python/libexec/bin/pip3 /usr/local/bin/pip3
+fi
+
 get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
 
 
