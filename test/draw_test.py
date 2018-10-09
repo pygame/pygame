@@ -4,8 +4,12 @@ import unittest
 
 import pygame
 from pygame import draw
+from pygame import draw_py
 from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
+
+RED = BG_RED = pygame.Color('red')
+GREEN = FG_GREEN = pygame.Color('green')
 
 
 def get_border_values(surface, width, height):
@@ -201,7 +205,160 @@ class DrawLineTest(unittest.TestCase):
                 self.assertTrue(all(no_gaps))
 
 
+class AntiAliasedLineMixin:
+    '''Mixin for tests of Anti Aliasing of Lines.
+    This is to be used in two concrete TestCase of C and Python algorithm.
+    '''
+
+    draw_aaline = None
+
+    def setUp(self):
+        self.surface = pygame.Surface((10, 10))
+        draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
+
+    def _check_antialiasing(self, from_point, to_point, should, check_points,
+                            set_endpoints=True):
+        '''Draw a line between two points and check colors of check_points.'''
+        if set_endpoints:
+            should[from_point] = should[to_point] = FG_GREEN
+        surf = self.surface
+        draw_line = self.draw_aaline
+
+        def check_one_direction(from_point, to_point, should):
+            draw_line(surf, FG_GREEN, from_point, to_point)
+            for pt in check_points:
+                color = should.get(pt, BG_RED)
+                self.assertEqual(surf.get_at(pt), color)
+            # reset
+            draw.rect(surf, FG_RED, (0, 0, 10, 10), 0)
+
+        # it is important to test also opposite direction, the algorithm
+        # is (#512) or was not symmetric
+        check_one_direction(from_point, to_point, should)
+        check_one_direction(to_point, from_point, should)
+
+    @unittest.expectedFailure
+    def test_short_non_antialiased_lines(self):
+        """test very short not anti aliased lines in all directions."""
+        # Horizontal, vertical and diagonal lines should not be antialiased,
+        # even with draw.aaline ...
+        check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
+
+        def check_both_directions(from_pt, to_pt, other_points):
+            should = {pt: FG_GREEN for pt in other_points}
+            self._check_antialiasing(from_pt, to_pt, should, check_points)
+
+        # 0. one point
+        check_both_directions((5, 5), (5, 5), [])
+        # 1. horizontal
+        check_both_directions((5, 5), (6, 5), [])
+        check_both_directions((5, 4), (7, 4), [(6, 4)])
+
+        # 2. vertical
+        check_both_directions((5, 5), (5, 6), [])
+        check_both_directions((6, 4), (6, 6), [(6, 5)])
+
+        # 3. diagonals
+        check_both_directions((5, 5), (6, 6), [])
+        check_both_directions((5, 5), (7, 7), [(6, 6)])
+        check_both_directions((5, 6), (6, 5), [])
+        check_both_directions((6, 4), (6, 4), [(5, 5)])
+
+    @unittest.expectedFailure
+    def test_short_line_anti_aliasing(self):
+        check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
+
+        def check_both_directions(from_pt, to_pt, should):
+            self._check_antialiasing(from_pt, to_pt, should, check_points)
+
+        # lets say dx = abs(x0 - x1) ; dy = abs(y0 - y1)
+        brown = (127, 127, 0)
+        # dy / dx = 0.5
+        check_both_directions((4, 4), (6, 5), {(5, 4): brown, (5, 5): brown})
+        check_both_directions((4, 5), (6, 4), {(5, 4): brown, (5, 5): brown})
+        # dy / dx = 2
+        check_both_directions((4, 4), (5, 6), {(4, 5): brown, (5, 5): brown})
+        check_both_directions((5, 4), (4, 6), {(4, 5): brown, (5, 5): brown})
+
+        # some little longer lines; so we need to check more points:
+        check_points = [(i, j) for i in range(2, 9) for j in range(2, 9)]
+        # dy / dx = 0.25
+        reddish = (191, 63, 0)
+        greenish = (63, 191, 0)
+        should = {(4, 3): greenish, (5, 3): brown, (6, 3): reddish,
+                  (4, 4): reddish,  (5, 4): brown, (6, 4): greenish}
+        check_both_directions((3, 3), (7, 4), should)
+        should = {(4, 3): reddish,  (5, 3): brown, (6, 3): greenish,
+                  (4, 4): greenish, (5, 4): brown, (6, 4): reddish}
+        check_both_directions((3, 4), (7, 3), should)
+        # dy / dx = 4
+        should = {(4, 4): greenish, (4, 5): brown, (4, 6): reddish,
+                  (5, 4): reddish,  (5, 5): brown, (5, 6): greenish,
+                 }
+        check_both_directions((4, 3), (5, 7), should)
+        should = {(4, 4): reddish,  (4, 5): brown, (4, 6): greenish,
+                  (5, 4): greenish, (5, 5): brown, (5, 6): reddish}
+        check_both_directions((5, 3), (4, 7), should)
+
+    @unittest.expectedFailure
+    def test_anti_aliasing_at_and_outside_the_border(self):
+        check_points = [(i, j) for i in range(10) for j in range(10)]
+
+        reddish = (191, 63, 0)
+        brown = (127, 127, 0)
+        greenish = (63, 191, 0)
+        from_point, to_point = (3, 3), (7, 4)
+        should = {(4, 3): greenish, (5, 3): brown, (6, 3): reddish,
+                  (4, 4): reddish,  (5, 4): brown, (6, 4): greenish}
+
+        for dx, dy in ((-4, 0), (4, 0), # moved to left and right borders
+                       (0, -5), (0, -4), (0, -3), # upper border
+                       (0, 5), (0,  6), (0,  7), # lower border
+                       (-4, -4), (-4, -3), (-3, -4)):  # upper left corner
+            first = from_point[0] + dx, from_point[1] + dy
+            second = to_point[0] + dx,  to_point[1] + dy
+            expected = {(pt[0] + dx, pt[1] + dy): color
+                        for pt, color in should.items()}
+            self._check_antialiasing(first, second, expected, check_points)
+
+    @unittest.expectedFailure
+    def test_anti_aliasing_with_float_coordinates(self):
+        '''Float coordinates are expected to be rounded to integer values.'''
+        check_points = [(i, j) for i in range(5) for j in range(5)]
+
+        expected = {(2, 2): FG_GREEN}
+        self._check_antialiasing((1.9, 1.8), (2.3, 2.4), expected,
+                                 check_points, set_endpoints=False)
+
+        expected = {(2, 2): FG_GREEN, (2, 3): FG_GREEN}
+        self._check_antialiasing((1.9, 1.8), (2.3, 2.6), expected,
+                                 check_points, set_endpoints=False)
+
+        expected = {(3, 2): FG_GREEN, (2, 3): FG_GREEN}
+        self._check_antialiasing((2.7, 1.8), (2.3, 2.6), expected,
+                                 check_points, set_endpoints=False)
+
+        brown = (127, 127, 0)
+        expected = {(4, 4): FG_GREEN, (6, 5): FG_GREEN, (5, 4): brown, (5, 5): brown}
+        self._check_antialiasing((4.1, 3.9), (5.8, 5.17), expected,
+                                 check_points, set_endpoints=False)
+
+
+class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
+    '''Line Antialising test for the C algorithm.'''
+
+    draw_aaline = draw.aaline
+
+
+class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
+    '''Line Antialising test for the Python algorithm.'''
+
+    draw_aaline = draw_py.draw_aaline
+
+
+
 class DrawModuleTest(unittest.TestCase):
+
     def setUp(self):
         (self.surf_w, self.surf_h) = self.surf_size = (320, 200)
         self.surf = pygame.Surface(self.surf_size, pygame.SRCALPHA)
@@ -374,10 +531,6 @@ class DrawModuleTest(unittest.TestCase):
 
         self.fail()
 
-
-RED = pygame.Color('red')
-GREEN = pygame.Color('green')
-
 SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
 DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
 CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
@@ -385,13 +538,13 @@ CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
          [2, 4], [0, 4], [0, 2], [2, 2])
 
 
-class DrawPolygonTest(unittest.TestCase):
+class DrawPolygonMixin:
 
     def setUp(self):
         self.surface = pygame.Surface((20, 20))
 
     def test_draw_square(self):
-        pygame.draw.polygon(self.surface, RED, SQUARE, 0)
+        self.draw_polygon(RED, SQUARE, 0)
         # note : there is a discussion (#234) if draw.polygon should include or
         # not the right or lower border; here we stick with current behavior,
         # eg include those borders ...
@@ -401,7 +554,7 @@ class DrawPolygonTest(unittest.TestCase):
 
     def test_draw_diamond(self):
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, DIAMOND, 0)
+        self.draw_polygon(GREEN, DIAMOND, 0)
         # this diamond shape is equivalent to its four corners, plus inner square
         for x, y in DIAMOND:
             self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
@@ -412,7 +565,7 @@ class DrawPolygonTest(unittest.TestCase):
     def test_1_pixel_high_or_wide_shapes(self):
         # 1. one-pixel-high, filled
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, [(x, 2) for x, y in CROSS], 0)
+        self.draw_polygon(GREEN, [(x, 2) for x, _y in CROSS], 0)
         cross_size = 6 # the maxium x or y coordinate of the cross
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 1)), RED)
@@ -420,21 +573,21 @@ class DrawPolygonTest(unittest.TestCase):
             self.assertEqual(self.surface.get_at((x, 3)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 2. one-pixel-high, not filled
-        pygame.draw.polygon(self.surface, GREEN, [(x, 5) for x, y in CROSS], 1)
+        self.draw_polygon(GREEN, [(x, 5) for x, _y in CROSS], 1)
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 4)), RED)
             self.assertEqual(self.surface.get_at((x, 5)), GREEN)
             self.assertEqual(self.surface.get_at((x, 6)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 3. one-pixel-wide, filled
-        pygame.draw.polygon(self.surface, GREEN, [(3, y) for x, y in CROSS], 0)
+        self.draw_polygon(GREEN, [(3, y) for _x, y in CROSS], 0)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((2, y)), RED)
             self.assertEqual(self.surface.get_at((3, y)), GREEN)
             self.assertEqual(self.surface.get_at((4, y)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 4. one-pixel-wide, not filled
-        pygame.draw.polygon(self.surface, GREEN, [(4, y) for x, y in CROSS], 1)
+        self.draw_polygon(GREEN, [(4, y) for _x, y in CROSS], 1)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((3, y)), RED)
             self.assertEqual(self.surface.get_at((4, y)), GREEN)
@@ -445,10 +598,9 @@ class DrawPolygonTest(unittest.TestCase):
 
         Also, the result is/was different wether we fill or not the polygon.
         '''
-
         # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, CROSS, 1)
+        self.draw_polygon(GREEN, CROSS, 1)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
@@ -463,7 +615,7 @@ class DrawPolygonTest(unittest.TestCase):
 
         # 2. case width = 0 (filled; this is the example from #234)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        pygame.draw.polygon(self.surface, GREEN, CROSS, 0)
+        self.draw_polygon(GREEN, CROSS, 0)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
@@ -502,7 +654,7 @@ class DrawPolygonTest(unittest.TestCase):
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
 
         # 1. First without the corners 4 & 5
-        pygame.draw.polygon(self.surface, GREEN, path_data[:4], 0)
+        self.draw_polygon(GREEN, path_data[:4], 0)
         for x in range(20):
             self.assertEqual(self.surface.get_at((x, 0)), GREEN)  # upper border
         for x in range(4, rect.width-5 +1):
@@ -510,10 +662,21 @@ class DrawPolygonTest(unittest.TestCase):
 
         # 2. with the corners 4 & 5
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
-        pygame.draw.polygon(self.surface, GREEN, path_data, 0)
+        self.draw_polygon(GREEN, path_data, 0)
         for x in range(4, rect.width-5 +1):
             self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
 
+
+class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
+
+    def draw_polygon(self, color, path, width):
+        draw.polygon(self.surface, color, path, width)
+
+
+class PythonDrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
+
+    def draw_polygon(self, color, path, width):
+        draw_py.draw_polygon(self.surface, color, path, width)
 
 
 ################################################################################
