@@ -376,27 +376,7 @@ _init(int freq, int size, int stereo, int chunk)
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return PyInt_FromLong(0);
         }
-#if MIX_MAJOR_VERSION >= 1 && MIX_MINOR_VERSION >= 2 && MIX_PATCHLEVEL >= 3
         Mix_ChannelFinished(endsound_callback);
-#endif
-
-        /* A bug in sdl_mixer where the stereo is reversed for 8 bit.
-           So we use this CPU hogging effect to reverse it for us.
-           Hopefully this bug is fixed in SDL_mixer 1.2.9
-        printf("MIX_MAJOR_VERSION :%d: MIX_MINOR_VERSION :%d: MIX_PATCHLEVEL
-        :%d: \n", MIX_MAJOR_VERSION, MIX_MINOR_VERSION, MIX_PATCHLEVEL);
-        */
-
-#if MIX_MAJOR_VERSION >= 1 && MIX_MINOR_VERSION >= 2 && MIX_PATCHLEVEL <= 8
-        if (fmt == AUDIO_U8) {
-            if (!Mix_SetReverseStereo(MIX_CHANNEL_POST, 1)) {
-                /* We do nothing... because might as well just let it go ahead.
-                 */
-                /* return RAISE (pgExc_SDLError, Mix_GetError());
-                 */
-            }
-        }
-#endif
 
         Mix_VolumeMusic(127);
     }
@@ -975,7 +955,6 @@ chan_set_volume(PyObject *self, PyObject *args)
         return NULL;
 
     MIXER_INIT_CHECK();
-#if MIX_MAJOR_VERSION >= 1 && MIX_MINOR_VERSION >= 2 && MIX_PATCHLEVEL >= 1
     if ((stereovolume <= -1.10f) && (stereovolume >= -1.12f)) {
         /* The normal volume will be used.  No panning.  so panning is
          * set to full.  this is incase it was set previously to
@@ -1004,10 +983,6 @@ chan_set_volume(PyObject *self, PyObject *args)
 
         volume = 1.0f;
     }
-#else
-    if (!((stereovolume <= -1.10f) && (stereovolume >= -1.12f)))
-        volume = (volume + stereovolume) * 0.5f;
-#endif
 
 #ifdef Py_DEBUG
     result =
