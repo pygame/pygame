@@ -34,9 +34,6 @@ if [[ "$PY_VERSION" == "2" ]]; then
     export PATH="/usr/local/opt/python/libexec/bin:$PATH"
 fi
 
-get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
-
-
 # try and install an old python3.6 formula
 if [[ "$PY_VERSION_" == "3.6" ]]; then
 	brew uninstall python --force --ignore-dependencies
@@ -44,6 +41,13 @@ if [[ "$PY_VERSION_" == "3.6" ]]; then
 	brew install pygame/portmidi/python
 	export PYTHON_EXE=python3.6
 	export PIP_CMD="python3.6 -m pip"
+elif [[ "$PY_VERSION_" == "3.7" ]]; then
+	brew uninstall python --force --ignore-dependencies
+	brew install python
+	export PYTHON_EXE=python3.7
+	export PIP_CMD="python3.7 -m pip"
+else
+	get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
 fi
 
 

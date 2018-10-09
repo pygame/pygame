@@ -37,6 +37,7 @@ matrix:
       language: generic
       env:
         - PY_VERSION=3
+        - PY_VERSION_=3.7
         - MAKEFLAGS=-j8
     - os: osx
       osx_image: xcode7.3
