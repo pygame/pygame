@@ -157,25 +157,33 @@ def clip_line(line, left, top, right, bottom):
 
 
 def clip_and_draw_line(surf, rect, color, pts):
+    '''clip the line into the rectangle and draw if needed.
+
+    Returns true if anything has been drawn, else false.'''
+    # "pts" is a list with the four coordinates of the two endpoints
+    # of the line to be drawn : pts = x1, y1, x2, y2.
+    # The data format is like that to stay closer to the C-algorithm.
     if not clip_line(pts, rect.x, rect.y, rect.x + rect.w - 1,
                     rect.y + rect.h - 1):
-        # not crossing the rectangle...
+        # The line segment defined by "pts" is not crossing the rectangle
         return 0
-    # pts ==  x1, y1, x2, y2 ...
-    if pts[1] == pts[3]:
+    if pts[1] == pts[3]:  #  eg y1 == y2
         drawhorzline(surf, color, pts[0], pts[1], pts[2])
-    elif pts[0] == pts[2]:
+    elif pts[0] == pts[2]: #  eg x1 == x2
         drawvertline(surf, color, pts[0], pts[1], pts[3])
     else:
-        draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
+        _draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
     return 1
 
 
-# Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-# This strongly differs from craw.c implementation, because we do not
-# handle BytesPerPixel, and we use "slope" and "error" variables.
-def draw_line(surf, color, x1, y1, x2, y2):
-
+def _draw_line(surf, color, x1, y1, x2, y2):
+    '''draw a non-horizontal line (without anti-aliasing).'''
+    # Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+    #
+    # This strongly differs from craw.c implementation, because we use a
+    # "slope" variable (instead of delta_x and delta_y) and a "error" variable.
+    # And we can not do pointer-arithmetic with "BytesPerPixel", like in
+    # the C-algorithm.
     if x1 == x2:
         # This case should not happen...
         raise ValueError
@@ -185,12 +193,14 @@ def draw_line(surf, color, x1, y1, x2, y2):
 
     if slope < 1:
         # Here, it's a rather horizontal line
+
         # 1. check in which octants we are & set init values
         if x2 < x1:
             x1, x2 = x2, x1
             y1, y2 = y2, y1
         y = y1
         dy_sign = 1 if (y1 < y2) else -1
+
         # 2. step along x coordinate
         for x in range(x1, x2 + 1):
             set_at(surf, x, y, color)
@@ -200,6 +210,7 @@ def draw_line(surf, color, x1, y1, x2, y2):
                 error -= 1
     else:
         # Case of a rather vertical line
+
         # 1. check in which octants we are & set init values
         if y1 > y2:
             x1, x2 = x2, x1
