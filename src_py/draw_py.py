@@ -83,13 +83,16 @@ def drawvertlineclip(surf, color, x, y_from, y_to):
 
     drawvertline(surf, color, x, y_from, y_to)
 
-
+# These constans xxx_EDGE are "outside-the-bounding-box"-flags
 LEFT_EDGE = 0x1
 RIGHT_EDGE = 0x2
 BOTTOM_EDGE = 0x4
 TOP_EDGE = 0x8
 
 def encode(x, y, left, top, right, bottom):
+    '''returns a code that defines position with respect to a bounding box'''
+    # we use the fact that python interprets booleans (the inqualities)
+    # as 0/1, and then multiply them with the xxx_EDGE flags
     return ((x < left) *  LEFT_EDGE +
             (x > right) * RIGHT_EDGE +
             (y < top) * TOP_EDGE +
@@ -102,19 +105,31 @@ REJECT = lambda a, b: a and b
 
 
 def clip_line(line, left, top, right, bottom):
+    '''Algorithm to calculate the clipped line.
+
+    We calculate the coordinates of the part of the line segment within the
+    bounding box (defined by left, top, right, bottom). The we write
+    the coordinates of the line segment into "line", much like the C-algorithm.
+
+    Returns: true if the line segment cuts the bounding box (false otherwise)
+    '''
     assert isinstance(line, list)
     x1, y1, x2, y2 = line
 
     while True:
+        # the coordinates are progressively modified with the codes,
+        # until they are either rejected or correspond to the final result.
         code1 = encode(x1, y1, left, top, right, bottom)
         code2 = encode(x2, y2, left, top, right, bottom)
 
         if ACCEPT(code1, code2):
+            # write coordinates into "line" !
             line[:] = x1, y1, x2, y2
             return True
         if REJECT(code1, code2):
             return False
 
+        # We operate on the (x1, y1) point, and swap if it is inside the bbox:
         if INSIDE(code1):
             x1, x2 = x2, x1
             y1, y2 = y2, y1
@@ -123,6 +138,8 @@ def clip_line(line, left, top, right, bottom):
             m = (y2 - y1) / float(x2 - x1)
         else:
             m = 1.0
+        # Each case, if true, means that we are outside the border:
+        # calculate x1 and y1 to be the "first point" inside the bbox...
         if code1 & LEFT_EDGE:
             y1 += int((left - x1) * m)
             x1 = left
