@@ -732,7 +732,14 @@ class Vector2TypeTest(unittest.TestCase):
 
         vec = Vector()
 
-        self.assertRaises(TypeError, lambda : vec.__imul__(1.0))
+        try:
+            vec_a = Vector(2, 0)
+            vec_b = Vector(0, 1)
+
+            vec_a + vec_b
+            vec_a *= 2
+        except:
+            self.fail()
 
 
 
