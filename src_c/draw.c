@@ -249,11 +249,17 @@ aalines(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 1 points");
 
+    for(loop = 0; loop < length; ++loop) {
+        item = PySequence_GetItem(points, loop);
+        result = pg_TwoIntsFromObj(item, &x, &y);
+        Py_DECREF(item);
+        if(!result)
+            return RAISE(PyExc_TypeError, "all points must be number pairs");
+    }
+
     item = PySequence_GetItem(points, 0);
     result = pg_TwoFloatsFromObj(item, &x, &y);
     Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
 
     startx = pts[0] = x;
     starty = pts[1] = y;
@@ -268,8 +274,6 @@ aalines(PyObject *self, PyObject *arg)
         item = PySequence_GetItem(points, loop);
         result = pg_TwoFloatsFromObj(item, &x, &y);
         Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
         ++drawn;
         pts[0] = startx;
         pts[1] = starty;
@@ -342,11 +346,17 @@ lines(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 1 points");
 
+    for(loop = 0; loop < length; ++loop) {
+        item = PySequence_GetItem(points, loop);
+        result = pg_TwoIntsFromObj(item, &x, &y);
+        Py_DECREF(item);
+        if(!result)
+            return RAISE(PyExc_TypeError, "all points must be number pairs");
+    }
+
     item = PySequence_GetItem(points, 0);
     result = pg_TwoIntsFromObj(item, &x, &y);
     Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
 
     startx = pts[0] = left = right = x;
     starty = pts[1] = top = bottom = y;
@@ -362,8 +372,6 @@ lines(PyObject *self, PyObject *arg)
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);
         Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
         ++drawn;
         pts[0] = startx;
         pts[1] = starty;
@@ -628,11 +636,17 @@ polygon(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 2 points");
 
+    for(loop = 0; loop < length; ++loop) {
+        item = PySequence_GetItem(points, loop);
+        result = pg_TwoIntsFromObj(item, &x, &y);
+        Py_DECREF(item);
+        if(!result)
+            return RAISE(PyExc_TypeError, "all points must be number pairs");
+    }
+
     item = PySequence_GetItem(points, 0);
     result = pg_TwoIntsFromObj(item, &x, &y);
     Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
     left = right = x;
     top = bottom = y;
 
@@ -644,8 +658,6 @@ polygon(PyObject *self, PyObject *arg)
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);
         Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
         xlist[numpoints] = x;
         ylist[numpoints] = y;
         ++numpoints;
