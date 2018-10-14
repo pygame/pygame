@@ -726,6 +726,15 @@ class Vector2TypeTest(unittest.TestCase):
         v.from_polar((1, 0))
         self.assertEqual(v, self.e1)
 
+    def test_subclass_operation(self):
+        class Vector(pygame.math.Vector2):
+            pass
+
+        vec = Vector()
+
+        self.assertRaises(TypeError, lambda : vec.__imul__(1.0))
+
+
 
 class Vector3TypeTest(unittest.TestCase):
 

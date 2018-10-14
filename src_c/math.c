@@ -592,10 +592,14 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
         vec = (pgVector *)o1;
         other = o2;
     }
-    else {
+    else if (pgVector_Check(o2)) {
         vec = (pgVector *)o2;
         other = o1;
         op |= OP_ARG_REVERSE;
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Operation on non-Vector type.");
+        return NULL;
     }
     dim = vec->dim;
     vec_coords = vec->coords;
