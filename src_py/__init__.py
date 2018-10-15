@@ -392,9 +392,11 @@ def __color_reduce(c):
 copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
+# Thanks for supporting pygame. Without support now, there won't be pygame later.
+if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
+    print('pygame %s' % ver)
+    print('Hello from the pygame community. https://www.pygame.org/contribute.html')
+
+
 # cleanup namespace
 del pygame, os, sys, surflock, MissingModule, copy_reg, PY_MAJOR_VERSION
-
-# Thanks for supporting pygame. Without support now, there won't be pygame later.
-print('pygame %s' % ver)
-print('Hello from the pygame community. https://www.pygame.org/contribute.html')
