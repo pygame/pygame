@@ -75,8 +75,8 @@ static PyTypeObject pgVector3_Type;
 static PyTypeObject pgVectorElementwiseProxy_Type;
 static PyTypeObject pgVectorIter_Type;
 
-#define pgVector2_Check(x) (Py_TYPE(x) == &pgVector2_Type)
-#define pgVector3_Check(x) (Py_TYPE(x) == &pgVector3_Type)
+#define pgVector2_Check(x) (PyType_IsSubtype(Py_TYPE(x), &pgVector2_Type))
+#define pgVector3_Check(x) (PyType_IsSubtype(Py_TYPE(x), &pgVector3_Type))
 #define pgVector_Check(x) (pgVector2_Check(x) || pgVector3_Check(x))
 #define vector_elementwiseproxy_Check(x) \
     (Py_TYPE(x) == &pgVectorElementwiseProxy_Type)
@@ -597,6 +597,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
         other = o1;
         op |= OP_ARG_REVERSE;
     }
+
     dim = vec->dim;
     vec_coords = vec->coords;
 
