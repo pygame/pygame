@@ -155,7 +155,7 @@ def add_fontPaths_from_subelements(sub_elements, fonts):
 
             bold = "bold" in font_name
             italic = "italic" in font_name
-                    
+
         if tag.text == "path" and font_name is not None:
             font_path = next(sub_elements).text
             _addfont(_simplename(font_name),bold,italic,font_path,fonts)
@@ -167,7 +167,7 @@ def system_profiler_darwin():
     try:
         #Get the Font info via xml using system_profiler command
         system_profiler_process = subprocess.run(['system_profiler','-xml','SPFontsDataType'], stdout=subprocess.PIPE,text=True)
-        
+
         #Check if system_profiler returned with success
         if system_profiler_process.returncode != 0:
             raise Exception
