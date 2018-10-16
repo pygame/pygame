@@ -148,8 +148,108 @@ def initsysfonts_darwin():
     # disc
     elif exists("/usr/X11R6/bin/fc-list"):
         fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
+    elif exists("/usr/sbin/system_profiler"):
+        fonts = initsysfonts_macos("/usr/sbin/system_profiler")
     else:
         fonts = {}
+
+    return fonts
+
+
+def _add_sys_font_inner(current_font, fonts):
+
+    font_style = current_font['style'].lower()
+
+    bold = 'bold' in font_style
+    italic = 'italic' in font_style
+    oblique = 'oblique' in font_style
+
+    _addfont(
+        _simplename(current_font['full name']), bold, italic or oblique, current_font['path'],
+        fonts)
+
+
+def _add_sys_font(current_font, multiple_fonts, fonts):
+
+    for font_item in multiple_fonts:
+        _add_sys_font_inner(font_item, fonts)
+
+    if current_font:
+        _add_sys_font_inner(current_font, fonts)
+
+
+# read the fonts using system_profiler on macOS
+def initsysfonts_macos(path="/usr/sbin/system_profiler"):
+    """use system_profiler get a list of fonts"""
+    fonts = {}
+
+    arguments = "SPFontsDataType | grep -i -e 'location' -e 'family' -e 'style' -e 'name'"
+
+    try:
+        flout, flerr = subprocess.Popen('%s : %s' % (path, arguments), shell=True,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        close_fds=True).communicate()
+    except Exception:
+        return fonts
+
+    entries = toascii(flout)
+
+    parsing_font = False
+    current_font = {}
+
+    multiple_fonts = []
+
+    lines = entries.split('\n')
+                
+    try:
+        for line in lines:
+
+            try:
+                key, value = line.split(':', 1)
+
+                key = key.strip().lower()
+                value = value.strip().replace(':', "")
+
+                if not value:
+                    continue
+
+                if parsing_font and (os.path.exists(value)):
+
+                    _add_sys_font(current_font, multiple_fonts, fonts)
+
+                    current_font.clear()
+                    multiple_fonts = []
+                    parsing_font = False
+
+                if not parsing_font and os.path.exists(value):
+                    
+                    if splitext(value)[1].lower() in OpenType_extensions:
+
+                        parsing_font = True
+                        current_font['path'] = value
+
+                        continue
+
+                if key.lower() in current_font:
+
+                    font_path = current_font['path']
+
+                    multiple_fonts.append(current_font.copy())
+                    current_font.clear()
+                    current_font['path'] = font_path
+                    current_font[key] = value
+
+                else:
+                    current_font[key] = value
+
+            except Exception:
+                # try the next one.
+                pass
+
+    except Exception:
+        pass
+
+    _add_sys_font(current_font, multiple_fonts, fonts)
 
     return fonts
 
