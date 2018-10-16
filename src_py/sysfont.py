@@ -139,64 +139,63 @@ def initsysfonts_win32():
     return fonts
 
 
-def fetch_elements_from_xmlString(xml_string, Xpath):
-    """Gets the specified element iterable"""
-    return ET.fromstring(xml_string).iterfind(Xpath)
-
-def add_fontPaths_from_subelements(sub_elements, fonts):
+def _add_font_paths_from_subelements(sub_elements, fonts):
     """Gets each element, checks its tag content, if wanted fetches the next value in the iterable"""
     font_name = font_path = None
     for tag in sub_elements:
         if tag.text == "_name":
             font_name = next(sub_elements).text
-
             if splitext(font_name)[1] not in OpenType_extensions:
                 break
-
             bold = "bold" in font_name
             italic = "italic" in font_name
-
         if tag.text == "path" and font_name is not None:
             font_path = next(sub_elements).text
             _addfont(_simplename(font_name),bold,italic,font_path,fonts)
             break
 
 
-def system_profiler_darwin():
+def _system_profiler_darwin():
     fonts = {}
-    try:
-        #Get the Font info via xml using system_profiler command
-        system_profiler_process = subprocess.run(['system_profiler','-xml','SPFontsDataType'], stdout=subprocess.PIPE,text=True)
+    cmd = ' '.join(['system_profiler', '-xml','SPFontsDataType'])
+    flout, flerr = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        close_fds=True
+    ).communicate()
 
-        #Check if system_profiler returned with success
-        if system_profiler_process.returncode != 0:
-            raise Exception
-
-        mac_fonts_xml = system_profiler_process.stdout
-
-    except Exception:
-        return fonts
-
-    try:
-        #Get the wanted nodes from the XML string as an Element iterable object
-        font_xml_elements = fetch_elements_from_xmlString(mac_fonts_xml, "./array/dict/array/dict")
-
-        #Iterate over the fetched object and add it to the fonts dictionary
-        for font_node in font_xml_elements:
-            #Gets all the subelements from the dict elements
-            all_sub_elements = font_node.iter("*")
-            add_fontPaths_from_subelements(all_sub_elements, fonts)
-
-    except Exception:
-        return fonts
+    font_xml_elements = (
+        ET.fromstring(flout)
+        .iterfind('./array/dict/array/dict')
+    )
+    for font_node in font_xml_elements:
+        _add_font_paths_from_subelements(font_node.iter("*"), fonts)
 
     return fonts
 
 
 
 def initsysfonts_darwin():
-    """Use system_profiler to provide locations of the fonts"""
-    fonts = system_profiler_darwin()
+    """ Read the fonts on MacOS, and OS X.
+    """
+    # if the X11 binary exists... try and use that.
+    #  Not likely to be there on pre 10.4.x ... or MacOS 10.10+
+    if exists('/usr/X11/bin/fc-list'):
+        fonts = initsysfonts_unix('/usr/X11/bin/fc-list')
+    # This fc-list path will work with the X11 from the OS X 10.3 installation
+    # disc
+    elif exists('/usr/X11R6/bin/fc-list'):
+        fonts = initsysfonts_unix('/usr/X11R6/bin/fc-list')
+    elif exists('/usr/sbin/system_profiler'):
+        try:
+            fonts = _system_profiler_darwin()
+        except:
+            fonts = {}
+    else:
+        fonts = {}
+
     return fonts
 
 
