@@ -242,6 +242,40 @@ class DrawLineTest(unittest.TestCase):
                 # make sure, nothing was drawn :
                 self.assertTrue(all(surf.get_at(pt) == RED for pt in check_pts))
 
+    @unittest.expectedFailure # aaline and aalines do not accept a number
+    def test_color_validation(self):
+        surf = pygame.Surface((10, 10))
+        colors = 123456, (1, 10, 100), RED # but not '#ab12df' or 'red' ...
+        points = ((0, 0), (1, 1), (1, 0))
+        # 1. valid colors
+        for col in colors:
+            draw.line(surf, col, (0, 0), (1, 1))
+            draw.aaline(surf, col, (0, 0), (1, 1))
+            draw.aalines(surf, col, True, points)
+            draw.lines(surf, col, True, points)
+            draw.arc(surf, col, pygame.Rect(0, 0, 3, 3), 15, 150)
+            draw.ellipse(surf, col, pygame.Rect(0, 0, 3, 6), 1)
+            draw.circle(surf, col, (7, 3), 2)
+            draw.polygon(surf, col, points, 0)
+        # 2. invalid colors
+        for col in ('invalid', 1.256, object(), None, '#ab12df', 'red'):
+            with self.assertRaises(TypeError):
+                draw.line(surf, col, (0, 0), (1, 1))
+            with self.assertRaises(TypeError):
+                draw.aaline(surf, col, (0, 0), (1, 1))
+            with self.assertRaises(TypeError):
+                draw.aalines(surf, col, True, points)
+            with self.assertRaises(TypeError):
+                draw.lines(surf, col, True, points)
+            with self.assertRaises(TypeError):
+                draw.arc(surf, col, pygame.Rect(0, 0, 3, 3), 15, 150)
+            with self.assertRaises(TypeError):
+                draw.ellipse(surf, col, pygame.Rect(0, 0, 3, 6), 1)
+            with self.assertRaises(TypeError):
+                draw.circle(surf, col, (7, 3), 2)
+            with self.assertRaises(TypeError):
+                draw.polygon(surf, col, points, 0)
+
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
