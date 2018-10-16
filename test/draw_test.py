@@ -242,7 +242,6 @@ class DrawLineTest(unittest.TestCase):
                 # make sure, nothing was drawn :
                 self.assertTrue(all(surf.get_at(pt) == RED for pt in check_pts))
 
-    @unittest.expectedFailure # aaline and aalines do not accept a number
     def test_color_validation(self):
         surf = pygame.Surface((10, 10))
         colors = 123456, (1, 10, 100), RED # but not '#ab12df' or 'red' ...

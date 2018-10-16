@@ -72,6 +72,17 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
 static void
 draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
 
+// validation of a draw color
+#define CHECK_LOAD_COLOR(colorobj)                                         \
+    if (PyInt_Check(colorobj))                                             \
+        color = (Uint32)PyInt_AsLong(colorobj);                            \
+    else if (pg_RGBAFromColorObj(colorobj, rgba))                          \
+        color =                                                            \
+            SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]); \
+    else                                                                   \
+        return RAISE(PyExc_TypeError, "invalid color argument");
+
+
 static PyObject *
 aaline(PyObject *self, PyObject *arg)
 {
@@ -96,10 +107,7 @@ aaline(PyObject *self, PyObject *arg)
             PyExc_ValueError,
             "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
-    if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (!pg_TwoFloatsFromObj(start, &startx, &starty))
         return RAISE(PyExc_TypeError, "Invalid start position argument");
@@ -163,12 +171,7 @@ line(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (!pg_TwoIntsFromObj(start, &startx, &starty))
         return RAISE(PyExc_TypeError, "Invalid start position argument");
@@ -234,10 +237,7 @@ aalines(PyObject *self, PyObject *arg)
             PyExc_ValueError,
             "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
-    if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     closed = PyObject_IsTrue(closedobj);
 
@@ -325,12 +325,7 @@ lines(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     closed = PyObject_IsTrue(closedobj);
 
@@ -422,12 +417,7 @@ arc(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0)
         return RAISE(PyExc_ValueError, "negative width");
@@ -479,12 +469,7 @@ ellipse(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0)
         return RAISE(PyExc_ValueError, "negative width");
@@ -536,12 +521,7 @@ circle(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (radius < 0)
         return RAISE(PyExc_ValueError, "negative radius");
@@ -613,12 +593,7 @@ polygon(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (!PySequence_Check(points))
         return RAISE(PyExc_TypeError,
