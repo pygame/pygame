@@ -569,7 +569,7 @@ polygon(PyObject *self, PyObject *arg)
     SDL_Surface *surf;
     Uint8 rgba[4];
     Uint32 color;
-    int width = 0, length, loop, numpoints;
+    int width = 0, length, loop;
     int *xlist, *ylist;
     int x, y, top, left, bottom, right, result;
 
@@ -603,27 +603,23 @@ polygon(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 2 points");
 
-    item = PySequence_GetItem(points, 0);
-    result = pg_TwoIntsFromObj(item, &x, &y);
-    Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
-    left = right = x;
-    top = bottom = y;
+    left = top = 10000;
+    right = bottom = -10000;
 
     xlist = PyMem_New(int, length);
     ylist = PyMem_New(int, length);
 
-    numpoints = 0;
     for (loop = 0; loop < length; ++loop) {
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);
         Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
-        xlist[numpoints] = x;
-        ylist[numpoints] = y;
-        ++numpoints;
+        if (!result) {
+            PyMem_Del(xlist);
+            PyMem_Del(ylist);
+            return RAISE(PyExc_TypeError, "points must be number pairs");
+        }
+        xlist[loop] = x;
+        ylist[loop] = y;
         left = MIN(x, left);
         top = MIN(y, top);
         right = MAX(x, right);
@@ -636,7 +632,7 @@ polygon(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    draw_fillpoly(surf, xlist, ylist, numpoints, color);
+    draw_fillpoly(surf, xlist, ylist, length, color);
 
     PyMem_Del(xlist);
     PyMem_Del(ylist);
