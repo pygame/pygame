@@ -1576,6 +1576,14 @@ class Vector3TypeTest(unittest.TestCase):
         v3 = Vector3(1, 2, 3)
         self.assertEqual(pickle.loads(pickle.dumps(v2)), v2)
         self.assertEqual(pickle.loads(pickle.dumps(v3)), v3)
+    
+    @unittest.expectedFailure
+    def testVector2Subclass(self):
+        class Vector(pygame.math.Vector2):
+            pass
+        v = Vector(2.0, 2.0)
+        v *= 2
+        self.assertEqual(v, (4.0, 4.0))
 
 
 if __name__ == '__main__':
