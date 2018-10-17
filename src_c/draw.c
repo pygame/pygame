@@ -906,6 +906,15 @@ clipaaline(float *pts, int left, int top, int right, int bottom)
 static int
 clipline(int *pts, int left, int top, int right, int bottom)
 {
+    /*
+     * Algorithm to calculate the clipped line.
+     *
+     * We write the coordinates of the part of the line
+     * segment within the bounding box defined
+     * by (left, top, right, bottom) into the "pts" array.
+     * Returns 0 if we don't have to draw anything, eg if the
+     * segment defined throuth "pts" doesn't cross the bounding box.
+     */
     int x1 = pts[0];
     int y1 = pts[1];
     int x2 = pts[2];
@@ -920,6 +929,10 @@ clipline(int *pts, int left, int top, int right, int bottom)
         code2 = encode(x2, y2, left, top, right, bottom);
         if (ACCEPT(code1, code2)) {
             draw = 1;
+            pts[0] = x1;
+            pts[1] = y1;
+            pts[2] = x2;
+            pts[3] = y2;
             break;
         }
         else if (REJECT(code1, code2))
@@ -953,12 +966,6 @@ clipline(int *pts, int left, int top, int right, int bottom)
                 y1 = top;
             }
         }
-    }
-    if (draw) {
-        pts[0] = x1;
-        pts[1] = y1;
-        pts[2] = x2;
-        pts[3] = y2;
     }
     return draw;
 }
