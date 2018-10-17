@@ -313,8 +313,7 @@ lines(PyObject *self, PyObject *arg)
     Uint8 rgba[4];
     Uint32 color;
     int closed;
-    int result, loop, length, drawn;
-    int startx, starty;
+    int result, loop, length;
     int *xlist, *ylist;
 
     /*get all the arguments*/
@@ -361,42 +360,33 @@ lines(PyObject *self, PyObject *arg)
         bottom = MAX(y, bottom);
     }
 
-    startx = pts[0] = left = right = xlist[0];
-    starty = pts[1] = top = bottom = ylist[0];
-
     if (width < 1)
         return pgRect_New4(left, top, 0, 0);
 
-    if (!pgSurface_Lock(surfobj))
+    if (!pgSurface_Lock(surfobj)) {
+        PyMem_Del(xlist);
+        PyMem_Del(ylist);
         return NULL;
-
-    drawn = 1;
-    for (loop = 1; loop < length; ++loop) {
-        x = xlist[loop];
-        y = ylist[loop];
-
-        ++drawn;
-        pts[0] = startx;
-        pts[1] = starty;
-        startx = pts[2] = x;
-        starty = pts[3] = y;
-        if (clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
-                                     pts)) {
-            left = MIN(MIN(pts[0], pts[2]), left);
-            top = MIN(MIN(pts[1], pts[3]), top);
-            right = MAX(MAX(pts[0], pts[2]), right);
-            bottom = MAX(MAX(pts[1], pts[3]), bottom);
-        }
     }
-    if (closed && drawn > 2) {
-        pts[0] = startx;
-        pts[1] = starty;
+
+    for (loop = 1; loop < length; ++loop) {
+
+        pts[0] = xlist[loop - 1];
+        pts[1] = ylist[loop - 1];
+        pts[2] = xlist[loop];
+        pts[3] = ylist[loop];
+        clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
+    }
+    if (closed && length > 2) {
+        pts[0] = xlist[length - 1];
+        pts[1] = ylist[length - 1];
         pts[2] = xlist[0];
         pts[3] = ylist[0];
-        clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
-                                 pts);
+        clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
     }
 
+    PyMem_Del(xlist);
+    PyMem_Del(ylist);
     if (!pgSurface_Unlock(surfobj))
         return NULL;
 
