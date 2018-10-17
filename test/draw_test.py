@@ -204,7 +204,6 @@ class DrawLineTest(unittest.TestCase):
                 no_gaps = lines_have_gaps(surface, draw_lines)
                 self.assertTrue(all(no_gaps))
 
-    @unittest.expectedFailure
     def test_path_data_validation(self):
         '''Test validation of multi-point drawing methods.
 

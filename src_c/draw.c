@@ -223,8 +223,7 @@ aalines(PyObject *self, PyObject *arg)
     Uint8 rgba[4];
     Uint32 color;
     int closed, blend;
-    int result, loop, length, drawn;
-    float startx, starty;
+    int result, loop, length;
     float *xlist, *ylist;
 
     /*get all the arguments*/
@@ -273,53 +272,25 @@ aalines(PyObject *self, PyObject *arg)
         bottom = MAX(y, bottom);
     }
 
-    item = PySequence_GetItem(points, 0);
-    result = pg_TwoFloatsFromObj(item, &x, &y);
-    Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
-
-    startx = pts[0] = x;
-    starty = pts[1] = y;
-    left = right = x;
-    top = bottom = y;
-
     if (!pgSurface_Lock(surfobj)) {
         PyMem_Del(xlist);
         PyMem_Del(ylist);
         return NULL;
     }
 
-    drawn = 1;
     for (loop = 1; loop < length; ++loop) {
-        item = PySequence_GetItem(points, loop);
-        result = pg_TwoFloatsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
-        ++drawn;
-        pts[0] = startx;
-        pts[1] = starty;
-        startx = pts[2] = x;
-        starty = pts[3] = y;
-        if (clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend)) {
-            left = MIN(MIN(pts[0], pts[2]), left);
-            top = MIN(MIN(pts[1], pts[3]), top);
-            right = MAX(MAX(pts[0], pts[2]), right);
-            bottom = MAX(MAX(pts[1], pts[3]), bottom);
-        }
+        pts[0] = xlist[loop - 1];
+        pts[1] = ylist[loop - 1];
+        pts[2] = xlist[loop];
+        pts[3] = ylist[loop];
+        clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
     }
-    if (closed && drawn > 2) {
-        item = PySequence_GetItem(points, 0);
-        result = pg_TwoFloatsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (result) {
-            pts[0] = startx;
-            pts[1] = starty;
-            pts[2] = x;
-            pts[3] = y;
-            clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
-        }
+    if (closed && length > 2) {
+        pts[0] = xlist[length - 1];
+        pts[1] = ylist[length - 1];
+        pts[2] = xlist[0];
+        pts[3] = ylist[0];
+        clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
     }
 
     PyMem_Del(xlist);
