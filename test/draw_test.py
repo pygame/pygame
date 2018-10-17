@@ -205,6 +205,9 @@ class DrawLineTest(unittest.TestCase):
                 self.assertTrue(all(no_gaps))
 
     def test_invalid_points(self):
+        """Test if draw.aalines and draw.lines throw a TypeError if
+        we pass invalid points to them.
+        """
         surface = pygame.Surface((20, 20))
         for draw_lines in [draw.lines, draw.aalines]:
             self.assertRaises(TypeError, lambda: draw_lines(
