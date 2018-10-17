@@ -204,6 +204,13 @@ class DrawLineTest(unittest.TestCase):
                 no_gaps = lines_have_gaps(surface, draw_lines)
                 self.assertTrue(all(no_gaps))
 
+    def test_invalid_points(self):
+        surface = pygame.Surface((20, 20))
+        for draw_lines in [draw.lines, draw.aalines]:
+            self.assertRaises(TypeError, lambda: draw_lines(
+                              surface, (255, 255, 255), True,
+                              ((0, 0), (20, 20), 0)))
+
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
