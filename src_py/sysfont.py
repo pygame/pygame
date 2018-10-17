@@ -139,8 +139,10 @@ def initsysfonts_win32():
     return fonts
 
 
-def _add_font_paths_from_subelements(sub_elements, fonts):
-    """Gets each element, checks its tag content, if wanted fetches the next value in the iterable"""
+def _add_font_paths(sub_elements, fonts):
+    """ Gets each element, checks its tag content,
+        if wanted fetches the next value in the iterable
+    """
     font_name = font_path = None
     for tag in sub_elements:
         if tag.text == "_name":
@@ -157,21 +159,16 @@ def _add_font_paths_from_subelements(sub_elements, fonts):
 
 def _system_profiler_darwin():
     fonts = {}
-    cmd = ' '.join(['system_profiler', '-xml','SPFontsDataType'])
     flout, flerr = subprocess.Popen(
-        cmd,
+        ' '.join(['system_profiler', '-xml','SPFontsDataType']),
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         close_fds=True
     ).communicate()
 
-    font_xml_elements = (
-        ET.fromstring(flout)
-        .iterfind('./array/dict/array/dict')
-    )
-    for font_node in font_xml_elements:
-        _add_font_paths_from_subelements(font_node.iter("*"), fonts)
+    for font_node in ET.fromstring(flout).iterfind('./array/dict/array/dict'):
+        _add_font_paths(font_node.iter("*"), fonts)
 
     return fonts
 
