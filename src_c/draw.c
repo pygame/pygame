@@ -315,6 +315,7 @@ lines(PyObject *self, PyObject *arg)
     int closed;
     int result, loop, length, drawn;
     int startx, starty;
+    int *xlist, *ylist;
 
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
@@ -337,14 +338,31 @@ lines(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 1 points");
 
-    item = PySequence_GetItem(points, 0);
-    result = pg_TwoIntsFromObj(item, &x, &y);
-    Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
+    left = top = 10000;
+    right = bottom = -10000;
 
-    startx = pts[0] = left = right = x;
-    starty = pts[1] = top = bottom = y;
+    xlist = PyMem_New(int, length);
+    ylist = PyMem_New(int, length);
+
+    for (loop = 0; loop < length; ++loop) {
+        item = PySequence_GetItem(points, loop);
+        result = pg_TwoIntsFromObj(item, &x, &y);
+        Py_DECREF(item);
+        if (!result) {
+            PyMem_Del(xlist);
+            PyMem_Del(ylist);
+            return RAISE(PyExc_TypeError, "points must be number pairs");
+        }
+        xlist[loop] = x;
+        ylist[loop] = y;
+        left = MIN(x, left);
+        top = MIN(y, top);
+        right = MAX(x, right);
+        bottom = MAX(y, bottom);
+    }
+
+    startx = pts[0] = left = right = xlist[0];
+    starty = pts[1] = top = bottom = ylist[0];
 
     if (width < 1)
         return pgRect_New4(left, top, 0, 0);
@@ -354,11 +372,9 @@ lines(PyObject *self, PyObject *arg)
 
     drawn = 1;
     for (loop = 1; loop < length; ++loop) {
-        item = PySequence_GetItem(points, loop);
-        result = pg_TwoIntsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
+        x = xlist[loop];
+        y = ylist[loop];
+
         ++drawn;
         pts[0] = startx;
         pts[1] = starty;
@@ -373,17 +389,12 @@ lines(PyObject *self, PyObject *arg)
         }
     }
     if (closed && drawn > 2) {
-        item = PySequence_GetItem(points, 0);
-        result = pg_TwoIntsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (result) {
-            pts[0] = startx;
-            pts[1] = starty;
-            pts[2] = x;
-            pts[3] = y;
-            clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
-                                     pts);
-        }
+        pts[0] = startx;
+        pts[1] = starty;
+        pts[2] = xlist[0];
+        pts[3] = ylist[0];
+        clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
+                                 pts);
     }
 
     if (!pgSurface_Unlock(surfobj))
