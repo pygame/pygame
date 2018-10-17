@@ -218,13 +218,14 @@ aalines(PyObject *self, PyObject *arg)
     PyObject *surfobj, *colorobj, *closedobj, *points, *item;
     SDL_Surface *surf;
     float x, y;
-    int top, left, bottom, right;
+    float top, left, bottom, right;
     float pts[4];
     Uint8 rgba[4];
     Uint32 color;
     int closed, blend;
     int result, loop, length, drawn;
     float startx, starty;
+    float *xlist, *ylist;
 
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
@@ -249,6 +250,29 @@ aalines(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 1 points");
 
+    xlist = PyMem_New(float, length);
+    ylist = PyMem_New(float, length);
+
+    left = top = 10000;
+    right = bottom = -10000;
+
+    for (loop = 0; loop < length; ++loop) {
+        item = PySequence_GetItem(points, loop);
+        result = pg_TwoFloatsFromObj(item, &x, &y);
+        Py_DECREF(item);
+        if (!result) {
+            PyMem_Del(xlist);
+            PyMem_Del(ylist);
+            return RAISE(PyExc_TypeError, "points must be number pairs");
+        }
+        xlist[loop] = x;
+        ylist[loop] = y;
+        left = MIN(x, left);
+        top = MIN(y, top);
+        right = MAX(x, right);
+        bottom = MAX(y, bottom);
+    }
+
     item = PySequence_GetItem(points, 0);
     result = pg_TwoFloatsFromObj(item, &x, &y);
     Py_DECREF(item);
@@ -257,11 +281,14 @@ aalines(PyObject *self, PyObject *arg)
 
     startx = pts[0] = x;
     starty = pts[1] = y;
-    left = right = (int)x;
-    top = bottom = (int)y;
+    left = right = x;
+    top = bottom = y;
 
-    if (!pgSurface_Lock(surfobj))
+    if (!pgSurface_Lock(surfobj)) {
+        PyMem_Del(xlist);
+        PyMem_Del(ylist);
         return NULL;
+    }
 
     drawn = 1;
     for (loop = 1; loop < length; ++loop) {
@@ -276,10 +303,10 @@ aalines(PyObject *self, PyObject *arg)
         startx = pts[2] = x;
         starty = pts[3] = y;
         if (clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend)) {
-            left = MIN((int)MIN(pts[0], pts[2]), left);
-            top = MIN((int)MIN(pts[1], pts[3]), top);
-            right = MAX((int)MAX(pts[0], pts[2]), right);
-            bottom = MAX((int)MAX(pts[1], pts[3]), bottom);
+            left = MIN(MIN(pts[0], pts[2]), left);
+            top = MIN(MIN(pts[1], pts[3]), top);
+            right = MAX(MAX(pts[0], pts[2]), right);
+            bottom = MAX(MAX(pts[1], pts[3]), bottom);
         }
     }
     if (closed && drawn > 2) {
@@ -295,11 +322,14 @@ aalines(PyObject *self, PyObject *arg)
         }
     }
 
+    PyMem_Del(xlist);
+    PyMem_Del(ylist);
     if (!pgSurface_Unlock(surfobj))
         return NULL;
 
     /*compute return rect*/
-    return pgRect_New4(left, top, right - left + 2, bottom - top + 2);
+    return pgRect_New4((int)left, (int)top, (int)(right - left + 2),
+                       (int)(bottom - top + 2));
 }
 
 static PyObject *
