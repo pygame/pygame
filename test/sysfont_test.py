@@ -13,6 +13,11 @@ class SysfontModuleTest(unittest.TestCase):
         import pygame.sysfont
         self.assertTrue(len(pygame.sysfont.get_fonts()) > 10)
 
+    def test_sysfont(self):
+        import pygame
+        pygame.init()
+        arial = pygame.font.SysFont('Arial', 40)
+
     def todo_test_initsysfonts_unix(self):
         self.fail()
 
