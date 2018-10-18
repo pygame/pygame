@@ -47,7 +47,7 @@ def _drawvertline(surf, color, x, y_from, y_to):
         surf.set_at((x, y), color)
 
 
-#   D R A W   L I N E   F U N C T I O N S    #
+#    I N T E R N A L   D R A W   L I N E   F U N C T I O N S    #
 
 def _clip_and_draw_horzline(surf, color, x_from, y, x_to):
     '''draw clipped horizontal line.'''
@@ -156,7 +156,7 @@ def clip_line(line, left, top, right, bottom):
             y1 = top
 
 
-def clip_and_draw_line(surf, rect, color, pts):
+def _clip_and_draw_line(surf, rect, color, pts):
     '''clip the line into the rectangle and draw if needed.
 
     Returns true if anything has been drawn, else false.'''
@@ -228,14 +228,14 @@ def _draw_line(surf, color, x1, y1, x2, y2):
                 error -= 1
 
 
-def clip_and_draw_line_width(surf, rect, color, width, line):
+def _clip_and_draw_line_width(surf, rect, color, width, line):
     yinc = xinc = 0
     if abs(line[0] - line[2]) > abs(line[1] - line[3]):
         yinc = 1
     else:
         xinc = 1
     newpts = line[:]
-    if clip_and_draw_line(surf, rect, color, newpts):
+    if _clip_and_draw_line(surf, rect, color, newpts):
         anydrawn = 1
         frame = newpts[:]
     else:
@@ -247,7 +247,7 @@ def clip_and_draw_line_width(surf, rect, color, width, line):
         newpts[1] = line[1] + yinc * loop
         newpts[2] = line[2] + xinc * loop
         newpts[3] = line[3] + yinc * loop
-        if clip_and_draw_line(surf, rect, color, newpts):
+        if _clip_and_draw_line(surf, rect, color, newpts):
             anydrawn = 1
             frame[0] = min(newpts[0], frame[0])
             frame[1] = min(newpts[1], frame[1])
@@ -259,7 +259,7 @@ def clip_and_draw_line_width(surf, rect, color, width, line):
             newpts[1] = line[1] - yinc * loop
             newpts[2] = line[2] - xinc * loop
             newpts[3] = line[3] - yinc * loop
-            if clip_and_draw_line(surf, rect, color, newpts):
+            if _clip_and_draw_line(surf, rect, color, newpts):
                 anydrawn = 1
                 frame[0] = min(newpts[0], frame[0])
                 frame[1] = min(newpts[1], frame[1])
@@ -269,8 +269,10 @@ def clip_and_draw_line_width(surf, rect, color, width, line):
     return anydrawn
 
 
+#    D R A W   L I N E   F U N C T I O N S    #
+
 def draw_aaline(surf, color, from_point, to_point, blend):
-    '''draw anti-alisiased line between two endpoints.'''
+    '''draw anti-aliased line between two endpoints.'''
     # TODO
 
 
@@ -293,7 +295,7 @@ def draw_lines(surf, color, closed, points, width):
         x, y = points[loop]
         line[2] = x
         line[3] = y
-        if clip_and_draw_line_width(surf, surf.get_clip(), color, width, line):
+        if _clip_and_draw_line_width(surf, surf.get_clip(), color, width, line):
             left = min(line[2], left)
             top = min(line[3], top)
             right = max(line[2], right)
@@ -305,7 +307,7 @@ def draw_lines(surf, color, closed, points, width):
         x, y = points[0]
         line[2] = x
         line[3] = y
-        clip_and_draw_line_width(surf, surf.get_clip(), color, width, line)
+        _clip_and_draw_line_width(surf, surf.get_clip(), color, width, line)
 
     return  # TODO Rect(...)
 
