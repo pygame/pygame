@@ -91,13 +91,14 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
     if (!current_music)
         return RAISE(pgExc_SDLError, "music not loaded");
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_HookMusicFinished(endmusic_callback);
     Mix_SetPostMix(mixmusic_callback, NULL);
     Mix_QuerySpec(&music_frequency, &music_format, &music_channels);
     music_pos = 0;
     music_pos_time = SDL_GetTicks();
 
-    Py_BEGIN_ALLOW_THREADS volume = Mix_VolumeMusic(-1);
+    volume = Mix_VolumeMusic(-1);
     val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
     Mix_VolumeMusic(volume);
     Py_END_ALLOW_THREADS
@@ -122,11 +123,13 @@ music_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_FadeOutMusic(_time);
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
     }
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -135,11 +138,13 @@ music_stop(PyObject *self)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_HaltMusic();
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
     }
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 

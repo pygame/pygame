@@ -272,7 +272,9 @@ pgMixer_AutoQuit(void)
 {
     int i;
     if (SDL_WasInit(SDL_INIT_AUDIO)) {
+        Py_BEGIN_ALLOW_THREADS
         Mix_HaltMusic();
+        Py_END_ALLOW_THREADS
 
         if (channeldata) {
             for (i = 0; i < numchanneldata; ++i) {
@@ -286,20 +288,26 @@ pgMixer_AutoQuit(void)
 
         if (current_music) {
             if (*current_music) {
+                Py_BEGIN_ALLOW_THREADS
                 Mix_FreeMusic(*current_music);
+                Py_END_ALLOW_THREADS
                 *current_music = NULL;
             }
             current_music = NULL;
         }
         if (queue_music) {
             if (*queue_music) {
+                Py_BEGIN_ALLOW_THREADS
                 Mix_FreeMusic(*queue_music);
+                Py_END_ALLOW_THREADS
                 *queue_music = NULL;
             }
             queue_music = NULL;
         }
 
+        Py_BEGIN_ALLOW_THREADS
         Mix_CloseAudio();
+        Py_END_ALLOW_THREADS
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 }
@@ -484,6 +492,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &playtime, &fade_ms))
         return NULL;
 
+    Py_BEGIN_ALLOW_THREADS
     if (fade_ms > 0) {
         channelnum =
             Mix_FadeInChannelTimed(-1, chunk, loops, fade_ms, playtime);
@@ -491,6 +500,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     else {
         channelnum = Mix_PlayChannelTimed(-1, chunk, loops, playtime);
     }
+    Py_END_ALLOW_THREADS
     if (channelnum == -1)
         Py_RETURN_NONE;
 
@@ -503,7 +513,10 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     // make sure volume on this arbitrary channel is set to full
     Mix_Volume(channelnum, 128);
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Py_END_ALLOW_THREADS
+
     return pgChannel_New(channelnum);
 }
 
@@ -525,7 +538,9 @@ snd_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_FadeOutGroup((intptr_t)chunk, _time);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -534,7 +549,9 @@ snd_stop(PyObject *self)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
+    Py_BEGIN_ALLOW_THREADS
     Mix_HaltGroup((intptr_t)chunk);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -778,8 +795,11 @@ static void
 sound_dealloc(pgSoundObject *self)
 {
     Mix_Chunk *chunk = pgSound_AsChunk((PyObject *)self);
-    if (chunk)
+    if (chunk) {
+        Py_BEGIN_ALLOW_THREADS
         Mix_FreeChunk(chunk);
+        Py_END_ALLOW_THREADS
+    }
     if (self->mem)
         PyMem_Free(self->mem);
     if (self->weakreflist)
@@ -842,6 +862,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     chunk = pgSound_AsChunk(sound);
 
+    Py_BEGIN_ALLOW_THREADS
     if (fade_ms > 0) {
         channelnum = Mix_FadeInChannelTimed(channelnum, chunk, loops, fade_ms,
                                             playtime);
@@ -851,6 +872,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
     }
     if (channelnum != -1)
         Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Py_END_ALLOW_THREADS
 
     Py_XDECREF(channeldata[channelnum].sound);
     Py_XDECREF(channeldata[channelnum].queue);
@@ -873,9 +895,11 @@ chan_queue(PyObject *self, PyObject *args)
 
     if (!channeldata[channelnum].sound) /*nothing playing*/
     {
+        Py_BEGIN_ALLOW_THREADS
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
         if (channelnum != -1)
             Mix_GroupChannel(channelnum, (intptr_t)chunk);
+        Py_END_ALLOW_THREADS
 
         channeldata[channelnum].sound = sound;
         Py_INCREF(sound);
@@ -907,7 +931,9 @@ chan_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_FadeOutChannel(channelnum, _time);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -917,7 +943,9 @@ chan_stop(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_HaltChannel(channelnum);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -937,7 +965,9 @@ chan_unpause(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_Resume(channelnum);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -964,9 +994,12 @@ chan_set_volume(PyObject *self, PyObject *args)
         left = 255;
         right = 255;
 
+        PyThreadState *_save = PyEval_SaveThread();
         if (!Mix_SetPanning(channelnum, left, right)) {
+            PyEval_RestoreThread(_save);
             return RAISE(pgExc_SDLError, Mix_GetError());
         }
+        PyEval_RestoreThread(_save);
     }
     else {
         /* NOTE: here the volume will be set to 1.0 and the panning will
@@ -977,9 +1010,12 @@ chan_set_volume(PyObject *self, PyObject *args)
         printf("left:%d:  right:%d:\n", left, right);
         */
 
+        PyThreadState *_save = PyEval_SaveThread();
         if (!Mix_SetPanning(channelnum, left, right)) {
+            PyEval_RestoreThread(_save);
             return RAISE(pgExc_SDLError, Mix_GetError());
         }
+        PyEval_RestoreThread(_save);
 
         volume = 1.0f;
     }
@@ -1153,7 +1189,9 @@ set_num_channels(PyObject *self, PyObject *args)
         numchanneldata = numchans;
     }
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_AllocateChannels(numchans);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -1217,7 +1255,9 @@ mixer_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_FadeOutChannel(-1, _time);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -1226,7 +1266,9 @@ mixer_stop(PyObject *self)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_HaltChannel(-1);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -1244,7 +1286,9 @@ mixer_unpause(PyObject *self)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_Resume(-1);
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
