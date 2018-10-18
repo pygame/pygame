@@ -980,6 +980,7 @@ chan_set_volume(PyObject *self, PyObject *args)
     int result;
 #endif
     Uint8 left, right;
+    PyThreadState *_save;
 
     if (!PyArg_ParseTuple(args, "f|f", &volume, &stereovolume))
         return NULL;
@@ -994,7 +995,7 @@ chan_set_volume(PyObject *self, PyObject *args)
         left = 255;
         right = 255;
 
-        PyThreadState *_save = PyEval_SaveThread();
+        _save = PyEval_SaveThread();
         if (!Mix_SetPanning(channelnum, left, right)) {
             PyEval_RestoreThread(_save);
             return RAISE(pgExc_SDLError, Mix_GetError());
@@ -1010,7 +1011,7 @@ chan_set_volume(PyObject *self, PyObject *args)
         printf("left:%d:  right:%d:\n", left, right);
         */
 
-        PyThreadState *_save = PyEval_SaveThread();
+        _save = PyEval_SaveThread();
         if (!Mix_SetPanning(channelnum, left, right)) {
             PyEval_RestoreThread(_save);
             return RAISE(pgExc_SDLError, Mix_GetError());
