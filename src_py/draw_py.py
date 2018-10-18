@@ -27,7 +27,7 @@ def set_at(surf, x, y, color):
     surf.set_at((x, y), color)
 
 
-def drawhorzline(surf, color, x_from, y, x_to):
+def _drawhorzline(surf, color, x_from, y, x_to):
     if x_from == x_to:
         surf.set_at((x_from, y), color)
         return
@@ -37,7 +37,7 @@ def drawhorzline(surf, color, x_from, y, x_to):
         surf.set_at((x, y), color)
 
 
-def drawvertline(surf, color, x, y_from, y_to):
+def _drawvertline(surf, color, x, y_from, y_to):
     if y_from == y_to:
         surf.set_at((x, y_from), color)
         return
@@ -49,7 +49,7 @@ def drawvertline(surf, color, x, y_from, y_to):
 
 #   D R A W   L I N E   F U N C T I O N S    #
 
-def drawhorzlineclip(surf, color, x_from, y, x_to):
+def _clip_and_draw_horzline(surf, color, x_from, y, x_to):
     '''draw clipped horizontal line.'''
     # check Y inside surf
     clip = surf.get_clip()
@@ -63,10 +63,10 @@ def drawhorzlineclip(surf, color, x_from, y, x_to):
     if x_to < clip.x or x_from >= clip.x + clip.w:
         return
 
-    drawhorzline(surf, color, x_from, y, x_to)
+    _drawhorzline(surf, color, x_from, y, x_to)
 
 
-def drawvertlineclip(surf, color, x, y_from, y_to):
+def _clip_and_draw_vertline(surf, color, x, y_from, y_to):
     '''draw clipped vertical line.'''
     # check X inside surf
     clip = surf.get_clip()
@@ -81,7 +81,7 @@ def drawvertlineclip(surf, color, x, y_from, y_to):
     if y_to < clip.y or y_from >= clip.y + clip.h:
         return
 
-    drawvertline(surf, color, x, y_from, y_to)
+    _drawvertline(surf, color, x, y_from, y_to)
 
 # These constans xxx_EDGE are "outside-the-bounding-box"-flags
 LEFT_EDGE = 0x1
@@ -168,9 +168,9 @@ def clip_and_draw_line(surf, rect, color, pts):
         # The line segment defined by "pts" is not crossing the rectangle
         return 0
     if pts[1] == pts[3]:  #  eg y1 == y2
-        drawhorzline(surf, color, pts[0], pts[1], pts[2])
+        _drawhorzline(surf, color, pts[0], pts[1], pts[2])
     elif pts[0] == pts[2]: #  eg x1 == x2
-        drawvertline(surf, color, pts[0], pts[1], pts[3])
+        _drawvertline(surf, color, pts[0], pts[1], pts[3])
     else:
         _draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
     return 1
@@ -324,7 +324,7 @@ def draw_polygon(surface, color, points, width):
     if miny == maxy:
         minx = min(point_x)
         maxx = max(point_x)
-        drawhorzlineclip(surface, color, minx, miny, maxx)
+        _clip_and_draw_horzline(surface, color, minx, miny, maxx)
         return  # TODO Rect(...)
 
     for y in range(miny, maxy + 1):
@@ -352,7 +352,7 @@ def draw_polygon(surface, color, points, width):
 
         x_intersect.sort()
         for i in range(0, len(x_intersect), 2):
-            drawhorzlineclip(surface, color, x_intersect[i], y,
+            _clip_and_draw_horzline(surface, color, x_intersect[i], y,
                              x_intersect[i + 1])
 
     # special case : horizontal border lines
@@ -360,6 +360,6 @@ def draw_polygon(surface, color, points, width):
         i_prev = i - 1 if i else num_points - 1
         y = point_y[i]
         if miny < y == point_y[i_prev] < maxy:
-            drawhorzlineclip(surface, color, point_x[i], y, point_x[i_prev])
+            _clip_and_draw_horzline(surface, color, point_x[i], y, point_x[i_prev])
 
     return  # TODO Rect(...)
