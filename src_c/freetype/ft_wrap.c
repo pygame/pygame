@@ -507,11 +507,11 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
         quit(fontobj);
     }
 
-    if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
+    if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {
         _PGFT_free(fontobj->id.open_args.pathname);
     fontobj->id.open_args.pathname = 0;
     }
-    else if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {
+    else if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
         _PGFT_free(fontobj->id.open_args.stream);
     }
     fontobj->id.open_args.flags = 0;
