@@ -700,7 +700,15 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 static void
 _ftfont_dealloc(pgFontObject *self)
 {
+#ifdef HAVE_PYGAME_SDL_RWOPS
+    SDL_RWops *src = _PGFT_GetRWops(self);
+#endif
     _PGFT_UnloadFont(self->freetype, self);
+#ifdef HAVE_PYGAME_SDL_RWOPS
+    if (src) {
+        SDL_RWclose(src);
+    }
+#endif
     _PGFT_Quit(self->freetype);
 
     Py_XDECREF(self->path);

@@ -494,6 +494,14 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
 
     return init(ft, fontobj);
 }
+
+SDL_RWops*
+_PGFT_GetRWops(pgFontObject *fontobj)
+{
+    if (fontobj->id.open_args.flags == FT_OPEN_STREAM)
+        return fontobj->id.open_args.stream->descriptor.pointer;
+    return NULL;
+}
 #endif
 
 void
