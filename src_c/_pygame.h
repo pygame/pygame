@@ -650,7 +650,7 @@ typedef struct {
 /*the rwobject are only needed for C side work, not accessable from python*/
 #define PYGAMEAPI_RWOBJECT_FIRSTSLOT \
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
-#define PYGAMEAPI_RWOBJECT_NUMSLOTS 7
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 8
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define pgRWopsFromObject           \
     (*(SDL_RWops * (*)(PyObject *)) \
@@ -671,6 +671,9 @@ typedef struct {
 #define pgRWopsFromFileObject       \
     (*(SDL_RWops * (*)(PyObject *)) \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 6])
+#define pgRWopsFreeFromObject       \
+    (*(void (*)(PyObject *)) \
+         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 7])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
 /* For backward compatibility */

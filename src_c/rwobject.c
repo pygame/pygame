@@ -570,6 +570,23 @@ pgRWopsCheckObjectThreaded(SDL_RWops *rw)
 #endif
 }
 
+static int
+pgRWopsFreeFromObject(SDL_RWops *context)
+{
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
+    PyObject *result;
+    int retval = 0;
+
+    Py_XDECREF(helper->seek);
+    Py_XDECREF(helper->tell);
+    Py_XDECREF(helper->write);
+    Py_XDECREF(helper->read);
+    Py_XDECREF(helper->close);
+    PyMem_Del(helper);
+    SDL_FreeRW(context);
+    return retval;
+}
+
 #ifdef WITH_THREAD
 #if IS_SDLv2
 static Sint64
@@ -909,6 +926,7 @@ MODINIT_DEFINE(rwobject)
     c_api[4] = pgRWopsEncodeFilePath;
     c_api[5] = pgRWopsEncodeString;
     c_api[6] = pgRWopsFromFileObject;
+    c_api[7] = pgRWopsFreeFromObject;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD(module);
