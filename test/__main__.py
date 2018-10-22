@@ -63,23 +63,7 @@ opt_parser.add_option (
 opt_parser.add_option (
      "-F",  "--file",
      help   = "dump results to a file" )
-
-opt_parser.add_option (
-     "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
-     help   = "run subprocessed tests in x THREADS" )
-
-opt_parser.add_option (
-     "-t",  "--time_out", metavar = 'SECONDS', type = 'int',
-     help   = "kill stalled subprocessed tests after SECONDS" )
-
-opt_parser.add_option (
-     "-f",  "--fake", metavar = "DIR",
-     help   = "run fake tests in run_tests__tests/$DIR" )
-
-opt_parser.add_option (
-     "-p",  "--python", metavar = "PYTHON",
-     help   = "path to python excutable to run subproccesed tests\n"
-              "default (sys.executable): %s" % sys.executable)
+table)
 
 opt_parser.add_option (
      "-I",  "--interactive", action = 'store_true',
