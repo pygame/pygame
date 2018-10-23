@@ -72,6 +72,17 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
 static void
 draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
 
+// validation of a draw color
+#define CHECK_LOAD_COLOR(colorobj)                                         \
+    if (PyInt_Check(colorobj))                                             \
+        color = (Uint32)PyInt_AsLong(colorobj);                            \
+    else if (pg_RGBAFromColorObj(colorobj, rgba))                          \
+        color =                                                            \
+            SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]); \
+    else                                                                   \
+        return RAISE(PyExc_TypeError, "invalid color argument");
+
+
 static PyObject *
 aaline(PyObject *self, PyObject *arg)
 {
@@ -96,10 +107,7 @@ aaline(PyObject *self, PyObject *arg)
             PyExc_ValueError,
             "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
-    if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (!pg_TwoFloatsFromObj(start, &startx, &starty))
         return RAISE(PyExc_TypeError, "Invalid start position argument");
@@ -163,12 +171,7 @@ line(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (!pg_TwoIntsFromObj(start, &startx, &starty))
         return RAISE(PyExc_TypeError, "Invalid start position argument");
@@ -215,13 +218,13 @@ aalines(PyObject *self, PyObject *arg)
     PyObject *surfobj, *colorobj, *closedobj, *points, *item;
     SDL_Surface *surf;
     float x, y;
-    int top, left, bottom, right;
+    float top, left, bottom, right;
     float pts[4];
     Uint8 rgba[4];
     Uint32 color;
     int closed, blend;
-    int result, loop, length, drawn;
-    float startx, starty;
+    int result, loop, length;
+    float *xlist, *ylist;
 
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
@@ -234,10 +237,7 @@ aalines(PyObject *self, PyObject *arg)
             PyExc_ValueError,
             "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
-    if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     closed = PyObject_IsTrue(closedobj);
 
@@ -249,57 +249,58 @@ aalines(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 1 points");
 
-    item = PySequence_GetItem(points, 0);
-    result = pg_TwoFloatsFromObj(item, &x, &y);
-    Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
+    xlist = PyMem_New(float, length);
+    ylist = PyMem_New(float, length);
 
-    startx = pts[0] = x;
-    starty = pts[1] = y;
-    left = right = (int)x;
-    top = bottom = (int)y;
+    left = top = 10000;
+    right = bottom = -10000;
 
-    if (!pgSurface_Lock(surfobj))
-        return NULL;
-
-    drawn = 1;
-    for (loop = 1; loop < length; ++loop) {
+    for (loop = 0; loop < length; ++loop) {
         item = PySequence_GetItem(points, loop);
         result = pg_TwoFloatsFromObj(item, &x, &y);
         Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
-        ++drawn;
-        pts[0] = startx;
-        pts[1] = starty;
-        startx = pts[2] = x;
-        starty = pts[3] = y;
-        if (clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend)) {
-            left = MIN((int)MIN(pts[0], pts[2]), left);
-            top = MIN((int)MIN(pts[1], pts[3]), top);
-            right = MAX((int)MAX(pts[0], pts[2]), right);
-            bottom = MAX((int)MAX(pts[1], pts[3]), bottom);
+        if (!result) {
+            PyMem_Del(xlist);
+            PyMem_Del(ylist);
+            return RAISE(PyExc_TypeError, "points must be number pairs");
         }
-    }
-    if (closed && drawn > 2) {
-        item = PySequence_GetItem(points, 0);
-        result = pg_TwoFloatsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (result) {
-            pts[0] = startx;
-            pts[1] = starty;
-            pts[2] = x;
-            pts[3] = y;
-            clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
-        }
+        xlist[loop] = x;
+        ylist[loop] = y;
+        left = MIN(x, left);
+        top = MIN(y, top);
+        right = MAX(x, right);
+        bottom = MAX(y, bottom);
     }
 
+    if (!pgSurface_Lock(surfobj)) {
+        PyMem_Del(xlist);
+        PyMem_Del(ylist);
+        return NULL;
+    }
+
+    for (loop = 1; loop < length; ++loop) {
+        pts[0] = xlist[loop - 1];
+        pts[1] = ylist[loop - 1];
+        pts[2] = xlist[loop];
+        pts[3] = ylist[loop];
+        clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
+    }
+    if (closed && length > 2) {
+        pts[0] = xlist[length - 1];
+        pts[1] = ylist[length - 1];
+        pts[2] = xlist[0];
+        pts[3] = ylist[0];
+        clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
+    }
+
+    PyMem_Del(xlist);
+    PyMem_Del(ylist);
     if (!pgSurface_Unlock(surfobj))
         return NULL;
 
     /*compute return rect*/
-    return pgRect_New4(left, top, right - left + 2, bottom - top + 2);
+    return pgRect_New4((int)left, (int)top, (int)(right - left + 2),
+                       (int)(bottom - top + 2));
 }
 
 static PyObject *
@@ -313,8 +314,8 @@ lines(PyObject *self, PyObject *arg)
     Uint8 rgba[4];
     Uint32 color;
     int closed;
-    int result, loop, length, drawn;
-    int startx, starty;
+    int result, loop, length;
+    int *xlist, *ylist;
 
     /*get all the arguments*/
     if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
@@ -325,12 +326,7 @@ lines(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     closed = PyObject_IsTrue(closedobj);
 
@@ -342,55 +338,55 @@ lines(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 1 points");
 
-    item = PySequence_GetItem(points, 0);
-    result = pg_TwoIntsFromObj(item, &x, &y);
-    Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
+    left = top = 10000;
+    right = bottom = -10000;
 
-    startx = pts[0] = left = right = x;
-    starty = pts[1] = top = bottom = y;
+    xlist = PyMem_New(int, length);
+    ylist = PyMem_New(int, length);
+
+    for (loop = 0; loop < length; ++loop) {
+        item = PySequence_GetItem(points, loop);
+        result = pg_TwoIntsFromObj(item, &x, &y);
+        Py_DECREF(item);
+        if (!result) {
+            PyMem_Del(xlist);
+            PyMem_Del(ylist);
+            return RAISE(PyExc_TypeError, "points must be number pairs");
+        }
+        xlist[loop] = x;
+        ylist[loop] = y;
+        left = MIN(x, left);
+        top = MIN(y, top);
+        right = MAX(x, right);
+        bottom = MAX(y, bottom);
+    }
 
     if (width < 1)
         return pgRect_New4(left, top, 0, 0);
 
-    if (!pgSurface_Lock(surfobj))
+    if (!pgSurface_Lock(surfobj)) {
+        PyMem_Del(xlist);
+        PyMem_Del(ylist);
         return NULL;
+    }
 
-    drawn = 1;
     for (loop = 1; loop < length; ++loop) {
-        item = PySequence_GetItem(points, loop);
-        result = pg_TwoIntsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
-        ++drawn;
-        pts[0] = startx;
-        pts[1] = starty;
-        startx = pts[2] = x;
-        starty = pts[3] = y;
-        if (clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
-                                     pts)) {
-            left = MIN(MIN(pts[0], pts[2]), left);
-            top = MIN(MIN(pts[1], pts[3]), top);
-            right = MAX(MAX(pts[0], pts[2]), right);
-            bottom = MAX(MAX(pts[1], pts[3]), bottom);
-        }
+        pts[0] = xlist[loop - 1];
+        pts[1] = ylist[loop - 1];
+        pts[2] = xlist[loop];
+        pts[3] = ylist[loop];
+        clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
     }
-    if (closed && drawn > 2) {
-        item = PySequence_GetItem(points, 0);
-        result = pg_TwoIntsFromObj(item, &x, &y);
-        Py_DECREF(item);
-        if (result) {
-            pts[0] = startx;
-            pts[1] = starty;
-            pts[2] = x;
-            pts[3] = y;
-            clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
-                                     pts);
-        }
+    if (closed && length > 2) {
+        pts[0] = xlist[length - 1];
+        pts[1] = ylist[length - 1];
+        pts[2] = xlist[0];
+        pts[3] = ylist[0];
+        clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
     }
 
+    PyMem_Del(xlist);
+    PyMem_Del(ylist);
     if (!pgSurface_Unlock(surfobj))
         return NULL;
 
@@ -422,12 +418,7 @@ arc(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0)
         return RAISE(PyExc_ValueError, "negative width");
@@ -479,12 +470,7 @@ ellipse(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0)
         return RAISE(PyExc_ValueError, "negative width");
@@ -536,12 +522,7 @@ circle(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (radius < 0)
         return RAISE(PyExc_ValueError, "negative radius");
@@ -589,7 +570,7 @@ polygon(PyObject *self, PyObject *arg)
     SDL_Surface *surf;
     Uint8 rgba[4];
     Uint32 color;
-    int width = 0, length, loop, numpoints;
+    int width = 0, length, loop;
     int *xlist, *ylist;
     int x, y, top, left, bottom, right, result;
 
@@ -613,12 +594,7 @@ polygon(PyObject *self, PyObject *arg)
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-    if (PyInt_Check(colorobj))
-        color = (Uint32)PyInt_AsLong(colorobj);
-    else if (pg_RGBAFromColorObj(colorobj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+    CHECK_LOAD_COLOR(colorobj)
 
     if (!PySequence_Check(points))
         return RAISE(PyExc_TypeError,
@@ -628,27 +604,23 @@ polygon(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 2 points");
 
-    item = PySequence_GetItem(points, 0);
-    result = pg_TwoIntsFromObj(item, &x, &y);
-    Py_DECREF(item);
-    if (!result)
-        return RAISE(PyExc_TypeError, "points must be number pairs");
-    left = right = x;
-    top = bottom = y;
+    left = top = 10000;
+    right = bottom = -10000;
 
     xlist = PyMem_New(int, length);
     ylist = PyMem_New(int, length);
 
-    numpoints = 0;
     for (loop = 0; loop < length; ++loop) {
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);
         Py_DECREF(item);
-        if (!result)
-            continue; /*note, we silently skip over bad points :[ */
-        xlist[numpoints] = x;
-        ylist[numpoints] = y;
-        ++numpoints;
+        if (!result) {
+            PyMem_Del(xlist);
+            PyMem_Del(ylist);
+            return RAISE(PyExc_TypeError, "points must be number pairs");
+        }
+        xlist[loop] = x;
+        ylist[loop] = y;
         left = MIN(x, left);
         top = MIN(y, top);
         right = MAX(x, right);
@@ -661,7 +633,7 @@ polygon(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    draw_fillpoly(surf, xlist, ylist, numpoints, color);
+    draw_fillpoly(surf, xlist, ylist, length, color);
 
     PyMem_Del(xlist);
     PyMem_Del(ylist);
