@@ -284,6 +284,7 @@ int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
 #ifdef HAVE_PYGAME_SDL_RWOPS
 int _PGFT_TryLoadFont_RWops(FreeTypeInstance *,
                             pgFontObject *, SDL_RWops *, long);
+SDL_RWops* _PGFT_GetRWops(pgFontObject *fontobj);
 #endif
 void _PGFT_UnloadFont(FreeTypeInstance *, pgFontObject *);
 
