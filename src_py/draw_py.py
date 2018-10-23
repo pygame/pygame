@@ -27,7 +27,7 @@ def set_at(surf, x, y, color):
     surf.set_at((x, y), color)
 
 
-def drawhorzline(surf, color, x_from, y, x_to):
+def _drawhorzline(surf, color, x_from, y, x_to):
     if x_from == x_to:
         surf.set_at((x_from, y), color)
         return
@@ -37,7 +37,7 @@ def drawhorzline(surf, color, x_from, y, x_to):
         surf.set_at((x, y), color)
 
 
-def drawvertline(surf, color, x, y_from, y_to):
+def _drawvertline(surf, color, x, y_from, y_to):
     if y_from == y_to:
         surf.set_at((x, y_from), color)
         return
@@ -47,9 +47,9 @@ def drawvertline(surf, color, x, y_from, y_to):
         surf.set_at((x, y), color)
 
 
-#   D R A W   L I N E   F U N C T I O N S    #
+#    I N T E R N A L   D R A W   L I N E   F U N C T I O N S    #
 
-def drawhorzlineclip(surf, color, x_from, y, x_to):
+def _clip_and_draw_horzline(surf, color, x_from, y, x_to):
     '''draw clipped horizontal line.'''
     # check Y inside surf
     clip = surf.get_clip()
@@ -63,10 +63,10 @@ def drawhorzlineclip(surf, color, x_from, y, x_to):
     if x_to < clip.x or x_from >= clip.x + clip.w:
         return
 
-    drawhorzline(surf, color, x_from, y, x_to)
+    _drawhorzline(surf, color, x_from, y, x_to)
 
 
-def drawvertlineclip(surf, color, x, y_from, y_to):
+def _clip_and_draw_vertline(surf, color, x, y_from, y_to):
     '''draw clipped vertical line.'''
     # check X inside surf
     clip = surf.get_clip()
@@ -81,15 +81,18 @@ def drawvertlineclip(surf, color, x, y_from, y_to):
     if y_to < clip.y or y_from >= clip.y + clip.h:
         return
 
-    drawvertline(surf, color, x, y_from, y_to)
+    _drawvertline(surf, color, x, y_from, y_to)
 
-
+# These constans xxx_EDGE are "outside-the-bounding-box"-flags
 LEFT_EDGE = 0x1
 RIGHT_EDGE = 0x2
 BOTTOM_EDGE = 0x4
 TOP_EDGE = 0x8
 
 def encode(x, y, left, top, right, bottom):
+    '''returns a code that defines position with respect to a bounding box'''
+    # we use the fact that python interprets booleans (the inqualities)
+    # as 0/1, and then multiply them with the xxx_EDGE flags
     return ((x < left) *  LEFT_EDGE +
             (x > right) * RIGHT_EDGE +
             (y < top) * TOP_EDGE +
@@ -102,19 +105,31 @@ REJECT = lambda a, b: a and b
 
 
 def clip_line(line, left, top, right, bottom):
+    '''Algorithm to calculate the clipped line.
+
+    We calculate the coordinates of the part of the line segment within the
+    bounding box (defined by left, top, right, bottom). The we write
+    the coordinates of the line segment into "line", much like the C-algorithm.
+
+    Returns: true if the line segment cuts the bounding box (false otherwise)
+    '''
     assert isinstance(line, list)
     x1, y1, x2, y2 = line
 
     while True:
+        # the coordinates are progressively modified with the codes,
+        # until they are either rejected or correspond to the final result.
         code1 = encode(x1, y1, left, top, right, bottom)
         code2 = encode(x2, y2, left, top, right, bottom)
 
         if ACCEPT(code1, code2):
+            # write coordinates into "line" !
             line[:] = x1, y1, x2, y2
             return True
         if REJECT(code1, code2):
             return False
 
+        # We operate on the (x1, y1) point, and swap if it is inside the bbox:
         if INSIDE(code1):
             x1, x2 = x2, x1
             y1, y2 = y2, y1
@@ -123,6 +138,8 @@ def clip_line(line, left, top, right, bottom):
             m = (y2 - y1) / float(x2 - x1)
         else:
             m = 1.0
+        # Each case, if true, means that we are outside the border:
+        # calculate x1 and y1 to be the "first point" inside the bbox...
         if code1 & LEFT_EDGE:
             y1 += int((left - x1) * m)
             x1 = left
@@ -139,26 +156,34 @@ def clip_line(line, left, top, right, bottom):
             y1 = top
 
 
-def clip_and_draw_line(surf, rect, color, pts):
+def _clip_and_draw_line(surf, rect, color, pts):
+    '''clip the line into the rectangle and draw if needed.
+
+    Returns true if anything has been drawn, else false.'''
+    # "pts" is a list with the four coordinates of the two endpoints
+    # of the line to be drawn : pts = x1, y1, x2, y2.
+    # The data format is like that to stay closer to the C-algorithm.
     if not clip_line(pts, rect.x, rect.y, rect.x + rect.w - 1,
                     rect.y + rect.h - 1):
-        # not crossing the rectangle...
+        # The line segment defined by "pts" is not crossing the rectangle
         return 0
-    # pts ==  x1, y1, x2, y2 ...
-    if pts[1] == pts[3]:
-        drawhorzline(surf, color, pts[0], pts[1], pts[2])
-    elif pts[0] == pts[2]:
-        drawvertline(surf, color, pts[0], pts[1], pts[3])
+    if pts[1] == pts[3]:  #  eg y1 == y2
+        _drawhorzline(surf, color, pts[0], pts[1], pts[2])
+    elif pts[0] == pts[2]: #  eg x1 == x2
+        _drawvertline(surf, color, pts[0], pts[1], pts[3])
     else:
-        draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
+        _draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
     return 1
 
 
-# Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-# This strongly differs from craw.c implementation, because we do not
-# handle BytesPerPixel, and we use "slope" and "error" variables.
-def draw_line(surf, color, x1, y1, x2, y2):
-
+def _draw_line(surf, color, x1, y1, x2, y2):
+    '''draw a non-horizontal line (without anti-aliasing).'''
+    # Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+    #
+    # This strongly differs from craw.c implementation, because we use a
+    # "slope" variable (instead of delta_x and delta_y) and a "error" variable.
+    # And we can not do pointer-arithmetic with "BytesPerPixel", like in
+    # the C-algorithm.
     if x1 == x2:
         # This case should not happen...
         raise ValueError
@@ -168,12 +193,14 @@ def draw_line(surf, color, x1, y1, x2, y2):
 
     if slope < 1:
         # Here, it's a rather horizontal line
+
         # 1. check in which octants we are & set init values
         if x2 < x1:
             x1, x2 = x2, x1
             y1, y2 = y2, y1
         y = y1
         dy_sign = 1 if (y1 < y2) else -1
+
         # 2. step along x coordinate
         for x in range(x1, x2 + 1):
             set_at(surf, x, y, color)
@@ -183,6 +210,7 @@ def draw_line(surf, color, x1, y1, x2, y2):
                 error -= 1
     else:
         # Case of a rather vertical line
+
         # 1. check in which octants we are & set init values
         if y1 > y2:
             x1, x2 = x2, x1
@@ -200,14 +228,14 @@ def draw_line(surf, color, x1, y1, x2, y2):
                 error -= 1
 
 
-def clip_and_draw_line_width(surf, rect, color, width, line):
+def _clip_and_draw_line_width(surf, rect, color, width, line):
     yinc = xinc = 0
     if abs(line[0] - line[2]) > abs(line[1] - line[3]):
         yinc = 1
     else:
         xinc = 1
     newpts = line[:]
-    if clip_and_draw_line(surf, rect, color, newpts):
+    if _clip_and_draw_line(surf, rect, color, newpts):
         anydrawn = 1
         frame = newpts[:]
     else:
@@ -219,7 +247,7 @@ def clip_and_draw_line_width(surf, rect, color, width, line):
         newpts[1] = line[1] + yinc * loop
         newpts[2] = line[2] + xinc * loop
         newpts[3] = line[3] + yinc * loop
-        if clip_and_draw_line(surf, rect, color, newpts):
+        if _clip_and_draw_line(surf, rect, color, newpts):
             anydrawn = 1
             frame[0] = min(newpts[0], frame[0])
             frame[1] = min(newpts[1], frame[1])
@@ -231,7 +259,7 @@ def clip_and_draw_line_width(surf, rect, color, width, line):
             newpts[1] = line[1] - yinc * loop
             newpts[2] = line[2] - xinc * loop
             newpts[3] = line[3] - yinc * loop
-            if clip_and_draw_line(surf, rect, color, newpts):
+            if _clip_and_draw_line(surf, rect, color, newpts):
                 anydrawn = 1
                 frame[0] = min(newpts[0], frame[0])
                 frame[1] = min(newpts[1], frame[1])
@@ -241,8 +269,10 @@ def clip_and_draw_line_width(surf, rect, color, width, line):
     return anydrawn
 
 
+#    D R A W   L I N E   F U N C T I O N S    #
+
 def draw_aaline(surf, color, from_point, to_point, blend):
-    '''draw anti-alisiased line between two endpoints.'''
+    '''draw anti-aliased line between two endpoints.'''
     # TODO
 
 
@@ -265,7 +295,7 @@ def draw_lines(surf, color, closed, points, width):
         x, y = points[loop]
         line[2] = x
         line[3] = y
-        if clip_and_draw_line_width(surf, surf.get_clip(), color, width, line):
+        if _clip_and_draw_line_width(surf, surf.get_clip(), color, width, line):
             left = min(line[2], left)
             top = min(line[3], top)
             right = max(line[2], right)
@@ -277,7 +307,7 @@ def draw_lines(surf, color, closed, points, width):
         x, y = points[0]
         line[2] = x
         line[3] = y
-        clip_and_draw_line_width(surf, surf.get_clip(), color, width, line)
+        _clip_and_draw_line_width(surf, surf.get_clip(), color, width, line)
 
     return  # TODO Rect(...)
 
@@ -296,7 +326,7 @@ def draw_polygon(surface, color, points, width):
     if miny == maxy:
         minx = min(point_x)
         maxx = max(point_x)
-        drawhorzlineclip(surface, color, minx, miny, maxx)
+        _clip_and_draw_horzline(surface, color, minx, miny, maxx)
         return  # TODO Rect(...)
 
     for y in range(miny, maxy + 1):
@@ -324,7 +354,7 @@ def draw_polygon(surface, color, points, width):
 
         x_intersect.sort()
         for i in range(0, len(x_intersect), 2):
-            drawhorzlineclip(surface, color, x_intersect[i], y,
+            _clip_and_draw_horzline(surface, color, x_intersect[i], y,
                              x_intersect[i + 1])
 
     # special case : horizontal border lines
@@ -332,6 +362,6 @@ def draw_polygon(surface, color, points, width):
         i_prev = i - 1 if i else num_points - 1
         y = point_y[i]
         if miny < y == point_y[i_prev] < maxy:
-            drawhorzlineclip(surface, color, point_x[i], y, point_x[i_prev])
+            _clip_and_draw_horzline(surface, color, point_x[i], y, point_x[i_prev])
 
     return  # TODO Rect(...)
