@@ -2103,13 +2103,13 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             srcobject = PySequence_GetItem(item, 0);
             argpos = PySequence_GetItem(item, 1);
         }
-        if (itemlength == 3) {
+        if (itemlength >= 3) {
             /* (Surface, dest, area) */
-            argrect = PySequence_GetItem(item, 3);
+            argrect = PySequence_GetItem(item, 2);
         }
         if (itemlength == 4) {
             /* (Surface, dest, area, special_flags) */
-            special_flags = PySequence_GetItem(item, 4);
+            special_flags = PySequence_GetItem(item, 3);
         }
         Py_DECREF(item);
 
