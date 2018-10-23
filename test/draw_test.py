@@ -204,6 +204,16 @@ class DrawLineTest(unittest.TestCase):
                 no_gaps = lines_have_gaps(surface, draw_lines)
                 self.assertTrue(all(no_gaps))
 
+    def test_invalid_points(self):
+        """Test if draw.aalines and draw.lines throw a TypeError if
+        we pass invalid points to them.
+        """
+        surface = pygame.Surface((20, 20))
+        for draw_lines in [draw.lines, draw.aalines]:
+            self.assertRaises(TypeError, lambda: draw_lines(
+                              surface, (255, 255, 255), True,
+                              ((0, 0), (20, 20), 0)))
+
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
@@ -665,7 +675,10 @@ class DrawPolygonMixin:
         self.draw_polygon(GREEN, path_data, 0)
         for x in range(4, rect.width-5 +1):
             self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
-
+        
+    def test_invalid_points(self):
+        self.assertRaises(TypeError, lambda: self.draw_polygon(
+                          RED, ((0, 0), (0, 20), (20, 20), 20), 0))
 
 class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
 
