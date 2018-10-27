@@ -983,27 +983,75 @@ set_at(SDL_Surface *surf, int x, int y, Uint32 color)
     return 1;
 }
 
-#define DRAWPIX32(pixel, colorptr, br, blend)                               \
-    if (blend) {                                                            \
-        SDL_GetRGBA(*pixel, surf->format, &pixel_r, &pixel_g, &pixel_b,     \
-                    &pixel_a);                                              \
-        tmp_r = color_r * br + pixel_r * nbr;                               \
-        tmp_g = color_g * br + pixel_g * nbr;                               \
-        tmp_b = color_b * br + pixel_b * nbr;                               \
-        tmp_a = color_a * br + pixel_a * nbr;                               \
-        *((Uint32 *)pixel) =                                                \
-            SDL_MapRGBA(surf->format, (Uint8)((tmp_r > 254) ? 255 : tmp_r), \
-                        (Uint8)((tmp_g > 254) ? 255 : tmp_g),               \
-                        (Uint8)((tmp_b > 254) ? 255 : tmp_b),               \
-                        (Uint8)((tmp_a > 254) ? 255 : tmp_a));              \
-    }                                                                       \
-    else {                                                                  \
-        pixel[0] = (Uint8)(colorptr[0] * br);                               \
-        pixel[1] = (Uint8)(colorptr[1] * br);                               \
-        pixel[2] = (Uint8)(colorptr[2] * br);                               \
-        if (hasalpha)                                                       \
-            pixel[3] = br * 255;                                            \
+static Uint32
+get_pixel_32(Uint8 *pixels, SDL_PixelFormat *format)
+{
+    switch (format->BytesPerPixel) {
+        case 4:
+            return *((Uint32*)pixels);
+        case 3:
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		    return *pixels | *(pixels+1) << 8 | *(pixels+2) << 16;
+#else
+            return *pixels << 16 | *(pixels+1) << 8 | *(pixels+2);
+#endif
+        case 2:
+            return *((Uint16*)pixels);
+        case 1:
+            return *pixels;
     }
+    return 0;
+}
+
+static void
+set_pixel_32(Uint8 *pixels, SDL_PixelFormat *format, Uint32 pixel)
+{
+    switch (format->BytesPerPixel) {
+        case 4:
+            *(Uint32*)pixels = pixel;
+            break;
+        case 3:
+            *(Uint16*)pixels = pixel;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            pixels[2] = pixel >> 16;
+#else
+            pixels[0] = pixel;
+#endif
+            break;
+        case 2:
+            *(Uint16*)pixels = pixel;
+            break;
+        case 1:
+            *pixels = pixel;
+            break;
+    }
+}
+
+static void
+draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br, SDL_PixelFormat *format)
+{
+    Uint8 pixel32[4];
+    SDL_GetRGBA(get_pixel_32(pixels, format),
+                format, &pixel32[0], &pixel32[1], &pixel32[2], &pixel32[3]);
+    *(Uint32*)pixel32 = SDL_MapRGBA(format,
+                                    br * colors[0] + (1 - br) * pixel32[0],
+                                    br * colors[1] + (1 - br) * pixel32[1],
+                                    br * colors[2] + (1 - br) * pixel32[2],
+                                    br * colors[3] + (1 - br) * pixel32[3]);
+    set_pixel_32(pixels, format, *(Uint32*)pixel32);
+}
+
+#define DRAWPIX32(pixels, colorptr, br, blend) {\
+    if (blend) \
+        draw_pixel_blended_32(pixels, colorptr, br, surf->format); \
+    else {\
+        set_pixel_32(pixels, surf->format, \
+                     SDL_MapRGBA(surf->format, \
+                                 br * colorptr[0], \
+                                 br * colorptr[1], \
+                                 br * colorptr[2], \
+                                 br * colorptr[3])); \
+    }}
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
 static void
@@ -1017,24 +1065,12 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
     int x, y, ix1, ix2, iy1, iy2;
     int pixx, pixy;
 
-    /* for D-RAWPIX32 */
-    int tmp_r, tmp_g, tmp_b, tmp_a;
-    float nbr = 0.0f;
-    Uint8 pixel_r, pixel_g, pixel_b, pixel_a;
-    Uint8 color_r, color_g, color_b, color_a;
-
     Uint8 *pixel;
     Uint8 *pm = (Uint8 *)surf->pixels;
     Uint8 *colorptr = (Uint8 *)&color;
-    const int hasalpha = surf->format->Amask;
+    if (!blend)
+        colorptr[3] = 255;
 
-    if (hasalpha) {
-        SDL_GetRGBA(color, surf->format, &color_r, &color_g, &color_b,
-                    &color_a);
-    }
-    else {
-        SDL_GetRGB(color, surf->format, &color_r, &color_g, &color_b);
-    }
     pixx = surf->format->BytesPerPixel;
     pixy = surf->pitch;
 
