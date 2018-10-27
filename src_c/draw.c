@@ -32,7 +32,7 @@
 #include <math.h>
 
 /* Many C libraries seem to lack the trunc call (added in C99) */
-#define trunc(d) (((d) >= 0.0) ? (floor(d)) : (ceil(d)))
+#define trunc(d) ((int)(d))
 #define FRAC(z) ((z)-trunc(z))
 #define INVFRAC(z) (1 - FRAC(z))
 
