@@ -1060,7 +1060,6 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
 
     Uint8 *pixel;
     Uint8 *pm = (Uint8 *)surf->pixels;
-    Uint8 *colorptr = (Uint8 *)&color;
     SDL_GetRGBA(color, surf->format,
                 &colorptr[0],
                 &colorptr[1],
