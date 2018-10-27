@@ -102,10 +102,6 @@ aaline(PyObject *self, PyObject *arg)
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel != 3 && surf->format->BytesPerPixel != 4)
-        return RAISE(
-            PyExc_ValueError,
-            "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
     CHECK_LOAD_COLOR(colorobj)
 
@@ -232,10 +228,6 @@ aalines(PyObject *self, PyObject *arg)
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel != 3 && surf->format->BytesPerPixel != 4)
-        return RAISE(
-            PyExc_ValueError,
-            "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
     CHECK_LOAD_COLOR(colorobj)
 
@@ -1064,10 +1056,16 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
     float swaptmp;
     int x, y, ix1, ix2, iy1, iy2;
     int pixx, pixy;
+    Uint8 colorptr[4];
 
     Uint8 *pixel;
     Uint8 *pm = (Uint8 *)surf->pixels;
     Uint8 *colorptr = (Uint8 *)&color;
+    SDL_GetRGBA(color, surf->format,
+                &colorptr[0],
+                &colorptr[1],
+                &colorptr[2],
+                &colorptr[3]);
     if (!blend)
         colorptr[3] = 255;
 
