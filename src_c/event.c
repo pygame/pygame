@@ -86,21 +86,21 @@ event_filter(void *_, SDL_Event *event)
                 return 0;
         }
     }
-#warning Add key repeat here. Add event blocking here.
+#pragma PG_WARN(Add key repeat here. Add event blocking here.)
     return 1;
 }
 
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-#warning Add code;
+#pragma PG_WARN(Add code)
     return 0;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
-#warning Add code;
+#pragma PG_WARN(Add code)
     *delay = 0;
     *interval = 0;
 }
@@ -907,7 +907,7 @@ pygame_poll(PyObject *self, PyObject *args)
 
 #if IS_SDLv2
 /* The following three functions are quick and dirty; replace */
-#warning temporary code
+#pragma PG_WARN(temporary code)
 #define SDL_EVENTMASK(e) (mask_event(e))
 static const Uint32 SDL_ALLEVENTS = (Uint32)-1;
 

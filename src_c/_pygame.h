@@ -71,8 +71,11 @@ void *
 _alloca(size_t size);
 #define alloca _alloca
 #endif
-
 #endif
+
+#define PG_STRINGIZE_HELPER(x) #x
+#define PG_STRINGIZE(x) PG_STRINGIZE_HELPER(x)
+#define PG_WARN(desc) message(__FILE__ "(" PG_STRINGIZE(__LINE__) "): WARNING: " #desc)
 
 /* This is unconditionally defined in Python.h */
 #if defined(_POSIX_C_SOURCE)

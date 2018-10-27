@@ -239,7 +239,7 @@ pg_get_active(PyObject *self)
 
 /* vidinfo object */
 #if IS_SDLv2
-#warning "The vidinfo object is not used in SDL2 so far."
+#pragma PG_WARN(The vidinfo object is not used in SDL2 so far.)
 
 #else /* IS_SDLv1 */
 static void
@@ -585,7 +585,7 @@ pg_set_mode(PyObject *self, PyObject *arg)
         /*change existing window*/
         SDL_SetWindowTitle(win, title);
         SDL_SetWindowSize(win, w, h);
-#warning Add mode stuff.
+#pragma PG_WARN(Add mode stuff.)
         surf = SDL_GetWindowSurface(win);
         if (!surf) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -676,14 +676,14 @@ pg_set_mode(PyObject *self, PyObject *arg)
 static PyObject *
 pg_mode_ok(PyObject *self, PyObject *args)
 {
-#warning "implement pg_mode_ok for SDL2"
+#pragma PG_WARN(implement pg_mode_ok for SDL2)
     return PyInt_FromLong((long)0);
 }
 
 static PyObject *
 pg_list_modes(PyObject *self, PyObject *args)
 {
-#warning "implement pg_list_modes for SDL2"
+#pragma PG_WARN(implement pg_list_modes for SDL2)
     Py_RETURN_NONE;
 }
 
@@ -1366,7 +1366,7 @@ pg_iconify(PyObject *self)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
     SDL_MinimizeWindow(win);
-#warning "Does this send the app an SDL_ActiveEvent loss event?";
+#pragma PG_WARN(Does this send the app an SDL_ActiveEvent loss event?)
     return PyInt_FromLong(1);
 }
 
@@ -1549,7 +1549,7 @@ static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                      DOC_PYGAMEDISPLAY,
                                      sizeof(_DisplayState),
                                      _pg_display_methods,
-#warning At some point should add GC slot functions.
+#pragma PG_WARN(At some point should add GC slot functions.)
                                      NULL,
                                      NULL,
                                      NULL,
