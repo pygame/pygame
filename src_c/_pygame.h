@@ -780,6 +780,20 @@ extern void *PyGAME_C_API[PYGAMEAPI_TOTALSLOTS];
 #define encapsulate_api(ptr, module) PyCObject_FromVoidPtr(ptr, NULL)
 #endif
 
+#ifndef PG_INLINE
+#if defined(__clang__)
+#define PG_INLINE __inline__ __attribute__((__unused__))
+#elif defined(__GNUC__)
+#define PG_INLINE __inline__
+#elif defined(_MSC_VER)
+#define PG_INLINE __inline
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define PG_INLINE inline
+#else
+#define PG_INLINE
+#endif
+#endif
+
 /*last platform compiler stuff*/
 #if defined(macintosh) && defined(__MWERKS__) || defined(__SYMBIAN32__)
 #define PYGAME_EXPORT __declspec(export)
