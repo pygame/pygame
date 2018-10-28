@@ -92,7 +92,6 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
     else                                                                   \
         return RAISE(PyExc_TypeError, "invalid color argument");
 
-
 static PyObject *
 aaline(PyObject *self, PyObject *arg)
 {
@@ -111,7 +110,6 @@ aaline(PyObject *self, PyObject *arg)
                           &start, &end, &blend))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
-
 
     CHECK_LOAD_COLOR(colorobj)
 
@@ -237,7 +235,6 @@ aalines(PyObject *self, PyObject *arg)
                           &closedobj, &points, &blend))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
-
 
     CHECK_LOAD_COLOR(colorobj)
 
@@ -548,7 +545,7 @@ circle(PyObject *self, PyObject *arg)
              * ellipse.  We draw another ellipse offset by a pixel, over
              * drawing the missed spots in the filled circle caused by which
              * pixels are filled.
-            */
+             */
             if (width > 1 && loop > 0)
                 draw_ellipse(surf, posx + 1, posy, 2 * (radius - loop),
                              2 * (radius - loop), 0, color);
@@ -767,7 +764,7 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
 #define SWAP(a, b, tmp) \
     tmp = b;            \
     b = a;              \
-    a = tmp;            \
+    a = tmp;
 
 /*this line clipping based heavily off of code from
 http://www.ncsa.uiuc.edu/Vis/Graphics/src/clipCohSuth.c */
@@ -990,15 +987,15 @@ get_pixel_32(Uint8 *pixels, SDL_PixelFormat *format)
 {
     switch (format->BytesPerPixel) {
         case 4:
-            return *((Uint32*)pixels);
+            return *((Uint32 *)pixels);
         case 3:
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-		    return *pixels | *(pixels+1) << 8 | *(pixels+2) << 16;
+            return *pixels | *(pixels + 1) << 8 | *(pixels + 2) << 16;
 #else
-            return *pixels << 16 | *(pixels+1) << 8 | *(pixels+2);
+            return *pixels << 16 | *(pixels + 1) << 8 | *(pixels + 2);
 #endif
         case 2:
-            return *((Uint16*)pixels);
+            return *((Uint16 *)pixels);
         case 1:
             return *pixels;
     }
@@ -1010,10 +1007,10 @@ set_pixel_32(Uint8 *pixels, SDL_PixelFormat *format, Uint32 pixel)
 {
     switch (format->BytesPerPixel) {
         case 4:
-            *(Uint32*)pixels = pixel;
+            *(Uint32 *)pixels = pixel;
             break;
         case 3:
-            *(Uint16*)pixels = pixel;
+            *(Uint16 *)pixels = pixel;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
             pixels[2] = pixel >> 16;
 #else
@@ -1021,7 +1018,7 @@ set_pixel_32(Uint8 *pixels, SDL_PixelFormat *format, Uint32 pixel)
 #endif
             break;
         case 2:
-            *(Uint16*)pixels = pixel;
+            *(Uint16 *)pixels = pixel;
             break;
         case 1:
             *pixels = pixel;
@@ -1030,30 +1027,31 @@ set_pixel_32(Uint8 *pixels, SDL_PixelFormat *format, Uint32 pixel)
 }
 
 static void
-draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br, SDL_PixelFormat *format)
+draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br,
+                      SDL_PixelFormat *format)
 {
     Uint8 pixel32[4];
-    SDL_GetRGBA(get_pixel_32(pixels, format),
-                format, &pixel32[0], &pixel32[1], &pixel32[2], &pixel32[3]);
-    *(Uint32*)pixel32 = SDL_MapRGBA(format,
-                                    br * colors[0] + (1 - br) * pixel32[0],
-                                    br * colors[1] + (1 - br) * pixel32[1],
-                                    br * colors[2] + (1 - br) * pixel32[2],
-                                    br * colors[3] + (1 - br) * pixel32[3]);
-    set_pixel_32(pixels, format, *(Uint32*)pixel32);
+    SDL_GetRGBA(get_pixel_32(pixels, format), format, &pixel32[0], &pixel32[1],
+                &pixel32[2], &pixel32[3]);
+    *(Uint32 *)pixel32 =
+        SDL_MapRGBA(format, br * colors[0] + (1 - br) * pixel32[0],
+                    br * colors[1] + (1 - br) * pixel32[1],
+                    br * colors[2] + (1 - br) * pixel32[2],
+                    br * colors[3] + (1 - br) * pixel32[3]);
+    set_pixel_32(pixels, format, *(Uint32 *)pixel32);
 }
 
-#define DRAWPIX32(pixels, colorptr, br, blend) {\
-    if (blend) \
-        draw_pixel_blended_32(pixels, colorptr, br, surf->format); \
-    else {\
-        set_pixel_32(pixels, surf->format, \
-                     SDL_MapRGBA(surf->format, \
-                                 br * colorptr[0], \
-                                 br * colorptr[1], \
-                                 br * colorptr[2], \
-                                 br * colorptr[3])); \
-    }}
+#define DRAWPIX32(pixels, colorptr, br, blend)                              \
+    {                                                                       \
+        if (blend)                                                          \
+            draw_pixel_blended_32(pixels, colorptr, br, surf->format);      \
+        else {                                                              \
+            set_pixel_32(                                                   \
+                pixels, surf->format,                                       \
+                SDL_MapRGBA(surf->format, br *colorptr[0], br *colorptr[1], \
+                            br *colorptr[2], br *colorptr[3]));             \
+        }                                                                   \
+    }
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
 static void
@@ -1070,10 +1068,7 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
 
     Uint8 *pixel;
     Uint8 *pm = (Uint8 *)surf->pixels;
-    SDL_GetRGBA(color, surf->format,
-                &colorptr[0],
-                &colorptr[1],
-                &colorptr[2],
+    SDL_GetRGBA(color, surf->format, &colorptr[0], &colorptr[1], &colorptr[2],
                 &colorptr[3]);
     if (!blend)
         colorptr[3] = 255;
