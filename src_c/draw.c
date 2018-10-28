@@ -31,8 +31,18 @@
 
 #include <math.h>
 
-/* Many C libraries seem to lack the trunc call (added in C99) */
-#define trunc(d) ((int)(d))
+/*
+    Many C libraries seem to lack the trunc call (added in C99).
+
+    Not sure int() is usable for all cases where trunc is used in this code?
+    However casting to int gives quite a speedup over the one defined.
+    Now sure how it compares to the trunc built into the C library.
+    #define trunc(d) ((int)(d))
+*/
+#ifndef trunc
+#define trunc(d) (((d) >= 0.0) ? (floor(d)) : (ceil(d)))
+#endif
+
 #define FRAC(z) ((z)-trunc(z))
 #define INVFRAC(z) (1 - FRAC(z))
 
