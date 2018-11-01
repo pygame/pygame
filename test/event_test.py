@@ -7,8 +7,8 @@ from pygame.compat import as_unicode
 ################################################################################
 
 events = (
-    pygame.NOEVENT,
-    pygame.ACTIVEEVENT,
+#   pygame.NOEVENT,
+#   pygame.ACTIVEEVENT,
     pygame.KEYDOWN,
     pygame.KEYUP,
     pygame.MOUSEMOTION,
@@ -24,7 +24,7 @@ events = (
     pygame.QUIT,
     pygame.SYSWMEVENT,
     pygame.USEREVENT,
-    pygame.NUMEVENTS,
+#   pygame.NUMEVENTS,
 )
 
 class EventTypeTest(unittest.TestCase):
@@ -77,7 +77,7 @@ class EventTypeTest(unittest.TestCase):
         # For Python 3.x str(event) to raises an UnicodeEncodeError when
         # an event attribute is a string with a non-ascii character.
         try:
-            str(pygame.event.Event(events[1], a=as_unicode(r"\xed")))
+            str(pygame.event.Event(events[0], a=as_unicode(r"\xed")))
         except UnicodeEncodeError:
             self.fail("Event object raised exception for non-ascii character")
         # Passed.
@@ -111,7 +111,7 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.set_blocked(None): return None
           # control which events are allowed on the queue
 
-        event = events[2]
+        event = events[0]
 
         pygame.event.set_blocked(event)
 
@@ -123,6 +123,11 @@ class EventModuleTest(unittest.TestCase):
         should_be_blocked = [e for e in ret if e.type == event]
 
         self.assertEquals(should_be_blocked, [])
+
+    def test_set_blocked_all(self):
+        pygame.event.set_blocked(None)
+        for e in events:
+            self.assert_(pygame.event.get_blocked(e))
 
     def test_post__and_poll(self):
         # __doc__ (as of 2008-06-25) for pygame.event.post:
@@ -177,7 +182,7 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.clear(typelist): return None
           # remove all events from the queue
 
-        for e in events[1:]:
+        for e in events:
             pygame.event.post(pygame.event.Event(e))
 
         self.assert_(pygame.event.poll())  # there are some events on queue
@@ -202,7 +207,7 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.wait(): return Event
           # wait for a single event from the queue
 
-        pygame.event.post ( pygame.event.Event(events[2]) )
+        pygame.event.post ( pygame.event.Event(events[0]) )
         self.assert_(pygame.event.wait())
 
     def test_peek(self):
@@ -238,7 +243,6 @@ class EventModuleTest(unittest.TestCase):
         self.assert_(not pygame.event.get_blocked(event))
 
     def test_set_allowed_all(self):
-        Event = pygame.event.Event
         pygame.event.set_blocked(None)
         for e in events:
             self.assert_(pygame.event.get_blocked(e))
@@ -273,10 +277,10 @@ class EventModuleTest(unittest.TestCase):
         self.assert_(not pygame.event.get_grab())
 
     def test_event_equality(self):
-        a = pygame.event.Event(events[1], a=1)
-        b = pygame.event.Event(events[1], a=1)
-        c = pygame.event.Event(events[2], a=1)
-        d = pygame.event.Event(events[1], a=2)
+        a = pygame.event.Event(events[0], a=1)
+        b = pygame.event.Event(events[0], a=1)
+        c = pygame.event.Event(events[1], a=1)
+        d = pygame.event.Event(events[0], a=2)
 
         self.failUnless(a == a)
         self.assertFalse(a != a)
