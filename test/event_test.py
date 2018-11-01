@@ -170,8 +170,8 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.event_name(type): return string
           # get the string name from and event id
 
-        self.assertEquals(pygame.event.event_name(2), "KeyDown")
-        self.assertEquals(pygame.event.event_name(24), "UserEvent")
+        self.assertEquals(pygame.event.event_name(pygame.KEYDOWN), "KeyDown")
+        self.assertEquals(pygame.event.event_name(pygame.USEREVENT), "UserEvent")
 
     def test_wait(self):
         # __doc__ (as of 2008-06-25) for pygame.event.wait:
@@ -190,7 +190,7 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.peek(typelist): return bool
           # test if event types are waiting on the queue
 
-        event_types = [2, 3, 4]
+        event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION]
 
         for event_type in event_types:
             pygame.event.post (
