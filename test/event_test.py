@@ -231,11 +231,20 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.set_allowed(None): return None
           # control which events are allowed on the queue
 
-        event = events[2]
+        event = events[0]
         pygame.event.set_blocked(event)
         self.assert_(pygame.event.get_blocked(event))
         pygame.event.set_allowed(event)
         self.assert_(not pygame.event.get_blocked(event))
+
+    def test_set_allowed_all(self):
+        Event = pygame.event.Event
+        pygame.event.set_blocked(None)
+        for e in events:
+            self.assert_(pygame.event.get_blocked(e))
+        pygame.event.set_allowed(None)
+        for e in events:
+            self.assert_(not pygame.event.get_blocked(e))
 
     def test_pump(self):
         # __doc__ (as of 2008-06-25) for pygame.event.pump:

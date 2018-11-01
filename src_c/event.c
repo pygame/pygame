@@ -1258,9 +1258,15 @@ set_allowed(PyObject *self, PyObject *args)
             SDL_EventState(val, SDL_ENABLE);
         }
     }
-    else if (type == Py_None)
+    else if (type == Py_None) {
+#if IS_SDLv2
+        for (int i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+            SDL_EventState(i, SDL_ENABLE);
+        }
+#else
         SDL_EventState(0xFF, SDL_ENABLE);
-    else if (pg_IntFromObj(type, &val)) {
+#endif /* IS_SDLv2 */
+    } else if (pg_IntFromObj(type, &val)) {
         if (!CheckEventInRange(val))
             return RAISE(PyExc_ValueError, "Invalid event");
         SDL_EventState(val, SDL_ENABLE);
@@ -1295,9 +1301,15 @@ set_blocked(PyObject *self, PyObject *args)
             SDL_EventState(val, SDL_IGNORE);
         }
     }
-    else if (type == Py_None)
+    else if (type == Py_None) {
+#if IS_SDLv2
+        for (int i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+            SDL_EventState(i, SDL_IGNORE);
+        }
+#else
         SDL_EventState(0xFF, SDL_IGNORE);
-    else if (pg_IntFromObj(type, &val)) {
+#endif /* IS_SDLv2 */
+    } else if (pg_IntFromObj(type, &val)) {
         if (!CheckEventInRange(val))
             return RAISE(PyExc_ValueError, "Invalid event");
         SDL_EventState(val, SDL_IGNORE);
