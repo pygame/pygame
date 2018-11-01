@@ -1049,7 +1049,7 @@ event_get(PyObject *self, PyObject *args)
 static PG_INLINE void
 event_append_to_list(PyObject *list, SDL_Event *event)
 {
-    PyObject *e = pgEvent_New(&event);
+    PyObject *e = pgEvent_New(event);
     if (!e) {
         Py_DECREF(list);
         return NULL;

@@ -171,7 +171,9 @@ class EventModuleTest(unittest.TestCase):
         for _ in range(1, 11):
             pygame.event.post(pygame.event.Event(pygame.USEREVENT))
 
-        self.assert_ ( len(pygame.event.get()) >= 10 )
+        queue = pygame.event.get()
+        self.assert_ ( len(queue) >= 10 )
+        self.assert_ ( all(e.type == pygame.USEREVENT for e in queue) )
 
     def test_clear(self):
 
