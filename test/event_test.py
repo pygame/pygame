@@ -233,6 +233,7 @@ class EventModuleTest(unittest.TestCase):
         if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
             return
 
+        surf = pygame.display.set_mode((10,10))
         pygame.event.set_grab(True)
         self.assert_(pygame.event.get_grab())
         pygame.event.set_grab(False)
