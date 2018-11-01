@@ -800,14 +800,23 @@ encodeFloat(float x, float y, int left, int top, int right, int bottom)
 }
 
 static int
-clip_aaline(float *pts, int left, int top, int right, int bottom)
+clip_aaline(float *segment, int left, int top, int right, int bottom)
 {
-    float x1 = pts[0];
-    float y1 = pts[1];
-    float x2 = pts[2];
-    float y2 = pts[3];
+    /*
+     * Algorithm to calculate the clipped anti-aliased line.
+     *
+     * We write the coordinates of the part of the line
+     * segment within the bounding box defined
+     * by (left, top, right, bottom) into the "segment" array.
+     * Returns 0 if we don't have to draw anything, eg if the
+     * segment = [from_x, from_y, to_x, to_y]
+     * doesn't cross the bounding box.
+     */
+    float x1 = segment[0];
+    float y1 = segment[1];
+    float x2 = segment[2];
+    float y2 = segment[3];
     int code1, code2;
-    int draw = 0;
     float swaptmp;
     int intswaptmp;
     float m; /*slope*/
@@ -816,23 +825,20 @@ clip_aaline(float *pts, int left, int top, int right, int bottom)
         code1 = encodeFloat(x1, y1, left, top, right, bottom);
         code2 = encodeFloat(x2, y2, left, top, right, bottom);
         if (ACCEPT(code1, code2)) {
-            draw = 1;
-            break;
+            segment[0] = x1;
+            segment[1] = y1;
+            segment[2] = x2;
+            segment[3] = y2;
+            return 1;
         }
         else if (REJECT(code1, code2)) {
-            break;
+            return 0;
         }
         else {
             if (INSIDE(code1)) {
-                swaptmp = x2;
-                x2 = x1;
-                x1 = swaptmp;
-                swaptmp = y2;
-                y2 = y1;
-                y1 = swaptmp;
-                intswaptmp = code2;
-                code2 = code1;
-                code1 = intswaptmp;
+                SWAP(x1, x2, swaptmp)
+                SWAP(y1, y2, swaptmp)
+                SWAP(code1, code2, intswaptmp)
             }
             if (x2 != x1)
                 m = (y2 - y1) / (x2 - x1);
@@ -858,33 +864,20 @@ clip_aaline(float *pts, int left, int top, int right, int bottom)
             }
         }
     }
-    if (draw) {
-        pts[0] = x1;
-        pts[1] = y1;
-        pts[2] = x2;
-        pts[3] = y2;
-    }
-    return draw;
 }
 
 static int
-clipline(int *pts, int left, int top, int right, int bottom)
+clipline(int *segment, int left, int top, int right, int bottom)
 {
     /*
      * Algorithm to calculate the clipped line.
-     *
-     * We write the coordinates of the part of the line
-     * segment within the bounding box defined
-     * by (left, top, right, bottom) into the "pts" array.
-     * Returns 0 if we don't have to draw anything, eg if the
-     * segment defined throuth "pts" doesn't cross the bounding box.
+     * It's like clip_aaline, but for integer coordinate endpoints.
      */
-    int x1 = pts[0];
-    int y1 = pts[1];
-    int x2 = pts[2];
-    int y2 = pts[3];
+    int x1 = segment[0];
+    int y1 = segment[1];
+    int x2 = segment[2];
+    int y2 = segment[3];
     int code1, code2;
-    int draw = 0;
     int swaptmp;
     float m; /*slope*/
 
@@ -892,15 +885,14 @@ clipline(int *pts, int left, int top, int right, int bottom)
         code1 = encode(x1, y1, left, top, right, bottom);
         code2 = encode(x2, y2, left, top, right, bottom);
         if (ACCEPT(code1, code2)) {
-            draw = 1;
-            pts[0] = x1;
-            pts[1] = y1;
-            pts[2] = x2;
-            pts[3] = y2;
-            break;
+            segment[0] = x1;
+            segment[1] = y1;
+            segment[2] = x2;
+            segment[3] = y2;
+            return 1;
         }
         else if (REJECT(code1, code2))
-            break;
+            return 0;
         else {
             if (INSIDE(code1)) {
                 SWAP(x1, x2, swaptmp)
@@ -931,7 +923,6 @@ clipline(int *pts, int left, int top, int right, int bottom)
             }
         }
     }
-    return draw;
 }
 
 static int
