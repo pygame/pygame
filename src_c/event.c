@@ -1255,15 +1255,15 @@ set_allowed(PyObject *self, PyObject *args)
                              "type sequence must contain valid event types");
             if (!CheckEventInRange(val))
                 return RAISE(PyExc_ValueError, "Invalid event in sequence");
-            SDL_EventState((Uint8)val, SDL_ENABLE);
+            SDL_EventState(val, SDL_ENABLE);
         }
     }
     else if (type == Py_None)
-        SDL_EventState((Uint8)0xFF, SDL_IGNORE);
+        SDL_EventState(0xFF, SDL_IGNORE);
     else if (pg_IntFromObj(type, &val)) {
         if (!CheckEventInRange(val))
             return RAISE(PyExc_ValueError, "Invalid event");
-        SDL_EventState((Uint8)val, SDL_ENABLE);
+        SDL_EventState(val, SDL_ENABLE);
     }
     else
         return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
@@ -1292,15 +1292,15 @@ set_blocked(PyObject *self, PyObject *args)
                              "type sequence must contain valid event types");
             if (!CheckEventInRange(val))
                 return RAISE(PyExc_ValueError, "Invalid event in sequence");
-            SDL_EventState((Uint8)val, SDL_IGNORE);
+            SDL_EventState(val, SDL_IGNORE);
         }
     }
     else if (type == Py_None)
-        SDL_EventState((Uint8)0xFF, SDL_IGNORE);
+        SDL_EventState(0xFF, SDL_IGNORE);
     else if (pg_IntFromObj(type, &val)) {
         if (!CheckEventInRange(val))
             return RAISE(PyExc_ValueError, "Invalid event");
-        SDL_EventState((Uint8)val, SDL_IGNORE);
+        SDL_EventState(val, SDL_IGNORE);
     }
     else
         return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
@@ -1330,13 +1330,13 @@ get_blocked(PyObject *self, PyObject *args)
                              "type sequence must contain valid event types");
             if (!CheckEventInRange(val))
                 return RAISE(PyExc_ValueError, "Invalid event in sequence");
-            isblocked |= SDL_EventState((Uint8)val, SDL_QUERY) == SDL_IGNORE;
+            isblocked |= SDL_EventState(val, SDL_QUERY) == SDL_IGNORE;
         }
     }
     else if (pg_IntFromObj(type, &val)) {
         if (!CheckEventInRange(val))
             return RAISE(PyExc_ValueError, "Invalid event");
-        isblocked = SDL_EventState((Uint8)val, SDL_QUERY) == SDL_IGNORE;
+        isblocked = SDL_EventState(val, SDL_QUERY) == SDL_IGNORE;
     }
     else
         return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
