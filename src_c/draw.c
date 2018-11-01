@@ -1047,14 +1047,14 @@ draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br, SDL_PixelFormat *f
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
 static void
-drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
-           float y2, int blend)
+drawaaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to_x,
+           float to_y, int blend)
 {
-    float grad, xd, yd;
+    float gradient, dx, dy;
     float xgap, ygap, xend, yend, xf, yf;
     float brightness1, brightness2;
     float swaptmp;
-    int x, y, ix1, ix2, iy1, iy2;
+    int x, y, ifrom_x, ito_x, ifrom_y, ito_y;
     int pixx, pixy;
     Uint8 colorptr[4];
 
@@ -1071,96 +1071,96 @@ drawaaline(SDL_Surface *surf, Uint32 color, float x1, float y1, float x2,
     pixx = surf->format->BytesPerPixel;
     pixy = surf->pitch;
 
-    xd = x2 - x1;
-    yd = y2 - y1;
+    dx = to_x - from_x;
+    dy = to_y - from_y;
 
-    if (xd == 0 && yd == 0) {
+    if (dx == 0 && dy == 0) {
         /* Single point. Due to the nature of the aaline clipping, this
          * is less exact than the normal line. */
-        set_at(surf, x1, y1, color);
+        set_at(surf, from_x, from_y, color);
         return;
     }
 
-    if (fabs(xd) > fabs(yd)) {
-        if (x1 > x2) {
-            SWAP(x1, x2, swaptmp)
-            SWAP(y1, y2, swaptmp)
-            xd = (x2 - x1);
-            yd = (y2 - y1);
+    if (fabs(dx) > fabs(dy)) {
+        if (from_x > to_x) {
+            SWAP(from_x, to_x, swaptmp)
+            SWAP(from_y, to_y, swaptmp)
+            dx = (to_x - from_x);
+            dy = (to_y - from_y);
         }
-        grad = yd / xd;
-        xend = trunc(x1) + 0.5; /* This makes more sense than trunc(x1+0.5) */
-        yend = y1 + grad * (xend - x1);
-        xgap = INVFRAC(x1);
-        ix1 = (int)xend;
-        iy1 = (int)yend;
-        yf = yend + grad;
+        gradient = dy / dx;
+        xend = trunc(from_x) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
+        yend = from_y + gradient * (xend - from_x);
+        xgap = INVFRAC(from_x);
+        ifrom_x = (int)xend;
+        ifrom_y = (int)yend;
+        yf = yend + gradient;
         brightness1 = INVFRAC(yend) * xgap;
         brightness2 = FRAC(yend) * xgap;
-        pixel = pm + pixx * ix1 + pixy * iy1;
+        pixel = pm + pixx * ifrom_x + pixy * ifrom_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixy;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
-        xend = trunc(x2) + 0.5;
-        yend = y2 + grad * (xend - x2);
-        xgap = FRAC(x2); /* this also differs from Hugo's description. */
-        ix2 = (int)xend;
-        iy2 = (int)yend;
+        xend = trunc(to_x) + 0.5;
+        yend = to_y + gradient * (xend - to_x);
+        xgap = FRAC(to_x); /* this also differs from Hugo's description. */
+        ito_x = (int)xend;
+        ito_y = (int)yend;
         brightness1 = INVFRAC(yend) * xgap;
         brightness2 = FRAC(yend) * xgap;
-        pixel = pm + pixx * ix2 + pixy * iy2;
+        pixel = pm + pixx * ito_x + pixy * ito_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixy;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
-        for (x = ix1 + 1; x < ix2; ++x) {
+        for (x = ifrom_x + 1; x < ito_x; ++x) {
             brightness1 = INVFRAC(yf);
             brightness2 = FRAC(yf);
             pixel = pm + pixx * x + pixy * (int)yf;
             DRAWPIX32(pixel, colorptr, brightness1, blend)
             pixel += pixy;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
-            yf += grad;
+            yf += gradient;
         }
     }
     else {
-        if (y1 > y2) {
-            SWAP(x1, x2, swaptmp)
-            SWAP(y1, y2, swaptmp)
-            yd = (y2 - y1);
-            xd = (x2 - x1);
+        if (from_y > to_y) {
+            SWAP(from_x, to_x, swaptmp)
+            SWAP(from_y, to_y, swaptmp)
+            dy = (to_y - from_y);
+            dx = (to_x - from_x);
         }
-        grad = xd / yd;
-        yend = trunc(y1) + 0.5; /* This makes more sense than trunc(x1+0.5) */
-        xend = x1 + grad * (yend - y1);
-        ygap = INVFRAC(y1);
-        iy1 = (int)yend;
-        ix1 = (int)xend;
-        xf = xend + grad;
+        gradient = dx / dy;
+        yend = trunc(from_y) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
+        xend = from_x + gradient * (yend - from_y);
+        ygap = INVFRAC(from_y);
+        ifrom_y = (int)yend;
+        ifrom_x = (int)xend;
+        xf = xend + gradient;
         brightness1 = INVFRAC(xend) * ygap;
         brightness2 = FRAC(xend) * ygap;
-        pixel = pm + pixx * ix1 + pixy * iy1;
+        pixel = pm + pixx * ifrom_x + pixy * ifrom_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixx;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
-        yend = trunc(y2) + 0.5;
-        xend = x2 + grad * (yend - y2);
-        ygap = FRAC(y2);
-        iy2 = (int)yend;
-        ix2 = (int)xend;
+        yend = trunc(to_y) + 0.5;
+        xend = to_x + gradient * (yend - to_y);
+        ygap = FRAC(to_y);
+        ito_y = (int)yend;
+        ito_x = (int)xend;
         brightness1 = INVFRAC(xend) * ygap;
         brightness2 = FRAC(xend) * ygap;
-        pixel = pm + pixx * ix2 + pixy * iy2;
+        pixel = pm + pixx * ito_x + pixy * ito_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixx;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
-        for (y = iy1 + 1; y < iy2; ++y) {
+        for (y = ifrom_y + 1; y < ito_y; ++y) {
             brightness1 = INVFRAC(xf);
             brightness2 = FRAC(xf);
             pixel = pm + pixx * (int)xf + pixy * y;
             DRAWPIX32(pixel, colorptr, brightness1, blend)
             pixel += pixx;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
-            xf += grad;
+            xf += gradient;
         }
     }
 }
