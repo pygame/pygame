@@ -51,12 +51,12 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
 static int
 clipline(int *pts, int left, int top, int right, int bottom);
 static int
-clipaaline(float *pts, int left, int top, int right, int bottom);
+clip_aaline(float *pts, int left, int top, int right, int bottom);
 static void
 drawline(SDL_Surface *surf, Uint32 color, int startx, int starty, int endx,
          int endy);
 static void
-drawaaline(SDL_Surface *surf, Uint32 color, float startx, float starty,
+draw_aaline(SDL_Surface *surf, Uint32 color, float startx, float starty,
            float endx, float endy, int blend);
 static void
 drawhorzline(SDL_Surface *surf, Uint32 color, int startx, int starty,
@@ -676,10 +676,10 @@ static int
 clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                      float *pts, int blend)
 {
-    if (!clipaaline(pts, rect->x + 1, rect->y + 1, rect->x + rect->w - 2,
+    if (!clip_aaline(pts, rect->x + 1, rect->y + 1, rect->x + rect->w - 2,
                     rect->y + rect->h - 2))
         return 0;
-    drawaaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend);
+    draw_aaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend);
     return 1;
 }
 
@@ -800,7 +800,7 @@ encodeFloat(float x, float y, int left, int top, int right, int bottom)
 }
 
 static int
-clipaaline(float *pts, int left, int top, int right, int bottom)
+clip_aaline(float *pts, int left, int top, int right, int bottom)
 {
     float x1 = pts[0];
     float y1 = pts[1];
@@ -1047,11 +1047,11 @@ draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br, SDL_PixelFormat *f
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
 static void
-drawaaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to_x,
+draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to_x,
            float to_y, int blend)
 {
     float gradient, dx, dy;
-    float xgap, ygap, xend, yend, xf, yf;
+    float xgap, ygap, pt_x, pt_y, xf, yf;
     float brightness1, brightness2;
     float swaptmp;
     int x, y, ifrom_x, ito_x, ifrom_y, ito_y;
@@ -1059,7 +1059,7 @@ drawaaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to
     Uint8 colorptr[4];
 
     Uint8 *pixel;
-    Uint8 *pm = (Uint8 *)surf->pixels;
+    Uint8 *surf_pmap = (Uint8 *)surf->pixels;
     SDL_GetRGBA(color, surf->format,
                 &colorptr[0],
                 &colorptr[1],
@@ -1089,33 +1089,36 @@ drawaaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to
             dy = (to_y - from_y);
         }
         gradient = dy / dx;
-        xend = trunc(from_x) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
-        yend = from_y + gradient * (xend - from_x);
+        // 1. Draw start of the segment
+        pt_x = trunc(from_x) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
+        pt_y = from_y + gradient * (pt_x - from_x);
         xgap = INVFRAC(from_x);
-        ifrom_x = (int)xend;
-        ifrom_y = (int)yend;
-        yf = yend + gradient;
-        brightness1 = INVFRAC(yend) * xgap;
-        brightness2 = FRAC(yend) * xgap;
-        pixel = pm + pixx * ifrom_x + pixy * ifrom_y;
+        ifrom_x = (int)pt_x;
+        ifrom_y = (int)pt_y;
+        yf = pt_y + gradient;
+        brightness1 = INVFRAC(pt_y) * xgap;
+        brightness2 = FRAC(pt_y) * xgap;
+        pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixy;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
-        xend = trunc(to_x) + 0.5;
-        yend = to_y + gradient * (xend - to_x);
+        // 2. Draw end of the segment
+        pt_x = trunc(to_x) + 0.5;
+        pt_y = to_y + gradient * (pt_x - to_x);
         xgap = FRAC(to_x); /* this also differs from Hugo's description. */
-        ito_x = (int)xend;
-        ito_y = (int)yend;
-        brightness1 = INVFRAC(yend) * xgap;
-        brightness2 = FRAC(yend) * xgap;
-        pixel = pm + pixx * ito_x + pixy * ito_y;
+        ito_x = (int)pt_x;
+        ito_y = (int)pt_y;
+        brightness1 = INVFRAC(pt_y) * xgap;
+        brightness2 = FRAC(pt_y) * xgap;
+        pixel = surf_pmap + pixx * ito_x + pixy * ito_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixy;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
+        // 3. loop for other points
         for (x = ifrom_x + 1; x < ito_x; ++x) {
             brightness1 = INVFRAC(yf);
             brightness2 = FRAC(yf);
-            pixel = pm + pixx * x + pixy * (int)yf;
+            pixel = surf_pmap + pixx * x + pixy * (int)yf;
             DRAWPIX32(pixel, colorptr, brightness1, blend)
             pixel += pixy;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
@@ -1130,33 +1133,36 @@ drawaaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to
             dx = (to_x - from_x);
         }
         gradient = dx / dy;
-        yend = trunc(from_y) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
-        xend = from_x + gradient * (yend - from_y);
+        // 1. Draw start of the segment
+        pt_y = trunc(from_y) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
+        pt_x = from_x + gradient * (pt_y - from_y);
         ygap = INVFRAC(from_y);
-        ifrom_y = (int)yend;
-        ifrom_x = (int)xend;
-        xf = xend + gradient;
-        brightness1 = INVFRAC(xend) * ygap;
-        brightness2 = FRAC(xend) * ygap;
-        pixel = pm + pixx * ifrom_x + pixy * ifrom_y;
+        ifrom_y = (int)pt_y;
+        ifrom_x = (int)pt_x;
+        xf = pt_x + gradient;
+        brightness1 = INVFRAC(pt_x) * ygap;
+        brightness2 = FRAC(pt_x) * ygap;
+        pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixx;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
-        yend = trunc(to_y) + 0.5;
-        xend = to_x + gradient * (yend - to_y);
+        // 2. Draw end of the segment
+        pt_y = trunc(to_y) + 0.5;
+        pt_x = to_x + gradient * (pt_y - to_y);
         ygap = FRAC(to_y);
-        ito_y = (int)yend;
-        ito_x = (int)xend;
-        brightness1 = INVFRAC(xend) * ygap;
-        brightness2 = FRAC(xend) * ygap;
-        pixel = pm + pixx * ito_x + pixy * ito_y;
+        ito_y = (int)pt_y;
+        ito_x = (int)pt_x;
+        brightness1 = INVFRAC(pt_x) * ygap;
+        brightness2 = FRAC(pt_x) * ygap;
+        pixel = surf_pmap + pixx * ito_x + pixy * ito_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
         pixel += pixx;
         DRAWPIX32(pixel, colorptr, brightness2, blend)
+        // 3. loop for other points
         for (y = ifrom_y + 1; y < ito_y; ++y) {
             brightness1 = INVFRAC(xf);
             brightness2 = FRAC(xf);
-            pixel = pm + pixx * (int)xf + pixy * y;
+            pixel = surf_pmap + pixx * (int)xf + pixy * y;
             DRAWPIX32(pixel, colorptr, brightness1, blend)
             pixel += pixx;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
