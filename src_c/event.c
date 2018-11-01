@@ -1259,7 +1259,7 @@ set_allowed(PyObject *self, PyObject *args)
         }
     }
     else if (type == Py_None)
-        SDL_EventState(0xFF, SDL_IGNORE);
+        SDL_EventState(0xFF, SDL_ENABLE);
     else if (pg_IntFromObj(type, &val)) {
         if (!CheckEventInRange(val))
             return RAISE(PyExc_ValueError, "Invalid event");
