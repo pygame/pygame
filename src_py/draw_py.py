@@ -243,6 +243,77 @@ def _draw_line(surf, color, x1, y1, x2, y2):
                 error -= 1
 
 
+def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
+    '''draw a non-horizontal anti-aliased line.'''
+    dx = to_x - from_x
+    dy = to_y - from_y
+
+    if dx == 0 and dy == 0:
+        return
+
+    if abs(dx) > abs(dy):
+        if from_x > to_x:
+            from_x, to_x = to_x, from_x
+            from_y, to_y = to_y, from_y
+            dx = -dx
+            dy = -dy
+
+        slope = dy / dx
+        rest = inv_frac(from_x)
+        # A and G are respectively left and right to the "from" point, but
+        # with integer-x-coordinate, (and only if from_x is not integer).
+        # Hence they appear in following order on the line in general case:
+        #  A   from-pt    G    .  .  .    S   to-pt
+        #  |------x-------|--- .  .  . ---|-----x-------
+        G_x, G_y = ceil(from_x), from_y + rest * slope
+        A_x, A_y = int(from_x), G_y - slope
+
+        # 0. Very short line with only one pixel
+        if to_x < G_x:  # both from_x and to_x are in the same pixel
+            rest = to_x - from_x
+            draw_pixel(surf, A_x, y, color, rest * frac(A_y), blend)
+            draw_pixel(surf, A_x, y + 1, color, rest * inv_frac(A_y), blend)
+            return
+
+        # 1. Draw start of the segment
+        if G_x != from_x:
+            # we draw only if we have a non-integer-part at start of the line
+            y = int(A_y)
+            draw_pixel(surf, A_x, y, color, rest * frac(A_y), blend)
+            draw_pixel(surf, A_x, y + 1, color, rest * inv_frac(A_y), blend)
+
+        # 2. Draw end of the segment
+        rest = frac(to_x)
+        S_x, S_y = int(to_x), from_y + slope * (dx - rest)
+        if S_x != to_x:
+            # Again we draw only if we have a non-integer-part
+            y = int(S_y)
+            draw_pixel(surf, S_x, y, color, rest * inv_frac(S_y), blend)
+            draw_pixel(surf, S_x, y + 1, color, rest * frac(S_y), blend)
+
+        # 3. loop for other points
+        for x in range(G_x, S_x - 1):
+            y = G_y + slope * (x - G_x)
+            y_int = int(y)
+            draw_pixel(surf, x, y_int, color, inv_frac(y), blend)
+            draw_pixel(surf, x, y_int + 1, color, frac(y), blend)
+
+    else:
+        if from_y > to_y:
+            from_x, to_x = to_x, from_x
+            from_y, to_y = to_y, from_y
+            dx = -dx
+            dy = -dy
+
+        slope = dx / dy
+        # 1. Draw start of the segment
+        # TODO
+        # 2. Draw end of the segment
+        # TODO
+        # 3. loop for other points
+        # TODO
+
+
 def _clip_and_draw_line_width(surf, rect, color, width, line):
     yinc = xinc = 0
     if abs(line[0] - line[2]) > abs(line[1] - line[3]):
