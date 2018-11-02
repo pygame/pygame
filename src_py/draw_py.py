@@ -7,17 +7,22 @@ and debugging.
 # from __future__ import relative_imports
 # from math import floor, ceil, trunc
 
+def ceil(x):
+    int_x = int(x)
+    return int_x if (int_x == x) else int_x + 1
+
+
 #   H E L P E R   F U N C T I O N S    #
 
 # fractional part of x
 
-def fpart(x):
+def frac(x):
     '''return fractional part of x'''
-    return x - floor(x)
+    return x - int(x)
 
-def rfpart(x):
+def inv_frac(x):
     '''return inverse fractional part of x'''
-    return 1 - (x - floor(x)) # eg, 1 - fpart(x)
+    return 1 - (x - int(x)) # eg, 1 - frac(x)
 
 
 #   L O W   L E V E L   D R A W   F U N C T I O N S   #
@@ -25,6 +30,14 @@ def rfpart(x):
 
 def set_at(surf, x, y, color):
     surf.set_at((x, y), color)
+
+
+def draw_pixel(surf, x, y, color, bright, blend=True):
+    other_col = surf.get_at((x, y)) if blend else (0, 0, 0, 0)
+    new_color = tuple((bright * col + (1 - bright) * pix)
+                      for col, pix in zip(color, other_col))
+    # FIXME what should happen if either color or surf_col has some alpha ?
+    surf.set_at((x, y), new_color)
 
 
 def _drawhorzline(surf, color, x_from, y, x_to):
@@ -104,17 +117,19 @@ ACCEPT = lambda a, b: not (a or b)
 REJECT = lambda a, b: a and b
 
 
-def clip_line(line, left, top, right, bottom):
+def clip_line(line, left, top, right, bottom, use_float=False):
     '''Algorithm to calculate the clipped line.
 
     We calculate the coordinates of the part of the line segment within the
     bounding box (defined by left, top, right, bottom). The we write
     the coordinates of the line segment into "line", much like the C-algorithm.
+    With `use_float` True, clip_line is usable for float-clipping.
 
     Returns: true if the line segment cuts the bounding box (false otherwise)
     '''
     assert isinstance(line, list)
     x1, y1, x2, y2 = line
+    dtype = float if use_float else int
 
     while True:
         # the coordinates are progressively modified with the codes,
@@ -141,18 +156,18 @@ def clip_line(line, left, top, right, bottom):
         # Each case, if true, means that we are outside the border:
         # calculate x1 and y1 to be the "first point" inside the bbox...
         if code1 & LEFT_EDGE:
-            y1 += int((left - x1) * m)
+            y1 += dtype((left - x1) * m)
             x1 = left
         elif code1 & RIGHT_EDGE:
-            y1 += int((right - x1) * m)
+            y1 += dtype((right - x1) * m)
             x1 = right
         elif code1 & BOTTOM_EDGE:
             if x2 != x1:
-                x1 += int((bottom - y1) / m)
+                x1 += dtype((bottom - y1) / m)
             y1 = bottom
         elif code1 & TOP_EDGE:
             if x2 != x1:
-                x1 += int((top - y1) / m)
+                x1 += dtype((top - y1) / m)
             y1 = top
 
 
@@ -273,7 +288,12 @@ def _clip_and_draw_line_width(surf, rect, color, width, line):
 
 def draw_aaline(surf, color, from_point, to_point, blend):
     '''draw anti-aliased line between two endpoints.'''
-    # TODO
+    line = [0] * 4
+    if not clip_line(line, rect.x, rect.y, rect.x + rect.w - 1,
+            rect.y + rect.h - 1, use_float=True):
+        return # TODO Rect(rect.x, rect.y, 0, 0)
+    _draw_aaline(surf, color, line[0], line[1], line[2], line[3], blend)
+    return # TODO Rect(-- affected area --)
 
 
 #   M U L T I L I N E   F U N C T I O N S   #
