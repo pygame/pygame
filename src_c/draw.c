@@ -1041,7 +1041,7 @@ static void
 draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to_x,
            float to_y, int blend)
 {
-    float gradient, dx, dy;
+    float slope, dx, dy;
     float xgap, ygap, pt_x, pt_y, xf, yf;
     float brightness1, brightness2;
     float swaptmp;
@@ -1076,17 +1076,17 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         if (from_x > to_x) {
             SWAP(from_x, to_x, swaptmp)
             SWAP(from_y, to_y, swaptmp)
-            dx = (to_x - from_x);
-            dy = (to_y - from_y);
+            dx = -dx;
+            dy = -dy;
         }
-        gradient = dy / dx;
+        slope = dy / dx;
         // 1. Draw start of the segment
         pt_x = trunc(from_x) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
-        pt_y = from_y + gradient * (pt_x - from_x);
+        pt_y = from_y + slope * (pt_x - from_x);
         xgap = INVFRAC(from_x);
         ifrom_x = (int)pt_x;
         ifrom_y = (int)pt_y;
-        yf = pt_y + gradient;
+        yf = pt_y + slope;
         brightness1 = INVFRAC(pt_y) * xgap;
         brightness2 = FRAC(pt_y) * xgap;
         pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
@@ -1095,7 +1095,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         DRAWPIX32(pixel, colorptr, brightness2, blend)
         // 2. Draw end of the segment
         pt_x = trunc(to_x) + 0.5;
-        pt_y = to_y + gradient * (pt_x - to_x);
+        pt_y = to_y + slope * (pt_x - to_x);
         xgap = FRAC(to_x); /* this also differs from Hugo's description. */
         ito_x = (int)pt_x;
         ito_y = (int)pt_y;
@@ -1113,24 +1113,24 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
             DRAWPIX32(pixel, colorptr, brightness1, blend)
             pixel += pixy;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
-            yf += gradient;
+            yf += slope;
         }
     }
     else {
         if (from_y > to_y) {
             SWAP(from_x, to_x, swaptmp)
             SWAP(from_y, to_y, swaptmp)
-            dy = (to_y - from_y);
-            dx = (to_x - from_x);
+            dx = -dx;
+            dy = -dy;
         }
-        gradient = dx / dy;
+        slope = dx / dy;
         // 1. Draw start of the segment
         pt_y = trunc(from_y) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
-        pt_x = from_x + gradient * (pt_y - from_y);
+        pt_x = from_x + slope * (pt_y - from_y);
         ygap = INVFRAC(from_y);
         ifrom_y = (int)pt_y;
         ifrom_x = (int)pt_x;
-        xf = pt_x + gradient;
+        xf = pt_x + slope;
         brightness1 = INVFRAC(pt_x) * ygap;
         brightness2 = FRAC(pt_x) * ygap;
         pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
@@ -1139,7 +1139,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         DRAWPIX32(pixel, colorptr, brightness2, blend)
         // 2. Draw end of the segment
         pt_y = trunc(to_y) + 0.5;
-        pt_x = to_x + gradient * (pt_y - to_y);
+        pt_x = to_x + slope * (pt_y - to_y);
         ygap = FRAC(to_y);
         ito_y = (int)pt_y;
         ito_x = (int)pt_x;
@@ -1157,7 +1157,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
             DRAWPIX32(pixel, colorptr, brightness1, blend)
             pixel += pixx;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
-            xf += gradient;
+            xf += slope;
         }
     }
 }
