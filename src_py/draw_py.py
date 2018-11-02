@@ -251,11 +251,6 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
     if dx == 0 and dy == 0:
         return
 
-    def draw_two_pixel(x, float_y, factor):
-        y = int(float_y)
-        draw_pixel(surf, x, y, color, rest * inv_frac(float_y), blend)
-        draw_pixel(surf, x, y + 1, color, rest * frac(float_y), blend)
-
     if abs(dx) > abs(dy):
         if from_x > to_x:
             from_x, to_x = to_x, from_x
@@ -264,19 +259,23 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
             dy = -dy
 
         slope = dy / dx
-        rest = inv_frac(from_x)
+        def draw_two_pixel(x, float_y, factor):
+            y = int(float_y)
+            draw_pixel(surf, x, y, color, rest * inv_frac(float_y), blend)
+            draw_pixel(surf, x, y + 1, color, rest * frac(float_y), blend)
+
         # A and G are respectively left and right to the "from" point, but
         # with integer-x-coordinate, (and only if from_x is not integer).
         # Hence they appear in following order on the line in general case:
         #  A   from-pt    G    .  .  .    S   to-pt
-        #  |------x-------|--- .  .  . ---|-----x-------
+        #  |------*-------|--- .  .  . ---|-----*-------
+        rest = inv_frac(from_x)
         G_x, G_y = ceil(from_x), from_y + rest * slope
         A_x, A_y = int(from_x), G_y - slope
 
-        # 0. Very short line with only one pixel
-        if to_x < G_x:  # both from_x and to_x are in the same pixel
-            rest = to_x - from_x
-            draw_two_pixel(A_x, A_y, rest)
+        # 0. Special case : both from_x and to_x are in the same pixel
+        if to_x < G_x:
+            draw_two_pixel(A_x, A_y, dx)
             return
 
         # 1. Draw start of the segment
@@ -304,12 +303,35 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
             dy = -dy
 
         slope = dx / dy
+
+        def draw_two_pixel(float_x, y, factor):
+            x = int(float_x)
+            draw_pixel(surf, x, y, color, rest * inv_frac(float_x), blend)
+            draw_pixel(surf, x + 1, y, color, rest * frac(float_x), blend)
+
+        rest = inv_frac(from_y)
+        G_x, G_y = from_x + rest * slope, ceil(from_y)
+        A_x, A_y = G_x - slope, int(from_y)
+
+        # 0. Special case : both from_x and to_x are in the same pixel
+        if to_y < G_y:
+            draw_two_pixel_vert(A_x, A_y, dy)
+            return
+
         # 1. Draw start of the segment
-        # TODO
+        if G_y != from_y:
+            draw_two_pixel_vert(A_x, A_y, rest)
+
         # 2. Draw end of the segment
-        # TODO
+        rest = frac(to_y)
+        S_x, S_y = from_x + slope * (dy - rest), int(to_y)
+        if S_x != to_y:
+            draw_two_pixel_vert(S_x, S_y, rest)
+
         # 3. loop for other points
-        # TODO
+        for y in range(G_y, S_y - 1):
+            x = G_x + slope * (y - G_y)
+            draw_two_pixel_vert(x, y, 1)
 
 
 def _clip_and_draw_line_width(surf, rect, color, width, line):
