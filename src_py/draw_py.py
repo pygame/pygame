@@ -251,6 +251,11 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
     if dx == 0 and dy == 0:
         return
 
+    def draw_two_pixel(x, float_y, factor):
+        y = int(float_y)
+        draw_pixel(surf, x, y, color, rest * inv_frac(float_y), blend)
+        draw_pixel(surf, x, y + 1, color, rest * frac(float_y), blend)
+
     if abs(dx) > abs(dy):
         if from_x > to_x:
             from_x, to_x = to_x, from_x
@@ -271,32 +276,25 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         # 0. Very short line with only one pixel
         if to_x < G_x:  # both from_x and to_x are in the same pixel
             rest = to_x - from_x
-            draw_pixel(surf, A_x, y, color, rest * frac(A_y), blend)
-            draw_pixel(surf, A_x, y + 1, color, rest * inv_frac(A_y), blend)
+            draw_two_pixel(A_x, A_y, rest)
             return
 
         # 1. Draw start of the segment
         if G_x != from_x:
             # we draw only if we have a non-integer-part at start of the line
-            y = int(A_y)
-            draw_pixel(surf, A_x, y, color, rest * frac(A_y), blend)
-            draw_pixel(surf, A_x, y + 1, color, rest * inv_frac(A_y), blend)
+            draw_two_pixel(A_x, A_y, rest)
 
         # 2. Draw end of the segment
         rest = frac(to_x)
         S_x, S_y = int(to_x), from_y + slope * (dx - rest)
         if S_x != to_x:
             # Again we draw only if we have a non-integer-part
-            y = int(S_y)
-            draw_pixel(surf, S_x, y, color, rest * inv_frac(S_y), blend)
-            draw_pixel(surf, S_x, y + 1, color, rest * frac(S_y), blend)
+            draw_two_pixel(S_x, S_y, rest)
 
         # 3. loop for other points
         for x in range(G_x, S_x - 1):
             y = G_y + slope * (x - G_x)
-            y_int = int(y)
-            draw_pixel(surf, x, y_int, color, inv_frac(y), blend)
-            draw_pixel(surf, x, y_int + 1, color, frac(y), blend)
+            draw_two_pixel(x, y, 1)
 
     else:
         if from_y > to_y:
