@@ -380,6 +380,7 @@ def _clip_and_draw_line_width(surf, rect, color, width, line):
 def draw_aaline(surf, color, from_point, to_point, blend):
     '''draw anti-aliased line between two endpoints.'''
     line = [0] * 4
+    rect = surf.get_clip()
     if not clip_line(line, rect.x, rect.y, rect.x + rect.w - 1,
             rect.y + rect.h - 1, use_float=True):
         return # TODO Rect(rect.x, rect.y, 0, 0)

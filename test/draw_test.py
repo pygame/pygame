@@ -289,16 +289,14 @@ class AntiAliasedLineMixin:
         '''Draw a line between two points and check colors of check_points.'''
         if set_endpoints:
             should[from_point] = should[to_point] = FG_GREEN
-        surf = self.surface
-        draw_line = self.draw_aaline
 
         def check_one_direction(from_point, to_point, should):
-            draw_line(surf, FG_GREEN, from_point, to_point)
+            self.draw_aaline(FG_GREEN, from_point, to_point)
             for pt in check_points:
                 color = should.get(pt, BG_RED)
-                self.assertEqual(surf.get_at(pt), color)
+                self.assertEqual(self.surface.get_at(pt), color)
             # reset
-            draw.rect(surf, FG_RED, (0, 0, 10, 10), 0)
+            draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
 
         # it is important to test also opposite direction, the algorithm
         # is (#512) or was not symmetric
@@ -421,8 +419,8 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
 
-    draw_aaline = draw_py.draw_aaline
-
+    def draw_aaline(self, color, from_point, to_point):
+        draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
 
 
 class DrawModuleTest(unittest.TestCase):
