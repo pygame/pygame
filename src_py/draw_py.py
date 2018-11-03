@@ -3,6 +3,7 @@
 Implement Pygame's Drawing Algorithms in a Python version for testing
 and debugging.
 '''
+from __future__ import division
 # FIXME : the import of the builtin math module is broken, even with :
 # from __future__ import relative_imports
 # from math import floor, ceil, trunc
