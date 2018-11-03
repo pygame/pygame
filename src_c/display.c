@@ -47,17 +47,39 @@ typedef struct _display_state_s {
     char *title;
     PyObject *icon;
     Uint16 *gamma_ramp;
+    SDL_GLContext gl_context;
 } _DisplayState;
 
 #if PY3
 static struct PyModuleDef _module;
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState *)PyModule_GetState(mod))
 #define DISPLAY_STATE DISPLAY_MOD_STATE(PyState_FindModule(&_module))
-#else /* PY3 */
-static _DisplayState _modstate;
+#else /* PY2 */
+static _DisplayState _modstate={0};
 #define DISPLAY_MOD_STATE(mod) (&_modstate)
 #define DISPLAY_STATE DISPLAY_MOD_STATE(0)
-#endif /* PY3 */
+#endif /* PY2 */
+
+static void
+_display_state_cleanup(_DisplayState *state)
+{
+    if (state->title) {
+        free(state->title);
+        state->title = NULL;
+    }
+    if (state->icon) {
+        Py_XDECREF(state->icon);
+        state->icon = NULL;
+    }
+    if (state->gl_context) {
+        SDL_GL_DeleteContext(state->gl_context);
+        state->gl_context = NULL;
+    }
+    if (state->gamma_ramp) {
+        free(state->gamma_ramp);
+        state->gamma_ramp = NULL;
+    }
+}
 
 #endif /* IS_SDLv2 */
 
@@ -162,19 +184,7 @@ pg_display_autoquit(void)
         _DisplayState *state = DISPLAY_STATE;
 
         pg_SetDefaultWindowSurface(NULL);
-
-        if (state->title) {
-            free(state->title);
-            state->title = NULL;
-        }
-
-        Py_XDECREF(state->icon);
-        state->icon = NULL;
-
-        if (state->gamma_ramp)
-            free(state->gamma_ramp);
-        state->gamma_ramp = NULL;
-
+        _display_state_cleanup(state);
         pg_SetDefaultWindow(NULL);
     }
 }
@@ -597,6 +607,15 @@ pg_set_mode(PyObject *self, PyObject *arg)
     }
     else {
         /*open window*/
+        if (flags & PGS_OPENGL) {
+            if (flags & PGS_DOUBLEBUF) {
+                flags &= ~PGS_DOUBLEBUF;
+                SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+            }
+            else
+                SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+        }
+#pragma PG_WARN(Not setting bpp?)
         Uint32 sdl_flags = 0;
         if (flags & PGS_FULLSCREEN)
             sdl_flags |= SDL_WINDOW_FULLSCREEN;
@@ -617,6 +636,15 @@ pg_set_mode(PyObject *self, PyObject *arg)
         if (!win)
             return RAISE(pgExc_SDLError, SDL_GetError());
 
+        if (flags & PGS_OPENGL) {
+            state->gl_context = SDL_GL_CreateContext(win);
+            if (!state->gl_context) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                SDL_DestroyWindow(win);
+                return NULL;
+            }
+        } else
+            state->gl_context = NULL;
         if (state->gamma_ramp) {
             int result = SDL_SetWindowGammaRamp(win, state->gamma_ramp,
                                                 state->gamma_ramp + 256,
@@ -624,8 +652,7 @@ pg_set_mode(PyObject *self, PyObject *arg)
             if (result) /* SDL Error? */
             {
                 /* Discard a possibly faulty gamma ramp. */
-                free(state->gamma_ramp);
-                state->gamma_ramp = NULL;
+                _display_state_cleanup(state);
 
                 /* Recover error, then destroy the window */
                 RAISE(pgExc_SDLError, SDL_GetError());
@@ -635,12 +662,14 @@ pg_set_mode(PyObject *self, PyObject *arg)
         }
         surf = SDL_GetWindowSurface(win);
         if (!surf) {
+            _display_state_cleanup(state);
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_DestroyWindow(win);
             return NULL;
         }
         surface = pgSurface_NewNoOwn(surf);
         if (!surface) {
+            _display_state_cleanup(state);
             SDL_DestroyWindow(win);
             return 0;
         }
