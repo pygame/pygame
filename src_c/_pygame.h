@@ -240,14 +240,17 @@ typedef enum {
 } PygameVideoFlags;
 
 typedef enum {
-    SDL_NOEVENT = (Uint32)-1,
+    SDL_NOEVENT = 0,
     /* SDL 1.2 allowed for 8 user defined events. */
     SDL_NUMEVENTS = SDL_USEREVENT + 8,
     SDL_ACTIVEEVENT = SDL_NUMEVENTS,
+    PGE_EVENTBEGIN = SDL_NUMEVENTS,
     SDL_VIDEORESIZE,
     SDL_VIDEOEXPOSE,
     PGE_EVENTEND
 } PygameEventCode;
+
+#define PGE_NUMEVENTS (PGE_EVENTEND - PGE_EVENTBEGIN)
 
 typedef enum {
     SDL_APPFOCUSMOUSE,
