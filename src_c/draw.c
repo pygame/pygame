@@ -226,7 +226,7 @@ aalines(PyObject *self, PyObject *arg)
     float pts[4];
     Uint8 rgba[4];
     Uint32 color;
-    int closed, blend;
+    int closed, blend=1;
     int result, loop, length;
     float *xlist, *ylist;
 
