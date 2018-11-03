@@ -282,14 +282,12 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         # 1. Draw start of the segment
         if G_x != from_x:
             # we draw only if we have a non-integer-part at start of the line
-            print('  + Start Case', G_x)
             draw_two_pixel(A_x, A_y, inv_frac(from_x))
 
         # 2. Draw end of the segment: we add one pixel for homogenity reasons
         rest = frac(to_x)
         S_x, S_y = int(to_x) + 1, from_y + slope * (dx + 1 - rest)
         if S_x != to_x + 1:
-            print('  + End Case', G_x)
             # Again we draw only if we have a non-integer-part
             draw_two_pixel(S_x, S_y, rest)
 

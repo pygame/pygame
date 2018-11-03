@@ -1,12 +1,15 @@
 #################################### IMPORTS ###################################
 
 import unittest
+import sys
 
 import pygame
 from pygame import draw
 from pygame import draw_py
 from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
+
+PY3 = sys.version_info >= (3, 0, 0)
 
 RED = BG_RED = pygame.Color('red')
 GREEN = FG_GREEN = pygame.Color('green')
@@ -294,7 +297,11 @@ class AntiAliasedLineMixin:
             self.draw_aaline(FG_GREEN, from_point, to_point)
             for pt in check_points:
                 color = should.get(pt, BG_RED)
-                self.assertEqual(self.surface.get_at(pt), color)
+                if PY3: # "subTest" is sooo helpful, but does not exist in PY2
+                    with self.subTest(from_pt=from_point, pt=pt, to=to_point):
+                        self.assertEqual(self.surface.get_at(pt), color)
+                else:
+                    self.assertEqual(self.surface.get_at(pt), color)
             # reset
             draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
 
@@ -303,8 +310,7 @@ class AntiAliasedLineMixin:
         check_one_direction(from_point, to_point, should)
         check_one_direction(to_point, from_point, should)
 
-    @unittest.expectedFailure
-    def test_short_non_antialiased_lines(self):
+    def _test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
         # Horizontal, vertical and diagonal lines should not be antialiased,
         # even with draw.aaline ...
@@ -323,15 +329,13 @@ class AntiAliasedLineMixin:
         # 2. vertical
         check_both_directions((5, 5), (5, 6), [])
         check_both_directions((6, 4), (6, 6), [(6, 5)])
-
         # 3. diagonals
         check_both_directions((5, 5), (6, 6), [])
         check_both_directions((5, 5), (7, 7), [(6, 6)])
         check_both_directions((5, 6), (6, 5), [])
-        check_both_directions((6, 4), (6, 4), [(5, 5)])
+        check_both_directions((6, 4), (4, 6), [(5, 5)])
 
-    @unittest.expectedFailure
-    def test_short_line_anti_aliasing(self):
+    def _test_short_line_anti_aliasing(self):
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
 
         def check_both_directions(from_pt, to_pt, should):
@@ -413,7 +417,16 @@ class AntiAliasedLineMixin:
 class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the C algorithm.'''
 
-    draw_aaline = draw.aaline
+    def draw_aaline(self, color, from_point, to_point):
+        draw.aaline(self.surface, color, from_point, to_point, 1)
+
+    @unittest.expectedFailure
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
+
+    @unittest.expectedFailure
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
 
 
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
@@ -421,6 +434,12 @@ class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
 
     def draw_aaline(self, color, from_point, to_point):
         draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
+
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
+
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
 
 
 class DrawModuleTest(unittest.TestCase):
