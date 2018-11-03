@@ -241,6 +241,29 @@ class DrawLineTest(unittest.TestCase):
                 # make sure, nothing was drawn :
                 self.assertTrue(all(surf.get_at(pt) == RED for pt in check_pts))
 
+    def _test_endianness(self, draw_func):
+        """ test color component order
+        """
+        depths = 24, 32
+        for depth in depths:
+            surface = pygame.Surface((5, 3), 0, depth)
+            surface.fill(pygame.Color(0,0,0))
+            draw_func(surface, pygame.Color(255, 0, 0), (0, 1), (2, 1), 1)
+            self.assertGreater(surface.get_at((1, 1)).r, 0, 'there should be red here')
+            surface.fill(pygame.Color(0,0,0))
+            draw_func(surface, pygame.Color(0, 0, 255), (0, 1), (2, 1), 1)
+            self.assertGreater(surface.get_at((1, 1)).b, 0, 'there should be blue here')
+
+    def test_line_endianness(self):
+        """ test color component order
+        """
+        self._test_endianness(draw.line)
+
+    def test_aaline_endianness(self):
+        """ test color component order
+        """
+        self._test_endianness(draw.aaline)
+
     def test_color_validation(self):
         surf = pygame.Surface((10, 10))
         colors = 123456, (1, 10, 100), RED # but not '#ab12df' or 'red' ...

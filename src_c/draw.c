@@ -990,7 +990,7 @@ get_pixel_32(Uint8 *pixels, SDL_PixelFormat *format)
             return *((Uint32 *)pixels);
         case 3:
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            return *pixels | *(pixels + 1) << 8 | *(pixels + 2) << 16;
+            return *pixels | *(pixels+1) << 8 | *(pixels+2) << 16;
 #else
             return *pixels << 16 | *(pixels + 1) << 8 | *(pixels + 2);
 #endif
@@ -1010,11 +1010,13 @@ set_pixel_32(Uint8 *pixels, SDL_PixelFormat *format, Uint32 pixel)
             *(Uint32 *)pixels = pixel;
             break;
         case 3:
-            *(Uint16 *)pixels = pixel;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            *(Uint16*)pixels = pixel;
             pixels[2] = pixel >> 16;
 #else
-            pixels[0] = pixel;
+            pixels[2] = pixel;
+            pixels[1] = pixel >> 8;
+            pixels[0] = pixel >> 16;
 #endif
             break;
         case 2:
