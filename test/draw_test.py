@@ -317,7 +317,7 @@ class AntiAliasedLineMixin:
         # 0. one point
         check_both_directions((5, 5), (5, 5), [])
         # 1. horizontal
-        check_both_directions((5, 5), (6, 5), [])
+        check_both_directions((4, 7), (5, 7), [])
         check_both_directions((5, 4), (7, 4), [(6, 4)])
 
         # 2. vertical

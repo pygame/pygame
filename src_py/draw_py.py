@@ -249,9 +249,10 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
     dy = to_y - from_y
 
     if dx == 0 and dy == 0:
+        set_at(surf, from_x, to_x, color)
         return
 
-    if abs(dx) > abs(dy):
+    if abs(dx) >= abs(dy):
         if from_x > to_x:
             from_x, to_x = to_x, from_x
             from_y, to_y = to_y, from_y
@@ -261,16 +262,16 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         slope = dy / dx
         def draw_two_pixel(x, float_y, factor):
             y = int(float_y)
-            draw_pixel(surf, x, y, color, rest * inv_frac(float_y), blend)
-            draw_pixel(surf, x, y + 1, color, rest * frac(float_y), blend)
+            draw_pixel(surf, x, y, color, factor * inv_frac(float_y), blend)
+            draw_pixel(surf, x, y + 1, color, factor * frac(float_y), blend)
 
         # A and G are respectively left and right to the "from" point, but
         # with integer-x-coordinate, (and only if from_x is not integer).
         # Hence they appear in following order on the line in general case:
-        #  A   from-pt    G    .  .  .    S   to-pt
-        #  |------*-------|--- .  .  . ---|-----*-------
-        rest = inv_frac(from_x)
-        G_x, G_y = ceil(from_x), from_y + rest * slope
+        #  A   from-pt    G    .  .  .        to-pt    S
+        #  |------*-------|--- .  .  . ---|-----*------|-
+        G_x = ceil(from_x)
+        G_y = from_y +  (from_x - G_x) * slope
         A_x, A_y = int(from_x), G_y - slope
 
         # 0. Special case : both from_x and to_x are in the same pixel
@@ -281,17 +282,20 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         # 1. Draw start of the segment
         if G_x != from_x:
             # we draw only if we have a non-integer-part at start of the line
-            draw_two_pixel(A_x, A_y, rest)
+            print('  + Start Case', G_x)
+            draw_two_pixel(A_x, A_y, inv_frac(from_x))
 
-        # 2. Draw end of the segment
+        # 2. Draw end of the segment: we add one pixel for homogenity reasons
         rest = frac(to_x)
-        S_x, S_y = int(to_x), from_y + slope * (dx - rest)
-        if S_x != to_x:
+        S_x, S_y = int(to_x) + 1, from_y + slope * (dx + 1 - rest)
+        if S_x != to_x + 1:
+            print('  + End Case', G_x)
             # Again we draw only if we have a non-integer-part
             draw_two_pixel(S_x, S_y, rest)
 
         # 3. loop for other points
-        for x in range(G_x, S_x - 1):
+        for x in range(G_x, S_x):
+            print('  + Loop case', x)
             y = G_y + slope * (x - G_x)
             draw_two_pixel(x, y, 1)
 
@@ -306,32 +310,32 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
 
         def draw_two_pixel(float_x, y, factor):
             x = int(float_x)
-            draw_pixel(surf, x, y, color, rest * inv_frac(float_x), blend)
-            draw_pixel(surf, x + 1, y, color, rest * frac(float_x), blend)
+            draw_pixel(surf, x, y, color, factor * inv_frac(float_x), blend)
+            draw_pixel(surf, x + 1, y, color, factor * frac(float_x), blend)
 
-        rest = inv_frac(from_y)
-        G_x, G_y = from_x + rest * slope, ceil(from_y)
+        G_y = ceil(from_y)
+        G_x = from_x + slope * (G_y - from_y)
         A_x, A_y = G_x - slope, int(from_y)
 
         # 0. Special case : both from_x and to_x are in the same pixel
         if to_y < G_y:
-            draw_two_pixel_vert(A_x, A_y, dy)
+            draw_two_pixel(A_x, A_y, dy)
             return
 
         # 1. Draw start of the segment
         if G_y != from_y:
-            draw_two_pixel_vert(A_x, A_y, rest)
+            draw_two_pixel(A_x, A_y, inv_frac(from_y))
 
         # 2. Draw end of the segment
         rest = frac(to_y)
-        S_x, S_y = from_x + slope * (dy - rest), int(to_y)
-        if S_x != to_y:
-            draw_two_pixel_vert(S_x, S_y, rest)
+        S_x, S_y = from_x + slope * (dy + 1 - rest), int(to_y) + 1
+        if S_x != to_y + 1:
+            draw_two_pixel(S_x, S_y, rest)
 
         # 3. loop for other points
-        for y in range(G_y, S_y - 1):
+        for y in range(G_y, S_y):
             x = G_x + slope * (y - G_y)
-            draw_two_pixel_vert(x, y, 1)
+            draw_two_pixel(x, y, 1)
 
 
 def _clip_and_draw_line_width(surf, rect, color, width, line):
@@ -379,10 +383,10 @@ def _clip_and_draw_line_width(surf, rect, color, width, line):
 
 def draw_aaline(surf, color, from_point, to_point, blend):
     '''draw anti-aliased line between two endpoints.'''
-    line = [0] * 4
+    line = [from_point[0], from_point[1], to_point[0], to_point[1]]
     rect = surf.get_clip()
     if not clip_line(line, rect.x, rect.y, rect.x + rect.w - 1,
-            rect.y + rect.h - 1, use_float=True):
+                     rect.y + rect.h - 1, use_float=True):
         return # TODO Rect(rect.x, rect.y, 0, 0)
     _draw_aaline(surf, color, line[0], line[1], line[2], line[3], blend)
     return # TODO Rect(-- affected area --)
