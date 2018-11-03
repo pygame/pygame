@@ -293,7 +293,6 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
 
         # 3. loop for other points
         for x in range(G_x, S_x):
-            print('  + Loop case', x)
             y = G_y + slope * (x - G_x)
             draw_two_pixel(x, y, 1)
 
