@@ -274,6 +274,19 @@ class DrawLineTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 draw.polygon(surf, col, points, 0)
 
+    def test_aaline_blend(self):
+        """ blends correctly with the background color.
+        """
+        surface = pygame.Surface((20, 20))
+        surface.fill(pygame.Color(0, 255, 0))
+        draw.aaline(surface, pygame.Color(255, 255, 255), (2, 2), (18, 18), 1)
+        draw.aaline(surface, pygame.Color(255, 255, 255), (2, 18), (18, 2), 1)
+
+        # white should be blended with the background green.
+        self.assertEqual(surface.get_at((10, 10)), (191, 255, 191, 255))
+        # should be full green here.
+        self.assertEqual(surface.get_at((9, 7)), (0, 255, 0, 255))
+
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
