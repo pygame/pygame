@@ -86,21 +86,21 @@ event_filter(void *_, SDL_Event *event)
                 return 0;
         }
     }
-#warning Add key repeat here. Add event blocking here.
+#pragma PG_WARN(Add key repeat here. Add event blocking here.)
     return 1;
 }
 
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-#warning Add code;
+#pragma PG_WARN(Add code)
     return 0;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
-#warning Add code;
+#pragma PG_WARN(Add code)
     *delay = 0;
     *interval = 0;
 }
@@ -452,6 +452,14 @@ dict_from_event(SDL_Event *event)
             insobj(dict, "w", PyInt_FromLong(event->resize.w));
             insobj(dict, "h", PyInt_FromLong(event->resize.h));
             break;
+#ifdef WIN32
+        case SDL_SYSWMEVENT:
+            insobj(dict, "hwnd",
+                   PyInt_FromLong((long)(event->syswm.msg->hwnd)));
+            insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
+            insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->wParam));
+            insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->lParam));
+#endif
 #else  /* IS_SDLv2 */
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->window.data1,
@@ -460,15 +468,15 @@ dict_from_event(SDL_Event *event)
             insobj(dict, "w", PyInt_FromLong(event->window.data1));
             insobj(dict, "h", PyInt_FromLong(event->window.data2));
             break;
-#endif /* IS_SDLv2 */
-        case SDL_SYSWMEVENT:
 #ifdef WIN32
+        case SDL_SYSWMEVENT:
             insobj(dict, "hwnd",
-                   PyInt_FromLong((long)(event->syswm.msg->hwnd)));
-            insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
-            insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->wParam));
-            insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->lParam));
+                   PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
+            insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
+            insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->msg.win.wParam));
+            insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->msg.win.lParam));
 #endif
+#endif /* IS_SDLv2 */
             /*
              * Make the event
              */
@@ -899,7 +907,7 @@ pygame_poll(PyObject *self, PyObject *args)
 
 #if IS_SDLv2
 /* The following three functions are quick and dirty; replace */
-#warning temporary code
+#pragma PG_WARN(temporary code)
 #define SDL_EVENTMASK(e) (mask_event(e))
 static const Uint32 SDL_ALLEVENTS = (Uint32)-1;
 
