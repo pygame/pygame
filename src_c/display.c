@@ -48,6 +48,7 @@ typedef struct _display_state_s {
     PyObject *icon;
     Uint16 *gamma_ramp;
     SDL_GLContext gl_context;
+    Uint8 using_gl; /* using an OPENGL display without renderer */
 } _DisplayState;
 
 #if PY3
@@ -591,6 +592,9 @@ pg_set_mode(PyObject *self, PyObject *arg)
         title = state->title;
     }
 
+    if (flags & PGS_OPENGL)
+        state->using_gl = 1;
+
     if (win) {
         /*change existing window*/
         SDL_SetWindowTitle(win, title);
@@ -636,7 +640,7 @@ pg_set_mode(PyObject *self, PyObject *arg)
         if (!win)
             return RAISE(pgExc_SDLError, SDL_GetError());
 
-        if (flags & PGS_OPENGL) {
+        if (state->using_gl) {
             state->gl_context = SDL_GL_CreateContext(win);
             if (!state->gl_context) {
                 PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -660,18 +664,39 @@ pg_set_mode(PyObject *self, PyObject *arg)
                 return NULL;
             }
         }
-        surf = SDL_GetWindowSurface(win);
-        if (!surf) {
-            _display_state_cleanup(state);
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            SDL_DestroyWindow(win);
-            return NULL;
-        }
-        surface = pgSurface_NewNoOwn(surf);
-        if (!surface) {
-            _display_state_cleanup(state);
-            SDL_DestroyWindow(win);
-            return 0;
+        if (state->using_gl) {
+            /* SDL_GetWindowSurface can not be used when using GL.
+                According to https://wiki.libsdl.org/SDL_GetWindowSurface
+
+            So we make a fake surface.
+            */
+            surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0xff << 16,
+                                        0xff << 8, 0xff, 0);
+            if (surf == NULL) {
+                _display_state_cleanup(state);
+                SDL_DestroyWindow(win);
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            }
+            surface = pgSurface_NewNoOwn(surf);
+            if (!surface) {
+                _display_state_cleanup(state);
+                SDL_DestroyWindow(win);
+                return 0;
+            }
+        } else {
+            surf = SDL_GetWindowSurface(win);
+            if (!surf) {
+                _display_state_cleanup(state);
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                SDL_DestroyWindow(win);
+                return NULL;
+            }
+            surface = pgSurface_NewNoOwn(surf);
+            if (!surface) {
+                _display_state_cleanup(state);
+                SDL_DestroyWindow(win);
+                return 0;
+            }
         }
 
         /*no errors; make the window available*/
@@ -720,6 +745,7 @@ static PyObject *
 pg_flip(PyObject *self)
 {
     SDL_Window *win = pg_GetDefaultWindow();
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
     int status = 0;
 
     VIDEO_INIT_CHECK();
@@ -728,8 +754,9 @@ pg_flip(PyObject *self)
         return RAISE(pgExc_SDLError, "Display mode not set");
 
     Py_BEGIN_ALLOW_THREADS;
-    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+    if (state->using_gl) {
         SDL_GL_SwapWindow(win);
+    }
     else
         status = SDL_UpdateWindowSurface(win) == -1;
     Py_END_ALLOW_THREADS;
@@ -932,6 +959,7 @@ pg_update(PyObject *self, PyObject *arg)
 {
 #if IS_SDLv2
     SDL_Window *win = pg_GetDefaultWindow();
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
 #else  /* IS_SDLv1 */
     SDL_Surface *screen;
 #endif /* IS_SDLv1 */
@@ -945,7 +973,8 @@ pg_update(PyObject *self, PyObject *arg)
     if (!win)
         return RAISE(pgExc_SDLError, "Display mode not set");
     SDL_GetWindowSize(win, &wide, &high);
-    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+
+    if (state->using_gl)
         return RAISE(pgExc_SDLError, "Cannot update an OPENGL display");
 #else  /* IS_SDLv1 */
     screen = SDL_GetVideoSurface();
@@ -1307,7 +1336,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp = (Uint16 *)malloc((3 * 256) * sizeof(Uint16));
     Uint16 *r, *g, *b;
-    int result;
+    int result = 0;
     if (!gamma_ramp)
         return PyErr_NoMemory();
     r = gamma_ramp;
@@ -1370,8 +1399,10 @@ pg_get_caption(PyObject *self)
 static PyObject *
 pg_set_icon(PyObject *self, PyObject *arg)
 {
+#if (!defined(darwin))
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
+#endif
     PyObject *surface;
     if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
         return NULL;
@@ -1620,6 +1651,7 @@ MODINIT_DEFINE(display)
     state->title = NULL;
     state->icon = NULL;
     state->gamma_ramp = NULL;
+    state->using_gl = 0;
     MODINIT_RETURN(module);
 }
 #else /* IF_SDLv1 */
