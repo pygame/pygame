@@ -93,14 +93,14 @@ pg_event_filter(void *_, SDL_Event *event)
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-#pragma PG_WARN(Add code)
+#pragma PG_WARN(Add pg_EnableKeyRepeat code for SDL2)
     return 0;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
-#pragma PG_WARN(Add code)
+#pragma PG_WARN(Add pg_GetKeyRepeat for SDL2)
     *delay = 0;
     *interval = 0;
 }
@@ -953,7 +953,6 @@ pg_event_clear(PyObject *self, PyObject *args)
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args)
 {
-    SDL_Event event;
     int loop, num;
     PyObject *type;
     int val;
@@ -1046,16 +1045,17 @@ pg_event_get(PyObject *self, PyObject *args)
     return list;
 }
 #else /* IS_SDLv2 */
-static PG_INLINE void
+static PG_INLINE int
 _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 {
     PyObject *e = pgEvent_New(event);
     if (!e) {
         Py_DECREF(list);
-        return NULL;
+        return 0;
     }
     PyList_Append(list, e);
     Py_DECREF(e);
+    return 1;
 }
 
 static PyObject *
@@ -1078,7 +1078,8 @@ pg_event_get(PyObject *self, PyObject *args)
 
     if (PyTuple_Size(args) == 0) {
         while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 1) {
-            _pg_event_append_to_list(list, &event);
+            if(!_pg_event_append_to_list(list, &event))
+                return NULL;
         }
         return list;
     }
@@ -1097,7 +1098,8 @@ pg_event_get(PyObject *self, PyObject *args)
                 Py_DECREF(list);
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
-            _pg_event_append_to_list(list, &event);
+            if(!_pg_event_append_to_list(list, &event))
+                return NULL;
         }
     }
     else if (pg_IntFromObj(type, &val)) {
@@ -1105,7 +1107,8 @@ pg_event_get(PyObject *self, PyObject *args)
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
-        _pg_event_append_to_list(list, &event);
+        if(!_pg_event_append_to_list(list, &event))
+            return NULL;
     }
 
     Py_DECREF(list);
