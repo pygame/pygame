@@ -1,12 +1,15 @@
 #################################### IMPORTS ###################################
 
 import unittest
+import sys
 
 import pygame
 from pygame import draw
 from pygame import draw_py
 from pygame.locals import SRCALPHA
 from pygame.tests import test_utils
+
+PY3 = sys.version_info >= (3, 0, 0)
 
 RED = BG_RED = pygame.Color('red')
 GREEN = FG_GREEN = pygame.Color('green')
@@ -104,10 +107,9 @@ class DrawLineTest(unittest.TestCase):
     """Class for testing line(), aaline(), lines() and aalines().
     """
 
+    @unittest.expectedFailure
     def test_line_color(self):
-        """|tags: ignore|
-
-        Checks if the line drawn with line_is_color() is the correct color.
+        """Checks if the line drawn with line_is_color() is the correct color.
         """
 
         def line_is_color(surface, color, draw_line):
@@ -124,10 +126,9 @@ class DrawLineTest(unittest.TestCase):
                 for color in colors:
                     self.assertTrue(line_is_color(surface, color, draw_line))
 
+    @unittest.expectedFailure
     def test_line_gaps(self):
-        """|tags: ignore|
-
-        Tests if the line drawn with line_has_gaps() contains any gaps.
+        """Tests if the line drawn with line_has_gaps() contains any gaps.
 
         See: #512
         """
@@ -149,10 +150,9 @@ class DrawLineTest(unittest.TestCase):
             for surface in surfaces:
                 self.assertTrue(line_has_gaps(surface, draw_line))
 
+    @unittest.expectedFailure
     def test_lines_color(self):
-        """|tags: ignore|
-
-        Tests if the lines drawn with lines_are_color() are the correct color.
+        """Tests if the lines drawn with lines_are_color() are the correct color.
         """
         def lines_are_color(surface, color, draw_lines):
             """Draws (aa)lines around the border of the given surface and
@@ -175,6 +175,7 @@ class DrawLineTest(unittest.TestCase):
                     in_border = lines_are_color(surface, color, draw_lines)
                     self.assertTrue(all(in_border))
 
+    @unittest.expectedFailure
     def test_lines_gaps(self):
         """|tags: ignore|
 
@@ -327,24 +328,25 @@ class AntiAliasedLineMixin:
         '''Draw a line between two points and check colors of check_points.'''
         if set_endpoints:
             should[from_point] = should[to_point] = FG_GREEN
-        surf = self.surface
-        draw_line = self.draw_aaline
 
         def check_one_direction(from_point, to_point, should):
-            draw_line(surf, FG_GREEN, from_point, to_point)
+            self.draw_aaline(FG_GREEN, from_point, to_point)
             for pt in check_points:
                 color = should.get(pt, BG_RED)
-                self.assertEqual(surf.get_at(pt), color)
+                if PY3: # "subTest" is sooo helpful, but does not exist in PY2
+                    with self.subTest(from_pt=from_point, pt=pt, to=to_point):
+                        self.assertEqual(self.surface.get_at(pt), color)
+                else:
+                    self.assertEqual(self.surface.get_at(pt), color)
             # reset
-            draw.rect(surf, FG_RED, (0, 0, 10, 10), 0)
+            draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
 
         # it is important to test also opposite direction, the algorithm
         # is (#512) or was not symmetric
         check_one_direction(from_point, to_point, should)
         check_one_direction(to_point, from_point, should)
 
-    @unittest.expectedFailure
-    def test_short_non_antialiased_lines(self):
+    def _test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
         # Horizontal, vertical and diagonal lines should not be antialiased,
         # even with draw.aaline ...
@@ -357,21 +359,19 @@ class AntiAliasedLineMixin:
         # 0. one point
         check_both_directions((5, 5), (5, 5), [])
         # 1. horizontal
-        check_both_directions((5, 5), (6, 5), [])
+        check_both_directions((4, 7), (5, 7), [])
         check_both_directions((5, 4), (7, 4), [(6, 4)])
 
         # 2. vertical
         check_both_directions((5, 5), (5, 6), [])
         check_both_directions((6, 4), (6, 6), [(6, 5)])
-
         # 3. diagonals
         check_both_directions((5, 5), (6, 6), [])
         check_both_directions((5, 5), (7, 7), [(6, 6)])
         check_both_directions((5, 6), (6, 5), [])
-        check_both_directions((6, 4), (6, 4), [(5, 5)])
+        check_both_directions((6, 4), (4, 6), [(5, 5)])
 
-    @unittest.expectedFailure
-    def test_short_line_anti_aliasing(self):
+    def _test_short_line_anti_aliasing(self):
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
 
         def check_both_directions(from_pt, to_pt, should):
@@ -453,14 +453,29 @@ class AntiAliasedLineMixin:
 class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the C algorithm.'''
 
-    draw_aaline = draw.aaline
+    def draw_aaline(self, color, from_point, to_point):
+        draw.aaline(self.surface, color, from_point, to_point, 1)
+
+    @unittest.expectedFailure
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
+
+    @unittest.expectedFailure
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
 
 
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
 
-    draw_aaline = draw_py.draw_aaline
+    def draw_aaline(self, color, from_point, to_point):
+        draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
 
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
+
+    def test_short_line_anti_aliasing(self):
+        self._test_short_line_anti_aliasing()
 
 
 class DrawModuleTest(unittest.TestCase):
@@ -479,17 +494,17 @@ class DrawModuleTest(unittest.TestCase):
         rect = pygame.Rect(10, 10, 25, 20)
         drawn = draw.rect(self.surf, self.color, rect, 0)
 
-        self.assert_(drawn == rect)
+        self.assertEqual(drawn, rect)
 
         # Should be colored where it's supposed to be
         for pt in test_utils.rect_area_pts(rect):
             color_at_pt = self.surf.get_at(pt)
-            self.assert_(color_at_pt == self.color)
+            self.assertEqual(color_at_pt, self.color)
 
         # And not where it shouldn't
         for pt in test_utils.rect_outer_bounds(rect):
             color_at_pt = self.surf.get_at(pt)
-            self.assert_(color_at_pt != self.color)
+            self.assertNotEqual(color_at_pt, self.color)
 
         # Issue #310: Cannot draw rectangles that are 1 pixel high
         bgcolor = pygame.Color('black')
@@ -497,7 +512,7 @@ class DrawModuleTest(unittest.TestCase):
         hrect = pygame.Rect(1, 1, self.surf_w - 2, 1)
         vrect = pygame.Rect(1, 3, 1, self.surf_h - 4)
         drawn = draw.rect(self.surf, self.color, hrect, 0)
-        self.assert_(drawn == hrect)
+        self.assertEqual(drawn, hrect)
         x, y = hrect.topleft
         w, h = hrect.size
         self.assertEqual(self.surf.get_at((x - 1, y)), bgcolor)
@@ -521,17 +536,17 @@ class DrawModuleTest(unittest.TestCase):
         rect = pygame.Rect(10, 10, 56, 20)
 
         drawn = draw.rect(self.surf, self.color, rect, 1)
-        self.assert_(drawn == rect)
+        self.assertEqual(drawn, rect)
 
         # Should be colored where it's supposed to be
         for pt in test_utils.rect_perimeter_pts(drawn):
             color_at_pt = self.surf.get_at(pt)
-            self.assert_(color_at_pt == self.color)
+            self.assertEqual(color_at_pt, self.color)
 
         # And not where it shouldn't
         for pt in test_utils.rect_outer_bounds(drawn):
             color_at_pt = self.surf.get_at(pt)
-            self.assert_(color_at_pt != self.color)
+            self.assertNotEqual(color_at_pt, self.color)
 
     def test_line(self):
 
@@ -542,16 +557,16 @@ class DrawModuleTest(unittest.TestCase):
 
         # (l, t), (l, t)
         drawn = draw.line(self.surf, self.color, (1, 0), (200, 0))
-        self.assert_(drawn.right == 201,
+        self.assertEqual(drawn.right, 201,
                      "end point arg should be (or at least was) inclusive")
 
         # Should be colored where it's supposed to be
         for pt in test_utils.rect_area_pts(drawn):
-            self.assert_(self.surf.get_at(pt) == self.color)
+            self.assertEqual(self.surf.get_at(pt), self.color)
 
         # And not where it shouldn't
         for pt in test_utils.rect_outer_bounds(drawn):
-            self.assert_(self.surf.get_at(pt) != self.color)
+            self.assertNotEqual(self.surf.get_at(pt), self.color)
 
         # Line width greater that 1
         line_width = 2
@@ -583,15 +598,15 @@ class DrawModuleTest(unittest.TestCase):
                 xinc = 1
             for i in range(line_width):
                 p = (p1[0] + xinc * i, p1[1] + yinc * i)
-                self.assert_(self.surf.get_at(p) == (255, 255, 255), msg)
+                self.assertEqual(self.surf.get_at(p), (255, 255, 255), msg)
                 p = (p2[0] + xinc * i, p2[1] + yinc * i)
-                self.assert_(self.surf.get_at(p) == (255, 255, 255), msg)
+                self.assertEqual(self.surf.get_at(p), (255, 255, 255), msg)
             p = (plow[0] - 1, plow[1])
-            self.assert_(self.surf.get_at(p) == (0, 0, 0), msg)
+            self.assertEqual(self.surf.get_at(p), (0, 0, 0), msg)
             p = (plow[0] + xinc * line_width, plow[1] + yinc * line_width)
-            self.assert_(self.surf.get_at(p) == (0, 0, 0), msg)
+            self.assertEqual(self.surf.get_at(p), (0, 0, 0), msg)
             p = (phigh[0] + xinc * line_width, phigh[1] + yinc * line_width)
-            self.assert_(self.surf.get_at(p) == (0, 0, 0), msg)
+            self.assertEqual(self.surf.get_at(p), (0, 0, 0), msg)
             if p1[0] < p2[0]:
                 rx = p1[0]
             else:
@@ -603,7 +618,7 @@ class DrawModuleTest(unittest.TestCase):
             w = abs(p2[0] - p1[0]) + 1 + xinc * (line_width - 1)
             h = abs(p2[1] - p1[1]) + 1 + yinc * (line_width - 1)
             msg += ", %s" % (rec,)
-            self.assert_(rec == (rx, ry, w, h), msg)
+            self.assertEqual(rec, (rx, ry, w, h), msg)
 
     def todo_test_arc(self):
 
