@@ -56,7 +56,7 @@ static struct PyModuleDef _module;
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState *)PyModule_GetState(mod))
 #define DISPLAY_STATE DISPLAY_MOD_STATE(PyState_FindModule(&_module))
 #else /* PY2 */
-static _DisplayState _modstate={0};
+static _DisplayState _modstate = {0};
 #define DISPLAY_MOD_STATE(mod) (&_modstate)
 #define DISPLAY_STATE DISPLAY_MOD_STATE(0)
 #endif /* PY2 */
@@ -619,7 +619,7 @@ pg_set_mode(PyObject *self, PyObject *arg)
             else
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
         }
-#pragma PG_WARN(Not setting bpp?)
+#pragma PG_WARN(Not setting bpp ?)
         Uint32 sdl_flags = 0;
         if (flags & PGS_FULLSCREEN)
             sdl_flags |= SDL_WINDOW_FULLSCREEN;
@@ -647,7 +647,8 @@ pg_set_mode(PyObject *self, PyObject *arg)
                 SDL_DestroyWindow(win);
                 return NULL;
             }
-        } else
+        }
+        else
             state->gl_context = NULL;
         if (state->gamma_ramp) {
             int result = SDL_SetWindowGammaRamp(win, state->gamma_ramp,
@@ -672,31 +673,22 @@ pg_set_mode(PyObject *self, PyObject *arg)
             */
             surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0xff << 16,
                                         0xff << 8, 0xff, 0);
-            if (surf == NULL) {
-                _display_state_cleanup(state);
-                SDL_DestroyWindow(win);
-                return RAISE(pgExc_SDLError, SDL_GetError());
-            }
-            surface = pgSurface_NewNoOwn(surf);
-            if (!surface) {
-                _display_state_cleanup(state);
-                SDL_DestroyWindow(win);
-                return 0;
-            }
-        } else {
+        }
+        else {
             surf = SDL_GetWindowSurface(win);
-            if (!surf) {
-                _display_state_cleanup(state);
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                SDL_DestroyWindow(win);
-                return NULL;
-            }
-            surface = pgSurface_NewNoOwn(surf);
-            if (!surface) {
-                _display_state_cleanup(state);
-                SDL_DestroyWindow(win);
-                return 0;
-            }
+        }
+
+        if (!surf) {
+            _display_state_cleanup(state);
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_DestroyWindow(win);
+            return NULL;
+        }
+        surface = pgSurface_NewNoOwn(surf);
+        if (!surface) {
+            _display_state_cleanup(state);
+            SDL_DestroyWindow(win);
+            return 0;
         }
 
         /*no errors; make the window available*/
@@ -1426,7 +1418,7 @@ pg_iconify(PyObject *self)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
     SDL_MinimizeWindow(win);
-#pragma PG_WARN(Does this send the app an SDL_ActiveEvent loss event?)
+#pragma PG_WARN(Does this send the app an SDL_ActiveEvent loss event ?)
     return PyInt_FromLong(1);
 }
 
