@@ -1780,7 +1780,6 @@ surf_convert(PyObject *self, PyObject *args)
 static PyObject *
 surf_convert_alpha(PyObject *self, PyObject *args)
 {
-#if IS_SDLv1
     SDL_Surface *surf = pgSurface_AsSurface(self);
     PyObject *final;
     pgSurfaceObject *srcsurf = NULL;
@@ -1800,19 +1799,29 @@ surf_convert_alpha(PyObject *self, PyObject *args)
          * support for alpha
          */
         src = pgSurface_AsSurface(srcsurf);
+#pragma PG_WARN("This doesn't actually do anything?")
+#if IS_SDLv1
         newsurf = SDL_DisplayFormatAlpha(surf);
+#else
+        newsurf = SDL_ConvertSurfaceFormat(surf, surf->format->format, 0);
+#endif
     }
     else
+#if IS_SDLv1
         newsurf = SDL_DisplayFormatAlpha(surf);
+#else
+        newsurf = SDL_ConvertSurfaceFormat(surf, surf->format->format, 0);
+#endif
     pgSurface_Unprep(self);
 
+#if IS_SDLv1
     final = surf_subtype_new(Py_TYPE(self), newsurf);
+#else
+    final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
+#endif
     if (!final)
         SDL_FreeSurface(newsurf);
     return final;
-#else  /* IS_SDLv2 */
-    return RAISE(PyExc_NotImplementedError, "Surface.convert_alpha");
-#endif /* IS_SDLv2 */
 }
 
 static PyObject *
