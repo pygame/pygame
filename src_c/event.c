@@ -222,6 +222,17 @@ _pg_name_from_eventtype(int type)
             return "VideoExpose";
         case SDL_NOEVENT:
             return "NoEvent";
+#if IS_SDLv2
+        case SDL_FINGERMOTION:
+            return "FingerMotion";
+        case SDL_FINGERDOWN:
+            return "FingerDown";
+        case SDL_FINGERUP:
+            return "FingerUp";
+        case SDL_MULTIGESTURE:
+            return "MultiGesture";
+#endif
+
     }
     if (type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
         return "UserEvent";
@@ -445,6 +456,31 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "joy", PyInt_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
             break;
+#if IS_SDLv2
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+            /* https://wiki.libsdl.org/SDL_TouchFingerEvent */
+            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->tfinger.touchId));
+            _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->tfinger.fingerId));
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->tfinger.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->tfinger.y));
+            _pg_insobj(dict, "dx", PyFloat_FromDouble(event->tfinger.dx));
+            _pg_insobj(dict, "dy", PyFloat_FromDouble(event->tfinger.dy));
+            _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->tfinger.dy));
+            break;
+        case SDL_MULTIGESTURE:
+            /* https://wiki.libsdl.org/SDL_MultiGestureEvent */
+            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->mgesture.touchId));
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->mgesture.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->mgesture.y));
+            _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
+            _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
+            _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+#endif
+
+
 #if IS_SDLv1
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
