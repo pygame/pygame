@@ -48,6 +48,7 @@ typedef struct _display_state_s {
     PyObject *icon;
     Uint16 *gamma_ramp;
     SDL_GLContext gl_context;
+    Uint8 using_gl; /* using an OPENGL display without renderer */
 } _DisplayState;
 
 #if PY3
@@ -55,7 +56,7 @@ static struct PyModuleDef _module;
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState *)PyModule_GetState(mod))
 #define DISPLAY_STATE DISPLAY_MOD_STATE(PyState_FindModule(&_module))
 #else /* PY2 */
-static _DisplayState _modstate={0};
+static _DisplayState _modstate = {0};
 #define DISPLAY_MOD_STATE(mod) (&_modstate)
 #define DISPLAY_STATE DISPLAY_MOD_STATE(0)
 #endif /* PY2 */
@@ -591,6 +592,9 @@ pg_set_mode(PyObject *self, PyObject *arg)
         title = state->title;
     }
 
+    if (flags & PGS_OPENGL)
+        state->using_gl = 1;
+
     if (win) {
         /*change existing window*/
         SDL_SetWindowTitle(win, title);
@@ -615,7 +619,7 @@ pg_set_mode(PyObject *self, PyObject *arg)
             else
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
         }
-#pragma PG_WARN(Not setting bpp?)
+#pragma PG_WARN(Not setting bpp ?)
         Uint32 sdl_flags = 0;
         if (flags & PGS_FULLSCREEN)
             sdl_flags |= SDL_WINDOW_FULLSCREEN;
@@ -636,14 +640,15 @@ pg_set_mode(PyObject *self, PyObject *arg)
         if (!win)
             return RAISE(pgExc_SDLError, SDL_GetError());
 
-        if (flags & PGS_OPENGL) {
+        if (state->using_gl) {
             state->gl_context = SDL_GL_CreateContext(win);
             if (!state->gl_context) {
                 PyErr_SetString(pgExc_SDLError, SDL_GetError());
                 SDL_DestroyWindow(win);
                 return NULL;
             }
-        } else
+        }
+        else
             state->gl_context = NULL;
         if (state->gamma_ramp) {
             int result = SDL_SetWindowGammaRamp(win, state->gamma_ramp,
@@ -660,7 +665,19 @@ pg_set_mode(PyObject *self, PyObject *arg)
                 return NULL;
             }
         }
-        surf = SDL_GetWindowSurface(win);
+        if (state->using_gl) {
+            /* SDL_GetWindowSurface can not be used when using GL.
+                According to https://wiki.libsdl.org/SDL_GetWindowSurface
+
+            So we make a fake surface.
+            */
+            surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0xff << 16,
+                                        0xff << 8, 0xff, 0);
+        }
+        else {
+            surf = SDL_GetWindowSurface(win);
+        }
+
         if (!surf) {
             _display_state_cleanup(state);
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -720,6 +737,7 @@ static PyObject *
 pg_flip(PyObject *self)
 {
     SDL_Window *win = pg_GetDefaultWindow();
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
     int status = 0;
 
     VIDEO_INIT_CHECK();
@@ -728,8 +746,9 @@ pg_flip(PyObject *self)
         return RAISE(pgExc_SDLError, "Display mode not set");
 
     Py_BEGIN_ALLOW_THREADS;
-    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+    if (state->using_gl) {
         SDL_GL_SwapWindow(win);
+    }
     else
         status = SDL_UpdateWindowSurface(win) == -1;
     Py_END_ALLOW_THREADS;
@@ -932,6 +951,7 @@ pg_update(PyObject *self, PyObject *arg)
 {
 #if IS_SDLv2
     SDL_Window *win = pg_GetDefaultWindow();
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
 #else  /* IS_SDLv1 */
     SDL_Surface *screen;
 #endif /* IS_SDLv1 */
@@ -945,7 +965,8 @@ pg_update(PyObject *self, PyObject *arg)
     if (!win)
         return RAISE(pgExc_SDLError, "Display mode not set");
     SDL_GetWindowSize(win, &wide, &high);
-    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+
+    if (state->using_gl)
         return RAISE(pgExc_SDLError, "Cannot update an OPENGL display");
 #else  /* IS_SDLv1 */
     screen = SDL_GetVideoSurface();
@@ -1307,7 +1328,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
     SDL_Window *win = pg_GetDefaultWindow();
     Uint16 *gamma_ramp = (Uint16 *)malloc((3 * 256) * sizeof(Uint16));
     Uint16 *r, *g, *b;
-    int result;
+    int result = 0;
     if (!gamma_ramp)
         return PyErr_NoMemory();
     r = gamma_ramp;
@@ -1370,8 +1391,10 @@ pg_get_caption(PyObject *self)
 static PyObject *
 pg_set_icon(PyObject *self, PyObject *arg)
 {
+#if (!defined(darwin))
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
+#endif
     PyObject *surface;
     if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
         return NULL;
@@ -1395,7 +1418,7 @@ pg_iconify(PyObject *self)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
     SDL_MinimizeWindow(win);
-#pragma PG_WARN(Does this send the app an SDL_ActiveEvent loss event?)
+#pragma PG_WARN(Does this send the app an SDL_ActiveEvent loss event ?)
     return PyInt_FromLong(1);
 }
 
@@ -1620,6 +1643,7 @@ MODINIT_DEFINE(display)
     state->title = NULL;
     state->icon = NULL;
     state->gamma_ramp = NULL;
+    state->using_gl = 0;
     MODINIT_RETURN(module);
 }
 #else /* IF_SDLv1 */
