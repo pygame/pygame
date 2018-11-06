@@ -298,19 +298,6 @@ class DrawLineTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 draw.polygon(surf, col, points, 0)
 
-    def test_aaline_blend(self):
-        """ blends correctly with the background color.
-        """
-        surface = pygame.Surface((20, 20))
-        surface.fill(pygame.Color(0, 255, 0))
-        draw.aaline(surface, pygame.Color(255, 255, 255), (2, 2), (18, 18), 1)
-        draw.aaline(surface, pygame.Color(255, 255, 255), (2, 18), (18, 2), 1)
-
-        # white should be blended with the background green.
-        self.assertEqual(surface.get_at((10, 10)), (191, 255, 191, 255))
-        # should be full green here.
-        self.assertEqual(surface.get_at((9, 7)), (0, 255, 0, 255))
-
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
@@ -346,7 +333,7 @@ class AntiAliasedLineMixin:
         check_one_direction(from_point, to_point, should)
         check_one_direction(to_point, from_point, should)
 
-    def _test_short_non_antialiased_lines(self):
+    def test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
         # Horizontal, vertical and diagonal lines should not be antialiased,
         # even with draw.aaline ...
@@ -371,7 +358,7 @@ class AntiAliasedLineMixin:
         check_both_directions((5, 6), (6, 5), [])
         check_both_directions((6, 4), (4, 6), [(5, 5)])
 
-    def _test_short_line_anti_aliasing(self):
+    def test_short_line_anti_aliasing(self):
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
 
         def check_both_directions(from_pt, to_pt, should):
@@ -493,14 +480,6 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
         draw.aaline(self.surface, color, from_point, to_point, 1)
 
     @unittest.expectedFailure
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
-
-    @unittest.expectedFailure
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
-
-    @unittest.expectedFailure
     def test_anti_aliasing_with_float_coordinates(self):
         self._test_anti_aliasing_float_coordinates()
 
@@ -510,12 +489,6 @@ class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
 
     def draw_aaline(self, color, from_point, to_point):
         draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
-
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
-
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
 
     def test_anti_aliasing_with_float_coordinates(self):
         self._test_anti_aliasing_float_coordinates()
