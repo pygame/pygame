@@ -74,6 +74,14 @@ SDL_UpdateTexture = SDL2_dll.SDL_UpdateTexture
 SDL_UpdateTexture.argtypes = (c_void_p, c_void_p, c_void_p, c_int)
 SDL_UpdateTexture.restype = c_int
 
+class SDL_Rect(Structure):
+    _fields_ = [
+        ('x', c_int),
+        ('y', c_int),
+        ('w', c_int),
+        ('h', c_int),
+    ]
+
 # SURFACE
 
 class _pgSurfaceObject(Structure):

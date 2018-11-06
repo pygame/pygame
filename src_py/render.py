@@ -27,8 +27,10 @@ class Renderer:
     def clear(self):
         SDL_RenderClear(self._renderer)
 
-    def copy(self, texture): #, srcrect=None, dstrect=None)
-        SDL_RenderCopy(self._renderer, texture._tex, None, None)
+    def copy(self, texture, srcrect=None, dstrect=None):
+        srcrect = byref(SDL_Rect(*srcrect)) if srcrect else None
+        dstrect = byref(SDL_Rect(*dstrect)) if dstrect else None
+        SDL_RenderCopy(self._renderer, texture._tex, byref(srcrect), byref(dstrect))
 
     def present(self):
         SDL_RenderPresent(self._renderer)
