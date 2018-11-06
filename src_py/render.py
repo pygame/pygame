@@ -27,10 +27,15 @@ class Renderer:
     def clear(self):
         SDL_RenderClear(self._renderer)
 
+    def copy_pos(self, texture, x, y):
+        srcrect = byref(SDL_Rect(0, 0, texture.width, texture.height))
+        dstrect = byref(SDL_Rect(x, y, texture.width, texture.height))
+        SDL_RenderCopy(self._renderer, texture._tex, srcrect, dstrect)
+
     def copy(self, texture, srcrect=None, dstrect=None):
         srcrect = byref(SDL_Rect(*srcrect)) if srcrect else None
         dstrect = byref(SDL_Rect(*dstrect)) if dstrect else None
-        SDL_RenderCopy(self._renderer, texture._tex, byref(srcrect), byref(dstrect))
+        SDL_RenderCopy(self._renderer, texture._tex, srcrect, dstrect)
 
     def present(self):
         SDL_RenderPresent(self._renderer)
@@ -39,6 +44,8 @@ class Texture:
     def __init__(self, renderer, surface):
         self.renderer = renderer
         self._tex = SDL_CreateTextureFromSurface(renderer._renderer, get_surface_ptr(surface))
+        self.width = surface.get_width()
+        self.height = surface.get_height()
 
     def __del__(self):
         SDL_DestroyTexture(self._tex)
