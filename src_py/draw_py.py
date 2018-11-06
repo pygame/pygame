@@ -245,7 +245,28 @@ def _draw_line(surf, color, x1, y1, x2, y2):
 
 
 def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
-    '''draw a non-horizontal anti-aliased line.'''
+    '''draw an anti-aliased line.
+
+    The algorithm yields identical results with _draw_line for horizontal,
+    vertical or diagonal lines, and results changes smoothly when changing
+    any of the endpoint coordinates.
+
+    Note that this yields strange results for very short lines, eg
+    a line from (0, 0) to (0, 1) will draw 2 pixels, and a line from
+    (0, 0) to (0, 1.1) will blend 10 % on the pixel (0, 2). 
+    '''
+    # The different requirements that we have on an antialiasing algorithm
+    # implies to make some compromises:
+    # 1. We want smooth evolution wrt to the 4 endpoint coordinates
+    #    (this means also that we want a smooth evolution when the angle
+    #     passes +/- 45°
+    # 2. We want the same behavior when swapping the endpoints
+    # 3. We want understandable results for the endpoint values
+    #    (eg we want to avoid half-integer values to draw a simple plain
+    #     horizontal or vertical line between two integer l endpoints)
+    #
+    # This implies to somehow make the line artificially 1 pixel longer
+    # and to draw a full pixel when we have the  endpoints are identical.
     dx = to_x - from_x
     dy = to_y - from_y
 
@@ -272,25 +293,22 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         #  A   from-pt    G    .  .  .        to-pt    S
         #  |------*-------|--- .  .  . ---|-----*------|-
         G_x = ceil(from_x)
-        G_y = from_y +  (from_x - G_x) * slope
-        A_x, A_y = int(from_x), G_y - slope
+        G_y = from_y + (G_x - from_x) * slope
 
-        # 0. Special case : both from_x and to_x are in the same pixel
-        if to_x < G_x:
-            draw_two_pixel(A_x, A_y, dx)
-            return
-
-        # 1. Draw start of the segment
-        if G_x != from_x:
-            # we draw only if we have a non-integer-part at start of the line
-            draw_two_pixel(A_x, A_y, inv_frac(from_x))
+        # 1. Draw start of the segment if we have a non-integer-part
+        if from_x < G_x:
+            # this corresponds to the point "A"
+            draw_two_pixel(int(from_x), G_y - slope, inv_frac(from_x))
 
         # 2. Draw end of the segment: we add one pixel for homogenity reasons
         rest = frac(to_x)
-        S_x, S_y = int(to_x) + 1, from_y + slope * (dx + 1 - rest)
-        if S_x != to_x + 1:
+        S_x = ceil(to_x)
+        if rest > 0:
             # Again we draw only if we have a non-integer-part
+            S_y = from_y + slope * (dx + 1 - rest)
             draw_two_pixel(S_x, S_y, rest)
+        else:
+            S_x += 1
 
         # 3. loop for other points
         for x in range(G_x, S_x):
@@ -312,23 +330,20 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
             draw_pixel(surf, x + 1, y, color, factor * frac(float_x), blend)
 
         G_y = ceil(from_y)
-        G_x = from_x + slope * (G_y - from_y)
-        A_x, A_y = G_x - slope, int(from_y)
-
-        # 0. Special case : both from_x and to_x are in the same pixel
-        if to_y < G_y:
-            draw_two_pixel(A_x, A_y, dy)
-            return
+        G_x = from_x + (G_y - from_y) * slope
 
         # 1. Draw start of the segment
-        if G_y != from_y:
-            draw_two_pixel(A_x, A_y, inv_frac(from_y))
+        if from_y < G_y:
+            draw_two_pixel(G_x - slope, int(from_y), inv_frac(from_y))
 
         # 2. Draw end of the segment
         rest = frac(to_y)
-        S_x, S_y = from_x + slope * (dy + 1 - rest), int(to_y) + 1
-        if S_x != to_y + 1:
+        S_y = ceil(to_y)
+        if rest > 0:
+            S_x = from_x + slope * (dy + 1 - rest)
             draw_two_pixel(S_x, S_y, rest)
+        else:
+            S_y += 1
 
         # 3. loop for other points
         for y in range(G_y, S_y):

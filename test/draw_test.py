@@ -439,9 +439,29 @@ class AntiAliasedLineMixin:
         expected = {(2, 1): brown, (2, 2):  (63, 191, 0)}
         self._check_antialiasing((2, 1.5), (2, 1.75), expected,
                                  check_points, set_endpoints=False)
-        #  b) blend y-coordinate
+        #  b) blend x-coordinate
         expected = {(x, y): brown for x in (1, 2) for y in range(2, 5)}
         self._check_antialiasing((1.5, 2), (1.5, 4), expected,
+                                 check_points, set_endpoints=False)
+        # 3. diagonal lines
+        #  a) blend endpoints
+        expected = {(1, 1): brown, (2, 2): FG_GREEN, (3, 3): brown}
+        self._check_antialiasing((1.5, 1.5), (2.5, 2.5), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(3, 1): brown, (2, 2): FG_GREEN, (1, 3): brown}
+        self._check_antialiasing((2.5, 1.5), (1.5, 2.5), expected,
+                                 check_points, set_endpoints=False)
+        #  b) blend sidewards
+        expected = {(2, 1): brown, (2, 2): brown, (3, 2): brown, (3, 3): brown}
+        self._check_antialiasing((2, 1.5), (3, 2.5), expected,
+                                 check_points, set_endpoints=False)
+
+        reddish = (191, 63, 0)
+        greenish = (63, 191, 0)
+        expected = {(2, 1): greenish, (2, 2): reddish,
+                    (3, 2): greenish, (3, 3): reddish,
+                    (4, 3): greenish, (4, 4): reddish}
+        self._check_antialiasing((2, 1.25), (4, 3.25), expected,
                                  check_points, set_endpoints=False)
 
     @unittest.expectedFailure
