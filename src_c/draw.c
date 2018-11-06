@@ -1115,7 +1115,8 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         // 1. Draw start of the segment if we have a non-integer-part
         if (from_x < G_x) {
             rest = INVFRAC(from_x);
-            DRAW_TWO_VERT_PXL(G_x, G_y - slope, rest)
+            pt_y = G_y - slope;
+            DRAW_TWO_VERT_PXL((int)from_x, pt_y, rest)
         }
         // 2. Draw end of the segment: we add one pixel for homogenity reasons
         rest = FRAC(to_x);
@@ -1148,7 +1149,8 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         // 1. Draw start of the segment if we have a non-integer-part
         if (from_y < G_y) {
             rest = INVFRAC(from_y);
-            DRAW_TWO_HORIZ_PXL(G_x - slope, G_y, rest)
+            pt_x = G_x - slope;
+            DRAW_TWO_HORIZ_PXL(pt_x, (int)from_y, rest)
         }
         // 2. Draw end of the segment: we add one pixel for homogenity reasons
         rest = FRAC(to_y);
