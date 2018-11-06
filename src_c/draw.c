@@ -1051,18 +1051,22 @@ draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br,
     {                                                                \
         y = (int)float_y;                                            \
         pixel = surf_pmap + pixx * (int)int_x + pixy * y;            \
-        DRAWPIX32(pixel, colorptr, factor * INVFRAC(float_y), blend) \
+        brightness = factor * INVFRAC(float_y);                      \
+        DRAWPIX32(pixel, colorptr, brightness, blend)                \
         pixel += pixy;                                               \
-        DRAWPIX32(pixel, colorptr, factor * FRAC(float_y), blend)    \
+        brightness = factor * FRAC(float_y);                         \
+        DRAWPIX32(pixel, colorptr, brightness, blend)                \
     }
 
 #define DRAW_TWO_HORIZ_PXL(float_x, int_y, factor)                   \
     {                                                                \
         x = (int)float_x;                                            \
         pixel = surf_pmap + pixx * x + pixy * (int)int_y;            \
-        DRAWPIX32(pixel, colorptr, factor * INVFRAC(float_x), blend) \
+        brightness = factor * INVFRAC(float_x);                      \
+        DRAWPIX32(pixel, colorptr, brightness, blend)                \
         pixel += pixx;                                               \
-        DRAWPIX32(pixel, colorptr, factor * FRAC(float_x), blend)    \
+        brightness = factor * FRAC(float_x);                         \
+        DRAWPIX32(pixel, colorptr, brightness, blend)                \
     }
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
@@ -1072,7 +1076,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
 {
     float slope, dx, dy, swaptmp;
     int x, y;
-    float G_x, G_y, S_x, S_y, pt_x, pt_y, rest;
+    float G_x, G_y, S_x, S_y, pt_x, pt_y, rest, brightness;
 
     int pixx, pixy;
     Uint8 colorptr[4];
