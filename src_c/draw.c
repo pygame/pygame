@@ -1046,16 +1046,34 @@ draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br,
         }                                                                   \
     }
 
+
+#define DRAW_TWO_VERT_PXL(int_x, float_y, factor)                    \
+    {                                                                \
+        y = (int)float_y;                                            \
+        pixel = surf_pmap + pixx * (int)int_x + pixy * y;            \
+        DRAWPIX32(pixel, colorptr, factor * INVFRAC(float_y), blend) \
+        pixel += pixy;                                               \
+        DRAWPIX32(pixel, colorptr, factor * FRAC(float_y), blend)    \
+    }
+
+#define DRAW_TWO_HORIZ_PXL(float_x, int_y, factor)                   \
+    {                                                                \
+        x = (int)float_x;                                            \
+        pixel = surf_pmap + pixx * x + pixy * (int)int_y;            \
+        DRAWPIX32(pixel, colorptr, factor * INVFRAC(float_x), blend) \
+        pixel += pixx;                                               \
+        DRAWPIX32(pixel, colorptr, factor * FRAC(float_x), blend)    \
+    }
+
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
 static void
 draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to_x,
            float to_y, int blend)
 {
-    float slope, dx, dy;
-    float xgap, ygap, pt_x, pt_y, xf, yf;
-    float brightness1, brightness2;
-    float swaptmp;
-    int x, y, ifrom_x, ito_x, ifrom_y, ito_y;
+    float slope, dx, dy, swaptmp;
+    int x, y;
+    float G_x, G_y, S_x, S_y, pt_x, pt_y, rest;
+
     int pixx, pixy;
     Uint8 colorptr[4];
 
@@ -1079,7 +1097,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         return;
     }
 
-    if (fabs(dx) > fabs(dy)) {
+    if (fabs(dx) >= fabs(dy)) {
         if (from_x > to_x) {
             SWAP(from_x, to_x, swaptmp)
             SWAP(from_y, to_y, swaptmp)
@@ -1087,40 +1105,28 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
             dy = -dy;
         }
         slope = dy / dx;
-        // 1. Draw start of the segment
-        pt_x = trunc(from_x) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
-        pt_y = from_y + slope * (pt_x - from_x);
-        xgap = INVFRAC(from_x);
-        ifrom_x = (int)pt_x;
-        ifrom_y = (int)pt_y;
-        yf = pt_y + slope;
-        brightness1 = INVFRAC(pt_y) * xgap;
-        brightness2 = FRAC(pt_y) * xgap;
-        pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
-        DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixy;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
-        // 2. Draw end of the segment
-        pt_x = trunc(to_x) + 0.5;
-        pt_y = to_y + slope * (pt_x - to_x);
-        xgap = FRAC(to_x); /* this also differs from Hugo's description. */
-        ito_x = (int)pt_x;
-        ito_y = (int)pt_y;
-        brightness1 = INVFRAC(pt_y) * xgap;
-        brightness2 = FRAC(pt_y) * xgap;
-        pixel = surf_pmap + pixx * ito_x + pixy * ito_y;
-        DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixy;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
+        G_x = ceil(from_x);
+        G_y = from_y + (G_x - from_x) * slope;
+
+        // 1. Draw start of the segment if we have a non-integer-part
+        if (from_x < G_x) {
+            rest = INVFRAC(from_x);
+            DRAW_TWO_VERT_PXL(G_x, G_y - slope, rest)
+        }
+        // 2. Draw end of the segment: we add one pixel for homogenity reasons
+        rest = FRAC(to_x);
+        S_x = ceil(to_x);
+        if (rest > 0) {
+            // Again we draw only if we have a non-integer-part
+            S_y = from_y + slope * (dx + 1 - rest);
+            DRAW_TWO_VERT_PXL(S_x, S_y, rest)
+        } else {
+            S_x += 1;
+        }
         // 3. loop for other points
-        for (x = ifrom_x + 1; x < ito_x; ++x) {
-            brightness1 = INVFRAC(yf);
-            brightness2 = FRAC(yf);
-            pixel = surf_pmap + pixx * x + pixy * (int)yf;
-            DRAWPIX32(pixel, colorptr, brightness1, blend)
-            pixel += pixy;
-            DRAWPIX32(pixel, colorptr, brightness2, blend)
-            yf += slope;
+        for (x = (int)G_x; x < S_x; x++) {
+            pt_y = G_y + slope * (x - G_x);
+            DRAW_TWO_VERT_PXL(x, pt_y, 1.0)
         }
     }
     else {
@@ -1132,39 +1138,28 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         }
         slope = dx / dy;
         // 1. Draw start of the segment
-        pt_y = trunc(from_y) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
-        pt_x = from_x + slope * (pt_y - from_y);
-        ygap = INVFRAC(from_y);
-        ifrom_y = (int)pt_y;
-        ifrom_x = (int)pt_x;
-        xf = pt_x + slope;
-        brightness1 = INVFRAC(pt_x) * ygap;
-        brightness2 = FRAC(pt_x) * ygap;
-        pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
-        DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixx;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
-        // 2. Draw end of the segment
-        pt_y = trunc(to_y) + 0.5;
-        pt_x = to_x + slope * (pt_y - to_y);
-        ygap = FRAC(to_y);
-        ito_y = (int)pt_y;
-        ito_x = (int)pt_x;
-        brightness1 = INVFRAC(pt_x) * ygap;
-        brightness2 = FRAC(pt_x) * ygap;
-        pixel = surf_pmap + pixx * ito_x + pixy * ito_y;
-        DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixx;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
+        G_y = ceil(from_y);
+        G_x = from_x + (G_y - from_y) * slope;
+
+        // 1. Draw start of the segment if we have a non-integer-part
+        if (from_y < G_y) {
+            rest = INVFRAC(from_y);
+            DRAW_TWO_HORIZ_PXL(G_x - slope, G_y, rest)
+        }
+        // 2. Draw end of the segment: we add one pixel for homogenity reasons
+        rest = FRAC(to_y);
+        S_y = ceil(to_y);
+        if (rest > 0) {
+            // Again we draw only if we have a non-integer-part
+            S_x = from_x + slope * (dy + 1 - rest);
+            DRAW_TWO_HORIZ_PXL(S_x, S_y, rest)
+        } else {
+            S_y += 1;
+        }
         // 3. loop for other points
-        for (y = ifrom_y + 1; y < ito_y; ++y) {
-            brightness1 = INVFRAC(xf);
-            brightness2 = FRAC(xf);
-            pixel = surf_pmap + pixx * (int)xf + pixy * y;
-            DRAWPIX32(pixel, colorptr, brightness1, blend)
-            pixel += pixx;
-            DRAWPIX32(pixel, colorptr, brightness2, blend)
-            xf += slope;
+        for (y = (int)G_y; y < S_y; y++) {
+            pt_x = G_x + slope * (y - G_y);
+            DRAW_TWO_HORIZ_PXL(pt_x, y, 1.0)
         }
     }
 }
