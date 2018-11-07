@@ -271,7 +271,9 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
     dy = to_y - from_y
 
     if dx == 0 and dy == 0:
-        set_at(surf, from_x, to_x, color)
+        # For smoothness reasons, we could also do some blending here,
+        # but it seems overshoot...
+        set_at(surf, int(from_x), int(from_y), color)
         return
 
     if abs(dx) >= abs(dy):

@@ -331,7 +331,8 @@ class AntiAliasedLineMixin:
         # it is important to test also opposite direction, the algorithm
         # is (#512) or was not symmetric
         check_one_direction(from_point, to_point, should)
-        check_one_direction(to_point, from_point, should)
+        if from_point != to_point:
+            check_one_direction(to_point, from_point, should)
 
     def test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
@@ -397,6 +398,14 @@ class AntiAliasedLineMixin:
         '''Float coordinates should be blended smoothly.'''
         check_points = [(i, j) for i in range(5) for j in range(5)]
         brown = (127, 127, 0)
+
+        # 0. identical point : current implemntation does no smoothing...
+        expected = {(1, 2): FG_GREEN}
+        self._check_antialiasing((1.5, 2), (1.5, 2), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(2, 2): FG_GREEN}
+        self._check_antialiasing((2.5, 2.7), (2.5, 2.7), expected,
+                                 check_points, set_endpoints=False)
 
         # 1. horizontal lines
         #  a) blend endpoints
