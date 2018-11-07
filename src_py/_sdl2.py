@@ -22,6 +22,13 @@ SDL_DestroyWindow = SDL2_dll.SDL_DestroyWindow
 SDL_DestroyWindow.argtypes = (c_void_p,)
 SDL_DestroyWindow.restype = None
 
+SDL_GetWindowTitle = SDL2_dll.SDL_GetWindowTitle
+SDL_GetWindowTitle.argtypes = (c_void_p,)
+SDL_GetWindowTitle.restype = c_char_p
+SDL_SetWindowTitle = SDL2_dll.SDL_SetWindowTitle
+SDL_SetWindowTitle.argtypes = (c_void_p, c_char_p)
+SDL_SetWindowTitle.restype = None
+
 # RENDERER
 
 SDL_RENDERER_SOFTWARE = 0x00000001
