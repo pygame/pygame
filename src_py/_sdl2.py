@@ -63,6 +63,24 @@ SDL_GetRenderDrawColor = SDL2_dll.SDL_GetRenderDrawColor
 SDL_GetRenderDrawColor.argtypes = (c_void_p, POINTER(c_uint8), POINTER(c_uint8), POINTER(c_uint8), POINTER(c_uint8))
 SDL_GetRenderDrawColor.restype = c_int
 
+SDL_GetNumRenderDrivers = SDL2_dll.SDL_GetNumRenderDrivers
+SDL_GetNumRenderDrivers.argtypes = None
+SDL_GetNumRenderDrivers.restype = c_int
+
+SDL_GetRenderDriverInfo = SDL2_dll.SDL_GetRenderDriverInfo
+SDL_GetRenderDriverInfo.argtypes = (c_int, c_void_p)
+SDL_GetRenderDriverInfo.restype = c_int
+
+class SDL_RendererInfo(Structure):
+    _fields_ = [
+        ('name', c_char_p),
+        ('flags', c_uint32),
+        ('num_texture_formats', c_uint32),
+        ('texture_formats', 16 * c_uint32),
+        ('max_texture_width', c_uint32),
+        ('max_texture_height', c_uint32),
+    ]
+
 # TEXTURE
 
 SDL_CreateTexture = SDL2_dll.SDL_CreateTexture
@@ -102,5 +120,5 @@ class _pgSurfaceObject(Structure):
         #dependency
     ]
 
-def get_surface_ptr(surface):
-    return _pgSurfaceObject.from_address(id(surface)).surf
+def get_surface_ptr(pgSurface):
+    return _pgSurfaceObject.from_address(id(pgSurface)).surf

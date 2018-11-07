@@ -2,6 +2,27 @@ from ._sdl2 import *
 from pygame import Surface
 
 
+class RendererDriverInfo:
+    def __repr__(self):
+        return "<%s(name: %s, flags: 0x%02x, num_texture_formats: %d, max_texture_width: %d, max_texture_height: %d)>" % (
+            self.__class__.__name__,
+            self.name,
+            self.flags,
+            self.num_texture_formats,
+            self.max_texture_width,
+            self.max_texture_height,
+        )
+
+def get_drivers():
+    num = SDL_GetNumRenderDrivers()
+    for ind in range(num):
+        info = SDL_RendererInfo()
+        SDL_GetRenderDriverInfo(ind, byref(info))
+        ret = RendererDriverInfo()
+        for name, _ in info._fields_:
+            setattr(ret, name, getattr(info, name))
+        yield ret
+
 class Renderer:
     SOFTWARE = SDL_RENDERER_SOFTWARE
     ACCELERATED = SDL_RENDERER_ACCELERATED
