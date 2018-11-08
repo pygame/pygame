@@ -43,7 +43,7 @@
 #define trunc(d) (((d) >= 0.0) ? (floor(d)) : (ceil(d)))
 #endif
 
-#define FRAC(z) ((z)-trunc(z))
+#define FRAC(z) ((z) - floor(z))
 #define INVFRAC(z) (1 - FRAC(z))
 
 #ifndef M_PI
@@ -683,8 +683,8 @@ static int
 clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                      float *pts, int blend)
 {
-    if (!clip_aaline(pts, rect->x + 1, rect->y + 1, rect->x + rect->w - 2,
-                    rect->y + rect->h - 2))
+    if (!clip_aaline(pts, rect->x + 0, rect->y + 0, rect->x + rect->w - 1,
+                    rect->y + rect->h - 1))
         return 0;
     draw_aaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend);
     return 1;
@@ -1020,53 +1020,58 @@ set_pixel_32(Uint8 *pixels, SDL_PixelFormat *format, Uint32 pixel)
 }
 
 static void
-draw_pixel_blended_32(Uint8 *pixels, Uint8 *colors, float br,
-                      SDL_PixelFormat *format)
+draw_shaded_32_pixel(SDL_Surface *surf, Uint8 *pixels, int x, int y, int blend,
+                     Uint8 *colors, float br)
 {
-    Uint8 pixel32[4];
-    SDL_GetRGBA(get_pixel_32(pixels, format), format, &pixel32[0], &pixel32[1],
-                &pixel32[2], &pixel32[3]);
-    *(Uint32 *)pixel32 =
-        SDL_MapRGBA(format, br * colors[0] + (1 - br) * pixel32[0],
-                    br * colors[1] + (1 - br) * pixel32[1],
-                    br * colors[2] + (1 - br) * pixel32[2],
-                    br * colors[3] + (1 - br) * pixel32[3]);
-    set_pixel_32(pixels, format, *(Uint32 *)pixel32);
-}
 
-#define DRAWPIX32(pixels, colorptr, br, blend)                              \
-    {                                                                       \
-        if (blend)                                                          \
-            draw_pixel_blended_32(pixels, colorptr, br, surf->format);      \
-        else {                                                              \
-            set_pixel_32(                                                   \
-                pixels, surf->format,                                       \
-                SDL_MapRGBA(surf->format, br *colorptr[0], br *colorptr[1], \
-                            br *colorptr[2], br *colorptr[3]));             \
-        }                                                                   \
+    if (x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
+        y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h) {
+        // the (x, y) can happen to be a bit over the border because we need
+        // the extra space to make draw_aaline work correctly on the border
+        return;
     }
-
+    SDL_PixelFormat* format = surf->format;
+    if (blend) {
+        Uint8 pixel32[4];
+        SDL_GetRGBA(get_pixel_32(pixels, format), format, &pixel32[0], &pixel32[1],
+                    &pixel32[2], &pixel32[3]);
+        *(Uint32 *)pixel32 =
+            SDL_MapRGBA(format, br * colors[0] + (1 - br) * pixel32[0],
+                        br * colors[1] + (1 - br) * pixel32[1],
+                        br * colors[2] + (1 - br) * pixel32[2],
+                        br * colors[3] + (1 - br) * pixel32[3]);
+        set_pixel_32(pixels, format, *(Uint32 *)pixel32);
+    } else {
+        set_pixel_32(pixels, format,
+            SDL_MapRGBA(format, br *colors[0], br *colors[1],
+                        br *colors[2], br *colors[3]));
+    }
+}
 
 #define DRAW_TWO_VERT_PXL(int_x, float_y, factor)                    \
     {                                                                \
         y = (int)float_y;                                            \
-        pixel = surf_pmap + pixx * (int)int_x + pixy * y;            \
+        pixel = surf_pmap + pixx * int_x + pixy * y;                 \
         brightness = factor * INVFRAC(float_y);                      \
-        DRAWPIX32(pixel, colorptr, brightness, blend)                \
+        draw_shaded_32_pixel(surf, pixel, int_x, y,                  \
+                             blend, colorptr, brightness);           \
         pixel += pixy;                                               \
         brightness = factor * FRAC(float_y);                         \
-        DRAWPIX32(pixel, colorptr, brightness, blend)                \
+        draw_shaded_32_pixel(surf, pixel, int_x, y,                  \
+                             blend, colorptr, brightness);           \
     }
 
 #define DRAW_TWO_HORIZ_PXL(float_x, int_y, factor)                   \
     {                                                                \
         x = (int)float_x;                                            \
-        pixel = surf_pmap + pixx * x + pixy * (int)int_y;            \
+        pixel = surf_pmap + pixx * x + pixy * int_y;                 \
         brightness = factor * INVFRAC(float_x);                      \
-        DRAWPIX32(pixel, colorptr, brightness, blend)                \
+        draw_shaded_32_pixel(surf, pixel, x, int_y,                  \
+                             blend, colorptr, brightness);           \
         pixel += pixx;                                               \
         brightness = factor * FRAC(float_x);                         \
-        DRAWPIX32(pixel, colorptr, brightness, blend)                \
+        draw_shaded_32_pixel(surf, pixel, x, int_y,                  \
+                             blend, colorptr, brightness);           \
     }
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
@@ -1124,7 +1129,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         if (rest > 0) {
             // Again we draw only if we have a non-integer-part
             S_y = from_y + slope * (dx + 1 - rest);
-            DRAW_TWO_VERT_PXL(S_x, S_y, rest)
+            DRAW_TWO_VERT_PXL((int)S_x, S_y, rest)
         } else {
             S_x += 1;
         }
@@ -1158,7 +1163,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         if (rest > 0) {
             // Again we draw only if we have a non-integer-part
             S_x = from_x + slope * (dy + 1 - rest);
-            DRAW_TWO_HORIZ_PXL(S_x, S_y, rest)
+            DRAW_TWO_HORIZ_PXL(S_x, (int)S_y, rest)
         } else {
             S_y += 1;
         }
