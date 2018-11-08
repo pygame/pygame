@@ -1628,7 +1628,9 @@ MODINIT_DEFINE(event)
         pg_RegisterQuit(_pg_user_event_cleanup);
     }
 
+#if IS_SDLv2
     pg_RegisterQuit(_pg_repeat_timers_cleanup);
+#endif /* IS_SDLv2 */
 
     MODINIT_RETURN(module);
 }
