@@ -66,7 +66,6 @@ static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
 {
     SDL_Scancode scancode = (SDL_Scancode)param;
-    int numkeys;
 
     SDL_Event sdlevent;
     sdlevent.type = PGE_KEYREPEAT;
