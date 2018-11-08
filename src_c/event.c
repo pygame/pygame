@@ -57,6 +57,29 @@ typedef struct UserEventObject {
 static UserEventObject *user_event_objects = NULL;
 
 #if IS_SDLv2
+static int pg_key_repeat_delay = 0;
+static int pg_key_repeat_interval = 0;
+
+static SDL_TimerID _scancode_to_timer[SDL_NUM_SCANCODES] = {0};
+
+static Uint32
+_pg_repeat_callback(Uint32 interval, void *param)
+{
+    SDL_Scancode scancode = (SDL_Scancode)param;
+    int numkeys;
+
+    SDL_Event sdlevent;
+    sdlevent.type = PGE_KEYREPEAT;
+    sdlevent.key.state = SDL_PRESSED;
+    sdlevent.key.keysym.scancode = scancode;
+    sdlevent.key.keysym.sym = SDL_GetKeyFromScancode(scancode);
+    sdlevent.key.keysym.mod = SDL_GetModState();
+    sdlevent.key.repeat = 1;
+    SDL_PushEvent(&sdlevent);
+
+    return pg_key_repeat_interval;
+}
+
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
 pg_event_filter(void *_, SDL_Event *event)
@@ -86,12 +109,25 @@ pg_event_filter(void *_, SDL_Event *event)
                 return 0;
         }
     }
-#pragma PG_WARN(Add key repeat here. Add event blocking here.)
+#pragma PG_WARN(Add event blocking here.)
 
     if (type == SDL_KEYDOWN) {
         if (event->key.repeat) {
             return 0;
         }
+        else if (pg_key_repeat_delay > 0) {
+            SDL_Scancode scode = event->key.keysym.scancode;
+            _scancode_to_timer[scode] = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback, (void*)scode);
+        }
+    }
+    else if (type == SDL_KEYUP) {
+        if (_scancode_to_timer[event->key.keysym.scancode]) {
+            SDL_RemoveTimer(_scancode_to_timer[event->key.keysym.scancode]);
+            _scancode_to_timer[event->key.keysym.scancode] = 0;
+        }
+    }
+    else if (type == PGE_KEYREPEAT) {
+        event->type = SDL_KEYDOWN;
     }
 
     return 1;
@@ -100,16 +136,17 @@ pg_event_filter(void *_, SDL_Event *event)
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-#pragma PG_WARN(Add pg_EnableKeyRepeat code for SDL2)
-    return 0;
+    if (delay < 0 || interval < 0)
+        return -1;
+    pg_key_repeat_delay = delay;
+    pg_key_repeat_interval = interval;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
-#pragma PG_WARN(Add pg_GetKeyRepeat for SDL2)
-    *delay = 0;
-    *interval = 0;
+    *delay = pg_key_repeat_delay;
+    *interval = pg_key_repeat_interval;
 }
 #endif /* IS_SDLv2 */
 
