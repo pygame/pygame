@@ -183,26 +183,6 @@ def clip_line(line, left, top, right, bottom, use_float=False):
             y1 = top
 
 
-def _clip_and_draw_line(surf, rect, color, pts):
-    '''clip the line into the rectangle and draw if needed.
-
-    Returns true if anything has been drawn, else false.'''
-    # "pts" is a list with the four coordinates of the two endpoints
-    # of the line to be drawn : pts = x1, y1, x2, y2.
-    # The data format is like that to stay closer to the C-algorithm.
-    if not clip_line(pts, rect.x, rect.y, rect.x + rect.w - 1,
-                    rect.y + rect.h - 1):
-        # The line segment defined by "pts" is not crossing the rectangle
-        return 0
-    if pts[1] == pts[3]:  #  eg y1 == y2
-        _drawhorzline(surf, color, pts[0], pts[1], pts[2])
-    elif pts[0] == pts[2]: #  eg x1 == x2
-        _drawvertline(surf, color, pts[0], pts[1], pts[3])
-    else:
-        _draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
-    return 1
-
-
 def _draw_line(surf, color, x1, y1, x2, y2):
     '''draw a non-horizontal line (without anti-aliasing).'''
     # Variant of https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
@@ -364,7 +344,28 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
             draw_two_pixel(x, y, 1)
 
 
-def _clip_and_draw_line_width(surf, rect, color, width, line):
+#   C L I P   A N D   D R A W   L I N E   F U N C T I O N S    #
+
+def _clip_and_draw_line(surf, rect, color, pts):
+    '''clip the line into the rectangle and draw if needed.
+
+    Returns true if anything has been drawn, else false.'''
+    # "pts" is a list with the four coordinates of the two endpoints
+    # of the line to be drawn : pts = x1, y1, x2, y2.
+    # The data format is like that to stay closer to the C-algorithm.
+    if not clip_line(pts, rect.x, rect.y, rect.x + rect.w - 1,
+                    rect.y + rect.h - 1):
+        # The line segment defined by "pts" is not crossing the rectangle
+        return 0
+    if pts[1] == pts[3]:  #  eg y1 == y2
+        _drawhorzline(surf, color, pts[0], pts[1], pts[2])
+    elif pts[0] == pts[2]: #  eg x1 == x2
+        _drawvertline(surf, color, pts[0], pts[1], pts[3])
+    else:
+        _draw_line(surf, color, pts[0], pts[1], pts[2], pts[3])
+    return 1
+
+def _clip_and_draw_line_width(surf, rect, color, line, width):
     yinc = xinc = 0
     if abs(line[0] - line[2]) > abs(line[1] - line[3]):
         yinc = 1
@@ -405,12 +406,8 @@ def _clip_and_draw_line_width(surf, rect, color, width, line):
     return anydrawn
 
 
-#    D R A W   L I N E   F U N C T I O N S    #
-
-def draw_aaline(surf, color, from_point, to_point, blend):
+def _clip_and_draw_aaline(surf, rect, color, line, blend):
     '''draw anti-aliased line between two endpoints.'''
-    line = [from_point[0], from_point[1], to_point[0], to_point[1]]
-    rect = surf.get_clip()
     if not clip_line(line, rect.x - 1, rect.y -1, rect.x + rect.w,
                      rect.y + rect.h, use_float=True):
         return # TODO Rect(rect.x, rect.y, 0, 0)
@@ -418,10 +415,25 @@ def draw_aaline(surf, color, from_point, to_point, blend):
     return # TODO Rect(-- affected area --)
 
 
+#    D R A W   L I N E   F U N C T I O N S    #
+
+def draw_aaline(surf, color, from_point, to_point, blend):
+    '''draw anti-aliased line between two endpoints.'''
+    line = [from_point[0], from_point[1], to_point[0], to_point[1]]
+    return _clip_and_draw_aaline(surf, surf.get_clip(), color, line, blend)
+
+
+def draw_line(surf, color, from_point, to_point, width):
+    '''draw anti-aliased line between two endpoints.'''
+    line = [from_point[0], from_point[1], to_point[0], to_point[1]]
+    return _clip_and_draw_line_width(surf, surf.get_clip(), color, line, width)
+
+
 #   M U L T I L I N E   F U N C T I O N S   #
 
-def draw_lines(surf, color, closed, points, width):
-
+def _multi_lines(surf, color, closed, points, width=1, blend=False, aaline=False):
+    '''draw several lines, either anti-aliased or not.'''
+    # The code for anti-aliased or not is almost identical, so it's factorized
     length = len(points)
     if length <= 2:
         raise TypeError
@@ -445,16 +457,31 @@ def draw_lines(surf, color, closed, points, width):
         line[1] = ylist[loop - 1]
         line[2] = xlist[loop]
         line[3] = ylist[loop]
-        _clip_and_draw_line_width(surf, rect, color, width, line)
+        if aaline:
+            _clip_and_draw_aaline(surf, rect, color, line, blend)
+        else:
+            _clip_and_draw_line_width(surf, rect, color, line, width)
 
     if closed:
         line[0] = xlist[length - 1]
         line[1] = ylist[length - 1]
         line[2] = xlist[0]
         line[3] = ylist[0]
-        _clip_and_draw_line_width(surf, rect, color, width, line)
+        if aaline:
+            _clip_and_draw_aaline(surf, rect, color, line, blend)
+        else:
+            _clip_and_draw_line_width(surf, rect, color, line, width)
 
     return  # TODO Rect(...)
+
+def draw_lines(surf, color, closed, points, width):
+    '''draw several lines connected through the points.'''
+    return _multi_lines(surf, color, closed, points, width, aaline=False)
+
+
+def draw_aalines(surf, color, closed, points, blend):
+    '''draw several anti-aliased lines connected through the points.'''
+    return _multi_lines(surf, color, closed, points, blend=blend, aaline=True)
 
 
 def draw_polygon(surface, color, points, width):
