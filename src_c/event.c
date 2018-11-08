@@ -87,6 +87,13 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
 #pragma PG_WARN(Add key repeat here. Add event blocking here.)
+
+    if (type == SDL_KEYDOWN) {
+        if (event->key.repeat) {
+            return 0;
+        }
+    }
+
     return 1;
 }
 
