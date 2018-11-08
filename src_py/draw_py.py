@@ -427,29 +427,32 @@ def draw_lines(surf, color, closed, points, width):
         raise TypeError
     line = [0] * 4  # store x1, y1 & x2, y2 of the lines to be drawn
 
-    x, y = points[0]
-    left = right = line[0] = x
-    top = bottom = line[1] = y
+    xlist = [pt[0] for pt in points]
+    ylist = [pt[1] for pt in points]
+    left = right = line[0] = xlist[0]
+    top = bottom = line[1] = ylist[0]
 
+    for x, y in points[1:]:
+        left = min(left, x)
+        right = max(right, x)
+        top = min(top, y)
+        bottom = max(right, x)
+
+    rect = surf.get_clip()
     for loop in range(1, length):
-        line[0] = x
-        line[1] = y
-        x, y = points[loop]
-        line[2] = x
-        line[3] = y
-        if _clip_and_draw_line_width(surf, surf.get_clip(), color, width, line):
-            left = min(line[2], left)
-            top = min(line[3], top)
-            right = max(line[2], right)
-            bottom = max(line[3], bottom)
+
+        line[0] = xlist[loop - 1]
+        line[1] = ylist[loop - 1]
+        line[2] = xlist[loop]
+        line[3] = ylist[loop]
+        _clip_and_draw_line_width(surf, rect, color, width, line)
 
     if closed:
-        line[0] = x
-        line[1] = y
-        x, y = points[0]
-        line[2] = x
-        line[3] = y
-        _clip_and_draw_line_width(surf, surf.get_clip(), color, width, line)
+        line[0] = xlist[length - 1]
+        line[1] = ylist[length - 1]
+        line[2] = xlist[0]
+        line[3] = ylist[0]
+        _clip_and_draw_line_width(surf, rect, color, width, line)
 
     return  # TODO Rect(...)
 
