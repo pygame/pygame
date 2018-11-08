@@ -417,13 +417,13 @@ def _clip_and_draw_aaline(surf, rect, color, line, blend):
 
 #    D R A W   L I N E   F U N C T I O N S    #
 
-def draw_aaline(surf, color, from_point, to_point, blend):
+def draw_aaline(surf, color, from_point, to_point, blend=True):
     '''draw anti-aliased line between two endpoints.'''
     line = [from_point[0], from_point[1], to_point[0], to_point[1]]
     return _clip_and_draw_aaline(surf, surf.get_clip(), color, line, blend)
 
 
-def draw_line(surf, color, from_point, to_point, width):
+def draw_line(surf, color, from_point, to_point, width=1):
     '''draw anti-aliased line between two endpoints.'''
     line = [from_point[0], from_point[1], to_point[0], to_point[1]]
     return _clip_and_draw_line_width(surf, surf.get_clip(), color, line, width)
@@ -474,12 +474,12 @@ def _multi_lines(surf, color, closed, points, width=1, blend=False, aaline=False
 
     return  # TODO Rect(...)
 
-def draw_lines(surf, color, closed, points, width):
+def draw_lines(surf, color, closed, points, width=1):
     '''draw several lines connected through the points.'''
     return _multi_lines(surf, color, closed, points, width, aaline=False)
 
 
-def draw_aalines(surf, color, closed, points, blend):
+def draw_aalines(surf, color, closed, points, blend=True):
     '''draw several anti-aliased lines connected through the points.'''
     return _multi_lines(surf, color, closed, points, blend=blend, aaline=True)
 
