@@ -1505,6 +1505,13 @@ MODINIT_DEFINE(event)
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
+
+        if (SDL_RegisterEvents(PGE_NUMEVENTS) != PGE_EVENTBEGIN) {
+            PyErr_SetString(PyExc_ImportError,
+                            "Unable to register pygame events");
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
         have_registered_events = 1;
     }
 
