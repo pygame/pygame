@@ -103,9 +103,8 @@ def lines_set_up():
     return colors, surfaces
 
 
-class DrawLineTest(unittest.TestCase):
-    """Class for testing line(), aaline(), lines() and aalines().
-    """
+class LineMixin:
+    """Mixin for testing line(), aaline(), lines() and aalines()."""
 
     @unittest.expectedFailure
     def test_line_color(self):
@@ -120,7 +119,7 @@ class DrawLineTest(unittest.TestCase):
             draw_line(surface, color, (0, 0), (1, 0))
             return surface.get_at((0, 0)) == color
 
-        for draw_line in [draw.line, draw.aaline]:
+        for draw_line in self.single_line:
             colors, surfaces = lines_set_up()
             for surface in surfaces:
                 for color in colors:
@@ -145,7 +144,7 @@ class DrawLineTest(unittest.TestCase):
 
             return len(colors) == colors.count(color)
 
-        for draw_line in [draw.line, draw.aaline]:
+        for draw_line in self.single_line:
             _, surfaces = lines_set_up()
             for surface in surfaces:
                 self.assertTrue(line_has_gaps(surface, draw_line))
@@ -168,7 +167,7 @@ class DrawLineTest(unittest.TestCase):
             borders = get_border_values(surface, width, height)
             return [all(c == color for c in border) for border in borders]
 
-        for draw_lines in [draw.lines, draw.aalines]:
+        for draw_lines in self.multi_line:
             colors, surfaces = lines_set_up()
             for surface in surfaces:
                 for color in colors:
@@ -199,11 +198,25 @@ class DrawLineTest(unittest.TestCase):
             borders = get_border_values(surface, width, height)
             return [all(c == color for c in border) for border in borders]
 
-        for draw_lines in [draw.lines, draw.aalines]:
+        for draw_lines in self.multi_line:
             _, surfaces = lines_set_up()
             for surface in surfaces:
                 no_gaps = lines_have_gaps(surface, draw_lines)
                 self.assertTrue(all(no_gaps))
+
+
+class PythonDrawLineTest(LineMixin, unittest.TestCase):
+    '''Test Python draw functions "aaline", "line", "aalines" and "lines".'''
+
+    single_line = [draw_py.draw_aaline, draw_py.draw_line]
+    multi_line = [draw_py.draw_aalines, draw_py.draw_lines]
+
+
+class DrawLineTest(LineMixin, unittest.TestCase):
+    '''Test draw functions "aaline", "line", "aalines" and "lines".'''
+
+    single_line = [draw.aaline, draw.line]
+    multi_line = [draw.aalines, draw.lines]
 
     def test_path_data_validation(self):
         '''Test validation of multi-point drawing methods.
