@@ -4,13 +4,20 @@ Implement Pygame's Drawing Algorithms in a Python version for testing
 and debugging.
 '''
 from __future__ import division
-# FIXME : the import of the builtin math module is broken, even with :
-# from __future__ import relative_imports
-# from math import floor, ceil, trunc
+import sys
 
-def ceil(x):
-    int_x = int(x)
-    return int_x if (int_x == x) else int_x + 1
+if sys.version_info >= (3, 0, 0):
+    from math import floor, ceil
+else:
+    # Python2.7
+    # FIXME : the import of the builtin math module is broken ...
+    def floor(x):
+        int_x = int(x)
+        return int_x if (x == int_x or x > 0) else int_x - 1
+
+    def ceil(x):
+        int_x = int(x)
+        return int_x if (int_x == x or x < 0) else int_x + 1
 
 
 #   H E L P E R   F U N C T I O N S    #
@@ -19,11 +26,11 @@ def ceil(x):
 
 def frac(x):
     '''return fractional part of x'''
-    return x - int(x)
+    return x - floor(x)
 
 def inv_frac(x):
     '''return inverse fractional part of x'''
-    return 1 - (x - int(x)) # eg, 1 - frac(x)
+    return 1 - (x - floor(x)) # eg, 1 - frac(x)
 
 
 #   L O W   L E V E L   D R A W   F U N C T I O N S   #
@@ -34,10 +41,14 @@ def set_at(surf, x, y, color):
 
 
 def draw_pixel(surf, x, y, color, bright, blend=True):
-    other_col = surf.get_at((x, y)) if blend else (0, 0, 0, 0)
+    '''draw one blended pixel with given brightness.'''
+    try:
+        other_col = surf.get_at((x, y)) if blend else (0, 0, 0, 0)
+    except IndexError:  # pixel outside the surface
+        return
     new_color = tuple((bright * col + (1 - bright) * pix)
                       for col, pix in zip(color, other_col))
-    # FIXME what should happen if either color or surf_col has some alpha ?
+    # FIXME what should happen if only one, color or surf_col, has alpha?
     surf.set_at((x, y), new_color)
 
 
@@ -285,7 +296,7 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
 
         slope = dy / dx
         def draw_two_pixel(x, float_y, factor):
-            y = int(float_y)
+            y = floor(float_y)
             draw_pixel(surf, x, y, color, factor * inv_frac(float_y), blend)
             draw_pixel(surf, x, y + 1, color, factor * frac(float_y), blend)
 
@@ -300,7 +311,7 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         # 1. Draw start of the segment if we have a non-integer-part
         if from_x < G_x:
             # this corresponds to the point "A"
-            draw_two_pixel(int(from_x), G_y - slope, inv_frac(from_x))
+            draw_two_pixel(floor(from_x), G_y - slope, inv_frac(from_x))
 
         # 2. Draw end of the segment: we add one pixel for homogenity reasons
         rest = frac(to_x)
@@ -327,7 +338,7 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
         slope = dx / dy
 
         def draw_two_pixel(float_x, y, factor):
-            x = int(float_x)
+            x = floor(float_x)
             draw_pixel(surf, x, y, color, factor * inv_frac(float_x), blend)
             draw_pixel(surf, x + 1, y, color, factor * frac(float_x), blend)
 
@@ -336,7 +347,7 @@ def _draw_aaline(surf, color, from_x, from_y, to_x, to_y, blend):
 
         # 1. Draw start of the segment
         if from_y < G_y:
-            draw_two_pixel(G_x - slope, int(from_y), inv_frac(from_y))
+            draw_two_pixel(G_x - slope, floor(from_y), inv_frac(from_y))
 
         # 2. Draw end of the segment
         rest = frac(to_y)
@@ -400,8 +411,8 @@ def draw_aaline(surf, color, from_point, to_point, blend):
     '''draw anti-aliased line between two endpoints.'''
     line = [from_point[0], from_point[1], to_point[0], to_point[1]]
     rect = surf.get_clip()
-    if not clip_line(line, rect.x, rect.y, rect.x + rect.w - 1,
-                     rect.y + rect.h - 1, use_float=True):
+    if not clip_line(line, rect.x - 1, rect.y -1, rect.x + rect.w,
+                     rect.y + rect.h, use_float=True):
         return # TODO Rect(rect.x, rect.y, 0, 0)
     _draw_aaline(surf, color, line[0], line[1], line[2], line[3], blend)
     return # TODO Rect(-- affected area --)
