@@ -116,7 +116,14 @@ _format_itemsize(Uint16 format)
         case AUDIO_S16MSB:
             size = 2;
             break;
-
+#ifdef IS_SDLv2
+        case AUDIO_S32LSB:
+        case AUDIO_S32MSB:
+        case AUDIO_F32LSB:
+        case AUDIO_F32MSB:
+            size = 4;
+            break;
+#endif
         default:
             PyErr_Format(PyExc_SystemError,
                          "Pygame bug (mixer.Sound): unknown mixer format %d",
@@ -350,6 +357,11 @@ _init(int freq, int size, int stereo, int chunk)
         case -16:
             fmt = AUDIO_S16SYS;
             break;
+#ifdef IS_SDLv2
+        case 32:
+            fmt = AUDIO_F32SYS;
+            break;
+#endif
         default:
             PyErr_Format(PyExc_ValueError, "unsupported size %i", size);
             return NULL;
@@ -678,6 +690,43 @@ static PyGetSetDef sound_getset[] = {
 
 /*buffer protocol*/
 
+/*
+
+Have to convert between SDL and python format constants.
+
+https://wiki.libsdl.org/SDL_AudioSpec
+
+returns:
+    format: buffer string showing the format.
+    itemsize: bytes for each item.
+
+
+https://docs.python.org/3/library/struct.html#format-characters
+
+x   pad byte    no value
+c   char    bytes of length 1   1
+b   signed char     integer     1   (1),(3)
+B   unsigned char   integer     1   (3)
+?   _Bool   bool    1   (1)
+h   short   integer     2   (3)
+H   unsigned short  integer     2   (3)
+i   int     integer     4   (3)
+I   unsigned int    integer     4   (3)
+l   long    integer     4   (3)
+L   unsigned long   integer     4   (3)
+q   long long   integer     8   (2), (3)
+Q   unsigned long long  integer     8   (2), (3)
+n   ssize_t     integer         (4)
+N   size_t  integer         (4)
+e   (7)     float   2   (5)
+f   float   float   4   (5)
+d   double  float   8   (5)
+s   char[]  bytes
+p   char[]  bytes
+P   void *  integer         (6)
+
+
+*/
 static int
 snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 {
@@ -685,6 +734,15 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
     static char fmt_AUDIO_S8[] = "b";
     static char fmt_AUDIO_U16SYS[] = "=H";
     static char fmt_AUDIO_S16SYS[] = "=h";
+
+#ifdef IS_SDLv2
+    static char fmt_AUDIO_S32LSB[] = "<i";
+    static char fmt_AUDIO_S32MSB[] = ">i";
+    static char fmt_AUDIO_F32LSB[] = "<f";
+    static char fmt_AUDIO_F32MSB[] = ">f";
+#endif
+
+
     int freq = 0;
     Uint16 mixer_format = 0;
 
@@ -710,6 +768,19 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
             *format = fmt_AUDIO_S16SYS;
             *itemsize = 2;
             return 0;
+
+#ifdef IS_SDLv2
+        case AUDIO_S32LSB:
+            *format = fmt_AUDIO_S32LSB;
+        case AUDIO_S32MSB:
+            *format = fmt_AUDIO_S32MSB;
+        case AUDIO_F32LSB:
+            *format = fmt_AUDIO_F32LSB;
+        case AUDIO_F32MSB:
+            *format = fmt_AUDIO_F32MSB;
+            *itemsize = 4;
+            return 0;
+#endif
     }
 
     PyErr_Format(PyExc_SystemError,
