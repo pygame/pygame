@@ -222,6 +222,14 @@ _format_view_to_audio(Py_buffer *view)
             format += native_size ? sizeof(unsigned long int) : 4;
             break;
 
+        case 'f':
+            format += native_size ? sizeof(float) : 4;
+            break;
+
+        case 'd':
+            format += native_size ? sizeof(double) : 8;
+            break;
+
         case 'q':
             format |= PG_SAMPLE_SIGNED;
             format += native_size ? sizeof(long long int) : 8;
