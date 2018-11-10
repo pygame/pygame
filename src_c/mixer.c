@@ -99,11 +99,11 @@ static int numchanneldata = 0;
 Mix_Music **current_music;
 Mix_Music **queue_music;
 
+
 static int
 _format_itemsize(Uint16 format)
 {
     int size = -1;
-
     switch (format) {
         case AUDIO_U8:
         case AUDIO_S8:
@@ -116,7 +116,7 @@ _format_itemsize(Uint16 format)
         case AUDIO_S16MSB:
             size = 2;
             break;
-#ifdef IS_SDLv2
+#if IS_SDLv2
         case AUDIO_S32LSB:
         case AUDIO_S32MSB:
         case AUDIO_F32LSB:
@@ -131,6 +131,7 @@ _format_itemsize(Uint16 format)
     }
     return size;
 }
+
 
 static PG_sample_format_t
 _format_view_to_audio(Py_buffer *view)
@@ -357,7 +358,7 @@ _init(int freq, int size, int stereo, int chunk)
         case -16:
             fmt = AUDIO_S16SYS;
             break;
-#ifdef IS_SDLv2
+#if IS_SDLv2
         case 32:
             fmt = AUDIO_F32SYS;
             break;
@@ -735,7 +736,7 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
     static char fmt_AUDIO_U16SYS[] = "=H";
     static char fmt_AUDIO_S16SYS[] = "=h";
 
-#ifdef IS_SDLv2
+#if IS_SDLv2
     static char fmt_AUDIO_S32LSB[] = "<i";
     static char fmt_AUDIO_S32MSB[] = ">i";
     static char fmt_AUDIO_F32LSB[] = "<f";
@@ -769,7 +770,7 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
             *itemsize = 2;
             return 0;
 
-#ifdef IS_SDLv2
+#if IS_SDLv2
         case AUDIO_S32LSB:
             *format = fmt_AUDIO_S32LSB;
         case AUDIO_S32MSB:
