@@ -95,6 +95,10 @@ class SndarrayTest (unittest.TestCase):
         check_sound(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
                              [0x7fff, 0], [0, 0x7fff]])
 
+        if pygame.get_sdl_version()[0] >= 2:
+            check_sound(32, 2, [[0.0, -1.0], [-1.0, 0],
+                                 [1.0, 0], [0, 1.0]])
+
     def test_samples(self):
 
         null_byte = as_bytes('\x00')
@@ -135,6 +139,10 @@ class SndarrayTest (unittest.TestCase):
         check_sample(-16, 1, [0, 0x7fff, -0x7fff, -1])
         check_sample(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
                              [0x7fff, 0], [0, 0x7fff]])
+
+        if pygame.get_sdl_version()[0] >= 2:
+            check_sample(32, 2, [[0.0, -1.0], [-1.0, 0],
+                                 [1.0, 0], [0, 1.0]])
 
     def test_use_arraytype(self):
 

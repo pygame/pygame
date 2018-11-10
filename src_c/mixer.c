@@ -231,6 +231,8 @@ _format_view_to_audio(Py_buffer *view)
             format += native_size ? sizeof(unsigned long long int) : 8;
             break;
 
+#pragma PG_WARN(Need to add support for f float format here in SDL2)
+
         default:
             PyErr_Format(PyExc_ValueError,
                          "Array has unsupported item format '%s'",
