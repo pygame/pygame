@@ -867,9 +867,7 @@ sound_dealloc(pgSoundObject *self)
 {
     Mix_Chunk *chunk = pgSound_AsChunk((PyObject *)self);
     if (chunk) {
-        Py_BEGIN_ALLOW_THREADS
         Mix_FreeChunk(chunk);
-        Py_END_ALLOW_THREADS
     }
     if (self->mem)
         PyMem_Free(self->mem);
