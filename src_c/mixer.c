@@ -267,18 +267,22 @@ endsound_callback(int channel)
             SDL_PushEvent(&e);
         }
         if (channeldata[channel].queue) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
             int channelnum;
             Mix_Chunk *sound = pgSound_AsChunk(channeldata[channel].queue);
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = channeldata[channel].queue;
             channeldata[channel].queue = NULL;
+            PyGILState_Release(gstate);
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
                 Mix_GroupChannel(channelnum, (intptr_t)sound);
         }
         else {
+            PyGILState_STATE gstate = PyGILState_Ensure();
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = NULL;
+            PyGILState_Release(gstate);
         }
     }
 }
@@ -850,7 +854,9 @@ sound_dealloc(pgSoundObject *self)
 {
     Mix_Chunk *chunk = pgSound_AsChunk((PyObject *)self);
     if (chunk) {
+        Py_BEGIN_ALLOW_THREADS
         Mix_FreeChunk(chunk);
+        Py_END_ALLOW_THREADS
     }
     if (self->mem)
         PyMem_Free(self->mem);
