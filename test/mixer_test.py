@@ -15,6 +15,9 @@ IS_PYPY = 'PyPy' == platform.python_implementation()
 
 FREQUENCIES = [11025, 22050, 44100, 48000]
 SIZES       = [-16, -8, 8, 16]
+if pygame.get_sdl_version()[0] >= 2:
+    SIZES.append(32)
+
 CHANNELS    = [1, 2]
 BUFFERS     = [3024]
 
@@ -28,6 +31,8 @@ CONFIGS = [{'frequency' : f, 'size' : s, 'channels': c}
 # And probably, we don't need to be so exhaustive, hence:
 
 CONFIG = {'frequency' : 22050, 'size' : -16, 'channels' : 2} # base config
+if pygame.get_sdl_version()[0] >= 2:
+    CONFIG = {'frequency' : 44100, 'size' : 32, 'channels' : 2} # base config
 
 ############################## MODULE LEVEL TESTS ##############################
 
