@@ -1592,6 +1592,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     if (file != NULL) {
         rw = pgRWopsFromObject(file);
+
         if (rw == NULL) {
             /* pgRWopsFromObject only raises critical Python exceptions,
                so automatically pass them on.

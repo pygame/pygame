@@ -171,14 +171,18 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(str(cm.exception), emsg)
 
         ufake_path = unicode_('12345678')
-        self.assertRaises(pygame.error, mixer.Sound, ufake_path)
+        self.assertRaises(IOError, mixer.Sound, ufake_path)
+        self.assertRaises(IOError, mixer.Sound, '12345678')
 
         with self.assertRaises(TypeError) as cm:
             mixer.Sound(buffer=unicode_('something'))
         emsg = 'Unicode object not allowed as buffer object'
         self.assertEqual(str(cm.exception), emsg)
         self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
-        self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
+        if type(sample) != str:
+            somebytes = get_bytes(mixer.Sound(sample))
+            # on python 2 we do not allow using string except as file name.
+            self.assertEqual(somebytes, sample)
         self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
         self.assertEqual(get_bytes(mixer.Sound(bwave_path)), snd_bytes)
 
@@ -287,7 +291,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_array_interface(self):
         mixer.init(22050, -16, 1)
-        snd = mixer.Sound(as_bytes('\x00\x7f') * 20)
+        snd = mixer.Sound(buffer=as_bytes('\x00\x7f') * 20)
         d = snd.__array_interface__
         self.assertTrue(isinstance(d, dict))
         if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
