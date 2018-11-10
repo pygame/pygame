@@ -54,6 +54,8 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    values mean unsigned audio samples will be used. An invalid value raises an
    exception.
 
+   New in pygame 2 compiled with SDL2 size can be 32, which means 32bit floats.
+
    The channels argument is used to specify whether to use mono or stereo. 1
    for mono and 2 for stereo. No other values are supported (negative values
    are treated as 1, values greater than 2 as 2).
