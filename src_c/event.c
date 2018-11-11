@@ -162,10 +162,13 @@ pg_event_filter(void *_, SDL_Event *event)
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-    if (delay < 0 || interval < 0)
+    if (delay < 0 || interval < 0) {
+        RAISE(PyExc_ValueError, "delay and interval must equal at least 0");
         return -1;
+    }
     pg_key_repeat_delay = delay;
     pg_key_repeat_interval = interval;
+    return 0;
 }
 
 static void

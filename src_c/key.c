@@ -48,7 +48,7 @@ key_set_repeat(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, SDL_GetError());
 #else  /* IS_SDLv2 */
     if (pg_EnableKeyRepeat(delay, interval) == -1)
-        return RAISE(pgExc_SDLError, SDL_GetError());
+        return NULL;
 #endif /* IS_SDLv2 */
 
     Py_RETURN_NONE;
