@@ -66,18 +66,40 @@ static SDL_Scancode _pg_repeat_scancode;
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
 {
-    SDL_Scancode scancode = (SDL_Scancode)param;
-
     SDL_Event sdlevent;
     sdlevent.type = PGE_KEYREPEAT;
     sdlevent.key.state = SDL_PRESSED;
-    sdlevent.key.keysym.scancode = scancode;
-    sdlevent.key.keysym.sym = SDL_GetKeyFromScancode(scancode);
+    sdlevent.key.keysym.scancode = _pg_repeat_scancode;
+    sdlevent.key.keysym.sym = SDL_GetKeyFromScancode(_pg_repeat_scancode);
     sdlevent.key.keysym.mod = SDL_GetModState();
     sdlevent.key.repeat = 1;
     SDL_PushEvent(&sdlevent);
 
     return pg_key_repeat_interval;
+}
+
+static int _pg_event_is_init = 0;
+
+static void
+_pg_repeat_cleanup(void)
+{
+    if (_pg_repeat_timer) {
+        SDL_RemoveTimer(_pg_repeat_timer);
+        _pg_repeat_timer = 0;
+    }
+    _pg_event_is_init = 0;
+}
+
+static PyObject *
+pgEvent_AutoInit(PyObject *self, PyObject *args)
+{
+    if (!_pg_event_is_init) {
+        pg_key_repeat_delay = 0;
+        pg_key_repeat_interval = 0;
+        pg_RegisterQuit(_pg_repeat_cleanup);
+        _pg_event_is_init = 1;
+    }
+    Py_RETURN_NONE;
 }
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
@@ -121,7 +143,7 @@ pg_event_filter(void *_, SDL_Event *event)
             }
             _pg_repeat_scancode = event->key.keysym.scancode;
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
-                                            (void*)_pg_repeat_scancode);
+                                            NULL);
         }
     }
     else if (type == SDL_KEYUP) {
@@ -1427,6 +1449,11 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef _event_methods[] = {
+#if IS_SDLv2
+    {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
+     "auto initialize for event module"},
+#endif /* IS_SDLv2 */
+
     {"Event", (PyCFunction)pg_Event, 3, DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
