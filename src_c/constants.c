@@ -28,22 +28,23 @@
 
 /* macros used to create each constant */
 #if IS_SDLv2
-#define STRINGIFY(x) #x
 #define ADD_ERROR           \
     {                       \
         DECREF_MOD(module); \
         MODINIT_ERROR;      \
     }
-#define DEC_CONSTS(x, y)                             \
-    if (PyModule_AddIntConstant(module, #x, (int)y)) \
+#define STRINGIZE(x) #x
+#define DEC_CONSTS_(x, y)                           \
+    if (PyModule_AddIntConstant(module, x, (int)y)) \
     ADD_ERROR
-#define DEC_CONST(x) DEC_CONSTS(x, SDL_##x)
-#define DEC_CONSTKS(x, y) DEC_CONSTS(K_##x, SDL_SCANCODE_##y)
-#define DEC_CONSTK(x) DEC_CONSTKS(x, x)
-#define DEC_CONSTKSYMS(x, y) DEC_CONSTS(KSYM_##x, SDLK_##y)
-#define DEC_CONSTKSYM(x) DEC_CONSTKSYMS(x, x)
-#define DEC_CONSTN(x) DEC_CONSTS(x, x)
-#define DEC_CONSTSF(x) DEC_CONSTS(x, PGS_##x)
+#define DEC_CONSTS(x, y) DEC_CONSTS_(#x, y)
+#define DEC_CONST(x) DEC_CONSTS_(#x, SDL_##x)
+#define DEC_CONSTKS(x, y) DEC_CONSTS_(STRINGIZE(K_##x), SDL_SCANCODE_##y)
+#define DEC_CONSTK(x) DEC_CONSTS_(STRINGIZE(K_##x), SDL_SCANCODE_##x)
+#define DEC_CONSTKSYMS(x, y) DEC_CONSTS_(STRINGIZE(KSYM_##x), SDLK_##y)
+#define DEC_CONSTKSYM(x) DEC_CONSTS_(STRINGIZE(KSYM_##x), SDLK_##x)
+#define DEC_CONSTN(x) DEC_CONSTS_(#x, x)
+#define DEC_CONSTSF(x) DEC_CONSTS_(#x, PGS_##x)
 
 #else /* IS_SDLv1 */
 #define ADD_ERROR           \
