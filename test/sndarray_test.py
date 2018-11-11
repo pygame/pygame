@@ -1,6 +1,6 @@
 import unittest
 
-from numpy import int8, int16, uint8, uint16, array, alltrue
+from numpy import int8, int16, uint8, uint16, float32, array, alltrue
 
 import pygame
 from pygame.compat import as_bytes
@@ -95,6 +95,10 @@ class SndarrayTest (unittest.TestCase):
         check_sound(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
                              [0x7fff, 0], [0, 0x7fff]])
 
+        if pygame.get_sdl_version()[0] >= 2:
+            check_sound(32, 2, [[0.0, -1.0], [-1.0, 0],
+                                 [1.0, 0], [0, 1.0]])
+
     def test_samples(self):
 
         null_byte = as_bytes('\x00')
@@ -136,6 +140,10 @@ class SndarrayTest (unittest.TestCase):
         check_sample(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
                              [0x7fff, 0], [0, 0x7fff]])
 
+        if pygame.get_sdl_version()[0] >= 2:
+            check_sample(32, 2, [[0.0, -1.0], [-1.0, 0],
+                                 [1.0, 0], [0, 1.0]])
+
     def test_use_arraytype(self):
 
         def do_use_arraytype(atype):
@@ -145,6 +153,22 @@ class SndarrayTest (unittest.TestCase):
         self.assertEqual(pygame.sndarray.get_arraytype(), 'numpy')
 
         self.assertRaises(ValueError, do_use_arraytype, 'not an option')
+
+
+    def test_float32(self):
+        """ sized arrays work with Sounds and 32bit float arrays.
+        """
+        if pygame.get_sdl_version()[0] < 2:
+            return
+        try:
+            pygame.mixer.init(22050, 32, 2)
+        except pygame.error:
+            # Not all sizes are supported on all systems.
+            return
+        arr = array([[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]], float32)
+        newsound = pygame.mixer.Sound(array=arr)
+        pygame.mixer.quit()
+
 
 
 if __name__ == '__main__':
