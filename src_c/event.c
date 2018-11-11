@@ -60,18 +60,8 @@ static UserEventObject *user_event_objects = NULL;
 static int pg_key_repeat_delay = 0;
 static int pg_key_repeat_interval = 0;
 
-typedef struct TimersListElem {
-    SDL_TimerID timerID;
-    SDL_Scancode scancode;
-    struct TimersListElem *next;
-} TimersListElem;
-
-#define KEY_REPEAT_BUCKETS_NUM 10
-#define GET_KEY_REPEAT_BUCKET(scancode) ((scancode) % KEY_REPEAT_BUCKETS_NUM)
-
-static TimersListElem* _repeat_timers[KEY_REPEAT_BUCKETS_NUM] = {0};
-
-static SDL_TimerID _pg_repeat_timer_remove_keep_timer(SDL_Scancode scancode);
+static SDL_TimerID _pg_repeat_timer = 0;
+static SDL_Scancode _pg_repeat_scancode;
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -87,80 +77,7 @@ _pg_repeat_callback(Uint32 interval, void *param)
     sdlevent.key.repeat = 1;
     SDL_PushEvent(&sdlevent);
 
-    if (pg_key_repeat_interval == 0) {
-        _pg_repeat_timer_remove_keep_timer(scancode);
-    }
-
     return pg_key_repeat_interval;
-}
-
-static SDL_TimerID
-_pg_repeat_timer_create(SDL_Scancode scancode)
-{
-    int bucket = GET_KEY_REPEAT_BUCKET(scancode);
-    TimersListElem *newElem = malloc(sizeof(TimersListElem));
-    newElem->scancode = scancode;
-    newElem->next = NULL;
-
-    if (_repeat_timers[bucket]) {
-        TimersListElem *elem;
-        for (elem = _repeat_timers[bucket]; elem->next; elem = elem->next) {
-        }
-        elem->next = newElem;
-    } else {
-        _repeat_timers[bucket] = newElem;
-    }
-
-    newElem->timerID = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback, (void*)scancode);
-    return newElem->timerID;
-}
-
-static SDL_TimerID
-_pg_repeat_timer_remove_keep_timer(SDL_Scancode scancode)
-{
-    int bucket = GET_KEY_REPEAT_BUCKET(scancode);
-    TimersListElem *elem = _repeat_timers[bucket];
-    TimersListElem *prev = NULL;
-    if (!elem)
-        return 0;
-
-    for (; elem; prev = elem, elem = elem->next) {
-        if (elem->scancode == scancode) {
-            TimersListElem *next = elem->next;
-            SDL_TimerID timerID = elem->timerID;
-            free(elem);
-            if (prev) {
-                prev->next = next;
-            } else {
-                _repeat_timers[bucket] = next;
-            }
-            return timerID;
-        }
-    }
-    return 0;
-}
-
-static SDL_TimerID
-_pg_repeat_timer_remove(SDL_Scancode scancode)
-{
-    SDL_TimerID timerId;
-    if (timerId = _pg_repeat_timer_remove_keep_timer(scancode))
-        SDL_RemoveTimer(timerId);
-    return timerId;
-}
-
-static void
-_pg_repeat_timers_cleanup(void)
-{
-    for (int bucket=0; bucket<KEY_REPEAT_BUCKETS_NUM; bucket++) {
-        TimersListElem *elem = _repeat_timers[bucket];
-        while (elem) {
-            TimersListElem *next = elem->next;
-            free(elem);
-            elem = next;
-        }
-    }
-    memset(_repeat_timers, 0, sizeof(_repeat_timers));
 }
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
@@ -199,11 +116,19 @@ pg_event_filter(void *_, SDL_Event *event)
             return 0;
         }
         else if (pg_key_repeat_delay > 0) {
-            _pg_repeat_timer_create(event->key.keysym.scancode);
+            if (_pg_repeat_timer) {
+                SDL_RemoveTimer(_pg_repeat_timer);
+            }
+            _pg_repeat_scancode = event->key.keysym.scancode;
+            _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
+                                            (void*)_pg_repeat_scancode);
         }
     }
     else if (type == SDL_KEYUP) {
-        _pg_repeat_timer_remove(event->key.keysym.scancode);
+        if (_pg_repeat_timer && _pg_repeat_scancode == event->key.keysym.scancode) {
+            SDL_RemoveTimer(_pg_repeat_timer);
+            _pg_repeat_timer = 0;
+        }
     }
     else if (type == PGE_KEYREPEAT) {
         event->type = SDL_KEYDOWN;
@@ -1627,10 +1552,6 @@ MODINIT_DEFINE(event)
     if (user_event_objects == NULL) {
         pg_RegisterQuit(_pg_user_event_cleanup);
     }
-
-#if IS_SDLv2
-    pg_RegisterQuit(_pg_repeat_timers_cleanup);
-#endif /* IS_SDLv2 */
 
     MODINIT_RETURN(module);
 }
