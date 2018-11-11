@@ -99,11 +99,11 @@ static int numchanneldata = 0;
 Mix_Music **current_music;
 Mix_Music **queue_music;
 
+
 static int
 _format_itemsize(Uint16 format)
 {
     int size = -1;
-
     switch (format) {
         case AUDIO_U8:
         case AUDIO_S8:
@@ -116,7 +116,14 @@ _format_itemsize(Uint16 format)
         case AUDIO_S16MSB:
             size = 2;
             break;
-
+#if IS_SDLv2
+        case AUDIO_S32LSB:
+        case AUDIO_S32MSB:
+        case AUDIO_F32LSB:
+        case AUDIO_F32MSB:
+            size = 4;
+            break;
+#endif
         default:
             PyErr_Format(PyExc_SystemError,
                          "Pygame bug (mixer.Sound): unknown mixer format %d",
@@ -124,6 +131,7 @@ _format_itemsize(Uint16 format)
     }
     return size;
 }
+
 
 static PG_sample_format_t
 _format_view_to_audio(Py_buffer *view)
@@ -214,6 +222,14 @@ _format_view_to_audio(Py_buffer *view)
             format += native_size ? sizeof(unsigned long int) : 4;
             break;
 
+        case 'f':
+            format += native_size ? sizeof(float) : 4;
+            break;
+
+        case 'd':
+            format += native_size ? sizeof(double) : 8;
+            break;
+
         case 'q':
             format |= PG_SAMPLE_SIGNED;
             format += native_size ? sizeof(long long int) : 8;
@@ -251,18 +267,22 @@ endsound_callback(int channel)
             SDL_PushEvent(&e);
         }
         if (channeldata[channel].queue) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
             int channelnum;
             Mix_Chunk *sound = pgSound_AsChunk(channeldata[channel].queue);
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = channeldata[channel].queue;
             channeldata[channel].queue = NULL;
+            PyGILState_Release(gstate);
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
                 Mix_GroupChannel(channelnum, (intptr_t)sound);
         }
         else {
+            PyGILState_STATE gstate = PyGILState_Ensure();
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = NULL;
+            PyGILState_Release(gstate);
         }
     }
 }
@@ -350,6 +370,11 @@ _init(int freq, int size, int stereo, int chunk)
         case -16:
             fmt = AUDIO_S16SYS;
             break;
+#if IS_SDLv2
+        case 32:
+            fmt = AUDIO_F32SYS;
+            break;
+#endif
         default:
             PyErr_Format(PyExc_ValueError, "unsupported size %i", size);
             return NULL;
@@ -678,6 +703,17 @@ static PyGetSetDef sound_getset[] = {
 
 /*buffer protocol*/
 
+/*
+snd_buffer_iteminfo converts between SDL and python format constants.
+
+https://wiki.libsdl.org/SDL_AudioSpec
+https://docs.python.org/3/library/struct.html#format-characters
+
+returns:
+    -1 on error, else 0.
+    format: buffer string showing the format.
+    itemsize: bytes for each item.
+*/
 static int
 snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 {
@@ -685,6 +721,15 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
     static char fmt_AUDIO_S8[] = "b";
     static char fmt_AUDIO_U16SYS[] = "=H";
     static char fmt_AUDIO_S16SYS[] = "=h";
+
+#if IS_SDLv2
+    static char fmt_AUDIO_S32LSB[] = "<i";
+    static char fmt_AUDIO_S32MSB[] = ">i";
+    static char fmt_AUDIO_F32LSB[] = "<f";
+    static char fmt_AUDIO_F32MSB[] = ">f";
+#endif
+
+
     int freq = 0;
     Uint16 mixer_format = 0;
 
@@ -710,6 +755,19 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
             *format = fmt_AUDIO_S16SYS;
             *itemsize = 2;
             return 0;
+
+#if IS_SDLv2
+        case AUDIO_S32LSB:
+            *format = fmt_AUDIO_S32LSB;
+        case AUDIO_S32MSB:
+            *format = fmt_AUDIO_S32MSB;
+        case AUDIO_F32LSB:
+            *format = fmt_AUDIO_F32LSB;
+        case AUDIO_F32MSB:
+            *format = fmt_AUDIO_F32MSB;
+            *itemsize = 4;
+            return 0;
+#endif
     }
 
     PyErr_Format(PyExc_SystemError,
@@ -1540,6 +1598,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     if (file != NULL) {
         rw = pgRWopsFromObject(file);
+
         if (rw == NULL) {
             /* pgRWopsFromObject only raises critical Python exceptions,
                so automatically pass them on.
