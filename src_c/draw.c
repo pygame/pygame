@@ -1024,13 +1024,13 @@ draw_shaded_32_pixel(SDL_Surface *surf, Uint8 *pixels, int x, int y, int blend,
                      Uint8 *colors, float br)
 {
 
+    SDL_PixelFormat* format = surf->format;
     if (x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
         y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h) {
         // the (x, y) can happen to be a bit over the border because we need
         // the extra space to make draw_aaline work correctly on the border
         return;
     }
-    SDL_PixelFormat* format = surf->format;
     if (blend) {
         Uint8 pixel32[4];
         SDL_GetRGBA(get_pixel_32(pixels, format), format, &pixel32[0], &pixel32[1],
@@ -1074,7 +1074,14 @@ draw_shaded_32_pixel(SDL_Surface *surf, Uint8 *pixels, int x, int y, int blend,
                              blend, colorptr, brightness);           \
     }
 
-/* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
+/* The current implementation is inspired by :
+ * https://web.archive.org/web/20160512070449/http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm,
+ * but we remove the half-integer-coordinates by doing the intersection
+ * at full-integer points. Doing so, we manage it to be identical with
+ * _line_ for horizontal, vertical and diagonal lines. See also
+ * `src_py/draw_py.py`.
+*/
+
 static void
 draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float to_x,
            float to_y, int blend)
