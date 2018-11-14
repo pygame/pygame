@@ -457,9 +457,9 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "unicode", _pg_key_to_unicode(&event->key.keysym));
             /* fall through */
         case SDL_KEYUP:
-            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.scancode));
+            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
             _pg_insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
-            _pg_insobj(dict, "symbol", PyInt_FromLong(event->key.keysym.sym));
+            _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
 #endif /* IS_SDLv2 */
         case SDL_MOUSEMOTION:
