@@ -57,6 +57,51 @@ typedef struct UserEventObject {
 static UserEventObject *user_event_objects = NULL;
 
 #if IS_SDLv2
+static int pg_key_repeat_delay = 0;
+static int pg_key_repeat_interval = 0;
+
+static SDL_TimerID _pg_repeat_timer = 0;
+static SDL_Scancode _pg_repeat_scancode;
+
+static Uint32
+_pg_repeat_callback(Uint32 interval, void *param)
+{
+    SDL_Event sdlevent;
+    sdlevent.type = PGE_KEYREPEAT;
+    sdlevent.key.state = SDL_PRESSED;
+    sdlevent.key.keysym.scancode = _pg_repeat_scancode;
+    sdlevent.key.keysym.sym = SDL_GetKeyFromScancode(_pg_repeat_scancode);
+    sdlevent.key.keysym.mod = SDL_GetModState();
+    sdlevent.key.repeat = 1;
+    SDL_PushEvent(&sdlevent);
+
+    return pg_key_repeat_interval;
+}
+
+static int _pg_event_is_init = 0;
+
+static void
+_pg_repeat_cleanup(void)
+{
+    if (_pg_repeat_timer) {
+        SDL_RemoveTimer(_pg_repeat_timer);
+        _pg_repeat_timer = 0;
+    }
+    _pg_event_is_init = 0;
+}
+
+static PyObject *
+pgEvent_AutoInit(PyObject *self, PyObject *args)
+{
+    if (!_pg_event_is_init) {
+        pg_key_repeat_delay = 0;
+        pg_key_repeat_interval = 0;
+        pg_RegisterQuit(_pg_repeat_cleanup);
+        _pg_event_is_init = 1;
+    }
+    Py_RETURN_NONE;
+}
+
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
 pg_event_filter(void *_, SDL_Event *event)
@@ -86,23 +131,51 @@ pg_event_filter(void *_, SDL_Event *event)
                 return 0;
         }
     }
-#pragma PG_WARN(Add key repeat here. Add event blocking here.)
+#pragma PG_WARN(Add event blocking here.)
+
+    if (type == SDL_KEYDOWN) {
+        if (event->key.repeat) {
+            return 0;
+        }
+        else if (pg_key_repeat_delay > 0) {
+            if (_pg_repeat_timer) {
+                SDL_RemoveTimer(_pg_repeat_timer);
+            }
+            _pg_repeat_scancode = event->key.keysym.scancode;
+            _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
+                                            NULL);
+        }
+    }
+    else if (type == SDL_KEYUP) {
+        if (_pg_repeat_timer && _pg_repeat_scancode == event->key.keysym.scancode) {
+            SDL_RemoveTimer(_pg_repeat_timer);
+            _pg_repeat_timer = 0;
+        }
+    }
+    else if (type == PGE_KEYREPEAT) {
+        event->type = SDL_KEYDOWN;
+    }
+
     return 1;
 }
 
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-#pragma PG_WARN(Add pg_EnableKeyRepeat code for SDL2)
+    if (delay < 0 || interval < 0) {
+        RAISE(PyExc_ValueError, "delay and interval must equal at least 0");
+        return -1;
+    }
+    pg_key_repeat_delay = delay;
+    pg_key_repeat_interval = interval;
     return 0;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
-#pragma PG_WARN(Add pg_GetKeyRepeat for SDL2)
-    *delay = 0;
-    *interval = 0;
+    *delay = pg_key_repeat_delay;
+    *interval = pg_key_repeat_interval;
 }
 #endif /* IS_SDLv2 */
 
@@ -384,9 +457,9 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "unicode", _pg_key_to_unicode(&event->key.keysym));
             /* fall through */
         case SDL_KEYUP:
-            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.scancode));
+            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
             _pg_insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
-            _pg_insobj(dict, "symbol", PyInt_FromLong(event->key.keysym.sym));
+            _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
 #endif /* IS_SDLv2 */
         case SDL_MOUSEMOTION:
@@ -1379,6 +1452,11 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef _event_methods[] = {
+#if IS_SDLv2
+    {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
+     "auto initialize for event module"},
+#endif /* IS_SDLv2 */
+
     {"Event", (PyCFunction)pg_Event, 3, DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
@@ -1461,6 +1539,13 @@ MODINIT_DEFINE(event)
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
+
+        if (SDL_RegisterEvents(PGE_NUMEVENTS) != PGE_EVENTBEGIN) {
+            PyErr_SetString(PyExc_ImportError,
+                            "Unable to register pygame events");
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
         have_registered_events = 1;
     }
 
@@ -1497,5 +1582,6 @@ MODINIT_DEFINE(event)
     if (user_event_objects == NULL) {
         pg_RegisterQuit(_pg_user_event_cleanup);
     }
+
     MODINIT_RETURN(module);
 }

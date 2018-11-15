@@ -247,6 +247,7 @@ typedef enum {
     PGE_EVENTBEGIN = SDL_NUMEVENTS,
     SDL_VIDEORESIZE,
     SDL_VIDEOEXPOSE,
+    PGE_KEYREPEAT,
     PGE_EVENTEND
 } PygameEventCode;
 
