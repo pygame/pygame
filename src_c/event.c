@@ -102,6 +102,8 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static char _pg_last_unicode_char[5] = { 1, 0, 0, 0, 0 };
+
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
 pg_event_filter(void *_, SDL_Event *event)
@@ -133,7 +135,8 @@ pg_event_filter(void *_, SDL_Event *event)
     }
 #pragma PG_WARN(Add event blocking here.)
 
-    if (type == SDL_KEYDOWN) {
+    else if (type == SDL_KEYDOWN) {
+        SDL_Event inputEvent;
         if (event->key.repeat) {
             return 0;
         }
@@ -144,6 +147,21 @@ pg_event_filter(void *_, SDL_Event *event)
             _pg_repeat_scancode = event->key.keysym.scancode;
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
                                             NULL);
+        }
+        SDL_PumpEvents();
+        if (SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+                           SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
+        {
+            SDL_PumpEvents();
+            if (_pg_last_unicode_char[0] == 0) {
+                SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+                               SDL_TEXTINPUT, SDL_TEXTINPUT);
+            }
+            strncpy(_pg_last_unicode_char, inputEvent.text.text,
+                    sizeof(_pg_last_unicode_char));
+        }
+        else {
+            _pg_last_unicode_char[0] = 0;
         }
     }
     else if (type == SDL_KEYUP) {
@@ -366,25 +384,6 @@ _pg_our_empty_ustr(void)
 
 #endif /* Py_USING_UNICODE */
 
-#if IS_SDLv2
-/* Convert a KEYDOWN event to a Python unicode string */
-static PyObject *
-_pg_key_to_unicode(const SDL_Keysym *key)
-{
-    static const SDL_Keymod ModMask = ~KMOD_SHIFT;
-    SDL_Keycode c = key->sym;
-    SDL_Keymod m = key->mod;
-
-    if (c & 0x40000000)
-        return _pg_our_empty_ustr();
-    if (m & ModMask)
-        return _pg_our_empty_ustr();
-    if (m & KMOD_SHIFT)
-        c = Py_UNICODE_TOUPPER(c);
-    return _pg_our_unichr(c);
-}
-#endif /* IS_SDLv2 */
-
 static PyObject *
 dict_from_event(SDL_Event *event)
 {
@@ -454,7 +453,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "state", PyInt_FromLong(state));
             break;
         case SDL_KEYDOWN:
-            _pg_insobj(dict, "unicode", _pg_key_to_unicode(&event->key.keysym));
+            _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
             /* fall through */
         case SDL_KEYUP:
             _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
