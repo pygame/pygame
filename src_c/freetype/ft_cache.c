@@ -63,7 +63,7 @@ set_node_key(NodeKey *key, GlyphIndex_t id, const FontRenderMode *mode)
     KeyFields *fields = &key->fields;
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
     const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
-    unsigned short rot = (unsigned short)FX6_TRUNC(mode->rotation_angle);
+    unsigned short rot = (unsigned short)(((unsigned int)(mode->rotation_angle))>>16);
 
     memset(key, 0, sizeof(*key));
     fields->id = id;

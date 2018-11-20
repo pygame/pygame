@@ -610,8 +610,7 @@ _PGFT_LoadGlyph(FontGlyph *glyph, GlyphIndex_t id,
     v_advance_rotated.x = 0;
     v_advance_rotated.y = ft_metrics->vertAdvance + strong_delta.y;
     if (rotation_angle != 0) {
-        FT_Angle counter_rotation = INT_TO_FX6(360) - rotation_angle;
-
+        FT_Angle counter_rotation = INT_TO_FX16(360) - rotation_angle;
         FT_Vector_Rotate(&h_advance_rotated, rotation_angle);
         FT_Vector_Rotate(&v_advance_rotated, counter_rotation);
     }
