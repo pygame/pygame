@@ -1,6 +1,3 @@
-# Two unit tests fail! Disable to allow automated builds to continue.
-#__tags__ = ('ignore', 'subprocess_ignore')
-
 import unittest
 import pygame
 import pygame.gfxdraw
@@ -452,7 +449,7 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                           (x + 1, y + 1),
                           (x + r + 1, y),
                           (x + r, y - 1),
-                          (x, y + r)]
+                          (x, y + r + 1)]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
