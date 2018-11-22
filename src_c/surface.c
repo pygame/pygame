@@ -3857,8 +3857,8 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
         /* Py_END_ALLOW_THREADS */
     }
     else if (the_args != 0 ||
-             (SDL_GetColorKey(src, &key) == 0 ||
-               _PgSurface_SrcAlpha(srcobj) == 1 &&
+             ((SDL_GetColorKey(src, &key) == 0 ||
+               _PgSurface_SrcAlpha(srcobj) == 1) &&
               /* This simplification is possible because a source subsurface
                  is converted to its owner with a clip rect and a dst
                  subsurface cannot be blitted to its owner because the
