@@ -181,12 +181,15 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 alphablit_solid (&info);
             break;
 #else /* IS_SDLv2 */
-            if (SDL_ISPIXELFORMAT_ALPHA (src->format->format))
-                alphablit_alpha (&info);
-            else if (info.src_has_colorkey)
+            if (info.src_has_colorkey) {
                 alphablit_colorkey (&info);
-            else
+            }
+            else if (SDL_ISPIXELFORMAT_ALPHA (src->format->format)) {
+                alphablit_alpha (&info);
+            }
+            else {
                 alphablit_solid (&info);
+            }
             break;
 #endif /* IS_SDLv2 */
         }

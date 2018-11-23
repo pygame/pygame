@@ -2324,11 +2324,11 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
     Py_RETURN_NONE;
 }
 
+
 #if IS_SDLv2
 static int
-_PgSurface_SrcAlpha(pgSurfaceObject *self)
+_PgSurface_SrcAlpha(SDL_Surface *surf)
 {
-    SDL_Surface *surf = pgSurface_AsSurface(self);
     if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
         SDL_BlendMode mode;
         if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
@@ -2368,7 +2368,7 @@ surf_get_flags(PyObject *self)
     return PyInt_FromLong((long)surf->flags);
 #else  /* IS_SDLv2 */
     sdl_flags = surf->flags;
-    if ((is_alpha = _PgSurface_SrcAlpha(self)) == -1)
+    if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1)
         return NULL;
     if (is_alpha)
         flags |= PGS_SRCALPHA;
@@ -3858,7 +3858,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
     }
     else if (the_args != 0 ||
              ((SDL_GetColorKey(src, &key) == 0 ||
-               _PgSurface_SrcAlpha(srcobj) == 1) &&
+               _PgSurface_SrcAlpha(src) == 1) &&
               /* This simplification is possible because a source subsurface
                  is converted to its owner with a clip rect and a dst
                  subsurface cannot be blitted to its owner because the
