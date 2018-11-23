@@ -349,6 +349,7 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
     if (!chunk) {
         chunk = request_chunksize;
     }
+
     if (!devicename) {
         devicename = request_devicename;
     }
@@ -407,7 +408,7 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong(0);
 
-#if SDL_MIXER_VERSION_ATLEAST(2, 0, 2)
+#if IS_SDLv2
         if (devicename) {
             if (Mix_OpenAudioDevice(freq, fmt, stereo, chunk, devicename,
                                     SDL_AUDIO_ALLOW_ANY_CHANGE) == -1) {
@@ -541,6 +542,7 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     static char *kwids[] = {"frequency", "size",       "channels",
                             "buffer",    "devicename", NULL};
+    int dname_size = 0;
 
     request_frequency = 0;
     request_size = 0;
@@ -548,8 +550,8 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
     request_chunksize = 0;
     request_devicename = NULL;
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "|iiiis", kwids, &request_frequency, &request_size,
-            &request_stereo, &request_chunksize, &request_devicename))
+            args, keywds, "|iiiiz#", kwids, &request_frequency, &request_size,
+            &request_stereo, &request_chunksize, &request_devicename, &dname_size))
         return NULL;
     if (!request_frequency) {
         request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
@@ -680,6 +682,11 @@ snd_get_length(PyObject *self)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
+#if IS_SDLv2
+    else if (format == AUDIO_F32 || format == AUDIO_F32LSB || format == AUDIO_F32MSB){
+        mixerbytes = 4;
+    }
+#endif
     else
         mixerbytes = 2;
     numsamples = chunk->alen / mixerbytes / channels;
