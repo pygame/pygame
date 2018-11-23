@@ -2324,13 +2324,40 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
     Py_RETURN_NONE;
 }
 
+#if IS_SDLv2
+static int
+_PgSurface_SrcAlpha(pgSurfaceObject *self)
+{
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+        SDL_BlendMode mode;
+        if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+            RAISE(pgExc_SDLError, SDL_GetError());
+            return -1;
+        }
+        if (mode == SDL_BLENDMODE_BLEND)
+            return 1;
+    }
+    else {
+        Uint8 color = SDL_ALPHA_OPAQUE;
+        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0) {
+            RAISE(pgExc_SDLError, SDL_GetError());
+            return -1;
+        }
+        if (color != SDL_ALPHA_OPAQUE)
+            return 1;
+    }
+    return 0;
+}
+#endif /* IS_SDLv2 */
+
 static PyObject *
 surf_get_flags(PyObject *self)
 {
 #if IS_SDLv2
     Uint32 sdl_flags = 0;
     Uint32 flags = 0;
-    SDL_BlendMode mode;
+    int is_alpha;
 #endif /* IS_SDLv2 */
 
     SDL_Surface *surf = pgSurface_AsSurface(self);
@@ -2341,20 +2368,10 @@ surf_get_flags(PyObject *self)
     return PyInt_FromLong((long)surf->flags);
 #else  /* IS_SDLv2 */
     sdl_flags = surf->flags;
-    if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
-        if (mode == SDL_BLENDMODE_BLEND)
-            flags |= PGS_SRCALPHA;
-    }
-    else {
-        Uint8 color = SDL_ALPHA_OPAQUE;
-
-        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
-        if (color != SDL_ALPHA_OPAQUE)
-            flags |= PGS_SRCALPHA;
-    }
+    if ((is_alpha = _PgSurface_SrcAlpha(self)) == -1)
+        return NULL;
+    if (is_alpha)
+        flags |= PGS_SRCALPHA;
     if (SDL_GetColorKey(surf, NULL) == 0)
         flags |= PGS_SRCCOLORKEY;
     if (sdl_flags & SDL_PREALLOC)
@@ -3728,6 +3745,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
     SDL_Rect orig_clip, sub_clip;
 #if IS_SDLv2
     Uint8 alpha;
+    Uint32 key;
 #endif /* IS_SDLv2 */
 
     /* passthrough blits to the real surface */
@@ -3839,7 +3857,8 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
         /* Py_END_ALLOW_THREADS */
     }
     else if (the_args != 0 ||
-             (src->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY) &&
+             ((SDL_GetColorKey(src, &key) == 0 ||
+               _PgSurface_SrcAlpha(srcobj) == 1) &&
               /* This simplification is possible because a source subsurface
                  is converted to its owner with a clip rect and a dst
                  subsurface cannot be blitted to its owner because the
