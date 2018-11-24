@@ -524,8 +524,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "w", PyInt_FromLong(event->resize.w));
             _pg_insobj(dict, "h", PyInt_FromLong(event->resize.h));
             break;
-#ifdef WIN32
         case SDL_SYSWMEVENT:
+#ifdef WIN32
             _pg_insobj(dict, "hwnd",
                    PyInt_FromLong((long)(event->syswm.msg->hwnd)));
             _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
@@ -540,8 +540,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "w", PyInt_FromLong(event->window.data1));
             _pg_insobj(dict, "h", PyInt_FromLong(event->window.data2));
             break;
-#ifdef WIN32
         case SDL_SYSWMEVENT:
+#ifdef WIN32
             _pg_insobj(dict, "hwnd",
                    PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
             _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
