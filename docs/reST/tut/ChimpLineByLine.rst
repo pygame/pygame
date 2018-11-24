@@ -488,6 +488,7 @@ Update the Sprites
 ------------------
 
 ::
+
   allsprites.update()
 
 Sprite groups have an update() method, which simply calls the update method
