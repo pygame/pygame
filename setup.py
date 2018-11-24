@@ -178,7 +178,7 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 
 #make sure there is a Setup file
 if AUTO_CONFIG or not os.path.isfile('Setup'):
-    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconifg/config.py"')
+    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
     buildconfig.config.main(AUTO_CONFIG)
     if '-config' in sys.argv:
