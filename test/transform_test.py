@@ -894,19 +894,6 @@ class TransformModuleTest( unittest.TestCase ):
 
         self.fail()
 
-    def todo_test_flip(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.transform.flip:
-
-          # pygame.transform.flip(Surface, xbool, ybool): return Surface
-          # flip vertically and horizontally
-          #
-          # This can flip a Surface either vertically, horizontally, or both.
-          # Flipping a Surface is nondestructive and returns a new Surface with
-          # the same dimensions.
-
-        self.fail()
-
     def todo_test_rotozoom(self):
 
         # __doc__ (as of 2008-08-02) for pygame.transform.rotozoom:
@@ -943,6 +930,36 @@ class TransformModuleTest( unittest.TestCase ):
           # New in pygame 1.8
 
         self.fail()
+
+
+class TransformDisplayModuleTest( unittest.TestCase ):
+
+    def setUp(self):
+        # Needed for 8 bits-per-pixel color palette surface tests.
+        pygame.display.init()
+
+    def tearDown(self):
+        pygame.display.quit()
+    def test_flip(self):
+        """ honors the set_color key on the returned surface from flip.
+        """
+        from pygame.tests.test_utils import example_path
+
+        pygame.display.set_mode((320, 200))
+
+        fullname = example_path('data/chimp.bmp')
+        image = pygame.image.load(fullname).convert()
+
+        surf = pygame.Surface(image.get_size())
+        surf.fill((255, 255, 255))
+
+        colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+        timage = pygame.transform.flip(image, 1, 0)
+
+        surf.blit(timage, (0, 0))
+        self.assertEqual(surf.get_at((0, 0)), (255, 255, 255, 255))
+
 
 if __name__ == '__main__':
     #tt = TransformModuleTest()
