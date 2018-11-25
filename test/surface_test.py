@@ -1035,6 +1035,7 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((1,1), SRCALPHA, 32)
         s.fill((0, 255, 0, 128))
         s.set_alpha(None)
+        self.assertEqual(None, s.get_alpha())
 
         s2 = pygame.Surface((1,1), SRCALPHA, 32)
         s2.fill((255, 0, 0, 255))
