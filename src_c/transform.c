@@ -127,6 +127,24 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         }
     }
 
+    if (SDL_GetSurfaceAlphaMod(surf, &alpha) != 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        SDL_FreeSurface(newsurf);
+        return NULL;
+    }
+    if (alpha != 255) {
+        if (SDL_SetSurfaceAlphaMod(newsurf, alpha) != 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
+    }
+
+    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+        if (SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE) != 0)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
     if (SDL_GetColorKey(surf, &colorkey) == 0) {
         if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0 ||
             SDL_SetSurfaceRLE(newsurf, SDL_TRUE) != 0) {
@@ -136,12 +154,6 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         }
     }
 
-    SDL_GetSurfaceAlphaMod(surf, &alpha);
-    if (SDL_SetSurfaceAlphaMod(newsurf, alpha) != 0) {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        SDL_FreeSurface(newsurf);
-        return NULL;
-    }
 #endif /* IS_SDLv2 */
     return newsurf;
 }
