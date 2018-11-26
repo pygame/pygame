@@ -3886,17 +3886,6 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
         /* Py_END_ALLOW_THREADS */
     }
 #else  /* IS_SDLv2 */
-    /* see if we should handle alpha ourselves */
-    if (dst->format->Amask && (SDL_ISPIXELFORMAT_ALPHA(dst->format->format)) &&
-        !(src->format->Amask &&
-          !(SDL_ISPIXELFORMAT_ALPHA(src->format->format))) &&
-        /* special case, SDL works */
-        (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4)) {
-        /* Py_BEGIN_ALLOW_THREADS */
-        result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args);
-        /* Py_END_ALLOW_THREADS */
-    }
-    else
     if (the_args != 0 ||
              ((SDL_GetColorKey(src, &key) == 0 ||
                _PgSurface_SrcAlpha(src) == 1) &&
