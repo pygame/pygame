@@ -106,6 +106,13 @@ def lines_set_up():
 class LineMixin:
     """Mixin for testing line(), aaline(), lines() and aalines()."""
 
+    def setUp(self):
+        pygame.display.quit()
+        pygame.display.init()
+
+    def tearDown(self):
+        pygame.display.quit()
+
     def test_line_color(self):
         """Checks if the line drawn with line_is_color() is the correct color.
         """
