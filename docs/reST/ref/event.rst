@@ -96,6 +96,10 @@ type and have identical attribute values. Inequality checks also work.
 
     AUDIODEVICEADDED   which, iscapture
     AUDIODEVICEREMOVED which, iscapture
+    FINGERMOTION       touch_id, finger_id, x, y, dx, dy
+    FINGERDOWN         touch_id, finger_id, x, y, dx, dy
+    FINGERUP           touch_id, finger_id, x, y, dx, dy
+    MULTIGESTURE       touch_id, x, y, pinched, rotated, num_fingers
 
 .. function:: pump
 
