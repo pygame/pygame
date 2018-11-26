@@ -197,3 +197,6 @@ the compiler flags in the "Setup" file.\n""")
     else:
         print_("""\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand.""")
+
+if __name__ == '__main__':
+    main()
