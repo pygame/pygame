@@ -80,6 +80,33 @@ scale2x(SDL_Surface *src, SDL_Surface *dst);
 extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
+
+#if IS_SDLv2
+static int
+_PgSurface_SrcAlpha(SDL_Surface *surf)
+{
+    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+        SDL_BlendMode mode;
+        if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+            return -1;
+        }
+        if (mode == SDL_BLENDMODE_BLEND)
+            return 1;
+    }
+    else {
+        Uint8 color = SDL_ALPHA_OPAQUE;
+        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0) {
+            return -1;
+        }
+        if (color != SDL_ALPHA_OPAQUE)
+            return 1;
+    }
+    return 0;
+}
+#endif /* IS_SDLv2 */
+
+
+
 static SDL_Surface *
 newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 {
@@ -87,6 +114,7 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 #if IS_SDLv2
     Uint32 colorkey;
     Uint8 alpha;
+    int isalpha;
 #endif /* IS_SDLv2 */
     int result;
 
@@ -140,9 +168,23 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         }
     }
 
-    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
-        if (SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE) != 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
+    isalpha = _PgSurface_SrcAlpha(surf);
+    if (isalpha == 1) {
+        if (SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND) != 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
+    } else if (isalpha == -1) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        SDL_FreeSurface(newsurf);
+        return NULL;
+    } else {
+        if (SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE) != 0){
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
     }
 
     if (SDL_GetColorKey(surf, &colorkey) == 0) {
