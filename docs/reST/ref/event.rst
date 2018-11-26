@@ -65,21 +65,21 @@ event attributes defined with each event type.
 
 ::
 
-    QUIT	     none
-    ACTIVEEVENT	     gain, state
-    KEYDOWN	     unicode, key, mod
-    KEYUP	     key, mod
-    MOUSEMOTION	     pos, rel, buttons
-    MOUSEBUTTONUP    pos, button
-    MOUSEBUTTONDOWN  pos, button
-    JOYAXISMOTION    joy, axis, value
-    JOYBALLMOTION    joy, ball, rel
-    JOYHATMOTION     joy, hat, value
-    JOYBUTTONUP      joy, button
-    JOYBUTTONDOWN    joy, button
-    VIDEORESIZE      size, w, h
-    VIDEOEXPOSE      none
-    USEREVENT        code
+    QUIT	            none
+    ACTIVEEVENT	      gain, state
+    KEYDOWN	          unicode, key, mod
+    KEYUP	            key, mod
+    MOUSEMOTION	      pos, rel, buttons
+    MOUSEBUTTONUP     pos, button
+    MOUSEBUTTONDOWN   pos, button
+    JOYAXISMOTION     joy, axis, value
+    JOYBALLMOTION     joy, ball, rel
+    JOYHATMOTION      joy, hat, value
+    JOYBUTTONUP       joy, button
+    JOYBUTTONDOWN     joy, button
+    VIDEORESIZE       size, w, h
+    VIDEOEXPOSE       none
+    USEREVENT         code
 
 Events support equality comparison. Two events are equal if they are the same
 type and have identical attribute values. Inequality checks also work.
@@ -89,6 +89,13 @@ type and have identical attribute values. Inequality checks also work.
     On MacOSX, USEREVENT can have `code = pygame.USEREVENT_DROPFILE`. That
     means the user is trying to open a file with your application. The filename
     can be found at `event.filename`
+
+.. versionadded:: 1.9.5
+
+    When compiled with SDL2, pygame has these events.
+
+    AUDIODEVICEADDED   which, iscapture
+    AUDIODEVICEREMOVED which, iscapture
 
 .. function:: pump
 
