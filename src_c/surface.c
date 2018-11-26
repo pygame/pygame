@@ -3822,7 +3822,18 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
     pgSurface_Prep(srcobj);
 
 #if IS_SDLv1
-    if (the_args != 0 ||
+    /* This test fails if this first condition is not used.
+       File "test/surface_test.py", in test_pixel_alpha
+    */
+    if (dst->format->Amask && (dst->flags & SDL_SRCALPHA) &&
+        !(src->format->Amask && !(src->flags & SDL_SRCALPHA)) &&
+        /* special case, SDL works */
+        (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4)) {
+        /* Py_BEGIN_ALLOW_THREADS */
+        result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args);
+        /* Py_END_ALLOW_THREADS */
+    }
+    else if (the_args != 0 ||
              (src->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY) &&
               /* This simplification is possible because a source subsurface
                  is converted to its owner with a clip rect and a dst
