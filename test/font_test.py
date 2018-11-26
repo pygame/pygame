@@ -37,11 +37,17 @@ class FontModuleTest( unittest.TestCase ):
     def test_SysFont(self):
         # Can only check that a font object is returned.
         fonts = pygame_font.get_fonts()
-        o = pygame_font.SysFont(fonts[0], 20)
+        if 'arial' in fonts:
+            # Try to use arial font if it is there, rather than a random font
+            #  which can be different depending on installed fonts on the system.
+            font_name = 'arial'
+        else:
+            font_name = sorted(fonts)[0]
+        o = pygame_font.SysFont(font_name, 20)
         self.assertTrue(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont(fonts[0], 20, italic=True)
+        o = pygame_font.SysFont(font_name, 20, italic=True)
         self.assertTrue(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont(fonts[0], 20, bold=True)
+        o = pygame_font.SysFont(font_name, 20, bold=True)
         self.assertTrue(isinstance(o, pygame_font.FontType))
         o = pygame_font.SysFont('thisisnotafont', 20)
         self.assertTrue(isinstance(o, pygame_font.FontType))

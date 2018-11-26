@@ -72,6 +72,33 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect,
 extern int  SDL_RLESurface (SDL_Surface * surface);
 extern void SDL_UnRLESurface (SDL_Surface * surface, int recode);
 
+
+#if IS_SDLv2
+static int
+_PgSurface_SrcAlpha(SDL_Surface *surf)
+{
+    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+        SDL_BlendMode mode;
+        if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+            return -1;
+        }
+        if (mode == SDL_BLENDMODE_BLEND)
+            return 1;
+    }
+    else {
+        Uint8 color = SDL_ALPHA_OPAQUE;
+        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0) {
+            return -1;
+        }
+        if (color != SDL_ALPHA_OPAQUE)
+            return 1;
+    }
+    return 0;
+}
+#endif /* IS_SDLv2 */
+
+
+
 static int
 SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 SDL_Rect * dstrect, int the_args)
@@ -79,6 +106,9 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
     int okay;
     int src_locked;
     int dst_locked;
+#if IS_SDLv2
+    int isalpha;
+#endif
 
     /* Everything is okay at the beginning...  */
     okay = 1;
@@ -181,12 +211,16 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 alphablit_solid (&info);
             break;
 #else /* IS_SDLv2 */
-            if (SDL_ISPIXELFORMAT_ALPHA (src->format->format))
+            isalpha = _PgSurface_SrcAlpha(src);
+            if (isalpha == 1) {
                 alphablit_alpha (&info);
-            else if (info.src_has_colorkey)
+            } else if (isalpha == -1) {
+                okay = 0;
+            } else if (info.src_has_colorkey) {
                 alphablit_colorkey (&info);
-            else
+            } else {
                 alphablit_solid (&info);
+            }
             break;
 #endif /* IS_SDLv2 */
         }
@@ -246,10 +280,6 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
             blit_blend_premultiplied (&info);
             break;
         }
-
-
-
-
         default:
         {
             SDL_SetError ("Invalid argument passed to blit.");
