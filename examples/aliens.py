@@ -178,6 +178,8 @@ class Score(pygame.sprite.Sprite):
 
 def main(winstyle = 0):
     # Initialize pygame
+    if pygame.get_sdl_version()[0] == 2:
+        pygame.mixer.pre_init(44100, 32, 2, 1024)
     pygame.init()
     if pygame.mixer and not pygame.mixer.get_init():
         print ('Warning, no sound')

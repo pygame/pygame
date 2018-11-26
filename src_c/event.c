@@ -57,6 +57,53 @@ typedef struct UserEventObject {
 static UserEventObject *user_event_objects = NULL;
 
 #if IS_SDLv2
+static int pg_key_repeat_delay = 0;
+static int pg_key_repeat_interval = 0;
+
+static SDL_TimerID _pg_repeat_timer = 0;
+static SDL_Scancode _pg_repeat_scancode;
+
+static Uint32
+_pg_repeat_callback(Uint32 interval, void *param)
+{
+    SDL_Event sdlevent;
+    sdlevent.type = PGE_KEYREPEAT;
+    sdlevent.key.state = SDL_PRESSED;
+    sdlevent.key.keysym.scancode = _pg_repeat_scancode;
+    sdlevent.key.keysym.sym = SDL_GetKeyFromScancode(_pg_repeat_scancode);
+    sdlevent.key.keysym.mod = SDL_GetModState();
+    sdlevent.key.repeat = 1;
+    SDL_PushEvent(&sdlevent);
+
+    return pg_key_repeat_interval;
+}
+
+static int _pg_event_is_init = 0;
+
+static void
+_pg_repeat_cleanup(void)
+{
+    if (_pg_repeat_timer) {
+        SDL_RemoveTimer(_pg_repeat_timer);
+        _pg_repeat_timer = 0;
+    }
+    _pg_event_is_init = 0;
+}
+
+static PyObject *
+pgEvent_AutoInit(PyObject *self, PyObject *args)
+{
+    if (!_pg_event_is_init) {
+        pg_key_repeat_delay = 0;
+        pg_key_repeat_interval = 0;
+        pg_RegisterQuit(_pg_repeat_cleanup);
+        _pg_event_is_init = 1;
+    }
+    Py_RETURN_NONE;
+}
+
+static char _pg_last_unicode_char[5] = { 1, 0, 0, 0, 0 };
+
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
 pg_event_filter(void *_, SDL_Event *event)
@@ -86,23 +133,67 @@ pg_event_filter(void *_, SDL_Event *event)
                 return 0;
         }
     }
-#pragma PG_WARN(Add key repeat here. Add event blocking here.)
+#pragma PG_WARN(Add event blocking here.)
+
+    else if (type == SDL_KEYDOWN) {
+        SDL_Event inputEvent;
+        if (event->key.repeat) {
+            return 0;
+        }
+        else if (pg_key_repeat_delay > 0) {
+            if (_pg_repeat_timer) {
+                SDL_RemoveTimer(_pg_repeat_timer);
+            }
+            _pg_repeat_scancode = event->key.keysym.scancode;
+            _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
+                                            NULL);
+        }
+        SDL_PumpEvents();
+        if (SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+                           SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
+        {
+            SDL_PumpEvents();
+            if (_pg_last_unicode_char[0] == 0) {
+                SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+                               SDL_TEXTINPUT, SDL_TEXTINPUT);
+            }
+            strncpy(_pg_last_unicode_char, inputEvent.text.text,
+                    sizeof(_pg_last_unicode_char));
+        }
+        else {
+            _pg_last_unicode_char[0] = 0;
+        }
+    }
+    else if (type == SDL_KEYUP) {
+        if (_pg_repeat_timer && _pg_repeat_scancode == event->key.keysym.scancode) {
+            SDL_RemoveTimer(_pg_repeat_timer);
+            _pg_repeat_timer = 0;
+        }
+    }
+    else if (type == PGE_KEYREPEAT) {
+        event->type = SDL_KEYDOWN;
+    }
+
     return 1;
 }
 
 static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
-#pragma PG_WARN(Add pg_EnableKeyRepeat code for SDL2)
+    if (delay < 0 || interval < 0) {
+        RAISE(PyExc_ValueError, "delay and interval must equal at least 0");
+        return -1;
+    }
+    pg_key_repeat_delay = delay;
+    pg_key_repeat_interval = interval;
     return 0;
 }
 
 static void
 pg_GetKeyRepeat(int *delay, int *interval)
 {
-#pragma PG_WARN(Add pg_GetKeyRepeat for SDL2)
-    *delay = 0;
-    *interval = 0;
+    *delay = pg_key_repeat_delay;
+    *interval = pg_key_repeat_interval;
 }
 #endif /* IS_SDLv2 */
 
@@ -192,6 +283,12 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
+#if IS_SDLv2
+        case SDL_AUDIODEVICEADDED:
+            return "AudioDeviceAdded";
+        case SDL_AUDIODEVICEREMOVED:
+            return "AudioDeviceRemoved";
+#endif
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
@@ -222,6 +319,17 @@ _pg_name_from_eventtype(int type)
             return "VideoExpose";
         case SDL_NOEVENT:
             return "NoEvent";
+#if IS_SDLv2
+        case SDL_FINGERMOTION:
+            return "FingerMotion";
+        case SDL_FINGERDOWN:
+            return "FingerDown";
+        case SDL_FINGERUP:
+            return "FingerUp";
+        case SDL_MULTIGESTURE:
+            return "MultiGesture";
+#endif
+
     }
     if (type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
         return "UserEvent";
@@ -293,25 +401,6 @@ _pg_our_empty_ustr(void)
 
 #endif /* Py_USING_UNICODE */
 
-#if IS_SDLv2
-/* Convert a KEYDOWN event to a Python unicode string */
-static PyObject *
-_pg_key_to_unicode(const SDL_Keysym *key)
-{
-    static const SDL_Keymod ModMask = ~KMOD_SHIFT;
-    SDL_Keycode c = key->sym;
-    SDL_Keymod m = key->mod;
-
-    if (c & 0x40000000)
-        return _pg_our_empty_ustr();
-    if (m & ModMask)
-        return _pg_our_empty_ustr();
-    if (m & KMOD_SHIFT)
-        c = Py_UNICODE_TOUPPER(c);
-    return _pg_our_unichr(c);
-}
-#endif /* IS_SDLv2 */
-
 static PyObject *
 dict_from_event(SDL_Event *event)
 {
@@ -380,13 +469,18 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "gain", PyInt_FromLong(gain));
             _pg_insobj(dict, "state", PyInt_FromLong(state));
             break;
+        case SDL_AUDIODEVICEADDED:
+        case SDL_AUDIODEVICEREMOVED:
+            _pg_insobj(dict, "which", PyInt_FromLong(&event->adevice.which));
+            _pg_insobj(dict, "iscapture", PyInt_FromLong(&event->adevice.iscapture));
+            break;
         case SDL_KEYDOWN:
-            _pg_insobj(dict, "unicode", _pg_key_to_unicode(&event->key.keysym));
+            _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
             /* fall through */
         case SDL_KEYUP:
-            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.scancode));
+            _pg_insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
             _pg_insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
-            _pg_insobj(dict, "symbol", PyInt_FromLong(event->key.keysym.sym));
+            _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
 #endif /* IS_SDLv2 */
         case SDL_MOUSEMOTION:
@@ -445,6 +539,31 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "joy", PyInt_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
             break;
+#if IS_SDLv2
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+            /* https://wiki.libsdl.org/SDL_TouchFingerEvent */
+            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->tfinger.touchId));
+            _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->tfinger.fingerId));
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->tfinger.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->tfinger.y));
+            _pg_insobj(dict, "dx", PyFloat_FromDouble(event->tfinger.dx));
+            _pg_insobj(dict, "dy", PyFloat_FromDouble(event->tfinger.dy));
+            _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->tfinger.dy));
+            break;
+        case SDL_MULTIGESTURE:
+            /* https://wiki.libsdl.org/SDL_MultiGestureEvent */
+            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->mgesture.touchId));
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->mgesture.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->mgesture.y));
+            _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
+            _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
+            _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+#endif
+
+
 #if IS_SDLv1
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
@@ -452,8 +571,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "w", PyInt_FromLong(event->resize.w));
             _pg_insobj(dict, "h", PyInt_FromLong(event->resize.h));
             break;
-#ifdef WIN32
         case SDL_SYSWMEVENT:
+#ifdef WIN32
             _pg_insobj(dict, "hwnd",
                    PyInt_FromLong((long)(event->syswm.msg->hwnd)));
             _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
@@ -468,8 +587,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "w", PyInt_FromLong(event->window.data1));
             _pg_insobj(dict, "h", PyInt_FromLong(event->window.data2));
             break;
-#ifdef WIN32
         case SDL_SYSWMEVENT:
+#ifdef WIN32
             _pg_insobj(dict, "hwnd",
                    PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
             _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
@@ -1379,6 +1498,11 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef _event_methods[] = {
+#if IS_SDLv2
+    {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
+     "auto initialize for event module"},
+#endif /* IS_SDLv2 */
+
     {"Event", (PyCFunction)pg_Event, 3, DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
@@ -1461,6 +1585,13 @@ MODINIT_DEFINE(event)
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
+
+        if (SDL_RegisterEvents(PGE_NUMEVENTS) != PGE_EVENTBEGIN) {
+            PyErr_SetString(PyExc_ImportError,
+                            "Unable to register pygame events");
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
         have_registered_events = 1;
     }
 
@@ -1497,5 +1628,6 @@ MODINIT_DEFINE(event)
     if (user_event_objects == NULL) {
         pg_RegisterQuit(_pg_user_event_cleanup);
     }
+
     MODINIT_RETURN(module);
 }

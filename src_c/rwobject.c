@@ -309,6 +309,18 @@ pgRWopsFromObject(PyObject *obj)
         Py_DECREF(oencoded);
         if (rw) {
             return rw;
+        } else {
+#if PY3
+            if (PyUnicode_Check(obj)) {
+                SDL_ClearError();
+                RAISE(PyExc_FileNotFoundError, "No such file or directory.");
+#else
+            if (PyUnicode_Check(obj) || PyString_Check(obj)) {
+                SDL_ClearError();
+                RAISE(PyExc_IOError, "No such file or directory.");
+#endif
+                return NULL;
+            }
         }
         SDL_ClearError();
     }
