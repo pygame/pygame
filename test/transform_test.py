@@ -932,14 +932,14 @@ class TransformModuleTest( unittest.TestCase ):
         self.fail()
 
 
-class TransformDisplayModuleTest( unittest.TestCase ):
+class TransformDisplayModuleTest(unittest.TestCase):
 
     def setUp(self):
-        # Needed for 8 bits-per-pixel color palette surface tests.
         pygame.display.init()
 
     def tearDown(self):
         pygame.display.quit()
+
     def test_flip(self):
         """ honors the set_color key on the returned surface from flip.
         """
@@ -962,7 +962,5 @@ class TransformDisplayModuleTest( unittest.TestCase ):
 
 
 if __name__ == '__main__':
-    #tt = TransformModuleTest()
-    #tt.test_threshold_non_src_alpha()
 
     unittest.main()
