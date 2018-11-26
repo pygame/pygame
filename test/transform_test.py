@@ -894,19 +894,6 @@ class TransformModuleTest( unittest.TestCase ):
 
         self.fail()
 
-    def todo_test_flip(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.transform.flip:
-
-          # pygame.transform.flip(Surface, xbool, ybool): return Surface
-          # flip vertically and horizontally
-          #
-          # This can flip a Surface either vertically, horizontally, or both.
-          # Flipping a Surface is nondestructive and returns a new Surface with
-          # the same dimensions.
-
-        self.fail()
-
     def todo_test_rotozoom(self):
 
         # __doc__ (as of 2008-08-02) for pygame.transform.rotozoom:
@@ -944,8 +931,93 @@ class TransformModuleTest( unittest.TestCase ):
 
         self.fail()
 
-if __name__ == '__main__':
-    #tt = TransformModuleTest()
-    #tt.test_threshold_non_src_alpha()
 
+class TransformDisplayModuleTest(unittest.TestCase):
+
+    def setUp(self):
+        pygame.display.init()
+
+    def tearDown(self):
+        pygame.display.quit()
+
+    def test_flip(self):
+        """ honors the set_color key on the returned surface from flip.
+        """
+        from pygame.tests.test_utils import example_path
+
+        pygame.display.set_mode((320, 200))
+
+        fullname = example_path('data/chimp.bmp')
+        image_loaded = pygame.image.load(fullname)
+
+        image = pygame.Surface(image_loaded.get_size(), 0, 32)
+        image.blit(image_loaded, (0, 0))
+
+        image_converted = image_loaded.convert()
+
+        self.assertFalse(image.get_flags() & pygame.SRCALPHA)
+        self.assertFalse(image_converted.get_flags() & pygame.SRCALPHA)
+
+        surf = pygame.Surface(image.get_size(), 0, 32)
+        surf2 = pygame.Surface(image.get_size(), 0, 32)
+
+        surf.fill((255, 255, 255))
+        surf2.fill((255, 255, 255))
+
+        colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+        timage = pygame.transform.flip(image, 1, 0)
+
+        colorkey = image_converted.get_at((0,0))
+        image_converted.set_colorkey(colorkey, RLEACCEL)
+        timage_converted = pygame.transform.flip(image_converted, 1, 0)
+
+        # blit the flipped surface, and non flipped surface.
+        surf.blit(timage, (0, 0))
+        surf2.blit(image, (0, 0))
+
+        # the results should be the same.
+        self.assertEqual(surf.get_at((0, 0)), surf2.get_at((0, 0)))
+        self.assertEqual(surf2.get_at((0, 0)), (255, 255, 255, 255))
+
+        # now we test the convert() ed image also works.
+        surf.fill((255, 255, 255))
+        surf2.fill((255, 255, 255))
+        surf.blit(timage_converted, (0, 0))
+        surf2.blit(image_converted, (0, 0))
+        self.assertEqual(surf.get_at((0, 0)), surf2.get_at((0, 0)))
+
+    def test_flip_alpha(self):
+        """ returns a surface with the same properties as the input.
+        """
+        from pygame.tests.test_utils import example_path
+
+        pygame.display.set_mode((320, 200))
+
+        fullname = example_path('data/chimp.bmp')
+        image_loaded = pygame.image.load(fullname)
+
+        image_alpha = pygame.Surface(image_loaded.get_size(), pygame.SRCALPHA, 32)
+        image_alpha.blit(image_loaded, (0, 0))
+
+        surf = pygame.Surface(image_loaded.get_size(), 0, 32)
+        surf2 = pygame.Surface(image_loaded.get_size(), 0, 32)
+
+        colorkey = image_alpha.get_at((0,0))
+        image_alpha.set_colorkey(colorkey, RLEACCEL)
+        timage_alpha = pygame.transform.flip(image_alpha, 1, 0)
+
+        self.assertTrue(image_alpha.get_flags() & pygame.SRCALPHA)
+        self.assertTrue(timage_alpha.get_flags() & pygame.SRCALPHA)
+
+        # now we test the alpha image works.
+        surf.fill((255, 255, 255))
+        surf2.fill((255, 255, 255))
+        surf.blit(timage_alpha, (0, 0))
+        surf2.blit(image_alpha, (0, 0))
+        self.assertEqual(surf.get_at((0, 0)), surf2.get_at((0, 0)))
+        self.assertEqual(surf2.get_at((0, 0)), (255, 0, 0, 255))
+
+
+if __name__ == '__main__':
     unittest.main()

@@ -1030,35 +1030,28 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_alpha(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.set_alpha:
-
-          # Surface.set_alpha(value, flags=0): return None
-          # Surface.set_alpha(None): return None
-          # set the alpha value for the full Surface image
-          #
-          # Set the current alpha value fo r the Surface. When blitting this
-          # Surface onto a destination, the pixels will be drawn slightly
-          # transparent. The alpha value is an integer from 0 to 255, 0 is fully
-          # transparent and 255 is fully opaque. If None is passed for the alpha
-          # value, then the Surface alpha will be disabled.
-          #
-          # This value is different than the per pixel Surface alpha. If the
-          # Surface format contains per pixel alphas, then this alpha value will
-          # be ignored. If the Surface contains per pixel alphas, setting the
-          # alpha value to None will disable the per pixel transparency.
-          #
-          # The optional flags argument can be set to pygame.RLEACCEL to provide
-          # better performance on non accelerated displays. An RLEACCEL Surface
-          # will be slower to modify, but quicker to blit as a source.
-          #
-
-        s = pygame.Surface((1,1), SRCALHPA, 32)
-        s.fill((1, 2, 3, 4))
+    def test_set_alpha_none(self):
+        """surf.set_alpha(None) disables blending"""
+        s = pygame.Surface((1,1), SRCALPHA, 32)
+        s.fill((0, 255, 0, 128))
         s.set_alpha(None)
-        self.assertEqual(s.get_at((0, 0)), (1, 2, 3, 255))
-        self.fail()
+        self.assertEqual(None, s.get_alpha())
+
+        s2 = pygame.Surface((1,1), SRCALPHA, 32)
+        s2.fill((255, 0, 0, 255))
+        s2.blit(s, (0, 0))
+        self.assertEqual(s2.get_at((0, 0))[0], 0, "the red component should be 0")
+
+    def test_set_alpha_value(self):
+        """surf.set_alpha(x), where x != None, enables blending"""
+        s = pygame.Surface((1,1), SRCALPHA, 32)
+        s.fill((0, 255, 0, 128))
+        s.set_alpha(255)
+
+        s2 = pygame.Surface((1,1), SRCALPHA, 32)
+        s2.fill((255, 0, 0, 255))
+        s2.blit(s, (0, 0))
+        self.assertGreater(s2.get_at((0, 0))[0], 0, "the red component should be above 0")
 
     def test_set_palette(self):
         palette = [pygame.Color(i, i, i) for i in range(256)]
