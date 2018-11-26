@@ -283,15 +283,19 @@ def main(sdl2=False):
 
     prebuilt_dir = 'prebuilt-' + as_machine_type(get_ptr_size())
     if os.path.isdir(prebuilt_dir):
-        if 'PYGAME_USE_PREBUILT' in os.environ:
-            use_prebuilt = os.environ['PYGAME_USE_PREBUILT'] == '1'
-        else:
-            reply = raw_input('\nUse the SDL libraries in "%s"? [Y/n]' % prebuilt_dir)
-            use_prebuilt = (not reply) or reply[0].lower() != 'n'
+        use_prebuilt = '-prebuilt' in sys.argv
+        if not use_prebuilt:
+            if 'PYGAME_USE_PREBUILT' in os.environ:
+                use_prebuilt = os.environ['PYGAME_USE_PREBUILT'] == '1'
+            else:
+                reply = raw_input('\nUse the SDL libraries in "%s"? [Y/n]' % prebuilt_dir)
+                use_prebuilt = (not reply) or reply[0].lower() != 'n'
 
         if use_prebuilt:
             setup_prebuilt(prebuilt_dir)
             raise SystemExit()
+    else:
+        print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
 
     global DEPS
 
