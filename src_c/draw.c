@@ -99,6 +99,7 @@ aaline(PyObject *self, PyObject *arg)
     SDL_Surface *surf;
     float startx, starty, endx, endy;
     int top, left, bottom, right;
+    int width, height;
     int blend = 1;
     float pts[4];
     Uint8 rgba[4];
@@ -141,6 +142,8 @@ aaline(PyObject *self, PyObject *arg)
         left = (int)(pts[2]);
         right = (int)(pts[0]);
     }
+    width = MIN(right, surf->clip_rect.x + surf->clip_rect.w) - left + 1;
+
     if (pts[1] < pts[3]) {
         top = (int)(pts[1]);
         bottom = (int)(pts[3]);
@@ -149,7 +152,9 @@ aaline(PyObject *self, PyObject *arg)
         top = (int)(pts[3]);
         bottom = (int)(pts[1]);
     }
-    return pgRect_New4(left, top, right - left + 2, bottom - top + 2);
+    height = MIN(bottom, surf->clip_rect.y + surf->clip_rect.h) - top + 1;
+
+    return pgRect_New4(left, top, width, height);
 }
 
 static PyObject *
@@ -298,8 +303,8 @@ aalines(PyObject *self, PyObject *arg)
         return NULL;
 
     /*compute return rect*/
-    return pgRect_New4((int)left, (int)top, (int)(right - left + 2),
-                       (int)(bottom - top + 2));
+    return pgRect_New4((int)left, (int)top, (int)(right - left + 1),
+                       (int)(bottom - top + 1));
 }
 
 static PyObject *
@@ -681,12 +686,15 @@ rect(PyObject *self, PyObject *arg)
 
 static int
 clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
-                     float *pts, int blend)
+                     float *end_pts, int blend)
 {
-    if (!clip_aaline(pts, rect->x + 0, rect->y + 0, rect->x + rect->w - 1,
-                    rect->y + rect->h - 1))
+    /* end_pts is modified in clip_aaline: it first contains the user input
+     * values, but after it contains the (possibly swapped) clipped end points.
+     */
+    if (!clip_aaline(end_pts, rect->x, rect->y, rect->x + rect->w - 1,
+                     rect->y + rect->h - 1))
         return 0;
-    draw_aaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend);
+    draw_aaline(surf, color, end_pts[0], end_pts[1], end_pts[2], end_pts[3], blend);
     return 1;
 }
 
@@ -1109,7 +1117,10 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
     if (dx == 0 && dy == 0) {
         /* Single point. Due to the nature of the aaline clipping, this
          * is less exact than the normal line. */
-        set_at(surf, from_x, from_y, color);
+         if (!(from_x < surf->clip_rect.x || from_x >= surf->clip_rect.x + surf->clip_rect.w ||
+            from_y < surf->clip_rect.y || from_y >= surf->clip_rect.y + surf->clip_rect.h)) {
+            set_at(surf, from_x, from_y, color);
+        }
         return;
     }
 
