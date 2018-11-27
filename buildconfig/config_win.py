@@ -299,10 +299,10 @@ def setup(sdl2):
                  ['SDL', 'jpeg', 'png', 'tiff'], 0),
         DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
                  ['SDL', 'vorbisfile'])
-        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng.*)\.dll$', ['z'])
-        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg[-0-9]*\.dll$')
         DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
         #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+        DEPS.add_dll(r'(png|libpng.*)\.dll$', 'png', ['libpng-[1-9].*'], ['z'])
+        DEPS.add_dll(r'(lib){0,1}jpeg[-0-9]*\.dll$', 'jpeg', ['jpeg-[6-9]*'])
         DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff[-0-9]*'], ['jpeg', 'z'])
         DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
         DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
