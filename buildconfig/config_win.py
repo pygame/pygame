@@ -37,7 +37,7 @@ def get_machine_type():
 class Dependency(object):
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
-    def __init__(self, name, wildcards, libs=None, required = 0):
+    def __init__(self, name, wildcards, libs=None, required=0, find_header='', find_lib=''):
         if libs is None:
             libs = []
         self.name = name
@@ -47,6 +47,11 @@ class Dependency(object):
         self.path = None
         self.inc_dir = None
         self.lib_dir = None
+        self.find_header = find_header
+        if not find_lib and libs:
+            self.find_lib = re.escape(libs[0])
+        else:
+            self.find_lib = find_lib
         self.libs = libs
         self.found = False
         self.cflags = ''
@@ -83,20 +88,43 @@ class Dependency(object):
             if(choice):
                 self.path = self.paths[choice-1]
 
-    def findhunt(self, base, paths):
+    def matchfile(self, path, match):
+        try:
+            entries = os.listdir(path)
+        except:
+            pass
+        else:
+            for e in entries:
+                if match(e) and os.path.isfile(os.path.join(path, e)):
+                    return e
+
+    def findhunt(self, base, paths, header_match=None, lib_match=None):
         for h in paths:
             hh = os.path.join(base, h)
+            if header_match and not self.matchfile(hh, header_match):
+                continue
+            if lib_match and not self.matchfile(hh, lib_match):
+                continue
             if os.path.isdir(hh):
                 return hh.replace('\\', '/')
-        return base.replace('\\', '/')
+        if header_match:
+            print("Header(s) for %s could not be found!" % self.name)
+        if lib_match:
+            print("Library for %s could not be found!" % self.name)
 
     def configure(self):
         self.hunt()
         self.choosepath()
         if self.path:
             self.found = True
-            self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
-            self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
+            #self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
+            #self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
+            lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
+            header_match = re.compile(self.find_header, re.I).match if self.find_header else None
+            self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt, header_match=header_match)
+            self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt, lib_match=lib_match)
+            print("Library directory for %s: %s" % (self.name, self.lib_dir))
+            print("Include directory for %s: %s" % (self.name, self.inc_dir))
 
 
 class DependencyPython(object):
@@ -162,9 +190,9 @@ class DependencyDLL(Dependency):
                     if self.test(e) and os.path.isfile(os.path.join(path, e)):
                         # Found
                         self.lib_dir = os.path.join(path, e).replace('\\', '/')
-                        print ("DLL for %s is %s" % (self.lib_name, self.lib_dir))
+                        print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
                         return
-        print ("DLL for %s not found" % self.lib_name)
+        print ("DLL for %s: not found" % self.lib_name)
 
 class DependencyWin(object):
     def __init__(self, name, cflags):
@@ -266,7 +294,7 @@ def setup_prebuilt(prebuilt_dir, sdl2=False):
     if sdl2:
         huntpaths.append(prebuilt_dir)
         Dependency.lib_hunt.extend([
-            "lib\\%s" % get_machine_type()
+            os.path.join('lib', get_machine_type())
         ])
 
         return setup(sdl2)
