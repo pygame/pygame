@@ -31,6 +31,9 @@ def as_machine_type(size):
         return "x64"
     raise BuildError("Unknown pointer size {}".format(size))
 
+def get_machine_type():
+    return as_machine_type(get_ptr_size())
+
 class Dependency(object):
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
@@ -68,7 +71,7 @@ class Dependency(object):
                 print ('Too bad that is a requirement! Hand-fix the "Setup"')
         elif len(self.paths) == 1:
             self.path = self.paths[0]
-            print ("Path for %s:%s" % (self.name, self.path))
+            print ("Path for %s: %s" % (self.name, self.path))
         else:
             print ("Select path for %s:" % self.name)
             for i in range(len(self.paths)):
@@ -212,30 +215,63 @@ class DependencyGroup(object):
         for d in self.dlls:
             yield d
 
-DEPS = DependencyGroup()
-DEPS.add('SDL', 'SDL', ['SDL-[1-9].*'], r'(lib){0,1}SDL\.dll$', required=1)
-DEPS.add('FONT', 'SDL_ttf', ['SDL_ttf-[2-9].*'], r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z'])
-DEPS.add('IMAGE', 'SDL_image', ['SDL_image-[1-9].*'], r'(lib){0,1}SDL_image\.dll$',
-         ['SDL', 'jpeg', 'png', 'tiff'], 0),
-DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll$',
-         ['SDL', 'vorbisfile'])
-DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
-DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
-DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
-#DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
-DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
-DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
-DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
-             ['ogg'])
-DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
-             link_lib='vorbis', libs=['vorbis'])
-DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
-for d in get_definitions():
-    DEPS.add_win(d.name, d.value)
+def setup(sdl2):
+    DEPS = DependencyGroup()
 
+    if not sdl2:
+        DEPS.add('SDL', 'SDL', ['SDL-[1-9].*'], r'(lib){0,1}SDL\.dll$', required=1)
+        DEPS.add('FONT', 'SDL_ttf', ['SDL_ttf-[2-9].*'], r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z'])
+        DEPS.add('IMAGE', 'SDL_image', ['SDL_image-[1-9].*'], r'(lib){0,1}SDL_image\.dll$',
+                 ['SDL', 'jpeg', 'png', 'tiff'], 0),
+        DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll$',
+                 ['SDL', 'vorbisfile'])
+        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
+        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
+        DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
+        #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+        DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
+        DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
+        DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
+                     ['ogg'])
+        DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
+                     link_lib='vorbis', libs=['vorbis'])
+        DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
+        for d in get_definitions():
+            DEPS.add_win(d.name, d.value)
+    else:
+        DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
+        DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z'])
+        DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
+                 ['SDL', 'jpeg', 'png', 'tiff'], 0),
+        DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
+                 ['SDL', 'vorbisfile'])
+        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
+        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
+        DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
+        #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+        DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
+        DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
+        DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
+                     ['ogg'])
+        DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
+                     link_lib='vorbis', libs=['vorbis'])
+        DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
+        for d in get_definitions():
+            DEPS.add_win(d.name, d.value)
 
-def setup_prebuilt(prebuilt_dir):
-    setup = open('Setup', 'w')
+    DEPS.configure()
+    return list(DEPS)
+
+def setup_prebuilt(prebuilt_dir, sdl2=False):
+    if sdl2:
+        huntpaths.append(prebuilt_dir)
+        Dependency.lib_hunt.extend([
+            "lib\\%s" % get_machine_type()
+        ])
+
+        return setup(sdl2)
+
+    setup_ = open('Setup', 'w')
     is_pypy = '__pypy__' in sys.builtin_module_names
     import platform
     is_python3 = platform.python_version().startswith('3')
@@ -248,7 +284,7 @@ def setup_prebuilt(prebuilt_dir):
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
-        setup_in = open(os.path.join('buildconfig', 'Setup.SDL1.in'))
+        setup_in = open(os.path.join('buildconfig', 'Setup.SDL1.in' if not sdl2 else 'Setup.SDL2.in'))
         try:
             do_copy = True
             for line in setup_in:
@@ -257,31 +293,28 @@ def setup_prebuilt(prebuilt_dir):
                         continue
                 if line.startswith('#--StartConfig'):
                     do_copy = False
-                    setup.write(setup_win_in.read())
+                    setup_.write(setup_win_in.read())
                     try:
                         setup_win_common_in = open(os.path.join('buildconfig', 'Setup_Win_Common.in'))
                     except:
                         pass
                     else:
                         try:
-                            setup.write(setup_win_common_in.read())
+                            setup_.write(setup_win_common_in.read())
                         finally:
                             setup_win_common_in.close()
                 elif line.startswith('#--EndConfig'):
                     do_copy = True
                 elif do_copy:
-                    setup.write(line)
+                    setup_.write(line)
         finally:
             setup_in.close()
     finally:
-        setup.close()
+        setup_.close()
 
 
 def main(sdl2=False):
-    if sdl2:
-        raise RuntimeError("SDL 2 is currently unsupported for Windows")
-
-    prebuilt_dir = 'prebuilt-' + as_machine_type(get_ptr_size())
+    prebuilt_dir = 'prebuilt-' + get_machine_type()
     if os.path.isdir(prebuilt_dir):
         use_prebuilt = '-prebuilt' in sys.argv
         if not use_prebuilt:
@@ -292,17 +325,11 @@ def main(sdl2=False):
                 use_prebuilt = (not reply) or reply[0].lower() != 'n'
 
         if use_prebuilt:
-            setup_prebuilt(prebuilt_dir)
-            raise SystemExit()
+            return setup_prebuilt(prebuilt_dir, sdl2)
     else:
         print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
-
-    global DEPS
-
-    DEPS.configure()
-    return list(DEPS)
+        return setup(sdl2)
 
 if __name__ == '__main__':
     print ("""This is the configuration subscript for Windows.
 Please run "config.py" for full configuration.""")
-
