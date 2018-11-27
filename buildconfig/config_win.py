@@ -49,7 +49,7 @@ class Dependency(object):
         self.lib_dir = None
         self.find_header = find_header
         if not find_lib and libs:
-            self.find_lib = re.escape(libs[0])
+            self.find_lib = "%s\.(a|lib)" % re.escape(libs[0])
         else:
             self.find_lib = find_lib
         self.libs = libs
@@ -69,14 +69,17 @@ class Dependency(object):
                     if os.path.isdir(f):
                         self.paths.append(f)
 
-    def choosepath(self):
+    def choosepath(self, print_result=True):
         if not self.paths:
-            print ("Path for %s not found." % self.name)
-            if self.required:
-                print ('Too bad that is a requirement! Hand-fix the "Setup"')
+            if print_result:
+                print ("Path for %s not found." % self.name)
+                if self.required:
+                    print ('Too bad that is a requirement! Hand-fix the "Setup"')
+            return False
         elif len(self.paths) == 1:
             self.path = self.paths[0]
-            print ("Path for %s: %s" % (self.name, self.path))
+            if print_result:
+                print ("Path for %s: %s" % (self.name, self.path))
         else:
             print ("Select path for %s:" % self.name)
             for i in range(len(self.paths)):
@@ -87,6 +90,7 @@ class Dependency(object):
             else: choice = int(choice)
             if(choice):
                 self.path = self.paths[choice-1]
+        return True
 
     def matchfile(self, path, match):
         try:
@@ -108,23 +112,21 @@ class Dependency(object):
             if os.path.isdir(hh):
                 return hh.replace('\\', '/')
         if header_match:
-            print("Header(s) for %s could not be found!" % self.name)
+            print("...Header(s) for %s could not be found!" % self.name)
         if lib_match:
-            print("Library for %s could not be found!" % self.name)
+            print("...Library for %s could not be found!" % self.name)
 
     def configure(self):
         self.hunt()
         self.choosepath()
         if self.path:
             self.found = True
-            #self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
-            #self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
             lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
             header_match = re.compile(self.find_header, re.I).match if self.find_header else None
             self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt, header_match=header_match)
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt, lib_match=lib_match)
-            print("Library directory for %s: %s" % (self.name, self.lib_dir))
-            print("Include directory for %s: %s" % (self.name, self.inc_dir))
+            print("...Library directory for %s: %s" % (self.name, self.lib_dir))
+            print("...Include directory for %s: %s" % (self.name, self.inc_dir))
 
 
 class DependencyPython(object):
@@ -159,6 +161,8 @@ class DependencyPython(object):
 
 
 class DependencyDLL(Dependency):
+    check_hunt_roots = True
+
     def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
         if lib is None:
             lib = link.libs[0]
@@ -172,15 +176,31 @@ class DependencyDLL(Dependency):
     def configure(self):
         if self.link is None and self.wildcards:
             self.hunt()
-            self.choosepath()
+            self.choosepath(print_result=False)
         else:
             self.path = self.link.path
         if self.path is not None:
-            self.hunt_dll()
+            self.hunt_dll(self.lib_hunt, self.path)
+        elif self.check_hunt_roots:
+            self.check_roots()
 
-    def hunt_dll(self):
-        for dir in self.lib_hunt:
-            path = os.path.join(self.path, dir)
+        if self.lib_dir != '_':
+            print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
+        else:
+            print ("No DLL for %s: not found!" % (self.lib_name))
+            if self.required:
+                print ('Too bad that is a requirement! Hand-fix the "Setup"')
+
+    def check_roots(self):
+        parent = os.path.abspath('..')
+        for p in huntpaths:
+            if self.hunt_dll(self.lib_hunt, p):
+                return True
+        return False
+
+    def hunt_dll(self, search_paths, root):
+        for dir in search_paths:
+            path = os.path.join(root, dir)
             try:
                 entries = os.listdir(path)
             except:
@@ -190,9 +210,8 @@ class DependencyDLL(Dependency):
                     if self.test(e) and os.path.isfile(os.path.join(path, e)):
                         # Found
                         self.lib_dir = os.path.join(path, e).replace('\\', '/')
-                        print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
-                        return
-        print ("DLL for %s: not found" % self.lib_name)
+                        return True
+        return False
 
 class DependencyWin(object):
     def __init__(self, name, cflags):
@@ -211,12 +230,19 @@ class DependencyGroup(object):
         self.dependencies =[]
         self.dlls = []
 
-    def add(self, name, lib, wildcards, dll_regex, libs=None, required=0):
+    def add(self, name, lib, wildcards, dll_regex, libs=None, required=0, find_header='', find_lib=''):
         if libs is None:
             libs = []
-        dep = Dependency(name, wildcards, [lib], required)
-        self.dependencies.append(dep)
-        self.dlls.append(DependencyDLL(dll_regex, link=dep, libs=libs))
+        #dep = Dependency(name, wildcards, [lib], required)
+        #self.dependencies.append(dep)
+        #self.dlls.append(DependencyDLL(dll_regex, link=dep, libs=libs))
+        if dll_regex:
+            dep = Dependency(name, wildcards, [lib], required, find_header, find_lib)
+            self.dependencies.append(dep)
+            self.dlls.append(DependencyDLL(dll_regex, link=dep, libs=libs))
+        else:
+            dep = Dependency(name, wildcards, [lib] + libs, required, find_header, find_lib)
+            self.dependencies.append(dep)
 
     def add_win(self, name, cflags):
         self.dependencies.append(DependencyWin(name, cflags))
@@ -273,11 +299,11 @@ def setup(sdl2):
                  ['SDL', 'jpeg', 'png', 'tiff'], 0),
         DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
                  ['SDL', 'vorbisfile'])
-        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
-        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
+        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng.*)\.dll$', ['z'])
+        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg[-0-9]*\.dll$')
         DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
         #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
-        DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
+        DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff[-0-9]*'], ['jpeg', 'z'])
         DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
         DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
                      ['ogg'])
@@ -292,9 +318,10 @@ def setup(sdl2):
 
 def setup_prebuilt(prebuilt_dir, sdl2=False):
     if sdl2:
-        huntpaths.append(prebuilt_dir)
+        huntpaths[:] = [prebuilt_dir]
         Dependency.lib_hunt.extend([
-            os.path.join('lib', get_machine_type())
+            '',
+            os.path.join('lib', get_machine_type()),
         ])
 
         return setup(sdl2)
@@ -356,7 +383,7 @@ def main(sdl2=False):
             return setup_prebuilt(prebuilt_dir, sdl2)
     else:
         print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
-        return setup(sdl2)
+    return setup(sdl2)
 
 if __name__ == '__main__':
     print ("""This is the configuration subscript for Windows.
