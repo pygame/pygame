@@ -4,6 +4,7 @@
 #define DOC_PYGAMETRANSFORMSCALE "scale(Surface, (width, height), DestSurface = None) -> Surface\nresize to new resolution"
 #define DOC_PYGAMETRANSFORMROTATE "rotate(Surface, angle) -> Surface\nrotate an image"
 #define DOC_PYGAMETRANSFORMROTOZOOM "rotozoom(Surface, angle, scale) -> Surface\nfiltered scale and rotation"
+#define DOC_PYGAMETRANSFORMSCALE2XRAW "scale2x(Surface, DestSurface = None) -> Surface\nspecialized image doubler"
 #define DOC_PYGAMETRANSFORMSCALE2X "scale2x(Surface, DestSurface = None) -> Surface\nspecialized image doubler"
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "smoothscale(Surface, (width, height), DestSurface = None) -> Surface\nscale a surface to an arbitrary size smoothly"
 #define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "get_smoothscale_backend() -> String\nreturn smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'"
