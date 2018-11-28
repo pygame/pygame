@@ -198,7 +198,7 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
     FILE *fp = NULL;
     char *doing = "open for writing";
 
-    if (!(fp = fopen(file_name, "wb")))
+    if (!(fp = pg_Fopen(file_name, "wb")))
         goto fail;
 
     doing = "create png write struct";
@@ -489,7 +489,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if ((outfile = fopen(file_name, "wb")) == NULL) {
+    if ((outfile = pg_Fopen(file_name, "wb")) == NULL) {
         SDL_SetError("SaveJPEG: could not open %s", file_name);
         return -1;
     }

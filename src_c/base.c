@@ -188,6 +188,43 @@ pg_SetDefaultWindowSurface(PyObject *);
 #endif /* IS_SDLv2 */
 
 
+#ifdef WIN32
+static FILE*
+pg_Fopen(const char *filename, const char *mode) {
+    FILE *fp = NULL;
+    static wchar_t modebuf[32];
+    size_t nameInputSize = strlen(filename) + 1;
+    size_t namebuf_chars = MultiByteToWideChar(CP_UTF8, 0, filename, nameInputSize, 0, 0);
+    if (namebuf_chars == 0)
+        return NULL;
+    wchar_t* namebuf = malloc(namebuf_chars * sizeof(wchar_t));
+
+    if (!namebuf)
+        goto leave;
+    if (MultiByteToWideChar(CP_UTF8, 0, filename, nameInputSize,
+                            namebuf, namebuf_chars) == 0) {
+        PyErr_Format(PyExc_OSError, "error code %u", GetLastError());
+        goto leave;
+    }
+    if (MultiByteToWideChar(CP_UTF8, 0, mode, -1,
+                            modebuf, sizeof(modebuf) / sizeof(wchar_t)) == 0) {
+        PyErr_Format(PyExc_OSError, "error code %u", GetLastError());
+        goto leave;
+    }
+
+    fp = _wfopen(namebuf, modebuf);
+
+leave:
+    free(namebuf);
+    return fp;
+}
+#else /* !WIN32 */
+static FILE*
+pg_Fopen(const char *filename, const char *mode) {
+    return fopen(filename, mode);
+}
+#endif /* !WIN32 */
+
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
@@ -2154,14 +2191,15 @@ MODINIT_DEFINE(base)
     c_api[16] = pgBuffer_Release;
     c_api[17] = pgDict_AsBuffer;
     c_api[18] = pgExc_BufferError;
+    c_api[19] = pg_Fopen;
 #if IS_SDLv1
-#define FILLED_SLOTS 19
+#define FILLED_SLOTS 20
 #else /* IS_SDLv2 */
-    c_api[19] = pg_GetDefaultWindow;
-    c_api[20] = pg_SetDefaultWindow;
-    c_api[21] = pg_GetDefaultWindowSurface;
-    c_api[22] = pg_SetDefaultWindowSurface;
-#define FILLED_SLOTS 23
+    c_api[20] = pg_GetDefaultWindow;
+    c_api[21] = pg_SetDefaultWindow;
+    c_api[22] = pg_GetDefaultWindowSurface;
+    c_api[23] = pg_SetDefaultWindowSurface;
+#define FILLED_SLOTS 24
 #endif /* IS_SDLv2 */
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS

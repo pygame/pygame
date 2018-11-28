@@ -323,9 +323,9 @@ typedef enum {
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
 #if IS_SDLv1
-#define PYGAMEAPI_BASE_NUMSLOTS 19
+#define PYGAMEAPI_BASE_NUMSLOTS 20
 #else /* IS_SDLv2 */
-#define PYGAMEAPI_BASE_NUMSLOTS 23
+#define PYGAMEAPI_BASE_NUMSLOTS 24
 #endif /* IS_SDLv2 */
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define pgExc_SDLError ((PyObject *)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
@@ -395,18 +395,26 @@ typedef enum {
 #define pgExc_BufferError \
     ((PyObject *)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
+#ifdef WIN32
+#define pg_Fopen                              \
+    (*(FILE* (*)(const char *, const char *)) \
+                 PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
+#else /* !WIN32 */
+#define pg_Fopen fopen
+#endif /* !WIN32 */
+
 #if IS_SDLv2
 #define pg_GetDefaultWindow \
-    (*(SDL_Window * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
+    (*(SDL_Window * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
 
 #define pg_SetDefaultWindow \
-    (*(void (*)(SDL_Window *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
+    (*(void (*)(SDL_Window *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
 
 #define pg_GetDefaultWindowSurface \
-    (*(PyObject * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
+    (*(PyObject * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
 
 #define pg_SetDefaultWindowSurface \
-    (*(void (*)(PyObject *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
+    (*(void (*)(PyObject *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 23])
 
 #endif /* IS_SDLv2 */
 

@@ -668,7 +668,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         FILE *test;
 
         /*check if it is a valid file, else SDL_ttf segfaults*/
-        test = fopen(filename, "rb");
+        test = pg_Fopen(filename, "rb");
         if (test == NULL) {
             PyObject *tmp = NULL;
 
@@ -689,7 +689,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             obj = tmp;
             if (Bytes_Check(obj)) {
                 filename = Bytes_AS_STRING(obj);
-                test = fopen(filename, "rb");
+                test = pg_Fopen(filename, "rb");
                 if (test == NULL) {
                     PyErr_Format(PyExc_IOError,
                                  "unable to read font file '%.1024s'",
