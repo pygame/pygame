@@ -26,18 +26,19 @@
  *  the extended load and save functions, which are autmatically used
  *  by the normal pygame.image module if it is available.
  */
-// This is temporal until PNG support is done for Symbian
 #include "pygame.h"
 
-#ifdef __SYMBIAN32__
+#if IS_SDLv1
+
+#ifdef __SYMBIAN32__ /* until PNG support is done for Symbian */
 #include <stdio.h>
-#elif IS_SDLv1
+#else
 #include <png.h>
 #endif
 
-#if IS_SDLv1
 #include <jerror.h>
 #include <jpeglib.h>
+
 #endif /* IS_SDLv1 */
 
 /* Keep a stray macro from conflicting with python.h */

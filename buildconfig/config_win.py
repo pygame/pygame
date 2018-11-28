@@ -120,13 +120,14 @@ class Dependency(object):
         self.hunt()
         self.choosepath()
         if self.path:
-            self.found = True
             lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
             header_match = re.compile(self.find_header, re.I).match if self.find_header else None
             self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt, header_match=header_match)
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt, lib_match=lib_match)
             print("...Library directory for %s: %s" % (self.name, self.lib_dir))
             print("...Include directory for %s: %s" % (self.name, self.inc_dir))
+            if self.inc_dir or self.lib_dir:
+                self.found = True
 
 
 class DependencyPython(object):
@@ -159,7 +160,6 @@ class DependencyPython(object):
         else:
             print ("%-8.8s: not found" % self.name)
 
-
 class DependencyDLL(Dependency):
     check_hunt_roots = True
 
@@ -170,15 +170,15 @@ class DependencyDLL(Dependency):
         self.lib_name = lib
         self.test = re.compile(dll_regex, re.I).match
         self.lib_dir = '_'
-        self.found = True
         self.link = link
 
     def configure(self):
-        if self.link is None and self.wildcards:
-            self.hunt()
-            self.choosepath(print_result=False)
-        else:
-            self.path = self.link.path
+        if not self.path:
+            if self.link is None and self.wildcards:
+                self.hunt()
+                self.choosepath(print_result=False)
+            else:
+                self.path = self.link.path
         if self.path is not None:
             self.hunt_dll(self.lib_hunt, self.path)
         elif self.check_hunt_roots:
@@ -186,6 +186,7 @@ class DependencyDLL(Dependency):
 
         if self.lib_dir != '_':
             print ("DLL for %s: %s" % (self.lib_name, self.lib_dir))
+            self.found = True
         else:
             print ("No DLL for %s: not found!" % (self.lib_name))
             if self.required:
@@ -233,9 +234,6 @@ class DependencyGroup(object):
     def add(self, name, lib, wildcards, dll_regex, libs=None, required=0, find_header='', find_lib=''):
         if libs is None:
             libs = []
-        #dep = Dependency(name, wildcards, [lib], required)
-        #self.dependencies.append(dep)
-        #self.dlls.append(DependencyDLL(dll_regex, link=dep, libs=libs))
         if dll_regex:
             dep = Dependency(name, wildcards, [lib], required, find_header, find_lib)
             self.dependencies.append(dep)
@@ -243,6 +241,7 @@ class DependencyGroup(object):
         else:
             dep = Dependency(name, wildcards, [lib] + libs, required, find_header, find_lib)
             self.dependencies.append(dep)
+        return dep
 
     def add_win(self, name, cflags):
         self.dependencies.append(DependencyWin(name, cflags))
@@ -257,11 +256,20 @@ class DependencyGroup(object):
                     break
             else:
                 raise KeyError("Link lib %s not found" % link_lib)
-        self.dlls.append(DependencyDLL(dll_regex, lib, wildcards, libs, link))
+        dep = DependencyDLL(dll_regex, lib, wildcards, libs, link)
+        self.dlls.append(dep)
+        return dep
+
+    def find(self, name):
+        for dep in self:
+            if dep.name == name:
+                return dep
 
     def configure(self):
         for d in self:
-            d.configure()
+            if not getattr(d, '_configured', False):
+                d.configure()
+                d._configured = True
 
     def __iter__(self):
         for d in self.dependencies:
@@ -316,16 +324,44 @@ def setup(sdl2):
     DEPS.configure()
     return list(DEPS)
 
-def setup_prebuilt(prebuilt_dir, sdl2=False):
-    if sdl2:
-        huntpaths[:] = [prebuilt_dir]
-        Dependency.lib_hunt.extend([
-            '',
-            os.path.join('lib', get_machine_type()),
-        ])
+def setup_prebuilt_sdl2(prebuilt_dir):
+    huntpaths[:] = [prebuilt_dir]
+    Dependency.lib_hunt.extend([
+        '',
+        os.path.join('lib', get_machine_type()),
+    ])
 
-        return setup(sdl2)
+    DEPS = DependencyGroup()
 
+    DEPS.add('SDL', 'SDL2', ['SDL2-[1-9].*'], r'(lib){0,1}SDL2\.dll$', required=1)
+    DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z'])
+    imageDep = DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
+                        ['SDL', 'jpeg', 'png', 'tiff'], 0)
+    mixerDep = DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
+                        ['SDL', 'vorbisfile'])
+    DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
+    #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+
+    DEPS.configure()
+
+    DEPS.add_dll(r'(png|libpng.*)\.dll$', 'png', libs=['z']).path = imageDep.path
+    DEPS.add_dll(r'(lib){0,1}jpeg[-0-9]*\.dll$', 'jpeg').path = imageDep.path
+    DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', libs=['jpeg', 'z'])\
+                 .path = imageDep.path
+    DEPS.add_dll(r'(z|zlib1)\.dll$', 'z').path = imageDep.path
+    DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', libs=['ogg'])\
+                .path = mixerDep.path
+    DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
+                 link_lib='vorbis', libs=['vorbis']).path = mixerDep.path
+    DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg').path = mixerDep.path
+
+    for d in get_definitions():
+        DEPS.add_win(d.name, d.value)
+
+    DEPS.configure()
+    return list(DEPS)
+
+def setup_prebuilt_sdl1(prebuilt_dir):
     setup_ = open('Setup', 'w')
     is_pypy = '__pypy__' in sys.builtin_module_names
     import platform
@@ -339,7 +375,7 @@ def setup_prebuilt(prebuilt_dir, sdl2=False):
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
-        setup_in = open(os.path.join('buildconfig', 'Setup.SDL1.in' if not sdl2 else 'Setup.SDL2.in'))
+        setup_in = open(os.path.join('buildconfig', 'Setup.SDL1.in'))
         try:
             do_copy = True
             for line in setup_in:
@@ -380,10 +416,10 @@ def main(sdl2=False):
                 use_prebuilt = (not reply) or reply[0].lower() != 'n'
 
         if use_prebuilt:
-            ret = setup_prebuilt(prebuilt_dir, sdl2)
             if sdl2:
-                return ret
-            raise SystemExit() # SDL 1
+                return setup_prebuilt_sdl2(prebuilt_dir)
+            setup_prebuilt_sdl1(prebuilt_dir)
+            raise SystemExit()
     else:
         print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
     return setup(sdl2)
