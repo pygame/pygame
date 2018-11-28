@@ -380,7 +380,10 @@ def main(sdl2=False):
                 use_prebuilt = (not reply) or reply[0].lower() != 'n'
 
         if use_prebuilt:
-            return setup_prebuilt(prebuilt_dir, sdl2)
+            ret = setup_prebuilt(prebuilt_dir, sdl2)
+            if sdl2:
+                return ret
+            raise SystemExit() # SDL 1
     else:
         print ("Note: cannot find directory \"%s\"; do not use prebuilts." % prebuilt_dir)
     return setup(sdl2)
