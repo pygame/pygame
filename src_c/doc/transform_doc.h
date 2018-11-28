@@ -9,6 +9,8 @@
 
 #define DOC_PYGAMETRANSFORMROTOZOOM "rotozoom(Surface, angle, scale) -> Surface\nfiltered scale and rotation"
 
+#define DOC_PYGAMETRANSFORMSCALE2XRAW "scale2x(Surface, DestSurface = None) -> Surface\nspecialized image doubler"
+
 #define DOC_PYGAMETRANSFORMSCALE2X "scale2x(Surface, DestSurface = None) -> Surface\nspecialized image doubler"
 
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "smoothscale(Surface, (width, height), DestSurface = None) -> Surface\nscale a surface to an arbitrary size smoothly"

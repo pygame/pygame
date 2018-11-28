@@ -77,6 +77,8 @@ static struct _module_state _state = {
 
 void
 scale2x(SDL_Surface *src, SDL_Surface *dst);
+void
+scale2xraw(SDL_Surface *src, SDL_Surface *dst);
 extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
@@ -627,6 +629,63 @@ surf_scale2x(PyObject *self, PyObject *arg)
 
     Py_BEGIN_ALLOW_THREADS;
     scale2x(surf, newsurf);
+    Py_END_ALLOW_THREADS;
+
+    SDL_UnlockSurface(surf);
+    SDL_UnlockSurface(newsurf);
+
+    if (surfobj2) {
+        Py_INCREF(surfobj2);
+        return surfobj2;
+    }
+    else
+        return pgSurface_New(newsurf);
+}
+
+static PyObject *
+surf_scale2xraw(PyObject *self, PyObject *arg)
+{
+    PyObject *surfobj, *surfobj2;
+    SDL_Surface *surf;
+    SDL_Surface *newsurf;
+    int width, height;
+    surfobj2 = NULL;
+
+    /*get all the arguments*/
+    if (!PyArg_ParseTuple(arg, "O!|O!", &pgSurface_Type, &surfobj,
+                          &pgSurface_Type, &surfobj2))
+        return NULL;
+
+    surf = pgSurface_AsSurface(surfobj);
+
+    /* if the second surface is not there, then make a new one. */
+
+    if (!surfobj2) {
+        width = surf->w * 2;
+        height = surf->h * 2;
+
+        newsurf = newsurf_fromsurf(surf, width, height);
+
+        if (!newsurf)
+            return NULL;
+    }
+    else
+        newsurf = pgSurface_AsSurface(surfobj2);
+
+    /* check to see if the size is twice as big. */
+    if (newsurf->w != (surf->w * 2) || newsurf->h != (surf->h * 2))
+        return RAISE(PyExc_ValueError, "Destination surface not 2x bigger.");
+
+    /* check to see if the format of the surface is the same. */
+    if (surf->format->BytesPerPixel != newsurf->format->BytesPerPixel)
+        return RAISE(PyExc_ValueError,
+                     "Source and destination surfaces need the same format.");
+
+    SDL_LockSurface(newsurf);
+    SDL_LockSurface(surf);
+
+    Py_BEGIN_ALLOW_THREADS;
+    scale2xraw(surf, newsurf);
     Py_END_ALLOW_THREADS;
 
     SDL_UnlockSurface(surf);
@@ -2740,6 +2799,7 @@ static PyMethodDef _transform_methods[] = {
     {"rotozoom", surf_rotozoom, METH_VARARGS, DOC_PYGAMETRANSFORMROTOZOOM},
     {"chop", surf_chop, METH_VARARGS, DOC_PYGAMETRANSFORMCHOP},
     {"scale2x", surf_scale2x, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE2X},
+    {"scale2xraw", surf_scale2xraw, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE2XRAW},
     {"smoothscale", surf_scalesmooth, METH_VARARGS,
      DOC_PYGAMETRANSFORMSMOOTHSCALE},
     {"get_smoothscale_backend", (PyCFunction)surf_get_smoothscale_backend,

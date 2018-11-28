@@ -195,3 +195,115 @@ scale2x(SDL_Surface *src, SDL_Surface *dst)
         }
     }
 }
+
+void
+scale2xraw(SDL_Surface *src, SDL_Surface *dst)
+{
+    int looph, loopw;
+
+    Uint8 *srcpix = (Uint8 *)src->pixels;
+    Uint8 *dstpix = (Uint8 *)dst->pixels;
+
+    const int srcpitch = src->pitch;
+    const int dstpitch = dst->pitch;
+    const int width = src->w;
+    const int height = src->h;
+
+    switch (src->format->BytesPerPixel) {
+        case 1: {
+            Uint8 E0, E1, E2, E3, E;
+            for (looph = 0; looph < height; ++looph) {
+                for (loopw = 0; loopw < width; ++loopw) {
+                    E = *(Uint8 *)(srcpix + (looph * srcpitch) + (1 * loopw));
+
+                    E0 = E;
+                    E1 = E;
+                    E2 = E;
+                    E3 = E;
+
+                    *(Uint8 *)(dstpix + looph * 2 * dstpitch + loopw * 2 * 1) =
+                        E0;
+                    *(Uint8 *)(dstpix + looph * 2 * dstpitch +
+                               (loopw * 2 + 1) * 1) = E1;
+                    *(Uint8 *)(dstpix + (looph * 2 + 1) * dstpitch +
+                               loopw * 2 * 1) = E2;
+                    *(Uint8 *)(dstpix + (looph * 2 + 1) * dstpitch +
+                               (loopw * 2 + 1) * 1) = E3;
+                }
+            }
+            break;
+        }
+        case 2: {
+            Uint16 E0, E1, E2, E3, E;
+            for (looph = 0; looph < height; ++looph) {
+                for (loopw = 0; loopw < width; ++loopw) {
+                    E = *(Uint16 *)(srcpix + (looph * srcpitch) + (2 * loopw));
+
+                    E0 = E;
+                    E1 = E;
+                    E2 = E;
+                    E3 = E;
+
+                    *(Uint16 *)(dstpix + looph * 2 * dstpitch +
+                                loopw * 2 * 2) = E0;
+                    *(Uint16 *)(dstpix + looph * 2 * dstpitch +
+                                (loopw * 2 + 1) * 2) = E1;
+                    *(Uint16 *)(dstpix + (looph * 2 + 1) * dstpitch +
+                                loopw * 2 * 2) = E2;
+                    *(Uint16 *)(dstpix + (looph * 2 + 1) * dstpitch +
+                                (loopw * 2 + 1) * 2) = E3;
+                }
+            }
+            break;
+        }
+        case 3: {
+            int E0, E1, E2, E3, E;
+            for (looph = 0; looph < height; ++looph) {
+                for (loopw = 0; loopw < width; ++loopw) {
+                    E = READINT24(srcpix + (looph * srcpitch) + (3 * loopw));
+
+                    E0 = E;
+                    E1 = E;
+                    E2 = E;
+                    E3 = E;
+
+                    WRITEINT24((dstpix + looph * 2 * dstpitch + loopw * 2 * 3),
+                               E0);
+                    WRITEINT24(
+                        (dstpix + looph * 2 * dstpitch + (loopw * 2 + 1) * 3),
+                        E1);
+                    WRITEINT24(
+                        (dstpix + (looph * 2 + 1) * dstpitch + loopw * 2 * 3),
+                        E2);
+                    WRITEINT24((dstpix + (looph * 2 + 1) * dstpitch +
+                                (loopw * 2 + 1) * 3),
+                               E3);
+                }
+            }
+            break;
+        }
+        default: { /*case 4:*/
+            Uint32 E0, E1, E2, E3, E;
+            for (looph = 0; looph < height; ++looph) {
+                for (loopw = 0; loopw < width; ++loopw) {
+                    E = *(Uint32 *)(srcpix + (looph * srcpitch) + (4 * loopw));
+
+                    E0 = E;
+                    E1 = E;
+                    E2 = E;
+                    E3 = E;
+
+                    *(Uint32 *)(dstpix + looph * 2 * dstpitch +
+                                loopw * 2 * 4) = E0;
+                    *(Uint32 *)(dstpix + looph * 2 * dstpitch +
+                                (loopw * 2 + 1) * 4) = E1;
+                    *(Uint32 *)(dstpix + (looph * 2 + 1) * dstpitch +
+                                loopw * 2 * 4) = E2;
+                    *(Uint32 *)(dstpix + (looph * 2 + 1) * dstpitch +
+                                (loopw * 2 + 1) * 4) = E3;
+                }
+            }
+            break;
+        }
+    }
+}
