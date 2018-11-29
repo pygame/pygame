@@ -5,6 +5,7 @@ try:
 except NameError:
     raw_input = input
 
+download_dir = "prebuilt_downloads"
 
 def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
     """ This
@@ -203,15 +204,17 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir):
         )
 
 def ask():
-    temp_dir = "prebuilt_downloads"
     move_to_dir = "."
     reply = raw_input(
-            '\nDownload prebuilts to "%s" and copy to "%s/prebuilt-x64" and "%s/prebuilt-x86"? [Y/n]' % (temp_dir, move_to_dir, move_to_dir))
+            '\nDownload prebuilts to "%s" and copy to "%s/prebuilt-x64" and "%s/prebuilt-x86"? [Y/n]' % (download_dir, move_to_dir, move_to_dir))
     download_prebuilt = (not reply) or reply[0].lower() != 'n'
 
     if download_prebuilt:
-        download_prebuilts(temp_dir)
-        place_downloaded_prebuilts(temp_dir, move_to_dir)
+        download_prebuilts(download_dir)
+        place_downloaded_prebuilts(download_dir, move_to_dir)
+
+def cached():
+    return os.path.isdir(download_dir)
 
 if __name__ == '__main__':
     ask()

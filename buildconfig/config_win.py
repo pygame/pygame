@@ -429,8 +429,16 @@ def setup_prebuilt_sdl1(prebuilt_dir):
 
 def main(sdl2=False):
     prebuilt_dir = 'prebuilt-' + get_machine_type()
+    use_prebuilt = '-prebuilt' in sys.argv
+
+    try:
+        from . import download_win_prebuilt
+    except ImportError:
+        import download_win_prebuilt
+    if use_prebuilt and not download_win_prebuilt.cached():
+        download_win_prebuilt.ask()
+
     if os.path.isdir(prebuilt_dir):
-        use_prebuilt = '-prebuilt' in sys.argv
         if not use_prebuilt:
             if 'PYGAME_USE_PREBUILT' in os.environ:
                 use_prebuilt = os.environ['PYGAME_USE_PREBUILT'] == '1'
