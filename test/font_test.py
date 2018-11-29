@@ -405,8 +405,16 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
     def test_load_from_file_unicode(self):
-        font_path = os.path.join(FONTDIR, u'给中国人的秘密信息.bdf')
-        f = pygame_font.Font(font_path, 20)
+        import shutil
+        import tempfile
+        tmpdirname = tempfile.mkdtemp()
+        try:
+            newfontpath = os.path.join(tmpdirname, u'给中国人的秘密信息.ttf')
+            pgfont = os.path.join(FONTDIR, u'test_sans.ttf')
+            shutil.copy(pgfont, newfontpath)
+            pygame_font.Font(newfontpath, 20)
+        finally:
+            shutil.rmtree(tmpdirname)
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
