@@ -21,6 +21,7 @@ try:
 except:
     import buildconfig.msysio as msysio
 import sys, os, shutil
+import re
 
 BASE_PATH = '.'
 
@@ -129,15 +130,24 @@ def writesetupfile(deps, basepath, additional_lines, sdl2=False):
 
     new_lines.extend(additional_lines)
     lines = new_lines
+    legalVars = set(d.varname for d in deps)
+    legalVars.add('$(DEBUG)')
 
     for line in lines:
         useit = 1
-        if not line.startswith('COPYLIB'):
-            for d in deps:
-                if line.find(d.varname)!=-1 and not d.found:
-                    useit = 0
-                    newsetup.write('#'+line)
-                    break
+        if not line.startswith('COPYLIB') and not (line and line[0]=='#'):
+            lineDeps = set(re.findall(r'\$\([a-z0-9\w]+\)', line, re.I))
+            if lineDeps.difference(legalVars):
+                newsetup.write('#'+line)
+                useit = 0
+            if useit:
+                for d in deps:
+                    if d.varname in lineDeps and not d.found:
+                        useit = 0
+                        newsetup.write('#'+line)
+                        break
+            if useit:
+                legalVars.add('$(%s)' % line.split('=')[0].strip())
         if useit:
             newsetup.write(line)
 
