@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 import os
 import os.path
 import sys
@@ -41,7 +42,7 @@ class ImageextModuleTest( unittest.TestCase ):
         im = imageext.load_extended(u)
 
     def test_save_unicode_path(self):
-        temp_file = unicode_("tmpimg.png")
+        temp_file = u"你好.png"
         im = pygame.Surface((10, 10), 0, 32)
         try:
             os.remove(temp_file)
