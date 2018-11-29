@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import sys
 import os
 import unittest
@@ -7,6 +9,9 @@ import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
 from pygame.compat import PY_MAJOR_VERSION
+
+FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
+                       'fixtures', 'fonts')
 
 UCS_4 = sys.maxunicode > 0xFFFF
 
@@ -400,12 +405,8 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
     def test_load_from_file_unicode(self):
-        base_dir = os.path.dirname(pygame.__file__)
-        font_path = os.path.join(base_dir, pygame_font.get_default_font())
-        if os.path.sep == '\\':
-            font_path = font_path.replace('\\', '\\\\')
-        ufont_path = as_unicode(font_path)
-        f = pygame_font.Font(ufont_path, 20)
+        font_path = os.path.join(FONTDIR, u'给中国人的秘密信息.bdf')
+        f = pygame_font.Font(font_path, 20)
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
