@@ -195,9 +195,10 @@ pg_Fopen(const char *filename, const char *mode) {
     static wchar_t modebuf[32];
     size_t nameInputSize = strlen(filename) + 1;
     size_t namebuf_chars = MultiByteToWideChar(CP_UTF8, 0, filename, nameInputSize, 0, 0);
+    wchar_t* namebuf;
     if (namebuf_chars == 0)
         return NULL;
-    wchar_t* namebuf = malloc(namebuf_chars * sizeof(wchar_t));
+    namebuf = malloc(namebuf_chars * sizeof(wchar_t));
 
     if (!namebuf)
         goto leave;
