@@ -393,7 +393,7 @@ class AntiAliasedLineMixin:
                   (5, 4): greenish, (5, 5): brown, (5, 6): reddish}
         check_both_directions((5, 3), (4, 7), should)
 
-    def _test_anti_aliasing_float_coordinates(self):
+    def test_anti_aliasing_float_coordinates(self):
         '''Float coordinates should be blended smoothly.'''
         check_points = [(i, j) for i in range(5) for j in range(5)]
         brown = (127, 127, 0)
@@ -479,19 +479,12 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     def draw_aaline(self, color, from_point, to_point):
         draw.aaline(self.surface, color, from_point, to_point, 1)
 
-    @unittest.expectedFailure
-    def test_anti_aliasing_with_float_coordinates(self):
-        self._test_anti_aliasing_float_coordinates()
-
 
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
 
     def draw_aaline(self, color, from_point, to_point):
         draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
-
-    def test_anti_aliasing_with_float_coordinates(self):
-        self._test_anti_aliasing_float_coordinates()
 
 
 class DrawModuleTest(unittest.TestCase):
