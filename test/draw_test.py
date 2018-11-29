@@ -480,6 +480,7 @@ class AntiAliasedLineMixin:
         self._check_antialiasing((2, 1.25), (4, 3.25), expected,
                                  check_points, set_endpoints=False)
 
+    @unittest.expectedFailure
     def test_anti_aliasing_at_and_outside_the_border(self):
         check_points = [(i, j) for i in range(10) for j in range(10)]
 
@@ -509,6 +510,7 @@ class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
 
     def test_anti_aliasing_at_and_outside_the_border(self):
         "TODO"
+
 
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
