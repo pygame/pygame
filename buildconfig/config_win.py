@@ -37,6 +37,7 @@ def get_machine_type():
 class Dependency(object):
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
+    check_hunt_roots = True
     def __init__(self, name, wildcards, libs=None, required=0, find_header='', find_lib=''):
         if libs is None:
             libs = []
@@ -111,13 +112,23 @@ class Dependency(object):
                 continue
             if os.path.isdir(hh):
                 return hh.replace('\\', '/')
-        if header_match:
-            print("...Header(s) for %s could not be found!" % self.name)
-        if lib_match:
-            print("...Library for %s could not be found!" % self.name)
+
+    def prunepaths(self):
+        lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
+        header_match = re.compile(self.find_header, re.I).match if self.find_header else None
+        prune = []
+        for path in self.paths:
+            inc_dir = self.findhunt(path, Dependency.inc_hunt, header_match=header_match)
+            lib_dir = self.findhunt(path, Dependency.lib_hunt, lib_match=lib_match)
+            if not inc_dir or not lib_dir:
+                prune.append(path)
+        self.paths = [p for p in self.paths if p not in prune]
 
     def configure(self):
         self.hunt()
+        if self.check_hunt_roots:
+            self.paths.extend(huntpaths)
+        self.prunepaths()
         self.choosepath()
         if self.path:
             lib_match = re.compile(self.find_lib, re.I).match if self.find_lib else None
@@ -128,7 +139,6 @@ class Dependency(object):
             print("...Include directory for %s: %s" % (self.name, self.inc_dir))
             if self.inc_dir or self.lib_dir:
                 self.found = True
-
 
 class DependencyPython(object):
     def __init__(self, name, module, header):
@@ -161,8 +171,6 @@ class DependencyPython(object):
             print ("%-8.8s: not found" % self.name)
 
 class DependencyDLL(Dependency):
-    check_hunt_roots = True
-
     def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
         if lib is None:
             lib = link.libs[0]
@@ -214,6 +222,18 @@ class DependencyDLL(Dependency):
                         return True
         return False
 
+class DependencyDummy(object):
+    def __init__(self, name):
+        self.name = name
+        self.inc_dir = None
+        self.lib_dir = None
+        self.libs = []
+        self.found = True
+        self.cflags = ''
+
+    def configure(self):
+        pass
+
 class DependencyWin(object):
     def __init__(self, name, cflags):
         self.name = name
@@ -260,6 +280,9 @@ class DependencyGroup(object):
         self.dlls.append(dep)
         return dep
 
+    def add_dummy(self, name):
+        self.dependencies.append(DependencyDummy(name))
+
     def find(self, name):
         for dep in self:
             if dep.name == name:
@@ -295,8 +318,6 @@ def _add_sdl2_dll_deps(DEPS):
     DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'], ['jpeg', 'z'])
     DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
     DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
-    # TTF
-    DEPS.add_dll(r'(lib)?freetype[-0-9]*\.dll$', 'freetype', ['(lib)?freetype[-0-9]*\.dll*'])
 
 def setup(sdl2):
     DEPS = DependencyGroup()
@@ -329,7 +350,9 @@ def setup(sdl2):
                  ['SDL', 'vorbisfile'])
         DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
                  ['SDL', 'jpeg', 'png', 'tiff'], 0)
-        DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z'])
+        DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
+        DEPS.add('FREETYPE', 'freetype', ['freetype-[1-9].*'], r'(lib){0,1}libfreetype[-0-9]*.dll\.dll$',
+                 find_header='ft2build\.h', find_lib='(lib)?freetype[-0-9]*\.lib')
         _add_sdl2_dll_deps(DEPS)
         for d in get_definitions():
             DEPS.add_win(d.name, d.value)
@@ -341,8 +364,10 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     huntpaths[:] = [prebuilt_dir]
     Dependency.lib_hunt.extend([
         '',
+        'lib',
         os.path.join('lib', get_machine_type()),
     ])
+    Dependency.inc_hunt.append('')
 
     DEPS = DependencyGroup()
 
@@ -354,8 +379,18 @@ def setup_prebuilt_sdl2(prebuilt_dir):
                         ['SDL', 'vorbisfile'])
     DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
     #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
+    DEPS.add_dummy('PORTTIME')
+    ftDep = DEPS.add('FREETYPE', 'freetype', ['freetype-[1-9].*'], r'(lib){0,1}libfreetype[-0-9]*\.dll$',
+                     find_header='ft2build\.h', find_lib='(lib)?freetype[-0-9]*\.lib')
 
     DEPS.configure()
+
+    # workaround to find freetype header
+    if ftDep.found:
+        ftDep.inc_dir = [
+            ftDep.inc_dir,
+            '%s/freetype2' % ftDep.inc_dir
+        ]
 
     dllPaths = {
         'png': imageDep.path,
@@ -373,7 +408,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
         'opus': mixerDep.path,
         'opusfile': mixerDep.path,
 
-        'freetype': fontDep.path,
+        #'freetype': fontDep.path,
     }
     _add_sdl2_dll_deps(DEPS)
     for dll in DEPS.dlls:

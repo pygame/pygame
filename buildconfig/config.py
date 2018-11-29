@@ -75,21 +75,32 @@ def prepdep(dep, basepath):
             dep.found = 1
         return
 
-    inc = lid = lib = ""
-    if basepath:
-        if dep.inc_dir: inc = ' -I$(BASE)'+dep.inc_dir[len(basepath):]
-        if dep.lib_dir: lid = ' -L$(BASE)'+dep.lib_dir[len(basepath):]
-    else:
-        if dep.inc_dir: inc = ' -I' + dep.inc_dir
-        if dep.lib_dir: lid = ' -L' + dep.lib_dir
+    incs = []
+    lids = []
+    lib = ""
+    IPREFIX = ' -I$(BASE)' if basepath else ' -I'
+    LPREFIX = ' -L$(BASE)' if basepath else ' -L'
+    startind = len(basepath) if basepath else 0
+    if dep.inc_dir:
+        if isinstance(dep.inc_dir, str):
+            incs.append(IPREFIX+dep.inc_dir[startind:])
+        else:
+            for dir in dep.inc_dir:
+                incs.append(IPREFIX+dir[startind:])
+    if dep.lib_dir:
+        if isinstance(dep.lib_dir, str):
+            lids.append(LPREFIX+dep.lib_dir[startind:])
+        else:
+            for dir in dep.lib_dir:
+                lids.append(LPREFIX+dir[startind:])
     libs = ''
     for lib in dep.libs:
         libs += ' -l' + lib
 
     if dep.name.startswith('COPYLIB_'):
-        dep.line = dep.name + libs + lid
+        dep.line = dep.name + libs + ''.join(lids)
     else:
-        dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + libs
+        dep.line = dep.name+' =' + ''.join(incs) + ''.join(lids) + ' ' + dep.cflags + libs
 
 def writesetupfile(deps, basepath, additional_lines, sdl2=False):
     "create a modified copy of Setup.SDLx.in"
