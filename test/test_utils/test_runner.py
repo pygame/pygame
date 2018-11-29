@@ -106,7 +106,7 @@ return (first 10 and last 10 lines):
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
-DOTS = re.compile("^([FE.sx]*)$", re.MULTILINE)
+DOTS = re.compile("^([FE.sux]*)$", re.MULTILINE)
 
 def combine_results(all_results, t):
     """
