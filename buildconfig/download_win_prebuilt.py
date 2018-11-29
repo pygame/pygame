@@ -203,6 +203,11 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir):
             )
         )
 
+def update():
+    move_to_dir = "."
+    download_prebuilts(download_dir)
+    place_downloaded_prebuilts(download_dir, move_to_dir)
+
 def ask():
     move_to_dir = "."
     reply = raw_input(
@@ -210,8 +215,8 @@ def ask():
     download_prebuilt = (not reply) or reply[0].lower() != 'n'
 
     if download_prebuilt:
-        download_prebuilts(download_dir)
-        place_downloaded_prebuilts(download_dir, move_to_dir)
+        update()
+    return download_prebuilt
 
 def cached():
     return os.path.isdir(download_dir)

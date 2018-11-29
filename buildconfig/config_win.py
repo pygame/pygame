@@ -466,12 +466,20 @@ def main(sdl2=False):
     prebuilt_dir = 'prebuilt-' + get_machine_type()
     use_prebuilt = '-prebuilt' in sys.argv
 
+    auto_download = 'PYGAME_DOWNLOAD_PREBUILT' in os.environ
+    if auto_download:
+        auto_download = os.environ['PYGAME_DOWNLOAD_PREBUILT'] == '1'
+
     try:
         from . import download_win_prebuilt
     except ImportError:
         import download_win_prebuilt
-    if use_prebuilt and not download_win_prebuilt.cached():
-        download_win_prebuilt.ask()
+    if not auto_download:
+        if (not download_win_prebuilt.cached() or not os.path.isdir(prebuilt_dir))\
+            and download_win_prebuilt.ask():
+            use_prebuilt = True
+    else:
+        download_win_prebuilt.update()
 
     if os.path.isdir(prebuilt_dir):
         if not use_prebuilt:
