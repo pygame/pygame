@@ -1401,7 +1401,8 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
     }
     else if (type == Py_None) {
 #if IS_SDLv2
-        for (int i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        int i;
+        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_ENABLE);
         }
 #else
@@ -1444,7 +1445,8 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
     }
     else if (type == Py_None) {
 #if IS_SDLv2
-        for (int i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        int i;
+        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_IGNORE);
         }
 #else
