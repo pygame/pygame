@@ -462,6 +462,8 @@ def setup_prebuilt_sdl1(prebuilt_dir):
     finally:
         setup_.close()
 
+    print("Wrote to \"Setup\".")
+
 def main(sdl2=False):
     machine_type = get_machine_type()
     prebuilt_dir = 'prebuilt-%s' % machine_type
@@ -479,6 +481,7 @@ def main(sdl2=False):
     download_kwargs = {
         'x86': False,
         'x64': False,
+        'sdl2': sdl2,
     }
     download_kwargs[machine_type] = True
 

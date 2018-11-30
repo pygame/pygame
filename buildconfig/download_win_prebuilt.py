@@ -58,57 +58,59 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
                 os.mkdir(zip_dir)
                 zip_ref.extractall(zip_dir)
 
-def get_urls(x86=True, x64=True):
-    url_sha1 = [
-        [
-        'https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip',
-        '0b4d2a9bd0c66847d669ae664c5b9e2ae5cc8f00',
-        ],
-        [
-        'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-VC.zip',
-        'f5199c52b3af2e059ec0268d4fe1854311045959',
-        ],
-        [
-        'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip',
-        'c64d90c1f7d1bb3f3dcfcc255074611f017cdcc4',
-        ],
-        [
-        'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
-        '9097148f4529cf19f805ccd007618dec280f0ecc',
-        ],
-        # [
-        #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x86.zip',
-        #  '04a48d0b429ac65f0d9b33bd1b75d77526c0cccf'
-        # ],
-        # [
-        #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x64.zip',
-        #  '7a156a8c81d2442901dea90ff0f71026475e89c6'
-        # ],
-        # [
-        #  'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14-win32-x86.zip',
-        #  '0c89aa4097745ac68516783b7fd67abd019b7701'
-        # ],
-        # [
-        #  'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14-win32-x64.zip',
-        #  '47446c907d006804e12ecd827a45dcc89abd2264'
-        # ],
-        # [
-        #  'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4-win32-x86.zip',
-        #  'e9b8b84edfe618bec73f91111324e37c37dd6f27'
-        # ],
-        # [
-        #  'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4-win32-x64.zip',
-        #  '956750cb442264abd8cd398c57aa493249cf04d4'
-        # ],
-        # [
-        #  'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4-win32-x86.zip',
-        #  '0bfc276a3d50613ae54831ff196721ad24de1432'
-        # ],
-        # [
-        #  'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4-win32-x64.zip',
-        #  'afa34e9c11fd8a6f5d084862c38fcf0abdc77514'
-        # ],
-    ]
+def get_urls(x86=True, x64=True, sdl2=True):
+    url_sha1 = []
+    if sdl2:
+        url_sha1.extend([
+            [
+            'https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip',
+            '0b4d2a9bd0c66847d669ae664c5b9e2ae5cc8f00',
+            ],
+            [
+            'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-VC.zip',
+            'f5199c52b3af2e059ec0268d4fe1854311045959',
+            ],
+            [
+            'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip',
+            'c64d90c1f7d1bb3f3dcfcc255074611f017cdcc4',
+            ],
+            [
+            'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
+            '9097148f4529cf19f805ccd007618dec280f0ecc',
+            ],
+            # [
+            #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x86.zip',
+            #  '04a48d0b429ac65f0d9b33bd1b75d77526c0cccf'
+            # ],
+            # [
+            #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x64.zip',
+            #  '7a156a8c81d2442901dea90ff0f71026475e89c6'
+            # ],
+            # [
+            #  'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14-win32-x86.zip',
+            #  '0c89aa4097745ac68516783b7fd67abd019b7701'
+            # ],
+            # [
+            #  'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14-win32-x64.zip',
+            #  '47446c907d006804e12ecd827a45dcc89abd2264'
+            # ],
+            # [
+            #  'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4-win32-x86.zip',
+            #  'e9b8b84edfe618bec73f91111324e37c37dd6f27'
+            # ],
+            # [
+            #  'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4-win32-x64.zip',
+            #  '956750cb442264abd8cd398c57aa493249cf04d4'
+            # ],
+            # [
+            #  'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4-win32-x86.zip',
+            #  '0bfc276a3d50613ae54831ff196721ad24de1432'
+            # ],
+            # [
+            #  'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4-win32-x64.zip',
+            #  'afa34e9c11fd8a6f5d084862c38fcf0abdc77514'
+            # ],
+        ])
     if x86:
         url_sha1.append([
          'https://bitbucket.org/llindstrom/pygame/downloads/prebuilt-x86-pygame-1.9.2-20150922.zip',
@@ -121,14 +123,14 @@ def get_urls(x86=True, x64=True):
         ])
     return url_sha1
 
-def download_prebuilts(temp_dir, x86=True, x64=True):
+def download_prebuilts(temp_dir, x86=True, x64=True, sdl2=True):
     """ For downloading prebuilt dependencies.
     """
     from distutils.dir_util import mkpath
     if not os.path.exists(temp_dir):
         print("Making dir :%s:" % temp_dir)
         mkpath(temp_dir)
-    for url, checksum in get_urls():
+    for url, checksum in get_urls(x86=x86, x64=x64, sdl2=sdl2):
         download_sha1_unzip(url, checksum, temp_dir, 1)
 
 def create_ignore_target_fnc(x64=False, x86=False):
@@ -177,7 +179,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
         else:
             shutil.copy2(s, d)
 
-def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
+def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=True):
     """ puts the downloaded prebuilt files into the right place.
 
     Leaves the files in temp_dir. copies to move_to_dir
@@ -208,6 +210,9 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
         prebuilt_dirs.append('prebuilt-x86')
     if x64:
         prebuilt_dirs.append('prebuilt-x64')
+
+    if not sdl2:
+        return
 
     for prebuilt_dir in prebuilt_dirs:
         path = os.path.join(move_to_dir, prebuilt_dir)
@@ -257,12 +262,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True):
             )
         )
 
-def update(x86=True, x64=True):
+def update(x86=True, x64=True, sdl2=True):
     move_to_dir = "."
-    download_prebuilts(download_dir, x86=x86, x64=x64)
-    place_downloaded_prebuilts(download_dir, move_to_dir, x86=x86, x64=x64)
+    download_prebuilts(download_dir, x86=x86, x64=x64, sdl2=sdl2)
+    place_downloaded_prebuilts(download_dir, move_to_dir, x86=x86, x64=x64, sdl2=sdl2)
 
-def ask(x86=True, x64=True):
+def ask(x86=True, x64=True, sdl2=True):
     move_to_dir = "."
     if x64:
         dest_str = "\"%s/prebuilt-x64\"" % move_to_dir
@@ -277,14 +282,14 @@ def ask(x86=True, x64=True):
     download_prebuilt = (not reply) or reply[0].lower() != 'n'
 
     if download_prebuilt:
-        update(x86=x86, x64=x64)
+        update(x86=x86, x64=x64, sdl2=sdl2)
     return download_prebuilt
 
-def cached(x86=True, x64=True):
+def cached(x86=True, x64=True, sdl2=True):
     move_to_dir = "."
     if not os.path.isdir(download_dir):
         return False
-    for url, check in get_urls(x86=x86, x64=x64):
+    for url, check in get_urls(x86=x86, x64=x64, sdl2=sdl2):
         filename = os.path.split(url)[-1]
         save_to = os.path.join(download_dir, filename)
         if not os.path.exists(save_to):
