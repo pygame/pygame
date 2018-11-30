@@ -571,15 +571,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "w", PyInt_FromLong(event->resize.w));
             _pg_insobj(dict, "h", PyInt_FromLong(event->resize.h));
             break;
-        case SDL_SYSWMEVENT:
-#ifdef WIN32
-            _pg_insobj(dict, "hwnd",
-                   PyInt_FromLong((long)(event->syswm.msg->hwnd)));
-            _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
-            _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->wParam));
-            _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->lParam));
-#endif
-#else  /* IS_SDLv2 */
+#else /* IS_SDLv2 */
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->window.data1,
                                 event->window.data2);
@@ -587,41 +579,50 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "w", PyInt_FromLong(event->window.data1));
             _pg_insobj(dict, "h", PyInt_FromLong(event->window.data2));
             break;
-        case SDL_SYSWMEVENT:
+#endif /* IS_SDLv2 */
 #ifdef WIN32
+#if IS_SDLv1
+        case SDL_SYSWMEVENT:
+            _pg_insobj(dict, "hwnd",
+                   PyInt_FromLong((long)(event->syswm.msg->hwnd)));
+            _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg));
+            _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->wParam));
+            _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->lParam));
+            break;
+#else /* IS_SDLv2 */
+        case SDL_SYSWMEVENT:
             _pg_insobj(dict, "hwnd",
                    PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
             _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
             _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->msg.win.wParam));
             _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->msg.win.lParam));
-#endif
+            break;
 #endif /* IS_SDLv2 */
-            /*
-             * Make the event
-             */
+#endif /* WIN32 */
+
 #if (defined(unix) || defined(__unix__) || defined(_AIX) ||     \
      defined(__OpenBSD__)) &&                                   \
     (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) && \
      !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
-
-            // printf("asdf :%d:", event->syswm.msg->event.xevent.type);
 #if IS_SDLv1
+        case SDL_SYSWMEVENT:
             _pg_insobj(dict, "event",
                    Bytes_FromStringAndSize(
                        (char *)&(event->syswm.msg->event.xevent),
                        sizeof(XEvent)));
+            break;
 #else  /* IS_SDLv2 */
+        case SDL_SYSWMEVENT:
             if (event->syswm.msg->subsystem == SDL_SYSWM_X11) {
                 XEvent *xevent = (XEvent *)&event->syswm.msg->msg.x11.event;
                 obj = Bytes_FromStringAndSize((char *)xevent, sizeof(XEvent));
                 _pg_insobj(dict, "event", obj);
             }
+            break;
 #endif /* IS_SDLv2 */
 #endif /* (defined(unix) || ... */
-
-            break;
             /* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
-    }
+    } /* switch (event->type) */
     if (event->type == SDL_USEREVENT && event->user.code == 0x1000) {
         _pg_insobj(dict, "filename", Text_FromUTF8(event->user.data1));
         free(event->user.data1);
@@ -1401,7 +1402,8 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
     }
     else if (type == Py_None) {
 #if IS_SDLv2
-        for (int i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        int i;
+        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_ENABLE);
         }
 #else
@@ -1444,7 +1446,8 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
     }
     else if (type == Py_None) {
 #if IS_SDLv2
-        for (int i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        int i;
+        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_IGNORE);
         }
 #else
