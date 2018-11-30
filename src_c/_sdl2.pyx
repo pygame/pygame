@@ -1,20 +1,18 @@
 # cython: language_level=2
 #
-from libc.stdint cimport *
 from libc.string cimport memset
-
 from libc.stdio cimport *
 
 cdef extern from "SDL.h" nogil:
-
-    ctypedef int8_t Sint8
-    ctypedef uint8_t Uint8
-    ctypedef int16_t Sint16
-    ctypedef uint16_t Uint16
-    ctypedef int32_t Sint32
-    ctypedef uint32_t Uint32
-    ctypedef int64_t Sint64
-    ctypedef uint64_t Uint64
+    # SDL_stdinc.h provides the real ones based on platform.
+    ctypedef char Sint8
+    ctypedef unsigned char Uint8
+    ctypedef signed short Sint16
+    ctypedef unsigned short Uint16
+    ctypedef signed long Sint32
+    ctypedef unsigned long Uint32
+    ctypedef unsigned long long Uint64
+    ctypedef signed long long Sint64
 
     # https://wiki.libsdl.org/SDL_OpenAudioDevice
     # https://wiki.libsdl.org/SDL_CloseAudioDevice
