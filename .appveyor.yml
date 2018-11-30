@@ -6,10 +6,11 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     WITH_COMPILER: "cmd /E:ON /V:ON /C .\\buildconfig\\ci\\appveyor\\run_with_compiler.cmd"
     DISTRIBUTIONS: "bdist_wheel"
+    PYGAME_DOWNLOAD_PREBUILT: "1"
     PYGAME_USE_PREBUILT: "1"
     SDL_VIDEODRIVER: "dummy"
     SDL_AUDIODRIVER: "disk"
-
+ 
   matrix:
     # - PYTHON: "pypy.exe"
     #   PYTHON_VERSION: "2.7.13"
@@ -22,6 +23,11 @@ environment:
     #   PYTHON_ARCH: "32"
     #   PYPY_VERSION: "pypy3-v5.10.1-win32"
     #   PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
+
+    - PYTHON: "C:\\Python27\\python"
+      PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python27\\python"
       PYTHON_VERSION: "2.7.13"
@@ -43,9 +49,19 @@ environment:
       PYTHON_VERSION: "3.7.0"
       PYTHON_ARCH: "32"
 
+    - PYTHON: "C:\\Python37\\python"
+      PYTHON_VERSION: "3.7.0"
+      PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
+
     - PYTHON: "C:\\Python27-x64\\python"
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python27-x64\\python"
+      PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python34-x64\\python"
       PYTHON_VERSION: "3.4.4"
@@ -63,6 +79,11 @@ environment:
       PYTHON_VERSION: "3.7.0"
       PYTHON_ARCH: "64"
 
+    - PYTHON: "C:\\Python37-x64\\python"
+      PYTHON_VERSION: "3.7.0"
+      PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
+
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
@@ -72,8 +93,9 @@ install:
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
   - "%PYTHON% -m ensurepip"
-  - "%PYTHON% -m pip install -U wheel pip"
-  - "%WITH_COMPILER% %PYTHON% setup.py build -auto"
+  - "%PYTHON% -m pip install -U wheel pip requests"
+  - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
+  - "%WITH_COMPILER% %PYTHON% setup.py build"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
 
