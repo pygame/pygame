@@ -2627,15 +2627,18 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 
     switch (format->BytesPerPixel) {
         case 1:
-            for (row = y; row < height_and_y; row++) {
-                pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
-                for (col = x; col < width_and_x; col++) {
-                    color = (Uint32) * ((Uint8 *)pixels);
-                    rtot += ((color & rmask) >> rshift) << rloss;
-                    gtot += ((color & gmask) >> gshift) << gloss;
-                    btot += ((color & bmask) >> bshift) << bloss;
-                    atot += ((color & amask) >> ashift) << aloss;
-                    pixels++;
+            {
+                Uint8 color8;
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
+                    for (col = x; col < width_and_x; col++) {
+                        color8 = *(Uint8 *)pixels;
+                        rtot += ((color8 & rmask) >> rshift) << rloss;
+                        gtot += ((color8 & gmask) >> gshift) << gloss;
+                        btot += ((color8 & bmask) >> bshift) << bloss;
+                        atot += ((color8 & amask) >> ashift) << aloss;
+                        pixels++;
+                    }
                 }
             }
             break;
