@@ -56,7 +56,7 @@
  * built with Py_UNICODE_WIDE.
  */
 #if PY2 && !defined(Py_UNICODE_IS_SURROGATE)
-#define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) <= 0xDFFF)
+#define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) && (ch) <= 0xDFFF)
 #endif
 
 static PyTypeObject PyFont_Type;
