@@ -131,7 +131,7 @@ Dependencies
 
      Pygame is obviously strongly dependent on SDL and Python. It also
      links to and embeds several other smaller libraries. The font
-     module relies on SDL_tff, which is dependent on freetype. The mixer
+     module relies on SDL_ttf, which is dependent on freetype. The mixer
      (and mixer.music) modules depend on SDL_mixer. The image module
      depends on SDL_image, which also can use libjpeg and libpng. The
      transform module has an embedded version of SDL_rotozoom for its
@@ -143,7 +143,7 @@ Dependencies
      * SDL >= 1.2.15
      * SDL_mixer >= 1.2.13
      * SDL_image (version?)
-     * SDL_tff (version ?)
+     * SDL_ttf (version ?)
      * SDL_gfx (optional, version?)
      * NumPy >= 1.6.2 (optional)
 
