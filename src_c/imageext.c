@@ -26,14 +26,20 @@
  *  the extended load and save functions, which are autmatically used
  *  by the normal pygame.image module if it is available.
  */
-// This is temporal until PNG support is done for Symbian
-#ifdef __SYMBIAN32__
+#include "pygame.h"
+
+#if IS_SDLv1
+
+#ifdef __SYMBIAN32__ /* until PNG support is done for Symbian */
 #include <stdio.h>
 #else
 #include <png.h>
 #endif
+
 #include <jerror.h>
 #include <jpeglib.h>
+
+#endif /* IS_SDLv1 */
 
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
@@ -47,8 +53,6 @@
 #undef HAVE_STDLIB_H
 #endif
 
-#include "pygame.h"
-
 #include "pgcompat.h"
 
 #include "doc/image_doc.h"
@@ -56,6 +60,8 @@
 #include "pgopengl.h"
 
 #include <SDL_image.h>
+
+#define JPEG_QUALITY 85
 
 static const char *
 find_extension(const char *fullname)
@@ -634,7 +640,7 @@ SaveJPEG(SDL_Surface *surface, const char *file)
         ss_rows[i] =
             ((unsigned char *)ss_surface->pixels) + i * ss_surface->pitch;
     }
-    r = write_jpeg(file, ss_rows, surface->w, surface->h, 85);
+    r = write_jpeg(file, ss_rows, surface->w, surface->h, JPEG_QUALITY);
 
     free(ss_rows);
 
@@ -757,6 +763,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         const char *name = Bytes_AS_STRING(oencoded);
         Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
 
+#if IS_SDLv1
         if ((namelen >= 4) &&
             (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
               (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
@@ -778,7 +785,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 #else
             RAISE(pgExc_SDLError, "No support for jpg compiled in.");
             result = -2;
-#endif
+#endif /* ~JPEGLIB_H */
         }
         else if ((namelen >= 3) &&
                  ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
@@ -791,8 +798,26 @@ image_save_ext(PyObject *self, PyObject *arg)
 #else
             RAISE(pgExc_SDLError, "No support for png compiled in.");
             result = -2;
-#endif
+#endif /* ~PNG_H */
         }
+#else /* IS_SDLv2 */
+        if ((namelen >= 4) &&
+            (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
+              (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
+              (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
+              (name[namelen - 4] == 'j' || name[namelen - 4] == 'J')) ||
+             ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
+              (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
+              (name[namelen - 3] == 'j' || name[namelen - 3] == 'J')))) {
+            result = IMG_SaveJPG(surf, name, JPEG_QUALITY);
+        }
+        else if ((namelen >= 3) &&
+                 ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
+                  (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
+                  (name[namelen - 3] == 'p' || name[namelen - 3] == 'P'))) {
+            result = IMG_SavePNG(surf, name);
+        }
+#endif /* IS_SDLv2 */
     }
     else {
         result = -2;

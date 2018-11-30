@@ -21,6 +21,7 @@ try:
 except:
     import buildconfig.msysio as msysio
 import sys, os, shutil
+import re
 
 BASE_PATH = '.'
 
@@ -74,21 +75,32 @@ def prepdep(dep, basepath):
             dep.found = 1
         return
 
-    inc = lid = lib = ""
-    if basepath:
-        if dep.inc_dir: inc = ' -I$(BASE)'+dep.inc_dir[len(basepath):]
-        if dep.lib_dir: lid = ' -L$(BASE)'+dep.lib_dir[len(basepath):]
-    else:
-        if dep.inc_dir: inc = ' -I' + dep.inc_dir
-        if dep.lib_dir: lid = ' -L' + dep.lib_dir
+    incs = []
+    lids = []
+    lib = ""
+    IPREFIX = ' -I$(BASE)' if basepath else ' -I'
+    LPREFIX = ' -L$(BASE)' if basepath else ' -L'
+    startind = len(basepath) if basepath else 0
+    if dep.inc_dir:
+        if isinstance(dep.inc_dir, str):
+            incs.append(IPREFIX+dep.inc_dir[startind:])
+        else:
+            for dir in dep.inc_dir:
+                incs.append(IPREFIX+dir[startind:])
+    if dep.lib_dir:
+        if isinstance(dep.lib_dir, str):
+            lids.append(LPREFIX+dep.lib_dir[startind:])
+        else:
+            for dir in dep.lib_dir:
+                lids.append(LPREFIX+dir[startind:])
     libs = ''
     for lib in dep.libs:
         libs += ' -l' + lib
 
     if dep.name.startswith('COPYLIB_'):
-        dep.line = dep.name + libs + lid
+        dep.line = dep.name + libs + ''.join(lids)
     else:
-        dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + libs
+        dep.line = dep.name+' =' + ''.join(incs) + ''.join(lids) + ' ' + dep.cflags + libs
 
 def writesetupfile(deps, basepath, additional_lines, sdl2=False):
     "create a modified copy of Setup.SDLx.in"
@@ -129,15 +141,24 @@ def writesetupfile(deps, basepath, additional_lines, sdl2=False):
 
     new_lines.extend(additional_lines)
     lines = new_lines
+    legalVars = set(d.varname for d in deps)
+    legalVars.add('$(DEBUG)')
 
     for line in lines:
         useit = 1
-        if not line.startswith('COPYLIB'):
-            for d in deps:
-                if line.find(d.varname)!=-1 and not d.found:
-                    useit = 0
-                    newsetup.write('#'+line)
-                    break
+        if not line.startswith('COPYLIB') and not (line and line[0]=='#'):
+            lineDeps = set(re.findall(r'\$\([a-z0-9\w]+\)', line, re.I))
+            if lineDeps.difference(legalVars):
+                newsetup.write('#'+line)
+                useit = 0
+            if useit:
+                for d in deps:
+                    if d.varname in lineDeps and not d.found:
+                        useit = 0
+                        newsetup.write('#'+line)
+                        break
+            if useit:
+                legalVars.add('$(%s)' % line.split('=')[0].strip())
         if useit:
             newsetup.write(line)
 
@@ -197,3 +218,6 @@ the compiler flags in the "Setup" file.\n""")
     else:
         print_("""\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand.""")
+
+if __name__ == '__main__':
+    main()

@@ -610,6 +610,7 @@ pg_set_mode(PyObject *self, PyObject *arg)
         pgSurface_AsSurface(surface) = surf;
     }
     else {
+        Uint32 sdl_flags = 0;
         /*open window*/
         if (flags & PGS_OPENGL) {
             if (flags & PGS_DOUBLEBUF) {
@@ -620,7 +621,6 @@ pg_set_mode(PyObject *self, PyObject *arg)
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
         }
 #pragma PG_WARN(Not setting bpp ?)
-        Uint32 sdl_flags = 0;
         if (flags & PGS_FULLSCREEN)
             sdl_flags |= SDL_WINDOW_FULLSCREEN;
         if (flags & PGS_OPENGL)
