@@ -239,11 +239,11 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(None, 20)
         um = f.metrics(as_unicode("."))
         bm = f.metrics(as_bytes("."))
-        self.assert_(len(um) == 1)
-        self.assert_(len(bm) == 1)
+        self.assertEqual(len(um), 1)
+        self.assertEqual(len(bm), 1)
         self.assert_(um[0] is not None)
         self.assert_(um == bm)
-        u = as_unicode(r"\u212A")
+        u = u"\u212A"
         b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
         bm = f.metrics(b)
         self.assert_(len(bm) == 2)
@@ -257,7 +257,7 @@ class FontTypeTest( unittest.TestCase ):
             self.assert_(bm[1] != um[0])
 
         if UCS_4:
-            u = as_unicode(r"\U00013000")
+            u = u"\U00013000"
             bm = f.metrics(u)
             self.assert_(len(bm) == 1 and bm[0] is None)
 

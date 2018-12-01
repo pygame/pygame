@@ -462,8 +462,11 @@ def setup_prebuilt_sdl1(prebuilt_dir):
     finally:
         setup_.close()
 
+    print("Wrote to \"Setup\".")
+
 def main(sdl2=False):
-    prebuilt_dir = 'prebuilt-' + get_machine_type()
+    machine_type = get_machine_type()
+    prebuilt_dir = 'prebuilt-%s' % machine_type
     use_prebuilt = '-prebuilt' in sys.argv
 
     auto_download = 'PYGAME_DOWNLOAD_PREBUILT' in os.environ
@@ -474,12 +477,21 @@ def main(sdl2=False):
         from . import download_win_prebuilt
     except ImportError:
         import download_win_prebuilt
+
+    download_kwargs = {
+        'x86': False,
+        'x64': False,
+        'sdl2': sdl2,
+    }
+    download_kwargs[machine_type] = True
+
     if not auto_download:
-        if (not download_win_prebuilt.cached() or not os.path.isdir(prebuilt_dir))\
-            and download_win_prebuilt.ask():
+        if (not download_win_prebuilt.cached(**download_kwargs) or\
+            not os.path.isdir(prebuilt_dir))\
+            and download_win_prebuilt.ask(**download_kwargs):
             use_prebuilt = True
     else:
-        download_win_prebuilt.update()
+        download_win_prebuilt.update(**download_kwargs)
 
     if os.path.isdir(prebuilt_dir):
         if not use_prebuilt:
