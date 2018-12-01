@@ -96,7 +96,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    /*oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);*/
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -123,7 +124,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         if (name == NULL) {
             oname = PyObject_GetAttrString(obj, "name");
             if (oname != NULL) {
-                oencoded = pgRWopsEncodeFilePath(oname, NULL);
+                /*oencoded = pgRWopsEncodeFilePath(oname, NULL);*/
+                oencoded = pgRWopsEncodeString(oname, "UTF-8", NULL, NULL);
                 Py_DECREF(oname);
                 if (oencoded == NULL) {
                     return NULL;
@@ -173,6 +175,24 @@ image_load_ext(PyObject *self, PyObject *arg)
     return final;
 }
 
+static PyObject *
+pg_open(const char *filename, const char *mode)
+{
+    PyObject *result;
+    PyObject *open;
+    PyObject *bltins = PyImport_ImportModule(BUILTINS_MODULE);
+    if (!bltins)
+        return NULL;
+    open = PyObject_GetAttrString(bltins, "open");
+    Py_DECREF(bltins);
+    if (!open)
+        return NULL;
+
+    result = PyObject_CallFunction(open, "ss", filename, mode);
+    Py_DECREF(open);
+    return result;
+}
+
 #ifdef PNG_H
 
 static void
@@ -201,7 +221,7 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
-    FILE *fp = NULL;
+    FILE *fp;
     char *doing = "open for writing";
 
     if (!(fp = pg_Fopen(file_name, "wb")))
@@ -495,7 +515,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if ((outfile = pg_Fopen(file_name, "wb")) == NULL) {
+    if (!(outfile = pg_Fopen(file_name, "wb"))) {
         SDL_SetError("SaveJPEG: could not open %s", file_name);
         return -1;
     }
@@ -752,7 +772,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a string for the file argument: got %.1024s",

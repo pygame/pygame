@@ -85,6 +85,24 @@ utf_8_needs_UCS_4(const char *str)
     return 0;
 }
 
+static PyObject *
+pg_open_obj(PyObject *obj, const char *mode)
+{
+    PyObject *result;
+    PyObject *open;
+    PyObject *bltins = PyImport_ImportModule(BUILTINS_MODULE);
+    if (!bltins)
+        return NULL;
+    open = PyObject_GetAttrString(bltins, "open");
+    Py_DECREF(bltins);
+    if (!open)
+        return NULL;
+
+    result = PyObject_CallFunction(open, "Os", obj, mode);
+    Py_DECREF(open);
+    return result;
+}
+
 /* Return an encoded file path, a file-like object or a NULL pointer.
  * May raise a Python error. Use PyErr_Occurred to check.
  */
@@ -624,7 +642,9 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     int fontsize;
     TTF_Font *font = NULL;
     PyObject *obj;
-    PyObject *oencoded;
+    PyObject *test;
+    PyObject *oencoded = NULL;
+    const char *filename;
 
     self->font = NULL;
     if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
@@ -657,65 +677,57 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         if (fontsize <= 1) {
             fontsize = 1;
         }
-    }
-    else {
-        oencoded = pgRWopsEncodeFilePath(obj, NULL);
-        if (oencoded == NULL) {
-            goto error;
-        }
-        if (oencoded == Py_None) {
-            Py_DECREF(oencoded);
-        }
-        else {
-            Py_DECREF(obj);
-            obj = oencoded;
-        }
-    }
-    if (Bytes_Check(obj)) {
-        FILE *test;
-        const char *filename = Bytes_AS_STRING(obj);
-        if (filename == NULL)
-            goto error;
 
-        /*check if it is a valid file, else SDL_ttf segfaults*/
-        test = pg_Fopen(filename, "rb");
-        if (test == NULL) {
-            PyObject *tmp = NULL;
+        oencoded = obj;
+        Py_INCREF(oencoded);
+        filename = Bytes_AS_STRING(oencoded);
+    } else {
+        /* SDL accepts UTF8 */
+        oencoded = pgRWopsEncodeString(obj, "UTF8", NULL, NULL);
+        if (!oencoded || oencoded == Py_None) {
+            Py_XDECREF(oencoded);
+            oencoded = NULL;
             PyErr_Clear();
+            goto fileobject;
+        }
+        filename = Bytes_AS_STRING(oencoded);
+    }
 
-            if (strcmp(filename, font_defaultname) == 0) {
-                /* filename is the default font; get it's resource
-                 */
-                tmp = font_resource(font_defaultname);
-                if (tmp == NULL) {
-                    if (PyErr_Occurred() == NULL) {
-                        PyErr_Format(PyExc_IOError,
-                                     "unable to read font file '%.1024s'",
-                                     filename);
-                    }
-                    goto error;
+    /*check if it is a valid file, else SDL_ttf segfaults*/
+    test = pg_open_obj(obj, "rb");
+    if (test == NULL) {
+        if (strcmp(filename, font_defaultname) == 0) {
+            PyObject *tmp;
+            PyErr_Clear();
+            tmp = font_resource(font_defaultname);
+            if (tmp == NULL) {
+                if (!PyErr_Occurred()) {
+                    PyErr_Format(PyExc_IOError,
+                                 "unable to read font file '%.1024s'",
+                                 filename);
                 }
-                Py_DECREF(obj);
-                obj = tmp;
-                if (Bytes_Check(obj)) {
-                    filename = Bytes_AS_STRING(obj);
-                    test = fopen(filename, "rb");
-                }
+                goto error;
             }
-            if (test == NULL) {
+            Py_DECREF(obj);
+            obj = tmp;
+            filename = Bytes_AS_STRING(obj);
+            test = pg_open_obj(obj, "rb");
+        }
+        if (test == NULL) {
+            if (!PyErr_Occurred()) {
                 PyErr_Format(PyExc_IOError,
                              "unable to read font file '%.1024s'",
                              filename);
-                goto error;
             }
-        }
-        if (test != NULL) {
-            fclose(test);
-            Py_BEGIN_ALLOW_THREADS;
-            font = TTF_OpenFont(filename, fontsize);
-            Py_END_ALLOW_THREADS;
+            goto error;
         }
     }
+    Py_DECREF(test);
+    Py_BEGIN_ALLOW_THREADS;
+    font = TTF_OpenFont(filename, fontsize);
+    Py_END_ALLOW_THREADS;
+
+fileobject:
     if (font == NULL) {
 #if FONT_HAVE_RWOPS
         SDL_RWops *rw = pgRWopsFromFileObject(obj);
@@ -744,11 +756,13 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         goto error;
     }
 
+    Py_XDECREF(oencoded);
     Py_DECREF(obj);
     self->font = font;
     return 0;
 
 error:
+    Py_XDECREF(oencoded);
     Py_DECREF(obj);
     return -1;
 }

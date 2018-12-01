@@ -406,15 +406,17 @@ class FontTypeTest( unittest.TestCase ):
 
     def test_load_from_file_unicode(self):
         import shutil
-        import tempfile
-        tmpdirname = tempfile.mkdtemp().encode('utf8')
+        if sys.version_info.major < 3:
+            fdir = FONTDIR.encode()
+        else:
+            fdir = FONTDIR
+        temp = os.path.join(fdir, u'给中国人的秘密信息.ttf')
+        pgfont = os.path.join(fdir, u'test_sans.ttf')
+        shutil.copy(pgfont, temp)
         try:
-            newfontpath = os.path.join(tmpdirname, u'给中国人的秘密信息.ttf'.encode('utf8'))
-            pgfont = os.path.join(FONTDIR, u'test_sans.ttf').encode('utf8')
-            shutil.copy(pgfont, newfontpath)
-            pygame_font.Font(newfontpath, 20)
+            pygame_font.Font(temp, 20)
         finally:
-            shutil.rmtree(tmpdirname)
+            os.remove(temp)
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
