@@ -55,10 +55,8 @@
 /* For filtering out UCS-4 and larger characters when Python is
  * built with Py_UNICODE_WIDE.
  */
-#if defined(Py_UNICODE_WIDE)
-#define IS_UCS_2(c) ((c) < 0x10000L)
-#else
-#define IS_UCS_2(c) 1
+#if PY2 && !defined(Py_UNICODE_IS_SURROGATE)
+#define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) && (ch) <= 0xDFFF)
 #endif
 
 static PyTypeObject PyFont_Type;
@@ -513,50 +511,58 @@ font_metrics(PyObject *self, PyObject *args)
     int miny;
     int maxy;
     int advance;
-    PyObject *unicodeobj;
+    PyObject *obj;
     PyObject *listitem;
-    Py_UNICODE *buffer;
-    Py_UNICODE ch;
+    Uint16* buffer;
+    Uint16 ch;
+    PyObject *temp;
+    int surrogate;
 
     if (!PyArg_ParseTuple(args, "O", &textobj)) {
         return NULL;
     }
 
     if (PyUnicode_Check(textobj)) {
-        unicodeobj = textobj;
-        Py_INCREF(unicodeobj);
+        obj = textobj;
+        Py_INCREF(obj);
     }
     else if (Bytes_Check(textobj)) {
-        unicodeobj = PyUnicode_FromEncodedObject(textobj, "latin-1", NULL);
-        if (!unicodeobj) {
+        obj = PyUnicode_FromEncodedObject(textobj, "UTF-8", NULL);
+        if (!obj) {
             return NULL;
         }
     }
     else {
         return RAISE_TEXT_TYPE_ERROR();
     }
+    temp = PyUnicode_AsUTF16String(obj);
+    Py_DECREF(obj);
+    if (!temp)
+        return NULL;
+    obj = temp;
 
-    length = PyUnicode_GET_SIZE(unicodeobj);
-    list = PyList_New(length);
+    list = PyList_New(0);
     if (!list) {
-        Py_DECREF(unicodeobj);
+        Py_DECREF(obj);
         return NULL;
     }
-    buffer = PyUnicode_AS_UNICODE(unicodeobj);
-    for (i = 0; i != length; ++i) {
+    buffer = Bytes_AS_STRING(obj);
+    length = Bytes_GET_SIZE(obj) / sizeof(Uint16);
+    for (i = 1 /* skip BOM */; i < length; i++) {
         ch = buffer[i];
+        surrogate = Py_UNICODE_IS_SURROGATE(ch);
         /* TODO:
          * TTF_GlyphMetrics() seems to return a value for any character,
          * using the default invalid character, if the char is not found.
          */
-        if (IS_UCS_2(ch) && /* conditional and */
+        if (!surrogate && /* conditional and */
             !TTF_GlyphMetrics(font, (Uint16)ch, &minx, &maxx, &miny, &maxy,
                               &advance)) {
             listitem =
                 Py_BuildValue("(iiiii)", minx, maxx, miny, maxy, advance);
             if (!listitem) {
                 Py_DECREF(list);
-                Py_DECREF(unicodeobj);
+                Py_DECREF(obj);
                 return NULL;
             }
         }
@@ -564,10 +570,12 @@ font_metrics(PyObject *self, PyObject *args)
             /* Not UCS-2 or no matching metrics. */
             Py_INCREF(Py_None);
             listitem = Py_None;
+            if (surrogate)
+                i++;
         }
-        PyList_SET_ITEM(list, i, listitem);
+        PyList_Append(list, listitem);
     }
-    Py_DECREF(unicodeobj);
+    Py_DECREF(obj);
     return list;
 }
 
@@ -664,8 +672,10 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         }
     }
     if (Bytes_Check(obj)) {
-        const char *filename = Bytes_AS_STRING(obj);
         FILE *test;
+        const char *filename = Bytes_AS_STRING(obj);
+        if (filename == NULL)
+            goto error;
 
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = fopen(filename, "rb");
@@ -676,29 +686,29 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
                 /* filename is the default font; get it's resource
                  */
                 tmp = font_resource(font_defaultname);
-            }
-            if (tmp == NULL) {
-                if (PyErr_Occurred() == NULL) {
-                    PyErr_Format(PyExc_IOError,
-                                 "unable to read font file '%.1024s'",
-                                 filename);
-                }
-                goto error;
-            }
-            Py_DECREF(obj);
-            obj = tmp;
-            if (Bytes_Check(obj)) {
-                filename = Bytes_AS_STRING(obj);
-                test = fopen(filename, "rb");
-                if (test == NULL) {
-                    PyErr_Format(PyExc_IOError,
-                                 "unable to read font file '%.1024s'",
-                                 filename);
+                if (tmp == NULL) {
+                    if (PyErr_Occurred() == NULL) {
+                        PyErr_Format(PyExc_IOError,
+                                     "unable to read font file '%.1024s'",
+                                     filename);
+                    }
                     goto error;
                 }
+                Py_DECREF(obj);
+                obj = tmp;
+                if (Bytes_Check(obj)) {
+                    filename = Bytes_AS_STRING(obj);
+                    test = fopen(filename, "rb");
+                }
+            }
+            if (test == NULL) {
+                PyErr_Format(PyExc_IOError,
+                             "unable to read font file '%.1024s'",
+                             filename);
+                goto error;
             }
         }
-        if (Bytes_Check(obj)) {
+        if (test != NULL) {
             fclose(test);
             Py_BEGIN_ALLOW_THREADS;
             font = TTF_OpenFont(filename, fontsize);
