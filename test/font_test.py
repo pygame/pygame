@@ -408,14 +408,14 @@ class FontTypeTest( unittest.TestCase ):
         import shutil
         fdir = unicode_(FONTDIR)
         temp = os.path.join(fdir, path)
+        pgfont = os.path.join(fdir, u'test_sans.ttf')
+        shutil.copy(pgfont, temp)
         try:
-            with open(temp, 'w') as f:
+            with open(temp, 'rb') as f:
                 pass
             os.remove(temp)
         except IOError:
             raise unittest.SkipTest('the path cannot be opened')
-        pgfont = os.path.join(fdir, u'test_sans.ttf')
-        shutil.copy(pgfont, temp)
         try:
             pygame_font.Font(temp, 20)
         finally:
