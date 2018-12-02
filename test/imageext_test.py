@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 import os
 import os.path
 import sys
@@ -18,13 +19,15 @@ class ImageextModuleTest( unittest.TestCase ):
     def test_load_non_string_file(self):
         self.assertRaises(pygame.error, imageext.load_extended, [])
 
+    @unittest.skip("SDL silently removes invalid characters")
     def test_save_bad_filename(self):
         im = pygame.Surface((10, 10), 0, 32)
-        u = as_unicode(r"a\x00b\x00c.png")
+        u = u"a\x00b\x00c.png"
         self.assertRaises(pygame.error, imageext.save_extended, im, u)
 
+    @unittest.skip("SDL silently removes invalid characters")
     def test_load_bad_filename(self):
-        u = as_unicode(r"a\x00b\x00c.png")
+        u = u"a\x00b\x00c.png"
         self.assertRaises(pygame.error, imageext.load_extended, u)
 
     def test_save_unknown_extension(self):
@@ -36,17 +39,22 @@ class ImageextModuleTest( unittest.TestCase ):
         s = "foo.bar"
         self.assertRaises(pygame.error, imageext.load_extended, s)
 
+    def test_load_unknown_file(self):
+        s = "nonexistent.png"
+        self.assertRaises(pygame.error, imageext.load_extended, s)
+
     def test_load_unicode_path(self):
         u = unicode_(example_path("data/alien1.png"))
         im = imageext.load_extended(u)
 
-    def test_save_unicode_path(self):
-        temp_file = unicode_("tmpimg.png")
+    def _unicode_save(self, temp_file):
         im = pygame.Surface((10, 10), 0, 32)
         try:
+            with open(temp_file, 'w') as f:
+                pass
             os.remove(temp_file)
-        except EnvironmentError:
-            pass
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
         self.assert_(not os.path.exists(temp_file))
         try:
             imageext.save_extended(im, temp_file)
@@ -56,6 +64,13 @@ class ImageextModuleTest( unittest.TestCase ):
                 os.remove(temp_file)
             except EnvironmentError:
                 pass
+
+    def test_save_unicode_path_0(self):
+        """unicode object with ASCII chars"""
+        self._unicode_save(u"temp_file.png")
+
+    def test_save_unicode_path_1(self):
+        self._unicode_save(u"你好.png")
 
 if __name__ == '__main__':
     unittest.main()

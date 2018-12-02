@@ -13,7 +13,8 @@ for name in dir(font_test):
     obj = getattr(font_test, name)
     if (isinstance(obj, type) and  # conditional and
         issubclass(obj, unittest.TestCase)):
-        globals()[name] = obj
+        new_name = 'Ft%s' % name
+        globals()[new_name] = type(new_name, (obj, ), {})
 
 if __name__ == '__main__':
     unittest.main()

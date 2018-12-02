@@ -292,41 +292,6 @@ pgRWopsFromFileObject(PyObject *obj)
     return rw;
 }
 
-static SDL_RWops *
-pgRWopsFromObject(PyObject *obj)
-{
-    PyObject *oencoded;
-    SDL_RWops *rw = NULL;
-
-    if (obj != NULL) {
-        oencoded = pgRWopsEncodeFilePath(obj, NULL);
-        if (oencoded == NULL) {
-            return NULL;
-        }
-        if (oencoded != Py_None) {
-            rw = SDL_RWFromFile(Bytes_AS_STRING(oencoded), "rb");
-        }
-        Py_DECREF(oencoded);
-        if (rw) {
-            return rw;
-        } else {
-#if PY3
-            if (PyUnicode_Check(obj)) {
-                SDL_ClearError();
-                RAISE(PyExc_FileNotFoundError, "No such file or directory.");
-#else
-            if (PyUnicode_Check(obj) || PyString_Check(obj)) {
-                SDL_ClearError();
-                RAISE(PyExc_IOError, "No such file or directory.");
-#endif
-                return NULL;
-            }
-        }
-        SDL_ClearError();
-    }
-    return pgRWopsFromFileObject(obj);
-}
-
 static int
 pgRWopsCheckObject(SDL_RWops *rw)
 {
@@ -585,18 +550,19 @@ pgRWopsCheckObjectThreaded(SDL_RWops *rw)
 static int
 pgRWopsFreeFromObject(SDL_RWops *context)
 {
-    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
-    PyObject *result;
-    int retval = 0;
-
-    Py_XDECREF(helper->seek);
-    Py_XDECREF(helper->tell);
-    Py_XDECREF(helper->write);
-    Py_XDECREF(helper->read);
-    Py_XDECREF(helper->close);
-    PyMem_Del(helper);
-    SDL_FreeRW(context);
-    return retval;
+    if (pgRWopsCheckObjectThreaded(context) || pgRWopsCheckObject(context)) {
+        pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
+        Py_XDECREF(helper->seek);
+        Py_XDECREF(helper->tell);
+        Py_XDECREF(helper->write);
+        Py_XDECREF(helper->read);
+        Py_XDECREF(helper->close);
+        PyMem_Del(helper);
+        SDL_FreeRW(context);
+    } else {
+        return SDL_RWclose(context);
+    }
+    return 0;
 }
 
 #ifdef WITH_THREAD
@@ -851,6 +817,67 @@ _pg_rw_close_th(SDL_RWops *context)
 }
 #endif
 
+static SDL_RWops *
+_rwops_from_pystr(PyObject *obj)
+{
+    if (obj != NULL) {
+        SDL_RWops *rw = NULL;
+        PyObject *oencoded;
+        oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, NULL);
+        if (oencoded == NULL) {
+            return NULL;
+        }
+        if (oencoded != Py_None) {
+            rw = SDL_RWFromFile(Bytes_AS_STRING(oencoded), "rb");
+        }
+        Py_DECREF(oencoded);
+        if (rw) {
+            return rw;
+        } else {
+#if PY3
+            if (PyUnicode_Check(obj)) {
+                SDL_ClearError();
+                RAISE(PyExc_FileNotFoundError, "No such file or directory.");
+#else
+            if (PyUnicode_Check(obj) || PyString_Check(obj)) {
+                SDL_ClearError();
+                RAISE(PyExc_IOError, "No such file or directory.");
+#endif
+                return NULL;
+            }
+        }
+        SDL_ClearError();
+    }
+    return NULL;
+}
+
+static SDL_RWops *
+pgRWopsFromObjectThreaded(PyObject *obj)
+{
+    SDL_RWops *rw = _rwops_from_pystr(obj);
+    if (!rw) {
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+    } else {
+        return rw;
+    }
+    return pgRWopsFromFileObjectThreaded(obj);
+}
+
+static SDL_RWops *
+pgRWopsFromObject(PyObject *obj)
+{
+    SDL_RWops *rw = _rwops_from_pystr(obj);
+    if (!rw) {
+        if (PyErr_Occurred())
+            return NULL;
+    } else {
+        return rw;
+    }
+    return pgRWopsFromFileObject(obj);
+}
+
 static PyObject *
 pg_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
 {
@@ -932,13 +959,14 @@ MODINIT_DEFINE(rwobject)
 
     /* export the c api */
     c_api[0] = pgRWopsFromObject;
-    c_api[1] = pgRWopsCheckObject;
-    c_api[2] = pgRWopsFromFileObjectThreaded;
-    c_api[3] = pgRWopsCheckObjectThreaded;
-    c_api[4] = pgRWopsEncodeFilePath;
-    c_api[5] = pgRWopsEncodeString;
-    c_api[6] = pgRWopsFromFileObject;
-    c_api[7] = pgRWopsFreeFromObject;
+    c_api[1] = pgRWopsFromObjectThreaded;
+    c_api[2] = pgRWopsCheckObject;
+    c_api[3] = pgRWopsFromFileObjectThreaded;
+    c_api[4] = pgRWopsCheckObjectThreaded;
+    c_api[5] = pgRWopsEncodeFilePath;
+    c_api[6] = pgRWopsEncodeString;
+    c_api[7] = pgRWopsFromFileObject;
+    c_api[8] = pgRWopsFreeFromObject;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD(module);
