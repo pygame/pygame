@@ -1,13 +1,21 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import unittest
 
 from pygame.tests.test_utils import example_path
 import pygame
-from pygame.compat import as_unicode, filesystem_encode
+from pygame.compat import as_unicode, unicode_, filesystem_encode
 
 
 class MixerMusicModuleTest(unittest.TestCase):
+    def setUp(self):
+        pygame.mixer.init()
+
+    def tearDown(self):
+        pygame.mixer.quit()
+
     def test_load(self):
         "|tags:music|"
         # __doc__ (as of 2008-07-13) for pygame.mixer_music.load:
@@ -16,7 +24,6 @@ class MixerMusicModuleTest(unittest.TestCase):
           # Load a music file for playback
 
         data_fname = example_path('data')
-        pygame.mixer.init()
 
         # The mp3 test file can crash smpeg on some systems.
         ## formats = ['mp3', 'ogg', 'wav']
@@ -37,7 +44,25 @@ class MixerMusicModuleTest(unittest.TestCase):
             #pygame.mixer.music.load(open(musfn))
             #musf = open(musfn)
             #pygame.mixer.music.load(musf)
-        pygame.mixer.quit()
+
+    def test_load_unicode(self):
+        """test non-ASCII unicode path"""
+        import shutil
+        ep = unicode_(example_path('data'))
+        temp_file = os.path.join(ep, u'你好.wav')
+        org_file = os.path.join(ep, u'house_lo.wav')
+        try:
+            with open(temp_file, 'w') as f:
+                pass
+            os.remove(temp_file)
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
+        shutil.copy(org_file, temp_file)
+        try:
+            pygame.mixer.music.load(temp_file)
+            pygame.mixer.music.load(org_file) # unload
+        finally:
+            os.remove(temp_file)
 
     def todo_test_queue(self):
 

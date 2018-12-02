@@ -267,7 +267,7 @@ music_load(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
         rw = pgRWopsFromFileObjectThreaded(obj);
@@ -325,7 +325,7 @@ music_queue(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
         rw = pgRWopsFromFileObjectThreaded(obj);

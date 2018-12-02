@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import sys
 import os
 import unittest
@@ -79,7 +81,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
-    @unittest.expectedFailure
+    @unittest.skip('SDL_mixer bug')
     def test_get_init__returns_exact_values_used_for_init(self):
         # fix in 1.9 - I think it's a SDL_mixer bug.
 
@@ -196,6 +198,24 @@ class MixerModuleTest(unittest.TestCase):
         snd2 = mixer.Sound(array=snd)
         self.assertEqual(snd.get_raw(), snd2.get_raw())
 
+    def test_sound_unicode(self):
+        """test non-ASCII unicode path"""
+        mixer.init()
+        import shutil
+        ep = unicode_(example_path('data'))
+        temp_file = os.path.join(ep, u'你好.wav')
+        org_file = os.path.join(ep, u'house_lo.wav')
+        shutil.copy(org_file, temp_file)
+        try:
+            with open(temp_file, 'rb') as f:
+                pass
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
+        try:
+            sound = mixer.Sound(temp_file)
+            del sound
+        finally:
+            os.remove(temp_file)
 
     @unittest.skipIf(os.environ.get('SDL_AUDIODRIVER') == 'disk',
                     'this test fails without real sound card')
