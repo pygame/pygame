@@ -47,13 +47,14 @@ class ImageextModuleTest( unittest.TestCase ):
         u = unicode_(example_path("data/alien1.png"))
         im = imageext.load_extended(u)
 
-    def test_save_unicode_path(self):
-        temp_file = u"你好.png"
+    def _unicode_save(self, temp_file):
         im = pygame.Surface((10, 10), 0, 32)
         try:
+            with open(temp_file, 'w') as f:
+                pass
             os.remove(temp_file)
-        except EnvironmentError:
-            pass
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
         self.assert_(not os.path.exists(temp_file))
         try:
             imageext.save_extended(im, temp_file)
@@ -63,6 +64,13 @@ class ImageextModuleTest( unittest.TestCase ):
                 os.remove(temp_file)
             except EnvironmentError:
                 pass
+
+    def test_save_unicode_path_0(self):
+        """unicode object with ASCII chars"""
+        self._unicode_save(u"temp_file.png")
+
+    def test_save_unicode_path_1(self):
+        self._unicode_save(u"你好.png")
 
 if __name__ == '__main__':
     unittest.main()

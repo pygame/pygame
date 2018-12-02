@@ -7,7 +7,7 @@ import platform
 
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
-from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
+from pygame.compat import as_unicode, unicode_, as_bytes, xrange_, filesystem_errors
 from pygame.compat import PY_MAJOR_VERSION
 
 FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
@@ -404,19 +404,29 @@ class FontTypeTest( unittest.TestCase ):
         # identical to the default font file name.
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
-    def test_load_from_file_unicode(self):
+    def _load_unicode(self, path):
         import shutil
-        if sys.version_info.major < 3:
-            fdir = FONTDIR.encode()
-        else:
-            fdir = FONTDIR
-        temp = os.path.join(fdir, u'给中国人的秘密信息.ttf')
+        fdir = unicode_(FONTDIR)
+        temp = os.path.join(fdir, path)
+        try:
+            with open(temp, 'w') as f:
+                pass
+            os.remove(temp)
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
         pgfont = os.path.join(fdir, u'test_sans.ttf')
         shutil.copy(pgfont, temp)
         try:
             pygame_font.Font(temp, 20)
         finally:
             os.remove(temp)
+
+    def test_load_from_file_unicode_0(self):
+        """ASCII string as a unicode object"""
+        self._load_unicode(u'temp_file.ttf')
+
+    def test_load_from_file_unicode_1(self):
+        self._load_unicode(u'你好.ttf')
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
