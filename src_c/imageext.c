@@ -175,24 +175,6 @@ image_load_ext(PyObject *self, PyObject *arg)
     return final;
 }
 
-static PyObject *
-pg_open(const char *filename, const char *mode)
-{
-    PyObject *result;
-    PyObject *open;
-    PyObject *bltins = PyImport_ImportModule(BUILTINS_MODULE);
-    if (!bltins)
-        return NULL;
-    open = PyObject_GetAttrString(bltins, "open");
-    Py_DECREF(bltins);
-    if (!open)
-        return NULL;
-
-    result = PyObject_CallFunction(open, "ss", filename, mode);
-    Py_DECREF(open);
-    return result;
-}
-
 #ifdef PNG_H
 
 static void
