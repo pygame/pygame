@@ -384,7 +384,7 @@ class FontTypeTest( unittest.TestCase ):
         pygame_font.init()
         self.assertRaises(IOError,
                           pygame_font.Font,
-                          'some-fictional-font.ttf', 20)
+                          unicode_('some-fictional-font.ttf'), 20)
 
     def test_load_from_file(self):
         font_name = pygame_font.get_default_font()
@@ -413,7 +413,6 @@ class FontTypeTest( unittest.TestCase ):
         try:
             with open(temp, 'rb') as f:
                 pass
-            os.remove(temp)
         except IOError:
             raise unittest.SkipTest('the path cannot be opened')
         try:

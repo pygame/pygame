@@ -31,10 +31,12 @@ class Font(_Font):
             size = 1
         if isinstance(file, unicode_):
             try:
-                file = self.__encode_file_path(file, ValueError)
+                bfile = self.__encode_file_path(file, ValueError)
             except ValueError:
-                pass
-        if isinstance(file, bytes_) and file == self.__default_font:
+                bfile = ''
+        else:
+            bfile = file
+        if isinstance(bfile, bytes_) and bfile == self.__default_font:
             file = None
         if file is None:
             resolution = int(self.__get_default_resolution() * 0.6875)
