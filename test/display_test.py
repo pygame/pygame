@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 import pygame, pygame.transform
+from pygame.compat import unicode_
 
 from pygame import display
 
@@ -174,6 +177,14 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertIsNone(display.set_caption(TEST_CAPTION))
         self.assertEqual(display.get_caption()[0], TEST_CAPTION)
         self.assertEqual(display.get_caption()[1], TEST_CAPTION)
+
+    def test_caption_unicode(self):
+        TEST_CAPTION = u'台'
+        display.set_caption(TEST_CAPTION)
+        import sys
+        if sys.version_info.major >= 3:
+            unicode_ = lambda a, b: a
+        self.assertEqual(unicode_(display.get_caption()[0], 'utf8'), TEST_CAPTION)
 
     def todo_test_get_driver(self):
 

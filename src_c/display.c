@@ -181,11 +181,10 @@ display_resource_end:
 static void
 pg_display_autoquit(void)
 {
+    _DisplayState *state = DISPLAY_STATE;
+    _display_state_cleanup(state);
     if (pg_GetDefaultWindowSurface()) {
-        _DisplayState *state = DISPLAY_STATE;
-
         pg_SetDefaultWindowSurface(NULL);
-        _display_state_cleanup(state);
         pg_SetDefaultWindow(NULL);
     }
 }
