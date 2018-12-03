@@ -204,10 +204,11 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     FILE *fp;
-    char *doing = "open for writing";
+    char *doing;
 
-    if (!(fp = pg_Fopen(file_name, "wb")))
-        goto fail;
+    if (!(fp = pg_FopenUTF8(file_name, "wb"))) {
+        return -1;
+    }
 
     doing = "create png write struct";
     if (!(png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
@@ -497,8 +498,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if (!(outfile = pg_Fopen(file_name, "wb"))) {
-        SDL_SetError("SaveJPEG: could not open %s", file_name);
+    if (!(outfile = pg_FopenUTF8(file_name, "wb"))) {
         return -1;
     }
     j_stdio_dest(&cinfo, outfile);

@@ -395,13 +395,9 @@ typedef enum {
 #define pgExc_BufferError \
     ((PyObject *)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
-#ifdef WIN32
-#define pg_Fopen                              \
+#define pg_FopenUTF8                          \
     (*(FILE* (*)(const char *, const char *)) \
                  PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
-#else /* !WIN32 */
-#define pg_Fopen fopen
-#endif /* !WIN32 */
 
 #if IS_SDLv2
 #define pg_GetDefaultWindow \

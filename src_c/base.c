@@ -188,9 +188,56 @@ pg_SetDefaultWindowSurface(PyObject *);
 #endif /* IS_SDLv2 */
 
 
+#include <errno.h>
 #ifdef WIN32
+
+static char*
+_new_win_error_msg_utf8() {
+    /* must be free()'d by the caller */
+    size_t utf8_len;
+    char *utf8_buf = NULL;
+    size_t nwritten;
+    wchar_t* buffer = NULL;
+    DWORD numChars =
+        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM |
+                       FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                       NULL,
+                       GetLastError(),
+                       0,
+                       (wchar_t*)&buffer,
+                       0, 0);
+    if (!numChars)
+        goto leave;
+    utf8_len =
+        WideCharToMultiByte(CP_UTF8, 0,
+                            buffer, numChars,
+                            NULL, 0,
+                            NULL, NULL);
+    if (!utf8_len)
+        goto leave;
+    utf8_buf = malloc(utf8_len + 1);
+    if (!utf8_buf)
+        goto leave;
+    nwritten =
+        WideCharToMultiByte(CP_UTF8, 0,
+                            buffer, numChars,
+                            utf8_buf, utf8_len,
+                            NULL, NULL);
+    if (!nwritten) {
+        free(utf8_buf);
+        utf8_buf = NULL;
+        goto leave;
+    }
+    utf8_buf[nwritten] = 0;
+
+leave:
+    LocalFree(buffer);
+    return utf8_buf;
+}
+
 static FILE*
-pg_Fopen(const char *filename, const char *mode) {
+pg_FopenUTF8(const char *filename, const char *mode) {
     FILE *fp = NULL;
     static wchar_t modebuf[24];
     size_t nameInputSize = strlen(filename) + 1;
@@ -199,21 +246,35 @@ pg_Fopen(const char *filename, const char *mode) {
     if (namebuf_chars == 0)
         return NULL;
     namebuf = malloc(namebuf_chars * sizeof(wchar_t));
-
     if (!namebuf)
         goto leave;
+
     if (MultiByteToWideChar(CP_UTF8, 0, filename, nameInputSize,
                             namebuf, namebuf_chars) == 0) {
-        PyErr_Format(PyExc_OSError, "error code %u", GetLastError());
+        char *utf8_buf = _new_win_error_msg_utf8();
+        if (utf8_buf) {
+            SDL_SetError("Cannot open file %s: %s.", filename, utf8_buf);
+            free(utf8_buf);
+        } else {
+            SDL_SetError("Cannot open file %s.", filename);
+        }
         goto leave;
     }
     if (MultiByteToWideChar(CP_UTF8, 0, mode, -1,
                             modebuf, sizeof(modebuf) / sizeof(wchar_t)) == 0) {
-        PyErr_Format(PyExc_OSError, "error code %u", GetLastError());
+        char *utf8_buf = _new_win_error_msg_utf8();
+        if (utf8_buf) {
+            SDL_SetError("Cannot open file %s: %s.", filename, utf8_buf);
+            free(utf8_buf);
+        } else {
+            SDL_SetError("Cannot open file %s.", filename);
+        }
         goto leave;
     }
 
     fp = _wfopen(namebuf, modebuf);
+    if (!fp)
+        SDL_SetError("Cannot open file %s. %s", filename, strerror(errno));
 
 leave:
     free(namebuf);
@@ -221,8 +282,11 @@ leave:
 }
 #else /* !WIN32 */
 static FILE*
-pg_Fopen(const char *filename, const char *mode) {
-    return fopen(filename, mode);
+pg_FopenUTF8(const char *filename, const char *mode) {
+    FILE *fp = fopen(filename, mode);
+    if (!fp)
+        SDL_SetError("Cannot open file %s. %s", filename, strerror(errno));
+    return fp;
 }
 #endif /* !WIN32 */
 
@@ -2192,7 +2256,7 @@ MODINIT_DEFINE(base)
     c_api[16] = pgBuffer_Release;
     c_api[17] = pgDict_AsBuffer;
     c_api[18] = pgExc_BufferError;
-    c_api[19] = pg_Fopen;
+    c_api[19] = pg_FopenUTF8;
 #if IS_SDLv1
 #define FILLED_SLOTS 20
 #else /* IS_SDLv2 */
