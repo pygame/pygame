@@ -1363,17 +1363,31 @@ pg_set_caption(PyObject *self, PyObject *arg)
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
     char *title, *icontitle = NULL;
-    if (!PyArg_ParseTuple(arg, "s|s", &title, &icontitle))
+    if (!PyArg_ParseTuple(arg, "es|es",
+                          "UTF-8", &title,
+                          "UTF-8", &icontitle))
         return NULL;
+
     if (state->title)
         free(state->title);
     state->title = (char *)malloc((strlen(title) + 1) * sizeof(char *));
-    if (!state->title)
-        return PyErr_NoMemory();
+    if (!state->title) {
+        PyErr_NoMemory();
+        goto error;
+    }
     strcpy(state->title, title);
     if (win)
         SDL_SetWindowTitle(win, title);
+    /* TODO: icon title? */
+
+    PyMem_Free(title);
+    PyMem_Free(icontitle);
     Py_RETURN_NONE;
+
+error:
+    PyMem_Free(title);
+    PyMem_Free(icontitle);
+    return NULL;
 }
 
 static PyObject *
@@ -1383,9 +1397,14 @@ pg_get_caption(PyObject *self)
     SDL_Window *win = pg_GetDefaultWindow();
     const char *title = win ? SDL_GetWindowTitle(win) : state->title;
 
-    if (title && title[0]) /* Conditional && */
-        return Py_BuildValue("(ss)", title, title);
-    return Py_BuildValue("()");
+    if (title && *title) {
+        PyObject *titleObj = Text_FromUTF8(title);
+        PyObject *ret = PyTuple_Pack(2, titleObj, titleObj);
+        Py_DECREF(titleObj);
+        /* TODO: icon title? */
+        return ret;
+    }
+    return PyTuple_New(0);
 }
 
 static PyObject *
@@ -1476,11 +1495,13 @@ static PyObject *
 pg_set_caption(PyObject *self, PyObject *arg)
 {
     char *title, *icontitle = NULL;
-    if (!PyArg_ParseTuple(arg, "s|s", &title, &icontitle))
+    if (!PyArg_ParseTuple(arg, "es|es",
+                          "UTF-8", &title,
+                          "UTF-8", &icontitle))
         return NULL;
-    if (!icontitle)
-        icontitle = title;
-    SDL_WM_SetCaption(title, icontitle);
+    SDL_WM_SetCaption(title, icontitle ? icontitle : title);
+    PyMem_Free(title);
+    PyMem_Free(icontitle);
     Py_RETURN_NONE;
 }
 
@@ -1489,9 +1510,15 @@ pg_get_caption(PyObject *self)
 {
     char *title, *icontitle;
     SDL_WM_GetCaption(&title, &icontitle);
-    if (title && *title)
-        return Py_BuildValue("(ss)", title, icontitle);
-    return Py_BuildValue("()");
+    if (title && *title) {
+        PyObject *titleObj = Text_FromUTF8(title);
+        PyObject *iconObj = Text_FromUTF8(icontitle);
+        PyObject *ret = PyTuple_Pack(2, titleObj, iconObj);
+        Py_DECREF(titleObj);
+        Py_DECREF(iconObj);
+        return ret;
+    }
+    return PyTuple_New(0);
 }
 
 static void

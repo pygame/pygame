@@ -1,14 +1,22 @@
 import unittest
 import pygame, pygame.transform
 
+from pygame import display
+
 class DisplayModuleTest(unittest.TestCase):
+    default_caption = "pygame window"
+
+    def setUp(self):
+        display.init()
+    def tearDown(self):
+        display.quit()
 
     def test_update(self):
         """ see if pygame.display.update takes rects with negative values.
             "|Tags:display|"
         """
 
-        pygame.init()
+        #pygame.init()
         screen = pygame.display.set_mode((100, 100))
         screen.fill((55, 55, 55))
 
@@ -22,7 +30,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.update(r3)
 
         # NOTE: if I don't call pygame.quit there is a segfault.  hrmm.
-        pygame.quit()
+        #pygame.quit()
         #  I think it's because unittest runs stuff in threads
         # here's a stack trace...
 
@@ -135,7 +143,7 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_caption(self):
+    def test_get_caption(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.get_caption:
 
@@ -146,7 +154,26 @@ class DisplayModuleTest(unittest.TestCase):
           # often be the same value.
           #
 
-        self.fail()
+        screen = display.set_mode((100, 100))
+        self.assertEqual(display.get_caption()[0], self.default_caption)
+
+    def test_set_caption(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.display.set_caption:
+
+          # pygame.display.set_caption(title, icontitle=None): return None
+          # set the current window caption
+          #
+          # If the display has a window title, this function will change the
+          # name on the window. Some systems support an alternate shorter title
+          # to be used for minimized displays.
+          #
+
+        TEST_CAPTION = "test"
+        screen = display.set_mode((100, 100))
+        self.assertIsNone(display.set_caption(TEST_CAPTION))
+        self.assertEqual(display.get_caption()[0], TEST_CAPTION)
+        self.assertEqual(display.get_caption()[1], TEST_CAPTION)
 
     def todo_test_get_driver(self):
 
@@ -347,20 +374,6 @@ class DisplayModuleTest(unittest.TestCase):
           # when the program exits.
           #
           # It is harmless to call this more than once, repeated calls have no effect.
-
-        self.fail()
-
-    def todo_test_set_caption(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_caption:
-
-          # pygame.display.set_caption(title, icontitle=None): return None
-          # set the current window caption
-          #
-          # If the display has a window title, this function will change the
-          # name on the window. Some systems support an alternate shorter title
-          # to be used for minimized displays.
-          #
 
         self.fail()
 
