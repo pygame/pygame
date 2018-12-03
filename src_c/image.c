@@ -72,7 +72,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -180,6 +180,12 @@ opengltosdl()
 }
 #endif /* IS_SDLv1 */
 
+#ifdef WIN32
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
+
 PyObject *
 image_save(PyObject *self, PyObject *arg)
 {
@@ -210,7 +216,7 @@ image_save(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         SDL_RWops *rw = pgRWopsFromFileObject(obj);
         if (rw != NULL) {
@@ -226,27 +232,15 @@ image_save(PyObject *self, PyObject *arg)
         int written = 0;
 
         if (namelen > 3) {
-            if ((name[namelen - 1] == 'p' || name[namelen - 1] == 'P') &&
-                (name[namelen - 2] == 'm' || name[namelen - 2] == 'M') &&
-                (name[namelen - 3] == 'b' || name[namelen - 3] == 'B')) {
+            if (!strcasecmp(name + namelen - 3, "bmp")) {
                 Py_BEGIN_ALLOW_THREADS;
                 result = SDL_SaveBMP(surf, name);
                 Py_END_ALLOW_THREADS;
                 written = 1;
             }
-            else if (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                      (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
-                      (name[namelen - 3] == 'p' ||
-                       name[namelen - 3] == 'P')) ||
-                     ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                      (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
-                      (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
-                      (name[namelen - 4] == 'j' ||
-                       name[namelen - 4] == 'J')) ||
-                     ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                      (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
-                      (name[namelen - 3] == 'j' ||
-                       name[namelen - 3] == 'J'))) {
+            else if (!strcasecmp(name + namelen - 3, "png") ||
+                     !strcasecmp(name + namelen - 3, "jpg") ||
+                     !strcasecmp(name + namelen - 4, "jpeg")) {
                 /* If it is .png .jpg .jpeg use the extended module. */
                 /* try to get extended formats */
                 imgext = PyImport_ImportModule(IMPPREFIX "imageext");

@@ -149,7 +149,7 @@ font_resource(const char *filename)
     }
 #endif
 
-    tmp = pgRWopsEncodeFilePath(result, NULL);
+    tmp = pgRWopsEncodeString(result, "UTF-8", NULL, NULL);
     if (tmp == NULL) {
         Py_DECREF(result);
         return NULL;

@@ -43,9 +43,20 @@ class ImageextModuleTest( unittest.TestCase ):
         s = "nonexistent.png"
         self.assertRaises(pygame.error, imageext.load_extended, s)
 
-    def test_load_unicode_path(self):
+    def test_load_unicode_path_0(self):
         u = unicode_(example_path("data/alien1.png"))
         im = imageext.load_extended(u)
+
+    def test_load_unicode_path_1(self):
+        """non-ASCII unicode"""
+        import shutil
+        orig = unicode_(example_path("data/alien1.png"))
+        temp = os.path.join(unicode_(example_path('data')), u'你好.png')
+        shutil.copy(orig, temp)
+        try:
+            im = imageext.load_extended(temp)
+        finally:
+            os.remove(temp)
 
     def _unicode_save(self, temp_file):
         im = pygame.Surface((10, 10), 0, 32)
