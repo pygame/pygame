@@ -556,18 +556,37 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 static PyObject *
 pg_get_error(PyObject *self)
 {
+#if IS_SDLv1 && PY3
+    /* SDL 1's encoding is ambiguous */
+    PyObject *obj;
+    if (obj = PyUnicode_DecodeUTF8(SDL_GetError(),
+                                   strlen(SDL_GetError()), "strict"))
+        return obj;
+    PyErr_Clear();
+    return PyUnicode_DecodeLocale(SDL_GetError(), "surrogateescape");
+#else /* IS_SDLv2 || !PY3 */
     return Text_FromUTF8(SDL_GetError());
+#endif /* IS_SDLv2 || !PY3 */
 }
 
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
-
+#if PY2
+    if (!PyArg_ParseTuple(args, "es",
+                          "UTF-8", &errstring))
+    {
+        return NULL;
+    }
+    SDL_SetError("%s", errstring);
+    PyMem_Free(errstring);
+#else /* PY3 */
     if (!PyArg_ParseTuple(args, "s", &errstring)) {
         return NULL;
     }
     SDL_SetError("%s", errstring);
+#endif /* PY3 */
     Py_RETURN_NONE;
 }
 

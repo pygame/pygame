@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import sys
 import unittest
 
@@ -560,7 +562,15 @@ class BaseModuleTest(unittest.TestCase):
         pygame.set_error("")
         self.assertEqual(pygame.get_error(), "")
 
-
+    def test_unicode_error(self):
+        if sys.version_info.major > 2:
+            pygame.set_error(u'你好')
+            self.assertEqual(u'你好', pygame.get_error())
+        else:
+            # no unicode objects for now
+            pygame.set_error(u'你好')
+            encstr = u'你好'.encode('utf8')
+            self.assertEqual(encstr, pygame.get_error())
 
     def test_init(self):
 
