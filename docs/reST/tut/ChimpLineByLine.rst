@@ -67,8 +67,8 @@ It also checks for the availability of some of the optional pygame modules. ::
   import pygame
   from pygame.locals import *
 
-  if not pygame.font: print 'Warning, fonts disabled'
-  if not pygame.mixer: print 'Warning, sound disabled'
+  if not pygame.font: print('Warning, fonts disabled')
+  if not pygame.mixer: print('Warning, sound disabled')
 
 First, we import the standard "os" and "sys" python modules. These allow
 us to do things like create platform independent file paths.
@@ -101,9 +101,9 @@ look at each function individually in this section. ::
       fullname = os.path.join('data', name)
       try:
           image = pygame.image.load(fullname)
-      except pygame.error, message:
-          print 'Cannot load image:', name
-          raise SystemExit, message
+      except pygame.error as message:
+          print('Cannot load image:', name)
+          raise SystemExit(message)
       image = image.convert()
       if colorkey is not None:
           if colorkey is -1:
@@ -142,9 +142,9 @@ that color   for the colorkey. ::
       fullname = os.path.join('data', name)
       try:
           sound = pygame.mixer.Sound(fullname)
-      except pygame.error, message:
-          print 'Cannot load sound:', wav
-          raise SystemExit, message
+      except pygame.error as message:
+          print('Cannot load sound:', wav)
+          raise SystemExit(message)
       return sound
 
 Next is the function to load a sound file. The first thing this function
