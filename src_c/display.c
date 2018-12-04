@@ -52,9 +52,16 @@ typedef struct _display_state_s {
 } _DisplayState;
 
 #if PY3
+#ifndef PYPY_VERSION
 static struct PyModuleDef _module;
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState *)PyModule_GetState(mod))
 #define DISPLAY_STATE DISPLAY_MOD_STATE(PyState_FindModule(&_module))
+#else /* PYPY_VERSION */
+static struct PyModuleDef _module;
+static _DisplayState _modstate = {0};
+#define DISPLAY_MOD_STATE(mod) (&_modstate)
+#define DISPLAY_STATE DISPLAY_MOD_STATE(0)
+#endif /* PYPY_VERSION */
 #else /* PY2 */
 static _DisplayState _modstate = {0};
 #define DISPLAY_MOD_STATE(mod) (&_modstate)
@@ -1622,6 +1629,7 @@ static PyMethodDef _pg_display_methods[] = {
 
 #if IS_SDLv2
 #if PY3
+#ifndef PYPY_VERSION
 static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                      "display",
                                      DOC_PYGAMEDISPLAY,
@@ -1632,7 +1640,18 @@ static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                      NULL,
                                      NULL,
                                      NULL};
-#endif
+#else /* PYPY_VERSION */
+static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                     "display",
+                                     DOC_PYGAMEDISPLAY,
+                                     -1, /* PyModule_GetState() not implemented */
+                                     _pg_display_methods,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL};
+#endif /* PYPY_VERSION */
+#endif /* PY3 */
 
 MODINIT_DEFINE(display)
 {
