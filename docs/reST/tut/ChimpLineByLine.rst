@@ -234,13 +234,13 @@ is  colliding with the given target sprite. ::
           "move the monkey across the screen, and turn at the ends"
           newpos = self.rect.move((self.move, 0))
           if not self.area.contains(newpos):
-  	if self.rect.left &lt; self.area.left or \
-  		self.rect.right &gt; self.area.right:
-              self.move = -self.move
-              newpos = self.rect.move((self.move, 0))
-              self.image = pygame.transform.flip(self.image, 1, 0)
-          self.rect = newpos
-  
+              if self.rect.left < self.area.left or \
+                      self.rect.right > self.area.right:
+                  self.move = -self.move
+                  newpos = self.rect.move((self.move, 0))
+                  self.image = pygame.transform.flip(self.image, 1, 0)
+              self.rect = newpos
+
       def _spin(self):
           "spin the monkey image"
           center = self.rect.center
