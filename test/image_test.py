@@ -169,7 +169,8 @@ class ImageModuleTest( unittest.TestCase ):
         pygame.image.save(surf, f_path)
 
         # Read the PNG file and verify that pygame saved it correctly
-        width, height, pixels, metadata = png.Reader(filename=f_path).asRGBA8()
+        reader = png.Reader(filename=f_path)
+        width, height, pixels, metadata = reader.asRGBA8()
         pixels_as_tuples = []
         for pixel in pixels:
             pixels_as_tuples.append(tuple(pixel))
@@ -179,6 +180,9 @@ class ImageModuleTest( unittest.TestCase ):
         self.assertEquals(pixels_as_tuples[2], bluish_pixel)
         self.assertEquals(pixels_as_tuples[3], greyish_pixel)
 
+        if not reader.file.closed:
+            reader.file.close()
+        del reader
         os.remove(f_path)
 
     def testSavePNG24(self):
@@ -200,7 +204,8 @@ class ImageModuleTest( unittest.TestCase ):
         pygame.image.save(surf, f_path)
 
         # Read the PNG file and verify that pygame saved it correctly
-        width, height, pixels, metadata = png.Reader(filename=f_path).asRGB8()
+        reader = png.Reader(filename=f_path)
+        width, height, pixels, metadata = reader.asRGB8()
         pixels_as_tuples = []
         for pixel in pixels:
             pixels_as_tuples.append(tuple(pixel))
@@ -210,6 +215,9 @@ class ImageModuleTest( unittest.TestCase ):
         self.assertEquals(pixels_as_tuples[2], bluish_pixel)
         self.assertEquals(pixels_as_tuples[3], greyish_pixel)
 
+        if not reader.file.closed:
+            reader.file.close()
+        del reader
         os.remove(f_path)
 
     def test_save(self):
@@ -233,13 +241,16 @@ class ImageModuleTest( unittest.TestCase ):
                 pygame.image.save(s, temp_filename)
                 # test the magic numbers at the start of the file to ensure they are saved
                 #   as the correct file type.
-                self.assertEqual((1, fmt), (test_magic(open(temp_filename, "rb"), magic_hex[fmt.lower()]), fmt))
+                handle = open(temp_filename, "rb")
+                self.assertEqual((1, fmt), (test_magic(handle, magic_hex[fmt.lower()]), fmt))
+                handle.close()
                 # load the file to make sure it was saved correctly.
                 #    Note load can load a jpg saved with a .png file name.
                 s2 = pygame.image.load(temp_filename)
                 #compare contents, might only work reliably for png...
                 #   but because it's all one color it seems to work with jpg.
                 self.assertEquals(s2.get_at((0,0)), s.get_at((0,0)))
+                handle.close()
             finally:
                 #clean up the temp file, comment out to leave tmp file after run.
                 os.remove(temp_filename)

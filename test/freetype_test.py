@@ -158,6 +158,7 @@ class FreeTypeFontTest(unittest.TestCase):
         f.__init__(self._bmp_8_75dpi_path, size=12)
         self.assertEqual(f.size, 12.0)
 
+    @unittest.skipIf(IS_PYPY, "PyPy doesn't use refcounting")
     def test_freetype_Font_dealloc(self):
         import sys
         handle = open(self._sans_path, 'rb')
