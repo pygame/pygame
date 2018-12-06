@@ -30,17 +30,6 @@
 
 #if IS_SDLv1
 
-#ifdef __SYMBIAN32__ /* until PNG support is done for Symbian */
-#include <stdio.h>
-#else
-#include <png.h>
-#endif
-
-#include <jerror.h>
-#include <jpeglib.h>
-
-#endif /* IS_SDLv1 */
-
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
 #undef HAVE_PROTOTYPES
@@ -52,6 +41,19 @@
 #if defined(HAVE_STDLIB_H) /* also defined in pygame.h (SDL.h) */
 #undef HAVE_STDLIB_H
 #endif
+
+#ifdef __SYMBIAN32__ /* until PNG support is done for Symbian */
+#include <stdio.h>
+#else
+// PNG_SKIP_SETJMP_CHECK : non-regression on #662 (build error on old libpng)
+#define PNG_SKIP_SETJMP_CHECK
+#include <png.h>
+#endif
+
+#include <jerror.h>
+#include <jpeglib.h>
+
+#endif /* IS_SDLv1 */
 
 #include "pgcompat.h"
 
