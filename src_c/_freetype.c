@@ -732,6 +732,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     double x_ppem = 0;
     double y_ppem = 0;
     int rval = -1;
+    SDL_RWops *source;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, -1);
@@ -776,9 +777,10 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    file = pgRWopsEncodeFilePath(file, 0);
+#if !defined(WIN32) || !defined(HAVE_PYGAME_SDL_RWOPS)
+    file = pgRWopsEncodeString(file, "UTF-8", NULL, NULL);
     if (!file) {
-        return -1;
+        goto end;
     }
     if (Bytes_Check(file)) {
         if (PyUnicode_Check(original_file)) {
@@ -790,7 +792,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         }
         else {
             self->path = PyUnicode_FromEncodedObject(
-                file, UNICODE_DEF_FS_CODEC, "replace");
+                file, "UTF-8", NULL);
         }
         if (!self->path) {
             goto end;
@@ -800,12 +802,10 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
                                        font_index)) {
             goto end;
         }
-    }
-    else {
-        SDL_RWops *source = pgRWopsFromFileObjectThreaded(original_file);
+    } else {
         PyObject *str = 0;
         PyObject *path = 0;
-
+        source = pgRWopsFromFileObjectThreaded(original_file);
         if (!source) {
             goto end;
         }
@@ -830,7 +830,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         }
         else if (Bytes_Check(path)) {
             self->path = PyUnicode_FromEncodedObject(
-                path, UNICODE_DEF_FS_CODEC, "replace");
+                path, "UTF-8", NULL);
         }
         else {
             self->path = Object_Unicode(path);
@@ -844,6 +844,57 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
             goto end;
         }
     }
+#else /* WIN32 && HAVE_PYGAME_SDL_RWOPS */
+    /* FT uses fopen(); as a workaround, always use RWops */
+    if (file == original_file)
+        Py_INCREF(file);
+    source = pgRWopsFromObjectThreaded(file);
+    if (!source) {
+        goto end;
+    } else {
+        PyObject *path = 0;
+
+        if (pgRWopsCheckObjectThreaded(source)) {
+            path = PyObject_GetAttrString(file, "name");
+        } else {
+            Py_INCREF(file);
+            path = file;
+        }
+        if (!path) {
+            PyObject *str;
+            PyErr_Clear();
+            str = Bytes_FromFormat("<%s instance at %p>",
+                                   Py_TYPE(file)->tp_name, (void *)file);
+            if (str) {
+                self->path =
+                    PyUnicode_FromEncodedObject(str, "ascii", "strict");
+                Py_DECREF(str);
+            }
+        }
+        else if (PyUnicode_Check(path)) {
+            /* Make sure to save a pure Unicode object to prevent possible
+             * cycles from a derived class. This means no tp_traverse or
+             * tp_clear for the PyFreetypeFont type.
+             */
+            self->path = Object_Unicode(path);
+        }
+        else if (Bytes_Check(path)) {
+            self->path = PyUnicode_FromEncodedObject(
+                path, "UTF-8", NULL);
+        }
+        else {
+            self->path = Object_Unicode(path);
+        }
+        Py_XDECREF(path);
+        if (!self->path) {
+            goto end;
+        }
+
+        if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
+            goto end;
+        }
+    }
+#endif /* WIN32 && HAVE_PYGAME_SDL_RWOPS */
 
     if (!self->is_scalable && self->face_size.x == 0) {
         if (_PGFT_Font_GetAvailableSize(ft, self, 0, &size, &height, &width,
@@ -866,10 +917,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     rval = 0;
 
 end:
-    if (file != original_file) {
-        Py_XDECREF(file);
-    }
-
+    Py_XDECREF(file);
     return rval;
 }
 

@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import sys
 import os
 import unittest
@@ -5,8 +7,11 @@ import platform
 
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
-from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
+from pygame.compat import as_unicode, unicode_, as_bytes, xrange_, filesystem_errors
 from pygame.compat import PY_MAJOR_VERSION
+
+FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
+                       'fixtures', 'fonts')
 
 UCS_4 = sys.maxunicode > 0xFFFF
 
@@ -379,7 +384,7 @@ class FontTypeTest( unittest.TestCase ):
         pygame_font.init()
         self.assertRaises(IOError,
                           pygame_font.Font,
-                          'some-fictional-font.ttf', 20)
+                          unicode_('some-fictional-font.ttf'), 20)
 
     def test_load_from_file(self):
         font_name = pygame_font.get_default_font()
@@ -399,13 +404,28 @@ class FontTypeTest( unittest.TestCase ):
         # identical to the default font file name.
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
-    def test_load_from_file_unicode(self):
-        base_dir = os.path.dirname(pygame.__file__)
-        font_path = os.path.join(base_dir, pygame_font.get_default_font())
-        if os.path.sep == '\\':
-            font_path = font_path.replace('\\', '\\\\')
-        ufont_path = as_unicode(font_path)
-        f = pygame_font.Font(ufont_path, 20)
+    def _load_unicode(self, path):
+        import shutil
+        fdir = unicode_(FONTDIR)
+        temp = os.path.join(fdir, path)
+        pgfont = os.path.join(fdir, u'test_sans.ttf')
+        shutil.copy(pgfont, temp)
+        try:
+            with open(temp, 'rb') as f:
+                pass
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
+        try:
+            pygame_font.Font(temp, 20)
+        finally:
+            os.remove(temp)
+
+    def test_load_from_file_unicode_0(self):
+        """ASCII string as a unicode object"""
+        self._load_unicode(u'temp_file.ttf')
+
+    def test_load_from_file_unicode_1(self):
+        self._load_unicode(u'你好.ttf')
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],

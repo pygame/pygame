@@ -98,7 +98,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    /*oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);*/
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -125,7 +126,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         if (name == NULL) {
             oname = PyObject_GetAttrString(obj, "name");
             if (oname != NULL) {
-                oencoded = pgRWopsEncodeFilePath(oname, NULL);
+                /*oencoded = pgRWopsEncodeFilePath(oname, NULL);*/
+                oencoded = pgRWopsEncodeString(oname, "UTF-8", NULL, NULL);
                 Py_DECREF(oname);
                 if (oencoded == NULL) {
                     return NULL;
@@ -203,11 +205,12 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
-    FILE *fp = NULL;
-    char *doing = "open for writing";
+    FILE *fp;
+    char *doing;
 
-    if (!(fp = fopen(file_name, "wb")))
-        goto fail;
+    if (!(fp = pg_FopenUTF8(file_name, "wb"))) {
+        return -1;
+    }
 
     doing = "create png write struct";
     if (!(png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
@@ -497,8 +500,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if ((outfile = fopen(file_name, "wb")) == NULL) {
-        SDL_SetError("SaveJPEG: could not open %s", file_name);
+    if (!(outfile = pg_FopenUTF8(file_name, "wb"))) {
         return -1;
     }
     j_stdio_dest(&cinfo, outfile);
@@ -754,7 +756,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a string for the file argument: got %.1024s",

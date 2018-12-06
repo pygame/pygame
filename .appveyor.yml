@@ -10,7 +10,8 @@ environment:
     PYGAME_USE_PREBUILT: "1"
     SDL_VIDEODRIVER: "dummy"
     SDL_AUDIODRIVER: "disk"
- 
+    PYTHONIOENCODING: "UTF-8"
+
   matrix:
     # - PYTHON: "pypy.exe"
     #   PYTHON_VERSION: "2.7.13"

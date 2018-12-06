@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import array
 import os
 import tempfile
@@ -5,7 +7,7 @@ import unittest
 
 from pygame.tests.test_utils import example_path, png
 import pygame, pygame.image, pygame.pkgdata
-from pygame.compat import xrange_, ord_
+from pygame.compat import xrange_, ord_, unicode_
 
 
 def test_magic(f, magic_hex):
@@ -265,8 +267,37 @@ class ImageModuleTest( unittest.TestCase ):
         self.assertEqual(colorkey1, colorkey2)
         self.assertEqual(p1, s2.get_at((0,0)))
 
+    def test_load_unicode_path(self):
+        import shutil
+        orig = unicode_(example_path("data/asprite.bmp"))
+        temp = os.path.join(unicode_(example_path('data')), u'你好.bmp')
+        shutil.copy(orig, temp)
+        try:
+            im = pygame.image.load(temp)
+        finally:
+            os.remove(temp)
 
+    def _unicode_save(self, temp_file):
+        im = pygame.Surface((10, 10), 0, 32)
+        try:
+            with open(temp_file, 'w') as f:
+                pass
+            os.remove(temp_file)
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
+        self.assert_(not os.path.exists(temp_file))
+        try:
+            pygame.image.save(im, temp_file)
+            self.assert_(os.path.getsize(temp_file) > 10)
+        finally:
+            try:
+                os.remove(temp_file)
+            except EnvironmentError:
+                pass
 
+    def test_save_unicode_path(self):
+        """save unicode object with non-ASCII chars"""
+        self._unicode_save(u"你好.bmp")
 
     def assertPremultipliedAreEqual(self, string1, string2, source_string):
         self.assertEqual(len(string1), len(string2))
