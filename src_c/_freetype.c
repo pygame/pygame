@@ -2135,13 +2135,21 @@ _ft_clear(PyObject *mod)
  * FREETYPE MODULE DECLARATION
  ****************************************************/
 #if PY3
+#ifndef PYPY_VERSION
 struct PyModuleDef _freetypemodule = {
     PyModuleDef_HEAD_INIT,  MODULE_NAME, DOC_PYGAMEFREETYPE,
     sizeof(_FreeTypeState), _ft_methods, 0,
     _ft_traverse,           _ft_clear,   0};
-#else
+#else /* PYPY_VERSION */
 _FreeTypeState _modstate;
-#endif
+struct PyModuleDef _freetypemodule = {
+    PyModuleDef_HEAD_INIT,  MODULE_NAME, DOC_PYGAMEFREETYPE,
+    -1 /* PyModule_GetState() not implemented */, _ft_methods, 0,
+    _ft_traverse, _ft_clear, 0};
+#endif /* PYPY_VERSION */
+#else /* PY2 */
+_FreeTypeState _modstate;
+#endif /* PY2 */
 
 MODINIT_DEFINE(_freetype)
 {

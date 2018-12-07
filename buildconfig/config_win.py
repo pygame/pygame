@@ -513,9 +513,6 @@ def setup_prebuilt_sdl1(prebuilt_dir):
         try:
             do_copy = True
             for line in setup_in:
-                if is_pypy and is_python3:
-                    if line.startswith('_freetype'):
-                        continue
                 if line.startswith('#--StartConfig'):
                     do_copy = False
                     setup_.write(setup_win_in.read())

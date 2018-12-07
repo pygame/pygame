@@ -331,6 +331,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[3][5], sf.map_rgb ((10, 10, 10)))
             self.assertEqual (ar[3][6], sf.map_rgb ((10, 10, 10)))
 
+    @unittest.skipIf(IS_PYPY, 'skipping for PyPy (segfaults on mac pypy3 6.0.0)')
     def test_contains (self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((10, 20), 0, bpp)
