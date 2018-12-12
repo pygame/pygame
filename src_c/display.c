@@ -735,8 +735,48 @@ pg_mode_ok(PyObject *self, PyObject *args)
 static PyObject *
 pg_list_modes(PyObject *self, PyObject *args)
 {
-#pragma PG_WARN(implement pg_list_modes for SDL2)
-    Py_RETURN_NONE;
+    SDL_DisplayMode mode, curmode;
+    int nummodes;
+    int bpp;
+    SDL_Rect **rects;
+    int flags = SDL_FULLSCREEN;
+    int display_index = 0;
+    PyObject *list, *size;
+
+    VIDEO_INIT_CHECK();
+
+    if (PyTuple_Size(args) != 0 &&
+        !PyArg_ParseTuple(args, "|bii", &bpp, &flags,
+                          &display_index))
+        return NULL;
+
+    if (display_index < 0 || display_index >= SDL_GetNumVideoDisplays()) {
+        return RAISE(PyExc_ValueError,
+                     "The display index must be between 0"
+                     " and the number of displays.");
+    }
+#pragma PG_WARN(Ignoring depth and flags)
+
+    nummodes = SDL_GetNumDisplayModes(display_index);
+    if (nummodes < 0)
+        return RAISE(pgExc_SDLError, SDL_GetError());
+
+    if (!(list = PyList_New(nummodes)))
+        return NULL;
+
+    for (int i=0; i<nummodes; i++) {
+        if (SDL_GetDisplayMode(display_index, i, &mode) < 0) {
+            Py_DECREF(list);
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+        if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, i, size);
+    }
+
+    return list;
 }
 
 static PyObject *
