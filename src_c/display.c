@@ -733,7 +733,7 @@ pg_mode_ok(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_list_modes(PyObject *self, PyObject *args)
+pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_DisplayMode mode;
     int nummodes;
@@ -744,10 +744,17 @@ pg_list_modes(PyObject *self, PyObject *args)
 
     VIDEO_INIT_CHECK();
 
-    if (PyTuple_Size(args) != 0 &&
-        !PyArg_ParseTuple(args, "|bii", &bpp, &flags,
-                          &display_index))
+    char *keywords[] = {
+        "depth",
+        "flags",
+        "display",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
+                                     &bpp, &flags, &display_index)) {
         return NULL;
+    }
 
     if (display_index < 0 || display_index >= SDL_GetNumVideoDisplays()) {
         return RAISE(PyExc_ValueError,
@@ -1648,7 +1655,7 @@ static PyMethodDef _pg_display_methods[] = {
 
     {"set_mode", pg_set_mode, METH_VARARGS, DOC_PYGAMEDISPLAYSETMODE},
     {"mode_ok", pg_mode_ok, METH_VARARGS, DOC_PYGAMEDISPLAYMODEOK},
-    {"list_modes", pg_list_modes, METH_VARARGS, DOC_PYGAMEDISPLAYLISTMODES},
+    {"list_modes", pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
 
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
