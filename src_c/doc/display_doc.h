@@ -21,7 +21,7 @@
 
 #define DOC_PYGAMEDISPLAYGETWMINFO "get_wm_info() -> dict\nGet information about the current windowing system"
 
-#define DOC_PYGAMEDISPLAYLISTMODES "list_modes(depth=0, flags=pygame.FULLSCREEN) -> list\nGet list of available fullscreen modes"
+#define DOC_PYGAMEDISPLAYLISTMODES "list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list\nGet list of available fullscreen modes"
 
 #define DOC_PYGAMEDISPLAYMODEOK "mode_ok(size, flags=0, depth=0) -> depth\nPick the best color depth for a display mode"
 
@@ -98,7 +98,7 @@ pygame.display.get_wm_info
 Get information about the current windowing system
 
 pygame.display.list_modes
- list_modes(depth=0, flags=pygame.FULLSCREEN) -> list
+ list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list
 Get list of available fullscreen modes
 
 pygame.display.mode_ok

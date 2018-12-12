@@ -272,7 +272,7 @@ required).
 .. function:: list_modes
 
    | :sl:`Get list of available fullscreen modes`
-   | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN) -> list`
+   | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list`
 
    This function returns a list of possible dimensions for a specified color
    depth. The return value will be an empty list if no display modes are
@@ -283,6 +283,8 @@ required).
    If depth is 0, ``SDL`` will choose the current/best color depth for the
    display. The flags defaults to ``pygame.FULLSCREEN``, but you may need to
    add additional flags for specific fullscreen modes.
+
+   The display index 0 means the default display is used.
 
    .. ## pygame.display.list_modes ##
 
