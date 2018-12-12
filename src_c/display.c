@@ -811,7 +811,9 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
     if (!SDL_GetClosestDisplayMode(display_index,
                                    &desired, &closest))
     {
-        return PyInt_FromLong((long)0);
+        if (flags & PGS_FULLSCREEN)
+            return PyInt_FromLong((long)0);
+        closest.format = desired.format;
     }
     if ((flags & PGS_FULLSCREEN) && (closest.w != desired.w || closest.h != desired.h))
         return PyInt_FromLong((long)0);
