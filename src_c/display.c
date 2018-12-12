@@ -1011,7 +1011,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 
     VIDEO_INIT_CHECK();
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "(ii)|ii", keywords
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "(ii)|ii", keywords,
                                      &w, &h, &flags, &depth,
                                      &display))
         return NULL;
