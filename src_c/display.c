@@ -735,10 +735,9 @@ pg_mode_ok(PyObject *self, PyObject *args)
 static PyObject *
 pg_list_modes(PyObject *self, PyObject *args)
 {
-    SDL_DisplayMode mode, curmode;
+    SDL_DisplayMode mode;
     int nummodes;
-    int bpp;
-    SDL_Rect **rects;
+    int bpp = 0;
     int flags = SDL_FULLSCREEN;
     int display_index = 0;
     PyObject *list, *size;
@@ -755,13 +754,20 @@ pg_list_modes(PyObject *self, PyObject *args)
                      "The display index must be between 0"
                      " and the number of displays.");
     }
-#pragma PG_WARN(Ignoring depth and flags)
+#pragma PG_WARN(Ignoring flags)
+
+    if (bpp == 0) {
+        SDL_DisplayMode curmode;
+        if (SDL_GetDesktopDisplayMode(display_index, &curmode))
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        bpp = SDL_BITSPERPIXEL(curmode.format);
+    }
 
     nummodes = SDL_GetNumDisplayModes(display_index);
     if (nummodes < 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
 
-    if (!(list = PyList_New(nummodes)))
+    if (!(list = PyList_New(0)))
         return NULL;
 
     for (int i=0; i<nummodes; i++) {
@@ -769,13 +775,15 @@ pg_list_modes(PyObject *self, PyObject *args)
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
+        if (SDL_BITSPERPIXEL(mode.format) != bpp)
+            continue;
         if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
             Py_DECREF(list);
             return NULL;
         }
-        PyList_SET_ITEM(list, i, size);
+        PyList_Append(list, size);
+        Py_DECREF(size);
     }
-
     return list;
 }
 
