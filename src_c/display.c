@@ -933,15 +933,14 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     int flags = SDL_FULLSCREEN;
     int display_index = 0; /* SDL1 does not use a display_index. */
     PyObject *list, *size;
-
-    format.BitsPerPixel = 0;
-
     char *keywords[] = {
         "depth",
         "flags",
         "display",
         NULL
     };
+
+    format.BitsPerPixel = 0;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
                                      &format.BitsPerPixel, &flags, &display_index)) {
