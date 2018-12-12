@@ -286,6 +286,8 @@ required).
 
    The display index 0 means the default display is used.
 
+   The display argument is new with pygame 1.9.5.
+
    .. ## pygame.display.list_modes ##
 
 .. function:: mode_ok
