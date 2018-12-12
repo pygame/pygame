@@ -791,7 +791,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
                      "The display index must be between 0"
                      " and the number of displays.");
     }
-#pragma PG_WARN(Ignoring flags)
+#pragma PG_WARN(Ignoring most flags)
 
     desired.driverdata = 0;
     desired.refresh_rate = 0;
@@ -813,7 +813,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
     {
         return PyInt_FromLong((long)0);
     }
-    if (closest.w != desired.w || closest.h != desired.h)
+    if ((flags & PGS_FULLSCREEN) && (closest.w != desired.w || closest.h != desired.h))
         return PyInt_FromLong((long)0);
     return PyInt_FromLong(SDL_BITSPERPIXEL(closest.format));
 }
@@ -824,7 +824,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     SDL_DisplayMode mode;
     int nummodes;
     int bpp = 0;
-    int flags = SDL_FULLSCREEN;
+    int flags = PGS_FULLSCREEN;
     int display_index = 0;
     PyObject *list, *size;
 
