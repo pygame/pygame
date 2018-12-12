@@ -926,17 +926,27 @@ pg_mode_ok(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_list_modes(PyObject *self, PyObject *args)
+pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_PixelFormat format;
     SDL_Rect **rects;
     int flags = SDL_FULLSCREEN;
+    int display_index = 0; /* SDL1 does not use a display_index. */
     PyObject *list, *size;
 
     format.BitsPerPixel = 0;
-    if (PyTuple_Size(args) != 0 &&
-        !PyArg_ParseTuple(args, "|bi", &format.BitsPerPixel, &flags))
+
+    char *keywords[] = {
+        "depth",
+        "flags",
+        "display",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
+                                     &format.BitsPerPixel, &flags, &display_index)) {
         return NULL;
+    }
 
     VIDEO_INIT_CHECK();
 
