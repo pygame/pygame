@@ -39,7 +39,7 @@ class DisplayModuleTest(unittest.TestCase):
 
         # NOTE to author of above:
         #   unittest doesn't run tests in threads
-        #   segfault was probably caused by another tests need 
+        #   segfault was probably caused by another tests need
         #   for a "clean slate"
 
         """
@@ -330,26 +330,16 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_list_modes(self):
+    def test_list_modes(self):
+        modes = pygame.display.list_modes(
+            depth=0, flags=pygame.FULLSCREEN, display=0
+        )
+        self.assertEqual(len(modes[0]), 2)
+        self.assertEqual(type(modes[0][0]), int)
 
-        # __doc__ (as of 2008-08-02) for pygame.display.list_modes:
-
-          # pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN): return list
-          # get list of available fullscreen modes
-          #
-          # This function returns a list of possible dimensions for a specified
-          # color depth. The return value will be an empty list if no display
-          # modes are available with the given arguments. A return value of -1
-          # means that any requested resolution should work (this is likely the
-          # case for windowed modes). Mode sizes are sorted from biggest to
-          # smallest.
-          #
-          # If depth is 0, SDL will choose the current/best color depth for the
-          # display. The flags defaults to pygame.FULLSCREEN, but you may need
-          # to add additional flags for specific fullscreen modes.
-          #
-
-        self.fail()
+        modes = pygame.display.list_modes()
+        self.assertEqual(len(modes[0]), 2)
+        self.assertEqual(type(modes[0][0]), int)
 
     def todo_test_mode_ok(self):
 
