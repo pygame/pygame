@@ -334,12 +334,22 @@ class DisplayModuleTest(unittest.TestCase):
         modes = pygame.display.list_modes(
             depth=0, flags=pygame.FULLSCREEN, display=0
         )
-        self.assertEqual(len(modes[0]), 2)
-        self.assertEqual(type(modes[0][0]), int)
+        # modes == -1 means any mode is supported.
+        if modes != -1:
+            self.assertEqual(len(modes[0]), 2)
+            self.assertEqual(type(modes[0][0]), int)
 
         modes = pygame.display.list_modes()
-        self.assertEqual(len(modes[0]), 2)
-        self.assertEqual(type(modes[0][0]), int)
+        if modes != -1:
+            self.assertEqual(len(modes[0]), 2)
+            self.assertEqual(type(modes[0][0]), int)
+
+        modes = pygame.display.list_modes(
+            depth=0, flags=0, display=0
+        )
+        if modes != -1:
+            self.assertEqual(len(modes[0]), 2)
+            self.assertEqual(type(modes[0][0]), int)
 
     def todo_test_mode_ok(self):
 
