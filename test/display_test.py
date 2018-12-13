@@ -351,28 +351,20 @@ class DisplayModuleTest(unittest.TestCase):
             self.assertEqual(len(modes[0]), 2)
             self.assertEqual(type(modes[0][0]), int)
 
-    def todo_test_mode_ok(self):
+    def test_mode_ok(self):
+        pygame.display.mode_ok((128, 128))
+        modes = pygame.display.list_modes()
+        if modes != -1:
+            size = modes[0]
+            self.assertNotEqual(pygame.display.mode_ok(size), 0)
 
-        # __doc__ (as of 2008-08-02) for pygame.display.mode_ok:
-
-          # pygame.display.mode_ok(size, flags=0, depth=0): return depth
-          # pick the best color depth for a display mode
-          #
-          # This function uses the same arguments as pygame.display.set_mode().
-          # It is used to depermine if a requested display mode is available. It
-          # will return 0 if the display mode cannot be set. Otherwise it will
-          # return a pixel depth that best matches the display asked for.
-          #
-          # Usually the depth argument is not passed, but some platforms can
-          # support multiple display depths. If passed it will hint to which
-          # depth is a better match.
-          #
-          # The most useful flags to pass will be pygame.HWSURFACE,
-          # pygame.DOUBLEBUF, and maybe pygame.FULLSCREEN. The function will
-          # return 0 if these display flags cannot be set.
-          #
-
-        self.fail()
+    def test_mode_ok_fullscreen(self):
+        modes = pygame.display.list_modes()
+        if modes != -1:
+            size = modes[0]
+            self.assertNotEqual(pygame.display.mode_ok(
+                                size,
+                                flags=pygame.FULLSCREEN), 0)
 
     def todo_test_quit(self):
 
