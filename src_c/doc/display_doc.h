@@ -23,7 +23,7 @@
 
 #define DOC_PYGAMEDISPLAYLISTMODES "list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list\nGet list of available fullscreen modes"
 
-#define DOC_PYGAMEDISPLAYMODEOK "mode_ok(size, flags=0, depth=0) -> depth\nPick the best color depth for a display mode"
+#define DOC_PYGAMEDISPLAYMODEOK "mode_ok(size, flags=0, depth=0, display=0) -> depth\nPick the best color depth for a display mode"
 
 #define DOC_PYGAMEDISPLAYGLGETATTRIBUTE "gl_get_attribute(flag) -> value\nGet the value for an OpenGL flag for the current display"
 
@@ -102,7 +102,7 @@ pygame.display.list_modes
 Get list of available fullscreen modes
 
 pygame.display.mode_ok
- mode_ok(size, flags=0, depth=0) -> depth
+ mode_ok(size, flags=0, depth=0, display=0) -> depth
 Pick the best color depth for a display mode
 
 pygame.display.gl_get_attribute
