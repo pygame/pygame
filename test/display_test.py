@@ -374,6 +374,10 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
+    @unittest.skipIf(pygame.get_sdl_version()[0] < 2, "requires SDL 2")
+    def test_get_num_displays(self):
+        self.assertGreater(pygame.display.get_num_displays(), 0)
+
     def todo_test_quit(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.quit:

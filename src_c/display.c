@@ -764,6 +764,15 @@ pg_flip(PyObject *self)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_num_displays()
+{
+    int ret = SDL_GetNumVideoDisplays();
+    if (ret < 0)
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    return PyInt_FromLong(ret);
+}
+
 #else /* IS_SDLv1 */
 static PyObject *
 pg_set_mode(PyObject *self, PyObject *arg)
@@ -1601,6 +1610,9 @@ static PyMethodDef _pg_display_methods[] = {
     {"set_mode", pg_set_mode, METH_VARARGS, DOC_PYGAMEDISPLAYSETMODE},
     {"mode_ok", pg_mode_ok, METH_VARARGS, DOC_PYGAMEDISPLAYMODEOK},
     {"list_modes", pg_list_modes, METH_VARARGS, DOC_PYGAMEDISPLAYLISTMODES},
+#if IS_SDLv2
+    {"get_num_displays", pg_num_displays, METH_NOARGS, NULL},
+#endif
 
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
