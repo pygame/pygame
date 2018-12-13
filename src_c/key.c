@@ -76,6 +76,94 @@ key_get_repeat(PyObject *self, PyObject *args)
 }
 #endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
 
+#if IS_SDLv2
+typedef struct {
+    PyObject_HEAD
+} pgScancodeWrapper;
+
+static PyObject*
+pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
+{
+    long index;
+    PyObject *adjustedvalue, *ret;
+    if ((index = PyLong_AsLong(item)) == -1 && PyErr_Occurred())
+        return NULL;
+    index = SDL_GetScancodeFromKey(index);
+    adjustedvalue = PyLong_FromLong(index);
+    ret = ((PyObject*)self)->ob_type->tp_base->
+          tp_as_mapping->mp_subscript(self, adjustedvalue);
+    Py_DECREF(adjustedvalue);
+    return ret;
+}
+
+static PyMappingMethods pg_scancodewrapper_mapping = {
+    NULL,
+    pg_scancodewrapper_subscript,
+    NULL
+};
+
+static void
+pg_scancodewrapper_dealloc(pgScancodeWrapper *self)
+{
+    ((PyObject*)self)->ob_type->tp_free(self);
+}
+
+static PyObject*
+pg_scancodewrapper_repr(pgScancodeWrapper *self)
+{
+    PyObject *baserepr = ((PyObject*)self)->ob_type->tp_base->tp_repr(self);
+#if PY3
+    PyObject *ret = Text_FromFormat("pygame._ScancodeWrapper%S", baserepr);
+#else /* PY2 */
+    PyObject *ret = Text_FromFormat("pygame._ScancodeWrapper%s",
+                                    PyString_AsString(baserepr));
+#endif /* PY2 */
+    Py_DECREF(baserepr);
+    return ret;
+}
+
+static PyTypeObject pgScancodeWrapper_Type = {
+    TYPE_HEAD(NULL, 0) "pygame._ScancodeWrapper", /* name */
+    sizeof(pgScancodeWrapper),                    /* basic size */
+    0,                                            /* itemsize */
+    pg_scancodewrapper_dealloc,                   /* dealloc */
+    0,                                            /* print */
+    NULL,                                         /* getattr */
+    NULL,                                         /* setattr */
+    NULL,                                         /* compare */
+    pg_scancodewrapper_repr,                      /* repr */
+    NULL,                                         /* as_number */
+    NULL,                                         /* as_sequence */
+    &pg_scancodewrapper_mapping,                  /* as_mapping */
+    (hashfunc)NULL,                               /* hash */
+    (ternaryfunc)NULL,                            /* call */
+    (reprfunc)NULL,                               /* str */
+    0,                                            /* tp_getattro */
+    0L,
+    0L,
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_TUPLE_SUBCLASS,                /* tp_flags */
+    NULL,                                     /* Documentation string */
+    0,                                        /* tp_traverse */
+    0,                                        /* tp_clear */
+    0,                                        /* tp_richcompare */
+    0,                                        /* tp_weaklistoffset */
+    0,                                        /* tp_iter */
+    0,                                        /* tp_iternext */
+    0,                                        /* tp_methods */
+    0,                                        /* tp_members */
+    0,                                        /* tp_getset */
+    0,                                        /* tp_base */
+    0,                                        /* tp_dict */
+    0,                                        /* tp_descr_get */
+    0,                                        /* tp_descr_set */
+    0,                                        /* tp_dictoffset */
+    0,                                        /* tp_init */
+    0,                                        /* tp_alloc */
+    0                                         /* tp_new */
+};
+#endif /* IS_SDLv2 */
+
 static PyObject *
 key_get_pressed(PyObject *self)
 {
@@ -107,7 +195,13 @@ key_get_pressed(PyObject *self)
         }
         PyTuple_SET_ITEM(key_tuple, i, key_elem);
     }
+
+#if IS_SDLv1
     return key_tuple;
+#else
+    return PyObject_CallFunctionObjArgs(&pgScancodeWrapper_Type,
+                                        key_tuple, NULL);
+#endif
 }
 
 #if IS_SDLv2
@@ -599,8 +693,9 @@ key_name(PyObject *self, PyObject *args)
 
 #if IS_SDLv2
     return Text_FromUTF8(_get_keycode_name(key));
-#endif
+#else
     return Text_FromUTF8(SDL_GetKeyName(key));
+#endif
 }
 
 static PyObject *
@@ -676,6 +771,11 @@ MODINIT_DEFINE(key)
 #if IS_SDLv2
     import_pygame_event();
     if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
+    /* type preparation */
+    pgScancodeWrapper_Type.tp_base = &PyTuple_Type;
+    if (PyType_Ready(&pgScancodeWrapper_Type) < 0) {
         MODINIT_ERROR;
     }
 #endif /* IS_SDLv2 */
