@@ -36,6 +36,7 @@
 /* Text interface. Use unicode strings. */
 #define Text_Type PyUnicode_Type
 #define Text_Check PyUnicode_Check
+#define Text_FromLocale(s) PyUnicode_DecodeLocale((s), "strict")
 #define Text_FromUTF8 PyUnicode_FromString
 #define Text_FromUTF8AndSize PyUnicode_FromStringAndSize
 #define Text_FromFormat PyUnicode_FromFormat
@@ -88,6 +89,7 @@
 /* Text interface. Use ascii strings. */
 #define Text_Type PyString_Type
 #define Text_Check PyString_Check
+#define Text_FromLocale PyString_FromString
 #define Text_FromUTF8 PyString_FromString
 #define Text_FromUTF8AndSize PyString_FromStringAndSize
 #define Text_FromFormat PyString_FromFormat

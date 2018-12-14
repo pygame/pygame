@@ -168,7 +168,7 @@ joy_get_name(PyObject *self)
     int joy_id = pgJoystick_AsID(self);
     JOYSTICK_INIT_CHECK();
 #if IS_SDLv1
-    return Text_FromUTF8(SDL_JoystickName(joy_id));
+    return Text_FromLocale(SDL_JoystickName(joy_id));
 #else  /* IS_SDLv2 */
     return Text_FromUTF8(SDL_JoystickNameForIndex(joy_id));
 #endif /* IS_SDLv2 */
