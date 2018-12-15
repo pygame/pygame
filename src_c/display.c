@@ -1616,7 +1616,7 @@ static PyMethodDef _pg_display_methods[] = {
     {"set_mode", pg_set_mode, METH_VARARGS, DOC_PYGAMEDISPLAYSETMODE},
     {"mode_ok", pg_mode_ok, METH_VARARGS, DOC_PYGAMEDISPLAYMODEOK},
     {"list_modes", pg_list_modes, METH_VARARGS, DOC_PYGAMEDISPLAYLISTMODES},
-    {"get_num_displays", pg_num_displays, METH_NOARGS, NULL},
+    {"get_num_displays", pg_num_displays, METH_NOARGS, DOC_PYGAMEDISPLAYGETNUMDISPLAYS},
 
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
