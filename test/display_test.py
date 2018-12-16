@@ -366,6 +366,9 @@ class DisplayModuleTest(unittest.TestCase):
                                 size,
                                 flags=pygame.FULLSCREEN), 0)
 
+    def test_get_num_displays(self):
+        self.assertGreater(pygame.display.get_num_displays(), 0)
+
     def todo_test_quit(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.quit:

@@ -47,6 +47,8 @@
 
 #define DOC_PYGAMEDISPLAYSETPALETTE "set_palette(palette=None) -> None\nSet the display color palette for indexed displays"
 
+#define DOC_PYGAMEDISPLAYGETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays"
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -148,5 +150,9 @@ Get the current window caption
 pygame.display.set_palette
  set_palette(palette=None) -> None
 Set the display color palette for indexed displays
+
+pygame.display.get_num_displays
+ get_num_displays() -> int
+Return the number of displays
 
 */
