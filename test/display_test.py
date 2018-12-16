@@ -39,7 +39,7 @@ class DisplayModuleTest(unittest.TestCase):
 
         # NOTE to author of above:
         #   unittest doesn't run tests in threads
-        #   segfault was probably caused by another tests need 
+        #   segfault was probably caused by another tests need
         #   for a "clean slate"
 
         """
@@ -374,7 +374,6 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    @unittest.skipIf(pygame.get_sdl_version()[0] < 2, "requires SDL 2")
     def test_get_num_displays(self):
         self.assertGreater(pygame.display.get_num_displays(), 0)
 
