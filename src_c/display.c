@@ -725,18 +725,161 @@ pg_set_mode(PyObject *self, PyObject *arg)
     return surface;
 }
 
-static PyObject *
-pg_mode_ok(PyObject *self, PyObject *args)
+static int
+_pg_get_default_display_masks(int bpp,
+                              Uint32 *Rmask, Uint32 *Gmask, Uint32 *Bmask)
 {
-#pragma PG_WARN(implement pg_mode_ok for SDL2)
-    return PyInt_FromLong((long)0);
+    switch (bpp) {
+    case 8:
+        *Rmask = 0;
+        *Gmask = 0;
+        *Bmask = 0;
+        break;
+    case 12:
+        *Rmask = 0xFF >> 4 << 8;
+        *Gmask = 0xFF >> 4 << 4;
+        *Bmask = 0xFF >> 4;
+        break;
+    case 15:
+        *Rmask = 0xFF >> 3 << 10;
+        *Gmask = 0xFF >> 3 << 5;
+        *Bmask = 0xFF >> 3;
+        break;
+    case 16:
+        *Rmask = 0xFF >> 3 << 11;
+        *Gmask = 0xFF >> 2 << 5;
+        *Bmask = 0xFF >> 3;
+        break;
+    case 24:
+    case 32:
+        *Rmask = 0xFF << 16;
+        *Gmask = 0xFF << 8;
+        *Bmask = 0xFF;
+        break;
+    default:
+        RAISE(PyExc_ValueError, "nonstandard bit depth given");
+        return -1;
+    }
+    return 0;
 }
 
 static PyObject *
-pg_list_modes(PyObject *self, PyObject *args)
+pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 {
-#pragma PG_WARN(implement pg_list_modes for SDL2)
-    Py_RETURN_NONE;
+    SDL_DisplayMode desired, closest;
+    int bpp = 0;
+    int flags = SDL_SWSURFACE;
+    int display_index = 0;
+
+    const char *keywords[] = {
+        "size",
+        "flags",
+        "depth",
+        "display",
+        NULL
+    };
+
+    VIDEO_INIT_CHECK();
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "(ii)|iii", keywords,
+                                     &desired.w, &desired.h, &flags,
+                                     &bpp, &display_index)) {
+        return NULL;
+    }
+    if (display_index < 0 || display_index >= SDL_GetNumVideoDisplays()) {
+        return RAISE(PyExc_ValueError,
+                     "The display index must be between 0"
+                     " and the number of displays.");
+    }
+#pragma PG_WARN(Ignoring most flags)
+
+    desired.driverdata = 0;
+    desired.refresh_rate = 0;
+
+    if (bpp == 0) {
+        desired.format = 0;
+    } else {
+        Uint32 Rmask, Gmask, Bmask;
+        if (_pg_get_default_display_masks(bpp, &Rmask, &Gmask, &Bmask)) {
+            PyErr_Clear();
+            return PyInt_FromLong((long)0);
+        }
+        desired.format = SDL_MasksToPixelFormatEnum(bpp,
+                                                    Rmask, Gmask, Bmask,
+                                                    0);
+    }
+    if (!SDL_GetClosestDisplayMode(display_index,
+                                   &desired, &closest))
+    {
+        if (flags & PGS_FULLSCREEN)
+            return PyInt_FromLong((long)0);
+        closest.format = desired.format;
+    }
+    if ((flags & PGS_FULLSCREEN) && (closest.w != desired.w || closest.h != desired.h))
+        return PyInt_FromLong((long)0);
+    return PyInt_FromLong(SDL_BITSPERPIXEL(closest.format));
+}
+
+static PyObject *
+pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    SDL_DisplayMode mode;
+    int nummodes;
+    int bpp = 0;
+    int flags = PGS_FULLSCREEN;
+    int display_index = 0;
+    PyObject *list, *size;
+
+    VIDEO_INIT_CHECK();
+
+    char *keywords[] = {
+        "depth",
+        "flags",
+        "display",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
+                                     &bpp, &flags, &display_index)) {
+        return NULL;
+    }
+
+    if (display_index < 0 || display_index >= SDL_GetNumVideoDisplays()) {
+        return RAISE(PyExc_ValueError,
+                     "The display index must be between 0"
+                     " and the number of displays.");
+    }
+#pragma PG_WARN(Ignoring flags)
+
+    if (bpp == 0) {
+        SDL_DisplayMode curmode;
+        if (SDL_GetDesktopDisplayMode(display_index, &curmode))
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        bpp = SDL_BITSPERPIXEL(curmode.format);
+    }
+
+    nummodes = SDL_GetNumDisplayModes(display_index);
+    if (nummodes < 0)
+        return RAISE(pgExc_SDLError, SDL_GetError());
+
+    if (!(list = PyList_New(0)))
+        return NULL;
+
+    for (int i=0; i<nummodes; i++) {
+        if (SDL_GetDisplayMode(display_index, i, &mode) < 0) {
+            Py_DECREF(list);
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+        if (SDL_BITSPERPIXEL(mode.format) != bpp)
+            continue;
+        if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_Append(list, size);
+        Py_DECREF(size);
+    }
+    return list;
 }
 
 static PyObject *
@@ -863,15 +1006,25 @@ pg_set_mode(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_mode_ok(PyObject *self, PyObject *args)
+pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 {
     int depth = 0;
     int w, h;
     int flags = SDL_SWSURFACE;
+    int display = 0;
+    const char *keywords[] = {
+        "size",
+        "flags",
+        "depth",
+        "display",
+        NULL
+    };
 
     VIDEO_INIT_CHECK();
 
-    if (!PyArg_ParseTuple(args, "(ii)|ii", &w, &h, &flags, &depth))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "(ii)|ii", keywords,
+                                     &w, &h, &flags, &depth,
+                                     &display))
         return NULL;
     if (!depth)
         depth = SDL_GetVideoInfo()->vfmt->BitsPerPixel;
@@ -880,17 +1033,26 @@ pg_mode_ok(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_list_modes(PyObject *self, PyObject *args)
+pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_PixelFormat format;
     SDL_Rect **rects;
     int flags = SDL_FULLSCREEN;
+    int display_index = 0; /* SDL1 does not use a display_index. */
     PyObject *list, *size;
+    char *keywords[] = {
+        "depth",
+        "flags",
+        "display",
+        NULL
+    };
 
     format.BitsPerPixel = 0;
-    if (PyTuple_Size(args) != 0 &&
-        !PyArg_ParseTuple(args, "|bi", &format.BitsPerPixel, &flags))
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
+                                     &format.BitsPerPixel, &flags, &display_index)) {
         return NULL;
+    }
 
     VIDEO_INIT_CHECK();
 
@@ -1614,8 +1776,8 @@ static PyMethodDef _pg_display_methods[] = {
      DOC_PYGAMEDISPLAYGETSURFACE},
 
     {"set_mode", pg_set_mode, METH_VARARGS, DOC_PYGAMEDISPLAYSETMODE},
-    {"mode_ok", pg_mode_ok, METH_VARARGS, DOC_PYGAMEDISPLAYMODEOK},
-    {"list_modes", pg_list_modes, METH_VARARGS, DOC_PYGAMEDISPLAYLISTMODES},
+    {"mode_ok", pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
+    {"list_modes", pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
     {"get_num_displays", pg_num_displays, METH_NOARGS, DOC_PYGAMEDISPLAYGETNUMDISPLAYS},
 
     {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
