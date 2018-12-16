@@ -104,7 +104,7 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(resolution=(0,0), flags=0, depth=0) -> Surface`
+   | :sg:`set_mode(resolution=(0,0), flags=0, depth=0, display=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
@@ -156,6 +156,10 @@ required).
         screen_width=700
         screen_height=400
         screen=pygame.display.set_mode([screen_width,screen_height])
+
+   The display index 0 means the default display is used.
+
+   The display argument is new with pygame 1.9.5.
 
    .. ## pygame.display.set_mode ##
 

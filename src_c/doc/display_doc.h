@@ -7,7 +7,7 @@
 
 #define DOC_PYGAMEDISPLAYGETINIT "get_init() -> bool\nReturns True if the display module has been initialized"
 
-#define DOC_PYGAMEDISPLAYSETMODE "set_mode(resolution=(0,0), flags=0, depth=0) -> Surface\nInitialize a window or screen for display"
+#define DOC_PYGAMEDISPLAYSETMODE "set_mode(resolution=(0,0), flags=0, depth=0, display=0) -> Surface\nInitialize a window or screen for display"
 
 #define DOC_PYGAMEDISPLAYGETSURFACE "get_surface() -> Surface\nGet a reference to the currently set display surface"
 
@@ -71,7 +71,7 @@ pygame.display.get_init
 Returns True if the display module has been initialized
 
 pygame.display.set_mode
- set_mode(resolution=(0,0), flags=0, depth=0) -> Surface
+ set_mode(resolution=(0,0), flags=0, depth=0, display=0) -> Surface
 Initialize a window or screen for display
 
 pygame.display.get_surface
