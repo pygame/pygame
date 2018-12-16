@@ -1359,9 +1359,9 @@ pg_event_post(PyObject *self, PyObject *args)
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
 #else  /* IS_SDLv2 */
-    if (!SDL_PushEvent(&event))
+    if (SDL_PushEvent(&event) < 0)
 #endif /* IS_SDLv2 */
-        return RAISE(pgExc_SDLError, "Event queue full");
+        return RAISE(pgExc_SDLError, SDL_GetError());
 
     Py_RETURN_NONE;
 }
