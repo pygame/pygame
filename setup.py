@@ -508,6 +508,10 @@ cmdclass['test'] = TestCommand
 
 
 class DocsCommand(Command):
+    """ For building the pygame documentation with `python setup.py docs`.
+
+    This generates html, and documentation .h header files.
+    """
     user_options = [ ]
 
     def initialize_options(self):
@@ -520,8 +524,20 @@ class DocsCommand(Command):
         '''
         runs the tests with default options.
         '''
+        docs_help = (
+            "Building docs requires Python version 3.6 or above, and sphinx."
+        )
+        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
+            raise SystemExit(docs_help)
+
         import subprocess
-        return subprocess.call([sys.executable, os.path.join('buildconfig', 'makeref.py')])
+        try:
+            return subprocess.call([
+                sys.executable, os.path.join('buildconfig', 'makeref.py')]
+            )
+        except:
+            print(docs_help)
+            raise
 
 cmdclass['docs'] = DocsCommand
 

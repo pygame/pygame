@@ -272,7 +272,7 @@ required).
 .. function:: list_modes
 
    | :sl:`Get list of available fullscreen modes`
-   | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN) -> list`
+   | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list`
 
    This function returns a list of possible dimensions for a specified color
    depth. The return value will be an empty list if no display modes are
@@ -284,12 +284,16 @@ required).
    display. The flags defaults to ``pygame.FULLSCREEN``, but you may need to
    add additional flags for specific fullscreen modes.
 
+   The display index 0 means the default display is used.
+
+   The display argument is new with pygame 1.9.5.
+
    .. ## pygame.display.list_modes ##
 
 .. function:: mode_ok
 
    | :sl:`Pick the best color depth for a display mode`
-   | :sg:`mode_ok(size, flags=0, depth=0) -> depth`
+   | :sg:`mode_ok(size, flags=0, depth=0, display=0) -> depth`
 
    This function uses the same arguments as ``pygame.display.set_mode()``. It
    is used to determine if a requested display mode is available. It will
@@ -303,6 +307,10 @@ required).
    The most useful flags to pass will be ``pygame.HWSURFACE``,
    ``pygame.DOUBLEBUF``, and maybe ``pygame.FULLSCREEN``. The function will
    return 0 if these display flags cannot be set.
+
+   The display index 0 means the default display is used.
+
+   The display argument is new with pygame 1.9.5.
 
    .. ## pygame.display.mode_ok ##
 
