@@ -422,10 +422,14 @@ typedef enum {
     (PYGAMEAPI_BASE_FIRSTSLOT + PYGAMEAPI_BASE_NUMSLOTS)
 #define PYGAMEAPI_RECT_NUMSLOTS 4
 
+#if IS_SDLv1
 typedef struct {
     int x, y;
     int w, h;
 } GAME_Rect;
+#else
+typedef SDL_Rect GAME_Rect;
+#endif
 
 typedef struct {
     PyObject_HEAD GAME_Rect r;

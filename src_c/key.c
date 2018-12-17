@@ -637,6 +637,57 @@ key_get_focused(PyObject *self)
 #endif /* IS_SDLv2 */
 }
 
+#if IS_SDLv2
+static PyObject *
+key_start_text_input(PyObject *self)
+{
+    /* https://wiki.libsdl.org/SDL_StartTextInput */
+    SDL_StartTextInput();
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+key_stop_text_input(PyObject *self)
+{
+    /* https://wiki.libsdl.org/SDL_StopTextInput */
+    SDL_StopTextInput();
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+key_set_input_rect(PyObject *self, PyObject *obj)
+{
+    /* https://wiki.libsdl.org/SDL_SetTextInputRect */
+    SDL_Rect *rect, temp;
+    if (obj == Py_None) {
+        Py_RETURN_NONE;
+    }
+    rect = pgRect_FromObject(obj, &temp);
+    if (!rect)
+        return RAISE(PyExc_TypeError, "Invalid rect argument");
+    SDL_SetTextInputRect(rect);
+    Py_RETURN_NONE;
+}
+#else /* IS_SDLv1 */
+static PyObject *
+key_start_text_input(PyObject *self)
+{
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+key_stop_text_input(PyObject *self)
+{
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+key_set_input_rect(PyObject *self, PyObject *obj)
+{
+    Py_RETURN_NONE;
+}
+#endif /* IS_SDLv1 */
+
 static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
     {"get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT},
@@ -647,6 +698,12 @@ static PyMethodDef _key_methods[] = {
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
     {"get_focused", (PyCFunction)key_get_focused, METH_NOARGS,
      DOC_PYGAMEKEYGETFOCUSED},
+    {"start_text_input", (PyCFunction)key_start_text_input, METH_NOARGS,
+     NULL},
+    {"stop_text_input", (PyCFunction)key_stop_text_input, METH_NOARGS,
+     NULL},
+    {"set_input_rect", (PyCFunction)key_set_input_rect, METH_O,
+     NULL},
 
     {NULL, NULL, 0, NULL}};
 
