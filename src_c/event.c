@@ -136,7 +136,7 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
-        SDL_Event inputEvent;
+        SDL_Event inputEvent[2];
         if (event->key.repeat) {
             return 0;
         }
@@ -149,15 +149,17 @@ pg_event_filter(void *_, SDL_Event *event)
                                             NULL);
         }
         SDL_PumpEvents();
-        if (SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+        if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
                            SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
         {
+            SDL_Event *ev = inputEvent;
             SDL_PumpEvents();
             if (_pg_last_unicode_char[0] == 0) {
-                SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
-                               SDL_TEXTINPUT, SDL_TEXTINPUT);
+                if (SDL_PeepEvents(inputEvent, 2, SDL_PEEKEVENT,
+                                   SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
+                    ev = &inputEvent[1];
             }
-            strncpy(_pg_last_unicode_char, inputEvent.text.text,
+            strncpy(_pg_last_unicode_char, ev->text.text,
                     sizeof(_pg_last_unicode_char));
         }
         else {
