@@ -328,6 +328,8 @@ _pg_name_from_eventtype(int type)
             return "FingerUp";
         case SDL_MULTIGESTURE:
             return "MultiGesture";
+        case SDL_TEXTINPUT:
+            return "TextInput";
 #endif
 
     }
@@ -560,6 +562,11 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+        case SDL_TEXTINPUT:
+            /* https://wiki.libsdl.org/SDL_TextInputEvent */
+            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->text.windowID));
+            _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
             break;
 #endif
 
