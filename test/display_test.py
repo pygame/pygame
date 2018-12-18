@@ -442,57 +442,10 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_mode(self):
+    def test_set_mode_kwargs(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.display.set_mode:
+        pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
 
-          # pygame.display.set_mode(resolution=(0,0), flags=0, depth=0): return Surface
-          # initialize a window or screen for display
-          #
-          # This function will create a display Surface. The arguments passed in
-          # are requests for a display type. The actual created display will be
-          # the best possible match supported by the system.
-          #
-          # The resolution argument is a pair of numbers representing the width
-          # and height. The flags argument is a collection of additional
-          # options.  The depth argument represents the number of bits to use
-          # for color.
-          #
-          # The Surface that gets returned can be drawn to like a regular
-          # Surface but changes will eventually be seen on the monitor.
-          #
-          # If no resolution is passed or is set to (0, 0) and pygame uses SDL
-          # version 1.2.10 or above, the created Surface will have the same size
-          # as the current screen resolution. If only the width or height are
-          # set to 0, the Surface will have the same width or height as the
-          # screen resolution. Using a SDL version prior to 1.2.10 will raise an
-          # exception.
-          #
-          # It is usually best to not pass the depth argument. It will default
-          # to the best and fastest color depth for the system. If your game
-          # requires a specific color format you can control the depth with this
-          # argument. Pygame will emulate an unavailable color depth which can
-          # be slow.
-          #
-          # When requesting fullscreen display modes, sometimes an exact match
-          # for the requested resolution cannot be made. In these situations
-          # pygame will select the closest compatable match. The returned
-          # surface will still always match the requested resolution.
-          #
-          # The flags argument controls which type of display you want. There
-          # are several to choose from, and you can even combine multiple types
-          # using the bitwise or operator, (the pipe "|" character). If you pass
-          # 0 or no flags argument it will default to a software driven window.
-          # Here are the display flags you will want to choose from:
-          #
-          #    pygame.FULLSCREEN    create a fullscreen display
-          #    pygame.DOUBLEBUF     recommended for HWSURFACE or OPENGL
-          #    pygame.HWSURFACE     hardware accelerated, only in FULLSCREEN
-          #    pygame.OPENGL        create an opengl renderable display
-          #    pygame.RESIZABLE     display window should be sizeable
-          #    pygame.NOFRAME       display window will have no border or controls
-
-        self.fail()
 
     def todo_test_set_palette(self):
 
