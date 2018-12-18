@@ -76,7 +76,14 @@ key_get_repeat(PyObject *self, PyObject *args)
 }
 #endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
 
+
 #if IS_SDLv2
+/*
+* pgScancodeWrapper is for key_get_pressed in SDL2.
+* It converts key symbol indices to scan codes, as suggested in
+*     https://github.com/pygame/pygame/issues/659
+* so that they work with SDL_GetKeyboardState().
+*/
 typedef struct {
     PyObject_HEAD
 } pgScancodeWrapper;
