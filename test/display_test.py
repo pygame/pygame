@@ -444,7 +444,7 @@ class DisplayModuleTest(unittest.TestCase):
 
     def test_set_mode_kwargs(self):
 
-        pygame.display.set_mode(size=(0, 0), flags=0, depth=0, display=0)
+        pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
 
 
     def todo_test_set_palette(self):
