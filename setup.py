@@ -87,6 +87,11 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+if 'cython' in sys.argv:
+    from Cython.Build import cythonize
+    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx"])
+    sys.exit(0)
+
 AUTO_CONFIG = False
 if '-auto' in sys.argv:
     AUTO_CONFIG = True
@@ -589,7 +594,6 @@ PACKAGEDATA = {
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
-
 
 try:
     setup(**PACKAGEDATA)
