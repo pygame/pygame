@@ -569,7 +569,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     char *title = state->title;
 
     const char *keywords[] = {
-        "resolution",
+        "size",
         "flags",
         "depth",
         "display",
@@ -942,7 +942,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     char *title, *icontitle;
 
     const char *keywords[] = {
-        "resolution",
+        "size",
         "flags",
         "depth",
         "display",

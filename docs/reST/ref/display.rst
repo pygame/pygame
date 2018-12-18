@@ -104,20 +104,20 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(resolution=(0,0), flags=0, depth=0, display=0) -> Surface`
+   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
    possible match supported by the system.
 
-   The resolution argument is a pair of numbers representing the width and
+   The size argument is a pair of numbers representing the width and
    height. The flags argument is a collection of additional options. The depth
    argument represents the number of bits to use for color.
 
    The Surface that gets returned can be drawn to like a regular Surface but
    changes will eventually be seen on the monitor.
 
-   If no resolution is passed or is set to (0, 0) and pygame uses ``SDL``
+   If no size is passed or is set to (0, 0) and pygame uses ``SDL``
    version 1.2.10 or above, the created Surface will have the same size as the
    current screen resolution. If only the width or height are set to 0, the
    Surface will have the same width or height as the screen resolution. Using a
@@ -129,9 +129,9 @@ required).
    will emulate an unavailable color depth which can be slow.
 
    When requesting fullscreen display modes, sometimes an exact match for the
-   requested resolution cannot be made. In these situations pygame will select
+   requested size cannot be made. In these situations pygame will select
    the closest compatible match. The returned surface will still always match
-   the requested resolution.
+   the requested size.
 
    The flags argument controls which type of display you want. There are
    several to choose from, and you can even combine multiple types using the
@@ -278,10 +278,10 @@ required).
    | :sl:`Get list of available fullscreen modes`
    | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list`
 
-   This function returns a list of possible dimensions for a specified color
+   This function returns a list of possible sizes for a specified color
    depth. The return value will be an empty list if no display modes are
    available with the given arguments. A return value of -1 means that any
-   requested resolution should work (this is likely the case for windowed
+   requested size should work (this is likely the case for windowed
    modes). Mode sizes are sorted from biggest to smallest.
 
    If depth is 0, ``SDL`` will choose the current/best color depth for the
