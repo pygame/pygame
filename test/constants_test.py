@@ -38,6 +38,13 @@ class KmodTests(unittest.TestCase):
         for k in self.constants:
             self.assertEqual(type(getattr(pygame.constants, k)), int)
 
+class KeyConstantTests(unittest.TestCase):
+    def test_letters(self):
+        for c in range(ord('a'), ord('z') + 1):
+            c = chr(c)
+            self.assertTrue(hasattr(pygame.constants, 'K_%s' % c),
+                                    'missing constant: K_%s' % c)
+
 ################################################################################
 
 if __name__ == '__main__':
