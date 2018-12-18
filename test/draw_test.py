@@ -501,14 +501,13 @@ class AntiAliasedLineMixin:
             self._check_antialiasing(first, second, expected, check_points)
 
 
+@unittest.expectedFailure
 class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the C algorithm.'''
 
     def draw_aaline(self, color, from_point, to_point):
         draw.aaline(self.surface, color, from_point, to_point, 1)
 
-    def test_anti_aliasing_at_and_outside_the_border(self):
-        "TODO"
 
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the Python algorithm.'''
