@@ -559,7 +559,7 @@ date_files = [(path, files) for path, files in data_files if files]
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads',
+       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads', 'pygame._sdl2',
                        'pygame.tests',
                        'pygame.tests.test_utils',
                        'pygame.tests.run_tests__tests',
@@ -576,6 +576,7 @@ PACKAGEDATA = {
                        'pygame.docs',
                        'pygame.examples'],
        "package_dir": {'pygame': 'src_py',
+                       'pygame._sdl2': 'src_py/_sdl2',
                        'pygame.threads': 'src_py/threads',
                        'pygame.gp2x': 'src_py/gp2x',
                        'pygame.tests': 'test',
