@@ -40,6 +40,20 @@ cdef extern from "SDL.h" nogil:
                        const SDL_Rect* dstrect)
     void SDL_RenderPresent(SDL_Renderer* renderer)
 
+    # https://wiki.libsdl.org/SDL_RendererInfo
+    ctypedef struct SDL_RendererInfo:
+        const char *name
+        Uint32 flags
+        Uint32 num_texture_formats
+        Uint32[16] texture_formats
+        int max_texture_width
+        int max_texture_height
+    # https://wiki.libsdl.org/SDL_GetNumRenderDrivers
+    int SDL_GetNumRenderDrivers()
+    # https://wiki.libsdl.org/SDL_GetRenderDriverInfo
+    int SDL_GetRenderDriverInfo(int               index,
+                                SDL_RendererInfo* info)
+
     # WINDOW
     # https://wiki.libsdl.org/SDL_CreateWindow
     # https://wiki.libsdl.org/SDL_DestroyWindow

@@ -25,6 +25,31 @@ WINDOW_VULKAN = _SDL_WINDOW_VULKAN
 cdef extern from "../_pygame.h" nogil:
     SDL_Surface* pgSurface_AsSurface(object surf)
 
+class RendererDriverInfo:
+    def __repr__(self):
+        return "<%s(name: %s, flags: 0x%02x, num_texture_formats: %d, max_texture_width: %d, max_texture_height: %d)>" % (
+            self.__class__.__name__,
+            self.name,
+            self.flags,
+            self.num_texture_formats,
+            self.max_texture_width,
+            self.max_texture_height,
+        )
+
+def get_drivers():
+    cdef int num = SDL_GetNumRenderDrivers()
+    cdef SDL_RendererInfo info
+    cdef int ind
+    for ind from 0 <= ind < num:
+        SDL_GetRenderDriverInfo(ind, &info)
+        ret = RendererDriverInfo()
+        ret.name = info.name
+        ret.flags = info.flags
+        ret.num_texture_formats = info.num_texture_formats
+        ret.max_texture_width = info.max_texture_width
+        ret.max_texture_height = info.max_texture_height
+        yield ret
+
 cdef class Window:
     POSITION_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
     POSITION_CENTERED = _SDL_WINDOWPOS_CENTERED
