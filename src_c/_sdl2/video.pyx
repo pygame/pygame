@@ -22,6 +22,15 @@ WINDOW_TOOLTIP = _SDL_WINDOW_TOOLTIP
 WINDOW_POPUP_MENU = _SDL_WINDOW_POPUP_MENU
 WINDOW_VULKAN = _SDL_WINDOW_VULKAN
 
+WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
+WINDOWPOS_CENTERED = _SDL_WINDOWPOS_CENTERED
+
+RENDERER_SOFTWARE = _SDL_RENDERER_SOFTWARE
+RENDERER_ACCELERATED = _SDL_RENDERER_ACCELERATED
+RENDERER_PRESENT_VSYNC = _SDL_RENDERER_PRESENTVSYNC
+RENDERER_TARGETTEXTURE = _SDL_RENDERER_TARGETTEXTURE
+
+
 cdef extern from "../_pygame.h" nogil:
     SDL_Surface* pgSurface_AsSurface(object surf)
 
@@ -51,13 +60,11 @@ def get_drivers():
         yield ret
 
 cdef class Window:
-    POSITION_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
-    POSITION_CENTERED = _SDL_WINDOWPOS_CENTERED
     DEFAULT_WIDTH = 640
     DEFAULT_HEIGHT = 480
 
     def __init__(self, title='pygame',
-                 x=POSITION_UNDEFINED, y=POSITION_UNDEFINED,
+                 x=WINDOWPOS_UNDEFINED, y=WINDOWPOS_UNDEFINED,
                  w=DEFAULT_WIDTH, h=DEFAULT_HEIGHT, flags=0):
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y, w, h, flags)
 
@@ -92,12 +99,7 @@ cdef class Texture:
         SDL_DestroyTexture(self._tex)
 
 cdef class Renderer:
-    SOFTWARE = _SDL_RENDERER_SOFTWARE
-    ACCELERATED = _SDL_RENDERER_ACCELERATED
-    PRESENT_VSYNC = _SDL_RENDERER_PRESENTVSYNC
-    TARGET_TEXTURE = _SDL_RENDERER_TARGETTEXTURE
-
-    def __init__(self, Window window, index=-1, flags=ACCELERATED):
+    def __init__(self, Window window, index=-1, flags=RENDERER_ACCELERATED):
         self._renderer = SDL_CreateRenderer(window._win, index, flags)
         self._draw_color = (255, 255, 255, 255)
 
