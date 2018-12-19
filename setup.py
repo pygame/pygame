@@ -89,7 +89,8 @@ if "-warnings" in sys.argv:
 
 if 'cython' in sys.argv:
     from Cython.Build import cythonize
-    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx"])
+    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx"],
+              include_path=["src_c/_sdl2", "src_c"])
     sys.exit(0)
 
 AUTO_CONFIG = False
