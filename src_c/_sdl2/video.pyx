@@ -36,8 +36,11 @@ cdef extern from "../pygame.h" nogil:
     int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
     void import_pygame_surface()
+    SDL_Rect *pgRect_FromObject(object obj, SDL_Rect *temp)
+    void import_pygame_rect()
 
 import_pygame_surface()
+import_pygame_rect()
 
 class RendererDriverInfo:
     def __repr__(self):
@@ -219,22 +222,9 @@ cdef class Renderer:
         SDL_RenderCopy(self._renderer, texture._tex, &srcrect, &dstrect)
 
     def copy(self, Texture texture, srcrect=None, dstrect=None):
-        # TODO: use pgRect_FromObject()
-        cdef SDL_Rect *csrcrect
-        cdef SDL_Rect *cdstrect
         cdef SDL_Rect src, dst
-        if srcrect:
-            src.x, src.y = srcrect.x, srcrect.y
-            src.w, src.h = srcrect.w, srcrect.h
-            csrcrect = &src
-        else:
-            csrcrect = NULL
-        if dstrect:
-            dst.x, dst.y = dstrect.x, dstrect.y
-            dst.w, dst.h = dstrect.w, dstrect.h
-            cdstrect = &dst
-        else:
-            cdstrect = NULL
+        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
+        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
         SDL_RenderCopy(self._renderer, texture._tex, csrcrect, cdstrect)
 
     def present(self):
