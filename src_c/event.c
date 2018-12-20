@@ -124,6 +124,8 @@ pg_event_filter(void *_, SDL_Event *event)
             case SDL_WINDOWEVENT_RESTORED:
                 event->type = SDL_ACTIVEEVENT;
                 break;
+            case SDL_WINDOWEVENT_CLOSE:
+                break;
             default:
                 /*ignore other SDL_WINDOWEVENTs for now.*/
                 return 0;
@@ -442,6 +444,13 @@ dict_from_event(SDL_Event *event)
                    PyInt_FromLong(event->key.keysym.scancode));
             break;
 #else  /* IS_SDLv2 */
+        case SDL_WINDOWEVENT:
+            _pg_insobj(dict, "event", PyInt_FromLong(event->window.event));
+            switch (event->window.event) {
+                case SDL_WINDOWEVENT_CLOSE:
+                    break;
+            }
+            break;
         case SDL_ACTIVEEVENT:
             switch (event->window.event) {
                 case SDL_WINDOWEVENT_ENTER:

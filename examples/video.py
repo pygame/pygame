@@ -49,8 +49,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN and event.window == win2:
-            if event.key == pygame.K_ESCAPE:
+        elif getattr(event, 'window', None) == win2:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE or\
+               event.type == pygame.WINDOWEVENT and event.event == pygame.WINDOWEVENT_CLOSE:
                 win2.destroy()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
