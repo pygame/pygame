@@ -70,6 +70,49 @@ cdef class Window:
     def __init__(self, title='pygame',
                  size=DEFAULT_SIZE, flags=0,
                  x=WINDOWPOS_UNDEFINED, y=WINDOWPOS_UNDEFINED):
+        """ Create a window with the specified position, dimensions, and flags.
+
+        :param title str: the title of the window, in UTF-8 encoding
+        :param size tuple: the size of the window, in screen coordinates (width, height)
+        :param flags int: 0, or one or more SDL_WindowFlags OR'd together
+        :param x int: the x position of the window, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED
+        :param y int: the y position of the window, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED
+
+        WINDOW_FULLSCREEN
+          fullscreen window
+
+        WINDOW_FULLSCREEN_DESKTOP
+          fullscreen window at the current desktop resolution
+
+        WINDOW_OPENGL
+          Window usable with OpenGL context. You will still need to create an OpenGL context.
+
+        WINDOW_VULKAN
+          window usable with a Vulkan instance
+
+        WINDOW_HIDDEN
+          window is not visible
+
+        WINDOW_BORDERLESS
+          no window decoration
+
+        WINDOW_RESIZABLE
+          window can be resized
+
+        WINDOW_MINIMIZED
+          window is minimized
+
+        WINDOW_MAXIMIZED
+          window is maximized
+
+        WINDOW_INPUT_GRABBED
+          window has grabbed input focus
+
+        WINDOW_ALLOW_HIGHDPI
+          window should be created in high-DPI mode if supported (>= SDL 2.0.1)
+        """
+        # https://wiki.libsdl.org/SDL_CreateWindow
+        # https://wiki.libsdl.org/SDL_WindowFlags
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
                                      size[0], size[1], flags)
         if not self._win:
@@ -94,6 +137,12 @@ cdef class Window:
 
 cdef class Texture:
     def __init__(self, Renderer renderer, surface):
+        """ Create a texture from an existing surface.
+
+        :param renderer Renderer: Rendering context for the texture.
+        :param surface Surface: The surface to create a texture from.
+        """
+        # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
         if not pgSurface_Check(surface):
             raise error('2nd argument must be a surface')
         self.renderer = renderer
@@ -111,7 +160,7 @@ cdef class Texture:
             SDL_DestroyTexture(self._tex)
 
 cdef class Renderer:
-    def __init__(self, Window window, index=-1, flags=RENDERER_ACCELERATED):
+    def __init__(self, Window window, index=-1, flags=0):
         """ Create a 2D rendering context for a window.
 
         :param window Window: where rendering is displayed.
