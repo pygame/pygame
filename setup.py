@@ -88,10 +88,15 @@ if "-warnings" in sys.argv:
     sys.argv.remove ("-warnings")
 
 if 'cython' in sys.argv:
-    from Cython.Build import cythonize
+    # So you can `setup.py cython` or `setup.py cython install`
+    try:
+        from Cython.Build import cythonize
+    except ImportError:
+        print("You need cython. https://cython.org/, pip install cython --user")
+
     cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx"],
               include_path=["src_c/_sdl2", "src_c"])
-    sys.exit(0)
+    sys.argv.remove('cython')
 
 AUTO_CONFIG = False
 if '-auto' in sys.argv:
