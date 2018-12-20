@@ -27,7 +27,6 @@ for driver in get_drivers():
 
 win = Window('asdf', flags=WINDOW_RESIZABLE)
 renderer = Renderer(win)
-surf = load_img('alien1.gif')
 tex = Texture(renderer, load_img('alien1.gif'))
 
 running = True
@@ -40,10 +39,13 @@ bg_index = 0
 
 renderer.draw_color = backgrounds[bg_index]
 
-win2 = Window('2nd window', size=(32, 32))
+win2 = Window('2nd window', size=(256, 256))
 renderer2 = Renderer(win2)
+tex2 = Texture(renderer2, load_img('asprite.bmp'))
 renderer2.clear()
+renderer2.copy(tex2)
 renderer2.present()
+del tex2
 
 while running:
     for event in pygame.event.get():
