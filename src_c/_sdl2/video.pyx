@@ -1,4 +1,5 @@
 from cpython cimport PyObject
+from . import error
 
 WINDOW_FULLSCREEN = _SDL_WINDOW_FULLSCREEN
 WINDOW_FULLSCREEN_DESKTOP = _SDL_WINDOW_FULLSCREEN_DESKTOP
@@ -100,11 +101,41 @@ cdef class Texture:
 
 cdef class Renderer:
     def __init__(self, Window window, index=-1, flags=RENDERER_ACCELERATED):
+        """ Create a 2D rendering context for a window.
+
+        :param window Window: where rendering is displayed.
+        :param index int: index of rendering driver to initialize,
+                          or -1 to init the first supporting requested flags.
+        :param flags int: 0, or one or more SDL_RendererFlags OR'd together.
+
+        flags can be these OR'd together:
+
+        0
+          gives priority to available RENDERER_ACCELERATED renderers.
+
+        RENDERER_SOFTWARE
+          the renderer is a software fallback.
+
+        RENDERER_ACCELERATED
+          the renderer uses hardware acceleration.
+
+        RENDERER_PRESENTVSYNC
+          present is synchronized with the refresh rate.
+
+        RENDERER_TARGETTEXTURE
+          the renderer supports rendering to texture.
+        """
+        # https://wiki.libsdl.org/SDL_CreateRenderer
+        # https://wiki.libsdl.org/SDL_RendererFlags
         self._renderer = SDL_CreateRenderer(window._win, index, flags)
+        if not self._renderer:
+            raise error()
+
         self._draw_color = (255, 255, 255, 255)
 
     def __del__(self):
-        SDL_DestroyRenderer(self._renderer)
+        if self._renderer:
+            SDL_DestroyRenderer(self._renderer)
 
     @property
     def draw_color(self):
