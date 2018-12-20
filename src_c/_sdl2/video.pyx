@@ -32,8 +32,12 @@ RENDERER_PRESENT_VSYNC = _SDL_RENDERER_PRESENTVSYNC
 RENDERER_TARGETTEXTURE = _SDL_RENDERER_TARGETTEXTURE
 
 
-cdef extern from "../_pygame.h" nogil:
+cdef extern from "../pygame.h" nogil:
+    int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
+    void import_pygame_surface()
+
+import_pygame_surface()
 
 class RendererDriverInfo:
     def __repr__(self):
@@ -61,17 +65,19 @@ def get_drivers():
         yield ret
 
 cdef class Window:
-    DEFAULT_WIDTH = 640
-    DEFAULT_HEIGHT = 480
+    DEFAULT_SIZE = 640, 480
 
     def __init__(self, title='pygame',
-                 x=WINDOWPOS_UNDEFINED, y=WINDOWPOS_UNDEFINED,
-                 w=DEFAULT_WIDTH, h=DEFAULT_HEIGHT, flags=0):
-        self._win = SDL_CreateWindow(title.encode('utf8'), x, y, w, h, flags)
+                 size=DEFAULT_SIZE, flags=0,
+                 x=WINDOWPOS_UNDEFINED, y=WINDOWPOS_UNDEFINED):
+        self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
+                                     size[0], size[1], flags)
+        if not self._win:
+            raise error()
 
     @property
     def title(self):
-        return SDL_GetWindowTitle(self._win).value
+        return SDL_GetWindowTitle(self._win).decode('utf8')
 
     @title.setter
     def title(self, new_title):
@@ -88,16 +94,21 @@ cdef class Window:
 
 cdef class Texture:
     def __init__(self, Renderer renderer, surface):
+        if not pgSurface_Check(surface):
+            raise error('2nd argument must be a surface')
         self.renderer = renderer
         cdef SDL_Renderer* _renderer = renderer._renderer
         cdef SDL_Surface *surf_ptr = pgSurface_AsSurface(surface)
         self._tex = SDL_CreateTextureFromSurface(_renderer,
                                                  surf_ptr)
+        if not self._tex:
+            raise error()
         self.width = surface.get_width()
         self.height = surface.get_height()
 
     def __del__(self):
-        SDL_DestroyTexture(self._tex)
+        if self._tex:
+            SDL_DestroyTexture(self._tex)
 
 cdef class Renderer:
     def __init__(self, Window window, index=-1, flags=RENDERER_ACCELERATED):

@@ -17,9 +17,10 @@ from pygame._sdl2 import (
 )
 
 def load_img(file):
-    return pygame.image.load(os.path.join(data_dir, 'alien1.gif'))
+    return pygame.image.load(os.path.join(data_dir, file))
 
 pygame.display.init()
+pygame.key.set_repeat(10, 10)
 
 for driver in get_drivers():
     print(driver)
