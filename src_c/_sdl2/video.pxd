@@ -69,6 +69,13 @@ cdef extern from "SDL.h" nogil:
     const char* SDL_GetWindowTitle(SDL_Window* window)
     void SDL_SetWindowTitle(SDL_Window* window,
                             const char* title)
+    # https://wiki.libsdl.org/SDL_GetWindowData
+    # https://wiki.libsdl.org/SDL_SetWindowData
+    void* SDL_GetWindowData(SDL_Window* window,
+                            const char* name)
+    void* SDL_SetWindowData(SDL_Window* window,
+                            const char* name,
+                            void*       userdata)
 
     cdef int _SDL_WINDOWPOS_UNDEFINED "SDL_WINDOWPOS_UNDEFINED"
     cdef int _SDL_WINDOWPOS_CENTERED "SDL_WINDOWPOS_CENTERED"

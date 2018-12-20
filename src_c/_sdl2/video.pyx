@@ -120,6 +120,7 @@ cdef class Window:
                                      size[0], size[1], flags)
         if not self._win:
             raise error()
+        SDL_SetWindowData(self._win, "pg_window", <PyObject*>self)
 
     @property
     def title(self):
@@ -131,6 +132,7 @@ cdef class Window:
 
     def destroy(self):
         if self._win:
+            SDL_SetWindowData(self._win, "pg_window", NULL)
             SDL_DestroyWindow(self._win)
             self._win = NULL
 

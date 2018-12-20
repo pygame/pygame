@@ -20,7 +20,7 @@ def load_img(file):
     return pygame.image.load(os.path.join(data_dir, file))
 
 pygame.display.init()
-pygame.key.set_repeat(10, 10)
+pygame.key.set_repeat(1000, 10)
 
 for driver in get_drivers():
     print(driver)
@@ -40,13 +40,22 @@ bg_index = 0
 
 renderer.draw_color = backgrounds[bg_index]
 
+win2 = Window('2nd window', size=(32, 32))
+renderer2 = Renderer(win2)
+renderer2.clear()
+renderer2.present()
+
 while running:
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE or\
-            event.type == pygame.QUIT:
+        if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN and event.window == win2:
+            if event.key == pygame.K_ESCAPE:
+                win2.destroy()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+            elif event.key == pygame.K_LEFT:
                 x -= 5
             elif event.key == pygame.K_RIGHT:
                 x += 5
