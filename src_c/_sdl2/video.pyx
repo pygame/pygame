@@ -26,11 +26,6 @@ WINDOW_VULKAN = _SDL_WINDOW_VULKAN
 WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
 WINDOWPOS_CENTERED = _SDL_WINDOWPOS_CENTERED
 
-RENDERER_SOFTWARE = _SDL_RENDERER_SOFTWARE
-RENDERER_ACCELERATED = _SDL_RENDERER_ACCELERATED
-RENDERER_PRESENT_VSYNC = _SDL_RENDERER_PRESENTVSYNC
-RENDERER_TARGETTEXTURE = _SDL_RENDERER_TARGETTEXTURE
-
 
 cdef extern from "../pygame.h" nogil:
     int pgSurface_Check(object surf)
@@ -165,33 +160,30 @@ cdef class Texture:
             SDL_DestroyTexture(self._tex)
 
 cdef class Renderer:
-    def __init__(self, Window window, index=-1, flags=0):
+    def __init__(self, Window window, int index=-1,
+                 int accelerated=-1, bint vsync=False,
+                 bint target_texture=False):
         """ Create a 2D rendering context for a window.
 
         :param window Window: where rendering is displayed.
         :param index int: index of rendering driver to initialize,
-                          or -1 to init the first supporting requested flags.
-        :param flags int: 0, or one or more SDL_RendererFlags OR'd together.
-
-        flags can be these OR'd together:
-
-        0
-          gives priority to available RENDERER_ACCELERATED renderers.
-
-        RENDERER_SOFTWARE
-          the renderer is a software fallback.
-
-        RENDERER_ACCELERATED
-          the renderer uses hardware acceleration.
-
-        RENDERER_PRESENTVSYNC
-          present is synchronized with the refresh rate.
-
-        RENDERER_TARGETTEXTURE
-          the renderer supports rendering to texture.
+                          or -1 to init the first supporting requested options.
+        :param accelerated int: if 1, the renderer uses hardware acceleration.
+                                if 0, the renderer is a software fallback.
+                                -1 gives precedence to renderers using hardware acceleration.
+        :param vsync bool: .present() is synchronized with the refresh rate.
+        :param target_texture bool: the renderer supports rendering to texture.
         """
         # https://wiki.libsdl.org/SDL_CreateRenderer
         # https://wiki.libsdl.org/SDL_RendererFlags
+        flags = 0
+        if accelerated >= 0:
+            flags |= _SDL_RENDERER_ACCELERATED if accelerated else _SDL_RENDERER_SOFTWARE
+        if vsync:
+            flags |= _SDL_RENDERER_PRESENTVSYNC
+        if target_texture:
+            flags |= _SDL_RENDERER_TARGETTEXTURE
+
         self._renderer = SDL_CreateRenderer(window._win, index, flags)
         if not self._renderer:
             raise error()
