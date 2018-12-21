@@ -47,7 +47,6 @@ cdef class Window:
     _kwarg_to_flag = {
         'opengl': _SDL_WINDOW_OPENGL,
         'vulkan': _SDL_WINDOW_VULKAN,
-        'shown': _SDL_WINDOW_SHOWN,
         'hidden': _SDL_WINDOW_HIDDEN,
         'borderless': _SDL_WINDOW_BORDERLESS,
         'resizable': _SDL_WINDOW_RESIZABLE,
@@ -80,7 +79,6 @@ cdef class Window:
                                2: fullscreen window at the current desktop resolution
         :param opengl bool: Usable with OpenGL context. You will still need to create an OpenGL context.
         :param vulkan bool: usable with a Vulkan instance
-        :param shown bool: window is visible
         :param hidden bool: window is not visible
         :param borderless bool: no window decoration
         :param resizable bool: window can be resized
