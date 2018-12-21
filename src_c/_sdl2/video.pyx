@@ -1,9 +1,14 @@
 from cpython cimport PyObject
 from . import error
+from libc.stdlib cimport free, malloc
 
 
 WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
 WINDOWPOS_CENTERED = _SDL_WINDOWPOS_CENTERED
+
+MESSAGEBOX_ERROR = _SDL_MESSAGEBOX_ERROR
+MESSAGEBOX_WARNING = _SDL_MESSAGEBOX_WARNING
+MESSAGEBOX_INFORMATION = _SDL_MESSAGEBOX_INFORMATION
 
 
 cdef extern from "../pygame.h" nogil:
@@ -41,6 +46,7 @@ def get_drivers():
         ret.max_texture_height = info.max_texture_height
         yield ret
 
+
 def get_grabbed_window():
     """return the Window with input grab enabled,
        or None if input isn't grabbed."""
@@ -52,6 +58,63 @@ def get_grabbed_window():
             return None
         return <object>ptr
     return None
+
+
+def messagebox(message, title="",
+               type=MESSAGEBOX_INFORMATION,
+               Window window=None, buttons=None,
+               return_button=-1,
+               escape_button=-1):
+    # TODO: type check
+    # TODO: docs
+    # TODO: color scheme
+    cdef SDL_MessageBoxButtonData* c_buttons = NULL
+
+    cdef SDL_MessageBoxData data
+    data.flags = type
+    if not window:
+        data.window = NULL
+    else:
+        data.window = window._win
+    title = title.encode('utf8')
+    data.title = title
+    message = message.encode('utf8')
+    data.message = message
+    data.colorScheme = NULL
+
+    cdef SDL_MessageBoxButtonData button
+    if not buttons:
+        button.flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
+                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+        button.buttonid = 0
+        button.text = "OK"
+        data.buttons = &button
+        data.numbuttons = 1
+    else:
+        buttons_utf8 = [s.encode('utf8') for s in buttons]
+        data.numbuttons = len(buttons)
+        c_buttons =\
+            <SDL_MessageBoxButtonData*>malloc(data.numbuttons * sizeof(SDL_MessageBoxButtonData))
+        if not c_buttons:
+            raise MemoryError()
+        for i, but in enumerate(reversed(buttons_utf8)):
+            c_buttons[i].flags = 0
+            c_buttons[i].buttonid = data.numbuttons - i - 1
+            if c_buttons[i].buttonid == return_button:
+                c_buttons[i].flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT
+            if c_buttons[i].buttonid == escape_button:
+                c_buttons[i].flags |= _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+            c_buttons[i].text = but
+        data.buttons = c_buttons
+
+    cdef int buttonid
+    if SDL_ShowMessageBox(&data, &buttonid):
+        free(c_buttons)
+        raise error()
+
+    free(c_buttons)
+    return buttonid
+
 
 cdef class Window:
     DEFAULT_SIZE = 640, 480

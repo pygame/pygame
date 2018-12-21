@@ -13,6 +13,8 @@ from pygame._sdl2 import (
     Texture,
     Renderer,
     get_drivers,
+    messagebox,
+    MESSAGEBOX_WARNING
 )
 
 def load_img(file):
@@ -23,6 +25,14 @@ pygame.key.set_repeat(1000, 10)
 
 for driver in get_drivers():
     print(driver)
+
+import random
+answer = messagebox("I will open two windows! Continue?", "Hello!", type=MESSAGEBOX_WARNING,
+                    buttons=('Yes', 'No', 'Chance'),
+                    return_button=0, escape_button=1)
+if answer == 1 or (answer == 2 and random.random() < .5):
+    import sys
+    sys.exit(0)
 
 win = Window('asdf', resizable=True)
 renderer = Renderer(win)
