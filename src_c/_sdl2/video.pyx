@@ -117,8 +117,9 @@ cdef class Window:
         _kwarg_to_flag = self._kwarg_to_flag
         for k, v in kwargs.items():
             try:
+                flag = _kwarg_to_flag[k]
                 if v:
-                    flags |= _kwarg_to_flag[k]
+                    flags |= flag
             except KeyError:
                 raise error("unknown parameter: %s" % k)
 
