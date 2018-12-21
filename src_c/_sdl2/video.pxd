@@ -76,6 +76,42 @@ cdef extern from "SDL.h" nogil:
     void* SDL_SetWindowData(SDL_Window* window,
                             const char* name,
                             void*       userdata)
+    # https://wiki.libsdl.org/SDL_MaximizeWindow
+    # https://wiki.libsdl.org/SDL_MinimizeWindow
+    # https://wiki.libsdl.org/SDL_RestoreWindow
+    # https://wiki.libsdl.org/SDL_ShowWindow
+    # https://wiki.libsdl.org/SDL_HideWindow
+    # https://wiki.libsdl.org/SDL_RaiseWindow
+    void SDL_MaximizeWindow(SDL_Window* window)
+    void SDL_MinimizeWindow(SDL_Window* window)
+    void SDL_RestoreWindow(SDL_Window* window)
+    void SDL_ShowWindow(SDL_Window* window)
+    void SDL_HideWindow(SDL_Window* window)
+    void SDL_RaiseWindow(SDL_Window* window)
+    # https://wiki.libsdl.org/SDL_GetWindowID
+    Uint32 SDL_GetWindowID(SDL_Window* window)
+    # https://wiki.libsdl.org/SDL_GetWindowSize
+    # https://wiki.libsdl.org/SDL_SetWindowSize
+    # https://wiki.libsdl.org/SDL_GetWindowPosition
+    # https://wiki.libsdl.org/SDL_SetWindowPosition
+    void SDL_GetWindowSize(SDL_Window* window,
+                           int*        w,
+                           int*        h)
+    void SDL_SetWindowSize(SDL_Window* window,
+                           int         w,
+                           int         h)
+    void SDL_GetWindowPosition(SDL_Window* window,
+                               int*        x,
+                               int*        y)
+    void SDL_SetWindowPosition(SDL_Window* window,
+                               int         x,
+                               int         y)
+    # https://wiki.libsdl.org/SDL_GetWindowOpacity
+    # https://wiki.libsdl.org/SDL_SetWindowOpacity
+    int SDL_GetWindowOpacity(SDL_Window* window,
+                             float*      opacity)
+    int SDL_SetWindowOpacity(SDL_Window* window,
+                             float       opacity)
 
     cdef int _SDL_WINDOWPOS_UNDEFINED "SDL_WINDOWPOS_UNDEFINED"
     cdef int _SDL_WINDOWPOS_CENTERED "SDL_WINDOWPOS_CENTERED"

@@ -39,6 +39,7 @@ bg_index = 0
 renderer.draw_color = backgrounds[bg_index]
 
 win2 = Window('2nd window', size=(256, 256))
+win2.opacity = 0.5
 renderer2 = Renderer(win2)
 tex2 = Texture(renderer2, load_img('asprite.bmp'))
 renderer2.clear()

@@ -137,11 +137,78 @@ cdef class Window:
 
     def destroy(self):
         if self._win:
-            SDL_SetWindowData(self._win, "pg_window", NULL)
             SDL_DestroyWindow(self._win)
             self._win = NULL
 
-    def __del__(self):
+    def hide(self):
+        SDL_HideWindow(self._win)
+
+    def show(self):
+        SDL_ShowWindow(self._win)
+
+    def focus(self):
+        """raise a window above other windows and set the input focus."""
+        SDL_RaiseWindow(self._win)
+
+    def restore(self):
+        """restore the size and position of a minimized or maximized window."""
+        SDL_RestoreWindow(self._win)
+
+    def maximize(self):
+        SDL_MaximizeWindow(self._win)
+
+    def minimize(self):
+        SDL_MinimizeWindow(self._win)
+
+    @property
+    def id(self):
+        return SDL_GetWindowID(self._win)
+
+    @property
+    def size(self):
+        """get the size of a window's client area."""
+        cdef int w, h
+        SDL_GetWindowSize(self._win, &w, &h)
+        return (w, h)
+
+    @size.setter
+    def size(self, size):
+        """set the size of a window's client area."""
+        SDL_SetWindowSize(self._win, size[0], size[1])
+
+    @property
+    def position(self):
+        cdef int x, y
+        SDL_GetWindowPosition(self._win, &x, &y)
+        return (x, y)
+
+    @position.setter
+    def position(self, position):
+        """screen coordinates, or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED"""
+        cdef int x, y
+        if position == WINDOWPOS_UNDEFINED:
+            x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
+        elif position == WINDOWPOS_CENTERED:
+            x, y = WINDOWPOS_CENTERED, WINDOWPOS_CENTERED
+        else:
+            x, y = position
+        SDL_SetWindowPosition(self._win, x, y)
+
+    @property
+    def opacity(self):
+        """get window opacity in (0.0f transparent, 1.0f opaque)"""
+        cdef float opacity
+        if SDL_GetWindowOpacity(self._win, &opacity):
+            raise error()
+        return opacity
+
+    @opacity.setter
+    def opacity(self, opacity):
+        """set window opacity in (0.0f transparent, 1.0f opaque)"""
+        if SDL_SetWindowOpacity(self._win, opacity):
+            raise error()
+
+    def __dealloc__(self):
         self.destroy()
 
 
@@ -165,7 +232,7 @@ cdef class Texture:
         self.width = surface.get_width()
         self.height = surface.get_height()
 
-    def __del__(self):
+    def __dealloc__(self):
         if self._tex:
             SDL_DestroyTexture(self._tex)
 
@@ -200,7 +267,7 @@ cdef class Renderer:
 
         self._draw_color = (255, 255, 255, 255)
 
-    def __del__(self):
+    def __dealloc__(self):
         if self._renderer:
             SDL_DestroyRenderer(self._renderer)
 
