@@ -12,7 +12,6 @@ from pygame._sdl2 import (
     Window,
     Texture,
     Renderer,
-    WINDOW_RESIZABLE,
     get_drivers,
 )
 
@@ -25,7 +24,7 @@ pygame.key.set_repeat(1000, 10)
 for driver in get_drivers():
     print(driver)
 
-win = Window('asdf', flags=WINDOW_RESIZABLE)
+win = Window('asdf', resizable=True)
 renderer = Renderer(win)
 tex = Texture(renderer, load_img('alien1.gif'))
 

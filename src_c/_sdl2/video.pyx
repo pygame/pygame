@@ -1,27 +1,6 @@
 from cpython cimport PyObject
 from . import error
 
-WINDOW_FULLSCREEN = _SDL_WINDOW_FULLSCREEN
-WINDOW_FULLSCREEN_DESKTOP = _SDL_WINDOW_FULLSCREEN_DESKTOP
-WINDOW_OPENGL = _SDL_WINDOW_OPENGL
-WINDOW_SHOWN = _SDL_WINDOW_SHOWN
-WINDOW_HIDDEN = _SDL_WINDOW_HIDDEN
-WINDOW_BORDERLESS = _SDL_WINDOW_BORDERLESS
-WINDOW_RESIZABLE = _SDL_WINDOW_RESIZABLE
-WINDOW_MINIMIZED = _SDL_WINDOW_MINIMIZED
-WINDOW_MAXIMIZED = _SDL_WINDOW_MAXIMIZED
-WINDOW_INPUT_GRABBED = _SDL_WINDOW_INPUT_GRABBED
-WINDOW_INPUT_FOCUS = _SDL_WINDOW_INPUT_FOCUS
-WINDOW_MOUSE_FOCUS = _SDL_WINDOW_MOUSE_FOCUS
-WINDOW_FOREIGN = _SDL_WINDOW_FOREIGN
-WINDOW_ALLOW_HIGHDPI = _SDL_WINDOW_ALLOW_HIGHDPI
-WINDOW_MOUSE_CAPTURE = _SDL_WINDOW_MOUSE_CAPTURE
-WINDOW_ALWAYS_ON_TOP = _SDL_WINDOW_ALWAYS_ON_TOP
-WINDOW_SKIP_TASKBAR = _SDL_WINDOW_SKIP_TASKBAR
-WINDOW_UTILITY = _SDL_WINDOW_UTILITY
-WINDOW_TOOLTIP = _SDL_WINDOW_TOOLTIP
-WINDOW_POPUP_MENU = _SDL_WINDOW_POPUP_MENU
-WINDOW_VULKAN = _SDL_WINDOW_VULKAN
 
 WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
 WINDOWPOS_CENTERED = _SDL_WINDOWPOS_CENTERED
@@ -65,52 +44,84 @@ def get_drivers():
 cdef class Window:
     DEFAULT_SIZE = 640, 480
 
+    _kwarg_to_flag = {
+        'opengl': _SDL_WINDOW_OPENGL,
+        'vulkan': _SDL_WINDOW_VULKAN,
+        'shown': _SDL_WINDOW_SHOWN,
+        'hidden': _SDL_WINDOW_HIDDEN,
+        'borderless': _SDL_WINDOW_BORDERLESS,
+        'resizable': _SDL_WINDOW_RESIZABLE,
+        'minimized': _SDL_WINDOW_MINIMIZED,
+        'maximized': _SDL_WINDOW_MAXIMIZED,
+        'input_grabbed': _SDL_WINDOW_INPUT_GRABBED,
+        'input_focus': _SDL_WINDOW_INPUT_FOCUS,
+        'mouse_focus': _SDL_WINDOW_MOUSE_FOCUS,
+        'allow_highdpi': _SDL_WINDOW_ALLOW_HIGHDPI,
+        'foreign': _SDL_WINDOW_FOREIGN,
+        'mouse_capture': _SDL_WINDOW_MOUSE_CAPTURE,
+        'always_on_top': _SDL_WINDOW_ALWAYS_ON_TOP,
+        'skip_taskbar': _SDL_WINDOW_SKIP_TASKBAR,
+        'utility': _SDL_WINDOW_UTILITY,
+        'tooltip': _SDL_WINDOW_TOOLTIP,
+        'popup_menu': _SDL_WINDOW_POPUP_MENU,
+    }
+
     def __init__(self, title='pygame',
-                 size=DEFAULT_SIZE, flags=0,
-                 x=WINDOWPOS_UNDEFINED, y=WINDOWPOS_UNDEFINED):
+                 size=DEFAULT_SIZE,
+                 position=WINDOWPOS_UNDEFINED,
+                 int fullscreen=0, **kwargs):
         """ Create a window with the specified position, dimensions, and flags.
 
         :param title str: the title of the window, in UTF-8 encoding
         :param size tuple: the size of the window, in screen coordinates (width, height)
-        :param flags int: 0, or one or more SDL_WindowFlags OR'd together
-        :param x int: the x position of the window, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED
-        :param y int: the y position of the window, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED
-
-        WINDOW_FULLSCREEN
-          fullscreen window
-
-        WINDOW_FULLSCREEN_DESKTOP
-          fullscreen window at the current desktop resolution
-
-        WINDOW_OPENGL
-          Window usable with OpenGL context. You will still need to create an OpenGL context.
-
-        WINDOW_VULKAN
-          window usable with a Vulkan instance
-
-        WINDOW_HIDDEN
-          window is not visible
-
-        WINDOW_BORDERLESS
-          no window decoration
-
-        WINDOW_RESIZABLE
-          window can be resized
-
-        WINDOW_MINIMIZED
-          window is minimized
-
-        WINDOW_MAXIMIZED
-          window is maximized
-
-        WINDOW_INPUT_GRABBED
-          window has grabbed input focus
-
-        WINDOW_ALLOW_HIGHDPI
-          window should be created in high-DPI mode if supported (>= SDL 2.0.1)
+        :param position: a tuple specifying the window position, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
+        :param fullscreen int: 0: windowed mode
+                               1: fullscreen window
+                               2: fullscreen window at the current desktop resolution
+        :param opengl bool: Usable with OpenGL context. You will still need to create an OpenGL context.
+        :param vulkan bool: usable with a Vulkan instance
+        :param shown bool: window is visible
+        :param hidden bool: window is not visible
+        :param borderless bool: no window decoration
+        :param resizable bool: window can be resized
+        :param minimized bool: window is minimized
+        :param maximized bool: window is maximized
+        :param input_grabbed bool: window has grabbed input focus
+        :param input_focus bool: window has input focus
+        :param mouse_focus bool: window has mouse focus
+        :param foreign bool: window not created by SDL
+        :param allow_highdpi bool: window should be created in high-DPI mode if supported (>= SDL 2.0.1)
+        :param mouse_capture bool: window has mouse captured (unrelated to INPUT_GRABBED, >= SDL 2.0.4)
+        :param always_on_top bool: window should always be above others (X11 only, >= SDL 2.0.5)
+        :param skip_taskbar bool: window should not be added to the taskbar (X11 only, >= SDL 2.0.5)
+        :param utility bool: window should be treated as a utility window (X11 only, >= SDL 2.0.5)
+        :param tooltip bool: window should be treated as a tooltip (X11 only, >= SDL 2.0.5)
+        :param popup_menu bool: window should be treated as a popup menu (X11 only, >= SDL 2.0.5)
         """
         # https://wiki.libsdl.org/SDL_CreateWindow
         # https://wiki.libsdl.org/SDL_WindowFlags
+        if position == WINDOWPOS_UNDEFINED:
+            x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
+        elif position == WINDOWPOS_CENTERED:
+            x, y = WINDOWPOS_CENTERED, WINDOWPOS_CENTERED
+        else:
+            x, y = position
+
+        flags = 0
+        if fullscreen > 0:
+            if fullscreen == 1:
+                flags |= _SDL_WINDOW_FULLSCREEN
+            else:
+                flags |= _SDL_WINDOW_FULLSCREEN_DESKTOP
+
+        _kwarg_to_flag = self._kwarg_to_flag
+        for k, v in kwargs.items():
+            try:
+                if v:
+                    flags |= _kwarg_to_flag[k]
+            except KeyError:
+                raise error("unknown parameter: %s" % k)
+
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
                                      size[0], size[1], flags)
         if not self._win:
