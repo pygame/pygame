@@ -186,6 +186,14 @@ check_local_bottles
 
 set +e
 
+function prevent_stall {
+    while kill -0 "$!" 2> /dev/null
+    do
+        sleep 20
+        echo "Waiting..."
+    done
+}
+
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
 install_or_upgrade libpng ${UNIVERSAL_FLAG}
@@ -194,6 +202,7 @@ install_or_upgrade webp ${UNIVERSAL_FLAG}
 install_or_upgrade libogg ${UNIVERSAL_FLAG}
 install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
 install_or_upgrade flac ${UNIVERSAL_FLAG}
+install_or_upgrade boost & prevent_stall #workaround due to glib
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
 install_or_upgrade smpeg
