@@ -16,6 +16,9 @@ brew update
 echo -en 'travis_fold:end:brew.update\\r'
 export HOMEBREW_NO_AUTO_UPDATE=1
 
+brew install ccache
+export PATH="/usr/local/opt/ccache/libexec:$PATH"
+
 brew uninstall --force --ignore-dependencies pkg-config
 brew install pkg-config
 
