@@ -140,6 +140,12 @@ cdef class Window:
             raise error()
         SDL_SetWindowData(self._win, "pg_window", <PyObject*>self)
 
+        import pygame.pkgdata
+        surf = pygame.image.load(pygame.pkgdata.getResource(
+                                 'pygame_icon.bmp'))
+        surf.set_colorkey(0)
+        self.set_icon(surf)
+
     @property
     def grab(self):
         """get a window's input grab state (True or False).
