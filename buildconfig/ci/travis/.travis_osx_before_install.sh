@@ -96,6 +96,14 @@ function install_or_upgrade {
     set -e
 }
 
+function prevent_stall {
+    while kill -0 "$!" 2> /dev/null
+    do
+        sleep 20
+        echo "Waiting..."
+    done
+}
+
 
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
@@ -105,6 +113,7 @@ install_or_upgrade webp ${UNIVERSAL_FLAG}
 install_or_upgrade libogg ${UNIVERSAL_FLAG}
 install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
 install_or_upgrade flac ${UNIVERSAL_FLAG}
+brew install boost & prevent_stall
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
 install_or_upgrade smpeg
