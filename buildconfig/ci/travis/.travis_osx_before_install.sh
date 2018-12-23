@@ -32,6 +32,7 @@ fi
 
 # Only compile from source if doing a release. on tag or master.
 # This saves compile times for normal PR testing.
+ccache -s
 echo "About to install dependencies"
 echo $TRAVIS_TAG
 echo $TRAVIS_BRANCH
