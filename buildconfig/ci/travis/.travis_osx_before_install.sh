@@ -113,7 +113,7 @@ install_or_upgrade webp ${UNIVERSAL_FLAG}
 install_or_upgrade libogg ${UNIVERSAL_FLAG}
 install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
 install_or_upgrade flac ${UNIVERSAL_FLAG}
-brew install boost & prevent_stall
+brew upgrade boost & prevent_stall
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
 install_or_upgrade smpeg
