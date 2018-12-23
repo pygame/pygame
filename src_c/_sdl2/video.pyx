@@ -41,6 +41,18 @@ def get_drivers():
         ret.max_texture_height = info.max_texture_height
         yield ret
 
+def get_grabbed_window():
+    """return the Window with input grab enabled,
+       or None if input isn't grabbed."""
+    cdef SDL_Window *win = SDL_GetGrabbedWindow()
+    cdef void *ptr
+    if win:
+        ptr = SDL_GetWindowData(win, "pg_window")
+        if not ptr:
+            return None
+        return <object>ptr
+    return None
+
 cdef class Window:
     DEFAULT_SIZE = 640, 480
 
@@ -75,8 +87,9 @@ cdef class Window:
         :param size tuple: the size of the window, in screen coordinates (width, height)
         :param position: a tuple specifying the window position, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
         :param fullscreen int: 0: windowed mode
-                               1: fullscreen window
+                               1: fullscreen window ("real" fullscreen with a videomode change)
                                2: fullscreen window at the current desktop resolution
+                                  ("fake" fullscreen that takes the size of the desktop)
         :param opengl bool: Usable with OpenGL context. You will still need to create an OpenGL context.
         :param vulkan bool: usable with a Vulkan instance
         :param hidden bool: window is not visible
@@ -128,6 +141,40 @@ cdef class Window:
         SDL_SetWindowData(self._win, "pg_window", <PyObject*>self)
 
     @property
+    def grab(self):
+        """get a window's input grab state (True or False).
+
+        When input is grabbed the mouse is confined to the window.
+        If the caller enables a grab while another window is currently grabbed,
+        the other window loses its grab in favor of the caller's window."""
+        return SDL_GetWindowGrab(self._win) != 0
+
+    @grab.setter
+    def grab(self, bint enabled):
+        """set a window's input grab state (True or False).
+
+        When input is grabbed the mouse is confined to the window.
+        If the caller enables a grab while another window is currently grabbed,
+        the other window loses its grab in favor of the caller's window."""
+        SDL_SetWindowGrab(self._win, 1 if enabled else 0)
+
+    def set_fullscreen(self, int mode):
+        """set the window's fullscreen state.
+        :param mode int: 0: windowed mode
+                         1: fullscreen window ("real" fullscreen with a videomode change)
+                         2: fullscreen window at the current desktop resolution
+                            ("fake" fullscreen that takes the size of the desktop)
+        """
+        cdef int flags = 0
+        if mode > 0:
+            if mode == 1:
+                flags = _SDL_WINDOW_FULLSCREEN
+            else:
+                flags = _SDL_WINDOW_FULLSCREEN_DESKTOP
+        if SDL_SetWindowFullscreen(self._win, flags):
+            raise error()
+
+    @property
     def title(self):
         return SDL_GetWindowTitle(self._win).decode('utf8')
 
@@ -146,9 +193,15 @@ cdef class Window:
     def show(self):
         SDL_ShowWindow(self._win)
 
-    def focus(self):
-        """raise a window above other windows and set the input focus."""
-        SDL_RaiseWindow(self._win)
+    def focus(self, input_only=False):
+        """raise a window above other windows and set the input focus.
+        If input_only is True, the window will be given input focus
+        but may be completely obscured by other windows."""
+        if input_only:
+            if SDL_SetWindowInputFocus(self._win):
+                raise error()
+        else:
+            SDL_RaiseWindow(self._win)
 
     def restore(self):
         """restore the size and position of a minimized or maximized window."""
@@ -159,6 +212,31 @@ cdef class Window:
 
     def minimize(self):
         SDL_MinimizeWindow(self._win)
+
+    @property
+    def resizable(self):
+        return SDL_GetWindowFlags(self._win) & _SDL_WINDOW_RESIZABLE != 0
+
+    @resizable.setter
+    def resizable(self, enabled):
+        SDL_SetWindowResizable(self._win, 1 if enabled else 0)
+
+    @property
+    def borderless(self):
+        return SDL_GetWindowFlags(self._win) & _SDL_WINDOW_BORDERLESS != 0
+
+    @borderless.setter
+    def borderless(self, enabled):
+        """add or remove the border from the actual window.
+        You can't change the border state of a fullscreen window."""
+        SDL_SetWindowBordered(self._win, 1 if enabled else 0)
+
+    def set_icon(self, surface):
+        """set the icon for the window.
+        :param surface Surface: A Surface to use as the icon."""
+        if not pgSurface_Check(surface):
+            raise error('surface must be a Surface object')
+        SDL_SetWindowIcon(self._win, pgSurface_AsSurface(surface))
 
     @property
     def id(self):
@@ -206,6 +284,35 @@ cdef class Window:
     def opacity(self, opacity):
         """set window opacity in (0.0f transparent, 1.0f opaque)"""
         if SDL_SetWindowOpacity(self._win, opacity):
+            raise error()
+
+    @property
+    def brightness(self):
+        """set the brightness (gamma multiplier) for the display that owns a given window.
+        the brightness (gamma multiplier) value to set where 0.0 is
+        completely dark and 1.0 is normal brightness"""
+        return SDL_GetWindowBrightness(self._win)
+
+    @brightness.setter
+    def brightness(self, float value):
+        """set the brightness (gamma multiplier) for the display that owns a given window.
+        the brightness (gamma multiplier) value to set where 0.0 is
+        completely dark and 1.0 is normal brightness"""
+        if SDL_SetWindowBrightness(self._win, value):
+            raise error()
+
+    @property
+    def display_index(self):
+        """get the index of the display associated with the window."""
+        cdef int index = SDL_GetWindowDisplayIndex(self._win)
+        if index < 0:
+            raise error()
+        return index
+
+    def set_modal_for(self, Window parent):
+        """set the window as a modal for a parent window
+        This function is only supported on X11."""
+        if SDL_SetWindowModalFor(self._win, parent._win):
             raise error()
 
     def __dealloc__(self):

@@ -38,8 +38,9 @@ bg_index = 0
 
 renderer.draw_color = backgrounds[bg_index]
 
-win2 = Window('2nd window', size=(256, 256))
+win2 = Window('2nd window', size=(256, 256), always_on_top=True)
 win2.opacity = 0.5
+win2.set_icon(load_img('bomb.gif'))
 renderer2 = Renderer(win2)
 tex2 = Texture(renderer2, load_img('asprite.bmp'))
 renderer2.clear()

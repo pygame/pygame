@@ -82,13 +82,26 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_ShowWindow
     # https://wiki.libsdl.org/SDL_HideWindow
     # https://wiki.libsdl.org/SDL_RaiseWindow
+    # https://wiki.libsdl.org/SDL_SetWindowInputFocus
+    # https://wiki.libsdl.org/SDL_SetWindowResizable
+    # https://wiki.libsdl.org/SDL_SetWindowBordered
+    # https://wiki.libsdl.org/SDL_SetWindowIcon
     void SDL_MaximizeWindow(SDL_Window* window)
     void SDL_MinimizeWindow(SDL_Window* window)
     void SDL_RestoreWindow(SDL_Window* window)
     void SDL_ShowWindow(SDL_Window* window)
     void SDL_HideWindow(SDL_Window* window)
     void SDL_RaiseWindow(SDL_Window* window)
+    int SDL_SetWindowInputFocus(SDL_Window* window)
+    void SDL_SetWindowResizable(SDL_Window* window,
+                                SDL_bool    resizable)
+    void SDL_SetWindowBordered(SDL_Window* window,
+                               SDL_bool    bordered)
+    void SDL_SetWindowIcon(SDL_Window*  window,
+                           SDL_Surface* icon)
+    # https://wiki.libsdl.org/SDL_GetWindowFlags
     # https://wiki.libsdl.org/SDL_GetWindowID
+    Uint32 SDL_GetWindowFlags(SDL_Window* window)
     Uint32 SDL_GetWindowID(SDL_Window* window)
     # https://wiki.libsdl.org/SDL_GetWindowSize
     # https://wiki.libsdl.org/SDL_SetWindowSize
@@ -112,6 +125,26 @@ cdef extern from "SDL.h" nogil:
                              float*      opacity)
     int SDL_SetWindowOpacity(SDL_Window* window,
                              float       opacity)
+    # https://wiki.libsdl.org/SDL_GetWindowBrightness
+    # https://wiki.libsdl.org/SDL_SetWindowBrightness
+    float SDL_GetWindowBrightness(SDL_Window* window)
+    int SDL_SetWindowBrightness(SDL_Window* window,
+                                float       brightness)
+    # https://wiki.libsdl.org/SDL_GetWindowDisplayIndex
+    # https://wiki.libsdl.org/SDL_GetGrabbedWindow
+    # https://wiki.libsdl.org/SDL_GetWindowGrab
+    # https://wiki.libsdl.org/SDL_SetWindowGrab
+    # https://wiki.libsdl.org/SDL_SetWindowFullscreen
+    # https://wiki.libsdl.org/SDL_SetWindowModalFor
+    int SDL_GetWindowDisplayIndex(SDL_Window* window)
+    SDL_Window* SDL_GetGrabbedWindow()
+    SDL_bool SDL_GetWindowGrab(SDL_Window* window)
+    void SDL_SetWindowGrab(SDL_Window* window,
+                           SDL_bool    grabbed)
+    int SDL_SetWindowFullscreen(SDL_Window* window,
+                                Uint32      flags)
+    int SDL_SetWindowModalFor(SDL_Window* modal_window,
+                              SDL_Window* parent_window)
 
     cdef int _SDL_WINDOWPOS_UNDEFINED "SDL_WINDOWPOS_UNDEFINED"
     cdef int _SDL_WINDOWPOS_CENTERED "SDL_WINDOWPOS_CENTERED"

@@ -14,6 +14,7 @@ cdef extern from "SDL.h" nogil:
     ctypedef unsigned long Uint32
     ctypedef unsigned long long Uint64
     ctypedef signed long long Sint64
+    ctypedef int SDL_bool
 
     const char *SDL_GetError()
 
