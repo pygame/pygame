@@ -553,7 +553,7 @@ pg_gl_get_attribute(PyObject *self, PyObject *arg)
 
 #if IS_SDLv2
 static PyObject *
-pg_set_mode(PyObject *self, PyObject *arg)
+pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 {
     static const char *const DefaultTitle = "pygame window";
 
@@ -565,9 +565,19 @@ pg_set_mode(PyObject *self, PyObject *arg)
     int flags = 0;
     int w = 0;
     int h = 0;
+    int display = 0;
     char *title = state->title;
 
-    if (!PyArg_ParseTuple(arg, "|(ii)ii", &w, &h, &flags, &depth))
+    const char *keywords[] = {
+        "size",
+        "flags",
+        "depth",
+        "display",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords,
+                                     &w, &h, &flags, &depth, &display))
         return NULL;
 
     if (w < 0 || h < 0)
@@ -641,8 +651,10 @@ pg_set_mode(PyObject *self, PyObject *arg)
             sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
         if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
             sdl_flags |= SDL_WINDOW_SHOWN;
-        win = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, w, h, sdl_flags);
+        win = SDL_CreateWindow(title,
+                               SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                               SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                               w, h, sdl_flags);
         if (!win)
             return RAISE(pgExc_SDLError, SDL_GetError());
 
@@ -918,17 +930,27 @@ pg_num_displays()
 
 #else /* IS_SDLv1 */
 static PyObject *
-pg_set_mode(PyObject *self, PyObject *arg)
+pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 {
     SDL_Surface *surf;
     int depth = 0;
     int flags = SDL_SWSURFACE;
     int w = 0;
     int h = 0;
+    int display = 0;
     int hasbuf;
     char *title, *icontitle;
 
-    if (!PyArg_ParseTuple(arg, "|(ii)ii", &w, &h, &flags, &depth))
+    const char *keywords[] = {
+        "size",
+        "flags",
+        "depth",
+        "display",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords,
+                                     &w, &h, &flags, &depth, &display))
         return NULL;
 
     if (w < 0 || h < 0)
@@ -1775,7 +1797,7 @@ static PyMethodDef _pg_display_methods[] = {
     {"get_surface", (PyCFunction)pg_get_surface, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETSURFACE},
 
-    {"set_mode", pg_set_mode, METH_VARARGS, DOC_PYGAMEDISPLAYSETMODE},
+    {"set_mode", pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
     {"mode_ok", pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
     {"list_modes", pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
     {"get_num_displays", pg_num_displays, METH_NOARGS, DOC_PYGAMEDISPLAYGETNUMDISPLAYS},

@@ -422,4 +422,50 @@ New in pygame 1.9.0.
 
    .. ## pygame.midi.time ##
 
+
+.. function:: frequency_to_midi
+
+   | :sl:`Converts a frequency into a MIDI note. Rounds to the closest midi note.`
+   | :sg:`frequency_to_midi(midi_note) -> midi_note`
+
+   example:
+
+   ::
+       frequency_to_midi(27.5) == 21
+
+   New in pygame 1.9.5.
+
+   .. ## pygame.midi.frequency_to_midi ##
+
+
+.. function:: midi_to_frequency
+
+   | :sl:`Converts a midi note to a frequency.`
+   | :sg:`midi_to_frequency(midi_note) -> frequency`
+
+   example:
+
+   ::
+       midi_to_frequency(21) == 27.5
+
+   New in pygame 1.9.5.
+
+   .. ## pygame.midi.midi_to_frequency ##
+
+
+.. function:: midi_to_ansi_note
+
+   | :sl:`Returns the Ansi Note name for a midi number.`
+   | :sg:`midi_to_ansi_note(midi_note) -> ansi_note`
+
+   example:
+
+   ::
+       midi_to_ansi_note(21) == 'A0'
+
+   New in pygame 1.9.5.
+
+   .. ## pygame.midi.midi_to_ansi_note ##
+
+
 .. ## pygame.midi ##
