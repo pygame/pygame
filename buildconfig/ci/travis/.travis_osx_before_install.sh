@@ -181,11 +181,6 @@ function check_local_bottles {
   echo "Done checking local bottles."
 }
 
-check_local_bottles
-
-
-set +e
-
 function prevent_stall {
     while kill -0 "$!" 2> /dev/null
     do
@@ -193,6 +188,16 @@ function prevent_stall {
         echo "Waiting..."
     done
 }
+
+check_local_bottles
+
+if [ "${1}" == "--no-installs" ]; then
+  unset HOMEBREW_BUILD_BOTTLE
+  unset HOMEBREW_BOTTLE_ARCH
+  return 0
+fi
+
+set +e
 
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
@@ -210,6 +215,7 @@ install_or_upgrade smpeg
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
+install_or_upgrade cmake # portmidi dependency
 brew tap pygame/portmidi
 brew install pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
 
