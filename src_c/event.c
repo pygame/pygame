@@ -173,7 +173,30 @@ pg_event_filter(void *_, SDL_Event *event)
     else if (type == PGE_KEYREPEAT) {
         event->type = SDL_KEYDOWN;
     }
+	else if (type == SDL_MOUSEWHEEL) {
+		// Generate a MouseButtonDown event for compatibility.
+		// https://wiki.libsdl.org/SDL_MouseWheelEvent
+		SDL_Event newevent;
+		newevent.type = SDL_MOUSEBUTTONDOWN;
+		
+		int x, y;
+		VIDEO_INIT_CHECK();
+		SDL_GetMouseState(&x, &y);
+		newevent.button.x = x;
+		newevent.button.y = y;
+		
+		newevent.button.state = SDL_PRESSED;
+		newevent.button.clicks = 1;
+		
+		// 4/5 for roll up/down
+		if (event->wheel.y > 0)
+			newevent.button.button = 4;
+		else
+			newevent.button.button = 5;
 
+		if (SDL_PushEvent(&newevent) < 0)
+			return RAISE(pgExc_SDLError, SDL_GetError());
+	}
     return 1;
 }
 
@@ -328,6 +351,8 @@ _pg_name_from_eventtype(int type)
             return "FingerUp";
         case SDL_MULTIGESTURE:
             return "MultiGesture";
+        case SDL_MOUSEWHEEL:
+		    return "MouseWheel";
 #endif
 
     }
@@ -560,6 +585,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+		case SDL_MOUSEWHEEL:
+            /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
+		    obj = Py_BuildValue("(ii)", event->wheel.x, event->wheel.y);
+            _pg_insobj(dict, "pos", obj);
+            _pg_insobj(dict, "direction", PyInt_FromLong(event->wheel.direction));                
             break;
 #endif
 
