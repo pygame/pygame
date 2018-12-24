@@ -86,6 +86,11 @@ function retry {
 }
 
 function install_or_upgrade {
+  if [[ ! $1 ]]; then
+    echo "Called install_or_upgrade with no args; do nothing."
+    return 0
+  fi
+
   local deps=""
   if (brew info "$1" | grep "(bottled)" >/dev/null); then
     deps=$(brew deps "$1")
@@ -160,7 +165,7 @@ function check_local_bottles {
   echo "Checking local bottles in $HOME/HomebrewLocal/json/..."
   for jsonfile in $HOME/HomebrewLocal/json/*.json; do
     [ -e "$jsonfile" ] || continue
-    local pkg="$(cut -d'-' -f1 <<<"$(basename $jsonfile)")"
+    local pkg="$(sed 's/\(.*\)--.*/\1/' <<<"$(basename $jsonfile)")"
     echo "Package: $pkg. JSON: $jsonfile."
 
     local filefull=$(cat $HOME/HomebrewLocal/path/$pkg)
