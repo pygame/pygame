@@ -8,6 +8,7 @@ cache:
     - $HOME/.cache/pip
     - $HOME/Library/Caches/Homebrew
     - $HOME/.ccache
+    - $HOME/HomebrewLocal
     - /Library/Caches/Homebrew
 
 matrix:
