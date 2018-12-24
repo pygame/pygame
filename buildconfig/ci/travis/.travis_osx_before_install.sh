@@ -107,6 +107,8 @@ function install_or_upgrade {
         echo "$1: Found bottle."
         retry brew upgrade "$1"
         return 0
+      else
+        brew uninstall --ignore-dependencies "$1"
       fi
     else
       echo "$1 is not installed."
