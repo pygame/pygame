@@ -188,10 +188,16 @@ pg_event_filter(void *_, SDL_Event *event)
         newevent.button.state = SDL_PRESSED;
         newevent.button.clicks = 1;
         
-        // 4/5 for roll up/down
+        /* 4/5 for roll up/down
+		 TODO: Wheel for x axis?
+		if (event->wheel.x > 0)
+            newevent.button.button = 4;
+        else if (event->wheel.x < 0)
+            newevent.button.button = 5;
+        */
         if (event->wheel.y > 0)
             newevent.button.button = 4;
-        else
+        else if (event->wheel.y < 0)
             newevent.button.button = 5;
 
         if (SDL_PushEvent(&newevent) < 0)
