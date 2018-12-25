@@ -86,16 +86,23 @@ function retry {
 }
 
 function install_or_upgrade {
-  if [[ ! $1 ]]; then
+  if [[ ! "$1" ]]; then
     echo "Called install_or_upgrade with no args; do nothing."
     return 0
   fi
 
+  local outdated=$(brew outdated | grep -m 1 "$1")
+  if [[ ! "$outdated" ]] && (brew ls --versions "$1" >/dev/null); then
+    echo "$1 is already installed and up to date."
+    return 0
+  fi
+
   local deps=""
-  if (brew info "$1" | grep "(bottled)" >/dev/null); then
-    deps=$(brew deps "$1")
+  local bottled=$(brew info "$1" | grep -m 1 "(bottled)")
+  if [[ "$bottled" ]]; then
+    deps=$(brew deps --1 "$1")
   else
-    deps=$(brew deps --include-build "$1")
+    deps=$(brew deps --1 --include-build "$1")
   fi
   if [[ "$deps" ]]; then
     echo -n "$1 dependencies: "
@@ -106,59 +113,54 @@ function install_or_upgrade {
     done <<< "$deps"
   fi
 
-  if (brew ls --versions "$1" >/dev/null) && ! (brew outdated | grep "$1" >/dev/null); then
-    echo "$1 is already installed and up to date."
-  else
-    if (brew outdated | grep "$1" >/dev/null); then
-      echo "$1 is installed but outdated."
-      if (brew info "$1" | grep "(bottled)" >/dev/null); then
-        echo "$1: Found bottle."
-        retry brew upgrade "$1"
-        return 0
-      else
-        brew uninstall --ignore-dependencies "$1"
-      fi
+  if [[ "$outdated" ]]; then
+    echo "$1 is installed but outdated."
+    if [[ "$bottled" ]]; then
+      echo "$1: Found bottle."
+      retry brew upgrade "$1"
+      return 0
     else
-      echo "$1 is not installed."
-      if (brew info "$1" | grep "(bottled)" >/dev/null); then
-        echo "$1: Found bottle."
-        retry brew install "$1"
-        return 0
-      fi
+      brew uninstall --ignore-dependencies "$1"
     fi
-
-    echo "$1: Found no bottle. Let's build one."
-
-    retry brew install --build-bottle "$@"
-    brew bottle --json "$@"
-    # TODO: ^ first line in stdout is the bottle file
-    # use instead of file cmd. json file has a similar name. "| head -n 1"?
-    local jsonfile=$(find . -name $1*.bottle.json)
-    brew uninstall --ignore-dependencies "$@"
-
-    local bottlefile=$(find . -name $1*.tar.gz)
-    echo "brew install $bottlefile"
-    brew install "$bottlefile"
-
-    # Add the bottle info into the package's formula
-    echo "brew bottle --merge --write $jsonfile"
-    brew bottle --merge --write "$jsonfile"
-
-    # Path to the cachefile will be updated now
-    local cachefile=$(brew --cache $1)
-    echo "Copying $bottlefile to $cachefile..."
-    cp -f "$bottlefile" "$cachefile"
-
-    # save bottle info
-    echo "Copying $jsonfile to $HOME/HomebrewLocal/json..."
-    mkdir -p "$HOME/HomebrewLocal/json"
-    cp -f "$jsonfile" "$HOME/HomebrewLocal/json/"
-
-    echo "Saving bottle path to to $HOME/HomebrewLocal/path/$1..."
-    mkdir -p "$HOME/HomebrewLocal/path"
-    echo "$cachefile" > "$HOME/HomebrewLocal/path/$1"
-    echo "Result: $(cat $HOME/HomebrewLocal/path/$1)."
+  else
+    echo "$1 is not installed."
+    if [[ "$bottled" ]]; then
+      echo "$1: Found bottle."
+      retry brew install "$@"
+      return 0
+    fi
   fi
+
+  echo "$1: Found no bottle. Let's build one."
+
+  retry brew install --build-bottle "$1"
+  brew bottle --json "$1"
+  # TODO: ^ first line in stdout is the bottle file
+  # use instead of file cmd. json file has a similar name. "| head -n 1"?
+  local jsonfile=$(find . -name $1*.bottle.json)
+  brew uninstall --ignore-dependencies "$1"
+
+  local bottlefile=$(find . -name $1*.tar.gz)
+  echo "brew install $bottlefile"
+  brew install "$bottlefile"
+
+  # Add the bottle info into the package's formula
+  echo "brew bottle --merge --write $jsonfile"
+  brew bottle --merge --write "$jsonfile"
+
+  # Path to the cachefile will be updated now
+  local cachefile=$(brew --cache $1)
+  echo "Copying $bottlefile to $cachefile..."
+  cp -f "$bottlefile" "$cachefile"
+
+  # save bottle info
+  echo "Copying $jsonfile to $HOME/HomebrewLocal/json..."
+  mkdir -p "$HOME/HomebrewLocal/json"
+  cp -f "$jsonfile" "$HOME/HomebrewLocal/json/"
+
+  echo "Saving bottle path to to $HOME/HomebrewLocal/path/$1..."
+  mkdir -p "$HOME/HomebrewLocal/path"
+  echo "$cachefile" > "$HOME/HomebrewLocal/path/$1"
 }
 
 function check_local_bottles {
@@ -220,7 +222,7 @@ install_or_upgrade smpeg
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
-install_or_upgrade cmake # portmidi dependency
+#install_or_upgrade cmake # portmidi dependency
 brew tap pygame/portmidi
 brew install pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
 
