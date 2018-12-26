@@ -9,6 +9,8 @@ unset -f cd
 shell_session_update() { :; }
 
 
+set UPDATE_UNBOTTLED='0'
+
 
 echo -en 'travis_fold:start:brew.update\\r'
 echo "Updating Homebrew listings..."
@@ -120,6 +122,10 @@ function install_or_upgrade {
       retry brew upgrade "$1"
       return 0
     else
+      if [[ ! "$UPDATE_UNBOTTLED" ]] || [[ "$UPDATE_UNBOTTLED" = "0" ]]; then
+        echo "$1: skipping update. (UPDATE_UNBOTTLED = 0)"
+        return 0
+      fi
       brew uninstall --ignore-dependencies "$1"
     fi
   else
@@ -133,7 +139,7 @@ function install_or_upgrade {
 
   echo "$1: Found no bottle. Let's build one."
 
-  retry brew install --build-bottle "$1"
+  retry brew install --build-bottle "$@"
   brew bottle --json "$1"
   # TODO: ^ first line in stdout is the bottle file
   # use instead of file cmd. json file has a similar name. "| head -n 1"?
