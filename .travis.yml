@@ -5,6 +5,8 @@ cache:
     - $HOME/.cache/pip
     - $HOME/Library/Caches/Homebrew
     - /Library/Caches/Homebrew
+    - $HOME/Library/Caches/pip/wheels
+    - /Library/Caches/pip
 
 matrix:
   include:
