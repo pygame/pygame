@@ -87,6 +87,14 @@ function retry {
   done
 }
 
+function clear_package_cache {
+  rm -f "$HOME/HomebrewLocal/json/$1--*"
+  if [[ -e "$HOME/HomebrewLocal/path/$1" ]]; then
+    echo "Removing cached $1."
+    rm -f $(< "$HOME/HomebrewLocal/path/$1") && rm -f "$HOME/HomebrewLocal/path/$1"
+  fi
+}
+
 function install_or_upgrade {
   if [[ ! "$1" ]]; then
     echo "Called install_or_upgrade with no args; do nothing."
@@ -111,7 +119,7 @@ function install_or_upgrade {
     echo $deps
     while read -r dependency; do
       echo "$1: Install dependency $dependency."
-      install_or_upgrade "$dependency"
+      install_or_upgrade "$dependency" ${UNIVERSAL_FLAG}
     done <<< "$deps"
   fi
 
@@ -119,6 +127,7 @@ function install_or_upgrade {
     echo "$1 is installed but outdated."
     if [[ "$bottled" ]]; then
       echo "$1: Found bottle."
+      clear_package_cache "$1"
       retry brew upgrade "$1"
       return 0
     else
@@ -127,11 +136,13 @@ function install_or_upgrade {
         return 0
       fi
       brew uninstall --ignore-dependencies "$1"
+      clear_package_cache "$1"
     fi
   else
     echo "$1 is not installed."
     if [[ "$bottled" ]]; then
       echo "$1: Found bottle."
+      clear_package_cache "$1"
       retry brew install "$@"
       return 0
     fi
@@ -176,20 +187,12 @@ function check_local_bottles {
     local pkg="$(sed 's/\(.*\)--.*/\1/' <<<"$(basename $jsonfile)")"
     echo "Package: $pkg. JSON: $jsonfile."
 
-    local filefull=$(cat $HOME/HomebrewLocal/path/$pkg)
+    local filefull=$(< "$HOME/HomebrewLocal/path/$pkg")
     local file=$(basename $filefull)
     echo "$pkg: local bottle path: $filefull"
 
-    # This might be good enough for now?
     echo "Adding local bottle into $pkg's formula."
     brew bottle --merge --write "$jsonfile"
-
-    # TODO: check if the local bottle is still appropriate (by comparing versions and rebuild numbers)
-    # if it does, re-add bottle info to formula like above
-    # if it doesn't, delete cached bottle & json
-    #    ie rm -f $filefull
-    #brew info --json=v1 "$pkg"
-    #brew info --json=v1 "$filefull"
   done
   echo "Done checking local bottles."
 }
