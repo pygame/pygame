@@ -190,7 +190,7 @@ function check_local_bottles {
     echo "$pkg: local bottle path: $filefull"
 
     echo "Adding local bottle into $pkg's formula."
-    brew bottle --merge --write "$jsonfile"
+    brew bottle --merge --write "$jsonfile" || true
   done
   echo "Done checking local bottles."
 }
@@ -232,7 +232,7 @@ install_or_upgrade smpeg
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
-install_or_upgrade pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
+install_or_upgrade portmidi ${UNIVERSAL_FLAG}
 
 install_or_upgrade freetype ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
