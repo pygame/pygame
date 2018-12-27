@@ -127,8 +127,8 @@ function install_or_upgrade {
     echo "$1 is installed but outdated."
     if [[ "$bottled" ]]; then
       echo "$1: Found bottle."
-      clear_package_cache "$1"
-      retry brew upgrade "$1"
+      retry brew uninstall --ignore-dependencies "$1"
+      retry brew install "$@"
       return 0
     else
       if [[ ! "$UPDATE_UNBOTTLED" ]] || [[ "$UPDATE_UNBOTTLED" = "0" ]]; then
@@ -136,13 +136,11 @@ function install_or_upgrade {
         return 0
       fi
       brew uninstall --ignore-dependencies "$1"
-      clear_package_cache "$1"
     fi
   else
     echo "$1 is not installed."
     if [[ "$bottled" ]]; then
       echo "$1: Found bottle."
-      clear_package_cache "$1"
       retry brew install "$@"
       return 0
     fi
@@ -215,6 +213,9 @@ fi
 
 set +e
 
+brew tap pygame/portmidi
+brew tap-pin pygame/portmidi
+
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
 install_or_upgrade libpng ${UNIVERSAL_FLAG}
@@ -231,10 +232,7 @@ install_or_upgrade smpeg
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
-brew tap pygame/portmidi
-brew tap-pin pygame/portmidi
-UPDATE_UNBOTTLED='1' install_or_upgrade cmake
-install_or_upgrade portmidi ${UNIVERSAL_FLAG}
+install_or_upgrade pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
 
 install_or_upgrade freetype ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}

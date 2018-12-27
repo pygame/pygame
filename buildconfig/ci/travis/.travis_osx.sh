@@ -37,8 +37,7 @@ fi
 # try and install an old python3.6 formula
 if [[ "$PY_VERSION_" == "3.6" ]]; then
 	brew uninstall python --force --ignore-dependencies
-	brew tap pygame/portmidi
-	brew install pygame/portmidi/python
+	brew install "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python36/python.rb"
 	export PYTHON_EXE=python3.6
 	export PIP_CMD="python3.6 -m pip"
 elif [[ "$PY_VERSION_" == "3.7" ]]; then
