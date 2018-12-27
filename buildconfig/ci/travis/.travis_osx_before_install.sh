@@ -228,9 +228,10 @@ install_or_upgrade smpeg
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
-#install_or_upgrade cmake # portmidi dependency
 brew tap pygame/portmidi
-brew install pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
+brew tap-pin pygame/portmidi
+UPDATE_UNBOTTLED='1' install_or_upgrade cmake
+install_or_upgrade portmidi ${UNIVERSAL_FLAG}
 
 install_or_upgrade freetype ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
