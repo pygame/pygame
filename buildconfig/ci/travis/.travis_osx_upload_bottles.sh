@@ -157,6 +157,7 @@ done
 # archive all packages upload the archive
 echo "Creating brew-packages.tar.gz..."
 tar cfzv "brew-packages.tar.gz" "Formula" "bottles"
+shasum -a 256 "./brew-packages.tar.gz"
 
 set -e
 
