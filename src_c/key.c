@@ -637,20 +637,23 @@ key_get_focused(PyObject *self)
 #endif /* IS_SDLv2 */
 }
 
-#if IS_SDLv2
 static PyObject *
 key_start_text_input(PyObject *self)
 {
+#if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StartTextInput */
     SDL_StartTextInput();
+#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
 static PyObject *
 key_stop_text_input(PyObject *self)
 {
+#if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StopTextInput */
     SDL_StopTextInput();
+#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
@@ -658,6 +661,7 @@ static PyObject *
 key_set_text_input_rect(PyObject *self, PyObject *obj)
 {
     /* https://wiki.libsdl.org/SDL_SetTextInputRect */
+#if IS_SDLv2
     SDL_Rect *rect, temp;
     if (obj == Py_None) {
         Py_RETURN_NONE;
@@ -666,27 +670,9 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
     if (!rect)
         return RAISE(PyExc_TypeError, "Invalid rect argument");
     SDL_SetTextInputRect(rect);
+#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
-#else /* IS_SDLv1 */
-static PyObject *
-key_start_text_input(PyObject *self)
-{
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-key_stop_text_input(PyObject *self)
-{
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-key_set_text_input_rect(PyObject *self, PyObject *obj)
-{
-    Py_RETURN_NONE;
-}
-#endif /* IS_SDLv1 */
 
 static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
