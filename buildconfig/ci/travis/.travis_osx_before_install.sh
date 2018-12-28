@@ -57,11 +57,6 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_B
 	brew uninstall --force --ignore-dependencies smpeg
 	brew uninstall --force --ignore-dependencies portmidi
 	brew uninstall --force --ignore-dependencies freetype
-
-	# These are for building from source, with 'core2'
-	#   because otherwise homebrew will use the architecture of the build host.
-	export HOMEBREW_BUILD_BOTTLE=1
-	export HOMEBREW_BOTTLE_ARCH=core2
 fi
 
 
