@@ -655,7 +655,7 @@ key_stop_text_input(PyObject *self)
 }
 
 static PyObject *
-key_set_input_rect(PyObject *self, PyObject *obj)
+key_set_text_input_rect(PyObject *self, PyObject *obj)
 {
     /* https://wiki.libsdl.org/SDL_SetTextInputRect */
     SDL_Rect *rect, temp;
@@ -682,7 +682,7 @@ key_stop_text_input(PyObject *self)
 }
 
 static PyObject *
-key_set_input_rect(PyObject *self, PyObject *obj)
+key_set_text_input_rect(PyObject *self, PyObject *obj)
 {
     Py_RETURN_NONE;
 }
@@ -699,11 +699,11 @@ static PyMethodDef _key_methods[] = {
     {"get_focused", (PyCFunction)key_get_focused, METH_NOARGS,
      DOC_PYGAMEKEYGETFOCUSED},
     {"start_text_input", (PyCFunction)key_start_text_input, METH_NOARGS,
-     NULL},
+     DOC_PYGAMEKEYSTARTTEXTINPUT},
     {"stop_text_input", (PyCFunction)key_stop_text_input, METH_NOARGS,
-     NULL},
-    {"set_input_rect", (PyCFunction)key_set_input_rect, METH_O,
-     NULL},
+     DOC_PYGAMEKEYSTOPTEXTINPUT},
+    {"set_text_input_rect", (PyCFunction)key_set_text_input_rect, METH_O,
+     DOC_PYGAMEKEYSETTEXTINPUTRECT},
 
     {NULL, NULL, 0, NULL}};
 
