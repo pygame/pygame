@@ -4,7 +4,11 @@ cache:
   directories:
     - $HOME/.cache/pip
     - $HOME/Library/Caches/Homebrew
+    - $HOME/HomebrewLocal
+    - $HOME/.ccache
     - /Library/Caches/Homebrew
+    - $HOME/Library/Caches/pip/wheels
+    - /Library/Caches/pip/wheels
 
 matrix:
   include:
@@ -75,6 +79,7 @@ matrix:
       env: PY_VERSION=pypy3
 
 before_install:
+  - export PATH=/usr/lib/ccache:$PATH
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_before_install.sh;  fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
