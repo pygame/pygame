@@ -30,20 +30,14 @@ function prevent_stall {
     done
 }
 
-function install_or_upgrade {
-  if [[ ! "$1" ]]; then
-    echo "Called install_or_upgrade with no args; do nothing."
-    return 0
-  fi
-
-  local outdated=$(brew outdated | grep -m 1 "$1")
-  if [[ ! "$outdated" ]] && (brew ls --versions "$1" >/dev/null); then
-    echo "$1 is already installed and up to date."
-    return 0
-  fi
-
+function install_or_upgrade_deps {
   local deps=""
-  local bottled=$(brew info "$1" | grep -m 1 "(bottled)")
+  local bottled=""
+  if [[ -z "$2" ]]; then
+    bottled=$(brew info "$1" | grep -m 1 "(bottled)")
+  else
+    bottled="$2"
+  fi
   if [[ "$bottled" ]]; then
     deps=$(brew deps --1 "$1")
   else
@@ -57,6 +51,22 @@ function install_or_upgrade {
       install_or_upgrade "$dependency" ${UNIVERSAL_FLAG}
     done <<< "$deps"
   fi
+}
+
+function install_or_upgrade {
+  if [[ ! "$1" ]]; then
+    echo "Called install_or_upgrade with no args; do nothing."
+    return 0
+  fi
+
+  local outdated=$(brew outdated | grep -m 1 "$1")
+  if [[ ! "$outdated" ]] && (brew ls --versions "$1" >/dev/null); then
+    echo "$1 is already installed and up to date."
+    return 0
+  fi
+
+  local bottled=$(brew info "$1" | grep -m 1 "(bottled)")
+  install_or_upgrade_deps "$1" "$bottled"
 
   if [[ "$outdated" ]]; then
     echo "$1 is installed but outdated."
