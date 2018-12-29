@@ -20,6 +20,8 @@ if [[ "$PY_VERSION" == "pypy2" ]] || [[ "$PY_VERSION" == "pypy3" ]]; then
 	export PIP_CMD="$PY_VERSION -m pip"
 else
 
+source "buildconfig/ci/travis/.travis_osx_utils.sh"
+
 
 git clone https://github.com/illume/terryfy.git
 # git clone https://github.com/MacPython/terryfy.git
@@ -37,12 +39,12 @@ fi
 # try and install an old python3.6 formula
 if [[ "$PY_VERSION_" == "3.6" ]]; then
 	brew uninstall python --force --ignore-dependencies
-	brew install "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python36/python.rb"
+	retry install_or_upgrade "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python36/python.rb"
 	export PYTHON_EXE=python3.6
 	export PIP_CMD="python3.6 -m pip"
 elif [[ "$PY_VERSION_" == "3.7" ]]; then
 	brew uninstall python --force --ignore-dependencies
-	brew install python
+	retry install_or_upgrade python
 	export PYTHON_EXE=python3.7
 	export PIP_CMD="python3.7 -m pip"
 else
