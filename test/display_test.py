@@ -358,6 +358,10 @@ class DisplayModuleTest(unittest.TestCase):
             size = modes[0]
             self.assertNotEqual(pygame.display.mode_ok(size), 0)
 
+        pygame.display.mode_ok((128, 128), 0, 32)
+        pygame.display.mode_ok((128, 128), flags=0, depth=32, display=0)
+
+
     def test_mode_ok_fullscreen(self):
         modes = pygame.display.list_modes()
         if modes != -1:
