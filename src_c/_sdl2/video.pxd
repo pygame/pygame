@@ -12,6 +12,31 @@ cdef extern from "SDL.h" nogil:
         int x, y
         int w, h
 
+    # https://wiki.libsdl.org/SDL_MessageBoxData
+    # https://wiki.libsdl.org/SDL_ShowMessageBox
+    cdef Uint32 _SDL_MESSAGEBOX_ERROR "SDL_MESSAGEBOX_ERROR"
+    cdef Uint32 _SDL_MESSAGEBOX_WARNING "SDL_MESSAGEBOX_WARNING"
+    cdef Uint32 _SDL_MESSAGEBOX_INFORMATION "SDL_MESSAGEBOX_INFORMATION"
+
+    cdef Uint32 _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT "SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT"
+    cdef Uint32 _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT "SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT"
+
+    ctypedef struct SDL_MessageBoxData:
+        Uint32 flags
+        SDL_Window* window
+        const char* title
+        const char* message
+        int numbuttons
+        const SDL_MessageBoxButtonData* buttons
+        const SDL_MessageBoxColorScheme* colorScheme
+    ctypedef struct SDL_MessageBoxButtonData:
+        Uint32 flags
+        int buttonid
+        const char *text
+    ctypedef struct SDL_MessageBoxColorScheme
+    int SDL_ShowMessageBox(const SDL_MessageBoxData* messageboxdata,
+                           int*                      buttonid)
+
     # RENDERER
     cdef Uint32 _SDL_RENDERER_SOFTWARE "SDL_RENDERER_SOFTWARE"
     cdef Uint32 _SDL_RENDERER_ACCELERATED "SDL_RENDERER_ACCELERATED"
