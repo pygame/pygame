@@ -80,16 +80,15 @@ cdef class Window:
     def __init__(self, title='pygame',
                  size=DEFAULT_SIZE,
                  position=WINDOWPOS_UNDEFINED,
-                 int fullscreen=0, **kwargs):
+                 bint fullscreen=False,
+                 bint fullscreen_desktop=False, **kwargs):
         """ Create a window with the specified position, dimensions, and flags.
 
         :param title str: the title of the window, in UTF-8 encoding
         :param size tuple: the size of the window, in screen coordinates (width, height)
         :param position: a tuple specifying the window position, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
-        :param fullscreen int: 0: windowed mode
-                               1: fullscreen window ("real" fullscreen with a videomode change)
-                               2: fullscreen window at the current desktop resolution
-                                  ("fake" fullscreen that takes the size of the desktop)
+        :param fullscreen bool: fullscreen window using the window size as the resolution (videomode change)
+        :param fullscreen_desktop bool: fullscreen window using the current desktop resolution
         :param opengl bool: Usable with OpenGL context. You will still need to create an OpenGL context.
         :param vulkan bool: usable with a Vulkan instance
         :param hidden bool: window is not visible
@@ -119,11 +118,12 @@ cdef class Window:
             x, y = position
 
         flags = 0
-        if fullscreen > 0:
-            if fullscreen == 1:
-                flags |= _SDL_WINDOW_FULLSCREEN
-            else:
-                flags |= _SDL_WINDOW_FULLSCREEN_DESKTOP
+        if fullscreen and fullscreen_desktop:
+            raise error("fullscreen and fullscreen_desktop cannot be used at the same time.")
+        if fullscreen:
+            flags |= _SDL_WINDOW_FULLSCREEN
+        elif fullscreen_desktop:
+            flags |= _SDL_WINDOW_FULLSCREEN_DESKTOP
 
         _kwarg_to_flag = self._kwarg_to_flag
         for k, v in kwargs.items():
@@ -164,19 +164,23 @@ cdef class Window:
         the other window loses its grab in favor of the caller's window."""
         SDL_SetWindowGrab(self._win, 1 if enabled else 0)
 
-    def set_fullscreen(self, int mode):
-        """set the window's fullscreen state.
-        :param mode int: 0: windowed mode
-                         1: fullscreen window ("real" fullscreen with a videomode change)
-                         2: fullscreen window at the current desktop resolution
-                            ("fake" fullscreen that takes the size of the desktop)
+    def set_windowed(self):
+        """enable windowed mode
+        .. seealso:: :func:`set_fullscreen`"""
+        if SDL_SetWindowFullscreen(self._win, 0):
+            raise error()
+
+    def set_fullscreen(self, bint desktop=False):
+        """enable fullscreen for the window
+        :param desktop bool: If True: use the current desktop resolution
+                             If False: change the fullscreen resolution to the window size
+        .. seealso:: :func:`set_windowed`
         """
         cdef int flags = 0
-        if mode > 0:
-            if mode == 1:
-                flags = _SDL_WINDOW_FULLSCREEN
-            else:
-                flags = _SDL_WINDOW_FULLSCREEN_DESKTOP
+        if desktop:
+            flags = _SDL_WINDOW_FULLSCREEN_DESKTOP
+        else:
+            flags = _SDL_WINDOW_FULLSCREEN
         if SDL_SetWindowFullscreen(self._win, flags):
             raise error()
 

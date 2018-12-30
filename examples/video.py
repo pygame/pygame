@@ -48,6 +48,8 @@ renderer2.copy(tex2)
 renderer2.present()
 del tex2
 
+full = 0
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -67,6 +69,13 @@ while running:
                 y += 5
             elif event.key == pygame.K_UP:
                 y -= 5
+            elif event.key == pygame.K_f:
+                if full == 0:
+                    win.set_fullscreen(True)
+                    full = 1
+                else:
+                    win.set_windowed()
+                    full = 0
             elif event.key == pygame.K_SPACE:
                 bg_index = (bg_index + 1) % len(backgrounds)
                 renderer.draw_color = backgrounds[bg_index]
