@@ -136,7 +136,7 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
-        SDL_Event inputEvent;
+        SDL_Event inputEvent[2];
         if (event->key.repeat) {
             return 0;
         }
@@ -149,15 +149,17 @@ pg_event_filter(void *_, SDL_Event *event)
                                             NULL);
         }
         SDL_PumpEvents();
-        if (SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+        if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
                            SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
         {
+            SDL_Event *ev = inputEvent;
             SDL_PumpEvents();
             if (_pg_last_unicode_char[0] == 0) {
-                SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
-                               SDL_TEXTINPUT, SDL_TEXTINPUT);
+                if (SDL_PeepEvents(inputEvent, 2, SDL_PEEKEVENT,
+                                   SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
+                    ev = &inputEvent[1];
             }
-            strncpy(_pg_last_unicode_char, inputEvent.text.text,
+            strncpy(_pg_last_unicode_char, ev->text.text,
                     sizeof(_pg_last_unicode_char));
         }
         else {
@@ -328,6 +330,10 @@ _pg_name_from_eventtype(int type)
             return "FingerUp";
         case SDL_MULTIGESTURE:
             return "MultiGesture";
+        case SDL_TEXTINPUT:
+            return "TextInput";
+        case SDL_TEXTEDITING:
+            return "TextEditing";
 #endif
 
     }
@@ -560,6 +566,18 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+        case SDL_TEXTINPUT:
+            /* https://wiki.libsdl.org/SDL_TextInputEvent */
+            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->text.windowID));
+            _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
+            break;
+        case SDL_TEXTEDITING:
+            /* https://wiki.libsdl.org/SDL_TextEditingEvent */
+            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->edit.windowID));
+            _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
+            _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
+            _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
 #endif
 

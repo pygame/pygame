@@ -21,6 +21,10 @@ keys. ``scancode`` represents the platform-specific key code. This could be
 different from keyboard to keyboard, but is useful for key selection of weird
 keys like the multimedia keys.
 
+.. versionadded:: 2.0
+    The ``pygame.TEXTINPUT`` event is preferred to the ``unicode`` attribute
+    of ``pygame.KEYDOWN``. The attribute ``text`` contains the input.
+
 There are many keyboard constants, they are used to represent keys on the
 keyboard. The following is a list of all keyboard constants:
 
@@ -260,5 +264,54 @@ bitwise-ORing them together.
    Get the descriptive name of the button from a keyboard button id constant.
 
    .. ## pygame.key.name ##
+
+.. function:: start_text_input
+
+   | :sl:`start handling IME compositions`
+   | :sg:`start_text_input() -> None`
+
+   Start receiving ``pygame.TEXTEDITING`` and ``pygame.TEXTINPUT``
+   events to handle IME.
+
+   A ``pygame.TEXTEDITING`` event is received when an IME composition
+   is started or changed. It contains the composition ``text``, ``length``,
+   and editing ``start`` position within the composition (attributes
+   ``text``, ``length``, and ``start``, respectively).
+   When the composition is committed (or non-IME input is received),
+   a ``pygame.TEXTINPUT`` event is generated.
+
+   Normal ``pygame.TEXTINPUT`` events are not dependent on this.
+
+   .. versionadded:: 2
+
+   .. ## pygame.key.start_text_input ##
+
+.. function:: stop_text_input
+
+   | :sl:`stop handling IME compositions`
+   | :sg:`stop_text_input() -> None`
+
+   Stop receiving ``pygame.TEXTEDITING`` and ``pygame.TEXTINPUT``
+   events to handle IME.
+
+   Normal ``pygame.TEXTINPUT`` events are not dependent on this.
+
+   .. versionadded:: 2
+
+   .. ## pygame.key.stop_text_input ##
+
+.. function:: set_text_input_rect
+
+   | :sl:`controls the position of the candidate list`
+   | :sg:`set_text_input_rect(Rect) -> None`
+
+   This sets the rectangle used for typing with an IME.
+   It controls where the candidate list will open, if supported.
+
+   Normal ``pygame.TEXTINPUT`` events are not dependent on this.
+
+   .. versionadded:: 2
+
+   .. ## pygame.key.set_text_input_rect ##
 
 .. ## pygame.key ##
