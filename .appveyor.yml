@@ -107,6 +107,9 @@ install:
 # install step instead.
 build: off
 
+# Do not build feature branch with open Pull Requests
+skip_branch_with_pr: true
+
 test_script:
   - "mkdir empty_folder"
   - "cd empty_folder"
