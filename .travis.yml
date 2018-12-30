@@ -10,6 +10,12 @@ cache:
     - $HOME/Library/Caches/pip/wheels
     - /Library/Caches/pip/wheels
 
+# So commits do not get built twice. 
+# Only test master and tagged releases on push
+#   always test things that aren't pushes (like PRs)
+if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/
+
+
 matrix:
   include:
     - os: linux
