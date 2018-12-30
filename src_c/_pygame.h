@@ -695,9 +695,15 @@ typedef struct {
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
 /* For backward compatibility */
+#ifdef WITH_THREAD
 #define pgRWopsFromFileObjectThreaded pgRWopsFromFileObject
 #define pgRWopsFromObjectThreaded pgRWopsFromObject
 #define pgRWopsCheckObjectThreaded pgRWopsCheckObject
+#else /* ~WITH_THREAD */
+#define pgRWopsFromFileObjectThreaded PG_CHECK_THREADS
+#define pgRWopsFromObjectThreaded PG_CHECK_THREADS
+#define pgRWopsCheckObjectThreaded PG_CHECK_THREADS
+#endif /* ~WITH_THREAD */
 #define RWopsFromPython RWopsFromObject
 #define RWopsCheckPython RWopsCheckObject
 #define RWopsFromPythonThreaded RWopsFromFileObjectThreaded
