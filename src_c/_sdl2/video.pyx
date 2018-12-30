@@ -1,5 +1,6 @@
 from cpython cimport PyObject
 from . import error
+from . import error as errorfnc
 from libc.stdlib cimport free, malloc
 
 
@@ -60,24 +61,46 @@ def get_grabbed_window():
     return None
 
 
-def messagebox(message, title="",
-               type=MESSAGEBOX_INFORMATION,
-               Window window=None, buttons=None,
-               return_button=-1,
-               escape_button=-1):
+def messagebox(title, message,
+               Window window=None,
+               bint info=False,
+               bint warn=False,
+               bint error=False,
+               buttons=('OK', ),
+               return_button=0,
+               escape_button=0):
+    """Display a message box.
+    :param title str: A title string or None.
+    :param message str: A message string.
+    :param info bool: If True, display an info message.
+    :param warn bool: If True, display a warning message.
+    :param error bool: If True, display an error message.
+    :param buttons tuple: An optional sequence of buttons to show to the user (strings).
+    :param return_button int: Button index to use if the return key is hit (-1 for none).
+    :param escape_button int: Button index to use if the escape key is hit (-1 for none).
+    :return: The index of the button that was pushed.
+    """
     # TODO: type check
-    # TODO: docs
     # TODO: color scheme
     cdef SDL_MessageBoxButtonData* c_buttons = NULL
 
     cdef SDL_MessageBoxData data
-    data.flags = type
+    data.flags = 0
+    if warn:
+        data.flags |= _SDL_MESSAGEBOX_WARNING
+    if error:
+        data.flags |= _SDL_MESSAGEBOX_ERROR
+    if info:
+        data.flags |= _SDL_MESSAGEBOX_INFORMATION
     if not window:
         data.window = NULL
     else:
         data.window = window._win
-    title = title.encode('utf8')
-    data.title = title
+    if title is not None:
+        title = title.encode('utf8')
+        data.title = title
+    else:
+        data.title = NULL
     message = message.encode('utf8')
     data.message = message
     data.colorScheme = NULL
@@ -110,7 +133,7 @@ def messagebox(message, title="",
     cdef int buttonid
     if SDL_ShowMessageBox(&data, &buttonid):
         free(c_buttons)
-        raise error()
+        raise errorfnc()
 
     free(c_buttons)
     return buttonid
