@@ -706,7 +706,7 @@ _ftfont_dealloc(pgFontObject *self)
     _PGFT_UnloadFont(self->freetype, self);
 #ifdef HAVE_PYGAME_SDL_RWOPS
     if (src) {
-        pgRWopsFreeFromObject(src);
+        pgRWopsReleaseObject(src);
     }
 #endif
     _PGFT_Quit(self->freetype);
@@ -805,7 +805,9 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     } else {
         PyObject *str = 0;
         PyObject *path = 0;
-        source = pgRWopsFromFileObjectThreaded(original_file);
+        if (!PG_CHECK_THREADS())
+            goto end;
+        source = pgRWopsFromFileObject(original_file);
         if (!source) {
             goto end;
         }
@@ -848,13 +850,15 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     /* FT uses fopen(); as a workaround, always use RWops */
     if (file == original_file)
         Py_INCREF(file);
-    source = pgRWopsFromObjectThreaded(file);
+    if (!PG_CHECK_THREADS())
+        goto end;
+    source = pgRWopsFromObject(file);
     if (!source) {
         goto end;
     } else {
         PyObject *path = 0;
 
-        if (pgRWopsCheckObjectThreaded(source)) {
+        if (pgRWopsCheckObject(source)) {
             path = PyObject_GetAttrString(file, "name");
         } else {
             Py_INCREF(file);

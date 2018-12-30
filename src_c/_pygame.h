@@ -288,6 +288,14 @@ typedef enum {
 /* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
 
+#ifdef WITH_THREAD
+#define PG_CHECK_THREADS() (1)
+#else /* ~WITH_THREAD */
+#define PG_CHECK_THREADS()                        \
+    (RAISE(PyExc_NotImplementedError,             \
+          "Python built without thread support"))
+#endif /* ~WITH_THREAD */
+
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
 #define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 
@@ -665,36 +673,31 @@ typedef struct {
 /*the rwobject are only needed for C side work, not accessable from python*/
 #define PYGAMEAPI_RWOBJECT_FIRSTSLOT \
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
-#define PYGAMEAPI_RWOBJECT_NUMSLOTS 9
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define pgRWopsFromObject           \
     (*(SDL_RWops * (*)(PyObject *)) \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
-#define pgRWopsFromObjectThreaded   \
-    (*(SDL_RWops * (*)(PyObject *)) \
-         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
 #define pgRWopsCheckObject \
-    (*(int (*)(SDL_RWops *))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
-#define pgRWopsFromFileObjectThreaded \
-    (*(SDL_RWops * (*)(PyObject *))   \
-         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
-#define pgRWopsCheckObjectThreaded \
-    (*(int (*)(SDL_RWops *))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
+    (*(int (*)(SDL_RWops *))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
 #define pgRWopsEncodeFilePath                  \
     (*(PyObject * (*)(PyObject *, PyObject *)) \
-         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
+         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
 #define pgRWopsEncodeString                                                \
     (*(PyObject * (*)(PyObject *, const char *, const char *, PyObject *)) \
-         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 6])
+         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
 #define pgRWopsFromFileObject       \
     (*(SDL_RWops * (*)(PyObject *)) \
-         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 7])
-#define pgRWopsFreeFromObject       \
-    (*(void (*)(PyObject *)) \
-         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 8])
+         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
+#define pgRWopsReleaseObject       \
+    (*(void (*)(PyObject *))       \
+         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
 /* For backward compatibility */
+#define pgRWopsFromFileObjectThreaded pgRWopsFromFileObject
+#define pgRWopsFromObjectThreaded pgRWopsFromObject
+#define pgRWopsCheckObjectThreaded pgRWopsCheckObject
 #define RWopsFromPython RWopsFromObject
 #define RWopsCheckPython RWopsCheckObject
 #define RWopsFromPythonThreaded RWopsFromFileObjectThreaded
