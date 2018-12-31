@@ -71,14 +71,14 @@ def messagebox(title, message,
                escape_button=0):
     """ Display a message box.
 
-    :param title str: A title string or None.
-    :param message str: A message string.
-    :param info bool: If True, display an info message.
-    :param warn bool: If True, display a warning message.
-    :param error bool: If True, display an error message.
-    :param buttons tuple: An optional sequence of buttons to show to the user (strings).
-    :param return_button int: Button index to use if the return key is hit (-1 for none).
-    :param escape_button int: Button index to use if the escape key is hit (-1 for none).
+    :param str title: A title string or None.
+    :param str message: A message string.
+    :param bool info: If ``True``, display an info message.
+    :param bool warn: If ``True``, display a warning message.
+    :param bool error: If ``True``, display an error message.
+    :param tuple buttons: An optional sequence of buttons to show to the user (strings).
+    :param int return_button: Button index to use if the return key is hit (-1 for none).
+    :param int escape_button: Button index to use if the escape key is hit (-1 for none).
     :return: The index of the button that was pushed.
     """
     # TODO: type check
@@ -171,29 +171,29 @@ cdef class Window:
                  bint fullscreen_desktop=False, **kwargs):
         """ Create a window with the specified position, dimensions, and flags.
 
-        :param title str: the title of the window, in UTF-8 encoding
-        :param size tuple: the size of the window, in screen coordinates (width, height)
+        :param str title: the title of the window, in UTF-8 encoding
+        :param tuple size: the size of the window, in screen coordinates (width, height)
         :param position: a tuple specifying the window position, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
-        :param fullscreen bool: fullscreen window using the window size as the resolution (videomode change)
-        :param fullscreen_desktop bool: fullscreen window using the current desktop resolution
-        :param opengl bool: Usable with OpenGL context. You will still need to create an OpenGL context.
-        :param vulkan bool: usable with a Vulkan instance
-        :param hidden bool: window is not visible
-        :param borderless bool: no window decoration
-        :param resizable bool: window can be resized
-        :param minimized bool: window is minimized
-        :param maximized bool: window is maximized
-        :param input_grabbed bool: window has grabbed input focus
-        :param input_focus bool: window has input focus
-        :param mouse_focus bool: window has mouse focus
-        :param foreign bool: window not created by SDL
-        :param allow_highdpi bool: window should be created in high-DPI mode if supported (>= SDL 2.0.1)
-        :param mouse_capture bool: window has mouse captured (unrelated to INPUT_GRABBED, >= SDL 2.0.4)
-        :param always_on_top bool: window should always be above others (X11 only, >= SDL 2.0.5)
-        :param skip_taskbar bool: window should not be added to the taskbar (X11 only, >= SDL 2.0.5)
-        :param utility bool: window should be treated as a utility window (X11 only, >= SDL 2.0.5)
-        :param tooltip bool: window should be treated as a tooltip (X11 only, >= SDL 2.0.5)
-        :param popup_menu bool: window should be treated as a popup menu (X11 only, >= SDL 2.0.5)
+        :param bool fullscreen: fullscreen window using the window size as the resolution (videomode change)
+        :param bool fullscreen_desktop: fullscreen window using the current desktop resolution
+        :param bool opengl: Usable with OpenGL context. You will still need to create an OpenGL context.
+        :param bool vulkan: usable with a Vulkan instance
+        :param bool hidden: window is not visible
+        :param bool borderless: no window decoration
+        :param bool resizable: window can be resized
+        :param bool minimized: window is minimized
+        :param bool maximized: window is maximized
+        :param bool input_grabbed: window has grabbed input focus
+        :param bool input_focus: window has input focus
+        :param bool mouse_focus: window has mouse focus
+        :param bool foreign: window not created by SDL
+        :param bool allow_highdpi: window should be created in high-DPI mode if supported (>= SDL 2.0.1)
+        :param bool mouse_capture: window has mouse captured (unrelated to INPUT_GRABBED, >= SDL 2.0.4)
+        :param bool always_on_top: window should always be above others (X11 only, >= SDL 2.0.5)
+        :param bool skip_taskbar: window should not be added to the taskbar (X11 only, >= SDL 2.0.5)
+        :param bool utility: window should be treated as a utility window (X11 only, >= SDL 2.0.5)
+        :param bool tooltip: window should be treated as a tooltip (X11 only, >= SDL 2.0.5)
+        :param bool popup_menu: window should be treated as a popup menu (X11 only, >= SDL 2.0.5)
         """
         # https://wiki.libsdl.org/SDL_CreateWindow
         # https://wiki.libsdl.org/SDL_WindowFlags
@@ -235,7 +235,7 @@ cdef class Window:
 
     @property
     def grab(self):
-        """ Get window's input grab state (True or False).
+        """ Get window's input grab state (``True`` or ``False``).
 
         When input is grabbed the mouse is confined to the window.
         If the caller enables a grab while another window is currently grabbed,
@@ -247,21 +247,22 @@ cdef class Window:
 
     @grab.setter
     def grab(self, bint grabbed):
-        """ Set window's input grab state (True or False).
+        """ Set window's input grab state (``True`` or ``False``).
 
         When input is grabbed the mouse is confined to the window.
         If the caller enables a grab while another window is currently grabbed,
         the other window loses its grab in favor of the caller's window.
 
-        :param grabbed bool: True to grab, False to release.
+        :param bool grabbed: ``True`` to grab, ``False`` to release.
         """
         # https://wiki.libsdl.org/SDL_SetWindowGrab
-        SDL_SetWindowGrab(self._win, 1 if enabled else 0)
+        SDL_SetWindowGrab(self._win, 1 if grabbed else 0)
 
     def set_windowed(self):
         """ Enable windowed mode
 
         .. seealso:: :func:`set_fullscreen`
+
         """
         # https://wiki.libsdl.org/SDL_SetWindowFullscreen
         if SDL_SetWindowFullscreen(self._win, 0):
@@ -275,8 +276,9 @@ cdef class Window:
     def set_fullscreen(self, bint desktop=False):
         """ Enable fullscreen for the window
 
-        :param desktop bool: If True: use the current desktop resolution
-                             If False: change the fullscreen resolution to the window size
+        :param bool desktop: If ``True``: use the current desktop resolution.
+                             If ``False``: change the fullscreen resolution to the window size.
+
         .. seealso:: :func:`set_windowed`
         """
         cdef int flags = 0
@@ -298,13 +300,13 @@ cdef class Window:
     def title(self, title):
         """ Set the window title.
 
-        :param title str: the desired window title in UTF-8.
+        :param str title: the desired window title in UTF-8.
         """
         # https://wiki.libsdl.org/SDL_SetWindowTitle
         SDL_SetWindowTitle(self._win, title.encode('utf8'))
 
     def destroy(self):
-        """ destroys a window.
+        """ Destroys the window.
         """
         # https://wiki.libsdl.org/SDL_DestroyWindow
         if self._win:
@@ -312,21 +314,21 @@ cdef class Window:
             self._win = NULL
 
     def hide(self):
-        """ hides a window.
+        """ Hide the window.
         """
         # https://wiki.libsdl.org/SDL_HideWindow
         SDL_HideWindow(self._win)
 
     def show(self):
-        """ shows the window.
+        """ Show the window.
         """
         # https://wiki.libsdl.org/SDL_ShowWindow
         SDL_ShowWindow(self._win)
 
     def focus(self, input_only=False):
-        """ Raise a window above other windows and set the input focus.
+        """ Raise the window above other windows and set the input focus.
 
-        :param input_only bool: if True, the window will be given input focus
+        :param bool input_only: if ``True``, the window will be given input focus
                                 but may be completely obscured by other windows.
         """
         # https://wiki.libsdl.org/SDL_RaiseWindow
@@ -342,13 +344,19 @@ cdef class Window:
         SDL_RestoreWindow(self._win)
 
     def maximize(self):
+        """ Maximize the window.
+        """
         SDL_MaximizeWindow(self._win)
 
     def minimize(self):
+        """ Minimize the window.
+        """
         SDL_MinimizeWindow(self._win)
 
     @property
     def resizable(self):
+        """ Sets whether the window is resizable.
+        """
         return SDL_GetWindowFlags(self._win) & _SDL_WINDOW_RESIZABLE != 0
 
     @resizable.setter
@@ -357,18 +365,20 @@ cdef class Window:
 
     @property
     def borderless(self):
+        """ Add or remove the border from the actual window.
+
+        .. note:: You can't change the border state of a fullscreen window.
+        """
         return SDL_GetWindowFlags(self._win) & _SDL_WINDOW_BORDERLESS != 0
 
     @borderless.setter
     def borderless(self, enabled):
-        """add or remove the border from the actual window.
-        You can't change the border state of a fullscreen window."""
         SDL_SetWindowBordered(self._win, 1 if enabled else 0)
 
     def set_icon(self, surface):
-        """ set the icon for the window.
+        """ Set the icon for the window.
 
-        :param surface pygame.Surface: A Surface to use as the icon.
+        :param pygame.Surface surface: A Surface to use as the icon.
         """
         if not pgSurface_Check(surface):
             raise error('surface must be a Surface object')
@@ -376,29 +386,32 @@ cdef class Window:
 
     @property
     def id(self):
+        """ A unique window ID. *Read-only*.
+
+        :rtype: int
+        """
         return SDL_GetWindowID(self._win)
 
     @property
     def size(self):
-        """get the size of a window's client area."""
+        """ The size of the window's client area."""
         cdef int w, h
         SDL_GetWindowSize(self._win, &w, &h)
         return (w, h)
 
     @size.setter
     def size(self, size):
-        """set the size of a window's client area."""
         SDL_SetWindowSize(self._win, size[0], size[1])
 
     @property
     def position(self):
+        """ Window's screen coordinates, or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED"""
         cdef int x, y
         SDL_GetWindowPosition(self._win, &x, &y)
         return (x, y)
 
     @position.setter
     def position(self, position):
-        """screen coordinates, or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED"""
         cdef int x, y
         if position == WINDOWPOS_UNDEFINED:
             x, y = WINDOWPOS_UNDEFINED, WINDOWPOS_UNDEFINED
@@ -410,7 +423,8 @@ cdef class Window:
 
     @property
     def opacity(self):
-        """get window opacity in (0.0f transparent, 1.0f opaque)"""
+        """ Window opacity. It ranges between 0.0 (fully transparent)
+        and 1.0 (fully opaque)."""
         cdef float opacity
         if SDL_GetWindowOpacity(self._win, &opacity):
             raise error()
@@ -418,28 +432,26 @@ cdef class Window:
 
     @opacity.setter
     def opacity(self, opacity):
-        """set window opacity in (0.0f transparent, 1.0f opaque)"""
         if SDL_SetWindowOpacity(self._win, opacity):
             raise error()
 
     @property
     def brightness(self):
-        """set the brightness (gamma multiplier) for the display that owns a given window.
-        the brightness (gamma multiplier) value to set where 0.0 is
-        completely dark and 1.0 is normal brightness"""
+        """ The brightness (gamma multiplier) for the display that owns a given window.
+        It ranges between 0.0 (completely dark) and 1.0 (normal brightness)."""
         return SDL_GetWindowBrightness(self._win)
 
     @brightness.setter
     def brightness(self, float value):
-        """set the brightness (gamma multiplier) for the display that owns a given window.
-        the brightness (gamma multiplier) value to set where 0.0 is
-        completely dark and 1.0 is normal brightness"""
         if SDL_SetWindowBrightness(self._win, value):
             raise error()
 
     @property
     def display_index(self):
-        """get the index of the display associated with the window."""
+        """ The index of the display associated with the window. *Read-only*.
+
+        :rtype: int
+        """
         cdef int index = SDL_GetWindowDisplayIndex(self._win)
         if index < 0:
             raise error()
@@ -459,8 +471,8 @@ cdef class Texture:
     def __init__(self, Renderer renderer, surface):
         """ Create a texture from an existing surface.
 
-        :param renderer Renderer: Rendering context for the texture.
-        :param surface Surface: The surface to create a texture from.
+        :param Renderer renderer: Rendering context for the texture.
+        :param pygame.Surface surface: The surface to create a texture from.
         """
         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
         if not pgSurface_Check(surface):
@@ -485,14 +497,14 @@ cdef class Renderer:
                  bint target_texture=False):
         """ Create a 2D rendering context for a window.
 
-        :param window Window: where rendering is displayed.
-        :param index int: index of rendering driver to initialize,
+        :param Window window: where rendering is displayed.
+        :param int index: index of rendering driver to initialize,
                           or -1 to init the first supporting requested options.
-        :param accelerated int: if 1, the renderer uses hardware acceleration.
+        :param int accelerated: if 1, the renderer uses hardware acceleration.
                                 if 0, the renderer is a software fallback.
                                 -1 gives precedence to renderers using hardware acceleration.
-        :param vsync bool: .present() is synchronized with the refresh rate.
-        :param target_texture bool: the renderer supports rendering to texture.
+        :param bool vsync: .present() is synchronized with the refresh rate.
+        :param bool target_texture: the renderer supports rendering to texture.
         """
         # https://wiki.libsdl.org/SDL_CreateRenderer
         # https://wiki.libsdl.org/SDL_RendererFlags
@@ -546,7 +558,7 @@ cdef class Renderer:
     def copy(self, Texture texture, srcrect=None, dstrect=None):
         """ Copy portion of texture to rendering target.
 
-        :param texture Texture: the source texture.
+        :param Texture texture: the source texture.
         :param srcrect: source rectangle on the texture, or None for the entire texture.
         :type srcrect: pygame.Rect or None
         :param dstrect: destination rectangle on the render target, or None for entire target.
@@ -567,6 +579,4 @@ cdef class Renderer:
         Updates the screen with any rendering performed since previous call.
         """
         # https://wiki.libsdl.org/SDL_RenderPresent
-        res = SDL_RenderPresent(self._renderer)
-        if res < 0:
-            raise error()
+        SDL_RenderPresent(self._renderer)
