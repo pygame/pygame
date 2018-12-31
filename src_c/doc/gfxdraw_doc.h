@@ -43,7 +43,7 @@
 
 #define DOC_PYGAMEGFXDRAWTEXTUREDPOLYGON "textured_polygon(surface, points, texture, tx, ty) -> None\ndraw a textured polygon"
 
-#define DOC_PYGAMEGFXDRAWBEZIER "bezier(surface, points, steps, color) -> None\ndraw a BÃ©zier curve"
+#define DOC_PYGAMEGFXDRAWBEZIER "bezier(surface, points, steps, color) -> None\ndraw a Bézier curve"
 
 
 
@@ -140,6 +140,6 @@ draw a textured polygon
 
 pygame.gfxdraw.bezier
  bezier(surface, points, steps, color) -> None
-draw a BÃ©zier curve
+draw a Bézier curve
 
 */

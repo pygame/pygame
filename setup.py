@@ -87,6 +87,17 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+if 'cython' in sys.argv:
+    # So you can `setup.py cython` or `setup.py cython install`
+    try:
+        from Cython.Build import cythonize
+    except ImportError:
+        print("You need cython. https://cython.org/, pip install cython --user")
+
+    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx"],
+              include_path=["src_c/_sdl2", "src_c"])
+    sys.argv.remove('cython')
+
 AUTO_CONFIG = False
 if '-auto' in sys.argv:
     AUTO_CONFIG = True
@@ -559,7 +570,7 @@ date_files = [(path, files) for path, files in data_files if files]
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads',
+       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads', 'pygame._sdl2',
                        'pygame.tests',
                        'pygame.tests.test_utils',
                        'pygame.tests.run_tests__tests',
@@ -576,6 +587,7 @@ PACKAGEDATA = {
                        'pygame.docs',
                        'pygame.examples'],
        "package_dir": {'pygame': 'src_py',
+                       'pygame._sdl2': 'src_py/_sdl2',
                        'pygame.threads': 'src_py/threads',
                        'pygame.gp2x': 'src_py/gp2x',
                        'pygame.tests': 'test',
@@ -588,7 +600,6 @@ PACKAGEDATA = {
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
-
 
 try:
     setup(**PACKAGEDATA)

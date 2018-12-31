@@ -61,19 +61,15 @@ static int pg_key_repeat_delay = 0;
 static int pg_key_repeat_interval = 0;
 
 static SDL_TimerID _pg_repeat_timer = 0;
-static SDL_Scancode _pg_repeat_scancode;
+static SDL_Event _pg_repeat_event;
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
 {
-    SDL_Event sdlevent;
-    sdlevent.type = PGE_KEYREPEAT;
-    sdlevent.key.state = SDL_PRESSED;
-    sdlevent.key.keysym.scancode = _pg_repeat_scancode;
-    sdlevent.key.keysym.sym = SDL_GetKeyFromScancode(_pg_repeat_scancode);
-    sdlevent.key.keysym.mod = SDL_GetModState();
-    sdlevent.key.repeat = 1;
-    SDL_PushEvent(&sdlevent);
+    _pg_repeat_event.type = PGE_KEYREPEAT;
+    _pg_repeat_event.key.state = SDL_PRESSED;
+    _pg_repeat_event.key.repeat = 1;
+    SDL_PushEvent(&_pg_repeat_event);
 
     return pg_key_repeat_interval;
 }
@@ -128,6 +124,8 @@ pg_event_filter(void *_, SDL_Event *event)
             case SDL_WINDOWEVENT_RESTORED:
                 event->type = SDL_ACTIVEEVENT;
                 break;
+            case SDL_WINDOWEVENT_CLOSE:
+                break;
             default:
                 /*ignore other SDL_WINDOWEVENTs for now.*/
                 return 0;
@@ -136,7 +134,7 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
-        SDL_Event inputEvent;
+        SDL_Event inputEvent[2];
         if (event->key.repeat) {
             return 0;
         }
@@ -144,20 +142,22 @@ pg_event_filter(void *_, SDL_Event *event)
             if (_pg_repeat_timer) {
                 SDL_RemoveTimer(_pg_repeat_timer);
             }
-            _pg_repeat_scancode = event->key.keysym.scancode;
+            memcpy(&_pg_repeat_event, event, sizeof(SDL_Event));
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
                                             NULL);
         }
         SDL_PumpEvents();
-        if (SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
+        if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
                            SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
         {
+            SDL_Event *ev = inputEvent;
             SDL_PumpEvents();
             if (_pg_last_unicode_char[0] == 0) {
-                SDL_PeepEvents(&inputEvent, 1, SDL_GETEVENT,
-                               SDL_TEXTINPUT, SDL_TEXTINPUT);
+                if (SDL_PeepEvents(inputEvent, 2, SDL_PEEKEVENT,
+                                   SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
+                    ev = &inputEvent[1];
             }
-            strncpy(_pg_last_unicode_char, inputEvent.text.text,
+            strncpy(_pg_last_unicode_char, ev->text.text,
                     sizeof(_pg_last_unicode_char));
         }
         else {
@@ -165,7 +165,8 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
     else if (type == SDL_KEYUP) {
-        if (_pg_repeat_timer && _pg_repeat_scancode == event->key.keysym.scancode) {
+        if (_pg_repeat_timer &&
+            _pg_repeat_event.key.keysym.scancode == event->key.keysym.scancode) {
             SDL_RemoveTimer(_pg_repeat_timer);
             _pg_repeat_timer = 0;
         }
@@ -188,18 +189,14 @@ pg_event_filter(void *_, SDL_Event *event)
         newevent.button.state = SDL_PRESSED;
         newevent.button.clicks = 1;
         
-        /* 4/5 for roll up/down
-		 TODO: Wheel for x axis?
-		if (event->wheel.x > 0)
-            newevent.button.button = 4;
-        else if (event->wheel.x < 0)
-            newevent.button.button = 5;
-        */
-        if (event->wheel.y > 0)
-            newevent.button.button = 4;
-        else if (event->wheel.y < 0)
-            newevent.button.button = 5;
-
+        if (event->wheel.y != 0) {
+            newevent.button.button = (event->wheel.y > 0) ? 4 : 5;
+            newevent.button.wheel = true;
+        }
+        else if (event->wheel.x != 0) {
+            newevent.button.button = (event->wheel.x > 0) ? 4 : 5;
+            newevent.button.wheel = false;
+        }
         if (SDL_PushEvent(&newevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -359,6 +356,10 @@ _pg_name_from_eventtype(int type)
             return "MultiGesture";
         case SDL_MOUSEWHEEL:
             return "MouseWheel";
+        case SDL_TEXTINPUT:
+            return "TextInput";
+        case SDL_TEXTEDITING:
+            return "TextEditing";
 #endif
 
     }
@@ -470,6 +471,13 @@ dict_from_event(SDL_Event *event)
                    PyInt_FromLong(event->key.keysym.scancode));
             break;
 #else  /* IS_SDLv2 */
+        case SDL_WINDOWEVENT:
+            _pg_insobj(dict, "event", PyInt_FromLong(event->window.event));
+            switch (event->window.event) {
+                case SDL_WINDOWEVENT_CLOSE:
+                    break;
+            }
+            break;
         case SDL_ACTIVEEVENT:
             switch (event->window.event) {
                 case SDL_WINDOWEVENT_ENTER:
@@ -596,7 +604,19 @@ dict_from_event(SDL_Event *event)
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
             obj = Py_BuildValue("(ii)", event->wheel.x, event->wheel.y);
             _pg_insobj(dict, "pos", obj);
-            _pg_insobj(dict, "direction", PyInt_FromLong(event->wheel.direction));                
+            _pg_insobj(dict, "direction", PyInt_FromLong(event->wheel.direction));
+            break;
+        case SDL_TEXTINPUT:
+            /* https://wiki.libsdl.org/SDL_TextInputEvent */
+            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->text.windowID));
+            _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
+            break;
+        case SDL_TEXTEDITING:
+            /* https://wiki.libsdl.org/SDL_TextEditingEvent */
+            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->edit.windowID));
+            _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
+            _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
+            _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
 #endif
 
@@ -667,6 +687,36 @@ dict_from_event(SDL_Event *event)
     }
     if (event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
         _pg_insobj(dict, "code", PyInt_FromLong(event->user.code));
+
+    switch (event->type) {
+#if IS_SDLv2
+        case SDL_WINDOWEVENT:
+        case SDL_TEXTEDITING:
+        case SDL_TEXTINPUT:
+        case SDL_MOUSEWHEEL:
+#endif /* IS_SDLv2 */
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_USEREVENT:
+        {
+#if IS_SDLv2
+            SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
+            PyObject *pgWindow;
+            if (!window || !(pgWindow=SDL_GetWindowData(window, "pg_window"))) {
+                pgWindow = Py_None;
+            }
+            Py_INCREF(pgWindow);
+            _pg_insobj(dict, "window", pgWindow);
+#else /* IS_SDLv1 */
+            Py_INCREF(Py_None);
+            _pg_insobj(dict, "window", Py_None);
+#endif /* IS_SDLv1 */
+            break;
+        }
+    }
 
     return dict;
 }

@@ -15,6 +15,12 @@
 
 #define DOC_PYGAMEKEYNAME "name(key) -> string\nget the name of a key identifier"
 
+#define DOC_PYGAMEKEYSTARTTEXTINPUT "start_text_input() -> None\nstart handling IME compositions"
+
+#define DOC_PYGAMEKEYSTOPTEXTINPUT "stop_text_input() -> None\nstop handling IME compositions"
+
+#define DOC_PYGAMEKEYSETTEXTINPUTRECT "set_text_input_rect(Rect) -> None\ncontrols the position of the candidate list"
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -52,5 +58,17 @@ see how held keys are repeated
 pygame.key.name
  name(key) -> string
 get the name of a key identifier
+
+pygame.key.start_text_input
+ start_text_input() -> None
+start handling IME compositions
+
+pygame.key.stop_text_input
+ stop_text_input() -> None
+stop handling IME compositions
+
+pygame.key.set_text_input_rect
+ set_text_input_rect(Rect) -> None
+controls the position of the candidate list
 
 */

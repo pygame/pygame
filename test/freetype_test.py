@@ -126,7 +126,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(OverflowError, ft.Font, file=None, size=-1)
 
         f = ft.Font(None, size=24)
-        self.assert_(f.height > 0)
+        self.assertTrue(f.height > 0)
         self.assertRaises(IOError, f.__init__,
                           os.path.join(FONTDIR, 'nonexistant.ttf'))
 
@@ -1422,6 +1422,26 @@ class FreeTypeFontTest(unittest.TestCase):
         f = self._TEST_FONTS['sans']
         self.assertRaises(pygame.error, f.render_to,
                           null_surface, (0, 0), "Crash!", size=12)
+
+    def test_issue_565(self):
+        """get_metrics supporting rotation/styles/size"""
+
+        tests = [
+            {'method': 'size', 'value': 36, 'msg': 'metrics same for size'},
+            {'method': 'rotation', 'value': 90, 'msg': 'metrics same for rotation'},
+            {'method': 'oblique', 'value': True, 'msg': 'metrics same for oblique'}
+        ]
+        text = "|"
+
+        def run_test(method, value, msg):
+            font = ft.Font(self._sans_path, size=24)
+            before = font.get_metrics(text)
+            font.__setattr__(method, value)
+            after = font.get_metrics(text)
+            self.assertNotEqual(before, after, msg)
+
+        for test in tests:
+            run_test(*test.values())
 
 
 class FreeTypeTest(unittest.TestCase):

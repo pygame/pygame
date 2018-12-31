@@ -9,12 +9,17 @@ unset -f cd
 shell_session_update() { :; }
 
 
+set UPDATE_UNBOTTLED='0'
+
 
 echo -en 'travis_fold:start:brew.update\\r'
 echo "Updating Homebrew listings..."
 brew update
 echo -en 'travis_fold:end:brew.update\\r'
 export HOMEBREW_NO_AUTO_UPDATE=1
+
+brew install ccache
+export PATH="/usr/local/opt/ccache/libexec:$PATH"
 
 brew uninstall --force --ignore-dependencies pkg-config
 brew install pkg-config
@@ -52,46 +57,48 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_B
 	brew uninstall --force --ignore-dependencies smpeg
 	brew uninstall --force --ignore-dependencies portmidi
 	brew uninstall --force --ignore-dependencies freetype
-
-	# These are for building from source, with 'core2'
-	#   because otherwise homebrew will use the architecture of the build host.
-	export HOMEBREW_BUILD_BOTTLE=1
-	export HOMEBREW_BOTTLE_ARCH=core2
 fi
 
 
-function fail {
-  echo $1 >&2
-  exit 1
+source "buildconfig/ci/travis/.travis_osx_utils.sh"
+
+function clear_package_cache {
+  rm -f "$HOME/HomebrewLocal/json/$1--*"
+  if [[ -e "$HOME/HomebrewLocal/path/$1" ]]; then
+    echo "Removing cached $1."
+    rm -f $(< "$HOME/HomebrewLocal/path/$1") && rm -f "$HOME/HomebrewLocal/path/$1"
+  fi
 }
 
-function retry {
-  local n=1
-  local max=5
-  local delay=2
-  while true; do
-    "$@" && break || {
-      if [[ $n -lt $max ]]; then
-        ((n++))
-        echo "Command failed. Attempt $n/$max:"
-        sleep $delay;
-      else
-        fail "The command has failed after $n attempts."
-      fi
-    }
+function check_local_bottles {
+  echo "Checking local bottles in $HOME/HomebrewLocal/json/..."
+  for jsonfile in $HOME/HomebrewLocal/json/*.json; do
+    [ -e "$jsonfile" ] || continue
+    local pkg="$(sed 's/\(.*\)--.*/\1/' <<<"$(basename $jsonfile)")"
+    echo "Package: $pkg. JSON: $jsonfile."
+
+    local filefull=$(< "$HOME/HomebrewLocal/path/$pkg")
+    local file=$(basename $filefull)
+    echo "$pkg: local bottle path: $filefull"
+
+    echo "Adding local bottle into $pkg's formula."
+    brew bottle --merge --write "$jsonfile" || true
   done
+  echo "Done checking local bottles."
 }
 
-function install_or_upgrade {
-	set +e
-    if brew ls --versions "$1" >/dev/null; then
-        echo "package already installed: $@"
-    else
-    	retry brew install "$@"
-    fi
-    set -e
-}
+check_local_bottles
 
+if [ "${1}" == "--no-installs" ]; then
+  unset HOMEBREW_BUILD_BOTTLE
+  unset HOMEBREW_BOTTLE_ARCH
+  return 0
+fi
+
+set +e
+
+brew tap pygame/portmidi
+brew tap-pin pygame/portmidi
 
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
@@ -101,6 +108,7 @@ install_or_upgrade webp ${UNIVERSAL_FLAG}
 install_or_upgrade libogg ${UNIVERSAL_FLAG}
 install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
 install_or_upgrade flac ${UNIVERSAL_FLAG}
+install_or_upgrade boost & prevent_stall #workaround due to glib
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
 install_or_upgrade smpeg
@@ -108,13 +116,14 @@ install_or_upgrade smpeg
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
 # So we install portmidi from our own formula.
-brew tap pygame/portmidi
-brew install pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
+install_or_upgrade portmidi ${UNIVERSAL_FLAG}
 
 install_or_upgrade freetype ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_image ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
+
+set -e
 
 # brew install https://gist.githubusercontent.com/illume/08f9d3ca872dc2b61d80f665602233fd/raw/0fbfd6657da24c419d23a6678b5715a18cd6560a/portmidi.rb
 

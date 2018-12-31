@@ -1027,6 +1027,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     return pgDisplaySurfaceObject;
 }
 
+/* SDL1 mode_ok. Note, there is a separate SDL2 version of this. */
 static PyObject *
 pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -1044,7 +1045,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 
     VIDEO_INIT_CHECK();
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "(ii)|ii", keywords,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "(ii)|iii", keywords,
                                      &w, &h, &flags, &depth,
                                      &display))
         return NULL;

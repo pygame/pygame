@@ -1412,11 +1412,11 @@ _ftfont_getmetrics(pgFontObject *self, PyObject *args, PyObject *kwds)
     ASSERT_SELF_IS_ALIVE(self);
 
     /*
-     * Build the render mode with the given size and no
-     * rotation/styles/vertical text
+     * Build the render mode with the given size and support
+     * for rotation/styles/size changes in text
      */
     if (_PGFT_BuildRenderMode(self->freetype, self, &render, face_size,
-                              FT_STYLE_NORMAL, 0))
+                              FT_STYLE_DEFAULT, self->rotation))
         goto error;
 
     /* get metrics */
