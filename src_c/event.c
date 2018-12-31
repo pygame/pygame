@@ -191,12 +191,12 @@ pg_event_filter(void *_, SDL_Event *event)
         
         if (event->wheel.y != 0) {
             newevent.button.button = (event->wheel.y > 0) ? 4 : 5;
-            newevent.button.wheel = true;
         }
         else if (event->wheel.x != 0) {
             newevent.button.button = (event->wheel.x > 0) ? 4 : 5;
-            newevent.button.wheel = false;
         }
+		
+
         if (SDL_PushEvent(&newevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -546,6 +546,7 @@ dict_from_event(SDL_Event *event)
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
+			_pg_insobj(dict, "wheel", PyBool_FromLong(event->button.button == 4 || event->button.button == 5));
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", PyInt_FromLong(event->jaxis.which));
