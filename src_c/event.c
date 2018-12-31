@@ -182,21 +182,23 @@ pg_event_filter(void *_, SDL_Event *event)
         
         int x, y;
         VIDEO_INIT_CHECK();
+		
         SDL_GetMouseState(&x, &y);
         newevent.button.x = x;
         newevent.button.y = y;
         
+		
         newevent.button.state = SDL_PRESSED;
         newevent.button.clicks = 1;
         
         if (event->wheel.y != 0) {
             newevent.button.button = (event->wheel.y > 0) ? 4 : 5;
-            newevent.button.wheel = true;
         }
         else if (event->wheel.x != 0) {
             newevent.button.button = (event->wheel.x > 0) ? 4 : 5;
-            newevent.button.wheel = false;
         }
+		newevent.button.button += 96;
+
         if (SDL_PushEvent(&newevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -545,7 +547,8 @@ dict_from_event(SDL_Event *event)
         case SDL_MOUSEBUTTONUP:
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
-            _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
+            _pg_insobj(dict, "button", PyInt_FromLong((event->button.button > 96) ? event->button.button - 96 : event->button.button));
+			_pg_insobj(dict, "wheel", PyBool_FromLong(event->button.button > 96));
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", PyInt_FromLong(event->jaxis.which));
