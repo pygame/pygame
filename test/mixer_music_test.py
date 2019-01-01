@@ -39,11 +39,19 @@ class MixerMusicModuleTest(unittest.TestCase):
             pygame.mixer.music.load(umusfn)
             pygame.mixer.music.load(bmusfn)
 
-            #NOTE: TODO: loading from filelikes are disabled...
-            # because as of writing it only works in SDL_mixer svn.
-            #pygame.mixer.music.load(open(musfn))
-            #musf = open(musfn)
-            #pygame.mixer.music.load(musf)
+    def test_load_object(self):
+        """test loading music from file-like objects."""
+        formats = ['ogg', 'wav']
+        data_fname = example_path('data')
+        ret = []
+        for f in formats:
+            path = os.path.join(data_fname, 'house_lo.%s' % f)
+            if os.sep == '\\':
+                path = path.replace('\\', '\\\\')
+            bmusfn = filesystem_encode(path)
+            musf = open(bmusfn)
+            ret.append(pygame.mixer.music.load(musf))
+        return ret
 
     def test_load_unicode(self):
         """test non-ASCII unicode path"""

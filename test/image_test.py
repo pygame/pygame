@@ -488,5 +488,24 @@ class ImageModuleTest( unittest.TestCase ):
 
         self.fail()
 
+    def test_load_threads(self):
+        num_threads = 10
+        timeout = 5
+        import threading
+        class LoadThread(threading.Thread):
+            def run(self):
+                path = example_path("data/alien1.png")
+                self.im = pygame.image.load_extended(path)
+        threads = []
+        for i in range(num_threads):
+            t = LoadThread()
+            t.start()
+            self.assertTrue(t.is_alive())
+            threads.append(t)
+        for t in threads:
+            t.join(timeout)
+            self.assertIsNotNone(t.im)
+            self.assertFalse(t.is_alive())
+
 if __name__ == '__main__':
     unittest.main()
