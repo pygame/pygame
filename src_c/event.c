@@ -575,12 +575,10 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
-            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->text.windowID));
             _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
             break;
         case SDL_TEXTEDITING:
             /* https://wiki.libsdl.org/SDL_TextEditingEvent */
-            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->edit.windowID));
             _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
