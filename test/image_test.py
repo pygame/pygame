@@ -500,7 +500,6 @@ class ImageModuleTest( unittest.TestCase ):
         for i in range(num_threads):
             t = LoadThread()
             t.start()
-            self.assertTrue(t.is_alive())
             threads.append(t)
         for t in threads:
             t.join(timeout)

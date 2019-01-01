@@ -49,7 +49,7 @@ class MixerMusicModuleTest(unittest.TestCase):
             if os.sep == '\\':
                 path = path.replace('\\', '\\\\')
             bmusfn = filesystem_encode(path)
-            musf = open(bmusfn)
+            musf = open(bmusfn, 'rb')
             ret.append(pygame.mixer.music.load(musf))
         return ret
 
