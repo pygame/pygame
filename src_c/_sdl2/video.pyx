@@ -17,6 +17,7 @@ cdef extern from "../pygame.h" nogil:
     SDL_Surface* pgSurface_AsSurface(object surf)
     void import_pygame_surface()
     SDL_Rect *pgRect_FromObject(object obj, SDL_Rect *temp)
+    object pgRect_New(SDL_Rect *r)
     void import_pygame_rect()
 
 import_pygame_surface()
@@ -503,3 +504,31 @@ cdef class Renderer:
 
     def present(self):
         SDL_RenderPresent(self._renderer)
+
+    def get_viewport(self):
+        """ Returns the drawing area on the target.
+
+        :rtype: pygame.Rect
+        """
+        # https://wiki.libsdl.org/SDL_RenderGetViewport
+        cdef SDL_Rect rect
+        SDL_RenderGetViewport(self._renderer, &rect)
+        return pgRect_New(&rect)
+
+    def set_viewport(self, area):
+        """ Set the drawing area on the target.
+        If this is set to ``None``, the entire target will be used.
+
+        :param area: A ``pygame.Rect`` or tuple representing the
+                     drawing area on the target, or None.
+        """
+        # https://wiki.libsdl.org/SDL_RenderSetViewport
+        if area is None:
+            if SDL_RenderSetViewport(self._renderer, NULL) < 0:
+                raise error()
+            return
+        cdef SDL_Rect rect
+        if pgRect_FromObject(area, &rect) == NULL:
+            raise error("the argument is not a rectangle or None")
+        if SDL_RenderSetViewport(self._renderer, &rect) < 0:
+            raise error()

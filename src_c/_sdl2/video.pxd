@@ -64,6 +64,12 @@ cdef extern from "SDL.h" nogil:
                        const SDL_Rect* srcrect,
                        const SDL_Rect* dstrect)
     void SDL_RenderPresent(SDL_Renderer* renderer)
+    # https://wiki.libsdl.org/SDL_RenderGetViewport
+    # https://wiki.libsdl.org/SDL_RenderSetViewport
+    void SDL_RenderGetViewport(SDL_Renderer* renderer,
+                               SDL_Rect*     rect)
+    int SDL_RenderSetViewport(SDL_Renderer*   renderer,
+                              const SDL_Rect* rect)
 
     # https://wiki.libsdl.org/SDL_RendererInfo
     ctypedef struct SDL_RendererInfo:
