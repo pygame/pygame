@@ -20,25 +20,27 @@ Header file: src_c/pygame.h
    Return a SDL_RWops struct filled to access *obj*.
    If *obj* is a string then let SDL open the file it names.
    Otherwise, if *obj* is a Python file-like object then use its ``read``, ``write``,
-   ``seek``, ``tell``, and ``close`` methods.
+   ``seek``, ``tell``, and ``close`` methods. If threads are available,
+   the Python GIL is acquired before calling any of the *obj* methods.
+   On error raise a Python exception and return ``NULL``.
+
+.. c:function:: SDL_RWops* pgRWopsFromFileObject(PyObject *obj)
+
+   Return a SDL_RWops struct filled to access the Python file-like object *obj*.
+   Uses its ``read``, ``write``, ``seek``, ``tell``, and ``close`` methods.
+   If threads are available, the Python GIL is acquired before calling any of the *obj* methods.
    On error raise a Python exception and return ``NULL``.
 
 .. c:function:: int pgRWopsCheckObject(SDL_RWops *rw)
 
-   Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWopsFromObject`.
+   Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWopsFromObject`
+   or :c:func:`pgRWopsFromFileObject`.
 
-.. c:function:: SDL_RWops* pgRWopsFromFileObjectThreaded(PyObject *obj)
+.. c:function:: int pgRWopsReleaseObject(SDL_RWops *context)
 
-   Return a SDL_RWops struct filled to access the Python file-like object *obj*
-   in a thread-safe manner.
-   The Python GIL is aquired before calling any of the *obj* methods
-   ``read``, ``write``, ``seek``, ``tell``, or ``close``.
-   On error raise a Python exception and return ``NULL``.
-
-.. c:function:: int pgRWopsCheckObjectThreaded(SDL_RWops *rw)
-
-   Return true if *rw* is a Python file-like object wrapper returned by
-   :c:func:`pgRWopsFromFileObjectThreaded`.
+   Free a SDL_RWops struct. If it is attached to a Python file-like object, decrement its
+   refcount. Otherwise, close the file handle.
+   Return 0 on success. On error, raise a Python exception and return a negative value.
 
 .. c:function:: PyObject* pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
 
@@ -56,9 +58,3 @@ Header file: src_c/pygame.h
    On error raise a Python exception and return ``NULL``,
    using *eclass* as the exception type if it is not ``NULL``.
    If *obj* is ``NULL`` assume an exception was already raised and pass it on.
-
-.. c:function:: SDL_RWops* pgRWopsFromFileObject(PyObject *obj)
-
-   Return a SDL_RWops struct filled to access the Python file-like object *obj*.
-   Use its ``read``, ``write``, ``seek``, ``tell``, and ``close`` methods.
-   On error raise a Python exception and return ``NULL``.
