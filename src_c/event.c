@@ -98,7 +98,7 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-static char _pg_last_unicode_char[5] = { 1, 0, 0, 0, 0 };
+static char _pg_last_unicode_char[32] = { 0 };
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
