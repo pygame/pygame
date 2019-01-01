@@ -235,7 +235,9 @@ cdef class Window:
 
     @property
     def grab(self):
-        """ Get window's input grab state (``True`` or ``False``).
+        """ Window's input grab state (``True`` or ``False``).
+
+        Set it to ``True`` to grab, ``False`` to release.
 
         When input is grabbed the mouse is confined to the window.
         If the caller enables a grab while another window is currently grabbed,
@@ -247,14 +249,6 @@ cdef class Window:
 
     @grab.setter
     def grab(self, bint grabbed):
-        """ Set window's input grab state (``True`` or ``False``).
-
-        When input is grabbed the mouse is confined to the window.
-        If the caller enables a grab while another window is currently grabbed,
-        the other window loses its grab in favor of the caller's window.
-
-        :param bool grabbed: ``True`` to grab, ``False`` to release.
-        """
         # https://wiki.libsdl.org/SDL_SetWindowGrab
         SDL_SetWindowGrab(self._win, 1 if grabbed else 0)
 
@@ -291,7 +285,7 @@ cdef class Window:
 
     @property
     def title(self):
-        """ Returns the title of the window or u"" if there is none.
+        """ The title of the window or u"" if there is none.
         """
         # https://wiki.libsdl.org/SDL_GetWindowTitle
         return SDL_GetWindowTitle(self._win).decode('utf8')
