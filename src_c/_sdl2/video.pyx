@@ -416,6 +416,24 @@ cdef class Window:
         self.destroy()
 
 
+cdef Uint32 format_from_depth(int depth):
+    cdef Uint32 Rmask, Gmask, Bmask, Amask
+    if depth == 16:
+        Rmask = 0xF << 8
+        Gmask = 0xF << 4
+        Bmask = 0xF
+        Amask = 0xF << 12
+    elif depth in (0, 32):
+        Rmask = 0xFF << 16
+        Gmask = 0xFF << 8
+        Bmask = 0xFF
+        Amask = 0xFF << 24
+    else:
+        raise ValueError("no standard masks exist for given bitdepth with alpha")
+    return SDL_MasksToPixelFormatEnum(depth,
+                                      Rmask, Gmask, Bmask, Amask)
+
+
 cdef class Texture:
     def __init__(self, Renderer renderer, surface):
         """ Create a texture from an existing surface.
@@ -435,6 +453,69 @@ cdef class Texture:
             raise error()
         self.width = surface.get_width()
         self.height = surface.get_height()
+
+    @staticmethod
+    def create_empty(Renderer renderer,
+                     size,
+                     int depth=0,
+                     static=False, streaming=False,
+                     target=False):
+        """ Create an empty texture.
+
+        :param Renderer renderer: Rendering context for the texture.
+        :param tuple size: The width and height of the texture.
+        :param int depth: The pixel format (0 to use the default).
+
+        One of ``static``, ``streaming``, or ``target`` can be set
+        to ``True``. If all are ``False``, then ``static`` is used.
+
+        :param bool static: Changes rarely, not lockable.
+        :param bool streaming: Changes frequently, lockable.
+        :param bool target: Can be used as a render target.
+        """
+        # https://wiki.libsdl.org/SDL_CreateTexture
+        # TODO: masks
+        cdef Uint32 format
+        try:
+            format = format_from_depth(depth)
+        except ValueError as e:
+            raise e
+
+        cdef int width, height
+        if len(size) != 2:
+            raise ValueError('size must have two elements')
+        width, height = size[0], size[1]
+        if width <= 0 or height <= 0:
+            raise ValueError('size must contain two positive values')
+
+        cdef int access
+        if static:
+            if streaming or target:
+                raise ValueError('only one of static, streaming, or target can be true')
+            access = _SDL_TEXTUREACCESS_STATIC
+        elif streaming:
+            if static or target:
+                raise ValueError('only one of static, streaming, or target can be true')
+            access = _SDL_TEXTUREACCESS_STREAMING
+        elif target:
+            if streaming or static:
+                raise ValueError('only one of static, streaming, or target can be true')
+            access = _SDL_TEXTUREACCESS_TARGET
+        else:
+            #raise ValueError('one of static, streaming, or target must be true')
+            access = _SDL_TEXTUREACCESS_STATIC
+
+        cdef Texture self = Texture.__new__(Texture)
+        self.renderer = renderer
+        cdef SDL_Renderer* _renderer = renderer._renderer
+        self._tex = SDL_CreateTexture(_renderer,
+                                      format,
+                                      access,
+                                      width, height)
+        if not self._tex:
+            raise error()
+        self.width, self.height = width, height
+        return self
 
     def __dealloc__(self):
         if self._tex:
@@ -470,6 +551,7 @@ cdef class Renderer:
             raise error()
 
         self._draw_color = (255, 255, 255, 255)
+        self._target = None
 
     def __dealloc__(self):
         if self._renderer:
@@ -532,3 +614,27 @@ cdef class Renderer:
             raise error("the argument is not a rectangle or None")
         if SDL_RenderSetViewport(self._renderer, &rect) < 0:
             raise error()
+
+    @property
+    def target(self):
+        """ The current render target. Set to ``None`` for the default target.
+
+        :rtype: Texture, None
+        """
+        # https://wiki.libsdl.org/SDL_GetRenderTarget
+        return self._target
+
+    @target.setter
+    def target(self, newtarget):
+        # https://wiki.libsdl.org/SDL_SetRenderTarget
+        if newtarget is None:
+            self._target = None
+            if SDL_SetRenderTarget(self._renderer, NULL) < 0:
+                raise error()
+        elif isinstance(newtarget, Texture):
+            self._target = newtarget
+            if SDL_SetRenderTarget(self._renderer,
+                                   self._target._tex) < 0:
+                raise error()
+        else:
+            raise error('target must be a Texture or None')
