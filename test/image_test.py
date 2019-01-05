@@ -4,6 +4,7 @@ import array
 import os
 import tempfile
 import unittest
+import glob
 
 from pygame.tests.test_utils import example_path, png
 import pygame, pygame.image, pygame.pkgdata
@@ -488,23 +489,13 @@ class ImageModuleTest( unittest.TestCase ):
 
         self.fail()
 
-    def test_load_threads(self):
-        num_threads = 10
-        timeout = 5
-        import threading
-        class LoadThread(threading.Thread):
-            def run(self):
-                path = example_path("data/alien1.png")
-                self.im = pygame.image.load_extended(path)
-        threads = []
-        for i in range(num_threads):
-            t = LoadThread()
-            t.start()
-            threads.append(t)
-        for t in threads:
-            t.join(timeout)
-            self.assertIsNotNone(t.im)
-            self.assertFalse(t.is_alive())
+    def test_threads(self):
+        """ can be used to load png, gif, bmp, jpg example images.
+        """
+        import pygame.threads
+        images = glob.glob(example_path("data/*.[pgbj][nimp][gfmp]"))
+        for x in range(10):
+            pygame.threads.tmap(lambda x: pygame.image.load(x), images)
 
 if __name__ == '__main__':
     unittest.main()
