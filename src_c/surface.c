@@ -1822,6 +1822,10 @@ surf_convert_alpha(PyObject *self, PyObject *args)
     PyObject *final;
     pgSurfaceObject *srcsurf = NULL;
     SDL_Surface *newsurf, *src;
+#if IS_SDLv2
+    PyObject *pg_winsurf;
+    SDL_Surface *winsurf;
+#endif
 
     if (!SDL_WasInit(SDL_INIT_VIDEO))
         return RAISE(pgExc_SDLError,
@@ -1829,6 +1833,16 @@ surf_convert_alpha(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "|O!", &pgSurface_Type, &srcsurf))
         return NULL;
+
+#if IS_SDLv2
+    pg_winsurf = pg_GetDefaultWindowSurface();
+    if (!pg_winsurf) {
+        return RAISE(pgExc_SDLError,
+                     "pygame.display.set_mode() must be used"
+                     "before converting");
+    }
+    winsurf = pgSurface_AsSurface(pg_winsurf);
+#endif /* IS_SDLv2 */
 
     pgSurface_Prep(self);
     if (srcsurf) {
@@ -1841,14 +1855,14 @@ surf_convert_alpha(PyObject *self, PyObject *args)
 #if IS_SDLv1
         newsurf = SDL_DisplayFormatAlpha(surf);
 #else
-        newsurf = SDL_ConvertSurfaceFormat(surf, surf->format->format, 0);
+        newsurf = SDL_ConvertSurfaceFormat(surf, winsurf->format->format, 0);
 #endif
     }
     else
 #if IS_SDLv1
         newsurf = SDL_DisplayFormatAlpha(surf);
 #else
-        newsurf = SDL_ConvertSurfaceFormat(surf, surf->format->format, 0);
+        newsurf = SDL_ConvertSurfaceFormat(surf, winsurf->format->format, 0);
 #endif
     pgSurface_Unprep(self);
 
