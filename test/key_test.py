@@ -38,8 +38,6 @@ class KeyModuleTest(unittest.TestCase):
         self.assertEqual(pygame.key.name(pygame.K_SPACE), "space")
 
     def test_set_and_get_mods(self):
-        self.assertEqual(pygame.key.get_mods(), pygame.KMOD_NONE)
-
         pygame.key.set_mods(pygame.KMOD_CTRL)
         self.assertEqual(pygame.key.get_mods(), pygame.KMOD_CTRL)
 
