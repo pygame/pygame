@@ -1777,10 +1777,7 @@ surf_convert(PyObject *self, PyObject *args)
     }
 #if IS_SDLv1
     else {
-        if (SDL_WasInit(SDL_INIT_VIDEO))
-            newsurf = SDL_DisplayFormat(surf);
-        else
-            newsurf = SDL_ConvertSurface(surf, surf->format, surf->flags);
+        newsurf = SDL_DisplayFormat(surf);
     }
 #else  /* IS_SDLv2 */
     else {
@@ -1791,7 +1788,8 @@ surf_convert(PyObject *self, PyObject *args)
             newsurf = SDL_ConvertSurface(surf, screen_surf->format, 0);
         }
         else
-            newsurf = SDL_ConvertSurface(surf, surf->format, 0);
+            return RAISE(pgExc_SDLError,
+                         "No video mode has been set");
 
         ecode = SDL_GetColorKey(surf, &colorkey);
         if (ecode == 0) {
