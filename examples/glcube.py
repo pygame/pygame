@@ -90,7 +90,7 @@ def main():
     #initialize pygame and setup an opengl display
     pygame.init()
 
-    FULLSCREEN = True
+    fullscreen = True
     pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF|FULLSCREEN)
 
     init_gl_stuff()
@@ -105,13 +105,13 @@ def main():
 
             elif event.type == KEYDOWN:
                 if event.key == pygame.K_f:
-                    if not FULLSCREEN:
+                    if not fullscreen:
                         print("Changing to FULLSCREEN")
                         pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF | FULLSCREEN)
                     else:
                         print("Changing to windowed mode")
                         pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF)
-                    FULLSCREEN = not FULLSCREEN
+                    fullscreen = not fullscreen
                     init_gl_stuff()
 
 
