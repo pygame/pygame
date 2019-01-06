@@ -74,32 +74,52 @@ def drawcube():
 
     glEnd()
 
+def init_gl_stuff():
+
+    glEnable(GL_DEPTH_TEST)        #use our zbuffer
+
+    #setup the camera
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(45.0,640/480.0,0.1,100.0)    #setup lens
+    glTranslatef(0.0, 0.0, -3.0)                #move back
+    glRotatef(25, 1, 0, 0)                       #orbit higher
 
 def main():
     "run the demo"
     #initialize pygame and setup an opengl display
     pygame.init()
-    pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
-    glEnable(GL_DEPTH_TEST)        #use our zbuffer
 
-    #setup the camera
-    glMatrixMode(GL_PROJECTION)
-    gluPerspective(45.0,640/480.0,0.1,100.0)    #setup lens
-    glTranslatef(0.0, 0.0, -3.0)                #move back
-    glRotatef(25, 1, 0, 0)                       #orbit higher
+    FULLSCREEN = True
+    pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF|FULLSCREEN)
 
+    init_gl_stuff()
 
-    while 1:
+    going = True
+    while going:
         #check for quit'n events
-        event = pygame.event.poll()
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-            break
+        events = pygame.event.get()
+        for event in events:
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                going = False
+
+            elif event.type == KEYDOWN:
+                if event.key == pygame.K_f:
+                    if not FULLSCREEN:
+                        print("Changing to FULLSCREEN")
+                        pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF | FULLSCREEN)
+                    else:
+                        print("Changing to windowed mode")
+                        pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF)
+                    FULLSCREEN = not FULLSCREEN
+                    init_gl_stuff()
+
 
         #clear screen and move camera
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
         #orbit camera around by 1 degree
-        glRotatef(1, 0, 1, 0)                    
+        glRotatef(1, 0, 1, 0)
 
         drawcube()
         pygame.display.flip()
