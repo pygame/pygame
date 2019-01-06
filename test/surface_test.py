@@ -682,11 +682,12 @@ class SurfaceTypeTest(unittest.TestCase):
                                 'display initialized', surf.convert)
         pygame.display.init()
         try:
-            try:
-                surf.convert(32)
-                surf.convert(pygame.Surface((1, 1)))
-            except pygame.error:
-                self.fail("convert() should not raise an exception here.")
+            if os.environ.get('SDL_VIDEODRIVER') != 'dummy':
+                try:
+                    surf.convert(32)
+                    surf.convert(pygame.Surface((1, 1)))
+                except pygame.error:
+                    self.fail("convert() should not raise an exception here.")
             self.assertRaisesRegexp(pygame.error, 'No video mode', surf.convert)
             pygame.display.set_mode((640,480))
             try:
