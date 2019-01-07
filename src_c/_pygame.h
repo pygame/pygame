@@ -239,6 +239,18 @@ typedef enum {
     TIMER_RESOLUTION = 0
 } PygameVideoFlags;
 
+/* the wheel button constants were removed from SDL 2 */
+typedef enum {
+    PGM_BUTTON_LEFT = SDL_BUTTON_LEFT,
+    PGM_BUTTON_RIGHT = SDL_BUTTON_RIGHT,
+    PGM_BUTTON_MIDDLE = SDL_BUTTON_MIDDLE,
+    PGM_BUTTON_WHEELUP = 4,
+    PGM_BUTTON_WHEELDOWN = 5,
+    PGM_BUTTON_X1 = SDL_BUTTON_X1 + 2,
+    PGM_BUTTON_X2 = SDL_BUTTON_X2 + 2,
+    PGM_BUTTON_KEEP = 0x80
+} PygameMouseFlags;
+
 typedef enum {
     SDL_NOEVENT = 0,
     /* SDL 1.2 allowed for 8 user defined events. */
