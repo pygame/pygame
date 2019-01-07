@@ -542,6 +542,19 @@ div.admonition ul, div.admonition ol {
     margin-bottom: 5px;
 }
 
+dl.definition div.note, dl.definition div.seealso {
+    background: none;
+    border: none;
+}
+
+dl.definition div.admonition {
+    margin-bottom: 0.5em;
+}
+
+dl.definition .admonition-title {
+    font-weight: bold;
+}
+
 div.note {
     background-color: #eee;
     border: 1px solid #ccc;

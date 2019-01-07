@@ -819,6 +819,10 @@ MODINIT_DEFINE(key)
         MODINIT_ERROR;
     }
 #if IS_SDLv2
+    import_pygame_rect();
+    if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
     import_pygame_event();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;

@@ -270,7 +270,9 @@ music_load(PyObject *self, PyObject *args)
     oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
-        rw = pgRWopsFromFileObjectThreaded(obj);
+        if (!PG_CHECK_THREADS())
+            return NULL;
+        rw = pgRWopsFromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }
@@ -328,7 +330,9 @@ music_queue(PyObject *self, PyObject *args)
     oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
-        rw = pgRWopsFromFileObjectThreaded(obj);
+        if (!PG_CHECK_THREADS())
+            return NULL;
+        rw = pgRWopsFromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }

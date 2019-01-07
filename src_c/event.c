@@ -98,7 +98,7 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-static char _pg_last_unicode_char[5] = { 1, 0, 0, 0, 0 };
+static char _pg_last_unicode_char[32] = { 0 };
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
@@ -620,12 +620,10 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
-            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->text.windowID));
             _pg_insobj(dict, "text", Text_FromUTF8(event->text.text));
             break;
         case SDL_TEXTEDITING:
             /* https://wiki.libsdl.org/SDL_TextEditingEvent */
-            _pg_insobj(dict, "window_id", PyLong_FromUnsignedLong(event->edit.windowID));
             _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
