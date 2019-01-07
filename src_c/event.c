@@ -175,6 +175,11 @@ pg_event_filter(void *_, SDL_Event *event)
         event->type = SDL_KEYDOWN;
     }
     else if (type == SDL_MOUSEWHEEL) {
+        
+        if (event->wheel.x == 0 && event->wheel.y == 0) {
+            //#691 We are not moving wheel!
+            return 1;
+        }
         // Generate a MouseButtonDown event for compatibility.
         // https://wiki.libsdl.org/SDL_MouseWheelEvent
         SDL_Event newevent;
@@ -182,12 +187,11 @@ pg_event_filter(void *_, SDL_Event *event)
         
         int x, y;
         VIDEO_INIT_CHECK();
-		
+        
         SDL_GetMouseState(&x, &y);
         newevent.button.x = x;
         newevent.button.y = y;
         
-		
         newevent.button.state = SDL_PRESSED;
         newevent.button.clicks = 1;
         
@@ -197,7 +201,7 @@ pg_event_filter(void *_, SDL_Event *event)
         else if (event->wheel.x != 0) {
             newevent.button.button = (event->wheel.x > 0) ? 4 : 5;
         }
-		newevent.button.button += 96;
+        newevent.button.button += 96;
 
         if (SDL_PushEvent(&newevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
@@ -548,7 +552,11 @@ dict_from_event(SDL_Event *event)
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
             _pg_insobj(dict, "button", PyInt_FromLong((event->button.button > 96) ? event->button.button - 96 : event->button.button));
-			_pg_insobj(dict, "wheel", PyBool_FromLong(event->button.button > 96));
+#if IS_SDLv1
+            _pg_insobj(dict, "wheel", PyBool_FromLong(event->button.button == 4 || event->button.button == 5));
+#else
+            _pg_insobj(dict, "wheel", PyBool_FromLong(event->button.button > 96));
+#endif
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", PyInt_FromLong(event->jaxis.which));
@@ -605,9 +613,10 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
-            obj = Py_BuildValue("(ii)", event->wheel.x, event->wheel.y);
-            _pg_insobj(dict, "pos", obj);
-            _pg_insobj(dict, "direction", PyInt_FromLong(event->wheel.direction));
+            _pg_insobj(dict, "flipped", PyBool_FromLong(event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED));
+            _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
+            _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
+            _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
