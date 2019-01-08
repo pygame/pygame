@@ -16,6 +16,7 @@ def init():
 
     if sys.platform == 'win32':
         use_vidcapture = True
+        use__camera = False
 
     elif "linux" in sys.platform:
         use__camera = True
@@ -39,10 +40,10 @@ def init():
 
     # the _camera module has some code which can be reused by other modules.
     #  it will also be the default one.
-    from pygame import _camera
-    colorspace = _camera.colorspace
-
     if use__camera:
+        from pygame import _camera
+        colorspace = _camera.colorspace
+
         list_cameras = _camera.list_cameras
         Camera = _camera.Camera
 
