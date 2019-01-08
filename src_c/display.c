@@ -608,26 +608,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         title = state->title;
     }
 
-    if (flags & PGS_OPENGL)
-        state->using_gl = 1;
+    state->using_gl = (flags & PGS_OPENGL) != 0;
 
-    if (win) {
-        /*change existing window*/
-        SDL_SetWindowTitle(win, title);
-        SDL_SetWindowSize(win, w, h);
-#pragma PG_WARN(Add mode stuff.)
-        surf = SDL_GetWindowSurface(win);
-        if (!surf) {
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            pg_SetDefaultWindow(NULL);
-            return NULL;
-        }
-        assert(surface);
-        pgSurface_AsSurface(surface) = surf;
-    }
-    else {
-        Uint32 sdl_flags = 0;
-        /*open window*/
+    {
         if (flags & PGS_OPENGL) {
             if (flags & PGS_DOUBLEBUF) {
                 flags &= ~PGS_DOUBLEBUF;
@@ -637,37 +620,76 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
         }
 #pragma PG_WARN(Not setting bpp ?)
-        if (flags & PGS_FULLSCREEN)
-            sdl_flags |= SDL_WINDOW_FULLSCREEN;
-        if (flags & PGS_OPENGL)
-            sdl_flags |= SDL_WINDOW_OPENGL;
-        if (flags & PGS_NOFRAME)
-            sdl_flags |= SDL_WINDOW_BORDERLESS;
-        if (flags & PGS_RESIZABLE)
-            sdl_flags |= SDL_WINDOW_RESIZABLE;
-        if (flags & PGS_SHOWN)
-            sdl_flags |= SDL_WINDOW_SHOWN;
-        if (flags & PGS_HIDDEN)
-            sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
-        if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
-            sdl_flags |= SDL_WINDOW_SHOWN;
-        win = SDL_CreateWindow(title,
-                               SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                               SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                               w, h, sdl_flags);
-        if (!win)
-            return RAISE(pgExc_SDLError, SDL_GetError());
+#pragma PG_WARN(Add mode stuff.)
+        if (!win) {
+            /*open window*/
+            Uint32 sdl_flags = 0;
+            if (flags & PGS_FULLSCREEN)
+                sdl_flags |= SDL_WINDOW_FULLSCREEN;
+            if (flags & PGS_OPENGL)
+                sdl_flags |= SDL_WINDOW_OPENGL;
+            if (flags & PGS_NOFRAME)
+                sdl_flags |= SDL_WINDOW_BORDERLESS;
+            if (flags & PGS_RESIZABLE)
+                sdl_flags |= SDL_WINDOW_RESIZABLE;
+            if (flags & PGS_SHOWN)
+                sdl_flags |= SDL_WINDOW_SHOWN;
+            if (flags & PGS_HIDDEN)
+                sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
+            if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
+                sdl_flags |= SDL_WINDOW_SHOWN;
+            win = SDL_CreateWindow(title,
+                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                                   w, h, sdl_flags);
+            if (!win)
+                return RAISE(pgExc_SDLError, SDL_GetError());
+        } else {
+            /*change existing window*/
+            SDL_SetWindowTitle(win, title);
+            SDL_SetWindowSize(win, w, h);
+            SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
+            SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
+            if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
+                SDL_ShowWindow(win);
+            else if (flags & PGS_HIDDEN)
+                SDL_HideWindow(win);
+            if (SDL_GetWindowDisplayIndex(win) != display) {
+                SDL_SetWindowPosition(win,
+                                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
+            }
+            SDL_SetWindowFullscreen(win, (flags & PGS_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN : 0);
+            assert(surface);
+        }
 
         if (state->using_gl) {
-            state->gl_context = SDL_GL_CreateContext(win);
             if (!state->gl_context) {
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                SDL_DestroyWindow(win);
-                return NULL;
+                state->gl_context = SDL_GL_CreateContext(win);
+                if (!state->gl_context) {
+                    _display_state_cleanup(state);
+                    PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                    SDL_DestroyWindow(win);
+                    return NULL;
+                }
+                /* SDL_GetWindowSurface can not be used when using GL.
+                According to https://wiki.libsdl.org/SDL_GetWindowSurface
+
+                So we make a fake surface.
+                */
+                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0xff << 16,
+                                            0xff << 8, 0xff, 0);
+            } else {
+                surf = pgSurface_AsSurface(surface);
             }
         }
-        else
-            state->gl_context = NULL;
+        else {
+            if (state->gl_context) {
+                SDL_GL_DeleteContext(state->gl_context);
+                state->gl_context = NULL;
+            }
+            surf = SDL_GetWindowSurface(win);
+        }
         if (state->gamma_ramp) {
             int result = SDL_SetWindowGammaRamp(win, state->gamma_ramp,
                                                 state->gamma_ramp + 256,
@@ -683,18 +705,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 return NULL;
             }
         }
-        if (state->using_gl) {
-            /* SDL_GetWindowSurface can not be used when using GL.
-                According to https://wiki.libsdl.org/SDL_GetWindowSurface
-
-            So we make a fake surface.
-            */
-            surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0xff << 16,
-                                        0xff << 8, 0xff, 0);
-        }
-        else {
-            surf = SDL_GetWindowSurface(win);
-        }
 
         if (!surf) {
             _display_state_cleanup(state);
@@ -702,7 +712,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             SDL_DestroyWindow(win);
             return NULL;
         }
-        surface = pgSurface_NewNoOwn(surf);
+        if (!surface) {
+            surface = pgSurface_NewNoOwn(surf);
+        } else {
+            Py_INCREF(surface);
+            pgSurface_AsSurface(surface) = surf;
+        }
         if (!surface) {
             _display_state_cleanup(state);
             SDL_DestroyWindow(win);
