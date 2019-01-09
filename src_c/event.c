@@ -174,7 +174,48 @@ pg_event_filter(void *_, SDL_Event *event)
     else if (type == PGE_KEYREPEAT) {
         event->type = SDL_KEYDOWN;
     }
+    else if (type == SDL_MOUSEBUTTONDOWN || type == SDL_MOUSEBUTTONUP) {
+        if (event->button.button & PGM_BUTTON_KEEP) {
+            event->button.button ^= PGM_BUTTON_KEEP;
+        }
+        else if (event->button.button >= PGM_BUTTON_WHEELUP) {
+            event->button.button += (PGM_BUTTON_X1 - PGM_BUTTON_WHEELUP);
+        }
+    }
+    else if (type == SDL_MOUSEWHEEL) {
+        
+        if (event->wheel.x == 0 && event->wheel.y == 0) {
+            //#691 We are not moving wheel!
+            return 1;
+        }
+        // Generate a MouseButtonDown event for compatibility.
+        // https://wiki.libsdl.org/SDL_MouseWheelEvent
+        SDL_Event newevent;
+        newevent.type = SDL_MOUSEBUTTONDOWN;
+        
+        int x, y;
+        VIDEO_INIT_CHECK();
+        
+        SDL_GetMouseState(&x, &y);
+        newevent.button.x = x;
+        newevent.button.y = y;
+        
+        newevent.button.state = SDL_PRESSED;
+        newevent.button.clicks = 1;
+        
+        if (event->wheel.y != 0) {
+            newevent.button.button = (event->wheel.y > 0) ?
+                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        }
+        else if (event->wheel.x != 0) {
+            newevent.button.button = (event->wheel.x > 0) ?
+                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        }
+        newevent.button.button |= PGM_BUTTON_KEEP;
 
+        if (SDL_PushEvent(&newevent) < 0)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+    }
     return 1;
 }
 
@@ -329,6 +370,8 @@ _pg_name_from_eventtype(int type)
             return "FingerUp";
         case SDL_MULTIGESTURE:
             return "MultiGesture";
+        case SDL_MOUSEWHEEL:
+            return "MouseWheel";
         case SDL_TEXTINPUT:
             return "TextInput";
         case SDL_TEXTEDITING:
@@ -572,6 +615,13 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+        case SDL_MOUSEWHEEL:
+            /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
+            _pg_insobj(dict, "flipped", PyBool_FromLong(event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED));
+            _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
+            _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
+            _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
@@ -1367,7 +1417,7 @@ pg_event_peek(PyObject *self, PyObject *args)
                     PyExc_TypeError,
                     "type sequence must contain valid event types");
             result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, val, val);
-			if (result < 0) {
+            if (result < 0) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
             } else if (result == 1) {
                 return PyInt_FromLong(1);
