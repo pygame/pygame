@@ -1777,10 +1777,7 @@ surf_convert(PyObject *self, PyObject *args)
     }
 #if IS_SDLv1
     else {
-        if (SDL_WasInit(SDL_INIT_VIDEO))
-            newsurf = SDL_DisplayFormat(surf);
-        else
-            newsurf = SDL_ConvertSurface(surf, surf->format, surf->flags);
+        newsurf = SDL_DisplayFormat(surf);
     }
 #else  /* IS_SDLv2 */
     else {
@@ -1791,7 +1788,8 @@ surf_convert(PyObject *self, PyObject *args)
             newsurf = SDL_ConvertSurface(surf, screen_surf->format, 0);
         }
         else
-            newsurf = SDL_ConvertSurface(surf, surf->format, 0);
+            return RAISE(pgExc_SDLError,
+                         "No video mode has been set");
 
         ecode = SDL_GetColorKey(surf, &colorkey);
         if (ecode == 0) {
@@ -1830,6 +1828,27 @@ surf_convert_alpha(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "|O!", &pgSurface_Type, &srcsurf))
         return NULL;
 
+#pragma PG_WARN("srcsurf doesn't actually do anything?")
+
+#if IS_SDLv2
+    /*if (!srcsurf)*/
+    /*
+     * hmm, we have to figure this out, not all depths have good
+     * support for alpha
+     */
+    {
+        if (!(srcsurf = pg_GetDefaultWindowSurface())) {
+            return RAISE(pgExc_SDLError,
+                         "No video mode has been set");
+        }
+    }
+    pgSurface_Prep(self);
+    src = pgSurface_AsSurface(srcsurf);
+    newsurf = SDL_ConvertSurface(surf, src->format, 0);
+    pgSurface_Unprep(self);
+
+    final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
+#else /* IS_SDLv1 */
     pgSurface_Prep(self);
     if (srcsurf) {
         /*
@@ -1837,26 +1856,15 @@ surf_convert_alpha(PyObject *self, PyObject *args)
          * support for alpha
          */
         src = pgSurface_AsSurface(srcsurf);
-#pragma PG_WARN("This doesn't actually do anything?")
-#if IS_SDLv1
         newsurf = SDL_DisplayFormatAlpha(surf);
-#else
-        newsurf = SDL_ConvertSurfaceFormat(surf, surf->format->format, 0);
-#endif
     }
     else
-#if IS_SDLv1
         newsurf = SDL_DisplayFormatAlpha(surf);
-#else
-        newsurf = SDL_ConvertSurfaceFormat(surf, surf->format->format, 0);
-#endif
     pgSurface_Unprep(self);
 
-#if IS_SDLv1
     final = surf_subtype_new(Py_TYPE(self), newsurf);
-#else
-    final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
-#endif
+#endif /* IS_SDLv1 */
+
     if (!final)
         SDL_FreeSurface(newsurf);
     return final;

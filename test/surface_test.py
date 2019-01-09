@@ -674,6 +674,46 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertRaises(pygame.error, im2.convert, 8)
         self.assertEqual(pygame.get_error(), "Empty destination palette")
 
+    def test_convert_init(self):
+        """ Ensure initialization exceptions are raised
+            for surf.convert()."""
+        surf = pygame.Surface((1, 1))
+        self.assertRaisesRegexp(pygame.error,
+                                'display initialized', surf.convert)
+        pygame.display.init()
+        try:
+            if os.environ.get('SDL_VIDEODRIVER') != 'dummy':
+                try:
+                    surf.convert(32)
+                    surf.convert(pygame.Surface((1, 1)))
+                except pygame.error:
+                    self.fail("convert() should not raise an exception here.")
+            self.assertRaisesRegexp(pygame.error, 'No video mode', surf.convert)
+            pygame.display.set_mode((640,480))
+            try:
+                surf.convert()
+            except pygame.error:
+                self.fail("convert() should not raise an exception here.")
+        finally:
+            pygame.display.quit()
+
+    def test_convert_alpha_init(self):
+        """ Ensure initialization exceptions are raised
+            for surf.convert_alpha()."""
+        surf = pygame.Surface((1, 1))
+        self.assertRaisesRegexp(pygame.error,
+                                'display initialized', surf.convert_alpha)
+        pygame.display.init()
+        try:
+            self.assertRaisesRegexp(pygame.error, 'No video mode', surf.convert_alpha)
+            pygame.display.set_mode((640,480))
+            try:
+                surf.convert_alpha()
+            except pygame.error:
+                self.fail("convert_alpha() should not raise an exception here.")
+        finally:
+            pygame.display.quit()
+
     def todo_test_convert(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
