@@ -485,6 +485,60 @@ cdef class Texture:
         if self._tex:
             SDL_DestroyTexture(self._tex)
 
+    @property
+    def alpha(self):
+        # https://wiki.libsdl.org/SDL_GetTextureAlphaMod
+        cdef Uint8 alpha
+        res = SDL_GetTextureAlphaMod(self._tex, &alpha)
+        if res < 0:
+            raise error()
+            
+        return alpha
+
+    @alpha.setter
+    def alpha(self, Uint8 new_value):
+        # https://wiki.libsdl.org/SDL_SetTextureAlphaMod
+        res = SDL_SetTextureAlphaMod(self._tex, new_value)
+        if res < 0:
+            raise error()
+
+    @property
+    def blend_mode(self):
+        # https://wiki.libsdl.org/SDL_GetTextureBlendMode
+        cdef SDL_BlendMode blendMode
+        res = SDL_GetTextureBlendMode(self._tex, &blendMode)
+        if res < 0:
+            raise error()
+            
+        return blendMode
+
+    @blend_mode.setter
+    def blend_mode(self, blendMode):
+        # https://wiki.libsdl.org/SDL_SetTextureBlendMode
+        res = SDL_SetTextureBlendMode(self._tex, blendMode)
+        if res < 0:
+            raise error()
+
+    @property
+    def color(self):
+        # https://wiki.libsdl.org/SDL_GetTextureColorMod
+        cdef Uint8 r,g,b
+        res = SDL_GetTextureColorMod(self._tex, &r, &g, &b)
+        if res < 0:
+            raise error()
+            
+        return (r,g,b)
+
+    @color.setter
+    def color(self, new_value):
+        # https://wiki.libsdl.org/SDL_SetTextureColorMod
+        res = SDL_SetTextureColorMod(self._tex,
+                                     new_value[0],
+                                     new_value[1],
+                                     new_value[2])
+        if res < 0:
+            raise error()
+            
 cdef class Renderer:
     def __init__(self, Window window, int index=-1,
                  int accelerated=-1, bint vsync=False,
