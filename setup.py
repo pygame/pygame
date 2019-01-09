@@ -330,8 +330,40 @@ def parse_version(ver):
     from re import findall
     return ', '.join(s for s in findall('\d+', ver)[0:3])
 
+def parse_source_version():
+    pgh_major = -1
+    pgh_minor = -1
+    pgh_patch = -1
+    import re
+    major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
+    minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
+    patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
+    pg_header = os.path.join('src_c', '_pygame.h')
+    with open(pg_header) as f:
+        for line in f:
+            if pgh_major == -1:
+                m = major_exp_search(line)
+                if m: pgh_major = int(m.group(1))
+            if pgh_minor == -1:
+                m = minor_exp_search(line)
+                if m: pgh_minor = int(m.group(1))
+            if pgh_patch == -1:
+                m = patch_exp_search(line)
+                if m: pgh_patch = int(m.group(1))
+    if pgh_major == -1:
+        raise SystemExit("_pygame.h: cannot find PG_MAJOR_VERSION")
+    if pgh_minor == -1:
+        raise SystemExit("_pygame.h: cannot find PG_MINOR_VERSION")
+    if pgh_patch == -1:
+        raise SystemExit("_pygame.h: cannot find PG_PATCH_VERSION")
+    return (pgh_major, pgh_minor, pgh_patch)
+
 def write_version_module(pygame_version, revision):
     vernum = parse_version(pygame_version)
+    src_vernum = parse_source_version()
+    if vernum != ', '.join(str(e) for e in src_vernum):
+        raise SystemExit("_pygame.h version differs from 'METADATA' version"
+                         ": %s vs %s" % (vernum, src_vernum))
     with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
         header = header_file.read()
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
