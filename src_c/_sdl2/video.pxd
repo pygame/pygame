@@ -277,6 +277,3 @@ cdef class Texture:
     cdef readonly Renderer renderer
     cdef readonly int width
     cdef readonly int height
-    cdef Uint8 alpha
-    cdef SDL_BlendMode blend_mode
-    cdef tuple color

@@ -481,31 +481,11 @@ cdef Uint32 format_from_depth(int depth):
 
 
 cdef class Texture:
-    def __init__(self, Renderer renderer, surface):
-        """ Create a texture from an existing surface.
-
-        :param Renderer renderer: Rendering context for the texture.
-        :param pygame.Surface surface: The surface to create a texture from.
-        """
-        # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
-        if not pgSurface_Check(surface):
-            raise error('2nd argument must be a surface')
-        self.renderer = renderer
-        cdef SDL_Renderer* _renderer = renderer._renderer
-        cdef SDL_Surface *surf_ptr = pgSurface_AsSurface(surface)
-        self._tex = SDL_CreateTextureFromSurface(_renderer,
-                                                 surf_ptr)
-        if not self._tex:
-            raise error()
-        self.width = surface.get_width()
-        self.height = surface.get_height()
-
-    @staticmethod
-    def create_empty(Renderer renderer,
-                     size,
-                     int depth=0,
-                     static=False, streaming=False,
-                     target=False):
+    def __init__(self,
+                 Renderer renderer,
+                 size, int depth=0,
+                 static=False, streaming=False,
+                 target=False):
         """ Create an empty texture.
 
         :param Renderer renderer: Rendering context for the texture.
@@ -551,7 +531,6 @@ cdef class Texture:
             #raise ValueError('one of static, streaming, or target must be true')
             access = _SDL_TEXTUREACCESS_STATIC
 
-        cdef Texture self = Texture.__new__(Texture)
         self.renderer = renderer
         cdef SDL_Renderer* _renderer = renderer._renderer
         self._tex = SDL_CreateTexture(_renderer,
@@ -561,6 +540,27 @@ cdef class Texture:
         if not self._tex:
             raise error()
         self.width, self.height = width, height
+
+    @staticmethod
+    def from_surface(Renderer renderer, surface):
+        """ Create a texture from an existing surface.
+
+        :param Renderer renderer: Rendering context for the texture.
+        :param pygame.Surface surface: The surface to create a texture from.
+        """
+        # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
+        if not pgSurface_Check(surface):
+            raise error('2nd argument must be a surface')
+        cdef Texture self = Texture.__new__(Texture)
+        self.renderer = renderer
+        cdef SDL_Renderer* _renderer = renderer._renderer
+        cdef SDL_Surface *surf_ptr = pgSurface_AsSurface(surface)
+        self._tex = SDL_CreateTextureFromSurface(_renderer,
+                                                 surf_ptr)
+        if not self._tex:
+            raise error()
+        self.width = surface.get_width()
+        self.height = surface.get_height()
         return self
 
     def __dealloc__(self):
@@ -604,6 +604,7 @@ cdef class Texture:
     @property
     def color(self):
         # https://wiki.libsdl.org/SDL_GetTextureColorMod
+        # TODO: pygame.Color?
         cdef Uint8 r,g,b
         res = SDL_GetTextureColorMod(self._tex, &r, &g, &b)
         if res < 0:
