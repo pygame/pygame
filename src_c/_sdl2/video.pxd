@@ -199,6 +199,12 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_CreateTexture
     # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
     # https://wiki.libsdl.org/SDL_DestroyTexture
+    # https://wiki.libsdl.org/SDL_GetTextureAlphaMod
+    # https://wiki.libsdl.org/SDL_SetTextureAlphaMod
+    # https://wiki.libsdl.org/SDL_GetTextureBlendMode
+    # https://wiki.libsdl.org/SDL_SetTextureBlendMode
+    # https://wiki.libsdl.org/SDL_GetTextureColorMod
+    # https://wiki.libsdl.org/SDL_SetTextureColorMod
     SDL_Texture* SDL_CreateTexture(SDL_Renderer* renderer,
                                    Uint32        format,
                                    int           access,
@@ -208,6 +214,31 @@ cdef extern from "SDL.h" nogil:
                                               SDL_Surface*  surface)
     void SDL_DestroyTexture(SDL_Texture* texture)
 
+
+    int SDL_GetTextureAlphaMod(SDL_Texture* texture,
+                               Uint8*       alpha)
+    int SDL_SetTextureAlphaMod(SDL_Texture* texture,
+                               Uint8        alpha)
+    ctypedef enum SDL_BlendMode:
+        SDL_BLENDMODE_NONE = 0x00000000,          
+        SDL_BLENDMODE_BLEND = 0x00000001,
+        SDL_BLENDMODE_ADD = 0x00000002,
+        SDL_BLENDMODE_MOD = 0x00000004,
+        SDL_BLENDMODE_INVALID = 0x7FFFFFFF
+        
+    int SDL_GetTextureBlendMode(SDL_Texture*   texture,
+                                SDL_BlendMode* blendMode)                                   
+    int SDL_SetTextureBlendMode(SDL_Texture*  texture,
+                                SDL_BlendMode blendMode)
+    int SDL_GetTextureColorMod(SDL_Texture* texture,
+                               Uint8*       r,
+                               Uint8*       g,
+                               Uint8*       b)
+    int SDL_SetTextureColorMod(SDL_Texture* texture,
+                               Uint8        r,
+                               Uint8        g,
+                               Uint8        b)
+                               
 cdef class Window:
     cdef SDL_Window* _win
 
@@ -220,3 +251,6 @@ cdef class Texture:
     cdef readonly Renderer renderer
     cdef readonly int width
     cdef readonly int height
+    cdef Uint8 alpha
+    cdef SDL_BlendMode blend_mode
+    cdef tuple color
