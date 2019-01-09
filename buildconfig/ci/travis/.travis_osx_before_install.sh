@@ -102,8 +102,9 @@ brew tap-pin pygame/portmidi
 
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
-install_or_upgrade libpng ${UNIVERSAL_FLAG}
-install_or_upgrade libtiff ${UNIVERSAL_FLAG} --with-xz
+UPDATE_UNBOTTLED='1' install_or_upgrade libpng ${UNIVERSAL_FLAG}
+UPDATE_UNBOTTLED='1' install_or_upgrade xz ${UNIVERSAL_FLAG}
+UPDATE_UNBOTTLED='1' install_or_upgrade libtiff ${UNIVERSAL_FLAG}
 install_or_upgrade webp ${UNIVERSAL_FLAG}
 install_or_upgrade libogg ${UNIVERSAL_FLAG}
 install_or_upgrade libvorbis ${UNIVERSAL_FLAG}

@@ -74,7 +74,7 @@ Credits
 
      Ulf Ekström for his pixel perfect collision detection code.
 
-     Pete Shinners - orginal author.
+     Pete Shinners - original author.
 
      David Clark - for filling the right-hand-man position
 
@@ -113,7 +113,7 @@ Credits
      Michael Benfield, David Lau
 
      There's many more folks out there who've submitted helpful ideas, kept
-     this project going, and basically made my life easer, Thanks!
+     this project going, and basically made my life easier. Thanks!
 
      Many thank you's for people making documentation comments, and adding to the
      pygame.org wiki.
@@ -163,7 +163,7 @@ License
 
      This basically means you can use pygame in any project you want,
      but if you make any changes or additions to pygame itself, those
-     must be released with a compatible license. (preferably submitted
+     must be released with a compatible license (preferably submitted
      back to the pygame project). Closed source and commercial games are
      fine.
 
