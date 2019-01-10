@@ -489,13 +489,25 @@ class ImageModuleTest( unittest.TestCase ):
 
         self.fail()
 
-    def test_threads(self):
-        """ can be used to load png, gif, bmp, jpg example images.
-        """
+    def threads_load(self, images):
         import pygame.threads
-        images = glob.glob(example_path("data/*.[pgbj][nimp][gfmp]"))
-        for x in range(10):
-            pygame.threads.tmap(lambda x: pygame.image.load(x), images)
+        for i in range(10):
+            surfs = pygame.threads.tmap(pygame.image.load, images)
+            for s in surfs:
+                self.assertIsInstance(s, pygame.Surface)
+
+    def test_load_png_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.png")))
+
+    def test_load_jpg_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.jpg")))
+
+    def test_load_bmp_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.bmp")))
+
+    @unittest.skipIf(pygame.get_sdl_version()[0] < 2, 'Crashes with SDL_image 1.x')
+    def test_load_gif_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.gif")))
 
 if __name__ == '__main__':
     unittest.main()
