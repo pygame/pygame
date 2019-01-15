@@ -1101,6 +1101,18 @@ class SurfaceTypeTest(unittest.TestCase):
         key = surf.get_colorkey()
         self.assertEqual(surf.get_palette()[surf.map_rgb(key)], key)
 
+    def test_palette_colorkey_set_px(self):
+        surf = pygame.image.load(example_path(os.path.join("data", "alien2.png")))
+        key = surf.get_colorkey()
+        surf.set_at((0, 0), key)
+        self.assertEqual(surf.get_at((0, 0)), key)
+
+    def test_palette_colorkey_fill(self):
+        surf = pygame.image.load(example_path(os.path.join("data", "alien2.png")))
+        key = surf.get_colorkey()
+        surf.fill(key)
+        self.assertEqual(surf.get_at((0, 0)), key)
+
     def test_set_palette(self):
         palette = [pygame.Color(i, i, i) for i in range(256)]
         palette[10] = tuple(palette[10])      # 4 element tuple
