@@ -1630,7 +1630,9 @@ surf_convert(PyObject *self, PyObject *args)
 #if IS_SDLv2
     Uint8 alpha;
     Uint32 colorkey;
-    int ecode;
+    Uint8 key_r, key_g, key_b, key_a = 255;
+    int has_colorkey = SDL_FALSE;
+
 #endif /* IS_SDLv2 */
 
 
@@ -1647,6 +1649,17 @@ surf_convert(PyObject *self, PyObject *args)
 #endif /* IS_SDLv1 */
 
     pgSurface_Prep(self);
+
+#if IS_SDLv2
+    if (SDL_GetColorKey(surf, &colorkey) == 0){
+        has_colorkey = SDL_TRUE;
+        if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
+            SDL_GetRGBA(colorkey, surf->format, &key_r, &key_g, &key_b, &key_a);
+        else
+            SDL_GetRGB(colorkey, surf->format, &key_r, &key_g, &key_b);
+    }
+#endif
+
     if (argobject) {
         if (pgSurface_Check(argobject)) {
             src = pgSurface_AsSurface(argobject);
@@ -1656,15 +1669,6 @@ surf_convert(PyObject *self, PyObject *args)
             newsurf = SDL_ConvertSurface(surf, src->format, flags);
 #else  /* IS_SDLv2 */
             newsurf = SDL_ConvertSurface(surf, src->format, 0);
-
-            ecode = SDL_GetColorKey(surf, &colorkey);
-            if (ecode == 0) {
-                if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
-                    PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                    SDL_FreeSurface(newsurf);
-                    return NULL;
-                }
-            }
 #endif /* IS_SDLv2 */
         }
         else {
@@ -1788,18 +1792,6 @@ surf_convert(PyObject *self, PyObject *args)
             newsurf = SDL_ConvertSurface(surf, &format, 0);
 #endif /* IS_SDLv1 */
 
-#if IS_SDLv2
-            ecode = SDL_GetColorKey(surf, &colorkey);
-            if (ecode == 0) {
-                if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
-                    PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                    SDL_FreeSurface(newsurf);
-                    return NULL;
-                }
-            }
-#endif
-
-
         }
     }
 #if IS_SDLv1
@@ -1817,16 +1809,17 @@ surf_convert(PyObject *self, PyObject *args)
         else
             return RAISE(pgExc_SDLError,
                          "No video mode has been set");
+    }
 
-        ecode = SDL_GetColorKey(surf, &colorkey);
-        if (ecode == 0) {
-            if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
-                PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                SDL_FreeSurface(newsurf);
-                return NULL;
-            }
+    if (has_colorkey) {
+        colorkey = SDL_MapRGBA(newsurf->format, key_r, key_g, key_b, key_a);
+        if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
         }
     }
+
 #endif /* IS_SDLv2 */
     pgSurface_Unprep(self);
 
