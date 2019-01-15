@@ -91,7 +91,9 @@ class FontModuleTest( unittest.TestCase ):
             # note, on ubuntu 2.6 they are all unicode strings.
 
             self.assertTrue(isinstance(name, name_types), name)
-            self.assertTrue(name.islower(), name)
+            # Font names can be comprised of only numeric characters, so
+            # just checking name.islower() will not work as expected here.
+            self.assertFalse(any(c.isupper() for c in name))
             self.assertTrue(name.isalnum(), name)
 
     def test_get_init(self):
