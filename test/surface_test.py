@@ -1093,6 +1093,14 @@ class SurfaceTypeTest(unittest.TestCase):
         s2.blit(s, (0, 0))
         self.assertGreater(s2.get_at((0, 0))[0], 0, "the red component should be above 0")
 
+    def test_palette_colorkey(self):
+        """ test bug discovered by robertpfeiffer
+        https://github.com/pygame/pygame/issues/721
+        """
+        surf = pygame.image.load(example_path(os.path.join("data", "alien2.png")))
+        key = surf.get_colorkey()
+        self.assertEqual(surf.get_palette()[surf.map_rgb(key)], key)
+
     def test_set_palette(self):
         palette = [pygame.Color(i, i, i) for i in range(256)]
         palette[10] = tuple(palette[10])      # 4 element tuple
