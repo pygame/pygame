@@ -1812,7 +1812,10 @@ surf_convert(PyObject *self, PyObject *args)
     }
 
     if (has_colorkey) {
-        colorkey = SDL_MapRGBA(newsurf->format, key_r, key_g, key_b, key_a);
+        if (newsurf->format->palette) {
+            colorkey = pg_map_rgb_indexed(newsurf, key_r, key_g, key_b);
+        } else
+            colorkey = SDL_MapRGBA(newsurf->format, key_r, key_g, key_b, key_a);
         if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreeSurface(newsurf);
