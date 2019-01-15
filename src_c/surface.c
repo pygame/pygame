@@ -1001,6 +1001,24 @@ surf_get_at_mapped(PyObject *self, PyObject *args)
     return PyInt_FromLong((long)color);
 }
 
+#if IS_SDLv2
+static Uint8
+pg_map_rgb_indexed(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b)
+{
+    /* SDL_MapRGB() returns the wrong value for the color keys,
+       since alpha = 0 */
+    Uint32 key;
+    if (!SDL_GetColorKey(surf, &key)) {
+        Uint8 keyr, keyg, keyb;
+        SDL_GetRGB(key, surf->format, &keyr, &keyg, &keyb);
+        if (r == keyr && g == keyg && b == keyb)
+            return key;
+    } else
+        SDL_ClearError();
+    return SDL_MapRGBA(surf->format, r, g, b, SDL_ALPHA_OPAQUE);
+}
+#endif /* IS_SDLv2 */
+
 static PyObject *
 surf_map_rgb(PyObject *self, PyObject *args)
 {
@@ -1013,6 +1031,11 @@ surf_map_rgb(PyObject *self, PyObject *args)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
+#if IS_SDLv2
+    if (surf->format->palette) {
+        color = pg_map_rgb_indexed(surf, rgba[0], rgba[1], rgba[2]);
+    } else
+#endif
     color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     return PyInt_FromLong(color);
 }
@@ -1358,7 +1381,9 @@ surf_set_colorkey(PyObject *self, PyObject *args)
             color =
                 SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 #else  /* IS_SDLv2 */
-            if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
+            if (surf->format->palette) {
+                color = pg_map_rgb_indexed(surf, rgba[0], rgba[1], rgba[2]);
+            } else if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
                 color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2],
                                     rgba[3]);
             else
@@ -1758,8 +1783,10 @@ surf_convert(PyObject *self, PyObject *args)
                 flags = surf->flags;
             if (format.Amask)
                 flags |= SDL_SRCALPHA;
-#endif /* IS_SDLv1 */
             newsurf = SDL_ConvertSurface(surf, &format, flags);
+#else
+            newsurf = SDL_ConvertSurface(surf, &format, 0);
+#endif /* IS_SDLv1 */
 
 #if IS_SDLv2
             ecode = SDL_GetColorKey(surf, &colorkey);
