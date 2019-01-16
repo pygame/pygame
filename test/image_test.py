@@ -505,7 +505,7 @@ class ImageModuleTest( unittest.TestCase ):
     def test_load_bmp_threads(self):
         self.threads_load(glob.glob(example_path("data/*.bmp")))
 
-    @unittest.skipIf(pygame.get_sdl_version()[0] < 2, 'Crashes with SDL_image 1.x')
+    @unittest.skip('Multiple threads unsupported as of SDL_image 2.0.4')
     def test_load_gif_threads(self):
         self.threads_load(glob.glob(example_path("data/*.gif")))
 
