@@ -20,6 +20,7 @@ if [[ "$PY_VERSION" == "pypy2" ]] || [[ "$PY_VERSION" == "pypy3" ]]; then
 	export PIP_CMD="$PY_VERSION -m pip"
 else
 
+export HOMEBREW_NO_AUTO_UPDATE=1
 source "buildconfig/ci/travis/.travis_osx_utils.sh"
 
 
