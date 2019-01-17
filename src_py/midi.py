@@ -54,6 +54,7 @@ __all__ = [
     "init",
     "midis2events",
     "quit",
+    "get_init",
     "time",
     "frequency_to_midi",
     "midi_to_frequency",
@@ -97,6 +98,18 @@ def quit():
         _init = False
         del _pypm
         #del pygame._pypm
+
+
+def get_init():
+    """returns True if the midi module is currently initialized
+    pygame.midi.get_init(): return bool
+
+    Returns True if the pygame.midi module is currently initialized.
+
+    New in pygame 1.9.5.
+    """
+    return _init
+
 
 def _check_init():
     if not _init:
