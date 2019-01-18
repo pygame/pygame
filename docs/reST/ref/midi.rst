@@ -418,7 +418,7 @@ New in pygame 1.9.0.
    | :sl:`returns True if the midi module is currently initialized`
    | :sg:`get_init() -> bool`
 
-   Returns ``True`` if the pygame.midi module is currently initialized.
+   Returns ``True`` if the ``pygame.midi`` module is currently initialized.
 
    New in pygame 1.9.5.
 

@@ -320,6 +320,8 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.init()
 
+        self.assertTrue(pygame.midi.get_init())
+
     def test_midis2events(self):
 
         midi_data = ([[0xc0, 0, 1, 2], 20000],
@@ -350,24 +352,11 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.quit()
 
+        self.assertFalse(pygame.midi.get_init())
+
     def test_get_init(self):
-        # Test if already initialized as pygame.midi.init() was called in
-        # setUp().
+        # Already initialized as pygame.midi.init() was called in setUp().
         self.assertTrue(pygame.midi.get_init())
-
-        # Test if module uninitialized by calling quit().
-        pygame.midi.quit()
-        self.assertFalse(pygame.midi.get_init())
-
-        # Test if initialized after multiple init() calls.
-        pygame.midi.init()
-        pygame.midi.init()
-        self.assertTrue(pygame.midi.get_init())
-
-        # Test if initialized after multiple quit() calls.
-        pygame.midi.quit()
-        pygame.midi.quit()
-        self.assertFalse(pygame.midi.get_init())
 
     def test_time(self):
 
