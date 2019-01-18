@@ -9,7 +9,9 @@
 
 #define DOC_PYGAMEFREETYPEQUIT "quit()\nShut down the underlying FreeType library."
 
-#define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nReturn whether the the FreeType library is initialized."
+#define DOC_PYGAMEFREETYPEGETINIT "get_init() -> bool\nReturns True if the FreeType module is currently initialized."
+
+#define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nDEPRECATED: Use get_init() instead."
 
 #define DOC_PYGAMEFREETYPEGETCACHESIZE "get_cache_size() -> long\nReturn the glyph case size"
 
@@ -122,9 +124,13 @@ pygame.freetype.quit
  quit()
 Shut down the underlying FreeType library.
 
+pygame.freetype.get_init
+ get_init() -> bool
+Returns True if the FreeType module is currently initialized.
+
 pygame.freetype.was_init
  was_init() -> bool
-Return whether the the FreeType library is initialized.
+DEPRECATED: Use get_init() instead.
 
 pygame.freetype.get_cache_size
  get_cache_size() -> long

@@ -111,12 +111,22 @@ The ``freetype`` module is new in pygame 1.9.2
    results. It is safe to call this function even if the module hasn't been
    initialized yet.
 
+.. function:: get_init
+
+   | :sl:`Returns True if the FreeType module is currently initialized.`
+   | :sg:`get_init() -> bool`
+
+   Returns ``True`` if the ``pygame.freetype`` module is currently initialized.
+
+   New in pygame 1.9.5.
+
 .. function:: was_init
 
-   | :sl:`Return whether the the FreeType library is initialized.`
+   | :sl:`DEPRECATED: Use get_init() instead.`
    | :sg:`was_init() -> bool`
 
-   Returns whether the the FreeType library is initialized.
+   DEPRECATED: Returns ``True`` if the ``pygame.freetype`` module is currently
+   initialized. Use ``get_init()`` instead.
 
 .. function:: get_cache_size
 
