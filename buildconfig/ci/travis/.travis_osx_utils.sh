@@ -39,13 +39,14 @@ function install_or_upgrade_deps {
     bottled="$2"
   fi
   if [[ "$bottled" ]]; then
-    deps=$(brew deps --1 "$1")
+    deps=$(brew deps --1 "$1") || true
   else
-    deps=$(brew deps --1 --include-build "$1")
+    deps=$(brew deps --1 --include-build "$1") || true
   fi
+  deps="$(xargs -n 1 <<< $deps)"
   if [[ "$deps" ]]; then
     echo -n "$1 dependencies: "
-    echo $deps
+    echo "$deps"
     while read -r dependency; do
       echo "$1: Install dependency $dependency."
       install_or_upgrade "$dependency" ${UNIVERSAL_FLAG}
