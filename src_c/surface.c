@@ -223,6 +223,37 @@ static PyObject *
 _raise_create_surface_error(void);
 #endif /* IS_SDLv2 */
 
+#if IS_SDLv2
+static Uint32
+pg_map_rgb(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b)
+{
+    /* SDL_MapRGB() returns wrong values for color keys
+       for indexed formats since since alpha = 0 */
+    Uint32 key;
+    if (!surf->format->palette)
+        return SDL_MapRGB(surf->format, r, g, b);
+    if (!SDL_GetColorKey(surf, &key)) {
+        Uint8 keyr, keyg, keyb;
+        SDL_GetRGB(key, surf->format, &keyr, &keyg, &keyb);
+        if (r == keyr && g == keyg && b == keyb)
+            return key;
+    } else
+        SDL_ClearError();
+    return SDL_MapRGBA(surf->format, r, g, b, SDL_ALPHA_OPAQUE);
+}
+
+static Uint32
+pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+    if (!surf->format->palette)
+        return SDL_MapRGBA(surf->format, r, g, b, a);
+    return pg_map_rgb(surf, r, g, b);
+}
+#else /* IS_SDLv1 */
+#define pg_map_rgb(surf, r, g, b) SDL_MapRGB((surf)->format, (r), (g), (b))
+#define pg_map_rgba(surf, r, g, b, a) SDL_MapRGBA((surf)->format, (r), (g), (b), (a))
+#endif /* IS_SDLv1 */
+
 static PyGetSetDef surface_getsets[] = {
     {"_pixels_address", (getter)surf_get_pixels_address, NULL,
      "pixel buffer address (readonly)", NULL},
@@ -908,7 +939,7 @@ surf_set_at(PyObject *self, PyObject *args)
             return RAISE(PyExc_TypeError, "invalid color argument");
     }
     else if (pg_RGBAFromColorObj(rgba_obj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+        color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
         return RAISE(PyExc_TypeError, "invalid color argument");
 
@@ -1013,7 +1044,7 @@ surf_map_rgb(PyObject *self, PyObject *args)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+    color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     return PyInt_FromLong(color);
 }
 
@@ -1359,10 +1390,10 @@ surf_set_colorkey(PyObject *self, PyObject *args)
                 SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 #else  /* IS_SDLv2 */
             if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
-                color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2],
+                color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2],
                                     rgba[3]);
             else
-                color = SDL_MapRGB(surf->format, rgba[0], rgba[1], rgba[2]);
+                color = pg_map_rgb(surf, rgba[0], rgba[1], rgba[2]);
 #endif /* IS_SDLv2 */
         }
         else
@@ -1762,8 +1793,10 @@ surf_convert(PyObject *self, PyObject *args)
                 flags = surf->flags;
             if (format.Amask)
                 flags |= SDL_SRCALPHA;
-#endif /* IS_SDLv1 */
             newsurf = SDL_ConvertSurface(surf, &format, flags);
+#else /* IS_SDLv2 */
+            newsurf = SDL_ConvertSurface(surf, &format, 0);
+#endif /* IS_SDLv2 */
 
         }
     }
@@ -1785,7 +1818,7 @@ surf_convert(PyObject *self, PyObject *args)
     }
 
     if (has_colorkey) {
-        colorkey = SDL_MapRGBA(newsurf->format, key_r, key_g, key_b, key_a);
+        colorkey = pg_map_rgba(newsurf, key_r, key_g, key_b, key_a);
         if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             SDL_FreeSurface(newsurf);
@@ -1941,7 +1974,7 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
     else if (PyLong_Check(rgba_obj))
         color = (Uint32)PyLong_AsUnsignedLong(rgba_obj);
     else if (pg_RGBAFromColorObj(rgba_obj, rgba))
-        color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+        color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
         return RAISE(PyExc_TypeError, "invalid color argument");
 
