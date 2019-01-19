@@ -60,7 +60,8 @@ function install_or_upgrade {
     return 0
   fi
 
-  local outdated=$(brew outdated | grep -m 1 "$1")
+  local formula=$(egrep -o '[^/]*$'<<<"$1")
+  local outdated=$(brew outdated | grep -m 1 "$formula")
   if [[ ! "$outdated" ]] && (brew ls --versions "$1" >/dev/null); then
     echo "$1 is already installed and up to date."
     return 0
@@ -73,7 +74,7 @@ function install_or_upgrade {
     echo "$1 is installed but outdated."
     if [[ "$bottled" ]]; then
       echo "$1: Found bottle."
-      retry brew uninstall --ignore-dependencies "$1"
+      retry brew uninstall --ignore-dependencies "$formula"
       retry brew install "$@"
       return 0
     else
@@ -81,7 +82,7 @@ function install_or_upgrade {
         echo "$1: skipping update. (UPDATE_UNBOTTLED = 0)"
         return 0
       fi
-      brew uninstall --ignore-dependencies "$1"
+      brew uninstall --ignore-dependencies "$formula"
     fi
   else
     echo "$1 is not installed."
@@ -95,13 +96,13 @@ function install_or_upgrade {
   echo "$1: Found no bottle. Let's build one."
 
   retry brew install --build-bottle "$@"
-  brew bottle --json "$1"
+  brew bottle --json "$formula"
   # TODO: ^ first line in stdout is the bottle file
   # use instead of file cmd. json file has a similar name. "| head -n 1"?
-  local jsonfile=$(find . -name $1*.bottle.json)
-  brew uninstall --ignore-dependencies "$1"
+  local jsonfile=$(find . -name $formula*.bottle.json)
+  brew uninstall --ignore-dependencies "$formula"
 
-  local bottlefile=$(find . -name $1*.tar.gz)
+  local bottlefile=$(find . -name $formula*.tar.gz)
   echo "brew install $bottlefile"
   brew install "$bottlefile"
 
@@ -110,7 +111,7 @@ function install_or_upgrade {
   brew bottle --merge --write "$jsonfile"
 
   # Path to the cachefile will be updated now
-  local cachefile=$(brew --cache $1)
+  local cachefile=$(brew --cache $formula)
   echo "Copying $bottlefile to $cachefile..."
   cp -f "$bottlefile" "$cachefile"
 
@@ -119,7 +120,7 @@ function install_or_upgrade {
   mkdir -p "$HOME/HomebrewLocal/json"
   cp -f "$jsonfile" "$HOME/HomebrewLocal/json/"
 
-  echo "Saving bottle path to to $HOME/HomebrewLocal/path/$1..."
+  echo "Saving bottle path to to $HOME/HomebrewLocal/path/$formula..."
   mkdir -p "$HOME/HomebrewLocal/path"
-  echo "$cachefile" > "$HOME/HomebrewLocal/path/$1"
+  echo "$cachefile" > "$HOME/HomebrewLocal/path/$formula"
 }
