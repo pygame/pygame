@@ -24,6 +24,7 @@ export PATH="/usr/local/opt/ccache/libexec:$PATH"
 brew uninstall gdbm --ignore-dependencies
 brew uninstall sqlite --ignore-dependencies
 brew uninstall openssl --ignore-dependencies
+brew uninstall readline --ignore-dependencies
 
 brew uninstall --force --ignore-dependencies pkg-config
 brew install pkg-config
