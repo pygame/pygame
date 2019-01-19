@@ -118,6 +118,17 @@ _scrap_init(PyObject *self, PyObject *args)
 }
 #endif
 
+/*
+ * Indicates whether the scrap module is currently initialized.
+ *
+ * Note: All platforms supported here.
+ */
+static PyObject *
+_scrap_get_init(PyObject *self, PyObject *args)
+{
+    return PyBool_FromLong(pygame_scrap_initialized());
+}
+
 #if !defined(MAC_SCRAP)
 /*
  * Gets the currently available types from the active clipboard.
@@ -324,6 +335,7 @@ static PyMethodDef scrap_builtins[] = {
      defined(MAC_SCRAP))
 
     {"init", _scrap_init, 1, DOC_PYGAMESCRAPINIT},
+    {"get_init", _scrap_get_init, METH_NOARGS, DOC_PYGAMESCRAPGETINIT},
     {"contains", _scrap_contains, METH_VARARGS, DOC_PYGAMESCRAPCONTAINS},
     {"get", _scrap_get_scrap, METH_VARARGS, DOC_PYGAMESCRAPGET},
     {"get_types", _scrap_get_types, METH_NOARGS, DOC_PYGAMESCRAPGETTYPES},

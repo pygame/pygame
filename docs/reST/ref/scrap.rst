@@ -86,6 +86,17 @@ the next release.
 
    .. ## pygame.scrap.init ##
 
+.. function:: get_init
+
+   | :sl:`Returns True if the scrap module is currently initialized.`
+   | :sg:`get_init() -> bool`
+
+   Returns ``True`` if the ``pygame.scrap`` module is currently initialized.
+
+   New in pygame 1.9.5.
+
+   .. ## pygame.scrap.get_init ##
+
 .. function:: get
 
    | :sl:`Gets the data for the specified type from the clipboard.`
