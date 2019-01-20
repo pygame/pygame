@@ -546,9 +546,9 @@ circle(PyObject *self, PyObject *arg)
              * drawing the missed spots in the filled circle caused by which
              * pixels are filled.
              */
-            if (width > 1 && loop > 0)
-                draw_ellipse(surf, posx + 1, posy, 2 * (radius - loop),
-                             2 * (radius - loop), 0, color);
+            // if (width > 1 && loop > 0)       // removed due to: 'Gaps in circle for width greater than 1 #736'
+            draw_ellipse(surf, posx + 1, posy, 2 * (radius - loop),
+                        2 * (radius - loop), 0, color);
         }
     }
 
