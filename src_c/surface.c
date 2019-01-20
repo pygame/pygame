@@ -221,6 +221,10 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
 #if IS_SDLv2
 static PyObject *
 _raise_create_surface_error(void);
+static SDL_Surface *
+pg_DisplayFormatAlpha(SDL_Surface *surface);
+static SDL_Surface *
+pg_DisplayFormat(SDL_Surface *surface);
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv2
@@ -1806,15 +1810,7 @@ surf_convert(PyObject *self, PyObject *args)
     }
 #else  /* IS_SDLv2 */
     else {
-        PyObject *screen = pg_GetDefaultWindowSurface();
-
-        if (screen) {
-            SDL_Surface *screen_surf = pgSurface_AsSurface(screen);
-            newsurf = SDL_ConvertSurface(surf, screen_surf->format, 0);
-        }
-        else
-            return RAISE(pgExc_SDLError,
-                         "No video mode has been set");
+        newsurf = pg_DisplayFormat(surf);
     }
 
     if (has_colorkey) {
@@ -1839,6 +1835,71 @@ surf_convert(PyObject *self, PyObject *args)
     return final;
 }
 
+#if IS_SDLv2
+static SDL_Surface *
+pg_DisplayFormat(SDL_Surface *surface)
+{
+    SDL_Surface *newsurf = NULL, *displaysurf;
+    if (!pg_GetDefaultWindowSurface()) {
+        SDL_SetError("No video mode has been set");
+        return NULL;
+    }
+    displaysurf = pgSurface_AsSurface(pg_GetDefaultWindowSurface());
+    return SDL_ConvertSurface(surface, displaysurf->format, 0);
+}
+
+static SDL_Surface *
+pg_DisplayFormatAlpha(SDL_Surface *surface)
+{
+    SDL_Surface *displaysurf;
+    SDL_PixelFormat *dformat;
+    Uint32 pfe;
+    Uint32 amask = 0xff000000;
+    Uint32 rmask = 0x00ff0000;
+    Uint32 gmask = 0x0000ff00;
+    Uint32 bmask = 0x000000ff;
+
+    if (!pg_GetDefaultWindowSurface()) {
+        SDL_SetError("No video mode has been set");
+        return NULL;
+    }
+    displaysurf = pgSurface_AsSurface(pg_GetDefaultWindowSurface());
+    dformat = displaysurf->format;
+
+    switch (dformat->BytesPerPixel) {
+        case 2:
+            /* same behavior as SDL1 */
+            if ((dformat->Rmask == 0x1f) && (dformat->Bmask == 0xf800 || dformat->Bmask == 0x7c00)) {
+                rmask = 0xff;
+                bmask = 0xff0000;
+            }
+            break;
+        case 3:
+        case 4:
+            /* keep the format if the high bits are free */
+            if ((dformat->Rmask == 0xff) && (dformat->Bmask == 0xff0000)) {
+                rmask = 0xff;
+                bmask = 0xff0000;
+            }
+            else if (dformat->Rmask == 0xff00 && (dformat->Bmask == 0xff000000) ) {
+                amask = 0x000000ff;
+                rmask = 0x0000ff00;
+                gmask = 0x00ff0000;
+                bmask = 0xff000000;
+            }
+            break;
+        default: /* ARGB8888 */
+            break;
+    }
+    pfe = SDL_MasksToPixelFormatEnum(32, rmask, gmask, bmask, amask);
+    if (pfe == SDL_PIXELFORMAT_UNKNOWN) {
+        SDL_SetError("unknown pixel format");
+        return NULL;
+    }
+    return SDL_ConvertSurfaceFormat(surface, pfe, 0);
+}
+#endif /* IS_SDLv2 */
+
 static PyObject *
 surf_convert_alpha(PyObject *self, PyObject *args)
 {
@@ -1857,22 +1918,12 @@ surf_convert_alpha(PyObject *self, PyObject *args)
 #pragma PG_WARN("srcsurf doesn't actually do anything?")
 
 #if IS_SDLv2
-    /*if (!srcsurf)*/
+    /*if (!srcsurf) {}*/
     /*
      * hmm, we have to figure this out, not all depths have good
      * support for alpha
      */
-    {
-        if (!(srcsurf = pg_GetDefaultWindowSurface())) {
-            return RAISE(pgExc_SDLError,
-                         "No video mode has been set");
-        }
-    }
-    pgSurface_Prep(self);
-    src = pgSurface_AsSurface(srcsurf);
-    newsurf = SDL_ConvertSurface(surf, src->format, 0);
-    pgSurface_Unprep(self);
-
+    newsurf = pg_DisplayFormatAlpha(surf);
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
 #else /* IS_SDLv1 */
     pgSurface_Prep(self);
