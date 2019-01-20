@@ -4,6 +4,7 @@ import array
 import os
 import tempfile
 import unittest
+import glob
 
 from pygame.tests.test_utils import example_path, png
 import pygame, pygame.image, pygame.pkgdata
@@ -487,6 +488,26 @@ class ImageModuleTest( unittest.TestCase ):
           # pygame module for image transfer
 
         self.fail()
+
+    def threads_load(self, images):
+        import pygame.threads
+        for i in range(10):
+            surfs = pygame.threads.tmap(pygame.image.load, images)
+            for s in surfs:
+                self.assertIsInstance(s, pygame.Surface)
+
+    def test_load_png_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.png")))
+
+    def test_load_jpg_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.jpg")))
+
+    def test_load_bmp_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.bmp")))
+
+    @unittest.skip('Multiple threads unsupported as of SDL_image 2.0.4')
+    def test_load_gif_threads(self):
+        self.threads_load(glob.glob(example_path("data/*.gif")))
 
 if __name__ == '__main__':
     unittest.main()

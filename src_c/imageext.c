@@ -156,14 +156,9 @@ image_load_ext(PyObject *self, PyObject *arg)
             strcpy(ext, cext);
         }
         Py_XDECREF(oencoded);
-        if (pgRWopsCheckObject(rw)) {
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
-            Py_END_ALLOW_THREADS;
-        }
+        Py_BEGIN_ALLOW_THREADS;
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        Py_END_ALLOW_THREADS;
         PyMem_Free(ext);
     }
 
