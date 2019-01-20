@@ -83,6 +83,7 @@ static PyObject *pgExc_BufferError = NULL;
 
 /* Only one instance of the state per process. */
 static PyObject *pg_quit_functions = NULL;
+static int pg_is_init = 0;
 static int pg_sdl_was_init = 0;
 #if IS_SDLv2
 SDL_Window *pg_default_window = NULL;
@@ -384,6 +385,8 @@ pg_init(PyObject *self)
     pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
 #endif
 
+    pg_is_init = 1;  // Considered initialized at this point?
+
     /* initialize all pygame modules */
     allmodules = PyImport_GetModuleDict();
     moduleslist = PyDict_Values(allmodules);
@@ -474,6 +477,8 @@ _pg_quit(void)
     PyObject *privatefuncs;
     int num;
 
+    pg_is_init = 0;  // Considered uninitialized at this point?
+
     if (!pg_quit_functions) {
         return;
     }
@@ -498,6 +503,12 @@ _pg_quit(void)
     Py_DECREF(privatefuncs);
 
     pg_atexit_quit();
+}
+
+static PyObject *
+pg_get_init(PyObject *self)
+{
+    return PyBool_FromLong(pg_is_init);
 }
 
 /* internal C API utility functions */
@@ -2158,6 +2169,7 @@ pg_do_segfault(PyObject *self)
 static PyMethodDef _base_methods[] = {
     {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
     {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
+    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
     {"register_quit", pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
     {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
     {"set_error", (PyCFunction)pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},

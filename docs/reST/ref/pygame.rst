@@ -57,6 +57,17 @@ object instead of the module, which can be used to test for availability.
 
    .. ## pygame.quit ##
 
+.. function:: get_init
+
+   | :sl:`returns True if pygame is currently initialized`
+   | :sg:`get_init() -> bool`
+
+   Returns ``True`` if pygame is currently initialized.
+
+   New in pygame 1.9.5.
+
+   .. ## pygame.get_init ##
+
 .. exception:: error
 
    | :sl:`standard pygame exception`
