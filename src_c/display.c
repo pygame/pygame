@@ -611,6 +611,21 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     state->using_gl = (flags & PGS_OPENGL) != 0;
 
     {
+        Uint32 sdl_flags = 0;
+        if (flags & PGS_FULLSCREEN)
+            sdl_flags |= SDL_WINDOW_FULLSCREEN;
+        if (flags & PGS_OPENGL)
+            sdl_flags |= SDL_WINDOW_OPENGL;
+        if (flags & PGS_NOFRAME)
+            sdl_flags |= SDL_WINDOW_BORDERLESS;
+        if (flags & PGS_RESIZABLE)
+            sdl_flags |= SDL_WINDOW_RESIZABLE;
+        if (flags & PGS_SHOWN)
+            sdl_flags |= SDL_WINDOW_SHOWN;
+        if (flags & PGS_HIDDEN)
+            sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
+        if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
+            sdl_flags |= SDL_WINDOW_SHOWN;
         if (flags & PGS_OPENGL) {
             if (flags & PGS_DOUBLEBUF) {
                 flags &= ~PGS_DOUBLEBUF;
@@ -623,25 +638,28 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 #pragma PG_WARN(Add mode stuff.)
         if (!win) {
             /*open window*/
-            Uint32 sdl_flags = 0;
-            if (flags & PGS_FULLSCREEN)
-                sdl_flags |= SDL_WINDOW_FULLSCREEN;
-            if (flags & PGS_OPENGL)
-                sdl_flags |= SDL_WINDOW_OPENGL;
-            if (flags & PGS_NOFRAME)
-                sdl_flags |= SDL_WINDOW_BORDERLESS;
-            if (flags & PGS_RESIZABLE)
-                sdl_flags |= SDL_WINDOW_RESIZABLE;
-            if (flags & PGS_SHOWN)
-                sdl_flags |= SDL_WINDOW_SHOWN;
-            if (flags & PGS_HIDDEN)
-                sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
-            if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
-                sdl_flags |= SDL_WINDOW_SHOWN;
             win = SDL_CreateWindow(title,
                                    SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
                                    SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
                                    w, h, sdl_flags);
+            if (!win)
+                return RAISE(pgExc_SDLError, SDL_GetError());
+        } else if ((flags & PGS_OPENGL) &&
+                   !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL) ||
+                   !(flags & PGS_OPENGL) &&
+                   (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL))
+        {
+            /*recreate existing window*/
+            int x, y, w, h;
+            if (SDL_GetWindowDisplayIndex(win) != display) {
+                x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+                y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+            } else {
+                SDL_GetWindowPosition(win, &x, &y);
+            }
+            SDL_GetWindowSize(win, &w, &h);
+            SDL_DestroyWindow(win);
+            win = SDL_CreateWindow(title, x, y, w, h, sdl_flags);
             if (!win)
                 return RAISE(pgExc_SDLError, SDL_GetError());
         } else {
