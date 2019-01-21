@@ -1445,11 +1445,13 @@ class FreeTypeFontTest(unittest.TestCase):
 
 
 class FreeTypeTest(unittest.TestCase):
+    def setUp(self):
+        ft.init()
+
+    def tearDown(self):
+        ft.quit()
 
     def test_resolution(self):
-        was_init = ft.was_init()
-        if not was_init:
-            ft.init()
         try:
             ft.set_default_resolution()
             resolution = ft.get_default_resolution()
@@ -1461,31 +1463,59 @@ class FreeTypeTest(unittest.TestCase):
             self.assertEqual(ft.get_default_resolution(), new_resolution)
         finally:
             ft.set_default_resolution()
-            if was_init:
-                ft.quit()
 
     def test_autoinit_and_autoquit(self):
         pygame.init()
-        self.assertTrue(ft.was_init())
+        self.assertTrue(ft.get_init())
         pygame.quit()
-        self.assertFalse(ft.was_init())
+        self.assertFalse(ft.get_init())
 
         # Ensure autoquit is replaced at init time
         pygame.init()
-        self.assertTrue(ft.was_init())
+        self.assertTrue(ft.get_init())
         pygame.quit()
-        self.assertFalse(ft.was_init())
+        self.assertFalse(ft.get_init())
+
+    def test_init(self):
+        # Test if module initialized after calling init().
+        ft.quit()
+        ft.init()
+
+        self.assertTrue(ft.get_init())
+
+    def test_init__multiple(self):
+        # Test if module initialized after multiple init() calls.
+        ft.init()
+        ft.init()
+
+        self.assertTrue(ft.get_init())
+
+    def test_quit(self):
+        # Test if module uninitialized after calling quit().
+        ft.quit()
+
+        self.assertFalse(ft.get_init())
+
+    def test_quit__multiple(self):
+        # Test if module initialized after multiple quit() calls.
+        ft.quit()
+        ft.quit()
+
+        self.assertFalse(ft.get_init())
+
+    def test_get_init(self):
+        # Test if get_init() gets the init state.
+        self.assertTrue(ft.get_init())
 
     def test_cache_size(self):
         DEFAULT_CACHE_SIZE = 64
-        ft.init()
         self.assertEqual(ft.get_cache_size(), DEFAULT_CACHE_SIZE)
         ft.quit()
         self.assertEqual(ft.get_cache_size(), 0)
         new_cache_size = DEFAULT_CACHE_SIZE * 2
         ft.init(cache_size=new_cache_size)
         self.assertEqual(ft.get_cache_size(), new_cache_size)
-        ft.quit()
+
 
 if __name__ == '__main__':
     unittest.main()

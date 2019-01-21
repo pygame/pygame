@@ -3,7 +3,7 @@
 __all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont']
 
 from pygame._freetype import init, Font as _Font, get_default_resolution
-from pygame._freetype import quit, get_default_font, was_init as _was_init
+from pygame._freetype import quit, get_default_font, get_init as _get_init
 from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 from pygame import encode_file_path
@@ -150,7 +150,7 @@ def get_init():
    """get_init() -> bool
       true if the font module is initialized"""
 
-   return _was_init()
+   return _get_init()
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font

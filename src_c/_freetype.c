@@ -51,7 +51,7 @@ _ft_get_version(PyObject *);
 static PyObject *
 _ft_get_error(PyObject *);
 static PyObject *
-_ft_was_init(PyObject *);
+_ft_get_init(PyObject *);
 static PyObject *
 _ft_autoinit(PyObject *);
 static void
@@ -501,8 +501,10 @@ static PyMethodDef _ft_methods[] = {
     {"init", (PyCFunction)_ft_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEINIT},
     {"quit", (PyCFunction)_ft_quit, METH_NOARGS, DOC_PYGAMEFREETYPEQUIT},
-    {"was_init", (PyCFunction)_ft_was_init, METH_NOARGS,
-     DOC_PYGAMEFREETYPEWASINIT},
+    {"get_init", (PyCFunction)_ft_get_init, METH_NOARGS,
+     DOC_PYGAMEFREETYPEGETINIT},
+    {"was_init", (PyCFunction)_ft_get_init, METH_NOARGS,
+     DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
     {"get_error", (PyCFunction)_ft_get_error, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETERROR},
     {"get_version", (PyCFunction)_ft_get_version, METH_NOARGS,
@@ -2106,7 +2108,7 @@ _ft_set_default_resolution(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_ft_was_init(PyObject *self)
+_ft_get_init(PyObject *self)
 {
     return PyBool_FromLong(FREETYPE_MOD_STATE(self)->freetype ? 1 : 0);
 }

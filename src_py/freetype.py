@@ -5,8 +5,8 @@ from pygame._freetype import (
    Font as _Font,
    STYLE_NORMAL, STYLE_OBLIQUE, STYLE_STRONG, STYLE_UNDERLINE, STYLE_WIDE,
    STYLE_DEFAULT,
-   init, quit,
-   was_init, get_cache_size, get_default_font, get_default_resolution, 
+   init, quit, get_init,
+   was_init, get_cache_size, get_default_font, get_default_resolution,
    get_error, get_version, set_default_resolution,
    _PYGAME_C_API, __PYGAMEinit__,
    )
