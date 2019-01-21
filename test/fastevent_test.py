@@ -15,7 +15,25 @@ class FasteventModuleTest(unittest.TestCase):
         self.assert_(not event.get())
 
     def tearDown(self):
+        # fastevent.quit()  # Does not exist!
         pygame.display.quit()
+
+    def test_init(self):
+        # Test if module initialized after multiple init() calls.
+        fastevent.init()
+        fastevent.init()
+
+        self.assertTrue(fastevent.get_init())
+
+    def test_auto_quit(self):
+        # Test if module uninitialized after calling pygame.quit().
+        pygame.quit()
+
+        self.assertFalse(fastevent.get_init())
+
+    def test_get_init(self):
+        # Test if get_init() gets the init state.
+        self.assertTrue(fastevent.get_init())
 
     def test_get(self):
         # __doc__ (as of 2008-08-02) for pygame.fastevent.get:
@@ -30,14 +48,6 @@ class FasteventModuleTest(unittest.TestCase):
             [e.type for e in fastevent.get()], [pygame.USEREVENT] * 10,
             race_condition_notification
         )
-
-    def todo_test_init(self):
-        # __doc__ (as of 2008-08-02) for pygame.fastevent.init:
-
-          # pygame.fastevent.init() -> None
-          # initialize pygame.fastevent.
-
-        self.fail()
 
     def test_poll(self):
 

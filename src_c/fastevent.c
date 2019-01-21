@@ -75,6 +75,17 @@ fastevent_init(PyObject *self)
 #endif /* WITH_THREAD */
 }
 
+/* DOC */ static char doc_get_init[] =
+    /* DOC */
+    "pygame.fastevent.get_init() -> bool\n"
+    /* DOC */ "returns True if the fastevent module is currently initialized\n"
+    /* DOC */;
+static PyObject *
+fastevent_get_init(PyObject *self)
+{
+    return PyBool_FromLong(FE_WasInit);
+}
+
 /* DOC */ static char doc_pump[] =
     /* DOC */
     "pygame.fastevent.pump() -> None\n"
@@ -274,6 +285,7 @@ fastevent_post(PyObject *self, PyObject *arg)
 
 static PyMethodDef _fastevent_methods[] = {
     {"init", (PyCFunction)fastevent_init, METH_NOARGS, doc_init},
+    {"get_init", (PyCFunction)fastevent_get_init, METH_NOARGS, doc_get_init},
     {"get", (PyCFunction)fastevent_get, METH_NOARGS, doc_get},
     {"pump", (PyCFunction)fastevent_pump, METH_NOARGS, doc_pump},
     {"wait", (PyCFunction)fastevent_wait, METH_NOARGS, doc_wait},
