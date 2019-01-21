@@ -45,6 +45,8 @@
 
 #define DOC_PYGAMEMIDIQUIT "quit() -> None\nuninitialize the midi module"
 
+#define DOC_PYGAMEMIDIGETINIT "get_init() -> bool\nreturns True if the midi module is currently initialized"
+
 #define DOC_PYGAMEMIDITIME "time() -> time\nreturns the current time in ms of the PortMidi timer"
 
 #define DOC_PYGAMEMIDIFREQUENCYTOMIDI "frequency_to_midi(midi_note) -> midi_note\nConverts a frequency into a MIDI note. Rounds to the closest midi note."
@@ -154,6 +156,10 @@ converts midi events to pygame events
 pygame.midi.quit
  quit() -> None
 uninitialize the midi module
+
+pygame.midi.get_init
+ get_init() -> bool
+returns True if the midi module is currently initialized
 
 pygame.midi.time
  time() -> time

@@ -320,6 +320,8 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.init()
 
+        self.assertTrue(pygame.midi.get_init())
+
     def test_midis2events(self):
 
         midi_data = ([[0xc0, 0, 1, 2], 20000],
@@ -349,6 +351,12 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.init()
         pygame.midi.quit()
+
+        self.assertFalse(pygame.midi.get_init())
+
+    def test_get_init(self):
+        # Already initialized as pygame.midi.init() was called in setUp().
+        self.assertTrue(pygame.midi.get_init())
 
     def test_time(self):
 

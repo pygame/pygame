@@ -413,6 +413,17 @@ New in pygame 1.9.0.
 
    .. ## pygame.midi.quit ##
 
+.. function:: get_init
+
+   | :sl:`returns True if the midi module is currently initialized`
+   | :sg:`get_init() -> bool`
+
+   Returns ``True`` if the ``pygame.midi`` module is currently initialized.
+
+   New in pygame 1.9.5.
+
+   .. ## pygame.midi.get_init ##
+
 .. function:: time
 
    | :sl:`returns the current time in ms of the PortMidi timer`
