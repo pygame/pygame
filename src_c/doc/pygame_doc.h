@@ -5,6 +5,8 @@
 
 #define DOC_PYGAMEQUIT "quit() -> None\nuninitialize all pygame modules"
 
+#define DOC_PYGAMEGETINIT "get_init() -> bool\nreturns True if pygame is currently initialized"
+
 #define DOC_PYGAMEERROR "raise pygame.error(message)\nstandard pygame exception"
 
 #define DOC_PYGAMEGETERROR "get_error() -> errorstr\nget the current error message"
@@ -45,6 +47,10 @@ initialize all imported pygame modules
 pygame.quit
  quit() -> None
 uninitialize all pygame modules
+
+pygame.get_init
+ get_init() -> bool
+returns True if pygame is currently initialized
 
 pygame.error
  raise pygame.error(message)
