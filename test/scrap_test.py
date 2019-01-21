@@ -10,14 +10,28 @@ from pygame import scrap
 from pygame.compat import as_bytes
 
 class ScrapModuleTest(unittest.TestCase):
-    not_initialized = True
 
-    def setUp(self):
-        if self.not_initialized:
-            pygame.init ()
-            pygame.display.set_mode ((1, 1))
-            scrap.init ()
-            self.not_initialized = False
+    @classmethod
+    def setUpClass(cls):
+        pygame.init()
+        pygame.display.set_mode((1, 1))
+        scrap.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        # scrap.quit()  # Does not exist!
+        pygame.quit()
+
+    def test_init(self):
+        # Test if module initialized after multiple init() calls.
+        scrap.init()
+        scrap.init()
+
+        self.assertTrue(scrap.get_init())
+
+    def test_get_init(self):
+        # Test if get_init() gets the init state.
+        self.assertTrue(scrap.get_init())
 
     def todo_test_contains(self):
 
@@ -73,21 +87,6 @@ class ScrapModuleTest(unittest.TestCase):
           #           # There is some content with the word "text" in it. It's
           #           # possibly text, so print it.
           #           print pygame.scrap.get (t)
-
-        self.fail()
-
-    def todo_test_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.scrap.init:
-
-          # scrap.init () -> None
-          # Initializes the scrap module.
-          #
-          # Tries to initialize the scrap module and raises an exception, if it
-          # fails. Note that this module requires a set display surface, so you
-          # have to make sure, you acquired one earlier using
-          # pygame.display.set_mode().
-          #
 
         self.fail()
 
