@@ -64,6 +64,21 @@ cdef extern from "SDL.h" nogil:
                        const SDL_Rect* srcrect,
                        const SDL_Rect* dstrect)
     void SDL_RenderPresent(SDL_Renderer* renderer)
+    # https://wiki.libsdl.org/SDL_RenderGetViewport
+    # https://wiki.libsdl.org/SDL_RenderSetViewport
+    void SDL_RenderGetViewport(SDL_Renderer* renderer,
+                               SDL_Rect*     rect)
+    int SDL_RenderSetViewport(SDL_Renderer*   renderer,
+                              const SDL_Rect* rect)
+    # https://wiki.libsdl.org/SDL_RenderReadPixels
+    int SDL_RenderReadPixels(SDL_Renderer*   renderer,
+                             const SDL_Rect* rect,
+                             Uint32          format,
+                             void*           pixels,
+                             int             pitch)
+    # https://wiki.libsdl.org/SDL_SetRenderTarget
+    int SDL_SetRenderTarget(SDL_Renderer* renderer,
+                            SDL_Texture*  texture)
 
     # https://wiki.libsdl.org/SDL_RendererInfo
     ctypedef struct SDL_RendererInfo:
@@ -213,6 +228,16 @@ cdef extern from "SDL.h" nogil:
     SDL_Texture* SDL_CreateTextureFromSurface(SDL_Renderer* renderer,
                                               SDL_Surface*  surface)
     void SDL_DestroyTexture(SDL_Texture* texture)
+    # https://wiki.libsdl.org/SDL_TextureAccess
+    cdef Uint32 _SDL_TEXTUREACCESS_STATIC "SDL_TEXTUREACCESS_STATIC"
+    cdef Uint32 _SDL_TEXTUREACCESS_STREAMING "SDL_TEXTUREACCESS_STREAMING"
+    cdef Uint32 _SDL_TEXTUREACCESS_TARGET "SDL_TEXTUREACCESS_TARGET"
+
+    Uint32 SDL_MasksToPixelFormatEnum(int    bpp,
+                                      Uint32 Rmask,
+                                      Uint32 Gmask,
+                                      Uint32 Bmask,
+                                      Uint32 Amask)
 
 
     int SDL_GetTextureAlphaMod(SDL_Texture* texture,
@@ -245,12 +270,10 @@ cdef class Window:
 cdef class Renderer:
     cdef SDL_Renderer* _renderer
     cdef tuple _draw_color
+    cdef Texture _target
 
 cdef class Texture:
     cdef SDL_Texture* _tex
     cdef readonly Renderer renderer
     cdef readonly int width
     cdef readonly int height
-    cdef Uint8 alpha
-    cdef SDL_BlendMode blend_mode
-    cdef tuple color
