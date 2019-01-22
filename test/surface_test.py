@@ -73,7 +73,7 @@ class SurfaceTypeTest(unittest.TestCase):
         # set it with a tuple.
         s.set_at((0,0), (10,10,10, 255))
         r = s.get_at((0,0))
-        self.failUnless(isinstance(r, pygame.Color))
+        self.assertIsInstance(r, pygame.Color)
         self.assertEqual(r, (10,10,10, 255))
 
         # try setting a color with a single integer.
@@ -799,7 +799,7 @@ class SurfaceTypeTest(unittest.TestCase):
         surf.set_at((1, 0), c10)
         surf.set_at((1, 1), c11)
         c = surf.get_at((0, 0))
-        self.failUnless(isinstance(c, pygame.Color))
+        self.assertIsInstance(c, pygame.Color)
         self.assertEqual(c, c00)
         self.assertEqual(surf.get_at((0, 1)), c01)
         self.assertEqual(surf.get_at((1, 0)), c10)
@@ -849,11 +849,11 @@ class SurfaceTypeTest(unittest.TestCase):
 
     def todo_test_get_colorkey(self):
         surf = pygame.surface((2, 2), 0, 24)
-        self.failUnless(surf.get_colorykey() is None)
+        self.assertIsNone(surf.get_colorykey())
         colorkey = pygame.Color(20, 40, 60)
         surf.set_colorkey(colorkey)
         ck = surf.get_colorkey()
-        self.failUnless(isinstance(ck, pygame.Color))
+        self.assertIsInstance(ck, pygame.Color)
         self.assertEqual(ck, colorkey)
 
     def todo_test_get_height(self):
@@ -944,7 +944,7 @@ class SurfaceTypeTest(unittest.TestCase):
             for c2, c in zip(palette2, palette):
                 self.assertEqual(c2, c)
             for c in palette2:
-                self.failUnless(isinstance(c, pygame.Color))
+                self.assertIsInstance(c, pygame.Color)
         finally:
             pygame.quit()
 
@@ -957,7 +957,7 @@ class SurfaceTypeTest(unittest.TestCase):
             color = pygame.Color(1, 2, 3, 255)
             surf.set_palette_at(0, color)
             color2 = surf.get_palette_at(0)
-            self.failUnless(isinstance(color2, pygame.Color))
+            self.assertIsInstance(color2, pygame.Color)
             self.assertEqual(color2, color)
             self.assertRaises(IndexError, surf.get_palette_at, -1)
             self.assertRaises(IndexError, surf.get_palette_at, 256)
@@ -1249,7 +1249,7 @@ class SurfaceTypeTest(unittest.TestCase):
             unmapped_c = surf.unmap_rgb(i)
             self.assertEqual(unmapped_c, c)
             # Confirm it is a Color instance
-            self.failUnless(isinstance(unmapped_c, pygame.Color))
+            self.assertIsInstance(unmapped_c, pygame.Color)
         finally:
             pygame.quit()
 
@@ -1266,7 +1266,7 @@ class SurfaceTypeTest(unittest.TestCase):
                                  "%s != %s, flags: %i, bitsize: %i" %
                                  (unmapped_c, comparison_c, flags, bitsize))
             # Confirm it is a Color instance
-            self.failUnless(isinstance(unmapped_c, pygame.Color))
+            self.assertIsInstance(unmapped_c, pygame.Color)
 
     def test_scroll(self):
         scrolls = [(8, 2, 3),
