@@ -315,9 +315,9 @@ class SurfaceTypeTest(unittest.TestCase):
         for w in xrange_(0, 255, 32):
             for h in xrange_(0, 127, 15):
                 s = pygame.Surface((w, h))
-                self.assertEquals(s.get_width(), w)
-                self.assertEquals(s.get_height(), h)
-                self.assertEquals(s.get_size(), (w, h))
+                self.assertEqual(s.get_width(), w)
+                self.assertEqual(s.get_height(), h)
+                self.assertEqual(s.get_size(), (w, h))
 
     def test_get_view(self):
         # Check that BufferProxys are returned when array depth is supported,
@@ -534,8 +534,11 @@ class SurfaceTypeTest(unittest.TestCase):
 
         for colorkey in colorkeys:
             s.set_colorkey(colorkey)
-            for t in range(4): s.set_colorkey(s.get_colorkey())
-            self.assertEquals(s.get_colorkey(), colorkey)
+
+            for t in range(4):
+                s.set_colorkey(s.get_colorkey())
+
+            self.assertEqual(s.get_colorkey(), colorkey)
 
     def test_set_masks(self):
         s = pygame.Surface((32,32))
@@ -605,7 +608,7 @@ class SurfaceTypeTest(unittest.TestCase):
         dst.blit(src, (0,0))
 
         for pt in test_utils.rect_area_pts(src.get_rect()):
-            self.assertEquals ( dst.get_at(pt)[1], src.get_at(pt)[1] )
+            self.assertEqual(dst.get_at(pt)[1], src.get_at(pt)[1])
 
     def todo_test_blit__blit_to_self(self): #TODO
         src = pygame.Surface( (256,256), SRCALPHA, 32)
@@ -633,7 +636,7 @@ class SurfaceTypeTest(unittest.TestCase):
         # TODO:
         # what is the correct behaviour ?? should it blend? what algorithm?
 
-        self.assertEquals(s.get_at((0,0)), (32,32,32,31))
+        self.assertEqual(s.get_at((0,0)), (32,32,32,31))
 
     def test_blit__SRCALPHA32_to_8(self):
         # Bug: fatal
@@ -658,8 +661,9 @@ class SurfaceTypeTest(unittest.TestCase):
         im  = pygame.image.load(example_path(os.path.join("data", "city.png")))
         im2 = pygame.image.load(example_path(os.path.join("data", "brick.png")))
 
-        self.assertEquals( im.get_palette(),  ((0, 0, 0, 255), (255, 255, 255, 255)) )
-        self.assertEquals( im2.get_palette(), ((0, 0, 0, 255), (0, 0, 0, 255)) )
+        self.assertEqual(im.get_palette(),
+                         ((0, 0, 0, 255), (255, 255, 255, 255)))
+        self.assertEqual(im2.get_palette(), ((0, 0, 0, 255), (0, 0, 0, 255)))
 
         self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
         self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
@@ -1207,9 +1211,9 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, surf.subsurface, (0,0,1,1,666))
 
 
-        self.assertEquals(s.get_shifts(), surf.get_shifts())
-        self.assertEquals(s.get_masks(), surf.get_masks())
-        self.assertEquals(s.get_losses(), surf.get_losses())
+        self.assertEqual(s.get_shifts(), surf.get_shifts())
+        self.assertEqual(s.get_masks(), surf.get_masks())
+        self.assertEqual(s.get_losses(), surf.get_losses())
 
         # Issue 2 at Bitbucket.org/pygame/pygame
         surf = pygame.Surface.__new__(pygame.Surface)
@@ -2116,7 +2120,8 @@ class SurfaceBlendTest(unittest.TestCase):
         area = (1, 1, 30, 30)
         s1 = pygame.Surface((4, 4), 0, 32)
         r = s1.fill(special_flags=pygame.BLEND_ADD, color=color, rect=area)
-        self.assertEquals(pygame.Rect((1, 1, 3, 3)), r)
+
+        self.assertEqual(pygame.Rect((1, 1, 3, 3)), r)
         self.assert_(s1.get_at((0, 0)) == (0, 0, 0, 255))
         self.assert_(s1.get_at((1, 1)) == color)
 
