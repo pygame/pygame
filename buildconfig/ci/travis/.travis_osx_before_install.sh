@@ -92,8 +92,6 @@ function check_local_bottles {
   echo "Done checking local bottles."
 }
 
-check_local_bottles
-
 if [ "${1}" == "--no-installs" ]; then
   unset HOMEBREW_BUILD_BOTTLE
   unset HOMEBREW_BOTTLE_ARCH
@@ -105,6 +103,8 @@ set +e
 brew tap pygame/portmidi
 brew tap-pin pygame/portmidi
 
+check_local_bottles
+
 install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
 UPDATE_UNBOTTLED='1' install_or_upgrade libpng ${UNIVERSAL_FLAG}
@@ -114,7 +114,6 @@ install_or_upgrade webp ${UNIVERSAL_FLAG}
 install_or_upgrade libogg ${UNIVERSAL_FLAG}
 install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
 install_or_upgrade flac ${UNIVERSAL_FLAG}
-install_or_upgrade boost & prevent_stall #workaround due to glib
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
 install_or_upgrade smpeg
