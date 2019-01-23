@@ -899,7 +899,7 @@ _imageext_free(void *ptr)
 }
 #else /* PY2 */
 static void
-_imageext_free()
+_imageext_free(void)
 {
     if (_pg_img_mutex) {
         SDL_DestroyMutex(_pg_img_mutex);
@@ -953,6 +953,11 @@ MODINIT_DEFINE(imageext)
     }
 
 #ifdef WITH_THREAD
+#if PY2
+    if (Py_AtExit(_imageext_free)) {
+        MODINIT_ERROR;
+    }
+#endif /* PY2 */
     _pg_img_mutex = SDL_CreateMutex();
     if (!_pg_img_mutex) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -965,8 +970,5 @@ MODINIT_DEFINE(imageext)
     return PyModule_Create(&_module);
 #else
     Py_InitModule3(MODPREFIX "imageext", _imageext_methods, _imageext_doc);
-#ifdef WITH_THREAD
-    pg_RegisterQuit(_imageext_free);
-#endif /* WITH_THREAD */
 #endif
 }
