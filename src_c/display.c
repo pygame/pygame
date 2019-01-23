@@ -737,6 +737,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             pgSurface_AsSurface(surface) = surf;
         }
         if (!surface) {
+            if (state->using_gl)
+                SDL_FreeSurface(surf);
             _display_state_cleanup(state);
             SDL_DestroyWindow(win);
             return 0;
@@ -745,6 +747,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         /*no errors; make the window available*/
         pg_SetDefaultWindow(win);
         pg_SetDefaultWindowSurface(surface);
+        ((pgSurfaceObject*)surface)->owner = state->using_gl;
         Py_DECREF(surface);
     }
 
