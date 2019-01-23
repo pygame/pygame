@@ -227,7 +227,7 @@ static SDL_Surface *
 pg_DisplayFormat(SDL_Surface *surface);
 #endif /* IS_SDLv2 */
 
-#if IS_SDLv2
+#if IS_SDLv2 && !SDL_VERSION_ATLEAST(2, 0, 10)
 static Uint32
 pg_map_rgb(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b)
 {
@@ -253,10 +253,10 @@ pg_map_rgba(SDL_Surface *surf, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
         return SDL_MapRGBA(surf->format, r, g, b, a);
     return pg_map_rgb(surf, r, g, b);
 }
-#else /* IS_SDLv1 */
+#else /* IS_SDLv1 || SDL_VERSION_ATLEAST(2, 0, 10) */
 #define pg_map_rgb(surf, r, g, b) SDL_MapRGB((surf)->format, (r), (g), (b))
 #define pg_map_rgba(surf, r, g, b, a) SDL_MapRGBA((surf)->format, (r), (g), (b), (a))
-#endif /* IS_SDLv1 */
+#endif /* IS_SDLv1 || SDL_VERSION_ATLEAST(2, 0, 10) */
 
 static PyGetSetDef surface_getsets[] = {
     {"_pixels_address", (getter)surf_get_pixels_address, NULL,
