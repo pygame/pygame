@@ -59,30 +59,20 @@ class ImageModuleTest( unittest.TestCase ):
         # Read the PNG file and verify that pygame interprets it correctly
         surf = pygame.image.load(f_path)
 
-        pixel_x0_y0 = surf.get_at((0, 0))
-        pixel_x1_y0 = surf.get_at((1, 0))
-        pixel_x0_y1 = surf.get_at((0, 1))
-        pixel_x1_y1 = surf.get_at((1, 1))
-
-        self.assertEquals(pixel_x0_y0, reddish_pixel)
-        self.assertEquals(pixel_x1_y0, greenish_pixel)
-        self.assertEquals(pixel_x0_y1, bluish_pixel)
-        self.assertEquals(pixel_x1_y1, greyish_pixel)
+        self.assertEqual(surf.get_at((0, 0)), reddish_pixel)
+        self.assertEqual(surf.get_at((1, 0)), greenish_pixel)
+        self.assertEqual(surf.get_at((0, 1)), bluish_pixel)
+        self.assertEqual(surf.get_at((1, 1)), greyish_pixel)
 
         # Read the PNG file obj. and verify that pygame interprets it correctly
         f = open(f_path, 'rb')
         surf = pygame.image.load(f)
         f.close()
 
-        pixel_x0_y0 = surf.get_at((0, 0))
-        pixel_x1_y0 = surf.get_at((1, 0))
-        pixel_x0_y1 = surf.get_at((0, 1))
-        pixel_x1_y1 = surf.get_at((1, 1))
-
-        self.assertEquals(pixel_x0_y0, reddish_pixel)
-        self.assertEquals(pixel_x1_y0, greenish_pixel)
-        self.assertEquals(pixel_x0_y1, bluish_pixel)
-        self.assertEquals(pixel_x1_y1, greyish_pixel)
+        self.assertEqual(surf.get_at((0, 0)), reddish_pixel)
+        self.assertEqual(surf.get_at((1, 0)), greenish_pixel)
+        self.assertEqual(surf.get_at((0, 1)), bluish_pixel)
+        self.assertEqual(surf.get_at((1, 1)), greyish_pixel)
 
         os.remove(f_path)
 
@@ -174,14 +164,12 @@ class ImageModuleTest( unittest.TestCase ):
         # Read the PNG file and verify that pygame saved it correctly
         reader = png.Reader(filename=f_path)
         width, height, pixels, metadata = reader.asRGBA8()
-        pixels_as_tuples = []
-        for pixel in pixels:
-            pixels_as_tuples.append(tuple(pixel))
 
-        self.assertEquals(pixels_as_tuples[0], reddish_pixel)
-        self.assertEquals(pixels_as_tuples[1], greenish_pixel)
-        self.assertEquals(pixels_as_tuples[2], bluish_pixel)
-        self.assertEquals(pixels_as_tuples[3], greyish_pixel)
+        # pixels is a generator
+        self.assertEqual(tuple(next(pixels)), reddish_pixel)
+        self.assertEqual(tuple(next(pixels)), greenish_pixel)
+        self.assertEqual(tuple(next(pixels)), bluish_pixel)
+        self.assertEqual(tuple(next(pixels)), greyish_pixel)
 
         if not reader.file.closed:
             reader.file.close()
@@ -209,14 +197,12 @@ class ImageModuleTest( unittest.TestCase ):
         # Read the PNG file and verify that pygame saved it correctly
         reader = png.Reader(filename=f_path)
         width, height, pixels, metadata = reader.asRGB8()
-        pixels_as_tuples = []
-        for pixel in pixels:
-            pixels_as_tuples.append(tuple(pixel))
 
-        self.assertEquals(pixels_as_tuples[0], reddish_pixel)
-        self.assertEquals(pixels_as_tuples[1], greenish_pixel)
-        self.assertEquals(pixels_as_tuples[2], bluish_pixel)
-        self.assertEquals(pixels_as_tuples[3], greyish_pixel)
+        # pixels is a generator
+        self.assertEqual(tuple(next(pixels)), reddish_pixel)
+        self.assertEqual(tuple(next(pixels)), greenish_pixel)
+        self.assertEqual(tuple(next(pixels)), bluish_pixel)
+        self.assertEqual(tuple(next(pixels)), greyish_pixel)
 
         if not reader.file.closed:
             reader.file.close()
@@ -252,7 +238,7 @@ class ImageModuleTest( unittest.TestCase ):
                 s2 = pygame.image.load(temp_filename)
                 #compare contents, might only work reliably for png...
                 #   but because it's all one color it seems to work with jpg.
-                self.assertEquals(s2.get_at((0,0)), s.get_at((0,0)))
+                self.assertEqual(s2.get_at((0,0)), s.get_at((0,0)))
                 handle.close()
             finally:
                 #clean up the temp file, comment out to leave tmp file after run.

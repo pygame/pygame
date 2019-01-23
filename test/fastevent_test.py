@@ -44,10 +44,9 @@ class FasteventModuleTest(unittest.TestCase):
         for _ in range(1, 11):
             event.post(event.Event(pygame.USEREVENT))
 
-        self.assertEquals (
-            [e.type for e in fastevent.get()], [pygame.USEREVENT] * 10,
-            race_condition_notification
-        )
+        self.assertListEqual([e.type for e in fastevent.get()],
+                             [pygame.USEREVENT] * 10,
+                             race_condition_notification)
 
     def test_poll(self):
 
@@ -59,9 +58,8 @@ class FasteventModuleTest(unittest.TestCase):
           # Returns next event on queue. If there is no event waiting on the
           # queue, this will return an event with type NOEVENT.
 
-        self.assertEquals (
-            fastevent.poll().type, pygame.NOEVENT, race_condition_notification
-        )
+        self.assertEqual(fastevent.poll().type, pygame.NOEVENT,
+                         race_condition_notification)
 
     def test_post(self):
 
@@ -86,10 +84,9 @@ class FasteventModuleTest(unittest.TestCase):
         for _ in range(1, 11):
             fastevent.post(event.Event(pygame.USEREVENT))
 
-        self.assertEquals (
-            [e.type for e in event.get()], [pygame.USEREVENT] * 10,
-            race_condition_notification
-        )
+        self.assertListEqual([e.type for e in event.get()],
+                             [pygame.USEREVENT] * 10,
+                             race_condition_notification)
 
         try:
             # Special case for post: METH_O.
@@ -136,7 +133,7 @@ class FasteventModuleTest(unittest.TestCase):
           # when the user isn't doing anything with it.
 
         event.post(pygame.event.Event(1))
-        self.assertEquals(fastevent.wait().type, 1, race_condition_notification)
+        self.assertEqual(fastevent.wait().type, 1, race_condition_notification)
 
 ################################################################################
 

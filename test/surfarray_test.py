@@ -644,16 +644,14 @@ class SurfarrayModuleTest (unittest.TestCase):
             pygame.surfarray.use_arraytype (atype)
 
             ar = pygame.surfarray.pixels2d (sf)
-            self.assertEquals (sf.get_locked (), True)
+            self.assertTrue(sf.get_locked())
 
             sf.unlock ()
-            self.assertEquals (sf.get_locked (), True)
+            self.assertTrue(sf.get_locked())
 
             del ar
-            self.assertEquals (sf.get_locked (), False)
-            self.assertEquals (sf.get_locks (), ())
-
-        #print ("test_surf_lock - end")
+            self.assertFalse(sf.get_locked())
+            self.assertEqual(sf.get_locks(), ())
 
 
 if __name__ == '__main__':

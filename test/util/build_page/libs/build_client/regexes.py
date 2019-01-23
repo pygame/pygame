@@ -21,7 +21,7 @@ FAIL: EventModuleTest.test_set_blocked
 ----------------------------------------------------------------------
 Traceback (most recent call last):
   File "C:\PyGame\trunk\test\event_test.py", line 65, in test_set_blocked
-    self.assertEquals(should_be_blocked, [])
+    self.assertEqual(should_be_blocked, [])
 AssertionError: [<Event(2-KeyDown {})>] != []
 
 ----------------------------------------------------------------------
@@ -163,6 +163,7 @@ __all__ = [a for a in dir() if a.endswith("_RE")]
 ################################################################################
 
 if __name__ == '__main__':
-    for attr in __all__: print "%s," % attr
+    for attr in __all__:
+        print("%s," % attr)
 
 ################################################################################

@@ -45,17 +45,17 @@ class EventTypeTest(unittest.TestCase):
 
         e = pygame.event.Event(pygame.USEREVENT, some_attr=1, other_attr='1')
 
-        self.assertEquals(e.some_attr, 1)
-        self.assertEquals(e.other_attr, "1")
+        self.assertEqual(e.some_attr, 1)
+        self.assertEqual(e.other_attr, "1")
 
         # Event now uses tp_dictoffset and tp_members: request 62
         # on Motherhamster Bugzilla.
-        self.assertEquals(e.type, pygame.USEREVENT)
+        self.assertEqual(e.type, pygame.USEREVENT)
         self.assert_(e.dict is e.__dict__)
         e.some_attr = 12
-        self.assertEquals(e.some_attr, 12)
+        self.assertEqual(e.some_attr, 12)
         e.new_attr = 15
-        self.assertEquals(e.new_attr, 15)
+        self.assertEqual(e.new_attr, 15)
 
         # For Python 2.x a TypeError is raised for a readonly member;
         # for Python 3.x it is an AttributeError.
@@ -122,7 +122,7 @@ class EventModuleTest(unittest.TestCase):
         ret = pygame.event.get()
         should_be_blocked = [e for e in ret if e.type == event]
 
-        self.assertEquals(should_be_blocked, [])
+        self.assertEqual(should_be_blocked, [])
 
     def test_set_blocked_all(self):
         pygame.event.set_blocked(None)
@@ -136,28 +136,25 @@ class EventModuleTest(unittest.TestCase):
           # place a new event on the queue
 
         e1 = pygame.event.Event(pygame.USEREVENT, attr1='attr1')
-
         pygame.event.post(e1)
-
         posted_event = pygame.event.poll()
-        self.assertEquals (
-            e1.attr1, posted_event.attr1, race_condition_notification
-        )
+
+        self.assertEqual(e1.attr1, posted_event.attr1,
+                         race_condition_notification)
 
         # fuzzing event types
         for i in range(1, 11):
             pygame.event.post(pygame.event.Event(events[i]))
-            self.assertEquals (
-                pygame.event.poll().type, events[i], race_condition_notification
-            )
+
+            self.assertEqual(pygame.event.poll().type, events[i],
+                             race_condition_notification)
+
     def test_post_large_user_event(self):
         pygame.event.post(pygame.event.Event(pygame.USEREVENT, {'a': "a" * 1024}))
-
         e = pygame.event.poll()
-        self.assertEquals(e.type, pygame.USEREVENT)
-        self.assertEquals(e.a, "a" * 1024)
 
-
+        self.assertEqual(e.type, pygame.USEREVENT)
+        self.assertEqual(e.a, "a" * 1024)
 
     def test_get(self):
         # __doc__ (as of 2008-06-25) for pygame.event.get:
@@ -200,8 +197,9 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.event_name(type): return string
           # get the string name from and event id
 
-        self.assertEquals(pygame.event.event_name(pygame.KEYDOWN), "KeyDown")
-        self.assertEquals(pygame.event.event_name(pygame.USEREVENT), "UserEvent")
+        self.assertEqual(pygame.event.event_name(pygame.KEYDOWN), "KeyDown")
+        self.assertEqual(pygame.event.event_name(pygame.USEREVENT),
+                         "UserEvent")
 
     def test_wait(self):
         # __doc__ (as of 2008-06-25) for pygame.event.wait:

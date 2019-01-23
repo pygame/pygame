@@ -34,10 +34,11 @@ def maskFromSurface(surface, threshold = 127):
 
 class MaskTypeTest( unittest.TestCase ):
     def assertMaskEquals(self, m1, m2):
-        self.assertEquals(m1.get_size(), m2.get_size())
+        self.assertEqual(m1.get_size(), m2.get_size())
+
         for i in range(m1.get_size()[0]):
             for j in range(m1.get_size()[1]):
-                self.assertEquals(m1.get_at((i,j)), m2.get_at((i,j)))
+                self.assertEqual(m1.get_at((i,j)), m2.get_at((i,j)))
 
     def todo_test_get_at(self):
 
@@ -171,7 +172,8 @@ class MaskTypeTest( unittest.TestCase ):
                 m2 = pygame.Mask(s2)
                 o = m1.convolve(m2)
                 for i in (0,1):
-                    self.assertEquals(o.get_size()[i], m1.get_size()[i] + m2.get_size()[i] - 1)
+                    self.assertEqual(o.get_size()[i],
+                                     m1.get_size()[i] + m2.get_size()[i] - 1)
 
     def test_convolve__point_identities(self):
         """Convolving with a single point is the identity, while convolving a point with something flips it."""
@@ -207,10 +209,10 @@ class MaskTypeTest( unittest.TestCase ):
         full = pygame.Mask((2,2))
         full.fill()
 
-        self.assertEquals(full.convolve(full, None, ( 0,  3)).count(), 0)
-        self.assertEquals(full.convolve(full, None, ( 0,  2)).count(), 3)
-        self.assertEquals(full.convolve(full, None, (-2, -2)).count(), 1)
-        self.assertEquals(full.convolve(full, None, (-3, -3)).count(), 0)
+        self.assertEqual(full.convolve(full, None, ( 0,  3)).count(), 0)
+        self.assertEqual(full.convolve(full, None, ( 0,  2)).count(), 3)
+        self.assertEqual(full.convolve(full, None, (-2, -2)).count(), 1)
+        self.assertEqual(full.convolve(full, None, (-3, -3)).count(), 0)
 
     def test_convolve(self):
         """Tests the definition of convolution"""
@@ -220,18 +222,18 @@ class MaskTypeTest( unittest.TestCase ):
 
         for i in range(conv.get_size()[0]):
             for j in range(conv.get_size()[1]):
-                self.assertEquals(conv.get_at((i,j)) == 0, m1.overlap(m2, (i - 99, j - 99)) is None)
-
+                self.assertEqual(conv.get_at((i,j)) == 0,
+                                 m1.overlap(m2, (i - 99, j - 99)) is None)
 
     def test_connected_components(self):
         """
         """
 
         m = pygame.Mask((10,10))
-        self.assertEquals(repr(m.connected_components()), "[]")
+        self.assertEqual(repr(m.connected_components()), "[]")
 
         comp = m.connected_component()
-        self.assertEquals(m.count(), comp.count())
+        self.assertEqual(m.count(), comp.count())
 
         m.set_at((0,0), 1)
         m.set_at((1,1), 1)
@@ -240,10 +242,10 @@ class MaskTypeTest( unittest.TestCase ):
         comps1 = m.connected_components(1)
         comps2 = m.connected_components(2)
         comps3 = m.connected_components(3)
-        self.assertEquals(comp.count(), comps[0].count())
-        self.assertEquals(comps1[0].count(), 2)
-        self.assertEquals(comps2[0].count(), 2)
-        self.assertEquals(repr(comps3), "[]")
+        self.assertEqual(comp.count(), comps[0].count())
+        self.assertEqual(comps1[0].count(), 2)
+        self.assertEqual(comps2[0].count(), 2)
+        self.assertEqual(repr(comps3), "[]")
 
         m.set_at((9, 9), 1)
         comp = m.connected_component()
@@ -253,13 +255,13 @@ class MaskTypeTest( unittest.TestCase ):
         comps1 = m.connected_components(1)
         comps2 = m.connected_components(2)
         comps3 = m.connected_components(3)
-        self.assertEquals(comp.count(), 2)
-        self.assertEquals(comp1.count(), 2)
-        self.assertEquals(comp2.count(), 0)
-        self.assertEquals(len(comps), 2)
-        self.assertEquals(len(comps1), 2)
-        self.assertEquals(len(comps2), 1)
-        self.assertEquals(len(comps3), 0)
+        self.assertEqual(comp.count(), 2)
+        self.assertEqual(comp1.count(), 2)
+        self.assertEqual(comp2.count(), 0)
+        self.assertEqual(len(comps), 2)
+        self.assertEqual(len(comps1), 2)
+        self.assertEqual(len(comps2), 1)
+        self.assertEqual(len(comps3), 0)
 
 
     def test_get_bounding_rects(self):
@@ -277,11 +279,9 @@ class MaskTypeTest( unittest.TestCase ):
 
         r = m.get_bounding_rects()
 
-        self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
-
-
-
-
+        self.assertEqual(
+                repr(r),
+                "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
 
         #1100
         #1111
@@ -297,8 +297,7 @@ class MaskTypeTest( unittest.TestCase ):
         m.set_at((3,1), 1)
 
         r = m.get_bounding_rects()
-        self.assertEquals(repr(r), "[<rect(0, 0, 4, 2)>]")
-
+        self.assertEqual(repr(r), "[<rect(0, 0, 4, 2)>]")
 
         #00100
         #01110
@@ -323,9 +322,7 @@ class MaskTypeTest( unittest.TestCase ):
         m.set_at((4,2), 0)
 
         r = m.get_bounding_rects()
-        self.assertEquals(repr(r), "[<rect(1, 0, 3, 3)>]")
-
-
+        self.assertEqual(repr(r), "[<rect(1, 0, 3, 3)>]")
 
         #00010
         #00100
@@ -350,10 +347,7 @@ class MaskTypeTest( unittest.TestCase ):
         m.set_at((4,2), 0)
 
         r = m.get_bounding_rects()
-        self.assertEquals(repr(r), "[<rect(1, 0, 3, 3)>]")
-
-
-
+        self.assertEqual(repr(r), "[<rect(1, 0, 3, 3)>]")
 
         #00011
         #11111
@@ -372,7 +366,7 @@ class MaskTypeTest( unittest.TestCase ):
 
         r = m.get_bounding_rects()
         #TODO: this should really make one bounding rect.
-        #self.assertEquals(repr(r), "[<rect(0, 0, 5, 2)>]")
+        #self.assertEqual(repr(r), "[<rect(0, 0, 5, 2)>]")
 
     def test_negative_size_mask(self):
         mask = pygame.Mask((100, 100))
