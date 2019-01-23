@@ -491,7 +491,6 @@ class ImageModuleTest( unittest.TestCase ):
     def test_load_bmp_threads(self):
         self.threads_load(glob.glob(example_path("data/*.bmp")))
 
-    @unittest.skip('Multiple threads unsupported as of SDL_image 2.0.4')
     def test_load_gif_threads(self):
         self.threads_load(glob.glob(example_path("data/*.gif")))
 
