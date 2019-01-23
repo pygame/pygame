@@ -29,9 +29,9 @@ class SndarrayTest (unittest.TestCase):
                     snd = pygame.sndarray.make_sound(srcarr)
                     arr = pygame.sndarray.array(snd)
                     self._assert_compatible(arr, size)
-                    self.failUnless(alltrue(arr == srcarr),
-                                    "size: %i\n%s\n%s" %
-                                    (size, arr, test_data))
+                    self.assertTrue(alltrue(arr == srcarr),
+                                    "size: %i\n%s\n%s" % (
+                                        size, arr, test_data))
             finally:
                 pygame.mixer.quit()
 
@@ -49,18 +49,17 @@ class SndarrayTest (unittest.TestCase):
                              [0x7fff, 0], [0, 0x7fff]])
 
     def test_get_arraytype(self):
-        self.failUnless((pygame.sndarray.get_arraytype() in
-                         ['numpy']),
-                        ("unknown array type %s" %
-                         pygame.sndarray.get_arraytype()))
+        array_type = pygame.sndarray.get_arraytype()
+
+        self.assertEqual(array_type, 'numpy',
+                         "unknown array type %s" % array_type)
 
     def test_get_arraytypes(self):
         arraytypes = pygame.sndarray.get_arraytypes()
-        self.failUnless('numpy' in arraytypes)
+        self.assertIn('numpy', arraytypes)
 
         for atype in arraytypes:
-            self.failUnless(atype in ['numpy'],
-                            "unknown array type %s" % atype)
+            self.assertEqual(atype, 'numpy', "unknown array type %s" % atype)
 
     def test_make_sound(self):
 
@@ -76,9 +75,9 @@ class SndarrayTest (unittest.TestCase):
                     srcarr = array(test_data, self.array_dtypes[size])
                     snd = pygame.sndarray.make_sound(srcarr)
                     arr = pygame.sndarray.samples(snd)
-                    self.failUnless(alltrue(arr == srcarr),
-                                    "size: %i\n%s\n%s" %
-                                    (size, arr, test_data))
+                    self.assertTrue(alltrue(arr == srcarr),
+                                    "size: %i\n%s\n%s" % (
+                                        size, arr, test_data))
             finally:
                 pygame.mixer.quit()
 
@@ -121,9 +120,9 @@ class SndarrayTest (unittest.TestCase):
                     ##print ('Y %s' % (test_data,))
                     samples[...] = test_data
                     arr = pygame.sndarray.array(snd)
-                    self.failUnless(alltrue(samples == arr),
-                                    "size: %i\n%s\n%s" %
-                                    (size, arr, test_data))
+                    self.assertTrue(alltrue(samples == arr),
+                                    "size: %i\n%s\n%s" % (
+                                        size, arr, test_data))
             finally:
                 pygame.mixer.quit()
 

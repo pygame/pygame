@@ -152,12 +152,11 @@ class SurfarrayModuleTest (unittest.TestCase):
                         ac[1] == sc[1] and
                         ac[2] == sc[2])
             for posn, i in self.test_points:
-                self.failUnless(same_color(arr[posn], surf.get_at(posn)),
-                                "%s != %s: flags: %i, bpp: %i, posn: %s" %
-                                (tuple(arr[posn]),
-                                 surf.get_at(posn),
-                                 surf.get_flags(), surf.get_bitsize(),
-                                 posn))
+                self.assertTrue(same_color(arr[posn], surf.get_at(posn)),
+                                "%s != %s: flags: %i, bpp: %i, posn: %s" % (
+                                    tuple(arr[posn]), surf.get_at(posn),
+                                    surf.get_flags(), surf.get_bitsize(),
+                                    posn))
 
     def test_array_alpha(self):
 
@@ -187,16 +186,16 @@ class SurfarrayModuleTest (unittest.TestCase):
                                            x, y,
                                            surf.get_bitsize())))
             else:
-                self.failUnless(alltrue(arr == 255))
+                self.assertTrue(alltrue(arr == 255))
 
         # No per-pixel alpha when blanket alpha is None.
         for surf in targets:
             blacket_alpha = surf.get_alpha()
             surf.set_alpha(None)
             arr = pygame.surfarray.array_alpha(surf)
-            self.failUnless(alltrue(arr == 255),
-                            "bitsize: %i, flags: %i" %
-                            (surf.get_bitsize(), surf.get_flags()))
+            self.assertTrue(alltrue(arr == 255),
+                            "bitsize: %i, flags: %i" % (
+                                surf.get_bitsize(), surf.get_flags()))
             surf.set_alpha(blacket_alpha)
 
         # Bug for per-pixel alpha surface when blanket alpha 0.
@@ -209,9 +208,9 @@ class SurfarrayModuleTest (unittest.TestCase):
                             "bitsize: %i, flags: %i" %
                             (surf.get_bitsize(), surf.get_flags()))
             else:
-                self.failUnless(alltrue(arr == 255),
-                                "bitsize: %i, flags: %i" %
-                                (surf.get_bitsize(), surf.get_flags()))
+                self.assertTrue(alltrue(arr == 255),
+                                "bitsize: %i, flags: %i" % (
+                                    surf.get_bitsize(), surf.get_flags()))
             surf.set_alpha(blanket_alpha)
 
     def test_array_colorkey(self):
@@ -234,7 +233,8 @@ class SurfarrayModuleTest (unittest.TestCase):
                 p = [surf.unmap_rgb(surf.map_rgb(c)) for c in p]
             surf.set_colorkey(None)
             arr = pygame.surfarray.array_colorkey(surf)
-            self.failUnless(alltrue(arr == 255))
+            self.assertTrue(alltrue(arr == 255))
+
             for i in range(1, len(palette)):
                 surf.set_colorkey(p[i])
                 alphas = [255] * len(p)
@@ -408,19 +408,18 @@ class SurfarrayModuleTest (unittest.TestCase):
                                          int(rint(farr[x, y])))
 
     def test_get_arraytype(self):
-        self.failUnless((pygame.surfarray.get_arraytype() in
-                         ['numpy']),
-                        ("unknown array type %s" %
-                         pygame.surfarray.get_arraytype()))
+        array_type = pygame.surfarray.get_arraytype()
+
+        self.assertEqual(array_type, 'numpy',
+                         "unknown array type %s" % array_type)
 
     def test_get_arraytypes(self):
 
         arraytypes = pygame.surfarray.get_arraytypes()
-        self.failUnless('numpy' in arraytypes)
+        self.assertIn('numpy', arraytypes)
 
         for atype in arraytypes:
-            self.failUnless(atype in ['numpy'],
-                            "unknown array type %s" % atype)
+            self.assertEqual(atype, 'numpy', "unknown array type %s" % atype)
 
     def test_make_surface(self):
 
@@ -432,7 +431,7 @@ class SurfarrayModuleTest (unittest.TestCase):
         for bitsize, dtype in [(8, uint8), (16, uint16), (24, uint32)]:
 ## Even this simple assertion fails for 2d arrays. Where's the problem?
 ##            surf = pygame.surfarray.make_surface(self._make_array2d(dtype))
-##            self.failUnless(surf.get_bitsize() >= bitsize,
+##            self.assertGreaterEqual(surf.get_bitsize(), bitsize,
 ##                            "not %i >= %i)" % (surf.get_bitsize(), bitsize))
 ##
             surf = pygame.surfarray.make_surface(self._make_src_array3d(dtype))
@@ -489,10 +488,10 @@ class SurfarrayModuleTest (unittest.TestCase):
         for surf in sources:
             self.assertFalse(surf.get_locked())
             arr = pygame.surfarray.pixels2d(surf)
-            self.failUnless(surf.get_locked())
+            self.assertTrue(surf.get_locked())
             self._fill_array2d(arr, surf)
             surf.unlock()
-            self.failUnless(surf.get_locked())
+            self.assertTrue(surf.get_locked())
             del arr
             self.assertFalse(surf.get_locked())
             self.assertEqual(surf.get_locks(), ())
@@ -511,10 +510,10 @@ class SurfarrayModuleTest (unittest.TestCase):
         for surf in sources:
             self.assertFalse(surf.get_locked())
             arr = pygame.surfarray.pixels3d(surf)
-            self.failUnless(surf.get_locked())
+            self.assertTrue(surf.get_locked())
             self._fill_array3d(arr)
             surf.unlock()
-            self.failUnless(surf.get_locked())
+            self.assertTrue(surf.get_locked())
             del arr
             self.assertFalse(surf.get_locked())
             self.assertEqual(surf.get_locks(), ())
@@ -551,9 +550,9 @@ class SurfarrayModuleTest (unittest.TestCase):
 
         self.assertFalse(surf.get_locked())
         arr = pygame.surfarray.pixels_alpha(surf)
-        self.failUnless(surf.get_locked())
+        self.assertTrue(surf.get_locked())
         surf.unlock()
-        self.failUnless(surf.get_locked())
+        self.assertTrue(surf.get_locked())
 
         for (x, y), i in self.test_points:
             self.assertEqual(arr[x, y], palette[i][3])
@@ -610,9 +609,9 @@ class SurfarrayModuleTest (unittest.TestCase):
         for surf in [surf24, surf32, surf32a]:
             self.assertFalse(surf.get_locked())
             arr = pixels_rgb(surf)
-            self.failUnless(surf.get_locked())
+            self.assertTrue(surf.get_locked())
             surf.unlock()
-            self.failUnless(surf.get_locked())
+            self.assertTrue(surf.get_locked())
 
             for (x, y), i in self.test_points:
                 self.assertEqual(arr[x, y], plane[i])
