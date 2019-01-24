@@ -62,8 +62,17 @@
 #include "pgopengl.h"
 
 #include <SDL_image.h>
+#ifdef WIN32
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
 
 #define JPEG_QUALITY 85
+
+#ifdef WITH_THREAD
+static SDL_mutex *_pg_img_mutex = 0;
+#endif /* WITH_THREAD */
 
 static const char *
 find_extension(const char *fullname)
@@ -88,6 +97,7 @@ image_load_ext(PyObject *self, PyObject *arg)
     PyObject *final;
     PyObject *oencoded;
     PyObject *oname;
+    size_t namelen;
     const char *name = NULL;
     const char *cext;
     char *ext = NULL;
@@ -104,12 +114,29 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
     if (oencoded != Py_None) {
+        name = Bytes_AS_STRING(oencoded);
+#ifdef WITH_THREAD
+        namelen = Bytes_GET_SIZE(oencoded);
         Py_BEGIN_ALLOW_THREADS;
-        surf = IMG_Load(Bytes_AS_STRING(oencoded));
+        if (namelen > 4 && !strcasecmp(name + namelen - 4, ".gif")) {
+            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+            SDL_LockMutex(_pg_img_mutex);
+            surf = IMG_Load(name);
+            SDL_UnlockMutex(_pg_img_mutex);
+        }
+        else {
+            surf = IMG_Load(name);
+        }
         Py_END_ALLOW_THREADS;
+#else /* ~WITH_THREAD */
+        surf = IMG_Load(name);
+#endif /* WITH_THREAD */
         Py_DECREF(oencoded);
     }
     else {
+#ifdef WITH_THREAD
+        int lock_mutex = 0;
+#endif /* WITH_THREAD */
         Py_DECREF(oencoded);
         oencoded = NULL;
 #if PY2
@@ -154,11 +181,26 @@ image_load_ext(PyObject *self, PyObject *arg)
                 return PyErr_NoMemory();
             }
             strcpy(ext, cext);
+#ifdef WITH_THREAD
+            lock_mutex = !strcasecmp(ext, "gif");
+#endif /* WITH_THREAD */
         }
         Py_XDECREF(oencoded);
+#ifdef WITH_THREAD
         Py_BEGIN_ALLOW_THREADS;
-        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        if (lock_mutex) {
+            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+            SDL_LockMutex(_pg_img_mutex);
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
+            SDL_UnlockMutex(_pg_img_mutex);
+        }
+        else {
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
+        }
         Py_END_ALLOW_THREADS;
+#else /* ~WITH_THREAD */
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+#endif /* ~WITH_THREAD */
         PyMem_Free(ext);
     }
 
@@ -845,6 +887,28 @@ image_save_ext(PyObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+#ifdef WITH_THREAD
+#if PY3
+static void
+_imageext_free(void *ptr)
+{
+    if (_pg_img_mutex) {
+        SDL_DestroyMutex(_pg_img_mutex);
+        _pg_img_mutex = 0;
+    }
+}
+#else /* PY2 */
+static void
+_imageext_free(void)
+{
+    if (_pg_img_mutex) {
+        SDL_DestroyMutex(_pg_img_mutex);
+        _pg_img_mutex = 0;
+    }
+}
+#endif /* PY2 */
+#endif /* WITH_THREAD */
+
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
@@ -864,7 +928,11 @@ MODINIT_DEFINE(imageext)
                                          NULL,
                                          NULL,
                                          NULL,
-                                         NULL};
+#ifdef WITH_THREAD
+                                         _imageext_free};
+#else /* ~WITH_THREAD */
+                                         0};
+#endif /* ~WITH_THREAD */
 #endif
 
     /* imported needed apis; Do this first so if there is an error
@@ -883,6 +951,19 @@ MODINIT_DEFINE(imageext)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
+
+#ifdef WITH_THREAD
+#if PY2
+    if (Py_AtExit(_imageext_free)) {
+        MODINIT_ERROR;
+    }
+#endif /* PY2 */
+    _pg_img_mutex = SDL_CreateMutex();
+    if (!_pg_img_mutex) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        MODINIT_ERROR;
+    }
+#endif /* WITH_THREAD */
 
     /* create the module */
 #if PY3
