@@ -42,22 +42,15 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(quit_called, 1)
 
     def test_get_sdl_byteorder(self):
+        """Ensure the SDL byte order is valid"""
+        byte_order = pygame.get_sdl_byteorder()
+        expected_options = (pygame.LIL_ENDIAN, pygame.BIG_ENDIAN)
 
-        # __doc__ (as of 2008-06-25) for pygame.base.get_sdl_byteorder:
-
-          # pygame.get_sdl_byteorder(): return int
-          # get the byte order of SDL
-
-        self.assert_(pygame.get_sdl_byteorder() + 1)
+        self.assertIn(byte_order, expected_options)
 
     def test_get_sdl_version(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.base.get_sdl_version:
-
-          # pygame.get_sdl_version(): return major, minor, patch
-          # get the version number of SDL
-
-        self.assert_( len(pygame.get_sdl_version()) == 3)
+        """Ensure the SDL version is valid"""
+        self.assertEqual(len(pygame.get_sdl_version()), 3)
 
     class ExporterBase(object):
         def __init__(self, shape, typechar, itemsize):
@@ -528,19 +521,14 @@ class BaseModuleTest(unittest.TestCase):
         self.not_init_assertions()
 
     def test_register_quit(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.base.register_quit:
-
-          # register_quit(callable): return None
-          # register a function to be called when pygame quits
-
-        self.assert_(not quit_hook_ran)
+        """Ensure that a registered function is called on quit()"""
+        self.assertFalse(quit_hook_ran)
 
         pygame.init()
         pygame.register_quit(quit_hook)
         pygame.quit()
 
-        self.assert_(quit_hook_ran)
+        self.assertTrue(quit_hook_ran)
 
     def test_get_error(self):
 

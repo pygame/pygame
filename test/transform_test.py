@@ -804,9 +804,9 @@ class TransformModuleTest( unittest.TestCase ):
 
         # s.set_at((2, 0), color)
 
-        # self.assert_(s.get_at((0, 0)) != color)
+        # self.assertNotEqual(s.get_at((0, 0)), color)
         # s = pygame.transform.rotate(s, 90)
-        # self.assert_(s.get_at((0, 0)) == color)
+        # self.assertEqual(s.get_at((0, 0)), color)
 
         self.fail()
 
