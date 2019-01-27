@@ -283,10 +283,13 @@ class ImageModuleTest( unittest.TestCase ):
             os.remove(temp_file)
         except IOError:
             raise unittest.SkipTest('the path cannot be opened')
-        self.assert_(not os.path.exists(temp_file))
+
+        self.assertFalse(os.path.exists(temp_file))
+
         try:
             pygame.image.save(im, temp_file)
-            self.assert_(os.path.getsize(temp_file) > 10)
+
+            self.assertGreater(os.path.getsize(temp_file), 10)
         finally:
             try:
                 os.remove(temp_file)
@@ -341,19 +344,32 @@ class ImageModuleTest( unittest.TestCase ):
         no_alpha_surface = pygame.Surface((256, 256), 0, 24)
         self.assertRaises(ValueError, pygame.image.tostring, no_alpha_surface, "RGBA_PREMULT")
 
+    # Custom assert method to check for identical surfaces.
+    def _assertSurfaceEqual(self, surf_a, surf_b, msg=None):
+        a_width, a_height = surf_a.get_width(), surf_a.get_height()
+
+        # Check a few things to see if the surfaces are equal.
+        self.assertEqual(a_width, surf_b.get_width(), msg)
+        self.assertEqual(a_height, surf_b.get_height(), msg)
+        self.assertEqual(surf_a.get_size(), surf_b.get_size(), msg)
+        self.assertEqual(surf_a.get_rect(), surf_b.get_rect(), msg)
+        self.assertEqual(surf_a.get_colorkey(), surf_b.get_colorkey(), msg)
+        self.assertEqual(surf_a.get_alpha(), surf_b.get_alpha(), msg)
+        self.assertEqual(surf_a.get_flags(), surf_b.get_flags(), msg)
+        self.assertEqual(surf_a.get_bitsize(), surf_b.get_bitsize(), msg)
+        self.assertEqual(surf_a.get_bytesize(), surf_b.get_bytesize(), msg)
+        # Anything else?
+
+        # Making the method lookups local for a possible speed up.
+        surf_a_get_at = surf_a.get_at
+        surf_b_get_at = surf_b.get_at
+        for y in xrange_(a_height):
+            for x in xrange_(a_width):
+                self.assertEqual(surf_a_get_at((x, y)), surf_b_get_at((x, y)),
+                                 msg)
 
     def test_fromstring__and_tostring(self):
-        """ see if fromstring, and tostring methods are symmetric.
-        """
-
-        def AreSurfacesIdentical(surf_a, surf_b):
-            if surf_a.get_width() != surf_b.get_width() or surf_a.get_height() != surf_b.get_height():
-                return False
-            for y in xrange_(surf_a.get_height()):
-                for x in xrange_(surf_b.get_width()):
-                    if surf_a.get_at((x,y)) != surf_b.get_at((x,y)):
-                        return False
-            return True
+        """Ensure methods tostring() and fromstring() are symmetric."""
 
         ####################################################################
         def RotateRGBAtoARGB(str_buf):
@@ -380,7 +396,8 @@ class ImageModuleTest( unittest.TestCase ):
             return byte_buf.tostring()
 
         ####################################################################
-        test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA, depth=32)
+        test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA,
+                                      depth=32)
         for i in xrange_(256):
             for j in xrange_(16):
                 intensity = j*16 + 15
@@ -389,35 +406,41 @@ class ImageModuleTest( unittest.TestCase ):
                 test_surface.set_at((j + 32, i), (i, i, intensity, i))
                 test_surface.set_at((j + 32, i), (i, i, i, intensity))
 
-        self.assert_(AreSurfacesIdentical(test_surface, test_surface))
+        self._assertSurfaceEqual(test_surface, test_surface,
+                                 'failing with identical surfaces')
 
         rgba_buf = pygame.image.tostring(test_surface, "RGBA")
         rgba_buf = RotateARGBtoRGBA(RotateRGBAtoARGB(rgba_buf))
-        test_rotate_functions = pygame.image.fromstring(rgba_buf, test_surface.get_size(), "RGBA")
+        test_rotate_functions = pygame.image.fromstring(
+            rgba_buf, test_surface.get_size(), "RGBA")
 
-        self.assert_(AreSurfacesIdentical(test_surface, test_rotate_functions))
+        self._assertSurfaceEqual(test_surface, test_rotate_functions,
+                                 'rotate functions are not symmetric')
 
         rgba_buf = pygame.image.tostring(test_surface, "RGBA")
         argb_buf = RotateRGBAtoARGB(rgba_buf)
-        test_from_argb_string = pygame.image.fromstring(argb_buf, test_surface.get_size(), "ARGB")
+        test_from_argb_string = pygame.image.fromstring(
+            argb_buf, test_surface.get_size(), "ARGB")
 
-        self.assert_(AreSurfacesIdentical(test_surface, test_from_argb_string))
-        #"ERROR: image.fromstring with ARGB failed"
-
+        self._assertSurfaceEqual(test_surface, test_from_argb_string,
+                                 '"RGBA" rotated to "ARGB" failed')
 
         argb_buf = pygame.image.tostring(test_surface, "ARGB")
         rgba_buf = RotateARGBtoRGBA(argb_buf)
-        test_to_argb_string = pygame.image.fromstring(rgba_buf, test_surface.get_size(), "RGBA")
+        test_to_argb_string = pygame.image.fromstring(
+            rgba_buf, test_surface.get_size(), "RGBA")
 
-        self.assert_(AreSurfacesIdentical(test_surface, test_to_argb_string))
-        #"ERROR: image.tostring with ARGB failed"
+        self._assertSurfaceEqual(test_surface, test_to_argb_string,
+                                 '"ARGB" rotated to "RGBA" failed')
 
+        for fmt in ('ARGB', 'RGBA'):
+            fmt_buf = pygame.image.tostring(test_surface, fmt)
+            test_to_from_fmt_string = pygame.image.fromstring(
+                fmt_buf, test_surface.get_size(), fmt)
 
-        argb_buf = pygame.image.tostring(test_surface, "ARGB")
-        test_to_from_argb_string = pygame.image.fromstring(argb_buf, test_surface.get_size(), "ARGB")
-
-        self.assert_(AreSurfacesIdentical(test_surface, test_to_from_argb_string))
-        #"ERROR: image.fromstring and image.tostring with ARGB are not symmetric"
+            self._assertSurfaceEqual(test_surface, test_to_from_fmt_string,
+                                     'tostring/fromstring functions are not '
+                                     'symmetric with "{}" format'.format(fmt))
 
     def todo_test_frombuffer(self):
 
