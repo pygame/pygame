@@ -56,7 +56,8 @@ class BufferProxyTest(unittest.TestCase):
         p = []
         kwds['parent'] = p
         v = BufferProxy(kwds)
-        self.assert_(v.parent is p)
+
+        self.assertIs(v.parent, p)
 
     def test_before(self):
         def callback(parent):
@@ -152,10 +153,13 @@ class BufferProxyTest(unittest.TestCase):
     def test_weakref(self):
         v = BufferProxy(self.view_keywords)
         weak_v = weakref.ref(v)
-        self.assert_(weak_v() is v)
+
+        self.assertIs(weak_v(), v)
+
         v = None
         gc.collect()
-        self.assert_(weak_v() is None)
+
+        self.assertIsNone(weak_v())
 
     def test_gc(self):
         """refcount agnostic check that contained objects are freed"""
@@ -224,7 +228,9 @@ class BufferProxyTest(unittest.TestCase):
 
     def test_c_api(self):
         api = pygame.bufferproxy._PYGAME_C_API
-        self.assert_(isinstance(api, type(pygame.base._PYGAME_C_API)))
+        api_type = type(pygame.base._PYGAME_C_API)
+
+        self.assertIsInstance(api, api_type)
 
     def test_repr(self):
         v = BufferProxy(self.view_keywords)
