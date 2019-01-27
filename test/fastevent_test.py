@@ -12,7 +12,6 @@ class FasteventModuleTest(unittest.TestCase):
         pygame.display.init()
         fastevent.init()
         event.clear()
-        self.assert_(not event.get())
 
     def tearDown(self):
         # fastevent.quit()  # Does not exist!
@@ -98,6 +97,16 @@ class FasteventModuleTest(unittest.TestCase):
             self.assertEqual(str(e), msg)
         else:
             self.fail()
+
+    def test_post__clear(self):
+        """Ensure posted events can be cleared."""
+        for _ in range(10):
+            fastevent.post(event.Event(pygame.USEREVENT))
+
+        event.clear()
+
+        self.assertListEqual(fastevent.get(), [])
+        self.assertListEqual(event.get(), [])
 
     def todo_test_pump(self):
 

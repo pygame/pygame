@@ -66,10 +66,13 @@ class ImageextModuleTest( unittest.TestCase ):
             os.remove(temp_file)
         except IOError:
             raise unittest.SkipTest('the path cannot be opened')
-        self.assert_(not os.path.exists(temp_file))
+
+        self.assertFalse(os.path.exists(temp_file))
+
         try:
             imageext.save_extended(im, temp_file)
-            self.assert_(os.path.getsize(temp_file) > 10)
+
+            self.assertGreater(os.path.getsize(temp_file), 10)
         finally:
             try:
                 os.remove(temp_file)

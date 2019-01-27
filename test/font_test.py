@@ -241,27 +241,33 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(None, 20)
         um = f.metrics(as_unicode("."))
         bm = f.metrics(as_bytes("."))
+
         self.assertEqual(len(um), 1)
         self.assertEqual(len(bm), 1)
-        self.assert_(um[0] is not None)
-        self.assert_(um == bm)
+        self.assertIsNotNone(um[0])
+        self.assertEqual(um, bm)
+
         u = u"\u212A"
         b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
         bm = f.metrics(b)
-        self.assert_(len(bm) == 2)
+
+        self.assertEqual(len(bm), 2)
+
         try:  # FIXME why do we do this try/except ?
             um = f.metrics(u)
         except pygame.error:
             pass
         else:
-            self.assert_(len(um) == 1)
-            self.assert_(bm[0] != um[0])
-            self.assert_(bm[1] != um[0])
+            self.assertEqual(len(um), 1)
+            self.assertNotEqual(bm[0], um[0])
+            self.assertNotEqual(bm[1], um[0])
 
         if UCS_4:
             u = u"\U00013000"
             bm = f.metrics(u)
-            self.assert_(len(bm) == 1 and bm[0] is None)
+
+            self.assertEqual(len(bm), 1)
+            self.assertIsNone(bm[0])
 
         return # unfinished
         # The documentation is useless here. How large a list?
@@ -364,11 +370,14 @@ class FontTypeTest( unittest.TestCase ):
         text = as_unicode("Xg")
         size = f.size(text)
         w, h = size
-        self.assert_(isinstance(w, int) and isinstance(h, int))
         s = f.render(text, False, (255, 255, 255))
-        self.assert_(size == s.get_size())
         btext = text.encode("ascii")
-        self.assert_(f.size(btext) == size)
+
+        self.assertIsInstance(w, int)
+        self.assertIsInstance(h, int)
+        self.assertEqual(s.get_size(), size)
+        self.assertEqual(f.size(btext), size)
+
         text = as_unicode(r"\u212A")
         btext = text.encode("UTF-16")[2:] # Keep the byte order consistent.
         bsize = f.size(btext)
@@ -377,7 +386,7 @@ class FontTypeTest( unittest.TestCase ):
         except pygame.error:
             pass
         else:
-            self.assert_(size != bsize)
+            self.assertNotEqual(size, bsize)
 
     def test_font_file_not_found(self):
         # A per BUG reported by Bo Jangeborg on pygame-user mailing list,
@@ -398,8 +407,8 @@ class FontTypeTest( unittest.TestCase ):
         font_name = pygame_font.get_default_font()
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
                                  pygame_font.get_default_font())
-        f = open(font_path, "rb")
-        font = pygame_font.Font(f, 20)
+        with open(font_path, "rb") as f:
+            font = pygame_font.Font(f, 20)
 
     def test_load_default_font_filename(self):
         # In font_init, a special case is when the filename argument is
