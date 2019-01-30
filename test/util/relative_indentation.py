@@ -66,7 +66,7 @@ class Template(object):
         # if errors: raise ValueError("\n".join(errors))
                  
         template = self.template[:]
-        for ph_name, replacement in replacements.iteritems():
+        for ph_name, replacement in replacements.items():
             ph_offset = self.ph_offsets[ph_name]
     
             ph_search = re.search ("\${%s}" % ph_name, template, multi_line_re)
@@ -80,8 +80,8 @@ class Template(object):
         return template
 
 if __name__ == "__main__":
-    
-    print Template( '''
+
+    print(Template( '''
 
         def test_${test_name}(self):
             
@@ -93,19 +93,20 @@ if __name__ == "__main__":
             
             ${comments}
             
-            self.assert_(not_completed() ''' 
-    
-    ).render( test_name = 'this_please', 
+            self.assertTrue(not_completed() '''
+
+    ).render( test_name = 'this_please',
               docstring = 'Heading:\n\n    Indented Line\n    More',
-              comments  = '# some comment\n# another comment', )
+              comments  = '# some comment\n# another comment', ))
 
     check_that = Template('works with ${one} on each line, or even ${two_four}')
 
-    print check_that.render(one='one', two_four='two')
-    
+    print(check_that.render(one='one', two_four='two'))
+
     # BUG: Multiline replacements with 2 ph per line will go awry -> .ph_offsets
     #      Outside scope of stubber
-    
-    print check_that.render(one='one\n    one', two_four='two\n    not_right\n')
-    
+
+    print(check_that.render(one='one\n    one',
+                            two_four='two\n    not_right\n'))
+
 ################################################################################
