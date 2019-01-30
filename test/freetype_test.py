@@ -1441,7 +1441,7 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertNotEqual(before, after, msg)
 
         for test in tests:
-            run_test(*test.values())
+            run_test(test['method'], test['value'], test['msg'])
 
 
 class FreeTypeTest(unittest.TestCase):
