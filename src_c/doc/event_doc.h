@@ -13,7 +13,7 @@
 
 #define DOC_PYGAMEEVENTCLEAR "clear() -> None\nclear(type) -> None\nclear(typelist) -> None\nremove all events from the queue"
 
-#define DOC_PYGAMEEVENTEVENTNAME "event_name(type) -> string\nget the string name from and event id"
+#define DOC_PYGAMEEVENTEVENTNAME "event_name(type) -> string\nget the string name from an event id"
 
 #define DOC_PYGAMEEVENTSETBLOCKED "set_blocked(type) -> None\nset_blocked(typelist) -> None\nset_blocked(None) -> None\ncontrol which events are allowed on the queue"
 
@@ -29,11 +29,11 @@
 
 #define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> EventType instance\nEvent(type, **attributes) -> EventType instance\ncreate a new event object"
 
-#define DOC_PYGAMEEVENTEVENTTYPE "pygame object for representing SDL events"
+#define DOC_PYGAMEEVENTEVENTTYPE "pygame object for representing events"
 
-#define DOC_EVENTTYPETYPE "type -> int\nSDL event type identifier."
+#define DOC_EVENTTYPETYPE "type -> int\nevent type identifier."
 
-#define DOC_EVENTTYPEDICT "__dict__ -> dict\nEvent object attribute dictionary"
+#define DOC_EVENTTYPEDICT "__dict__ -> dict\nevent attribute dictionary"
 
 
 
@@ -75,7 +75,7 @@ remove all events from the queue
 
 pygame.event.event_name
  event_name(type) -> string
-get the string name from and event id
+get the string name from an event id
 
 pygame.event.set_blocked
  set_blocked(type) -> None
@@ -111,14 +111,14 @@ pygame.event.Event
 create a new event object
 
 pygame.event.EventType
-pygame object for representing SDL events
+pygame object for representing events
 
 pygame.event.EventType.type
  type -> int
-SDL event type identifier.
+event type identifier.
 
 pygame.event.EventType.__dict__
  __dict__ -> dict
-Event object attribute dictionary
+event attribute dictionary
 
 */
