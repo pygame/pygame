@@ -39,7 +39,7 @@
     Now sure how it compares to the trunc built into the C library.
     #define trunc(d) ((int)(d))
 */
-#ifndef trunc
+#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L) && !defined(trunc)
 #define trunc(d) (((d) >= 0.0) ? (floor(d)) : (ceil(d)))
 #endif
 
