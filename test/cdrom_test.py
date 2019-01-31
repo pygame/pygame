@@ -96,35 +96,24 @@ class CDTypeTest(unittest.TestCase):
     def tearDown(self):
         pygame.cdrom.quit()
 
-    def test_1_eject(self):
-
-        # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.eject:
-
-          # CD.eject(): return None
-          # eject or open the cdrom drive
-
+    def test_eject(self):
+        """Ensure CD drive opens/ejects."""
         # should raise if cd object not initialized
         if self.cd:
             self.cd.init()
             self.cd.eject()
 
-            self.assert_(question('Did the cd eject?'))
+            self.assertTrue(question('Did the CD eject?'))
 
-            prompt("Please close the cd drive")
+            prompt("Please close the CD drive.")
 
-    def test_2_get_name(self):
-
-        # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.get_name:
-
-          # CD.get_name(): return name
-          # the system name of the cdrom drive
-
+    def test_get_name(self):
+        """Ensure correct name for CD drive."""
         if self.cd:
             cd_name = self.cd.get_name()
 
-            self.assert_ (
-                question('Is %s the correct name for the cd drive?' % cd_name)
-            )
+            self.assertTrue(
+                question('Is %s the correct name for the CD drive?' % cd_name))
 
     def todo_test_get_all(self):
 
