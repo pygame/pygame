@@ -2255,11 +2255,13 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             goto bliterror;
         }
 
+#if IS_SDLv1
         if (dest->flags & SDL_OPENGL &&
             !(dest->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL))) {
             bliterrornum = BLITS_ERR_NO_OPENGL_SURF;
             goto bliterror;
         }
+#endif /* IS_SDLv1 */
 
         if ((src_rect = pgRect_FromObject(argpos, &temp))) {
             dx = src_rect->x;
@@ -2323,6 +2325,9 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     Py_DECREF(iterator);
+    if (PyErr_Occurred()) {
+        goto bliterror;
+    }
 
     if (doreturn) {
         return ret;
@@ -2361,9 +2366,8 @@ bliterror:
             return RAISE(PyExc_TypeError, "Must assign numeric values");
         case BLITS_ERR_BLIT_FAIL:
             return RAISE(PyExc_TypeError, "Blit failed");
-        default:
-            return RAISE(PyExc_TypeError, "Unknown error");
     }
+    return RAISE(PyExc_TypeError, "Unknown error");
 }
 
 static PyObject *
