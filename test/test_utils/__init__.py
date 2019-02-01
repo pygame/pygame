@@ -48,10 +48,10 @@ def get_tmp_dir():
 ################################################################################
 
 def question(q):
-    return raw_input_('%s ' % q.rstrip(' ')).lower().strip() == 'y'
+    return raw_input_('\n%s (y/n): ' % q.rstrip(' ')).lower().strip() == 'y'
 
 def prompt(p):
-    return raw_input_('%s (and press enter to continue) ' % p.rstrip(' '))
+    return raw_input_('\n%s (press enter to continue): ' % p.rstrip(' '))
 
 #################################### HELPERS ###################################
 
