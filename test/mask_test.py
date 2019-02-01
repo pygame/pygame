@@ -144,6 +144,29 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertRaises(IndexError, lambda : m.set_at((10,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((0,10), 1) )
 
+    def test_erase(self):
+        """Ensure erase() clears bits."""
+        mask1 = pygame.mask.Mask((65, 3))
+        mask2 = pygame.mask.Mask((66, 4))
+        mask2.fill()
+
+        # Using rects to help determine the overlapping area.
+        rect1 = pygame.Rect((0, 0), mask1.get_size())
+        rect2 = pygame.Rect((0, 0), mask2.get_size())
+        rect1_area = rect1.w * rect1.h
+        offsets = ((0, 0), (0, 1), (1, 0), (1, 1), (0, -1), (-1, 0), (-1, -1))
+
+        for offset in offsets:
+            rect2.topleft = offset
+            overlap_rect = rect1.clip(rect2)
+            expected_count = rect1_area - (overlap_rect.w * overlap_rect.h)
+            mask1.fill()  # Ensure it's filled for testing each offset.
+
+            mask1.erase(mask2, offset)
+
+            self.assertEqual(mask1.count(), expected_count,
+                             'offset={}'.format(offset))
+
     def test_drawing(self):
         """ Test fill, clear, invert, draw, erase
         """
