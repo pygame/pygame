@@ -531,12 +531,12 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                          ap++, bp++, cp++)
                         *cp = *ap & (*bp << shift);
                     a_entry += a->h;
-                    c_entry += c->h;
                     a_end += a->h;
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                          ap++, bp++, cp++)
-                        *cp = *ap & (*bp >> rshift);
+                        *cp |= *ap & (*bp >> rshift);
                     b_entry += b->h;
+                    c_entry += c->h;
                 }
                 for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                      ap++, bp++, cp++)
@@ -549,12 +549,12 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                          ap++, bp++, cp++)
                         *cp = *ap & (*bp << shift);
                     a_entry += a->h;
-                    c_entry += c->h;
                     a_end += a->h;
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                          ap++, bp++, cp++)
-                        *cp = *ap & (*bp >> rshift);
+                        *cp |= *ap & (*bp >> rshift);
                     b_entry += b->h;
+                    c_entry += c->h;
                 }
             }
         }
@@ -605,7 +605,7 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                     b_end += b->h;
                     for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
                          bp++, ap++, cp++)
-                        *cp = *ap & (*bp << rshift);
+                        *cp |= *ap & (*bp << rshift);
                     a_entry += a->h;
                     c_entry += c->h;
                 }
@@ -623,7 +623,7 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                     b_end += b->h;
                     for (bp = b_entry, ap = a_entry, cp = c_entry; bp < b_end;
                          bp++, ap++, cp++)
-                        *cp = *ap & (*bp << rshift);
+                        *cp |= *ap & (*bp << rshift);
                     a_entry += a->h;
                     c_entry += c->h;
                 }

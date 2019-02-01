@@ -92,6 +92,29 @@ class MaskTypeTest( unittest.TestCase ):
 
         self.fail()
 
+    def test_overlap_mask__count(self):
+        """Ensure overlap_mask's mask has the correct count."""
+        mask1 = pygame.mask.Mask((65, 3))
+        mask2 = pygame.mask.Mask((66, 4))
+        mask1.fill()
+        mask2.fill()
+
+        # Using rects to help determine the expected count of the overlapping
+        # mask.
+        rect1 = pygame.Rect((0, 0), mask1.get_size())
+        rect2 = pygame.Rect((0, 0), mask2.get_size())
+        offsets = ((0, 0), (0, 1), (1, 0), (1, 1), (0, -1), (-1, 0), (-1, -1))
+
+        for offset in offsets:
+            rect2.topleft = offset
+            overlap_rect = rect1.clip(rect2)
+            expected_count = overlap_rect.w * overlap_rect.h
+
+            overlap_mask = mask1.overlap_mask(mask2, offset)
+
+            self.assertEqual(overlap_mask.count(), expected_count,
+                             'offset={}'.format(offset))
+
     def todo_test_set_at(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mask.Mask.set_at:
@@ -440,9 +463,8 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.count(), 100)
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
-    @unittest.expectedFailure
     def test_overlap_mask(self):
-        # This test currently fails. See issue #410 for more details.
+        """Ensure overlap_mask's mask has correct bits set."""
         mask = pygame.mask.Mask((50, 50))
         mask.fill()
         mask2 = pygame.mask.Mask((300, 10))
@@ -451,11 +473,13 @@ class MaskModuleTest(unittest.TestCase):
 
         for i in range(50):
             for j in range(10):
-                self.assertEqual(mask3.get_at((i, j)), 1)
+                self.assertEqual(mask3.get_at((i, j)), 1,
+                                 '({}, {})'.format(i, j))
 
         for i in range(50):
             for j in range(11, 50):
-                self.assertEqual(mask3.get_at((i, j)), 0)
+                self.assertEqual(mask3.get_at((i, j)), 0,
+                                 '({}, {})'.format(i, j))
 
     def test_zero_mask(self):
         mask = pygame.mask.Mask((0, 0))
