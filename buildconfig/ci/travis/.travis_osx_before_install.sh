@@ -124,7 +124,7 @@ install_or_upgrade portmidi ${UNIVERSAL_FLAG}
 install_or_upgrade freetype ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
 install_or_upgrade sdl_image ${UNIVERSAL_FLAG}
-install_or_upgrade sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
+install_or_upgrade sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-smpeg
 
 set -e
 
