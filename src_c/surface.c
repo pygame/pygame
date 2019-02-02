@@ -1419,9 +1419,14 @@ surf_set_colorkey(PyObject *self, PyObject *args)
          */
         result = SDL_SetColorKey(surf, SDL_FALSE, color);
     }
-    if (result == 0 && hascolor) {
-        result = SDL_SetSurfaceRLE(
-            surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+    if (result == 0) {
+        if (!surf->format->Amask /* && !hascolor */ ) {
+            result = SDL_SetSurfaceRLE(surf, 0);
+        }
+        else {
+            result = SDL_SetSurfaceRLE(
+                surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+        }
     }
     if (result == 0) {
         result = SDL_SetColorKey(surf, hascolor, color);
@@ -1508,15 +1513,16 @@ surf_set_alpha(PyObject *self, PyObject *args)
             return RAISE(PyExc_TypeError, "invalid alpha argument");
 #if IS_SDLv1
         hasalpha = 1;
-#else  /* IS_SDLv2 */
+#else /* IS_SDLv2 */
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
 #endif /* IS_SDLv2 */
     }
 #if IS_SDLv2
-    else if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+    else {
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
+        alphaval = 255;
     }
 #endif /* IS_SDLv2 */
 #if IS_SDLv1
@@ -1535,8 +1541,13 @@ surf_set_alpha(PyObject *self, PyObject *args)
 #if IS_SDLv1
     result = SDL_SetAlpha(surf, flags, alpha);
 #else  /* IS_SDLv2 */
-    result =
-        SDL_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+    if (!surf->format->Amask) {
+        result = SDL_SetSurfaceRLE(surf, 0);
+    }
+    else {
+        result =
+            SDL_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+    }
     if (result == 0)
         result = SDL_SetSurfaceAlphaMod(surf, alpha);
 #endif /* IS_SDLv2 */
@@ -1840,12 +1851,21 @@ static SDL_Surface *
 pg_DisplayFormat(SDL_Surface *surface)
 {
     SDL_Surface *newsurf = NULL, *displaysurf;
+
     if (!pg_GetDefaultWindowSurface()) {
         SDL_SetError("No video mode has been set");
         return NULL;
     }
     displaysurf = pgSurface_AsSurface(pg_GetDefaultWindowSurface());
-    return SDL_ConvertSurface(surface, displaysurf->format, 0);
+
+    newsurf = SDL_ConvertSurface(surface, displaysurf->format, 0);
+    if (!newsurf)
+        return NULL;
+
+    if (!newsurf->format->Amask)
+        SDL_SetSurfaceRLE(surface, 0);
+
+    return newsurf;
 }
 
 static SDL_Surface *
