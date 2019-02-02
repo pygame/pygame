@@ -1366,6 +1366,9 @@ surf_set_colorkey(PyObject *self, PyObject *args)
     Uint8 rgba[4];
     int result;
     int hascolor = SDL_FALSE;
+#if IS_SDLv2
+    SDL_BlendMode blend;
+#endif /* IS_SDLv2 */
 
     if (!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
         return NULL;
@@ -1414,19 +1417,20 @@ surf_set_colorkey(PyObject *self, PyObject *args)
     result = SDL_SetColorKey(surf, flags, color);
 #else  /* IS_SDLv2 */
     result = 0;
-    if (hascolor) {
+    if (hascolor && SDL_ISPIXELFORMAT_INDEXED(surf->format->format)) {
         /* For an indexed surface, remove the previous colorkey first.
          */
         result = SDL_SetColorKey(surf, SDL_FALSE, color);
     }
-    if (result == 0) {
-        if (!surf->format->Amask /* && !hascolor */ ) {
-            result = SDL_SetSurfaceRLE(surf, 0);
-        }
-        else {
-            result = SDL_SetSurfaceRLE(
-                surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
-        }
+    if (result == 0 &&
+        !surf->format->Amask &&
+        (result = SDL_GetSurfaceBlendMode(surf, &blend)) == 0 &&
+        (hascolor || blend != SDL_BLENDMODE_NONE)) {
+        result = SDL_SetSurfaceRLE(surf, 0);
+    }
+    else if (result == 0) {
+        result = SDL_SetSurfaceRLE(
+            surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
     }
     if (result == 0) {
         result = SDL_SetColorKey(surf, hascolor, color);
@@ -1486,9 +1490,7 @@ surf_set_alpha(PyObject *self, PyObject *args)
     PyObject *alpha_obj = NULL, *intobj = NULL;
     Uint8 alpha;
     int result, alphaval = 255;
-#if IS_SDLv1
     int hasalpha = 0;
-#endif /* IS_SDLv1 */
 
     if (!PyArg_ParseTuple(args, "|Oi", &alpha_obj, &flags))
         return NULL;
@@ -1511,9 +1513,8 @@ surf_set_alpha(PyObject *self, PyObject *args)
         }
         else
             return RAISE(PyExc_TypeError, "invalid alpha argument");
-#if IS_SDLv1
         hasalpha = 1;
-#else /* IS_SDLv2 */
+#if IS_SDLv2
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
 #endif /* IS_SDLv2 */
@@ -1541,7 +1542,8 @@ surf_set_alpha(PyObject *self, PyObject *args)
 #if IS_SDLv1
     result = SDL_SetAlpha(surf, flags, alpha);
 #else  /* IS_SDLv2 */
-    if (!surf->format->Amask) {
+    if (!surf->format->Amask &&
+        (SDL_GetColorKey(surf, NULL) == 0 || hasalpha)) {
         result = SDL_SetSurfaceRLE(surf, 0);
     }
     else {
