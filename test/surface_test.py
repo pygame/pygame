@@ -34,6 +34,23 @@ def longify(i):
 
 
 class SurfaceTypeTest(unittest.TestCase):
+    def assertRaisesRegex(self, *args, **kwargs):
+        # Overriding base class method to prevent DeprecationWarnings in
+        # python >= 3.2.
+        #
+        # This method can be removed when pygame no longer supports
+        # python < 3.2.
+        try:
+            return super(SurfaceTypeTest, self).assertRaisesRegex(
+                *args, **kwargs)
+        except AttributeError:
+            try:
+                return super(SurfaceTypeTest, self).assertRaisesRegexp(
+                    *args, **kwargs)
+            except AttributeError:
+                self.skipTest(
+                    'No assertRaisesRegex/assertRaisesRegexp method')
+
     def test_set_clip( self ):
         """ see if surface.set_clip(None) works correctly.
         """
@@ -654,8 +671,10 @@ class SurfaceTypeTest(unittest.TestCase):
         """ Ensure initialization exceptions are raised
             for surf.convert()."""
         surf = pygame.Surface((1, 1))
-        self.assertRaisesRegexp(pygame.error,
-                                'display initialized', surf.convert)
+
+        self.assertRaisesRegex(pygame.error, 'display initialized',
+                               surf.convert)
+
         pygame.display.init()
         try:
             if os.environ.get('SDL_VIDEODRIVER') != 'dummy':
@@ -664,7 +683,10 @@ class SurfaceTypeTest(unittest.TestCase):
                     surf.convert(pygame.Surface((1, 1)))
                 except pygame.error:
                     self.fail("convert() should not raise an exception here.")
-            self.assertRaisesRegexp(pygame.error, 'No video mode', surf.convert)
+
+            self.assertRaisesRegex(pygame.error, 'No video mode',
+                                   surf.convert)
+
             pygame.display.set_mode((640,480))
             try:
                 surf.convert()
@@ -677,11 +699,15 @@ class SurfaceTypeTest(unittest.TestCase):
         """ Ensure initialization exceptions are raised
             for surf.convert_alpha()."""
         surf = pygame.Surface((1, 1))
-        self.assertRaisesRegexp(pygame.error,
-                                'display initialized', surf.convert_alpha)
+
+        self.assertRaisesRegex(pygame.error, 'display initialized',
+                               surf.convert_alpha)
+
         pygame.display.init()
         try:
-            self.assertRaisesRegexp(pygame.error, 'No video mode', surf.convert_alpha)
+            self.assertRaisesRegex(pygame.error, 'No video mode',
+                                   surf.convert_alpha)
+
             pygame.display.set_mode((640,480))
             try:
                 surf.convert_alpha()
