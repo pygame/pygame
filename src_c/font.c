@@ -159,6 +159,7 @@ font_resource(const char *filename)
             Py_DECREF(tmp);
             return NULL;
         }
+        Py_DECREF(closeret);
 
         Py_DECREF(result);
         result = tmp;
