@@ -134,6 +134,13 @@ font_resource(const char *filename)
 #if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp != NULL) {
+        PyObject *closeret;
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            return NULL;
+        }
+        Py_DECREF(closeret);
         Py_DECREF(result);
         result = tmp;
     }
@@ -142,8 +149,17 @@ font_resource(const char *filename)
     }
 #else
     if (PyFile_Check(result)) {
+        PyObject *closeret;
+
         tmp = PyFile_Name(result);
         Py_INCREF(tmp);
+
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            return NULL;
+        }
+
         Py_DECREF(result);
         result = tmp;
     }
@@ -721,6 +737,14 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             }
             goto error;
         }
+    }
+    {
+        PyObject *tmp;
+        if (!(tmp = PyObject_CallMethod(test, "close", NULL))) {
+            Py_DECREF(test);
+            goto error;
+        }
+        Py_DECREF(tmp);
     }
     Py_DECREF(test);
     Py_BEGIN_ALLOW_THREADS;
