@@ -437,21 +437,10 @@ pgRWopsFromFileObject(PyObject *obj)
 static int
 pgRWopsReleaseObject(SDL_RWops *context)
 {
-    if (pgRWopsCheckObject(context)) {
-        pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
-        Py_XDECREF(helper->seek);
-        Py_XDECREF(helper->tell);
-        Py_XDECREF(helper->write);
-        Py_XDECREF(helper->read);
-        Py_XDECREF(helper->close);
-        PyMem_Del(helper);
-        SDL_FreeRW(context);
-    } else {
-        int ret;
-        if ((ret = SDL_RWclose(context)) < 0) {
-            RAISE(PyExc_IOError, SDL_GetError());
-            return ret;
-        }
+    int ret;
+    if ((ret = SDL_RWclose(context)) < 0) {
+        RAISE(PyExc_IOError, SDL_GetError());
+        return ret;
     }
     return 0;
 }
