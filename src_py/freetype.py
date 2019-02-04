@@ -47,6 +47,8 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
 
 class Font(_Font):
     def __init__(self, file, *args, **kwargs):
+        self._file = None
+
         if sys.platform == 'win32':
             if isinstance(file, bytes):
                 # Windows paths are unicode...
@@ -55,6 +57,15 @@ class Font(_Font):
             if isinstance(file, compat.unicode_):
                 # ...but we can't pass a unicode path to Freetype,
                 # so we'll open the file in Python and pass the handle instead.
-                file = open(file, 'rb')
-        
-        super(Font, self).__init__(file, *args, **kwargs)
+                self._file = open(file, 'rb')
+
+        file_arg = file if self._file is None else self._file
+        super(Font, self).__init__(file_arg, *args, **kwargs)
+
+    def __del__(self):
+        if sys.platform == 'win32':
+            # In cases where only __new__ is called (with no __init__ call),
+            # the self._file attribute might not exist.
+            file_attr = getattr(self, '_file', None)
+            if file_attr is not None:
+                file_attr.close()

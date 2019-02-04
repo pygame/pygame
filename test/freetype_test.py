@@ -166,6 +166,7 @@ class FreeTypeFontTest(unittest.TestCase):
             tempFont = ft.Font(handle)
         load_font()
         self.assertEqual(sys.getrefcount(handle), 2)
+        handle.close()
 
     def test_freetype_Font_scalable(self):
 
