@@ -38,7 +38,8 @@ Header file: src_c/pygame.h
 
 .. c:function:: int pgRWopsReleaseObject(SDL_RWops *context)
 
-   Free a SDL_RWops struct and close the associated file handle.
+   Free a SDL_RWops struct. If it is attached to a Python file-like object, decrement its
+   refcount. Otherwise, close the file handle.
    Return 0 on success. On error, raise a Python exception and return a negative value.
 
 .. c:function:: PyObject* pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
