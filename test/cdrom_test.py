@@ -1,11 +1,22 @@
-
 import unittest
 from pygame.tests.test_utils import question, prompt
 
 import pygame
 
 
-class CdromModuleTest(unittest.TestCase):
+pygame.cdrom.init()
+# The number of CD drives available for testing.
+CD_DRIVE_COUNT = pygame.cdrom.get_count()
+pygame.cdrom.quit()
+
+
+class CDROMModuleTest(unittest.TestCase):
+    def setUp(self):
+        pygame.cdrom.init()
+
+    def tearDown(self):
+        pygame.cdrom.quit()
+
     def todo_test_CD(self):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD:
@@ -26,94 +37,74 @@ class CdromModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_count(self):
+    def test_get_count(self):
+        """Ensure the correct number of CD drives can be detected."""
+        count = pygame.cdrom.get_count()
+        response = question('Is the correct number of CD drives on this '
+                            'system [{}]?'.format(count))
 
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.get_count:
+        self.assertTrue(response)
 
-          # pygame.cdrom.get_count(): return count
-          # number of cd drives on the system
-          #
-          # Return the number of cd drives on the system. When you create CD
-          # objects you need to pass an integer id that must be lower than this
-          # count. The count will be 0 if there are no drives on the system.
-          #
+    def test_get_init(self):
+        """Ensure the initialization state can be retrieved."""
+        self.assertTrue(pygame.cdrom.get_init())
 
-        self.fail()
-
-    def todo_test_get_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.get_init:
-
-          # pygame.cdrom.get_init(): return bool
-          # true if the cdrom module is initialized
-          #
-          # Test if the cdrom module is initialized or not. This is different
-          # than the CD.init() since each drive must also be initialized
-          # individually.
-          #
-
-        self.fail()
-
-    def todo_test_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.init:
-
-          # pygame.cdrom.init(): return None
-          # initialize the cdrom module
-          #
-          # Initialize the cdrom module. This will scan the system for all CD
-          # devices. The module must be initialized before any other functions
-          # will work. This automatically happens when you call pygame.init().
-          #
-          # It is safe to call this function more than once.
-
-        self.fail()
-
-    def todo_test_quit(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.quit:
-
-          # pygame.cdrom.quit(): return None
-          # uninitialize the cdrom module
-          #
-          # Uninitialize the cdrom module. After you call this any existing CD
-          # objects will no longer work.
-          #
-          # It is safe to call this function more than once.
-
-        self.fail()
-
-class CDTypeTest(unittest.TestCase):
-    def setUp(self):
+    def test_init(self):
+        """Ensure module still initialized after multiple init() calls."""
+        pygame.cdrom.init()
         pygame.cdrom.init()
 
-        #TODO:
-        try:
-            self.cd = pygame.cdrom.CD(0)
-        except pygame.error:
-            self.cd = None
+        self.assertTrue(pygame.cdrom.get_init())
+
+    def test_quit(self):
+        """Ensure module not initialized after quit() called."""
+        pygame.cdrom.quit()
+
+        self.assertFalse(pygame.cdrom.get_init())
+
+    def test_quit__multiple(self):
+        """Ensure module still not initialized after multiple quit() calls."""
+        pygame.cdrom.quit()
+        pygame.cdrom.quit()
+
+        self.assertFalse(pygame.cdrom.get_init())
+
+
+@unittest.skipIf(0 == CD_DRIVE_COUNT, "No CD drives detected")
+class CDTypeTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pygame.cdrom.init()
+
+        cls._cd_id = 0  # Only testing drive 0 for now. Expand in the future.
+        cls._cd = pygame.cdrom.CD(cls._cd_id)
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.cdrom.quit()
+
+    def setUp(self):
+        self._cd.init()
 
     def tearDown(self):
-        pygame.cdrom.quit()
+        self._cd.quit()
 
     def test_eject(self):
         """Ensure CD drive opens/ejects."""
-        # should raise if cd object not initialized
-        if self.cd:
-            self.cd.init()
-            self.cd.eject()
+        self._cd.eject()
+        response = question('Did the CD eject?')
 
-            self.assertTrue(question('Did the CD eject?'))
+        self.assertTrue(response)
 
-            prompt("Please close the CD drive.")
+        prompt("Please close the CD drive")
 
     def test_get_name(self):
         """Ensure correct name for CD drive."""
-        if self.cd:
-            cd_name = self.cd.get_name()
+        cd_name = self._cd.get_name()
+        response = question('Is the correct name for the CD drive [{}]?'
+                            ''.format(cd_name))
 
-            self.assertTrue(
-                question('Is %s the correct name for the CD drive?' % cd_name))
+        self.assertTrue(response)
 
     def todo_test_get_all(self):
 
@@ -156,45 +147,23 @@ class CDTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_empty(self):
+    def test_get_empty(self):
+        """Ensure correct name for CD drive."""
+        prompt("Please ensure the CD drive is closed")
+        is_empty = self._cd.get_empty()
+        response = question('Is the CD drive empty?')
 
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_empty:
+        self.assertEqual(is_empty, response)
 
-          # CD.get_empty(): return bool
-          # False if a cdrom is in the drive
-          #
-          # Return False if there is a cdrom currently in the drive. If the
-          # drive is empty this will return True.
-          #
+    def test_get_id(self):
+        """Ensure the drive id/index is correct."""
+        cd_id = self._cd.get_id()
 
-        self.fail()
+        self.assertEqual(self._cd_id, cd_id)
 
-    def todo_test_get_id(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_id:
-
-          # CD.get_init(): return bool
-          # true if this cd device initialized
-          #
-          # Returns the integer id that was used to create the CD instance. This
-          # method can work on an uninitialized CD.
-          #
-
-        self.fail()
-
-    def todo_test_get_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_init:
-
-          # CD.get_init(): return bool
-          # true if this cd device initialized
-          #
-          # Test if this CDROM device is initialized. This is different than the
-          # pygame.cdrom.init() since each drive must also be initialized
-          # individually.
-          #
-
-        self.fail()
+    def test_get_init(self):
+        """Ensure the initialization state can be retrieved."""
+        self.assertTrue(self._cd.get_init())
 
     def todo_test_get_numtracks(self):
 
@@ -259,22 +228,12 @@ class CDTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_init(self):
+    def test_init(self):
+        """Ensure CD drive still initialized after multiple init() calls."""
+        self._cd.init()
+        self._cd.init()
 
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.init:
-
-          # CD.init(): return None
-          # initialize a cdrom drive for use
-          #
-          # Initialize the cdrom drive for use. The drive must be initialized
-          # for most CD methods to work.  Even if the rest of pygame has been
-          # initialized.
-          #
-          # There may be a brief pause while the drive is initialized. Avoid
-          # CD.init() if the program should not stop for a second or two.
-          #
-
-        self.fail()
+        self.assertTrue(self._cd.get_init())
 
     def todo_test_pause(self):
 
@@ -312,18 +271,19 @@ class CDTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_quit(self):
+    def test_quit(self):
+        """Ensure CD drive not initialized after quit() called."""
+        self._cd.quit()
 
-        # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.quit:
+        self.assertFalse(self._cd.get_init())
 
-          # CD.quit(): return None
-          # uninitialize a cdrom drive for use
-          #
-          # Uninitialize a drive for use. Call this when your program will not
-          # be accessing the drive for awhile.
-          #
+    def test_quit__multiple(self):
+        """Ensure CD drive still not initialized after multiple quit() calls.
+        """
+        self._cd.quit()
+        self._cd.quit()
 
-        self.fail()
+        self.assertFalse(self._cd.get_init())
 
     def todo_test_resume(self):
 
