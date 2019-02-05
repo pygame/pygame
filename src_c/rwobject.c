@@ -37,6 +37,7 @@ typedef struct {
     PyObject *seek;
     PyObject *tell;
     PyObject *close;
+    PyObject *file;
     int fileno;
 } pgRWHelper;
 
@@ -386,6 +387,7 @@ _pg_rw_close(SDL_RWops *context)
     Py_XDECREF(helper->write);
     Py_XDECREF(helper->read);
     Py_XDECREF(helper->close);
+    Py_XDECREF(helper->file);
 
     PyMem_Del(helper);
 #ifdef WITH_THREAD
@@ -414,10 +416,15 @@ pgRWopsFromFileObject(PyObject *obj)
         PyMem_Del(helper);
         return (SDL_RWops *)PyErr_NoMemory();
     }
+
     helper->fileno = PyObject_AsFileDescriptor(obj);
     if (helper->fileno == -1)
         PyErr_Clear();
     fetch_object_methods(helper, obj);
+
+    helper->file = obj;
+    Py_INCREF(obj);
+
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
     rw->size = _pg_rw_size;
@@ -438,15 +445,38 @@ static int
 pgRWopsReleaseObject(SDL_RWops *context)
 {
     if (pgRWopsCheckObject(context)) {
+#ifdef WITH_THREAD
+        PyGILState_STATE state = PyGILState_Ensure();
+#endif /* WITH_THREAD */
+
         pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
-        Py_XDECREF(helper->seek);
-        Py_XDECREF(helper->tell);
-        Py_XDECREF(helper->write);
-        Py_XDECREF(helper->read);
-        Py_XDECREF(helper->close);
-        PyMem_Del(helper);
-        SDL_FreeRW(context);
-    } else {
+        PyObject *fileobj = helper->file;
+        int filerefcnt = Py_REFCNT(fileobj) - 1 - 5 /* 5 helper functions */;
+
+        if (filerefcnt) {
+            Py_XDECREF(helper->seek);
+            Py_XDECREF(helper->tell);
+            Py_XDECREF(helper->write);
+            Py_XDECREF(helper->read);
+            Py_XDECREF(helper->close);
+            Py_DECREF(fileobj);
+            PyMem_Del(helper);
+            SDL_FreeRW(context);
+        }
+        else {
+            int ret;
+            if ((ret = SDL_RWclose(context)) < 0) {
+                RAISE(PyExc_IOError, SDL_GetError());
+                Py_DECREF(fileobj);
+                return ret;
+            }
+        }
+
+#ifdef WITH_THREAD
+        PyGILState_Release(state);
+#endif /* WITH_THREAD */
+    }
+    else {
         int ret;
         if ((ret = SDL_RWclose(context)) < 0) {
             RAISE(PyExc_IOError, SDL_GetError());

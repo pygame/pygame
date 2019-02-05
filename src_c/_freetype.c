@@ -239,6 +239,15 @@ load_font_res(const char *filename)
 #if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp) {
+        PyObject *closeret;
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            result = NULL;
+            goto font_resource_end;
+        }
+        Py_DECREF(closeret);
+
         Py_DECREF(result);
         result = tmp;
     }
@@ -247,8 +256,19 @@ load_font_res(const char *filename)
     }
 #else
     if (PyFile_Check(result)) {
+        PyObject *closeret;
+
         tmp = PyFile_Name(result);
         Py_INCREF(tmp);
+
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            result = NULL;
+            goto font_resource_end;
+        }
+        Py_DECREF(closeret);
+
         Py_DECREF(result);
         result = tmp;
     }
