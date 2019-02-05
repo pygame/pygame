@@ -2409,6 +2409,13 @@ class SurfaceSelfBlitTest(unittest.TestCase):
         sub = surf.subsurface((1, 1, 2, 2))
         self.assertRaises(pygame.error, do_blit, surf, sub)
 
+    def test_copy_alpha(self):
+        """issue 581: alpha of surface copy with SRCALPHA is set 0."""
+        surf = pygame.Surface((16, 16), pygame.SRCALPHA)
+        self.assertEqual(surf.get_alpha(), 255)
+        surf2 = surf.copy()
+        self.assertEqual(surf2.get_alpha(), 255)
+
 
 class SurfaceFillTest(unittest.TestCase):
 
