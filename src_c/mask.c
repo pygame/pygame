@@ -1512,26 +1512,33 @@ mask_dealloc(PyObject *self)
     PyObject_DEL(self);
 }
 
+static PyObject *
+mask_repr(PyObject *self)
+{
+    bitmask_t *mask = pgMask_AsBitmap(self);
+    return Text_FromFormat("<Mask(%dx%d)>", mask->w, mask->h);
+}
+
 static PyTypeObject pgMask_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.mask.Mask",
-    sizeof(pgMaskObject),
-    0,
-    mask_dealloc,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    NULL,
-    0,
-    (hashfunc)NULL,
-    (ternaryfunc)NULL,
-    (reprfunc)NULL,
-    0L,
-    0L,
-    0L,
-    0L,
+    TYPE_HEAD(NULL, 0) "pygame.mask.Mask", /* tp_name */
+    sizeof(pgMaskObject), /* tp_basicsize */
+    0,                    /* tp_itemsize */
+    mask_dealloc,         /* tp_dealloc */
+    0,                    /* tp_print */
+    0,                    /* tp_getattr */
+    0,                    /* tp_setattr */
+    0,                    /* tp_as_async (formerly tp_compare/tp_reserved) */
+    (reprfunc)mask_repr,  /* tp_repr */
+    0,                    /* tp_as_number */
+    NULL,                 /* tp_as_sequence */
+    0,                    /* tp_as_mapping */
+    (hashfunc)NULL,       /* tp_hash */
+    (ternaryfunc)NULL,    /* tp_call */
+    (reprfunc)NULL,       /* tp_str */
+    0L,                   /* tp_getattro */
+    0L,                   /* tp_setattro */
+    0L,                   /* tp_as_buffer */
+    0L,                   /* tp_flags */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */
