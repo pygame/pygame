@@ -1145,9 +1145,15 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
+#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &type, &dopump))
         return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
@@ -1195,9 +1201,15 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
+#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &type, &dopump))
         return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
@@ -1245,9 +1257,15 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
+#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &type, &dopump))
         return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
@@ -1320,9 +1338,15 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
+#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &type, &dopump))
         return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
@@ -1391,9 +1415,15 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
+#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &type, &dopump))
         return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
@@ -1444,9 +1474,15 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
+#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &type, &dopump))
         return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
