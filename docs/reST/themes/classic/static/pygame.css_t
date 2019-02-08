@@ -569,6 +569,11 @@ div.topic {
     background-color: #eee;
 }
 
+div.caution {
+    background-color: #eeffcc;
+    border: 1px solid #aabb88;
+}
+
 div.warning {
     background-color: #ffe4e4;
     border: 1px solid #f66;

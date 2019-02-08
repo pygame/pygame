@@ -3,15 +3,15 @@
 
 #define DOC_PYGAMEEVENTPUMP "pump() -> None\ninternally process pygame event handlers"
 
-#define DOC_PYGAMEEVENTGET "get() -> Eventlist\nget(type) -> Eventlist\nget(typelist) -> Eventlist\nget events from the queue"
+#define DOC_PYGAMEEVENTGET "get(eventtype=None, pump=True) -> Eventlist\nget events from the queue"
 
 #define DOC_PYGAMEEVENTPOLL "poll() -> EventType instance\nget a single event from the queue"
 
 #define DOC_PYGAMEEVENTWAIT "wait() -> EventType instance\nwait for a single event from the queue"
 
-#define DOC_PYGAMEEVENTPEEK "peek(type) -> bool\npeek(typelist) -> bool\ntest if event types are waiting on the queue"
+#define DOC_PYGAMEEVENTPEEK "peek(eventtype=None, pump=True) -> bool\ntest if event types are waiting on the queue"
 
-#define DOC_PYGAMEEVENTCLEAR "clear() -> None\nclear(type) -> None\nclear(typelist) -> None\nremove all events from the queue"
+#define DOC_PYGAMEEVENTCLEAR "clear(eventtype=None, pump=True) -> None\nremove all events from the queue"
 
 #define DOC_PYGAMEEVENTEVENTNAME "event_name(type) -> string\nget the string name from an event id"
 
@@ -49,9 +49,7 @@ pygame.event.pump
 internally process pygame event handlers
 
 pygame.event.get
- get() -> Eventlist
- get(type) -> Eventlist
- get(typelist) -> Eventlist
+ get(eventtype=None, pump=True) -> Eventlist
 get events from the queue
 
 pygame.event.poll
@@ -63,14 +61,11 @@ pygame.event.wait
 wait for a single event from the queue
 
 pygame.event.peek
- peek(type) -> bool
- peek(typelist) -> bool
+ peek(eventtype=None, pump=True) -> bool
 test if event types are waiting on the queue
 
 pygame.event.clear
- clear() -> None
- clear(type) -> None
- clear(typelist) -> None
+ clear(eventtype=None, pump=True) -> None
 remove all events from the queue
 
 pygame.event.event_name
