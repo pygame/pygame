@@ -1332,10 +1332,12 @@ pg_event_get(PyObject *self, PyObject *args)
         if(!_pg_event_append_to_list(list, &event))
             return NULL;
     }
-
-    Py_DECREF(list);
-    return RAISE(PyExc_TypeError,
-                 "get type must be numeric or a sequence");
+    else {
+        Py_DECREF(list);
+        return RAISE(PyExc_TypeError,
+                     "get type must be numeric or a sequence");
+    }
+    return list;
 }
 #endif /* IS_SDLv2 */
 
