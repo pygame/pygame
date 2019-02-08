@@ -188,6 +188,10 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertTrue(pygame.event.peek(event_types))
 
+    def test_peek_empty(self):
+        pygame.event.clear()
+        self.assertFalse(pygame.event.peek())
+
     def test_set_allowed(self):
         """Ensure a blocked event type can be unblocked/allowed."""
         event = events[0]
