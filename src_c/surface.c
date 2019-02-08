@@ -1614,7 +1614,13 @@ surf_copy(PyObject *self)
 #endif /* IS_SDLv1 */
 
     pgSurface_Prep(self);
+#if IS_SDLv1
     newsurf = SDL_ConvertSurface(surf, surf->format, surf->flags);
+    if (surf->flags & SDL_SRCALPHA)
+        newsurf->format->alpha = surf->format->alpha;
+#else
+    newsurf = SDL_ConvertSurface(surf, surf->format, 0);
+#endif
     pgSurface_Unprep(self);
 
 #if IS_SDLv1
