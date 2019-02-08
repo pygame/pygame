@@ -80,6 +80,48 @@ tests. There is a small window where outside events from the OS may have effecte
 results. Try running the test again.
 """
 
+class EventModuleArgsTest(unittest.TestCase):
+    def setUp(self):
+        pygame.display.init()
+        pygame.event.clear()
+
+    def tearDown(self):
+        pygame.display.quit()
+
+    def test_get(self):
+        pygame.event.get()
+        pygame.event.get(None)
+        pygame.event.get(None, True)
+
+        pygame.event.get(pump=False)
+        pygame.event.get(pump=True)
+        pygame.event.get(eventtype=None)
+        pygame.event.get(eventtype=pygame.USEREVENT,
+                         pump=False)
+
+    def test_clear(self):
+        pygame.event.clear()
+        pygame.event.clear(None)
+        pygame.event.clear(None, True)
+
+        pygame.event.clear(pump=False)
+        pygame.event.clear(pump=True)
+        pygame.event.clear(eventtype=None)
+        pygame.event.clear(eventtype=pygame.USEREVENT,
+                           pump=False)
+
+    def test_peek(self):
+        pygame.event.peek()
+        pygame.event.peek(None)
+        pygame.event.peek(None, True)
+
+        pygame.event.peek(pump=False)
+        pygame.event.peek(pump=True)
+        pygame.event.peek(eventtype=None)
+        pygame.event.peek(eventtype=pygame.USEREVENT,
+                          pump=False)
+
+
 class EventModuleTest(unittest.TestCase):
     def setUp(self):
         pygame.display.init()
