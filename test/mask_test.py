@@ -40,6 +40,39 @@ class MaskTypeTest( unittest.TestCase ):
             for j in range(m1.get_size()[1]):
                 self.assertEqual(m1.get_at((i,j)), m2.get_at((i,j)))
 
+    def test_mask(self):
+        """Ensure masks are created correctly."""
+        expected_count = 0
+        expected_size = (11, 23)
+        mask = pygame.mask.Mask(expected_size)
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+
+    def test_mask__fill_kwarg(self):
+        """Ensure masks are created correctly using the fill keyword."""
+        width, height = 37, 47
+        expected_size = (width, height)
+        fill_counts = {True : width * height, False : 0 }
+
+        for fill, expected_count in fill_counts.items():
+            mask = pygame.mask.Mask(expected_size, fill=fill)
+
+            self.assertEqual(mask.count(), expected_count)
+            self.assertEqual(mask.get_size(), expected_size)
+
+    def test_mask__fill_arg(self):
+        """Ensure masks are created correctly using a fill arg."""
+        width, height = 59, 71
+        expected_size = (width, height)
+        fill_counts = {True : width * height, False : 0 }
+
+        for fill, expected_count in fill_counts.items():
+            mask = pygame.mask.Mask(expected_size, fill)
+
+            self.assertEqual(mask.count(), expected_count)
+            self.assertEqual(mask.get_size(), expected_size)
+
     def todo_test_get_at(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mask.Mask.get_at:

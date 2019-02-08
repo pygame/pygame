@@ -45,8 +45,29 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
 
 .. class:: Mask
 
-   | :sl:`pygame object for representing 2d bitmasks`
-   | :sg:`Mask((width, height)) -> Mask`
+   | :sl:`pygame object for representing 2D bitmasks`
+   | :sg:`Mask((width, height)[, fill=False]) -> Mask`
+
+   A ``Mask`` object is used to represent a 2D bitmask. Each bit in
+   the mask represents a pixel. 1 is used to indicate a set bit and 0 is used
+   to indicate an unset bit. Set bits in a mask can be used to detect
+   collisions with other masks and their set bits.
+
+   A filled mask has all of its bits set to 1, conversely an unfilled/cleared
+   mask has all of its bits set to 0. Masks can be created unfilled (default)
+   or filled by using the ``fill`` parameter. Masks can also be cleared or
+   filled using the :func:`pygame.mask.Mask.clear()` and
+   :func:`pygame.mask.Mask.fill()` methods respectively. Individual bits can
+   be accessed using the :func:`pygame.mask.Mask.get_at()` and
+   :func:`pygame.mask.Mask.set_at()` methods.
+
+   :param list|tuple (width, height): sequence of 2 ints indicating the width
+      and height of the mask
+   :param bool fill: create mask unfilled (``False`` - default) or filled
+      (``True``)
+   :rtype: ``Mask`` object
+
+   .. versionadded:: 1.9.5 The keyword parameter ``fill``.
 
    .. method:: get_size
 

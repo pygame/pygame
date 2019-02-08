@@ -1555,27 +1555,42 @@ static PyTypeObject pgMask_Type = {
 /*mask module methods*/
 
 static PyObject *
-Mask(PyObject *self, PyObject *args)
+Mask(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask;
     int w, h;
+    int fill = 0; /* Default is false. */
     pgMaskObject *maskobj;
-    if (!PyArg_ParseTuple(args, "(ii)", &w, &h))
-        return NULL;
-    mask = bitmask_create(w, h);
+    char *keywords[] = {"", "fill", NULL};
+#if PY3
+    const char *format = "(ii)|p";
+#else
+    const char *format = "(ii)|i";
+#endif
 
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
+                                     &fill))
+        return NULL;
+
+    mask = bitmask_create(w, h);
     if (!mask)
-        return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
+        return RAISE(PyExc_MemoryError,
+                     "cannot allocate enough memory for mask");
+
+    if (fill)
+        bitmask_fill(mask);
 
     /*create the new python object from mask*/
     maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
     if (maskobj)
         maskobj->mask = mask;
+
     return (PyObject *)maskobj;
 }
 
 static PyMethodDef _mask_methods[] = {
-    {"Mask", Mask, METH_VARARGS, DOC_PYGAMEMASKMASK},
+    {"Mask", (PyCFunction)Mask, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEMASKMASK},
     {"from_surface", mask_from_surface, METH_VARARGS,
      DOC_PYGAMEMASKFROMSURFACE},
     {"from_threshold", mask_from_threshold, METH_VARARGS,
