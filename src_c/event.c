@@ -184,26 +184,24 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
     else if (type == SDL_MOUSEWHEEL) {
-        
+        SDL_Event newevent;
+        int x, y;
+
         if (event->wheel.x == 0 && event->wheel.y == 0) {
             //#691 We are not moving wheel!
             return 1;
         }
         // Generate a MouseButtonDown event for compatibility.
         // https://wiki.libsdl.org/SDL_MouseWheelEvent
-        SDL_Event newevent;
         newevent.type = SDL_MOUSEBUTTONDOWN;
-        
-        int x, y;
-        VIDEO_INIT_CHECK();
-        
+
         SDL_GetMouseState(&x, &y);
         newevent.button.x = x;
         newevent.button.y = y;
-        
+
         newevent.button.state = SDL_PRESSED;
         newevent.button.clicks = 1;
-        
+
         if (event->wheel.y != 0) {
             newevent.button.button = (event->wheel.y > 0) ?
                                      PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
@@ -215,7 +213,7 @@ pg_event_filter(void *_, SDL_Event *event)
         newevent.button.button |= PGM_BUTTON_KEEP;
 
         if (SDL_PushEvent(&newevent) < 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
+            return RAISE(pgExc_SDLError, SDL_GetError()), 0;
     }
     return 1;
 }
@@ -802,7 +800,7 @@ pg_event_str(PyObject *self)
     PyObject *strobj;
     PyObject *pyobj;
     char *s;
-    int size;
+    size_t size;
 #if PY3
     PyObject *encodedobj;
 #endif
@@ -1703,9 +1701,9 @@ static PyMethodDef _event_methods[] = {
     {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
     {"wait", (PyCFunction)pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
     {"poll", (PyCFunction)pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
-    {"clear", pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
-    {"get", pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
-    {"peek", pg_event_peek, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTPEEK},
+    {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
+    {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
+    {"peek", (PyCFunction)pg_event_peek, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTPEEK},
     {"post", pg_event_post, METH_VARARGS, DOC_PYGAMEEVENTPOST},
 
     {"set_allowed", pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},
