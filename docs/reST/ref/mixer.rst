@@ -54,7 +54,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    values mean unsigned audio samples will be used. An invalid value raises an
    exception.
 
-   New in pygame 2(when compiled with SDL2) - size can be 32 (32bit floats).
+   .. versionadded:: 2 When compiled with SDL2, size can be 32 (32bit floats).
 
    The channels argument is used to specify whether to use mono or stereo. 1
    for mono and 2 for stereo. No other values are supported (negative values
@@ -250,9 +250,10 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    an exception when different. Also, source samples are truncated to fit the
    audio sample size. This will not change.
 
-   ``pygame.mixer.Sound(buffer)`` is new in pygame 1.8
-   :class:`pygame.mixer.Sound` keyword arguments and array interface support
-   new in pygame 1.9.2
+   .. versionadded:: 1.8 ``pygame.mixer.Sound(buffer)``
+
+   .. versionadded:: 1.9.2
+      :class:`pygame.mixer.Sound` keyword arguments and array interface support
 
    .. method:: play
 
@@ -347,7 +348,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       Return a copy of the Sound object buffer as a bytes (for Python 3.x)
       or str (for Python 2.x) object.
 
-      New in pygame 1.9.2.
+      .. versionadded:: 1.9.2
 
       .. ## Sound.get_raw ##
 

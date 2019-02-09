@@ -71,9 +71,12 @@ using
 can only be used by applications, which query the clipboard for the "own_data"
 type.
 
-New in pygame 1.8. Only works for Windows, ``X11`` and Mac ``OS`` ``X`` so far.
-On Mac ``OSX`` only text works at the moment - other types will be supported in
-the next release.
+.. versionadded:: 1.8
+
+.. note::
+   Only works for Windows, ``X11`` and Mac ``OS`` ``X`` so far.
+   On Mac ``OSX`` only text works at the moment - other types will be supported in
+   the next release.
 
 .. function:: init
 
@@ -93,7 +96,7 @@ the next release.
 
    Returns ``True`` if the ``pygame.scrap`` module is currently initialized.
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.scrap.get_init ##
 

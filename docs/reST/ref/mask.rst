@@ -11,7 +11,7 @@
 Useful for fast pixel perfect collision detection. A mask uses 1 bit per-pixel
 to store which parts collide.
 
-New in pygame 1.8.
+.. versionadded:: 1.8
 
 Starting from pygame 1.9.5 masks with width or height 0 are supported.
 

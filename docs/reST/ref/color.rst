@@ -29,7 +29,7 @@
    optional.
 
    Color objects support equality comparison with other color objects and 3 or
-   4 element tuples of integers (New in 1.9.0). There was a bug in pygame 1.8.1
+   4 element tuples of integers. There was a bug in pygame 1.8.1
    where the default alpha was 0, not 255 like previously.
 
    Color objects export the C level array interface. The interface exports a
@@ -46,7 +46,8 @@
        Color(255, 255, 255, 255) // Color(0, 64, 64, 64) == Color(0, 3, 3, 3)
        Color(255, 255, 255, 255) % Color(64, 64, 64, 0) == Color(63, 63, 63, 0)
 
-   New implementation of Color was done in pygame 1.8.1.
+   .. versionadded:: 1.9.0 Color objects support 4-element tuples of integers.
+   .. versionchanged:: 1.8.1 New implementation of the class.
 
    .. attribute:: r
 
@@ -170,7 +171,7 @@
       is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to
       get the length of a Color do ``len(acolor)``.
 
-      New in pygame 1.9.0.
+      .. versionadded:: 1.9.0
 
       .. ## Color.set_length ##
 
