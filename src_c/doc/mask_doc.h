@@ -5,7 +5,7 @@
 
 #define DOC_PYGAMEMASKFROMTHRESHOLD "from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask\nCreates a mask by thresholding Surfaces"
 
-#define DOC_PYGAMEMASKMASK "Mask((width, height)[, fill=False]) -> Mask\npygame object for representing 2D bitmasks"
+#define DOC_PYGAMEMASKMASK "Mask(size=(width, height)[, fill=False]) -> Mask\npygame object for representing 2D bitmasks"
 
 #define DOC_MASKGETSIZE "get_size() -> width,height\nReturns the size of the mask."
 
@@ -65,7 +65,7 @@ pygame.mask.from_threshold
 Creates a mask by thresholding Surfaces
 
 pygame.mask.Mask
- Mask((width, height)[, fill=False]) -> Mask
+ Mask(size=(width, height)[, fill=False]) -> Mask
 pygame object for representing 2D bitmasks
 
 pygame.mask.Mask.get_size

@@ -1561,7 +1561,7 @@ Mask(PyObject *self, PyObject *args, PyObject *kwargs)
     int w, h;
     int fill = 0; /* Default is false. */
     pgMaskObject *maskobj;
-    char *keywords[] = {"", "fill", NULL};
+    char *keywords[] = {"size", "fill", NULL};
 #if PY3
     const char *format = "(ii)|p";
 #else
