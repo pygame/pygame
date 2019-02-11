@@ -906,7 +906,7 @@ bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
                     a_entry += a->h;
                 }
                 for (bp = b_entry, ap = a_entry; bp < b_end; bp++, ap++)
-                    *ap |= (*bp >> shift);
+                    *ap &= ~(*bp >> shift);
             }
             else /* zig-zag */
             {
