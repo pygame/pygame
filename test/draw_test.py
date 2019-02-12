@@ -103,9 +103,8 @@ def lines_set_up():
     return colors, surfaces
 
 
-class DrawLineTest(unittest.TestCase):
-    """Class for testing line(), aaline(), lines() and aalines().
-    """
+class LineMixin:
+    """Mixin for testing line(), aaline(), lines() and aalines()."""
 
     @unittest.expectedFailure
     def test_line_color(self):
@@ -120,7 +119,7 @@ class DrawLineTest(unittest.TestCase):
             draw_line(surface, color, (0, 0), (1, 0))
             return surface.get_at((0, 0)) == color
 
-        for draw_line in [draw.line, draw.aaline]:
+        for draw_line in self.single_line:
             colors, surfaces = lines_set_up()
             for surface in surfaces:
                 for color in colors:
@@ -145,7 +144,7 @@ class DrawLineTest(unittest.TestCase):
 
             return len(colors) == colors.count(color)
 
-        for draw_line in [draw.line, draw.aaline]:
+        for draw_line in self.single_line:
             _, surfaces = lines_set_up()
             for surface in surfaces:
                 self.assertTrue(line_has_gaps(surface, draw_line))
@@ -168,7 +167,7 @@ class DrawLineTest(unittest.TestCase):
             borders = get_border_values(surface, width, height)
             return [all(c == color for c in border) for border in borders]
 
-        for draw_lines in [draw.lines, draw.aalines]:
+        for draw_lines in self.multi_line:
             colors, surfaces = lines_set_up()
             for surface in surfaces:
                 for color in colors:
@@ -199,11 +198,25 @@ class DrawLineTest(unittest.TestCase):
             borders = get_border_values(surface, width, height)
             return [all(c == color for c in border) for border in borders]
 
-        for draw_lines in [draw.lines, draw.aalines]:
+        for draw_lines in self.multi_line:
             _, surfaces = lines_set_up()
             for surface in surfaces:
                 no_gaps = lines_have_gaps(surface, draw_lines)
                 self.assertTrue(all(no_gaps))
+
+
+class PythonDrawLineTest(LineMixin, unittest.TestCase):
+    '''Test Python draw functions "aaline", "line", "aalines" and "lines".'''
+
+    single_line = [draw_py.draw_aaline, draw_py.draw_line]
+    multi_line = [draw_py.draw_aalines, draw_py.draw_lines]
+
+
+class DrawLineTest(LineMixin, unittest.TestCase):
+    '''Test draw functions "aaline", "line", "aalines" and "lines".'''
+
+    single_line = [draw.aaline, draw.line]
+    multi_line = [draw.aalines, draw.lines]
 
     def test_path_data_validation(self):
         '''Test validation of multi-point drawing methods.
@@ -298,19 +311,6 @@ class DrawLineTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 draw.polygon(surf, col, points, 0)
 
-    def test_aaline_blend(self):
-        """ blends correctly with the background color.
-        """
-        surface = pygame.Surface((20, 20))
-        surface.fill(pygame.Color(0, 255, 0))
-        draw.aaline(surface, pygame.Color(255, 255, 255), (2, 2), (18, 18), 1)
-        draw.aaline(surface, pygame.Color(255, 255, 255), (2, 18), (18, 2), 1)
-
-        # white should be blended with the background green.
-        self.assertEqual(surface.get_at((10, 10)), (191, 255, 191, 255))
-        # should be full green here.
-        self.assertEqual(surface.get_at((9, 7)), (0, 255, 0, 255))
-
 
 class AntiAliasedLineMixin:
     '''Mixin for tests of Anti Aliasing of Lines.
@@ -344,9 +344,10 @@ class AntiAliasedLineMixin:
         # it is important to test also opposite direction, the algorithm
         # is (#512) or was not symmetric
         check_one_direction(from_point, to_point, should)
-        check_one_direction(to_point, from_point, should)
+        if from_point != to_point:
+            check_one_direction(to_point, from_point, should)
 
-    def _test_short_non_antialiased_lines(self):
+    def test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
         # Horizontal, vertical and diagonal lines should not be antialiased,
         # even with draw.aaline ...
@@ -371,7 +372,7 @@ class AntiAliasedLineMixin:
         check_both_directions((5, 6), (6, 5), [])
         check_both_directions((6, 4), (4, 6), [(5, 5)])
 
-    def _test_short_line_anti_aliasing(self):
+    def test_short_line_anti_aliasing(self):
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
 
         def check_both_directions(from_pt, to_pt, should):
@@ -406,7 +407,72 @@ class AntiAliasedLineMixin:
                   (5, 4): greenish, (5, 5): brown, (5, 6): reddish}
         check_both_directions((5, 3), (4, 7), should)
 
-    @unittest.expectedFailure
+    def test_anti_aliasing_float_coordinates(self):
+        '''Float coordinates should be blended smoothly.'''
+        check_points = [(i, j) for i in range(5) for j in range(5)]
+        brown = (127, 127, 0)
+
+        # 0. identical point : current implemntation does no smoothing...
+        expected = {(1, 2): FG_GREEN}
+        self._check_antialiasing((1.5, 2), (1.5, 2), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(2, 2): FG_GREEN}
+        self._check_antialiasing((2.5, 2.7), (2.5, 2.7), expected,
+                                 check_points, set_endpoints=False)
+
+        # 1. horizontal lines
+        #  a) blend endpoints
+        expected = {(1, 2): brown, (2, 2): FG_GREEN}
+        self._check_antialiasing((1.5, 2), (2, 2), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(1, 2): brown, (2, 2): FG_GREEN, (3, 2): brown}
+        self._check_antialiasing((1.5, 2), (2.5, 2), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(2, 2): brown, (1, 2): FG_GREEN, }
+        self._check_antialiasing((1, 2), (1.5, 2), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(1, 2): brown, (2, 2):  (63, 191, 0)}
+        self._check_antialiasing((1.5, 2), (1.75, 2), expected,
+                                 check_points, set_endpoints=False)
+
+        #  b) blend y-coordinate
+        expected = {(x, y): brown for x  in range(2, 5) for y in (1, 2)}
+        self._check_antialiasing((2, 1.5), (4, 1.5), expected,
+                                 check_points, set_endpoints=False)
+
+        # 2. vertical lines
+        #  a) blend endpoints
+        expected = {(2, 1): brown, (2, 2): FG_GREEN, (2, 3): brown}
+        self._check_antialiasing((2, 1.5), (2, 2.5), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(2, 1): brown, (2, 2):  (63, 191, 0)}
+        self._check_antialiasing((2, 1.5), (2, 1.75), expected,
+                                 check_points, set_endpoints=False)
+        #  b) blend x-coordinate
+        expected = {(x, y): brown for x in (1, 2) for y in range(2, 5)}
+        self._check_antialiasing((1.5, 2), (1.5, 4), expected,
+                                 check_points, set_endpoints=False)
+        # 3. diagonal lines
+        #  a) blend endpoints
+        expected = {(1, 1): brown, (2, 2): FG_GREEN, (3, 3): brown}
+        self._check_antialiasing((1.5, 1.5), (2.5, 2.5), expected,
+                                 check_points, set_endpoints=False)
+        expected = {(3, 1): brown, (2, 2): FG_GREEN, (1, 3): brown}
+        self._check_antialiasing((2.5, 1.5), (1.5, 2.5), expected,
+                                 check_points, set_endpoints=False)
+        #  b) blend sidewards
+        expected = {(2, 1): brown, (2, 2): brown, (3, 2): brown, (3, 3): brown}
+        self._check_antialiasing((2, 1.5), (3, 2.5), expected,
+                                 check_points, set_endpoints=False)
+
+        reddish = (191, 63, 0)
+        greenish = (63, 191, 0)
+        expected = {(2, 1): greenish, (2, 2): reddish,
+                    (3, 2): greenish, (3, 3): reddish,
+                    (4, 3): greenish, (4, 4): reddish}
+        self._check_antialiasing((2, 1.25), (4, 3.25), expected,
+                                 check_points, set_endpoints=False)
+
     def test_anti_aliasing_at_and_outside_the_border(self):
         check_points = [(i, j) for i in range(10) for j in range(10)]
 
@@ -423,46 +489,17 @@ class AntiAliasedLineMixin:
                        (-4, -4), (-4, -3), (-3, -4)):  # upper left corner
             first = from_point[0] + dx, from_point[1] + dy
             second = to_point[0] + dx,  to_point[1] + dy
-            expected = {(pt[0] + dx, pt[1] + dy): color
-                        for pt, color in should.items()}
+            expected = {(x + dx, y + dy): color
+                        for (x, y), color in should.items()}
             self._check_antialiasing(first, second, expected, check_points)
 
-    @unittest.expectedFailure
-    def test_anti_aliasing_with_float_coordinates(self):
-        '''Float coordinates are expected to be rounded to integer values.'''
-        check_points = [(i, j) for i in range(5) for j in range(5)]
 
-        expected = {(2, 2): FG_GREEN}
-        self._check_antialiasing((1.9, 1.8), (2.3, 2.4), expected,
-                                 check_points, set_endpoints=False)
-
-        expected = {(2, 2): FG_GREEN, (2, 3): FG_GREEN}
-        self._check_antialiasing((1.9, 1.8), (2.3, 2.6), expected,
-                                 check_points, set_endpoints=False)
-
-        expected = {(3, 2): FG_GREEN, (2, 3): FG_GREEN}
-        self._check_antialiasing((2.7, 1.8), (2.3, 2.6), expected,
-                                 check_points, set_endpoints=False)
-
-        brown = (127, 127, 0)
-        expected = {(4, 4): FG_GREEN, (6, 5): FG_GREEN, (5, 4): brown, (5, 5): brown}
-        self._check_antialiasing((4.1, 3.9), (5.8, 5.17), expected,
-                                 check_points, set_endpoints=False)
-
-
+@unittest.expectedFailure
 class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
     '''Line Antialising test for the C algorithm.'''
 
     def draw_aaline(self, color, from_point, to_point):
         draw.aaline(self.surface, color, from_point, to_point, 1)
-
-    @unittest.expectedFailure
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
-
-    @unittest.expectedFailure
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
 
 
 class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
@@ -470,12 +507,6 @@ class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
 
     def draw_aaline(self, color, from_point, to_point):
         draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
-
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
-
-    def test_short_line_anti_aliasing(self):
-        self._test_short_line_anti_aliasing()
 
 
 class DrawModuleTest(unittest.TestCase):
@@ -529,10 +560,6 @@ class DrawModuleTest(unittest.TestCase):
             self.assertEqual(self.surf.get_at((x, i)), self.color)
 
     def test_rect__one_pixel_lines(self):
-        # __doc__ (as of 2008-06-25) for pygame.draw.rect:
-
-          # pygame.draw.rect(Surface, color, Rect, width=0): return Rect
-          # draw a rectangle shape
         rect = pygame.Rect(10, 10, 56, 20)
 
         drawn = draw.rect(self.surf, self.color, rect, 1)
@@ -549,12 +576,6 @@ class DrawModuleTest(unittest.TestCase):
             self.assertNotEqual(color_at_pt, self.color)
 
     def test_line(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.draw.line:
-
-          # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
-          # draw a straight line segment
-
         # (l, t), (l, t)
         drawn = draw.line(self.surf, self.color, (1, 0), (200, 0))
         self.assertEqual(drawn.right, 201,
