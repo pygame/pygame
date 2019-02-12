@@ -19,7 +19,7 @@ supports (currently Windows, ``OSX``, and Linux).
 This uses pyportmidi for now, but may use its own bindings at some point in the
 future. The pyportmidi bindings are included with pygame.
 
-New in pygame 1.9.0.
+.. versionadded:: 1.9.0
 
 .. class:: Input
 
@@ -161,7 +161,7 @@ New in pygame 1.9.0.
       changed in some synthesizers).
 
       If no value is given, the pitch bend is returned to "no change".
-      New in pygame 1.9.4.
+      .. versionadded:: 1.9.4.
 
    .. method:: write
 
@@ -420,7 +420,7 @@ New in pygame 1.9.0.
 
    Returns ``True`` if the ``pygame.midi`` module is currently initialized.
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.midi.get_init ##
 
@@ -444,7 +444,7 @@ New in pygame 1.9.0.
    ::
        frequency_to_midi(27.5) == 21
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.midi.frequency_to_midi ##
 
@@ -459,7 +459,7 @@ New in pygame 1.9.0.
    ::
        midi_to_frequency(21) == 27.5
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.midi.midi_to_frequency ##
 
@@ -474,7 +474,7 @@ New in pygame 1.9.0.
    ::
        midi_to_ansi_note(21) == 'A0'
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.midi.midi_to_ansi_note ##
 

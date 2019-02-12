@@ -109,7 +109,7 @@ Instead, always begin with the original image and scale to the desired size.)
    surfaces. An exception will be thrown if the input surface bit depth is less
    than 24.
 
-   New in pygame 1.8
+   .. versionadded:: 1.8
 
    .. ## pygame.transform.smoothscale ##
 
@@ -164,7 +164,7 @@ Instead, always begin with the original image and scale to the desired size.)
 
    Finds the edges in a surface using the laplacian algorithm.
 
-   New in pygame 1.8
+   .. versionadded:: 1.8
 
    .. ## pygame.transform.laplacian ##
 
@@ -183,7 +183,8 @@ Instead, always begin with the original image and scale to the desired size.)
    Note, this function currently does not handle palette using surfaces
    correctly.
 
-   New in pygame 1.8 palette_colors argument new in pygame 1.9
+   .. versionadded:: 1.8
+   .. versionadded:: 1.9 ``palette_colors`` argument
 
    .. ## pygame.transform.average_surfaces ##
 
@@ -258,8 +259,9 @@ Instead, always begin with the original image and scale to the desired size.)
       :pyobject: TransformModuleTest.test_threshold_dest_surf_not_change
 
 
-   New in pygame 1.8
-   1.9.4 fixed a lot of bugs and added keyword arguments. Test your code.
+   .. versionadded:: 1.8
+   .. versionchanged:: 1.9.4
+      Fixed a lot of bugs and added keyword arguments. Test your code.
 
    .. ## pygame.transform.threshold ##
 
