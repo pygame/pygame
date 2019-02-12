@@ -393,6 +393,20 @@ pgVidInfo_New(const SDL_VideoInfo *i)
 }
 
 static PyObject *
+pgInfo(PyObject *self)
+{
+    const SDL_VideoInfo *info;
+    VIDEO_INIT_CHECK();
+    info = SDL_GetVideoInfo();
+    return pgVidInfo_New(info);
+}
+#endif /* IS_SDLv1: pgInfo stuff is not defined in SDL2 */
+
+#if IS_SDLv2
+#include <SDL_syswm.h>
+#endif
+
+static PyObject *
 pg_get_wm_info(PyObject *self)
 {
     PyObject *dict;
@@ -403,7 +417,11 @@ pg_get_wm_info(PyObject *self)
 
     SDL_VERSION(&(info.version))
     dict = PyDict_New();
-    if (!dict || !SDL_GetWMInfo(&info))
+    if (!dict)
+        return NULL;
+
+#if IS_SDLv1
+    if (!SDL_GetWMInfo(&info))
         return dict;
 
 /*scary #ifdef's match SDL_syswm.h*/
@@ -468,18 +486,121 @@ pg_get_wm_info(PyObject *self)
     Py_DECREF(tmp);
 #endif
 
+#else /* IS_SDLv2 */
+
+    SDL_Window *win = pg_GetDefaultWindow();
+    if (!win)
+        return dict;
+    if (!SDL_GetWindowWMInfo(win, &info))
+        return dict;
+
+#if defined(SDL_VIDEO_DRIVER_WINDOWS)
+    tmp = PyLong_FromLong((long)info.info.win.window);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.win.hdc);
+    PyDict_SetItemString(dict, "hdc", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.win.hinstance);
+    PyDict_SetItemString(dict, "hinstance", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_WINRT)
+    tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_X11)
+    tmp = PyInt_FromLong(info.info.x11.window);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.x11.display, "display", NULL);
+    PyDict_SetItemString(dict, "display", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_DIRECTFB)
+    tmp = PyCapsule_New(info.info.dfb.dfb, "dfb", NULL);
+    PyDict_SetItemString(dict, "dfb", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.dfb.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.dfb.surface, "surface", NULL);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_COCOA)
+    tmp = PyCapsule_New(info.info.cocoa.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_UIKIT)
+    tmp = PyCapsule_New(info.info.uikit.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong(info.info.uikit.framebuffer);
+    PyDict_SetItemString(dict, "framebuffer", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong(info.info.uikit.colorbuffer);
+    PyDict_SetItemString(dict, "colorbuffer", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong(info.info.uikit.resolveFramebuffer);
+    PyDict_SetItemString(dict, "resolveFramebuffer", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_WAYLAND)
+    tmp = PyCapsule_New(info.info.wl.display, "display", NULL);
+    PyDict_SetItemString(dict, "display", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.wl.surface, "surface", NULL);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.wl.shell_surface, "shell_surface", NULL);
+    PyDict_SetItemString(dict, "shell_surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_MIR)  /* no longer available, left for API/ABI compatibility. Remove in 2.1! */
+    tmp = PyCapsule_New(info.info.mir.connection, "connection", NULL);
+    PyDict_SetItemString(dict, "connection", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.mir.surface, "surface", NULL);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_ANDROID)
+    tmp = PyCapsule_New(info.info.android.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.android.surface);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_VIVANTE)
+    tmp = PyLong_FromLong((long)info.info.vivante.display);
+    PyDict_SetItemString(dict, "display", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.vivante.window);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+#endif
+
+#endif /* IS_SDLv2 */
+
     return dict;
 }
-
-static PyObject *
-pgInfo(PyObject *self)
-{
-    const SDL_VideoInfo *info;
-    VIDEO_INIT_CHECK();
-    info = SDL_GetVideoInfo();
-    return pgVidInfo_New(info);
-}
-#endif /* IS_SDLv1: pgInfo stuff is not defined in SDL2 */
 
 /* display functions */
 #if IS_SDLv2
@@ -1826,9 +1947,9 @@ static PyMethodDef _pg_display_methods[] = {
     /*    { "set_driver", set_driver, 1, doc_set_driver },*/
     {"get_driver", (PyCFunction)pg_get_driver, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETDRIVER},
-#if IS_SDLv1
     {"get_wm_info", (PyCFunction)pg_get_wm_info, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETWMINFO},
+#if IS_SDLv1
     {"Info", (PyCFunction)pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
 #endif /* IS_SDLv1 */
     {"get_surface", (PyCFunction)pg_get_surface, METH_NOARGS,
