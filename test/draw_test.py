@@ -106,7 +106,6 @@ def lines_set_up():
 class LineMixin:
     """Mixin for testing line(), aaline(), lines() and aalines()."""
 
-    @unittest.expectedFailure
     def test_line_color(self):
         """Checks if the line drawn with line_is_color() is the correct color.
         """
@@ -125,7 +124,6 @@ class LineMixin:
                 for color in colors:
                     self.assertTrue(line_is_color(surface, color, draw_line))
 
-    @unittest.expectedFailure
     def test_line_gaps(self):
         """Tests if the line drawn with line_has_gaps() contains any gaps.
 
@@ -149,7 +147,6 @@ class LineMixin:
             for surface in surfaces:
                 self.assertTrue(line_has_gaps(surface, draw_line))
 
-    @unittest.expectedFailure
     def test_lines_color(self):
         """Tests if the lines drawn with lines_are_color() are the correct color.
         """
@@ -174,11 +171,8 @@ class LineMixin:
                     in_border = lines_are_color(surface, color, draw_lines)
                     self.assertTrue(all(in_border))
 
-    @unittest.expectedFailure
     def test_lines_gaps(self):
-        """|tags: ignore|
-
-        Tests if the lines drawn with lines_have_gaps() contain any gaps.
+        """Tests if the lines drawn with lines_have_gaps() contain any gaps.
 
         See: #512
         """

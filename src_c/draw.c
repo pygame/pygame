@@ -683,9 +683,10 @@ static int
 clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                      float *pts, int blend)
 {
-    if (!clip_aaline(pts, rect->x + 1, rect->y + 1, rect->x + rect->w - 2,
-                    rect->y + rect->h - 2))
+    if (!clip_aaline(pts, rect->x, rect->y, rect->x + rect->w - 1,
+                     rect->y + rect->h - 1))
         return 0;
+
     draw_aaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend);
     return 1;
 }
@@ -1058,6 +1059,9 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
     int x, y, ifrom_x, ito_x, ifrom_y, ito_y;
     int pixx, pixy;
     Uint8 colorptr[4];
+    SDL_Rect *rect = &surf->clip_rect;
+    int max_x = rect->x + rect->w - 1;
+    int max_y = rect->y + rect->h - 1;
 
     Uint8 *pixel;
     Uint8 *surf_pmap = (Uint8 *)surf->pixels;
@@ -1080,6 +1084,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
     }
 
     if (fabs(dx) > fabs(dy)) {
+        /* Lines tending to be more horizontal (run > rise) handled here. */
         if (from_x > to_x) {
             SWAP(from_x, to_x, swaptmp)
             SWAP(from_y, to_y, swaptmp)
@@ -1087,6 +1092,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
             dy = -dy;
         }
         slope = dy / dx;
+
         // 1. Draw start of the segment
         pt_x = trunc(from_x) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
         pt_y = from_y + slope * (pt_x - from_x);
@@ -1095,35 +1101,54 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         ifrom_y = (int)pt_y;
         yf = pt_y + slope;
         brightness1 = INVFRAC(pt_y) * xgap;
-        brightness2 = FRAC(pt_y) * xgap;
+
         pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixy;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
+
+        /* Skip if ifrom_y+1 is not on the surface. */
+        if (ifrom_y < max_y) {
+            brightness2 = FRAC(pt_y) * xgap;
+            pixel += pixy;
+            DRAWPIX32(pixel, colorptr, brightness2, blend)
+        }
+
         // 2. Draw end of the segment
         pt_x = trunc(to_x) + 0.5;
         pt_y = to_y + slope * (pt_x - to_x);
-        xgap = FRAC(to_x); /* this also differs from Hugo's description. */
+        xgap = INVFRAC(to_x);
         ito_x = (int)pt_x;
         ito_y = (int)pt_y;
         brightness1 = INVFRAC(pt_y) * xgap;
-        brightness2 = FRAC(pt_y) * xgap;
+
         pixel = surf_pmap + pixx * ito_x + pixy * ito_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixy;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
+
+        /* Skip if ito_y+1 is not on the surface. */
+        if (ito_y < max_y) {
+            brightness2 = FRAC(pt_y) * xgap;
+            pixel += pixy;
+            DRAWPIX32(pixel, colorptr, brightness2, blend)
+        }
+
         // 3. loop for other points
         for (x = ifrom_x + 1; x < ito_x; ++x) {
             brightness1 = INVFRAC(yf);
-            brightness2 = FRAC(yf);
-            pixel = surf_pmap + pixx * x + pixy * (int)yf;
+            y = (int)yf;
+
+            pixel = surf_pmap + pixx * x + pixy * y;
             DRAWPIX32(pixel, colorptr, brightness1, blend)
-            pixel += pixy;
-            DRAWPIX32(pixel, colorptr, brightness2, blend)
+
+            /* Skip if y+1 is not on the surface. */
+            if (y < max_y) {
+                brightness2 = FRAC(yf);
+                pixel += pixy;
+                DRAWPIX32(pixel, colorptr, brightness2, blend)
+            }
             yf += slope;
         }
     }
     else {
+        /* Lines tending to be more vertical (rise >= run) handled here. */
         if (from_y > to_y) {
             SWAP(from_x, to_x, swaptmp)
             SWAP(from_y, to_y, swaptmp)
@@ -1131,6 +1156,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
             dy = -dy;
         }
         slope = dx / dy;
+
         // 1. Draw start of the segment
         pt_y = trunc(from_y) + 0.5; /* This makes more sense than trunc(from_x+0.5) */
         pt_x = from_x + slope * (pt_y - from_y);
@@ -1139,31 +1165,49 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
         ifrom_x = (int)pt_x;
         xf = pt_x + slope;
         brightness1 = INVFRAC(pt_x) * ygap;
-        brightness2 = FRAC(pt_x) * ygap;
+
         pixel = surf_pmap + pixx * ifrom_x + pixy * ifrom_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixx;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
+
+        /* Skip if ifrom_x+1 is not on the surface. */
+        if (ifrom_x < max_x) {
+            brightness2 = FRAC(pt_x) * ygap;
+            pixel += pixx;
+            DRAWPIX32(pixel, colorptr, brightness2, blend)
+        }
+
         // 2. Draw end of the segment
         pt_y = trunc(to_y) + 0.5;
         pt_x = to_x + slope * (pt_y - to_y);
-        ygap = FRAC(to_y);
+        ygap = INVFRAC(to_y);
         ito_y = (int)pt_y;
         ito_x = (int)pt_x;
         brightness1 = INVFRAC(pt_x) * ygap;
-        brightness2 = FRAC(pt_x) * ygap;
+
         pixel = surf_pmap + pixx * ito_x + pixy * ito_y;
         DRAWPIX32(pixel, colorptr, brightness1, blend)
-        pixel += pixx;
-        DRAWPIX32(pixel, colorptr, brightness2, blend)
-        // 3. loop for other points
-        for (y = ifrom_y + 1; y < ito_y; ++y) {
-            brightness1 = INVFRAC(xf);
-            brightness2 = FRAC(xf);
-            pixel = surf_pmap + pixx * (int)xf + pixy * y;
-            DRAWPIX32(pixel, colorptr, brightness1, blend)
+
+        /* Skip if ito_x+1 is not on the surface. */
+        if (ito_x < max_x) {
+            brightness2 = FRAC(pt_x) * ygap;
             pixel += pixx;
             DRAWPIX32(pixel, colorptr, brightness2, blend)
+        }
+
+        // 3. loop for other points
+        for (y = ifrom_y + 1; y < ito_y; ++y) {
+            x = (int)xf;
+            brightness1 = INVFRAC(xf);
+
+            pixel = surf_pmap + pixx * x + pixy * y;
+            DRAWPIX32(pixel, colorptr, brightness1, blend)
+
+            /* Skip if x+1 is not on the surface. */
+            if (x < max_x) {
+                brightness2 = FRAC(xf);
+                pixel += pixx;
+                DRAWPIX32(pixel, colorptr, brightness2, blend)
+            }
             xf += slope;
         }
     }
