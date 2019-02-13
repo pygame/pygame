@@ -89,7 +89,7 @@
    .. method:: blit
 
       | :sl:`draw one image onto another`
-      | :sg:`blit(source, dest, area=None, special_flags = 0) -> Rect`
+      | :sg:`blit(source, dest, area=None, special_flags=0) -> Rect`
 
       Draws a source Surface onto this Surface. The draw can be positioned with
       the dest argument. Dest can either be pair of coordinates representing
@@ -101,20 +101,21 @@
       An optional area rectangle can be passed as well. This represents a
       smaller portion of the source Surface to draw.
 
-      An optional special flags is for passing in new in 1.8.0: ``BLEND_ADD``,
-      ``BLEND_SUB``, ``BLEND_MULT``, ``BLEND_MIN``, ``BLEND_MAX`` new in 1.8.1:
-      ``BLEND_RGBA_ADD``, ``BLEND_RGBA_SUB``, ``BLEND_RGBA_MULT``,
-      ``BLEND_RGBA_MIN``, ``BLEND_RGBA_MAX`` ``BLEND_RGB_ADD``,
-      ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``, ``BLEND_RGB_MIN``,
-      ``BLEND_RGB_MAX`` With other special blitting flags perhaps added in the
-      future.
+      .. versionadded:: 1.8
+
+         Optional special flags ``BLEND_ADD``, ``BLEND_SUB``, ``BLEND_MULT``,
+         ``BLEND_MIN``, ``BLEND_MAX``.
+
+      .. versionadded:: 1.8.1
+         Special flags ``BLEND_RGBA_ADD``, ``BLEND_RGBA_SUB``, ``BLEND_RGBA_MULT``,
+         ``BLEND_RGBA_MIN``, ``BLEND_RGBA_MAX`` ``BLEND_RGB_ADD``,
+         ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``, ``BLEND_RGB_MIN``,
+         ``BLEND_RGB_MAX``.
 
       The return rectangle is the area of the affected pixels, excluding any
       pixels outside the destination Surface, or outside the clipping area.
 
       Pixel alphas will be ignored when blitting to an 8 bit Surface.
-
-      special_flags new in pygame 1.8.
 
       For a surface with colorkey or blanket alpha, a blit to self may give
       slightly different colors than a non self-blit.
@@ -242,7 +243,7 @@
       contained by the Surface clip area. It is safe to have dx and dy values
       that exceed the surface size.
 
-      New in pygame 1.9
+      .. versionadded:: 1.9
 
       .. ## Surface.scroll ##
 
@@ -407,9 +408,10 @@
 
       This function will temporarily lock and unlock the Surface as needed.
 
-      Returning a Color instead of tuple, New in pygame 1.9.0. Use
-      ``tuple(surf.get_at((x,y)))`` if you want a tuple, and not a Color. This
-      should only matter if you want to use the color as a key in a dict.
+      .. versionadded:: 1.9
+         Returning a Color instead of tuple. Use ``tuple(surf.get_at((x,y)))``
+         if you want a tuple, and not a Color. This should only matter if
+         you want to use the color as a key in a dict.
 
       .. ## Surface.get_at ##
 
@@ -443,7 +445,7 @@
 
       This function will temporarily lock and unlock the Surface as needed.
 
-      New in pygame. 1.9.2.
+      .. versionadded:: 1.9.2
 
       .. ## Surface.get_at_mapped ##
 
@@ -457,7 +459,7 @@
       palette, and changes will have no effect on the Surface.
 
       Returning a list of ``Color(with length 3)`` instances instead of tuples,
-      New in pygame 1.9.0
+      .. versionadded:: 1.9
 
       .. ## Surface.get_palette ##
 
@@ -469,8 +471,8 @@
       Returns the red, green, and blue color values for a single index in a
       Surface palette. The index should be a value from 0 to 255.
 
-      Returning ``Color(with length 3)`` instance instead of a tuple, New in
-      pygame 1.9.0
+      .. versionadded:: 1.9
+         Returning ``Color(with length 3)`` instance instead of a tuple.
 
       .. ## Surface.get_palette_at ##
 
@@ -758,7 +760,9 @@
       | :sl:`set the bitmasks needed to convert between a color and a mapped integer`
       | :sg:`set_masks((r,g,b,a)) -> None`
 
-      This is not needed for normal pygame usage. New in pygame 1.8.1
+      This is not needed for normal pygame usage.
+
+      .. versionadded:: 1.8.1
 
       .. ## Surface.set_masks ##
 
@@ -779,7 +783,9 @@
       | :sl:`sets the bit shifts needed to convert between a color and a mapped integer`
       | :sg:`set_shifts((r,g,b,a)) -> None`
 
-      This is not needed for normal pygame usage. New in pygame 1.8.1
+      This is not needed for normal pygame usage.
+
+      .. versionadded:: 1.8.1
 
       .. ## Surface.set_shifts ##
 
@@ -806,7 +812,7 @@
 
       This function will temporarily lock and unlock the Surface as needed.
 
-      New in pygame 1.8.
+      .. versionadded:: 1.8
 
       .. ## Surface.get_bounding_rect ##
 
@@ -856,7 +862,7 @@
       interface accesses, the surface remains locked until the BufferProxy
       object is released.
 
-      New in pygame 1.9.2.
+      .. versionadded:: 1.9.2
 
    .. method:: get_buffer
 
@@ -872,7 +878,7 @@
       This method implicitly locks the Surface. The lock will be released when
       the returned BufferProxy object is garbage collected.
 
-      New in pygame 1.8.
+      .. versionadded:: 1.8
 
       .. ## Surface.get_buffer ##
 
@@ -883,6 +889,6 @@
 
       The starting address of the surface's raw pixel bytes.
 
-      New in pygame 1.9.2
+      .. versionadded:: 1.9.2
 
    .. ## pygame.Surface ##

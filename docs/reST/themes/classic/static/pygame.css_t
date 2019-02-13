@@ -629,6 +629,10 @@ ul.simple {
     margin-bottom: 1em;
 }
 
+.versionmodified {
+    font-style: italic;
+}
+
 /* Top level section title format */
 div.body > div.section > dl > dt.title {
     font-size: 120%;

@@ -44,7 +44,7 @@ also the different functions available to draw.  It also wraps the primitives
 from the library called SDL_gfx, rather than using modified versions.
 
 
-New in pygame 1.9.0.
+.. versionadded:: 1.9.0
 
 .. function:: pixel
 

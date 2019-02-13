@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMESURFACE "Surface((width, height), flags=0, depth=0, masks=None) -> Surface\nSurface((width, height), flags=0, Surface) -> Surface\npygame object for representing images"
 
-#define DOC_SURFACEBLIT "blit(source, dest, area=None, special_flags = 0) -> Rect\ndraw one image onto another"
+#define DOC_SURFACEBLIT "blit(source, dest, area=None, special_flags=0) -> Rect\ndraw one image onto another"
 
 #define DOC_SURFACEBLITS "blits(blit_sequence=(source, dest), ...), doreturn=1) -> (Rect, ...)\nblits((source, dest, area), ...)) -> (Rect, ...)\nblits((source, dest, area, special_flags), ...)) -> (Rect, ...)\ndraw many images onto another"
 
@@ -111,7 +111,7 @@ pygame.Surface
 pygame object for representing images
 
 pygame.Surface.blit
- blit(source, dest, area=None, special_flags = 0) -> Rect
+ blit(source, dest, area=None, special_flags=0) -> Rect
 draw one image onto another
 
 pygame.Surface.blits

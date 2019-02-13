@@ -411,7 +411,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    has attribute layer nor \**kwarg then the default layer is used to add the
    sprites.
 
-   New in pygame 1.8.0
+   .. versionadded:: 1.8
 
    .. method:: add
 
@@ -578,7 +578,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
        _time_threshold: threshold time for switching between dirty rect mode
            and fullscreen mode, defaults to 1000./80  == 1000./fps
 
-   New in pygame 1.8.0
+   .. versionadded:: 1.8
 
    .. method:: draw
 
@@ -705,7 +705,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    callback function to the \*collide functions. Sprites must have a "rect"
    attributes.
 
-   New in pygame 1.8.0
+   .. versionadded:: 1.8
 
    .. ## pygame.sprite.collide_rect ##
 
@@ -723,7 +723,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    A ratio is a floating point number - 1.0 is the same size, 2.0 is twice as
    big, and 0.5 is half the size.
 
-   New in pygame 1.8.1
+   .. versionadded:: 1.8.1
 
    .. ## pygame.sprite.collide_rect_ratio ##
 
@@ -740,7 +740,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    \*collide functions. Sprites must have a "rect" and an optional "radius"
    attribute.
 
-   New in pygame 1.8.1
+   .. versionadded:: 1.8.1
 
    .. ## pygame.sprite.collide_circle ##
 
@@ -767,7 +767,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    the \*collide functions. Sprites must have a "rect" and an optional "radius"
    attribute.
 
-   New in pygame 1.8.1
+   .. versionadded:: 1.8.1
 
    .. ## pygame.sprite.collide_circle_ratio ##
 
@@ -795,7 +795,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
       sprite.mask = pygame.mask.from_surface(sprite.image)
 
 
-   New in pygame 1.8.0
+   .. versionadded:: 1.8.0
 
    .. ## pygame.sprite.collide_mask ##
 

@@ -100,19 +100,19 @@
    copying is implemented it is suggested PixelArray to PixelArray copies be
    only between surfaces of identical format.
 
-   New in pygame 1.9.4
+   .. versionadded:: 1.9.4
 
     - close() method was added. For explicitly cleaning up.
     - being able to use PixelArray as a context manager for cleanup.
     - both of these are useful for when working without reference counting (pypy).
 
-   New in pygame 1.9.2
+   .. versionadded:: 1.9.2
 
     - array struct interface
     - transpose method
     - broadcasting for a length 1 dimension
 
-   Changed in pygame 1.9.2
+   .. versionchanged:: 1.9.2
 
     - A 2D PixelArray can have a length 1 dimension.
       Only an integer index on a 2D PixelArray returns a 1D array.
@@ -154,7 +154,7 @@
       This is the same as :meth:`Surface.get_bytesize` for the
       pixel array's surface.
 
-      New in pygame 1.9.2
+      .. versionadded:: 1.9.2
 
    .. attribute:: ndim
 
@@ -163,7 +163,7 @@
 
       A pixel array can be 1 or 2 dimensional.
 
-      New in pygame 1.9.2
+      .. versionadded:: 1.9.2
 
    .. attribute:: shape
 
@@ -173,7 +173,7 @@
       A tuple or length :attr:`ndim` giving the length of each
       dimension. Analogous to :meth:`Surface.get_size`.
 
-      New in pygame 1.9.2
+      .. versionadded:: 1.9.2
 
    .. attribute:: strides
 
@@ -185,7 +185,7 @@
       of that index from the start of the array. A stride is negative
       for an array that has is inverted (has a negative step).
 
-      New in pygame 1.9.2
+      .. versionadded:: 1.9.2
 
    .. method:: make_surface
 
@@ -201,7 +201,7 @@
         # Create a new surface flipped around the vertical axis.
         sf = pxarray[:,::-1].make_surface ()
 
-      New in pygame 1.8.1.
+      .. versionadded:: 1.8.1
 
       .. ## PixelArray.make_surface ##
 
@@ -222,7 +222,7 @@
       This is an in place operation that directly affects the pixels of the
       PixelArray.
 
-      New in pygame 1.8.1.
+      .. versionadded:: 1.8.1
 
       .. ## PixelArray.replace ##
 
@@ -241,7 +241,7 @@
       extraction to take pixels with a similar, but not exactly identical
       color, into account as well.
 
-      New in pygame 1.8.1.
+      .. versionadded:: 1.8.1
 
       .. ## PixelArray.extract ##
 
@@ -261,7 +261,7 @@
       comparison to mark pixels with a similar, but not exactly identical
       color, as black.
 
-      New in pygame 1.8.1.
+      .. versionadded:: 1.8.1
 
       .. ## PixelArray.compare ##
 
@@ -275,7 +275,7 @@
       If an array is one dimensional, then a length 1 x dimension is added,
       resulting in a 2D pixel array.
 
-      New in pygame 1.9.2
+      .. versionadded:: 1.9.2
 
       .. ## PixelArray.transpose ##
 
@@ -287,7 +287,7 @@
       This method is for explicitly closing the PixelArray, and releasing
       a lock on the Suface.
 
-      New in pygame 1.9.4
+      .. versionadded:: 1.9.4
 
       .. ## PixelArray.close ##
 

@@ -362,7 +362,7 @@ attributes.
 
       .. ## pygame.event.EventType.__dict__ ##
 
-   Mutable attributes are new in pygame 1.9.2.
+   .. versionadded:: 1.9.2 Mutable attributes.
 
    .. ## pygame.event.EventType ##
 
