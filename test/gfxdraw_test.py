@@ -521,9 +521,9 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         bg_color = pygame.Color('white')
         line_color = pygame.Color('black')
         width, height = 11, 10
-        expected_surface = pygame.Surface((width, height))
+        expected_surface = pygame.Surface((width, height), 0, 32)
         expected_surface.fill(bg_color)
-        surface = pygame.Surface((width, height))
+        surface = pygame.Surface((width, height), 0, 32)
         surface.fill(bg_color)
 
         x1, y1 = width - 1, 0
@@ -652,9 +652,9 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         bg_color = pygame.Color('white')
         line_color = pygame.Color('black')
         width, height = 11, 10
-        expected_surface = pygame.Surface((width, height))
+        expected_surface = pygame.Surface((width, height), 0, 32)
         expected_surface.fill(bg_color)
-        surface = pygame.Surface((width, height))
+        surface = pygame.Surface((width, height), 0, 32)
         surface.fill(bg_color)
 
         points = ((0, 0), (0, height - 1), (width - 1, height - 1),
