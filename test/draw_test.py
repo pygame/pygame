@@ -250,7 +250,6 @@ class PythonDrawLineTest(LineMixin, unittest.TestCase):
     draw_aaline = staticmethod(draw_py.draw_aaline)
     draw_aalines = staticmethod(draw_py.draw_aalines)
 
-
 class DrawLineTest(LineMixin, unittest.TestCase):
     '''Test draw functions "aaline", "line", "aalines" and "lines".'''
 
