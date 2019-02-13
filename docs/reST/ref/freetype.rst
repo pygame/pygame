@@ -59,7 +59,7 @@ loaded. This module must be imported explicitly to be used. ::
    import pygame
    import pygame.freetype
 
-The ``freetype`` module is new in pygame 1.9.2
+.. versionadded:: 1.9.2 :mod:`freetype`
 
 
 .. function:: get_error
@@ -118,7 +118,7 @@ The ``freetype`` module is new in pygame 1.9.2
 
    Returns ``True`` if the ``pygame.freetype`` module is currently initialized.
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
 .. function:: was_init
 

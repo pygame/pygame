@@ -147,6 +147,13 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(len(queue), event_cnt)
         self.assertTrue(all(e.type == pygame.USEREVENT for e in queue))
 
+    def test_get_type(self):
+        ev = pygame.event.Event(pygame.USEREVENT)
+        pygame.event.post(ev)
+        queue = pygame.event.get(pygame.USEREVENT)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, pygame.USEREVENT)
+
     def test_clear(self):
         """Ensure clear() removes all the events on the queue."""
         for e in events:
@@ -187,6 +194,10 @@ class EventModuleTest(unittest.TestCase):
             self.assertTrue(pygame.event.peek(event_type))
 
         self.assertTrue(pygame.event.peek(event_types))
+
+    def test_peek_empty(self):
+        pygame.event.clear()
+        self.assertFalse(pygame.event.peek())
 
     def test_set_allowed(self):
         """Ensure a blocked event type can be unblocked/allowed."""

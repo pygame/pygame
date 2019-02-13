@@ -331,7 +331,6 @@ class MidiModuleTest(unittest.TestCase):
         self.assertEqual(len(events), 2)
 
         for eve in events:
-            print(eve, type(eve))
             # pygame.event.Event is a function, but ...
             self.assertEqual(eve.__class__.__name__, 'Event')
             self.assertEqual(eve.vice_id, 2)

@@ -474,7 +474,7 @@ required).
    Returns the number of available displays. This is always 1 if
    :func:`pygame.get_sdl_version()` returns a major version number below 2.
 
-   get_num_displays is new in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.display.get_num_displays ##
 

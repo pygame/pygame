@@ -71,7 +71,7 @@ computer and initialize the first camera in the list. ::
 
     camlist = pygame.camera.list_cameras()
     if camlist:
-        cam = pygame.caemra.Camera(camlist[0],(640,480))
+        cam = pygame.camera.Camera(camlist[0],(640,480))
 
 
 Using Camera Controls

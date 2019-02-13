@@ -1512,26 +1512,33 @@ mask_dealloc(PyObject *self)
     PyObject_DEL(self);
 }
 
+static PyObject *
+mask_repr(PyObject *self)
+{
+    bitmask_t *mask = pgMask_AsBitmap(self);
+    return Text_FromFormat("<Mask(%dx%d)>", mask->w, mask->h);
+}
+
 static PyTypeObject pgMask_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.mask.Mask",
-    sizeof(pgMaskObject),
-    0,
-    mask_dealloc,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    NULL,
-    0,
-    (hashfunc)NULL,
-    (ternaryfunc)NULL,
-    (reprfunc)NULL,
-    0L,
-    0L,
-    0L,
-    0L,
+    TYPE_HEAD(NULL, 0) "pygame.mask.Mask", /* tp_name */
+    sizeof(pgMaskObject), /* tp_basicsize */
+    0,                    /* tp_itemsize */
+    mask_dealloc,         /* tp_dealloc */
+    0,                    /* tp_print */
+    0,                    /* tp_getattr */
+    0,                    /* tp_setattr */
+    0,                    /* tp_as_async (formerly tp_compare/tp_reserved) */
+    (reprfunc)mask_repr,  /* tp_repr */
+    0,                    /* tp_as_number */
+    NULL,                 /* tp_as_sequence */
+    0,                    /* tp_as_mapping */
+    (hashfunc)NULL,       /* tp_hash */
+    (ternaryfunc)NULL,    /* tp_call */
+    (reprfunc)NULL,       /* tp_str */
+    0L,                   /* tp_getattro */
+    0L,                   /* tp_setattro */
+    0L,                   /* tp_as_buffer */
+    0L,                   /* tp_flags */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */
@@ -1555,27 +1562,42 @@ static PyTypeObject pgMask_Type = {
 /*mask module methods*/
 
 static PyObject *
-Mask(PyObject *self, PyObject *args)
+Mask(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask;
     int w, h;
+    int fill = 0; /* Default is false. */
     pgMaskObject *maskobj;
-    if (!PyArg_ParseTuple(args, "(ii)", &w, &h))
-        return NULL;
-    mask = bitmask_create(w, h);
+    char *keywords[] = {"size", "fill", NULL};
+#if PY3
+    const char *format = "(ii)|p";
+#else
+    const char *format = "(ii)|i";
+#endif
 
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
+                                     &fill))
+        return NULL;
+
+    mask = bitmask_create(w, h);
     if (!mask)
-        return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
+        return RAISE(PyExc_MemoryError,
+                     "cannot allocate enough memory for mask");
+
+    if (fill)
+        bitmask_fill(mask);
 
     /*create the new python object from mask*/
     maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
     if (maskobj)
         maskobj->mask = mask;
+
     return (PyObject *)maskobj;
 }
 
 static PyMethodDef _mask_methods[] = {
-    {"Mask", Mask, METH_VARARGS, DOC_PYGAMEMASKMASK},
+    {"Mask", (PyCFunction)Mask, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEMASKMASK},
     {"from_surface", mask_from_surface, METH_VARARGS,
      DOC_PYGAMEMASKFROMSURFACE},
     {"from_threshold", mask_from_threshold, METH_VARARGS,

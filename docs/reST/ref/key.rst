@@ -252,7 +252,7 @@ bitwise-ORing them together.
 
    When pygame is initialized the key repeat is disabled.
 
-   New in pygame 1.8.
+   .. versionadded:: 1.8
 
    .. ## pygame.key.get_repeat ##
 

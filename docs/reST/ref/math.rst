@@ -18,11 +18,11 @@ In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
 you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
-New in pygame 1.9.2pre.
-1.9.4 removed experimental notice.
-1.9.4 changed constructors to require 2, or 3 elements rather than assigning 0 default.
-1.9.4 allowed scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
-1.9.4 pygame.math required import. more convienient pygame.Vector2 and pygame.Vector3.
+.. versionadded:: 1.9.2pre
+.. versionchanged:: 1.9.4 Removed experimental notice.
+.. versionchanged:: 1.9.4 Constructors require 2-3 elements rather than assigning 0 by default.
+.. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
+.. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
 .. class:: Vector2
 
