@@ -50,6 +50,24 @@ class CursorsModuleTest(unittest.TestCase):
         pygame.mouse.set_cursor(*cursor)
         pygame.display.quit()
 
+        # Test taht load_xbm can handle xbm cursor images that do not have a hotspot specified
+        cursorfile_no_hotspot = fixture_path(r"xbm_cursors/white_no_hotspot.xbm")
+        maskfile_no_hotspot = fixture_path(r"xbm_cursors/white_no_hotspot_mask.xbm")
+        cursor_no_hotspot = pygame.cursors.load_xbm(cursorfile_no_hotspot, maskfile_no_hotspot)
+
+        # Assert that image size was extracted correctly
+        self.assertEqual(cursor_no_hotspot[0],(16, 16))
+
+        # Assert that the hotspot coordinates was set correctly
+        self.assertEqual(cursor_no_hotspot[1],(0,0))
+
+        # Assert that the pixels from the cursor file were extracted correctly
+        self.assertEqual(cursor_no_hotspot[2],(0, 63, 0, 63, 15, 255, 7, 255, 35, 255, 49, 255, 56, 255, 60, 127, 62, 63, 63, 31, 255, 143, 255, 199, 255, 227, 255, 241, 255, 248, 255, 252))
+
+        # Assert that the pixels from the mask file were extraccted correctly
+        self.assertEqual(cursor_no_hotspot[3],(255, 192, 255, 192, 240, 0, 248, 0, 220, 0, 206, 0, 199, 0, 195, 128, 193, 192, 192, 224, 0, 112, 0, 56, 0, 28, 0, 14, 0, 7, 0, 3))
+
+
 ################################################################################
 
 if __name__ == '__main__':
