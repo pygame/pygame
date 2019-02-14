@@ -636,17 +636,11 @@ class LayeredGroupBase:
             # Should not be able to add bad sprite
             self.LG.add(spr, layer=expected_layer)
         except (TypeError, AttributeError):
-            checker0 = True
+            checker = True
         
-        try:
-            # Should not add the attribute _spritelayers to bad sprite
-            self.assertEqual(self._spritelayers, 1)
-        except AttributeError:
-            checker1 = True
-
-        self.assertTrue(checker0)
-        self.assertTrue(checker1)
-
+        self.assertTrue(checker)
+        # Sprite should not have been added to the layer
+        self.assertFalse(hasattr(self, '_spritelayers'))
 
     def test_add__overriding_sprite_layer_attr(self):
         expected_layer = 200
