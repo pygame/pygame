@@ -1,7 +1,6 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001  Pete Shinners
-  Copyright (C) 2019  David Lönnhager
+  Copyright (C) 2019 David Lönnhager
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -16,9 +15,6 @@
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-  Pete Shinners
-  pete@shinners.org
 */
 
 #include "pygame.h"
@@ -34,7 +30,7 @@ pg_touch_num_devices(PyObject *self, PyObject *args)
 static PyObject *
 pg_touch_get_device(PyObject *self, PyObject *index)
 {
-    long touchid;
+    SDL_TouchID touchid;
     if (!PyLong_Check(index)) {
         return RAISE(PyExc_TypeError,
                      "index must be an integer "
@@ -46,7 +42,7 @@ pg_touch_get_device(PyObject *self, PyObject *index)
         /* invalid index */
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
-    return PyLong_FromLong(touchid);
+    return PyLong_FromLongLong(touchid);
 }
 
 static PyObject *
@@ -62,7 +58,7 @@ pg_touch_num_fingers(PyObject *self, PyObject *device_id)
     VIDEO_INIT_CHECK();
 
     fingercount =
-        SDL_GetNumTouchFingers(PyLong_AsLong(device_id));
+        SDL_GetNumTouchFingers(PyLong_AsLongLong(device_id));
     if (fingercount == 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -84,12 +80,13 @@ static PyObject *
 pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     char* keywords[] = {"touchid", "index", NULL};
-    long touchid, index;
+    SDL_TouchID touchid;
+    int index;
     SDL_Finger *finger;
     PyObject *fingerobj;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs,
-                                     "ll", keywords,
+                                     "Li", keywords,
                                      &touchid, &index))
     {
         return NULL;
@@ -105,7 +102,7 @@ pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!fingerobj)
         return NULL;
 
-    _pg_insobj(fingerobj, "id", PyLong_FromLong(finger->id));
+    _pg_insobj(fingerobj, "id", PyLong_FromLongLong(finger->id));
     _pg_insobj(fingerobj, "x", PyFloat_FromDouble(finger->x));
     _pg_insobj(fingerobj, "y", PyFloat_FromDouble(finger->y));
     _pg_insobj(fingerobj, "pressure", PyFloat_FromDouble(finger->pressure));
