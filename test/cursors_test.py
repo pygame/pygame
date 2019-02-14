@@ -4,7 +4,7 @@ import pygame
 
 
 class CursorsModuleTest(unittest.TestCase):
-    def todo_test_compile(self):
+    def test_compile(self):
 
         # __doc__ (as of 2008-06-25) for pygame.cursors.compile:
 
@@ -24,7 +24,46 @@ class CursorsModuleTest(unittest.TestCase):
           # data. Both these arguments are used when setting a cursor with
           # pygame.mouse.set_cursor().
 
-        self.fail()
+        thickarrow_strings = (               #sized 24x24
+          "XX                      ",
+          "XXX                     ",
+          "XXXX                    ",
+          "XX.XX                   ",
+          "XX..XX                  ",
+          "XX...XX                 ",
+          "XX....XX                ",
+          "XX.....XX               ",
+          "XX......XX              ",
+          "XX.......XX             ",
+          "XX........XX            ",
+          "XX........XXX           ",
+          "XX......XXXXX           ",
+          "XX.XXX..XX              ",
+          "XXXX XX..XX             ",
+          "XX   XX..XX             ",
+          "     XX..XX             ",
+          "      XX..XX            ",
+          "      XX..XX            ",
+          "       XXXX             ",
+          "       XX               ",
+          "                        ",
+          "                        ",
+          "                        ",
+        )
+
+        #Compile the thickarrow_strings cursor
+        compiled_cursor = pygame.cursors.compile(thickarrow_strings, black='X', white='.')
+
+        #Assert that the returned cursor data is correct
+        self.assertEqual(compiled_cursor[0], (192, 0, 0, 224, 0, 0, 240, 0, 0, 216, 0, 0, 204, 0, 0, 198, 0, 0, 195, 0, 0, 193, 128, 0, 192, 192, 0, 192, 96, 0, 192, 48,
+                                              0, 192, 56, 0, 192, 248, 0, 220, 192, 0, 246, 96, 0, 198, 96, 0, 6, 96, 0, 3, 48, 0, 3, 48, 0, 1, 224, 0, 1, 128, 0, 0,
+                                              0, 0, 0, 0, 0, 0, 0, 0))
+
+        #Assert that the returned cursor mask data is correct
+        self.assertEqual(compiled_cursor[1], (192, 0, 0, 224, 0, 0, 240, 0, 0, 248, 0, 0, 252, 0, 0, 254, 0, 0, 255, 0, 0, 255, 128, 0, 255, 192, 0, 255, 224, 0, 255, 240,
+                                              0, 255, 248, 0, 255, 248, 0, 255, 192, 0, 247, 224, 0, 199, 224, 0, 7, 224, 0, 3, 240, 0, 3, 240, 0, 1, 224, 0, 1, 128, 0, 0,
+                                              0, 0, 0, 0, 0, 0, 0, 0))
+
 
     def test_load_xbm(self):
         # __doc__ (as of 2008-06-25) for pygame.cursors.load_xbm:
