@@ -628,6 +628,26 @@ class LayeredGroupBase:
         self.assertEqual(len(self.LG._spritelist), 1)
         self.assertEqual(layer, expected_layer)
 
+    def test_add_bad_class_sprite(self):
+        expected_layer = 100
+        spr = BadSpriteInstance()
+        
+        try:
+            # Should not be able to add bad sprite
+            self.LG.add(spr, layer=expected_layer)
+        except (TypeError, AttributeError):
+            checker0 = True
+        
+        try:
+            # Should not add the attribute _spritelayers to bad sprite
+            self.assertEqual(self._spritelayers, 1)
+        except AttributeError:
+            checker1 = True
+
+        self.assertTrue(checker0)
+        self.assertTrue(checker1)
+
+
     def test_add__overriding_sprite_layer_attr(self):
         expected_layer = 200
         spr = self.sprite()
@@ -1100,6 +1120,9 @@ class DirtySpriteTypeTest(SpriteBase, unittest.TestCase):
                sprite.OrderedUpdates,
                sprite.LayeredDirty, ]
 
+class BadSpriteInstance():
+    pass
+
 ############################## BUG TESTS #######################################
 
 class SingleGroupBugsTest(unittest.TestCase):
@@ -1135,6 +1158,5 @@ class SingleGroupBugsTest(unittest.TestCase):
 
 
 ################################################################################
-
 if __name__ == '__main__':
     unittest.main()
