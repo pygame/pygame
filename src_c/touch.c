@@ -20,6 +20,7 @@
 #include "pygame.h"
 #include "pgcompat.h"
 
+#include "doc/touch_doc.h"
 
 static PyObject *
 pg_touch_num_devices(PyObject *self, PyObject *args)
@@ -116,11 +117,11 @@ pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyMethodDef _touch_methods[] = {
-    {"get_num_devices", pg_touch_num_devices, METH_NOARGS, NULL},
-    {"get_device", pg_touch_get_device, METH_O, NULL},
+    {"get_num_devices", pg_touch_num_devices, METH_NOARGS, DOC_PYGAMETOUCHGETNUMDEVICES},
+    {"get_device", pg_touch_get_device, METH_O, DOC_PYGAMETOUCHGETDEVICE},
 
-    {"get_num_fingers", pg_touch_num_fingers, METH_O, NULL},
-    {"get_finger", (PyCFunction)pg_touch_get_finger, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get_num_fingers", pg_touch_num_fingers, METH_O, DOC_PYGAMETOUCHGETNUMFINGERS},
+    {"get_finger", (PyCFunction)pg_touch_get_finger, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETOUCHGETFINGER},
 
     {NULL, NULL, 0, NULL}};
 
@@ -130,7 +131,7 @@ MODINIT_DEFINE(touch)
 #if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "touch",
-                                         NULL, /* DOC_PYGAMETOUCH */
+                                         DOC_PYGAMETOUCH,
                                          -1,
                                          _touch_methods,
                                          NULL,
@@ -148,7 +149,7 @@ MODINIT_DEFINE(touch)
     module = PyModule_Create(&_module);
 #else
     module = Py_InitModule3(MODPREFIX "touch", _touch_methods,
-                            NULL /*DOC_PYGAMETOUCH*/);
+                            DOC_PYGAMETOUCH);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
