@@ -636,13 +636,11 @@ class SurfaceTypeTest(unittest.TestCase):
         source.set_at((0, 0), color)
         target.blit(source, (0, 0))
 
+    @unittest.skipIf(os.environ.get('SDL_VIDEODRIVER') == 'dummy',
+                     'requires a non-"dummy" SDL_VIDEODRIVER')
     def test_image_convert_bug_131(self):
         # Bitbucket bug #131: Unable to Surface.convert(32) some 1-bit images.
         # https://bitbucket.org/pygame/pygame/issue/131/unable-to-surfaceconvert-32-some-1-bit
-
-        # Skip test_image_convert_bug_131 for headless tests.
-        if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
-            return
 
         pygame.display.init()
         pygame.display.set_mode((640,480))
@@ -2296,13 +2294,11 @@ class SurfaceSelfBlitTest(unittest.TestCase):
                 surf.blit(surf, (d_x, d_y), (s_x, s_y, 50, 50))
                 self.assertEqual(surf.get_at(test_posn), rectc_right)
 
+    # https://github.com/pygame/pygame/issues/370#issuecomment-364625291
+    @unittest.skipIf('ppc64le' in platform.uname(), 'known ppc64le issue')
     def test_colorkey(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
         # (MotherHamster Bugzilla bug 19).
-
-        if 'ppc64le' in platform.uname():
-            # skip https://github.com/pygame/pygame/issues/370#issuecomment-364625291
-            return
         pygame.display.set_mode((100, 50))  # Needed for 8bit surface
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
@@ -2321,13 +2317,11 @@ class SurfaceSelfBlitTest(unittest.TestCase):
             comp.blit(tmp, (0, 0))
             self._assert_same(surf, comp)
 
+    # https://github.com/pygame/pygame/issues/370#issuecomment-364625291
+    @unittest.skipIf('ppc64le' in platform.uname(), 'known ppc64le issue')
     def test_blanket_alpha(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
         # (MotherHamster Bugzilla bug 19).
-        if 'ppc64le' in platform.uname():
-            # skip https://github.com/pygame/pygame/issues/370#issuecomment-364625291
-            return
-
         pygame.display.set_mode((100, 50))  # Needed for 8bit surface
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
