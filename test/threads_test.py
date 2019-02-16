@@ -148,6 +148,34 @@ class ThreadsModuleTest(unittest.TestCase):
         r2 = map(lambda x:x.result, results)
         self.assertEqual(list(r), list(r2))
 
+    def test_tmap_exception(self):
+        ''' Tests that the tmap function will raise an exception 
+            when given a buggy worker queue object'''
+
+        # A buggy worker queue mock object which always claims to have size 1
+        class BuggyWQ():
+            def __init__(self):
+                self.queue = BuggyQueue()
+                self.pool = [1]
+            def do(self, arg1, arg2):
+                pass
+            def wait(self):
+                pass
+
+        class BuggyQueue():
+            def qsize(self):
+                return 1
+
+        buggyWQ = BuggyWQ()
+
+        # Ensure tmap raises and exception
+        with self.assertRaises(Exception) as context:
+            r = range(1000)
+            tmap(lambda x:x+1, r, worker_queue=buggyWQ, wait=True)
+
+        print(context.exception)
+
+
     def test_FuncResult(self):
         """Ensure FuncResult sets its result and exception attributes"""
         # Results are stored in result attribute
