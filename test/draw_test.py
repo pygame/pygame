@@ -34,11 +34,10 @@ class DrawEllipseTest(unittest.TestCase):
     Class for testing ellipse().
     """
     def test_ellipse(self):
-        """|tags: ignore|
+        """Tests ellipses of differing sizes on surfaces of differing sizes.
 
-        Draws ellipses of differing sizes on surfaces of differing sizes and
-        checks to see if the number of sides touching the border of the surface
-        is correct.
+        Checks if the number of sides touching the border of the surface is
+        correct.
         """
 
         left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
