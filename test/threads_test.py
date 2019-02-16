@@ -146,18 +146,18 @@ class ThreadsModuleTest(unittest.TestCase):
         r = range(1000)
 
         # Calculate the expected result of the computation
-        expected = map(lambda x: x+1,r)
+        expected = list(map(lambda x: x+1,r))
 
         # Ask tmap to do the computation with 0 workers
         r1 = tmap(lambda x:x+1, r, num_workers = 0)
 
-        self.assertEqual(r1,expected)
+        self.assertEqual(list(r1),expected)
 
         # Send tmap an empty worker queue and verify that it uses map in this case too
         wq = WorkerQueue(0)
         r2 = tmap(lambda x:x+1, r, worker_queue=wq)
 
-        self.assertEqual(r2,expected)
+        self.assertEqual(list(r2),expected)
 
     def test_tmap__wait(self):
         r = range(1000)
