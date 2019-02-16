@@ -6,27 +6,32 @@ import pygame
 def main(imagefile, convert_alpha=False, run_speed_test=False):
     """show an interactive image scaler
 
-    arguemnts:
-    imagefile - name of source image (required)
-    convert_alpha - use convert_alpha() on the surf (default False)
-    run_speed_test - (default False)
+    Args:
+        imagefile - name of source image (required)
+        convert_alpha - use convert_alpha() on the surf (default False)
+        run_speed_test - (default False)
 
     """
 
-    bSpeedTest = run_speed_test
     # initialize display
     pygame.display.init()
     # load background image
     background = pygame.image.load(imagefile)
-    if convert_alpha:
-        screen = pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
-        background = background.convert_alpha()
 
-    if bSpeedTest:
+    if run_speed_test:
+        if convert_alpha:
+            # convert_alpha() requires the display mode to be set
+            pygame.display.set_mode((1, 1))
+            background = background.convert_alpha()
+
         SpeedTest(background)
         return
-    screen = pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
+
     # start fullscreen mode
+    screen = pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
+    if convert_alpha:
+        background = background.convert_alpha()
+
     # turn off the mouse pointer
     pygame.mouse.set_visible(0)
     # main loop
@@ -68,53 +73,67 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
 
 
 def SpeedTest(image):
-    print ("Smoothscale Speed Test - Image Size %s\n" % str(image.get_size()))
+    print("\nImage Scaling Speed Test - Image Size %s\n" % str(
+          image.get_size()))
+
     imgsize = [image.get_width(), image.get_height()]
     duration = 0.0
     for i in range(128):
-        shrinkx = (imgsize[0] * i) / 128
-        shrinky = (imgsize[1] * i) / 128
+        shrinkx = (imgsize[0] * i) // 128
+        shrinky = (imgsize[1] * i) // 128
         start = time.time()
         tempimg = pygame.transform.smoothscale(image, (shrinkx, shrinky))
         duration += (time.time() - start)
         del tempimg
-    print ("Average smooth shrink time: %i milliseconds." % int((duration / 128) * 1000))
+
+    print("Average transform.smoothscale shrink time: %.4f ms." % (
+          duration / 128 * 1000))
+
     duration = 0
     for i in range(128):
-        expandx = (imgsize[0] * (i + 129)) / 128
-        expandy = (imgsize[1] * (i + 129)) / 128
+        expandx = (imgsize[0] * (i + 129)) // 128
+        expandy = (imgsize[1] * (i + 129)) // 128
         start = time.time()
         tempimg = pygame.transform.smoothscale(image, (expandx, expandy))
         duration += (time.time() - start)
         del tempimg
-    print ("Average smooth expand time: %i milliseconds." % int((duration / 128) * 1000))
+
+    print("Average transform.smoothscale expand time: %.4f ms." % (
+          duration / 128 * 1000))
+
     duration = 0.0
     for i in range(128):
-        shrinkx = (imgsize[0] * i) / 128
-        shrinky = (imgsize[1] * i) / 128
+        shrinkx = (imgsize[0] * i) // 128
+        shrinky = (imgsize[1] * i) // 128
         start = time.time()
         tempimg = pygame.transform.scale(image, (shrinkx, shrinky))
         duration += (time.time() - start)
         del tempimg
-    print ("Average jaggy shrink time: %i milliseconds." % int((duration / 128) * 1000))
+
+    print("Average transform.scale shrink time: %.4f ms." % (
+          duration / 128 * 1000))
+
     duration = 0
     for i in range(128):
-        expandx = (imgsize[0] * (i + 129)) / 128
-        expandy = (imgsize[1] * (i + 129)) / 128
+        expandx = (imgsize[0] * (i + 129)) // 128
+        expandy = (imgsize[1] * (i + 129)) // 128
         start = time.time()
         tempimg = pygame.transform.scale(image, (expandx, expandy))
         duration += (time.time() - start)
         del tempimg
-    print ("Average jaggy expand time: %i milliseconds." % int((duration / 128) * 1000))
 
+    print("Average transform.scale expand time: %.4f ms." % (
+          duration / 128 * 1000))
 
 
 if __name__ == '__main__':
     # check input parameters
     if len(sys.argv) < 2:
-        print ("Usage: %s ImageFile [-t] [-convert_alpha]" % sys.argv[0])
-        print ("       [-t] = Run Speed Test\n")
-        print ("       [-convert_alpha] = Use convert_alpha() on the surf.\n")
+        print("\nUsage: %s imagefile [-t] [-convert_alpha]" % sys.argv[0])
+        print("    imagefile       image filename (required)")
+        print("    -t              run speed test")
+        print("    -convert_alpha  use convert_alpha() on the image's "
+              "surface\n")
     else:
         main(sys.argv[1],
              convert_alpha = '-convert_alpha' in sys.argv,
