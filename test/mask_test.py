@@ -29,8 +29,6 @@ def maskFromSurface(surface, threshold = 127):
                     mask.set_at((x,y),1)
     return mask
 
-#pygame.init()
-#pygame.display.set_mode((10,10))
 
 class MaskTypeTest( unittest.TestCase ):
     def assertMaskEquals(self, m1, m2):
@@ -101,25 +99,115 @@ class MaskTypeTest( unittest.TestCase ):
             self.assertEqual(mask2.get_size(), expected_size,
                              'fill={}'.format(fill))
 
-    def todo_test_get_at(self):
+    def test_get_size(self):
+        """Ensure a mask's size is correctly retrieved."""
+        expected_size = (93, 101)
+        mask = pygame.mask.Mask(expected_size)
 
-        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.get_at:
+        self.assertEqual(mask.get_size(), expected_size)
 
-          # Mask.get_at((x,y)) -> int
-          # Returns nonzero if the bit at (x,y) is set.
-          #
-          # Coordinates start at (0,0) is top left - just like Surfaces.
+    def test_get_at(self):
+        """Ensure individual mask bits are correctly retrieved."""
+        width, height = 5, 7
+        mask0 = pygame.mask.Mask((width, height))
+        mask1 = pygame.mask.Mask((width, height), fill=True)
+        mask0_expected_bit = 0
+        mask1_expected_bit = 1
+        pos = (width - 1, height - 1)
 
-        self.fail()
+        # Check twice to make sure bits aren't toggled.
+        self.assertEqual(mask0.get_at(pos), mask0_expected_bit)
+        self.assertEqual(mask0.get_at(pos), mask0_expected_bit)
+        self.assertEqual(mask1.get_at(pos), mask1_expected_bit)
+        self.assertEqual(mask1.get_at(pos), mask1_expected_bit)
 
-    def todo_test_get_size(self):
+    def test_get_at__out_of_bounds(self):
+        """Ensure get_at() checks bounds."""
+        width, height = 11, 3
+        mask = pygame.mask.Mask((width, height))
 
-        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.get_size:
+        with self.assertRaises(IndexError):
+            mask.get_at((width, 0))
 
-          # Mask.get_size() -> width,height
-          # Returns the size of the mask.
+        with self.assertRaises(IndexError):
+            mask.get_at((0, height))
 
-        self.fail()
+        with self.assertRaises(IndexError):
+            mask.get_at((-1, 0))
+
+        with self.assertRaises(IndexError):
+            mask.get_at((0, -1))
+
+    def test_set_at(self):
+        """Ensure individual mask bits are set to 1."""
+        width, height = 13, 17
+        mask0 = pygame.mask.Mask((width, height))
+        mask1 = pygame.mask.Mask((width, height), fill=True)
+        mask0_expected_count = 1
+        mask1_expected_count = mask1.count()
+        expected_bit = 1
+        pos = (width - 1, height - 1)
+
+        mask0.set_at(pos, expected_bit)  # set 0 to 1
+        mask1.set_at(pos, expected_bit)  # set 1 to 1
+
+        self.assertEqual(mask0.get_at(pos), expected_bit)
+        self.assertEqual(mask0.count(), mask0_expected_count)
+        self.assertEqual(mask1.get_at(pos), expected_bit)
+        self.assertEqual(mask1.count(), mask1_expected_count)
+
+    def test_set_at__to_0(self):
+        """Ensure individual mask bits are set to 0."""
+        width, height = 11, 7
+        mask0 = pygame.mask.Mask((width, height))
+        mask1 = pygame.mask.Mask((width, height), fill=True)
+        mask0_expected_count = 0
+        mask1_expected_count = mask1.count() - 1
+        expected_bit = 0
+        pos = (width - 1, height - 1)
+
+        mask0.set_at(pos, expected_bit)  # set 0 to 0
+        mask1.set_at(pos, expected_bit)  # set 1 to 0
+
+        self.assertEqual(mask0.get_at(pos), expected_bit)
+        self.assertEqual(mask0.count(), mask0_expected_count)
+        self.assertEqual(mask1.get_at(pos), expected_bit)
+        self.assertEqual(mask1.count(), mask1_expected_count)
+
+    def test_set_at__default_value(self):
+        """Ensure individual mask bits are set using the default value."""
+        width, height = 3, 21
+        mask0 = pygame.mask.Mask((width, height))
+        mask1 = pygame.mask.Mask((width, height), fill=True)
+        mask0_expected_count = 1
+        mask1_expected_count = mask1.count()
+        expected_bit = 1
+        pos = (width - 1, height - 1)
+
+        mask0.set_at(pos)  # set 0 to 1
+        mask1.set_at(pos)  # set 1 to 1
+
+        self.assertEqual(mask0.get_at(pos), expected_bit)
+        self.assertEqual(mask0.count(), mask0_expected_count)
+        self.assertEqual(mask1.get_at(pos), expected_bit)
+        self.assertEqual(mask1.count(), mask1_expected_count)
+
+    def test_set_at__out_of_bounds(self):
+        """Ensure set_at() checks bounds."""
+        width, height = 11, 3
+        mask = pygame.mask.Mask((width, height))
+
+        with self.assertRaises(IndexError):
+            mask.set_at((width, 0))
+
+        with self.assertRaises(IndexError):
+            mask.set_at((0, height))
+
+        with self.assertRaises(IndexError):
+            mask.set_at((-1, 0))
+
+        with self.assertRaises(IndexError):
+            mask.set_at((0, -1))
 
     def todo_test_overlap(self):
 
@@ -155,10 +243,8 @@ class MaskTypeTest( unittest.TestCase ):
 
     def test_overlap_mask(self):
         """Ensure overlap_mask's mask has correct bits set."""
-        mask = pygame.mask.Mask((50, 50))
-        mask.fill()
-        mask2 = pygame.mask.Mask((300, 10))
-        mask2.fill()
+        mask = pygame.mask.Mask((50, 50), fill=True)
+        mask2 = pygame.mask.Mask((300, 10), fill=True)
         mask3 = mask.overlap_mask(mask2, (-1, 0))
 
         for i in range(50):
@@ -173,10 +259,8 @@ class MaskTypeTest( unittest.TestCase ):
 
     def test_overlap_mask__count(self):
         """Ensure overlap_mask's mask has the correct count."""
-        mask1 = pygame.mask.Mask((65, 3))
-        mask2 = pygame.mask.Mask((66, 4))
-        mask1.fill()
-        mask2.fill()
+        mask1 = pygame.mask.Mask((65, 3), fill=True)
+        mask2 = pygame.mask.Mask((66, 4), fill=True)
 
         # Using rects to help determine the expected count of the overlapping
         # mask.
@@ -193,15 +277,6 @@ class MaskTypeTest( unittest.TestCase ):
 
             self.assertEqual(overlap_mask.count(), expected_count,
                              'offset={}'.format(offset))
-
-    def todo_test_set_at(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.set_at:
-
-          # Mask.set_at((x,y),value)
-          # Sets the position in the mask given by x and y.
-
-        self.fail()
 
     def test_mask_access( self ):
         """ do the set_at, and get_at parts work correctly?
@@ -223,11 +298,41 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertRaises(IndexError, lambda : m.set_at((10,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((0,10), 1) )
 
+    def test_fill(self):
+        """Ensure a mask can be filled."""
+        width, height = 11, 23
+        expected_count = width * height
+        mask = pygame.mask.Mask((width, height))
+
+        mask.fill()
+
+        self.assertEqual(mask.count(), expected_count)
+
+    def test_clear(self):
+        """Ensure a mask can be cleared."""
+        expected_count = 0
+        mask = pygame.mask.Mask((13, 27), fill=True)
+
+        mask.clear()
+
+        self.assertEqual(mask.count(), expected_count)
+
+    def todo_test_invert(self):
+        """Ensure a mask can be inverted."""
+        self.fail()
+
+    def todo_test_scale(self):
+        """Ensure a mask can be scaled."""
+        self.fail()
+
+    def todo_test_draw(self):
+        """Ensure a mask can be drawn onto another mask."""
+        self.fail()
+
     def test_erase(self):
         """Ensure erase() clears bits."""
         mask1 = pygame.mask.Mask((65, 3))
-        mask2 = pygame.mask.Mask((66, 4))
-        mask2.fill()
+        mask2 = pygame.mask.Mask((66, 4), fill=True)
 
         # Using rects to help determine the overlapping area.
         rect1 = pygame.Rect((0, 0), mask1.get_size())
@@ -246,18 +351,61 @@ class MaskTypeTest( unittest.TestCase ):
             self.assertEqual(mask1.count(), expected_count,
                              'offset={}'.format(offset))
 
+    def test_count(self):
+        """Ensure a mask's set bits are correctly counted."""
+        side = 67
+        mask = pygame.mask.Mask((side, side))
+        expected_count = 0
+
+        for i in range(side):
+            expected_count += 1
+            mask.set_at((i, i))
+
+        self.assertEqual(mask.count(), expected_count)
+
+    def test_count__full_mask(self):
+        """Ensure a full mask's set bits are correctly counted."""
+        width, height = 17, 97
+        expected_count = width * height
+
+        mask = pygame.mask.Mask((width, height), fill=True)
+
+        self.assertEqual(mask.count(), expected_count)
+
+    def test_count__empty_mask(self):
+        """Ensure an empty mask's set bits are correctly counted."""
+        expected_count = 0
+
+        mask = pygame.mask.Mask((13, 27))
+
+        self.assertEqual(mask.count(), expected_count)
+
+    def todo_test_centroid(self):
+        """Ensure a mask's centroid is correctly calculated."""
+        self.fail()
+
+    def todo_test_centroid__empty_mask(self):
+        """Ensure an empty mask's centroid is correctly calculated."""
+        self.fail()
+
+    def todo_test_angle(self):
+        """Ensure a mask's orientation angle is correctly calculated."""
+        self.fail()
+
+    def todo_test_angle__empty_mask(self):
+        """Ensure an empty mask's angle is correctly calculated."""
+        self.fail()
+
     def test_drawing(self):
         """ Test fill, clear, invert, draw, erase
         """
-
         m = pygame.Mask((100,100))
         self.assertEqual(m.count(), 0)
 
         m.fill()
         self.assertEqual(m.count(), 10000)
 
-        m2 = pygame.Mask((10,10))
-        m2.fill()
+        m2 = pygame.Mask((10, 10), fill=True)
         m.erase(m2, (50,50))
         self.assertEqual(m.count(), 9900)
 
@@ -331,8 +479,7 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertMaskEquals(o, test)
 
     def test_convolve__out_of_range(self):
-        full = pygame.Mask((2,2))
-        full.fill()
+        full = pygame.Mask((2, 2), fill=True)
 
         self.assertEqual(full.convolve(full, None, ( 0,  3)).count(), 0)
         self.assertEqual(full.convolve(full, None, ( 0,  2)).count(), 3)
@@ -349,6 +496,22 @@ class MaskTypeTest( unittest.TestCase ):
             for j in range(conv.get_size()[1]):
                 self.assertEqual(conv.get_at((i,j)) == 0,
                                  m1.overlap(m2, (i - 99, j - 99)) is None)
+
+    def todo_test_connected_component(self):
+        """Ensure a mask's connected component is correctly calculated."""
+        self.fail()
+
+    def todo_test_connected_component__set_bit(self):
+        """Ensure a mask's connected component is correctly calculated
+        when the coordinate's bit is set.
+        """
+        self.fail()
+
+    def todo_test_connected_component__unset_bit(self):
+        """Ensure a mask's connected component is correctly calculated
+        when the coordinate's bit is unset.
+        """
+        self.fail()
 
     def test_connected_components(self):
         """
@@ -546,8 +709,7 @@ class MaskTypeTest( unittest.TestCase ):
         sizes = ((100, 0), (0, 100), (0, 0))
 
         for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask.fill()
+            mask = pygame.mask.Mask(size, fill=True)
             self.assertEqual(mask.count(), 0)
 
     def test_zero_mask_clear(self):
@@ -579,8 +741,7 @@ class MaskTypeTest( unittest.TestCase ):
 
         for size in sizes:
             mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100))
-            mask2.fill()
+            mask2 = pygame.mask.Mask((100, 100), fill=True)
             before = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
             mask.draw(mask2, (0, 0))
             after = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
@@ -591,8 +752,7 @@ class MaskTypeTest( unittest.TestCase ):
 
         for size in sizes:
             mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100))
-            mask2.fill()
+            mask2 = pygame.mask.Mask((100, 100), fill=True)
             before = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
             mask.erase(mask2, (0, 0))
             after = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
@@ -602,8 +762,7 @@ class MaskTypeTest( unittest.TestCase ):
         sizes = ((100, 0), (0, 100), (0, 0))
 
         for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask.fill()
+            mask = pygame.mask.Mask(size, fill=True)
             self.assertEqual(mask.count(), 0)
 
     def test_zero_mask_centroid(self):
