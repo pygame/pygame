@@ -29,6 +29,47 @@ def get_border_values(surface, width, height):
     return [border_top, border_left, border_right, border_bottom]
 
 
+def corners(surface):
+    """Returns a tuple with the corner positions of the given surface.
+
+    Clockwise from the top left corner.
+    """
+    width, height = surface.get_size()
+    return ((0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1))
+
+
+def border_pos_and_color(surface):
+    """Yields each border position and its color for a given surface.
+
+    Clockwise from the top left corner.
+    """
+    width, height = surface.get_size()
+    right, bottom = width - 1, height - 1
+
+    # Top edge.
+    for x in range(width):
+        pos = (x, 0)
+        yield pos, surface.get_at(pos)
+
+    # Right edge.
+    # Top right done in top edge loop.
+    for y in range(1, height):
+        pos = (right, y)
+        yield pos, surface.get_at(pos)
+
+    # Bottom edge.
+    # Bottom right done in right edge loop.
+    for x in range(right - 1, -1, -1):
+        pos = (x, bottom)
+        yield pos, surface.get_at(pos)
+
+    # Left edge.
+    # Bottom left done in bottom edge loop. Top left done in top edge loop.
+    for y in range(bottom - 1, 0, -1):
+        pos = (0, y)
+        yield pos, surface.get_at(pos)
+
+
 class DrawEllipseTest(unittest.TestCase):
     """
     Class for testing ellipse().
@@ -77,139 +118,144 @@ class DrawEllipseTest(unittest.TestCase):
                     not_same_size(width, height, border_width, left, top)
 
 
-def lines_set_up():
-    """Returns the colors and surfaces needed in the tests for draw.line,
-    draw.aaline, draw.lines and draw.aalines.
-    """
-    colors = [
-            (0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
-            (255, 0, 255), (0, 255, 255), (255, 255, 255)]
-
-    sizes = [(49, 49), (50, 50)]
-    depths = [16, 32]
-    surfaces = []
-    for size in sizes:
-        for depth in depths:
-            # Create each possible surface type
-            surface_default = pygame.display.set_mode(size, 0, depth)
-            surface_default_SRCALPHA = pygame.Surface(size, SRCALPHA, depth)
-            surface_alpha = surface_default.convert_alpha()
-            surface_alpha_SRCALPHA = surface_default_SRCALPHA.convert_alpha()
-
-            surfaces.extend([surface_default, surface_alpha,
-                             surface_alpha_SRCALPHA, surface_alpha_SRCALPHA])
-
-    return colors, surfaces
-
-
 class LineMixin:
     """Mixin for testing line(), aaline(), lines() and aalines()."""
 
-    def test_line_color(self):
-        """Checks if the line drawn with line_is_color() is the correct color.
-        """
+    def setUp(self):
+        self._colors = ((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255),
+                        (255, 255, 0), (255, 0, 255), (0, 255, 255),
+                        (255, 255, 255))
 
-        def line_is_color(surface, color, draw_line):
-            """
-            Returns True if draw_line is drawn with the correct color on the
-            given surface.
-            """
-            draw_line(surface, color, (0, 0), (1, 0))
-            return surface.get_at((0, 0)) == color
+        # Create some surfaces with different sizes, depths, and flags.
+        self._surfaces = []
+        for size in ((49, 49), (50, 50)):
+            for depth in (8, 16, 24, 32):
+                for flags in (0, SRCALPHA):
+                    surface = pygame.display.set_mode(size, flags, depth)
+                    self._surfaces.append(surface)
+                    self._surfaces.append(surface.convert_alpha())
 
-        for draw_line in self.single_line:
-            colors, surfaces = lines_set_up()
-            for surface in surfaces:
-                for color in colors:
-                    self.assertTrue(line_is_color(surface, color, draw_line))
+    def test_line__color(self):
+        """Tests if the line drawn is the correct color."""
+        pos = (0, 0)
+        for surface in self._surfaces:
+            for expected_color in self._colors:
+                self.draw_line(surface, expected_color, pos, (1, 0))
 
-    def test_line_gaps(self):
-        """Tests if the line drawn with line_has_gaps() contains any gaps.
+                self.assertEqual(surface.get_at(pos), expected_color,
+                                 'pos={}'.format(pos))
+
+    def test_aaline__color(self):
+        """Tests if the aaline drawn is the correct color."""
+        pos = (0, 0)
+        for surface in self._surfaces:
+            for expected_color in self._colors:
+                self.draw_aaline(surface, expected_color, pos, (1, 0))
+
+                self.assertEqual(surface.get_at(pos), expected_color,
+                                 'pos={}'.format(pos))
+
+    def test_line__gaps(self):
+        """Tests if the line drawn contains any gaps."""
+        expected_color = (255, 255, 255)
+        for surface in self._surfaces:
+            width = surface.get_width()
+            self.draw_line(surface, expected_color, (0, 0), (width - 1, 0))
+
+            for x in range(width):
+                pos = (x, 0)
+                self.assertEqual(surface.get_at(pos), expected_color,
+                                 'pos={}'.format(pos))
+
+    def test_aaline__gaps(self):
+        """Tests if the aaline drawn contains any gaps.
 
         See: #512
         """
-
-        def line_has_gaps(surface, draw_line):
-            """Returns True if the line drawn on the surface contains gaps.
-            """
+        expected_color = (255, 255, 255)
+        for surface in self._surfaces:
             width = surface.get_width()
-            color = (255, 255, 255)
+            self.draw_aaline(surface, expected_color, (0, 0), (width - 1, 0))
 
-            draw_line(surface, color, (0, 0), (width - 1, 0))
+            for x in range(width):
+                pos = (x, 0)
+                self.assertEqual(surface.get_at(pos), expected_color,
+                                 'pos={}'.format(pos))
 
-            colors = [surface.get_at((x, 0)) for x in range(width)]
+    def test_lines__color(self):
+        """Tests if the lines drawn are the correct color.
 
-            return len(colors) == colors.count(color)
-
-        for draw_line in self.single_line:
-            _, surfaces = lines_set_up()
-            for surface in surfaces:
-                self.assertTrue(line_has_gaps(surface, draw_line))
-
-    def test_lines_color(self):
-        """Tests if the lines drawn with lines_are_color() are the correct color.
+        Draws lines around the border of the given surface and checks if all
+        borders of the surface only contain the given color.
         """
-        def lines_are_color(surface, color, draw_lines):
-            """Draws (aa)lines around the border of the given surface and
-            checks if all borders of the surface only contain the given color.
-            """
-            width = surface.get_width()
-            height = surface.get_height()
-            points = [(0, 0), (width - 1, 0), (width - 1, height - 1),
-                      (0, height - 1)]
+        for surface in self._surfaces:
+            for expected_color in self._colors:
+                self.draw_lines(surface, expected_color, True,
+                                corners(surface))
 
-            draw_lines(surface, color, True, points)
+                for pos, color in border_pos_and_color(surface):
+                    self.assertEqual(color, expected_color,
+                                     'pos={}'.format(pos))
 
-            borders = get_border_values(surface, width, height)
-            return [all(c == color for c in border) for border in borders]
+    def test_aalines__color(self):
+        """Tests if the aalines drawn are the correct color.
 
-        for draw_lines in self.multi_line:
-            colors, surfaces = lines_set_up()
-            for surface in surfaces:
-                for color in colors:
-                    in_border = lines_are_color(surface, color, draw_lines)
-                    self.assertTrue(all(in_border))
+        Draws aalines around the border of the given surface and checks if all
+        borders of the surface only contain the given color.
+        """
+        for surface in self._surfaces:
+            for expected_color in self._colors:
+                self.draw_aalines(surface, expected_color, True,
+                                  corners(surface))
 
-    def test_lines_gaps(self):
-        """Tests if the lines drawn with lines_have_gaps() contain any gaps.
+                for pos, color in border_pos_and_color(surface):
+                    self.assertEqual(color, expected_color,
+                                     'pos={}'.format(pos))
+
+    def test_lines__gaps(self):
+        """Tests if the lines drawn contain any gaps.
+
+        Draws lines around the border of the given surface and checks if
+        all borders of the surface contain any gaps.
+        """
+        expected_color = (255, 255, 255)
+        for surface in self._surfaces:
+            self.draw_lines(surface, expected_color, True, corners(surface))
+
+            for pos, color in border_pos_and_color(surface):
+                self.assertEqual(color, expected_color, 'pos={}'.format(pos))
+
+    def test_aalines__gaps(self):
+        """Tests if the aalines drawn contain any gaps.
+
+        Draws aalines around the border of the given surface and checks if
+        all borders of the surface contain any gaps.
 
         See: #512
         """
+        expected_color = (255, 255, 255)
+        for surface in self._surfaces:
+            self.draw_aalines(surface, expected_color, True, corners(surface))
 
-        def lines_have_gaps(surface, draw_lines):
-            """Draws (aa)lines around the border of the given surface and
-            checks if all borders of the surface contain any gaps.
-            """
-            width = surface.get_width()
-            height = surface.get_height()
-            color = (255, 255, 255)
-            points = [(0, 0), (width - 1, 0), (width - 1, height - 1),
-                      (0, height - 1)]
-
-            draw_lines(surface, color, True, points)
-
-            borders = get_border_values(surface, width, height)
-            return [all(c == color for c in border) for border in borders]
-
-        for draw_lines in self.multi_line:
-            _, surfaces = lines_set_up()
-            for surface in surfaces:
-                no_gaps = lines_have_gaps(surface, draw_lines)
-                self.assertTrue(all(no_gaps))
+            for pos, color in border_pos_and_color(surface):
+                self.assertEqual(color, expected_color, 'pos={}'.format(pos))
 
 
 class PythonDrawLineTest(LineMixin, unittest.TestCase):
     '''Test Python draw functions "aaline", "line", "aalines" and "lines".'''
 
-    single_line = [draw_py.draw_aaline, draw_py.draw_line]
-    multi_line = [draw_py.draw_aalines, draw_py.draw_lines]
-
+    draw_line = staticmethod(draw_py.draw_line)
+    draw_lines = staticmethod(draw_py.draw_lines)
+    draw_aaline = staticmethod(draw_py.draw_aaline)
+    draw_aalines = staticmethod(draw_py.draw_aalines)
 
 class DrawLineTest(LineMixin, unittest.TestCase):
     '''Test draw functions "aaline", "line", "aalines" and "lines".'''
 
-    single_line = [draw.aaline, draw.line]
-    multi_line = [draw.aalines, draw.lines]
+    draw_line = staticmethod(draw.line)
+    draw_lines = staticmethod(draw.lines)
+    draw_aaline = staticmethod(draw.aaline)
+    draw_aalines = staticmethod(draw.aalines)
 
     def test_path_data_validation(self):
         '''Test validation of multi-point drawing methods.
@@ -568,6 +614,8 @@ class DrawModuleTest(unittest.TestCase):
             color_at_pt = self.surf.get_at(pt)
             self.assertNotEqual(color_at_pt, self.color)
 
+    # See DrawLineTest class for additional draw.line() and draw.aaline()
+    # tests.
     def test_line(self):
         # (l, t), (l, t)
         drawn = draw.line(self.surf, self.color, (1, 0), (200, 0))
@@ -633,6 +681,41 @@ class DrawModuleTest(unittest.TestCase):
             h = abs(p2[1] - p1[1]) + 1 + yinc * (line_width - 1)
             msg += ", %s" % (rec,)
             self.assertEqual(rec, (rx, ry, w, h), msg)
+
+    @unittest.expectedFailure
+    def test_line_for_gaps(self):
+        """ |tags: ignore|
+        """
+        # __doc__ (as of 2008-06-25) for pygame.draw.line:
+
+          # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
+          # draw a straight line segment
+
+        # This checks bug Thick Line Bug #448
+
+        width = 200
+        height = 200
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+
+        def white_surrounded_pixels(x, y):
+            offsets = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+            WHITE = (255, 255, 255, 255)
+            return len([1 for dx, dy in offsets
+                        if surf.get_at((x+dx, y+dy)) == WHITE])
+
+        def check_white_line(start, end):
+            surf.fill((0, 0, 0))
+            pygame.draw.line(surf, (255, 255, 255), start, end, 30)
+
+            BLACK = (0, 0, 0, 255)
+            for x in range(1, width-1):
+                for y in range(1, height-1):
+                    if surf.get_at((x, y)) == BLACK:
+                        self.assertTrue(white_surrounded_pixels(x, y) < 3)
+
+        check_white_line((50, 50), (140, 0))
+        check_white_line((50, 50), (0, 120))
+        check_white_line((50, 50), (199, 198))
 
     def todo_test_arc(self):
 
