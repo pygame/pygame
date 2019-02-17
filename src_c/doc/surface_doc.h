@@ -5,9 +5,9 @@
 
 #define DOC_SURFACEBLITS "blits(blit_sequence=(source, dest), ...), doreturn=1) -> (Rect, ...)\nblits((source, dest, area), ...)) -> (Rect, ...)\nblits((source, dest, area, special_flags), ...)) -> (Rect, ...)\ndraw many images onto another"
 
-#define DOC_SURFACECONVERT "convert(Surface) -> Surface\nconvert(depth, flags=0) -> Surface\nconvert(masks, flags=0) -> Surface\nconvert() -> Surface\nchange the pixel format of an image"
+#define DOC_SURFACECONVERT "convert(Surface=None) -> Surface\nconvert(depth, flags=0) -> Surface\nconvert(masks, flags=0) -> Surface\nchange the pixel format of an image"
 
-#define DOC_SURFACECONVERTALPHA "convert_alpha(Surface) -> Surface\nconvert_alpha() -> Surface\nchange the pixel format of an image including per pixel alphas"
+#define DOC_SURFACECONVERTALPHA "convert_alpha(Surface=None) -> Surface\nchange the pixel format of an image including per pixel alphas"
 
 #define DOC_SURFACECOPY "copy() -> Surface\ncreate a new copy of a Surface"
 
@@ -121,15 +121,13 @@ pygame.Surface.blits
 draw many images onto another
 
 pygame.Surface.convert
- convert(Surface) -> Surface
+ convert(Surface=None) -> Surface
  convert(depth, flags=0) -> Surface
  convert(masks, flags=0) -> Surface
- convert() -> Surface
 change the pixel format of an image
 
 pygame.Surface.convert_alpha
- convert_alpha(Surface) -> Surface
- convert_alpha() -> Surface
+ convert_alpha(Surface=None) -> Surface
 change the pixel format of an image including per pixel alphas
 
 pygame.Surface.copy
