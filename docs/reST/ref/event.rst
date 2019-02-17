@@ -135,14 +135,16 @@ attributes.
    you fail to make a call to the event queue for too long, the system may
    decide your program has locked up.
 
+   .. caution::
+      This function should only be called in the thread that initialized :mod:`pygame.display`.
+
    .. ## pygame.event.pump ##
 
 .. function:: get
 
    | :sl:`get events from the queue`
-   | :sg:`get() -> Eventlist`
-   | :sg:`get(type) -> Eventlist`
-   | :sg:`get(typelist) -> Eventlist`
+   | :sg:`get(eventtype=None) -> Eventlist`
+   | :sg:`get(eventtype=None, pump=True) -> Eventlist`
 
    This will get all the messages and remove them from the queue. If a type or
    sequence of types is given only those messages will be removed from the
@@ -150,6 +152,10 @@ attributes.
 
    If you are only taking specific events from the queue, be aware that the
    queue could eventually fill up with the events you are not interested.
+
+   If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
+
+   .. versionadded:: 1.9.5 ``pump``
 
    .. ## pygame.event.get ##
 
@@ -161,6 +167,9 @@ attributes.
    Returns a single event from the queue. If the event queue is empty an event
    of type ``pygame.NOEVENT`` will be returned immediately. The returned event
    is removed from the queue.
+
+   .. caution::
+      This function should only be called in the thread that initialized :mod:`pygame.display`.
 
    .. ## pygame.event.poll ##
 
@@ -175,30 +184,40 @@ attributes.
    state. This is important for programs that want to share the system with
    other applications.
 
+   .. caution::
+      This function should only be called in the thread that initialized :mod:`pygame.display`.
+
    .. ## pygame.event.wait ##
 
 .. function:: peek
 
    | :sl:`test if event types are waiting on the queue`
-   | :sg:`peek(type) -> bool`
-   | :sg:`peek(typelist) -> bool`
+   | :sg:`peek(eventtype=None) -> bool`
+   | :sg:`peek(eventtype=None, pump=True) -> bool`
 
    Returns ``True`` if there are any events of the given type waiting on the
    queue. If a sequence of event types is passed, this will return ``True`` if
    any of those events are on the queue.
+
+   If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
+
+   .. versionadded:: 1.9.5 ``pump``
 
    .. ## pygame.event.peek ##
 
 .. function:: clear
 
    | :sl:`remove all events from the queue`
-   | :sg:`clear() -> None`
-   | :sg:`clear(type) -> None`
-   | :sg:`clear(typelist) -> None`
+   | :sg:`clear(eventtype=None) -> None`
+   | :sg:`clear(eventtype=None, pump=True) -> None`
 
-   Remove all events or events of a specific type from the queue. This has the
-   same effect as :func:`pygame.event.get()` except ``None`` is returned. This
-   can be slightly more efficient when clearing a full event queue.
+   Removes all events from the queue. If ``eventtype`` is given, removes the given event
+   or sequence of events. This has the same effect as :func:`pygame.event.get()` except ``None``
+   is returned. It can be slightly more efficient when clearing a full event queue.
+
+   If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
+
+   .. versionadded:: 1.9.5 ``pump``
 
    .. ## pygame.event.clear ##
 
