@@ -149,10 +149,9 @@
    .. method:: convert
 
       | :sl:`change the pixel format of an image`
-      | :sg:`convert(Surface) -> Surface`
+      | :sg:`convert(Surface=None) -> Surface`
       | :sg:`convert(depth, flags=0) -> Surface`
       | :sg:`convert(masks, flags=0) -> Surface`
-      | :sg:`convert() -> Surface`
 
       Creates a new copy of the Surface with the pixel format changed. The new
       pixel format can be determined from another existing Surface. Otherwise
