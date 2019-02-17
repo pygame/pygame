@@ -2,7 +2,7 @@ import os
 
 import unittest
 from pygame.tests import test_utils
-from pygame.tests.test_utils import example_path
+from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
 try:
     from pygame.tests.test_utils.arrinter import *
 except (ImportError, NameError):
@@ -33,24 +33,7 @@ def longify(i):
     return long(i)
 
 
-class SurfaceTypeTest(unittest.TestCase):
-    def assertRaisesRegex(self, *args, **kwargs):
-        # Overriding base class method to prevent DeprecationWarnings in
-        # python >= 3.2.
-        #
-        # This method can be removed when pygame no longer supports
-        # python < 3.2.
-        try:
-            return super(SurfaceTypeTest, self).assertRaisesRegex(
-                *args, **kwargs)
-        except AttributeError:
-            try:
-                return super(SurfaceTypeTest, self).assertRaisesRegexp(
-                    *args, **kwargs)
-            except AttributeError:
-                self.skipTest(
-                    'No assertRaisesRegex/assertRaisesRegexp method')
-
+class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_set_clip( self ):
         """ see if surface.set_clip(None) works correctly.
         """
