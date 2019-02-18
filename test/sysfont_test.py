@@ -1,7 +1,21 @@
 import unittest
 import platform
+import pygame.sysfont
 
 class SysfontModuleTest(unittest.TestCase):
+    FONT = None
+    FONTSLIST = []
+    PREFERED_FONT = 'Arial'
+
+    pygame.font.init()
+    FONTSLIST = pygame.font.get_fonts()
+    # FONTS = ",".join(FONTSLIST)
+    if PREFERED_FONT in FONTSLIST:
+        # Try to use arial rather than random font based on installed fonts on the system.
+        FONT = PREFERED_FONT
+    else:
+        FONT = sorted(FONTSLIST)[0]
+
     def todo_test_create_aliases(self):
         self.fail()
 
@@ -10,7 +24,6 @@ class SysfontModuleTest(unittest.TestCase):
 
     @unittest.skipIf('Darwin' not in platform.platform(), 'Not mac we skip.')
     def test_initsysfonts_darwin(self):
-        import pygame.sysfont
         self.assertTrue(len(pygame.sysfont.get_fonts()) > 10)
 
     def test_sysfont(self):
@@ -22,14 +35,29 @@ class SysfontModuleTest(unittest.TestCase):
         self.fail()
 
     def test_get_fonts(self):
-        import pygame.sysfont
         self.assertTrue(len(pygame.sysfont.get_fonts()) > 1)
 
     @unittest.skipIf('Windows' not in platform.system(), 'Not win we skip.')
     def test_initsysfonts_win32(self):
-        import pygame.sysfont
         fonts = pygame.sysfont.initsysfonts_win32()
         self.assertTrue(fonts)
+
+    def test_match_font_known(self):
+        font = pygame.sysfont.match_font(self.FONT, 1, 1)
+        self.assertTrue(font)
+        self.assertIn(".ttf", font)
+
+    def test_match_font_alias(self):
+        font = pygame.sysfont.match_font('mono')
+        self.assertTrue(font)
+        self.assertIn(".ttf", font)
+
+    def test_match_font_unkown(self):
+        font = pygame.sysfont.match_font('1234567890')
+        self.assertIsNone(font)
+
+    def test_match_font_none(self):
+        self.assertRaises(Exception, pygame.sysfont.match_font, None)
 
 ################################################################################
 
