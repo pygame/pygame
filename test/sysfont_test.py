@@ -22,7 +22,7 @@ class SysfontModuleTest(unittest.TestCase):
         self.fail()
 
     @unittest.skipIf('Windows' not in platform.system(), 'Not win we skip.')
-    def todo_test_initsysfonts_win32(self):
+    def test_initsysfonts_win32(self):
         import pygame.sysfont
         self.assertTrue(len(pygame.sysfont.get_fonts()) > 1)
 
