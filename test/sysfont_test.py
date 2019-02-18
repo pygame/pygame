@@ -23,23 +23,23 @@ class SysfontModuleTest(unittest.TestCase):
 
     @unittest.skipIf('Darwin' not in platform.platform(), 'Not mac we skip.')
     def test_initsysfonts_darwin(self):
-        self.assertTrue(len(pygame.sysfont.get_fonts()) > 10)
-
-    def test_sysfont(self):
-        import pygame.font
-        pygame.font.init()
-        arial = pygame.font.SysFont('Arial', 40)
+        self.assertGreater(len(pygame.sysfont.get_fonts()), 10)
 
     def todo_test_initsysfonts_unix(self):
         self.fail()
-
-    def test_get_fonts(self):
-        self.assertTrue(len(pygame.sysfont.get_fonts()) > 1)
 
     @unittest.skipIf('Windows' not in platform.system(), 'Not win we skip.')
     def test_initsysfonts_win32(self):
         fonts = pygame.sysfont.initsysfonts_win32()
         self.assertTrue(fonts)
+        
+    def test_sysfont(self):
+        import pygame.font
+        pygame.font.init()
+        arial = pygame.font.SysFont('Arial', 40)
+
+    def test_get_fonts(self):
+        self.assertGreater(len(pygame.sysfont.get_fonts()), 1)
 
     def test_match_font_known(self):
         font = pygame.sysfont.match_font(self.FONT, 1, 1)
