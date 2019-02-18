@@ -56,6 +56,7 @@ mouse_get_pos(PyObject *self)
     VIDEO_INIT_CHECK();
     SDL_GetMouseState(&x, &y);
 
+#if IS_SDLv2
     SDL_Window *sdlWindow = pg_GetDefaultWindow();
     SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
     if (sdlRenderer!=NULL){
@@ -66,6 +67,7 @@ mouse_get_pos(PyObject *self)
         x = (x * lw) / pw;
         y = (y * lh) / ph;
     }
+#endif
 
     return Py_BuildValue("(ii)", x, y);
 }
