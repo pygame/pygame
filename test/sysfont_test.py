@@ -9,7 +9,6 @@ class SysfontModuleTest(unittest.TestCase):
 
     pygame.font.init()
     FONTSLIST = pygame.font.get_fonts()
-    # FONTS = ",".join(FONTSLIST)
     if PREFERED_FONT in FONTSLIST:
         # Try to use arial rather than random font based on installed fonts on the system.
         FONT = PREFERED_FONT
@@ -44,11 +43,6 @@ class SysfontModuleTest(unittest.TestCase):
 
     def test_match_font_known(self):
         font = pygame.sysfont.match_font(self.FONT, 1, 1)
-        self.assertTrue(font)
-        self.assertIn(".ttf", font)
-
-    def test_match_font_alias(self):
-        font = pygame.sysfont.match_font('mono')
         self.assertTrue(font)
         self.assertIn(".ttf", font)
 
