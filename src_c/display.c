@@ -43,6 +43,9 @@ static int icon_was_set = 0;
 
 #else /* IS_SDLv2 */
 
+static SDL_Renderer *pg_renderer = NULL;
+static SDL_Texture *pg_texture = NULL;
+
 typedef struct _display_state_s {
     char *title;
     PyObject *icon;
@@ -730,11 +733,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
 
     state->using_gl = (flags & PGS_OPENGL) != 0;
+    if (pg_texture)
+        SDL_DestroyTexture(pg_texture);
+    if (pg_renderer)
+        SDL_DestroyRenderer(pg_renderer);
 
     {
         Uint32 sdl_flags = 0;
         if (flags & PGS_FULLSCREEN)
             sdl_flags |= SDL_WINDOW_FULLSCREEN;
+        if (flags & PGS_LOGICAL)
+            sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         if (flags & PGS_OPENGL)
             sdl_flags |= SDL_WINDOW_OPENGL;
         if (flags & PGS_NOFRAME)
@@ -759,10 +768,30 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 #pragma PG_WARN(Add mode stuff.)
         if (!win) {
             /*open window*/
-            win = SDL_CreateWindow(title,
-                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                                   w, h, sdl_flags);
+            if(flags & PGS_LOGICAL) {
+                SDL_Renderer *sdlRenderer;
+                SDL_Texture *sdlTexture;
+
+                SDL_CreateWindowAndRenderer(0, 0,
+                                            sdl_flags,
+                                            &win, &sdlRenderer);
+
+                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+                SDL_RenderSetLogicalSize(sdlRenderer, w, h);
+
+                sdlTexture = SDL_CreateTexture(sdlRenderer,
+                                              SDL_PIXELFORMAT_ARGB8888,
+                                              SDL_TEXTUREACCESS_STREAMING,
+                                              w, h);
+                pg_texture=sdlTexture;
+                pg_renderer=sdlRenderer;
+                printf("created renderer\n");
+            } else {
+                win = SDL_CreateWindow(title,
+                                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                                       w, h, sdl_flags);
+            }
             if (!win)
                 return RAISE(pgExc_SDLError, SDL_GetError());
         } else if ((flags & PGS_OPENGL) &&
@@ -827,7 +856,13 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_GL_DeleteContext(state->gl_context);
                 state->gl_context = NULL;
             }
-            surf = SDL_GetWindowSurface(win);
+            if (pg_renderer != NULL){
+                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff << 16,
+                                            0xff << 8, 0xff, 0);
+            }
+            else {
+                surf = SDL_GetWindowSurface(win);
+            }
         }
         if (state->gamma_ramp) {
             int result = SDL_SetWindowGammaRamp(win, state->gamma_ramp,
@@ -1067,8 +1102,16 @@ pg_flip(PyObject *self)
     if (state->using_gl) {
         SDL_GL_SwapWindow(win);
     }
-    else
+    else {
+        if (pg_renderer != NULL){
+            SDL_Surface *screen = pgSurface_AsSurface(pg_GetDefaultWindowSurface());
+            SDL_UpdateTexture(pg_texture, NULL, screen->pixels, screen->pitch);
+            SDL_RenderClear(pg_renderer);
+            SDL_RenderCopy(pg_renderer, pg_texture, NULL, NULL);
+            SDL_RenderPresent(pg_renderer);
+        }
         status = SDL_UpdateWindowSurface(win) == -1;
+    }
     Py_END_ALLOW_THREADS;
 
     if (status == -1)
