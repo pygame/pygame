@@ -1419,7 +1419,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     Py_ssize_t loop1, loop2, step1, step2, length, length2 = 0;
 
     if (!Mix_QuerySpec(&freq, &format, &channels)) {
-        RAISE(pgExc_SDLError, "Mixer not initialized");
+        RAISE(pgExc_SDLError, "mixer not initialized");
         return -1;
     }
 
@@ -1568,6 +1568,12 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     ((pgSoundObject *)self)->chunk = NULL;
     ((pgSoundObject *)self)->mem = NULL;
+
+    /* Similar to MIXER_INIT_CHECK(), but different return value. */
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        RAISE(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
 
     /* Process arguments, returning cleaner error messages than
        PyArg_ParseTupleAndKeywords would.
