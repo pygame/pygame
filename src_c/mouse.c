@@ -60,12 +60,26 @@ mouse_get_pos(PyObject *self)
     SDL_Window *sdlWindow = pg_GetDefaultWindow();
     SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
     if (sdlRenderer!=NULL){
-        int lw, lh, pw, ph;
-        SDL_GetRendererOutputSize(sdlRenderer, &pw, &ph);
-        SDL_RenderGetLogicalSize(sdlRenderer, &lw, &lh);
+        SDL_Rect vprect;
+        float scalex, scaley;
 
-        x = (x * lw) / pw;
-        y = (y * lh) / ph;
+        SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+        SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+        x/=scalex;
+        y/=scaley;
+
+        x-=vprect.x;
+        y-=vprect.y;
+
+        if (x<0)
+            x=0;
+        if (x>=vprect.w)
+            x=vprect.w-1;
+        if (y<0)
+            y=0;
+        if (y>=vprect.h)
+            y=vprect.h-1;
     }
 #endif
 
