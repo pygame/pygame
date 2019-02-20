@@ -360,8 +360,11 @@ lines(PyObject *self, PyObject *arg)
         bottom = MAX(y, bottom);
     }
 
-    if (width < 1)
+    if (width < 1) {
+        PyMem_Del(xlist);
+        PyMem_Del(ylist);
         return pgRect_New4(left, top, 0, 0);
+    }
 
     if (!pgSurface_Lock(surfobj)) {
         PyMem_Del(xlist);
