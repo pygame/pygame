@@ -28,8 +28,7 @@
 /* test mixer initializations */
 #define MIXER_INIT_CHECK() \
     if(!SDL_WasInit(SDL_INIT_AUDIO)) \
-        return RAISE(pgExc_SDLError, "mixer system not initialized")
-
+        return RAISE(pgExc_SDLError, "mixer not initialized")
 
 
 #define PYGAMEAPI_MIXER_FIRSTSLOT 0
