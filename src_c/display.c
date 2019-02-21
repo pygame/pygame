@@ -676,20 +676,6 @@ pg_gl_get_attribute(PyObject *self, PyObject *arg)
 }
 
 #if IS_SDLv2
-int get_max_pixel_scale(int w, int h) {
-    SDL_DisplayMode dm;
-    int scale=2;
-
-    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    }
-
-    while(w*scale <= dm.w && h*scale <= dm.h){
-        scale++;
-    }
-    return scale-1;
-}
-
 static PyObject *
 pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 {
@@ -800,59 +786,45 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             else
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
         }
+
 #pragma PG_WARN(Not setting bpp ?)
 #pragma PG_WARN(Add mode stuff.)
-        if (!win) {
-            /*open window*/
-            if(flags & PGS_LOGICAL) {
-                SDL_Renderer *sdlRenderer;
-                SDL_Texture *sdlTexture;
-                if (flags & PGS_FULLSCREEN) {
-                    SDL_CreateWindowAndRenderer(0, 0,
-                                                sdl_flags,
-                                                &win, &sdlRenderer);
-                } else {
-                    int scale=get_max_pixel_scale(w, h);
+        int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+        int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+        int w_1=w;
+        int h_1=h;
 
-                    SDL_CreateWindowAndRenderer(w*scale, h*scale,
-                                                sdl_flags,
-                                                &win, &sdlRenderer);
-                }
-
-                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-                SDL_RenderSetLogicalSize(sdlRenderer, w, h);
-
-                sdlTexture = SDL_CreateTexture(sdlRenderer,
-                                              SDL_PIXELFORMAT_ARGB8888,
-                                              SDL_TEXTUREACCESS_STREAMING,
-                                              w, h);
-                pg_texture=sdlTexture;
-                pg_renderer=sdlRenderer;
-                printf("created renderer\n");
-            } else {
-                win = SDL_CreateWindow(title,
-                                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                                       w, h, sdl_flags);
-            }
-            if (!win)
-                return RAISE(pgExc_SDLError, SDL_GetError());
-        } else if ((flags & PGS_OPENGL) &&
-                   !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL) ||
-                   !(flags & PGS_OPENGL) &&
-                   (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL))
-        {
-            /*recreate existing window*/
-            int x, y;//, w1, h1;
-            if (SDL_GetWindowDisplayIndex(win) != display) {
-                x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-                y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-            } else {
+        if(win){
+            if (SDL_GetWindowDisplayIndex(win) == display) {
                 SDL_GetWindowPosition(win, &x, &y);
             }
-            //SDL_GetWindowSize(win, &w1, &h1);
-            SDL_DestroyWindow(win);
-            win = SDL_CreateWindow(title, x, y, w, h, sdl_flags);
+            if (!(flags & PGS_OPENGL) !=
+                !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)){
+                SDL_DestroyWindow(win);
+                win=NULL;
+            }
+        }
+
+        if (!win) {
+            /*open window*/
+            if (flags & PGS_LOGICAL && !(flags & PGS_FULLSCREEN)){
+                SDL_DisplayMode dm;
+                int scale=2;
+
+                if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+
+                while(w*scale <= dm.w && h*scale <= dm.h){
+                    scale++;
+                }
+                scale--;
+
+                w_1=w*scale;
+                h_1=h*scale;
+            }
+            win = SDL_CreateWindow(title,
+                                   x, y, w_1, h_1, sdl_flags);
             if (!win)
                 return RAISE(pgExc_SDLError, SDL_GetError());
         } else {
@@ -865,12 +837,11 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_ShowWindow(win);
             else if (flags & PGS_HIDDEN)
                 SDL_HideWindow(win);
-            if (SDL_GetWindowDisplayIndex(win) != display) {
-                SDL_SetWindowPosition(win,
-                                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
-            }
-            SDL_SetWindowFullscreen(win, (flags & PGS_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN : 0);
+
+            SDL_SetWindowPosition(win, x, y);
+            SDL_SetWindowFullscreen(win, sdl_flags &
+                                    (SDL_WINDOW_FULLSCREEN
+                                     | SDL_WINDOW_FULLSCREEN_DESKTOP));
             assert(surface);
         }
 
@@ -899,11 +870,21 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_GL_DeleteContext(state->gl_context);
                 state->gl_context = NULL;
             }
-            if (pg_renderer != NULL){
+
+            if (flags & PGS_LOGICAL) {
+                if (pg_renderer==NULL){
+                    pg_renderer = SDL_CreateRenderer(win, -1, 0);
+                    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+                    SDL_RenderSetLogicalSize(pg_renderer, w, h);
+
+                    pg_texture = SDL_CreateTexture(pg_renderer,
+                                                   SDL_PIXELFORMAT_ARGB8888,
+                                                   SDL_TEXTUREACCESS_STREAMING,
+                                                   w, h);
+                }
                 surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff << 16,
                                             0xff << 8, 0xff, 0);
-            }
-            else {
+            } else {
                 surf = SDL_GetWindowSurface(win);
             }
         }
