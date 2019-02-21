@@ -676,6 +676,20 @@ pg_gl_get_attribute(PyObject *self, PyObject *arg)
 }
 
 #if IS_SDLv2
+int get_max_pixel_scale(int w, int h) {
+    SDL_DisplayMode dm;
+    int scale=2;
+
+    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    while(w*scale <= dm.w && h*scale <= dm.h){
+        scale++;
+    }
+    return scale-1;
+}
+
 static PyObject *
 pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 {
@@ -733,17 +747,39 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
 
     state->using_gl = (flags & PGS_OPENGL) != 0;
-    if (pg_texture)
+
+    if (pg_texture){
         SDL_DestroyTexture(pg_texture);
-    if (pg_renderer)
+        pg_texture=NULL;
+    }
+
+    if (pg_renderer){
         SDL_DestroyRenderer(pg_renderer);
+        pg_renderer=NULL;
+    }
 
     {
         Uint32 sdl_flags = 0;
-        if (flags & PGS_FULLSCREEN)
-            sdl_flags |= SDL_WINDOW_FULLSCREEN;
-        if (flags & PGS_LOGICAL)
-            sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+        if (flags & PGS_FULLSCREEN){
+            if (flags & PGS_LOGICAL){
+                sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            } else {
+                sdl_flags |= SDL_WINDOW_FULLSCREEN;
+            }
+        }
+
+        if (flags & PGS_LOGICAL){
+
+            if (flags & PGS_OPENGL)
+                return RAISE(pgExc_SDLError, "Cannot use OPENGL with LOGICAL mode");
+            if (flags & PGS_RESIZABLE)
+                return RAISE(pgExc_SDLError, "Cannot use RESIZABLE with LOGICAL mode");
+            /*            if (win){
+                return RAISE(pgExc_SDLError, "Re-creating LOGICAL windows is not supported, yet");
+                }*/
+        }
+
         if (flags & PGS_OPENGL)
             sdl_flags |= SDL_WINDOW_OPENGL;
         if (flags & PGS_NOFRAME)
@@ -771,10 +807,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if(flags & PGS_LOGICAL) {
                 SDL_Renderer *sdlRenderer;
                 SDL_Texture *sdlTexture;
+                if (flags & PGS_FULLSCREEN) {
+                    SDL_CreateWindowAndRenderer(0, 0,
+                                                sdl_flags,
+                                                &win, &sdlRenderer);
+                } else {
+                    int scale=get_max_pixel_scale(w, h);
 
-                SDL_CreateWindowAndRenderer(0, 0,
-                                            sdl_flags,
-                                            &win, &sdlRenderer);
+                    SDL_CreateWindowAndRenderer(w*scale, h*scale,
+                                                sdl_flags,
+                                                &win, &sdlRenderer);
+                }
 
                 SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
                 SDL_RenderSetLogicalSize(sdlRenderer, w, h);
@@ -800,14 +843,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                    (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL))
         {
             /*recreate existing window*/
-            int x, y, w, h;
+            int x, y;//, w1, h1;
             if (SDL_GetWindowDisplayIndex(win) != display) {
                 x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
                 y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
             } else {
                 SDL_GetWindowPosition(win, &x, &y);
             }
-            SDL_GetWindowSize(win, &w, &h);
+            //SDL_GetWindowSize(win, &w1, &h1);
             SDL_DestroyWindow(win);
             win = SDL_CreateWindow(title, x, y, w, h, sdl_flags);
             if (!win)
