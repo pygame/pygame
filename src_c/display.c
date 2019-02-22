@@ -756,11 +756,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         }
 
         if (flags & PGS_LOGICAL){
-
             if (flags & PGS_OPENGL)
-                return RAISE(pgExc_SDLError, "Cannot use OPENGL with LOGICAL mode");
+                return RAISE(pgExc_SDLError,
+                             "Cannot use OPENGL with LOGICAL mode");
             if (flags & PGS_RESIZABLE)
-                return RAISE(pgExc_SDLError, "Cannot use RESIZABLE with LOGICAL mode");
+                return RAISE(pgExc_SDLError,
+                             "Cannot use RESIZABLE with LOGICAL mode");
         }
 
         if (flags & PGS_OPENGL)
@@ -1392,6 +1393,8 @@ pg_update(PyObject *self, PyObject *arg)
 #if IS_SDLv2
     if (!win)
         return RAISE(pgExc_SDLError, "Display mode not set");
+    if (pg_renderer!=NULL)
+        return RAISE(pgExc_SDLError, "Cannot update a LOGICAL display");
     SDL_GetWindowSize(win, &wide, &high);
 
     if (state->using_gl)
