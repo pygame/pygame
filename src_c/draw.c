@@ -77,6 +77,8 @@ static void
 draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
          double angle_start, double angle_stop, Uint32 color);
 static void
+draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thickness, Uint32 color);
+static void
 draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
              Uint32 color);
 static void
@@ -536,8 +538,10 @@ circle(PyObject *self, PyObject *arg)
     if (!width) {
         draw_ellipse(surf, (Sint16)posx, (Sint16)posy, (Sint16)radius * 2,
                      (Sint16)radius * 2, 1, color);
-    }
-    else {
+    } else if (width <= 4){
+        draw_circle_bresenham(surf, posx, posy,
+                              radius, width, color);
+    } else {
         for (loop = 0; loop < width; ++loop) {
             draw_ellipse(surf, posx, posy, 2 * (radius - loop),
                          2 * (radius - loop), 0, color);
@@ -1474,6 +1478,61 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
         y_last = y_next;
     }
 }
+
+/* Bresenham Circle Algorithm
+ * adapted from: https://de.wikipedia.org/wiki/Bresenham-Algorithmus
+ * with additional line width parameter
+ */
+static void
+draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thickness, Uint32 color)
+{
+    int f = 1 - radius;
+    int ddF_x = 0;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+    int radius1, y1;
+
+    /* to avoid holes/moire, draw thick line in inner loop,
+     * instead of concentric circles in outer loop */
+    for (int i=0; i<thickness; i++){
+        radius1=radius - i;
+        set_at(dst, x0, y0 + radius1, color);
+        set_at(dst, x0, y0 - radius1, color);
+        set_at(dst, x0 + radius1, y0, color);
+        set_at(dst, x0 - radius1, y0, color);
+    }
+
+    while(x < y)
+    {
+      if(f >= 0)
+      {
+        y--;
+        ddF_y += 2;
+        f += ddF_y;
+      }
+      x++;
+      ddF_x += 2;
+      f += ddF_x + 1;
+
+      /* as above:
+       * to avoid holes/moire, draw thick line in inner loop,
+       * instead of concentric circles in outer loop */
+      for (int i=0; i<thickness; i++){
+          y1=y-i;
+
+          set_at(dst, x0 + x, y0 + y1, color);
+          set_at(dst, x0 - x, y0 + y1, color);
+          set_at(dst, x0 + x, y0 - y1 , color);
+          set_at(dst, x0 - x, y0 - y1, color);
+          set_at(dst, x0 + y1 , y0 + x, color);
+          set_at(dst, x0 - y1, y0 + x, color);
+          set_at(dst, x0 + y1, y0 - x, color);
+          set_at(dst, x0 - y1, y0 - x, color);
+      }
+    }
+}
+
 
 static void
 draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
