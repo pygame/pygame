@@ -761,9 +761,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 return RAISE(pgExc_SDLError, "Cannot use OPENGL with LOGICAL mode");
             if (flags & PGS_RESIZABLE)
                 return RAISE(pgExc_SDLError, "Cannot use RESIZABLE with LOGICAL mode");
-            /*            if (win){
-                return RAISE(pgExc_SDLError, "Re-creating LOGICAL windows is not supported, yet");
-                }*/
         }
 
         if (flags & PGS_OPENGL)
@@ -833,6 +830,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             SDL_SetWindowSize(win, w, h);
             SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
             SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
+
             if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
                 SDL_ShowWindow(win);
             else if (flags & PGS_HIDDEN)
