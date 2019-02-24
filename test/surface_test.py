@@ -1549,9 +1549,11 @@ class SurfaceGetBufferTest(unittest.TestCase):
         self._check_interface_3D(pygame.Surface(sz, 0, 32, masks))
 
         # Unsupported RGB byte orders
-        masks = [0xff00, 0xff, 0xff0000, 0]
-        self.assertRaises(ValueError,
-                          pygame.Surface(sz, 0, 24, masks).get_view, '3')
+        if pygame.get_sdl_version()[0] == 1:
+            # Invalid mask values with SDL2
+            masks = [0xff00, 0xff, 0xff0000, 0]
+            self.assertRaises(ValueError,
+                              pygame.Surface(sz, 0, 24, masks).get_view, '3')
 
     def test_array_interface_alpha(self):
         for shifts in [[0, 8, 16, 24], [8, 16, 24, 0],
@@ -1973,7 +1975,7 @@ class SurfaceBlendTest(unittest.TestCase):
         src = self._make_src_surface(32)
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), 0, 32,
-                             [masks[1], masks[2], masks[0], masks[3]])
+                             [masks[2], masks[1], masks[0], masks[3]])
         for blend_name, dst_color, op in blend:
             p = []
             for src_color in self._test_palette:
@@ -2064,7 +2066,7 @@ class SurfaceBlendTest(unittest.TestCase):
         src = self._make_src_surface(32, srcalpha=True)
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), SRCALPHA, 32,
-                             (masks[1], masks[2], masks[3], masks[0]))
+                             (masks[2], masks[1], masks[0], masks[3]))
         for blend_name, dst_color, op in blend:
             p = [tuple([op(dst_color[i], src_color[i]) for i in range(4)])
                  for src_color in self._test_palette]
