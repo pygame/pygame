@@ -1214,7 +1214,7 @@ surf_set_palette(PyObject *self, PyObject *args)
      */
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_Palette *pal = surf->format->palette;
-    const SDL_Color *old_colors = pal->colors;
+    const SDL_Color *old_colors;
     SDL_Color colors[256];
 #else  /* IS_SDLv1 */
     SDL_Surface *surf = pgSurface_AsSurface(self);
@@ -1239,6 +1239,7 @@ surf_set_palette(PyObject *self, PyObject *args)
 
     if (!pal)
         return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
+    old_colors = pal->colors;
 #else  /* IS_SDLv1 */
     if (!pal)
         return RAISE(pgExc_SDLError, "Surface has no palette\n");
