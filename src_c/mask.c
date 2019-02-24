@@ -511,7 +511,7 @@ mask_from_surface(PyObject *self, PyObject *args)
 
     if (surf->w < 0 || surf->h < 0) {
         return RAISE(PyExc_ValueError,
-                     "Cannot create mask with negative size");
+                     "cannot create mask with negative size");
     }
 
     /* lock the surface, release the GIL. */
@@ -1578,6 +1578,11 @@ Mask(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
                                      &fill))
         return NULL;
+
+    if (w < 0 || h < 0) {
+        return RAISE(PyExc_ValueError,
+                     "cannot create mask with negative size");
+    }
 
     mask = bitmask_create(w, h);
     if (!mask)
