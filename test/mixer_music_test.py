@@ -10,11 +10,20 @@ from pygame.compat import as_unicode, unicode_, filesystem_encode
 
 
 class MixerMusicModuleTest(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
         pygame.mixer.init()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pygame.mixer.quit()
+
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if pygame.mixer.get_init() is None:
+            pygame.mixer.init()
 
     def test_load(self):
         "|tags:music|"
