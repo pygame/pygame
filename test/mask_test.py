@@ -51,6 +51,12 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertEqual(mask2.count(), expected_count)
         self.assertEqual(mask2.get_size(), expected_size)
 
+    def test_mask__negative_size(self):
+        """Ensure the mask contructor handles negative sizes correctly."""
+        for size in ((1, -1), (-1, 1), (-1, -1)):
+            with self.assertRaises(ValueError):
+                mask = pygame.Mask(size)
+
     def test_mask__fill_kwarg(self):
         """Ensure masks are created correctly using the fill keyword."""
         width, height = 37, 47
@@ -655,12 +661,16 @@ class MaskTypeTest( unittest.TestCase ):
         #TODO: this should really make one bounding rect.
         #self.assertEqual(repr(r), "[<rect(0, 0, 5, 2)>]")
 
-    def test_negative_size_mask(self):
+    def test_scale__negative_size(self):
+        """Ensure scale handles negative sizes correctly."""
         mask = pygame.Mask((100, 100))
+
         with self.assertRaises(ValueError):
             mask.scale((-1, -1))
+
         with self.assertRaises(ValueError):
             mask.scale((-1, 10))
+
         with self.assertRaises(ValueError):
             mask.scale((10, -1))
 
