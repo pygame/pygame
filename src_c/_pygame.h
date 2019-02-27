@@ -578,9 +578,9 @@ typedef struct {
 } pgSurfaceObject;
 #define pgSurface_AsSurface(x) (((pgSurfaceObject *)x)->surf)
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
-#define pgSurface_Check(x) \
-    ((x)->ob_type ==       \
-     (PyTypeObject *)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
+#define pgSurface_Check(x)    \
+    (PyObject_IsInstance((x), \
+        (PyObject *)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0]))
 #define pgSurface_Type \
     (*(PyTypeObject *)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #if IS_SDLv1
