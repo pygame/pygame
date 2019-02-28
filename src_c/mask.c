@@ -687,15 +687,11 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                 case 3:
                     pix = ((Uint8 *)pixels);
                     pixels += 3;
-#if IS_SDLv1
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
                     the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
-#else  /* IS_SDLv2 */
-                    the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
                     break;
                 default: /* case 4: */
                     the_color = *((Uint32 *)pixels);
@@ -716,15 +712,11 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                     case 3:
                         pix = ((Uint8 *)pixels2);
                         pixels2 += 3;
-#if IS_SDLv1
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                         the_color2 = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
                         the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
-#else  /* IS_SDLv2 */
-                        the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
                         break;
                     default: /* case 4: */
                         the_color2 = *((Uint32 *)pixels2);
