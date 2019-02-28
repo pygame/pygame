@@ -570,11 +570,20 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
         mixer.init()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         mixer.quit()
+
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if mixer.get_init() is None:
+            mixer.init()
 
     def test_channel(self):
         """Ensure Channel() creation works."""
@@ -822,11 +831,20 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 ############################### SOUND CLASS TESTS ##############################
 
 class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
         mixer.init()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         mixer.quit()
+
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if mixer.get_init() is None:
+            mixer.init()
 
     # See MixerModuleTest's methods test_sound_args(), test_sound_unicode(),
     # and test_array_keyword() for additional testing of Sound() creation.
@@ -842,13 +860,12 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_sound__from_file_object(self):
         """Ensure Sound() creation with a file object works."""
         filename = example_path(os.path.join('data', 'house_lo.wav'))
-        file_obj = open(filename, "rb")
 
-        sound = mixer.Sound(file_obj)
+        # Using 'with' ensures the file is closed even if test fails.
+        with open(filename, "rb") as file_obj:
+            sound = mixer.Sound(file_obj)
 
-        self.assertIsInstance(sound, mixer.Sound)
-
-        file_obj.close()
+            self.assertIsInstance(sound, mixer.Sound)
 
     def test_sound__from_sound_object(self):
         """Ensure Sound() creation with a Sound() object works."""
