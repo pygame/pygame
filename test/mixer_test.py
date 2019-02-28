@@ -860,13 +860,12 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_sound__from_file_object(self):
         """Ensure Sound() creation with a file object works."""
         filename = example_path(os.path.join('data', 'house_lo.wav'))
-        file_obj = open(filename, "rb")
 
-        sound = mixer.Sound(file_obj)
+        # Using 'with' ensures the file is closed even if test fails.
+        with open(filename, "rb") as file_obj:
+            sound = mixer.Sound(file_obj)
 
-        self.assertIsInstance(sound, mixer.Sound)
-
-        file_obj.close()
+            self.assertIsInstance(sound, mixer.Sound)
 
     def test_sound__from_sound_object(self):
         """Ensure Sound() creation with a Sound() object works."""

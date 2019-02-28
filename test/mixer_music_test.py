@@ -52,15 +52,14 @@ class MixerMusicModuleTest(unittest.TestCase):
         """test loading music from file-like objects."""
         formats = ['ogg', 'wav']
         data_fname = example_path('data')
-        ret = []
         for f in formats:
             path = os.path.join(data_fname, 'house_lo.%s' % f)
             if os.sep == '\\':
                 path = path.replace('\\', '\\\\')
             bmusfn = filesystem_encode(path)
-            musf = open(bmusfn, 'rb')
-            ret.append(pygame.mixer.music.load(musf))
-        return ret
+
+            with open(bmusfn, 'rb') as musf:
+                pygame.mixer.music.load(musf)
 
     def test_load_unicode(self):
         """test non-ASCII unicode path"""

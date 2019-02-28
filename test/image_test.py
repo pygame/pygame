@@ -51,10 +51,10 @@ class ImageModuleTest( unittest.TestCase ):
                        bluish_pixel + greyish_pixel]
 
         f_descriptor, f_path = tempfile.mkstemp(suffix='.png')
-        f = os.fdopen(f_descriptor, 'wb')
-        w = png.Writer(2, 2, alpha=True)
-        w.write(f, pixel_array)
-        f.close()
+
+        with os.fdopen(f_descriptor, 'wb') as f:
+            w = png.Writer(2, 2, alpha=True)
+            w.write(f, pixel_array)
 
         # Read the PNG file and verify that pygame interprets it correctly
         surf = pygame.image.load(f_path)
@@ -65,9 +65,8 @@ class ImageModuleTest( unittest.TestCase ):
         self.assertEqual(surf.get_at((1, 1)), greyish_pixel)
 
         # Read the PNG file obj. and verify that pygame interprets it correctly
-        f = open(f_path, 'rb')
-        surf = pygame.image.load(f)
-        f.close()
+        with open(f_path, 'rb') as f:
+            surf = pygame.image.load(f)
 
         self.assertEqual(surf.get_at((0, 0)), reddish_pixel)
         self.assertEqual(surf.get_at((1, 0)), greenish_pixel)
@@ -84,13 +83,12 @@ class ImageModuleTest( unittest.TestCase ):
         # f = os.path.join("examples", "data", "alien1.jpg")
         surf = pygame.image.load(f)
 
-        f = open(f, "rb")
+        with open(f, "rb") as f:
+            surf = pygame.image.load(f)
 
-        # f = open(os.path.join("examples", "data", "alien1.jpg"), "rb")
-
-        surf = pygame.image.load(f)
-
-        # surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
+        # with open(os.path.join("examples", "data", "alien1.jpg"), "rb") as f:
+        #     surf = pygame.image.load(open(os.path.join("examples", "data",
+        #         "alien1.jpg"), "rb"))
 
     def testSaveJPG(self):
         """ JPG equivalent to issue #211 - color channel swapping
@@ -161,20 +159,23 @@ class ImageModuleTest( unittest.TestCase ):
         f_path = tempfile.mktemp(suffix='.png')
         pygame.image.save(surf, f_path)
 
-        # Read the PNG file and verify that pygame saved it correctly
-        reader = png.Reader(filename=f_path)
-        width, height, pixels, metadata = reader.asRGBA8()
+        try:
+            # Read the PNG file and verify that pygame saved it correctly
+            reader = png.Reader(filename=f_path)
+            width, height, pixels, metadata = reader.asRGBA8()
 
-        # pixels is a generator
-        self.assertEqual(tuple(next(pixels)), reddish_pixel)
-        self.assertEqual(tuple(next(pixels)), greenish_pixel)
-        self.assertEqual(tuple(next(pixels)), bluish_pixel)
-        self.assertEqual(tuple(next(pixels)), greyish_pixel)
+            # pixels is a generator
+            self.assertEqual(tuple(next(pixels)), reddish_pixel)
+            self.assertEqual(tuple(next(pixels)), greenish_pixel)
+            self.assertEqual(tuple(next(pixels)), bluish_pixel)
+            self.assertEqual(tuple(next(pixels)), greyish_pixel)
 
-        if not reader.file.closed:
-            reader.file.close()
-        del reader
-        os.remove(f_path)
+        finally:
+            # Ensures proper clean up.
+            if not reader.file.closed:
+                reader.file.close()
+            del reader
+            os.remove(f_path)
 
     def testSavePNG24(self):
         """ see if we can save a png with color values in the proper channels.
@@ -194,20 +195,23 @@ class ImageModuleTest( unittest.TestCase ):
         f_path = tempfile.mktemp(suffix='.png')
         pygame.image.save(surf, f_path)
 
-        # Read the PNG file and verify that pygame saved it correctly
-        reader = png.Reader(filename=f_path)
-        width, height, pixels, metadata = reader.asRGB8()
+        try:
+            # Read the PNG file and verify that pygame saved it correctly
+            reader = png.Reader(filename=f_path)
+            width, height, pixels, metadata = reader.asRGB8()
 
-        # pixels is a generator
-        self.assertEqual(tuple(next(pixels)), reddish_pixel)
-        self.assertEqual(tuple(next(pixels)), greenish_pixel)
-        self.assertEqual(tuple(next(pixels)), bluish_pixel)
-        self.assertEqual(tuple(next(pixels)), greyish_pixel)
+            # pixels is a generator
+            self.assertEqual(tuple(next(pixels)), reddish_pixel)
+            self.assertEqual(tuple(next(pixels)), greenish_pixel)
+            self.assertEqual(tuple(next(pixels)), bluish_pixel)
+            self.assertEqual(tuple(next(pixels)), greyish_pixel)
 
-        if not reader.file.closed:
-            reader.file.close()
-        del reader
-        os.remove(f_path)
+        finally:
+            # Ensures proper clean up.
+            if not reader.file.closed:
+                reader.file.close()
+            del reader
+            os.remove(f_path)
 
     def test_save(self):
 
@@ -228,18 +232,20 @@ class ImageModuleTest( unittest.TestCase ):
             try:
                 temp_filename = "%s.%s" % ("tmpimg", fmt)
                 pygame.image.save(s, temp_filename)
-                # test the magic numbers at the start of the file to ensure they are saved
-                #   as the correct file type.
-                handle = open(temp_filename, "rb")
-                self.assertEqual((1, fmt), (test_magic(handle, magic_hex[fmt.lower()]), fmt))
-                handle.close()
+
+                # Using 'with' ensures the file is closed even if test fails.
+                with open(temp_filename, "rb") as handle:
+                    # Test the magic numbers at the start of the file to ensure
+                    # they are saved as the correct file type.
+                    self.assertEqual((1, fmt), (test_magic(handle,
+                        magic_hex[fmt.lower()]), fmt))
+
                 # load the file to make sure it was saved correctly.
                 #    Note load can load a jpg saved with a .png file name.
                 s2 = pygame.image.load(temp_filename)
                 #compare contents, might only work reliably for png...
                 #   but because it's all one color it seems to work with jpg.
                 self.assertEqual(s2.get_at((0,0)), s.get_at((0,0)))
-                handle.close()
             finally:
                 #clean up the temp file, comment out to leave tmp file after run.
                 os.remove(temp_filename)

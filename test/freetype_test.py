@@ -162,11 +162,17 @@ class FreeTypeFontTest(unittest.TestCase):
     def test_freetype_Font_dealloc(self):
         import sys
         handle = open(self._sans_path, 'rb')
+
         def load_font():
             tempFont = ft.Font(handle)
-        load_font()
-        self.assertEqual(sys.getrefcount(handle), 2)
-        handle.close()
+
+        try:
+            load_font()
+
+            self.assertEqual(sys.getrefcount(handle), 2)
+        finally:
+            # Ensures file is closed even if test fails.
+            handle.close()
 
     def test_freetype_Font_scalable(self):
 
