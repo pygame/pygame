@@ -18,17 +18,6 @@ IS_PYPY = 'PyPy' == platform.python_implementation()
 
 @unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
 class SurfarrayModuleTest (unittest.TestCase):
-
-    def setUp(self):
-        # Needed for 8 bits-per-pixel color palette surface tests.
-        pygame.init()
-
-        # Makes sure the same array package is used each time.
-        pygame.surfarray.use_arraytype(arraytype)
-
-    def tearDown(self):
-        pygame.quit()
-
     pixels2d = {8: True, 16: True, 24: False, 32: True}
     pixels3d = {8: False, 16: False, 24: True, 32: True}
     array2d = {8: True, 16: True, 24: True, 32: True}
@@ -43,6 +32,24 @@ class SurfarrayModuleTest (unittest.TestCase):
     test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
                    ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
                    ((9, 11), 4), ((5, 6), 4)]
+
+    @classmethod
+    def setUpClass(cls):
+        # Needed for 8 bits-per-pixel color palette surface tests.
+        pygame.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.quit()
+
+    def setUp(cls):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
+
+        # Makes sure the same array package is used each time.
+        pygame.surfarray.use_arraytype(arraytype)
 
     def _make_surface(self, bitsize, srcalpha=False, palette=None):
         if palette is None:

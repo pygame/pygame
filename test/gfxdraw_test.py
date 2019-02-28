@@ -54,14 +54,26 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                      surf.get_masks()))
         self.assertNotEqual(sc, color, fail_msg)
 
+    @classmethod
+    def setUpClass(cls):
+        # Necessary for Surface.set_palette.
+        pygame.init()
+        pygame.display.set_mode((1, 1))
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.quit()
+
     def setUp(self):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
+
         Surface = pygame.Surface
         size = self.default_size
         palette = self.default_palette
         if not self.is_started:
-            # Necessary for Surface.set_palette.
-            pygame.init()
-            pygame.display.set_mode((1, 1))
             # Create test surfaces
             self.surfaces = [Surface(size, 0, 8),
                              Surface(size, 0, 16),

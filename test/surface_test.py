@@ -159,7 +159,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             surf.fill((255, 255, 255))
             surf.get_bounding_rect()  # Segfault.
         finally:
-            pygame.quit()
+            pygame.display.quit()
 
     def test_copy(self):
         """Ensure a surface can be copied."""
@@ -914,7 +914,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def test_get_palette(self):
-        pygame.init()
+        pygame.display.init()
         try:
             palette = [Color(i, i, i) for i in range(256)]
             pygame.display.set_mode((100, 50))
@@ -929,11 +929,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             for c in palette2:
                 self.assertIsInstance(c, pygame.Color)
         finally:
-            pygame.quit()
+            pygame.display.quit()
 
     def test_get_palette_at(self):
         # See also test_get_palette
-        pygame.init()
+        pygame.display.init()
         try:
             pygame.display.set_mode((100, 50))
             surf = pygame.Surface((2, 2), 0, 8)
@@ -945,7 +945,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertRaises(IndexError, surf.get_palette_at, -1)
             self.assertRaises(IndexError, surf.get_palette_at, 256)
         finally:
-            pygame.quit()
+            pygame.display.quit()
 
     def todo_test_get_pitch(self):
 
@@ -1102,7 +1102,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         palette[11] = tuple(palette[11])[0:3] # 3 element tuple
 
         surf = pygame.Surface((2, 2), 0, 8)
-        pygame.init()
+        pygame.display.init()
         try:
             pygame.display.set_mode((100, 50))
             surf.set_palette(palette)
@@ -1128,7 +1128,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertRaises(ValueError, surf.set_palette,
                                   (1, 2, 3, 254))
         finally:
-            pygame.quit()
+            pygame.display.quit()
 
     def test_set_palette__fail(self):
         pygame.init()
@@ -1138,7 +1138,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         pygame.quit()
 
     def test_set_palette_at(self):
-        pygame.init()
+        pygame.display.init()
         try:
             pygame.display.set_mode((100, 50))
             surf = pygame.Surface((2, 2), 0, 8)
@@ -1161,7 +1161,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                                   surf.set_palette_at,
                                   -1, replacement)
         finally:
-            pygame.quit()
+            pygame.display.quit()
 
     def test_subsurface(self):
 
@@ -1232,7 +1232,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf = pygame.Surface((2, 2), 0, 8)
         c = (1, 1, 1)  # Unlikely to be in a default palette.
         i = 67
-        pygame.init()
+        pygame.display.init()
         try:
             pygame.display.set_mode((100, 50))
             surf.set_palette_at(i, c)
@@ -1241,7 +1241,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             # Confirm it is a Color instance
             self.assertIsInstance(unmapped_c, pygame.Color)
         finally:
-            pygame.quit()
+            pygame.display.quit()
 
         # Remaining, non-pallete, cases.
         c = (128, 64, 12, 255)
@@ -1878,10 +1878,10 @@ class SurfaceBlendTest(unittest.TestCase):
 
     def setUp(self):
         # Needed for 8 bits-per-pixel color palette surface tests.
-        pygame.init()
+        pygame.display.init()
 
     def tearDown(self):
-        pygame.quit()
+        pygame.display.quit()
 
     _test_palette = [(0, 0, 0, 255),
                      (10, 30, 60, 0),
@@ -2216,10 +2216,10 @@ class SurfaceSelfBlitTest(unittest.TestCase):
 
     def setUp(self):
         # Needed for 8 bits-per-pixel color palette surface tests.
-        pygame.init()
+        pygame.display.init()
 
     def tearDown(self):
-        pygame.quit()
+        pygame.display.quit()
 
     _test_palette = [(0, 0, 0, 255),
                     (255, 0, 0, 0),
@@ -2404,10 +2404,10 @@ class SurfaceSelfBlitTest(unittest.TestCase):
 class SurfaceFillTest(unittest.TestCase):
 
     def setUp(self):
-        pygame.init()
+        pygame.display.init()
 
     def tearDown(self):
-        pygame.quit()
+        pygame.display.quit()
 
     def test_fill(self):
         screen = pygame.display.set_mode((640, 480))
