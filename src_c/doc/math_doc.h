@@ -1,114 +1,59 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
-
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
-
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
-
 #define DOC_VECTOR2CROSS "cross(Vector2) -> Vector2\ncalculates the cross- or vector-product"
-
 #define DOC_VECTOR2MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
-
 #define DOC_VECTOR2MAGNITUDESQUARED "magnitude_squared() -> float\nreturns the squared magnitude of the vector."
-
 #define DOC_VECTOR2LENGTH "length() -> float\nreturns the Euclidean length of the vector."
-
 #define DOC_VECTOR2LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
-
 #define DOC_VECTOR2NORMALIZE "normalize() -> Vector2\nreturns a vector with the same direction but length 1."
-
 #define DOC_VECTOR2NORMALIZEIP "normalize_ip() -> None\nnormalizes the vector in place so that its length is 1."
-
 #define DOC_VECTOR2ISNORMALIZED "is_normalized() -> Bool\ntests if the vector is normalized i.e. has length == 1."
-
 #define DOC_VECTOR2SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
-
 #define DOC_VECTOR2REFLECT "reflect(Vector2) -> Vector2\nreturns a vector reflected of a given normal."
-
 #define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
-
 #define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
-
 #define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
-
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
-
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
-
 #define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
-
 #define DOC_VECTOR2ROTATE "rotate(float) -> Vector2\nrotates a vector by a given angle in degrees."
-
 #define DOC_VECTOR2ROTATEIP "rotate_ip(float) -> None\nrotates the vector by a given angle in degrees in place."
-
 #define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
-
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
-
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
-
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector2\nVector3(float) -> Vector2\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
-
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
-
 #define DOC_VECTOR3CROSS "cross(Vector3) -> Vector3\ncalculates the cross- or vector-product"
-
 #define DOC_VECTOR3MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
-
 #define DOC_VECTOR3MAGNITUDESQUARED "magnitude_squared() -> float\nreturns the squared Euclidean magnitude of the vector."
-
 #define DOC_VECTOR3LENGTH "length() -> float\nreturns the Euclidean length of the vector."
-
 #define DOC_VECTOR3LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
-
 #define DOC_VECTOR3NORMALIZE "normalize() -> Vector3\nreturns a vector with the same direction but length 1."
-
 #define DOC_VECTOR3NORMALIZEIP "normalize_ip() -> None\nnormalizes the vector in place so that its length is 1."
-
 #define DOC_VECTOR3ISNORMALIZED "is_normalized() -> Bool\ntests if the vector is normalized i.e. has length == 1."
-
 #define DOC_VECTOR3SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
-
 #define DOC_VECTOR3REFLECT "reflect(Vector3) -> Vector3\nreturns a vector reflected of a given normal."
-
 #define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
-
 #define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
-
 #define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
-
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
-
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
-
 #define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
-
 #define DOC_VECTOR3ROTATE "rotate(Vector3, float) -> Vector3\nrotates a vector by a given angle in degrees."
-
 #define DOC_VECTOR3ROTATEIP "rotate_ip(Vector3, float) -> None\nrotates the vector by a given angle in degrees in place."
-
 #define DOC_VECTOR3ROTATEX "rotate_x(float) -> Vector3\nrotates a vector around the x-axis by the angle in degrees."
-
 #define DOC_VECTOR3ROTATEXIP "rotate_x_ip(float) -> None\nrotates the vector around the x-axis by the angle in degrees in place."
-
 #define DOC_VECTOR3ROTATEY "rotate_y(float) -> Vector3\nrotates a vector around the y-axis by the angle in degrees."
-
 #define DOC_VECTOR3ROTATEYIP "rotate_y_ip(float) -> None\nrotates the vector around the y-axis by the angle in degrees in place."
-
 #define DOC_VECTOR3ROTATEZ "rotate_z(float) -> Vector3\nrotates a vector around the z-axis by the angle in degrees."
-
 #define DOC_VECTOR3ROTATEZIP "rotate_z_ip(float) -> None\nrotates the vector around the z-axis by the angle in degrees in place."
-
 #define DOC_VECTOR3ANGLETO "angle_to(Vector3) -> float\ncalculates the angle to a given vector in degrees."
-
 #define DOC_VECTOR3ASSPHERICAL "as_spherical() -> (r, theta, phi)\nreturns a tuple with radial distance, inclination and azimuthal angle."
-
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
-
 #define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
-
 #define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
-
 
 
 /* Docs in a comment... slightly easier to read. */

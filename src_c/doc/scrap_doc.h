@@ -1,22 +1,13 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMESCRAP "pygame module for clipboard support."
-
 #define DOC_PYGAMESCRAPINIT "init () -> None\nInitializes the scrap module."
-
 #define DOC_PYGAMESCRAPGETINIT "get_init() -> bool\nReturns True if the scrap module is currently initialized."
-
 #define DOC_PYGAMESCRAPGET "get (type) -> bytes\nGets the data for the specified type from the clipboard."
-
 #define DOC_PYGAMESCRAPGETTYPES "get_types () -> list\nGets a list of the available clipboard types."
-
 #define DOC_PYGAMESCRAPPUT "put(type, data) -> None\nPlaces data into the clipboard."
-
 #define DOC_PYGAMESCRAPCONTAINS "contains (type) -> bool\nChecks, whether a certain type is available in the clipboard."
-
 #define DOC_PYGAMESCRAPLOST "lost() -> bool\nChecks whether the clipboard is currently owned by the application."
-
 #define DOC_PYGAMESCRAPSETMODE "set_mode(mode) -> None\nSets the clipboard access mode."
-
 
 
 /* Docs in a comment... slightly easier to read. */

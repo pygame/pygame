@@ -1,36 +1,20 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMIXERMUSIC "pygame module for controlling streamed audio"
-
 #define DOC_PYGAMEMIXERMUSICLOAD "load(filename) -> None\nload(object) -> None\nLoad a music file for playback"
-
 #define DOC_PYGAMEMIXERMUSICPLAY "play(loops=0, start=0.0) -> None\nStart the playback of the music stream"
-
 #define DOC_PYGAMEMIXERMUSICREWIND "rewind() -> None\nrestart music"
-
 #define DOC_PYGAMEMIXERMUSICSTOP "stop() -> None\nstop the music playback"
-
 #define DOC_PYGAMEMIXERMUSICPAUSE "pause() -> None\ntemporarily stop music playback"
-
 #define DOC_PYGAMEMIXERMUSICUNPAUSE "unpause() -> None\nresume paused music"
-
 #define DOC_PYGAMEMIXERMUSICFADEOUT "fadeout(time) -> None\nstop music playback after fading out"
-
 #define DOC_PYGAMEMIXERMUSICSETVOLUME "set_volume(value) -> None\nset the music volume"
-
 #define DOC_PYGAMEMIXERMUSICGETVOLUME "get_volume() -> value\nget the music volume"
-
 #define DOC_PYGAMEMIXERMUSICGETBUSY "get_busy() -> bool\ncheck if the music stream is playing"
-
 #define DOC_PYGAMEMIXERMUSICSETPOS "set_pos(pos) -> None\nset position to play from"
-
 #define DOC_PYGAMEMIXERMUSICGETPOS "get_pos() -> time\nget the music play time"
-
 #define DOC_PYGAMEMIXERMUSICQUEUE "queue(filename) -> None\nqueue a music file to follow the current"
-
 #define DOC_PYGAMEMIXERMUSICSETENDEVENT "set_endevent() -> None\nset_endevent(type) -> None\nhave the music send an event when playback stops"
-
 #define DOC_PYGAMEMIXERMUSICGETENDEVENT "get_endevent() -> type\nget the event a channel sends when playback stops"
-
 
 
 /* Docs in a comment... slightly easier to read. */
