@@ -1,36 +1,20 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAME "the top level pygame package"
-
 #define DOC_PYGAMEINIT "init() -> (numpass, numfail)\ninitialize all imported pygame modules"
-
 #define DOC_PYGAMEQUIT "quit() -> None\nuninitialize all pygame modules"
-
 #define DOC_PYGAMEGETINIT "get_init() -> bool\nreturns True if pygame is currently initialized"
-
 #define DOC_PYGAMEERROR "raise pygame.error(message)\nstandard pygame exception"
-
 #define DOC_PYGAMEGETERROR "get_error() -> errorstr\nget the current error message"
-
 #define DOC_PYGAMESETERROR "set_error(error_msg) -> None\nset the current error message"
-
 #define DOC_PYGAMEGETSDLVERSION "get_sdl_version() -> major, minor, patch\nget the version number of SDL"
-
 #define DOC_PYGAMEGETSDLBYTEORDER "get_sdl_byteorder() -> int\nget the byte order of SDL"
-
 #define DOC_PYGAMEREGISTERQUIT "register_quit(callable) -> None\nregister a function to be called when pygame quits"
-
 #define DOC_PYGAMEENCODESTRING "encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None\nEncode a Unicode or bytes object"
-
 #define DOC_PYGAMEENCODEFILEPATH "encode_file_path([obj [, etype]]) -> bytes or None\nEncode a Unicode or bytes object as a file system path"
-
 #define DOC_PYGAMEVERSION "small module containing version information"
-
 #define DOC_PYGAMEVERSIONVER "ver = '1.2'\nversion number as a string"
-
 #define DOC_PYGAMEVERSIONVERNUM "vernum = (1, 5, 3)\ntupled integers of the version"
-
 #define DOC_PYGAMEVERSIONREV "rev = 'a6f89747b551+'\nrepository revision of the build"
-
 
 
 /* Docs in a comment... slightly easier to read. */
