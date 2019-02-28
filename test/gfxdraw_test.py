@@ -55,33 +55,59 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                      surf.get_masks()))
         self.assertNotEqual(sc, color, fail_msg)
 
+    @classmethod
+    def setUpClass(cls):
+        # Necessary for Surface.set_palette.
+        pygame.init()
+        pygame.display.set_mode((1, 1))
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.quit()
+
     def setUp(self):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
+
         Surface = pygame.Surface
         size = self.default_size
         palette = self.default_palette
         if not self.is_started:
-            # Necessary for Surface.set_palette.
-            pygame.init()
-            pygame.display.set_mode((1, 1))
             # Create test surfaces
             self.surfaces = [Surface(size, 0, 8),
-                             Surface(size, 0, 16),
-                             Surface(size, 0, 24),
-                             Surface(size, 0, 32),
                              Surface(size, SRCALPHA, 16),
                              Surface(size, SRCALPHA, 32)]
             self.surfaces[0].set_palette(palette)
-            # Special pixel formats
-            for i in range(1, 6):
-                s = self.surfaces[i]
-                flags = s.get_flags()
-                bitsize = s.get_bitsize()
-                masks = s.get_masks()
-                if flags:
-                    masks = (masks[1], masks[2], masks[3], masks[0])
-                else:
-                    masks = (masks[1], masks[2], masks[0], masks[3])
-                self.surfaces.append(Surface(size, flags, bitsize, masks))
+            nonpalette_fmts = (
+                #(8, (0xe0, 0x1c, 0x3, 0x0)),
+                (12, (0xf00, 0xf0, 0xf, 0x0)),
+                (15, (0x7c00, 0x3e0, 0x1f, 0x0)),
+                (15, (0x1f, 0x3e0, 0x7c00, 0x0)),
+                (16, (0xf00, 0xf0, 0xf, 0xf000)),
+                (16, (0xf000, 0xf00, 0xf0, 0xf)),
+                (16, (0xf, 0xf0, 0xf00, 0xf000)),
+                (16, (0xf0, 0xf00, 0xf000, 0xf)),
+                (16, (0x7c00, 0x3e0, 0x1f, 0x8000)),
+                (16, (0xf800, 0x7c0, 0x3e, 0x1)),
+                (16, (0x1f, 0x3e0, 0x7c00, 0x8000)),
+                (16, (0x3e, 0x7c0, 0xf800, 0x1)),
+                (16, (0xf800, 0x7e0, 0x1f, 0x0)),
+                (16, (0x1f, 0x7e0, 0xf800, 0x0)),
+                (24, (0xff, 0xff00, 0xff0000, 0x0)),
+                (24, (0xff0000, 0xff00, 0xff, 0x0)),
+                (32, (0xff0000, 0xff00, 0xff, 0x0)),
+                (32, (0xff000000, 0xff0000, 0xff00, 0x0)),
+                (32, (0xff, 0xff00, 0xff0000, 0x0)),
+                (32, (0xff00, 0xff0000, 0xff000000, 0x0)),
+                (32, (0xff0000, 0xff00, 0xff, 0xff000000)),
+                (32, (0xff000000, 0xff0000, 0xff00, 0xff)),
+                (32, (0xff, 0xff00, 0xff0000, 0xff000000)),
+                (32, (0xff00, 0xff0000, 0xff000000, 0xff))
+            )
+            for bitsize, masks in nonpalette_fmts:
+                self.surfaces.append(Surface(size, 0, bitsize, masks))
         for surf in self.surfaces:
             surf.fill(self.background_color)
 
