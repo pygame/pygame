@@ -643,11 +643,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(repr(im3), '<Surface(24x24x8 SW)>')
         self.assertEqual(im3.get_palette(), im.get_palette())
 
-        # It is still an error when the target format really does have
-        # an empty palette (all the entries are black).
-        self.assertRaises(pygame.error, im2.convert, 8)
-        self.assertEqual(pygame.get_error(), "Empty destination palette")
-
     def test_convert_init(self):
         """ Ensure initialization exceptions are raised
             for surf.convert()."""
