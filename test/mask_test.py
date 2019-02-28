@@ -670,21 +670,244 @@ class MaskTypeTest(unittest.TestCase):
                 self.assertEqual(conv.get_at((i,j)) == 0,
                                  m1.overlap(m2, (i - 99, j - 99)) is None)
 
-    def todo_test_connected_component(self):
+    def _draw_component_pattern_box(self, mask, size, pos, inverse=False):
+        # Helper method to create/draw a 'box' pattern for testing.
+        #
+        # 111
+        # 101  3x3 example pattern
+        # 111
+        pattern = pygame.mask.Mask((size, size), fill=True)
+        pattern.set_at((size // 2, size // 2), 0)
+
+        if inverse:
+            mask.erase(pattern, pos)
+            pattern.invert()
+        else:
+            mask.draw(pattern, pos)
+
+        return pattern
+
+    def _draw_component_pattern_x(self, mask, size, pos, inverse=False):
+        # Helper method to create/draw an 'X' pattern for testing.
+        #
+        # 101
+        # 010  3x3 example pattern
+        # 101
+        pattern = pygame.mask.Mask((size, size))
+
+        ymax = size - 1
+        for y in range(size):
+            for x in range(size):
+                if x == y or x == ymax - y:
+                    pattern.set_at((x, y))
+
+        if inverse:
+            mask.erase(pattern, pos)
+            pattern.invert()
+        else:
+            mask.draw(pattern, pos)
+
+        return pattern
+
+    def _draw_component_pattern_plus(self, mask, size, pos, inverse=False):
+        # Helper method to create/draw a '+' pattern for testing.
+        #
+        # 010
+        # 111  3x3 example pattern
+        # 010
+        pattern = pygame.mask.Mask((size, size))
+
+        xmid = ymid = size // 2
+        for y in range(size):
+            for x in range(size):
+                if x == xmid or y == ymid:
+                    pattern.set_at((x, y))
+
+        if inverse:
+            mask.erase(pattern, pos)
+            pattern.invert()
+        else:
+            mask.draw(pattern, pos)
+
+        return pattern
+
+    def test_connected_component(self):
         """Ensure a mask's connected component is correctly calculated."""
-        self.fail()
+        width, height = 41, 27
+        expected_size = (width, height)
+        original_mask = pygame.mask.Mask(expected_size)
+        patterns = []  # Patterns and offsets.
 
-    def todo_test_connected_component__set_bit(self):
+        # Draw some connected patterns on the original mask.
+        offset = (0, 0)
+        pattern = self._draw_component_pattern_x(original_mask, 3, offset)
+        patterns.append((pattern, offset))
+
+        size = 4
+        offset = (width - size, 0)
+        pattern = self._draw_component_pattern_plus(original_mask, size,
+                                                    offset)
+        patterns.append((pattern, offset))
+
+        # Make this one the largest connected component.
+        offset = (width // 2, height // 2)
+        pattern = self._draw_component_pattern_box(original_mask, 7, offset)
+        patterns.append((pattern, offset))
+
+        expected_pattern, expected_offset = patterns[-1]
+        expected_count = expected_pattern.count()
+        original_count = sum(p.count() for p, _ in patterns)
+
+        mask = original_mask.connected_component()
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+        self.assertEqual(mask.overlap_area(expected_pattern, expected_offset),
+                         expected_count)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(original_mask.count(), original_count)
+        self.assertEqual(original_mask.get_size(), expected_size)
+
+        for pattern, offset in patterns:
+            self.assertEqual(original_mask.overlap_area(pattern, offset),
+                             pattern.count())
+
+    def test_connected_component__full_mask(self):
         """Ensure a mask's connected component is correctly calculated
-        when the coordinate's bit is set.
-        """
-        self.fail()
+        when the mask is full."""
+        expected_size = (23, 31)
+        original_mask = pygame.mask.Mask(expected_size, fill=True)
+        expected_count = original_mask.count()
 
-    def todo_test_connected_component__unset_bit(self):
+        mask = original_mask.connected_component()
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(original_mask.count(), expected_count)
+        self.assertEqual(original_mask.get_size(), expected_size)
+
+    def test_connected_component__empty_mask(self):
+        """Ensure a mask's connected component is correctly calculated
+        when the mask is empty."""
+        expected_size = (37, 43)
+        original_mask = pygame.mask.Mask(expected_size)
+        original_count = original_mask.count()
+        expected_count = 0
+
+        mask = original_mask.connected_component()
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(original_mask.count(), original_count)
+        self.assertEqual(original_mask.get_size(), expected_size)
+
+    def test_connected_component__one_set_bit(self):
+        """Ensure a mask's connected component is correctly calculated
+        when the coordinate's bit is set with a connected component of 1 bit.
+        """
+        width, height = 71, 67
+        expected_size = (width, height)
+        original_mask = pygame.mask.Mask(expected_size, fill=True)
+        xset, yset = width // 2, height // 2
+        set_pos = (xset, yset)
+        expected_offset = (xset - 1, yset - 1)
+
+        # This isolates the bit at set_pos from all the other bits.
+        expected_pattern = self._draw_component_pattern_box(original_mask, 3,
+            expected_offset, inverse=True)
+        expected_count = 1
+        original_count = original_mask.count()
+
+        mask = original_mask.connected_component(set_pos)
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+        self.assertEqual(mask.overlap_area(expected_pattern, expected_offset),
+                         expected_count)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(original_mask.count(), original_count)
+        self.assertEqual(original_mask.get_size(), expected_size)
+        self.assertEqual(original_mask.overlap_area(
+            expected_pattern, expected_offset), expected_count)
+
+    def test_connected_component__multi_set_bits(self):
+        """Ensure a mask's connected component is correctly calculated
+        when the coordinate's bit is set with a connected component of > 1 bit.
+        """
+        expected_size = (113, 67)
+        original_mask = pygame.mask.Mask(expected_size)
+        p_width, p_height = 11, 13
+        set_pos = xset, yset = 11, 21
+        expected_offset = (xset - 1, yset - 1)
+        expected_pattern = pygame.mask.Mask((p_width, p_height), fill=True)
+
+        # Make an unsymmetrical pattern. All the set bits need to be connected
+        # in the resulting pattern for this to work properly.
+        for y in range(3, p_height):
+            for x in range(1, p_width):
+                if x == y or x == y - 3 or x == p_width - 4:
+                    expected_pattern.set_at((x, y), 0)
+
+        expected_count = expected_pattern.count()
+        original_mask.draw(expected_pattern, expected_offset)
+
+        mask = original_mask.connected_component(set_pos)
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+        self.assertEqual(mask.overlap_area(expected_pattern, expected_offset),
+                         expected_count)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(original_mask.count(), expected_count)
+        self.assertEqual(original_mask.get_size(), expected_size)
+        self.assertEqual(original_mask.overlap_area(
+            expected_pattern, expected_offset), expected_count)
+
+    def test_connected_component__unset_bit(self):
         """Ensure a mask's connected component is correctly calculated
         when the coordinate's bit is unset.
         """
-        self.fail()
+        width, height = 109, 101
+        expected_size = (width, height)
+        original_mask = pygame.mask.Mask(expected_size, fill=True)
+        unset_pos = (width // 2, height // 2)
+        original_mask.set_at(unset_pos, 0)
+        original_count = original_mask.count()
+        expected_count = 0
+
+        mask = original_mask.connected_component(unset_pos)
+
+        self.assertEqual(mask.count(), expected_count)
+        self.assertEqual(mask.get_size(), expected_size)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(original_mask.count(), original_count)
+        self.assertEqual(original_mask.get_size(), expected_size)
+        self.assertEqual(original_mask.get_at(unset_pos), 0)
+
+    # The skip() can be removed when issue #841 is fixed/closed.
+    @unittest.skip('can cause segmentation fault')
+    def test_connected_component__out_of_bounds(self):
+        """Ensure connected_component() checks bounds."""
+        width, height = 19, 11
+        original_size = (width, height)
+        original_mask = pygame.mask.Mask(expected_size, fill=True)
+        original_count = original_mask.count()
+
+        for pos in ((0, -1), (-1, 0), (0, height + 1), (width + 1, 0)):
+            with self.assertRaises(IndexError):
+                mask = original_mask.connected_component(pos)
+
+            # Ensure the original mask is unchanged.
+            self.assertEqual(original_mask.count(), original_count)
+            self.assertEqual(original_mask.get_size(), original_size)
 
     def test_connected_components(self):
         """
