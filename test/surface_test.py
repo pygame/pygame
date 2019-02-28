@@ -1130,6 +1130,13 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.quit()
 
+    def test_set_palette__fail(self):
+        pygame.init()
+        palette = 256 * [(10, 20, 30)]
+        surf = pygame.Surface((2, 2), 0, 32)
+        self.assertRaises(pygame.error, surf.set_palette, palette)
+        pygame.quit()
+
     def test_set_palette_at(self):
         pygame.init()
         try:
