@@ -65,6 +65,7 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PYGAME_MIXER_DEFAULT_SIZE -16
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
 #define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
+#define PYGAME_MIXER_DEFAULT_ALLOWCHANGES 0
 
 static PyTypeObject pgSound_Type;
 static PyTypeObject pgChannel_Type;
@@ -82,8 +83,9 @@ snd_releasebuffer(PyObject *, Py_buffer *);
 
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
-static int request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+static int request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
 static int request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+static int request_allowchanges = PYGAME_MIXER_DEFAULT_ALLOWCHANGES;
 static char *request_devicename = NULL;
 
 static int
@@ -332,7 +334,7 @@ pgMixer_AutoQuit(void)
 }
 
 static PyObject *
-_init(int freq, int size, int stereo, int chunk, char *devicename)
+_init(int freq, int size, int channels, int chunk, char *devicename, int allowchanges)
 {
     Uint16 fmt = 0;
     int i;
@@ -343,9 +345,12 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
     if (!size) {
         size = request_size;
     }
-    if (!stereo) {
-        stereo = request_stereo;
+
+    if (!channels) {
+        channels = request_channels;
     }
+    channels = (channels >= 2) ? 2 : 1;
+
     if (!chunk) {
         chunk = request_chunksize;
     }
@@ -353,10 +358,9 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
     if (!devicename) {
         devicename = request_devicename;
     }
-    if (stereo >= 2)
-        stereo = 2;
-    else
-        stereo = 1;
+    if (allowchanges == -1) {
+        allowchanges = request_allowchanges;
+    }
 
     /* printf("size:%d:\n", size); */
 
@@ -409,21 +413,13 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
             return PyInt_FromLong(0);
 
 #if IS_SDLv2
-        if (devicename) {
-            if (Mix_OpenAudioDevice(freq, fmt, stereo, chunk, devicename,
-                                    SDL_AUDIO_ALLOW_ANY_CHANGE) == -1) {
-                SDL_QuitSubSystem(SDL_INIT_AUDIO);
-                return PyInt_FromLong(0);
-            }
-        }
-        else {
-            if (Mix_OpenAudio(freq, fmt, stereo, chunk) == -1) {
-                SDL_QuitSubSystem(SDL_INIT_AUDIO);
-                return PyInt_FromLong(0);
-            }
+        if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
+                                allowchanges ? SDL_AUDIO_ALLOW_ANY_CHANGE : 0) == -1) {
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            return PyInt_FromLong(0);
         }
 #else
-        if (Mix_OpenAudio(freq, fmt, stereo, chunk) == -1) {
+        if (Mix_OpenAudio(freq, fmt, channels, chunk) == -1) {
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return PyInt_FromLong(0);
         }
@@ -438,12 +434,13 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
 static PyObject *
 pgMixer_AutoInit(PyObject *self, PyObject *arg)
 {
-    int freq = 0, size = 0, stereo = 0, chunk = 0;
+    int freq = 0, size = 0, channels = 0, chunk = 0;
+    int allowchanges = -1;
 
-    if (!PyArg_ParseTuple(arg, "|iiii", &freq, &size, &stereo, &chunk))
+    if (!PyArg_ParseTuple(arg, "|iiiii", &freq, &size, &channels, &chunk, &allowchanges))
         return NULL;
 
-    return _init(freq, size, stereo, chunk, NULL);
+    return _init(freq, size, channels, chunk, NULL, allowchanges);
 }
 
 static PyObject *
@@ -456,18 +453,19 @@ quit(PyObject *self)
 static PyObject *
 init(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    int freq = 0, size = 0, stereo = 0, chunk = 0;
+    int freq = 0, size = 0, channels = 0, chunk = 0, allowchanges = -1;
     char *devicename = NULL;
     PyObject *result;
     int value;
 
     static char *kwids[] = {"frequency", "size",       "channels",
-                            "buffer",    "devicename", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiis", kwids, &freq,
-                                     &size, &stereo, &chunk, &devicename)) {
+                            "buffer",    "devicename", "allowchanges", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiisi", kwids, &freq,
+                                     &size, &channels, &chunk, &devicename,
+                                     &allowchanges)) {
         return NULL;
     }
-    result = _init(freq, size, stereo, chunk, devicename);
+    result = _init(freq, size, channels, chunk, devicename, allowchanges);
     if (!result)
         return NULL;
     value = PyObject_IsTrue(result);
@@ -500,17 +498,19 @@ static PyObject *
 pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     static char *kwids[] = {"frequency", "size",       "channels",
-                            "buffer",    "devicename", NULL};
+                            "buffer",    "devicename", "allowchanges", NULL};
     int dname_size = 0;
 
     request_frequency = 0;
     request_size = 0;
-    request_stereo = 0;
+    request_channels = 0;
     request_chunksize = 0;
     request_devicename = NULL;
+    request_allowchanges = -1;
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "|iiiiz#", kwids, &request_frequency, &request_size,
-            &request_stereo, &request_chunksize, &request_devicename, &dname_size))
+            args, keywds, "|iiiiz#i", kwids, &request_frequency, &request_size,
+            &request_channels, &request_chunksize, &request_devicename, &dname_size,
+            &request_allowchanges))
         return NULL;
     if (!request_frequency) {
         request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
@@ -518,11 +518,14 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
     if (!request_size) {
         request_size = PYGAME_MIXER_DEFAULT_SIZE;
     }
-    if (!request_stereo) {
-        request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+    if (!request_channels) {
+        request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
     }
     if (!request_chunksize) {
         request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+    }
+    if (request_allowchanges == -1) {
+        request_allowchanges = PYGAME_MIXER_DEFAULT_ALLOWCHANGES;
     }
     Py_RETURN_NONE;
 }
