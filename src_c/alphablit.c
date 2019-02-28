@@ -45,6 +45,8 @@ typedef struct
     Uint8            src_blanket_alpha;
     int              src_has_colorkey;
     Uint32           src_colorkey;
+    SDL_BlendMode    src_blend;
+    SDL_BlendMode    dst_blend;
 #endif /* IS_SDLv2 */
 } SDL_BlitInfo;
 
@@ -73,31 +75,6 @@ extern int  SDL_RLESurface (SDL_Surface * surface);
 extern void SDL_UnRLESurface (SDL_Surface * surface, int recode);
 
 
-#if IS_SDLv2
-static int
-_PgSurface_SrcAlpha(SDL_Surface *surf)
-{
-    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
-        SDL_BlendMode mode;
-        if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
-            return -1;
-        }
-        if (mode == SDL_BLENDMODE_BLEND)
-            return 1;
-    }
-    else {
-        Uint8 color = SDL_ALPHA_OPAQUE;
-        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0) {
-            return -1;
-        }
-        if (color != SDL_ALPHA_OPAQUE)
-            return 1;
-    }
-    return 0;
-}
-#endif /* IS_SDLv2 */
-
-
 
 static int
 SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
@@ -106,9 +83,6 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
     int okay;
     int src_locked;
     int dst_locked;
-#if IS_SDLv2
-    int isalpha;
-#endif
 
     /* Everything is okay at the beginning...  */
     okay = 1;
@@ -169,6 +143,11 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
 #else /* IS_SDLv2 */
         SDL_GetSurfaceAlphaMod (src, &info.src_blanket_alpha);
         info.src_has_colorkey = SDL_GetColorKey (src, &info.src_colorkey) == 0;
+        if (SDL_GetSurfaceBlendMode(src, &info.src_blend) ||
+            SDL_GetSurfaceBlendMode(dst, &info.dst_blend)) {
+            okay = 0;
+            goto LEAVE;
+        }
 #endif /* IS_SDLv2 */
 
         if (info.d_pixels > info.s_pixels)
@@ -211,11 +190,8 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 alphablit_solid (&info);
             break;
 #else /* IS_SDLv2 */
-            isalpha = _PgSurface_SrcAlpha(src);
-            if (isalpha == 1) {
+            if (info.src_blend != SDL_BLENDMODE_NONE && src->format->Amask) {
                 alphablit_alpha (&info);
-            } else if (isalpha == -1) {
-                okay = 0;
             } else if (info.src_has_colorkey) {
                 alphablit_colorkey (&info);
             } else {
@@ -288,6 +264,9 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         }
     }
+
+LEAVE:
+
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
         SDL_UnlockSurface (dst);
@@ -330,8 +309,8 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
     if (!dstppa)
@@ -353,7 +332,7 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        srcppa)
+        info->src_blend != SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
@@ -484,8 +463,8 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
     if (!dstppa)
@@ -507,7 +486,7 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        srcppa)
+        info->src_blend != SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
@@ -638,8 +617,8 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
     if (!dstppa)
@@ -656,7 +635,7 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
 #if IS_SDLv1
         info->src_flags & SDL_SRCALPHA)
 #else /* IS_SDLv2 */
-        srcppa)
+        info->src_blend != SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
@@ -786,8 +765,8 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
     if (!dstppa)
@@ -804,7 +783,7 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
 #if IS_SDLv1
         info->src_flags & SDL_SRCALPHA)
 #else /* IS_SDLv2 */
-        srcppa)
+        info->src_blend != SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
@@ -934,8 +913,8 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
     if (!dstppa)
@@ -952,7 +931,7 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
 #if IS_SDLv1
         info->src_flags & SDL_SRCALPHA)
 #else /* IS_SDLv2 */
-        srcppa)
+        info->src_blend != SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
@@ -1081,7 +1060,10 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
 #if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
+#endif /* IS_SDLv2 */
     int tmp;
 
     /*
@@ -1207,13 +1189,14 @@ blit_blend_add (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
 #else /* IS_SDLv2 */
-    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
@@ -1402,13 +1385,14 @@ blit_blend_sub (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
 #else /* IS_SDLv2 */
-    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
@@ -1597,13 +1581,14 @@ blit_blend_mul (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
 #else /* IS_SDLv2 */
-    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
@@ -1795,13 +1780,14 @@ blit_blend_min (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
 #else /* IS_SDLv2 */
-    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
@@ -1995,13 +1981,14 @@ blit_blend_max (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #else /* IS_SDLv2 */
-    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
 #else /* IS_SDLv2 */
-    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
 #endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
