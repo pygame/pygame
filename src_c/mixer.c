@@ -349,7 +349,27 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
     if (!channels) {
         channels = request_channels;
     }
-    channels = (channels >= 2) ? 2 : 1;
+#if IS_SDLv1
+    switch (channels) {
+        case 1:
+        case 2:
+            break;
+        default:
+            PyErr_SetString(PyExc_ValueError, "'channels' must be 1 (mono) or 2 (stereo)");
+            return NULL;
+    }
+#else /* IS_SDLv2 */
+    switch (channels) {
+        case 1:
+        case 2:
+        case 4:
+        case 6:
+            break;
+        default:
+            PyErr_SetString(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
+            return NULL;
+    }
+#endif /* IS_SDLv2 */
 
     if (!chunk) {
         chunk = request_chunksize;

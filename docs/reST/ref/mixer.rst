@@ -57,8 +57,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    .. versionadded:: 2 When compiled with SDL2, size can be 32 (32bit floats).
 
    The channels argument is used to specify whether to use mono or stereo. 1
-   for mono and 2 for stereo. No other values are supported (negative values
-   are treated as 1, values greater than 2 as 2).
+   for mono and 2 for stereo.
+
+   .. versionadded:: 2 The number of channels can also be 4 or 6.
 
    The buffer argument controls the number of internal samples used in the
    sound mixer. The default value should work for most cases. It can be lowered
