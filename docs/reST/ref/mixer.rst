@@ -42,7 +42,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 .. function:: init
 
    | :sl:`initialize the mixer module`
-   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowchanges=1) -> None`
+   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=0) -> None`
 
    Initialize the mixer module for Sound loading and playback. The default
    arguments can be overridden to provide specific audio mixing. Keyword
@@ -54,7 +54,6 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    values mean unsigned audio samples will be used. An invalid value raises an
    exception.
 
-   .. versionadded:: 1.9.5 allowedchanges added.
    .. versionadded:: 2 When compiled with SDL2, size can be 32 (32bit floats).
 
    The channels argument is used to specify whether to use mono or stereo. 1
@@ -74,9 +73,21 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    init. To solve this, mixer has a function ``pygame.mixer.pre_init()`` to set
    the proper defaults before the toplevel init is used.
 
-   When using allowchanges=0 it will fail to init if the requested formats are
-   not supported by the sound system. For example a sound card may not
+   When using allowedchanges=0 it will convert the samples at runtime to match
+   what the hardware supports. For example a sound card may not
    support 16bit sound samples, so instead it will use 8bit samples internally.
+   If AUDIO_ALLOW_FORMAT_CHANGE is supplied, then the requested format will
+   change to the closest that SDL2 supports.
+
+   Apart from 0, allowedchanged acceptes the following constants ORed together:
+
+      - AUDIO_ALLOW_FREQUENCY_CHANGE
+      - AUDIO_ALLOW_FORMAT_CHANGE
+      - AUDIO_ALLOW_CHANNELS_CHANGE
+      - AUDIO_ALLOW_ANY_CHANGE
+
+   .. versionadded:: 2 allowedchanges added for SDL2. Only allowedchanges=0 works with SDL1.
+
 
    It is safe to call this more than once, but after the mixer is initialized
    you cannot change the playback arguments without first calling
