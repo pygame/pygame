@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "pygame.h"
-#include "pgcompat.h"
+#include "../pygame.h"
+#include "../pgcompat.h"
 
-#include "doc/touch_doc.h"
+#include "../doc/touch_doc.h"
 
 static PyObject *
 pg_touch_num_devices(PyObject *self, PyObject *args)
@@ -117,11 +117,11 @@ pg_touch_get_finger(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyMethodDef _touch_methods[] = {
-    {"get_num_devices", pg_touch_num_devices, METH_NOARGS, DOC_PYGAMETOUCHGETNUMDEVICES},
-    {"get_device", pg_touch_get_device, METH_O, DOC_PYGAMETOUCHGETDEVICE},
+    {"get_num_devices", pg_touch_num_devices, METH_NOARGS, DOC_PYGAMESDL2TOUCHGETNUMDEVICES},
+    {"get_device", pg_touch_get_device, METH_O, DOC_PYGAMESDL2TOUCHGETDEVICE},
 
-    {"get_num_fingers", pg_touch_num_fingers, METH_O, DOC_PYGAMETOUCHGETNUMFINGERS},
-    {"get_finger", (PyCFunction)pg_touch_get_finger, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETOUCHGETFINGER},
+    {"get_num_fingers", pg_touch_num_fingers, METH_O, DOC_PYGAMESDL2TOUCHGETNUMFINGERS},
+    {"get_finger", (PyCFunction)pg_touch_get_finger, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMESDL2TOUCHGETFINGER},
 
     {NULL, NULL, 0, NULL}};
 
@@ -131,7 +131,7 @@ MODINIT_DEFINE(touch)
 #if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "touch",
-                                         DOC_PYGAMETOUCH,
+                                         DOC_PYGAMESDL2TOUCH,
                                          -1,
                                          _touch_methods,
                                          NULL,
@@ -149,7 +149,7 @@ MODINIT_DEFINE(touch)
     module = PyModule_Create(&_module);
 #else
     module = Py_InitModule3(MODPREFIX "touch", _touch_methods,
-                            DOC_PYGAMETOUCH);
+                            DOC_PYGAMESDL2TOUCH);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;

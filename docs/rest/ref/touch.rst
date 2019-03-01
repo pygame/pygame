@@ -1,9 +1,9 @@
 .. include:: common.txt
 
-:mod:`pygame.touch`
-===================
+:mod:`pygame._sdl2.touch`
+=========================
 
-.. module:: pygame.touch
+.. module:: pygame._sdl2.touch
    :synopsis: pygame module to work with touch input
 
 | :sl:`pygame module to work with touch input`
@@ -17,7 +17,7 @@
 
    Return the number of available touch devices.
 
-   .. ## pygame.touch.get_num_devices ##
+   .. ## pygame._sdl2.touch.get_num_devices ##
 
 .. function:: get_device
 
@@ -25,11 +25,11 @@
    | :sg:`get_device(index) -> touchid`
 
    :param int index: This number is at least 0 and less than the
-                     :func:`number of devices <pygame.touch.get_num_devices()>`.
+                     :func:`number of devices <pygame._sdl2.touch.get_num_devices()>`.
 
    Return an integer id associated with the given ``index``.
 
-   .. ## pygame.touch.get_device ##
+   .. ## pygame._sdl2.touch.get_device ##
 
 .. function:: get_num_fingers
 
@@ -39,7 +39,7 @@
    Return the number of fingers active for the touch device
    whose id is `touchid`.
 
-   .. ## pygame.touch.get_num_fingers ##
+   .. ## pygame._sdl2.touch.get_num_fingers ##
 
 .. function:: get_finger
 
@@ -49,7 +49,7 @@
    :param int touchid: The touch device id.
    :param int index: The index of the finger to return
                      information about, between 0 and the
-                     :func:`number of active fingers <pygame.touch.get_num_fingers()>`.
+                     :func:`number of active fingers <pygame._sdl2.touch.get_num_fingers()>`.
 
    Return a dict for the finger ``index`` active on ``touchid``.
    The dict contains these keys:
@@ -61,6 +61,6 @@
       y          the normalized y position of the finger, between 0 and 1.
       pressure   the amount of pressure applied by the finger, between 0 and 1.
 
-   .. ## pygame.touch.get_finger ##
+   .. ## pygame._sdl2.touch.get_finger ##
 
-.. ## pygame.touch ##
+.. ## pygame._sdl2.touch ##

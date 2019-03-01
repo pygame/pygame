@@ -1,6 +1,6 @@
 import unittest
 import pygame
-from pygame import touch
+from pygame._sdl2 import touch
 
 
 has_touchdevice = touch.get_num_devices() > 0

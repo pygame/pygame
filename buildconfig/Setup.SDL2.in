@@ -33,7 +33,7 @@ pypm src_c/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 _sdl2.sdl2 src_c/_sdl2/sdl2.c $(SDL) $(DEBUG)
 _sdl2.audio src_c/_sdl2/audio.c $(SDL) $(DEBUG)
 _sdl2.video src_c/_sdl2/video.c $(SDL) $(DEBUG)
-touch src_c/touch.c $(SDL) $(DEBUG)
+_sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG)
 
 GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
 #GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
