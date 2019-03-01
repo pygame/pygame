@@ -378,8 +378,6 @@ def _add_sdl2_dll_deps(DEPS):
     DEPS.add_dll(r'(lib)?opus[-0-9]*\.dll$', 'opus', ['*opus-[0-9]*'])
     DEPS.add_dll(r'(lib)?opusfile[-0-9]*\.dll$', 'opusfile', ['*opusfile-[0-9]*'])
     # IMAGE
-    DEPS.add_dll(r'(png|libpng.*)\.dll$', 'png', ['libpng-[1-9].*'], ['z'])
-    DEPS.add_dll(r'(lib){0,1}jpeg[-0-9]*\.dll$', 'jpeg', ['jpeg-[6-9]*'])
     DEPS.add_dll(r'(lib){0,1}tiff[-0-9]*\.dll$', 'tiff', ['tiff-[0-9]*'], ['jpeg', 'z'])
     DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
     DEPS.add_dll(r'(lib)?webp[-0-9]*\.dll$', 'webp', ['*webp-[0-9]*'])
@@ -421,6 +419,8 @@ def setup(sdl2):
         DEPS.add_dummy('PORTTIME')
         DEPS.add('MIXER', 'SDL2_mixer', ['SDL2_mixer-[1-9].*'], r'(lib){0,1}SDL2_mixer\.dll$',
                  ['SDL', 'vorbisfile'])
+        DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'])
+        DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg[-0-9]*\.dll$')
         DEPS.add('IMAGE', 'SDL2_image', ['SDL2_image-[1-9].*'], r'(lib){0,1}SDL2_image\.dll$',
                  ['SDL', 'jpeg', 'png', 'tiff'], 0)
         DEPS.add('FONT', 'SDL2_ttf', ['SDL2_ttf-[2-9].*'], r'(lib){0,1}SDL2_ttf\.dll$', ['SDL', 'z', 'freetype'])
@@ -465,6 +465,17 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     ]
     ftDep.inc_dir.append('%s/freetype2' % ftDep.inc_dir[0])
     ftDep.found = True
+
+    png = DEPS.add('PNG', 'png', ['SDL2_image-[2-9].*', 'libpng-[1-9].*'], r'(png|libpng)[-0-9]*\.dll$', ['z'],
+                   find_header='png\.h', find_lib='(lib)?png1[-0-9]*\.lib')
+    png.path = imageDep.path
+    png.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
+    png.found = True
+    jpeg = DEPS.add('JPEG', 'jpeg', ['SDL2_image-[2-9].*', 'jpeg-[6-9]*'], r'(lib){0,1}jpeg[-0-9]*\.dll$',
+                   find_header='jpeglib\.h', find_lib='(lib)?jpeg[-0-9]*\.lib')
+    jpeg.path = imageDep.path
+    jpeg.inc_dir = [os.path.join(prebuilt_dir, 'include').replace('\\', '/')]
+    jpeg.found = True
 
     dllPaths = {
         'png': imageDep.path,
