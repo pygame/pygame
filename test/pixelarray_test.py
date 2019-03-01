@@ -9,6 +9,8 @@ import weakref
 import gc
 import unittest
 
+from pygame.tests.test_utils import SurfaceSubclass
+
 try:
     from pygame.tests.test_utils import arrinter
 except NameError:
@@ -142,6 +144,13 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         del ar
         gc.collect ()
         self.assertTrue (r() is None)
+
+    def test_pixelarray__subclassed_surface(self):
+        """Ensure the PixelArray constructor accepts subclassed surfaces."""
+        surface = SurfaceSubclass((3, 5), 0, 32)
+        pixelarray = pygame.PixelArray(surface)
+
+        self.assertIsInstance(pixelarray, pygame.PixelArray)
 
     # Sequence interfaces
     def test_get_column (self):
@@ -356,6 +365,17 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             sf.fill((0, 0, 0))
             ar = pygame.PixelArray(sf)
             self.assertTrue(ar.surface is sf)
+
+    def test_get_surface__subclassed_surface(self):
+        """Ensure the surface attribute can handle subclassed surfaces."""
+        expected_surface = SurfaceSubclass((5, 3), 0, 32)
+        pixelarray = pygame.PixelArray(expected_surface)
+
+        surface = pixelarray.surface
+
+        self.assertIs(surface, expected_surface)
+        self.assertIsInstance(surface, pygame.Surface)
+        self.assertIsInstance(surface, SurfaceSubclass)
 
     def test_set_slice (self):
         for bpp in (8, 16, 24, 32):
@@ -710,6 +730,24 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         w2, h2 = sf2.get_size ()
         self.assertEqual (w2, w)
         self.assertEqual (h2, h_slice)
+
+    def test_make_surface__subclassed_surface(self):
+        """Ensure make_surface can handle subclassed surfaces."""
+        expected_size = (3, 5)
+        expected_flags = 0
+        expected_depth = 32
+        original_surface = SurfaceSubclass(expected_size, expected_flags,
+                                           expected_depth)
+        pixelarray = pygame.PixelArray(original_surface)
+
+        surface = pixelarray.make_surface()
+
+        self.assertIsNot(surface, original_surface)
+        self.assertIsInstance(surface, pygame.Surface)
+        self.assertNotIsInstance(surface, SurfaceSubclass)
+        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_flags(), expected_flags)
+        self.assertEqual(surface.get_bitsize(), expected_depth)
 
     def test_iter (self):
         for bpp in (8, 16, 24, 32):

@@ -171,6 +171,14 @@ def import_submodule(module):
         m = getattr(m, n)
     return m
 
+
+class SurfaceSubclass(pygame.Surface):
+    """A subclassed Surface to test inheritance."""
+    def __init__(self, *args, **kwargs):
+        super(SurfaceSubclass, self).__init__(*args, **kwargs)
+        self.test_attribute = True
+
+
 def test():
     """
     

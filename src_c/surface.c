@@ -401,7 +401,8 @@ static PyTypeObject pgSurface_Type = {
     surface_new,                              /* tp_new */
 };
 
-#define pgSurface_Check(x) ((x)->ob_type == &pgSurface_Type)
+#define pgSurface_Check(x) \
+    (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
 #if IS_SDLv1
 
@@ -3595,7 +3596,7 @@ _init_buffer(PyObject *surf, Py_buffer *view_p, int flags)
 
     assert(surf);
     assert(view_p);
-    assert(PyObject_IsInstance(surf, (PyObject *)&pgSurface_Type));
+    assert(pgSurface_Check(surf));
     assert(PyBUF_HAS_FLAG(flags, PyBUF_PYGAME));
     consumer = ((pg_buffer *)view_p)->consumer;
     assert(consumer);

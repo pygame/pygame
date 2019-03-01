@@ -2,7 +2,8 @@ import os
 
 import unittest
 from pygame.tests import test_utils
-from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
+from pygame.tests.test_utils import (
+        example_path, AssertRaisesRegexMixin, SurfaceSubclass)
 try:
     from pygame.tests.test_utils.arrinter import *
 except (ImportError, NameError):
@@ -34,6 +35,24 @@ def longify(i):
 
 
 class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+    def test_surface__pixel_format_as_surface_subclass(self):
+        """Ensure a subclassed surface can be used for pixel format
+        when creating a new surface."""
+        expected_depth = 16
+        expected_flags = SRCALPHA
+        expected_size = (13, 37)
+        depth_surface = SurfaceSubclass((11, 21), expected_flags,
+                                        expected_depth)
+
+        surface = pygame.Surface(expected_size, 0, depth_surface)
+
+        self.assertIsNot(surface, depth_surface)
+        self.assertIsInstance(surface, pygame.Surface)
+        self.assertNotIsInstance(surface, SurfaceSubclass)
+        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_flags(), expected_flags)
+        self.assertEqual(surface.get_bitsize(), expected_depth)
+
     def test_set_clip( self ):
         """ see if surface.set_clip(None) works correctly.
         """
@@ -626,26 +645,34 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # https://bitbucket.org/pygame/pygame/issue/131/unable-to-surfaceconvert-32-some-1-bit
 
         pygame.display.init()
-        pygame.display.set_mode((640,480))
+        try:
+            pygame.display.set_mode((640,480))
 
-        im  = pygame.image.load(example_path(os.path.join("data", "city.png")))
-        im2 = pygame.image.load(example_path(os.path.join("data", "brick.png")))
+            im  = pygame.image.load(example_path(
+                os.path.join("data", "city.png")))
+            im2 = pygame.image.load(example_path(
+                os.path.join("data", "brick.png")))
 
-        self.assertEqual(im.get_palette(),
-                         ((0, 0, 0, 255), (255, 255, 255, 255)))
-        self.assertEqual(im2.get_palette(), ((0, 0, 0, 255), (0, 0, 0, 255)))
+            self.assertEqual(im.get_palette(),
+                             ((0, 0, 0, 255), (255, 255, 255, 255)))
+            self.assertEqual(im2.get_palette(),
+                            ((0, 0, 0, 255), (0, 0, 0, 255)))
 
-        self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
-        self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
+            self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
+            self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
 
-        # Ensure a palette format to palette format works.
-        im3 = im.convert(8)
-        self.assertEqual(repr(im3), '<Surface(24x24x8 SW)>')
-        self.assertEqual(im3.get_palette(), im.get_palette())
+            # Ensure a palette format to palette format works.
+            im3 = im.convert(8)
+            self.assertEqual(repr(im3), '<Surface(24x24x8 SW)>')
+            self.assertEqual(im3.get_palette(), im.get_palette())
+
+        finally:
+            pygame.display.quit()
 
     def test_convert_init(self):
         """ Ensure initialization exceptions are raised
             for surf.convert()."""
+        pygame.display.quit()
         surf = pygame.Surface((1, 1))
 
         self.assertRaisesRegex(pygame.error, 'display initialized',
@@ -674,6 +701,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_convert_alpha_init(self):
         """ Ensure initialization exceptions are raised
             for surf.convert_alpha()."""
+        pygame.display.quit()
         surf = pygame.Surface((1, 1))
 
         self.assertRaisesRegex(pygame.error, 'display initialized',
@@ -719,6 +747,24 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
+    def test_convert__pixel_format_as_surface_subclass(self):
+        """Ensure convert accepts a Surface subclass argument."""
+        expected_size = (23, 17)
+        convert_surface = SurfaceSubclass(expected_size, 0, 32)
+        depth_surface = SurfaceSubclass((31, 61), 0, 32)
+
+        pygame.display.init()
+        try:
+            surface = convert_surface.convert(depth_surface)
+
+            self.assertIsNot(surface, depth_surface)
+            self.assertIsNot(surface, convert_surface)
+            self.assertIsInstance(surface, pygame.Surface)
+            self.assertIsInstance(surface, SurfaceSubclass)
+            self.assertEqual(surface.get_size(), expected_size)
+        finally:
+            pygame.display.quit()
+
     def todo_test_convert_alpha(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert_alpha:
@@ -738,6 +784,28 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
           #
 
         self.fail()
+
+    def test_convert_alpha__pixel_format_as_surface_subclass(self):
+        """Ensure convert_alpha accepts a Surface subclass argument."""
+        expected_size = (23, 17)
+        convert_surface = SurfaceSubclass(expected_size, SRCALPHA, 32)
+        depth_surface = SurfaceSubclass((31, 57), SRCALPHA, 32)
+
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((60, 60))
+
+            # This is accepted as an argument, but its values are ignored.
+            # See issue #599.
+            surface = convert_surface.convert_alpha(depth_surface)
+
+            self.assertIsNot(surface, depth_surface)
+            self.assertIsNot(surface, convert_surface)
+            self.assertIsInstance(surface, pygame.Surface)
+            self.assertIsInstance(surface, SurfaceSubclass)
+            self.assertEqual(surface.get_size(), expected_size)
+        finally:
+            pygame.display.quit()
 
     def todo_test_get_abs_offset(self):
 
@@ -1321,11 +1389,6 @@ class SurfaceSubtypeTest(unittest.TestCase):
     def tearDown(self):
         pygame.display.quit()
 
-    class MySurface(pygame.Surface):
-        def __init__(self, *args, **kwds):
-            super(SurfaceSubtypeTest.MySurface, self).__init__(*args, **kwds)
-            self.an_attribute = True
-
     def test_copy(self):
         """Ensure method copy() preserves the surface's class
 
@@ -1333,11 +1396,18 @@ class SurfaceSubtypeTest(unittest.TestCase):
         instances of the subclass. Non Surface fields are uncopied, however.
         This includes instance attributes.
         """
-        ms1 = self.MySurface((32, 32), pygame.SRCALPHA, 32)
+        expected_size = (32, 32)
+        ms1 = SurfaceSubclass(expected_size, SRCALPHA, 32)
         ms2 = ms1.copy()
-        self.assertTrue(isinstance(ms2, self.MySurface))
-        self.assertTrue(ms1.an_attribute)
-        self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+
+        self.assertIsNot(ms1, ms2)
+        self.assertIsInstance(ms1, pygame.Surface)
+        self.assertIsInstance(ms2, pygame.Surface)
+        self.assertIsInstance(ms1, SurfaceSubclass)
+        self.assertIsInstance(ms2, SurfaceSubclass)
+        self.assertTrue(ms1.test_attribute)
+        self.assertRaises(AttributeError, getattr, ms2, "test_attribute")
+        self.assertEqual(ms2.get_size(), expected_size)
 
     def test_convert(self):
         """Ensure method convert() preserves the surface's class
@@ -1346,12 +1416,18 @@ class SurfaceSubtypeTest(unittest.TestCase):
         instances of the subclass. Non Surface fields are omitted, however.
         This includes instance attributes.
         """
-        ms1 = self.MySurface((32, 32), 0, 24)
+        expected_size = (32, 32)
+        ms1 = SurfaceSubclass(expected_size, 0, 24)
         ms2 = ms1.convert(24)
-        self.assertTrue(ms2 is not ms1)
-        self.assertTrue(isinstance(ms2, self.MySurface))
-        self.assertTrue(ms1.an_attribute)
-        self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+
+        self.assertIsNot(ms1, ms2)
+        self.assertIsInstance(ms1, pygame.Surface)
+        self.assertIsInstance(ms2, pygame.Surface)
+        self.assertIsInstance(ms1, SurfaceSubclass)
+        self.assertIsInstance(ms2, SurfaceSubclass)
+        self.assertTrue(ms1.test_attribute)
+        self.assertRaises(AttributeError, getattr, ms2, "test_attribute")
+        self.assertEqual(ms2.get_size(), expected_size)
 
     def test_convert_alpha(self):
         """Ensure method convert_alpha() preserves the surface's class
@@ -1361,13 +1437,19 @@ class SurfaceSubtypeTest(unittest.TestCase):
         however. This includes instance attributes.
         """
         pygame.display.set_mode((40, 40))
-        s = pygame.Surface((32, 32), pygame.SRCALPHA, 16)
-        ms1 = self.MySurface((32, 32), pygame.SRCALPHA, 32)
+        expected_size = (32, 32)
+        s = pygame.Surface(expected_size, SRCALPHA, 16)
+        ms1 = SurfaceSubclass(expected_size, SRCALPHA, 32)
         ms2 = ms1.convert_alpha(s)
-        self.assertTrue(ms2 is not ms1)
-        self.assertTrue(isinstance(ms2, self.MySurface))
-        self.assertTrue(ms1.an_attribute)
-        self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+
+        self.assertIsNot(ms1, ms2)
+        self.assertIsInstance(ms1, pygame.Surface)
+        self.assertIsInstance(ms2, pygame.Surface)
+        self.assertIsInstance(ms1, SurfaceSubclass)
+        self.assertIsInstance(ms2, SurfaceSubclass)
+        self.assertTrue(ms1.test_attribute)
+        self.assertRaises(AttributeError, getattr, ms2, "test_attribute")
+        self.assertEqual(ms2.get_size(), expected_size)
 
     def test_subsurface(self):
         """Ensure method subsurface() preserves the surface's class
@@ -1376,11 +1458,18 @@ class SurfaceSubtypeTest(unittest.TestCase):
         return instances of the subclass. Non Surface fields are uncopied,
         however. This includes instance attributes.
         """
-        ms1 = self.MySurface((32, 32), pygame.SRCALPHA, 32)
-        ms2 = ms1.subsurface((4, 5, 10, 12))
-        self.assertTrue(isinstance(ms2, self.MySurface))
-        self.assertTrue(ms1.an_attribute)
-        self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+        expected_size = (10, 12)
+        ms1 = SurfaceSubclass((32, 32), SRCALPHA, 32)
+        ms2 = ms1.subsurface((4, 5), expected_size)
+
+        self.assertIsNot(ms1, ms2)
+        self.assertIsInstance(ms1, pygame.Surface)
+        self.assertIsInstance(ms2, pygame.Surface)
+        self.assertIsInstance(ms1, SurfaceSubclass)
+        self.assertIsInstance(ms2, SurfaceSubclass)
+        self.assertTrue(ms1.test_attribute)
+        self.assertRaises(AttributeError, getattr, ms2, "test_attribute")
+        self.assertEqual(ms2.get_size(), expected_size)
 
 
 class SurfaceGetBufferTest(unittest.TestCase):

@@ -2,6 +2,7 @@ import unittest
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
+from pygame.tests.test_utils import SurfaceSubclass
 
 def intensity(c, i):
     """Return color c changed by intensity i
@@ -109,6 +110,17 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                 self.surfaces.append(Surface(size, 0, bitsize, masks))
         for surf in self.surfaces:
             surf.fill(self.background_color)
+
+    def test_gfxdraw__subclassed_surface(self):
+        """Ensure pygame.gfxdraw works on subclassed surfaces."""
+        surface = SurfaceSubclass((11, 13), SRCALPHA, 32)
+        surface.fill(pygame.Color('blue'))
+        expected_color = pygame.Color('red')
+        x, y = 1, 2
+
+        pygame.gfxdraw.pixel(surface, x, y, expected_color)
+
+        self.assertEqual(surface.get_at((x, y)), expected_color)
 
     def test_pixel(self):
         """pixel(surface, x, y, color): return None"""

@@ -1921,7 +1921,7 @@ pgPixelArray_New(PyObject *surfobj)
     Uint8 *pixels;
 
     if (!pgSurface_Check(surfobj)) {
-        return RAISE(PyExc_TypeError, "argument is no a Surface");
+        return RAISE(PyExc_TypeError, "argument is not a Surface");
     }
 
     surf = pgSurface_AsSurface(surfobj);
