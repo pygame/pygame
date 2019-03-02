@@ -264,6 +264,11 @@ data_files = [('pygame', pygame_data_files)]
 # pygame_data_files.append('readme.html')
 # pygame_data_files.append('install.html')
 
+# add *.pyi files into distribution directory
+type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
+for type_file in type_files:
+    pygame_data_files.append(type_file)
+
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
