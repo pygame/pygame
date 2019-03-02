@@ -235,9 +235,92 @@ class MaskTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_overlap__offset(self):
+    def test_overlap__offset(self):
         """Ensure an offset overlap intersection is correctly calculated."""
-        self.fail()
+        mask1 = pygame.mask.Mask((65, 3), fill=True)
+        mask2 = pygame.mask.Mask((66, 4), fill=True)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+
+        for offset in self.ORIGIN_OFFSETS:
+            msg = 'offset={}'.format(offset)
+            expected_pos = (max(offset[0], 0), max(offset[1], 0))
+
+            overlap_pos = mask1.overlap(mask2, offset)
+
+            self.assertEqual(overlap_pos, expected_pos, msg)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+
+    def test_overlap__offset_with_unset_bits(self):
+        """Ensure an offset overlap intersection is correctly calculated
+        when (0, 0) bits not set."""
+        mask1 = pygame.mask.Mask((65, 3), fill=True)
+        mask2 = pygame.mask.Mask((66, 4), fill=True)
+        unset_pos = (0, 0)
+        mask1.set_at(unset_pos, 0)
+        mask2.set_at(unset_pos, 0)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+
+        for offset in self.ORIGIN_OFFSETS:
+            msg = 'offset={}'.format(offset)
+            x, y = offset
+            expected_y = max(y, 0)
+            if 0 == y:
+                expected_x = max(x + 1, 1)
+            elif 0 < y:
+                expected_x = max(x + 1, 0)
+            else:
+                expected_x = max(x, 1)
+
+            overlap_pos = mask1.overlap(mask2, offset)
+
+            self.assertEqual(overlap_pos, (expected_x, expected_y), msg)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+            self.assertEqual(mask1.get_at(unset_pos), 0, msg)
+            self.assertEqual(mask2.get_at(unset_pos), 0, msg)
+
+    def test_overlap__no_overlap(self):
+        """Ensure an offset overlap intersection is correctly calculated
+        when there is no overlap."""
+        mask1 = pygame.mask.Mask((65, 3), fill=True)
+        mask1_count = mask1.count()
+        mask1_size = mask1.get_size()
+
+        mask2_w, mask2_h = 67, 5
+        mask2_size = (mask2_w, mask2_h)
+        mask2 = pygame.mask.Mask(mask2_size)
+        set_pos = (mask2_w - 1, mask2_h - 1)
+        mask2.set_at(set_pos)
+        mask2_count = 1
+
+        for offset in self.ORIGIN_OFFSETS:
+            msg = 'offset={}'.format(offset)
+
+            overlap_pos = mask1.overlap(mask2, offset)
+
+            self.assertIsNone(overlap_pos, msg)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+            self.assertEqual(mask2.get_at(set_pos), 1, msg)
 
     def todo_test_overlap_area(self):
         """Ensure the overlap area is correctly calculated."""
@@ -430,9 +513,46 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(mask.count(), expected_count)
         self.assertEqual(mask.get_size(), expected_size)
 
-    def todo_test_scale(self):
+    def test_scale(self):
         """Ensure a mask can be scaled."""
-        self.fail()
+        width, height = 43, 61
+        original_size = (width, height)
+
+        for fill in (True, False):
+            original_mask = pygame.mask.Mask(original_size, fill=fill)
+            original_count = width * height if fill else 0
+
+            # Test a range of sizes. Also tests scaling to 'same'
+            # size when new_w, new_h = width, height
+            for new_w in range(width - 10, width + 10):
+                for new_h in range(height - 10, height + 10):
+                    expected_size = (new_w, new_h)
+                    expected_count = new_w * new_h if fill else 0
+                    msg = 'size={}'.format(expected_size)
+
+                    mask = original_mask.scale(expected_size)
+
+                    self.assertEqual(mask.count(), expected_count, msg)
+                    self.assertEqual(mask.get_size(), expected_size)
+
+                    # Ensure the original mask is unchanged.
+                    self.assertEqual(original_mask.count(), original_count,
+                                     msg)
+                    self.assertEqual(original_mask.get_size(), original_size,
+                                     msg)
+
+    def test_scale__negative_size(self):
+        """Ensure scale handles negative sizes correctly."""
+        mask = pygame.Mask((100, 100))
+
+        with self.assertRaises(ValueError):
+            mask.scale((-1, -1))
+
+        with self.assertRaises(ValueError):
+            mask.scale((-1, 10))
+
+        with self.assertRaises(ValueError):
+            mask.scale((10, -1))
 
     def todo_test_draw(self):
         """Ensure a mask can be drawn onto another mask."""
@@ -1050,19 +1170,6 @@ class MaskTypeTest(unittest.TestCase):
         r = m.get_bounding_rects()
         #TODO: this should really make one bounding rect.
         #self.assertEqual(repr(r), "[<rect(0, 0, 5, 2)>]")
-
-    def test_scale__negative_size(self):
-        """Ensure scale handles negative sizes correctly."""
-        mask = pygame.Mask((100, 100))
-
-        with self.assertRaises(ValueError):
-            mask.scale((-1, -1))
-
-        with self.assertRaises(ValueError):
-            mask.scale((-1, 10))
-
-        with self.assertRaises(ValueError):
-            mask.scale((10, -1))
 
     def test_zero_mask(self):
         mask = pygame.mask.Mask((0, 0))
