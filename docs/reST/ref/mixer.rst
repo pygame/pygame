@@ -42,7 +42,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 .. function:: init
 
    | :sl:`initialize the mixer module`
-   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=0) -> None`
+   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None`
 
    Initialize the mixer module for Sound loading and playback. The default
    arguments can be overridden to provide specific audio mixing. Keyword
@@ -87,7 +87,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       - AUDIO_ALLOW_CHANNELS_CHANGE
       - AUDIO_ALLOW_ANY_CHANGE
 
-   .. versionadded:: 2 allowedchanges added for SDL2. Only allowedchanges=0 works with SDL1.
+   .. versionadded:: 2 allowedchanges added for SDL2.
+                     This has no effect with SDL1 (i.e. the requested format
+                     may always differ from the returned format).
 
 
    It is safe to call this more than once, but after the mixer is initialized

@@ -65,7 +65,12 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PYGAME_MIXER_DEFAULT_SIZE -16
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
 #define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
-#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES 0
+#if IS_SDLv2
+#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | \
+                                            SDL_AUDIO_ALLOW_CHANNELS_CHANGE
+#else
+#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES -1
+#endif
 
 static PyTypeObject pgSound_Type;
 static PyTypeObject pgChannel_Type;
@@ -346,28 +351,36 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         size = request_size;
     }
 
+    if (allowedchanges == -1) {
+        allowedchanges = request_allowedchanges;
+    }
+
     if (!channels) {
         channels = request_channels;
     }
 #if IS_SDLv1
-    switch (channels) {
-        case 1:
-        case 2:
-            break;
-        default:
-            PyErr_SetString(PyExc_ValueError, "'channels' must be 1 (mono) or 2 (stereo)");
-            return NULL;
-    }
+    channels = channels <= 1 ? 1 : 2;
 #else /* IS_SDLv2 */
-    switch (channels) {
-        case 1:
-        case 2:
-        case 4:
-        case 6:
-            break;
-        default:
-            PyErr_SetString(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
-            return NULL;
+    if (allowedchanges & SDL_AUDIO_ALLOW_CHANNELS_CHANGE) {
+        if (channels <= 1)
+            channels = 1;
+        else if (channels <= 3)
+            channels = 2;
+        else if (channels <= 5)
+            channels = 4;
+        else
+            channels = 6;
+    } else {
+        switch (channels) {
+            case 1:
+            case 2:
+            case 4:
+            case 6:
+                break;
+            default:
+                PyErr_SetString(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
+                return NULL;
+        }
     }
 #endif /* IS_SDLv2 */
 
@@ -377,9 +390,6 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
 
     if (!devicename) {
         devicename = request_devicename;
-    }
-    if (allowedchanges == -1) {
-        allowedchanges = request_allowedchanges;
     }
 
     /* printf("size:%d:\n", size); */
