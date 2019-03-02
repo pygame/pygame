@@ -1443,26 +1443,39 @@ static PyObject *
 mask_connected_component(PyObject *self, PyObject *args)
 {
     bitmask_t *input = pgMask_AsBitmap(self);
-    bitmask_t *output = bitmask_create(input->w, input->h);
-    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-    int x, y;
+    bitmask_t *output = NULL;
+    pgMaskObject *maskobj = NULL;
+    int x = -1, y = -1;
+    Py_ssize_t args_exist = PyTuple_Size(args);
 
-    x = -1;
+    if (args_exist) {
+        if (!PyArg_ParseTuple(args, "|(ii)", &x, &y)) {
+            return NULL;
+        }
 
-    if (!PyArg_ParseTuple(args, "|(ii)", &x, &y)) {
-        return NULL;
-    }
-
-    /* if a coordinate is specified, make the pixel there is actually set */
-    if (x == -1 || bitmask_getbit(input, x, y)) {
-        if (largest_connected_comp(input, output, x, y) == -2) {
-            return RAISE(PyExc_MemoryError,
-                         "Not enough memory to get bounding rects. \n");
+        if (x < 0 || x >= input->w || y < 0 || y >= input->h) {
+            return PyErr_Format(PyExc_IndexError, "%d, %d is out of bounds", x,
+                                y);
         }
     }
 
-    if (maskobj)
+    output = bitmask_create(input->w, input->h);
+
+    /* If a pixel index is provided and the indexed bit is not set, then the
+     * returned mask is empty.
+     */
+    if (!args_exist || bitmask_getbit(input, x, y)) {
+        if (largest_connected_comp(input, output, x, y) == -2) {
+            bitmask_free(output);
+            return RAISE(PyExc_MemoryError,
+                         "cannot allocate memory for connected component");
+        }
+    }
+
+    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
+    if (maskobj) {
         maskobj->mask = output;
+    }
 
     return (PyObject *)maskobj;
 }

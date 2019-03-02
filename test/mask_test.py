@@ -892,13 +892,11 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(original_mask.get_size(), expected_size)
         self.assertEqual(original_mask.get_at(unset_pos), 0)
 
-    # The skip() can be removed when issue #841 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_connected_component__out_of_bounds(self):
         """Ensure connected_component() checks bounds."""
         width, height = 19, 11
         original_size = (width, height)
-        original_mask = pygame.mask.Mask(expected_size, fill=True)
+        original_mask = pygame.mask.Mask(original_size, fill=True)
         original_count = original_mask.count()
 
         for pos in ((0, -1), (-1, 0), (0, height + 1), (width + 1, 0)):
