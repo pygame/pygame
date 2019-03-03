@@ -1074,6 +1074,31 @@ class MaskTypeTest(unittest.TestCase):
         mask = pygame.mask.Mask((0, 100))
         self.assertEqual(mask.get_size(), (0, 100))
 
+    def test_zero_mask_get_size(self):
+        """Ensures get_size correctly handles zero sized masks."""
+        for expected_size in ((41, 0), (0, 40), (0, 0)):
+            mask = pygame.mask.Mask(expected_size)
+
+            size = mask.get_size()
+
+            self.assertEqual(size, expected_size)
+
+    def test_zero_mask_get_at(self):
+        """Ensures get_at correctly handles zero sized masks."""
+        for size in ((51, 0), (0, 50), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            with self.assertRaises(IndexError):
+                value = mask.get_at((0, 0))
+
+    def test_zero_mask_set_at(self):
+        """Ensures set_at correctly handles zero sized masks."""
+        for size in ((31, 0), (0, 30), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            with self.assertRaises(IndexError):
+                mask.set_at((0, 0))
+
     def test_zero_mask_overlap(self):
         sizes = ((100, 0), (0, 100), (0, 0))
 
@@ -1178,6 +1203,91 @@ class MaskTypeTest(unittest.TestCase):
         for size in sizes:
             mask = pygame.mask.Mask(size)
             self.assertEqual(mask.angle(), 0.0)
+
+    # The skip() can be removed when issue #875 is fixed/closed.
+    @unittest.skip('can cause segmentation fault')
+    def test_zero_mask_outline(self):
+        """Ensures outline correctly handles zero sized masks."""
+        expected_points = []
+
+        for size in ((61, 0), (0, 60), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            points = mask.outline()
+
+            self.assertListEqual(points, expected_points,
+                                 'size={}'.format(size))
+
+    # The skip() can be removed when issue #875 is fixed/closed.
+    @unittest.skip('can cause segmentation fault')
+    def test_zero_mask_outline__with_arg(self):
+        """Ensures outline correctly handles zero sized masks
+        when using the skip pixels argument."""
+        expected_points = []
+
+        for size in ((66, 0), (0, 65), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            points = mask.outline(10)
+
+            self.assertListEqual(points, expected_points,
+                                 'size={}'.format(size))
+
+    def todo_test_zero_mask_convolve(self):
+        """Ensures convolve correctly handles zero sized masks."""
+        self.fail()
+
+    # The skip() can be removed when issue #870 is fixed/closed.
+    @unittest.skip('can cause segmentation fault')
+    def test_zero_mask_connected_component(self):
+        """Ensures connected_component correctly handles zero sized masks."""
+        expected_count = 0
+
+        for size in ((81, 0), (0, 80), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            cc_mask = mask.connected_component()
+
+            self.assertEqual(cc_mask.get_size(), size)
+            self.assertEqual(cc_mask.count(), expected_count,
+                             'size={}'.format(size))
+
+    # The skip() can be removed when issue #870 is fixed/closed.
+    @unittest.skip('IndexError not raised')
+    def test_zero_mask_connected_component__indexed(self):
+        """Ensures connected_component correctly handles zero sized masks
+        when using an index argument."""
+        for size in ((91, 0), (0, 90), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            with self.assertRaises(IndexError):
+                cc_mask = mask.connected_component((0, 0))
+
+    # The skip() can be removed when issue #870 is fixed/closed.
+    @unittest.skip('can cause segmentation fault')
+    def test_zero_mask_connected_components(self):
+        """Ensures connected_components correctly handles zero sized masks."""
+        expected_cc_masks = []
+
+        for size in ((11, 0), (0, 10), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            cc_masks = mask.connected_components()
+
+            self.assertListEqual(cc_masks, expected_cc_masks,
+                                 'size={}'.format(size))
+
+    def test_zero_mask_get_bounding_rects(self):
+        """Ensures get_bounding_rects correctly handles zero sized masks."""
+        expected_bounding_rects = []
+
+        for size in ((21, 0), (0, 20), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            bounding_rects = mask.get_bounding_rects()
+
+            self.assertListEqual(bounding_rects, expected_bounding_rects,
+                                 'size={}'.format(size))
 
 
 class MaskModuleTest(unittest.TestCase):
