@@ -42,7 +42,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 .. function:: init
 
    | :sl:`initialize the mixer module`
-   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None`
+   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None`
 
    Initialize the mixer module for Sound loading and playback. The default
    arguments can be overridden to provide specific audio mixing. Keyword
@@ -57,8 +57,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    .. versionadded:: 2 When compiled with SDL2, size can be 32 (32bit floats).
 
    The channels argument is used to specify whether to use mono or stereo. 1
-   for mono and 2 for stereo. No other values are supported (negative values
-   are treated as 1, values greater than 2 as 2).
+   for mono and 2 for stereo.
+
+   .. versionadded:: 2 The number of channels can also be 4 or 6.
 
    The buffer argument controls the number of internal samples used in the
    sound mixer. The default value should work for most cases. It can be lowered
@@ -72,6 +73,24 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    takes care of this automatically, but cannot pass any arguments to the mixer
    init. To solve this, mixer has a function ``pygame.mixer.pre_init()`` to set
    the proper defaults before the toplevel init is used.
+
+   When using allowedchanges=0 it will convert the samples at runtime to match
+   what the hardware supports. For example a sound card may not
+   support 16bit sound samples, so instead it will use 8bit samples internally.
+   If AUDIO_ALLOW_FORMAT_CHANGE is supplied, then the requested format will
+   change to the closest that SDL2 supports.
+
+   Apart from 0, allowedchanged accepts the following constants ORed together:
+
+      - AUDIO_ALLOW_FREQUENCY_CHANGE
+      - AUDIO_ALLOW_FORMAT_CHANGE
+      - AUDIO_ALLOW_CHANNELS_CHANGE
+      - AUDIO_ALLOW_ANY_CHANGE
+
+   .. versionadded:: 2 allowedchanges added for SDL2.
+                     This has no effect with SDL1 (i.e. the requested format
+                     may always differ from the returned format).
+
 
    It is safe to call this more than once, but after the mixer is initialized
    you cannot change the playback arguments without first calling

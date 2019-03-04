@@ -78,7 +78,7 @@ class MixerModuleTest(unittest.TestCase):
     def test_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
         # preset values. No way to check buffer size though.
-        mixer.pre_init(44100, 8, 1)  # None default values
+        mixer.pre_init(44100, 8, 1, allowedchanges=0)  # None default values
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
@@ -311,7 +311,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertRaises(ValueError, mixer.Sound, array=a)
 
     def test_array_interface(self):
-        mixer.init(22050, -16, 1)
+        mixer.init(22050, -16, 1, allowedchanges=0)
         snd = mixer.Sound(buffer=as_bytes('\x00\x7f') * 20)
         d = snd.__array_interface__
         self.assertTrue(isinstance(d, dict))
