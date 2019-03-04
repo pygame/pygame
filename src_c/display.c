@@ -1022,7 +1022,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (bpp == 0) {
         SDL_DisplayMode curmode;
-        if (SDL_GetDesktopDisplayMode(display_index, &curmode))
+        if (SDL_GetCurrentDisplayMode(display_index, &curmode))
             return RAISE(pgExc_SDLError, SDL_GetError());
         bpp = SDL_BITSPERPIXEL(curmode.format);
     }
@@ -1039,6 +1039,13 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
+        /* use reasonable defaults (cf. SDL_video.c) */
+        if (!mode.format)
+            mode.format = SDL_PIXELFORMAT_RGB888;
+        if (!mode.w)
+            mode.w = 640;
+        if (!mode.h)
+            mode.h = 480;
         if (SDL_BITSPERPIXEL(mode.format) != bpp)
             continue;
         if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
