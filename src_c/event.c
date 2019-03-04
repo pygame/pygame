@@ -1697,15 +1697,15 @@ static PyMethodDef _event_methods[] = {
      "auto initialize for event module"},
 #endif /* IS_SDLv2 */
 
-    {"Event", (PyCFunction)pg_Event, 3, DOC_PYGAMEEVENTEVENT},
+    {"Event", pg_Event, 3, DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
-    {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
+    {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
-    {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
-    {"wait", (PyCFunction)pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
-    {"poll", (PyCFunction)pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
+    {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
+    {"wait", pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
+    {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
     {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
     {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
     {"peek", (PyCFunction)pg_event_peek, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTPEEK},

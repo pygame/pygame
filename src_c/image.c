@@ -1332,7 +1332,7 @@ SaveTGA(SDL_Surface *surface, const char *file, int rle)
 static PyMethodDef _image_methods[] = {
     {"load_basic", image_load_basic, METH_VARARGS, DOC_PYGAMEIMAGELOAD},
     {"save", image_save, METH_VARARGS, DOC_PYGAMEIMAGESAVE},
-    {"get_extended", (PyCFunction)image_get_extended, METH_NOARGS,
+    {"get_extended", image_get_extended, METH_NOARGS,
      DOC_PYGAMEIMAGEGETEXTENDED},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
