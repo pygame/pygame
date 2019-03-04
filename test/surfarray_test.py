@@ -197,13 +197,15 @@ class SurfarrayModuleTest (unittest.TestCase):
 
         # No per-pixel alpha when blanket alpha is None.
         for surf in targets:
-            blacket_alpha = surf.get_alpha()
+            blanket_alpha = surf.get_alpha()
             surf.set_alpha(None)
             arr = pygame.surfarray.array_alpha(surf)
             self.assertTrue(alltrue(arr == 255),
-                            "bitsize: %i, flags: %i" % (
+                            "All alpha values should be 255 when"
+                            " surf.set_alpha(None) has been set."
+                            " bitsize: %i, flags: %i" % (
                                 surf.get_bitsize(), surf.get_flags()))
-            surf.set_alpha(blacket_alpha)
+            surf.set_alpha(blanket_alpha)
 
         # Bug for per-pixel alpha surface when blanket alpha 0.
         for surf in targets:
