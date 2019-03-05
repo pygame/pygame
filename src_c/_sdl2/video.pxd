@@ -291,3 +291,7 @@ cdef class Texture:
     cdef readonly Renderer renderer
     cdef readonly int width
     cdef readonly int height
+
+cdef class SubTexture:
+    cdef Texture texture
+    cdef SDL_Rect srcrect

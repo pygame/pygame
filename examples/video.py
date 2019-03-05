@@ -11,6 +11,7 @@ data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0],
 from pygame._sdl2 import (
     Window,
     Texture,
+    SubTexture,
     Renderer,
     get_drivers,
     messagebox,
@@ -59,7 +60,7 @@ del tex2
 
 full = 0
 
-srcrect = (0, 0, tex.width, tex.height)
+tex = SubTexture(tex, (0, 0, tex.width, tex.height))
 
 while running:
     for event in pygame.event.get():
@@ -91,9 +92,8 @@ while running:
                 bg_index = (bg_index + 1) % len(backgrounds)
                 renderer.draw_color = backgrounds[bg_index]
 
-    dstrect = (x, y, tex.width, tex.height)
     renderer.clear()
-    tex.draw(srcrect, dstrect)
+    tex.draw(dstrect=(x, y, tex.width, tex.height))
     renderer.present()
 
     clock.tick(60)

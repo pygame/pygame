@@ -633,8 +633,8 @@ cdef class Texture:
             setattr(rect, key, kwargs[key])
         
         return rect
-    
-    def draw(self, dstrect=None, srcrect=None, angle=0, origin=None,
+
+    def draw(self, dstrect=None, srcrect=None, float angle=0, origin=None,
              bint flipX=False, bint flipY=False):
         """ Copy a portion of the texture to the rendering target.
 
@@ -645,6 +645,7 @@ cdef class Texture:
         :type dstrect: pygame.Rect or None
         :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
         :param origin: point around which dstrect will be rotated.
+                       If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
         :param bool flipX: flip horizontally.
         :param bool flipY: flip vertically.
         """
@@ -678,6 +679,92 @@ cdef class Texture:
             flip |= SDL_FLIP_VERTICAL
 
         res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
+                               angle, originptr, <SDL_RendererFlip>flip)
+        if res < 0:
+            raise error()
+
+cdef class SubTexture:
+    def __init__(self, Texture texture, srcrect=None):
+        self.texture = texture
+        if srcrect is not None:
+            if pgRect_FromObject(srcrect, &self.srcrect) == NULL:
+                raise error("the argument is not a rectangle or None")
+        else:
+            self.srcrect.x = 0
+            self.srcrect.y = 0
+            self.srcrect.w = texture.width
+            self.srcrect.h = texture.height
+
+    @property
+    def width(self):
+        return self.srcrect.w
+
+    @width.setter
+    def width(self, w):
+        self.srcrect.w = w
+
+    @property
+    def height(self):
+        return self.srcrect.h
+
+    @height.setter
+    def height(self, h):
+        self.srcrect.h = h
+
+    def draw(self, dstrect=None, srcrect=None, float angle=0, origin=None,
+             bint flipX=False, bint flipY=False):
+        """ Copy a portion of the texture to the rendering target.
+
+        :param srcrect: source rectangle on the subtexture, or None for the entire subtexture.
+        :type srcrect: pygame.Rect or None
+        :param dstrect: destination rectangle on the render target, or None for entire target.
+                        The subtexture is stretched to fill dstrect.
+        :type dstrect: pygame.Rect or None
+        :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
+        :param origin: point around which dstrect will be rotated.
+                       If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
+        :param bool flipX: flip horizontally.
+        :param bool flipY: flip vertically.
+        """
+        cdef SDL_Rect src, dst
+        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
+        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
+        cdef SDL_Point corigin
+        cdef SDL_Point *originptr
+        cdef int flip = SDL_FLIP_NONE
+
+        if not cdstrect and dstrect:
+            if (isinstance(dstrect, tuple) or isinstance(dstrect, list)) and len(dstrect) == 2:
+                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1],
+                                              self.width, self.height), &dst)
+            else:
+                raise error("'dstrect' is not a rectangle or None")
+
+        if not srcrect:
+            csrcrect = &self.srcrect
+        else:
+            if not csrcrect:
+                raise error("'srcrect' is not a rectangle or None")
+            csrcrect = &src
+            src.x = self.srcrect.x + srcrect.x
+            src.y = self.srcrect.y + srcrect.y
+            src.w = srcrect.w
+            src.h = srcrect.h
+
+        if origin:
+            originptr = &corigin
+            corigin.x = origin[0]
+            corigin.y = origin[1]
+        else:
+            originptr = NULL
+
+        if flipX:
+            flip |= SDL_FLIP_HORIZONTAL
+        if flipY:
+            flip |= SDL_FLIP_VERTICAL
+
+        res = SDL_RenderCopyEx(self.texture.renderer._renderer, self.texture._tex,
+                               csrcrect, cdstrect,
                                angle, originptr, <SDL_RendererFlip>flip)
         if res < 0:
             raise error()
