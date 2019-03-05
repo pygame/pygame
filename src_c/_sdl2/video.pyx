@@ -18,6 +18,7 @@ cdef extern from "../pygame.h" nogil:
     void import_pygame_surface()
     SDL_Rect *pgRect_FromObject(object obj, SDL_Rect *temp)
     object pgRect_New(SDL_Rect *r)
+    object pgRect_New4(int x, int y, int w, int h)
     void import_pygame_rect()
 
 import_pygame_surface()
@@ -621,7 +622,38 @@ cdef class Texture:
                                      new_value[2])
         if res < 0:
             raise error()
-            
+    
+    def get_rect(self, **kwargs):
+        """ Get the rectangular area of the texture.
+        like surface.get_rect(), returns a new rectangle covering the entire surface. 
+        This rectangle will always start at 0, 0 with a width. and height the same size as the texture.
+        """
+        rect = pgRect_New4(0, 0, self.width, self.height)
+        for key in kwargs:
+            setattr(rect, key, kwargs[key])
+        
+        return rect
+    
+    def copy(self, dstrect=None, srcrect=None):
+        #Do the same as Renderer.copy()
+        cdef SDL_Rect src, dst
+        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
+        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
+        
+        if srcrect and not csrcrect:
+            raise error("the argument is not a rectangle or None")
+
+        if not cdstrect and dstrect:
+            if (isinstance(dstrect, tuple) or isinstance(dstrect, list)) and len(dstrect) == 2:
+                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1], 
+                                              self.width, self.height), &dst)
+            else:
+                raise error("the argument is not a rectangle or None")
+                
+        res = SDL_RenderCopy(self.renderer._renderer, self._tex, csrcrect, cdstrect)
+        if res < 0:
+            raise error()
+
 cdef class Renderer:
     def __init__(self, Window window, int index=-1,
                  int accelerated=-1, bint vsync=False,
@@ -764,3 +796,47 @@ cdef class Renderer:
                 raise error()
         else:
             raise error('target must be a Texture or None')
+
+    def blit(self, source, dest=None, area=None, special_flags = 0):
+        """ Only for compatibility.
+		Textures created by different Renderers cannot shared with each other!
+        :param source: A Texture or Surface.
+                        Surface will be converted by SDL_CreateTextureFromSurface.
+        :param area: Rect only, the portion of source texture.
+        :param special_flags: have no effect at this moment.
+        """
+        cdef SDL_Texture *tex
+        cdef Texture pyTex
+        if pgSurface_Check(source):
+            #Not recommended, creating texture every frame is expensive.
+            tex = SDL_CreateTextureFromSurface(self._renderer, 
+                                               pgSurface_AsSurface(source))
+        elif isinstance(source, Texture):
+            pyTex = source
+            tex = pyTex._tex
+        else:
+            raise error('source must be a Texture or Surface')
+            
+        cdef SDL_Rect src, dst
+        cdef SDL_Rect *csrcrect
+        cdef SDL_Rect *cdstrect
+        
+        if area:
+            csrcrect = pgRect_FromObject(area, &src)
+            if csrcrect == NULL:
+                raise error("the argument is not a rectangle or None")
+        else:
+            csrcrect = pgRect_FromObject(((0,0), source.get_rect().size), &src)
+                
+        cdstrect = pgRect_FromObject(dest, &dst)
+        if not cdstrect and dest:
+            if (isinstance(dest, tuple) or isinstance(dest, list)) and len(dest) == 2:
+                cdstrect = pgRect_FromObject((dest[0], dest[1], src.w, src.h), &dst)
+            else:
+                raise error("the argument is not a rectangle or None")
+            
+        res = SDL_RenderCopy(self._renderer, tex, csrcrect, cdstrect)
+        if res < 0:
+            raise error()
+
+        return pgRect_New(cdstrect)
