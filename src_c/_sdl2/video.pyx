@@ -634,11 +634,15 @@ cdef class Texture:
         
         return rect
     
-    def copy(self, dstrect=None, srcrect=None):
-        #Do the same as Renderer.copy()
+    def draw(self, dstrect=None, srcrect=None, angle=0, origin=None,
+             bint flipX=False, bint flipY=False):
+        #Do the same as Renderer.draw()
         cdef SDL_Rect src, dst
         cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
         cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
+        cdef SDL_Point corigin
+        cdef SDL_Point *originptr
+        cdef int flip = SDL_FLIP_NONE
         
         if srcrect and not csrcrect:
             raise error("the argument is not a rectangle or None")
@@ -649,8 +653,21 @@ cdef class Texture:
                                               self.width, self.height), &dst)
             else:
                 raise error("the argument is not a rectangle or None")
-                
-        res = SDL_RenderCopy(self.renderer._renderer, self._tex, csrcrect, cdstrect)
+
+        if origin:
+            originptr = &corigin
+            corigin.x = origin[0]
+            corigin.y = origin[1]
+        else:
+            originptr = NULL
+
+        if flipX:
+            flip |= SDL_FLIP_HORIZONTAL
+        if flipY:
+            flip |= SDL_FLIP_VERTICAL
+
+        res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
+                               angle, originptr, <SDL_RendererFlip>flip)
         if res < 0:
             raise error()
 

@@ -11,6 +11,12 @@ cdef extern from "SDL.h" nogil:
     ctypedef struct SDL_Rect:
         int x, y
         int w, h
+    ctypedef struct SDL_Point:
+        int x, y
+    enum SDL_RendererFlip:
+        SDL_FLIP_NONE,
+        SDL_FLIP_HORIZONTAL,
+        SDL_FLIP_VERTICAL
 
     # https://wiki.libsdl.org/SDL_MessageBoxData
     # https://wiki.libsdl.org/SDL_ShowMessageBox
@@ -48,6 +54,7 @@ cdef extern from "SDL.h" nogil:
     # https://wiki.libsdl.org/SDL_DestroyRenderer
     # https://wiki.libsdl.org/SDL_RenderClear
     # https://wiki.libsdl.org/SDL_RenderCopy
+    # https://wiki.libsdl.org/SDL_RenderCopyEx
     # https://wiki.libsdl.org/SDL_RenderPresent
     int SDL_SetRenderDrawColor(SDL_Renderer* renderer,
                                Uint8         r,
@@ -63,6 +70,13 @@ cdef extern from "SDL.h" nogil:
                        SDL_Texture*    texture,
                        const SDL_Rect* srcrect,
                        const SDL_Rect* dstrect)
+    int SDL_RenderCopyEx(SDL_Renderer*          renderer,
+                         SDL_Texture*           texture,
+                         const SDL_Rect*        srcrect,
+                         const SDL_Rect*        dstrect,
+                         const double           angle,
+                         const SDL_Point*       center,
+                         const SDL_RendererFlip flip)
     void SDL_RenderPresent(SDL_Renderer* renderer)
     # https://wiki.libsdl.org/SDL_RenderGetViewport
     # https://wiki.libsdl.org/SDL_RenderSetViewport
