@@ -53,7 +53,7 @@ win2.set_icon(load_img('bomb.gif'))
 renderer2 = Renderer(win2)
 tex2 = Texture.from_surface(renderer2, load_img('asprite.bmp'))
 renderer2.clear()
-renderer2.copy(tex2)
+tex2.draw()
 renderer2.present()
 del tex2
 
@@ -93,7 +93,7 @@ while running:
 
     dstrect = (x, y, tex.width, tex.height)
     renderer.clear()
-    renderer.copy(tex, srcrect, dstrect)
+    tex.draw(srcrect, dstrect)
     renderer.present()
 
     clock.tick(60)

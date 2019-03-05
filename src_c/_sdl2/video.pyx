@@ -636,7 +636,18 @@ cdef class Texture:
     
     def draw(self, dstrect=None, srcrect=None, angle=0, origin=None,
              bint flipX=False, bint flipY=False):
-        #Do the same as Renderer.draw()
+        """ Copy a portion of the texture to the rendering target.
+
+        :param srcrect: source rectangle on the texture, or None for the entire texture.
+        :type srcrect: pygame.Rect or None
+        :param dstrect: destination rectangle on the render target, or None for entire target.
+                        The texture is stretched to fill dstrect.
+        :type dstrect: pygame.Rect or None
+        :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
+        :param origin: point around which dstrect will be rotated.
+        :param bool flipX: flip horizontally.
+        :param bool flipY: flip vertically.
+        """
         cdef SDL_Rect src, dst
         cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
         cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
@@ -733,24 +744,6 @@ cdef class Renderer:
         """
         # https://wiki.libsdl.org/SDL_RenderClear
         res = SDL_RenderClear(self._renderer)
-        if res < 0:
-            raise error()
-
-    def copy(self, Texture texture, srcrect=None, dstrect=None):
-        """ Copy portion of texture to rendering target.
-
-        :param Texture texture: the source texture.
-        :param srcrect: source rectangle on the texture, or None for the entire texture.
-        :type srcrect: pygame.Rect or None
-        :param dstrect: destination rectangle on the render target, or None for entire target.
-                        The texture is stretched to fill dstrect.
-        :type dstrect: pygame.Rect or None
-        """
-        # https://wiki.libsdl.org/SDL_RenderCopy
-        cdef SDL_Rect src, dst
-        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
-        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
-        res = SDL_RenderCopy(self._renderer, texture._tex, csrcrect, cdstrect)
         if res < 0:
             raise error()
 
