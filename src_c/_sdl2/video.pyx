@@ -639,10 +639,8 @@ cdef class Texture:
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the texture, or None for the entire texture.
-        :type srcrect: pygame.Rect or None
         :param dstrect: destination rectangle on the render target, or None for entire target.
                         The texture is stretched to fill dstrect.
-        :type dstrect: pygame.Rect or None
         :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
         :param origin: point around which dstrect will be rotated.
                        If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
@@ -660,7 +658,7 @@ cdef class Texture:
             raise error("the argument is not a rectangle or None")
 
         if not cdstrect and dstrect:
-            if (isinstance(dstrect, tuple) or isinstance(dstrect, list)) and len(dstrect) == 2:
+            if len(dstrect) == 2:
                 cdstrect = pgRect_FromObject((dstrect[0], dstrect[1], 
                                               self.width, self.height), &dst)
             else:
@@ -684,16 +682,31 @@ cdef class Texture:
             raise error()
 
 cdef class SubTexture:
-    def __init__(self, Texture texture, srcrect=None):
-        self.texture = texture
+    def __init__(self, texture, srcrect=None):
+        cdef int issub = 0
+        if isinstance(texture, Texture):
+            self.texture = texture
+        elif not isinstance(texture, SubTexture):
+            self.texture = texture.texture
+            issub = 1
+        else:
+            raise error("'texture' must be a Texture or SubTexture")
+
         if srcrect is not None:
             if pgRect_FromObject(srcrect, &self.srcrect) == NULL:
                 raise error("the argument is not a rectangle or None")
+            if issub:
+                self.srcrect.x += texture.srcrect.x
+                self.srcrect.y += texture.srcrect.y
         else:
-            self.srcrect.x = 0
-            self.srcrect.y = 0
-            self.srcrect.w = texture.width
-            self.srcrect.h = texture.height
+            if issub:
+                self.srcrect = texture.srcrect
+            else:
+                pgRect_FromObject(texture.get_rect(), &self.srcrect)
+
+    def get_rect(self):
+        """return the area of the subtexture on the underlying texture"""
+        return pgRect_New(&self.srcrect)
 
     @property
     def width(self):
@@ -716,23 +729,28 @@ cdef class SubTexture:
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the subtexture, or None for the entire subtexture.
-        :type srcrect: pygame.Rect or None
         :param dstrect: destination rectangle on the render target, or None for entire target.
                         The subtexture is stretched to fill dstrect.
-        :type dstrect: pygame.Rect or None
         :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
         :param origin: point around which dstrect will be rotated.
                        If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
         :param bool flipX: flip horizontally.
         :param bool flipY: flip vertically.
         """
-        if not srcrect:
+        cdef SDL_Rect rect
+        if srcrect is None:
             srcrect = (self.srcrect.x, self.srcrect.y,
                        self.srcrect.w, self.srcrect.h)
         else:
-            srcrect = (srcrect[0] + self.srcrect.x,
-                       srcrect[1] + self.srcrect.y,
-                       srcrect[2], srcrect[3])
+            if pgRect_FromObject(srcrect, &rect) == NULL:
+                raise error("'srcrect' must be a rectangle or None")
+            srcrect = (rect.x + self.srcrect.x,
+                       rect.y + self.srcrect.y,
+                       rect.w, rect.h)
+
+        if dstrect:
+            if len(dstrect) == 2:
+                dstrect = (*dstrect, self.width, self.height)
 
         self.texture.draw(srcrect, dstrect, angle, origin, flipX, flipY)
 
@@ -866,21 +884,18 @@ cdef class Renderer:
 		Textures created by different Renderers cannot shared with each other!
         :param source: A Texture or Surface.
                         Surface will be converted to a Texture.
-        :param area: Rect only, the portion of source texture.
+        :param area: the portion of source texture.
         :param special_flags: have no effect at this moment.
         """
-        cdef Texture tex
         if pgSurface_Check(source):
             #Not recommended, creating texture every frame is expensive.
-            tex = Texture.from_surface(self, source)
-        else:
-            tex = source
+            source = Texture.from_surface(self, source)
 
         if not area:
             area = ((0,0), source.get_rect().size)
         if not dest:
             dest = self.get_viewport()
 
-        tex.draw(srcrect=area, dstrect=dest)
+        source.draw(area, dest)
 
         return dest
