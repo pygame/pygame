@@ -634,7 +634,7 @@ cdef class Texture:
         
         return rect
 
-    def draw(self, dstrect=None, srcrect=None, float angle=0, origin=None,
+    def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
              bint flipX=False, bint flipY=False):
         """ Copy a portion of the texture to the rendering target.
 
@@ -711,7 +711,7 @@ cdef class SubTexture:
     def height(self, h):
         self.srcrect.h = h
 
-    def draw(self, dstrect=None, srcrect=None, float angle=0, origin=None,
+    def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
              bint flipX=False, bint flipY=False):
         """ Copy a portion of the texture to the rendering target.
 
@@ -726,48 +726,15 @@ cdef class SubTexture:
         :param bool flipX: flip horizontally.
         :param bool flipY: flip vertically.
         """
-        cdef SDL_Rect src, dst
-        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
-        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
-        cdef SDL_Point corigin
-        cdef SDL_Point *originptr
-        cdef int flip = SDL_FLIP_NONE
-
-        if not cdstrect and dstrect:
-            if (isinstance(dstrect, tuple) or isinstance(dstrect, list)) and len(dstrect) == 2:
-                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1],
-                                              self.width, self.height), &dst)
-            else:
-                raise error("'dstrect' is not a rectangle or None")
-
         if not srcrect:
-            csrcrect = &self.srcrect
+            srcrect = (self.srcrect.x, self.srcrect.y,
+                       self.srcrect.w, self.srcrect.h)
         else:
-            if not csrcrect:
-                raise error("'srcrect' is not a rectangle or None")
-            csrcrect = &src
-            src.x = self.srcrect.x + srcrect.x
-            src.y = self.srcrect.y + srcrect.y
-            src.w = srcrect.w
-            src.h = srcrect.h
+            srcrect = (srcrect[0] + self.srcrect.x,
+                       srcrect[1] + self.srcrect.y,
+                       srcrect[2], srcrect[3])
 
-        if origin:
-            originptr = &corigin
-            corigin.x = origin[0]
-            corigin.y = origin[1]
-        else:
-            originptr = NULL
-
-        if flipX:
-            flip |= SDL_FLIP_HORIZONTAL
-        if flipY:
-            flip |= SDL_FLIP_VERTICAL
-
-        res = SDL_RenderCopyEx(self.texture.renderer._renderer, self.texture._tex,
-                               csrcrect, cdstrect,
-                               angle, originptr, <SDL_RendererFlip>flip)
-        if res < 0:
-            raise error()
+        self.texture.draw(srcrect, dstrect, angle, origin, flipX, flipY)
 
 cdef class Renderer:
     def __init__(self, Window window, int index=-1,
@@ -898,42 +865,22 @@ cdef class Renderer:
         """ Only for compatibility.
 		Textures created by different Renderers cannot shared with each other!
         :param source: A Texture or Surface.
-                        Surface will be converted by SDL_CreateTextureFromSurface.
+                        Surface will be converted to a Texture.
         :param area: Rect only, the portion of source texture.
         :param special_flags: have no effect at this moment.
         """
-        cdef SDL_Texture *tex
-        cdef Texture pyTex
+        cdef Texture tex
         if pgSurface_Check(source):
             #Not recommended, creating texture every frame is expensive.
-            tex = SDL_CreateTextureFromSurface(self._renderer, 
-                                               pgSurface_AsSurface(source))
-        elif isinstance(source, Texture):
-            pyTex = source
-            tex = pyTex._tex
+            tex = Texture.from_surface(self, source)
         else:
-            raise error('source must be a Texture or Surface')
-            
-        cdef SDL_Rect src, dst
-        cdef SDL_Rect *csrcrect
-        cdef SDL_Rect *cdstrect
-        
-        if area:
-            csrcrect = pgRect_FromObject(area, &src)
-            if csrcrect == NULL:
-                raise error("the argument is not a rectangle or None")
-        else:
-            csrcrect = pgRect_FromObject(((0,0), source.get_rect().size), &src)
-                
-        cdstrect = pgRect_FromObject(dest, &dst)
-        if not cdstrect and dest:
-            if (isinstance(dest, tuple) or isinstance(dest, list)) and len(dest) == 2:
-                cdstrect = pgRect_FromObject((dest[0], dest[1], src.w, src.h), &dst)
-            else:
-                raise error("the argument is not a rectangle or None")
-            
-        res = SDL_RenderCopy(self._renderer, tex, csrcrect, cdstrect)
-        if res < 0:
-            raise error()
+            tex = source
 
-        return pgRect_New(cdstrect)
+        if not area:
+            area = ((0,0), source.get_rect().size)
+        if not dest:
+            dest = self.get_viewport()
+
+        tex.draw(srcrect=area, dstrect=dest)
+
+        return dest
