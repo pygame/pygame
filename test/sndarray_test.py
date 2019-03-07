@@ -18,7 +18,7 @@ class SndarrayTest (unittest.TestCase):
 
         def check_array(size, channels, test_data):
             try:
-                pygame.mixer.init(22050, size, channels)
+                pygame.mixer.init(22050, size, channels, allowedchanges=0)
             except pygame.error:
                 # Not all sizes are supported on all systems.
                 return
@@ -65,7 +65,7 @@ class SndarrayTest (unittest.TestCase):
 
         def check_sound(size, channels, test_data):
             try:
-                pygame.mixer.init(22050, size, channels)
+                pygame.mixer.init(22050, size, channels, allowedchanges=0)
             except pygame.error:
                 # Not all sizes are supported on all systems.
                 return
@@ -103,7 +103,7 @@ class SndarrayTest (unittest.TestCase):
         null_byte = as_bytes('\x00')
         def check_sample(size, channels, test_data):
             try:
-                pygame.mixer.init(22050, size, channels)
+                pygame.mixer.init(22050, size, channels, allowedchanges=0)
             except pygame.error:
                 # Not all sizes are supported on all systems.
                 return

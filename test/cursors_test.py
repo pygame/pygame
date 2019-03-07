@@ -47,8 +47,13 @@ class CursorsModuleTest(unittest.TestCase):
 
         # Is it in a format that mouse.set_cursor won't blow up on?
         pygame.display.init()
-        pygame.mouse.set_cursor(*cursor)
-        pygame.display.quit()
+        try:
+            pygame.mouse.set_cursor(*cursor)
+        except pygame.error as e:
+            if 'not currently supported' in str(e):
+                unittest.skip('skipping test as set_cursor() is not supported')
+        finally:
+            pygame.display.quit()
 
 ################################################################################
 
