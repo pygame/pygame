@@ -715,7 +715,7 @@ typedef struct {
     (*(SDL_RWops * (*)(PyObject *)) \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
 #define pgRWopsReleaseObject       \
-    (*(void (*)(PyObject *))       \
+    (*(int (*)(SDL_RWops *))       \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 

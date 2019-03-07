@@ -141,7 +141,7 @@ _get_single_pixel(pgPixelArrayObject *array, Uint32 x, Uint32 y)
  * size, etc.
  */
 static PyObject *
-_make_surface(pgPixelArrayObject *array)
+_make_surface(pgPixelArrayObject *array, PyObject *args)
 {
     SDL_Surface *surf;
     int bpp;
@@ -597,7 +597,7 @@ _extract_color (pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
     }
 
     /* Create the b/w mask surface. */
-    surface = _make_surface(array);
+    surface = _make_surface(array, NULL);
     if (!surface) {
         return 0;
     }
@@ -861,7 +861,7 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
     other_pixels = other_array->pixels;
 
     /* Create the b/w mask surface. */
-    new_surface = _make_surface(array);
+    new_surface = _make_surface(array, NULL);
     if (!new_surface) {
         return 0;
     }
@@ -1073,7 +1073,7 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-_transpose(pgPixelArrayObject *array)
+_transpose(pgPixelArrayObject *array, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(array->surface);
     Py_ssize_t dim0 = array->shape[1] ? array->shape[1] : 1;
@@ -1094,13 +1094,13 @@ See:
 https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers
 */
 static PyObject *
-_close_array(pgPixelArrayObject *array) {
+_close_array(pgPixelArrayObject *array, PyObject *args) {
     _cleanup_array(array);
     Py_RETURN_NONE;
 }
 
 static PyObject *
-_enter_context(pgPixelArrayObject *array) {
+_enter_context(pgPixelArrayObject *array, PyObject *args) {
     return (PyObject *)array;
 }
 

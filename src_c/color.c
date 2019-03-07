@@ -81,7 +81,7 @@ _color_dealloc(pgColorObject *);
 static PyObject *
 _color_repr(pgColorObject *);
 static PyObject *
-_color_normalize(pgColorObject *);
+_color_normalize(pgColorObject *, PyObject *);
 static PyObject *
 _color_correct_gamma(pgColorObject *, PyObject *);
 static PyObject *
@@ -791,7 +791,7 @@ _color_repr(pgColorObject *color)
  * color.normalize()
  */
 static PyObject *
-_color_normalize(pgColorObject *color)
+_color_normalize(pgColorObject *color, PyObject *args)
 {
     double rgba[4];
     rgba[0] = color->data[0] / 255.0;

@@ -108,7 +108,7 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-music_get_busy(PyObject *self)
+music_get_busy(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
     return PyInt_FromLong(Mix_PlayingMusic());
@@ -134,7 +134,7 @@ music_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_stop(PyObject *self)
+music_stop(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -149,7 +149,7 @@ music_stop(PyObject *self)
 }
 
 static PyObject *
-music_pause(PyObject *self)
+music_pause(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -158,7 +158,7 @@ music_pause(PyObject *self)
 }
 
 static PyObject *
-music_unpause(PyObject *self)
+music_unpause(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -167,7 +167,7 @@ music_unpause(PyObject *self)
 }
 
 static PyObject *
-music_rewind(PyObject *self)
+music_rewind(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -190,7 +190,7 @@ music_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_get_volume(PyObject *self)
+music_get_volume(PyObject *self, PyObject *args)
 {
     int volume;
     MIXER_INIT_CHECK();
@@ -217,7 +217,7 @@ music_set_pos(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-music_get_pos(PyObject *self)
+music_get_pos(PyObject *self, PyObject *args)
 {
     long ticks;
 
@@ -247,7 +247,7 @@ music_set_endevent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_get_endevent(PyObject *self)
+music_get_endevent(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong(endmusic_event);
 }
@@ -371,28 +371,28 @@ music_queue(PyObject *self, PyObject *args)
 static PyMethodDef _music_methods[] = {
     {"set_endevent", music_set_endevent, METH_VARARGS,
      DOC_PYGAMEMIXERMUSICSETENDEVENT},
-    {"get_endevent", (PyCFunction)music_get_endevent, METH_NOARGS,
+    {"get_endevent", music_get_endevent, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETENDEVENT},
 
     {"play", (PyCFunction)music_play, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERMUSICPLAY},
-    {"get_busy", (PyCFunction)music_get_busy, METH_NOARGS,
+    {"get_busy", music_get_busy, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETBUSY},
     {"fadeout", music_fadeout, METH_VARARGS, DOC_PYGAMEMIXERMUSICFADEOUT},
-    {"stop", (PyCFunction)music_stop, METH_NOARGS, DOC_PYGAMEMIXERMUSICSTOP},
-    {"pause", (PyCFunction)music_pause, METH_NOARGS,
+    {"stop", music_stop, METH_NOARGS, DOC_PYGAMEMIXERMUSICSTOP},
+    {"pause", music_pause, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICPAUSE},
-    {"unpause", (PyCFunction)music_unpause, METH_NOARGS,
+    {"unpause", music_unpause, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICUNPAUSE},
-    {"rewind", (PyCFunction)music_rewind, METH_NOARGS,
+    {"rewind", music_rewind, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICREWIND},
     {"set_volume", music_set_volume, METH_VARARGS,
      DOC_PYGAMEMIXERMUSICSETVOLUME},
-    {"get_volume", (PyCFunction)music_get_volume, METH_NOARGS,
+    {"get_volume", music_get_volume, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETVOLUME},
-    {"set_pos", (PyCFunction)music_set_pos, METH_O,
+    {"set_pos", music_set_pos, METH_O,
      DOC_PYGAMEMIXERMUSICSETPOS},
-    {"get_pos", (PyCFunction)music_get_pos, METH_NOARGS,
+    {"get_pos", music_get_pos, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETPOS},
 
     {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},

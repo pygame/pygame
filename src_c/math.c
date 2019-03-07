@@ -106,7 +106,7 @@ RealNumber_Check(PyObject *obj);
 static double
 PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index);
 static int
-PySequence_AsVectorCoords(PyObject *seq, double *coords,
+PySequence_AsVectorCoords(PyObject *seq, double *const coords,
                           const Py_ssize_t size);
 static int
 pgVectorCompatible_Check(PyObject *obj, Py_ssize_t dim);
@@ -189,13 +189,13 @@ vector_setw(pgVector *self, PyObject *value, void *closure);
 static PyObject *
 vector_richcompare(PyObject *o1, PyObject *o2, int op);
 static PyObject *
-vector_length(pgVector *self);
+vector_length(pgVector *self, PyObject *args);
 static PyObject *
-vector_length_squared(pgVector *self);
+vector_length_squared(pgVector *self, PyObject *args);
 static PyObject *
-vector_normalize(pgVector *self);
+vector_normalize(pgVector *self, PyObject *args);
 static PyObject *
-vector_normalize_ip(pgVector *self);
+vector_normalize_ip(pgVector *self, PyObject *args);
 static PyObject *
 vector_dot(pgVector *self, PyObject *other);
 static PyObject *
@@ -222,7 +222,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name);
 static int
 vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val);
 static PyObject *
-vector_elementwise(pgVector *self);
+vector_elementwise(pgVector *self, PyObject *args);
 static int
 _vector_check_snprintf_success(int return_code);
 static PyObject *
@@ -253,7 +253,7 @@ vector2_cross(pgVector *self, PyObject *other);
 static PyObject *
 vector2_angle_to(pgVector *self, PyObject *other);
 static PyObject *
-vector2_as_polar(pgVector *self);
+vector2_as_polar(pgVector *self, PyObject *args);
 static PyObject *
 vector2_from_polar(pgVector *self, PyObject *args);
 
@@ -275,7 +275,7 @@ vector3_cross(pgVector *self, PyObject *other);
 static PyObject *
 vector3_angle_to(pgVector *self, PyObject *other);
 static PyObject *
-vector3_as_spherical(pgVector *self);
+vector3_as_spherical(pgVector *self, PyObject *args);
 static PyObject *
 vector3_from_spherical(pgVector *self, PyObject *args);
 
@@ -320,7 +320,7 @@ vector_elementwiseproxy_pos(vector_elementwiseproxy *self);
 static int
 vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self);
 static PyObject *
-vector_elementwise(pgVector *vec);
+vector_elementwise(pgVector *vec, PyObject *args);
 
 static int swizzling_enabled = 1;
 
@@ -1195,7 +1195,7 @@ vector_richcompare(PyObject *o1, PyObject *o2, int op)
 }
 
 static PyObject *
-vector_length(pgVector *self)
+vector_length(pgVector *self, PyObject *args)
 {
     double length_squared =
         _scalar_product(self->coords, self->coords, self->dim);
@@ -1203,7 +1203,7 @@ vector_length(pgVector *self)
 }
 
 static PyObject *
-vector_length_squared(pgVector *self)
+vector_length_squared(pgVector *self, PyObject *args)
 {
     double length_squared =
         _scalar_product(self->coords, self->coords, self->dim);
@@ -1211,7 +1211,7 @@ vector_length_squared(pgVector *self)
 }
 
 static PyObject *
-vector_normalize(pgVector *self)
+vector_normalize(pgVector *self, PyObject *args)
 {
     pgVector *ret;
 
@@ -1221,14 +1221,14 @@ vector_normalize(pgVector *self)
     }
     memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
 
-    if (!vector_normalize_ip(ret)) {
+    if (!vector_normalize_ip(ret, NULL)) {
         return NULL;
     }
     return (PyObject *)ret;
 }
 
 static PyObject *
-vector_normalize_ip(pgVector *self)
+vector_normalize_ip(pgVector *self, PyObject *args)
 {
     Py_ssize_t i;
     double length;
@@ -1248,7 +1248,7 @@ vector_normalize_ip(pgVector *self)
 }
 
 static PyObject *
-vector_is_normalized(pgVector *self)
+vector_is_normalized(pgVector *self, PyObject *args)
 {
     double length_squared =
         _scalar_product(self->coords, self->coords, self->dim);
@@ -2031,7 +2031,7 @@ vector2_angle_to(pgVector *self, PyObject *other)
 }
 
 static PyObject *
-vector2_as_polar(pgVector *self)
+vector2_as_polar(pgVector *self, PyObject *args)
 {
     double r, phi;
     r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
@@ -2059,7 +2059,7 @@ vector_getsafepickle(pgRectObject *self, void *closure)
 }
 /* for pickling */
 static PyObject *
-vector2_reduce(PyObject *oself)
+vector2_reduce(PyObject *oself, PyObject *args)
 {
     pgVector *self = (pgVector *)oself;
     return Py_BuildValue("(O(dd))", oself->ob_type, self->coords[0],
@@ -2660,7 +2660,7 @@ vector3_angle_to(pgVector *self, PyObject *other)
 }
 
 static PyObject *
-vector3_as_spherical(pgVector *self)
+vector3_as_spherical(pgVector *self, PyObject *args)
 {
     double r, theta, phi;
     r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
@@ -2692,7 +2692,7 @@ vector3_from_spherical(pgVector *self, PyObject *args)
 
 /* For pickling. */
 static PyObject *
-vector3_reduce(PyObject *oself)
+vector3_reduce(PyObject *oself, PyObject *args)
 {
     pgVector *self = (pgVector *)oself;
     return Py_BuildValue("(O(ddd))", oself->ob_type, self->coords[0],
@@ -3598,7 +3598,7 @@ static PyTypeObject pgVectorElementwiseProxy_Type = {
 };
 
 static PyObject *
-vector_elementwise(pgVector *vec)
+vector_elementwise(pgVector *vec, PyObject *args)
 {
     vector_elementwiseproxy *proxy;
     if (!pgVector_Check(vec)) {

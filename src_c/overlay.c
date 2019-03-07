@@ -117,7 +117,7 @@ Overlay_Display(PyGameOverlay *self, PyObject *args)
 }
 
 static PyObject *
-Overlay_GetHardware(PyGameOverlay *self)
+Overlay_GetHardware(PyGameOverlay *self, PyObject *args)
 {
     return PyInt_FromLong(self->cOverlay->hw_overlay);
 }

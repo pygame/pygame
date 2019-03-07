@@ -366,7 +366,7 @@ pg_register_quit(PyObject *self, PyObject *value)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *args)
 {
     PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
     int loop, num;
@@ -442,7 +442,7 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self)
+pg_get_sdl_version(PyObject *self, PyObject *args)
 {
 #if IS_SDLv1
     const SDL_version *v;
@@ -458,13 +458,13 @@ pg_get_sdl_version(PyObject *self)
 }
 
 static PyObject *
-pg_get_sdl_byteorder(PyObject *self)
+pg_get_sdl_byteorder(PyObject *self, PyObject *args)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
 static PyObject *
-pg_quit(PyObject *self)
+pg_quit(PyObject *self, PyObject *args)
 {
     _pg_quit();
     Py_RETURN_NONE;
@@ -506,7 +506,7 @@ _pg_quit(void)
 }
 
 static PyObject *
-pg_get_init(PyObject *self)
+pg_get_init(PyObject *self, PyObject *args)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -667,7 +667,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 }
 
 static PyObject *
-pg_get_error(PyObject *self)
+pg_get_error(PyObject *self, PyObject *args)
 {
 #if IS_SDLv1 && PY3
     /* SDL 1's encoding is ambiguous */
@@ -2158,7 +2158,7 @@ pg_uninstall_parachute(void)
 /* bind functions to python */
 
 static PyObject *
-pg_do_segfault(PyObject *self)
+pg_do_segfault(PyObject *self, PyObject *args)
 {
     // force crash
     *((int *)1) = 45;
@@ -2167,21 +2167,21 @@ pg_do_segfault(PyObject *self)
 }
 
 static PyMethodDef _base_methods[] = {
-    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
-    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"init", pg_init, METH_NOARGS, DOC_PYGAMEINIT},
+    {"quit", pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
+    {"get_init", pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
     {"register_quit", pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
-    {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
-    {"set_error", (PyCFunction)pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
-    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,
+    {"get_error", pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
+    {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
+    {"get_sdl_version", pg_get_sdl_version, METH_NOARGS,
      DOC_PYGAMEGETSDLVERSION},
-    {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
+    {"get_sdl_byteorder", pg_get_sdl_byteorder, METH_NOARGS,
      DOC_PYGAMEGETSDLBYTEORDER},
 
-    {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
+    {"get_array_interface", pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
 
-    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
+    {"segfault", pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
