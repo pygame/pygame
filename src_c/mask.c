@@ -336,34 +336,39 @@ static PyObject *
 mask_outline(PyObject *self, PyObject *args)
 {
     bitmask_t *c = pgMask_AsBitmap(self);
-    bitmask_t *m = bitmask_create(c->w + 2, c->h + 2);
-    PyObject *plist, *value;
-    int x, y, every, e, firstx, firsty, secx, secy, currx, curry, nextx, nexty,
-        n;
-    int a[14], b[14];
-    a[0] = a[1] = a[7] = a[8] = a[9] = b[1] = b[2] = b[3] = b[9] = b[10] =
-        b[11] = 1;
-    a[2] = a[6] = a[10] = b[4] = b[0] = b[12] = b[8] = 0;
-    a[3] = a[4] = a[5] = a[11] = a[12] = a[13] = b[5] = b[6] = b[7] = b[13] =
-        -1;
+    bitmask_t *m = NULL;
+    PyObject *plist = NULL;
+    PyObject *value = NULL;
+    int x, y, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
+    int e, every = 1;
+    int a[] = {1, 1, 0, -1, -1, -1,  0,  1, 1, 1, 0, -1, -1, -1};
+    int b[] = {0, 1, 1,  1,  0, -1, -1, -1, 0, 1, 1,  1,  0, -1};
 
-    plist = NULL;
-    plist = PyList_New(0);
-    if (!plist)
-        return NULL;
-
-    every = 1;
     n = firstx = firsty = secx = x = 0;
 
     if (!PyArg_ParseTuple(args, "|i", &every)) {
         return NULL;
     }
 
-    /* by copying to a new, larger mask, we avoid having to check if we are at
-       a border pixel every time.  */
-    bitmask_draw(m, c, 1, 1);
+    plist = PyList_New(0);
+    if (!plist) {
+        return RAISE(PyExc_MemoryError,
+                     "outline cannot allocate memory for list");
+    }
 
-    e = every;
+    if (!c->w || !c->h) {
+        return plist;
+    }
+
+    /* Copying to a larger mask to avoid border checking. */
+    m = bitmask_create(c->w + 2, c->h + 2);
+    if (!m) {
+        Py_DECREF(plist);
+        return RAISE(PyExc_MemoryError,
+                     "outline cannot allocate memory for mask");
+    }
+
+    bitmask_draw(m, c, 1, 1);
 
     /* find the first set pixel in the mask */
     for (y = 1; y < m->h - 1; y++) {
@@ -381,11 +386,13 @@ mask_outline(PyObject *self, PyObject *args)
             break;
     }
 
-    /* covers the mask having zero pixels or only the final pixel */
+    /* covers the mask having zero pixels set or only the final pixel */
     if ((x == m->w - 1) && (y == m->h - 1)) {
         bitmask_free(m);
         return plist;
     }
+
+    e = every;
 
     /* check just the first pixel for neighbors */
     for (n = 0; n < 8; n++) {
@@ -848,16 +855,25 @@ mask_from_threshold(PyObject *self, PyObject *args)
     return (PyObject *)maskobj;
 }
 
-/* the initial labelling phase of the connected components algorithm
-
-Returns: The highest label in the labelled image
-
-input - The input Mask
-image - An array to store labelled pixels
-ufind - The union-find label equivalence array
-largest - An array to store the number of pixels for each label
-
-*/
+/* The initial labelling phase of the connected components algorithm.
+ *
+ * Connected component labeling based on the SAUF algorithm by Kesheng Wu,
+ * Ekow Otoo, and Kenji Suzuki. The algorithm is best explained by their
+ * paper, "Two Strategies to Speed up Connected Component Labeling Algorithms",
+ * but in summary, it is a very efficient two pass method for 8-connected
+ * components. It uses a decision tree to minimize the number of neighbors that
+ * need to be checked. It stores equivalence information in an array based
+ * union-find.
+ *
+ * Params:
+ *     input - the input mask
+ *     image - an array to store labelled pixels
+ *     ufind - the union-find label equivalence array
+ *     largest - an array to store the number of pixels for each label
+ *
+ * Returns:
+ *     the highest label in the labelled image
+ */
 unsigned int
 cc_label(bitmask_t *input, unsigned int *image, unsigned int *ufind,
          unsigned int *largest)
@@ -1040,23 +1056,20 @@ cc_label(bitmask_t *input, unsigned int *image, unsigned int *ufind,
     return label;
 }
 
-/* Connected component labeling based on the SAUF algorithm by Kesheng Wu,
-   Ekow Otoo, and Kenji Suzuki.  The algorithm is best explained by their
-   paper, "Two Strategies to Speed up Connected Component Labeling Algorithms",
-   but in summary, it is a very efficient two pass method for 8-connected
-   components. It uses a decision tree to minimize the number of neighbors that
-   need to be checked.  It stores equivalence information in an array based
-   union-find. This implementation also has a final step of finding bounding
-   boxes. */
-
-/*
-returns -2 on memory allocation error, otherwise 0 on success.
-
-input - the input mask.
-num_bounding_boxes - returns the number of bounding rects found.
-rects - returns the rects that are found.  Allocates the memory for the rects.
-
-*/
+/* Creates a bounding rect for each connected component in the given mask.
+ *
+ * Allocates memory for rects.
+ *
+ * Params:
+ *     input - mask to search in for the connected components to bound
+ *     num_bounding_boxes - passes back the number of bounding rects found
+ *     rects - passes back the bounding rects that are found, memory is
+ *         allocated
+ *
+ * Returns:
+ *     0 on success
+ *     -2 on memory allocation error
+ */
 static int
 get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
                    GAME_Rect **ret_rects)
@@ -1211,12 +1224,20 @@ mask_get_bounding_rects(PyObject *self, PyObject *args)
     return ret;
 }
 
-/*
-returns the number of connected components.
-returns -2 on memory allocation error.
-Allocates memory for components.
-
-*/
+/* Finds all the connected components in a given mask.
+ *
+ * Allocates memory for components.
+ *
+ * Params:
+ *     mask - mask to search in for the connected components
+ *     components - passes back an array of connected component masks,
+ *         memory is allocated
+ *     min - minimum number of pixels for a component to be considered
+ *
+ * Returns:
+ *     the number of connected components (>= 0)
+ *     -2 on memory allocation error
+ */
 static int
 get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 {
@@ -1228,6 +1249,10 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 
     w = mask->w;
     h = mask->h;
+
+    if (!w || !h) {
+        return 0;
+    }
 
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *)malloc(sizeof(int) * w * h);
@@ -1361,20 +1386,24 @@ mask_connected_components(PyObject *self, PyObject *args)
     return ret;
 }
 
-/* Connected component labeling based on the SAUF algorithm by Kesheng Wu,
-   Ekow Otoo, and Kenji Suzuki.  The algorithm is best explained by their
-   paper, "Two Strategies to Speed up Connected Component Labeling Algorithms",
-   but in summary, it is a very efficient two pass method for 8-connected
-   components. It uses a decision tree to minimize the number of neighbors that
-   need to be checked.  It stores equivalence information in an array based
-   union-find. This implementation also tracks the number of pixels in each
-   label, finding the biggest one while flattening the union-find equivalence
-   array.  It then
-   writes an output mask containing only the largest connected component. */
-
-/*
-returns -2 on memory allocation error.
-*/
+/* Finds the largest connected component in a given mask.
+ *
+ * Tracks the number of pixels in each label, finding the biggest one while
+ * flattening the union-find equivalence array. It then writes an output mask
+ * containing only the largest connected component.
+ *
+ * Params:
+ *     input - mask to search in for the largest connected component
+ *     output - this mask is updated with the largest connected component
+ *     ccx - x index, if < 0 then the largest connected component in the input
+ *         mask is found and copied to the output mask, otherwise the connected
+ *         component at (ccx, ccy) is copied to the output mask
+ *     ccy - y index
+ *
+ * Returns:
+ *     0 on success
+ *     -2 on memory allocation error
+ */
 static int
 largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
 {
@@ -1383,6 +1412,10 @@ largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
 
     w = input->w;
     h = input->h;
+
+    if (!w || !h) {
+        return 0;
+    }
 
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *)malloc(sizeof(int) * w * h);

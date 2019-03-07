@@ -113,14 +113,14 @@ Joystick(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-get_count(PyObject *self)
+get_count(PyObject *self, PyObject *args)
 {
     JOYSTICK_INIT_CHECK();
     return PyInt_FromLong(SDL_NumJoysticks());
 }
 
 static PyObject *
-joy_init(PyObject *self)
+joy_init(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
 
@@ -135,7 +135,7 @@ joy_init(PyObject *self)
 }
 
 static PyObject *
-joy_quit(PyObject *self)
+joy_quit(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
 
@@ -149,21 +149,21 @@ joy_quit(PyObject *self)
 }
 
 static PyObject *
-joy_get_init(PyObject *self)
+joy_get_init(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     return PyInt_FromLong(joystick_stickdata[joy_id] != NULL);
 }
 
 static PyObject *
-joy_get_id(PyObject *self)
+joy_get_id(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     return PyInt_FromLong(joy_id);
 }
 
 static PyObject *
-joy_get_name(PyObject *self)
+joy_get_name(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     JOYSTICK_INIT_CHECK();
@@ -175,7 +175,7 @@ joy_get_name(PyObject *self)
 }
 
 static PyObject *
-joy_get_numaxes(PyObject *self)
+joy_get_numaxes(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     SDL_Joystick *joy = joystick_stickdata[joy_id];
@@ -216,7 +216,7 @@ joy_get_axis(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numbuttons(PyObject *self)
+joy_get_numbuttons(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     SDL_Joystick *joy = joystick_stickdata[joy_id];
@@ -256,7 +256,7 @@ joy_get_button(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numballs(PyObject *self)
+joy_get_numballs(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     SDL_Joystick *joy = joystick_stickdata[joy_id];
@@ -275,7 +275,7 @@ joy_get_ball(PyObject *self, PyObject *args)
     int joy_id = pgJoystick_AsID(self);
     SDL_Joystick *joy = joystick_stickdata[joy_id];
     int _index, dx, dy;
-    Uint32 value;
+    int value;
 
     if (!PyArg_ParseTuple(args, "i", &_index)) {
         return NULL;
@@ -298,7 +298,7 @@ joy_get_ball(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-joy_get_numhats(PyObject *self)
+joy_get_numhats(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
     Uint32 value;
@@ -358,23 +358,23 @@ joy_get_hat(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef joy_methods[] = {
-    {"init", (PyCFunction)joy_init, METH_NOARGS, DOC_JOYSTICKINIT},
-    {"quit", (PyCFunction)joy_quit, METH_NOARGS, DOC_JOYSTICKQUIT},
-    {"get_init", (PyCFunction)joy_get_init, METH_NOARGS, DOC_JOYSTICKGETINIT},
+    {"init", joy_init, METH_NOARGS, DOC_JOYSTICKINIT},
+    {"quit", joy_quit, METH_NOARGS, DOC_JOYSTICKQUIT},
+    {"get_init", joy_get_init, METH_NOARGS, DOC_JOYSTICKGETINIT},
 
-    {"get_id", (PyCFunction)joy_get_id, METH_NOARGS, DOC_JOYSTICKGETID},
-    {"get_name", (PyCFunction)joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
+    {"get_id", joy_get_id, METH_NOARGS, DOC_JOYSTICKGETID},
+    {"get_name", joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
 
-    {"get_numaxes", (PyCFunction)joy_get_numaxes, METH_NOARGS,
+    {"get_numaxes", joy_get_numaxes, METH_NOARGS,
      DOC_JOYSTICKGETNUMAXES},
     {"get_axis", joy_get_axis, METH_VARARGS, DOC_JOYSTICKGETAXIS},
-    {"get_numbuttons", (PyCFunction)joy_get_numbuttons, METH_NOARGS,
+    {"get_numbuttons", joy_get_numbuttons, METH_NOARGS,
      DOC_JOYSTICKGETNUMBUTTONS},
     {"get_button", joy_get_button, METH_VARARGS, DOC_JOYSTICKGETBUTTON},
-    {"get_numballs", (PyCFunction)joy_get_numballs, METH_NOARGS,
+    {"get_numballs", joy_get_numballs, METH_NOARGS,
      DOC_JOYSTICKGETNUMBALLS},
     {"get_ball", joy_get_ball, METH_VARARGS, DOC_JOYSTICKGETBALL},
-    {"get_numhats", (PyCFunction)joy_get_numhats, METH_NOARGS,
+    {"get_numhats", joy_get_numhats, METH_NOARGS,
      DOC_JOYSTICKGETNUMHATS},
     {"get_hat", joy_get_hat, METH_VARARGS, DOC_JOYSTICKGETHAT},
 

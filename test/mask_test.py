@@ -1309,8 +1309,6 @@ class MaskTypeTest(unittest.TestCase):
             mask = pygame.mask.Mask(size)
             self.assertEqual(mask.angle(), 0.0)
 
-    # The skip() can be removed when issue #875 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_outline(self):
         """Ensures outline correctly handles zero sized masks."""
         expected_points = []
@@ -1323,8 +1321,6 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(points, expected_points,
                                  'size={}'.format(size))
 
-    # The skip() can be removed when issue #875 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_outline__with_arg(self):
         """Ensures outline correctly handles zero sized masks
         when using the skip pixels argument."""
@@ -1342,8 +1338,6 @@ class MaskTypeTest(unittest.TestCase):
         """Ensures convolve correctly handles zero sized masks."""
         self.fail()
 
-    # The skip() can be removed when issue #870 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_connected_component(self):
         """Ensures connected_component correctly handles zero sized masks."""
         expected_count = 0
@@ -1357,8 +1351,6 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(cc_mask.count(), expected_count,
                              'size={}'.format(size))
 
-    # The skip() can be removed when issue #870 is fixed/closed.
-    @unittest.skip('IndexError not raised')
     def test_zero_mask_connected_component__indexed(self):
         """Ensures connected_component correctly handles zero sized masks
         when using an index argument."""
@@ -1368,8 +1360,6 @@ class MaskTypeTest(unittest.TestCase):
             with self.assertRaises(IndexError):
                 cc_mask = mask.connected_component((0, 0))
 
-    # The skip() can be removed when issue #870 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_connected_components(self):
         """Ensures connected_components correctly handles zero sized masks."""
         expected_cc_masks = []

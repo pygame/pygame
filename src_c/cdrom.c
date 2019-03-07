@@ -115,7 +115,7 @@ get_count(PyObject *self)
 }
 
 static PyObject *
-cd_init(PyObject *self)
+cd_init(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
 
@@ -130,7 +130,7 @@ cd_init(PyObject *self)
 }
 
 static PyObject *
-cd_quit(PyObject *self)
+cd_quit(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
 
@@ -144,7 +144,7 @@ cd_quit(PyObject *self)
 }
 
 static PyObject *
-cd_get_init(PyObject *self)
+cd_get_init(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     return PyInt_FromLong(cdrom_drivedata[cd_id] != NULL);
@@ -214,7 +214,7 @@ cd_play(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-cd_pause(PyObject *self)
+cd_pause(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -233,7 +233,7 @@ cd_pause(PyObject *self)
 }
 
 static PyObject *
-cd_resume(PyObject *self)
+cd_resume(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -252,7 +252,7 @@ cd_resume(PyObject *self)
 }
 
 static PyObject *
-cd_stop(PyObject *self)
+cd_stop(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -271,7 +271,7 @@ cd_stop(PyObject *self)
 }
 
 static PyObject *
-cd_eject(PyObject *self)
+cd_eject(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -291,7 +291,7 @@ cd_eject(PyObject *self)
 }
 
 static PyObject *
-cd_get_empty(PyObject *self)
+cd_get_empty(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -307,7 +307,7 @@ cd_get_empty(PyObject *self)
 }
 
 static PyObject *
-cd_get_busy(PyObject *self)
+cd_get_busy(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -323,7 +323,7 @@ cd_get_busy(PyObject *self)
 }
 
 static PyObject *
-cd_get_paused(PyObject *self)
+cd_get_paused(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -339,7 +339,7 @@ cd_get_paused(PyObject *self)
 }
 
 static PyObject *
-cd_get_current(PyObject *self)
+cd_get_current(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -359,7 +359,7 @@ cd_get_current(PyObject *self)
 }
 
 static PyObject *
-cd_get_numtracks(PyObject *self)
+cd_get_numtracks(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     SDL_CD *cdrom = cdrom_drivedata[cd_id];
@@ -374,14 +374,14 @@ cd_get_numtracks(PyObject *self)
 }
 
 static PyObject *
-cd_get_id(PyObject *self)
+cd_get_id(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     return PyInt_FromLong(cd_id);
 }
 
 static PyObject *
-cd_get_name(PyObject *self)
+cd_get_name(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
     CDROM_INIT_CHECK();
@@ -498,26 +498,24 @@ cd_get_all(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef cd_methods[] = {
-    {"init", (PyCFunction)cd_init, METH_NOARGS, DOC_CDINIT},
-    {"quit", (PyCFunction)cd_quit, METH_NOARGS, DOC_CDQUIT},
-    {"get_init", (PyCFunction)cd_get_init, METH_NOARGS, DOC_CDGETINIT},
+    {"init", cd_init, METH_NOARGS, DOC_CDINIT},
+    {"quit", cd_quit, METH_NOARGS, DOC_CDQUIT},
+    {"get_init", cd_get_init, METH_NOARGS, DOC_CDGETINIT},
 
     {"play", cd_play, METH_VARARGS, DOC_CDINIT},
-    {"pause", (PyCFunction)cd_pause, METH_NOARGS, DOC_CDPAUSE},
-    {"resume", (PyCFunction)cd_resume, METH_NOARGS, DOC_CDRESUME},
-    {"stop", (PyCFunction)cd_stop, METH_NOARGS, DOC_CDSTOP},
-    {"eject", (PyCFunction)cd_eject, METH_NOARGS, DOC_CDEJECT},
+    {"pause", cd_pause, METH_NOARGS, DOC_CDPAUSE},
+    {"resume", cd_resume, METH_NOARGS, DOC_CDRESUME},
+    {"stop", cd_stop, METH_NOARGS, DOC_CDSTOP},
+    {"eject", cd_eject, METH_NOARGS, DOC_CDEJECT},
 
-    {"get_empty", (PyCFunction)cd_get_empty, METH_NOARGS, DOC_CDGETEMPTY},
-    {"get_busy", (PyCFunction)cd_get_busy, METH_NOARGS, DOC_CDGETBUSY},
-    {"get_paused", (PyCFunction)cd_get_paused, METH_NOARGS, DOC_CDGETPAUSED},
-    {"get_current", (PyCFunction)cd_get_current, METH_NOARGS,
-     DOC_CDGETCURRENT},
-    {"get_numtracks", (PyCFunction)cd_get_numtracks, METH_NOARGS,
-     DOC_CDGETNUMTRACKS},
-    {"get_id", (PyCFunction)cd_get_id, METH_NOARGS, DOC_CDGETINIT},
-    {"get_name", (PyCFunction)cd_get_name, METH_NOARGS, DOC_CDGETNAME},
-    {"get_all", (PyCFunction)cd_get_all, METH_NOARGS, DOC_CDGETALL},
+    {"get_empty", cd_get_empty, METH_NOARGS, DOC_CDGETEMPTY},
+    {"get_busy", cd_get_busy, METH_NOARGS, DOC_CDGETBUSY},
+    {"get_paused", cd_get_paused, METH_NOARGS, DOC_CDGETPAUSED},
+    {"get_current", cd_get_current, METH_NOARGS, DOC_CDGETCURRENT},
+    {"get_numtracks", cd_get_numtracks, METH_NOARGS, DOC_CDGETNUMTRACKS},
+    {"get_id", cd_get_id, METH_NOARGS, DOC_CDGETINIT},
+    {"get_name", cd_get_name, METH_NOARGS, DOC_CDGETNAME},
+    {"get_all", cd_get_all, METH_NOARGS, DOC_CDGETALL},
 
     {"get_track_audio", cd_get_track_audio, METH_VARARGS, DOC_CDGETTRACKAUDIO},
     {"get_track_length", cd_get_track_length, METH_VARARGS,
