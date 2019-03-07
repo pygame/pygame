@@ -820,10 +820,19 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 #if IS_SDLv2
         case AUDIO_S32LSB:
             *format = fmt_AUDIO_S32LSB;
+            *itemsize = 4;
+            return 0;
+
         case AUDIO_S32MSB:
             *format = fmt_AUDIO_S32MSB;
+            *itemsize = 4;
+            return 0;
+
         case AUDIO_F32LSB:
             *format = fmt_AUDIO_F32LSB;
+            *itemsize = 4;
+            return 0;
+
         case AUDIO_F32MSB:
             *format = fmt_AUDIO_F32MSB;
             *itemsize = 4;
