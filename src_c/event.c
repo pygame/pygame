@@ -644,9 +644,11 @@ dict_from_event(SDL_Event *event)
         /*  https://wiki.libsdl.org/SDL_DropEvent */
         case SDL_DROPFILE:
             _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
+			SDL_free(event->drop.file);
             break;
         case SDL_DROPTEXT:
             _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
+			SDL_free(event->drop.file);
             break;
         case SDL_DROPBEGIN:
         case SDL_DROPCOMPLETE:
