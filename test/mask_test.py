@@ -1309,8 +1309,6 @@ class MaskTypeTest(unittest.TestCase):
             mask = pygame.mask.Mask(size)
             self.assertEqual(mask.angle(), 0.0)
 
-    # The skip() can be removed when issue #875 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_outline(self):
         """Ensures outline correctly handles zero sized masks."""
         expected_points = []
@@ -1323,8 +1321,6 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(points, expected_points,
                                  'size={}'.format(size))
 
-    # The skip() can be removed when issue #875 is fixed/closed.
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_outline__with_arg(self):
         """Ensures outline correctly handles zero sized masks
         when using the skip pixels argument."""

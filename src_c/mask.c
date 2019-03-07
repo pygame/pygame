@@ -336,34 +336,39 @@ static PyObject *
 mask_outline(PyObject *self, PyObject *args)
 {
     bitmask_t *c = pgMask_AsBitmap(self);
-    bitmask_t *m = bitmask_create(c->w + 2, c->h + 2);
-    PyObject *plist, *value;
-    int x, y, every, e, firstx, firsty, secx, secy, currx, curry, nextx, nexty,
-        n;
-    int a[14], b[14];
-    a[0] = a[1] = a[7] = a[8] = a[9] = b[1] = b[2] = b[3] = b[9] = b[10] =
-        b[11] = 1;
-    a[2] = a[6] = a[10] = b[4] = b[0] = b[12] = b[8] = 0;
-    a[3] = a[4] = a[5] = a[11] = a[12] = a[13] = b[5] = b[6] = b[7] = b[13] =
-        -1;
+    bitmask_t *m = NULL;
+    PyObject *plist = NULL;
+    PyObject *value = NULL;
+    int x, y, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
+    int e, every = 1;
+    int a[] = {1, 1, 0, -1, -1, -1,  0,  1, 1, 1, 0, -1, -1, -1};
+    int b[] = {0, 1, 1,  1,  0, -1, -1, -1, 0, 1, 1,  1,  0, -1};
 
-    plist = NULL;
-    plist = PyList_New(0);
-    if (!plist)
-        return NULL;
-
-    every = 1;
     n = firstx = firsty = secx = x = 0;
 
     if (!PyArg_ParseTuple(args, "|i", &every)) {
         return NULL;
     }
 
-    /* by copying to a new, larger mask, we avoid having to check if we are at
-       a border pixel every time.  */
-    bitmask_draw(m, c, 1, 1);
+    plist = PyList_New(0);
+    if (!plist) {
+        return RAISE(PyExc_MemoryError,
+                     "outline cannot allocate memory for list");
+    }
 
-    e = every;
+    if (!c->w || !c->h) {
+        return plist;
+    }
+
+    /* Copying to a larger mask to avoid border checking. */
+    m = bitmask_create(c->w + 2, c->h + 2);
+    if (!m) {
+        Py_DECREF(plist);
+        return RAISE(PyExc_MemoryError,
+                     "outline cannot allocate memory for mask");
+    }
+
+    bitmask_draw(m, c, 1, 1);
 
     /* find the first set pixel in the mask */
     for (y = 1; y < m->h - 1; y++) {
@@ -381,11 +386,13 @@ mask_outline(PyObject *self, PyObject *args)
             break;
     }
 
-    /* covers the mask having zero pixels or only the final pixel */
+    /* covers the mask having zero pixels set or only the final pixel */
     if ((x == m->w - 1) && (y == m->h - 1)) {
         bitmask_free(m);
         return plist;
     }
+
+    e = every;
 
     /* check just the first pixel for neighbors */
     for (n = 0; n < 8; n++) {
