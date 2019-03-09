@@ -172,10 +172,14 @@ static PyTypeObject pgScancodeWrapper_Type = {
 #endif /* IS_SDLv2 */
 
 static PyObject *
-key_get_pressed(PyObject *self)
+key_get_pressed(PyObject *self, PyObject *args)
 {
     int num_keys;
+#if IS_SDLv1
     Uint8 *key_state;
+#else
+    const Uint8 *key_state;
+#endif
     PyObject *key_tuple;
     int i;
 
@@ -658,7 +662,7 @@ SDL_UCS4ToUTF8(Uint32 ch, char *dst)
 static const char *
 _get_keycode_name(SDL_Keycode key)
 {
-#pragma WARN(Add missing keycode names here? )
+#pragma PG_WARN(Add missing keycode names here? )
 
     static char name[8];
     char *end;
@@ -706,7 +710,7 @@ key_name(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_mods(PyObject *self)
+key_get_mods(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
@@ -728,7 +732,7 @@ key_set_mods(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_focused(PyObject *self)
+key_get_focused(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
@@ -740,7 +744,7 @@ key_get_focused(PyObject *self)
 }
 
 static PyObject *
-key_start_text_input(PyObject *self)
+key_start_text_input(PyObject *self, PyObject *args)
 {
 #if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StartTextInput */
@@ -750,7 +754,7 @@ key_start_text_input(PyObject *self)
 }
 
 static PyObject *
-key_stop_text_input(PyObject *self)
+key_stop_text_input(PyObject *self, PyObject *args)
 {
 #if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StopTextInput */
@@ -779,18 +783,18 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
 static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
     {"get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT},
-    {"get_pressed", (PyCFunction)key_get_pressed, METH_NOARGS,
+    {"get_pressed", key_get_pressed, METH_NOARGS,
      DOC_PYGAMEKEYGETPRESSED},
     {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
-    {"get_mods", (PyCFunction)key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
+    {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
-    {"get_focused", (PyCFunction)key_get_focused, METH_NOARGS,
+    {"get_focused", key_get_focused, METH_NOARGS,
      DOC_PYGAMEKEYGETFOCUSED},
-    {"start_text_input", (PyCFunction)key_start_text_input, METH_NOARGS,
+    {"start_text_input", key_start_text_input, METH_NOARGS,
      DOC_PYGAMEKEYSTARTTEXTINPUT},
-    {"stop_text_input", (PyCFunction)key_stop_text_input, METH_NOARGS,
+    {"stop_text_input", key_stop_text_input, METH_NOARGS,
      DOC_PYGAMEKEYSTOPTEXTINPUT},
-    {"set_text_input_rect", (PyCFunction)key_set_text_input_rect, METH_O,
+    {"set_text_input_rect", key_set_text_input_rect, METH_O,
      DOC_PYGAMEKEYSETTEXTINPUTRECT},
 
     {NULL, NULL, 0, NULL}};

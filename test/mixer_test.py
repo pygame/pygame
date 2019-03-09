@@ -212,6 +212,7 @@ class MixerModuleTest(unittest.TestCase):
                 pass
         except IOError:
             raise unittest.SkipTest('the path cannot be opened')
+
         try:
             sound = mixer.Sound(temp_file)
             del sound
@@ -227,7 +228,8 @@ class MixerModuleTest(unittest.TestCase):
                                int16, uint16,
                                int32, uint32)
         except ImportError:
-            return
+            self.skipTest('requires numpy')
+
         freq = 22050
         format_list = [-8, 8, -16, 16]
         channels_list = [1, 2]
@@ -440,34 +442,6 @@ class MixerModuleTest(unittest.TestCase):
             self.assertRaises(BufferError, Importer, snd,
                               buftools.PyBUF_F_CONTIGUOUS)
 
-    def test_get_raw(self):
-        mixer.init()
-        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
-        snd = mixer.Sound(buffer=samples)
-        raw = snd.get_raw()
-        self.assertTrue(isinstance(raw, bytes_))
-        self.assertEqual(raw, samples)
-
-    @unittest.skipIf(IS_PYPY, 'pypy skip')
-    def test_get_raw_more(self):
-        """ test the array interface a bit better.
-        """
-        from ctypes import pythonapi, c_void_p, py_object
-
-        try:
-            Bytes_FromString = pythonapi.PyBytes_FromString
-        except:
-            Bytes_FromString = pythonapi.PyString_FromString
-        Bytes_FromString.restype = c_void_p
-        Bytes_FromString.argtypes = [py_object]
-        mixer.init()
-        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
-        snd = mixer.Sound(buffer=samples)
-        raw = snd.get_raw()
-        self.assertTrue(isinstance(raw, bytes_))
-        self.assertNotEqual(snd._samples_address, Bytes_FromString(samples))
-        self.assertEqual(raw, samples)
-
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:
@@ -589,9 +563,7 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         """Ensure Channel() creation works."""
         channel = mixer.Channel(0)
 
-        # self.assertIsInstance(channel, mixer.Channel)  # Would be nice.
-        # type(pygame.mixer.Channel) gives <class 'builtin_function_or_method'>
-        # Check class name instead.
+        self.assertIsInstance(channel, mixer.ChannelType)
         self.assertEqual(channel.__class__.__name__, 'Channel')
 
     def test_channel__without_arg(self):
@@ -624,17 +596,17 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_busy(self):
+    def test_get_busy(self):
+        """Ensure an idle channel's busy state is correct."""
+        expected_busy = False
+        channel = mixer.Channel(0)
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_busy:
+        busy = channel.get_busy()
 
-          # Channel.get_busy(): return bool
-          # check if the channel is active
-          #
-          # Returns true if the channel is activily mixing sound. If the channel
-          # is idle this returns False.
-          #
+        self.assertEqual(busy, expected_busy)
 
+    def todo_test_get_busy__active(self):
+        """Ensure an active channel's busy state is correct."""
         self.fail()
 
     def todo_test_get_endevent(self):
@@ -678,19 +650,17 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_volume(self):
+    def test_get_volume(self):
+        """Ensure a channel's volume can be retrieved."""
+        expected_volume = 1.0  # default
+        channel = mixer.Channel(0)
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_volume:
+        volume = channel.get_volume()
 
-          # Channel.get_volume(): return value
-          # get the volume of the playing channel
-          #
-          # Return the volume of the channel for the current playing sound. This
-          # does not take into account stereo separation used by
-          # Channel.set_volume. The Sound object also has its own volume which
-          # is mixed with the channel.
-          #
+        self.assertAlmostEqual(volume, expected_volume)
 
+    def todo_test_get_volume__while_playing(self):
+        """Ensure a channel's volume can be retrieved while playing."""
         self.fail()
 
     def todo_test_pause(self):
@@ -897,6 +867,25 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         with self.assertRaisesRegex(pygame.error, 'mixer not initialized'):
             mixer.Sound(file=filename)
 
+    @unittest.skipIf(IS_PYPY, 'pypy skip')
+    def test_samples_address(self):
+        """Test the _samples_address getter."""
+        from ctypes import pythonapi, c_void_p, py_object
+
+        try:
+            Bytes_FromString = pythonapi.PyBytes_FromString  # python 3
+        except:
+            Bytes_FromString = pythonapi.PyString_FromString  # python 2
+
+        Bytes_FromString.restype = c_void_p
+        Bytes_FromString.argtypes = [py_object]
+        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+        sample_bytes = Bytes_FromString(samples)
+
+        snd = mixer.Sound(buffer=samples)
+
+        self.assertNotEqual(snd._samples_address, sample_bytes)
+
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.fadeout:
@@ -922,26 +911,32 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_num_channels(self):
+    def test_get_num_channels(self):
+        """Ensure correct number of channels."""
+        expected_channels = 0
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        sound = mixer.Sound(file=filename)
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.get_num_channels:
+        num_channels = sound.get_num_channels()
 
-          # Sound.get_num_channels(): return count
-          # count how many times this Sound is playing
-          #
-          # Return the number of active channels this sound is playing on.
+        self.assertEqual(num_channels, expected_channels)
 
+    def todo_test_get_num_channels__while_playing(self):
+        """Ensure correct number of channels while playing."""
         self.fail()
 
-    def todo_test_get_volume(self):
+    def test_get_volume(self):
+        """Ensure a sound's volume can be retrieved."""
+        expected_volume = 1.0  # default
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        sound = mixer.Sound(file=filename)
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.get_volume:
+        volume = sound.get_volume()
 
-          # Sound.get_volume(): return value
-          # get the playback volume
-          #
-          # Return a value from 0.0 to 1.0 representing the volume for this Sound.
+        self.assertAlmostEqual(volume, expected_volume)
 
+    def todo_test_get_volume__while_playing(self):
+        """Ensure a sound's volume can be retrieved while playing."""
         self.fail()
 
     def todo_test_play(self):
@@ -974,31 +969,59 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_volume(self):
+    def test_set_volume(self):
+        """Ensure a sound's volume can be set."""
+        float_delta = 1.0 / 128  # SDL volume range is 0 to 128
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        sound = mixer.Sound(file=filename)
+        current_volume = sound.get_volume()
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.set_volume:
+        # (volume_set_value : expected_volume)
+        volumes = ((-1,   current_volume),  # value < 0 won't change volume
+                   (0,    0.0),
+                   (0.01, 0.01),
+                   (0.1,  0.1),
+                   (0.5,  0.5),
+                   (0.9,  0.9),
+                   (0.99, 0.99),
+                   (1,    1.0),
+                   (1.1,  1.0),
+                   (2.0,  1.0))
 
-          # Sound.set_volume(value): return None
-          # set the playback volume for this Sound
-          #
-          # This will set the playback volume (loudness) for this Sound. This
-          # will immediately affect the Sound if it is playing. It will also
-          # affect any future playback of this Sound. The argument is a value
-          # from 0.0 to 1.0.
-          #
+        for volume_set_value, expected_volume in volumes:
+            sound.set_volume(volume_set_value)
 
+            self.assertAlmostEqual(sound.get_volume(), expected_volume,
+                                   delta=float_delta)
+
+    def todo_test_set_volume__while_playing(self):
+        """Ensure a sound's volume can be set while playing."""
         self.fail()
 
-    def todo_test_stop(self):
+    def test_stop(self):
+        """Ensure stop can be called while not playing a sound."""
+        expected_channels = 0
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        sound = mixer.Sound(file=filename)
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.stop:
+        sound.stop()
 
-          # Sound.stop(): return None
-          # stop sound playback
-          #
-          # This will stop the playback of this Sound on any active Channels.
+        self.assertEqual(sound.get_num_channels(), expected_channels)
 
+    def todo_test_stop__while_playing(self):
+        """Ensure stop stops a playing sound."""
         self.fail()
+
+    def test_get_raw(self):
+        """Ensure get_raw returns the correct bytestring."""
+        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+        snd = mixer.Sound(buffer=samples)
+
+        raw = snd.get_raw()
+
+        self.assertIsInstance(raw, bytes_)
+        self.assertEqual(raw, samples)
+
 
 ##################################### MAIN #####################################
 

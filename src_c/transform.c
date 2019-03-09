@@ -115,8 +115,9 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
     Uint32 colorkey;
     Uint8 alpha;
     int isalpha;
-#endif /* IS_SDLv2 */
+#else /* IS_SDLv1 */
     int result;
+#endif /* IS_SDLv1 */
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
@@ -1481,7 +1482,7 @@ surf_scalesmooth(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_get_smoothscale_backend(PyObject *self)
+surf_get_smoothscale_backend(PyObject *self, PyObject *args)
 {
     return Text_FromUTF8(GETSTATE(self)->filter_type);
 }
@@ -1624,9 +1625,8 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
               Uint32 color_set_color, int set_behavior,
               SDL_Surface *search_surf, int inverse_set)
 {
-    int x, y, result, similar;
+    int x, y, similar;
     Uint8 *pixels, *destpixels = NULL, *pixels2 = NULL;
-    SDL_Rect sdlrect;
     SDL_PixelFormat *format, *destformat = NULL;
     Uint32 the_color, the_color2, dest_set_color;
     Uint8 search_color_r, search_color_g, search_color_b;
@@ -2745,7 +2745,7 @@ static PyMethodDef _transform_methods[] = {
     {"scale2x", surf_scale2x, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE2X},
     {"smoothscale", surf_scalesmooth, METH_VARARGS,
      DOC_PYGAMETRANSFORMSMOOTHSCALE},
-    {"get_smoothscale_backend", (PyCFunction)surf_get_smoothscale_backend,
+    {"get_smoothscale_backend", surf_get_smoothscale_backend,
      METH_NOARGS, DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND},
     {"set_smoothscale_backend", (PyCFunction)surf_set_smoothscale_backend,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND},

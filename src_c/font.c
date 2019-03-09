@@ -235,35 +235,35 @@ get_init(PyObject *self)
 
 /* font object methods */
 static PyObject *
-font_get_height(PyObject *self)
+font_get_height(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontHeight(font));
 }
 
 static PyObject *
-font_get_descent(PyObject *self)
+font_get_descent(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontDescent(font));
 }
 
 static PyObject *
-font_get_ascent(PyObject *self)
+font_get_ascent(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontAscent(font));
 }
 
 static PyObject *
-font_get_linesize(PyObject *self)
+font_get_linesize(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontLineSkip(font));
 }
 
 static PyObject *
-font_get_bold(PyObject *self)
+font_get_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_BOLD) != 0);
@@ -289,7 +289,7 @@ font_set_bold(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_get_italic(PyObject *self)
+font_get_italic(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_ITALIC) != 0);
@@ -315,7 +315,7 @@ font_set_italic(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_get_underline(PyObject *self)
+font_get_underline(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_UNDERLINE) != 0);
@@ -615,21 +615,21 @@ font_metrics(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef font_methods[] = {
-    {"get_height", (PyCFunction)font_get_height, METH_NOARGS,
+    {"get_height", font_get_height, METH_NOARGS,
      DOC_FONTGETHEIGHT},
-    {"get_descent", (PyCFunction)font_get_descent, METH_NOARGS,
+    {"get_descent", font_get_descent, METH_NOARGS,
      DOC_FONTGETDESCENT},
-    {"get_ascent", (PyCFunction)font_get_ascent, METH_NOARGS,
+    {"get_ascent", font_get_ascent, METH_NOARGS,
      DOC_FONTGETASCENT},
-    {"get_linesize", (PyCFunction)font_get_linesize, METH_NOARGS,
+    {"get_linesize", font_get_linesize, METH_NOARGS,
      DOC_FONTGETLINESIZE},
 
-    {"get_bold", (PyCFunction)font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
+    {"get_bold", font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
     {"set_bold", font_set_bold, METH_VARARGS, DOC_FONTSETBOLD},
-    {"get_italic", (PyCFunction)font_get_italic, METH_NOARGS,
+    {"get_italic", font_get_italic, METH_NOARGS,
      DOC_FONTGETITALIC},
     {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
-    {"get_underline", (PyCFunction)font_get_underline, METH_NOARGS,
+    {"get_underline", font_get_underline, METH_NOARGS,
      DOC_FONTGETUNDERLINE},
     {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
 

@@ -142,7 +142,7 @@ _format_itemsize(Uint16 format)
 static PG_sample_format_t
 _format_view_to_audio(Py_buffer *view)
 {
-    int fstr_len;
+    size_t fstr_len;
     int native_size = 0;
     int index = 0;
     PG_sample_format_t format = 0;
@@ -603,7 +603,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-snd_get_num_channels(PyObject *self)
+snd_get_num_channels(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
@@ -627,7 +627,7 @@ snd_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_stop(PyObject *self)
+snd_stop(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
@@ -653,7 +653,7 @@ snd_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_volume(PyObject *self)
+snd_get_volume(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int volume;
@@ -664,7 +664,7 @@ snd_get_volume(PyObject *self)
 }
 
 static PyObject *
-snd_get_length(PyObject *self)
+snd_get_length(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int freq, channels, mixerbytes, numsamples;
@@ -687,7 +687,7 @@ snd_get_length(PyObject *self)
 }
 
 static PyObject *
-snd_get_raw(PyObject *self)
+snd_get_raw(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
@@ -744,16 +744,16 @@ snd_get_samples_address(PyObject *self, PyObject *closure)
 PyMethodDef sound_methods[] = {
     {"play", (PyCFunction)pgSound_Play, METH_VARARGS | METH_KEYWORDS,
      DOC_SOUNDPLAY},
-    {"get_num_channels", (PyCFunction)snd_get_num_channels, METH_NOARGS,
+    {"get_num_channels", snd_get_num_channels, METH_NOARGS,
      DOC_SOUNDGETNUMCHANNELS},
     {"fadeout", snd_fadeout, METH_VARARGS, DOC_SOUNDFADEOUT},
-    {"stop", (PyCFunction)snd_stop, METH_NOARGS, DOC_SOUNDSTOP},
+    {"stop", snd_stop, METH_NOARGS, DOC_SOUNDSTOP},
     {"set_volume", snd_set_volume, METH_VARARGS, DOC_SOUNDSETVOLUME},
-    {"get_volume", (PyCFunction)snd_get_volume, METH_NOARGS,
+    {"get_volume", snd_get_volume, METH_NOARGS,
      DOC_SOUNDGETVOLUME},
-    {"get_length", (PyCFunction)snd_get_length, METH_NOARGS,
+    {"get_length", snd_get_length, METH_NOARGS,
      DOC_SOUNDGETLENGTH},
-    {"get_raw", (PyCFunction)snd_get_raw, METH_NOARGS, DOC_SOUNDGETRAW},
+    {"get_raw", snd_get_raw, METH_NOARGS, DOC_SOUNDGETRAW},
     {NULL, NULL, 0, NULL}};
 
 static PyGetSetDef sound_getset[] = {
@@ -820,10 +820,19 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 #if IS_SDLv2
         case AUDIO_S32LSB:
             *format = fmt_AUDIO_S32LSB;
+            *itemsize = 4;
+            return 0;
+
         case AUDIO_S32MSB:
             *format = fmt_AUDIO_S32MSB;
+            *itemsize = 4;
+            return 0;
+
         case AUDIO_F32LSB:
             *format = fmt_AUDIO_F32LSB;
+            *itemsize = 4;
+            return 0;
+
         case AUDIO_F32MSB:
             *format = fmt_AUDIO_F32MSB;
             *itemsize = 4;

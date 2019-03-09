@@ -229,7 +229,7 @@ pg_quit(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *args)
 {
     if (!pgVideo_AutoInit())
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -239,21 +239,21 @@ pg_init(PyObject *self)
 }
 
 static PyObject *
-pg_get_init(PyObject *self)
+pg_get_init(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
 }
 
 #if IS_SDLv2
 static PyObject *
-pg_get_active(PyObject *self)
+pg_get_active(PyObject *self, PyObject *args)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
     return PyInt_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
 }
 #else  /* IS_SDLv1 */
 static PyObject *
-pg_get_active(PyObject *self)
+pg_get_active(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
@@ -398,7 +398,7 @@ pgVidInfo_New(const SDL_VideoInfo *i)
 }
 
 static PyObject *
-pgInfo(PyObject *self)
+pgInfo(PyObject *self, PyObject *args)
 {
     const SDL_VideoInfo *info;
     VIDEO_INIT_CHECK();
@@ -412,11 +412,14 @@ pgInfo(PyObject *self)
 #endif
 
 static PyObject *
-pg_get_wm_info(PyObject *self)
+pg_get_wm_info(PyObject *self, PyObject *args)
 {
     PyObject *dict;
     PyObject *tmp;
     SDL_SysWMinfo info;
+#if IS_SDLv2
+    SDL_Window *win;
+#endif
 
     VIDEO_INIT_CHECK();
 
@@ -493,7 +496,7 @@ pg_get_wm_info(PyObject *self)
 
 #else /* IS_SDLv2 */
 
-    SDL_Window *win = pg_GetDefaultWindow();
+    win = pg_GetDefaultWindow();
     if (!win)
         return dict;
     if (!SDL_GetWindowWMInfo(win, &info))
@@ -610,7 +613,7 @@ pg_get_wm_info(PyObject *self)
 /* display functions */
 #if IS_SDLv2
 static PyObject *
-pg_get_driver(PyObject *self)
+pg_get_driver(PyObject *self, PyObject *args)
 {
     const char *name = NULL;
     name = SDL_GetCurrentVideoDriver();
@@ -620,7 +623,7 @@ pg_get_driver(PyObject *self)
 }
 
 static PyObject *
-pg_get_surface(PyObject *self)
+pg_get_surface(PyObject *self, PyObject *args)
 {
     PyObject *surface = pg_GetDefaultWindowSurface();
     if (!surface)
@@ -630,7 +633,7 @@ pg_get_surface(PyObject *self)
 }
 #else  /* IS_SDLv1 */
 static PyObject *
-pg_get_driver(PyObject *self)
+pg_get_driver(PyObject *self, PyObject *args)
 {
     char buf[256];
     VIDEO_INIT_CHECK();
@@ -640,7 +643,7 @@ pg_get_driver(PyObject *self)
 }
 
 static PyObject *
-pg_get_surface(PyObject *self)
+pg_get_surface(PyObject *self, PyObject *args)
 {
     if (!pgDisplaySurfaceObject)
         Py_RETURN_NONE;
@@ -694,7 +697,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int display = 0;
     char *title = state->title;
 
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -722,7 +725,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /*note SDL works special like this too*/
-        if (!pg_init(NULL))
+        if (!pg_init(NULL, NULL))
             return NULL;
     }
 
@@ -1002,7 +1005,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
     int flags = SDL_SWSURFACE;
     int display_index = 0;
 
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -1060,8 +1063,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     int flags = PGS_FULLSCREEN;
     int display_index = 0;
     PyObject *list, *size;
-
-    VIDEO_INIT_CHECK();
+    int i;
 
     char *keywords[] = {
         "depth",
@@ -1069,6 +1071,8 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
         "display",
         NULL
     };
+
+    VIDEO_INIT_CHECK();
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
                                      &bpp, &flags, &display_index)) {
@@ -1084,7 +1088,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (bpp == 0) {
         SDL_DisplayMode curmode;
-        if (SDL_GetDesktopDisplayMode(display_index, &curmode))
+        if (SDL_GetCurrentDisplayMode(display_index, &curmode))
             return RAISE(pgExc_SDLError, SDL_GetError());
         bpp = SDL_BITSPERPIXEL(curmode.format);
     }
@@ -1096,11 +1100,18 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     if (!(list = PyList_New(0)))
         return NULL;
 
-    for (int i=0; i<nummodes; i++) {
+    for (i=0; i<nummodes; i++) {
         if (SDL_GetDisplayMode(display_index, i, &mode) < 0) {
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
+        /* use reasonable defaults (cf. SDL_video.c) */
+        if (!mode.format)
+            mode.format = SDL_PIXELFORMAT_RGB888;
+        if (!mode.w)
+            mode.w = 640;
+        if (!mode.h)
+            mode.h = 480;
         if (SDL_BITSPERPIXEL(mode.format) != bpp)
             continue;
         if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
@@ -1114,7 +1125,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-pg_flip(PyObject *self)
+pg_flip(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -1147,7 +1158,7 @@ pg_flip(PyObject *self)
 }
 
 static PyObject *
-pg_num_displays()
+pg_num_displays(PyObject *self, PyObject *args)
 {
     int ret = SDL_GetNumVideoDisplays();
     if (ret < 0)
@@ -1168,7 +1179,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int hasbuf;
     char *title, *icontitle;
 
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -1196,7 +1207,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /*note SDL works special like this too*/
-        if (!pg_init(NULL))
+        if (!pg_init(NULL, NULL))
             return NULL;
     }
 
@@ -1262,7 +1273,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
     int w, h;
     int flags = SDL_SWSURFACE;
     int display = 0;
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -1331,7 +1342,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-pg_flip(PyObject *self)
+pg_flip(PyObject *self, PyObject *args)
 {
     SDL_Surface *screen;
     int status = 0;
@@ -1355,7 +1366,7 @@ pg_flip(PyObject *self)
 }
 
 static PyObject *
-pg_num_displays()
+pg_num_displays(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong(1);
 }
@@ -1827,7 +1838,7 @@ error:
 }
 
 static PyObject *
-pg_get_caption(PyObject *self)
+pg_get_caption(PyObject *self, PyObject *args)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -1866,7 +1877,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_iconify(PyObject *self)
+pg_iconify(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     VIDEO_INIT_CHECK();
@@ -1878,7 +1889,7 @@ pg_iconify(PyObject *self)
 }
 
 static PyObject *
-pg_toggle_fullscreen(PyObject *self)
+pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int result;
@@ -1942,7 +1953,7 @@ pg_set_caption(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_get_caption(PyObject *self)
+pg_get_caption(PyObject *self, PyObject *args)
 {
     char *title, *icontitle;
     SDL_WM_GetCaption(&title, &icontitle);
@@ -1978,7 +1989,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_iconify(PyObject *self)
+pg_iconify(PyObject *self, PyObject *args)
 {
     int result;
     VIDEO_INIT_CHECK();
@@ -1993,7 +2004,7 @@ pg_iconify(PyObject *self)
 }
 
 static PyObject *
-pg_toggle_fullscreen(PyObject *self)
+pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Surface *screen;
     int result;
@@ -2010,30 +2021,25 @@ pg_toggle_fullscreen(PyObject *self)
 static PyMethodDef _pg_display_methods[] = {
     {"__PYGAMEinit__", pg_display_autoinit, 1,
      "auto initialize function for display."},
-    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEDISPLAYINIT},
-    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEDISPLAYQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETINIT},
-    {"get_active", (PyCFunction)pg_get_active, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETACTIVE},
+    {"init", pg_init, METH_NOARGS, DOC_PYGAMEDISPLAYINIT},
+    {"quit", pg_quit, METH_NOARGS, DOC_PYGAMEDISPLAYQUIT},
+    {"get_init", pg_get_init, METH_NOARGS, DOC_PYGAMEDISPLAYGETINIT},
+    {"get_active", pg_get_active, METH_NOARGS, DOC_PYGAMEDISPLAYGETACTIVE},
 
     /*    { "set_driver", set_driver, 1, doc_set_driver },*/
-    {"get_driver", (PyCFunction)pg_get_driver, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETDRIVER},
-    {"get_wm_info", (PyCFunction)pg_get_wm_info, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETWMINFO},
+    {"get_driver", pg_get_driver, METH_NOARGS, DOC_PYGAMEDISPLAYGETDRIVER},
+    {"get_wm_info", pg_get_wm_info, METH_NOARGS, DOC_PYGAMEDISPLAYGETWMINFO},
 #if IS_SDLv1
-    {"Info", (PyCFunction)pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
+    {"Info", pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
 #endif /* IS_SDLv1 */
-    {"get_surface", (PyCFunction)pg_get_surface, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETSURFACE},
+    {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
 
-    {"set_mode", pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
-    {"mode_ok", pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
-    {"list_modes", pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
+    {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
+    {"mode_ok", (PyCFunction)pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
+    {"list_modes", (PyCFunction)pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
     {"get_num_displays", pg_num_displays, METH_NOARGS, DOC_PYGAMEDISPLAYGETNUMDISPLAYS},
 
-    {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
+    {"flip", pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
 
     {"set_palette", pg_set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE},
@@ -2042,13 +2048,12 @@ static PyMethodDef _pg_display_methods[] = {
      DOC_PYGAMEDISPLAYSETGAMMARAMP},
 
     {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
-    {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
+    {"get_caption", pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
     {"set_icon", pg_set_icon, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
 
-    {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
-     DOC_PYGAMEDISPLAYICONIFY},
-    {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
+    {"iconify", pg_iconify, METH_NOARGS, DOC_PYGAMEDISPLAYICONIFY},
+    {"toggle_fullscreen", pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
     {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS,
