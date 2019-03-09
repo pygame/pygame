@@ -807,16 +807,15 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             /*open window*/
             if (flags & PGS_LOGICAL && !(flags & PGS_FULLSCREEN)){
                 SDL_DisplayMode dm;
-                int scale=2;
+                int scale=1;
 
                 if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
 
-                while(w*scale <= dm.w && h*scale <= dm.h){
+                while(w*(scale+1) <= dm.w && h*(scale+1) <= dm.h){
                     scale++;
                 }
-                scale--;
 
                 w_1=w*scale;
                 h_1=h*scale;
@@ -926,7 +925,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         /*no errors; make the window available*/
         pg_SetDefaultWindow(win);
         pg_SetDefaultWindowSurface(surface);
-        ((pgSurfaceObject*)surface)->owner = state->using_gl;
+        if(state->using_gl || flags & PGS_LOGICAL)
+            ((pgSurfaceObject*)surface)->owner = 1;
         Py_DECREF(surface);
     }
 
@@ -1393,8 +1393,10 @@ pg_update(PyObject *self, PyObject *arg)
 #if IS_SDLv2
     if (!win)
         return RAISE(pgExc_SDLError, "Display mode not set");
-    if (pg_renderer!=NULL)
-        return RAISE(pgExc_SDLError, "Cannot update a LOGICAL display");
+    if (pg_renderer!=NULL){
+        return pg_flip(self);
+        //return RAISE(pgExc_SDLError, "Cannot update a LOGICAL display");
+    }
     SDL_GetWindowSize(win, &wide, &high);
 
     if (state->using_gl)
