@@ -787,60 +787,62 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
 #pragma PG_WARN(Not setting bpp ?)
 #pragma PG_WARN(Add mode stuff.)
-        int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-        int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-        int w_1=w;
-        int h_1=h;
+        {
+            int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+            int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+            int w_1=w;
+            int h_1=h;
 
-        if(win){
-            if (SDL_GetWindowDisplayIndex(win) == display) {
-                SDL_GetWindowPosition(win, &x, &y);
+            if(win){
+                if (SDL_GetWindowDisplayIndex(win) == display) {
+                    SDL_GetWindowPosition(win, &x, &y);
+                }
+                if (!(flags & PGS_OPENGL) !=
+                    !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)){
+                    SDL_DestroyWindow(win);
+                    win=NULL;
+                }
             }
-            if (!(flags & PGS_OPENGL) !=
-                !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)){
-                SDL_DestroyWindow(win);
-                win=NULL;
-            }
-        }
 
-        if (!win) {
-            /*open window*/
-            if (flags & PGS_LOGICAL && !(flags & PGS_FULLSCREEN)){
-                SDL_DisplayMode dm;
-                int scale=1;
+            if (!win) {
+                /*open window*/
+                if (flags & PGS_LOGICAL && !(flags & PGS_FULLSCREEN)){
+                    SDL_DisplayMode dm;
+                    int scale=1;
 
-                if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+                    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+                        return RAISE(pgExc_SDLError, SDL_GetError());
+                    }
+
+                    while(w*(scale+1) <= dm.w && h*(scale+1) <= dm.h){
+                        scale++;
+                    }
+
+                    w_1=w*scale;
+                    h_1=h*scale;
+                }
+                win = SDL_CreateWindow(title,
+                                       x, y, w_1, h_1, sdl_flags);
+                if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                }
+            } else {
+                /*change existing window*/
+                SDL_SetWindowTitle(win, title);
+                SDL_SetWindowSize(win, w, h);
+                SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
+                SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
 
-                while(w*(scale+1) <= dm.w && h*(scale+1) <= dm.h){
-                    scale++;
-                }
+                if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
+                    SDL_ShowWindow(win);
+                else if (flags & PGS_HIDDEN)
+                    SDL_HideWindow(win);
 
-                w_1=w*scale;
-                h_1=h*scale;
+                SDL_SetWindowPosition(win, x, y);
+                SDL_SetWindowFullscreen(win, sdl_flags &
+                                        (SDL_WINDOW_FULLSCREEN
+                                         | SDL_WINDOW_FULLSCREEN_DESKTOP));
+                assert(surface);
             }
-            win = SDL_CreateWindow(title,
-                                   x, y, w_1, h_1, sdl_flags);
-            if (!win)
-                return RAISE(pgExc_SDLError, SDL_GetError());
-        } else {
-            /*change existing window*/
-            SDL_SetWindowTitle(win, title);
-            SDL_SetWindowSize(win, w, h);
-            SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
-            SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
-
-            if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))
-                SDL_ShowWindow(win);
-            else if (flags & PGS_HIDDEN)
-                SDL_HideWindow(win);
-
-            SDL_SetWindowPosition(win, x, y);
-            SDL_SetWindowFullscreen(win, sdl_flags &
-                                    (SDL_WINDOW_FULLSCREEN
-                                     | SDL_WINDOW_FULLSCREEN_DESKTOP));
-            assert(surface);
         }
 
         if (state->using_gl) {
@@ -1395,7 +1397,6 @@ pg_update(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, "Display mode not set");
     if (pg_renderer!=NULL){
         return pg_flip(self);
-        //return RAISE(pgExc_SDLError, "Cannot update a LOGICAL display");
     }
     SDL_GetWindowSize(win, &wide, &high);
 
