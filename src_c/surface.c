@@ -401,7 +401,8 @@ static PyTypeObject pgSurface_Type = {
     surface_new,                              /* tp_new */
 };
 
-#define pgSurface_Check(x) ((x)->ob_type == &pgSurface_Type)
+#define pgSurface_Check(x) \
+    (PyObject_IsInstance((x), (PyObject *)&pgSurface_Type))
 
 #if IS_SDLv1
 
@@ -1214,7 +1215,7 @@ surf_set_palette(PyObject *self, PyObject *args)
      */
     SDL_Surface *surf = pgSurface_AsSurface(self);
     SDL_Palette *pal = surf->format->palette;
-    const SDL_Color *old_colors = pal->colors;
+    const SDL_Color *old_colors;
     SDL_Color colors[256];
 #else  /* IS_SDLv1 */
     SDL_Surface *surf = pgSurface_AsSurface(self);
@@ -1239,6 +1240,7 @@ surf_set_palette(PyObject *self, PyObject *args)
 
     if (!pal)
         return RAISE(pgExc_SDLError, "Surface is not palettitized\n");
+    old_colors = pal->colors;
 #else  /* IS_SDLv1 */
     if (!pal)
         return RAISE(pgExc_SDLError, "Surface has no palette\n");
@@ -1514,7 +1516,7 @@ surf_set_alpha(PyObject *self, PyObject *args)
 #endif /* IS_SDLv2 */
     }
 #if IS_SDLv2
-    else if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+    else {
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -1574,11 +1576,11 @@ surf_get_alpha(PyObject *self)
     if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
 
+    if (mode != SDL_BLENDMODE_BLEND)
+        Py_RETURN_NONE;
+
     if (SDL_GetSurfaceAlphaMod(surf, &alpha) != 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
-
-    if (alpha == SDL_ALPHA_OPAQUE && mode != SDL_BLENDMODE_BLEND)
-        Py_RETURN_NONE;
 
     return PyInt_FromLong(alpha);
 #endif /* IS_SDLv2 */
@@ -2462,25 +2464,12 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
 {
-    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
-        SDL_BlendMode mode;
-        if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
-            RAISE(pgExc_SDLError, SDL_GetError());
-            return -1;
-        }
-        if (mode == SDL_BLENDMODE_BLEND)
-            return 1;
+    SDL_BlendMode mode;
+    if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
     }
-    else {
-        Uint8 color = SDL_ALPHA_OPAQUE;
-        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0) {
-            RAISE(pgExc_SDLError, SDL_GetError());
-            return -1;
-        }
-        if (color != SDL_ALPHA_OPAQUE)
-            return 1;
-    }
-    return 0;
+    return (mode != SDL_BLENDMODE_NONE);
 }
 #endif /* IS_SDLv2 */
 
@@ -3607,7 +3596,7 @@ _init_buffer(PyObject *surf, Py_buffer *view_p, int flags)
 
     assert(surf);
     assert(view_p);
-    assert(PyObject_IsInstance(surf, (PyObject *)&pgSurface_Type));
+    assert(pgSurface_Check(surf));
     assert(PyBUF_HAS_FLAG(flags, PyBUF_PYGAME));
     consumer = ((pg_buffer *)view_p)->consumer;
     assert(consumer);

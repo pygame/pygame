@@ -65,6 +65,12 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PYGAME_MIXER_DEFAULT_SIZE -16
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
 #define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
+#if IS_SDLv2
+#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | \
+                                            SDL_AUDIO_ALLOW_CHANNELS_CHANGE
+#else
+#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES -1
+#endif
 
 static PyTypeObject pgSound_Type;
 static PyTypeObject pgChannel_Type;
@@ -82,8 +88,9 @@ snd_releasebuffer(PyObject *, Py_buffer *);
 
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
-static int request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+static int request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
 static int request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+static int request_allowedchanges = PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES;
 static char *request_devicename = NULL;
 
 static int
@@ -332,7 +339,7 @@ pgMixer_AutoQuit(void)
 }
 
 static PyObject *
-_init(int freq, int size, int stereo, int chunk, char *devicename)
+_init(int freq, int size, int channels, int chunk, char *devicename, int allowedchanges)
 {
     Uint16 fmt = 0;
     int i;
@@ -343,9 +350,40 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
     if (!size) {
         size = request_size;
     }
-    if (!stereo) {
-        stereo = request_stereo;
+
+    if (allowedchanges == -1) {
+        allowedchanges = request_allowedchanges;
     }
+
+    if (!channels) {
+        channels = request_channels;
+    }
+#if IS_SDLv1
+    channels = channels <= 1 ? 1 : 2;
+#else /* IS_SDLv2 */
+    if (allowedchanges & SDL_AUDIO_ALLOW_CHANNELS_CHANGE) {
+        if (channels <= 1)
+            channels = 1;
+        else if (channels <= 3)
+            channels = 2;
+        else if (channels <= 5)
+            channels = 4;
+        else
+            channels = 6;
+    } else {
+        switch (channels) {
+            case 1:
+            case 2:
+            case 4:
+            case 6:
+                break;
+            default:
+                PyErr_SetString(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
+                return NULL;
+        }
+    }
+#endif /* IS_SDLv2 */
+
     if (!chunk) {
         chunk = request_chunksize;
     }
@@ -353,10 +391,6 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
     if (!devicename) {
         devicename = request_devicename;
     }
-    if (stereo >= 2)
-        stereo = 2;
-    else
-        stereo = 1;
 
     /* printf("size:%d:\n", size); */
 
@@ -409,21 +443,13 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
             return PyInt_FromLong(0);
 
 #if IS_SDLv2
-        if (devicename) {
-            if (Mix_OpenAudioDevice(freq, fmt, stereo, chunk, devicename,
-                                    SDL_AUDIO_ALLOW_ANY_CHANGE) == -1) {
-                SDL_QuitSubSystem(SDL_INIT_AUDIO);
-                return PyInt_FromLong(0);
-            }
-        }
-        else {
-            if (Mix_OpenAudio(freq, fmt, stereo, chunk) == -1) {
-                SDL_QuitSubSystem(SDL_INIT_AUDIO);
-                return PyInt_FromLong(0);
-            }
+        if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
+                                allowedchanges) == -1) {
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            return PyInt_FromLong(0);
         }
 #else
-        if (Mix_OpenAudio(freq, fmt, stereo, chunk) == -1) {
+        if (Mix_OpenAudio(freq, fmt, channels, chunk) == -1) {
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return PyInt_FromLong(0);
         }
@@ -438,12 +464,13 @@ _init(int freq, int size, int stereo, int chunk, char *devicename)
 static PyObject *
 pgMixer_AutoInit(PyObject *self, PyObject *arg)
 {
-    int freq = 0, size = 0, stereo = 0, chunk = 0;
+    int freq = 0, size = 0, channels = 0, chunk = 0;
+    int allowedchanges = -1;
 
-    if (!PyArg_ParseTuple(arg, "|iiii", &freq, &size, &stereo, &chunk))
+    if (!PyArg_ParseTuple(arg, "|iiiii", &freq, &size, &channels, &chunk, &allowedchanges))
         return NULL;
 
-    return _init(freq, size, stereo, chunk, NULL);
+    return _init(freq, size, channels, chunk, NULL, allowedchanges);
 }
 
 static PyObject *
@@ -456,18 +483,19 @@ quit(PyObject *self)
 static PyObject *
 init(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    int freq = 0, size = 0, stereo = 0, chunk = 0;
+    int freq = 0, size = 0, channels = 0, chunk = 0, allowedchanges = -1;
     char *devicename = NULL;
     PyObject *result;
     int value;
 
     static char *kwids[] = {"frequency", "size",       "channels",
-                            "buffer",    "devicename", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiis", kwids, &freq,
-                                     &size, &stereo, &chunk, &devicename)) {
+                            "buffer",    "devicename", "allowedchanges", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiisi", kwids, &freq,
+                                     &size, &channels, &chunk, &devicename,
+                                     &allowedchanges)) {
         return NULL;
     }
-    result = _init(freq, size, stereo, chunk, devicename);
+    result = _init(freq, size, channels, chunk, devicename, allowedchanges);
     if (!result)
         return NULL;
     value = PyObject_IsTrue(result);
@@ -500,17 +528,19 @@ static PyObject *
 pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     static char *kwids[] = {"frequency", "size",       "channels",
-                            "buffer",    "devicename", NULL};
+                            "buffer",    "devicename", "allowedchanges", NULL};
     int dname_size = 0;
 
     request_frequency = 0;
     request_size = 0;
-    request_stereo = 0;
+    request_channels = 0;
     request_chunksize = 0;
     request_devicename = NULL;
+    request_allowedchanges = -1;
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "|iiiiz#", kwids, &request_frequency, &request_size,
-            &request_stereo, &request_chunksize, &request_devicename, &dname_size))
+            args, keywds, "|iiiiz#i", kwids, &request_frequency, &request_size,
+            &request_channels, &request_chunksize, &request_devicename, &dname_size,
+            &request_allowedchanges))
         return NULL;
     if (!request_frequency) {
         request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
@@ -518,11 +548,14 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
     if (!request_size) {
         request_size = PYGAME_MIXER_DEFAULT_SIZE;
     }
-    if (!request_stereo) {
-        request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+    if (!request_channels) {
+        request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
     }
     if (!request_chunksize) {
         request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+    }
+    if (request_allowedchanges == -1) {
+        request_allowedchanges = PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES;
     }
     Py_RETURN_NONE;
 }
@@ -1419,7 +1452,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     Py_ssize_t loop1, loop2, step1, step2, length, length2 = 0;
 
     if (!Mix_QuerySpec(&freq, &format, &channels)) {
-        RAISE(pgExc_SDLError, "Mixer not initialized");
+        RAISE(pgExc_SDLError, "mixer not initialized");
         return -1;
     }
 
@@ -1568,6 +1601,12 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     ((pgSoundObject *)self)->chunk = NULL;
     ((pgSoundObject *)self)->mem = NULL;
+
+    /* Similar to MIXER_INIT_CHECK(), but different return value. */
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        RAISE(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
 
     /* Process arguments, returning cleaner error messages than
        PyArg_ParseTupleAndKeywords would.

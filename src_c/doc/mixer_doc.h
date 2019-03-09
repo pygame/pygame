@@ -1,78 +1,41 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
-
-#define DOC_PYGAMEMIXERINIT "init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None\ninitialize the mixer module"
-
+#define DOC_PYGAMEMIXERINIT "init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None\ninitialize the mixer module"
 #define DOC_PYGAMEMIXERPREINIT "pre_init(frequency=22050, size=-16, channels=2, buffersize=4096, devicename=None) -> None\npreset the mixer init arguments"
-
 #define DOC_PYGAMEMIXERQUIT "quit() -> None\nuninitialize the mixer"
-
 #define DOC_PYGAMEMIXERGETINIT "get_init() -> (frequency, format, channels)\ntest if the mixer is initialized"
-
 #define DOC_PYGAMEMIXERSTOP "stop() -> None\nstop playback of all sound channels"
-
 #define DOC_PYGAMEMIXERPAUSE "pause() -> None\ntemporarily stop playback of all sound channels"
-
 #define DOC_PYGAMEMIXERUNPAUSE "unpause() -> None\nresume paused playback of sound channels"
-
 #define DOC_PYGAMEMIXERFADEOUT "fadeout(time) -> None\nfade out the volume on all sounds before stopping"
-
 #define DOC_PYGAMEMIXERSETNUMCHANNELS "set_num_channels(count) -> None\nset the total number of playback channels"
-
 #define DOC_PYGAMEMIXERGETNUMCHANNELS "get_num_channels() -> count\nget the total number of playback channels"
-
 #define DOC_PYGAMEMIXERSETRESERVED "set_reserved(count) -> None\nreserve channels from being automatically used"
-
 #define DOC_PYGAMEMIXERFINDCHANNEL "find_channel(force=False) -> Channel\nfind an unused channel"
-
 #define DOC_PYGAMEMIXERGETBUSY "get_busy() -> bool\ntest if any sound is being mixed"
-
 #define DOC_PYGAMEMIXERSOUND "Sound(filename) -> Sound\nSound(file=filename) -> Sound\nSound(buffer) -> Sound\nSound(buffer=buffer) -> Sound\nSound(object) -> Sound\nSound(file=object) -> Sound\nSound(array=object) -> Sound\nCreate a new Sound object from a file or buffer object"
-
 #define DOC_SOUNDPLAY "play(loops=0, maxtime=0, fade_ms=0) -> Channel\nbegin sound playback"
-
 #define DOC_SOUNDSTOP "stop() -> None\nstop sound playback"
-
 #define DOC_SOUNDFADEOUT "fadeout(time) -> None\nstop sound playback after fading out"
-
 #define DOC_SOUNDSETVOLUME "set_volume(value) -> None\nset the playback volume for this Sound"
-
 #define DOC_SOUNDGETVOLUME "get_volume() -> value\nget the playback volume"
-
 #define DOC_SOUNDGETNUMCHANNELS "get_num_channels() -> count\ncount how many times this Sound is playing"
-
 #define DOC_SOUNDGETLENGTH "get_length() -> seconds\nget the length of the Sound"
-
 #define DOC_SOUNDGETRAW "get_raw() -> bytes\nreturn a bytestring copy of the Sound samples."
-
 #define DOC_PYGAMEMIXERCHANNEL "Channel(id) -> Channel\nCreate a Channel object for controlling playback"
-
 #define DOC_CHANNELPLAY "play(Sound, loops=0, maxtime=0, fade_ms=0) -> None\nplay a Sound on a specific Channel"
-
 #define DOC_CHANNELSTOP "stop() -> None\nstop playback on a Channel"
-
 #define DOC_CHANNELPAUSE "pause() -> None\ntemporarily stop playback of a channel"
-
 #define DOC_CHANNELUNPAUSE "unpause() -> None\nresume pause playback of a channel"
-
 #define DOC_CHANNELFADEOUT "fadeout(time) -> None\nstop playback after fading channel out"
-
 #define DOC_CHANNELSETVOLUME "set_volume(value) -> None\nset_volume(left, right) -> None\nset the volume of a playing channel"
-
 #define DOC_CHANNELGETVOLUME "get_volume() -> value\nget the volume of the playing channel"
-
 #define DOC_CHANNELGETBUSY "get_busy() -> bool\ncheck if the channel is active"
-
 #define DOC_CHANNELGETSOUND "get_sound() -> Sound\nget the currently playing Sound"
-
 #define DOC_CHANNELQUEUE "queue(Sound) -> None\nqueue a Sound object to follow the current"
-
 #define DOC_CHANNELGETQUEUE "get_queue() -> Sound\nreturn any Sound that is queued"
-
 #define DOC_CHANNELSETENDEVENT "set_endevent() -> None\nset_endevent(type) -> None\nhave the channel send an event when playback stops"
-
 #define DOC_CHANNELGETENDEVENT "get_endevent() -> type\nget the event a channel sends when playback stops"
-
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -83,7 +46,7 @@ pygame.mixer
 pygame module for loading and playing sounds
 
 pygame.mixer.init
- init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None
+ init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None
 initialize the mixer module
 
 pygame.mixer.pre_init

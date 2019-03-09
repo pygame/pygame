@@ -28,8 +28,6 @@
  */
 #include "pygame.h"
 
-#if IS_SDLv1
-
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
 #undef HAVE_PROTOTYPES
@@ -52,8 +50,6 @@
 
 #include <jerror.h>
 #include <jpeglib.h>
-
-#endif /* IS_SDLv1 */
 
 #include "pgcompat.h"
 
@@ -316,6 +312,8 @@ SavePNG(SDL_Surface *surface, const char *file)
 #else  /* IS_SDLv2 */
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
+    int has_colorkey = 0;
+    SDL_BlendMode surf_mode;
 #endif /* IS_SDLv2 */
 
     ss_rows = 0;
@@ -380,7 +378,17 @@ SavePNG(SDL_Surface *surface, const char *file)
         SDL_SetAlpha(surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey(surface, 0, surface->format->colorkey);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    SDL_GetSurfaceAlphaMod(surface, &surf_alpha);
+    SDL_SetSurfaceAlphaMod(surface, 255);
+    SDL_GetSurfaceBlendMode(surface, &surf_mode);
+    SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+    if (SDL_GetColorKey(surface, &surf_colorkey) == 0) {
+        has_colorkey = 1;
+        SDL_SetColorKey(surface, SDL_FALSE, surf_colorkey);
+    }
+#endif /* IS_SDLv2 */
 
     ss_rect.x = 0;
     ss_rect.y = 0;
@@ -400,10 +408,10 @@ SavePNG(SDL_Surface *surface, const char *file)
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey(surface, SDL_SRCCOLORKEY, surf_colorkey);
 #else  /* IS_SDLv2 */
-    if (SDL_GetColorKey(surface, &surf_colorkey) == 0)
-        SDL_SetColorKey(ss_surface, SDL_TRUE, surf_colorkey);
-    SDL_GetSurfaceAlphaMod(surface, &surf_alpha);
+    if (has_colorkey)
+        SDL_SetColorKey(surface, SDL_TRUE, surf_colorkey);
     SDL_SetSurfaceAlphaMod(surface, surf_alpha);
+    SDL_SetSurfaceBlendMode(surface, surf_mode);
 #endif /* IS_SDLv2 */
 
     for (i = 0; i < ss_h; i++) {
@@ -472,7 +480,7 @@ j_empty_output_buffer(j_compress_ptr cinfo)
     dest->pub.next_output_byte = dest->buffer;
     dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 
-    return TRUE;
+    return 1;
 }
 
 static void
@@ -552,9 +560,9 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
      */
 
     jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, quality, TRUE);
+    jpeg_set_quality(&cinfo, quality, 1);
 
-    jpeg_start_compress(&cinfo, TRUE);
+    jpeg_start_compress(&cinfo, 1);
 
     /* try and write many scanlines at once.  */
     while (cinfo.next_scanline < cinfo.image_height) {
@@ -804,7 +812,6 @@ image_save_ext(PyObject *self, PyObject *arg)
         const char *name = Bytes_AS_STRING(oencoded);
         Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
 
-#if IS_SDLv1
         if ((namelen >= 4) &&
             (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
               (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
@@ -841,24 +848,6 @@ image_save_ext(PyObject *self, PyObject *arg)
             result = -2;
 #endif /* ~PNG_H */
         }
-#else /* IS_SDLv2 */
-        if ((namelen >= 4) &&
-            (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
-              (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
-              (name[namelen - 4] == 'j' || name[namelen - 4] == 'J')) ||
-             ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
-              (name[namelen - 3] == 'j' || name[namelen - 3] == 'J')))) {
-            result = IMG_SaveJPG(surf, name, JPEG_QUALITY);
-        }
-        else if ((namelen >= 3) &&
-                 ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                  (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
-                  (name[namelen - 3] == 'p' || name[namelen - 3] == 'P'))) {
-            result = IMG_SavePNG(surf, name);
-        }
-#endif /* IS_SDLv2 */
     }
     else {
         result = -2;

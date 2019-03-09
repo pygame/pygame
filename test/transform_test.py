@@ -681,6 +681,38 @@ class TransformModuleTest( unittest.TestCase ):
                                          None, THRESHOLD_BEHAVIOR_COUNT, s2)
         self.assertEqual(num_threshold_pixels, 0)
 
+    def test_threshold__subclassed_surface(self):
+        """Ensure threshold accepts subclassed surfaces."""
+        expected_size = (13, 11)
+        expected_flags = 0
+        expected_depth = 32
+        expected_color = (90, 80, 70, 255)
+        expected_count = 0
+        surface = test_utils.SurfaceSubclass(expected_size, expected_flags,
+                                             expected_depth)
+        dest_surface = test_utils.SurfaceSubclass(expected_size,
+                                                  expected_flags,
+                                                  expected_depth)
+        search_surface = test_utils.SurfaceSubclass(expected_size,
+                                                    expected_flags,
+                                                    expected_depth)
+        surface.fill((10, 10, 10))
+        dest_surface.fill((255, 255, 255))
+        search_surface.fill((20, 20, 20))
+
+        count = pygame.transform.threshold(
+            dest_surf=dest_surface, surf=surface, threshold=(1, 1, 1),
+            set_color=expected_color, search_color=None,
+            search_surf=search_surface)
+
+        self.assertIsInstance(dest_surface, pygame.Surface)
+        self.assertIsInstance(dest_surface, test_utils.SurfaceSubclass)
+        self.assertEqual(count, expected_count)
+        self.assertEqual(dest_surface.get_at((0,0)), expected_color)
+        self.assertEqual(dest_surface.get_bitsize(), expected_depth)
+        self.assertEqual(dest_surface.get_size(), expected_size)
+        self.assertEqual(dest_surface.get_flags(), expected_flags)
+
     def test_laplacian(self):
         """
         """
@@ -771,13 +803,54 @@ class TransformModuleTest( unittest.TestCase ):
 
         self.assertEqual(sr.get_at((0,0)), (10,53,50,255))
 
+    def test_average_surfaces__subclassed_surfaces(self):
+        """Ensure average_surfaces accepts subclassed surfaces."""
+        expected_size = (23, 17)
+        expected_flags = 0
+        expected_depth = 32
+        expected_color = (50, 50, 50, 255)
+        surfaces = []
 
+        for color in ((40, 60, 40), (60, 40, 60)):
+            s = test_utils.SurfaceSubclass(expected_size, expected_flags,
+                                           expected_depth)
+            s.fill(color)
+            surfaces.append(s)
 
+        surface = pygame.transform.average_surfaces(surfaces)
 
+        self.assertIsInstance(surface, pygame.Surface)
+        self.assertNotIsInstance(surface, test_utils.SurfaceSubclass)
+        self.assertEqual(surface.get_at((0,0)), expected_color)
+        self.assertEqual(surface.get_bitsize(), expected_depth)
+        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_flags(), expected_flags)
 
+    def test_average_surfaces__subclassed_destination_surface(self):
+        """Ensure average_surfaces accepts a destination subclassed surface."""
+        expected_size = (13, 27)
+        expected_flags = 0
+        expected_depth = 32
+        expected_color = (15, 15, 15, 255)
+        surfaces = []
 
+        for color in ((10, 10, 20), (20, 20, 10), (30, 30, 30)):
+            s = test_utils.SurfaceSubclass(expected_size, expected_flags,
+                                           expected_depth)
+            s.fill(color)
+            surfaces.append(s)
+        expected_dest_surface = surfaces.pop()
 
+        dest_surface = pygame.transform.average_surfaces(surfaces,
+                                                         expected_dest_surface)
 
+        self.assertIsInstance(dest_surface, pygame.Surface)
+        self.assertIsInstance(dest_surface, test_utils.SurfaceSubclass)
+        self.assertIs(dest_surface, expected_dest_surface)
+        self.assertEqual(dest_surface.get_at((0,0)), expected_color)
+        self.assertEqual(dest_surface.get_bitsize(), expected_depth)
+        self.assertEqual(dest_surface.get_size(), expected_size)
+        self.assertEqual(dest_surface.get_flags(), expected_flags)
 
     def test_average_color(self):
         """

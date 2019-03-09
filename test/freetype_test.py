@@ -162,11 +162,17 @@ class FreeTypeFontTest(unittest.TestCase):
     def test_freetype_Font_dealloc(self):
         import sys
         handle = open(self._sans_path, 'rb')
+
         def load_font():
             tempFont = ft.Font(handle)
-        load_font()
-        self.assertEqual(sys.getrefcount(handle), 2)
-        handle.close()
+
+        try:
+            load_font()
+
+            self.assertEqual(sys.getrefcount(handle), 2)
+        finally:
+            # Ensures file is closed even if test fails.
+            handle.close()
 
     def test_freetype_Font_scalable(self):
 
@@ -748,6 +754,7 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.antialiased = save_antialiased
 
+    @unittest.skipIf(pygame.get_sdl_version()[0] == 2, "skipping due to blending issue (#864)")
     def test_freetype_Font_render_to_mono(self):
         # Blitting is done in two stages. First the target is alpha filled
         # with the background color, if any. Second, the foreground
@@ -788,8 +795,7 @@ class FreeTypeFontTest(unittest.TestCase):
         font.antialiased = False
         try:
             fill_color = pygame.Color('black')
-            for i in range(len(surfaces)):
-                surf = surfaces[i]
+            for i, surf in enumerate(surfaces):
                 surf.fill(fill_color)
                 fg_color = fg_colors[i]
                 fg.set_at((0, 0), fg_color)
@@ -799,11 +805,16 @@ class FreeTypeFontTest(unittest.TestCase):
                 rrect = font.render_to(surf, (0, 0), text, fg_color,
                                        size=24)
                 bottomleft = 0, rrect.height - 1
-                self.assertEqual(surf.get_at(bottomleft), fill_color)
+                self.assertEqual(surf.get_at(bottomleft), fill_color,
+                                 "Position: {}. Depth: {}."
+                                 " fg_color: {}.".format(bottomleft,
+                                                        surf.get_bitsize(), fg_color))
                 bottomright = rrect.width - 1, rrect.height - 1
-                self.assertEqual(surf.get_at(bottomright), r_fg_color)
-            for i in range(len(surfaces)):
-                surf = surfaces[i]
+                self.assertEqual(surf.get_at(bottomright), r_fg_color,
+                                 "Position: {}. Depth: {}."
+                                 " fg_color: {}.".format(bottomright,
+                                                        surf.get_bitsize(), fg_color))
+            for i, surf in enumerate(surfaces):
                 surf.fill(fill_color)
                 fg_color = fg_colors[i]
                 bg_color = bg_colors[i]
@@ -1260,6 +1271,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(metrics[0] is None)
         self.assertTrue(isinstance(metrics[1], tuple))
 
+    @unittest.skipIf(pygame.get_sdl_version()[0] == 2, "SDL2 surfaces are only limited by memory")
     def test_issue_144(self):
         """Issue #144: unable to render text"""
 

@@ -569,8 +569,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
             SDL_SetAlpha(surface, SDL_SRCALPHA, fgcolor->a);
 #else /* IS_SDLv2 */
             SDL_SetSurfaceAlphaMod(surface, fgcolor->a);
-#pragma PG_WARN(SRCALPHA flag problem here. Blend mode not set to SDL_BLENDMODE_BLEND.)
-#pragma PG_WARN(Probably should keep flags in pgFontObject.)
+            SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 #endif /* IS_SDLv2 */
         }
         fgcolor = &mono_fgcolor;

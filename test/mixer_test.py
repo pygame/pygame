@@ -5,7 +5,8 @@ import os
 import unittest
 import platform
 
-from pygame.tests.test_utils import example_path
+from pygame.tests.test_utils import example_path, AssertRaisesRegexMixin
+
 import pygame
 from pygame import mixer
 from pygame.compat import unicode_, as_bytes, bytes_
@@ -77,7 +78,7 @@ class MixerModuleTest(unittest.TestCase):
     def test_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
         # preset values. No way to check buffer size though.
-        mixer.pre_init(44100, 8, 1)  # None default values
+        mixer.pre_init(44100, 8, 1, allowedchanges=0)  # None default values
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
@@ -310,7 +311,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertRaises(ValueError, mixer.Sound, array=a)
 
     def test_array_interface(self):
-        mixer.init(22050, -16, 1)
+        mixer.init(22050, -16, 1, allowedchanges=0)
         snd = mixer.Sound(buffer=as_bytes('\x00\x7f') * 20)
         d = snd.__array_interface__
         self.assertTrue(isinstance(d, dict))
@@ -568,23 +569,47 @@ class MixerModuleTest(unittest.TestCase):
 
 ############################## CHANNEL CLASS TESTS #############################
 
-class ChannelTypeTest(unittest.TestCase):
-    def todo_test_Channel(self):
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Channel:
+class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
+        mixer.init()
 
-          # pygame.mixer.Channel(id): return Channel
-          # Create a Channel object for controlling playback
-          #
-          # Return a Channel object for one of the current channels. The id must
-          # be a value from 0 to the value of pygame.mixer.get_num_channels().
-          #
-          # The Channel object can be used to get fine control over the playback
-          # of Sounds. A channel can only playback a single Sound at time. Using
-          # channels is entirely optional since pygame can manage them by
-          # default.
-          #
+    @classmethod
+    def tearDownClass(cls):
+        mixer.quit()
 
-        self.fail()
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if mixer.get_init() is None:
+            mixer.init()
+
+    def test_channel(self):
+        """Ensure Channel() creation works."""
+        channel = mixer.Channel(0)
+
+        # self.assertIsInstance(channel, mixer.Channel)  # Would be nice.
+        # type(pygame.mixer.Channel) gives <class 'builtin_function_or_method'>
+        # Check class name instead.
+        self.assertEqual(channel.__class__.__name__, 'Channel')
+
+    def test_channel__without_arg(self):
+        """Ensure exception for Channel() creation with no argument."""
+        with self.assertRaises(TypeError):
+            mixer.Channel()
+
+    def test_channel__invalid_id(self):
+        """Ensure exception for Channel() creation with an invalid id."""
+        with self.assertRaises(IndexError):
+            mixer.Channel(-1)
+
+    def test_channel__before_init(self):
+        """Ensure exception for Channel() creation with non-init mixer."""
+        mixer.quit()
+
+        with self.assertRaisesRegex(pygame.error, 'mixer not initialized'):
+            mixer.Channel(0)
 
     def todo_test_fadeout(self):
 
@@ -805,7 +830,73 @@ class ChannelTypeTest(unittest.TestCase):
 
 ############################### SOUND CLASS TESTS ##############################
 
-class SoundTypeTest(unittest.TestCase):
+class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
+        mixer.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        mixer.quit()
+
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if mixer.get_init() is None:
+            mixer.init()
+
+    # See MixerModuleTest's methods test_sound_args(), test_sound_unicode(),
+    # and test_array_keyword() for additional testing of Sound() creation.
+    def test_sound(self):
+        """Ensure Sound() creation with a filename works."""
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        sound1 = mixer.Sound(filename)
+        sound2 = mixer.Sound(file=filename)
+
+        self.assertIsInstance(sound1, mixer.Sound)
+        self.assertIsInstance(sound2, mixer.Sound)
+
+    def test_sound__from_file_object(self):
+        """Ensure Sound() creation with a file object works."""
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+
+        # Using 'with' ensures the file is closed even if test fails.
+        with open(filename, "rb") as file_obj:
+            sound = mixer.Sound(file_obj)
+
+            self.assertIsInstance(sound, mixer.Sound)
+
+    def test_sound__from_sound_object(self):
+        """Ensure Sound() creation with a Sound() object works."""
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        sound_obj = mixer.Sound(file=filename)
+
+        sound = mixer.Sound(sound_obj)
+
+        self.assertIsInstance(sound, mixer.Sound)
+
+    def todo_test_sound__from_buffer(self):
+        """Ensure Sound() creation with a buffer works."""
+        self.fail()
+
+    def todo_test_sound__from_array(self):
+        """Ensure Sound() creation with an array works."""
+        self.fail()
+
+    def test_sound__without_arg(self):
+        """Ensure exception raised for Sound() creation with no argument."""
+        with self.assertRaises(TypeError):
+            mixer.Sound()
+
+    def test_sound__before_init(self):
+        """Ensure exception raised for Sound() creation with non-init mixer."""
+        mixer.quit()
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+
+        with self.assertRaisesRegex(pygame.error, 'mixer not initialized'):
+            mixer.Sound(file=filename)
+
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.fadeout:

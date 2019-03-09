@@ -19,6 +19,30 @@ except NameError:
 def geterror():
     return sys.exc_info()[1]
 
+
+class AssertRaisesRegexMixin(object):
+    """Provides a way to prevent DeprecationWarnings in python >= 3.2.
+
+    For this mixin to override correctly it needs to be before the
+    unittest.TestCase in the multiple inheritance hierarchy.
+    e.g. class TestClass(AssertRaisesRegexMixin, unittest.TestCase)
+
+    This class/mixin and its usage can be removed when pygame no longer
+    supports python < 3.2.
+    """
+    def assertRaisesRegex(self, *args, **kwargs):
+        try:
+            return super(AssertRaisesRegexMixin, self).assertRaisesRegex(
+                *args, **kwargs)
+        except AttributeError:
+            try:
+                return super(AssertRaisesRegexMixin, self).assertRaisesRegexp(
+                    *args, **kwargs)
+            except AttributeError:
+                self.skipTest(
+                    'No assertRaisesRegex/assertRaisesRegexp method')
+
+
 ################################################################################
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -146,6 +170,14 @@ def import_submodule(module):
     for n in module.split('.')[1:]:
         m = getattr(m, n)
     return m
+
+
+class SurfaceSubclass(pygame.Surface):
+    """A subclassed Surface to test inheritance."""
+    def __init__(self, *args, **kwargs):
+        super(SurfaceSubclass, self).__init__(*args, **kwargs)
+        self.test_attribute = True
+
 
 def test():
     """

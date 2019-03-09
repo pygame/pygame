@@ -10,11 +10,20 @@ from pygame.compat import as_unicode, unicode_, filesystem_encode
 
 
 class MixerMusicModuleTest(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
         pygame.mixer.init()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pygame.mixer.quit()
+
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if pygame.mixer.get_init() is None:
+            pygame.mixer.init()
 
     def test_load(self):
         "|tags:music|"
@@ -43,15 +52,14 @@ class MixerMusicModuleTest(unittest.TestCase):
         """test loading music from file-like objects."""
         formats = ['ogg', 'wav']
         data_fname = example_path('data')
-        ret = []
         for f in formats:
             path = os.path.join(data_fname, 'house_lo.%s' % f)
             if os.sep == '\\':
                 path = path.replace('\\', '\\\\')
             bmusfn = filesystem_encode(path)
-            musf = open(bmusfn, 'rb')
-            ret.append(pygame.mixer.music.load(musf))
-        return ret
+
+            with open(bmusfn, 'rb') as musf:
+                pygame.mixer.music.load(musf)
 
     def test_load_unicode(self):
         """test non-ASCII unicode path"""

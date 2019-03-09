@@ -78,6 +78,10 @@ def get_urls(x86=True, x64=True, sdl2=True):
             'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
             '9097148f4529cf19f805ccd007618dec280f0ecc',
             ],
+            [
+            'https://www.ijg.org/files/jpegsr9c.zip',
+            '9ca086c960ffc4bff821ba194c8d0a15f69eae09',
+            ],
             # [
             #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x86.zip',
             #  '04a48d0b429ac65f0d9b33bd1b75d77526c0cccf'
@@ -217,6 +221,24 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
     for prebuilt_dir in prebuilt_dirs:
         path = os.path.join(move_to_dir, prebuilt_dir)
         print("copying into %s" % path)
+
+        # update jpeg
+        for file in ('jerror.h', 'jmorecfg.h', 'jpeglib.h'):
+            shutil.copyfile(
+                os.path.join(
+                    temp_dir,
+                    'jpegsr9c',
+                    'jpeg-9c',
+                    file
+                ),
+                os.path.join(
+                    move_to_dir,
+                    prebuilt_dir,
+                    'include',
+                    file
+                )
+            )
+
         copy(
             os.path.join(
                 temp_dir,

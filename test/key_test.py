@@ -4,11 +4,19 @@ import pygame.key
 
 
 class KeyModuleTest(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         pygame.init()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pygame.quit()
+
+    def setUp(cls):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
 
     def test_import(self):
         'does it import'

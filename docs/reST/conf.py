@@ -24,7 +24,7 @@ sys.path.append(os.path.abspath('.'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
               'sphinx.ext.coverage', 'ext.headers', 'ext.boilerplate',
-              'ext.customversion']
+              'ext.customversion', 'ext.edit_on_github']
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pygame'
-copyright = u'2011, Pygame Developers'
+copyright = u'2011-2019, Pygame Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -221,3 +221,7 @@ headers_mkdirs = True
 headers_filename_sfx = '_doc'
 
 smartquotes = False
+
+edit_on_github_project = 'pygame/pygame'
+edit_on_github_branch = 'master'
+
