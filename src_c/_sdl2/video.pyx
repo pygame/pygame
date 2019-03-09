@@ -881,16 +881,14 @@ cdef class Renderer:
 
     def blit(self, source, dest=None, area=None, special_flags = 0):
         """ Only for compatibility.
-		Textures created by different Renderers cannot shared with each other!
+        Textures created by different Renderers cannot shared with each other!
         :param source: A Texture or Surface.
                         Surface will be converted to a Texture.
         :param area: the portion of source texture.
         :param special_flags: have no effect at this moment.
         """
-        if pgSurface_Check(source):
-            #Not recommended, creating texture every frame is expensive.
-            source = Texture.from_surface(self, source)
-
+        if not isinstance(source, Texture):
+            raise TypeError('source must be a Texture')
         if not area:
             area = ((0,0), source.get_rect().size)
         if not dest:
