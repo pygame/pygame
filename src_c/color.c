@@ -45,13 +45,6 @@
 
 #include <ctype.h>
 
-typedef struct {
-    PyObject_HEAD
-        /* RGBA */
-        Uint8 data[4];
-    Uint8 len;
-} pgColorObject;
-
 typedef enum { TRISTATE_SUCCESS, TRISTATE_FAIL, TRISTATE_ERROR } tristate;
 
 static PyObject *_COLORDICT = NULL;

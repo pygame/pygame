@@ -752,11 +752,21 @@ typedef struct {
 #define PYGAMEAPI_COLOR_FIRSTSLOT \
     (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
 #define PYGAMEAPI_COLOR_NUMSLOTS 4
+
+typedef struct {
+    PyObject_HEAD
+    /* RGBA */
+    Uint8 data[4];
+    Uint8 len;
+} pgColorObject;
+
 #ifndef PYGAMEAPI_COLOR_INTERNAL
 #define pgColor_Check(x) \
     ((x)->ob_type ==     \
      (PyTypeObject *)PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 0])
 #define pgColor_Type (*(PyObject *)PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT])
+#define pgColor_AsArray(x) (((pgColorObject *)x)->data)
+#define pgColor_NumComponents(x) (((pgColorObject *)x)->len)
 #define pgColor_New \
     (*(PyObject * (*)(Uint8 *)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
 #define pgColor_NewLength              \
