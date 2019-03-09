@@ -94,6 +94,8 @@ _display_state_cleanup(_DisplayState *state)
 
 #endif /* IS_SDLv2 */
 
+static PyObject * pg_flip(PyObject *self);
+
 #if (!defined(darwin))
 static char *icon_defaultname = "pygame_icon.bmp";
 static char *pkgdatamodule_name = "pygame.pkgdata";
