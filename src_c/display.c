@@ -94,8 +94,6 @@ _display_state_cleanup(_DisplayState *state)
 
 #endif /* IS_SDLv2 */
 
-static PyObject * pg_flip(PyObject *self);
-
 #if (!defined(darwin))
 static char *icon_defaultname = "pygame_icon.bmp";
 static char *pkgdatamodule_name = "pygame.pkgdata";
@@ -1409,7 +1407,7 @@ pg_update(PyObject *self, PyObject *arg)
     if (!win)
         return RAISE(pgExc_SDLError, "Display mode not set");
     if (pg_renderer!=NULL){
-        return pg_flip(self);
+        return pg_flip(self, NULL);
     }
     SDL_GetWindowSize(win, &wide, &high);
 
