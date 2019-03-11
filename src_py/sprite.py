@@ -1100,13 +1100,18 @@ class LayeredDirty(LayeredUpdates):
                         # sprite not dirty; blit only the intersecting part
                         _spr_rect = spr.rect
                         _spr_rect_clip = _spr_rect.clip
+                        source_rect_offset_x = 0
+                        source_rect_offset_y = 0
+                        if spr.source_rect is not None:
+                            source_rect_offset_x = spr.source_rect[0]
+                            source_rect_offset_y = spr.source_rect[1]
                         for idx in _spr_rect.collidelistall(_update):
                             # clip
                             clip = _spr_rect_clip(_update[idx])
                             _surf_blit(spr.image,
                                        clip,
-                                       (clip[0] - _spr_rect[0] + spr.source_rect[0],
-                                        clip[1] - _spr_rect[1] + spr.source_rect[1],
+                                       (clip[0] - _spr_rect[0] + source_rect_offset_x,
+                                        clip[1] - _spr_rect[1] + source_rect_offset_y,
                                         clip[2],
                                         clip[3]),
                                        spr.blendmode)
@@ -1573,6 +1578,7 @@ def spritecollideany(sprite, group, collided=None):
     indicating if they are colliding. If collided is not passed, then all
     sprites must have a "rect" value, which is a rectangle of the sprite area,
     which will be used to calculate the collision.
+
 
     """
     if collided:
