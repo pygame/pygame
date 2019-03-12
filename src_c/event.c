@@ -375,6 +375,18 @@ _pg_name_from_eventtype(int type)
             return "TextInput";
         case SDL_TEXTEDITING:
             return "TextEditing";
+        case SDL_CONTROLLERAXISMOTION:
+            return "ControllerAxisMotion";
+        case SDL_CONTROLLERBUTTONDOWN:
+            return "ControllerButtonDown";
+        case SDL_CONTROLLERBUTTONUP:
+            return "ControllerButtonUp";
+        case SDL_CONTROLLERDEVICEADDED:
+            return "ControllerDeviceAdded";
+        case SDL_CONTROLLERDEVICEREMOVED:
+            return "ControllerDeviceRemoved";
+        case SDL_CONTROLLERDEVICEREMAPPED:
+            return "ControllerDeviceMapped";
 #endif
 
     }
@@ -631,6 +643,24 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "text", Text_FromUTF8(event->edit.text));
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
+            break;
+        case SDL_CONTROLLERAXISMOTION:
+            /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
+            _pg_insobj(dict, "joy", PyInt_FromLong(event->caxis.which));
+            _pg_insobj(dict, "axis", PyLong_FromLong(event->caxis.axis));
+            _pg_insobj(dict, "value", PyLong_FromLong(event->caxis.value));
+            break;
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+            /* https://wiki.libsdl.org/SDL_ControllerButtonEvent */
+            _pg_insobj(dict, "joy", PyInt_FromLong(event->cbutton.which));
+            _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
+            break;
+        case SDL_CONTROLLERDEVICEADDED:
+        case SDL_CONTROLLERDEVICEREMOVED:
+        case SDL_CONTROLLERDEVICEREMAPPED:
+            /* https://wiki.libsdl.org/SDL_ControllerDeviceEvent */
+            _pg_insobj(dict, "joy", PyInt_FromLong(event->cdevice.which));
             break;
 #endif
 
