@@ -92,7 +92,7 @@ cdef class Controller:
         return SDL_GameControllerGetAxis(self._controller, axis)
         
     def get_button(self, SDL_GameControllerButton button):
-        # https://wiki.libsdl.org/SDL_GameControllerGetButton?
+        # https://wiki.libsdl.org/SDL_GameControllerGetButton
         return SDL_GameControllerGetButton(self._controller, button)
         
     def get_mapping(self):
