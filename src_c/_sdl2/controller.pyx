@@ -2,7 +2,17 @@ from . import error
 
 cdef extern from "../pygame.h" nogil:
     int pgJoystick_Check(object joy)
-    
+    object pgJoystick_New(int);
+    void import_pygame_joystick()
+	
+import_pygame_joystick()
+
+cdef extern from "SDL.h" nogil:
+    void SDL_free(void *mem)
+
+def set_eventstate(state):
+    return SDL_GameControllerEventState(state)
+
 def get_count():
     """ Returns the number of attached joysticks.
     """
@@ -43,12 +53,9 @@ cdef class Controller:
             raise error('Index is invalid or not a supported joystick.')
 
         self._controller = SDL_GameControllerOpen(index)
+        self._index = index
         if not self._controller:
             raise error('Could not open controller %d.' % index)
-
-    def __dealloc__(self):
-        if self._controller:
-            SDL_GameControllerClose(self._controller)
 
     @staticmethod
     def from_joystick(joy):
@@ -83,9 +90,9 @@ cdef class Controller:
         return SDL_GameControllerGetAttached(self._controller)
         
     def as_joystick(self):
-        # https://wiki.libsdl.org/SDL_GameControllerGetJoystick
-        # TODO: Should return a pygame.joystick.Joystick() object.
-        raise NotImplementedError()
+        # return a pygame.joystick.Joystick() object.
+        joy = pgJoystick_New(self._index)
+        return joy
         
     def get_axis(self, SDL_GameControllerAxis axis):
         # https://wiki.libsdl.org/SDL_GameControllerGetAxis
@@ -96,12 +103,15 @@ cdef class Controller:
         return SDL_GameControllerGetButton(self._controller, button)
         
     def get_mapping(self):
+        #https://wiki.libsdl.org/SDL_GameControllerMapping
+        # TODO: mapping should be a readable dict instead of a string.
         mapping = SDL_GameControllerMapping(self._controller)
+        SDL_free(mapping)
         return mapping
         
     def add_mapping(self, mapping):
         # https://wiki.libsdl.org/SDL_GameControllerAddMapping
-		# TODO: mapping should be a dict instead of a string.
+        # TODO: mapping should be a readable dict instead of a string.
         cdef SDL_Joystick *joy
         cdef SDL_JoystickGUID guid
         cdef char[64] pszGUID

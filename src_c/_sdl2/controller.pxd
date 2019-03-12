@@ -98,3 +98,4 @@ cdef extern from "SDL.h" nogil:
 
 cdef class Controller:
     cdef SDL_GameController* _controller
+    cdef int _index
