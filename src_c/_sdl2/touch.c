@@ -22,6 +22,12 @@
 
 #include "../doc/touch_doc.h"
 
+#if PY3
+#define INT_CHECK(o) PyLong_Check(o)
+#else
+#define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
+#endif
+
 static PyObject *
 pg_touch_num_devices(PyObject *self, PyObject *args)
 {
@@ -32,7 +38,7 @@ static PyObject *
 pg_touch_get_device(PyObject *self, PyObject *index)
 {
     SDL_TouchID touchid;
-    if (!PyLong_Check(index)) {
+    if (!INT_CHECK(index)) {
         return RAISE(PyExc_TypeError,
                      "index must be an integer "
                      "specifying a device to get the ID for");
@@ -50,7 +56,7 @@ static PyObject *
 pg_touch_num_fingers(PyObject *self, PyObject *device_id)
 {
     int fingercount;
-    if (!PyLong_Check(device_id)) {
+    if (!INT_CHECK(device_id)) {
         return RAISE(PyExc_TypeError,
                      "device_id must be an integer "
                      "specifying a touch device");
