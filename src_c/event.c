@@ -386,6 +386,10 @@ _pg_name_from_eventtype(int type)
             return "FingerUp";
         case SDL_MULTIGESTURE:
             return "MultiGesture";
+        case SDL_DOLLARRECORD:
+            return "DollarRecord";
+        case SDL_DOLLARGESTURE:
+            return "DollarGesture";
         case SDL_MOUSEWHEEL:
             return "MouseWheel";
         case SDL_TEXTINPUT:
@@ -631,6 +635,17 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
+            break;
+        case SDL_DOLLARGESTURE:
+            /* https://wiki.libsdl.org/SDL_DollarGestureEvent */
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->dgesture.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->dgesture.y));
+            _pg_insobj(dict, "error", PyFloat_FromDouble(event->dgesture.error));
+            _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->dgesture.numFingers));
+            /* fall-through */
+        case SDL_DOLLARRECORD:
+            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->dgesture.touchId));
+            _pg_insobj(dict, "gesture_id", PyLong_FromLongLong(event->dgesture.gestureId));
             break;
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
