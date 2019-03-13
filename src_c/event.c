@@ -56,6 +56,8 @@ typedef struct UserEventObject {
 
 static UserEventObject *user_event_objects = NULL;
 
+static PyObject *_pg_event_filters = 0;
+
 #if IS_SDLv2
 static int pg_key_repeat_delay = 0;
 static int pg_key_repeat_interval = 0;
@@ -83,6 +85,21 @@ _pg_repeat_cleanup(void)
         SDL_RemoveTimer(_pg_repeat_timer);
         _pg_repeat_timer = 0;
     }
+}
+
+static void
+_pg_event_cleanup(void)
+{
+    if (!_pg_event_is_init)
+        return;
+
+    _pg_repeat_cleanup();
+
+    if (_pg_event_filters) {
+        Py_DECREF(_pg_event_filters);
+        _pg_event_filters = 0;
+    }
+
     _pg_event_is_init = 0;
 }
 
@@ -962,6 +979,47 @@ static PyTypeObject pgEvent_Type = {
     0,                             /* tp_new */
 };
 
+static int
+pgEvent_RegisterFilter(pgEvent_FilterCb filter_cb)
+{
+    PyObject *capsule;
+    int result;
+    if (!_pg_event_filters) {
+        _pg_event_filters = PyList_New(0);
+        if (!_pg_event_filters)
+            return -1;
+    }
+    capsule = PyCapsule_New(filter_cb, NULL, NULL);
+    if (!capsule)
+        return -1;
+    result = PyList_Append(_pg_event_filters, capsule);
+    Py_DECREF(capsule);
+    return result;
+}
+
+static pgEventObject *
+pg_event_pgfilter(pgEventObject *event)
+{
+    Py_ssize_t numfilters, filterind;
+
+    if (!_pg_event_filters)
+        return event;
+
+    numfilters = PyList_GET_SIZE(_pg_event_filters);
+    for (filterind = 0; filterind < numfilters; filterind++) {
+        pgEvent_FilterCb filtercb =
+            (pgEvent_FilterCb)PyCapsule_GetPointer(
+                PyList_GET_ITEM(_pg_event_filters, filterind), NULL);
+        if (!filtercb)
+            return NULL;
+        event = filtercb(event);
+        if (!event)
+            return NULL;
+    }
+
+    return event;
+}
+
 static PyObject *
 pgEvent_New(SDL_Event *event)
 {
@@ -978,6 +1036,7 @@ pgEvent_New(SDL_Event *event)
         e->type = SDL_NOEVENT;
         e->dict = PyDict_New();
     }
+    e = pg_event_pgfilter(e);
     return (PyObject *)e;
 }
 
@@ -994,6 +1053,7 @@ pgEvent_New2(int type, PyObject *dict)
             Py_INCREF(dict);
         e->dict = dict;
     }
+    e = pg_event_pgfilter(e);
     return (PyObject *)e;
 }
 
@@ -1794,15 +1854,16 @@ MODINIT_DEFINE(event)
 
     /* export the c api */
 #if IS_SDLv2
-    assert(PYGAMEAPI_EVENT_NUMSLOTS == 6);
+    assert(PYGAMEAPI_EVENT_NUMSLOTS == 7);
 #endif /* IS_SDLv2 */
     c_api[0] = &pgEvent_Type;
     c_api[1] = pgEvent_New;
     c_api[2] = pgEvent_New2;
     c_api[3] = pgEvent_FillUserEvent;
+    c_api[4] = pgEvent_RegisterFilter;
 #if IS_SDLv2
-    c_api[4] = pg_EnableKeyRepeat;
-    c_api[5] = pg_GetKeyRepeat;
+    c_api[5] = pg_EnableKeyRepeat;
+    c_api[6] = pg_GetKeyRepeat;
 #endif /* IS_SDLv2 */
     apiobj = encapsulate_api(c_api, "event");
     if (apiobj == NULL) {
