@@ -286,11 +286,14 @@
       Set the current alpha value fo r the Surface. When blitting this Surface
       onto a destination, the pixels will be drawn slightly transparent. The
       alpha value is an integer from 0 to 255, 0 is fully transparent and 255
-      is fully opaque. If None is passed for the alpha value, then the Surface
-      alpha will be disabled.
+      is fully opaque. If None is passed for the alpha value, then alpha blending
+      will be disabled, including per-pixel alpha.
 
       This value is different than the per pixel Surface alpha. For a surface
       with per pixel alpha, blanket alpha is ignored and ``None`` is returned.
+
+      .. versionchanged:: 2.0 per-surface alpha can be combined with per-pixel
+                          alpha.
 
       The optional flags argument can be set to ``pygame.RLEACCEL`` to provide
       better performance on non accelerated displays. An ``RLEACCEL`` Surface
