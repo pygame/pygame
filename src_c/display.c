@@ -419,6 +419,8 @@ pg_GetVideoInfo(pg_VideoInfo *info)
     SDL_DisplayMode mode;
     SDL_PixelFormat *tempformat;
     Uint32 formatenum;
+    PyObject *winsurfobj;
+    SDL_Surface *winsurf;
 
 #pragma PG_WARN(hardcoding wm_available to 1)
 #pragma PG_WARN(setting available video RAM to 0 KB)
@@ -426,24 +428,34 @@ pg_GetVideoInfo(pg_VideoInfo *info)
     memset(info, 0, sizeof(pg_VideoInfo));
     info->wm_available = 1;
 
-    if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
-        info->current_w = mode.w;
-        info->current_h = mode.h;
-        formatenum = mode.format;
-    }
-    else {
-        info->current_w = -1;
-        info->current_h = -1;
-        formatenum = SDL_PIXELFORMAT_UNKNOWN;
-    }
-
-    if (tempformat = SDL_AllocFormat(formatenum)) {
-        info->vfmt_data = *tempformat;
+    winsurfobj = pg_GetDefaultWindowSurface();
+    if (winsurfobj) {
+        winsurf = pgSurface_AsSurface(winsurfobj);
+        info->current_w = winsurf->w;
+        info->current_h = winsurf->h;
+        info->vfmt_data = *(winsurf->format);
         info->vfmt = &info->vfmt_data;
-        SDL_FreeFormat(tempformat);
     }
     else {
-        return NULL;
+        if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+            info->current_w = mode.w;
+            info->current_h = mode.h;
+            formatenum = mode.format;
+        }
+        else {
+            info->current_w = -1;
+            info->current_h = -1;
+            formatenum = SDL_PIXELFORMAT_UNKNOWN;
+        }
+
+        if (tempformat = SDL_AllocFormat(formatenum)) {
+            info->vfmt_data = *tempformat;
+            info->vfmt = &info->vfmt_data;
+            SDL_FreeFormat(tempformat);
+        }
+        else {
+            return NULL;
+        }
     }
 
     return info;
