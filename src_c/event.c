@@ -1046,12 +1046,15 @@ pgEvent_New(SDL_Event *event)
     if (event) {
         e->type = event->type;
         e->dict = dict_from_event(event);
+        if (event->user.code != USEROBJECT_CHECK1 ||
+            event->user.data1 != (void *)USEROBJECT_CHECK2) {
+            e = pg_event_pgfilter(e);
+        }
     }
     else {
         e->type = SDL_NOEVENT;
         e->dict = PyDict_New();
     }
-    e = pg_event_pgfilter(e);
     return (PyObject *)e;
 }
 
@@ -1068,7 +1071,6 @@ pgEvent_New2(int type, PyObject *dict)
             Py_INCREF(dict);
         e->dict = dict;
     }
-    e = pg_event_pgfilter(e);
     return (PyObject *)e;
 }
 
