@@ -30,7 +30,18 @@
 #define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
 #endif
 
-static PyObject * pgGesture_New(Sint64 touchid, Sint64 gestureid);
+typedef struct {
+    PyObject_HEAD
+    long long gesture_id;
+    long long touch_id;
+    long long last_touch_id;
+    int last_num_fingers;
+    float last_error;
+    float last_x;
+    float last_y;
+} pgGestureObject;
+
+static PyObject * pgGesture_New(long long touchid, long long gestureid);
 
 static PyObject *
 pg_touch_num_devices(PyObject *self, PyObject *args)
@@ -135,25 +146,30 @@ static PyMethodDef _touch_methods[] = {
 
     {NULL, NULL, 0, NULL}};
 
-PyObject *_pg_gesture_from_touchid = 0;
+PyObject *_pg_gesture_from_gestureid = 0;
 
 static pgEventObject*
 pg_gesture_event_filter(pgEventObject *event)
 {
     if (event->type == SDL_DOLLARRECORD || event->type == SDL_DOLLARGESTURE) {
-        PyObject *gestureobj;
-        Sint64 gestureid;
+        pgGestureObject *gestureobj;
+        long long gestureid;
+        long long touchid;
+        PyObject *touchidobj;
         PyObject *idobj = PyDict_GetItemString(event->dict,
                                                "gesture_id");
         if (!idobj)
             return NULL;
+        touchidobj = PyDict_GetItemString(event->dict,
+                                          "touch_id");
+        if (!touchidobj)
+            return NULL;
+
         gestureid = PyLong_AsLongLong(idobj);
+        touchid = PyLong_AsLongLong(touchidobj);
 
         if (event->type == SDL_DOLLARRECORD) {
             /* create a new Gesture instance */
-            Sint64 touchid =
-                PyLong_AsLongLong(PyDict_GetItemString(event->dict,
-                                                       "touch_id"));
             gestureobj = pgGesture_New(touchid, gestureid);
             if (!gestureobj)
                 return NULL;
@@ -162,21 +178,24 @@ pg_gesture_event_filter(pgEventObject *event)
                 return NULL;
             }
 
-            if (!_pg_gesture_from_touchid) {
-                _pg_gesture_from_touchid = PyDict_New();
-                if (!_pg_gesture_from_touchid) {
+            if (!_pg_gesture_from_gestureid) {
+                _pg_gesture_from_gestureid = PyDict_New();
+                if (!_pg_gesture_from_gestureid) {
                     Py_DECREF(gestureobj);
                     return NULL;
                 }
             }
 
-            PyDict_SetItem(_pg_gesture_from_touchid, idobj, gestureobj);
+            PyDict_SetItem(_pg_gesture_from_gestureid, idobj, gestureobj);
             Py_DECREF(gestureobj);
+
+            if (PyDict_DelItemString(event->dict, "touch_id"))
+                return NULL;
         }
         else {
             /* return existing Gesture instance */
-            if (!_pg_gesture_from_touchid ||
-                !(gestureobj = PyDict_GetItem(_pg_gesture_from_touchid, idobj))) {
+            if (!_pg_gesture_from_gestureid ||
+                !(gestureobj = PyDict_GetItem(_pg_gesture_from_gestureid, idobj))) {
                 PyErr_SetString(pgExc_SDLError,
                                 "received gesture event for unrecorded gesture");
                 return NULL;
@@ -184,25 +203,27 @@ pg_gesture_event_filter(pgEventObject *event)
             if (PyDict_SetItemString(event->dict, "gesture", gestureobj)) {
                 return NULL;
             }
+            gestureobj->last_touch_id = touchid;
+            gestureobj->last_num_fingers =
+                PyInt_AS_LONG(PyDict_GetItemString(event->dict, "num_fingers"));
+            gestureobj->last_error =
+                PyFloat_AS_DOUBLE(PyDict_GetItemString(event->dict, "error"));
+            gestureobj->last_x =
+                PyFloat_AS_DOUBLE(PyDict_GetItemString(event->dict, "x"));
+            gestureobj->last_y =
+                PyFloat_AS_DOUBLE(PyDict_GetItemString(event->dict, "y"));
         }
 
-        if (PyDict_DelItemString(event->dict, "touch_id") ||
-            PyDict_DelItemString(event->dict, "gesture_id"))
+        if (PyDict_DelItemString(event->dict, "gesture_id"))
             return NULL;
     }
     return event;
 }
 
-typedef struct {
-    PyObject_HEAD
-    SDL_GestureID gestureid;
-    SDL_TouchID touchid;
-} pgGestureObject;
-
 static PyTypeObject pgGesture_Type;
 
 static PyObject *
-pgGesture_New(Sint64 touchid, Sint64 gestureid)
+pgGesture_New(long long touchid, long long gestureid)
 {
     pgGestureObject *gesture;
     gesture = PyObject_NEW(pgGestureObject, &pgGesture_Type);
@@ -210,8 +231,8 @@ pgGesture_New(Sint64 touchid, Sint64 gestureid)
         return NULL;
     }
 
-    gesture->touchid = touchid;
-    gesture->gestureid = gestureid;
+    gesture->touch_id = touchid;
+    gesture->gesture_id = gestureid;
     return (PyObject *)gesture;
 }
 
@@ -262,8 +283,15 @@ pg_gesture_saveall(PyObject *self, PyObject *fileobj)
 }
 
 static PyMemberDef pg_gesture_members[] = {
-    { "gesture_id", T_LONGLONG, offsetof(pgGestureObject, gestureid), READONLY, 0 /* TODO DOC */ },
-    { "touch_id", T_LONGLONG, offsetof(pgGestureObject, touchid), READONLY, 0 /* TODO DOC */ },
+    { "gesture_id", T_LONGLONG, offsetof(pgGestureObject, gesture_id), READONLY, 0 /* TODO DOC */ },
+    { "touch_id", T_LONGLONG, offsetof(pgGestureObject, touch_id), READONLY, 0 /* TODO DOC */ },
+
+    { "last_touch_id", T_LONGLONG, offsetof(pgGestureObject, last_touch_id), 0, 0 /* TODO DOC */ },
+    { "last_num_fingers", T_INT, offsetof(pgGestureObject, last_num_fingers), 0, 0 /* TODO DOC */ },
+    { "last_x", T_FLOAT, offsetof(pgGestureObject, last_x), 0, 0 /* TODO DOC */ },
+    { "last_y", T_FLOAT, offsetof(pgGestureObject, last_y), 0, 0 /* TODO DOC */ },
+    { "last_error", T_FLOAT, offsetof(pgGestureObject, last_error), 0, 0 /* TODO DOC */ },
+
     NULL
 };
 
@@ -271,7 +299,9 @@ static PyMethodDef pg_gesture_methods[] = {
     { "record", pg_gesture_record, METH_O | METH_STATIC, 0 /* TODO DOC */ },
     { "load", pg_gesture_load, METH_O | METH_STATIC, 0 /* TODO DOC */ },
     { "save_all", pg_gesture_saveall, METH_O | METH_STATIC, 0 /* TODO DOC */ },
+
     { "save", pg_gesture_save, METH_O, 0 /* TODO DOC */ },
+
     NULL
 };
 
