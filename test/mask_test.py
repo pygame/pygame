@@ -1,9 +1,11 @@
+from collections import OrderedDict
+import random
 import unittest
+
 import pygame
 import pygame.mask
 from pygame.locals import *
 
-import random
 
 def random_mask(size = (100,100)):
     """random_mask(size=(100,100)): return Mask
@@ -1386,39 +1388,182 @@ class MaskTypeTest(unittest.TestCase):
 
 
 class MaskModuleTest(unittest.TestCase):
+    # The @unittest.expectedFailure decorator can be removed when issue #897
+    # is fixed.
+    @unittest.expectedFailure
     def test_from_surface(self):
-        """  Does the mask.from_surface() work correctly?
+        """Ensures from_surface creates a mask with the correct bits set.
+
+        This test checks the masks created by the from_surface function using
+        16 and 32 bit surfaces. Each alpha value (0-255) is tested against
+        several different threshold values.
+        Note: On 16 bit surface the requested alpha value can differ from what
+              is actually set. This test uses the value read from the surface.
         """
+        threshold_count = 256
+        surface_color = [55, 155, 255, 0]
+        expected_size = (11, 9)
+        all_set_count = expected_size[0] * expected_size[1]
+        none_set_count = 0
 
-        mask_from_surface = pygame.mask.from_surface
+        for depth in (16, 32):
+            surface = pygame.Surface(expected_size, SRCALPHA, depth)
 
-        surf = pygame.Surface((70,70), SRCALPHA, 32)
+            for alpha in range(threshold_count):
+                surface_color[3] = alpha
+                surface.fill(surface_color)
 
-        surf.fill((255,255,255,255))
+                if depth < 32:
+                    # On surfaces with depths < 32 the requested alpha can be
+                    # different than what gets set. Use the value read from the
+                    # surface.
+                    alpha = surface.get_at((0, 0))[3]
 
-        amask = pygame.mask.from_surface(surf)
-        #amask = mask_from_surface(surf)
+                # Test the mask created at threshold values low, high and
+                # around alpha.
+                threshold_test_values = set(
+                    [-1, 0, alpha - 1, alpha, alpha + 1, 255, 256])
 
-        self.assertEqual(amask.get_at((0,0)), 1)
-        self.assertEqual(amask.get_at((66,1)), 1)
-        self.assertEqual(amask.get_at((69,1)), 1)
+                for threshold in threshold_test_values:
+                    msg = 'depth={}, alpha={}, threshold={}'.format(
+                        depth, alpha, threshold)
 
-        surf.set_at((0,0), (255,255,255,127))
-        surf.set_at((1,0), (255,255,255,128))
-        surf.set_at((2,0), (255,255,255,0))
-        surf.set_at((3,0), (255,255,255,255))
+                    if alpha > threshold:
+                        expected_count = all_set_count
+                    else:
+                        expected_count = none_set_count
 
-        amask = mask_from_surface(surf)
-        self.assertEqual(amask.get_at((0,0)), 0)
-        self.assertEqual(amask.get_at((1,0)), 1)
-        self.assertEqual(amask.get_at((2,0)), 0)
-        self.assertEqual(amask.get_at((3,0)), 1)
+                    mask = pygame.mask.from_surface(surface, threshold)
 
-        surf.fill((255,255,255,0))
-        amask = mask_from_surface(surf)
-        self.assertEqual(amask.get_at((0,0)), 0)
+                    self.assertEqual(mask.get_size(), expected_size, msg)
+                    self.assertEqual(mask.count(), expected_count, msg)
 
-        #TODO: test a color key surface.
+    def test_from_surface__different_alphas_32bit(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when pixels have different alpha values (32 bits surfaces).
+
+        This test checks the masks created by the from_surface function using
+        a 32 bit surface. The surface is created with each pixel having a
+        different alpha value (0-255). This surface is tested over a range
+        of threshold values (0-255).
+        """
+        offset = (0, 0)
+        threshold_count = 256
+        surface_color = [10, 20, 30, 0]
+        expected_size = (threshold_count, 1)
+        expected_mask = pygame.Mask(expected_size, fill=True)
+        surface = pygame.Surface(expected_size, SRCALPHA, 32)
+
+        # Give each pixel a different alpha.
+        surface.lock()  # Lock for possible speed up.
+        for a in range(threshold_count):
+            surface_color[3] = a
+            surface.set_at((a, 0), surface_color)
+        surface.unlock()
+
+        # Test the mask created for each different alpha threshold.
+        for threshold in range(threshold_count):
+            msg = 'threshold={}'.format(threshold)
+            expected_mask.set_at((threshold, 0), 0)
+            expected_count = expected_mask.count()
+
+            mask = pygame.mask.from_surface(surface, threshold)
+
+            self.assertEqual(mask.get_size(), expected_size, msg)
+            self.assertEqual(mask.count(), expected_count, msg)
+            self.assertEqual(mask.overlap_area(expected_mask, offset),
+                             expected_count, msg)
+
+    # The @unittest.expectedFailure decorator can be removed when issue #897
+    # is fixed.
+    @unittest.expectedFailure
+    def test_from_surface__different_alphas_16bit(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when pixels have different alpha values (16 bit surfaces).
+
+        This test checks the masks created by the from_surface function using
+        a 16 bit surface. Each pixel of the surface is set with a different
+        alpha value (0-255), but since this is a 16 bit surface the requested
+        alpha value can differ from what is actually set. The resulting surface
+        will have groups of alpha values which complicates the test as the
+        alpha groups will all be set/unset at a given threshold. The setup
+        calculates these groups and an expected mask for each. This test data
+        is then used to test each alpha grouping over a range of threshold
+        values.
+        """
+        threshold_count = 256
+        surface_color = [110, 120, 130, 0]
+        expected_size = (threshold_count, 1)
+        surface = pygame.Surface(expected_size, SRCALPHA, 16)
+
+        # Give each pixel a different alpha.
+        surface.lock()  # Lock for possible speed up.
+        for a in range(threshold_count):
+            surface_color[3] = a
+            surface.set_at((a, 0), surface_color)
+        surface.unlock()
+
+        alpha_thresholds = OrderedDict()
+        special_thresholds = set()
+
+        # Create the threshold ranges and identify any thresholds that need
+        # special handling.
+        for threshold in range(threshold_count):
+            # On surfaces with depths < 32 the requested alpha can be different
+            # than what gets set. Use the value read from the surface.
+            alpha = surface.get_at((threshold, 0))[3]
+
+            if alpha not in alpha_thresholds:
+                alpha_thresholds[alpha] = [threshold]
+            else:
+                alpha_thresholds[alpha].append(threshold)
+
+            if threshold < alpha:
+                special_thresholds.add(threshold)
+
+        # Use each threshold group to create an expected mask.
+        test_data = []  # [(from_threshold, to_threshold, expected_mask), ...]
+        offset = (0, 0)
+        erase_mask = pygame.Mask(expected_size)
+        exp_mask = pygame.Mask(expected_size, fill=True)
+
+        for thresholds in alpha_thresholds.values():
+            for threshold in thresholds:
+                if threshold in special_thresholds:
+                    # Any special thresholds just reuse previous exp_mask.
+                    test_data.append((threshold, threshold + 1, exp_mask))
+                else:
+                    to_threshold = thresholds[-1] + 1
+
+                    # Make the expected mask by erasing the unset bits.
+                    for thres in range(to_threshold):
+                        erase_mask.set_at((thres, 0), 1)
+
+                    exp_mask = pygame.Mask(expected_size, fill=True)
+                    exp_mask.erase(erase_mask, offset)
+                    test_data.append((threshold, to_threshold, exp_mask))
+                    break
+
+        # All the setup is done. Now test the masks created over the threshold
+        # ranges.
+        for from_threshold, to_threshold, expected_mask in test_data:
+            expected_count = expected_mask.count()
+
+            for threshold in range(from_threshold, to_threshold):
+                msg = 'threshold={}'.format(threshold)
+
+                mask = pygame.mask.from_surface(surface, threshold)
+
+                self.assertEqual(mask.get_size(), expected_size, msg)
+                self.assertEqual(mask.count(), expected_count, msg)
+                self.assertEqual(mask.overlap_area(expected_mask, offset),
+                                 expected_count, msg)
+
+    def todo_test_from_surface__with_colorkey(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when the surface uses a colorkey.
+        """
+        self.fail()
 
     def test_from_threshold(self):
         """ Does mask.from_threshold() work correctly?
@@ -1448,14 +1593,13 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
     def test_zero_size_from_surface(self):
-        zero_w_mask = pygame.mask.from_surface(pygame.Surface((0, 100)))
-        self.assertEqual(zero_w_mask.get_size(), (0, 100))
+        """Ensures from_surface can create masks from zero sized surfaces."""
+        for size in ((100, 0), (0, 100), (0, 0)):
+            mask = pygame.mask.from_surface(pygame.Surface(size))
 
-        zero_h_mask = pygame.mask.from_surface(pygame.Surface((100, 0)))
-        self.assertEqual(zero_h_mask.get_size(), (100, 0))
-
-        zero_mask = pygame.mask.from_surface(pygame.Surface((0, 0)))
-        self.assertEqual(zero_mask.get_size(), (0, 0))
+            self.assertIsInstance(mask, pygame.mask.MaskType,
+                                  'size={}'.format(size))
+            self.assertEqual(mask.get_size(), size)
 
     def test_zero_size_from_threshold(self):
         a = [16, 24, 32]
