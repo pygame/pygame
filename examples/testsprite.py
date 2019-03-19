@@ -63,6 +63,8 @@ if "-hw" in sys.argv:
     flags ^= HWSURFACE
     use_rle = False
 
+if "-logical" in sys.argv:
+    flags ^= LOGICAL
 
 screen_dims = [640, 480]
 
