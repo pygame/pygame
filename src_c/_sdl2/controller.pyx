@@ -25,6 +25,9 @@ def update():
     """ Will automatically called by the event loop,
         not necessary to call this function.
     """
+    
+    # https://wiki.libsdl.org/SDL_GameControllerUpdate
+    
     SDL_GameControllerUpdate()
 
 def is_controller(index):
@@ -34,12 +37,15 @@ def is_controller(index):
 
     :return: 1 if supported, 0 if unsupported or invalid index.
     """
+    # https://wiki.libsdl.org/SDL_IsGameController
+    
     return SDL_IsGameController(index)
 
 def name_forindex(index):
     """ Returns the name of controller,
         or NULL if there's no name or the index is invalid.
     """
+    # https://wiki.libsdl.org/SDL_GameControllerNameForIndex
     return SDL_GameControllerNameForIndex(index)
 
 cdef class Controller:
@@ -57,9 +63,17 @@ cdef class Controller:
         if not self._controller:
             raise error('Could not open controller %d.' % index)
 
+    """
     def __dealloc__(self):
+        self.close()
+    """
+    
+    def close(self):
+        # https://wiki.libsdl.org/SDL_GameControllerClose
         if self._controller:
             SDL_GameControllerClose(self._controller)
+            self._controller = NULL
+
     @staticmethod
     def from_joystick(joy):
         # https://wiki.libsdl.org/SDL_GameControllerFromInstanceID
@@ -109,11 +123,17 @@ cdef class Controller:
         # https://wiki.libsdl.org/SDL_GameControllerMapping
         # TODO: mapping should be a readable dict instead of a string.
         cdef char* mapping = SDL_GameControllerMapping(self._controller)
+        
         try:
-            return <object>mapping
+            #Convert the string to Python string?
+            pyMapping = mapping.decode('UTF-8')
+        except:
+            #Returns bytes if decoding failed.
+            pyMapping = mapping
         finally:
             SDL_free(mapping)
-        return mapping
+	        
+        return pyMapping
         
     def add_mapping(self, mapping):
         # https://wiki.libsdl.org/SDL_GameControllerAddMapping
