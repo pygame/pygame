@@ -876,9 +876,13 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (flags & PGS_LOGICAL) {
                 if (pg_renderer==NULL){
-                    pg_renderer = SDL_CreateRenderer(win, -1, 0);
                     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+                    pg_renderer = SDL_CreateRenderer(win, -1, 0);
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
+
+		    SDL_RendererInfo info;
+		    SDL_GetRendererInfo(pg_renderer, &info);
+		    printf("renderer backend: %s\n", info.name);
 
                     pg_texture = SDL_CreateTexture(pg_renderer,
                                                    SDL_PIXELFORMAT_ARGB8888,
