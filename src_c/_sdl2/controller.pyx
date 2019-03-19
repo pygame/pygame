@@ -4,7 +4,7 @@ cdef extern from "../pygame.h" nogil:
     int pgJoystick_Check(object joy)
     object pgJoystick_New(int);
     void import_pygame_joystick()
-	
+    
 import_pygame_joystick()
 
 cdef extern from "SDL.h" nogil:
@@ -57,6 +57,9 @@ cdef class Controller:
         if not self._controller:
             raise error('Could not open controller %d.' % index)
 
+    def __dealloc__(self):
+        if self._controller:
+            SDL_GameControllerClose(self._controller)
     @staticmethod
     def from_joystick(joy):
         # https://wiki.libsdl.org/SDL_GameControllerFromInstanceID
@@ -103,10 +106,13 @@ cdef class Controller:
         return SDL_GameControllerGetButton(self._controller, button)
         
     def get_mapping(self):
-        #https://wiki.libsdl.org/SDL_GameControllerMapping
+        # https://wiki.libsdl.org/SDL_GameControllerMapping
         # TODO: mapping should be a readable dict instead of a string.
-        mapping = SDL_GameControllerMapping(self._controller)
-        SDL_free(mapping)
+        cdef char* mapping = SDL_GameControllerMapping(self._controller)
+        try:
+            return <object>mapping
+        finally:
+            SDL_free(mapping)
         return mapping
         
     def add_mapping(self, mapping):

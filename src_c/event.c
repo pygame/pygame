@@ -19,7 +19,7 @@
   Pete Shinners
   pete@shinners.org
 */
-
+    
 /*
  *  pygame event module
  */
@@ -646,21 +646,21 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->caxis.which));
+            _pg_insobj(dict, "joy", PyLong_FromLong(event->caxis.which));
             _pg_insobj(dict, "axis", PyLong_FromLong(event->caxis.axis));
             _pg_insobj(dict, "value", PyLong_FromLong(event->caxis.value));
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
             /* https://wiki.libsdl.org/SDL_ControllerButtonEvent */
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->cbutton.which));
+            _pg_insobj(dict, "joy", PyLong_FromLong(event->cbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
             break;
         case SDL_CONTROLLERDEVICEADDED:
         case SDL_CONTROLLERDEVICEREMOVED:
         case SDL_CONTROLLERDEVICEREMAPPED:
             /* https://wiki.libsdl.org/SDL_ControllerDeviceEvent */
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "joy", PyLong_FromLong(event->cdevice.which));
             break;
 #endif
 
