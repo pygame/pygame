@@ -41,9 +41,6 @@ class ScrapModuleTest(unittest.TestCase):
         """Ensures get works as expected."""
         self.fail()
 
-    # The @unittest.expectedFailure decorator can be removed when issue #915
-    # is resolved.
-    @unittest.expectedFailure
     def test_get__owned_empty_type(self):
         """Ensures get works when there is no data of the requested type
         in the clipboard and the clipboard is owned by the pygame application.

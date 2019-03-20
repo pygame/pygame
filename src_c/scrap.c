@@ -222,7 +222,12 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
                 val = PyDict_GetItemString(_clipdata, scrap_type);
                 break;
         }
-        Py_XINCREF(val);
+
+        if (!val) {
+            Py_RETURN_NONE;
+        }
+
+        Py_INCREF(val);
         return val;
     }
 
