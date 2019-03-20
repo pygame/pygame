@@ -1099,6 +1099,9 @@ class LayeredDirty(LayeredUpdates):
                     if spr._visible:
                         # sprite not dirty; blit only the intersecting part
                         _spr_rect = spr.rect
+                        if spr.source_rect is not None:
+                            _spr_rect = Rect(spr.rect.topleft,
+                                             spr.source_rect.size)
                         _spr_rect_clip = _spr_rect.clip
                         source_rect_offset_x = 0
                         source_rect_offset_y = 0
@@ -1410,7 +1413,7 @@ class collide_circle_ratio(object):
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
 
-        When the ratio is ratio=1.0, then it behaves exactly like the 
+        When the ratio is ratio=1.0, then it behaves exactly like the
         collide_circle method.
 
         """
