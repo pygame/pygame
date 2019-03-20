@@ -1099,9 +1099,6 @@ class LayeredDirty(LayeredUpdates):
                     if spr._visible:
                         # sprite not dirty; blit only the intersecting part
                         _spr_rect = spr.rect
-                        if spr.source_rect is not None:
-                            _spr_rect = Rect(spr.rect.topleft,
-                                             spr.source_rect.size)
                         _spr_rect_clip = _spr_rect.clip
                         source_rect_offset_x = 0
                         source_rect_offset_y = 0
