@@ -309,6 +309,23 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 
+typedef struct {
+    Uint32 hw_available:1;
+    Uint32 wm_available:1;
+    Uint32 blit_hw:1;
+    Uint32 blit_hw_CC:1;
+    Uint32 blit_hw_A:1;
+    Uint32 blit_sw:1;
+    Uint32 blit_sw_CC:1;
+    Uint32 blit_sw_A:1;
+    Uint32 blit_fill:1;
+    Uint32 video_mem;
+    SDL_PixelFormat *vfmt;
+    SDL_PixelFormat vfmt_data;
+    int current_w;
+    int current_h;
+} pg_VideoInfo;
+
 #endif /* IS_SDLv2 */
 /* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
@@ -537,10 +554,14 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
-#if IS_SDLv1
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
+
 typedef struct {
+#if IS_SDLv1
     PyObject_HEAD SDL_VideoInfo info;
+#else
+    PyObject_HEAD pg_VideoInfo info;
+#endif
 } pgVidInfoObject;
 
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
@@ -551,15 +572,19 @@ typedef struct {
 
 #define pgVidInfo_Type \
     (*(PyTypeObject *)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
+
+#if IS_SDLv1
 #define pgVidInfo_New                   \
     (*(PyObject * (*)(SDL_VideoInfo *)) \
          PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
-#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
+#else
+#define pgVidInfo_New                   \
+    (*(PyObject * (*)(pg_VideoInfo *)) \
+         PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #endif
 
-#else /* IS_SDLv2 */
-#define PYGAMEAPI_DISPLAY_NUMSLOTS 0
-#endif /* IS_SDLv2 */
+#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
+#endif
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT \
