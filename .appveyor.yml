@@ -119,9 +119,8 @@ test_script:
   - "cd .."
 
 artifacts:
-  - path: 'dist\*'
-
-
+  - path: 'dist\*.whl'
+    name: pypiartifacts
 
 # For uploading releases to github.
 # https://www.appveyor.com/docs/deployment/github/
@@ -130,7 +129,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: vXkwDVAQH6huxT8mqzRMEZZR8nsJzi/FFS8yZcROuKuvzXQUHLEefXVymN52pu0v # your encrypted token from GitHub
-  artifact: wheel file
+  artifact: pypiartifacts
   draft: true
   prerelease: false
   force_update: true
