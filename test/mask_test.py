@@ -61,7 +61,7 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(mask2.get_size(), expected_size)
 
     def test_mask__negative_size(self):
-        """Ensure the mask contructor handles negative sizes correctly."""
+        """Ensure the mask constructor handles negative sizes correctly."""
         for size in ((1, -1), (-1, 1), (-1, -1)):
             with self.assertRaises(ValueError):
                 mask = pygame.Mask(size)
@@ -221,25 +221,40 @@ class MaskTypeTest(unittest.TestCase):
         with self.assertRaises(IndexError):
             mask.set_at((0, -1))
 
-    def todo_test_overlap(self):
-        """Ensure the overlap intersection is correctly calculated."""
+    def test_overlap(self):
+        """Ensure the overlap intersection is correctly calculated.
 
-        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.overlap:
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 overlap 1 (mask2-filled)
+            (mask1-empty)  0 overlap 1 (mask2-filled)
+            (mask1-filled) 1 overlap 0 (mask2-empty)
+            (mask1-empty)  0 overlap 0 (mask2-empty)
+        """
+        expected_size = (4, 4)
+        offset = (0, 0)
+        expected_default = None
+        expected_overlaps = {(True, True) : offset}
 
-          # Mask.overlap(othermask, offset) -> x,y
-          # Returns the point of intersection if the masks overlap with the
-          # given offset - or None if it does not overlap.
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
 
-          # The overlap tests uses the following offsets (which may be negative):
-          #    +----+----------..
-          #    |A   | yoffset
-          #    |  +-+----------..
-          #    +--|B
-          #    |xoffset
-          #    |  |
-          #    :  :
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                mask1_count = mask1.count()
+                expected_pos = expected_overlaps.get(key, expected_default)
 
-        self.fail()
+                overlap_pos = mask1.overlap(mask2, offset)
+
+                self.assertEqual(overlap_pos, expected_pos, msg)
+
+                # Ensure mask1/mask2 unchanged.
+                self.assertEqual(mask1.count(), mask1_count, msg)
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask1.get_size(), expected_size, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_overlap__offset(self):
         """Ensure an offset overlap intersection is correctly calculated."""
@@ -328,12 +343,63 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.get_size(), mask2_size, msg)
             self.assertEqual(mask2.get_at(set_pos), 1, msg)
 
-    def todo_test_overlap_area(self):
-        """Ensure the overlap area is correctly calculated."""
-        self.fail()
+    def test_overlap__invalid_mask_arg(self):
+        """Ensure overlap handles invalid mask arguments correctly."""
+        size = (5, 3)
+        offset = (0, 0)
+        mask = pygame.mask.Mask(size)
+        invalid_mask = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            overlap_pos = mask.overlap(invalid_mask, offset)
+
+    def test_overlap__invalid_offset_arg(self):
+        """Ensure overlap handles invalid offset arguments correctly."""
+        size = (2, 7)
+        offset = '(0, 0)'
+        mask1 = pygame.mask.Mask(size)
+        mask2 = pygame.mask.Mask(size)
+
+        with self.assertRaises(TypeError):
+            overlap_pos = mask1.overlap(mask2, offset)
+
+    def test_overlap_area(self):
+        """Ensure the overlap_area is correctly calculated.
+
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 overlap_area 1 (mask2-filled)
+            (mask1-empty)  0 overlap_area 1 (mask2-filled)
+            (mask1-filled) 1 overlap_area 0 (mask2-empty)
+            (mask1-empty)  0 overlap_area 0 (mask2-empty)
+        """
+        expected_size = width, height = (4, 4)
+        offset = (0, 0)
+        expected_default = 0
+        expected_counts = {(True, True) : width * height}
+
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
+
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                mask1_count = mask1.count()
+                expected_count = expected_counts.get(key, expected_default)
+
+                overlap_count = mask1.overlap_area(mask2, offset)
+
+                self.assertEqual(overlap_count, expected_count, msg)
+
+                # Ensure mask1/mask2 unchanged.
+                self.assertEqual(mask1.count(), mask1_count, msg)
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask1.get_size(), expected_size, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_overlap_area__offset(self):
-        """Ensure an offset overlap area is correctly calculated."""
+        """Ensure an offset overlap_area is correctly calculated."""
         mask1 = pygame.mask.Mask((65, 3), fill=True)
         mask2 = pygame.mask.Mask((66, 4), fill=True)
         mask1_count = mask1.count()
@@ -1509,9 +1575,46 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(points, expected_points,
                                  'size={}'.format(size))
 
-    def todo_test_zero_mask_convolve(self):
-        """Ensures convolve correctly handles zero sized masks."""
-        self.fail()
+    @unittest.skip('can cause segmentation fault')
+    def test_zero_mask_convolve(self):
+        """Ensures convolve correctly handles zero sized masks.
+
+        Tests the different combinations of sized and zero sized masks.
+        """
+        for size1 in ((17, 13), (71, 0), (0, 70), (0, 0)):
+            mask1 = pygame.mask.Mask(size1, fill=True)
+
+            for size2 in ((11, 7), (81, 0), (0, 60), (0, 0)):
+                msg = 'sizes={}, {}'.format(size1, size2)
+                mask2 = pygame.mask.Mask(size2, fill=True)
+                expected_size = (max(0, size1[0] + size2[0] - 1),
+                                 max(0, size1[1] + size2[1] - 1))
+
+                mask = mask1.convolve(mask2)
+
+                self.assertIsNot(mask, mask2, msg)
+                self.assertEqual(mask.get_size(), expected_size, msg)
+
+    def test_zero_mask_convolve__with_output_mask(self):
+        """Ensures convolve correctly handles zero sized masks
+        when using an output mask argument.
+
+        Tests the different combinations of sized and zero sized masks.
+        """
+        for size1 in ((11, 17), (91, 0), (0, 90), (0, 0)):
+            mask1 = pygame.mask.Mask(size1, fill=True)
+
+            for size2 in ((13, 11), (83, 0), (0, 62), (0, 0)):
+                mask2 = pygame.mask.Mask(size2, fill=True)
+
+                for output_size in ((7, 5), (71, 0), (0, 70), (0, 0)):
+                    msg = 'sizes={}, {}, {}'.format(size1, size2, output_size)
+                    output_mask = pygame.mask.Mask(output_size)
+
+                    mask = mask1.convolve(mask2, output_mask)
+
+                    self.assertIs(mask, output_mask, msg)
+                    self.assertEqual(mask.get_size(), output_size, msg)
 
     def test_zero_mask_connected_component(self):
         """Ensures connected_component correctly handles zero sized masks."""
