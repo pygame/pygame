@@ -456,29 +456,46 @@ mask_outline(PyObject *self, PyObject *args)
 static PyObject *
 mask_convolve(PyObject *aobj, PyObject *args)
 {
-    PyObject *bobj, *oobj = Py_None;
-    bitmask_t *a, *b, *o;
+    PyObject *bobj = NULL;
+    PyObject *oobj = Py_None;
+    bitmask_t *a = NULL, *b = NULL, *output = NULL;
     int xoffset = 0, yoffset = 0;
 
     if (!PyArg_ParseTuple(args, "O!|O(ii)", &pgMask_Type, &bobj, &oobj,
-                          &xoffset, &yoffset))
+                          &xoffset, &yoffset)) {
         return NULL;
+    }
 
     a = pgMask_AsBitmap(aobj);
     b = pgMask_AsBitmap(bobj);
 
-    if (oobj == Py_None) {
+    if (oobj != Py_None) {
+        /* Use this mask for the output. */
+        Py_INCREF(oobj);
+        output = pgMask_AsBitmap(oobj);
+    }
+    else {
         pgMaskObject *result = PyObject_New(pgMaskObject, &pgMask_Type);
 
-        result->mask = bitmask_create(a->w + b->w - 1, a->h + b->h - 1);
+        if (NULL == result) {
+            return RAISE(PyExc_MemoryError, "cannot allocate memory for mask");
+        }
+
+        output =
+            bitmask_create(MAX(0, a->w + b->w - 1), MAX(0, a->h + b->h - 1));
+
+        if (NULL == output) {
+            Py_DECREF(result);
+            return RAISE(PyExc_MemoryError,
+                         "cannot allocate memory for bitmask");
+        }
+
+        result->mask = output;
         oobj = (PyObject *)result;
     }
-    else
-        Py_INCREF(oobj);
 
-    o = pgMask_AsBitmap(oobj);
+    bitmask_convolve(a, b, output, xoffset, yoffset);
 
-    bitmask_convolve(a, b, o, xoffset, yoffset);
     return oobj;
 }
 

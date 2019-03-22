@@ -1577,7 +1577,6 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(points, expected_points,
                                  'size={}'.format(size))
 
-    @unittest.skip('can cause segmentation fault')
     def test_zero_mask_convolve(self):
         """Ensures convolve correctly handles zero sized masks.
 
