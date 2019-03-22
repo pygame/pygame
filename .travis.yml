@@ -132,7 +132,6 @@ deploy:
     file_glob: true
     file:
       - dist/*.whl
-      - dist/*.tar.gz
     skip_cleanup: true
     draft: true
     on:
@@ -143,4 +142,3 @@ deploy:
       tag: true
       repo: pygame/pygame
       condition: $GITHUB_UPLOAD = yes
-      tags: true
