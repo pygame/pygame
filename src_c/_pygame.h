@@ -725,39 +725,25 @@ typedef struct {
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
-#define pgRWopsFromObject           \
-    (*(SDL_RWops * (*)(PyObject *)) \
+#define pgRWops_FromObject           \
+    (*(SDL_RWops * (*)(PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
-#define pgRWopsCheckObject \
+#define pgRWops_IsFileObject \
     (*(int (*)(SDL_RWops *))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
-#define pgRWopsEncodeFilePath                  \
-    (*(PyObject * (*)(PyObject *, PyObject *)) \
+#define pg_EncodeFilePath                       \
+    (*(PyObject * (*)(PyObject *, PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
-#define pgRWopsEncodeString                                                \
-    (*(PyObject * (*)(PyObject *, const char *, const char *, PyObject *)) \
+#define pg_EncodeString                                                     \
+    (*(PyObject * (*)(PyObject *, const char *, const char *, PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
-#define pgRWopsFromFileObject       \
-    (*(SDL_RWops * (*)(PyObject *)) \
+#define pgRWops_FromFileObject       \
+    (*(SDL_RWops * (*)(PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
-#define pgRWopsReleaseObject       \
-    (*(int (*)(SDL_RWops *))       \
+#define pgRWops_ReleaseObject       \
+    (*(int (*)(SDL_RWops *))        \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
-/* For backward compatibility */
-#ifdef WITH_THREAD
-#define pgRWopsFromFileObjectThreaded pgRWopsFromFileObject
-#define pgRWopsFromObjectThreaded pgRWopsFromObject
-#define pgRWopsCheckObjectThreaded pgRWopsCheckObject
-#else /* ~WITH_THREAD */
-#define pgRWopsFromFileObjectThreaded PG_CHECK_THREADS
-#define pgRWopsFromObjectThreaded PG_CHECK_THREADS
-#define pgRWopsCheckObjectThreaded PG_CHECK_THREADS
-#endif /* ~WITH_THREAD */
-#define RWopsFromPython RWopsFromObject
-#define RWopsCheckPython RWopsCheckObject
-#define RWopsFromPythonThreaded RWopsFromFileObjectThreaded
-#define RWopsCheckPythonThreaded RWopsCheckObjectThreaded
 #endif
 
 /* PixelArray */

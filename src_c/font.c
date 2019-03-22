@@ -166,7 +166,7 @@ font_resource(const char *filename)
     }
 #endif
 
-    tmp = pgRWopsEncodeString(result, "UTF-8", NULL, NULL);
+    tmp = pg_EncodeString(result, "UTF-8", NULL, NULL);
     if (tmp == NULL) {
         Py_DECREF(result);
         return NULL;
@@ -700,7 +700,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         filename = Bytes_AS_STRING(oencoded);
     } else {
         /* SDL accepts UTF8 */
-        oencoded = pgRWopsEncodeString(obj, "UTF8", NULL, NULL);
+        oencoded = pg_EncodeString(obj, "UTF8", NULL, NULL);
         if (!oencoded || oencoded == Py_None) {
             Py_XDECREF(oencoded);
             oencoded = NULL;
@@ -755,13 +755,13 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 fileobject:
     if (font == NULL) {
 #if FONT_HAVE_RWOPS
-        SDL_RWops *rw = pgRWopsFromFileObject(obj);
+        SDL_RWops *rw = pgRWops_FromFileObject(obj);
 
         if (rw == NULL) {
             goto error;
         }
 
-        if (pgRWopsCheckObject(rw)) {
+        if (pgRWops_IsFileObject(rw)) {
             font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
         }
         else {
