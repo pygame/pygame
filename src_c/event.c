@@ -19,7 +19,7 @@
   Pete Shinners
   pete@shinners.org
 */
-
+    
 /*
  *  pygame event module
  */
@@ -375,6 +375,14 @@ _pg_name_from_eventtype(int type)
             return "TextInput";
         case SDL_TEXTEDITING:
             return "TextEditing";
+        case SDL_DROPFILE:
+            return "DropFile";
+        case SDL_DROPTEXT:
+            return "DropText";
+        case SDL_DROPBEGIN:
+            return "DropBegin";
+        case SDL_DROPCOMPLETE:
+            return "DropComplete";
         case SDL_CONTROLLERAXISMOTION:
             return "ControllerAxisMotion";
         case SDL_CONTROLLERBUTTONDOWN:
@@ -386,7 +394,7 @@ _pg_name_from_eventtype(int type)
         case SDL_CONTROLLERDEVICEREMOVED:
             return "ControllerDeviceRemoved";
         case SDL_CONTROLLERDEVICEREMAPPED:
-            return "ControllerDeviceMapped";
+            return "ControllerDeviceMapped";        
 #endif
 
     }
@@ -644,28 +652,40 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
+        /*  https://wiki.libsdl.org/SDL_DropEvent */
+        case SDL_DROPFILE:
+            _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
+            SDL_free(event->drop.file);
+            break;
+        case SDL_DROPTEXT:
+            _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
+            SDL_free(event->drop.file);
+            break;
+        case SDL_DROPBEGIN:
+        case SDL_DROPCOMPLETE:
+            break;
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->caxis.which));
+            _pg_insobj(dict, "joy", PyLong_FromLong(event->caxis.which));
             _pg_insobj(dict, "axis", PyLong_FromLong(event->caxis.axis));
             _pg_insobj(dict, "value", PyLong_FromLong(event->caxis.value));
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
             /* https://wiki.libsdl.org/SDL_ControllerButtonEvent */
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->cbutton.which));
+            _pg_insobj(dict, "joy", PyLong_FromLong(event->cbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
             break;
         case SDL_CONTROLLERDEVICEADDED:
         case SDL_CONTROLLERDEVICEREMOVED:
         case SDL_CONTROLLERDEVICEREMAPPED:
             /* https://wiki.libsdl.org/SDL_ControllerDeviceEvent */
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "joy", PyLong_FromLong(event->cdevice.which));
             break;
 #endif
 
 
-#if IS_SDLv1
+#if IS_SDLv1    
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
             _pg_insobj(dict, "size", obj);
