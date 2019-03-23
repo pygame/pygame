@@ -1098,20 +1098,27 @@ class LayeredDirty(LayeredUpdates):
                 if 1 > spr.dirty:
                     if spr._visible:
                         # sprite not dirty; blit only the intersecting part
-                        _spr_rect = spr.rect
-                        _spr_rect_clip = _spr_rect.clip
-                        source_rect_offset_x = 0
-                        source_rect_offset_y = 0
                         if spr.source_rect is not None:
-                            source_rect_offset_x = spr.source_rect[0]
-                            source_rect_offset_y = spr.source_rect[1]
+                            # For possible future speed up, source_rect's data
+                            # can be prefetched outside of this loop.
+                            _spr_rect = _rect(spr.rect.topleft,
+                                              spr.source_rect.size)
+                            rect_offset_x = spr.source_rect[0] - _spr_rect[0]
+                            rect_offset_y = spr.source_rect[1] - _spr_rect[1]
+                        else:
+                            _spr_rect = spr.rect
+                            rect_offset_x = -_spr_rect[0]
+                            rect_offset_y = -_spr_rect[1]
+
+                        _spr_rect_clip = _spr_rect.clip
+
                         for idx in _spr_rect.collidelistall(_update):
                             # clip
                             clip = _spr_rect_clip(_update[idx])
                             _surf_blit(spr.image,
                                        clip,
-                                       (clip[0] - _spr_rect[0] + source_rect_offset_x,
-                                        clip[1] - _spr_rect[1] + source_rect_offset_y,
+                                       (clip[0] + rect_offset_x,
+                                        clip[1] + rect_offset_y,
                                         clip[2],
                                         clip[3]),
                                        spr.blendmode)
