@@ -669,7 +669,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 static PyObject *
 pg_get_error(PyObject *self, PyObject *args)
 {
-#if IS_SDLv1 && PY3
+#if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
     /* SDL 1's encoding is ambiguous */
     PyObject *obj;
     if (obj = PyUnicode_DecodeUTF8(SDL_GetError(),
@@ -686,7 +686,7 @@ static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
-#if PY2
+#if PY2 || defined(PYPY_VERSION)
     if (!PyArg_ParseTuple(args, "es",
                           "UTF-8", &errstring))
     {
