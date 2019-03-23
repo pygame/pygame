@@ -203,7 +203,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     char *scrap = NULL;
     PyObject *retval;
     char *scrap_type;
-    PyObject *val;
     unsigned long count;
 
     PYGAME_SCRAP_INIT_CHECK();
@@ -212,17 +211,50 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
         return NULL;
 
     if (!pygame_scrap_lost()) {
-        /* We are still the active one. */
+        /* Still own the clipboard. */
+        PyObject *scrap_dict = NULL;
+        PyObject *key = NULL;
+        PyObject *val = NULL;
+
         switch (_currentmode) {
             case SCRAP_SELECTION:
-                val = PyDict_GetItemString(_selectiondata, scrap_type);
+                scrap_dict = _selectiondata;
                 break;
+
             case SCRAP_CLIPBOARD:
             default:
-                val = PyDict_GetItemString(_clipdata, scrap_type);
+                scrap_dict = _clipdata;
                 break;
         }
-        Py_XINCREF(val);
+
+#if PY3
+        key = PyUnicode_FromString(scrap_type);
+        if (NULL == key) {
+            return PyErr_Format(PyExc_ValueError,
+                                "invalid scrap data type identifier (%s)",
+                                scrap_type);
+        }
+
+        val = PyDict_GetItemWithError(scrap_dict, key);
+        Py_DECREF(key);
+
+        if (NULL == val) {
+            if (PyErr_Occurred()) {
+                return PyErr_Format(PyExc_SystemError,
+                                    "pygame.scrap internal error (key=%s)",
+                                    scrap_type);
+            }
+
+            Py_RETURN_NONE;
+        }
+#else  /* !PY3 */
+        val = PyDict_GetItemString(scrap_dict, scrap_type);
+        if (NULL == val) {
+            Py_RETURN_NONE;
+        }
+#endif /* !PY3 */
+
+        Py_INCREF(val);
         return val;
     }
 
