@@ -99,7 +99,7 @@ applications which query the clipboard for the ``"my_data_type"`` data type.
 .. function:: get
 
    | :sl:`Gets the data for the specified type from the clipboard.`
-   | :sg:`get(type) -> bytes or str`
+   | :sg:`get(type) -> bytes or str or None`
 
    Retrieves the data for the specified type from the clipboard. In python 3
    the data is returned as a byte string and might need further processing
@@ -107,9 +107,9 @@ applications which query the clipboard for the ``"my_data_type"`` data type.
 
    :param string type: data type to retrieve from the clipboard
 
-   :returns: data for the given type or ``None`` if no data for the given type
-      is available
-   :rtype: byte string (python 3) or str (python 2) or None
+   :returns: data (byte string in python 3 or str in python 2) for the given
+      type identifier or ``None`` if no data for the given type is available
+   :rtype: bytes or str or None
 
    ::
 
@@ -155,9 +155,11 @@ applications which query the clipboard for the ``"my_data_type"`` data type.
    ``pygame.SCRAP_PBM``, ``pygame.SCRAP_PPM``, ``pygame.SCRAP_BMP`` or
    ``pygame.SCRAP_TEXT`` values or a user defined string identifier.
 
-   :param string type: type of data to be placed into the clipboard
-   :param data: data, of the given type, to be place into the clipboard
-   :type data: byte string (python 3) or str (python 2)
+   :param string type: type identifier of the data to be placed into the
+      clipboard
+   :param data: data to be place into the clipboard (in python 3 data is a
+      byte string and in python 2 data is a str)
+   :type data: bytes or str
 
    :raises pygame.error: if unable to put the data into the clipboard
 

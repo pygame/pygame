@@ -2,7 +2,7 @@
 #define DOC_PYGAMESCRAP "pygame module for clipboard support."
 #define DOC_PYGAMESCRAPINIT "init() -> None\nInitializes the scrap module."
 #define DOC_PYGAMESCRAPGETINIT "get_init() -> bool\nReturns True if the scrap module is currently initialized."
-#define DOC_PYGAMESCRAPGET "get(type) -> bytes or str\nGets the data for the specified type from the clipboard."
+#define DOC_PYGAMESCRAPGET "get(type) -> bytes or str or None\nGets the data for the specified type from the clipboard."
 #define DOC_PYGAMESCRAPGETTYPES "get_types() -> list\nGets a list of the available clipboard types."
 #define DOC_PYGAMESCRAPPUT "put(type, data) -> None\nPlaces data into the clipboard."
 #define DOC_PYGAMESCRAPCONTAINS "contains(type) -> bool\nChecks whether data for a given type is available in the clipboard."
@@ -26,7 +26,7 @@ pygame.scrap.get_init
 Returns True if the scrap module is currently initialized.
 
 pygame.scrap.get
- get(type) -> bytes or str
+ get(type) -> bytes or str or None
 Gets the data for the specified type from the clipboard.
 
 pygame.scrap.get_types
