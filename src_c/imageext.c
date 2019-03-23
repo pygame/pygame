@@ -104,8 +104,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    /*oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);*/
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    /*oencoded = pg_EncodeFilePath(obj, pgExc_SDLError);*/
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -149,8 +149,8 @@ image_load_ext(PyObject *self, PyObject *arg)
         if (name == NULL) {
             oname = PyObject_GetAttrString(obj, "name");
             if (oname != NULL) {
-                /*oencoded = pgRWopsEncodeFilePath(oname, NULL);*/
-                oencoded = pgRWopsEncodeString(oname, "UTF-8", NULL, NULL);
+                /*oencoded = pg_EncodeFilePath(oname, NULL);*/
+                oencoded = pg_EncodeString(oname, "UTF-8", NULL, NULL);
                 Py_DECREF(oname);
                 if (oencoded == NULL) {
                     return NULL;
@@ -163,7 +163,7 @@ image_load_ext(PyObject *self, PyObject *arg)
                 PyErr_Clear();
             }
         }
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             Py_XDECREF(oencoded);
             return NULL;
@@ -801,7 +801,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a string for the file argument: got %.1024s",

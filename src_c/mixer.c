@@ -1649,8 +1649,8 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             if (keys == NULL) {
                 return -1;
             }
-            kencoded = pgRWopsEncodeString(PyList_GET_ITEM(keys, 0), NULL,
-                                           NULL, NULL);
+            kencoded = pg_EncodeString(PyList_GET_ITEM(keys, 0), NULL,
+                                       NULL, NULL);
             Py_DECREF(keys);
             if (kencoded == NULL) {
                 return -1;
@@ -1673,15 +1673,15 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 
     if (file != NULL) {
-        rw = pgRWopsFromObject(file);
+        rw = pgRWops_FromObject(file);
 
         if (rw == NULL) {
-            /* pgRWopsFromObject only raises critical Python exceptions,
+            /* pgRWops_FromObject only raises critical Python exceptions,
                so automatically pass them on.
             */
             return -1;
         }
-        if (pgRWopsCheckObject(rw)) {
+        if (pgRWops_IsFileObject(rw)) {
             chunk = Mix_LoadWAV_RW(rw, 1);
         }
         else {
@@ -1690,7 +1690,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             Py_END_ALLOW_THREADS;
         }
         if (chunk == NULL && obj == NULL) {
-            obj = pgRWopsEncodeString(file, NULL, NULL, NULL);
+            obj = pg_EncodeString(file, NULL, NULL, NULL);
             if (obj != NULL) {
                 if (obj == Py_None) {
                     RAISE(pgExc_SDLError, SDL_GetError());

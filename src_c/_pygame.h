@@ -309,6 +309,23 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 
+typedef struct {
+    Uint32 hw_available:1;
+    Uint32 wm_available:1;
+    Uint32 blit_hw:1;
+    Uint32 blit_hw_CC:1;
+    Uint32 blit_hw_A:1;
+    Uint32 blit_sw:1;
+    Uint32 blit_sw_CC:1;
+    Uint32 blit_sw_A:1;
+    Uint32 blit_fill:1;
+    Uint32 video_mem;
+    SDL_PixelFormat *vfmt;
+    SDL_PixelFormat vfmt_data;
+    int current_w;
+    int current_h;
+} pg_VideoInfo;
+
 #endif /* IS_SDLv2 */
 /* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
@@ -537,10 +554,14 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
-#if IS_SDLv1
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
+
 typedef struct {
+#if IS_SDLv1
     PyObject_HEAD SDL_VideoInfo info;
+#else
+    PyObject_HEAD pg_VideoInfo info;
+#endif
 } pgVidInfoObject;
 
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
@@ -551,15 +572,19 @@ typedef struct {
 
 #define pgVidInfo_Type \
     (*(PyTypeObject *)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
+
+#if IS_SDLv1
 #define pgVidInfo_New                   \
     (*(PyObject * (*)(SDL_VideoInfo *)) \
          PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
-#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
+#else
+#define pgVidInfo_New                   \
+    (*(PyObject * (*)(pg_VideoInfo *)) \
+         PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #endif
 
-#else /* IS_SDLv2 */
-#define PYGAMEAPI_DISPLAY_NUMSLOTS 0
-#endif /* IS_SDLv2 */
+#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
+#endif
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT \
@@ -700,39 +725,25 @@ typedef struct {
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
-#define pgRWopsFromObject           \
-    (*(SDL_RWops * (*)(PyObject *)) \
+#define pgRWops_FromObject           \
+    (*(SDL_RWops * (*)(PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
-#define pgRWopsCheckObject \
+#define pgRWops_IsFileObject \
     (*(int (*)(SDL_RWops *))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
-#define pgRWopsEncodeFilePath                  \
-    (*(PyObject * (*)(PyObject *, PyObject *)) \
+#define pg_EncodeFilePath                       \
+    (*(PyObject * (*)(PyObject *, PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
-#define pgRWopsEncodeString                                                \
-    (*(PyObject * (*)(PyObject *, const char *, const char *, PyObject *)) \
+#define pg_EncodeString                                                     \
+    (*(PyObject * (*)(PyObject *, const char *, const char *, PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
-#define pgRWopsFromFileObject       \
-    (*(SDL_RWops * (*)(PyObject *)) \
+#define pgRWops_FromFileObject       \
+    (*(SDL_RWops * (*)(PyObject *))  \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
-#define pgRWopsReleaseObject       \
-    (*(int (*)(SDL_RWops *))       \
+#define pgRWops_ReleaseObject       \
+    (*(int (*)(SDL_RWops *))        \
          PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
-/* For backward compatibility */
-#ifdef WITH_THREAD
-#define pgRWopsFromFileObjectThreaded pgRWopsFromFileObject
-#define pgRWopsFromObjectThreaded pgRWopsFromObject
-#define pgRWopsCheckObjectThreaded pgRWopsCheckObject
-#else /* ~WITH_THREAD */
-#define pgRWopsFromFileObjectThreaded PG_CHECK_THREADS
-#define pgRWopsFromObjectThreaded PG_CHECK_THREADS
-#define pgRWopsCheckObjectThreaded PG_CHECK_THREADS
-#endif /* ~WITH_THREAD */
-#define RWopsFromPython RWopsFromObject
-#define RWopsCheckPython RWopsCheckObject
-#define RWopsFromPythonThreaded RWopsFromFileObjectThreaded
-#define RWopsCheckPythonThreaded RWopsCheckObjectThreaded
 #endif
 
 /* PixelArray */

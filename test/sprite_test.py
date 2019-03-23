@@ -989,6 +989,115 @@ class LayeredDirtyTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
         group.repaint_rect(pygame.Rect(0, 0, 100, 100))
         group.draw(surface)
 
+    def _nondirty_intersections_redrawn(self, use_source_rect=False):
+        # Helper method to ensure non-dirty sprites are redrawn correctly.
+        #
+        # Parameters:
+        #     use_source_rect - allows non-dirty sprites to be tested
+        #         with (True) and without (False) a source_rect
+        #
+        # This test was written to reproduce the behavior seen in issue #898.
+        # A non-dirty sprite (using source_rect) was being redrawn incorrectly
+        # after a dirty sprite intersected with it.
+        #
+        # This test does the following.
+        # 1. Creates a surface filled with white. Also creates an image_source
+        #    with a default fill color of yellow and adds 2 images to it
+        #    (red and blue rectangles).
+        # 2. Creates 2 DirtySprites (red_sprite and blue_sprite) using the
+        #    image_source and adds them to a LayeredDirty group.
+        # 3. Moves the red_sprite and calls LayeredDirty.draw(surface) a few
+        #    times.
+        # 4. Checks to make sure the sprites were redrawn correctly.
+        RED = pygame.Color('red')
+        BLUE = pygame.Color('blue')
+        WHITE = pygame.Color('white')
+        YELLOW = pygame.Color('yellow')
+
+        surface = pygame.Surface((60, 80))
+        surface.fill(WHITE)
+        start_pos = (10, 10)
+
+        # These rects define each sprite's image area in the image_source.
+        red_sprite_source = pygame.Rect((45, 0), (5, 4))
+        blue_sprite_source = pygame.Rect((0, 40), (20, 10))
+
+        # Create a source image/surface.
+        image_source = pygame.Surface((50, 50))
+        image_source.fill(YELLOW)
+        image_source.fill(RED, red_sprite_source)
+        image_source.fill(BLUE, blue_sprite_source)
+
+        # The blue_sprite is stationary and will not reset its dirty flag. It
+        # will be the non-dirty sprite in this test. Its values are dependent
+        # on the use_source_rect flag.
+        blue_sprite = pygame.sprite.DirtySprite(self.LG)
+
+        if use_source_rect:
+            blue_sprite.image = image_source
+            # The rect is a bit smaller than the source_rect to make sure
+            # LayeredDirty.draw() is using the correct dimensions.
+            blue_sprite.rect = pygame.Rect(start_pos,
+                (blue_sprite_source.w - 7, blue_sprite_source.h - 7))
+            blue_sprite.source_rect = blue_sprite_source
+            start_x, start_y = blue_sprite.rect.topleft
+            end_x = start_x + blue_sprite.source_rect.w
+            end_y = start_y + blue_sprite.source_rect.h
+        else:
+            blue_sprite.image = image_source.subsurface(blue_sprite_source)
+            blue_sprite.rect = pygame.Rect(start_pos, blue_sprite_source.size)
+            start_x, start_y = blue_sprite.rect.topleft
+            end_x, end_y = blue_sprite.rect.bottomright
+
+        # The red_sprite is moving and will always be dirty.
+        red_sprite = pygame.sprite.DirtySprite(self.LG)
+        red_sprite.image = image_source
+        red_sprite.rect = pygame.Rect(start_pos, red_sprite_source.size)
+        red_sprite.source_rect = red_sprite_source
+        red_sprite.dirty = 2
+
+        # Draw the red_sprite as it moves a few steps.
+        for _ in range(4):
+            red_sprite.rect.move_ip(2, 1)
+
+            # This is the method being tested.
+            self.LG.draw(surface)
+
+        # Check colors where the blue_sprite is drawn. We expect red where the
+        # red_sprite is drawn over the blue_sprite, but the rest should be
+        # blue.
+        surface.lock()  # Lock surface for possible speed up.
+        try:
+            for y in range(start_y, end_y):
+               for x in range(start_x, end_x):
+                    if red_sprite.rect.collidepoint(x, y):
+                        expected_color = RED
+                    else:
+                        expected_color = BLUE
+
+                    color = surface.get_at((x, y))
+
+                    self.assertEqual(color, expected_color,
+                                     'pos=({}, {})'.format(x, y))
+        finally:
+            surface.unlock()
+
+    def test_nondirty_intersections_redrawn(self):
+        """Ensure non-dirty sprites are correctly redrawn
+        when dirty sprites intersect with them.
+        """
+        self._nondirty_intersections_redrawn()
+
+    @unittest.expectedFailure
+    def test_nondirty_intersections_redrawn__with_source_rect(self):
+        """Ensure non-dirty sprites using source_rects are correctly redrawn
+        when dirty sprites intersect with them.
+
+        Related to issue #898.
+        """
+        self._nondirty_intersections_redrawn(True)
+
+
 ############################### SPRITE BASE CLASS ##############################
 #
 # tests common between sprite classes
