@@ -94,7 +94,9 @@ cdef extern from "SDL.h" nogil:
 
     SDL_bool SDL_IsGameController(int joystick_index)
     SDL_JoystickGUID SDL_JoystickGetGUID(SDL_Joystick* joystick)
-    
+
+cdef bint _controller_autoinit()
+cdef void _controller_autoquit()
 
 cdef class Controller:
     cdef SDL_GameController* _controller
