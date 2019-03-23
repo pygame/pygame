@@ -127,7 +127,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: vXkwDVAQH6huxT8mqzRMEZZR8nsJzi/FFS8yZcROuKuvzXQUHLEefXVymN52pu0v # your encrypted token from GitHub
+    secure: lPFSARNb+pYeLKJUzLfSZ9OcSw74R/0vvAjYAkj7OcXOooeHIhIWjNoYDlXZL6hs # your encrypted token from GitHub
   artifact: pypiartifacts
   draft: true
   prerelease: false
