@@ -36,7 +36,14 @@
 /* Text interface. Use unicode strings. */
 #define Text_Type PyUnicode_Type
 #define Text_Check PyUnicode_Check
+
+#ifndef PYPY_VERSION
 #define Text_FromLocale(s) PyUnicode_DecodeLocale((s), "strict")
+#else /* PYPY_VERSION */
+/* workaround: missing function for pypy */
+#define Text_FromLocale PyUnicode_FromString
+#endif /* PYPY_VERSION */
+
 #define Text_FromUTF8 PyUnicode_FromString
 #define Text_FromUTF8AndSize PyUnicode_FromStringAndSize
 #define Text_FromFormat PyUnicode_FromFormat
