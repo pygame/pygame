@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-FLAC=flac-1.3.1
+FLAC=flac-1.3.2
 
 curl -sL http://downloads.xiph.org/releases/flac/${FLAC}.tar.xz > ${FLAC}.tar.xz
 sha512sum -c flac.sha512

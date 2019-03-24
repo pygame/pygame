@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-ALSA=alsa-lib-1.1.3
+ALSA=alsa-lib-1.1.8
 
 curl -sL ftp://ftp.alsa-project.org/pub/lib/${ALSA}.tar.bz2 > ${ALSA}.tar.bz2
 sha512sum -c alsa.sha512
