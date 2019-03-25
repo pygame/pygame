@@ -245,7 +245,7 @@ class DirtySprite(Sprite):
         the screen.)
 
     _layer = 0
-        0 is the default value but this is able to be set differently 
+        0 is the default value but this is able to be set differently
         when subclassing.
 
     """
@@ -256,7 +256,7 @@ class DirtySprite(Sprite):
         self.blendmode = 0  # pygame 1.8, referred to as special_flags in
                             # the documentation of Surface.blit
         self._visible = 1
-        self._layer = getattr(self, '_layer', 0)    # Default 0 unless 
+        self._layer = getattr(self, '_layer', 0)    # Default 0 unless
                                                     # initialized differently.
         self.source_rect = None
         Sprite.__init__(self, *groups)
@@ -1098,18 +1098,27 @@ class LayeredDirty(LayeredUpdates):
                 if 1 > spr.dirty:
                     if spr._visible:
                         # sprite not dirty; blit only the intersecting part
-                        _spr_rect = spr.rect
                         if spr.source_rect is not None:
-                            _spr_rect = Rect(spr.rect.topleft,
-                                             spr.source_rect.size)
+                            # For possible future speed up, source_rect's data
+                            # can be prefetched outside of this loop.
+                            _spr_rect = _rect(spr.rect.topleft,
+                                              spr.source_rect.size)
+                            rect_offset_x = spr.source_rect[0] - _spr_rect[0]
+                            rect_offset_y = spr.source_rect[1] - _spr_rect[1]
+                        else:
+                            _spr_rect = spr.rect
+                            rect_offset_x = -_spr_rect[0]
+                            rect_offset_y = -_spr_rect[1]
+
                         _spr_rect_clip = _spr_rect.clip
+
                         for idx in _spr_rect.collidelistall(_update):
                             # clip
                             clip = _spr_rect_clip(_update[idx])
                             _surf_blit(spr.image,
                                        clip,
-                                       (clip[0] - _spr_rect[0],
-                                        clip[1] - _spr_rect[1],
+                                       (clip[0] + rect_offset_x,
+                                        clip[1] + rect_offset_y,
                                         clip[2],
                                         clip[3]),
                                        spr.blendmode)
@@ -1368,17 +1377,17 @@ def collide_circle(left, right):
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
     distancesquared = xdistance ** 2 + ydistance ** 2
-    
+
     if hasattr(left, 'radius'):
         leftradius = left.radius
     else:
         leftrect = left.rect
-        # approximating the radius of a square by using half of the diagonal, 
+        # approximating the radius of a square by using half of the diagonal,
         # might give false positives (especially if its a long small rect)
         leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
         # store the radius on the sprite for next time
         setattr(left, 'radius', leftradius)
-        
+
     if hasattr(right, 'radius'):
         rightradius = right.radius
     else:
@@ -1407,7 +1416,7 @@ class collide_circle_ratio(object):
 
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
-        
+
         When the ratio is ratio=1.0, then it behaves exactly like the 
         collide_circle method.
 
@@ -1576,6 +1585,7 @@ def spritecollideany(sprite, group, collided=None):
     indicating if they are colliding. If collided is not passed, then all
     sprites must have a "rect" value, which is a rectangle of the sprite area,
     which will be used to calculate the collision.
+
 
     """
     if collided:

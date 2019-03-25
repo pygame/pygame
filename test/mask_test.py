@@ -1,9 +1,11 @@
+from collections import OrderedDict
+import random
 import unittest
+
 import pygame
 import pygame.mask
 from pygame.locals import *
 
-import random
 
 def random_mask(size = (100,100)):
     """random_mask(size=(100,100)): return Mask
@@ -34,12 +36,18 @@ class MaskTypeTest(unittest.TestCase):
     ORIGIN_OFFSETS = ((0, 0), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1),
                       (-1, -1), (-1, 0), (-1, 1))
 
-    def assertMaskEquals(self, m1, m2):
-        self.assertEqual(m1.get_size(), m2.get_size())
+    def _assertMaskEqual(self, m1, m2, msg=None):
+        # Checks to see if the 2 given masks are equal.
+        m1_count = m1.count()
 
-        for i in range(m1.get_size()[0]):
-            for j in range(m1.get_size()[1]):
-                self.assertEqual(m1.get_at((i,j)), m2.get_at((i,j)))
+        self.assertEqual(m1.get_size(), m2.get_size(), msg=msg)
+        self.assertEqual(m1_count, m2.count(), msg=msg)
+        self.assertEqual(m1_count, m1.overlap_area(m2, (0, 0)), msg=msg)
+
+        # This can be used to help debug exact locations.
+        ##for i in range(m1.get_size()[0]):
+        ##    for j in range(m1.get_size()[1]):
+        ##        self.assertEqual(m1.get_at((i, j)), m2.get_at((i, j)))
 
     def test_mask(self):
         """Ensure masks are created correctly without fill parameter."""
@@ -55,7 +63,7 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(mask2.get_size(), expected_size)
 
     def test_mask__negative_size(self):
-        """Ensure the mask contructor handles negative sizes correctly."""
+        """Ensure the mask constructor handles negative sizes correctly."""
         for size in ((1, -1), (-1, 1), (-1, -1)):
             with self.assertRaises(ValueError):
                 mask = pygame.Mask(size)
@@ -215,25 +223,40 @@ class MaskTypeTest(unittest.TestCase):
         with self.assertRaises(IndexError):
             mask.set_at((0, -1))
 
-    def todo_test_overlap(self):
-        """Ensure the overlap intersection is correctly calculated."""
+    def test_overlap(self):
+        """Ensure the overlap intersection is correctly calculated.
 
-        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.overlap:
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 overlap 1 (mask2-filled)
+            (mask1-empty)  0 overlap 1 (mask2-filled)
+            (mask1-filled) 1 overlap 0 (mask2-empty)
+            (mask1-empty)  0 overlap 0 (mask2-empty)
+        """
+        expected_size = (4, 4)
+        offset = (0, 0)
+        expected_default = None
+        expected_overlaps = {(True, True) : offset}
 
-          # Mask.overlap(othermask, offset) -> x,y
-          # Returns the point of intersection if the masks overlap with the
-          # given offset - or None if it does not overlap.
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
 
-          # The overlap tests uses the following offsets (which may be negative):
-          #    +----+----------..
-          #    |A   | yoffset
-          #    |  +-+----------..
-          #    +--|B
-          #    |xoffset
-          #    |  |
-          #    :  :
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                mask1_count = mask1.count()
+                expected_pos = expected_overlaps.get(key, expected_default)
 
-        self.fail()
+                overlap_pos = mask1.overlap(mask2, offset)
+
+                self.assertEqual(overlap_pos, expected_pos, msg)
+
+                # Ensure mask1/mask2 unchanged.
+                self.assertEqual(mask1.count(), mask1_count, msg)
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask1.get_size(), expected_size, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_overlap__offset(self):
         """Ensure an offset overlap intersection is correctly calculated."""
@@ -322,12 +345,63 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.get_size(), mask2_size, msg)
             self.assertEqual(mask2.get_at(set_pos), 1, msg)
 
-    def todo_test_overlap_area(self):
-        """Ensure the overlap area is correctly calculated."""
-        self.fail()
+    def test_overlap__invalid_mask_arg(self):
+        """Ensure overlap handles invalid mask arguments correctly."""
+        size = (5, 3)
+        offset = (0, 0)
+        mask = pygame.mask.Mask(size)
+        invalid_mask = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            overlap_pos = mask.overlap(invalid_mask, offset)
+
+    def test_overlap__invalid_offset_arg(self):
+        """Ensure overlap handles invalid offset arguments correctly."""
+        size = (2, 7)
+        offset = '(0, 0)'
+        mask1 = pygame.mask.Mask(size)
+        mask2 = pygame.mask.Mask(size)
+
+        with self.assertRaises(TypeError):
+            overlap_pos = mask1.overlap(mask2, offset)
+
+    def test_overlap_area(self):
+        """Ensure the overlap_area is correctly calculated.
+
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 overlap_area 1 (mask2-filled)
+            (mask1-empty)  0 overlap_area 1 (mask2-filled)
+            (mask1-filled) 1 overlap_area 0 (mask2-empty)
+            (mask1-empty)  0 overlap_area 0 (mask2-empty)
+        """
+        expected_size = width, height = (4, 4)
+        offset = (0, 0)
+        expected_default = 0
+        expected_counts = {(True, True) : width * height}
+
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
+
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                mask1_count = mask1.count()
+                expected_count = expected_counts.get(key, expected_default)
+
+                overlap_count = mask1.overlap_area(mask2, offset)
+
+                self.assertEqual(overlap_count, expected_count, msg)
+
+                # Ensure mask1/mask2 unchanged.
+                self.assertEqual(mask1.count(), mask1_count, msg)
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask1.get_size(), expected_size, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_overlap_area__offset(self):
-        """Ensure an offset overlap area is correctly calculated."""
+        """Ensure an offset overlap_area is correctly calculated."""
         mask1 = pygame.mask.Mask((65, 3), fill=True)
         mask2 = pygame.mask.Mask((66, 4), fill=True)
         mask1_count = mask1.count()
@@ -355,9 +429,61 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask1.get_size(), mask1_size, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
 
-    def todo_test_overlap_mask(self):
-        """Ensure overlap_mask's mask has correct bits set."""
-        self.fail()
+    def test_overlap_area__invalid_mask_arg(self):
+        """Ensure overlap_area handles invalid mask arguments correctly."""
+        size = (3, 5)
+        offset = (0, 0)
+        mask = pygame.mask.Mask(size)
+        invalid_mask = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            overlap_count = mask.overlap_area(invalid_mask, offset)
+
+    def test_overlap_area__invalid_offset_arg(self):
+        """Ensure overlap_area handles invalid offset arguments correctly."""
+        size = (7, 2)
+        offset = '(0, 0)'
+        mask1 = pygame.mask.Mask(size)
+        mask2 = pygame.mask.Mask(size)
+
+        with self.assertRaises(TypeError):
+            overlap_count = mask1.overlap_area(mask2, offset)
+
+    def test_overlap_mask(self):
+        """Ensure overlap_mask's mask has correct bits set.
+
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 overlap_mask 1 (mask2-filled)
+            (mask1-empty)  0 overlap_mask 1 (mask2-filled)
+            (mask1-filled) 1 overlap_mask 0 (mask2-empty)
+            (mask1-empty)  0 overlap_mask 0 (mask2-empty)
+        """
+        expected_size = (4, 4)
+        offset = (0, 0)
+        expected_default = pygame.mask.Mask(expected_size)
+        expected_masks = {
+            (True, True) : pygame.mask.Mask(expected_size, fill=True)}
+
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
+
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                mask1_count = mask1.count()
+                expected_mask = expected_masks.get(key, expected_default)
+
+                overlap_mask = mask1.overlap_mask(mask2, offset)
+
+                self._assertMaskEqual(overlap_mask, expected_mask, msg)
+
+                # Ensure mask1/mask2 unchanged.
+                self.assertEqual(mask1.count(), mask1_count, msg)
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask1.get_size(), expected_size, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_overlap_mask__bits_set(self):
         """Ensure overlap_mask's mask has correct bits set."""
@@ -415,6 +541,26 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.count(), mask2_count, msg)
             self.assertEqual(mask1.get_size(), expected_size, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
+
+    def test_overlap_mask__invalid_mask_arg(self):
+        """Ensure overlap_mask handles invalid mask arguments correctly."""
+        size = (3, 2)
+        offset = (0, 0)
+        mask = pygame.mask.Mask(size)
+        invalid_mask = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            overlap_mask = mask.overlap_mask(invalid_mask, offset)
+
+    def test_overlap_mask__invalid_offset_arg(self):
+        """Ensure overlap_mask handles invalid offset arguments correctly."""
+        size = (5, 2)
+        offset = '(0, 0)'
+        mask1 = pygame.mask.Mask(size)
+        mask2 = pygame.mask.Mask(size)
+
+        with self.assertRaises(TypeError):
+            overlap_mask = mask1.overlap_mask(mask2, offset)
 
     def test_mask_access( self ):
         """ do the set_at, and get_at parts work correctly?
@@ -554,9 +700,37 @@ class MaskTypeTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             mask.scale((10, -1))
 
-    def todo_test_draw(self):
-        """Ensure a mask can be drawn onto another mask."""
-        self.fail()
+    def test_draw(self):
+        """Ensure a mask can be drawn onto another mask.
+
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 draw 1 (mask2-filled)
+            (mask1-empty)  0 draw 1 (mask2-filled)
+            (mask1-filled) 1 draw 0 (mask2-empty)
+            (mask1-empty)  0 draw 0 (mask2-empty)
+        """
+        expected_size = (4, 4)
+        offset = (0, 0)
+        expected_default = pygame.mask.Mask(expected_size, fill=True)
+        expected_masks = {(False, False) : pygame.mask.Mask(expected_size)}
+
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
+
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                expected_mask = expected_masks.get(key, expected_default)
+
+                mask1.draw(mask2, offset)
+
+                self._assertMaskEqual(mask1, expected_mask, msg)
+
+                # Ensure mask2 unchanged.
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_draw__offset(self):
         """Ensure an offset mask can be drawn onto another mask."""
@@ -586,9 +760,58 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.count(), mask2_count, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
 
-    def todo_test_erase(self):
-        """Ensure a mask can erase another mask."""
-        self.fail()
+    def test_draw__invalid_mask_arg(self):
+        """Ensure draw handles invalid mask arguments correctly."""
+        size = (7, 3)
+        offset = (0, 0)
+        mask = pygame.mask.Mask(size)
+        invalid_mask = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            mask.draw(invalid_mask, offset)
+
+    def test_draw__invalid_offset_arg(self):
+        """Ensure draw handles invalid offset arguments correctly."""
+        size = (5, 7)
+        offset = '(0, 0)'
+        mask1 = pygame.mask.Mask(size)
+        mask2 = pygame.mask.Mask(size)
+
+        with self.assertRaises(TypeError):
+            mask1.draw(mask2, offset)
+
+    def test_erase(self):
+        """Ensure a mask can erase another mask.
+
+        Testing the different combinations of full/empty masks:
+            (mask1-filled) 1 erase 1 (mask2-filled)
+            (mask1-empty)  0 erase 1 (mask2-filled)
+            (mask1-filled) 1 erase 0 (mask2-empty)
+            (mask1-empty)  0 erase 0 (mask2-empty)
+        """
+        expected_size = (4, 4)
+        offset = (0, 0)
+        expected_default = pygame.mask.Mask(expected_size)
+        expected_masks = {
+                (True, False) : pygame.mask.Mask(expected_size, fill=True)}
+
+        for fill2 in (True, False):
+            mask2 = pygame.mask.Mask(expected_size, fill=fill2)
+            mask2_count = mask2.count()
+
+            for fill1 in (True, False):
+                key = (fill1, fill2)
+                msg = 'key={}'.format(key)
+                mask1 = pygame.mask.Mask(expected_size, fill=fill1)
+                expected_mask = expected_masks.get(key, expected_default)
+
+                mask1.erase(mask2, offset)
+
+                self._assertMaskEqual(mask1, expected_mask, msg)
+
+                # Ensure mask2 unchanged.
+                self.assertEqual(mask2.count(), mask2_count, msg)
+                self.assertEqual(mask2.get_size(), expected_size, msg)
 
     def test_erase__offset(self):
         """Ensure an offset mask can erase another mask."""
@@ -618,6 +841,26 @@ class MaskTypeTest(unittest.TestCase):
             # Ensure mask2 unchanged.
             self.assertEqual(mask2.count(), mask2_count, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
+
+    def test_erase__invalid_mask_arg(self):
+        """Ensure erase handles invalid mask arguments correctly."""
+        size = (3, 7)
+        offset = (0, 0)
+        mask = pygame.mask.Mask(size)
+        invalid_mask = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            mask.erase(invalid_mask, offset)
+
+    def test_erase__invalid_offset_arg(self):
+        """Ensure erase handles invalid offset arguments correctly."""
+        size = (7, 5)
+        offset = '(0, 0)'
+        mask1 = pygame.mask.Mask(size)
+        mask2 = pygame.mask.Mask(size)
+
+        with self.assertRaises(TypeError):
+            mask1.erase(mask2, offset)
 
     def test_count(self):
         """Ensure a mask's set bits are correctly counted."""
@@ -747,8 +990,8 @@ class MaskTypeTest(unittest.TestCase):
         k = pygame.Mask((1,1))
         k.set_at((0,0))
 
-        self.assertMaskEquals(m,m.convolve(k))
-        self.assertMaskEquals(m,k.convolve(k.convolve(m)))
+        self._assertMaskEqual(m, m.convolve(k))
+        self._assertMaskEqual(m, k.convolve(k.convolve(m)))
 
     def test_convolve__with_output(self):
         """checks that convolution modifies only the correct portion of the output"""
@@ -762,14 +1005,14 @@ class MaskTypeTest(unittest.TestCase):
 
         m.convolve(k,o)
         test.draw(m,(1,1))
-        self.assertMaskEquals(o, test)
+        self._assertMaskEqual(o, test)
 
         o.clear()
         test.clear()
 
         m.convolve(k,o, (10,10))
         test.draw(m,(11,11))
-        self.assertMaskEquals(o, test)
+        self._assertMaskEqual(o, test)
 
     def test_convolve__out_of_range(self):
         full = pygame.Mask((2, 2), fill=True)
@@ -1334,9 +1577,45 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(points, expected_points,
                                  'size={}'.format(size))
 
-    def todo_test_zero_mask_convolve(self):
-        """Ensures convolve correctly handles zero sized masks."""
-        self.fail()
+    def test_zero_mask_convolve(self):
+        """Ensures convolve correctly handles zero sized masks.
+
+        Tests the different combinations of sized and zero sized masks.
+        """
+        for size1 in ((17, 13), (71, 0), (0, 70), (0, 0)):
+            mask1 = pygame.mask.Mask(size1, fill=True)
+
+            for size2 in ((11, 7), (81, 0), (0, 60), (0, 0)):
+                msg = 'sizes={}, {}'.format(size1, size2)
+                mask2 = pygame.mask.Mask(size2, fill=True)
+                expected_size = (max(0, size1[0] + size2[0] - 1),
+                                 max(0, size1[1] + size2[1] - 1))
+
+                mask = mask1.convolve(mask2)
+
+                self.assertIsNot(mask, mask2, msg)
+                self.assertEqual(mask.get_size(), expected_size, msg)
+
+    def test_zero_mask_convolve__with_output_mask(self):
+        """Ensures convolve correctly handles zero sized masks
+        when using an output mask argument.
+
+        Tests the different combinations of sized and zero sized masks.
+        """
+        for size1 in ((11, 17), (91, 0), (0, 90), (0, 0)):
+            mask1 = pygame.mask.Mask(size1, fill=True)
+
+            for size2 in ((13, 11), (83, 0), (0, 62), (0, 0)):
+                mask2 = pygame.mask.Mask(size2, fill=True)
+
+                for output_size in ((7, 5), (71, 0), (0, 70), (0, 0)):
+                    msg = 'sizes={}, {}, {}'.format(size1, size2, output_size)
+                    output_mask = pygame.mask.Mask(output_size)
+
+                    mask = mask1.convolve(mask2, output_mask)
+
+                    self.assertIs(mask, output_mask, msg)
+                    self.assertEqual(mask.get_size(), output_size, msg)
 
     def test_zero_mask_connected_component(self):
         """Ensures connected_component correctly handles zero sized masks."""
@@ -1386,39 +1665,182 @@ class MaskTypeTest(unittest.TestCase):
 
 
 class MaskModuleTest(unittest.TestCase):
+    # The @unittest.expectedFailure decorator can be removed when issue #897
+    # is fixed.
+    @unittest.expectedFailure
     def test_from_surface(self):
-        """  Does the mask.from_surface() work correctly?
+        """Ensures from_surface creates a mask with the correct bits set.
+
+        This test checks the masks created by the from_surface function using
+        16 and 32 bit surfaces. Each alpha value (0-255) is tested against
+        several different threshold values.
+        Note: On 16 bit surface the requested alpha value can differ from what
+              is actually set. This test uses the value read from the surface.
         """
+        threshold_count = 256
+        surface_color = [55, 155, 255, 0]
+        expected_size = (11, 9)
+        all_set_count = expected_size[0] * expected_size[1]
+        none_set_count = 0
 
-        mask_from_surface = pygame.mask.from_surface
+        for depth in (16, 32):
+            surface = pygame.Surface(expected_size, SRCALPHA, depth)
 
-        surf = pygame.Surface((70,70), SRCALPHA, 32)
+            for alpha in range(threshold_count):
+                surface_color[3] = alpha
+                surface.fill(surface_color)
 
-        surf.fill((255,255,255,255))
+                if depth < 32:
+                    # On surfaces with depths < 32 the requested alpha can be
+                    # different than what gets set. Use the value read from the
+                    # surface.
+                    alpha = surface.get_at((0, 0))[3]
 
-        amask = pygame.mask.from_surface(surf)
-        #amask = mask_from_surface(surf)
+                # Test the mask created at threshold values low, high and
+                # around alpha.
+                threshold_test_values = set(
+                    [-1, 0, alpha - 1, alpha, alpha + 1, 255, 256])
 
-        self.assertEqual(amask.get_at((0,0)), 1)
-        self.assertEqual(amask.get_at((66,1)), 1)
-        self.assertEqual(amask.get_at((69,1)), 1)
+                for threshold in threshold_test_values:
+                    msg = 'depth={}, alpha={}, threshold={}'.format(
+                        depth, alpha, threshold)
 
-        surf.set_at((0,0), (255,255,255,127))
-        surf.set_at((1,0), (255,255,255,128))
-        surf.set_at((2,0), (255,255,255,0))
-        surf.set_at((3,0), (255,255,255,255))
+                    if alpha > threshold:
+                        expected_count = all_set_count
+                    else:
+                        expected_count = none_set_count
 
-        amask = mask_from_surface(surf)
-        self.assertEqual(amask.get_at((0,0)), 0)
-        self.assertEqual(amask.get_at((1,0)), 1)
-        self.assertEqual(amask.get_at((2,0)), 0)
-        self.assertEqual(amask.get_at((3,0)), 1)
+                    mask = pygame.mask.from_surface(surface, threshold)
 
-        surf.fill((255,255,255,0))
-        amask = mask_from_surface(surf)
-        self.assertEqual(amask.get_at((0,0)), 0)
+                    self.assertEqual(mask.get_size(), expected_size, msg)
+                    self.assertEqual(mask.count(), expected_count, msg)
 
-        #TODO: test a color key surface.
+    def test_from_surface__different_alphas_32bit(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when pixels have different alpha values (32 bits surfaces).
+
+        This test checks the masks created by the from_surface function using
+        a 32 bit surface. The surface is created with each pixel having a
+        different alpha value (0-255). This surface is tested over a range
+        of threshold values (0-255).
+        """
+        offset = (0, 0)
+        threshold_count = 256
+        surface_color = [10, 20, 30, 0]
+        expected_size = (threshold_count, 1)
+        expected_mask = pygame.Mask(expected_size, fill=True)
+        surface = pygame.Surface(expected_size, SRCALPHA, 32)
+
+        # Give each pixel a different alpha.
+        surface.lock()  # Lock for possible speed up.
+        for a in range(threshold_count):
+            surface_color[3] = a
+            surface.set_at((a, 0), surface_color)
+        surface.unlock()
+
+        # Test the mask created for each different alpha threshold.
+        for threshold in range(threshold_count):
+            msg = 'threshold={}'.format(threshold)
+            expected_mask.set_at((threshold, 0), 0)
+            expected_count = expected_mask.count()
+
+            mask = pygame.mask.from_surface(surface, threshold)
+
+            self.assertEqual(mask.get_size(), expected_size, msg)
+            self.assertEqual(mask.count(), expected_count, msg)
+            self.assertEqual(mask.overlap_area(expected_mask, offset),
+                             expected_count, msg)
+
+    # The @unittest.expectedFailure decorator can be removed when issue #897
+    # is fixed.
+    @unittest.expectedFailure
+    def test_from_surface__different_alphas_16bit(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when pixels have different alpha values (16 bit surfaces).
+
+        This test checks the masks created by the from_surface function using
+        a 16 bit surface. Each pixel of the surface is set with a different
+        alpha value (0-255), but since this is a 16 bit surface the requested
+        alpha value can differ from what is actually set. The resulting surface
+        will have groups of alpha values which complicates the test as the
+        alpha groups will all be set/unset at a given threshold. The setup
+        calculates these groups and an expected mask for each. This test data
+        is then used to test each alpha grouping over a range of threshold
+        values.
+        """
+        threshold_count = 256
+        surface_color = [110, 120, 130, 0]
+        expected_size = (threshold_count, 1)
+        surface = pygame.Surface(expected_size, SRCALPHA, 16)
+
+        # Give each pixel a different alpha.
+        surface.lock()  # Lock for possible speed up.
+        for a in range(threshold_count):
+            surface_color[3] = a
+            surface.set_at((a, 0), surface_color)
+        surface.unlock()
+
+        alpha_thresholds = OrderedDict()
+        special_thresholds = set()
+
+        # Create the threshold ranges and identify any thresholds that need
+        # special handling.
+        for threshold in range(threshold_count):
+            # On surfaces with depths < 32 the requested alpha can be different
+            # than what gets set. Use the value read from the surface.
+            alpha = surface.get_at((threshold, 0))[3]
+
+            if alpha not in alpha_thresholds:
+                alpha_thresholds[alpha] = [threshold]
+            else:
+                alpha_thresholds[alpha].append(threshold)
+
+            if threshold < alpha:
+                special_thresholds.add(threshold)
+
+        # Use each threshold group to create an expected mask.
+        test_data = []  # [(from_threshold, to_threshold, expected_mask), ...]
+        offset = (0, 0)
+        erase_mask = pygame.Mask(expected_size)
+        exp_mask = pygame.Mask(expected_size, fill=True)
+
+        for thresholds in alpha_thresholds.values():
+            for threshold in thresholds:
+                if threshold in special_thresholds:
+                    # Any special thresholds just reuse previous exp_mask.
+                    test_data.append((threshold, threshold + 1, exp_mask))
+                else:
+                    to_threshold = thresholds[-1] + 1
+
+                    # Make the expected mask by erasing the unset bits.
+                    for thres in range(to_threshold):
+                        erase_mask.set_at((thres, 0), 1)
+
+                    exp_mask = pygame.Mask(expected_size, fill=True)
+                    exp_mask.erase(erase_mask, offset)
+                    test_data.append((threshold, to_threshold, exp_mask))
+                    break
+
+        # All the setup is done. Now test the masks created over the threshold
+        # ranges.
+        for from_threshold, to_threshold, expected_mask in test_data:
+            expected_count = expected_mask.count()
+
+            for threshold in range(from_threshold, to_threshold):
+                msg = 'threshold={}'.format(threshold)
+
+                mask = pygame.mask.from_surface(surface, threshold)
+
+                self.assertEqual(mask.get_size(), expected_size, msg)
+                self.assertEqual(mask.count(), expected_count, msg)
+                self.assertEqual(mask.overlap_area(expected_mask, offset),
+                                 expected_count, msg)
+
+    def todo_test_from_surface__with_colorkey(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when the surface uses a colorkey.
+        """
+        self.fail()
 
     def test_from_threshold(self):
         """ Does mask.from_threshold() work correctly?
@@ -1448,14 +1870,13 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
     def test_zero_size_from_surface(self):
-        zero_w_mask = pygame.mask.from_surface(pygame.Surface((0, 100)))
-        self.assertEqual(zero_w_mask.get_size(), (0, 100))
+        """Ensures from_surface can create masks from zero sized surfaces."""
+        for size in ((100, 0), (0, 100), (0, 0)):
+            mask = pygame.mask.from_surface(pygame.Surface(size))
 
-        zero_h_mask = pygame.mask.from_surface(pygame.Surface((100, 0)))
-        self.assertEqual(zero_h_mask.get_size(), (100, 0))
-
-        zero_mask = pygame.mask.from_surface(pygame.Surface((0, 0)))
-        self.assertEqual(zero_mask.get_size(), (0, 0))
+            self.assertIsInstance(mask, pygame.mask.MaskType,
+                                  'size={}'.format(size))
+            self.assertEqual(mask.get_size(), size)
 
     def test_zero_size_from_threshold(self):
         a = [16, 24, 32]

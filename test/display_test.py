@@ -57,62 +57,16 @@ class DisplayModuleTest(unittest.TestCase):
 
         """
 
-    def todo_test_Info(self):
+    def test_Info(self):
+        inf = pygame.display.Info()
+        self.assertNotEqual(inf.current_h, -1)
+        self.assertNotEqual(inf.current_w, -1)
+        #probably have an older SDL than 1.2.10 if -1.
 
-        # __doc__ (as of 2008-08-02) for pygame.display.Info:
-
-          # pygame.display.Info(): return VideoInfo
-          # Create a video display information object
-          #
-          # Creates a simple object containing several attributes to describe
-          # the current graphics environment. If this is called before
-          # pygame.display.set_mode() some platforms can provide information
-          # about the default display mode. This can also be called after
-          # setting the display mode to verify specific display options were
-          # satisfied. The VidInfo object has several attributes:
-          #
-          #   hw:         True if the display is hardware accelerated
-          #   wm:         True if windowed display modes can be used
-          #   video_mem:  The megabytes of video memory on the display. This is 0 if unknown
-          #   bitsize:    Number of bits used to store each pixel
-          #   bytesize:   Number of bytes used to store each pixel
-          #   masks:      Four values used to pack RGBA values into pixels
-          #   shifts:     Four values used to pack RGBA values into pixels
-          #   losses:     Four values used to pack RGBA values into pixels
-          #   blit_hw:    True if hardware Surface blitting is accelerated
-          #   blit_hw_CC: True if hardware Surface colorkey blitting is accelerated
-          #   blit_hw_A:  True if hardware Surface pixel alpha blitting is accelerated
-          #   blit_sw:    True if software Surface blitting is accelerated
-          #   blit_sw_CC: True if software Surface colorkey blitting is accelerated
-          #   blit_sw_A:  True if software Surface pixel alpha blitting is acclerated
-          #   current_h, current_h:  Width and height of the current video mode, or of the
-          #     desktop mode if called before the display.set_mode is called.
-          #     (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
-          #     They are -1 on error, or if an old SDL is being used.
-
-        self.fail()
-
-        if 0: # XXX FIXME
-
-            pygame.init()
-            inf = pygame.display.Info()
-            print ("before a display mode has been set")
-            print (inf)
-
-            self.assertNotEqual(inf.current_h, -1)
-            self.assertNotEqual(inf.current_w, -1)
-            #probably have an older SDL than 1.2.10 if -1.
-
-            screen = pygame.display.set_mode((100,100))
-            inf = pygame.display.Info()
-
-            print (inf)
-
-            self.assertNotEqual(inf.current_h, -1)
-            self.assertEqual(inf.current_h, 100)
-            self.assertEqual(inf.current_w, 100)
-
-            #pygame.quit()
+        screen = pygame.display.set_mode((128,128))
+        inf = pygame.display.Info()
+        self.assertEqual(inf.current_h, 128)
+        self.assertEqual(inf.current_w, 128)
 
     def todo_test_flip(self):
 

@@ -19,7 +19,7 @@
 #define DOC_MASKCENTROID "centroid() -> (x, y)\nReturns the centroid of the pixels in a Mask"
 #define DOC_MASKANGLE "angle() -> theta\nReturns the orientation of the pixels"
 #define DOC_MASKOUTLINE "outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
-#define DOC_MASKCONVOLVE "convolve(othermask, outputmask = None, offset = (0,0)) -> Mask\nReturn the convolution of self with another mask."
+#define DOC_MASKCONVOLVE "convolve(othermask) -> Mask\nconvolve(othermask, outputmask=None, offset=(0,0)) -> Mask\nReturn the convolution of self with another mask."
 #define DOC_MASKCONNECTEDCOMPONENT "connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
 #define DOC_MASKCONNECTEDCOMPONENTS "connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
 #define DOC_MASKGETBOUNDINGRECTS "get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
@@ -110,7 +110,8 @@ pygame.mask.Mask.outline
 list of points outlining an object
 
 pygame.mask.Mask.convolve
- convolve(othermask, outputmask = None, offset = (0,0)) -> Mask
+ convolve(othermask) -> Mask
+ convolve(othermask, outputmask=None, offset=(0,0)) -> Mask
 Return the convolution of self with another mask.
 
 pygame.mask.Mask.connected_component

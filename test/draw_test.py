@@ -1,5 +1,3 @@
-#################################### IMPORTS ###################################
-
 import unittest
 import sys
 
@@ -70,16 +68,49 @@ def border_pos_and_color(surface):
         yield pos, surface.get_at(pos)
 
 
-class DrawEllipseTest(unittest.TestCase):
+class DrawTestCase(unittest.TestCase):
+    """Base class to test draw module functions."""
+    draw_rect    = staticmethod(draw.rect)
+    draw_polygon = staticmethod(draw.polygon)
+    draw_circle  = staticmethod(draw.circle)
+    draw_ellipse = staticmethod(draw.ellipse)
+    draw_arc     = staticmethod(draw.arc)
+    draw_line    = staticmethod(draw.line)
+    draw_lines   = staticmethod(draw.lines)
+    draw_aaline  = staticmethod(draw.aaline)
+    draw_aalines = staticmethod(draw.aalines)
+
+
+class PythonDrawTestCase(unittest.TestCase):
+    """Base class to test draw_py module functions."""
+    # draw_py is currently missing some functions.
+    #draw_rect    = staticmethod(draw_py.draw_rect)
+    draw_polygon = staticmethod(draw_py.draw_polygon)
+    #draw_circle  = staticmethod(draw_py.draw_circle)
+    #draw_ellipse = staticmethod(draw_py.draw_ellipse)
+    #draw_arc     = staticmethod(draw_py.draw_arc)
+    draw_line    = staticmethod(draw_py.draw_line)
+    draw_lines   = staticmethod(draw_py.draw_lines)
+    draw_aaline  = staticmethod(draw_py.draw_aaline)
+    draw_aalines = staticmethod(draw_py.draw_aalines)
+
+
+### Ellipse Testing ###########################################################
+
+class DrawEllipseMixin(object):
+    """Mixin tests for drawing ellipses.
+
+    This class contains all the general ellipse drawing tests.
     """
-    Class for testing ellipse().
-    """
+
     def test_ellipse(self):
         """Tests ellipses of differing sizes on surfaces of differing sizes.
 
         Checks if the number of sides touching the border of the surface is
         correct.
         """
+        if isinstance(self, PythonDrawTestCase):
+            self.skipTest('draw_py.draw_ellipse not supported yet')
 
         left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
         sizes = [(4, 4), (5, 4), (4, 5), (5, 5)]
@@ -89,8 +120,8 @@ class DrawEllipseTest(unittest.TestCase):
             """Test for ellipses with the same size as the surface."""
             surface = pygame.Surface((width, height))
 
-            draw.ellipse(
-                surface, color, (0, 0, width, height), border_width)
+            self.draw_ellipse(surface, color, (0, 0, width, height),
+                              border_width)
 
             # For each of the four borders check if it contains the color
             borders = get_border_values(surface, width, height)
@@ -101,8 +132,8 @@ class DrawEllipseTest(unittest.TestCase):
             """Test for ellipses that aren't the same size as the surface."""
             surface = pygame.Surface((width, height))
 
-            draw.ellipse(surface, color, (left, top, width - 1, height - 1),
-                         border_width)
+            self.draw_ellipse(surface, color,
+                              (left, top, width - 1, height - 1), border_width)
 
             borders = get_border_values(surface, width, height)
 
@@ -118,8 +149,30 @@ class DrawEllipseTest(unittest.TestCase):
                     not_same_size(width, height, border_width, left, top)
 
 
-class LineMixin:
-    """Mixin for testing line(), aaline(), lines() and aalines()."""
+class DrawEllipseTest(DrawEllipseMixin, DrawTestCase):
+    """Test draw module function ellipse.
+
+    This class inherits the general tests from DrawEllipseMixin. It is also
+    the class to add any draw.ellipse specific tests to.
+    """
+
+
+class PythonDrawEllipseTest(DrawEllipseMixin, PythonDrawTestCase):
+    """Test draw_py module function draw_ellipse.
+
+    This class inherits the general tests from DrawEllipseMixin. It is also
+    the class to add any draw_py.draw_ellipse specific tests to.
+    """
+
+
+### Line Testing ##############################################################
+
+class LineMixin(object):
+    """Mixin test for drawing lines and aalines.
+
+    This class contains all the general line/lines/aaline/aalines drawing
+    tests.
+    """
 
     def setUp(self):
         self._colors = ((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255),
@@ -241,27 +294,26 @@ class LineMixin:
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
 
 
-class PythonDrawLineTest(LineMixin, unittest.TestCase):
-    '''Test Python draw functions "aaline", "line", "aalines" and "lines".'''
+class PythonDrawLineTest(LineMixin, DrawTestCase):
+    """Test draw_py module functions: line, lines, aaline, and aalines.
 
-    draw_line = staticmethod(draw_py.draw_line)
-    draw_lines = staticmethod(draw_py.draw_lines)
-    draw_aaline = staticmethod(draw_py.draw_aaline)
-    draw_aalines = staticmethod(draw_py.draw_aalines)
+    This class inherits the general tests from LineMixin. It is also the class
+    to add any draw_py.draw_line/lines/aaline/aalines specific tests to.
+    """
 
-class DrawLineTest(LineMixin, unittest.TestCase):
-    '''Test draw functions "aaline", "line", "aalines" and "lines".'''
 
-    draw_line = staticmethod(draw.line)
-    draw_lines = staticmethod(draw.lines)
-    draw_aaline = staticmethod(draw.aaline)
-    draw_aalines = staticmethod(draw.aalines)
+class DrawLineTest(LineMixin, PythonDrawTestCase):
+    """Test draw module functions: line, lines, aaline, and aalines.
+
+    This class inherits the general tests from LineMixin. It is also the class
+    to add any draw.line/lines/aaline/aalines specific tests to.
+    """
 
     def test_path_data_validation(self):
-        '''Test validation of multi-point drawing methods.
+        """Test validation of multi-point drawing methods.
 
         See bug #521
-        '''
+        """
         surf = pygame.Surface((5, 5))
         rect = pygame.Rect(0, 0, 5, 5)
         bad_values = ('text', b'bytes', 1 + 1j,  # string, bytes, complex,
@@ -351,12 +403,12 @@ class DrawLineTest(LineMixin, unittest.TestCase):
                 draw.polygon(surf, col, points, 0)
 
 
-class AntiAliasedLineMixin:
-    '''Mixin for tests of Anti Aliasing of Lines.
-    This is to be used in two concrete TestCase of C and Python algorithm.
-    '''
+# Using a separate class to test line anti-aliasing.
+class AntiAliasedLineMixin(object):
+    """Mixin tests for line anti-aliasing.
 
-    draw_aaline = None
+    This class contains all the general anti-aliasing line drawing tests.
+    """
 
     def setUp(self):
         self.surface = pygame.Surface((10, 10))
@@ -364,12 +416,14 @@ class AntiAliasedLineMixin:
 
     def _check_antialiasing(self, from_point, to_point, should, check_points,
                             set_endpoints=True):
-        '''Draw a line between two points and check colors of check_points.'''
+        """Draw a line between two points and check colors of check_points."""
         if set_endpoints:
             should[from_point] = should[to_point] = FG_GREEN
 
         def check_one_direction(from_point, to_point, should):
-            self.draw_aaline(FG_GREEN, from_point, to_point)
+            self.draw_aaline(self.surface, FG_GREEN, from_point, to_point,
+                             True)
+
             for pt in check_points:
                 color = should.get(pt, BG_RED)
                 if PY3: # "subTest" is sooo helpful, but does not exist in PY2
@@ -388,7 +442,7 @@ class AntiAliasedLineMixin:
 
     def test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
-        # Horizontal, vertical and diagonal lines should not be antialiased,
+        # Horizontal, vertical and diagonal lines should not be anti-aliased,
         # even with draw.aaline ...
         check_points = [(i, j) for i in range(3, 8) for j in range(3, 8)]
 
@@ -447,11 +501,11 @@ class AntiAliasedLineMixin:
         check_both_directions((5, 3), (4, 7), should)
 
     def test_anti_aliasing_float_coordinates(self):
-        '''Float coordinates should be blended smoothly.'''
+        """Float coordinates should be blended smoothly."""
         check_points = [(i, j) for i in range(5) for j in range(5)]
         brown = (127, 127, 0)
 
-        # 0. identical point : current implemntation does no smoothing...
+        # 0. identical point : current implementation does no smoothing...
         expected = {(1, 2): FG_GREEN}
         self._check_antialiasing((1.5, 2), (1.5, 2), expected,
                                  check_points, set_endpoints=False)
@@ -534,20 +588,24 @@ class AntiAliasedLineMixin:
 
 
 @unittest.expectedFailure
-class AntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
-    '''Line Antialising test for the C algorithm.'''
+class AntiAliasingLineTest(AntiAliasedLineMixin, DrawTestCase):
+    """Test anti-aliasing for draw.
 
-    def draw_aaline(self, color, from_point, to_point):
-        draw.aaline(self.surface, color, from_point, to_point, 1)
+    This class inherits the general tests from AntiAliasedLineMixin. It is
+    also the class to add any anti-aliasing draw specific tests to.
+    """
+
+class PythonAntiAliasingLineTest(AntiAliasedLineMixin, PythonDrawTestCase):
+    """Test anti-aliasing for draw_py.
+
+    This class inherits the general tests from AntiAliasedLineMixin. It is
+    also the class to add any anti-aliasing draw_py specific tests to.
+    """
 
 
-class PythonAntiAliasingLineTest(AntiAliasedLineMixin, unittest.TestCase):
-    '''Line Antialising test for the Python algorithm.'''
+### Draw Module Testing #######################################################
 
-    def draw_aaline(self, color, from_point, to_point):
-        draw_py.draw_aaline(self.surface, color, from_point, to_point, 1)
-
-
+# These tests should eventually be moved to their appropriate mixin/class.
 class DrawModuleTest(unittest.TestCase):
 
     def setUp(self):
@@ -717,37 +775,8 @@ class DrawModuleTest(unittest.TestCase):
         check_white_line((50, 50), (0, 120))
         check_white_line((50, 50), (199, 198))
 
-    def todo_test_arc(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.draw.arc:
-
-          # pygame.draw.arc(Surface, color, Rect, start_angle, stop_angle,
-          # width=1): return Rect
-          #
-          # draw a partial section of an ellipse
-          #
-          # Draws an elliptical arc on the Surface. The rect argument is the
-          # area that the ellipse will fill. The two angle arguments are the
-          # initial and final angle in radians, with the zero on the right. The
-          # width argument is the thickness to draw the outer edge.
-          #
-
-        self.fail()
-
-    def todo_test_circle(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.draw.circle:
-
-          # pygame.draw.circle(Surface, color, pos, radius, width=0): return Rect
-          # draw a circle around a point
-          #
-          # Draws a circular shape on the Surface. The pos argument is the
-          # center of the circle, and radius is the size. The width argument is
-          # the thickness to draw the outer edge. If width is zero then the
-          # circle will be filled.
-          #
-
-        self.fail()
+### Polygon Testing ###########################################################
 
 SQUARE = ([0, 0], [3, 0], [3, 3], [0, 3])
 DIAMOND = [(1, 3), (3, 5), (5, 3), (3, 1)]
@@ -756,13 +785,17 @@ CROSS = ([2, 0], [4, 0], [4, 2], [6, 2],
          [2, 4], [0, 4], [0, 2], [2, 2])
 
 
-class DrawPolygonMixin:
+class DrawPolygonMixin(object):
+    """Mixin tests for drawing polygons.
+
+    This class contains all the general polygon drawing tests.
+    """
 
     def setUp(self):
         self.surface = pygame.Surface((20, 20))
 
     def test_draw_square(self):
-        self.draw_polygon(RED, SQUARE, 0)
+        self.draw_polygon(self.surface, RED, SQUARE, 0)
         # note : there is a discussion (#234) if draw.polygon should include or
         # not the right or lower border; here we stick with current behavior,
         # eg include those borders ...
@@ -772,7 +805,7 @@ class DrawPolygonMixin:
 
     def test_draw_diamond(self):
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        self.draw_polygon(GREEN, DIAMOND, 0)
+        self.draw_polygon(self.surface, GREEN, DIAMOND, 0)
         # this diamond shape is equivalent to its four corners, plus inner square
         for x, y in DIAMOND:
             self.assertEqual(self.surface.get_at((x, y)), GREEN, msg=str((x, y)))
@@ -783,42 +816,42 @@ class DrawPolygonMixin:
     def test_1_pixel_high_or_wide_shapes(self):
         # 1. one-pixel-high, filled
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        self.draw_polygon(GREEN, [(x, 2) for x, _y in CROSS], 0)
-        cross_size = 6 # the maxium x or y coordinate of the cross
+        self.draw_polygon(self.surface, GREEN, [(x, 2) for x, _y in CROSS], 0)
+        cross_size = 6 # the maximum x or y coordinate of the cross
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 1)), RED)
             self.assertEqual(self.surface.get_at((x, 2)), GREEN)
             self.assertEqual(self.surface.get_at((x, 3)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 2. one-pixel-high, not filled
-        self.draw_polygon(GREEN, [(x, 5) for x, _y in CROSS], 1)
+        self.draw_polygon(self.surface, GREEN, [(x, 5) for x, _y in CROSS], 1)
         for x in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((x, 4)), RED)
             self.assertEqual(self.surface.get_at((x, 5)), GREEN)
             self.assertEqual(self.surface.get_at((x, 6)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 3. one-pixel-wide, filled
-        self.draw_polygon(GREEN, [(3, y) for _x, y in CROSS], 0)
+        self.draw_polygon(self.surface, GREEN, [(3, y) for _x, y in CROSS], 0)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((2, y)), RED)
             self.assertEqual(self.surface.get_at((3, y)), GREEN)
             self.assertEqual(self.surface.get_at((4, y)), RED)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
         # 4. one-pixel-wide, not filled
-        self.draw_polygon(GREEN, [(4, y) for _x, y in CROSS], 1)
+        self.draw_polygon(self.surface, GREEN, [(4, y) for _x, y in CROSS], 1)
         for y in range(cross_size + 1):
             self.assertEqual(self.surface.get_at((3, y)), RED)
             self.assertEqual(self.surface.get_at((4, y)), GREEN)
             self.assertEqual(self.surface.get_at((5, y)), RED)
 
     def test_draw_symetric_cross(self):
-        '''nonregression on issue #234 : x and y where handled inconsistently.
+        """non-regression on issue #234 : x and y where handled inconsistently.
 
-        Also, the result is/was different wether we fill or not the polygon.
-        '''
+        Also, the result is/was different whether we fill or not the polygon.
+        """
         # 1. case width = 1 (not filled: `polygon` calls  internally the `lines` function)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        self.draw_polygon(GREEN, CROSS, 1)
+        self.draw_polygon(self.surface, GREEN, CROSS, 1)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
@@ -833,7 +866,7 @@ class DrawPolygonMixin:
 
         # 2. case width = 0 (filled; this is the example from #234)
         pygame.draw.rect(self.surface, RED, (0, 0, 10, 10), 0)
-        self.draw_polygon(GREEN, CROSS, 0)
+        self.draw_polygon(self.surface, GREEN, CROSS, 0)
         inside = [(x, 3) for x in range(1, 6)] + [(3, y) for y in range(1, 6)]
         for x in range(10):
             for y in range(10):
@@ -845,7 +878,7 @@ class DrawPolygonMixin:
                     self.assertEqual(self.surface.get_at((x, y)), RED)
 
     def test_illumine_shape(self):
-        '''non regression on issue #313 '''
+        """non-regression on issue #313"""
         rect = pygame.Rect((0, 0, 20, 20))
         path_data = [(0, 0), (rect.width-1, 0), # upper border
                      (rect.width-5,  5-1), (5-1, 5-1),  # upper inner
@@ -872,7 +905,7 @@ class DrawPolygonMixin:
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
 
         # 1. First without the corners 4 & 5
-        self.draw_polygon(GREEN, path_data[:4], 0)
+        self.draw_polygon(self.surface, GREEN, path_data[:4], 0)
         for x in range(20):
             self.assertEqual(self.surface.get_at((x, 0)), GREEN)  # upper border
         for x in range(4, rect.width-5 +1):
@@ -880,27 +913,116 @@ class DrawPolygonMixin:
 
         # 2. with the corners 4 & 5
         pygame.draw.rect(self.surface, RED, (0, 0, 20, 20), 0)
-        self.draw_polygon(GREEN, path_data, 0)
+        self.draw_polygon(self.surface, GREEN, path_data, 0)
         for x in range(4, rect.width-5 +1):
             self.assertEqual(self.surface.get_at((x, 4)), GREEN)  # upper inner
 
     def test_invalid_points(self):
-        self.assertRaises(TypeError, lambda: self.draw_polygon(
+        self.assertRaises(TypeError, lambda: self.draw_polygon(self.surface,
                           RED, ((0, 0), (0, 20), (20, 20), 20), 0))
 
-class DrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
 
-    def draw_polygon(self, color, path, width):
-        draw.polygon(self.surface, color, path, width)
+class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
+    """Test draw module function polygon.
 
-
-class PythonDrawPolygonTest(DrawPolygonMixin, unittest.TestCase):
-
-    def draw_polygon(self, color, path, width):
-        draw_py.draw_polygon(self.surface, color, path, width)
+    This class inherits the general tests from DrawPolygonMixin. It is also
+    the class to add any draw.polygon specific tests to.
+    """
 
 
-################################################################################
+class PythonDrawPolygonTest(DrawPolygonMixin, PythonDrawTestCase):
+    """Test draw_py module function draw_polygon.
+
+    This class inherits the general tests from DrawPolygonMixin. It is also
+    the class to add any draw_py.draw_polygon specific tests to.
+    """
+
+
+### Rect Testing ##############################################################
+
+class DrawRectMixin(object):
+    """Mixin tests for drawing rects.
+
+    This class contains all the general rect drawing tests.
+    """
+
+    def todo_test_circle(self):
+        self.fail()
+
+
+class DrawRectTest(DrawRectMixin, DrawTestCase):
+    """Test draw module function rect.
+
+    This class inherits the general tests from DrawRectMixin. It is also the
+    class to add any draw.rect specific tests to.
+    """
+
+
+class PythonDrawRectTest(DrawRectMixin, PythonDrawTestCase):
+    """Test draw_py module function draw_rect.
+
+    This class inherits the general tests from DrawRectMixin. It is also the
+    class to add any draw_py.draw_rect specific tests to.
+    """
+
+
+### Circle Testing ############################################################
+
+class DrawCircleMixin(object):
+    """Mixin tests for drawing circles.
+
+    This class contains all the general circle drawing tests.
+    """
+
+    def todo_test_circle(self):
+        self.fail()
+
+class DrawCircleTest(DrawCircleMixin, DrawTestCase):
+    """Test draw module function circle.
+
+    This class inherits the general tests from DrawCircleMixin. It is also
+    the class to add any draw.circle specific tests to.
+    """
+
+
+class PythonDrawCircleTest(DrawCircleMixin, PythonDrawTestCase):
+    """Test draw_py module function draw_circle."
+
+    This class inherits the general tests from DrawCircleMixin. It is also
+    the class to add any draw_py.draw_circle specific tests to.
+    """
+
+
+### Arc Testing ###############################################################
+
+class DrawArcMixin(object):
+    """Mixin tests for drawing arcs.
+
+    This class contains all the general arc drawing tests.
+    """
+
+    def todo_test_arc(self):
+        self.fail()
+
+
+class DrawArcTest(DrawArcMixin, DrawTestCase):
+    """Test draw module function arc.
+
+    This class inherits the general tests from DrawArcMixin. It is also the
+    class to add any draw.arc specific tests to.
+    """
+
+
+class PythonDrawArcTest(DrawArcMixin, PythonDrawTestCase):
+    """Test draw_py module function draw_arc.
+
+    This class inherits the general tests from DrawArcMixin. It is also the
+    class to add any draw_py.draw_arc specific tests to.
+    """
+
+
+###############################################################################
+
 
 if __name__ == '__main__':
     unittest.main()

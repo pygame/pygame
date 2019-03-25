@@ -88,7 +88,13 @@ bitmask_create(int w, int h)
     bitmask_t *temp;
     size_t size;
 
+    /* Guard against negative parameters. */
+    if (w < 0 || h < 0) {
+        return 0;
+    }
+
     size = offsetof(bitmask_t, bits);
+
     if (w && h) {
         size += h * ((w - 1) / BITMASK_W_LEN + 1) * sizeof(BITMASK_W);
     }
@@ -98,9 +104,11 @@ bitmask_create(int w, int h)
     if (!temp) {
         return 0;
     }
+
     temp->w = w;
     temp->h = h;
     bitmask_clear(temp);
+
     return temp;
 }
 
@@ -978,19 +986,20 @@ bitmask_scale(const bitmask_t *m, int w, int h)
 }
 
 void
-bitmask_convolve(const bitmask_t *a, const bitmask_t *b, bitmask_t *o,
+bitmask_convolve(const bitmask_t *a, const bitmask_t *b, bitmask_t *output,
                  int xoffset, int yoffset)
 {
     int x, y;
 
-    if (!a->h || !a->w || !b->h || !b->w) {
+    if (!a->h || !a->w || !b->h || !b->w || !output->h || !output->w) {
         return;
     }
 
     xoffset += b->w - 1;
     yoffset += b->h - 1;
+
     for (y = 0; y < b->h; y++)
         for (x = 0; x < b->w; x++)
             if (bitmask_getbit(b, x, y))
-                bitmask_draw(o, a, xoffset - x, yoffset - y);
+                bitmask_draw(output, a, xoffset - x, yoffset - y);
 }

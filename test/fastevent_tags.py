@@ -1,1 +1,1 @@
-__tags__ = ['SDL2_ignore']
+__tags__ = []

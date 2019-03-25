@@ -66,7 +66,7 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
    :type size: tuple(int, int) or list[int, int]
    :param bool fill: create mask unfilled (``False`` - default) or filled
       (``True``)
-   :rtype: ``Mask`` object
+   :rtype: Mask
 
    .. versionadded:: 1.9.5 Named parameter ``size`` (previously it was an
       unnamed positional parameter) and the optional keyword parameter
@@ -244,15 +244,26 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
    .. method:: convolve
 
       | :sl:`Return the convolution of self with another mask.`
-      | :sg:`convolve(othermask, outputmask = None, offset = (0,0)) -> Mask`
+      | :sg:`convolve(othermask) -> Mask`
+      | :sg:`convolve(othermask, outputmask=None, offset=(0,0)) -> Mask`
 
-      Returns a mask with the (i-offset[0],j-offset[1]) bit set if shifting
-      othermask so that its lower right corner pixel is at (i,j) would cause
-      it to overlap with self.
+      Convolve self with the given ``othermask``.
 
-      If an outputmask is specified, the output is drawn onto outputmask and
-      outputmask is returned. Otherwise a mask of size ``self.get_size()`` +
-      ``othermask.get_size()`` - (1,1) is created.
+      :param Mask othermask: mask to convolve with self
+      :param outputmask: mask for output, default is None
+      :type outputmask: Mask or None
+      :param offset: offset used in convolution of masks, default is (0, 0)
+      :type offset: tuple(int, int) or list[int, int]
+
+      :returns: A mask with the ``(i - offset[0], j - offset[1])`` bit set, if
+         shifting ``othermask`` (such that its bottom right corner pixel is at
+         ``(i, j)``) causes it to overlap with self.
+
+         If an ``outputmask`` is specified, the output is drawn onto it and
+         it is returned. Otherwise a mask of size ``(MAX(0, width + othermask's
+         width - 1), MAX(0, height + othermask's height - 1))`` is created and
+         returned.
+      :rtype: Mask
 
       .. ## Mask.convolve ##
 
