@@ -30,18 +30,24 @@
 
 #include "doc/display_doc.h"
 
+#include <SDL_syswm.h>
+
+static PyTypeObject pgVidInfo_Type;
+
 #if IS_SDLv1
 
-#include <SDL_syswm.h>
-static PyTypeObject pgVidInfo_Type;
 static PyObject *
 pgVidInfo_New(const SDL_VideoInfo *info);
+
 static void
 pg_do_set_icon(PyObject *surface);
 static PyObject *pgDisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 
 #else /* IS_SDLv2 */
+
+static PyObject *
+pgVidInfo_New(const pg_VideoInfo *info);
 
 static SDL_Renderer *pg_renderer = NULL;
 static SDL_Texture *pg_texture = NULL;
@@ -258,10 +264,6 @@ pg_get_active(PyObject *self, PyObject *args)
 #endif /* IS_SDLv1 */
 
 /* vidinfo object */
-#if IS_SDLv2
-#pragma PG_WARN(The vidinfo object is not used in SDL2 so far.)
-
-#else /* IS_SDLv1 */
 static void
 pg_vidinfo_dealloc(PyObject *self)
 {
@@ -271,7 +273,11 @@ pg_vidinfo_dealloc(PyObject *self)
 static PyObject *
 pg_vidinfo_getattr(PyObject *self, char *name)
 {
+#if IS_SDLv1
     SDL_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#else
+    pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#endif
 
     int current_w = -1;
     int current_h = -1;
@@ -279,8 +285,8 @@ pg_vidinfo_getattr(PyObject *self, char *name)
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
 
-    if (versioninfo.major >= 1 && versioninfo.minor >= 2 &&
-        versioninfo.patch >= 10) {
+    if (versioninfo.major > 1 || (versioninfo.minor >= 2 &&
+        versioninfo.patch >= 10)) {
         current_w = info->current_w;
         current_h = info->current_h;
     }
@@ -332,13 +338,17 @@ pg_vidinfo_str(PyObject *self)
     char str[1024];
     int current_w = -1;
     int current_h = -1;
+#if IS_SDLv1
     SDL_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#else
+    pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#endif
 
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
 
-    if (versioninfo.major >= 1 && versioninfo.minor >= 2 &&
-        versioninfo.patch >= 10) {
+    if (versioninfo.major > 1 || (versioninfo.minor >= 2 &&
+        versioninfo.patch >= 10)) {
         current_w = info->current_w;
         current_h = info->current_h;
     }
@@ -382,8 +392,13 @@ static PyTypeObject pgVidInfo_Type = {
     (reprfunc)NULL,               /*str*/
 };
 
+#if IS_SDLv1
 static PyObject *
 pgVidInfo_New(const SDL_VideoInfo *i)
+#else
+static PyObject *
+pgVidInfo_New(const pg_VideoInfo *i)
+#endif
 {
     pgVidInfoObject *info;
     if (!i)
@@ -391,23 +406,79 @@ pgVidInfo_New(const SDL_VideoInfo *i)
     info = PyObject_NEW(pgVidInfoObject, &pgVidInfo_Type);
     if (!info)
         return NULL;
+#if IS_SDLv1
     memcpy(&info->info, i, sizeof(SDL_VideoInfo));
+#else
+    info->info = *i;
+    info->info.vfmt = &info->info.vfmt_data;
+#endif
     return (PyObject *)info;
 }
+
+#if IS_SDLv2
+static pg_VideoInfo *
+pg_GetVideoInfo(pg_VideoInfo *info)
+{
+    SDL_DisplayMode mode;
+    SDL_PixelFormat *tempformat;
+    Uint32 formatenum;
+    PyObject *winsurfobj;
+    SDL_Surface *winsurf;
+
+#pragma PG_WARN(hardcoding wm_available to 1)
+#pragma PG_WARN(setting available video RAM to 0 KB)
+
+    memset(info, 0, sizeof(pg_VideoInfo));
+    info->wm_available = 1;
+
+    winsurfobj = pg_GetDefaultWindowSurface();
+    if (winsurfobj) {
+        winsurf = pgSurface_AsSurface(winsurfobj);
+        info->current_w = winsurf->w;
+        info->current_h = winsurf->h;
+        info->vfmt_data = *(winsurf->format);
+        info->vfmt = &info->vfmt_data;
+    }
+    else {
+        if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+            info->current_w = mode.w;
+            info->current_h = mode.h;
+            formatenum = mode.format;
+        }
+        else {
+            info->current_w = -1;
+            info->current_h = -1;
+            formatenum = SDL_PIXELFORMAT_UNKNOWN;
+        }
+
+        if (tempformat = SDL_AllocFormat(formatenum)) {
+            info->vfmt_data = *tempformat;
+            info->vfmt = &info->vfmt_data;
+            SDL_FreeFormat(tempformat);
+        }
+        else {
+            return NULL;
+        }
+    }
+
+    return info;
+}
+#endif /* IS_SDLv2 */
 
 static PyObject *
 pgInfo(PyObject *self, PyObject *args)
 {
+#if IS_SDLv1
     const SDL_VideoInfo *info;
     VIDEO_INIT_CHECK();
     info = SDL_GetVideoInfo();
     return pgVidInfo_New(info);
+#else /* IS_SDLv2 */
+    pg_VideoInfo info;
+    VIDEO_INIT_CHECK();
+    return pgVidInfo_New(pg_GetVideoInfo(&info));
+#endif /* IS_SDLv2 */
 }
-#endif /* IS_SDLv1: pgInfo stuff is not defined in SDL2 */
-
-#if IS_SDLv2
-#include <SDL_syswm.h>
-#endif
 
 static PyObject *
 pg_get_wm_info(PyObject *self, PyObject *args)
@@ -2032,9 +2103,7 @@ static PyMethodDef _pg_display_methods[] = {
     /*    { "set_driver", set_driver, 1, doc_set_driver },*/
     {"get_driver", pg_get_driver, METH_NOARGS, DOC_PYGAMEDISPLAYGETDRIVER},
     {"get_wm_info", pg_get_wm_info, METH_NOARGS, DOC_PYGAMEDISPLAYGETWMINFO},
-#if IS_SDLv1
     {"Info", pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
-#endif /* IS_SDLv1 */
     {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
 
     {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},

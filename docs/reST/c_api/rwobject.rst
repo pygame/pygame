@@ -15,7 +15,7 @@ object in a :c:type:`SDL_RWops` struct for SDL file access.
 Header file: src_c/pygame.h
 
 
-.. c:function:: SDL_RWops* pgRWopsFromObject(PyObject *obj)
+.. c:function:: SDL_RWops* pgRWops_FromObject(PyObject *obj)
 
    Return a SDL_RWops struct filled to access *obj*.
    If *obj* is a string then let SDL open the file it names.
@@ -24,25 +24,25 @@ Header file: src_c/pygame.h
    the Python GIL is acquired before calling any of the *obj* methods.
    On error raise a Python exception and return ``NULL``.
 
-.. c:function:: SDL_RWops* pgRWopsFromFileObject(PyObject *obj)
+.. c:function:: SDL_RWops* pgRWops_FromFileObject(PyObject *obj)
 
    Return a SDL_RWops struct filled to access the Python file-like object *obj*.
    Uses its ``read``, ``write``, ``seek``, ``tell``, and ``close`` methods.
    If threads are available, the Python GIL is acquired before calling any of the *obj* methods.
    On error raise a Python exception and return ``NULL``.
 
-.. c:function:: int pgRWopsCheckObject(SDL_RWops *rw)
+.. c:function:: int pgRWops_CheckObject(SDL_RWops *rw)
 
-   Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWopsFromObject`
-   or :c:func:`pgRWopsFromFileObject`.
+   Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWops_FromObject`
+   or :c:func:`pgRWops_FromFileObject`.
 
-.. c:function:: int pgRWopsReleaseObject(SDL_RWops *context)
+.. c:function:: int pgRWops_ReleaseObject(SDL_RWops *context)
 
    Free a SDL_RWops struct. If it is attached to a Python file-like object, decrement its
    refcount. Otherwise, close the file handle.
    Return 0 on success. On error, raise a Python exception and return a negative value.
 
-.. c:function:: PyObject* pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
+.. c:function:: PyObject* pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
 
    Return the file path *obj* as a byte string properly encoded for the OS.
    Null bytes are forbidden in the encoded file path.
@@ -50,7 +50,7 @@ Header file: src_c/pygame.h
    using *eclass* as the exception type if it is not ``NULL``.
    If *obj* is ``NULL`` assume an exception was already raised and pass it on.
 
-.. c:function:: PyObject* pgRWopsEncodeString(PyObject *obj, const char *encoding, const char *errors, PyObject *eclass)
+.. c:function:: PyObject* pg_EncodeString(PyObject *obj, const char *encoding, const char *errors, PyObject *eclass)
 
    Return string *obj* as an encoded byte string.
    The C string arguments *encoding* and *errors* are the same as for

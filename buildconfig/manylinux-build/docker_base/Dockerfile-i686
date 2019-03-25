@@ -4,10 +4,10 @@ FROM quay.io/pypa/manylinux1_i686
 COPY RPM-GPG-KEY.dag.txt /tmp/
 RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 
-ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.el5.rf.i386.rpm"
-ADD "https://repoforge.cu.be/redhat/el5/en/i386/dag/RPMS/${RPMFORGE_FILE}" /tmp/${RPMFORGE_FILE}
+#ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.el5.rf.i386.rpm"
+#ADD "https://repoforge.cu.be/redhat/el5/en/i386/dag/RPMS/${RPMFORGE_FILE}" /tmp/${RPMFORGE_FILE}
 
-RUN rpm -i /tmp/${RPMFORGE_FILE}
+#RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
 RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel \
