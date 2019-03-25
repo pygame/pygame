@@ -1421,13 +1421,18 @@ drawvertlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int y2)
 {
     if (x1 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
         return;
+
     if (y2 < y1) {
         int temp = y1;
         y1 = y2;
         y2 = temp;
     }
+
     y1 = MAX(y1, surf->clip_rect.y);
     y2 = MIN(y2, surf->clip_rect.y + surf->clip_rect.h - 1);
+
+    if (y2 < surf->clip_rect.y || y1 >= surf->clip_rect.y + surf->clip_rect.h)
+        return;
 
     drawvertline(surf, color, x1, y1, y2);
 }
@@ -1488,20 +1493,30 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
     int xoff = (width & 1) ^ 1;
     int yoff = (height & 1) ^ 1;
     int rx = (width >> 1);
-    int ry = (height >> 1) - yoff + (solid & 1);
+    int ry = (height >> 1);
 
-    if (rx == 0 && ry == 0) { /* Special case - draw a single pixel */
+    /* Special case: draw a single pixel */
+    if (rx == 0 && ry == 0) {
         set_at(dst, x, y, color);
         return;
     }
-    if (rx == 0) { /* Special case for rx=0 - draw a vline */
-        drawvertlineclip(dst, color, x, (Sint16)(y - ry), (Sint16)(y + ry));
+
+    /* Special case: draw a vertical line */
+    if (rx == 0) {
+        drawvertlineclip(dst, color, x, (Sint16)(y - ry),
+                         (Sint16)(y + ry + (height & 1)));
         return;
     }
-    if (ry == 0) { /* Special case for ry=0 - draw a hline */
-        drawhorzlineclip(dst, color, (Sint16)(x - rx), y, (Sint16)(x + rx));
+
+    /* Special case: draw a horizontal line */
+    if (ry == 0) {
+        drawhorzlineclip(dst, color, (Sint16)(x - rx), y,
+                         (Sint16)(x + rx + (width & 1)));
         return;
     }
+
+    /* Adjust ry for the rest of the ellipses (non-special cases). */
+    ry += (solid & 1) - yoff;
 
     /* Init vars */
     oh = oi = oj = ok = 0xFFFF;
