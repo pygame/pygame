@@ -116,6 +116,20 @@ attributes.
 
 |
 
+.. versionadded:: 1.9.5
+
+When compiled with SDL2, pygame can recognize text or files dropped
+into the window. If a file is dropped, ``file`` will be its path.
+
+::
+
+   SDL_DROPBEGIN
+   SDL_DROPEND
+   SDL_DROPFILE        file
+   SDL_DROPTEXT        text
+
+|
+
 .. function:: pump
 
    | :sl:`internally process pygame event handlers`
