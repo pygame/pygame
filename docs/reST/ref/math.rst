@@ -16,7 +16,20 @@ number*vec, vec/number, vec//number, vec+=vec, vec-=vec, vec*=number,
 vec/=number, vec//=number. All these operations will be performed elementwise.
 In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
-you can use the elementwise method: ``v.elementwise()`` ``\*`` w
+you can use the elementwise method: ``v.elementwise() * w``
+
+The coordinates of a vector can be retrieved or set using attributes or
+subscripts::
+
+   v = pygame.Vector3()
+
+   v.x = 5
+   v[1] = 2 * v.x
+   print(v[1]) # 10
+
+   v.x == v[0]
+   v.y == v[1]
+   v.z == v[2]
 
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
