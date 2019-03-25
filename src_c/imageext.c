@@ -70,6 +70,22 @@
 static SDL_mutex *_pg_img_mutex = 0;
 #endif /* WITH_THREAD */
 
+#ifdef WIN32
+
+#include <windows.h>
+
+#if IS_SDLv1
+#define SDL_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.win32io.h) ? 0 : -1)
+#else /* IS_SDLv2 */
+#define SDL_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
+#endif /* IS_SDLv2 */
+
+#else /* ~WIN32 */
+
+#define SDL_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
+
+#endif /* ~WIN32 */
+
 static const char *
 find_extension(const char *fullname)
 {
@@ -223,7 +239,11 @@ png_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 static void
 png_flush_fn(png_structp png_ptr)
 {
-    /* TODO: add SDL_RWflush() when it exists */
+    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
+    if (SDL_RWflush(rwops)) {
+        SDL_RWclose(rwops);
+        png_error(png_ptr, "Error while writing to PNG file (flush)");
+    }
 }
 
 static int
@@ -489,7 +509,9 @@ j_term_destination(j_compress_ptr cinfo)
             ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
-    /* TODO: add SDL_RWflush() when it exists */
+    if (SDL_RWflush(dest->outfile)) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
+    }
 }
 
 static void
