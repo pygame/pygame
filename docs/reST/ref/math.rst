@@ -20,7 +20,6 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
-.. versionchanged:: 1.9.4 Constructors require 2-3 elements rather than assigning 0 by default.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
@@ -275,8 +274,8 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
    | :sl:`a 3-Dimensional Vector`
    | :sg:`Vector3() -> Vector3`
-   | :sg:`Vector3(int) -> Vector2`
-   | :sg:`Vector3(float) -> Vector2`
+   | :sg:`Vector3(int) -> Vector3`
+   | :sg:`Vector3(float) -> Vector3`
    | :sg:`Vector3(Vector3) -> Vector3`
    | :sg:`Vector3(x, y, z) -> Vector3`
    | :sg:`Vector3((x, y, z)) -> Vector3`
