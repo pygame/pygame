@@ -227,9 +227,9 @@ typedef struct pg_bufferinfo_s {
 #define IS_SDLv2 0
 #endif
 
-#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
+/*#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
 #error pygame 2 requires SDL 2
-#endif
+#endif*/
 
 #if IS_SDLv2
 /* SDL 1.2 constants removed from SDL 2 */
