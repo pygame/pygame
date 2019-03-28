@@ -15,11 +15,11 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.5.dev1",
+    "version":          "2.0.0.dev0",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
-    "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
-    "author_email":     "pygame@seul.org",
+    "author":           "A community project.",
+    "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
     "long_description": DESCRIPTION,
 }
