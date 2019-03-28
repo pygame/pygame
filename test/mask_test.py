@@ -345,6 +345,34 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.get_size(), mask2_size, msg)
             self.assertEqual(mask2.get_at(set_pos), 1, msg)
 
+    def test_overlap__offset_boundary(self):
+        """Ensures overlap handles offsets and boundaries correctly."""
+        mask1 = pygame.mask.Mask((13, 3), fill=True)
+        mask2 = pygame.mask.Mask((7, 5), fill=True)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+
+        # Check the 4 boundaries.
+        offsets = ((mask1_size[0], 0),   # off right
+                   (0, mask1_size[1]),   # off bottom
+                   (-mask2_size[0], 0),  # off left
+                   (0, -mask2_size[1]))  # off top
+
+        for offset in offsets:
+            msg = 'offset={}'.format(offset)
+
+            overlap_pos = mask1.overlap(mask2, offset)
+
+            self.assertIsNone(overlap_pos, msg)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+
     def test_overlap__invalid_mask_arg(self):
         """Ensure overlap handles invalid mask arguments correctly."""
         size = (5, 3)
@@ -418,6 +446,35 @@ class MaskTypeTest(unittest.TestCase):
             rect2.topleft = offset
             overlap_rect = rect1.clip(rect2)
             expected_count = overlap_rect.w * overlap_rect.h
+
+            overlap_count = mask1.overlap_area(mask2, offset)
+
+            self.assertEqual(overlap_count, expected_count, msg)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+
+    def test_overlap_area__offset_boundary(self):
+        """Ensures overlap_area handles offsets and boundaries correctly."""
+        mask1 = pygame.mask.Mask((11, 3), fill=True)
+        mask2 = pygame.mask.Mask((5, 7), fill=True)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+        expected_count = 0
+
+        # Check the 4 boundaries.
+        offsets = ((mask1_size[0], 0),   # off right
+                   (0, mask1_size[1]),   # off bottom
+                   (-mask2_size[0], 0),  # off left
+                   (0, -mask2_size[1]))  # off top
+
+        for offset in offsets:
+            msg = 'offset={}'.format(offset)
 
             overlap_count = mask1.overlap_area(mask2, offset)
 
@@ -540,6 +597,37 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask1.count(), mask1_count, msg)
             self.assertEqual(mask2.count(), mask2_count, msg)
             self.assertEqual(mask1.get_size(), expected_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+
+    def test_overlap_mask__offset_boundary(self):
+        """Ensures overlap_mask handles offsets and boundaries correctly."""
+        mask1 = pygame.mask.Mask((9, 3), fill=True)
+        mask2 = pygame.mask.Mask((11, 5), fill=True)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+        expected_count = 0
+        expected_size = mask1_size
+
+        # Check the 4 boundaries.
+        offsets = ((mask1_size[0], 0),   # off right
+                   (0, mask1_size[1]),   # off bottom
+                   (-mask2_size[0], 0),  # off left
+                   (0, -mask2_size[1]))  # off top
+
+        for offset in offsets:
+            msg = 'offset={}'.format(offset)
+
+            overlap_mask = mask1.overlap_mask(mask2, offset)
+
+            self.assertEqual(overlap_mask.count(), expected_count, msg)
+            self.assertEqual(overlap_mask.get_size(), expected_size, msg)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
 
     def test_overlap_mask__invalid_mask_arg(self):
@@ -760,6 +848,32 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.count(), mask2_count, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
 
+    def test_draw__offset_boundary(self):
+        """Ensures draw handles offsets and boundaries correctly."""
+        mask1 = pygame.mask.Mask((13, 5))
+        mask2 = pygame.mask.Mask((7, 3), fill=True)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+
+        # Check the 4 boundaries.
+        offsets = ((mask1_size[0], 0),   # off right
+                   (0, mask1_size[1]),   # off bottom
+                   (-mask2_size[0], 0),  # off left
+                   (0, -mask2_size[1]))  # off top
+
+        for offset in offsets:
+            msg = 'offset={}'.format(offset)
+
+            mask1.draw(mask2, offset)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+
     def test_draw__invalid_mask_arg(self):
         """Ensure draw handles invalid mask arguments correctly."""
         size = (7, 3)
@@ -840,6 +954,32 @@ class MaskTypeTest(unittest.TestCase):
 
             # Ensure mask2 unchanged.
             self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask2.get_size(), mask2_size, msg)
+
+    def test_erase__offset_boundary(self):
+        """Ensures erase handles offsets and boundaries correctly."""
+        mask1 = pygame.mask.Mask((7, 11), fill=True)
+        mask2 = pygame.mask.Mask((3, 13), fill=True)
+        mask1_count = mask1.count()
+        mask2_count = mask2.count()
+        mask1_size = mask1.get_size()
+        mask2_size = mask2.get_size()
+
+        # Check the 4 boundaries.
+        offsets = ((mask1_size[0], 0),   # off right
+                   (0, mask1_size[1]),   # off bottom
+                   (-mask2_size[0], 0),  # off left
+                   (0, -mask2_size[1]))  # off top
+
+        for offset in offsets:
+            msg = 'offset={}'.format(offset)
+
+            mask1.erase(mask2, offset)
+
+            # Ensure mask1/mask2 unchanged.
+            self.assertEqual(mask1.count(), mask1_count, msg)
+            self.assertEqual(mask2.count(), mask2_count, msg)
+            self.assertEqual(mask1.get_size(), mask1_size, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
 
     def test_erase__invalid_mask_arg(self):
