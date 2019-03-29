@@ -434,6 +434,11 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
 
+    def test_update(self):
+        self.assertEqual(Vector2(3, 4).update(0), Vector2((0, 0)))
+        self.assertEqual(Vector2(-3, 4).update(5, 1), Vector2(5, 1))
+        self.assertNotEqual(Vector2(-3, 4).update((4, 1)), Vector2((5, 1)))
+
     def test_swizzle(self):
         self.assertTrue(hasattr(pygame.math, "enable_swizzling"))
         self.assertTrue(hasattr(pygame.math, "disable_swizzling"))
