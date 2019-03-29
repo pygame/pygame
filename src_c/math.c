@@ -1829,15 +1829,8 @@ vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
+_vector2_set(pgVector *self, PyObject *xOrSequence, PyObject *y)
 {
-    PyObject *xOrSequence = NULL, *y = NULL;
-    static char *kwlist[] = {"x", "y", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
-                                     &xOrSequence, &y))
-        return -1;
-
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
@@ -1897,9 +1890,38 @@ vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
     return 0;
 error:
     PyErr_SetString(PyExc_ValueError,
-                    "Vector2 must be initialized with 2 real numbers or a "
-                    "sequence of 2 real numbers");
+                    "Vector2 must be set with 2 real numbers, a "
+                    "sequence of 2 real numbers, or "
+                    "another Vector2 instance");
     return -1;
+}
+
+static int
+vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL;
+    static char *kwlist[] = {"x", "y", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
+                                     &xOrSequence, &y))
+        return -1;
+
+    return _vector2_set(self, xOrSequence, y);
+}
+
+static PyObject*
+vector2_set(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL;
+    static char *kwlist[] = {"x", "y", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
+                                     &xOrSequence, &y))
+        return NULL;
+
+    if (_vector2_set(self, xOrSequence, y) == 0)
+        return Py_INCREF(self), self;
+    return NULL;
 }
 
 static int
@@ -2088,6 +2110,8 @@ static PyMethodDef vector2_methods[] = {
     {"cross", (PyCFunction)vector2_cross, METH_O, DOC_VECTOR2CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR2DOT},
     {"angle_to", (PyCFunction)vector2_angle_to, METH_O, DOC_VECTOR2ANGLETO},
+    {"set", (PyCFunction)vector2_set, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR2SET},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
      DOC_VECTOR2SCALETOLENGTH},
     {"reflect", (PyCFunction)vector_reflect, METH_O, DOC_VECTOR2REFLECT},
@@ -2213,15 +2237,8 @@ vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
+_vector3_set(pgVector *self, PyObject *xOrSequence, PyObject *y, PyObject *z)
 {
-    PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
-    static char *kwlist[] = {"x", "y", "z", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
-                                     &xOrSequence, &y, &z))
-        return -1;
-
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
@@ -2281,9 +2298,38 @@ vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
     return 0;
 error:
     PyErr_SetString(PyExc_ValueError,
-                    "Vector3 must be initialized with 3 real numbers or a "
-                    "sequence of 3 real numbers");
+                    "Vector3 must be set with 3 real numbers, a "
+                    "sequence of 3 real numbers, or "
+                    "another Vector3 instance");
     return -1;
+}
+
+static int
+vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
+    static char *kwlist[] = {"x", "y", "z", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+                                     &xOrSequence, &y, &z))
+        return -1;
+
+    return _vector3_set(self, xOrSequence, y, z);
+}
+
+static PyObject*
+vector3_set(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
+    static char *kwlist[] = {"x", "y", "z", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+                                     &xOrSequence, &y, &z))
+        return NULL;
+
+    if (_vector3_set(self, xOrSequence, y, z) == 0)
+        return Py_INCREF(self), self;
+    return NULL;
 }
 
 static int
@@ -2734,6 +2780,8 @@ static PyMethodDef vector3_methods[] = {
     {"cross", (PyCFunction)vector3_cross, METH_O, DOC_VECTOR3CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR3DOT},
     {"angle_to", (PyCFunction)vector3_angle_to, METH_O, DOC_VECTOR3ANGLETO},
+    {"set", (PyCFunction)vector3_set, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR3SET},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
      DOC_VECTOR3SCALETOLENGTH},
     {"reflect", (PyCFunction)vector_reflect, METH_O, DOC_VECTOR3REFLECT},

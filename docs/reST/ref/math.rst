@@ -33,7 +33,6 @@ subscripts::
 
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
-.. versionchanged:: 1.9.4 Constructors require 2-3 elements rather than assigning 0 by default.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
@@ -276,14 +275,30 @@ subscripts::
 
       .. ## Vector2.from_polar ##
 
+   .. method:: set
+
+      | :sl:`Sets the coordinates of the vector.`
+      | :sg:`set() -> Vector2`
+      | :sg:`set(int) -> Vector2`
+      | :sg:`set(float) -> Vector2`
+      | :sg:`set(Vector2) -> Vector2`
+      | :sg:`set(x, y) -> Vector2`
+      | :sg:`set((x, y)) -> Vector2`
+
+      Sets coordinates x and y in place and returns the vector itself.
+
+      .. versionadded:: 1.9.5
+
+      .. ## Vector2.set ##
+
    .. ## pygame.math.Vector2 ##
 
 .. class:: Vector3
 
    | :sl:`a 3-Dimensional Vector`
    | :sg:`Vector3() -> Vector3`
-   | :sg:`Vector3(int) -> Vector2`
-   | :sg:`Vector3(float) -> Vector2`
+   | :sg:`Vector3(int) -> Vector3`
+   | :sg:`Vector3(float) -> Vector3`
    | :sg:`Vector3(Vector3) -> Vector3`
    | :sg:`Vector3(x, y, z) -> Vector3`
    | :sg:`Vector3((x, y, z)) -> Vector3`
@@ -584,6 +599,22 @@ subscripts::
       .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.from_spherical ##
+
+   .. method:: set
+
+      | :sl:`Sets the coordinates of the vector.`
+      | :sg:`set() -> Vector3`
+      | :sg:`set(int) -> Vector3`
+      | :sg:`set(float) -> Vector3`
+      | :sg:`set(Vector3) -> Vector3`
+      | :sg:`set(x, y, z) -> Vector3`
+      | :sg:`set((x, y, z)) -> Vector3`
+
+      Sets coordinates x, y, and z in place and returns the vector itself.
+
+      .. versionadded:: 1.9.5
+
+      .. ## Vector3.set ##
 
    .. ##  ##
 
