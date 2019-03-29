@@ -1920,7 +1920,7 @@ vector2_update(pgVector *self, PyObject *args, PyObject *kwds)
         return NULL;
 
     if (_vector2_set(self, xOrSequence, y) == 0)
-        return Py_INCREF(self), self;
+        Py_RETURN_NONE;
     return NULL;
 }
 
@@ -2328,7 +2328,7 @@ vector3_update(pgVector *self, PyObject *args, PyObject *kwds)
         return NULL;
 
     if (_vector3_set(self, xOrSequence, y, z) == 0)
-        return Py_INCREF(self), self;
+        Py_RETURN_NONE;
     return NULL;
 }
 

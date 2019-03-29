@@ -23,7 +23,7 @@
 #define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
-#define DOC_VECTOR2UPDATE "update() -> Vector2\nupdate(int) -> Vector2\nupdate(float) -> Vector2\nupdate(Vector2) -> Vector2\nupdate(x, y) -> Vector2\nupdate((x, y)) -> Vector2\nSets the coordinates of the vector."
+#define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR3CROSS "cross(Vector3) -> Vector3\ncalculates the cross- or vector-product"
@@ -53,7 +53,7 @@
 #define DOC_VECTOR3ANGLETO "angle_to(Vector3) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR3ASSPHERICAL "as_spherical() -> (r, theta, phi)\nreturns a tuple with radial distance, inclination and azimuthal angle."
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
-#define DOC_VECTOR3UPDATE "update() -> Vector3\nupdate(int) -> Vector3\nupdate(float) -> Vector3\nupdate(Vector3) -> Vector3\nupdate(x, y, z) -> Vector3\nupdate((x, y, z)) -> Vector3\nSets the coordinates of the vector."
+#define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
 #define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
 
@@ -163,12 +163,12 @@ pygame.math.Vector2.from_polar
 Sets x and y from a polar coordinates tuple.
 
 pygame.math.Vector2.update
- update() -> Vector2
- update(int) -> Vector2
- update(float) -> Vector2
- update(Vector2) -> Vector2
- update(x, y) -> Vector2
- update((x, y)) -> Vector2
+ update() -> None
+ update(int) -> None
+ update(float) -> None
+ update(Vector2) -> None
+ update(x, y) -> None
+ update((x, y)) -> None
 Sets the coordinates of the vector.
 
 pygame.math.Vector3
@@ -293,12 +293,12 @@ pygame.math.Vector3.from_spherical
 Sets x, y and z from a spherical coordinates 3-tuple.
 
 pygame.math.Vector3.update
- update() -> Vector3
- update(int) -> Vector3
- update(float) -> Vector3
- update(Vector3) -> Vector3
- update(x, y, z) -> Vector3
- update((x, y, z)) -> Vector3
+ update() -> None
+ update(int) -> None
+ update(float) -> None
+ update(Vector3) -> None
+ update(x, y, z) -> None
+ update((x, y, z)) -> None
 Sets the coordinates of the vector.
 
 pygame.math.enable_swizzling

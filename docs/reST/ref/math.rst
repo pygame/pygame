@@ -268,14 +268,14 @@ subscripts::
    .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
-      | :sg:`update() -> Vector2`
-      | :sg:`update(int) -> Vector2`
-      | :sg:`update(float) -> Vector2`
-      | :sg:`update(Vector2) -> Vector2`
-      | :sg:`update(x, y) -> Vector2`
-      | :sg:`update((x, y)) -> Vector2`
+      | :sg:`update() -> None`
+      | :sg:`update(int) -> None`
+      | :sg:`update(float) -> None`
+      | :sg:`update(Vector2) -> None`
+      | :sg:`update(x, y) -> None`
+      | :sg:`update((x, y)) -> None`
 
-      Sets coordinates x and y in place and returns the vector itself.
+      Sets coordinates x and y in place.
 
       .. versionadded:: 1.9.5
 
@@ -577,14 +577,14 @@ subscripts::
    .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
-      | :sg:`update() -> Vector3`
-      | :sg:`update(int) -> Vector3`
-      | :sg:`update(float) -> Vector3`
-      | :sg:`update(Vector3) -> Vector3`
-      | :sg:`update(x, y, z) -> Vector3`
-      | :sg:`update((x, y, z)) -> Vector3`
+      | :sg:`update() -> None`
+      | :sg:`update(int) -> None`
+      | :sg:`update(float) -> None`
+      | :sg:`update(Vector3) -> None`
+      | :sg:`update(x, y, z) -> None`
+      | :sg:`update((x, y, z)) -> None`
 
-      Sets coordinates x, y, and z in place and returns the vector itself.
+      Sets coordinates x, y, and z in place.
 
       .. versionadded:: 1.9.5
 
