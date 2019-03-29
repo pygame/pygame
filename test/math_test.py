@@ -310,7 +310,7 @@ class Vector2TypeTest(unittest.TestCase):
 
     def test_rotate_ip(self):
         v = Vector2(1, 0)
-        self.assertEqual(v.rotate_ip(90), None)
+        self.assertEqual(v.rotate_ip(90), v)
         self.assertEqual(v.x, 0)
         self.assertEqual(v.y, 1)
         v = Vector2(-1, -1)
@@ -334,7 +334,7 @@ class Vector2TypeTest(unittest.TestCase):
         # v has length != 1 before normalizing
         self.assertNotEqual(v.x * v.x + v.y * v.y, 1.)
         # inplace operations should return None
-        self.assertEqual(v.normalize_ip(), None)
+        self.assertEqual(v.normalize_ip(), v)
         # length is 1
         self.assertAlmostEqual(v.x * v.x + v.y * v.y, 1.)
         # v2 is paralell to v1
@@ -381,7 +381,7 @@ class Vector2TypeTest(unittest.TestCase):
         v.scale_to_length(2.5)
         self.assertEqual(v, Vector2(2.5, 2.5) / math.sqrt(2))
         self.assertRaises(ValueError, lambda : self.zeroVec.scale_to_length(1))
-        self.assertEqual(v.scale_to_length(0), None)
+        self.assertEqual(v.scale_to_length(0), v)
         self.assertEqual(v, self.zeroVec)
 
     def test_length(self):
@@ -406,7 +406,7 @@ class Vector2TypeTest(unittest.TestCase):
         v1 = Vector2(1, -1)
         v2 = Vector2(v1)
         n = Vector2(0, 1)
-        self.assertEqual(v2.reflect_ip(n), None)
+        self.assertEqual(v2.reflect_ip(n), v2)
         self.assertEqual(v2, Vector2(1, 1))
         v2 = Vector2(v1)
         v2.reflect_ip(3*n)
@@ -1089,7 +1089,7 @@ class Vector3TypeTest(unittest.TestCase):
     def test_rotate_ip(self):
         v = Vector3(1, 0, 0)
         axis = Vector3(0, 1, 0)
-        self.assertEqual(v.rotate_ip(90, axis), None)
+        self.assertEqual(v.rotate_ip(90, axis), v)
         self.assertEqual(v.x, 0)
         self.assertEqual(v.y, 0)
         self.assertEqual(v.z, -1)
@@ -1128,7 +1128,7 @@ class Vector3TypeTest(unittest.TestCase):
 
     def test_rotate_x_ip(self):
         v = Vector3(1, 0, 0)
-        self.assertEqual(v.rotate_x_ip(90), None)
+        self.assertEqual(v.rotate_x_ip(90), v)
         self.assertEqual(v.x, 1)
         self.assertEqual(v.y, 0)
         self.assertEqual(v.z, 0)
@@ -1167,7 +1167,7 @@ class Vector3TypeTest(unittest.TestCase):
 
     def test_rotate_y_ip(self):
         v = Vector3(1, 0, 0)
-        self.assertEqual(v.rotate_y_ip(90), None)
+        self.assertEqual(v.rotate_y_ip(90), v)
         self.assertAlmostEqual(v.x, 0)
         self.assertEqual(v.y, 0)
         self.assertAlmostEqual(v.z, -1)
@@ -1206,7 +1206,7 @@ class Vector3TypeTest(unittest.TestCase):
 
     def test_rotate_z_ip(self):
         v = Vector3(1, 0, 0)
-        self.assertEqual(v.rotate_z_ip(90), None)
+        self.assertEqual(v.rotate_z_ip(90), v)
         self.assertAlmostEqual(v.x, 0)
         self.assertAlmostEqual(v.y, 1)
         self.assertEqual(v.z, 0)
@@ -1236,7 +1236,7 @@ class Vector3TypeTest(unittest.TestCase):
         # v has length != 1 before normalizing
         self.assertNotEqual(v.x * v.x + v.y * v.y + v.z * v.z, 1.)
         # inplace operations should return None
-        self.assertEqual(v.normalize_ip(), None)
+        self.assertEqual(v.normalize_ip(), v)
         # length is 1
         self.assertAlmostEqual(v.x * v.x + v.y * v.y + v.z * v.z, 1.)
         # v2 is paralell to v1 (tested via cross product)
@@ -1289,7 +1289,7 @@ class Vector3TypeTest(unittest.TestCase):
         v.scale_to_length(2.5)
         self.assertEqual(v, Vector3(2.5, 2.5, 2.5) / math.sqrt(3))
         self.assertRaises(ValueError, lambda : self.zeroVec.scale_to_length(1))
-        self.assertEqual(v.scale_to_length(0), None)
+        self.assertEqual(v.scale_to_length(0), v)
         self.assertEqual(v, self.zeroVec)
 
     def test_length(self):
@@ -1314,7 +1314,7 @@ class Vector3TypeTest(unittest.TestCase):
         v1 = Vector3(1, -1, 1)
         v2 = Vector3(v1)
         n = Vector3(0, 1, 0)
-        self.assertEqual(v2.reflect_ip(n), None)
+        self.assertEqual(v2.reflect_ip(n), v2)
         self.assertEqual(v2, Vector3(1, 1, 1))
         v2 = Vector3(v1)
         v2.reflect_ip(3*n)

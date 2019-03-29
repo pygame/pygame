@@ -1244,7 +1244,7 @@ vector_normalize_ip(pgVector *self, PyObject *args)
     for (i = 0; i < self->dim; ++i)
         self->coords[i] /= length;
 
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -1295,7 +1295,7 @@ vector_scale_to_length(pgVector *self, PyObject *length)
     for (i = 0; i < self->dim; ++i)
         self->coords[i] *= fraction;
 
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -1459,7 +1459,7 @@ vector_reflect_ip(pgVector *self, PyObject *normal)
         return NULL;
     }
     memcpy(self->coords, tmp_coords, self->dim * sizeof(tmp_coords[0]));
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static double
@@ -1987,7 +1987,7 @@ vector2_rotate_ip(pgVector *self, PyObject *args)
     if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
         return NULL;
     }
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -2050,7 +2050,7 @@ vector2_from_polar(pgVector *self, PyObject *args)
     self->coords[0] = r * cos(phi);
     self->coords[1] = r * sin(phi);
 
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 static PyObject *
 vector_getsafepickle(pgRectObject *self, void *closure)
@@ -2455,7 +2455,7 @@ vector3_rotate_ip(pgVector *self, PyObject *args)
                                 self->epsilon)) {
         return NULL;
     }
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -2499,7 +2499,7 @@ vector3_rotate_x_ip(pgVector *self, PyObject *angleObject)
 
     self->coords[1] = tmp_coords[1] * cosValue - tmp_coords[2] * sinValue;
     self->coords[2] = tmp_coords[1] * sinValue + tmp_coords[2] * cosValue;
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -2544,7 +2544,7 @@ vector3_rotate_y_ip(pgVector *self, PyObject *angleObject)
 
     self->coords[0] = tmp_coords[0] * cosValue + tmp_coords[2] * sinValue;
     self->coords[2] = -tmp_coords[0] * sinValue + tmp_coords[2] * cosValue;
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -2589,7 +2589,7 @@ vector3_rotate_z_ip(pgVector *self, PyObject *angleObject)
 
     self->coords[0] = tmp_coords[0] * cosValue - tmp_coords[1] * sinValue;
     self->coords[1] = tmp_coords[0] * sinValue + tmp_coords[1] * cosValue;
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 static PyObject *
@@ -2691,7 +2691,7 @@ vector3_from_spherical(pgVector *self, PyObject *args)
     self->coords[1] = r * sin(theta) * sin(phi);
     self->coords[2] = r * cos(theta);
 
-    Py_RETURN_NONE;
+    return Py_INCREF(self), self;
 }
 
 /* For pickling. */
