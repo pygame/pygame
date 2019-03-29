@@ -16,7 +16,20 @@ number*vec, vec/number, vec//number, vec+=vec, vec-=vec, vec*=number,
 vec/=number, vec//=number. All these operations will be performed elementwise.
 In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
-you can use the elementwise method: ``v.elementwise()`` ``\*`` w
+you can use the elementwise method: ``v.elementwise() * w``
+
+The coordinates of a vector can be retrieved or set using attributes or
+subscripts::
+
+   v = pygame.Vector3()
+
+   v.x = 5
+   v[1] = 2 * v.x
+   print(v[1]) # 10
+
+   v.x == v[0]
+   v.y == v[1]
+   v.z == v[2]
 
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
@@ -106,10 +119,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: normalize_ip
 
       | :sl:`normalizes the vector in place so that its length is 1.`
-      | :sg:`normalize_ip() -> None`
+      | :sg:`normalize_ip() -> Vector2`
 
       Normalizes the vector so that it has length == 1. The direction of the
       vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.normalize_ip ##
 
@@ -124,13 +139,15 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
    .. method:: scale_to_length
 
-      | :sl:`scales the vector to a given length.`
-      | :sg:`scale_to_length(float) -> None`
+      | :sl:`scales the vector in place to a given length.`
+      | :sg:`scale_to_length(float) -> Vector2`
 
-      Scales the vector so that it has the given length. The direction of the
-      vector is not changed. You can also scale to length 0. If the vector is
+      Scales the vector in place so that it has the given length. The direction of
+      the vector is not changed. You can also scale to length 0. If the vector is
       the zero vector (i.e. has length 0 thus no direction) an
       ZeroDivisionError is raised.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.scale_to_length ##
 
@@ -148,10 +165,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: reflect_ip
 
       | :sl:`reflect the vector of a given normal in place.`
-      | :sg:`reflect_ip(Vector2) -> None`
+      | :sg:`reflect_ip(Vector2) -> Vector2`
 
       Changes the direction of self as if it would have been reflected of a
       surface with the given surface normal.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.reflect_ip ##
 
@@ -216,10 +235,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(float) -> None`
+      | :sg:`rotate_ip(float) -> Vector2`
 
       Rotates the vector counterclockwise by the given angle in degrees. The
       length of the vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.rotate_ip ##
 
@@ -245,10 +266,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: from_polar
 
       | :sl:`Sets x and y from a polar coordinates tuple.`
-      | :sg:`from_polar((r, phi)) -> None`
+      | :sg:`from_polar((r, phi)) -> Vector2`
 
       Sets x and y from a tuple (r, phi) where r is the radial distance, and
       phi is the azimuthal angle.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.from_polar ##
 
@@ -355,10 +378,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: normalize_ip
 
       | :sl:`normalizes the vector in place so that its length is 1.`
-      | :sg:`normalize_ip() -> None`
+      | :sg:`normalize_ip() -> Vector3`
 
       Normalizes the vector so that it has length == 1. The direction of the
       vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.normalize_ip ##
 
@@ -373,13 +398,15 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
    .. method:: scale_to_length
 
-      | :sl:`scales the vector to a given length.`
-      | :sg:`scale_to_length(float) -> None`
+      | :sl:`scales the vector in place to a given length.`
+      | :sg:`scale_to_length(float) -> Vector3`
 
-      Scales the vector so that it has the given length. The direction of the
-      vector is not changed. You can also scale to length 0. If the vector is
+      Scales the vector in place so that it has the given length. The direction of
+      the vector is not changed. You can also scale to length 0. If the vector is
       the zero vector (i.e. has length 0 thus no direction) an
       ZeroDivisionError is raised.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.scale_to_length ##
 
@@ -397,10 +424,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: reflect_ip
 
       | :sl:`reflect the vector of a given normal in place.`
-      | :sg:`reflect_ip(Vector3) -> None`
+      | :sg:`reflect_ip(Vector3) -> Vector3`
 
       Changes the direction of self as if it would have been reflected of a
       surface with the given surface normal.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.reflect_ip ##
 
@@ -465,10 +494,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(Vector3, float) -> None`
+      | :sg:`rotate_ip(Vector3, float) -> Vector3`
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in degrees. The length of the vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.rotate_ip ##
 
@@ -485,10 +516,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate_x_ip
 
       | :sl:`rotates the vector around the x-axis by the angle in degrees in place.`
-      | :sg:`rotate_x_ip(float) -> None`
+      | :sg:`rotate_x_ip(float) -> Vector3`
 
       Rotates the vector counterclockwise around the x-axis by the given angle
       in degrees. The length of the vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.rotate_x_ip ##
 
@@ -505,10 +538,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate_y_ip
 
       | :sl:`rotates the vector around the y-axis by the angle in degrees in place.`
-      | :sg:`rotate_y_ip(float) -> None`
+      | :sg:`rotate_y_ip(float) -> Vector3`
 
       Rotates the vector counterclockwise around the y-axis by the given angle
       in degrees. The length of the vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.rotate_y_ip ##
 
@@ -525,10 +560,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate_z_ip
 
       | :sl:`rotates the vector around the z-axis by the angle in degrees in place.`
-      | :sg:`rotate_z_ip(float) -> None`
+      | :sg:`rotate_z_ip(float) -> Vector3`
 
       Rotates the vector counterclockwise around the z-axis by the given angle
       in degrees. The length of the vector is not changed.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.rotate_z_ip ##
 
@@ -554,10 +591,12 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: from_spherical
 
       | :sl:`Sets x, y and z from a spherical coordinates 3-tuple.`
-      | :sg:`from_spherical((r, theta, phi)) -> None`
+      | :sg:`from_spherical((r, theta, phi)) -> Vector3`
 
       Sets x, y and z from a tuple (r, theta, phi) where r is the radial
       distance, theta is the inclination angle and phi is the azimuthal angle.
+
+      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.from_spherical ##
 

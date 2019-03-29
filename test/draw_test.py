@@ -109,9 +109,6 @@ class DrawEllipseMixin(object):
         Checks if the number of sides touching the border of the surface is
         correct.
         """
-        if isinstance(self, PythonDrawTestCase):
-            self.skipTest('draw_py.draw_ellipse not supported yet')
-
         left_top = [(0, 0), (1, 0), (0, 1), (1, 1)]
         sizes = [(4, 4), (5, 4), (4, 5), (5, 5)]
         color = (1, 13, 24, 255)
@@ -148,6 +145,274 @@ class DrawEllipseMixin(object):
                 for left, top in left_top:
                     not_same_size(width, height, border_width, left, top)
 
+    def _check_1_pixel_sized_ellipse(self, surface, collide_rect,
+                                     surface_color, ellipse_color):
+        # Helper method to check the surface for 1 pixel wide and/or high
+        # ellipses.
+        surf_w, surf_h = surface.get_size()
+
+        surface.lock()  # For possible speed up.
+
+        for pos in ((x, y) for y in range(surf_h) for x in range(surf_w)):
+            # Since the ellipse is just a line we can use a rect to help find
+            # where it is expected to be drawn.
+            if collide_rect.collidepoint(pos):
+                expected_color = ellipse_color
+            else:
+                expected_color = surface_color
+
+            self.assertEqual(surface.get_at(pos), expected_color,
+                'collide_rect={}, pos={}'.format(collide_rect, pos))
+
+        surface.unlock()
+
+    def test_ellipse__1_pixel_width(self):
+        """Ensures an ellipse with a width of 1 is drawn correctly.
+
+        An ellipse with a width of 1 pixel is a vertical line.
+        """
+        ellipse_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surf_w, surf_h = 10, 20
+
+        surface = pygame.Surface((surf_w, surf_h))
+        rect = pygame.Rect((0, 0), (1, 0))
+        collide_rect = rect.copy()
+
+        # Calculate some positions.
+        off_left = -1
+        off_right = surf_w
+        off_bottom = surf_h
+        center_x = surf_w // 2
+        center_y = surf_h // 2
+
+        # Test some even and odd heights.
+        for ellipse_h in range(6, 10):
+            # The ellipse is drawn on the edge of the rect so collide_rect
+            # needs +1 height to track where it's drawn.
+            collide_rect.h = ellipse_h + 1
+            rect.h = ellipse_h
+
+            # Calculate some variable positions.
+            off_top = -(ellipse_h + 1)
+            half_off_top = -(ellipse_h // 2)
+            half_off_bottom = surf_h - (ellipse_h // 2)
+
+            # Draw the ellipse in different positions: fully on-surface,
+            # partially off-surface, and fully off-surface.
+            positions = ((off_left, off_top),
+                         (off_left, half_off_top),
+                         (off_left, center_y),
+                         (off_left, half_off_bottom),
+                         (off_left, off_bottom),
+
+                         (center_x, off_top),
+                         (center_x, half_off_top),
+                         (center_x, center_y),
+                         (center_x, half_off_bottom),
+                         (center_x, off_bottom),
+
+                         (off_right, off_top),
+                         (off_right, half_off_top),
+                         (off_right, center_y),
+                         (off_right, half_off_bottom),
+                         (off_right, off_bottom))
+
+            for rect_pos in positions:
+                surface.fill(surface_color)  # Clear before each draw.
+                rect.topleft = rect_pos
+                collide_rect.topleft = rect_pos
+
+                self.draw_ellipse(surface, ellipse_color, rect)
+
+                self._check_1_pixel_sized_ellipse(surface, collide_rect,
+                                                  surface_color, ellipse_color)
+
+    def test_ellipse__1_pixel_width_spanning_surface(self):
+        """Ensures an ellipse with a width of 1 is drawn correctly
+        when spanning the height of the surface.
+
+        An ellipse with a width of 1 pixel is a vertical line.
+        """
+        ellipse_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surf_w, surf_h = 10, 20
+
+        surface = pygame.Surface((surf_w, surf_h))
+        rect = pygame.Rect((0, 0), (1, surf_h + 2))  # Longer than the surface.
+
+        # Draw the ellipse in different positions: on-surface and off-surface.
+        positions = ((-1,          -1),  # (off_left,   off_top)
+                     (0,           -1),  # (left_edge,  off_top)
+                     (surf_w // 2, -1),  # (center_x,   off_top)
+                     (surf_w - 1,  -1),  # (right_edge, off_top)
+                     (surf_w,      -1))  # (off_right,  off_top)
+
+        for rect_pos in positions:
+            surface.fill(surface_color)  # Clear before each draw.
+            rect.topleft = rect_pos
+
+            self.draw_ellipse(surface, ellipse_color, rect)
+
+            self._check_1_pixel_sized_ellipse(surface, rect, surface_color,
+                                              ellipse_color)
+
+    def test_ellipse__1_pixel_height(self):
+        """Ensures an ellipse with a height of 1 is drawn correctly.
+
+        An ellipse with a height of 1 pixel is a horizontal line.
+        """
+        ellipse_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surf_w, surf_h = 20, 10
+
+        surface = pygame.Surface((surf_w, surf_h))
+        rect = pygame.Rect((0, 0), (0, 1))
+        collide_rect = rect.copy()
+
+        # Calculate some positions.
+        off_right = surf_w
+        off_top = -1
+        off_bottom = surf_h
+        center_x = surf_w // 2
+        center_y = surf_h // 2
+
+        # Test some even and odd widths.
+        for ellipse_w in range(6, 10):
+            # The ellipse is drawn on the edge of the rect so collide_rect
+            # needs +1 width to track where it's drawn.
+            collide_rect.w = ellipse_w + 1
+            rect.w = ellipse_w
+
+            # Calculate some variable positions.
+            off_left = -(ellipse_w + 1)
+            half_off_left = -(ellipse_w // 2)
+            half_off_right = surf_w - (ellipse_w // 2)
+
+            # Draw the ellipse in different positions: fully on-surface,
+            # partially off-surface, and fully off-surface.
+            positions = ((off_left,       off_top),
+                         (half_off_left,  off_top),
+                         (center_x,       off_top),
+                         (half_off_right, off_top),
+                         (off_right,      off_top),
+
+                         (off_left,       center_y),
+                         (half_off_left,  center_y),
+                         (center_x,       center_y),
+                         (half_off_right, center_y),
+                         (off_right,      center_y),
+
+                         (off_left,       off_bottom),
+                         (half_off_left,  off_bottom),
+                         (center_x,       off_bottom),
+                         (half_off_right, off_bottom),
+                         (off_right,      off_bottom))
+
+            for rect_pos in positions:
+                surface.fill(surface_color)  # Clear before each draw.
+                rect.topleft = rect_pos
+                collide_rect.topleft = rect_pos
+
+                self.draw_ellipse(surface, ellipse_color, rect)
+
+                self._check_1_pixel_sized_ellipse(surface, collide_rect,
+                                                  surface_color, ellipse_color)
+
+    def test_ellipse__1_pixel_height_spanning_surface(self):
+        """Ensures an ellipse with a height of 1 is drawn correctly
+        when spanning the width of the surface.
+
+        An ellipse with a height of 1 pixel is a horizontal line.
+        """
+        ellipse_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surf_w, surf_h = 20, 10
+
+        surface = pygame.Surface((surf_w, surf_h))
+        rect = pygame.Rect((0, 0), (surf_w + 2, 1))  # Wider than the surface.
+
+        # Draw the ellipse in different positions: on-surface and off-surface.
+        positions = ((-1, -1),           # (off_left, off_top)
+                     (-1, 0),            # (off_left, top_edge)
+                     (-1, surf_h // 2),  # (off_left, center_y)
+                     (-1, surf_h - 1),   # (off_left, bottom_edge)
+                     (-1, surf_h))       # (off_left, off_bottom)
+
+        for rect_pos in positions:
+            surface.fill(surface_color)  # Clear before each draw.
+            rect.topleft = rect_pos
+
+            self.draw_ellipse(surface, ellipse_color, rect)
+
+            self._check_1_pixel_sized_ellipse(surface, rect, surface_color,
+                                              ellipse_color)
+
+    def test_ellipse__1_pixel_width_and_height(self):
+        """Ensures an ellipse with a width and height of 1 is drawn correctly.
+
+        An ellipse with a width and height of 1 pixel is a single pixel.
+        """
+        ellipse_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surf_w, surf_h = 10, 10
+
+        surface = pygame.Surface((surf_w, surf_h))
+        rect = pygame.Rect((0, 0), (1, 1))
+
+        # Calculate some positions.
+        off_left = -1
+        off_right = surf_w
+        off_top = -1
+        off_bottom = surf_h
+        left_edge = 0
+        right_edge = surf_w - 1
+        top_edge = 0
+        bottom_edge = surf_h - 1
+        center_x = surf_w // 2
+        center_y = surf_h // 2
+
+        # Draw the ellipse in different positions: center surface,
+        # top/bottom/left/right edges, and off-surface.
+        positions = ((off_left, off_top),
+                     (off_left, top_edge),
+                     (off_left, center_y),
+                     (off_left, bottom_edge),
+                     (off_left, off_bottom),
+
+                     (left_edge, off_top),
+                     (left_edge, top_edge),
+                     (left_edge, center_y),
+                     (left_edge, bottom_edge),
+                     (left_edge, off_bottom),
+
+                     (center_x, off_top),
+                     (center_x, top_edge),
+                     (center_x, center_y),
+                     (center_x, bottom_edge),
+                     (center_x, off_bottom),
+
+                     (right_edge, off_top),
+                     (right_edge, top_edge),
+                     (right_edge, center_y),
+                     (right_edge, bottom_edge),
+                     (right_edge, off_bottom),
+
+                     (off_right, off_top),
+                     (off_right, top_edge),
+                     (off_right, center_y),
+                     (off_right, bottom_edge),
+                     (off_right, off_bottom))
+
+        for rect_pos in positions:
+            surface.fill(surface_color)  # Clear before each draw.
+            rect.topleft = rect_pos
+
+            self.draw_ellipse(surface, ellipse_color, rect)
+
+            self._check_1_pixel_sized_ellipse(surface, rect, surface_color,
+                                              ellipse_color)
+
 
 class DrawEllipseTest(DrawEllipseMixin, DrawTestCase):
     """Test draw module function ellipse.
@@ -157,6 +422,7 @@ class DrawEllipseTest(DrawEllipseMixin, DrawTestCase):
     """
 
 
+@unittest.skip('draw_py.draw_ellipse not supported yet')
 class PythonDrawEllipseTest(DrawEllipseMixin, PythonDrawTestCase):
     """Test draw_py module function draw_ellipse.
 

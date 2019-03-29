@@ -85,9 +85,9 @@ _alloca(size_t size);
 #include <Python.h>
 
 /* the version macros are defined since version 1.9.5 */
-#define PG_MAJOR_VERSION 1
-#define PG_MINOR_VERSION 9
-#define PG_PATCH_VERSION 5
+#define PG_MAJOR_VERSION 2
+#define PG_MINOR_VERSION 0
+#define PG_PATCH_VERSION 0
 #define PG_VERSIONNUM(MAJOR, MINOR, PATCH) (1000*(MAJOR) + 100*(MINOR) + (PATCH))
 #define PG_VERSION_ATLEAST(MAJOR, MINOR, PATCH)                             \
     (PG_VERSIONNUM(PG_MAJOR_VERSION, PG_MINOR_VERSION, PG_PATCH_VERSION) >= \
@@ -227,9 +227,9 @@ typedef struct pg_bufferinfo_s {
 #define IS_SDLv2 0
 #endif
 
-#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
+/*#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
 #error pygame 2 requires SDL 2
-#endif
+#endif*/
 
 #if IS_SDLv2
 /* SDL 1.2 constants removed from SDL 2 */
@@ -373,9 +373,9 @@ typedef struct {
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
 #if IS_SDLv1
-#define PYGAMEAPI_BASE_NUMSLOTS 20
+#define PYGAMEAPI_BASE_NUMSLOTS 19
 #else /* IS_SDLv2 */
-#define PYGAMEAPI_BASE_NUMSLOTS 24
+#define PYGAMEAPI_BASE_NUMSLOTS 23
 #endif /* IS_SDLv2 */
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define pgExc_SDLError ((PyObject *)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
@@ -445,22 +445,18 @@ typedef struct {
 #define pgExc_BufferError \
     ((PyObject *)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
-#define pg_FopenUTF8                          \
-    (*(FILE* (*)(const char *, const char *)) \
-                 PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
-
 #if IS_SDLv2
 #define pg_GetDefaultWindow \
-    (*(SDL_Window * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
+    (*(SDL_Window * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
 
 #define pg_SetDefaultWindow \
-    (*(void (*)(SDL_Window *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
+    (*(void (*)(SDL_Window *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
 
 #define pg_GetDefaultWindowSurface \
-    (*(PyObject * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
+    (*(PyObject * (*)(void)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
 
 #define pg_SetDefaultWindowSurface \
-    (*(void (*)(PyObject *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 23])
+    (*(void (*)(PyObject *))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
 
 #endif /* IS_SDLv2 */
 
