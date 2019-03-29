@@ -1910,7 +1910,7 @@ vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject*
-vector2_set(pgVector *self, PyObject *args, PyObject *kwds)
+vector2_update(pgVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence = NULL, *y = NULL;
     static char *kwlist[] = {"x", "y", NULL};
@@ -2110,8 +2110,8 @@ static PyMethodDef vector2_methods[] = {
     {"cross", (PyCFunction)vector2_cross, METH_O, DOC_VECTOR2CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR2DOT},
     {"angle_to", (PyCFunction)vector2_angle_to, METH_O, DOC_VECTOR2ANGLETO},
-    {"set", (PyCFunction)vector2_set, METH_VARARGS | METH_KEYWORDS,
-     DOC_VECTOR2SET},
+    {"update", (PyCFunction)vector2_update, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR2UPDATE},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
      DOC_VECTOR2SCALETOLENGTH},
     {"reflect", (PyCFunction)vector_reflect, METH_O, DOC_VECTOR2REFLECT},
@@ -2318,7 +2318,7 @@ vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject*
-vector3_set(pgVector *self, PyObject *args, PyObject *kwds)
+vector3_update(pgVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
     static char *kwlist[] = {"x", "y", "z", NULL};
@@ -2780,8 +2780,8 @@ static PyMethodDef vector3_methods[] = {
     {"cross", (PyCFunction)vector3_cross, METH_O, DOC_VECTOR3CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR3DOT},
     {"angle_to", (PyCFunction)vector3_angle_to, METH_O, DOC_VECTOR3ANGLETO},
-    {"set", (PyCFunction)vector3_set, METH_VARARGS | METH_KEYWORDS,
-     DOC_VECTOR3SET},
+    {"update", (PyCFunction)vector3_update, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR3UPDATE},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
      DOC_VECTOR3SCALETOLENGTH},
     {"reflect", (PyCFunction)vector_reflect, METH_O, DOC_VECTOR3REFLECT},

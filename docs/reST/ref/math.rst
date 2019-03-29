@@ -275,21 +275,21 @@ subscripts::
 
       .. ## Vector2.from_polar ##
 
-   .. method:: set
+   .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
-      | :sg:`set() -> Vector2`
-      | :sg:`set(int) -> Vector2`
-      | :sg:`set(float) -> Vector2`
-      | :sg:`set(Vector2) -> Vector2`
-      | :sg:`set(x, y) -> Vector2`
-      | :sg:`set((x, y)) -> Vector2`
+      | :sg:`update() -> Vector2`
+      | :sg:`update(int) -> Vector2`
+      | :sg:`update(float) -> Vector2`
+      | :sg:`update(Vector2) -> Vector2`
+      | :sg:`update(x, y) -> Vector2`
+      | :sg:`update((x, y)) -> Vector2`
 
       Sets coordinates x and y in place and returns the vector itself.
 
       .. versionadded:: 1.9.5
 
-      .. ## Vector2.set ##
+      .. ## Vector2.update ##
 
    .. ## pygame.math.Vector2 ##
 
@@ -600,21 +600,21 @@ subscripts::
 
       .. ## Vector3.from_spherical ##
 
-   .. method:: set
+   .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
-      | :sg:`set() -> Vector3`
-      | :sg:`set(int) -> Vector3`
-      | :sg:`set(float) -> Vector3`
-      | :sg:`set(Vector3) -> Vector3`
-      | :sg:`set(x, y, z) -> Vector3`
-      | :sg:`set((x, y, z)) -> Vector3`
+      | :sg:`update() -> Vector3`
+      | :sg:`update(int) -> Vector3`
+      | :sg:`update(float) -> Vector3`
+      | :sg:`update(Vector3) -> Vector3`
+      | :sg:`update(x, y, z) -> Vector3`
+      | :sg:`update((x, y, z)) -> Vector3`
 
       Sets coordinates x, y, and z in place and returns the vector itself.
 
       .. versionadded:: 1.9.5
 
-      .. ## Vector3.set ##
+      .. ## Vector3.update ##
 
    .. ##  ##
 
