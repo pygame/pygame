@@ -8,21 +8,21 @@
 #define DOC_VECTOR2LENGTH "length() -> float\nreturns the Euclidean length of the vector."
 #define DOC_VECTOR2LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
 #define DOC_VECTOR2NORMALIZE "normalize() -> Vector2\nreturns a vector with the same direction but length 1."
-#define DOC_VECTOR2NORMALIZEIP "normalize_ip() -> Vector2\nnormalizes the vector in place so that its length is 1."
+#define DOC_VECTOR2NORMALIZEIP "normalize_ip() -> None\nnormalizes the vector in place so that its length is 1."
 #define DOC_VECTOR2ISNORMALIZED "is_normalized() -> Bool\ntests if the vector is normalized i.e. has length == 1."
-#define DOC_VECTOR2SCALETOLENGTH "scale_to_length(float) -> Vector2\nscales the vector in place to a given length."
+#define DOC_VECTOR2SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
 #define DOC_VECTOR2REFLECT "reflect(Vector2) -> Vector2\nreturns a vector reflected of a given normal."
-#define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> Vector2\nreflect the vector of a given normal in place."
+#define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
 #define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
 #define DOC_VECTOR2ROTATE "rotate(float) -> Vector2\nrotates a vector by a given angle in degrees."
-#define DOC_VECTOR2ROTATEIP "rotate_ip(float) -> Vector2\nrotates the vector by a given angle in degrees in place."
+#define DOC_VECTOR2ROTATEIP "rotate_ip(float) -> None\nrotates the vector by a given angle in degrees in place."
 #define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
-#define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> Vector2\nSets x and y from a polar coordinates tuple."
+#define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
 #define DOC_VECTOR2UPDATE "update() -> Vector2\nupdate(int) -> Vector2\nupdate(float) -> Vector2\nupdate(Vector2) -> Vector2\nupdate(x, y) -> Vector2\nupdate((x, y)) -> Vector2\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
@@ -32,27 +32,27 @@
 #define DOC_VECTOR3LENGTH "length() -> float\nreturns the Euclidean length of the vector."
 #define DOC_VECTOR3LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
 #define DOC_VECTOR3NORMALIZE "normalize() -> Vector3\nreturns a vector with the same direction but length 1."
-#define DOC_VECTOR3NORMALIZEIP "normalize_ip() -> Vector3\nnormalizes the vector in place so that its length is 1."
+#define DOC_VECTOR3NORMALIZEIP "normalize_ip() -> None\nnormalizes the vector in place so that its length is 1."
 #define DOC_VECTOR3ISNORMALIZED "is_normalized() -> Bool\ntests if the vector is normalized i.e. has length == 1."
-#define DOC_VECTOR3SCALETOLENGTH "scale_to_length(float) -> Vector3\nscales the vector in place to a given length."
+#define DOC_VECTOR3SCALETOLENGTH "scale_to_length(float) -> None\nscales the vector to a given length."
 #define DOC_VECTOR3REFLECT "reflect(Vector3) -> Vector3\nreturns a vector reflected of a given normal."
-#define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> Vector3\nreflect the vector of a given normal in place."
+#define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
 #define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
 #define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
 #define DOC_VECTOR3ROTATE "rotate(Vector3, float) -> Vector3\nrotates a vector by a given angle in degrees."
-#define DOC_VECTOR3ROTATEIP "rotate_ip(Vector3, float) -> Vector3\nrotates the vector by a given angle in degrees in place."
+#define DOC_VECTOR3ROTATEIP "rotate_ip(Vector3, float) -> None\nrotates the vector by a given angle in degrees in place."
 #define DOC_VECTOR3ROTATEX "rotate_x(float) -> Vector3\nrotates a vector around the x-axis by the angle in degrees."
-#define DOC_VECTOR3ROTATEXIP "rotate_x_ip(float) -> Vector3\nrotates the vector around the x-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATEXIP "rotate_x_ip(float) -> None\nrotates the vector around the x-axis by the angle in degrees in place."
 #define DOC_VECTOR3ROTATEY "rotate_y(float) -> Vector3\nrotates a vector around the y-axis by the angle in degrees."
-#define DOC_VECTOR3ROTATEYIP "rotate_y_ip(float) -> Vector3\nrotates the vector around the y-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATEYIP "rotate_y_ip(float) -> None\nrotates the vector around the y-axis by the angle in degrees in place."
 #define DOC_VECTOR3ROTATEZ "rotate_z(float) -> Vector3\nrotates a vector around the z-axis by the angle in degrees."
-#define DOC_VECTOR3ROTATEZIP "rotate_z_ip(float) -> Vector3\nrotates the vector around the z-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATEZIP "rotate_z_ip(float) -> None\nrotates the vector around the z-axis by the angle in degrees in place."
 #define DOC_VECTOR3ANGLETO "angle_to(Vector3) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR3ASSPHERICAL "as_spherical() -> (r, theta, phi)\nreturns a tuple with radial distance, inclination and azimuthal angle."
-#define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> Vector3\nSets x, y and z from a spherical coordinates 3-tuple."
+#define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 #define DOC_VECTOR3UPDATE "update() -> Vector3\nupdate(int) -> Vector3\nupdate(float) -> Vector3\nupdate(Vector3) -> Vector3\nupdate(x, y, z) -> Vector3\nupdate((x, y, z)) -> Vector3\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
 #define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
@@ -103,7 +103,7 @@ pygame.math.Vector2.normalize
 returns a vector with the same direction but length 1.
 
 pygame.math.Vector2.normalize_ip
- normalize_ip() -> Vector2
+ normalize_ip() -> None
 normalizes the vector in place so that its length is 1.
 
 pygame.math.Vector2.is_normalized
@@ -111,15 +111,15 @@ pygame.math.Vector2.is_normalized
 tests if the vector is normalized i.e. has length == 1.
 
 pygame.math.Vector2.scale_to_length
- scale_to_length(float) -> Vector2
-scales the vector in place to a given length.
+ scale_to_length(float) -> None
+scales the vector to a given length.
 
 pygame.math.Vector2.reflect
  reflect(Vector2) -> Vector2
 returns a vector reflected of a given normal.
 
 pygame.math.Vector2.reflect_ip
- reflect_ip(Vector2) -> Vector2
+ reflect_ip(Vector2) -> None
 reflect the vector of a given normal in place.
 
 pygame.math.Vector2.distance_to
@@ -147,7 +147,7 @@ pygame.math.Vector2.rotate
 rotates a vector by a given angle in degrees.
 
 pygame.math.Vector2.rotate_ip
- rotate_ip(float) -> Vector2
+ rotate_ip(float) -> None
 rotates the vector by a given angle in degrees in place.
 
 pygame.math.Vector2.angle_to
@@ -159,7 +159,7 @@ pygame.math.Vector2.as_polar
 returns a tuple with radial distance and azimuthal angle.
 
 pygame.math.Vector2.from_polar
- from_polar((r, phi)) -> Vector2
+ from_polar((r, phi)) -> None
 Sets x and y from a polar coordinates tuple.
 
 pygame.math.Vector2.update
@@ -209,7 +209,7 @@ pygame.math.Vector3.normalize
 returns a vector with the same direction but length 1.
 
 pygame.math.Vector3.normalize_ip
- normalize_ip() -> Vector3
+ normalize_ip() -> None
 normalizes the vector in place so that its length is 1.
 
 pygame.math.Vector3.is_normalized
@@ -217,15 +217,15 @@ pygame.math.Vector3.is_normalized
 tests if the vector is normalized i.e. has length == 1.
 
 pygame.math.Vector3.scale_to_length
- scale_to_length(float) -> Vector3
-scales the vector in place to a given length.
+ scale_to_length(float) -> None
+scales the vector to a given length.
 
 pygame.math.Vector3.reflect
  reflect(Vector3) -> Vector3
 returns a vector reflected of a given normal.
 
 pygame.math.Vector3.reflect_ip
- reflect_ip(Vector3) -> Vector3
+ reflect_ip(Vector3) -> None
 reflect the vector of a given normal in place.
 
 pygame.math.Vector3.distance_to
@@ -253,7 +253,7 @@ pygame.math.Vector3.rotate
 rotates a vector by a given angle in degrees.
 
 pygame.math.Vector3.rotate_ip
- rotate_ip(Vector3, float) -> Vector3
+ rotate_ip(Vector3, float) -> None
 rotates the vector by a given angle in degrees in place.
 
 pygame.math.Vector3.rotate_x
@@ -261,7 +261,7 @@ pygame.math.Vector3.rotate_x
 rotates a vector around the x-axis by the angle in degrees.
 
 pygame.math.Vector3.rotate_x_ip
- rotate_x_ip(float) -> Vector3
+ rotate_x_ip(float) -> None
 rotates the vector around the x-axis by the angle in degrees in place.
 
 pygame.math.Vector3.rotate_y
@@ -269,7 +269,7 @@ pygame.math.Vector3.rotate_y
 rotates a vector around the y-axis by the angle in degrees.
 
 pygame.math.Vector3.rotate_y_ip
- rotate_y_ip(float) -> Vector3
+ rotate_y_ip(float) -> None
 rotates the vector around the y-axis by the angle in degrees in place.
 
 pygame.math.Vector3.rotate_z
@@ -277,7 +277,7 @@ pygame.math.Vector3.rotate_z
 rotates a vector around the z-axis by the angle in degrees.
 
 pygame.math.Vector3.rotate_z_ip
- rotate_z_ip(float) -> Vector3
+ rotate_z_ip(float) -> None
 rotates the vector around the z-axis by the angle in degrees in place.
 
 pygame.math.Vector3.angle_to
@@ -289,7 +289,7 @@ pygame.math.Vector3.as_spherical
 returns a tuple with radial distance, inclination and azimuthal angle.
 
 pygame.math.Vector3.from_spherical
- from_spherical((r, theta, phi)) -> Vector3
+ from_spherical((r, theta, phi)) -> None
 Sets x, y and z from a spherical coordinates 3-tuple.
 
 pygame.math.Vector3.update
