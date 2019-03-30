@@ -650,33 +650,38 @@ polygon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-rect(PyObject *self, PyObject *arg)
+rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *rectobj, *points, *args, *ret = NULL;
-    GAME_Rect *rect, temp;
-    int t, l, b, r, width = 0;
+    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
+    PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
+    GAME_Rect *rect = NULL, temp;
+    int t, l, b, r;
+    int width = 0; /* Default width. */
+    static char *keywords[] = {"surface", "color", "rect", "width", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OO|i", &pgSurface_Type, &surfobj, &colorobj,
-                          &rectobj, &width))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OO|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &rectobj, &width)) {
+        return NULL; /* Exception already set. */
+    }
 
-    if (!(rect = pgRect_FromObject(rectobj, &temp)))
-        return RAISE(PyExc_TypeError, "Rect argument is invalid");
+    if (!(rect = pgRect_FromObject(rectobj, &temp))) {
+        return RAISE(PyExc_TypeError, "rect argument is invalid");
+    }
 
     l = rect->x;
     r = rect->x + rect->w - 1;
     t = rect->y;
     b = rect->y + rect->h - 1;
 
-    /*build the pointlist*/
     points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
+    poly_args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
+    if (NULL == poly_args) {
+        return NULL; /* Exception already set. */
+    }
 
-    args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
-    if (args)
-        ret = polygon(NULL, args);
-
-    Py_XDECREF(args);
+    ret = polygon(NULL, poly_args);
+    Py_DECREF(poly_args);
     return ret;
 }
 
@@ -1734,7 +1739,8 @@ static PyMethodDef _draw_methods[] = {
     {"arc", arc, METH_VARARGS, DOC_PYGAMEDRAWARC},
     {"circle", circle, METH_VARARGS, DOC_PYGAMEDRAWCIRCLE},
     {"polygon", polygon, METH_VARARGS, DOC_PYGAMEDRAWPOLYGON},
-    {"rect", rect, METH_VARARGS, DOC_PYGAMEDRAWRECT},
+    {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWRECT},
 
     {NULL, NULL, 0, NULL}};
 
