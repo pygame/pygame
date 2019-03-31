@@ -31,6 +31,12 @@ subscripts::
    v.y == v[1]
    v.z == v[2]
 
+Multiple coordinates can be set using slices or swizzling::
+
+   v = pygame.Vector2()
+   v.xy = 1, 2
+   v[:] = 1, 2
+
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
@@ -604,6 +610,9 @@ subscripts::
 
    Enables swizzling for all vectors until ``disable_swizzling()`` is called.
    By default swizzling is disabled.
+
+   Lets you get or set multiple coordinates as one attribute, eg
+   ``vec.xyz = 1, 2, 3``.
 
    .. ## pygame.math.enable_swizzling ##
 
