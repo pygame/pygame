@@ -560,7 +560,7 @@ class LineMixin(object):
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
 
 
-class PythonDrawLineTest(LineMixin, DrawTestCase):
+class PythonDrawLineTest(LineMixin, PythonDrawTestCase):
     """Test draw_py module functions: line, lines, aaline, and aalines.
 
     This class inherits the general tests from LineMixin. It is also the class
@@ -568,7 +568,7 @@ class PythonDrawLineTest(LineMixin, DrawTestCase):
     """
 
 
-class DrawLineTest(LineMixin, PythonDrawTestCase):
+class DrawLineTest(LineMixin, DrawTestCase):
     """Test draw module functions: line, lines, aaline, and aalines.
 
     This class inherits the general tests from LineMixin. It is also the class
