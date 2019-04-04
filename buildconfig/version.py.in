@@ -27,46 +27,10 @@ The python version information should always compare greater than any previous
 releases. (hmm, until we get to versions > 10)
 """
 
-class VersionInfo(object):
-    def __init__(self, major, minor, patch):
-        self._version = (major, minor, patch)
+import collections
 
-    @property
-    def major(self):
-        return self[0]
-
-    @property
-    def minor(self):
-        return self[1]
-
-    @property
-    def patch(self):
-        return self[2]
-
-    def __repr__(self):
-        return "pygame.version.vernum(major={}, minor={}, patch={})" \
-            .format(*self._version)
+class PygameVersion(collections.namedtuple('PygameVersion', 'major minor patch')):
+    __slots__ = ()
 
     def __str__(self):
-        return "{}.{}.{}".format(*self._version)
-
-    def __getitem__(self, key):
-        return self._version[key]
-
-    def __len__(self):
-        return len(self._version)
-
-    def __lt__(self, other):
-        return self._version < other
-
-    def __le__(self, other):
-        return self._version <= other
-
-    def __eq__(self, other):
-        return self._version == other
-
-    def __gt__(self, other):
-        return self._version > other
-
-    def __ge__(self, other):
-        return self._version >= other
+        return '{}.{}.{}'.format(*self)

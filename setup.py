@@ -374,7 +374,7 @@ def write_version_module(pygame_version, revision):
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"\n')
-        version_file.write('vernum = VersionInfo(%s)\n' % vernum)
+        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
 
 write_version_module(METADATA['version'], revision)

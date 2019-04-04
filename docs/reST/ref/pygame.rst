@@ -232,7 +232,7 @@ variables to check with version of pygame has been imported.
 
    .. versionchanged:: 2.0 str(vernum) returns a string like "2.0.0" instead of "(2, 0, 0)".
 
-   .. versionchanged:: 2.0 repr(vernum) returns a string like "pygame.version.vernum(major=2, minor=0, patch=0)" instead of "(2, 0, 0)".
+   .. versionchanged:: 2.0 repr(vernum) returns a string like "PygameVersion(major=2, minor=0, patch=0)" instead of "(2, 0, 0)".
 
    .. ## pygame.version.vernum ##
 
