@@ -3742,12 +3742,17 @@ MODINIT_DEFINE(math)
         (PyModule_AddObject(module, "VectorElementwiseProxy", (PyObject *)&pgVectorElementwiseProxy_Type) != 0) ||
         (PyModule_AddObject(module, "VectorIterator", (PyObject *)&pgVectorIter_Type) != 0) /*||
         (PyModule_AddObject(module, "Vector4", (PyObject *)&pgVector4_Type) != 0)*/) {
-        Py_DECREF(&pgVector2_Type);
-        Py_DECREF(&pgVector3_Type);
-        Py_DECREF(&pgVectorElementwiseProxy_Type);
-        Py_DECREF(&pgVectorIter_Type);
+        if (!PyObject_HasAttrString(module, "Vector2"))
+            Py_DECREF(&pgVector2_Type);
+        if (!PyObject_HasAttrString(module, "Vector3"))
+            Py_DECREF(&pgVector3_Type);
+        if (!PyObject_HasAttrString(module, "VectorElementwiseProxy"))
+            Py_DECREF(&pgVectorElementwiseProxy_Type);
+        if (!PyObject_HasAttrString(module, "VectorIterator"))
+            Py_DECREF(&pgVectorIter_Type);
         /*
-        Py_DECREF(&pgVector4_Type);
+        if (!PyObject_HasAttrString(module, "Vector4"))
+            Py_DECREF(&pgVector4_Type);
         */
         DECREF_MOD(module);
         MODINIT_ERROR;
