@@ -59,6 +59,21 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          | if width == 0, (default) fill the rectangle
          | if width > 0, used for line thickness
          | if width < 0, nothing will be drawn
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will grow
+            outside the original boundary of the ``rect``.
+
+            For odd ``width`` values, the thickness of each edge line
+            grows with the original line being in the center.
+
+            For even ``width`` values, the thickness of each edge
+            line grows with the original line being offset from the center
+            (as there is no exact center line drawn). As a result,
+            horizontal edge lines have 1 more pixel of thickness below the
+            original line and vertical edge lines have 1 more pixel of
+            thickness to the right of the original line.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the given ``rect``
@@ -69,6 +84,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       The :func:`pygame.Surface.fill()` method works just as well for drawing
       filled rectangles and can be hardware accelerated on some platforms with
       both software and hardware display modes.
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.rect ##
 
