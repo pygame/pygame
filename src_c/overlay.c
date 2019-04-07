@@ -42,7 +42,7 @@ overlay_dealloc(PyGameOverlay *self)
     if (SDL_WasInit(SDL_INIT_VIDEO) && self->cOverlay)
         SDL_FreeYUVOverlay(self->cOverlay);
 
-    PyObject_Free((PyObject *)self);
+    Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *
