@@ -1,6 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEDRAW "pygame module for drawing shapes"
-#define DOC_PYGAMEDRAWRECT "rect(Surface, color, Rect, width=0) -> Rect\ndraw a rectangle shape"
+#define DOC_PYGAMEDRAWRECT "rect(surface=Surface, color=Color, rect=Rect) -> Rect\nrect(surface=Surface, color=Color, rect=Rect, width=0) -> Rect\ndraw a rectangle"
 #define DOC_PYGAMEDRAWPOLYGON "polygon(Surface, color, pointlist, width=0) -> Rect\ndraw a shape with any number of sides"
 #define DOC_PYGAMEDRAWCIRCLE "circle(Surface, color, pos, radius, width=0) -> Rect\ndraw a circle around a point"
 #define DOC_PYGAMEDRAWELLIPSE "ellipse(Surface, color, Rect, width=0) -> Rect\ndraw a round shape inside a rectangle"
@@ -19,8 +19,9 @@ pygame.draw
 pygame module for drawing shapes
 
 pygame.draw.rect
- rect(Surface, color, Rect, width=0) -> Rect
-draw a rectangle shape
+ rect(surface=Surface, color=Color, rect=Rect) -> Rect
+ rect(surface=Surface, color=Color, rect=Rect, width=0) -> Rect
+draw a rectangle
 
 pygame.draw.polygon
  polygon(Surface, color, pointlist, width=0) -> Rect
