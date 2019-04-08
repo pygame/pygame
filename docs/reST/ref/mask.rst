@@ -71,6 +71,8 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
    .. versionadded:: 1.9.5 Named parameter ``size`` (previously it was an
       unnamed positional parameter) and the optional keyword parameter
       ``fill``.
+   .. versionadded:: 2.0.0 Subclassing support added. The ``Mask`` class
+      can be used as a base class.
 
    .. method:: get_size
 
