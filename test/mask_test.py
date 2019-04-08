@@ -32,6 +32,20 @@ def maskFromSurface(surface, threshold = 127):
     return mask
 
 
+def create_bounding_rect(points):
+    """Creates a bounding rect from the given points."""
+    xmin = xmax = points[0][0]
+    ymin = ymax = points[0][1]
+
+    for x, y in points[1:]:
+        xmin = min(x, xmin)
+        xmax = max(x, xmax)
+        ymin = min(y, ymin)
+        ymax = max(y, ymax)
+
+    return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
+
+
 class MaskTypeTest(unittest.TestCase):
     ORIGIN_OFFSETS = ((0, 0), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1),
                       (-1, -1), (-1, 0), (-1, 1))
@@ -1413,11 +1427,12 @@ class MaskTypeTest(unittest.TestCase):
     def test_connected_components(self):
         """
         """
+        m = pygame.Mask((10, 10))
 
-        m = pygame.Mask((10,10))
-        self.assertEqual(repr(m.connected_components()), "[]")
+        self.assertListEqual(m.connected_components(), [])
 
         comp = m.connected_component()
+
         self.assertEqual(m.count(), comp.count())
 
         m.set_at((0,0), 1)
@@ -1427,10 +1442,11 @@ class MaskTypeTest(unittest.TestCase):
         comps1 = m.connected_components(1)
         comps2 = m.connected_components(2)
         comps3 = m.connected_components(3)
+
         self.assertEqual(comp.count(), comps[0].count())
         self.assertEqual(comps1[0].count(), 2)
         self.assertEqual(comps2[0].count(), 2)
-        self.assertEqual(repr(comps3), "[]")
+        self.assertListEqual(comps3, [])
 
         m.set_at((9, 9), 1)
         comp = m.connected_component()
@@ -1440,6 +1456,7 @@ class MaskTypeTest(unittest.TestCase):
         comps1 = m.connected_components(1)
         comps2 = m.connected_components(2)
         comps3 = m.connected_components(3)
+
         self.assertEqual(comp.count(), 2)
         self.assertEqual(comp1.count(), 2)
         self.assertEqual(comp2.count(), 0)
@@ -1449,108 +1466,98 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(len(comps3), 0)
 
     def test_get_bounding_rects(self):
-        """
-        """
+        """Ensures get_bounding_rects works correctly."""
+        # Create masks with different set point groups. Each group of
+        # connected set points will be contained in its own bounding rect.
+        # Diagonal points are considered connected.
+        mask_data = [] # [((size), ((rect1_pts), ...)), ...]
 
-        m = pygame.Mask((10,10))
-        m.set_at((0,0), 1)
-        m.set_at((1,0), 1)
+        # Mask 1:
+        #  |0123456789
+        # -+----------
+        # 0|1100000000
+        # 1|1000000000
+        # 2|0000000000
+        # 3|1001000000
+        # 4|0000000000
+        # 5|0000000000
+        # 6|0000000000
+        # 7|0000000000
+        # 8|0000000000
+        # 9|0000000000
+        mask_data.append(((10, 10), # size
+                          # Points to set for the 3 bounding rects.
+                          (((0, 0), (1, 0), (0, 1)), # rect1
+                           ((0, 3),),   # rect2
+                           ((3, 3),)))) # rect3
 
-        m.set_at((0,1), 1)
+        # Mask 2:
+        #  |0123
+        # -+----
+        # 0|1100
+        # 1|1111
+        mask_data.append(((4, 2), # size
+                          # Points to set for the 1 bounding rect.
+                          (((0, 0), (1, 0), (0, 1), (1, 1), (2, 1), (3, 1)),)))
 
-        m.set_at((0,3), 1)
-        m.set_at((3,3), 1)
+        # Mask 3:
+        #  |01234
+        # -+-----
+        # 0|00100
+        # 1|01110
+        # 2|00100
+        mask_data.append(((5, 3), # size
+                           # Points to set for the 1 bounding rect.
+                           (((2, 0), (1, 1), (2, 1), (3, 1), (2, 2)),)))
 
-        r = m.get_bounding_rects()
+        # Mask 4:
+        #  |01234
+        # -+-----
+        # 0|00010
+        # 1|00100
+        # 2|01000
+        mask_data.append(((5, 3), # size
+                          # Points to set for the 1 bounding rect.
+                          (((3, 0), (2, 1), (1, 2)),)))
 
-        self.assertEqual(
-                repr(r),
-                "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
+        # Mask 5:
+        #  |01234
+        # -+-----
+        # 0|00011
+        # 1|11111
+        mask_data.append(((5, 2), # size
+                          # Points to set for the 1 bounding rect.
+                          (((3, 0), (4, 0), (0, 1), (1, 1), (2, 1), (3, 1)),)))
 
-        #1100
-        #1111
-        m = pygame.Mask((4,2))
-        m.set_at((0,0), 1)
-        m.set_at((1,0), 1)
-        m.set_at((2,0), 0)
-        m.set_at((3,0), 0)
+        # Mask 6:
+        #  |01234
+        # -+-----
+        # 0|10001
+        # 1|00100
+        # 2|10001
+        mask_data.append(((5, 3), # size
+                          # Points to set for the 5 bounding rects.
+                          (((0, 0),),   # rect1
+                           ((4, 0),),   # rect2
+                           ((2, 1),),   # rect3
+                           ((0, 2),),   # rect4
+                           ((4, 2),)))) # rect5
 
-        m.set_at((0,1), 1)
-        m.set_at((1,1), 1)
-        m.set_at((2,1), 1)
-        m.set_at((3,1), 1)
+        for size, rect_point_tuples in mask_data:
+            rects = []
+            mask = pygame.Mask(size)
 
-        r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[<rect(0, 0, 4, 2)>]")
+            for rect_points in rect_point_tuples:
+                rects.append(create_bounding_rect(rect_points))
+                for pt in rect_points:
+                    mask.set_at(pt)
 
-        #00100
-        #01110
-        #00100
-        m = pygame.Mask((5,3))
-        m.set_at((0,0), 0)
-        m.set_at((1,0), 0)
-        m.set_at((2,0), 1)
-        m.set_at((3,0), 0)
-        m.set_at((4,0), 0)
+            expected_rects = sorted(rects, key=tuple)
 
-        m.set_at((0,1), 0)
-        m.set_at((1,1), 1)
-        m.set_at((2,1), 1)
-        m.set_at((3,1), 1)
-        m.set_at((4,1), 0)
+            rects = mask.get_bounding_rects()
 
-        m.set_at((0,2), 0)
-        m.set_at((1,2), 0)
-        m.set_at((2,2), 1)
-        m.set_at((3,2), 0)
-        m.set_at((4,2), 0)
-
-        r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[<rect(1, 0, 3, 3)>]")
-
-        #00010
-        #00100
-        #01000
-        m = pygame.Mask((5,3))
-        m.set_at((0,0), 0)
-        m.set_at((1,0), 0)
-        m.set_at((2,0), 0)
-        m.set_at((3,0), 1)
-        m.set_at((4,0), 0)
-
-        m.set_at((0,1), 0)
-        m.set_at((1,1), 0)
-        m.set_at((2,1), 1)
-        m.set_at((3,1), 0)
-        m.set_at((4,1), 0)
-
-        m.set_at((0,2), 0)
-        m.set_at((1,2), 1)
-        m.set_at((2,2), 0)
-        m.set_at((3,2), 0)
-        m.set_at((4,2), 0)
-
-        r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[<rect(1, 0, 3, 3)>]")
-
-        #00011
-        #11111
-        m = pygame.Mask((5,2))
-        m.set_at((0,0), 0)
-        m.set_at((1,0), 0)
-        m.set_at((2,0), 0)
-        m.set_at((3,0), 1)
-        m.set_at((4,0), 1)
-
-        m.set_at((0,1), 1)
-        m.set_at((1,1), 1)
-        m.set_at((2,1), 1)
-        m.set_at((3,1), 1)
-        m.set_at((3,1), 1)
-
-        r = m.get_bounding_rects()
-        #TODO: this should really make one bounding rect.
-        #self.assertEqual(repr(r), "[<rect(0, 0, 5, 2)>]")
+            self.assertListEqual(sorted(mask.get_bounding_rects(), key=tuple),
+                                 expected_rects, 'size={}'.format(size))
 
     def test_zero_mask(self):
         mask = pygame.mask.Mask((0, 0))
