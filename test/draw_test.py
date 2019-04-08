@@ -36,6 +36,16 @@ def corners(surface):
     return ((0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1))
 
 
+def rect_corners_mids_and_center(rect):
+    """Returns a tuple with each corner, mid, and the center for a given rect.
+
+    Clockwise from the top left corner and ending with the center point.
+    """
+    return (rect.topleft, rect.midtop, rect.topright, rect.midright,
+            rect.bottomright, rect.midbottom, rect.bottomleft,
+            rect.midleft, rect.center)
+
+
 def border_pos_and_color(surface):
     """Yields each border position and its color for a given surface.
 
@@ -440,35 +450,77 @@ class LineMixin(object):
     tests.
     """
 
-    def setUp(self):
-        self._colors = ((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255),
-                        (255, 255, 0), (255, 0, 255), (0, 255, 255),
-                        (255, 255, 255))
+    COLORS = ((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+              (255, 0, 255), (0, 255, 255), (255, 255, 255))
 
+    @staticmethod
+    def _create_surfaces():
         # Create some surfaces with different sizes, depths, and flags.
-        self._surfaces = []
+        surfaces = []
         for size in ((49, 49), (50, 50)):
             for depth in (8, 16, 24, 32):
                 for flags in (0, SRCALPHA):
                     surface = pygame.display.set_mode(size, flags, depth)
-                    self._surfaces.append(surface)
-                    self._surfaces.append(surface.convert_alpha())
+                    surfaces.append(surface)
+                    surfaces.append(surface.convert_alpha())
+        return surfaces
+
+    @staticmethod
+    def _rect_lines(rect):
+        # Yields pairs of end points and their reverse (to test symmetry).
+        # Uses a rect with the points radiating from its midleft.
+        for pt in rect_corners_mids_and_center(rect):
+            if pt == rect.midleft or pt == rect.center:
+                # Don't bother with these points.
+                continue
+            yield (rect.midleft, pt)
+            yield (pt, rect.midleft)
+
+    @staticmethod
+    def _create_line_bounding_rect(surface, start, end, surf_color):
+        # Helper method to create a bounding rect for a given line.
+        # This method checks the surface for drawn points, then creates a
+        # bounding rect to enclose all the points.
+        width, height = surface.get_clip().size
+        xmin, ymin = width, height
+        xmax, ymax = -1, -1
+
+        surface.lock() # For possible speed up.
+        for y in range(height):
+            for x in range(width):
+                if surface.get_at((x, y)) != surf_color:
+                    xmin = min(x, xmin)
+                    xmax = max(x, xmax)
+                    ymin = min(y, ymin)
+                    ymax = max(y, ymax)
+
+        surface.unlock()
+
+        if -1 == xmax:
+            # No points means 0 sized rect with the position at the start.
+            return pygame.Rect(start, (0, 0))
+
+        return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
 
     def test_line__color(self):
         """Tests if the line drawn is the correct color."""
         pos = (0, 0)
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_line(surface, expected_color, pos, (1, 0))
 
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
+    def todo_test_line__color_with_thickness(self):
+        """Ensures a thick line is drawn using the correct color."""
+        self.fail()
+
     def test_aaline__color(self):
         """Tests if the aaline drawn is the correct color."""
         pos = (0, 0)
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_aaline(surface, expected_color, pos, (1, 0))
 
                 self.assertEqual(surface.get_at(pos), expected_color,
@@ -477,7 +529,7 @@ class LineMixin(object):
     def test_line__gaps(self):
         """Tests if the line drawn contains any gaps."""
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             width = surface.get_width()
             self.draw_line(surface, expected_color, (0, 0), (width - 1, 0))
 
@@ -486,13 +538,17 @@ class LineMixin(object):
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
+    def todo_test_line__gaps_with_thickness(self):
+        """Ensures a thick line is drawn without any gaps."""
+        self.fail()
+
     def test_aaline__gaps(self):
         """Tests if the aaline drawn contains any gaps.
 
         See: #512
         """
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             width = surface.get_width()
             self.draw_aaline(surface, expected_color, (0, 0), (width - 1, 0))
 
@@ -501,14 +557,68 @@ class LineMixin(object):
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
+    # This decorator can be removed when the draw.line bounding rect issue is
+    # resolved (#895).
+    @unittest.expectedFailure
+    def test_line__bounding_rect(self):
+        """Ensures draw line returns the correct bounding rect.
+
+        Tests lines with endpoints on and off the surface and a range of
+        width/thickness values.
+        """
+        if isinstance(self, PythonDrawTestCase):
+            self.skipTest('bounding rects not supported in draw_py.draw_line')
+
+        line_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        width = height = 30
+        # Using a rect to help manage where the lines are drawn.
+        helper_rect = pygame.Rect((0, 0), (width, height))
+
+        # Testing surfaces of different sizes. One larger than the helper_rect
+        # and one smaller (to test lines that span the surface).
+        for size in ((width + 5, height + 5), (width - 5, height - 5)):
+            surface = pygame.Surface(size, 0, 32)
+            surf_rect = surface.get_rect()
+
+            # Move the helper rect to different positions to test line
+            # endpoints on and off the surface.
+            for pos in rect_corners_mids_and_center(surf_rect):
+                helper_rect.center = pos
+
+                # Draw using different thicknesses.
+                for thickness in range(-1, 5):
+                    for start, end in self._rect_lines(helper_rect):
+                        surface.fill(surf_color) # Clear for each test.
+
+                        bounding_rect = self.draw_line(surface, line_color,
+                                                       start, end, thickness)
+
+                        if 0 < thickness:
+                            # Calculating the expected_rect after the line is
+                            # drawn (it uses what is actually drawn).
+                            expected_rect = self._create_line_bounding_rect(
+                                surface, start, end, surf_color)
+                        else:
+                            # Nothing drawn.
+                            expected_rect = pygame.Rect(start, (0, 0))
+
+                        self.assertEqual(bounding_rect, expected_rect,
+                            'start={}, end={}, size={}, thickness={}'.format(
+                                start, end, size, thickness))
+
+    def todo_test_aaline__bounding_rect(self):
+        """Ensures draw aaline returns the correct bounding rect."""
+        self.fail()
+
     def test_lines__color(self):
         """Tests if the lines drawn are the correct color.
 
         Draws lines around the border of the given surface and checks if all
         borders of the surface only contain the given color.
         """
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_lines(surface, expected_color, True,
                                 corners(surface))
 
@@ -516,14 +626,18 @@ class LineMixin(object):
                     self.assertEqual(color, expected_color,
                                      'pos={}'.format(pos))
 
+    def todo_test_lines__color_with_thickness(self):
+        """Ensures thick lines are drawn using the correct color."""
+        self.fail()
+
     def test_aalines__color(self):
         """Tests if the aalines drawn are the correct color.
 
         Draws aalines around the border of the given surface and checks if all
         borders of the surface only contain the given color.
         """
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_aalines(surface, expected_color, True,
                                   corners(surface))
 
@@ -538,11 +652,15 @@ class LineMixin(object):
         all borders of the surface contain any gaps.
         """
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             self.draw_lines(surface, expected_color, True, corners(surface))
 
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
+
+    def todo_test_lines__gaps_with_thickness(self):
+        """Ensures thick lines are drawn without any gaps."""
+        self.fail()
 
     def test_aalines__gaps(self):
         """Tests if the aalines drawn contain any gaps.
@@ -553,11 +671,19 @@ class LineMixin(object):
         See: #512
         """
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             self.draw_aalines(surface, expected_color, True, corners(surface))
 
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
+
+    def todo_test_lines__bounding_rect(self):
+        """Ensures draw lines returns the correct bounding rect."""
+        self.fail()
+
+    def todo_test_aalines__bounding_rect(self):
+        """Ensures draw aalines returns the correct bounding rect."""
+        self.fail()
 
 
 class PythonDrawLineTest(LineMixin, PythonDrawTestCase):
