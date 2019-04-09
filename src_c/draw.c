@@ -152,14 +152,16 @@ aaline(PyObject *self, PyObject *arg)
     return pgRect_New4(left, top, right - left + 2, bottom - top + 2);
 }
 
+/* Draws a line on the given surface.
+ *
+ * Returns a Rect bounding the drawn area.
+ */
 static PyObject *
 line(PyObject *self, PyObject *arg)
 {
     PyObject *surfobj, *colorobj, *start, *end;
     SDL_Surface *surf;
     int startx, starty, endx, endy;
-    int dx, dy;
-    int rtop, rleft, rwidth, rheight;
     int width = 1;
     int pts[4];
     Uint8 rgba[4];
@@ -198,22 +200,15 @@ line(PyObject *self, PyObject *arg)
     if (!pgSurface_Unlock(surfobj))
         return NULL;
 
-    /*compute return rect*/
-    if (!anydraw)
+    if (!anydraw) {
         return pgRect_New4(startx, starty, 0, 0);
-    rleft = MIN(startx, endx);
-    rtop = MIN(starty, endy);
-    dx = abs(startx - endx);
-    dy = abs(starty - endy);
-    if (dx > dy) {
-        rwidth = dx + 1;
-        rheight = dy + width;
     }
-    else {
-        rwidth = dx + width;
-        rheight = dy + 1;
-    }
-    return pgRect_New4(rleft, rtop, rwidth, rheight);
+
+    /* The pts array was updated with the top left and bottom right corners
+     * of the bounding rect: {left, top, right, bottom}. That is used to
+     * construct the rect bounding the changed area. */
+    return pgRect_New4(pts[0], pts[1], pts[2] - pts[0] + 1,
+                       pts[3] - pts[1] + 1);
 }
 
 static PyObject *
@@ -714,6 +709,29 @@ clip_and_draw_line(SDL_Surface *surf, SDL_Rect *rect, Uint32 color, int *pts)
     return 1;
 }
 
+/* This is an internal helper function.
+ *
+ * This function draws a line that is clipped by the given rect. To draw thick
+ * lines (width > 1), multiple parallel lines are drawn.
+ *
+ * Params:
+ *     surf - pointer to surface to draw on
+ *     rect - pointer to clipping rect
+ *     color - color of line to draw
+ *     width - width/thickness of line to draw (expected to be > 0)
+ *     pts - array of 4 points which are the endpoints of the line to
+ *         draw: {x0, y0, x1, y1}
+ *
+ * Returns:
+ *     int - 1 indicates that something was drawn on the surface
+ *           0 indicates that nothing was drawn
+ *
+ *     If something was drawn, the 'pts' parameter is changed to contain the
+ *     min/max x/y values of the pixels changed: {xmin, ymin, xmax, ymax}.
+ *     These points represent the minimum bounding box of the affected area.
+ *     The top left corner is xmin, ymin and the bottom right corner is
+ *     xmax, ymax.
+ */
 static int
 clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                          int width, int *pts)
@@ -721,22 +739,48 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
     int loop;
     int xinc = 0, yinc = 0;
     int newpts[4];
-    int range[4];
+    int range[4]; /* {xmin, ymin, xmax, ymax} */
     int anydrawn = 0;
 
-    if (abs(pts[0] - pts[2]) > abs(pts[1] - pts[3]))
+    /* Decide which direction to grow (width/thickness). */
+    if (abs(pts[0] - pts[2]) > abs(pts[1] - pts[3])) {
+        /* The line's thickness will be in the y direction. The left/right
+         * ends of the line will be flat. */
         yinc = 1;
-    else
-        xinc = 1;
-
-    memcpy(newpts, pts, sizeof(int) * 4);
-    if (clip_and_draw_line(surf, rect, color, newpts)) {
-        anydrawn = 1;
-        memcpy(range, newpts, sizeof(int) * 4);
     }
     else {
-        range[0] = range[1] = 10000;
-        range[2] = range[3] = -10000;
+        /* The line's thickness will be in the x direction. The top/bottom
+         * ends of the line will be flat. */
+        xinc = 1;
+    }
+
+    memcpy(newpts, pts, sizeof(int) * 4);
+
+    /* Draw the line or center line if width > 1. */
+    if (clip_and_draw_line(surf, rect, color, newpts)) {
+        anydrawn = 1;
+
+        if (newpts[0] > newpts[2]) {
+            range[0] = newpts[2]; /* xmin */
+            range[2] = newpts[0]; /* xmax */
+        }
+        else {
+            range[0] = newpts[0]; /* xmin */
+            range[2] = newpts[2]; /* xmax */
+        }
+
+        if (newpts[1] > newpts[3]) {
+            range[1] = newpts[3]; /* ymin */
+            range[3] = newpts[1]; /* ymax */
+        }
+        else {
+            range[1] = newpts[1]; /* ymin */
+            range[3] = newpts[3]; /* ymax */
+        }
+    }
+    else {
+        range[0] = range[1] = INT_MAX; /* Default to big values for min. */
+        range[2] = range[3] = INT_MIN; /* Default to small values for max. */
     }
 
     for (loop = 1; loop < width; loop += 2) {
@@ -744,29 +788,37 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
         newpts[1] = pts[1] + yinc * (loop / 2 + 1);
         newpts[2] = pts[2] + xinc * (loop / 2 + 1);
         newpts[3] = pts[3] + yinc * (loop / 2 + 1);
+
+        /* Draw to the right and/or under the center line. */
         if (clip_and_draw_line(surf, rect, color, newpts)) {
             anydrawn = 1;
-            range[0] = MIN(newpts[0], range[0]);
-            range[1] = MIN(newpts[1], range[1]);
-            range[2] = MAX(newpts[2], range[2]);
-            range[3] = MAX(newpts[3], range[3]);
+            range[0] = MIN(range[0], MIN(newpts[0], newpts[2]));
+            range[1] = MIN(range[1], MIN(newpts[1], newpts[3]));
+            range[2] = MAX(range[2], MAX(newpts[0], newpts[2]));
+            range[3] = MAX(range[3], MAX(newpts[1], newpts[3]));
         }
+
         if (loop + 1 < width) {
             newpts[0] = pts[0] - xinc * (loop / 2 + 1);
             newpts[1] = pts[1] - yinc * (loop / 2 + 1);
             newpts[2] = pts[2] - xinc * (loop / 2 + 1);
             newpts[3] = pts[3] - yinc * (loop / 2 + 1);
+
+            /* Draw to the left and/or above the center line. */
             if (clip_and_draw_line(surf, rect, color, newpts)) {
                 anydrawn = 1;
-                range[0] = MIN(newpts[0], range[0]);
-                range[1] = MIN(newpts[1], range[1]);
-                range[2] = MAX(newpts[2], range[2]);
-                range[3] = MAX(newpts[3], range[3]);
+                range[0] = MIN(range[0], MIN(newpts[0], newpts[2]));
+                range[1] = MIN(range[1], MIN(newpts[1], newpts[3]));
+                range[2] = MAX(range[2], MAX(newpts[0], newpts[2]));
+                range[3] = MAX(range[3], MAX(newpts[1], newpts[3]));
             }
         }
     }
-    if (anydrawn)
+
+    if (anydrawn) {
         memcpy(pts, range, sizeof(int) * 4);
+    }
+
     return anydrawn;
 }
 
