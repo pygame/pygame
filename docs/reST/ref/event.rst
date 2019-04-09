@@ -116,6 +116,22 @@ attributes.
 
 |
 
+.. versionadded:: 2.0
+
+pygame can recognize text or files dropped in its window. If a file
+is dropped, ``file`` will be its path.
+
+::
+
+   DROPBEGIN
+   DROPCOMPLETE
+   DROPFILE        file
+   DROPTEXT        text
+
+|
+
+``DROPTEXT`` is only supported on X11.
+
 .. function:: pump
 
    | :sl:`internally process pygame event handlers`
