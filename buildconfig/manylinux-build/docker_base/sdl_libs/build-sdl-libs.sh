@@ -18,6 +18,8 @@ sha512sum -c sdl.sha512
 # Build SDL
 tar xzf ${SDL}.tar.gz
 cd $SDL
+patch -p1 < ../libsdl-1.2-fix-compilation-libX11.patch
+./autogen.sh
 ./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
 make
 make install

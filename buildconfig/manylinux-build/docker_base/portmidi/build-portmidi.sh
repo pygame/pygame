@@ -23,6 +23,7 @@ ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR
 ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR/server
 
 cd portmidi/
+patch -p1 < ../no-java.patch
 #cmake -DJAVA_JVM_LIBRARY=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/server/libjvm.so .
 cmake -DCMAKE_BUILD_TYPE=Release .
 make

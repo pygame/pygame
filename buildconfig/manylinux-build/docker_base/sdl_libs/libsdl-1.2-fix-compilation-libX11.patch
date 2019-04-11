@@ -1,0 +1,59 @@
+# From: https://bugzilla-attachments.libsdl.org/attachment.cgi?id=1166
+# See:  https://bugzilla.libsdl.org/show_bug.cgi?id=1769
+# HG changeset patch
+# User Azamat H. Hackimov <azamat.hackimov@gmail.com>
+# Date 1370184533 -21600
+# Branch SDL-1.2
+# Node ID 91ad7b43317a6387e115ecdf63a49137f47e42c8
+# Parent  f7fd5c3951b9ed922fdf696f7182e71b58a13268
+Fix compilation with libX11 >= 1.5.99.902.
+
+These changes fixes bug #1769 for SDL 1.2
+(http://bugzilla.libsdl.org/show_bug.cgi?id=1769).
+
+diff -r f7fd5c3951b9 -r 91ad7b43317a configure.in
+--- a/configure.in	Wed Apr 17 00:56:53 2013 -0700
++++ b/configure.in	Sun Jun 02 20:48:53 2013 +0600
+@@ -1169,6 +1169,17 @@
+             if test x$definitely_enable_video_x11_xrandr = xyes; then
+                 AC_DEFINE(SDL_VIDEO_DRIVER_X11_XRANDR)
+             fi
++            AC_MSG_CHECKING(for const parameter to _XData32)
++            have_const_param_xdata32=no
++            AC_TRY_COMPILE([
++              #include <X11/Xlibint.h>
++              extern int _XData32(Display *dpy,register _Xconst long *data,unsigned len);
++            ],[
++            ],[
++            have_const_param_xdata32=yes
++            AC_DEFINE(SDL_VIDEO_DRIVER_X11_CONST_PARAM_XDATA32)
++            ])
++            AC_MSG_RESULT($have_const_param_xdata32)
+         fi
+     fi
+ }
+diff -r f7fd5c3951b9 -r 91ad7b43317a include/SDL_config.h.in
+--- a/include/SDL_config.h.in	Wed Apr 17 00:56:53 2013 -0700
++++ b/include/SDL_config.h.in	Sun Jun 02 20:48:53 2013 +0600
+@@ -283,6 +283,7 @@
+ #undef SDL_VIDEO_DRIVER_WINDIB
+ #undef SDL_VIDEO_DRIVER_WSCONS
+ #undef SDL_VIDEO_DRIVER_X11
++#undef SDL_VIDEO_DRIVER_X11_CONST_PARAM_XDATA32
+ #undef SDL_VIDEO_DRIVER_X11_DGAMOUSE
+ #undef SDL_VIDEO_DRIVER_X11_DYNAMIC
+ #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XEXT
+diff -r f7fd5c3951b9 -r 91ad7b43317a src/video/x11/SDL_x11sym.h
+--- a/src/video/x11/SDL_x11sym.h	Wed Apr 17 00:56:53 2013 -0700
++++ b/src/video/x11/SDL_x11sym.h	Sun Jun 02 20:48:53 2013 +0600
+@@ -165,7 +165,11 @@
+  */
+ #ifdef LONG64
+ SDL_X11_MODULE(IO_32BIT)
++#if SDL_VIDEO_DRIVER_X11_CONST_PARAM_XDATA32
++SDL_X11_SYM(int,_XData32,(Display *dpy,register _Xconst long *data,unsigned len),(dpy,data,len),return)
++#else
+ SDL_X11_SYM(int,_XData32,(Display *dpy,register long *data,unsigned len),(dpy,data,len),return)
++#endif
+ SDL_X11_SYM(void,_XRead32,(Display *dpy,register long *data,long len),(dpy,data,len),)
+ #endif

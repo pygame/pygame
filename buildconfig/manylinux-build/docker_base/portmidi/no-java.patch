@@ -1,0 +1,9 @@
+--- portmidi.orig/CMakeLists.txt	2019-04-11 12:42:33.397314863 +0100
++++ portmidi/CMakeLists.txt 2019-04-11 12:42:48.315175169 +0100
+@@ -73,5 +73,5 @@ add_subdirectory(pm_test)
+ add_subdirectory(pm_dylib)
+ 
+ # Cannot figure out how to make an xcode Java application with CMake
+-add_subdirectory(pm_java)
++#add_subdirectory(pm_java)
+ 
