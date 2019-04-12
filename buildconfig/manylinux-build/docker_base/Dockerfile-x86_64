@@ -12,7 +12,7 @@ FROM quay.io/pypa/manylinux2010_x86_64
 # Install SDL and portmidi dependencies
 RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
     mesa-libGLU-devel audiofile-devel \
-    cmake libtiff-devel \
+    cmake libtiff-devel dejavu-sans-fonts fontconfig \
     mikmod-devel smpeg-devel giflib-devel libsndfile-devel dbus-devel \
     pulseaudio-libs-devel xz
 
