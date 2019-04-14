@@ -29,6 +29,16 @@ class ScrapModuleTest(unittest.TestCase):
 
         self.assertTrue(scrap.get_init())
 
+    def test_init__reinit(self):
+        """Ensures reinitializing the scrap module doesn't clear its data."""
+        data_type = pygame.SCRAP_TEXT
+        expected_data = as_bytes('test_init__reinit')
+        scrap.put(data_type, expected_data)
+
+        scrap.init()
+
+        self.assertEqual(scrap.get(data_type), expected_data)
+
     def test_get_init(self):
         """Ensures get_init gets the init state."""
         self.assertTrue(scrap.get_init())
