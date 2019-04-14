@@ -14,7 +14,7 @@ RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
     mesa-libGLU-devel audiofile-devel \
     cmake java-1.7.0-openjdk-devel jpackage-utils libtiff-devel \
     mikmod-devel smpeg-devel giflib-devel libsndfile-devel dbus-devel \
-    pulseaudio-libs-devel xz
+    pulseaudio-libs-devel xz subversion
 
 # Build and install PNG
 ADD libpng /png_build/
