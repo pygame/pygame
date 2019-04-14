@@ -146,6 +146,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       parameter and its width and height will be 0
    :rtype: Rect
 
+   :raises ValueError: if ``width < 0`` or ``width > rect.w / 2`` or
+      ``width > rect.h / 2``
+
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.ellipse ##
