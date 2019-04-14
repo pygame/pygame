@@ -33,10 +33,7 @@ class MixerMusicModuleTest(unittest.TestCase):
           # Load a music file for playback
 
         data_fname = example_path('data')
-
-        # The mp3 test file can crash smpeg on some systems.
-        ## formats = ['mp3', 'ogg', 'wav']
-        formats = ['ogg', 'wav']
+        formats = ['mp3', 'ogg', 'wav']
 
         for f in formats:
             path = os.path.join(data_fname, 'house_lo.%s' % f)
