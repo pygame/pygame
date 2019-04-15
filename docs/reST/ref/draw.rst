@@ -104,12 +104,39 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: circle
 
-   | :sl:`draw a circle around a point`
-   | :sg:`circle(Surface, color, pos, radius, width=0) -> Rect`
+   | :sl:`draw a circle`
+   | :sg:`circle(surface=Surface, color=Color, center=(x, y), radius=radius) -> Rect`
+   | :sg:`circle(surface=Surface, color=Color, center=(x, y), radius=radius, width=0) -> Rect`
 
-   Draws a circular shape on the Surface. The pos argument is the center of the
-   circle, and radius is the size. The width argument is the thickness to draw
-   the outer edge. If width is zero then the circle will be filled.
+   Draws an circle on the given surface.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param int center: center point of the circle
+   :param int radius: radius of the circle, measured from the ``center``
+      parameter, a radius of 0 will only draw the ``center`` pixel
+   :param int width: (optional) used for line thickness or to indicate that
+      the circle is to be filled
+
+         | if ``width == 0``, (default) fill the circle
+         | if ``width > 0``, used for line thickness
+         | if ``width < 0``, raises a ``ValueError``
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will only grow
+            inward.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the ``center`` parameter value and its
+      width and height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``radius < 0`` or ``width < 0`` or ``width > radius``
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.circle ##
 

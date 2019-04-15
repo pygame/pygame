@@ -506,41 +506,55 @@ ellipse(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-circle(PyObject *self, PyObject *arg)
+circle(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj;
-    SDL_Surface *surf;
+    PyObject *surfobj = NULL, *colorobj = NULL;
+    SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
     int posx, posy, radius, t, l, b, r;
-    int width = 0, loop;
+    int width = 0; /* Default width. */
+    static char *keywords[] = {"surface", "color", "center",
+                               "radius",  "width", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!O(ii)i|i", &pgSurface_Type, &surfobj,
-                          &colorobj, &posx, &posy, &radius, &width))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O(ii)i|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &posx, &posy, &radius, &width)) {
+        return NULL; /* Exception already set. */
+    }
 
     surf = pgSurface_AsSurface(surfobj);
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
-        return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
+
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (radius < 0)
+    if (radius < 0) {
         return RAISE(PyExc_ValueError, "negative radius");
-    if (width < 0)
-        return RAISE(PyExc_ValueError, "negative width");
-    if (width > radius)
-        return RAISE(PyExc_ValueError, "width greater than radius");
+    }
 
-    if (!pgSurface_Lock(surfobj))
-        return NULL;
+    if (width < 0) {
+        return RAISE(PyExc_ValueError, "negative width");
+    }
+
+    if (width > radius) {
+        return RAISE(PyExc_ValueError, "width greater than radius");
+    }
+
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
 
     if (!width) {
-        draw_ellipse(surf, (Sint16)posx, (Sint16)posy, (Sint16)radius * 2,
-                     (Sint16)radius * 2, 1, color);
+        draw_ellipse(surf, posx, posy, radius * 2, radius * 2, 1, color);
     }
     else {
+        int loop;
+
         for (loop = 0; loop < width; ++loop) {
             draw_ellipse(surf, posx, posy, 2 * (radius - loop),
                          2 * (radius - loop), 0, color);
@@ -549,14 +563,16 @@ circle(PyObject *self, PyObject *arg)
              * drawing the missed spots in the filled circle caused by which
              * pixels are filled.
              */
-            // if (width > 1 && loop > 0)       // removed due to: 'Gaps in circle for width greater than 1 #736'
+            // if (width > 1 && loop > 0)
+            // removed due to: 'Gaps in circle for width greater than 1 #736'
             draw_ellipse(surf, posx + 1, posy, 2 * (radius - loop),
-                        2 * (radius - loop), 0, color);
+                         2 * (radius - loop), 0, color);
         }
     }
 
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
 
     l = MAX(posx - radius, surf->clip_rect.x);
     t = MAX(posy - radius, surf->clip_rect.y);
@@ -1737,7 +1753,8 @@ static PyMethodDef _draw_methods[] = {
     {"lines", lines, METH_VARARGS, DOC_PYGAMEDRAWLINES},
     {"ellipse", ellipse, METH_VARARGS, DOC_PYGAMEDRAWELLIPSE},
     {"arc", arc, METH_VARARGS, DOC_PYGAMEDRAWARC},
-    {"circle", circle, METH_VARARGS, DOC_PYGAMEDRAWCIRCLE},
+    {"circle", (PyCFunction)circle, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWCIRCLE},
     {"polygon", polygon, METH_VARARGS, DOC_PYGAMEDRAWPOLYGON},
     {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWRECT},
