@@ -1,4 +1,5 @@
 FROM quay.io/pypa/manylinux1_x86_64
+ENV MAKEFLAGS="-j 4"
 
 # Set up repoforge
 COPY RPM-GPG-KEY.dag.txt /tmp/
@@ -49,6 +50,8 @@ RUN ["bash", "/flac_build/build-flac.sh"]
 # Build and install SDL
 ADD sdl_libs /sdl_build/
 RUN ["bash", "/sdl_build/build-sdl-libs.sh"]
+
+ENV MAKEFLAGS=
 
 # Build and install SDL and portmidi
 ADD portmidi /portmidi_build/
