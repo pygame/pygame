@@ -1,8 +1,27 @@
-/* Python 2.x/3.x compitibility tools
+/* Python 2.x/3.x compatibility tools
  */
 
 #if !defined(PGCOMPAT_H)
 #define PGCOMPAT_H
+
+#include <Python.h>
+
+/* Cobjects vanish in Python 3.2; so we will code as though we use capsules */
+#if defined(Py_CAPSULE_H)
+#define PG_HAVE_CAPSULE 1
+#else
+#define PG_HAVE_CAPSULE 0
+#endif
+#if defined(Py_COBJECT_H)
+#define PG_HAVE_COBJECT 1
+#else
+#define PG_HAVE_COBJECT 0
+#endif
+#if !PG_HAVE_CAPSULE
+#define PyCapsule_New(ptr, n, dfn) PyCObject_FromVoidPtr(ptr, dfn)
+#define PyCapsule_GetPointer(obj, n) PyCObject_AsVoidPtr(obj)
+#define PyCapsule_CheckExact(obj) PyCObject_Check(obj)
+#endif
 
 #if PY_MAJOR_VERSION >= 3
 
@@ -192,4 +211,4 @@
 #endif
 #endif
 
-#endif /* #if !defined(PGCOMPAT_H) */
+#endif /* ~defined(PGCOMPAT_H) */

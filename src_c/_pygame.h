@@ -57,34 +57,12 @@
  ** is a dereferenced NULL pointer that is easier to diagnose
  ** than it could be :]
  **/
-#if defined(HAVE_SNPRINTF) /* defined in python.h (pyerrors.h) and SDL.h \
-                              (SDL_config.h) */
-#undef HAVE_SNPRINTF       /* remove GCC redefine warning */
-#endif
 
-// This must be before all else
-#if defined(__SYMBIAN32__) && defined(OPENC)
-#include <sys/types.h>
-
-#if defined(__WINS__)
-void *
-_alloca(size_t size);
-#define alloca _alloca
-#endif
-#endif
-
-#define PG_STRINGIZE_HELPER(x) #x
-#define PG_STRINGIZE(x) PG_STRINGIZE_HELPER(x)
-#define PG_WARN(desc) message(__FILE__ "(" PG_STRINGIZE(__LINE__) "): WARNING: " #desc)
-
-/* This is unconditionally defined in Python.h */
-#if defined(_POSIX_C_SOURCE)
-#undef _POSIX_C_SOURCE
-#endif
-
+#include "pgplatform.h"
 #include <Python.h>
+#include <SDL.h>
 
-/* the version macros are defined since version 1.9.5 */
+/* version macros (defined since version 1.9.5) */
 #define PG_MAJOR_VERSION 2
 #define PG_MINOR_VERSION 0
 #define PG_PATCH_VERSION 0
@@ -93,132 +71,12 @@ _alloca(size_t size);
     (PG_VERSIONNUM(PG_MAJOR_VERSION, PG_MINOR_VERSION, PG_PATCH_VERSION) >= \
      PG_VERSIONNUM(MAJOR, MINOR, PATCH))
 
-/* Cobjects vanish in Python 3.2; so we will code as though we use capsules */
-#if defined(Py_CAPSULE_H)
-#define PG_HAVE_CAPSULE 1
-#else
-#define PG_HAVE_CAPSULE 0
-#endif
-#if defined(Py_COBJECT_H)
-#define PG_HAVE_COBJECT 1
-#else
-#define PG_HAVE_COBJECT 0
-#endif
-#if !PG_HAVE_CAPSULE
-#define PyCapsule_New(ptr, n, dfn) PyCObject_FromVoidPtr(ptr, dfn)
-#define PyCapsule_GetPointer(obj, n) PyCObject_AsVoidPtr(obj)
-#define PyCapsule_CheckExact(obj) PyCObject_Check(obj)
-#endif
-
-/* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
- * define here as needed.
+/* SDL 1.x/2.x
  */
-#if !defined(PyBUF_SIMPLE)
-typedef struct bufferinfo {
-    void *buf;
-    PyObject *obj;
-    Py_ssize_t len;
-    Py_ssize_t itemsize;
-    int readonly;
-    int ndim;
-    char *format;
-    Py_ssize_t *shape;
-    Py_ssize_t *strides;
-    Py_ssize_t *suboffsets;
-    void *internal;
-} Py_buffer;
 
-/* Flags for getting buffers */
-#define PyBUF_SIMPLE 0
-#define PyBUF_WRITABLE 0x0001
-/*  we used to include an E, backwards compatible alias  */
-#define PyBUF_WRITEABLE PyBUF_WRITABLE
-#define PyBUF_FORMAT 0x0004
-#define PyBUF_ND 0x0008
-#define PyBUF_STRIDES (0x0010 | PyBUF_ND)
-#define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
-#define PyBUF_F_CONTIGUOUS (0x0040 | PyBUF_STRIDES)
-#define PyBUF_ANY_CONTIGUOUS (0x0080 | PyBUF_STRIDES)
-#define PyBUF_INDIRECT (0x0100 | PyBUF_STRIDES)
+/* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
+/* IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise */
 
-#define PyBUF_CONTIG (PyBUF_ND | PyBUF_WRITABLE)
-#define PyBUF_CONTIG_RO (PyBUF_ND)
-
-#define PyBUF_STRIDED (PyBUF_STRIDES | PyBUF_WRITABLE)
-#define PyBUF_STRIDED_RO (PyBUF_STRIDES)
-
-#define PyBUF_RECORDS (PyBUF_STRIDES | PyBUF_WRITABLE | PyBUF_FORMAT)
-#define PyBUF_RECORDS_RO (PyBUF_STRIDES | PyBUF_FORMAT)
-
-#define PyBUF_FULL (PyBUF_INDIRECT | PyBUF_WRITABLE | PyBUF_FORMAT)
-#define PyBUF_FULL_RO (PyBUF_INDIRECT | PyBUF_FORMAT)
-
-#define PyBUF_READ 0x100
-#define PyBUF_WRITE 0x200
-#define PyBUF_SHADOW 0x400
-
-typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
-typedef void (*releasebufferproc)(Py_buffer *);
-#endif /* #if !defined(PyBUF_SIMPLE) */
-
-/* Flag indicating a pg_buffer; used for assertions within callbacks */
-#ifndef NDEBUG
-#define PyBUF_PYGAME 0x4000
-#endif
-
-#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
-
-/* Array information exchange struct C type; inherits from Py_buffer
- *
- * Pygame uses its own Py_buffer derived C struct as an internal representation
- * of an imported array buffer. The extended Py_buffer allows for a
- * per-instance release callback,
- */
-typedef void (*pybuffer_releaseproc)(Py_buffer *);
-
-typedef struct pg_bufferinfo_s {
-    Py_buffer view;
-    PyObject *consumer; /* Input: Borrowed reference */
-    pybuffer_releaseproc release_buffer;
-} pg_buffer;
-
-/* Operating system specific adjustments
- */
-// No signal()
-#if defined(__SYMBIAN32__) && defined(HAVE_SIGNAL_H)
-#undef HAVE_SIGNAL_H
-#endif
-
-#if defined(HAVE_SNPRINTF)
-#undef HAVE_SNPRINTF
-#endif
-
-#ifdef MS_WIN32 /*Python gives us MS_WIN32, SDL needs just WIN32*/
-#ifndef WIN32
-#define WIN32
-#endif
-#endif
-
-/// Prefix when initializing module
-#define MODPREFIX ""
-/// Prefix when importing module
-#define IMPPREFIX "pygame."
-
-#ifdef __SYMBIAN32__
-#undef MODPREFIX
-#undef IMPPREFIX
-// On Symbian there is no pygame package. The extensions are built-in or in
-// sys\bin.
-#define MODPREFIX "pygame_"
-#define IMPPREFIX "pygame_"
-#endif
-
-#include <SDL.h>
-
-/* Pygame's SDL version macros:
- *   IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise
- *   IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise
- */
 #if (SDL_VERSION_ATLEAST(2, 0, 0))
 #define IS_SDLv1 0
 #define IS_SDLv2 1
@@ -327,6 +185,79 @@ typedef struct {
 } pg_VideoInfo;
 
 #endif /* IS_SDLv2 */
+
+/* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
+ * define here as needed.
+ */
+#if !defined(PyBUF_SIMPLE)
+typedef struct bufferinfo {
+    void *buf;
+    PyObject *obj;
+    Py_ssize_t len;
+    Py_ssize_t itemsize;
+    int readonly;
+    int ndim;
+    char *format;
+    Py_ssize_t *shape;
+    Py_ssize_t *strides;
+    Py_ssize_t *suboffsets;
+    void *internal;
+} Py_buffer;
+
+/* Flags for getting buffers */
+#define PyBUF_SIMPLE 0
+#define PyBUF_WRITABLE 0x0001
+/*  we used to include an E, backwards compatible alias  */
+#define PyBUF_WRITEABLE PyBUF_WRITABLE
+#define PyBUF_FORMAT 0x0004
+#define PyBUF_ND 0x0008
+#define PyBUF_STRIDES (0x0010 | PyBUF_ND)
+#define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
+#define PyBUF_F_CONTIGUOUS (0x0040 | PyBUF_STRIDES)
+#define PyBUF_ANY_CONTIGUOUS (0x0080 | PyBUF_STRIDES)
+#define PyBUF_INDIRECT (0x0100 | PyBUF_STRIDES)
+
+#define PyBUF_CONTIG (PyBUF_ND | PyBUF_WRITABLE)
+#define PyBUF_CONTIG_RO (PyBUF_ND)
+
+#define PyBUF_STRIDED (PyBUF_STRIDES | PyBUF_WRITABLE)
+#define PyBUF_STRIDED_RO (PyBUF_STRIDES)
+
+#define PyBUF_RECORDS (PyBUF_STRIDES | PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_RECORDS_RO (PyBUF_STRIDES | PyBUF_FORMAT)
+
+#define PyBUF_FULL (PyBUF_INDIRECT | PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_FULL_RO (PyBUF_INDIRECT | PyBUF_FORMAT)
+
+#define PyBUF_READ 0x100
+#define PyBUF_WRITE 0x200
+#define PyBUF_SHADOW 0x400
+
+typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
+typedef void (*releasebufferproc)(Py_buffer *);
+#endif /* ~defined(PyBUF_SIMPLE) */
+
+/* Flag indicating a pg_buffer; used for assertions within callbacks */
+#ifndef NDEBUG
+#define PyBUF_PYGAME 0x4000
+#endif
+
+#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
+
+/* Array information exchange struct C type; inherits from Py_buffer
+ *
+ * Pygame uses its own Py_buffer derived C struct as an internal representation
+ * of an imported array buffer. The extended Py_buffer allows for a
+ * per-instance release callback,
+ */
+typedef void (*pybuffer_releaseproc)(Py_buffer *);
+
+typedef struct pg_bufferinfo_s {
+    Py_buffer view;
+    PyObject *consumer; /* Input: Borrowed reference */
+    pybuffer_releaseproc release_buffer;
+} pg_buffer;
+
 /* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
 
@@ -339,21 +270,10 @@ typedef struct {
 #endif /* ~WITH_THREAD */
 
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
-#define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
-#ifndef MAX
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif
-
-#ifndef ABS
-#define ABS(a) (((a) < 0) ? -(a) : (a))
-#endif
-
-/* test sdl initializations */
+/*
+ * Initialization checks
+ */
 #define VIDEO_INIT_CHECK()            \
     if (!SDL_WasInit(SDL_INIT_VIDEO)) \
     return RAISE(pgExc_SDLError, "video system not initialized")
@@ -366,7 +286,11 @@ typedef struct {
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
     return RAISE(pgExc_SDLError, "joystick system not initialized")
 
-/* BASE */
+#include "pgimport.h"
+
+/*
+ * BASE module
+ */
 #define VIEW_CONTIGUOUS 1
 #define VIEW_C_ORDER 2
 #define VIEW_F_ORDER 4
@@ -377,6 +301,7 @@ typedef struct {
 #else /* IS_SDLv2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 23
 #endif /* IS_SDLv2 */
+
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define pgExc_SDLError ((PyObject *)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -461,9 +386,11 @@ typedef struct {
 #endif /* IS_SDLv2 */
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
-#endif
+#endif /* ~PYGAMEAPI_BASE_INTERNAL */
 
-/* RECT */
+/*
+ * RECT module
+ */
 #define PYGAMEAPI_RECT_FIRSTSLOT \
     (PYGAMEAPI_BASE_FIRSTSLOT + PYGAMEAPI_BASE_NUMSLOTS)
 #define PYGAMEAPI_RECT_NUMSLOTS 4
@@ -501,7 +428,9 @@ typedef struct {
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect, RECT)
 #endif
 
-/* CDROM */
+/*
+ * CDROM module
+ */
 #define PYGAMEAPI_CDROM_FIRSTSLOT \
     (PYGAMEAPI_RECT_FIRSTSLOT + PYGAMEAPI_RECT_NUMSLOTS)
 #define PYGAMEAPI_CDROM_NUMSLOTS 2
@@ -523,7 +452,9 @@ typedef struct {
 #define import_pygame_cd() IMPORT_PYGAME_MODULE(cdrom, CDROM)
 #endif
 
-/* JOYSTICK */
+/*
+ * JOYSTICK module
+ */
 #define PYGAMEAPI_JOYSTICK_FIRSTSLOT \
     (PYGAMEAPI_CDROM_FIRSTSLOT + PYGAMEAPI_CDROM_NUMSLOTS)
 #define PYGAMEAPI_JOYSTICK_NUMSLOTS 2
@@ -547,7 +478,9 @@ typedef struct {
 #define import_pygame_joystick() IMPORT_PYGAME_MODULE(joystick, JOYSTICK)
 #endif
 
-/* DISPLAY */
+/*
+ * DISPLAY module
+ */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
@@ -582,7 +515,9 @@ typedef struct {
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
 
-/* SURFACE */
+/*
+ * SURFACE module
+ */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT \
     (PYGAMEAPI_DISPLAY_FIRSTSLOT + PYGAMEAPI_DISPLAY_NUMSLOTS)
 #define PYGAMEAPI_SURFACE_NUMSLOTS 3
@@ -590,8 +525,8 @@ typedef struct {
     PyObject_HEAD SDL_Surface *surf;
 #if IS_SDLv2
     int owner;
-#endif                                    /* IS_SDLv2 */
-    struct pgSubSurface_Data *subsurface; /*ptr to subsurface data (if a
+#endif /* IS_SDLv2 */
+    struct pgSubSurface_Data *subsurface; /* ptr to subsurface data (if a
                                            * subsurface)*/
     PyObject *weakreflist;
     PyObject *locklist;
@@ -632,7 +567,10 @@ typedef struct {
 
 #endif
 
-/* SURFLOCK */ /*auto import/init by surface*/
+/*
+ * SURFLOCK module
+ * auto imported/initialized by surface
+ */
 #define PYGAMEAPI_SURFLOCK_FIRSTSLOT \
     (PYGAMEAPI_SURFACE_FIRSTSLOT + PYGAMEAPI_SURFACE_NUMSLOTS)
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
@@ -677,7 +615,9 @@ typedef struct {
          PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 7])
 #endif
 
-/* EVENT */
+/*
+ * EVENT module
+ */
 #define PYGAMEAPI_EVENT_FIRSTSLOT \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
 #if IS_SDLv1
@@ -715,8 +655,10 @@ typedef struct {
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif
 
-/* RWOBJECT */
-/*the rwobject are only needed for C side work, not accessable from python*/
+/*
+ * RWOBJECT module
+ * the rwobject are only needed for C side work, not accessable from python.
+ */
 #define PYGAMEAPI_RWOBJECT_FIRSTSLOT \
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
@@ -742,7 +684,9 @@ typedef struct {
 
 #endif
 
-/* PixelArray */
+/*
+ * PixelArray module
+ */
 #define PYGAMEAPI_PIXELARRAY_FIRSTSLOT \
     (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
@@ -755,7 +699,9 @@ typedef struct {
 #define import_pygame_pixelarray() IMPORT_PYGAME_MODULE(pixelarray, PIXELARRAY)
 #endif /* PYGAMEAPI_PIXELARRAY_INTERNAL */
 
-/* Color */
+/*
+ * Color module
+ */
 #define PYGAMEAPI_COLOR_FIRSTSLOT \
     (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
 #define PYGAMEAPI_COLOR_NUMSLOTS 4
@@ -776,7 +722,9 @@ typedef struct {
 #define import_pygame_color() IMPORT_PYGAME_MODULE(color, COLOR)
 #endif /* PYGAMEAPI_COLOR_INTERNAL */
 
-/* Math */
+/*
+ * Math module
+ */
 #define PYGAMEAPI_MATH_FIRSTSLOT \
     (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
 #define PYGAMEAPI_MATH_NUMSLOTS 2
@@ -794,71 +742,23 @@ typedef struct {
 #define import_pygame_math() IMPORT_PYGAME_MODULE(math, MATH)
 #endif /* PYGAMEAPI_MATH_INTERNAL */
 
-#define PG_CAPSULE_NAME(m) (IMPPREFIX m "." PYGAMEAPI_LOCAL_ENTRY)
-
-#define _IMPORT_PYGAME_MODULE(module, MODULE, api_root)                      \
-    {                                                                        \
-        PyObject *_module = PyImport_ImportModule(IMPPREFIX #module);        \
-                                                                             \
-        if (_module != NULL) {                                               \
-            PyObject *_c_api =                                               \
-                PyObject_GetAttrString(_module, PYGAMEAPI_LOCAL_ENTRY);      \
-                                                                             \
-            Py_DECREF(_module);                                              \
-            if (_c_api != NULL && PyCapsule_CheckExact(_c_api)) {            \
-                void **localptr = (void **)PyCapsule_GetPointer(             \
-                    _c_api, PG_CAPSULE_NAME(#module));                       \
-                                                                             \
-                if (localptr != NULL) {                                      \
-                    memcpy(api_root + PYGAMEAPI_##MODULE##_FIRSTSLOT,        \
-                           localptr,                                         \
-                           sizeof(void **) * PYGAMEAPI_##MODULE##_NUMSLOTS); \
-                }                                                            \
-            }                                                                \
-            Py_XDECREF(_c_api);                                              \
-        }                                                                    \
-    }
-
 #ifndef NO_PYGAME_C_API
+
 #define IMPORT_PYGAME_MODULE(module, MODULE) \
     _IMPORT_PYGAME_MODULE(module, MODULE, PyGAME_C_API)
 #define PYGAMEAPI_TOTALSLOTS \
     (PYGAMEAPI_MATH_FIRSTSLOT + PYGAMEAPI_MATH_NUMSLOTS)
 
+/*
+ * base pygame API slots
+ * this array is filled by import_pygame_*() functions
+ */
 #ifdef PYGAME_H
 void *PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = {NULL};
-#else
+#else /* ~PYGAME_H */
 extern void *PyGAME_C_API[PYGAMEAPI_TOTALSLOTS];
-#endif
-#endif
+#endif /* ~PYGAME_H */
 
-#if PG_HAVE_CAPSULE
-#define encapsulate_api(ptr, module) \
-    PyCapsule_New(ptr, PG_CAPSULE_NAME(module), NULL)
-#else
-#define encapsulate_api(ptr, module) PyCObject_FromVoidPtr(ptr, NULL)
-#endif
-
-#ifndef PG_INLINE
-#if defined(__clang__)
-#define PG_INLINE __inline__ __attribute__((__unused__))
-#elif defined(__GNUC__)
-#define PG_INLINE __inline__
-#elif defined(_MSC_VER)
-#define PG_INLINE __inline
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#define PG_INLINE inline
-#else
-#define PG_INLINE
-#endif
-#endif
-
-/*last platform compiler stuff*/
-#if defined(macintosh) && defined(__MWERKS__) || defined(__SYMBIAN32__)
-#define PYGAME_EXPORT __declspec(export)
-#else
-#define PYGAME_EXPORT
-#endif
-
+#endif /* NO_PYGAME_C_API */
 
 #endif /* PYGAME_H */
