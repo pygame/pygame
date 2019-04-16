@@ -61,12 +61,12 @@
  * disable with NO_PYGAME_C_API
  */
 #define PYGAMEAPI_DEFINE_SLOTS(api_root, numslots) \
-    void *api_root[numslots] = {NULL}
+    void *api_root[(numslots)] = {NULL}
 #define PYGAMEAPI_EXTERN_SLOTS(api_root, numslots) \
-    extern void *api_root[numslots]
+    extern void *api_root[(numslots)]
 
 #define PYGAMEAPI_GET_SLOT(api_root, index) \
-    api_root[index]
+    api_root[(index)]
 
 /*
  * disabled API with NO_PYGAME_C_API; do nothing instead

@@ -20,7 +20,7 @@ typedef struct {
 
 PYGAMEAPI_DEFINE_SLOTS(PyMASK_C_API, PYGAMEAPI_MASK_NUMSLOTS);
 
-#define pgMask_Type     (*(PyTypeObject*)PyMASK_C_API[0])
+#define pgMask_Type     (*(PyTypeObject*) PYGAMEAPI_GET_SLOT(PyMASK_C_API, 0))
 #define pgMask_Check(x) ((x)->ob_type == &pgMask_Type)
 
 #define import_pygame_mask() \

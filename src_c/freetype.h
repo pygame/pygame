@@ -122,9 +122,9 @@ typedef struct {
 
 PYGAMEAPI_DEFINE_SLOTS(PgFREETYPE_C_API, PYGAMEAPI_FREETYPE_NUMSLOTS);
 
-#define pgFont_Check(x) ((x)->ob_type == (PyTypeObject*)PgFREETYPE_C_API[0])
-#define pgFont_Type (*(PyTypeObject*)PgFREETYPE_C_API[1])
-#define pgFont_New (*(PyObject*(*)(const char*, long))PgFREETYPE_C_API[1])
+#define pgFont_Type (*(PyTypeObject*) PYGAMEAPI_GET_SLOT(PgFREETYPE_C_API, 0))
+#define pgFont_Check(x) ((x)->ob_type == &pgFont_Type)
+#define pgFont_New (*(PyObject*(*)(const char*, long)) PYGAMEAPI_GET_SLOT(PgFREETYPE_C_API, 1))
 
 #define import_pygame_freetype() \
     _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PgFREETYPE_C_API)
