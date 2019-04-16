@@ -20,6 +20,9 @@
     pete@shinners.org
 */
 
+#ifndef PGMIXER_H
+#define PGMIXER_H
+
 #include <Python.h>
 #include <SDL_mixer.h>
 #include <structmember.h>
@@ -30,6 +33,7 @@
     if(!SDL_WasInit(SDL_INIT_AUDIO)) \
         return RAISE(pgExc_SDLError, "mixer not initialized")
 
+#include "pgimport.h"
 
 #define PYGAMEAPI_MIXER_FIRSTSLOT 0
 #define PYGAMEAPI_MIXER_NUMSLOTS 7
@@ -47,6 +51,9 @@ typedef struct {
 #define pgChannel_AsInt(x) (((pgChannelObject*)x)->chan)
 
 #ifndef PYGAMEAPI_MIXER_INTERNAL
+
+PYGAMEAPI_DEFINE_SLOTS(pgMIXER_C_API, PYGAMEAPI_MIXER_NUMSLOTS);
+
 #define pgSound_Check(x) ((x)->ob_type == (PyTypeObject*)pgMIXER_C_API[0])
 #define pgSound_Type (*(PyTypeObject*)pgMIXER_C_API[0])
 #define pgSound_New (*(PyObject*(*)(Mix_Chunk*))pgMIXER_C_API[1])
@@ -60,6 +67,6 @@ typedef struct {
 #define import_pygame_mixer() \
     _IMPORT_PYGAME_MODULE(mixer, MIXER, pgMIXER_C_API)
 
-static void* pgMIXER_C_API[PYGAMEAPI_MIXER_NUMSLOTS] = {NULL};
-#endif
+#endif /* PYGAMEAPI_MIXER_INTERNAL */
 
+#endif /* ~PGMIXER_H */

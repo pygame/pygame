@@ -21,9 +21,7 @@
 */
 
 #include <Python.h>
-#if defined(HAVE_SNPRINTF)  /* also defined in SDL_ttf (SDL.h) */
-#undef HAVE_SNPRINTF        /* remove GCC macro redefine warning */
-#endif
+#include "pgplatform.h"
 #include <SDL_ttf.h>
 
 
@@ -44,6 +42,11 @@ typedef struct {
 #define PyFont_AsFont(x) (((PyFontObject*)x)->font)
 
 #ifndef PYGAMEAPI_FONT_INTERNAL
+
+#include "pgimport.h"
+
+PYGAMEAPI_DEFINE_SLOTS(PyFONT_C_API, PYGAMEAPI_FONT_NUMSLOTS);
+
 #define PyFont_Check(x) ((x)->ob_type == (PyTypeObject*)PyFONT_C_API[0])
 #define PyFont_Type (*(PyTypeObject*)PyFONT_C_API[0])
 #define PyFont_New (*(PyObject*(*)(TTF_Font*))PyFONT_C_API[1])
@@ -52,6 +55,5 @@ typedef struct {
 #define import_pygame_font() \
     _IMPORT_PYGAME_MODULE(font, FONT, PyFONT_C_API)
 
-static void* PyFONT_C_API[PYGAMEAPI_FONT_NUMSLOTS] = {NULL};
 #endif
 

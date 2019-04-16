@@ -742,8 +742,6 @@ typedef struct {
 #define import_pygame_math() IMPORT_PYGAME_MODULE(math, MATH)
 #endif /* PYGAMEAPI_MATH_INTERNAL */
 
-#ifndef NO_PYGAME_C_API
-
 #define IMPORT_PYGAME_MODULE(module, MODULE) \
     _IMPORT_PYGAME_MODULE(module, MODULE, PyGAME_C_API)
 #define PYGAMEAPI_TOTALSLOTS \
@@ -751,14 +749,12 @@ typedef struct {
 
 /*
  * base pygame API slots
- * this array is filled by import_pygame_*() functions
+ * disable slots with NO_PYGAME_C_API
  */
 #ifdef PYGAME_H
-void *PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = {NULL};
+PYGAMEAPI_DEFINE_SLOTS( PyGAME_C_API, PYGAMEAPI_TOTALSLOTS );
 #else /* ~PYGAME_H */
-extern void *PyGAME_C_API[PYGAMEAPI_TOTALSLOTS];
+PYGAMEAPI_EXTERN_SLOTS( PyGAME_C_API, PYGAMEAPI_TOTALSLOTS );
 #endif /* ~PYGAME_H */
-
-#endif /* NO_PYGAME_C_API */
 
 #endif /* PYGAME_H */

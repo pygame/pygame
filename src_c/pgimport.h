@@ -29,6 +29,9 @@
 #define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 #define PG_CAPSULE_NAME(m) (IMPPREFIX m "." PYGAMEAPI_LOCAL_ENTRY)
 
+/*
+ * fill API slots defined by PYGAMEAPI_DEFINE_SLOTS/PYGAMEAPI_EXTERN_SLOTS
+ */
 #define _IMPORT_PYGAME_MODULE(module, MODULE, api_root)                      \
     {                                                                        \
         PyObject *_module = PyImport_ImportModule(IMPPREFIX #module);        \
@@ -51,5 +54,38 @@
             Py_XDECREF(_c_api);                                              \
         }                                                                    \
     }
+
+/*
+ * source file must include one of these in order to use _IMPORT_PYGAME_MODULE
+ * this array is filled by import_pygame_*() functions
+ * disable with NO_PYGAME_C_API
+ */
+#define PYGAMEAPI_DEFINE_SLOTS(api_root, numslots) \
+    void *api_root[numslots] = {NULL}
+#define PYGAMEAPI_EXTERN_SLOTS(api_root, numslots) \
+    extern void *api_root[numslots]
+
+#define PYGAMEAPI_GET_SLOT(api_root, index) \
+    api_root[index]
+
+/*
+ * disabled API with NO_PYGAME_C_API; do nothing instead
+ */
+#ifdef NO_PYGAME_C_API
+
+#undef PYGAMEAPI_DEFINE_SLOTS
+#undef PYGAMEAPI_EXTERN_SLOTS
+
+#define PYGAMEAPI_DEFINE_SLOTS(api_root, numslots)
+#define PYGAMEAPI_EXTERN_SLOTS(api_root, numslots)
+
+/* intentionally leave this defined to cause a compiler error *
+#define PYGAMEAPI_GET_SLOT(api_root, index)
+#undef PYGAMEAPI_GET_SLOT*/
+
+#undef _IMPORT_PYGAME_MODULE
+#define _IMPORT_PYGAME_MODULE(module, MODULE, api_root)
+
+#endif /* NO_PYGAME_C_API */
 
 #endif /* ~PGIMPORT_H */

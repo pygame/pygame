@@ -21,20 +21,24 @@
   pete@shinners.org
 */
 
-/* Bufferproxy module C api.
-   Depends on pygame.h being included first.
- */
+/* Bufferproxy module C api. */
 #if !defined(PG_BUFPROXY_HEADER)
+#define PG_BUFPROXY_HEADER
+
+#include <Python.h>
 
 #define PYGAMEAPI_BUFPROXY_NUMSLOTS 4
 #define PYGAMEAPI_BUFPROXY_FIRSTSLOT 0
 
-#if !(defined(PYGAMEAPI_BUFPROXY_INTERNAL) || defined(NO_PYGAME_C_API))
-static void *PgBUFPROXY_C_API[PYGAMEAPI_BUFPROXY_NUMSLOTS];
-
 typedef PyObject *(*_pgbufproxy_new_t)(PyObject *, getbufferproc);
 typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int (*_pgbufproxy_trip_t)(PyObject *);
+
+#ifndef PYGAMEAPI_BUFPROXY_INTERNAL
+
+#include "pgimport.h"
+
+PYGAMEAPI_DEFINE_SLOTS(PgBUFPROXY_C_API, PYGAMEAPI_BUFPROXY_NUMSLOTS);
 
 #define pgBufproxy_Type (*(PyTypeObject*)PgBUFPROXY_C_API[0])
 #define pgBufproxy_New (*(_pgbufproxy_new_t)PgBUFPROXY_C_API[1])
@@ -45,8 +49,6 @@ typedef int (*_pgbufproxy_trip_t)(PyObject *);
 #define import_pygame_bufferproxy() \
     _IMPORT_PYGAME_MODULE(bufferproxy, BUFPROXY, PgBUFPROXY_C_API)
 
-#endif /* #if !(defined(PYGAMEAPI_BUFPROXY_INTERNAL) || ... */
+#endif /* ~PYGAMEAPI_BUFPROXY_INTERNAL */
 
-#define PG_BUFPROXY_HEADER
-
-#endif /* #if !defined(PG_BUFPROXY_HEADER) */
+#endif /* ~defined(PG_BUFPROXY_HEADER) */

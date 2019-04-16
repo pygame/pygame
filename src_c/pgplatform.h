@@ -52,11 +52,11 @@ _alloca(size_t size);
 #undef HAVE_SNPRINTF
 #endif
 
-/*Python gives us MS_WIN32, SDL needs just WIN32*/
-#ifdef MS_WIN32
-#ifndef WIN32
+/* SDL needs WIN32 */
+#if !defined(WIN32) &&                                           \
+    (defined(MS_WIN32) || defined(_WIN32) ||                     \
+     defined(__WIN32) || defined(__WIN32__) || defined(_WINDOWS))
 #define WIN32
-#endif
 #endif
 
 /* min/max */

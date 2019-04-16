@@ -24,12 +24,8 @@
 #define HAVE_PYGAME_SDL_VIDEO
 #define HAVE_PYGAME_SDL_RWOPS
 
-#include "pygame.h"
+#include "pgimport.h"
 #include "pgcompat.h"
-
-#if PY3
-#   define IS_PYTHON_3
-#endif
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -124,6 +120,8 @@ typedef struct {
 
 #ifndef PYGAME_FREETYPE_INTERNAL
 
+PYGAMEAPI_DEFINE_SLOTS(PgFREETYPE_C_API, PYGAMEAPI_FREETYPE_NUMSLOTS);
+
 #define pgFont_Check(x) ((x)->ob_type == (PyTypeObject*)PgFREETYPE_C_API[0])
 #define pgFont_Type (*(PyTypeObject*)PgFREETYPE_C_API[1])
 #define pgFont_New (*(PyObject*(*)(const char*, long))PgFREETYPE_C_API[1])
@@ -131,7 +129,6 @@ typedef struct {
 #define import_pygame_freetype() \
     _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PgFREETYPE_C_API)
 
-static void *PgFREETYPE_C_API[PYGAMEAPI_FREETYPE_NUMSLOTS] = {0};
 #endif /* PYGAME_FREETYPE_INTERNAL */
 
 #endif /* _PYGAME_FREETYPE_H_ */
