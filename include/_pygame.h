@@ -63,7 +63,7 @@
 
 #ifndef PYGAME_NO_SDL
 #include <SDL.h>
-#endif /* PYGAME_NO_SDL */
+#endif /* ~PYGAME_NO_SDL */
 
 /* version macros (defined since version 1.9.5) */
 #define PG_MAJOR_VERSION 2
@@ -94,62 +94,12 @@
 #define IS_SDLv2 PG_MAJOR_VERSION >= 2
 #endif /* NO SDL */
 
-/* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
- * define here as needed.
- */
-#if !defined(PyBUF_SIMPLE)
-typedef struct bufferinfo {
-    void *buf;
-    PyObject *obj;
-    Py_ssize_t len;
-    Py_ssize_t itemsize;
-    int readonly;
-    int ndim;
-    char *format;
-    Py_ssize_t *shape;
-    Py_ssize_t *strides;
-    Py_ssize_t *suboffsets;
-    void *internal;
-} Py_buffer;
-
-/* Flags for getting buffers */
-#define PyBUF_SIMPLE 0
-#define PyBUF_WRITABLE 0x0001
-/*  we used to include an E, backwards compatible alias  */
-#define PyBUF_WRITEABLE PyBUF_WRITABLE
-#define PyBUF_FORMAT 0x0004
-#define PyBUF_ND 0x0008
-#define PyBUF_STRIDES (0x0010 | PyBUF_ND)
-#define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
-#define PyBUF_F_CONTIGUOUS (0x0040 | PyBUF_STRIDES)
-#define PyBUF_ANY_CONTIGUOUS (0x0080 | PyBUF_STRIDES)
-#define PyBUF_INDIRECT (0x0100 | PyBUF_STRIDES)
-
-#define PyBUF_CONTIG (PyBUF_ND | PyBUF_WRITABLE)
-#define PyBUF_CONTIG_RO (PyBUF_ND)
-
-#define PyBUF_STRIDED (PyBUF_STRIDES | PyBUF_WRITABLE)
-#define PyBUF_STRIDED_RO (PyBUF_STRIDES)
-
-#define PyBUF_RECORDS (PyBUF_STRIDES | PyBUF_WRITABLE | PyBUF_FORMAT)
-#define PyBUF_RECORDS_RO (PyBUF_STRIDES | PyBUF_FORMAT)
-
-#define PyBUF_FULL (PyBUF_INDIRECT | PyBUF_WRITABLE | PyBUF_FORMAT)
-#define PyBUF_FULL_RO (PyBUF_INDIRECT | PyBUF_FORMAT)
-
-#define PyBUF_READ 0x100
-#define PyBUF_WRITE 0x200
-#define PyBUF_SHADOW 0x400
-
-typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
-typedef void (*releasebufferproc)(Py_buffer *);
-#endif /* ~defined(PyBUF_SIMPLE) */
+#include "pgcompat.h"
 
 /* Flag indicating a pg_buffer; used for assertions within callbacks */
 #ifndef NDEBUG
 #define PyBUF_PYGAME 0x4000
 #endif
-
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
 /* Array information exchange struct C type; inherits from Py_buffer
@@ -166,7 +116,6 @@ typedef struct pg_bufferinfo_s {
     pybuffer_releaseproc release_buffer;
 } pg_buffer;
 
-/* macros used throughout the source */
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
 
 /*
@@ -303,14 +252,14 @@ typedef struct pg_bufferinfo_s {
     (PYGAMEAPI_BASE_FIRSTSLOT + PYGAMEAPI_BASE_NUMSLOTS)
 #define PYGAMEAPI_RECT_NUMSLOTS 4
 
-#if IS_SDLv1 || defined(NO_SDL)
+#if !defined(SDL_VERSION_ATLEAST) || !SDL_VERSION_ATLEAST(2, 0, 0)
 typedef struct {
     int x, y;
     int w, h;
 } GAME_Rect;
-#else
+#else /* SDL 2+ */
 typedef SDL_Rect GAME_Rect;
-#endif
+#endif /* SDL 2+ */
 
 typedef struct {
     PyObject_HEAD GAME_Rect r;
@@ -338,7 +287,7 @@ typedef struct {
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_RECT_FIRSTSLOT + 3))
 
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect, RECT)
-#endif
+#endif /* ~PYGAMEAPI_RECT_INTERNAL */
 
 /*
  * CDROM module
@@ -515,7 +464,7 @@ typedef struct {
 #define pgSurface_NewNoOwn(surface) pgSurface_New2((surface), 0)
 #endif /* IS_SDLv2 */
 
-#endif
+#endif /* ~PYGAMEAPI_SURFACE_INTERNAL */
 
 /*
  * SURFLOCK module

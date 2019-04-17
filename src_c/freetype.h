@@ -24,6 +24,7 @@
 #define HAVE_PYGAME_SDL_VIDEO
 #define HAVE_PYGAME_SDL_RWOPS
 
+#include "pgcompat.h"
 #include "pgplatform.h"
 #include <Python.h>
 
