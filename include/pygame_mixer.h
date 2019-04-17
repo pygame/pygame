@@ -24,19 +24,18 @@
 #define PGMIXER_H
 
 #include <Python.h>
-#include <SDL_mixer.h>
 #include <structmember.h>
 
+
+#ifndef PYGAME_NO_SDL
+
+#include <SDL_mixer.h>
 
 /* test mixer initializations */
 #define MIXER_INIT_CHECK() \
     if(!SDL_WasInit(SDL_INIT_AUDIO)) \
         return RAISE(pgExc_SDLError, "mixer not initialized")
 
-#include "pgimport.h"
-
-#define PYGAMEAPI_MIXER_FIRSTSLOT 0
-#define PYGAMEAPI_MIXER_NUMSLOTS 7
 typedef struct {
   PyObject_HEAD
   Mix_Chunk *chunk;
@@ -49,6 +48,13 @@ typedef struct {
 } pgChannelObject;
 #define pgSound_AsChunk(x) (((pgSoundObject*)x)->chunk)
 #define pgChannel_AsInt(x) (((pgChannelObject*)x)->chan)
+
+#endif /* ~PYGAME_NO_SDL */
+
+#include "pgimport.h"
+
+#define PYGAMEAPI_MIXER_FIRSTSLOT 0
+#define PYGAMEAPI_MIXER_NUMSLOTS 7
 
 #ifndef PYGAMEAPI_MIXER_INTERNAL
 
