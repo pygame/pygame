@@ -37,9 +37,17 @@
 
 /* SDL needs WIN32 */
 #if !defined(WIN32) &&                                           \
-    (defined(MS_WIN32) || defined(_WIN32) ||                     \
-     defined(__WIN32) || defined(__WIN32__) || defined(_WINDOWS))
+    (defined(MS_WIN32) || defined(_WIN32) || defined(__WIN32) || \
+     defined(__WIN32__) || defined(_WINDOWS))
 #define WIN32
 #endif
+
+#include <assert.h>
+#if defined(static_assert) || defined(_MSC_VER)
+#define PG_STATIC_ASSERT(cond, msg) static_assert((cond), #msg)
+#else /* !defined(static_assert) && !defined(_MSC_VER) */
+#define PG_STATIC_ASSERT(cond, msg) \
+    typedef char static_assertion_##msg[(cond) ? 1 : -1]
+#endif /* !defined(static_assert) && !defined(_MSC_VER) */
 
 #endif /* ~PG_PLATFORM_H */

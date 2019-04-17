@@ -17,6 +17,7 @@
 
 #endif /* __SYMBIAN32__ */
 
+#include "pgplatform.h"
 #include "pgcompat.h"
 
 #if PG_HAVE_CAPSULE
@@ -33,10 +34,14 @@
  * fill API slots defined by PYGAMEAPI_DEFINE_SLOTS/PYGAMEAPI_EXTERN_SLOTS
  */
 #define _IMPORT_PYGAME_MODULE(module, MODULE, api_root)                      \
-    {                                                                        \
-        PyObject *_module = PyImport_ImportModule(IMPPREFIX #module);        \
-                                                                             \
-        if (_module != NULL) {                                               \
+    do {                                                                     \
+        PyObject *_module = NULL;                                            \
+        PG_STATIC_ASSERT(                                                    \
+            PYGAMEAPI_##MODULE##_FIRSTSLOT + PYGAMEAPI_##MODULE##_NUMSLOTS   \
+            <= PYGAMEAPI_NUM_SLOTS(api_root), api_root_too_small);           \
+        if (*(api_root + PYGAMEAPI_##MODULE##_FIRSTSLOT) != NULL)            \
+            ;                                                                \
+        else if (_module = PyImport_ImportModule(IMPPREFIX #module)) {       \
             PyObject *_c_api =                                               \
                 PyObject_GetAttrString(_module, PYGAMEAPI_LOCAL_ENTRY);      \
                                                                              \
@@ -53,7 +58,7 @@
             }                                                                \
             Py_XDECREF(_c_api);                                              \
         }                                                                    \
-    }
+    } while(0)
 
 /*
  * source file must include one of these in order to use _IMPORT_PYGAME_MODULE
