@@ -6,6 +6,10 @@ from pygame.compat import unicode_
 
 from pygame import display
 
+
+SDL2 = pygame.get_sdl_version()[0] >= 2
+
+
 class DisplayModuleTest(unittest.TestCase):
     default_caption = "pygame window"
 
@@ -118,21 +122,24 @@ class DisplayModuleTest(unittest.TestCase):
         # display.init() already called in setUp()
         self.assertTrue(display.get_init())
 
+    # This decorator can be removed (or test changed) when issues #991 and #993
+    # are resolved.
+    @unittest.skipIf(SDL2, 'SDL2 issues')
     def test_get_surface(self):
         """Ensures get_surface gets the current display surface."""
         lengths = (1, 5, 100)
 
         for expected_size in ((w, h) for w in lengths for h in lengths):
-            for expected_bpp in (8, 16, 24, 32):
+            for expected_depth in (8, 16, 24, 32):
                 expected_surface = display.set_mode(expected_size, 0,
-                                                    expected_bpp)
+                                                    expected_depth)
 
                 surface = pygame.display.get_surface()
 
                 self.assertEqual(surface, expected_surface)
                 self.assertIsInstance(surface, pygame.Surface)
                 self.assertEqual(surface.get_size(), expected_size)
-                self.assertEqual(surface.get_bitsize(), expected_bpp)
+                self.assertEqual(surface.get_bitsize(), expected_depth)
 
     def test_get_surface__mode_not_set(self):
         """Ensures get_surface handles the display mode not being set."""
