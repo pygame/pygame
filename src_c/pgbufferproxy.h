@@ -1,1 +1,1 @@
-#include "../include/pygame_bufferproxy.h"
+#include "include/pygame_bufferproxy.h"

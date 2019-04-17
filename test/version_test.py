@@ -2,7 +2,7 @@ import os
 import unittest
 
 
-pg_header = os.path.join('include', '_pygame.h')
+pg_header = os.path.join('src_c', 'include', '_pygame.h')
 
 
 class VersionTest(unittest.TestCase):

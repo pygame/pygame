@@ -1,1 +1,1 @@
-#include "../include/pygame_mixer.h"
+#include "include/pygame_mixer.h"

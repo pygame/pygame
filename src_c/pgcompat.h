@@ -3,7 +3,7 @@
 #ifndef PGCOMPAT_INTERNAL_H
 #define PGCOMPAT_INTERNAL_H
 
-#include "../include/pgcompat.h"
+#include "include/pgcompat.h"
 
 #if PY_MAJOR_VERSION >= 3
 

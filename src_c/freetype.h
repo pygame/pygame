@@ -114,6 +114,6 @@ typedef struct {
     (((pgFontObject *)(o))->_internals != 0)
 
 /* import public API */
-#include "../include/pygame_freetype.h"
+#include "include/pygame_freetype.h"
 
 #endif /* ~_PYGAME_FREETYPE_INTERNAL_H_ */

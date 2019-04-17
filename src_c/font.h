@@ -1,1 +1,1 @@
-#include "../include/pygame_font.h"
+#include "include/pygame_font.h"

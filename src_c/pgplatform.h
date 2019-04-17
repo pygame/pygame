@@ -12,7 +12,7 @@ _alloca(size_t size);
 #endif /* __WINS__ */
 #endif /* defined(__SYMBIAN32__) && defined(OPENC) */
 
-#include "../include/pgplatform.h"
+#include "include/pgplatform.h"
 
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

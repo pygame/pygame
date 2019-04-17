@@ -152,6 +152,6 @@ struct pgSubSurface_Data {
 /*
  * include public API
  */
-#include "../include/_pygame.h"
+#include "include/_pygame.h"
 
 #endif /* _PYGAME_INTERNAL_H */
