@@ -30,6 +30,16 @@
 #include <Python.h>
 #include <SDL.h>
 
+/* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
+/* IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise */
+#if (SDL_VERSION_ATLEAST(2, 0, 0))
+#define IS_SDLv2 1
+#define IS_SDLv1 0
+#else
+#define IS_SDLv2 0
+#define IS_SDLv1 1
+#endif
+
 /*#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
 #error pygame 2 requires SDL 2
 #endif*/
@@ -113,6 +123,25 @@ typedef enum {
 } PygameSurfaceFlags;
 #endif /* SDL_VERSION_ATLEAST(2, 0, 0) */
 
+#define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
+
+/*
+ * Initialization checks
+ */
+
+#define VIDEO_INIT_CHECK()            \
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) \
+    return RAISE(pgExc_SDLError, "video system not initialized")
+
+#define CDROM_INIT_CHECK()            \
+    if (!SDL_WasInit(SDL_INIT_CDROM)) \
+    return RAISE(pgExc_SDLError, "cdrom system not initialized")
+
+#define JOYSTICK_INIT_CHECK()            \
+    if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
+    return RAISE(pgExc_SDLError, "joystick system not initialized")
+
+/* thread check */
 #ifdef WITH_THREAD
 #define PG_CHECK_THREADS() (1)
 #else /* ~WITH_THREAD */

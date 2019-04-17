@@ -26,15 +26,9 @@
 #include <Python.h>
 #include <structmember.h>
 
+#include "pgcompat.h"
 
-#ifndef PYGAME_NO_SDL
-
-#include <SDL_mixer.h>
-
-/* test mixer initializations */
-#define MIXER_INIT_CHECK() \
-    if(!SDL_WasInit(SDL_INIT_AUDIO)) \
-        return RAISE(pgExc_SDLError, "mixer not initialized")
+typedef struct Mix_Chunk;
 
 typedef struct {
   PyObject_HEAD
@@ -42,14 +36,14 @@ typedef struct {
   Uint8 *mem;
   PyObject *weakreflist;
 } pgSoundObject;
+
 typedef struct {
   PyObject_HEAD
   int chan;
 } pgChannelObject;
+
 #define pgSound_AsChunk(x) (((pgSoundObject*)x)->chunk)
 #define pgChannel_AsInt(x) (((pgChannelObject*)x)->chan)
-
-#endif /* ~PYGAME_NO_SDL */
 
 #include "pgimport.h"
 

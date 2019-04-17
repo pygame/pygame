@@ -25,7 +25,7 @@
 
 /** This header file includes all the definitions for the
  ** base pygame extensions. This header only requires
- ** Python includes and usually also SDL includes.
+ ** Python includes (and SDL.h for functions that use SDL types).
  ** The reason for functions prototyped with #define's is
  ** to allow for maximum Python portability. It also uses
  ** Python as the runtime linker, which allows for late binding.
@@ -61,9 +61,6 @@
 #include "pgplatform.h"
 #include <Python.h>
 
-#ifndef PYGAME_NO_SDL
-#include <SDL.h>
-#endif /* ~PYGAME_NO_SDL */
 
 /* version macros (defined since version 1.9.5) */
 #define PG_MAJOR_VERSION 2
@@ -74,23 +71,17 @@
     (PG_VERSIONNUM(PG_MAJOR_VERSION, PG_MINOR_VERSION, PG_PATCH_VERSION) >= \
      PG_VERSIONNUM(MAJOR, MINOR, PATCH))
 
-/* SDL 1.x/2.x
+/* SDL 1.x/2.x and pygame 1.x/2.x
  */
-
-/* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
-/* IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise */
-
 #if defined(SDL_VERSION_ATLEAST)
 #if (SDL_VERSION_ATLEAST(2, 0, 0))
-#define IS_SDLv1 0
-#define IS_SDLv2 1
-#else
-#define IS_SDLv1 1
-#define IS_SDLv2 0
-#endif
+#define PG_API_VERSION 2
+#else /* SDL 1 */
+/* for now: allow pygame 2 to be compiled with SDL 1. */
+#define PG_API_VERSION 1
+#endif /* SDL 1 */
 #else /* NO SDL */
-#define IS_SDLv1 PG_MAJOR_VERSION == 1
-#define IS_SDLv2 PG_MAJOR_VERSION >= 2
+#define PG_API_VERSION ((PG_MAJOR_VERSION == 1) ? 1 : 2)
 #endif /* NO SDL */
 
 #include "pgcompat.h"
@@ -115,35 +106,17 @@ typedef struct pg_bufferinfo_s {
     pybuffer_releaseproc release_buffer;
 } pg_buffer;
 
-#define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
-
-/*
- * Initialization checks
- */
-
-#define VIDEO_INIT_CHECK()            \
-    if (!SDL_WasInit(SDL_INIT_VIDEO)) \
-    return RAISE(pgExc_SDLError, "video system not initialized")
-
-#define CDROM_INIT_CHECK()            \
-    if (!SDL_WasInit(SDL_INIT_CDROM)) \
-    return RAISE(pgExc_SDLError, "cdrom system not initialized")
-
-#define JOYSTICK_INIT_CHECK()            \
-    if (!SDL_WasInit(SDL_INIT_JOYSTICK)) \
-    return RAISE(pgExc_SDLError, "joystick system not initialized")
-
 #include "pgimport.h"
 
 /*
  * BASE module
  */
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#if IS_SDLv1
+#if PG_API_VERSION == 1
 #define PYGAMEAPI_BASE_NUMSLOTS 19
-#else /* IS_SDLv2 */
+#else /* SDL2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 23
-#endif /* IS_SDLv2 */
+#endif /* SDL2 */
 
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define pgExc_SDLError \
@@ -222,7 +195,7 @@ typedef struct pg_bufferinfo_s {
     ((PyObject *)         \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_BASE_FIRSTSLOT + 18))
 
-#if IS_SDLv2
+#if PG_API_VERSION == 2
 #define pg_GetDefaultWindow     \
     (*(SDL_Window * (*)(void))  \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_BASE_FIRSTSLOT + 19))
@@ -239,7 +212,7 @@ typedef struct pg_bufferinfo_s {
     (*(void (*)(PyObject *))       \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_BASE_FIRSTSLOT + 22))
 
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
@@ -251,7 +224,7 @@ typedef struct pg_bufferinfo_s {
     (PYGAMEAPI_BASE_FIRSTSLOT + PYGAMEAPI_BASE_NUMSLOTS)
 #define PYGAMEAPI_RECT_NUMSLOTS 4
 
-#if !defined(SDL_VERSION_ATLEAST) || !SDL_VERSION_ATLEAST(2, 0, 0)
+#if !defined(SDL_VERSION_ATLEAST) || PG_API_VERSION == 1
 typedef struct {
     int x, y;
     int w, h;
@@ -345,8 +318,9 @@ typedef struct {
  * DISPLAY module
  */
 
-#ifndef PYGAME_NO_SDL
-#if IS_SDLv2
+#if defined(SDL_VERSION_ATLEAST)
+
+#if PG_API_VERSION == 2
 typedef struct {
     Uint32 hw_available:1;
     Uint32 wm_available:1;
@@ -363,10 +337,10 @@ typedef struct {
     int current_w;
     int current_h;
 } pg_VideoInfo;
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
 
 typedef struct {
-#if IS_SDLv1
+#if PG_API_VERSION == 1
     PyObject_HEAD SDL_VideoInfo info;
 #else
     PyObject_HEAD pg_VideoInfo info;
@@ -374,7 +348,7 @@ typedef struct {
 } pgVidInfoObject;
 
 #define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject *)x)->info)
-#endif /* ~PYGAME_NO_SDL */
+#endif /* defined(SDL_VERSION_ATLEAST) */
 
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
@@ -388,7 +362,7 @@ typedef struct {
 #define pgVidInfo_Check(x) \
     ((x)->ob_type == &pgVidInfo_Type)
 
-#if IS_SDLv1
+#if PG_API_VERSION == 1
 #define pgVidInfo_New                   \
     (*(PyObject * (*)(SDL_VideoInfo *)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_DISPLAY_FIRSTSLOT + 1))
@@ -404,16 +378,14 @@ typedef struct {
 /*
  * SURFACE module
  */
-
-#ifndef PYGAME_NO_SDL
-
 struct pgSubSurface_Data;
+typedef struct SDL_Surface;
 
 typedef struct {
     PyObject_HEAD SDL_Surface *surf;
-#if IS_SDLv2
+#if PG_API_VERSION == 2
     int owner;
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
     struct pgSubSurface_Data *subsurface; /* ptr to subsurface data (if a
                                            * subsurface)*/
     PyObject *weakreflist;
@@ -421,8 +393,6 @@ typedef struct {
     PyObject *dependency;
 } pgSurfaceObject;
 #define pgSurface_AsSurface(x) (((pgSurfaceObject *)x)->surf)
-
-#endif /* ~PYGAME_NO_SDL */
 
 #define PYGAMEAPI_SURFACE_FIRSTSLOT \
     (PYGAMEAPI_DISPLAY_FIRSTSLOT + PYGAMEAPI_DISPLAY_NUMSLOTS)
@@ -435,17 +405,17 @@ typedef struct {
 
 #define pgSurface_Check(x)    \
     (PyObject_IsInstance((x), (PyObject *) &pgSurface_Type))
-#if IS_SDLv1
+#if PG_API_VERSION == 1
 #define pgSurface_New                 \
     (*(PyObject * (*)(SDL_Surface *)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_SURFACE_FIRSTSLOT + 1))
 
-#else /* IS_SDLv2 */
+#else /* PG_API_VERSION == 2 */
 #define pgSurface_New2                     \
     (*(PyObject * (*)(SDL_Surface *, int)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_SURFACE_FIRSTSLOT + 1))
 
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
 #define pgSurface_Blit                                                  \
     (*(int (*)(PyObject *, PyObject *, GAME_Rect *, GAME_Rect *, int))  \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_SURFACE_FIRSTSLOT + 2))
@@ -458,10 +428,10 @@ typedef struct {
         IMPORT_PYGAME_MODULE(surflock, SURFLOCK); \
     } while (0)
 
-#if IS_SDLv2
+#if PG_API_VERSION == 2
 #define pgSurface_New(surface) pgSurface_New2((surface), 1)
 #define pgSurface_NewNoOwn(surface) pgSurface_New2((surface), 0)
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
 
 #endif /* ~PYGAMEAPI_SURFACE_INTERNAL */
 
@@ -517,11 +487,11 @@ typedef struct {
  */
 #define PYGAMEAPI_EVENT_FIRSTSLOT \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
-#if IS_SDLv1
+#if PG_API_VERSION == 1
 #define PYGAMEAPI_EVENT_NUMSLOTS 4
-#else /* IS_SDLv2 */
+#else /* PG_API_VERSION == 2 */
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
 
 typedef struct pgEventObject pgEventObject;
 
@@ -545,7 +515,7 @@ typedef struct pgEventObject pgEventObject;
     (*(int (*)(pgEventObject *, SDL_Event *)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_EVENT_FIRSTSLOT + 3))
 
-#if IS_SDLv2
+#if PG_API_VERSION == 2
 #define pg_EnableKeyRepeat \
     (*(int (*)(int, int)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_EVENT_FIRSTSLOT + 4))
@@ -553,7 +523,7 @@ typedef struct pgEventObject pgEventObject;
 #define pg_GetKeyRepeat \
     (*(void (*)(int *, int *)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_EVENT_FIRSTSLOT + 5))
-#endif /* IS_SDLv2 */
+#endif /* PG_API_VERSION == 2 */
 
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif

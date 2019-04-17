@@ -23,17 +23,10 @@
 #include <Python.h>
 #include "pgplatform.h"
 
-#ifndef PYGAME_NO_SDL
-
-#include <SDL_ttf.h>
-
-/* test font initialization */
-#define FONT_INIT_CHECK() \
-    if(!(*(int*)PyFONT_C_API[2])) \
-        return RAISE(pgExc_SDLError, "font system not initialized")
-
 #define PYGAMEAPI_FONT_FIRSTSLOT 0
 #define PYGAMEAPI_FONT_NUMSLOTS 3
+
+typedef struct TTF_Font;
 
 typedef struct {
   PyObject_HEAD
@@ -41,8 +34,6 @@ typedef struct {
   PyObject* weakreflist;
 } PyFontObject;
 #define PyFont_AsFont(x) (((PyFontObject*)x)->font)
-
-#endif /* ~PYGAME_NO_SDL */
 
 #ifndef PYGAMEAPI_FONT_INTERNAL
 
