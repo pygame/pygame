@@ -37,8 +37,6 @@
 
 #include "structmember.h"
 
-#include "bitmask.h"
-
 #include <math.h>
 
 #ifndef M_PI

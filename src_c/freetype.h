@@ -17,15 +17,15 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-#ifndef _PYGAME_FREETYPE_H_
-#define _PYGAME_FREETYPE_H_
+#ifndef _PYGAME_FREETYPE_INTERNAL_H_
+#define _PYGAME_FREETYPE_INTERNAL_H_
 
 #define PGFT_PYGAME1_COMPAT
 #define HAVE_PYGAME_SDL_VIDEO
 #define HAVE_PYGAME_SDL_RWOPS
 
-#include "pgimport.h"
-#include "pgcompat.h"
+#include "pgplatform.h"
+#include <Python.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -112,27 +112,7 @@ typedef struct {
 #define pgFont_IS_ALIVE(o) \
     (((pgFontObject *)(o))->_internals != 0)
 
-/**********************************************************
- * Module declaration
- **********************************************************/
-#define PYGAMEAPI_FREETYPE_FIRSTSLOT 0
-#define PYGAMEAPI_FREETYPE_NUMSLOTS 2
+/* import public API */
+#include "../include/pygame_freetype.h"
 
-#ifndef PYGAME_FREETYPE_INTERNAL
-
-PYGAMEAPI_DEFINE_SLOTS(PgFREETYPE_C_API, PYGAMEAPI_FREETYPE_NUMSLOTS);
-
-#define pgFont_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(PgFREETYPE_C_API, 0))
-
-#define pgFont_Check(x) ((x)->ob_type == &pgFont_Type)
-
-#define pgFont_New (*(PyObject*(*)(const char*, long)) \
-    PYGAMEAPI_GET_SLOT(PgFREETYPE_C_API, 1))
-
-#define import_pygame_freetype() \
-    _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PgFREETYPE_C_API)
-
-#endif /* PYGAME_FREETYPE_INTERNAL */
-
-#endif /* _PYGAME_FREETYPE_H_ */
+#endif /* ~_PYGAME_FREETYPE_INTERNAL_H_ */

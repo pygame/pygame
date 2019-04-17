@@ -343,7 +343,7 @@ def parse_source_version():
     major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
     minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
     patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
-    pg_header = os.path.join('src_c', '_pygame.h')
+    pg_header = os.path.join('include', '_pygame.h')
     with open(pg_header) as f:
         for line in f:
             if pgh_major == -1:
