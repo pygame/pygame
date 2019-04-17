@@ -89,7 +89,6 @@
 #define IS_SDLv2 0
 #endif
 #else /* NO SDL */
-#define NO_SDL
 #define IS_SDLv1 PG_MAJOR_VERSION == 1
 #define IS_SDLv2 PG_MAJOR_VERSION >= 2
 #endif /* NO SDL */
@@ -140,11 +139,11 @@ typedef struct pg_bufferinfo_s {
  * BASE module
  */
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#if PG_MAJOR_VERSION < 2
+#if IS_SDLv1
 #define PYGAMEAPI_BASE_NUMSLOTS 19
-#else /* pygame >= 2 */
+#else /* IS_SDLv2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 23
-#endif /* pygame >= 2 */
+#endif /* IS_SDLv2 */
 
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define pgExc_SDLError \
@@ -223,7 +222,7 @@ typedef struct pg_bufferinfo_s {
     ((PyObject *)         \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_BASE_FIRSTSLOT + 18))
 
-#if PG_MAJOR_VERSION >= 2
+#if IS_SDLv2
 #define pg_GetDefaultWindow     \
     (*(SDL_Window * (*)(void))  \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_BASE_FIRSTSLOT + 19))
@@ -240,7 +239,7 @@ typedef struct pg_bufferinfo_s {
     (*(void (*)(PyObject *))       \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_BASE_FIRSTSLOT + 22))
 
-#endif /* PG_MAJOR_VERSION >= 2 */
+#endif /* IS_SDLv2 */
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif /* ~PYGAMEAPI_BASE_INTERNAL */
@@ -546,7 +545,7 @@ typedef struct pgEventObject pgEventObject;
     (*(int (*)(pgEventObject *, SDL_Event *)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_EVENT_FIRSTSLOT + 3))
 
-#if PG_MAJOR_VERSION >= 2
+#if IS_SDLv2
 #define pg_EnableKeyRepeat \
     (*(int (*)(int, int)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_EVENT_FIRSTSLOT + 4))
@@ -554,7 +553,7 @@ typedef struct pgEventObject pgEventObject;
 #define pg_GetKeyRepeat \
     (*(void (*)(int *, int *)) \
         PYGAMEAPI_GET_SLOT(PyGAME_C_API, PYGAMEAPI_EVENT_FIRSTSLOT + 5))
-#endif /* PG_MAJOR_VERSION >= 2 */
+#endif /* IS_SDLv2 */
 
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif
