@@ -63,8 +63,16 @@
 #define PYGAMEAPI_EXTERN_SLOTS(api_root, numslots) \
     extern void *api_root[(numslots)]
 
-#define PYGAMEAPI_GET_SLOT(api_root, index) \
+#define PYGAMEAPI_NUM_SLOTS(api_root) \
+    sizeof(api_root) / sizeof(void*)
+
+#define PYGAMEAPI_GET_SLOT_UNSAFE(api_root, index) \
     api_root[(index)]
+#define PYGAMEAPI_GET_SLOT(api_root, index)                           \
+    (PG_STATIC_ASSERT_EXPR( (index) < PYGAMEAPI_NUM_SLOTS(api_root) ) \
+        ? PYGAMEAPI_GET_SLOT_UNSAFE(api_root, index) : NULL)
+    /* cause a compiler error for out of range indices
+      (use with expressions known at compile-time). */
 
 /*
  * disabled API with NO_PYGAME_C_API; do nothing instead

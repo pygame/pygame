@@ -42,6 +42,9 @@
 #define WIN32
 #endif
 
+/*
+ * assertions
+ */
 #include <assert.h>
 #if defined(static_assert) || defined(_MSC_VER)
 #define PG_STATIC_ASSERT(cond, msg) static_assert((cond), #msg)
@@ -49,5 +52,7 @@
 #define PG_STATIC_ASSERT(cond, msg) \
     typedef char static_assertion_##msg[(cond) ? 1 : -1]
 #endif /* !defined(static_assert) && !defined(_MSC_VER) */
+
+#define PG_STATIC_ASSERT_EXPR(cond) (1 + sizeof(char[1 - 2*!( cond )]))
 
 #endif /* ~PG_PLATFORM_H */
