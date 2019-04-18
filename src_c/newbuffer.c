@@ -20,6 +20,7 @@
 
 #include <Python.h>
 
+#include <SDL.h>
 #include "pgcompat.h"
 
 /* Buffer_TYPE states:

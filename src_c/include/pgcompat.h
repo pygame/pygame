@@ -75,8 +75,13 @@ typedef void(*releasebufferproc)(Py_buffer *);
 #endif /* ~defined(PyBUF_SIMPLE) */
 
 /* define common types where SDL is not included */
-#ifndef SDL_VERSION_ATLEAST /* no SDL */
-#include <stdint.h> /* will not work for all old compilers (<C99) */
+#ifndef SDL_VERSION_ATLEAST
+#ifdef _MSC_VER
+typedef unsigned __int8 uint8_t;
+typedef unsigned __int32 uint32_t;
+#else
+#include <stdint.h>
+#endif
 typedef uint32_t Uint32;
 typedef uint8_t Uint8;
 #endif /* no SDL */
