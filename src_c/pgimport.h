@@ -11,20 +11,6 @@
     PyCObject_FromVoidPtr(array, NULL)
 #endif /* ~PG_HAVE_CAPSULE */
 
-#if 0
-#ifndef NO_PYGAME_C_API
-#define _PG_ASSERT_ROOT_SIZE(MODULE, api_root)                     \
-        PG_STATIC_ASSERT(                                          \
-            PYGAMEAPI_##MODULE##_FIRSTSLOT +                       \
-            PYGAMEAPI_##MODULE##_NUMSLOTS                          \
-            <= PYGAMEAPI_NUM_SLOTS(api_root), api_root_too_small)
-#else /* NO_PYGAME_C_API */
-#define _PG_ASSERT_ROOT_SIZE(MODULE, api_root)
-#endif /* NO_PYGAME_C_API */
-#endif
-
-#define _PG_ASSERT_ROOT_SIZE(MODULE, api_root)
-
 #define _encapsulate_api_safe(retptr, array,                       \
                               module, MODULE,                      \
                               api_root)                            \
@@ -32,7 +18,6 @@
         PG_STATIC_ASSERT( sizeof(array) / sizeof(void*) ==         \
                           PYGAMEAPI_##MODULE##_NUMSLOTS,           \
                           encapsulate_wrong_size );                \
-        _PG_ASSERT_ROOT_SIZE(MODULE, api_root);                    \
         *retptr = encapsulate_api(array, #module);                 \
     } while(0)
 
