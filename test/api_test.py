@@ -37,7 +37,7 @@ class ModuleEntryTest(unittest.TestCase):
             for line in f:
                 match = capture_numslots(line)
                 if match:
-                    numslots = int(match[1])
+                    numslots = int(match.group(1))
                     break
         return numslots
 
@@ -67,7 +67,7 @@ class ModuleEntryTest(unittest.TestCase):
             mod = __import__('.'.join(('pygame', modulestr)))
             self.check_module(getattr(pygame, modulestr),
                               header, macronameFunc)
-        except ModuleNotFoundError:
+        except ImportError:
             unittest.skip('module unavailable')
 
 
