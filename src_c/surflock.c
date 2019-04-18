@@ -297,7 +297,7 @@ MODINIT_DEFINE(surflock)
     c_api[5] = pgSurface_LockBy;
     c_api[6] = pgSurface_UnlockBy;
     c_api[7] = pgSurface_LockLifetime;
-    apiobj = encapsulate_api(c_api, "surflock");
+    encapsulate_api_safe(&apiobj, c_api, surflock, SURFLOCK);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

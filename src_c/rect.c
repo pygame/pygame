@@ -1782,7 +1782,7 @@ MODINIT_DEFINE(rect)
     c_api[1] = pgRect_New;
     c_api[2] = pgRect_New4;
     c_api[3] = pgRect_FromObject;
-    apiobj = encapsulate_api(c_api, "rect");
+    encapsulate_api_safe(&apiobj, c_api, rect, RECT);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

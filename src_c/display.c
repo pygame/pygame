@@ -2178,7 +2178,7 @@ MODINIT_DEFINE(display)
     /* export the c api */
     c_api[0] = &pgVidInfo_Type;
     c_api[1] = pgVidInfo_New;
-    apiobj = encapsulate_api(c_api, "display");
+    encapsulate_api_safe(&apiobj, c_api, display, DISPLAY);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

@@ -3761,7 +3761,7 @@ MODINIT_DEFINE(math)
     c_api[3] = pgVector_NEW;
     c_api[4] = pgVectorCompatible_Check;
     */
-    apiobj = encapsulate_api(c_api, "math");
+    encapsulate_api_safe(&apiobj, c_api, math, MATH);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

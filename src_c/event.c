@@ -1825,7 +1825,7 @@ MODINIT_DEFINE(event)
     c_api[4] = pg_EnableKeyRepeat;
     c_api[5] = pg_GetKeyRepeat;
 #endif /* IS_SDLv2 */
-    apiobj = encapsulate_api(c_api, "event");
+    encapsulate_api_safe(&apiobj, c_api, event, EVENT);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

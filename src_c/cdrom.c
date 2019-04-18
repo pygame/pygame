@@ -645,7 +645,7 @@ MODINIT_DEFINE(cdrom)
     /* export the c api */
     c_api[0] = &pgCD_Type;
     c_api[1] = pgCD_New;
-    apiobj = encapsulate_api(c_api, "cdrom");
+    encapsulate_api_safe(&apiobj, c_api, cdrom, CDROM);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

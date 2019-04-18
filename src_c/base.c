@@ -2185,20 +2185,15 @@ MODINIT_DEFINE(base)
     c_api[17] = pgDict_AsBuffer;
     c_api[18] = pgExc_BufferError;
 #if IS_SDLv1
-#define FILLED_SLOTS 19
 #else /* IS_SDLv2 */
     c_api[19] = pg_GetDefaultWindow;
     c_api[20] = pg_SetDefaultWindow;
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
-#define FILLED_SLOTS 23
 #endif /* IS_SDLv2 */
 
-#if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
-#error export slot count mismatch
-#endif
 
-    apiobj = encapsulate_api(c_api, "base");
+    encapsulate_api_safe(&apiobj, c_api, base, BASE);
     if (apiobj == NULL) {
         Py_XDECREF(atexit_register);
         Py_DECREF(pgExc_BufferError);

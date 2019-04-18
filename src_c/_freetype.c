@@ -2250,13 +2250,11 @@ MODINIT_DEFINE(_freetype)
     DEC_CONST(BBOX_PIXEL_GRIDFIT);
 
     /* export the c api */
-#if PYGAMEAPI_FREETYPE_NUMSLOTS != 2
-#error Mismatch between number of api slots and actual exports.
-#endif
     c_api[0] = &pgFont_Type;
     c_api[1] = &pgFont_New;
 
-    apiobj = encapsulate_api(c_api, "freetype");
+    _encapsulate_api_safe(&apiobj, c_api, freetype, FREETYPE,
+                          PgFREETYPE_C_API);
     if (!apiobj) {
         DECREF_MOD(module);
         MODINIT_ERROR;

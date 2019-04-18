@@ -502,7 +502,7 @@ MODINIT_DEFINE(joystick)
     /* export the c api */
     c_api[0] = &pgJoystick_Type;
     c_api[1] = pgJoystick_New;
-    apiobj = encapsulate_api(c_api, "joystick");
+    encapsulate_api_safe(&apiobj, c_api, joystick, JOYSTICK);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

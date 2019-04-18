@@ -4140,7 +4140,7 @@ MODINIT_DEFINE(surface)
     c_api[0] = &pgSurface_Type;
     c_api[1] = pgSurface_New;
     c_api[2] = pgSurface_Blit;
-    apiobj = encapsulate_api(c_api, "surface");
+    encapsulate_api_safe(&apiobj, c_api, surface, SURFACE);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

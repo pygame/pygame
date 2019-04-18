@@ -761,7 +761,7 @@ MODINIT_DEFINE(rwobject)
     c_api[3] = pg_EncodeString;
     c_api[4] = pgRWops_FromFileObject;
     c_api[5] = pgRWops_ReleaseObject;
-    apiobj = encapsulate_api(c_api, "rwobject");
+    encapsulate_api_safe(&apiobj, c_api, rwobject, RWOBJECT);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

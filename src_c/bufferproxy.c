@@ -885,14 +885,12 @@ MODINIT_DEFINE(bufferproxy)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-#if PYGAMEAPI_BUFPROXY_NUMSLOTS != 4
-#error export slot count mismatch
-#endif
     c_api[0] = &pgBufproxy_Type;
     c_api[1] = pgBufproxy_New;
     c_api[2] = pgBufproxy_GetParent;
     c_api[3] = pgBufproxy_Trip;
-    apiobj = encapsulate_api(c_api, PROXY_MODNAME);
+    encapsulate_api_safe(&apiobj, c_api, bufferproxy, BUFPROXY,
+                         PgBUFPROXY_C_API);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

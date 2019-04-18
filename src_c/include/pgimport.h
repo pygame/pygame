@@ -20,13 +20,6 @@
 #include "pgplatform.h"
 #include "pgcompat.h"
 
-#if PG_HAVE_CAPSULE
-#define encapsulate_api(ptr, module) \
-    PyCapsule_New(ptr, PG_CAPSULE_NAME(module), NULL)
-#else /* ~PG_HAVE_CAPSULE */
-#define encapsulate_api(ptr, module) PyCObject_FromVoidPtr(ptr, NULL)
-#endif /* ~PG_HAVE_CAPSULE */
-
 #define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 #define PG_CAPSULE_NAME(m) (IMPPREFIX m "." PYGAMEAPI_LOCAL_ENTRY)
 

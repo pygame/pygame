@@ -1933,7 +1933,8 @@ MODINIT_DEFINE(mixer)
     c_api[4] = pgChannel_New;
     c_api[5] = pgMixer_AutoInit;
     c_api[6] = pgMixer_AutoQuit;
-    apiobj = encapsulate_api(c_api, "mixer");
+    _encapsulate_api_safe(&apiobj, c_api, mixer, MIXER,
+                          pgMIXER_C_API);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

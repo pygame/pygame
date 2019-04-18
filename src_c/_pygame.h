@@ -178,6 +178,8 @@ struct pgSubSurface_Data {
     int offsetx, offsety;
 };
 
+#include "pgimport.h"
+
 /*
  * include public API
  */

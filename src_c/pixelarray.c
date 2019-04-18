@@ -1998,7 +1998,7 @@ MODINIT_DEFINE(pixelarray)
 
     c_api[0] = &pgPixelArray_Type;
     c_api[1] = pgPixelArray_New;
-    apiobj = encapsulate_api(c_api, "pixelarray");
+    encapsulate_api_safe(&apiobj, c_api, pixelarray, PIXELARRAY);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

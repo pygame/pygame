@@ -2043,7 +2043,7 @@ MODINIT_DEFINE(color)
     c_api[2] = pg_RGBAFromColorObj;
     c_api[3] = pgColor_NewLength;
 
-    apiobj = encapsulate_api(c_api, "color");
+    encapsulate_api_safe(&apiobj, c_api, color, COLOR);
     if (apiobj == NULL) {
         Py_DECREF(_COLORDICT);
         DECREF_MOD(module);

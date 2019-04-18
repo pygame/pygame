@@ -1721,7 +1721,7 @@ MODINIT_DEFINE(mask)
     }
     /* export the c api */
     c_api[0] = &pgMask_Type;
-    apiobj = encapsulate_api(c_api, "mask");
+    _encapsulate_api_safe(&apiobj, c_api, mask, MASK, PyMASK_C_API);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;

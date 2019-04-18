@@ -937,7 +937,7 @@ MODINIT_DEFINE(font)
     c_api[0] = &PyFont_Type;
     c_api[1] = PyFont_New;
     c_api[2] = &font_initialized;
-    apiobj = encapsulate_api(c_api, "font");
+    _encapsulate_api_safe(&apiobj, c_api, font, FONT, PyFont_API);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;
