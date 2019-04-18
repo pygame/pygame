@@ -2134,9 +2134,6 @@ class MaskSubclassTest(unittest.TestCase):
 
 
 class MaskModuleTest(unittest.TestCase):
-    # The @unittest.expectedFailure decorator can be removed when issue #897
-    # is fixed.
-    @unittest.expectedFailure
     def test_from_surface(self):
         """Ensures from_surface creates a mask with the correct bits set.
 
@@ -2222,9 +2219,6 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.overlap_area(expected_mask, offset),
                              expected_count, msg)
 
-    # The @unittest.expectedFailure decorator can be removed when issue #897
-    # is fixed.
-    @unittest.expectedFailure
     def test_from_surface__different_alphas_16bit(self):
         """Ensures from_surface creates a mask with the correct bits set
         when pixels have different alpha values (16 bit surfaces).
@@ -2308,11 +2302,96 @@ class MaskModuleTest(unittest.TestCase):
                 self.assertEqual(mask.overlap_area(expected_mask, offset),
                                  expected_count, msg)
 
-    def todo_test_from_surface__with_colorkey(self):
+    def test_from_surface__with_colorkey_mask_cleared(self):
         """Ensures from_surface creates a mask with the correct bits set
         when the surface uses a colorkey.
+
+        The surface is filled with the colorkey color so the resulting masks
+        are expected to have no bits set.
         """
-        self.fail()
+        colorkeys = ((0, 0, 0), (1, 2, 3), (50, 100, 200), (255, 255, 255))
+        expected_size = (7, 11)
+        expected_count = 0
+
+        for depth in (8, 16, 24, 32):
+            msg = 'depth={}'.format(depth)
+            surface = pygame.Surface(expected_size, 0, depth)
+
+            for colorkey in colorkeys:
+                surface.set_colorkey(colorkey)
+                # With some depths (i.e. 8 and 16) the actual colorkey can be
+                # different than what was requested via the set.
+                surface.fill(surface.get_colorkey())
+
+                mask = pygame.mask.from_surface(surface)
+
+                self.assertIsInstance(mask, pygame.mask.Mask, msg)
+                self.assertEqual(mask.get_size(), expected_size, msg)
+                self.assertEqual(mask.count(), expected_count, msg)
+
+    def test_from_surface__with_colorkey_mask_filled(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when the surface uses a colorkey.
+
+        The surface is filled with a color that is not the colorkey color so
+        the resulting masks are expected to have all bits set.
+        """
+        colorkeys = ((0, 0, 0), (1, 2, 3), (10, 100, 200), (255, 255, 255))
+        surface_color = (50, 100, 200)
+        expected_size = (11, 7)
+        expected_count = expected_size[0] * expected_size[1]
+
+        for depth in (8, 16, 24, 32):
+            msg = 'depth={}'.format(depth)
+            surface = pygame.Surface(expected_size, 0, depth)
+            surface.fill(surface_color)
+
+            for colorkey in colorkeys:
+                surface.set_colorkey(colorkey)
+
+                mask = pygame.mask.from_surface(surface)
+
+                self.assertIsInstance(mask, pygame.mask.Mask, msg)
+                self.assertEqual(mask.get_size(), expected_size, msg)
+                self.assertEqual(mask.count(), expected_count, msg)
+
+    def test_from_surface__with_colorkey_mask_pattern(self):
+        """Ensures from_surface creates a mask with the correct bits set
+        when the surface uses a colorkey.
+
+        The surface is filled with alternating pixels of colorkey and
+        non-colorkey colors, so the resulting masks are expected to have
+        alternating bits set.
+        """
+        def alternate(func, set_value, unset_value, width, height):
+            # Helper function to set alternating values.
+            setbit = False
+            for pos in ((x, y) for x in range(width) for y in range(height)):
+                func(pos, set_value if setbit else unset_value)
+                setbit = not setbit
+
+        surface_color = (5, 10, 20)
+        colorkey = (50, 60, 70)
+        expected_size = (11, 2)
+        expected_mask = pygame.mask.Mask(expected_size)
+        alternate(expected_mask.set_at, 1, 0, *expected_size)
+        expected_count = expected_mask.count()
+        offset = (0, 0)
+
+        for depth in (8, 16, 24, 32):
+            msg = 'depth={}'.format(depth)
+            surface = pygame.Surface(expected_size, 0, depth)
+            # Fill the surface with alternating colors.
+            alternate(surface.set_at, surface_color, colorkey, *expected_size)
+            surface.set_colorkey(colorkey)
+
+            mask = pygame.mask.from_surface(surface)
+
+            self.assertIsInstance(mask, pygame.mask.Mask, msg)
+            self.assertEqual(mask.get_size(), expected_size, msg)
+            self.assertEqual(mask.count(), expected_count, msg)
+            self.assertEqual(mask.overlap_area(expected_mask, offset),
+                             expected_count, msg)
 
     def test_from_threshold(self):
         """ Does mask.from_threshold() work correctly?

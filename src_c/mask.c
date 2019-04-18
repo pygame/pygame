@@ -504,32 +504,113 @@ mask_convolve(PyObject *aobj, PyObject *args)
     return oobj;
 }
 
+/* Gets the color of a given pixel.
+ *
+ * Params:
+ *     pixel: pixel to get the color of
+ *     bpp: bytes per pixel
+ *
+ * Returns:
+ *     pixel color
+ */
+static PG_INLINE Uint32
+get_pixel_color(Uint8 *pixel, Uint8 bpp)
+{
+    switch (bpp) {
+        case 1:
+            return *((Uint8 *)pixel);
+
+        case 2:
+            return *((Uint16 *)pixel);
+
+        case 3:
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            return (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16);
+#else  /* SDL_BIG_ENDIAN */
+            return (pixel[2]) + (pixel[1] << 8) + (pixel[0] << 16);
+#endif /* SDL_BIG_ENDIAN */
+
+        default: /* case 4: */
+            return *((Uint32 *)pixel);
+    }
+}
+
+/* For each surface pixel's alpha that is greater than the threshold,
+ * the corresponding bitmask bit is set.
+ *
+ * Params:
+ *     surf: surface
+ *     bitmask: bitmask to alter
+ *     threshold: threshold used check surface pixels (alpha) against
+ *
+ * Returns:
+ *     void
+ */
+static void
+set_from_threshold(SDL_Surface *surf, bitmask_t *bitmask, int threshold)
+{
+    SDL_PixelFormat *format = surf->format;
+    Uint8 bpp = format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    Uint8 rgba[4];
+    int x, y;
+
+    for (y = 0; y < surf->h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < surf->w; ++x, pixel += bpp) {
+            SDL_GetRGBA(get_pixel_color(pixel, bpp), format, rgba, rgba + 1,
+                        rgba + 2, rgba + 3);
+            if (rgba[3] > threshold) {
+                bitmask_setbit(bitmask, x, y);
+            }
+        }
+    }
+}
+
+/* For each surface pixel's color that is not equal to the colorkey, the
+ * corresponding bitmask bit is set.
+ *
+ * Params:
+ *     surf: surface
+ *     bitmask: bitmask to alter
+ *     colorkey: color used to check surface pixels against
+ *
+ * Returns:
+ *     void
+ */
+static void
+set_from_colorkey(SDL_Surface *surf, bitmask_t *bitmask, Uint32 colorkey)
+{
+    Uint8 bpp = surf->format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    int x, y;
+
+    for (y = 0; y < surf->h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < surf->w; ++x, pixel += bpp) {
+            if (get_pixel_color(pixel, bpp) != colorkey) {
+                bitmask_setbit(bitmask, x, y);
+            }
+        }
+    }
+}
+
+/* Creates a mask from a given surface.
+ *
+ * Returns:
+ *     Mask object or NULL to indicate a fail
+ */
 static PyObject *
 mask_from_surface(PyObject *self, PyObject *args)
 {
-    bitmask_t *bitmask;
-    SDL_Surface *surf;
-
-    PyObject *surfobj;
-    pgMaskObject *maskobj;
-
-    int x, y, threshold, ashift, aloss, usethresh;
-    Uint8 *pixels;
-
-    SDL_PixelFormat *format;
-    Uint32 color, amask;
-#if IS_SDLv2
+    SDL_Surface *surf = NULL;
+    PyObject *surfobj = NULL;
+    pgMaskObject *maskobj = NULL;
     Uint32 colorkey;
-#endif /* IS_SDLv2 */
-    Uint8 *pix;
-    Uint8 a;
-
-    /* set threshold as 127 default argument. */
-    threshold = 127;
-
-    /* get the surface from the passed in arguments.
-     *   surface, threshold
-     */
+    int threshold = 127; /* default value */
+    int use_thresh = 1;
 
     if (!PyArg_ParseTuple(args, "O!|i", &pgSurface_Type, &surfobj,
                           &threshold)) {
@@ -549,81 +630,40 @@ mask_from_surface(PyObject *self, PyObject *args)
         return NULL; /* Exception already set. */
     }
 
-    /* lock the surface, release the GIL. */
-    pgSurface_Lock(surfobj);
-
-    Py_BEGIN_ALLOW_THREADS;
-
-    bitmask = maskobj->mask;
-    pixels = (Uint8 *)surf->pixels;
-    format = surf->format;
-    amask = format->Amask;
-    ashift = format->Ashift;
-    aloss = format->Aloss;
-#if IS_SDLv1
-    usethresh = !(surf->flags & SDL_SRCCOLORKEY);
-#else  /* IS_SDLv2 */
-    usethresh = (SDL_GetColorKey(surf, &colorkey) == -1);
-#endif /* IS_SDLv2 */
-
-    for (y = 0; y < surf->h; y++) {
-        pixels = (Uint8 *)surf->pixels + y * surf->pitch;
-        for (x = 0; x < surf->w; x++) {
-            /* Get the color.  TODO: should use an inline helper
-             *   function for this common function. */
-            switch (format->BytesPerPixel) {
-                case 1:
-                    color = (Uint32) * ((Uint8 *)pixels);
-                    pixels++;
-                    break;
-                case 2:
-                    color = (Uint32) * ((Uint16 *)pixels);
-                    pixels += 2;
-                    break;
-                case 3:
-                    pix = ((Uint8 *)pixels);
-                    pixels += 3;
-#if IS_SDLv1
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                    color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
-#else
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif
-#else  /* IS_SDLv2 */
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
-                    break;
-                default: /* case 4: */
-                    color = *((Uint32 *)pixels);
-                    pixels += 4;
-                    break;
-            }
-
-            if (usethresh) {
-                a = ((color & amask) >> ashift) << aloss;
-                /* no colorkey, so we check the threshold of the alpha */
-                if (a > threshold) {
-                    bitmask_setbit(bitmask, x, y);
-                }
-            }
-            else {
-                /*  test against the colour key. */
-#if IS_SDLv1
-                if (format->colorkey != color) {
-#else  /* IS_SDLv2 */
-                if (colorkey != color) {
-#endif /* IS_SDLv2 */
-                    bitmask_setbit(bitmask, x, y);
-                }
-            }
-        }
+    if (surf->w == 0 || surf->h == 0) {
+        /* Nothing left to do for 0 sized surfaces. */
+        return (PyObject *)maskobj;
     }
 
-    Py_END_ALLOW_THREADS;
+    if (!pgSurface_Lock(surfobj)) {
+        Py_DECREF((PyObject *)maskobj);
+        return RAISE(PyExc_RuntimeError, "cannot lock surface");
+    }
 
-    /* unlock the surface, release the GIL.
-     */
-    pgSurface_Unlock(surfobj);
+    Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
+
+#if IS_SDLv1
+    if (surf->flags & SDL_SRCCOLORKEY) {
+        colorkey = surf->format->colorkey;
+        use_thresh = 0;
+    }
+#else  /* IS_SDLv2 */
+    use_thresh = (SDL_GetColorKey(surf, &colorkey) == -1);
+#endif /* IS_SDLv2 */
+
+    if (use_thresh) {
+        set_from_threshold(surf, maskobj->mask, threshold);
+    }
+    else {
+        set_from_colorkey(surf, maskobj->mask, colorkey);
+    }
+
+    Py_END_ALLOW_THREADS; /* Obtain the GIL. */
+
+    if (!pgSurface_Unlock(surfobj)) {
+        Py_DECREF((PyObject *)maskobj);
+        return RAISE(PyExc_RuntimeError, "cannot unlock surface");
+    }
 
     return (PyObject *)maskobj;
 }
