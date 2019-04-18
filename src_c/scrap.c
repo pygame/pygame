@@ -45,8 +45,8 @@ static int _scrapinitialized = 0;
  * Currently active Clipboard object.
  */
 static ScrapClipType _currentmode;
-static PyObject *_selectiondata;
-static PyObject *_clipdata;
+static PyObject *_selectiondata = NULL;
+static PyObject *_clipdata = NULL;
 
 /* Forward declarations. */
 static PyObject *
@@ -103,8 +103,13 @@ static PyObject *
 _scrap_init(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
-    _clipdata = PyDict_New();
-    _selectiondata = PyDict_New();
+
+    if (!pygame_scrap_initialized()) {
+        Py_XDECREF(_clipdata);
+        Py_XDECREF(_selectiondata);
+        _clipdata = PyDict_New();
+        _selectiondata = PyDict_New();
+    }
 
     /* In case we've got not video surface, we won't initialize
      * anything.

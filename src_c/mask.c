@@ -45,10 +45,19 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+/* Macro to create mask objects. This will call the type's tp_new and tp_init.
+ * Params:
+ *     w: width of mask
+ *     h: height of mask
+ *     f: fill, 1 is used to set all the bits (to 1) and 0 is used to clear
+ *        all the bits (to 0)
+ */
+#define CREATE_MASK_OBJ(w, h, f)                                             \
+    (pgMaskObject *)PyObject_CallFunction((PyObject *)&pgMask_Type, "(ii)i", \
+                                          (w), (h), (f))
+
 /* Prototypes */
 static PyTypeObject pgMask_Type;
-static PG_INLINE pgMaskObject *
-_create_mask(int width, int height, int fill);
 static PG_INLINE pgMaskObject *
 _create_mask_using_bitmask(bitmask_t *bitmask);
 
@@ -160,7 +169,7 @@ mask_overlap_mask(PyObject *self, PyObject *args)
         return NULL; /* Exception already set. */
     }
 
-    output_maskobj = _create_mask(bitmask->w, bitmask->h, 0);
+    output_maskobj = CREATE_MASK_OBJ(bitmask->w, bitmask->h, 0);
 
     if (NULL == output_maskobj) {
         return NULL; /* Exception already set. */
@@ -480,8 +489,8 @@ mask_convolve(PyObject *aobj, PyObject *args)
         Py_INCREF(oobj);
     }
     else {
-        pgMaskObject *maskobj =
-            _create_mask(MAX(0, a->w + b->w - 1), MAX(0, a->h + b->h - 1), 0);
+        pgMaskObject *maskobj = CREATE_MASK_OBJ(MAX(0, a->w + b->w - 1),
+                                                MAX(0, a->h + b->h - 1), 0);
 
         if (NULL == maskobj) {
             return NULL; /* Exception already set. */
@@ -495,32 +504,113 @@ mask_convolve(PyObject *aobj, PyObject *args)
     return oobj;
 }
 
+/* Gets the color of a given pixel.
+ *
+ * Params:
+ *     pixel: pixel to get the color of
+ *     bpp: bytes per pixel
+ *
+ * Returns:
+ *     pixel color
+ */
+static PG_INLINE Uint32
+get_pixel_color(Uint8 *pixel, Uint8 bpp)
+{
+    switch (bpp) {
+        case 1:
+            return *((Uint8 *)pixel);
+
+        case 2:
+            return *((Uint16 *)pixel);
+
+        case 3:
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            return (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16);
+#else  /* SDL_BIG_ENDIAN */
+            return (pixel[2]) + (pixel[1] << 8) + (pixel[0] << 16);
+#endif /* SDL_BIG_ENDIAN */
+
+        default: /* case 4: */
+            return *((Uint32 *)pixel);
+    }
+}
+
+/* For each surface pixel's alpha that is greater than the threshold,
+ * the corresponding bitmask bit is set.
+ *
+ * Params:
+ *     surf: surface
+ *     bitmask: bitmask to alter
+ *     threshold: threshold used check surface pixels (alpha) against
+ *
+ * Returns:
+ *     void
+ */
+static void
+set_from_threshold(SDL_Surface *surf, bitmask_t *bitmask, int threshold)
+{
+    SDL_PixelFormat *format = surf->format;
+    Uint8 bpp = format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    Uint8 rgba[4];
+    int x, y;
+
+    for (y = 0; y < surf->h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < surf->w; ++x, pixel += bpp) {
+            SDL_GetRGBA(get_pixel_color(pixel, bpp), format, rgba, rgba + 1,
+                        rgba + 2, rgba + 3);
+            if (rgba[3] > threshold) {
+                bitmask_setbit(bitmask, x, y);
+            }
+        }
+    }
+}
+
+/* For each surface pixel's color that is not equal to the colorkey, the
+ * corresponding bitmask bit is set.
+ *
+ * Params:
+ *     surf: surface
+ *     bitmask: bitmask to alter
+ *     colorkey: color used to check surface pixels against
+ *
+ * Returns:
+ *     void
+ */
+static void
+set_from_colorkey(SDL_Surface *surf, bitmask_t *bitmask, Uint32 colorkey)
+{
+    Uint8 bpp = surf->format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    int x, y;
+
+    for (y = 0; y < surf->h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < surf->w; ++x, pixel += bpp) {
+            if (get_pixel_color(pixel, bpp) != colorkey) {
+                bitmask_setbit(bitmask, x, y);
+            }
+        }
+    }
+}
+
+/* Creates a mask from a given surface.
+ *
+ * Returns:
+ *     Mask object or NULL to indicate a fail
+ */
 static PyObject *
 mask_from_surface(PyObject *self, PyObject *args)
 {
-    bitmask_t *bitmask;
-    SDL_Surface *surf;
-
-    PyObject *surfobj;
-    pgMaskObject *maskobj;
-
-    int x, y, threshold, ashift, aloss, usethresh;
-    Uint8 *pixels;
-
-    SDL_PixelFormat *format;
-    Uint32 color, amask;
-#if IS_SDLv2
+    SDL_Surface *surf = NULL;
+    PyObject *surfobj = NULL;
+    pgMaskObject *maskobj = NULL;
     Uint32 colorkey;
-#endif /* IS_SDLv2 */
-    Uint8 *pix;
-    Uint8 a;
-
-    /* set threshold as 127 default argument. */
-    threshold = 127;
-
-    /* get the surface from the passed in arguments.
-     *   surface, threshold
-     */
+    int threshold = 127; /* default value */
+    int use_thresh = 1;
 
     if (!PyArg_ParseTuple(args, "O!|i", &pgSurface_Type, &surfobj,
                           &threshold)) {
@@ -534,87 +624,46 @@ mask_from_surface(PyObject *self, PyObject *args)
                      "cannot create mask with negative size");
     }
 
-    maskobj = _create_mask(surf->w, surf->h, 0);
+    maskobj = CREATE_MASK_OBJ(surf->w, surf->h, 0);
 
     if (NULL == maskobj) {
         return NULL; /* Exception already set. */
     }
 
-    /* lock the surface, release the GIL. */
-    pgSurface_Lock(surfobj);
-
-    Py_BEGIN_ALLOW_THREADS;
-
-    bitmask = maskobj->mask;
-    pixels = (Uint8 *)surf->pixels;
-    format = surf->format;
-    amask = format->Amask;
-    ashift = format->Ashift;
-    aloss = format->Aloss;
-#if IS_SDLv1
-    usethresh = !(surf->flags & SDL_SRCCOLORKEY);
-#else  /* IS_SDLv2 */
-    usethresh = (SDL_GetColorKey(surf, &colorkey) == -1);
-#endif /* IS_SDLv2 */
-
-    for (y = 0; y < surf->h; y++) {
-        pixels = (Uint8 *)surf->pixels + y * surf->pitch;
-        for (x = 0; x < surf->w; x++) {
-            /* Get the color.  TODO: should use an inline helper
-             *   function for this common function. */
-            switch (format->BytesPerPixel) {
-                case 1:
-                    color = (Uint32) * ((Uint8 *)pixels);
-                    pixels++;
-                    break;
-                case 2:
-                    color = (Uint32) * ((Uint16 *)pixels);
-                    pixels += 2;
-                    break;
-                case 3:
-                    pix = ((Uint8 *)pixels);
-                    pixels += 3;
-#if IS_SDLv1
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                    color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
-#else
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif
-#else  /* IS_SDLv2 */
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
-                    break;
-                default: /* case 4: */
-                    color = *((Uint32 *)pixels);
-                    pixels += 4;
-                    break;
-            }
-
-            if (usethresh) {
-                a = ((color & amask) >> ashift) << aloss;
-                /* no colorkey, so we check the threshold of the alpha */
-                if (a > threshold) {
-                    bitmask_setbit(bitmask, x, y);
-                }
-            }
-            else {
-                /*  test against the colour key. */
-#if IS_SDLv1
-                if (format->colorkey != color) {
-#else  /* IS_SDLv2 */
-                if (colorkey != color) {
-#endif /* IS_SDLv2 */
-                    bitmask_setbit(bitmask, x, y);
-                }
-            }
-        }
+    if (surf->w == 0 || surf->h == 0) {
+        /* Nothing left to do for 0 sized surfaces. */
+        return (PyObject *)maskobj;
     }
 
-    Py_END_ALLOW_THREADS;
+    if (!pgSurface_Lock(surfobj)) {
+        Py_DECREF((PyObject *)maskobj);
+        return RAISE(PyExc_RuntimeError, "cannot lock surface");
+    }
 
-    /* unlock the surface, release the GIL.
-     */
-    pgSurface_Unlock(surfobj);
+    Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
+
+#if IS_SDLv1
+    if (surf->flags & SDL_SRCCOLORKEY) {
+        colorkey = surf->format->colorkey;
+        use_thresh = 0;
+    }
+#else  /* IS_SDLv2 */
+    use_thresh = (SDL_GetColorKey(surf, &colorkey) == -1);
+#endif /* IS_SDLv2 */
+
+    if (use_thresh) {
+        set_from_threshold(surf, maskobj->mask, threshold);
+    }
+    else {
+        set_from_colorkey(surf, maskobj->mask, colorkey);
+    }
+
+    Py_END_ALLOW_THREADS; /* Obtain the GIL. */
+
+    if (!pgSurface_Unlock(surfobj)) {
+        Py_DECREF((PyObject *)maskobj);
+        return RAISE(PyExc_RuntimeError, "cannot unlock surface");
+    }
 
     return (PyObject *)maskobj;
 }
@@ -837,7 +886,7 @@ mask_from_threshold(PyObject *self, PyObject *args)
     }
 
     bpp = surf->format->BytesPerPixel;
-    maskobj = _create_mask(surf->w, surf->h, 0);
+    maskobj = CREATE_MASK_OBJ(surf->w, surf->h, 0);
 
     if (NULL == maskobj) {
         return NULL; /* Exception already set. */
@@ -1513,7 +1562,7 @@ mask_connected_component(PyObject *self, PyObject *args)
         }
     }
 
-    output_maskobj = _create_mask(input->w, input->h, 0);
+    output_maskobj = CREATE_MASK_OBJ(input->w, input->h, 0);
 
     if (NULL == output_maskobj) {
         return NULL; /* Exception already set. */
@@ -1562,43 +1611,8 @@ static PyMethodDef mask_methods[] = {
 
 /*mask object internals*/
 
-/* Creates a mask object.
- *
- * Params:
- *     width: width of mask
- *     height: height of mask
- *     fill: 1 is used to set all the bits (to 1) and 0 is used to clear all
- *         the bits (to 0)
- *
- * Returns:
- *     Mask object
- */
-static PG_INLINE pgMaskObject *
-_create_mask(int width, int height, int fill)
-{
-    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-
-    if (NULL == maskobj) {
-        return (pgMaskObject *)RAISE(PyExc_MemoryError,
-                                     "cannot allocate memory for mask");
-    }
-
-    maskobj->mask = bitmask_create(width, height);
-
-    if (NULL == maskobj->mask) {
-        Py_DECREF((PyObject *)maskobj);
-        return (pgMaskObject *)RAISE(PyExc_MemoryError,
-                                     "cannot allocate memory for bitmask");
-    }
-
-    if (fill) {
-        bitmask_fill(maskobj->mask);
-    }
-
-    return maskobj;
-}
-
-/* Creates a mask object using an existing bitmask.
+/* Creates a mask object using an existing bitmask. This is a helper function
+ * for internal use only.
  *
  * Params:
  *     bitmask: pointer to the bitmask to use
@@ -1609,7 +1623,9 @@ _create_mask(int width, int height, int fill)
 static PG_INLINE pgMaskObject *
 _create_mask_using_bitmask(bitmask_t *bitmask)
 {
-    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
+    /* tp_init is not needed as the bitmask has already been created. */
+    pgMaskObject *maskobj =
+        (pgMaskObject *)pgMask_Type.tp_new(&pgMask_Type, NULL, NULL);
 
     if (NULL == maskobj) {
         return (pgMaskObject *)RAISE(PyExc_MemoryError,
@@ -1623,9 +1639,15 @@ _create_mask_using_bitmask(bitmask_t *bitmask)
 static void
 mask_dealloc(PyObject *self)
 {
-    bitmask_t *mask = pgMask_AsBitmap(self);
-    bitmask_free(mask);
-    PyObject_DEL(self);
+    bitmask_t *bitmask = pgMask_AsBitmap(self);
+
+    if (NULL != bitmask) {
+        /* Free up the bitmask. */
+        bitmask_free(bitmask);
+    }
+
+    /* Free up the mask. */
+    Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *
@@ -1633,6 +1655,59 @@ mask_repr(PyObject *self)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     return Text_FromFormat("<Mask(%dx%d)>", mask->w, mask->h);
+}
+
+static PyObject *
+mask_new(PyTypeObject *subtype, PyObject *args, PyObject *kwargs)
+{
+    pgMaskObject *maskobj = (pgMaskObject *)subtype->tp_alloc(subtype, 0);
+
+    if (NULL == maskobj) {
+        return RAISE(PyExc_MemoryError, "cannot allocate memory for mask");
+    }
+
+    maskobj->mask = NULL;
+    return (PyObject *)maskobj;
+}
+
+static int
+mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    bitmask_t *bitmask = NULL;
+    int w, h;
+    int fill = 0; /* Default is false. */
+    char *keywords[] = {"size", "fill", NULL};
+#if PY3
+    const char *format = "(ii)|p";
+#else
+    const char *format = "(ii)|i";
+#endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
+                                     &fill)) {
+        return -1;
+    }
+
+    if (w < 0 || h < 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "cannot create mask with negative size");
+        return -1;
+    }
+
+    bitmask = bitmask_create(w, h);
+
+    if (NULL == bitmask) {
+        PyErr_SetString(PyExc_MemoryError,
+                        "cannot allocate memory for bitmask");
+        return -1;
+    }
+
+    if (fill) {
+        bitmask_fill(bitmask);
+    }
+
+    ((pgMaskObject *)self)->mask = bitmask;
+    return 0;
 }
 
 static PyTypeObject pgMask_Type = {
@@ -1654,7 +1729,7 @@ static PyTypeObject pgMask_Type = {
     0L,                   /* tp_getattro */
     0L,                   /* tp_setattro */
     0L,                   /* tp_as_buffer */
-    0L,                   /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */
@@ -1670,40 +1745,13 @@ static PyTypeObject pgMask_Type = {
     0,                  /* tp_descr_get */
     0,                  /* tp_descr_set */
     0,                  /* tp_dictoffset */
-    0,                  /* tp_init */
+    mask_init,          /* tp_init */
     0,                  /* tp_alloc */
-    0,                  /* tp_new */
+    mask_new,           /* tp_new */
 };
 
 /*mask module methods*/
-
-static PyObject *
-Mask(PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    int w, h;
-    int fill = 0; /* Default is false. */
-    char *keywords[] = {"size", "fill", NULL};
-#if PY3
-    const char *format = "(ii)|p";
-#else
-    const char *format = "(ii)|i";
-#endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
-                                     &fill))
-        return NULL;
-
-    if (w < 0 || h < 0) {
-        return RAISE(PyExc_ValueError,
-                     "cannot create mask with negative size");
-    }
-
-    return (PyObject *)_create_mask(w, h, fill);
-}
-
 static PyMethodDef _mask_methods[] = {
-    {"Mask", (PyCFunction)Mask, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEMASKMASK},
     {"from_surface", mask_from_surface, METH_VARARGS,
      DOC_PYGAMEMASKFROMSURFACE},
     {"from_threshold", mask_from_threshold, METH_VARARGS,
@@ -1767,6 +1815,12 @@ MODINIT_DEFINE(mask)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+    if (PyDict_SetItemString(dict, "Mask", (PyObject *)&pgMask_Type) == -1) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
     /* export the c api */
     c_api[0] = &pgMask_Type;
     apiobj = encapsulate_api(c_api, "mask");
