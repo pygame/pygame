@@ -889,8 +889,8 @@ MODINIT_DEFINE(bufferproxy)
     c_api[1] = pgBufproxy_New;
     c_api[2] = pgBufproxy_GetParent;
     c_api[3] = pgBufproxy_Trip;
-    encapsulate_api_safe(&apiobj, c_api, bufferproxy, BUFPROXY,
-                         PgBUFPROXY_C_API);
+    _encapsulate_api_safe(&apiobj, c_api, bufferproxy, BUFPROXY,
+                          PgBUFPROXY_C_API);
     if (apiobj == NULL) {
         DECREF_MOD(module);
         MODINIT_ERROR;
