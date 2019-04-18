@@ -109,7 +109,8 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "powershell buildconfig\\ci\\appveyor\\install.ps1"
+  # install.ps1 only needed for SDL1 stuff.
+  # - "powershell buildconfig\\ci\\appveyor\\install.ps1"
   - "%PYPY_DOWNLOAD%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
