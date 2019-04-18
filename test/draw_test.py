@@ -557,9 +557,6 @@ class LineMixin(object):
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
-    # This decorator can be removed when the draw.line bounding rect issue is
-    # resolved (#895).
-    @unittest.expectedFailure
     def test_line__bounding_rect(self):
         """Ensures draw line returns the correct bounding rect.
 
