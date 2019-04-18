@@ -12,6 +12,10 @@ ctypes.pythonapi.PyCapsule_GetName.restype = ctypes.c_char_p
 ctypes.pythonapi.PyCapsule_GetPointer.restype = \
     ctypes.POINTER(ctypes.c_void_p)
 
+def moduleToNUMSLOTS(module):
+    return 'PYGAMEAPI_{}_NUMSLOTS'.format(
+        module.__name__.split('.')[-1].upper())
+
 
 class ModuleEntryTest(unittest.TestCase):
     """ensure that C API slots have been initialized"""
@@ -37,15 +41,14 @@ class ModuleEntryTest(unittest.TestCase):
                     break
         return numslots
 
-    def check_module(self, module, header=pgheader):
+    def check_module(self, module, header=pgheader, macronameFunc=moduleToNUMSLOTS):
         """NULL check module's (zero-initialized) API slot entries"""
         capsule = getattr(module, local_entry)
         capsuleobj = ctypes.py_object(capsule)
         name = ctypes.pythonapi.PyCapsule_GetName(capsuleobj)
 
         # find number of slots
-        macroname = 'PYGAMEAPI_{}_NUMSLOTS'.format(
-            module.__name__.split('.')[-1].upper())
+        macroname = macronameFunc(module)
         numslots = self.numslots_for(module, macroname=macroname,
                                      header=header)
         self.assertNotEqual(numslots, -1,
@@ -57,6 +60,50 @@ class ModuleEntryTest(unittest.TestCase):
         for entryind in range(numslots):
             self.assertIsNotNone(moduletable[entryind],
                 'API slot {} is NULL'.format(entryind))
+
+    def check_module_str(self, modulestr, header=pgheader,
+                         macronameFunc=moduleToNUMSLOTS):
+        try:
+            mod = __import__('.'.join(('pygame', modulestr)))
+            self.check_module(getattr(pygame, modulestr),
+                              header, macronameFunc)
+        except ModuleNotFoundError:
+            unittest.skip('module unavailable')
+
+
+class ExtModuleEntryTest(ModuleEntryTest):
+    freetype_header = os.path.join('src_c', 'freetype.h')
+
+    @unittest.skipIf(not os.path.isfile(freetype_header), "cannot find the header")
+    def test_freetype(self):
+        self.check_module_str('_freetype',
+                              header=self.freetype_header,
+                              macronameFunc=lambda m: 'PYGAMEAPI_FREETYPE_NUMSLOTS')
+
+    bufferproxy_header = os.path.join('src_c', 'pgbufferproxy.h')
+
+    @unittest.skipIf(not os.path.isfile(bufferproxy_header), "cannot find the header")
+    def test_bufferproxy(self):
+        self.check_module_str('bufferproxy', header=self.bufferproxy_header,
+                              macronameFunc=lambda m: 'PYGAMEAPI_BUFPROXY_NUMSLOTS')
+
+    font_header = os.path.join('src_c', 'font.h')
+
+    @unittest.skipIf(not os.path.isfile(font_header), "cannot find the header")
+    def test_font(self):
+        self.check_module_str('font', header=self.font_header)
+
+    mask_header = os.path.join('src_c', 'mask.h')
+
+    @unittest.skipIf(not os.path.isfile(mask_header), "cannot find the header")
+    def test_mask(self):
+        self.check_module_str('mask', header=self.mask_header)
+
+    mixer_header = os.path.join('src_c', 'mixer.h')
+
+    @unittest.skipIf(not os.path.isfile(mixer_header), "cannot find the header")
+    def test_mixer(self):
+        self.check_module_str('mixer', header=self.mixer_header)
 
 
 @unittest.skipIf(not os.path.isfile(pgheader),
