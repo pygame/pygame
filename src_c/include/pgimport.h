@@ -55,7 +55,7 @@
 #define PYGAMEAPI_EXTERN_SLOTS(module) \
     extern void **_PGSLOTS_ ## module
 #define PYGAMEAPI_GET_SLOT(module, index) \
-    _PGSLOTS_ ## module ## [(index)]
+    _PGSLOTS_ ## module [(index)]
 
 /*
  * disabled API with NO_PYGAME_C_API; do nothing instead
