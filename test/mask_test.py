@@ -3,7 +3,6 @@ import random
 import unittest
 
 import pygame
-import pygame.mask
 from pygame.locals import *
 
 
@@ -44,6 +43,16 @@ def create_bounding_rect(points):
         ymax = max(y, ymax)
 
     return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
+
+
+def zero_size_pairs(width, height):
+    """Creates a generator which yields pairs of sizes.
+
+    For each pair of sizes at least one of the sizes will have a 0 in it.
+    """
+    sizes = ((width, height), (width, 0), (0, height), (0, 0))
+
+    return ((a, b) for a in sizes for b in sizes if 0 in a or 0 in b)
 
 
 class MaskTypeTest(unittest.TestCase):
@@ -1322,7 +1331,8 @@ class MaskTypeTest(unittest.TestCase):
 
     def test_connected_component__full_mask(self):
         """Ensure a mask's connected component is correctly calculated
-        when the mask is full."""
+        when the mask is full.
+        """
         expected_size = (23, 31)
         original_mask = pygame.mask.Mask(expected_size, fill=True)
         expected_count = original_mask.count()
@@ -1339,7 +1349,8 @@ class MaskTypeTest(unittest.TestCase):
 
     def test_connected_component__empty_mask(self):
         """Ensure a mask's connected component is correctly calculated
-        when the mask is empty."""
+        when the mask is empty.
+        """
         expected_size = (37, 43)
         original_mask = pygame.mask.Mask(expected_size)
         original_count = original_mask.count()
@@ -1634,44 +1645,68 @@ class MaskTypeTest(unittest.TestCase):
                 mask.set_at((0, 0))
 
     def test_zero_mask_overlap(self):
-        sizes = ((100, 0), (0, 100), (0, 0))
+        """Ensures overlap correctly handles zero sized masks.
 
-        for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100))
-            self.assertEqual(mask.overlap(mask2, (0, 0)), None)
-            self.assertEqual(mask2.overlap(mask, (0, 0)), None)
+        Tests combinations of sized and zero sized masks.
+        """
+        offset = (0, 0)
+
+        for size1, size2 in zero_size_pairs(51, 42):
+            msg = 'size1={}, size2={}'.format(size1, size2)
+            mask1 = pygame.mask.Mask(size1, fill=True)
+            mask2 = pygame.mask.Mask(size2, fill=True)
+
+            overlap_pos = mask1.overlap(mask2, offset)
+
+            self.assertIsNone(overlap_pos, msg)
 
     def test_zero_mask_overlap_area(self):
-        sizes = ((100, 0), (0, 100), (0, 0))
+        """Ensures overlap_area correctly handles zero sized masks.
 
-        for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100))
-            self.assertEqual(mask.overlap_area(mask2, (0, 0)), 0)
-            self.assertEqual(mask2.overlap_area(mask, (0, 0)), 0)
+        Tests combinations of sized and zero sized masks.
+        """
+        offset = (0, 0)
+        expected_count = 0
+
+        for size1, size2 in zero_size_pairs(41, 52):
+            msg = 'size1={}, size2={}'.format(size1, size2)
+            mask1 = pygame.mask.Mask(size1, fill=True)
+            mask2 = pygame.mask.Mask(size2, fill=True)
+
+            overlap_count = mask1.overlap_area(mask2, offset)
+
+            self.assertEqual(overlap_count, expected_count, msg)
 
     def test_zero_mask_overlap_mask(self):
-        sizes = ((100, 0), (0, 100), (0, 0))
+        """Ensures overlap_mask correctly handles zero sized masks.
 
-        for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100))
+        Tests combinations of sized and zero sized masks.
+        """
+        offset = (0, 0)
+        expected_count = 0
 
-            overlap_mask = mask.overlap_mask(mask2, (0, 0))
-            overlap_mask2 = mask2.overlap_mask(mask, (0, 0))
+        for size1, size2 in zero_size_pairs(43, 53):
+            msg = 'size1={}, size2={}'.format(size1, size2)
+            mask1 = pygame.mask.Mask(size1, fill=True)
+            mask2 = pygame.mask.Mask(size2, fill=True)
 
-            self.assertIsInstance(mask, pygame.mask.Mask)
-            self.assertIsInstance(mask2, pygame.mask.Mask)
-            self.assertEqual(mask.get_size(), overlap_mask.get_size())
-            self.assertEqual(mask2.get_size(), overlap_mask2.get_size())
+            overlap_mask = mask1.overlap_mask(mask2, offset)
+
+            self.assertIsInstance(overlap_mask, pygame.mask.Mask, msg)
+            self.assertEqual(overlap_mask.count(), expected_count, msg)
+            self.assertEqual(overlap_mask.get_size(), size1, msg)
 
     def test_zero_mask_fill(self):
-        sizes = ((100, 0), (0, 100), (0, 0))
+        """Ensures fill correctly handles zero sized masks."""
+        expected_count = 0
 
-        for size in sizes:
-            mask = pygame.mask.Mask(size, fill=True)
-            self.assertEqual(mask.count(), 0)
+        for size in ((100, 0), (0, 100), (0, 0)):
+            mask = pygame.mask.Mask(size)
+
+            mask.fill()
+
+            self.assertEqual(mask.count(), expected_count,
+                             'size={}'.format(size))
 
     def test_zero_mask_clear(self):
         sizes = ((100, 0), (0, 100), (0, 0))
@@ -1700,26 +1735,40 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.get_size(), (2, 3))
 
     def test_zero_mask_draw(self):
-        sizes = ((100, 0), (0, 100), (0, 0))
+        """Ensures draw correctly handles zero sized masks.
 
-        for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100), fill=True)
-            before = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
-            mask.draw(mask2, (0, 0))
-            after = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
-            self.assertEqual(before, after)
+        Tests combinations of sized and zero sized masks.
+        """
+        offset = (0, 0)
+
+        for size1, size2 in zero_size_pairs(31, 37):
+            msg = 'size1={}, size2={}'.format(size1, size2)
+            mask1 = pygame.mask.Mask(size1, fill=True)
+            mask2 = pygame.mask.Mask(size2, fill=True)
+            expected_count = mask1.count()
+
+            mask1.draw(mask2, offset)
+
+            self.assertEqual(mask1.count(), expected_count, msg)
+            self.assertEqual(mask1.get_size(), size1, msg)
 
     def test_zero_mask_erase(self):
-        sizes = ((100, 0), (0, 100), (0, 0))
+        """Ensures erase correctly handles zero sized masks.
 
-        for size in sizes:
-            mask = pygame.mask.Mask(size)
-            mask2 = pygame.mask.Mask((100, 100), fill=True)
-            before = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
-            mask.erase(mask2, (0, 0))
-            after = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
-            self.assertEqual(before, after)
+        Tests combinations of sized and zero sized masks.
+        """
+        offset = (0, 0)
+
+        for size1, size2 in zero_size_pairs(29, 23):
+            msg = 'size1={}, size2={}'.format(size1, size2)
+            mask1 = pygame.mask.Mask(size1, fill=True)
+            mask2 = pygame.mask.Mask(size2, fill=True)
+            expected_count = mask1.count()
+
+            mask1.erase(mask2, offset)
+
+            self.assertEqual(mask1.count(), expected_count, msg)
+            self.assertEqual(mask1.get_size(), size1, msg)
 
     def test_zero_mask_count(self):
         sizes = ((100, 0), (0, 100), (0, 0))
