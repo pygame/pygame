@@ -8,40 +8,84 @@
 
 | :sl:`pygame module for drawing shapes`
 
-Draw several simple shapes to a Surface. These functions will work for
-rendering to any format of Surface. Rendering to hardware Surfaces will be
-slower than regular software Surfaces.
+Draw several simple shapes to a surface. These functions will work for
+rendering to any format of surface. Rendering to hardware surfaces will be
+slower than regular software surfaces.
 
 Most of the functions take a width argument to represent the size of stroke
-around the edge of the shape. If a width of 0 is passed the function will
-actually solid fill the entire shape.
+(thickness) around the edge of the shape. If a width of 0 is passed the shape
+will be filled (solid).
 
-All the drawing functions respect the clip area for the Surface, and will be
+All the drawing functions respect the clip area for the surface and will be
 constrained to that area. The functions return a rectangle representing the
-bounding area of changed pixels.
+bounding area of changed pixels. This bounding rectangle is the 'minimum'
+bounding box that encloses the affected area.
 
-Most of the arguments accept a color argument that is an ``RGB`` triplet. These
-can also accept an ``RGBA`` quadruplet. The alpha value will be written
-directly into the Surface if it contains pixel alphas, but the draw function
-will not draw transparently. The color argument can also be an integer pixel
-value that is already mapped to the Surface's pixel format.
+All the drawing functions accept a color argument that can be one of the
+following formats:
 
-These functions must temporarily lock the Surface they are operating on. Many
-sequential drawing calls can be sped up by locking and unlocking the Surface
-object around the draw calls.
+   - a :mod:`pygame.Color` object
+   - an ``(RGB)`` triplet (tuple/list)
+   - an ``(RGBA)`` quadruplet (tuple/list)
+   - an integer value that has been mapped to the surface's pixel format
+     (see :func:`pygame.Surface.map_rgb` and :func:`pygame.Surface.map_rgb`).
+
+A color's alpha value will be written directly into the surface (if the
+surface contains pixel alphas), but the draw function will not draw
+transparently.
+
+These functions temporarily lock the surface they are operating on. Many
+sequential drawing calls can be sped up by locking and unlocking the surface
+object around the draw calls (see :func:`pygame.Surface.lock` and
+:func:`pygame.Surface.lock`).
 
 .. function:: rect
 
-   | :sl:`draw a rectangle shape`
-   | :sg:`rect(Surface, color, Rect, width=0) -> Rect`
+   | :sl:`draw a rectangle`
+   | :sg:`rect(surface=Surface, color=Color, rect=Rect) -> Rect`
+   | :sg:`rect(surface=Surface, color=Color, rect=Rect, width=0) -> Rect`
 
-   Draws a rectangular shape on the Surface. The given Rect is the area of the
-   rectangle. The width argument is the thickness to draw the outer edge. If
-   width is zero then the rectangle will be filled.
+   Draws a rectangle on the given surface.
 
-   Keep in mind the ``Surface.fill()`` method works just as well for drawing
-   filled rectangles. In fact the ``Surface.fill()`` can be hardware
-   accelerated on some platforms with both software and hardware display modes.
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param Rect rect: rectangle to draw, position and dimensions
+   :param int width: (optional) used for line thickness or to indicate that
+      the rectangle is to be filled (not to be confused with the width value
+      of the ``rect`` parameter)
+
+         | if width == 0, (default) fill the rectangle
+         | if width > 0, used for line thickness
+         | if width < 0, nothing will be drawn
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will grow
+            outside the original boundary of the ``rect``.
+
+            For odd ``width`` values, the thickness of each edge line
+            grows with the original line being in the center.
+
+            For even ``width`` values, the thickness of each edge
+            line grows with the original line being offset from the center
+            (as there is no exact center line drawn). As a result,
+            horizontal edge lines have 1 more pixel of thickness below the
+            original line and vertical edge lines have 1 more pixel of
+            thickness to the right of the original line.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the given ``rect``
+      parameter and its width and height will be 0
+   :rtype: Rect
+
+   .. note::
+      The :func:`pygame.Surface.fill()` method works just as well for drawing
+      filled rectangles and can be hardware accelerated on some platforms with
+      both software and hardware display modes.
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.rect ##
 
@@ -60,12 +104,39 @@ object around the draw calls.
 
 .. function:: circle
 
-   | :sl:`draw a circle around a point`
-   | :sg:`circle(Surface, color, pos, radius, width=0) -> Rect`
+   | :sl:`draw a circle`
+   | :sg:`circle(surface=Surface, color=Color, center=(x, y), radius=radius) -> Rect`
+   | :sg:`circle(surface=Surface, color=Color, center=(x, y), radius=radius, width=0) -> Rect`
 
-   Draws a circular shape on the Surface. The pos argument is the center of the
-   circle, and radius is the size. The width argument is the thickness to draw
-   the outer edge. If width is zero then the circle will be filled.
+   Draws an circle on the given surface.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param int center: center point of the circle
+   :param int radius: radius of the circle, measured from the ``center``
+      parameter, a radius of 0 will only draw the ``center`` pixel
+   :param int width: (optional) used for line thickness or to indicate that
+      the circle is to be filled
+
+         | if ``width == 0``, (default) fill the circle
+         | if ``width > 0``, used for line thickness
+         | if ``width < 0``, raises a ``ValueError``
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will only grow
+            inward.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the ``center`` parameter value and its
+      width and height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``radius < 0`` or ``width < 0`` or ``width > radius``
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.circle ##
 

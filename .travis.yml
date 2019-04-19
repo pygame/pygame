@@ -139,6 +139,6 @@ deploy:
       # branches:
       #   only:
       #     - master
-      tag: true
+      tags: true
       repo: pygame/pygame
       condition: $GITHUB_UPLOAD = yes

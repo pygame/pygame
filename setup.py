@@ -374,7 +374,7 @@ def write_version_module(pygame_version, revision):
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"\n')
-        version_file.write('vernum = ' + vernum + '\n')
+        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
 
 write_version_module(METADATA['version'], revision)
@@ -609,7 +609,7 @@ PACKAGEDATA = {
        "cmdclass":    cmdclass,
        "packages":    ['pygame',
                        'pygame.threads',
-                       # 'pygame._sdl2',
+                       'pygame._sdl2',
                        'pygame.tests',
                        'pygame.tests.test_utils',
                        'pygame.tests.run_tests__tests',
@@ -626,7 +626,7 @@ PACKAGEDATA = {
                        'pygame.docs',
                        'pygame.examples'],
        "package_dir": {'pygame': 'src_py',
-                       # 'pygame._sdl2': 'src_py/_sdl2',
+                       'pygame._sdl2': 'src_py/_sdl2',
                        'pygame.threads': 'src_py/threads',
                        'pygame.tests': 'test',
                        'pygame.docs': 'docs',

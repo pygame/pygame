@@ -6,11 +6,16 @@ from pygame.compat import unicode_
 
 from pygame import display
 
+
+SDL2 = pygame.get_sdl_version()[0] >= 2
+
+
 class DisplayModuleTest(unittest.TestCase):
     default_caption = "pygame window"
 
     def setUp(self):
         display.init()
+
     def tearDown(self):
         display.quit()
 
@@ -18,8 +23,6 @@ class DisplayModuleTest(unittest.TestCase):
         """ see if pygame.display.update takes rects with negative values.
             "|Tags:display|"
         """
-
-        #pygame.init()
         screen = pygame.display.set_mode((100, 100))
         screen.fill((55, 55, 55))
 
@@ -31,31 +34,6 @@ class DisplayModuleTest(unittest.TestCase):
 
         r3 = pygame.Rect(-10, 0, -100, -100)
         pygame.display.update(r3)
-
-        # NOTE: if I don't call pygame.quit there is a segfault.  hrmm.
-        #pygame.quit()
-        #  I think it's because unittest runs stuff in threads
-        # here's a stack trace...
-
-        # NOTE to author of above:
-        #   unittest doesn't run tests in threads
-        #   segfault was probably caused by another tests need
-        #   for a "clean slate"
-
-        """
-    #0  0x08103b7c in PyFrame_New ()
-    #1  0x080bd666 in PyEval_EvalCodeEx ()
-    #2  0x08105202 in PyFunction_SetClosure ()
-    #3  0x080595ae in PyObject_Call ()
-    #4  0x080b649f in PyEval_CallObjectWithKeywords ()
-    #5  0x08059585 in PyObject_CallObject ()
-    #6  0xb7f7aa2d in initbase () from /usr/lib/python2.4/site-packages/pygame/base.so
-    #7  0x080e09bd in Py_Finalize ()
-    #8  0x08055597 in Py_Main ()
-    #9  0xb7e04eb0 in __libc_start_main () from /lib/tls/libc.so.6
-    #10 0x08054e31 in _start ()
-
-        """
 
     def test_Info(self):
         inf = pygame.display.Info()
@@ -101,33 +79,14 @@ class DisplayModuleTest(unittest.TestCase):
         self.fail()
 
     def test_get_caption(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.get_caption:
-
-          # pygame.display.get_caption(): return (title, icontitle)
-          # get the current window caption
-          #
-          # Returns the title and icontitle for the display Surface. These will
-          # often be the same value.
-          #
-
         screen = display.set_mode((100, 100))
+
         self.assertEqual(display.get_caption()[0], self.default_caption)
 
     def test_set_caption(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_caption:
-
-          # pygame.display.set_caption(title, icontitle=None): return None
-          # set the current window caption
-          #
-          # If the display has a window title, this function will change the
-          # name on the window. Some systems support an alternate shorter title
-          # to be used for minimized displays.
-          #
-
         TEST_CAPTION = "test"
         screen = display.set_mode((100, 100))
+
         self.assertIsNone(display.set_caption(TEST_CAPTION))
         self.assertEqual(display.get_caption()[0], TEST_CAPTION)
         self.assertEqual(display.get_caption()[1], TEST_CAPTION)
@@ -158,29 +117,35 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_init(self):
+    def test_get_init(self):
+        """Ensures the module's initialization state can be retrieved."""
+        # display.init() already called in setUp()
+        self.assertTrue(display.get_init())
 
-        # __doc__ (as of 2008-08-02) for pygame.display.get_init:
+    # This decorator can be removed (or test changed) when issues #991 and #993
+    # are resolved.
+    @unittest.skipIf(SDL2, 'SDL2 issues')
+    def test_get_surface(self):
+        """Ensures get_surface gets the current display surface."""
+        lengths = (1, 5, 100)
 
-          # pygame.display.get_init(): return bool
-          # true if the display module is initialized
-          #
-          # Returns True if the pygame.display module is currently initialized.
+        for expected_size in ((w, h) for w in lengths for h in lengths):
+            for expected_depth in (8, 16, 24, 32):
+                expected_surface = display.set_mode(expected_size, 0,
+                                                    expected_depth)
 
-        self.fail()
+                surface = pygame.display.get_surface()
 
-    def todo_test_get_surface(self):
+                self.assertEqual(surface, expected_surface)
+                self.assertIsInstance(surface, pygame.Surface)
+                self.assertEqual(surface.get_size(), expected_size)
+                self.assertEqual(surface.get_bitsize(), expected_depth)
 
-        # __doc__ (as of 2008-08-02) for pygame.display.get_surface:
+    def test_get_surface__mode_not_set(self):
+        """Ensures get_surface handles the display mode not being set."""
+        surface = pygame.display.get_surface()
 
-          # pygame.display.get_surface(): return Surface
-          # get a reference to the currently set display surface
-          #
-          # Return a reference to the currently set display Surface. If no
-          # display mode has been set this will return None.
-          #
-
-        self.fail()
+        self.assertIsNone(surface)
 
     def todo_test_get_wm_info(self):
 
@@ -253,36 +218,20 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_init(self):
+    def test_init(self):
+        """Ensures the module is initialized after init called."""
+        # display.init() already called in setUp(), so quit and re-init
+        display.quit()
+        display.init()
 
-        # __doc__ (as of 2008-08-02) for pygame.display.init:
+        self.assertTrue(display.get_init())
 
-          # pygame.display.init(): return None
-          # initialize the display module
-          #
-          # Initializes the pygame display module. The display module cannot do
-          # anything until it is initialized. This is usually handled for you
-          # automatically when you call the higher level pygame.init().
-          #
-          # Pygame will select from one of several internal display backends
-          # when it is initialized. The display mode will be chosen depending on
-          # the platform and permissions of current user. Before the display
-          # module is initialized the environment variable SDL_VIDEODRIVER can
-          # be set to control which backend is used. The systems with multiple
-          # choices are listed here.
-          #
-          #    Windows : windib, directx
-          #    Unix    : x11, dga, fbcon, directfb, ggi, vgl, svgalib, aalib
-          # On some platforms it is possible to embed the pygame display into an
-          # already existing window. To do this, the environment variable
-          # SDL_WINDOWID must be set to a string containing the window id or
-          # handle. The environment variable is checked when the pygame display
-          # is initialized. Be aware that there can be many strange side effects
-          # when running in an embedded display.
-          #
-          # It is harmless to call this more than once, repeated calls have no effect.
+    def test_init__multiple(self):
+        """Ensures the module is initialized after multiple init calls."""
+        display.init()
+        display.init()
 
-        self.fail()
+        self.assertTrue(display.get_init())
 
     def test_list_modes(self):
         modes = pygame.display.list_modes(
@@ -327,20 +276,18 @@ class DisplayModuleTest(unittest.TestCase):
     def test_get_num_displays(self):
         self.assertGreater(pygame.display.get_num_displays(), 0)
 
-    def todo_test_quit(self):
+    def test_quit(self):
+        """Ensures the module is not initialized after quit called."""
+        display.quit()
 
-        # __doc__ (as of 2008-08-02) for pygame.display.quit:
+        self.assertFalse(display.get_init())
 
-          # pygame.display.quit(): return None
-          # uninitialize the display module
-          #
-          # This will shut down the entire display module. This means any active
-          # displays will be closed. This will also be handled automatically
-          # when the program exits.
-          #
-          # It is harmless to call this more than once, repeated calls have no effect.
+    def test_quit__multiple(self):
+        """Ensures the module is not initialized after multiple quit calls."""
+        display.quit()
+        display.quit()
 
-        self.fail()
+        self.assertFalse(display.get_init())
 
     def todo_test_set_gamma(self):
 
