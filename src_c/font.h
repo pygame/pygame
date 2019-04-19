@@ -10,4 +10,6 @@
 
 #include "include/pygame_font.h"
 
+#define PYGAMEAPI_FONT_NUMSLOTS 3
+
 #endif /* ~PGFONT_INTERNAL_H */

@@ -47,39 +47,35 @@ typedef struct {
 
 #include "pgimport.h"
 
-#define PYGAMEAPI_MIXER_FIRSTSLOT 0
-#define PYGAMEAPI_MIXER_NUMSLOTS 7
-
 #ifndef PYGAMEAPI_MIXER_INTERNAL
 
-PYGAMEAPI_DEFINE_SLOTS(pgMIXER_C_API, PYGAMEAPI_MIXER_NUMSLOTS);
+PYGAMEAPI_DEFINE_SLOTS(mixer);
 
 #define pgSound_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 0))
+    PYGAMEAPI_GET_SLOT(mixer, 0))
 
 #define pgSound_Check(x) ((x)->ob_type == &pgSound_Type)
 
 #define pgSound_New (*(PyObject*(*)(Mix_Chunk*)) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 1))
+    PYGAMEAPI_GET_SLOT(mixer, 1))
 
 #define pgSound_Play (*(PyObject*(*)(PyObject*, PyObject*)) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 2))
+    PYGAMEAPI_GET_SLOT(mixer, 2))
 
 #define pgChannel_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 3))
+    PYGAMEAPI_GET_SLOT(mixer, 3))
 #define pgChannel_Check(x) ((x)->ob_type == &pgChannel_Type)
 
 #define pgChannel_New (*(PyObject*(*)(int)) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 4))
+    PYGAMEAPI_GET_SLOT(mixer, 4))
 
 #define pgMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*)) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 5))
+    PYGAMEAPI_GET_SLOT(mixer, 5))
 
 #define pgMixer_AutoQuit (*(void(*)(void)) \
-    PYGAMEAPI_GET_SLOT(pgMIXER_C_API, 6))
+    PYGAMEAPI_GET_SLOT(mixer, 6))
 
-#define import_pygame_mixer() \
-    _IMPORT_PYGAME_MODULE(mixer, MIXER, pgMIXER_C_API)
+#define import_pygame_mixer() _IMPORT_PYGAME_MODULE(mixer)
 
 #endif /* PYGAMEAPI_MIXER_INTERNAL */
 

@@ -8,6 +8,7 @@
     if(!SDL_WasInit(SDL_INIT_AUDIO)) \
         return RAISE(pgExc_SDLError, "mixer not initialized")
 
+#define PYGAMEAPI_MIXER_NUMSLOTS 7
 #include "include/pygame_mixer.h"
 
 #endif /* ~MIXER_INTERNAL_H */

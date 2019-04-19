@@ -23,9 +23,6 @@
 #include <Python.h>
 #include "pgplatform.h"
 
-#define PYGAMEAPI_FONT_FIRSTSLOT 0
-#define PYGAMEAPI_FONT_NUMSLOTS 3
-
 typedef struct TTF_Font;
 
 typedef struct {
@@ -39,19 +36,18 @@ typedef struct {
 
 #include "pgimport.h"
 
-PYGAMEAPI_DEFINE_SLOTS(PyFONT_C_API, PYGAMEAPI_FONT_NUMSLOTS);
+PYGAMEAPI_DEFINE_SLOTS(font);
 
 #define PyFont_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(PyFONT_C_API, 0))
+    PYGAMEAPI_GET_SLOT(font, 0))
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 #define PyFont_New (*(PyObject*(*)(TTF_Font*))\
-    PYGAMEAPI_GET_SLOT(PyFONT_C_API, 1))
+    PYGAMEAPI_GET_SLOT(font, 1))
 
 /*slot 2 taken by FONT_INIT_CHECK*/
 
-#define import_pygame_font() \
-    _IMPORT_PYGAME_MODULE(font, FONT, PyFONT_C_API)
+#define import_pygame_font() _IMPORT_PYGAME_MODULE(font)
 
 #endif
 

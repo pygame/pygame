@@ -27,9 +27,6 @@
 
 #include <Python.h>
 
-#define PYGAMEAPI_BUFPROXY_NUMSLOTS 4
-#define PYGAMEAPI_BUFPROXY_FIRSTSLOT 0
-
 typedef PyObject *(*_pgbufproxy_new_t)(PyObject *, getbufferproc);
 typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int (*_pgbufproxy_trip_t)(PyObject *);
@@ -38,27 +35,24 @@ typedef int (*_pgbufproxy_trip_t)(PyObject *);
 
 #include "pgimport.h"
 
-PYGAMEAPI_DEFINE_SLOTS(PgBUFPROXY_C_API, PYGAMEAPI_BUFPROXY_NUMSLOTS);
-
-
+PYGAMEAPI_DEFINE_SLOTS(bufferproxy);
 
 #define pgBufproxy_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(PgBUFPROXY_C_API, 0) )
+    PYGAMEAPI_GET_SLOT(bufferproxy, 0) )
 
 #define pgBufproxy_Check(x) ((x)->ob_type == &pgBufproxy_Type)
 
 #define pgBufproxy_New (*(_pgbufproxy_new_t) \
-    PYGAMEAPI_GET_SLOT(PgBUFPROXY_C_API, 1))
+    PYGAMEAPI_GET_SLOT(bufferproxy, 1))
 
 #define pgBufproxy_GetParent \
     (*(_pgbufproxy_get_obj_t) \
-        PYGAMEAPI_GET_SLOT(PgBUFPROXY_C_API, 2))
+        PYGAMEAPI_GET_SLOT(bufferproxy, 2))
 
 #define pgBufproxy_Trip (*(_pgbufproxy_trip_t) \
-    PYGAMEAPI_GET_SLOT(PgBUFPROXY_C_API, 3))
+    PYGAMEAPI_GET_SLOT(bufferproxy, 3))
 
-#define import_pygame_bufferproxy() \
-    _IMPORT_PYGAME_MODULE(bufferproxy, BUFPROXY, PgBUFPROXY_C_API)
+#define import_pygame_bufferproxy() _IMPORT_PYGAME_MODULE(bufferproxy)
 
 #endif /* ~PYGAMEAPI_BUFPROXY_INTERNAL */
 
