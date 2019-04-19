@@ -1578,6 +1578,59 @@ pg_event_post(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+typedef struct {
+    SDL_Event event;
+    SDL_Thread* thread;
+} apostData;
+
+static int SDLCALL apost(apostData* data)
+{
+    if (data->thread != NULL)
+        SDL_WaitThread (data->thread, NULL);
+    SDL_PushEvent (&data->event);
+    free (data);
+    return 0;    
+}
+
+static PyObject *
+pg_event_apost(PyObject *self, PyObject *args)
+{
+    pgEventObject* e;
+    int isblocked = 0;
+    apostData* data;
+    static SDL_Thread* thread = NULL;
+
+    if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
+        return NULL;
+
+    VIDEO_INIT_CHECK();
+
+    /* see if the event is blocked before posting it. */
+    isblocked = SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE;
+
+    if (isblocked) {
+        /* event is blocked, so we do not post it. */
+        Py_RETURN_NONE;
+    }
+
+    data = malloc (sizeof(apostData));
+    if (pgEvent_FillUserEvent(e, &data->event)) {
+        free (data);
+        return NULL;
+    }
+    data->thread = thread;
+    
+    Py_BEGIN_ALLOW_THREADS;
+    thread = SDL_CreateThread (apost, data);
+    Py_END_ALLOW_THREADS;
+    if ( thread == NULL ) {
+        free (data);
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    Py_RETURN_NONE;
+}
+
 static int
 _pg_check_event_in_range(int evt)
 {
