@@ -178,6 +178,13 @@ struct pgSubSurface_Data {
     int offsetx, offsety;
 };
 
+/*
+ * include public API
+ */
+#include "include/_pygame.h"
+
+#include "pgimport.h"
+
 /* Slot counts.
  * Remember to keep these constants up to date.
  */
@@ -200,12 +207,5 @@ struct pgSubSurface_Data {
 #define PYGAMEAPI_BASE_NUMSLOTS 23
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
 #endif /* PG_API_VERSION == 2 */
-
-/*
- * include public API
- */
-#include "include/_pygame.h"
-
-#include "pgimport.h"
 
 #endif /* _PYGAME_INTERNAL_H */
