@@ -12,7 +12,7 @@ src_c/rwobject.c
 This extension module implements functions for wrapping a Python file like
 object in a :c:type:`SDL_RWops` struct for SDL file access.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 
 .. c:function:: SDL_RWops* pgRWops_FromObject(PyObject *obj)
