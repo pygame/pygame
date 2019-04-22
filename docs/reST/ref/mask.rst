@@ -152,7 +152,7 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       Sets all bits in the mask to 1.
 
       :returns: ``None``
-      :rtype: None
+      :rtype: NoneType
 
       .. ## Mask.fill ##
 
@@ -164,7 +164,7 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       Sets all bits in the mask to 0.
 
       :returns: ``None``
-      :rtype: None
+      :rtype: NoneType
 
       .. ## Mask.clear ##
 
@@ -177,7 +177,7 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       all the unset bits are set to 1.
 
       :returns: ``None``
-      :rtype: None
+      :rtype: NoneType
 
       .. ## Mask.invert ##
 
@@ -211,7 +211,7 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       :type offset: tuple(int, int) or list[int, int]
 
       :returns: ``None``
-      :rtype: None
+      :rtype: NoneType
 
       .. ## Mask.draw ##
 
@@ -227,7 +227,7 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       :type offset: tuple(int, int) or list[int, int]
 
       :returns: ``None``
-      :rtype: None
+      :rtype: NoneType
 
       .. ## Mask.erase ##
 
