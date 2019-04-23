@@ -1,9 +1,9 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMASK "pygame module for image masks."
-#define DOC_PYGAMEMASKFROMSURFACE "from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
-#define DOC_PYGAMEMASKFROMTHRESHOLD "from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask\nCreates a mask by thresholding Surfaces"
+#define DOC_PYGAMEMASKFROMSURFACE "from_surface(Surface) -> Mask\nfrom_surface(Surface, threshold=127) -> Mask\nCreates a Mask from the given surface."
+#define DOC_PYGAMEMASKFROMTHRESHOLD "from_threshold(Surface, color) -> Mask\nfrom_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask\nCreates a mask by thresholding Surfaces"
 #define DOC_PYGAMEMASKMASK "Mask(size=(width, height)) -> Mask\nMask(size=(width, height), fill=False) -> Mask\npygame object for representing 2D bitmasks"
-#define DOC_MASKGETSIZE "get_size() -> width,height\nReturns the size of the mask."
+#define DOC_MASKGETSIZE "get_size() -> (width, height)\nReturns the size of the mask."
 #define DOC_MASKGETAT "get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
 #define DOC_MASKSETAT "set_at((x,y),value) -> None\nSets the position in the mask given by x and y."
 #define DOC_MASKOVERLAP "overlap(othermask, offset) -> x,y\nReturns the point of intersection if the masks overlap with the given offset - or None if it does not overlap."
@@ -33,11 +33,13 @@ pygame.mask
 pygame module for image masks.
 
 pygame.mask.from_surface
- from_surface(Surface, threshold = 127) -> Mask
-Returns a Mask from the given surface.
+ from_surface(Surface) -> Mask
+ from_surface(Surface, threshold=127) -> Mask
+Creates a Mask from the given surface.
 
 pygame.mask.from_threshold
- from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask
+ from_threshold(Surface, color) -> Mask
+ from_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask
 Creates a mask by thresholding Surfaces
 
 pygame.mask.Mask
@@ -46,7 +48,7 @@ pygame.mask.Mask
 pygame object for representing 2D bitmasks
 
 pygame.mask.Mask.get_size
- get_size() -> width,height
+ get_size() -> (width, height)
 Returns the size of the mask.
 
 pygame.mask.Mask.get_at
