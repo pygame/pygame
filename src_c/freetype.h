@@ -116,4 +116,6 @@ typedef struct {
 /* import public API */
 #include "include/pygame_freetype.h"
 
+#define PYGAMEAPI_FREETYPE_NUMSLOTS 2
+
 #endif /* ~_PYGAME_FREETYPE_INTERNAL_H_ */

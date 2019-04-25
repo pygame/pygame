@@ -183,4 +183,29 @@ struct pgSubSurface_Data {
  */
 #include "include/_pygame.h"
 
+#include "pgimport.h"
+
+/* Slot counts.
+ * Remember to keep these constants up to date.
+ */
+
+#define PYGAMEAPI_RECT_NUMSLOTS 4
+#define PYGAMEAPI_JOYSTICK_NUMSLOTS 2
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 2
+#define PYGAMEAPI_SURFACE_NUMSLOTS 3
+#define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
+#define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
+#define PYGAMEAPI_COLOR_NUMSLOTS 4
+#define PYGAMEAPI_MATH_NUMSLOTS 2
+#define PYGAMEAPI_CDROM_NUMSLOTS 2
+
+#if PG_API_VERSION == 1
+#define PYGAMEAPI_BASE_NUMSLOTS 19
+#define PYGAMEAPI_EVENT_NUMSLOTS 4
+#else /* PG_API_VERSION == 2 */
+#define PYGAMEAPI_BASE_NUMSLOTS 23
+#define PYGAMEAPI_EVENT_NUMSLOTS 6
+#endif /* PG_API_VERSION == 2 */
+
 #endif /* _PYGAME_INTERNAL_H */
