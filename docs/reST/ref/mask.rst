@@ -13,33 +13,53 @@ to store which parts collide.
 
 .. versionadded:: 1.8
 
-Starting from pygame 1.9.5 masks with width or height 0 are supported.
+.. versionchanged:: 1.9.5
+   Added support for masks with a width and/or a height of 0.
+
 
 .. function:: from_surface
 
-   | :sl:`Returns a Mask from the given surface.`
-   | :sg:`from_surface(Surface, threshold = 127) -> Mask`
+   | :sl:`Creates a Mask from the given surface.`
+   | :sg:`from_surface(Surface) -> Mask`
+   | :sg:`from_surface(Surface, threshold=127) -> Mask`
 
-   Makes the transparent parts of the Surface not set, and the opaque parts
-   set.
+   Creates a :class:`Mask` object from the given surface by setting all the
+   opaque pixels and not setting the transparent pixels.
 
-   The alpha of each pixel is checked to see if it is greater than the given
-   threshold.
+   If the surface uses a color-key, then it is used to decide which bits in
+   the resulting mask are set. All the pixels that are **not** equal to the
+   color-key are **set** and the pixels equal to the color-key are not set.
 
-   If the Surface is color-keyed, then threshold is not used.
+   If a color-key is not used, then the alpha value of each pixel is used to
+   decide which bits in the resulting mask are set. All the pixels that have an
+   alpha value **greater than** the ``threshold`` parameter are **set** and the
+   pixels with an alpha value less than or equal to the ``threshold`` are
+   not set.
+
+   :param Surface surface: the surface to create the mask from
+   :param int threshold: (optional) the alpha threshold (default is 127) to
+      compare with each surface pixel's alpha value, if the ``surface`` is
+      color-keyed this parameter is ignored
+
+   :returns: a newly created :class:`Mask` object from the given surface
+   :rtype: Mask
 
    .. ## pygame.mask.from_surface ##
 
 .. function:: from_threshold
 
    | :sl:`Creates a mask by thresholding Surfaces`
-   | :sg:`from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask`
+   | :sg:`from_threshold(Surface, color) -> Mask`
+   | :sg:`from_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask`
 
-   This is a more-featureful method of getting a Mask from a Surface. If
-   supplied with only one Surface, all pixels within the threshold of the
-   supplied color are set in the Mask. If given the optional othersurface, all
-   pixels in Surface that are within the threshold of the corresponding pixel
-   in othersurface are set in the Mask.
+   This is a more featureful method of getting a :class:`Mask` from a surface.
+   If supplied with only one surface, all pixels within the threshold of the
+   supplied color are set in the mask. If given the optional ``othersurface``,
+   all pixels in the first surface that are within the threshold of the
+   corresponding pixel in ``othersurface`` are set in the mask.
+
+   :returns: a newly created :class:`Mask` object from the given surface
+   :rtype: Mask
 
    .. ## pygame.mask.from_threshold ##
 
@@ -51,33 +71,61 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
 
    A ``Mask`` object is used to represent a 2D bitmask. Each bit in
    the mask represents a pixel. 1 is used to indicate a set bit and 0 is used
-   to indicate an unset bit. Set bits in a mask can be used to detect
-   collisions with other masks and their set bits.
+   to indicate an unset bit. Set bits in a mask can be used to detect collisions
+   with other masks and their set bits.
 
-   A filled mask has all of its bits set to 1, conversely an unfilled/cleared
-   mask has all of its bits set to 0. Masks can be created unfilled (default)
-   or filled by using the ``fill`` parameter. Masks can also be cleared or
-   filled using the :func:`pygame.mask.Mask.clear()` and
-   :func:`pygame.mask.Mask.fill()` methods respectively. Individual bits can
-   be accessed using the :func:`pygame.mask.Mask.get_at()` and
-   :func:`pygame.mask.Mask.set_at()` methods.
+   A filled mask has all of its bits set to 1, conversely an
+   unfilled/cleared/empty mask has all of its bits set to 0. Masks can be
+   created unfilled (default) or filled by using the ``fill`` parameter. Masks
+   can also be cleared or filled using the :func:`pygame.mask.Mask.clear()` and
+   :func:`pygame.mask.Mask.fill()` methods respectively.
+
+   A mask's coordinates start in the top left corner at ``(0, 0)`` just like
+   :mod:`pygame.Surface`. Individual bits can be accessed using the
+   :func:`pygame.mask.Mask.get_at()` and :func:`pygame.mask.Mask.set_at()`
+   methods.
+
+   .. _mask-offset-label:
+
+   The methods :meth:`overlap`, :meth:`overlap_area`, :meth:`overlap_mask`,
+   :meth:`draw`, :meth:`erase`, and :meth:`convolve` use an offset parameter
+   to indicate the offset of another mask's top left corner from the calling
+   mask's top left corner. The calling mask's top left corner is considered to
+   be the origin ``(0, 0)``. Offsets are a tuple or list of 2 integer values
+   ``(x_offset, y_offset)``. Positive and negative offset values are supported.
+
+   ::
+
+                 0 to x (x_offset)
+                 :    :
+         0 ..... +----:---------+
+         to      |    :         |
+         y .......... +-----------+
+      (y_offset) |    | othermask |
+                 |    +-----------+
+                 | calling_mask |
+                 +--------------+
 
    :param size: the dimensions of the mask (width and height)
    :type size: tuple(int, int) or list[int, int]
-   :param bool fill: create mask unfilled (``False`` - default) or filled
-      (``True``)
+   :param bool fill: (optional) create an unfilled mask (default: ``False``) or
+      filled mask (``True``)
+
+   :returns: a newly created :class:`Mask` object
    :rtype: Mask
 
-   .. versionadded:: 1.9.5 Named parameter ``size`` (previously it was an
-      unnamed positional parameter) and the optional keyword parameter
-      ``fill``.
-   .. versionadded:: 2.0.0 Subclassing support added. The ``Mask`` class
+   .. versionadded:: 1.9.5 Added support for keyword arguments.
+   .. versionadded:: 1.9.5 Added the optional keyword parameter ``fill``.
+   .. versionadded:: 2.0.0 Subclassing support added. The :class:`Mask` class
       can be used as a base class.
 
    .. method:: get_size
 
       | :sl:`Returns the size of the mask.`
-      | :sg:`get_size() -> width,height`
+      | :sg:`get_size() -> (width, height)`
+
+      :returns: the size of the mask, (width, height)
+      :rtype: tuple(int, int)
 
       .. ## Mask.get_size ##
 
