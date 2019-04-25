@@ -149,7 +149,10 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       | :sl:`Sets all bits to 1`
       | :sg:`fill() -> None`
 
-      Sets all bits in a Mask to 1.
+      Sets all bits in the mask to 1.
+
+      :returns: ``None``
+      :rtype: NoneType
 
       .. ## Mask.fill ##
 
@@ -158,26 +161,41 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       | :sl:`Sets all bits to 0`
       | :sg:`clear() -> None`
 
-      Sets all bits in a Mask to 0.
+      Sets all bits in the mask to 0.
+
+      :returns: ``None``
+      :rtype: NoneType
 
       .. ## Mask.clear ##
 
    .. method:: invert
 
-      | :sl:`Flips the bits in a Mask`
+      | :sl:`Flips all the bits`
       | :sg:`invert() -> None`
 
-      Flips all of the bits in a Mask, so that the set pixels turn to unset
-      pixels and the unset pixels turn to set pixels.
+      Flips all of the bits in the mask. All the set bits are cleared to 0 and
+      all the unset bits are set to 1.
+
+      :returns: ``None``
+      :rtype: NoneType
 
       .. ## Mask.invert ##
 
    .. method:: scale
 
       | :sl:`Resizes a mask`
-      | :sg:`scale((x, y)) -> Mask`
+      | :sg:`scale((width, height)) -> Mask`
 
-      Returns a new Mask of the Mask scaled to the requested size.
+      Creates a new :class:`Mask` of the requested size with its bits scaled
+      from this mask.
+
+      :param size: the width and height (size) of the mask to create
+      :type size: tuple(int, int) or list[int, int]
+
+      :returns: a new :class:`Mask` object with its bits scaled from this mask
+      :rtype: Mask
+
+      :raises ValueError: if ``width < 0`` or ``height < 0``
 
       .. ## Mask.scale ##
 
@@ -186,7 +204,14 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       | :sl:`Draws a mask onto another`
       | :sg:`draw(othermask, offset) -> None`
 
-      Performs a bitwise ``OR``, drawing othermask onto Mask.
+      Performs a bitwise OR, drawing ``othermask`` onto this mask.
+
+      :param Mask othermask: the mask to draw onto this mask
+      :param offset: the offset of ``othermask`` from this mask
+      :type offset: tuple(int, int) or list[int, int]
+
+      :returns: ``None``
+      :rtype: NoneType
 
       .. ## Mask.draw ##
 
@@ -195,71 +220,104 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
       | :sl:`Erases a mask from another`
       | :sg:`erase(othermask, offset) -> None`
 
-      Erases all pixels set in othermask from Mask.
+      Erases (clears) all bits set in ``othermask`` from this mask.
+
+      :param Mask othermask: the mask to erase from this mask
+      :param offset: the offset of ``othermask`` from this mask
+      :type offset: tuple(int, int) or list[int, int]
+
+      :returns: ``None``
+      :rtype: NoneType
 
       .. ## Mask.erase ##
 
    .. method:: count
 
-      | :sl:`Returns the number of set pixels`
-      | :sg:`count() -> pixels`
+      | :sl:`Returns the number of set bits`
+      | :sg:`count() -> bits`
 
-      Returns the number of set pixels in the Mask.
+      :returns: the number of set bits in the mask
+      :rtype: int
 
       .. ## Mask.count ##
 
    .. method:: centroid
 
-      | :sl:`Returns the centroid of the pixels in a Mask`
+      | :sl:`Returns the centroid of the set bits`
       | :sg:`centroid() -> (x, y)`
 
-      Finds the centroid, the center of pixel mass, of a Mask. Returns a
-      coordinate tuple for the centroid of the Mask. In the event the Mask is
-      empty, it will return (0,0).
+      Finds the centroid (the center mass of the set bits) for this mask.
+
+      :returns: a coordinate tuple indicating the centroid of the mask, it will
+         return ``(0, 0)`` if the mask has no bits set
+      :rtype: tuple(int, int)
 
       .. ## Mask.centroid ##
 
    .. method:: angle
 
-      | :sl:`Returns the orientation of the pixels`
+      | :sl:`Returns the orientation of the set bits`
       | :sg:`angle() -> theta`
 
-      Finds the approximate orientation of the pixels in the image from -90 to
-      90 degrees. This works best if performed on one connected component of
-      pixels. It will return 0.0 on an empty Mask.
+      Finds the approximate orientation (from -90 to 90 degrees) of the set bits
+      in the mask. This works best if performed on a mask with only one
+      connected component.
+
+      :returns: the orientation of the set bits in the mask, it will return
+         ``0.0`` if the mask has no bits set
+      :rtype: float
+
+      .. note::
+         See :meth:`connected_component` for details on how a connected
+         component is calculated.
 
       .. ## Mask.angle ##
 
    .. method:: outline
 
-      | :sl:`list of points outlining an object`
-      | :sg:`outline(every = 1) -> [(x,y), (x,y) ...]`
+      | :sl:`Returns a list of points outlining an object`
+      | :sg:`outline() -> [(x, y), ...]`
+      | :sg:`outline(every=1) -> [(x, y), ...]`
 
-      Returns a list of points of the outline of the first object it comes
-      across in a Mask. For this to be useful, there should probably only be
-      one connected component of pixels in the Mask. The every option allows
-      you to skip pixels in the outline. For example, setting it to 10 would
-      return a list of every 10th pixel in the outline.
+      Returns a list of points of the outline of the first connected component
+      encountered in the mask. To find a connected component, the mask is
+      searched per row (left to right) starting in the top left corner.
+
+      The ``every`` optional parameter skips set bits in the outline. For
+      example, setting it to 10 would return a list of every 10th set bit in the
+      outline.
+
+      :param int every: (optional) indicates the number of bits to skip over in
+         the outline, the default is 1
+
+      :returns: a list of points outlining the first connected component
+         encountered, an empty list is returned if the mask has no bits set
+      :rtype: list[tuple(int, int)]
+
+      .. note::
+         See :meth:`connected_component` for details on how a connected
+         component is calculated.
 
       .. ## Mask.outline ##
 
    .. method:: convolve
 
-      | :sl:`Return the convolution of self with another mask.`
+      | :sl:`Returns the convolution of this mask with another mask`
       | :sg:`convolve(othermask) -> Mask`
-      | :sg:`convolve(othermask, outputmask=None, offset=(0,0)) -> Mask`
+      | :sg:`convolve(othermask, outputmask=None, offset=(0, 0)) -> Mask`
 
-      Convolve self with the given ``othermask``.
+      Convolve this mask with the given ``othermask``.
 
-      :param Mask othermask: mask to convolve with self
-      :param outputmask: mask for output, default is None
+      :param Mask othermask: mask to convolve this mask with
+      :param outputmask: (optional) mask for output, the default is ``None``
       :type outputmask: Mask or None
-      :param offset: offset used in convolution of masks, default is (0, 0)
+      :param offset: the offset of ``othermask`` from this mask, the default is
+         ``(0, 0)``
       :type offset: tuple(int, int) or list[int, int]
 
-      :returns: A mask with the ``(i - offset[0], j - offset[1])`` bit set, if
-         shifting ``othermask`` (such that its bottom right corner pixel is at
-         ``(i, j)``) causes it to overlap with self.
+      :returns: a :class:`Mask` with the ``(i - offset[0], j - offset[1])`` bit
+         set, if shifting ``othermask`` (such that its bottom right corner is at
+         ``(i, j)``) causes it to overlap with this mask
 
          If an ``outputmask`` is specified, the output is drawn onto it and
          it is returned. Otherwise a mask of size ``(MAX(0, width + othermask's
@@ -271,37 +329,75 @@ Starting from pygame 1.9.5 masks with width or height 0 are supported.
 
    .. method:: connected_component
 
-      | :sl:`Returns a mask of a connected region of pixels.`
-      | :sg:`connected_component((x,y) = None) -> Mask`
+      | :sl:`Returns a Mask containing a connected component`
+      | :sg:`connected_component() -> Mask`
+      | :sg:`connected_component((x, y)) -> Mask`
 
-      This uses the ``SAUF`` algorithm to find a connected component in the
-      Mask. It checks 8 point connectivity. By default, it will return the
-      largest connected component in the image. Optionally, a coordinate pair
-      of a pixel can be specified, and the connected component containing it
-      will be returned. In the event the pixel at that location is not set, the
-      returned Mask will be empty. The Mask returned is the same size as the
-      original Mask.
+      A connected component is a group (1 or more) of connected set bits
+      (orthogonally and diagonally). The SAUF algorithm, which checks 8 point
+      connectivity, is used to find a connected component in the mask.
+
+      By default this method will return a :class:`Mask` containing the largest
+      connected component in the mask. Optionally, a bit coordinate can be
+      specified and the connected component containing it will be returned. If
+      the bit at the given location is not set, the returned :class:`Mask` will
+      be empty (no bits set).
+
+      :param pos: (optional) selects the connected component that contains the
+         bit at this position
+      :type pos: tuple(int, int) or list[int, int]
+
+      :returns: a :class:`Mask` object (same size as this mask) with the largest
+         connected component from this mask, if this mask has no bits set then
+         an empty mask will be returned
+
+         If the ``pos`` parameter is provided then the mask returned will have
+         the connected component that contains this position. An empty mask will
+         be returned if the ``pos`` parameter selects an unset bit.
+      :rtype: Mask
+
+      :raises IndexError: if the optional ``pos`` parameter is outside of the
+         mask's bounds
 
       .. ## Mask.connected_component ##
 
    .. method:: connected_components
 
-      | :sl:`Returns a list of masks of connected regions of pixels.`
-      | :sg:`connected_components(min = 0) -> [Masks]`
+      | :sl:`Returns a list of Masks of connected components`
+      | :sg:`connected_components() -> [Mask, ...]`
+      | :sg:`connected_components(min=0) -> [Mask, ...]`
 
-      Returns a list of masks of connected regions of pixels. An optional
-      minimum number of pixels per connected region can be specified to filter
-      out noise.
+      Provides a list containing a ``Mask`` object for each connected component.
+
+      :param int min: (optional) indicates the minimum number of bits (to filter
+         out noise) per connected component, the default is 0 (this equates to
+         no minimum, which is equivalent to setting it to 1 as a connected
+         component must have at least 1 bit set)
+
+      :returns: a list containing a ``Mask`` object for each connected
+         component, an empty list is returned if the mask has no bits set
+      :rtype: list[Mask]
+
+      .. note::
+         See :meth:`connected_component` for details on how a connected
+         component is calculated.
 
       .. ## Mask.connected_components ##
 
    .. method:: get_bounding_rects
 
-      | :sl:`Returns a list of bounding rects of regions of set pixels.`
-      | :sg:`get_bounding_rects() -> Rects`
+      | :sl:`Returns a list of bounding rects of connected components`
+      | :sg:`get_bounding_rects() -> [Rect, ...]`
 
-      This gets a bounding rect of connected regions of set pixels. A bounding
-      rect is one for which each of the connected pixels is inside the rect.
+      Provides a list containing a bounding rect for each connected component.
+
+      :returns: a list containing a bounding rect for each connected component,
+         an empty list is returned if the mask has no bits set
+      :rtype: list[Rect]
+
+      .. note::
+         See :meth:`connected_component` for details on how a connected
+         component is calculated.
 
       .. ## Mask.get_bounding_rects ##
 

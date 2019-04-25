@@ -11,18 +11,18 @@
 #define DOC_MASKOVERLAPMASK "overlap_mask(othermask, offset) -> Mask\nReturns a mask of the overlapping pixels"
 #define DOC_MASKFILL "fill() -> None\nSets all bits to 1"
 #define DOC_MASKCLEAR "clear() -> None\nSets all bits to 0"
-#define DOC_MASKINVERT "invert() -> None\nFlips the bits in a Mask"
-#define DOC_MASKSCALE "scale((x, y)) -> Mask\nResizes a mask"
+#define DOC_MASKINVERT "invert() -> None\nFlips all the bits"
+#define DOC_MASKSCALE "scale((width, height)) -> Mask\nResizes a mask"
 #define DOC_MASKDRAW "draw(othermask, offset) -> None\nDraws a mask onto another"
 #define DOC_MASKERASE "erase(othermask, offset) -> None\nErases a mask from another"
-#define DOC_MASKCOUNT "count() -> pixels\nReturns the number of set pixels"
-#define DOC_MASKCENTROID "centroid() -> (x, y)\nReturns the centroid of the pixels in a Mask"
-#define DOC_MASKANGLE "angle() -> theta\nReturns the orientation of the pixels"
-#define DOC_MASKOUTLINE "outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
-#define DOC_MASKCONVOLVE "convolve(othermask) -> Mask\nconvolve(othermask, outputmask=None, offset=(0,0)) -> Mask\nReturn the convolution of self with another mask."
-#define DOC_MASKCONNECTEDCOMPONENT "connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
-#define DOC_MASKCONNECTEDCOMPONENTS "connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
-#define DOC_MASKGETBOUNDINGRECTS "get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
+#define DOC_MASKCOUNT "count() -> bits\nReturns the number of set bits"
+#define DOC_MASKCENTROID "centroid() -> (x, y)\nReturns the centroid of the set bits"
+#define DOC_MASKANGLE "angle() -> theta\nReturns the orientation of the set bits"
+#define DOC_MASKOUTLINE "outline() -> [(x, y), ...]\noutline(every=1) -> [(x, y), ...]\nReturns a list of points outlining an object"
+#define DOC_MASKCONVOLVE "convolve(othermask) -> Mask\nconvolve(othermask, outputmask=None, offset=(0, 0)) -> Mask\nReturns the convolution of this mask with another mask"
+#define DOC_MASKCONNECTEDCOMPONENT "connected_component() -> Mask\nconnected_component((x, y)) -> Mask\nReturns a Mask containing a connected component"
+#define DOC_MASKCONNECTEDCOMPONENTS "connected_components() -> [Mask, ...]\nconnected_components(min=0) -> [Mask, ...]\nReturns a list of Masks of connected components"
+#define DOC_MASKGETBOUNDINGRECTS "get_bounding_rects() -> [Rect, ...]\nReturns a list of bounding rects of connected components"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -79,10 +79,10 @@ Sets all bits to 0
 
 pygame.mask.Mask.invert
  invert() -> None
-Flips the bits in a Mask
+Flips all the bits
 
 pygame.mask.Mask.scale
- scale((x, y)) -> Mask
+ scale((width, height)) -> Mask
 Resizes a mask
 
 pygame.mask.Mask.draw
@@ -94,36 +94,39 @@ pygame.mask.Mask.erase
 Erases a mask from another
 
 pygame.mask.Mask.count
- count() -> pixels
-Returns the number of set pixels
+ count() -> bits
+Returns the number of set bits
 
 pygame.mask.Mask.centroid
  centroid() -> (x, y)
-Returns the centroid of the pixels in a Mask
+Returns the centroid of the set bits
 
 pygame.mask.Mask.angle
  angle() -> theta
-Returns the orientation of the pixels
+Returns the orientation of the set bits
 
 pygame.mask.Mask.outline
- outline(every = 1) -> [(x,y), (x,y) ...]
-list of points outlining an object
+ outline() -> [(x, y), ...]
+ outline(every=1) -> [(x, y), ...]
+Returns a list of points outlining an object
 
 pygame.mask.Mask.convolve
  convolve(othermask) -> Mask
- convolve(othermask, outputmask=None, offset=(0,0)) -> Mask
-Return the convolution of self with another mask.
+ convolve(othermask, outputmask=None, offset=(0, 0)) -> Mask
+Returns the convolution of this mask with another mask
 
 pygame.mask.Mask.connected_component
- connected_component((x,y) = None) -> Mask
-Returns a mask of a connected region of pixels.
+ connected_component() -> Mask
+ connected_component((x, y)) -> Mask
+Returns a Mask containing a connected component
 
 pygame.mask.Mask.connected_components
- connected_components(min = 0) -> [Masks]
-Returns a list of masks of connected regions of pixels.
+ connected_components() -> [Mask, ...]
+ connected_components(min=0) -> [Mask, ...]
+Returns a list of Masks of connected components
 
 pygame.mask.Mask.get_bounding_rects
- get_bounding_rects() -> Rects
-Returns a list of bounding rects of regions of set pixels.
+ get_bounding_rects() -> [Rect, ...]
+Returns a list of bounding rects of connected components
 
 */
