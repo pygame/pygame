@@ -75,14 +75,14 @@ static SDL_mutex *_pg_img_mutex = 0;
 #include <windows.h>
 
 #if IS_SDLv1
-#define SDL_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.win32io.h) ? 0 : -1)
+#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.win32io.h) ? 0 : -1)
 #else /* IS_SDLv2 */
-#define SDL_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
+#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
 #endif /* IS_SDLv2 */
 
 #else /* ~WIN32 */
 
-#define SDL_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
+#define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
 
 #endif /* ~WIN32 */
 
@@ -240,7 +240,7 @@ static void
 png_flush_fn(png_structp png_ptr)
 {
     SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
-    if (SDL_RWflush(rwops)) {
+    if (pg_RWflush(rwops)) {
         SDL_RWclose(rwops);
         png_error(png_ptr, "Error while writing to PNG file (flush)");
     }
@@ -509,7 +509,7 @@ j_term_destination(j_compress_ptr cinfo)
             ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
-    if (SDL_RWflush(dest->outfile)) {
+    if (pg_RWflush(dest->outfile)) {
         ERREXIT(cinfo, JERR_FILE_WRITE);
     }
 }
