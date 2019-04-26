@@ -2662,10 +2662,11 @@ vector3_rotate_x(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    angle = PyFloat_AsDouble(angleObject);
     if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
 
@@ -2686,10 +2687,11 @@ vector3_rotate_x_ip(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    angle = PyFloat_AsDouble(angleObject);
     if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
     memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
@@ -2751,10 +2753,11 @@ vector3_rotate_y(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    angle = PyFloat_AsDouble(angleObject);
     if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
 
@@ -2776,10 +2779,11 @@ vector3_rotate_y_ip(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    angle = PyFloat_AsDouble(angleObject);
     if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
     memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
@@ -2841,10 +2845,11 @@ vector3_rotate_z(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    angle = PyFloat_AsDouble(angleObject);
     if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
 
@@ -2866,10 +2871,11 @@ vector3_rotate_z_ip(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    angle = PyFloat_AsDouble(angleObject);
     if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
     memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
