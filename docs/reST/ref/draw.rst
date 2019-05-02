@@ -91,14 +91,46 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: polygon
 
-   | :sl:`draw a shape with any number of sides`
-   | :sg:`polygon(Surface, color, pointlist, width=0) -> Rect`
+   | :sl:`draw a polygon`
+   | :sg:`polygon(surface=Surface, color=Color, points=points) -> Rect`
+   | :sg:`polygon(surface=Surface, color=Color, points=points, width=0) -> Rect`
 
-   Draws a polygonal shape on the Surface. The pointlist argument is the
-   vertices of the polygon. The width argument is the thickness to draw the
-   outer edge. If width is zero then the polygon will be filled.
+   Draws a polygon on the given surface.
 
-   For aapolygon, use aalines with the 'closed' parameter.
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param points: a sequence of 3 or more points that make up the vertices of
+      the polygon
+   :type points: tuple(int, int) or list(int, int)
+   :param int width: (optional) used for line thickness or to indicate that
+      the polygon is to be filled
+
+         | if width == 0, (default) fill the polygon
+         | if width > 0, used for line thickness
+         | if width < 0, nothing will be drawn
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will grow
+            outside the original boundary of the polygon. For more details on
+            how the thickness for edge lines grow, refer to the ``width`` notes
+            for :func:`rect`.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the first point in the
+      ``points`` parameter and its width and height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``len(points) < 3`` (must have at least 3 points)
+   :raises TypeError: if ``points`` is not a sequence or ``points`` does not
+      contain number pairs
+
+   .. note::
+       For an aapolygon, use :func:`aalines()` with ``closed=True``.
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.polygon ##
 

@@ -1183,6 +1183,305 @@ class DrawPolygonMixin(object):
     def setUp(self):
         self.surface = pygame.Surface((20, 20))
 
+    def test_polygon__args(self):
+        """Ensures draw polygon accepts the correct args."""
+        bounds_rect = self.draw_polygon(pygame.Surface((3, 3)), (0, 10, 0, 50),
+                                        ((0, 0), (1, 1), (2, 2)), 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__args_without_width(self):
+        """Ensures draw polygon accepts the args without a width."""
+        bounds_rect = self.draw_polygon(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       ((0, 0), (1, 1), (2, 2)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__kwargs(self):
+        """Ensures draw polygon accepts the correct kwargs
+        with and without a width arg.
+        """
+        surface = pygame.Surface((4, 4))
+        color = pygame.Color('yellow')
+        points = ((0, 0), (1, 1), (2, 2))
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'points'  : points,
+                        'width'   : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'points'  : points}]
+
+        for kwargs in kwargs_list:
+            bounds_rect = self.draw_polygon(**kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__kwargs_order_independent(self):
+        """Ensures draw polygon's kwargs are not order dependent."""
+        bounds_rect = self.draw_polygon(color=(10, 20, 30),
+                                        surface=pygame.Surface((3, 2)),
+                                        width=0,
+                                        points=((0, 1), (1, 2), (2, 3)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__args_missing(self):
+        """Ensures draw polygon detects any missing required args."""
+        surface = pygame.Surface((1, 1))
+        color = pygame.Color('blue')
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_polygon(surface, color)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_polygon(surface)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_polygon()
+
+    def test_polygon__kwargs_missing(self):
+        """Ensures draw polygon detects any missing required kwargs."""
+        kwargs = {'surface' : pygame.Surface((1, 2)),
+                  'color'   : pygame.Color('red'),
+                  'points'  : ((2, 1), (2, 2), (2, 3)),
+                  'width'   : 1}
+
+        for name in ('points', 'color', 'surface'):
+            invalid_kwargs = dict(kwargs)
+            invalid_kwargs.pop(name)  # Pop from a copy.
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_polygon(**invalid_kwargs)
+
+    def test_polygon__arg_invalid_types(self):
+        """Ensures draw polygon detects invalid arg types."""
+        surface = pygame.Surface((2, 2))
+        color = pygame.Color('blue')
+        points = ((0, 1), (1, 2), (1, 3))
+
+        with self.assertRaises(TypeError):
+            # Invalid width.
+            bounds_rect = self.draw_polygon(surface, color, points, '1')
+
+        with self.assertRaises(TypeError):
+            # Invalid points.
+            bounds_rect = self.draw_polygon(surface, color, (1, 2, 3))
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            bounds_rect = self.draw_polygon(surface, 'blue', points)
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            bounds_rect = self.draw_polygon((1, 2, 3, 4), color, points)
+
+    def test_polygon__kwarg_invalid_types(self):
+        """Ensures draw polygon detects invalid kwarg types."""
+        surface = pygame.Surface((3, 3))
+        color = pygame.Color('green')
+        points = ((0, 0), (1, 0), (2, 0))
+        width = 1
+        kwargs_list = [{'surface' : pygame.Surface,  # Invalid surface.
+                        'color'   : color,
+                        'points'  : points,
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : 'green',  # Invalid color.
+                        'points'  : points,
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'points'  : ((1,), (1,), (1,)),  # Invalid points.
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'points'  : points,
+                        'width'   : 1.2}]  # Invalid width.
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_polygon(**kwargs)
+
+    def test_polygon__kwarg_invalid_name(self):
+        """Ensures draw polygon detects invalid kwarg names."""
+        surface = pygame.Surface((2, 3))
+        color = pygame.Color('cyan')
+        points = ((1, 1), (1, 2), (1, 3))
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'points'  : points,
+                        'width'   : 1,
+                        'invalid' : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'points'  : points,
+                        'invalid' : 1}]
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_polygon(**kwargs)
+
+    def test_polygon__args_and_kwargs(self):
+        """Ensures draw polygon accepts a combination of args/kwargs"""
+        surface = pygame.Surface((3, 1))
+        color = (255, 255, 0, 0)
+        points = ((0, 1), (1, 2), (2, 3))
+        width = 0
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'points'  : points,
+                  'width'   : width}
+
+        for name in ('surface', 'color', 'points', 'width'):
+            kwargs.pop(name)
+
+            if 'surface' == name:
+                bounds_rect = self.draw_polygon(surface, **kwargs)
+            elif 'color' == name:
+                bounds_rect = self.draw_polygon(surface, color, **kwargs)
+            elif 'points' == name:
+                bounds_rect = self.draw_polygon(surface, color, points,
+                                                **kwargs)
+            else:
+                bounds_rect = self.draw_polygon(surface, color, points, width,
+                                                **kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__valid_width_values(self):
+        """Ensures draw polygon accepts different width values."""
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        color = (10, 20, 30, 255)
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'points'  : ((1, 1), (2, 1), (2, 2), (1, 2)),
+                  'width'   : None}
+        pos = kwargs['points'][0]
+
+        for width in (-100, -10, -1, 0, 1, 10, 100):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['width'] = width
+            expected_color = color if width >= 0 else surface_color
+
+            bounds_rect = self.draw_polygon(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__valid_points_format(self):
+        """Ensures draw polygon accepts different points formats."""
+        expected_color = (10, 20, 30, 255)
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : expected_color,
+                  'points'  : None,
+                  'width'   : 0}
+
+        points_fmts = (((1, 1), (2, 1), (2, 2), (1, 2)),
+                       ([1, 1], [2, 1], [2, 2], [1, 2]),
+                       ([1, 1], (2, 1), [2, 2], (1, 2)),
+                       ([1, 1], (2.2, 1), [2.2, 2.2], (1, 2.1)))
+
+        for points in points_fmts:
+            for seq_type in (tuple, list):  # Test as tuples and lists.
+                surface.fill(surface_color)  # Clear for each test.
+                pos = points[0]
+                kwargs['points'] = seq_type(points)
+
+                bounds_rect = self.draw_polygon(**kwargs)
+
+                self.assertEqual(surface.get_at(pos), expected_color)
+                self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__invalid_points_formats(self):
+        """Ensures draw polygon handles invalid points formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : pygame.Color('red'),
+                  'points'  : None,
+                  'width'   : 0}
+
+        points_fmts = (((1, 1), (2, 1), (2,)),      # Too few coords.
+                       ((1, 1), (2, 1), (2, 2, 2)), # Too many coords.
+                       ((1, 1), (2, 1), (2, '2')),    # Wrong type.
+                       ((1, 1), (2, 1), set([2, 3])), # Wrong type.
+                       ((1, 1), (2, 1), dict(((2, 2), (3, 3)))), # Wrong type.
+                       set(((1, 1), (2, 1), (2, 2), (1, 2))),    # Wrong type.
+                       dict(((1, 1), (2, 2), (3, 3), (4, 4))))   # Wrong type.
+
+        for points in points_fmts:
+            kwargs['points'] = points
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_polygon(**kwargs)
+
+    def test_polygon__invalid_points_values(self):
+        """Ensures draw polygon handles invalid points values correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : pygame.Color('red'),
+                  'points'  : None,
+                  'width'   : 0}
+
+        points_fmts = (tuple(),          # Too few points.
+                       ((1, 1),),        # Too few points.
+                       ((1, 1), (2, 1))) # Too few points.
+
+        for points in points_fmts:
+            for seq_type in (tuple, list):  # Test as tuples and lists.
+                kwargs['points'] = seq_type(points)
+
+                with self.assertRaises(ValueError):
+                    bounds_rect = self.draw_polygon(**kwargs)
+
+    def test_polygon__valid_color_formats(self):
+        """Ensures draw polygon accepts different color formats."""
+        green_color = pygame.Color('green')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'points'  : ((1, 1), (2, 1), (2, 2), (1, 2)),
+                  'width'   : 0}
+        pos = kwargs['points'][0]
+        greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green_color),
+                  green_color)
+
+        for color in greens:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['color'] = color
+
+            if isinstance(color, int):
+                expected_color = surface.unmap_rgb(color)
+            else:
+                expected_color = green_color
+
+            bounds_rect = self.draw_polygon(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_polygon__invalid_color_formats(self):
+        """Ensures draw polygon handles invalid color formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 3)),
+                  'color'   : None,
+                  'points'  : ((1, 1), (2, 1), (2, 2), (1, 2)),
+                  'width'   : 0}
+
+        # These color formats are currently not supported (it would be
+        # nice to eventually support them).
+        for expected_color in ('green', '#00FF00FF', '0x00FF00FF'):
+            kwargs['color'] = expected_color
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_polygon(**kwargs)
+
     def test_draw_square(self):
         self.draw_polygon(self.surface, RED, SQUARE, 0)
         # note : there is a discussion (#234) if draw.polygon should include or
@@ -1319,6 +1618,7 @@ class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
     """
 
 
+@unittest.skip('draw_py.draw_rect not fully supported yet')
 class PythonDrawPolygonTest(DrawPolygonMixin, PythonDrawTestCase):
     """Test draw_py module function draw_polygon.
 
@@ -1615,7 +1915,7 @@ class DrawCircleMixin(object):
     def test_circle__args(self):
         """Ensures draw circle accepts the correct args."""
         bounds_rect = self.draw_circle(pygame.Surface((3, 3)), (0, 10, 0, 50),
-                                                      (0, 0), 3, 1)
+                                       (0, 0), 3, 1)
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
 
