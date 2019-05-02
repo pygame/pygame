@@ -354,6 +354,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
 {
     Uint16 fmt = 0;
     int i;
+    PyObject *music;
 
     if (!freq) {
         freq = request_frequency;
@@ -470,7 +471,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         Mix_VolumeMusic(127);
     }
 
-    PyObject *music = import_music();
+    music = import_music();
     if (music != NULL) {
         PyObject *ptr, *_dict;
         _dict = PyModule_GetDict(music);
