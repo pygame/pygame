@@ -331,6 +331,24 @@ music_load(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+music_unload(PyObject *self, PyObject *noarg)
+{
+    MIXER_INIT_CHECK();
+
+    Py_BEGIN_ALLOW_THREADS
+    if (current_music) {
+        Mix_FreeMusic(current_music);
+        current_music = NULL;
+    }
+    if (queue_music) {
+        Mix_FreeMusic(queue_music);
+        queue_music = NULL;
+    }
+    Py_END_ALLOW_THREADS
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 music_queue(PyObject *self, PyObject *args)
 {
     PyObject *obj;
@@ -414,6 +432,7 @@ static PyMethodDef _music_methods[] = {
      DOC_PYGAMEMIXERMUSICGETPOS},
 
     {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},
+    {"unload", music_unload, METH_NOARGS, NULL},
     {"queue", music_queue, METH_VARARGS, DOC_PYGAMEMIXERMUSICQUEUE},
 
     {NULL, NULL, 0, NULL}};
