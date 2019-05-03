@@ -20,13 +20,15 @@
     pete@shinners.org
 */
 
-/* This will use PYGAMEAPI_DEFINE_SLOTS instead
- * of PYGAMEAPI_EXTERN_SLOTS for base modules.
+/* To allow the Pygame C api to be globally shared by all code within an
+ * extension module built from multiple C files,  only include the pygame.h
+ * header within the top level C file, the one which calls the
+ * 'import_pygame_*' macros. All other C source files of the module should
+ * include _pygame.h instead. 
  */
-#ifndef PYGAME_INTERNAL_H
-#define PYGAME_INTERNAL_H
-
+#ifndef PYGAME_H
 #define PYGAME_H
+
 #include "_pygame.h"
 
-#endif /* ~PYGAME_INTERNAL_H */
+#endif

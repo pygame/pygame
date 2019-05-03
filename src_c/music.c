@@ -435,8 +435,6 @@ MODINIT_DEFINE(mixer_music)
                                          NULL};
 #endif
 
-    pgMIXER_C_API[0] = pgMIXER_C_API[0]; /*clean an unused warning*/
-
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
