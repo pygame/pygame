@@ -154,8 +154,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: arc
 
    | :sl:`draw an elliptical arc`
-   | :sg:`arc(surface=Surface, color=Color, rect=Rect, start_angle=radians, stop_angle=radians) -> Rect`
-   | :sg:`arc(surface=Surface, color=Color, rect=Rect, start_angle=radians, stop_angle=radians, width=1) -> Rect`
+   | :sg:`arc(surface, color, rect, start_angle, stop_angle) -> Rect`
+   | :sg:`arc(surface, color, rect, start_angle, stop_angle, width=1) -> Rect`
 
    Draws an elliptical arc on the given surface.
 
