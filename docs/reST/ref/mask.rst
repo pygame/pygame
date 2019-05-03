@@ -19,7 +19,7 @@ to store which parts collide.
 
 .. function:: from_surface
 
-   | :sl:`Creates a Mask from the given surface.`
+   | :sl:`Creates a Mask from the given surface`
    | :sg:`from_surface(Surface) -> Mask`
    | :sg:`from_surface(Surface, threshold=127) -> Mask`
 
@@ -53,10 +53,28 @@ to store which parts collide.
    | :sg:`from_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask`
 
    This is a more featureful method of getting a :class:`Mask` from a surface.
-   If supplied with only one surface, all pixels within the threshold of the
-   supplied color are set in the mask. If given the optional ``othersurface``,
-   all pixels in the first surface that are within the threshold of the
-   corresponding pixel in ``othersurface`` are set in the mask.
+
+   If the optional ``othersurface`` is not used, all the pixels **within** the
+   ``threshold`` of the ``color`` parameter are **set** in the resulting mask.
+
+   If the optional ``othersurface`` is used, every pixel in the first surface
+   that is **within** the ``threshold`` of the corresponding pixel in
+   ``othersurface`` is **set** in the resulting mask.
+
+   :param Surface surface: the surface to create the mask from
+   :param color: color used to check if the surface's pixels are within the
+      given ``threshold`` range, this parameter is ignored if the optional
+      ``othersurface`` parameter is supplied
+   :type color: Color or int or tuple(int, int, int, [int]) or list[int, int, int, [int]]
+   :param threshold: (optional) the threshold range used to check the difference
+      between two colors (default is ``(0, 0, 0, 255)``)
+   :type threshold: Color or int or tuple(int, int, int, [int]) or list[int, int, int, [int]]
+   :param Surface othersurface: (optional) used to check whether the pixels of
+      the first surface are within the given ``threshold`` range of the pixels
+      from this surface (default is ``None``)
+   :param int palette_colors: (optional) indicates whether to use the palette
+      colors or not, a nonzero value causes the palette colors to be used and a
+      0 causes them not to be used (default is 1)
 
    :returns: a newly created :class:`Mask` object from the given surface
    :rtype: Mask
@@ -121,7 +139,7 @@ to store which parts collide.
 
    .. method:: get_size
 
-      | :sl:`Returns the size of the mask.`
+      | :sl:`Returns the size of the mask`
       | :sg:`get_size() -> (width, height)`
 
       :returns: the size of the mask, (width, height)
@@ -131,64 +149,105 @@ to store which parts collide.
 
    .. method:: get_at
 
-      | :sl:`Returns nonzero if the bit at (x,y) is set.`
-      | :sg:`get_at((x,y)) -> int`
+      | :sl:`Gets the bit at the given position`
+      | :sg:`get_at((x, y)) -> int`
 
-      Coordinates start at (0,0) is top left - just like Surfaces.
+      :param pos: the position of the bit to get
+      :type pos: tuple(int, int) or list[int, int]
+
+      :returns: 1 if the bit is set, 0 if the bit is not set
+      :rtype: int
+
+      :raises IndexError: if the position is outside of the mask's bounds
 
       .. ## Mask.get_at ##
 
    .. method:: set_at
 
-      | :sl:`Sets the position in the mask given by x and y.`
-      | :sg:`set_at((x,y),value) -> None`
+      | :sl:`Sets the bit at the given position`
+      | :sg:`set_at((x, y)) -> None`
+      | :sg:`set_at((x, y), value=1) -> None`
+
+      :param pos: the position of the bit to set
+      :type pos: tuple(int, int) or list[int, int]
+      :param int value: any nonzero int will set the bit to 1, 0 will set the
+         bit to 0 (default is 1)
+
+      :returns: ``None``
+      :rtype: NoneType
+
+      :raises IndexError: if the position is outside of the mask's bounds
 
       .. ## Mask.set_at ##
 
    .. method:: overlap
 
-      | :sl:`Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.`
-      | :sg:`overlap(othermask, offset) -> x,y`
+      | :sl:`Returns the point of intersection`
+      | :sg:`overlap(othermask, offset) -> (x, y)`
+      | :sg:`overlap(othermask, offset) -> None`
 
-      The overlap tests uses the following offsets (which may be negative):
+      Returns the first point of intersection encountered between this mask and
+      ``othermask``. A point of intersection is 2 overlapping set bits.
 
-      ::
+      The current algorithm searches the overlapping area in 32 bit wide blocks.
+      Starting at the top left corner (``(0, 0)``), it checks bits 0 to 31 of
+      the first row (``(0, 0)`` to ``(31, 0)``) then continues to the next row. 
+      Once this entire 32 bit column is checked, it continues to the next 32 bit
+      column (32 to 63). This is repeated until it finds a point of intersection
+      or the entire overlapping area is checked.
 
-         +----+----------..
-         |A   | yoffset
-         |  +-+----------..
-         +--|B
-         |xoffset
-         |  |
-         :  :
+      :param Mask othermask: the other mask to overlap with this mask
+      :param offset: the offset of ``othermask`` from this mask, for more
+         details refer to the :ref:`Mask offset notes <mask-offset-label>`
+      :type offset: tuple(int, int) or list[int, int]
+
+      :returns: point of intersection or ``None`` if no intersection
+      :rtype: tuple(int, int) or NoneType
 
       .. ## Mask.overlap ##
 
    .. method:: overlap_area
 
-      | :sl:`Returns the number of overlapping 'pixels'.`
-      | :sg:`overlap_area(othermask, offset) -> numpixels`
+      | :sl:`Returns the number of overlapping set bits`
+      | :sg:`overlap_area(othermask, offset) -> numbits`
 
-      You can see how many pixels overlap with the other mask given. This can
-      be used to see in which direction things collide, or to see how much the
-      two masks collide. An approximate collision normal can be found by
-      calculating the gradient of the overlap area through the finite
-      difference.
+      Returns the number of overlapping set bits between between this mask and
+      ``othermask``.
+
+      This can be useful for collision detection. An approximate collision
+      normal can be found by calculating the gradient of the overlapping area
+      through the finite difference.
 
       ::
 
-       dx = Mask.overlap_area(othermask,(x+1,y)) - Mask.overlap_area(othermask,(x-1,y))
-       dy = Mask.overlap_area(othermask,(x,y+1)) - Mask.overlap_area(othermask,(x,y-1))
+         dx = mask.overlap_area(othermask, (x + 1, y)) - mask.overlap_area(othermask, (x - 1, y))
+         dy = mask.overlap_area(othermask, (x, y + 1)) - mask.overlap_area(othermask, (x, y - 1))
+
+      :param Mask othermask: the other mask to overlap with this mask
+      :param offset: the offset of ``othermask`` from this mask, for more
+         details refer to the :ref:`Mask offset notes <mask-offset-label>`
+      :type offset: tuple(int, int) or list[int, int]
+
+      :returns: the number of overlapping set bits
+      :rtype: int
 
       .. ## Mask.overlap_area ##
 
    .. method:: overlap_mask
 
-      | :sl:`Returns a mask of the overlapping pixels`
+      | :sl:`Returns a mask of the overlapping set bits`
       | :sg:`overlap_mask(othermask, offset) -> Mask`
 
-      Returns a Mask the size of the original Mask containing only the
-      overlapping pixels between Mask and othermask.
+      Returns a :class:`Mask`, the same size as this mask, containing the
+      overlapping set bits between this mask and ``othermask``.
+
+      :param Mask othermask: the other mask to overlap with this mask
+      :param offset: the offset of ``othermask`` from this mask, for more
+         details refer to the :ref:`Mask offset notes <mask-offset-label>`
+      :type offset: tuple(int, int) or list[int, int]
+
+      :returns: a newly created :class:`Mask` with the overlapping bits set
+      :rtype: Mask
 
       .. ## Mask.overlap_mask ##
 
@@ -255,7 +314,8 @@ to store which parts collide.
       Performs a bitwise OR, drawing ``othermask`` onto this mask.
 
       :param Mask othermask: the mask to draw onto this mask
-      :param offset: the offset of ``othermask`` from this mask
+      :param offset: the offset of ``othermask`` from this mask, for more
+         details refer to the :ref:`Mask offset notes <mask-offset-label>`
       :type offset: tuple(int, int) or list[int, int]
 
       :returns: ``None``
@@ -271,7 +331,8 @@ to store which parts collide.
       Erases (clears) all bits set in ``othermask`` from this mask.
 
       :param Mask othermask: the mask to erase from this mask
-      :param offset: the offset of ``othermask`` from this mask
+      :param offset: the offset of ``othermask`` from this mask, for more
+         details refer to the :ref:`Mask offset notes <mask-offset-label>`
       :type offset: tuple(int, int) or list[int, int]
 
       :returns: ``None``
@@ -336,7 +397,7 @@ to store which parts collide.
       outline.
 
       :param int every: (optional) indicates the number of bits to skip over in
-         the outline, the default is 1
+         the outline (default is 1)
 
       :returns: a list of points outlining the first connected component
          encountered, an empty list is returned if the mask has no bits set
@@ -357,10 +418,10 @@ to store which parts collide.
       Convolve this mask with the given ``othermask``.
 
       :param Mask othermask: mask to convolve this mask with
-      :param outputmask: (optional) mask for output, the default is ``None``
-      :type outputmask: Mask or None
-      :param offset: the offset of ``othermask`` from this mask, the default is
-         ``(0, 0)``
+      :param outputmask: (optional) mask for output (default is ``None``)
+      :type outputmask: Mask or NoneType
+      :param offset: the offset of ``othermask`` from this mask, (default is
+         ``(0, 0)``)
       :type offset: tuple(int, int) or list[int, int]
 
       :returns: a :class:`Mask` with the ``(i - offset[0], j - offset[1])`` bit
@@ -377,7 +438,7 @@ to store which parts collide.
 
    .. method:: connected_component
 
-      | :sl:`Returns a Mask containing a connected component`
+      | :sl:`Returns a mask containing a connected component`
       | :sg:`connected_component() -> Mask`
       | :sg:`connected_component((x, y)) -> Mask`
 
@@ -411,18 +472,19 @@ to store which parts collide.
 
    .. method:: connected_components
 
-      | :sl:`Returns a list of Masks of connected components`
+      | :sl:`Returns a list of masks of connected components`
       | :sg:`connected_components() -> [Mask, ...]`
       | :sg:`connected_components(min=0) -> [Mask, ...]`
 
-      Provides a list containing a ``Mask`` object for each connected component.
+      Provides a list containing a :class:`Mask` object for each connected
+      component.
 
       :param int min: (optional) indicates the minimum number of bits (to filter
-         out noise) per connected component, the default is 0 (this equates to
-         no minimum, which is equivalent to setting it to 1 as a connected
+         out noise) per connected component (default is 0, which equates to
+         no minimum and is equivalent to setting it to 1, as a connected
          component must have at least 1 bit set)
 
-      :returns: a list containing a ``Mask`` object for each connected
+      :returns: a list containing a :class:`Mask` object for each connected
          component, an empty list is returned if the mask has no bits set
       :rtype: list[Mask]
 
