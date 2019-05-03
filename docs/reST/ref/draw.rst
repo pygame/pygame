@@ -114,7 +114,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
    :type color: Color or int or tuple(int, int, int, [int])
-   :param int center: center point of the circle
+   :param center: center point of the circle
+   :type center: tuple(int, int) or list(int, int)
    :param int radius: radius of the circle, measured from the ``center``
       parameter, a radius of 0 will only draw the ``center`` pixel
    :param int width: (optional) used for line thickness or to indicate that
