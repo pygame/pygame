@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 #define DOC_PYGAMEMIXERINIT "init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None\ninitialize the mixer module"
-#define DOC_PYGAMEMIXERPREINIT "pre_init(frequency=22050, size=-16, channels=2, buffersize=4096, devicename=None) -> None\npreset the mixer init arguments"
+#define DOC_PYGAMEMIXERPREINIT "pre_init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None\npreset the mixer init arguments"
 #define DOC_PYGAMEMIXERQUIT "quit() -> None\nuninitialize the mixer"
 #define DOC_PYGAMEMIXERGETINIT "get_init() -> (frequency, format, channels)\ntest if the mixer is initialized"
 #define DOC_PYGAMEMIXERSTOP "stop() -> None\nstop playback of all sound channels"
@@ -50,7 +50,7 @@ pygame.mixer.init
 initialize the mixer module
 
 pygame.mixer.pre_init
- pre_init(frequency=22050, size=-16, channels=2, buffersize=4096, devicename=None) -> None
+ pre_init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None
 preset the mixer init arguments
 
 pygame.mixer.quit
