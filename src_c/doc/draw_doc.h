@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEDRAW "pygame module for drawing shapes"
 #define DOC_PYGAMEDRAWRECT "rect(surface=Surface, color=Color, rect=Rect) -> Rect\nrect(surface=Surface, color=Color, rect=Rect, width=0) -> Rect\ndraw a rectangle"
-#define DOC_PYGAMEDRAWPOLYGON "polygon(surface=Surface, color=Color, points=points) -> Rect\npolygon(surface=Surface, color=Color, points=points, width=0) -> Rect\ndraw a polygon"
+#define DOC_PYGAMEDRAWPOLYGON "polygon(surface, color, points) -> Rect\npolygon(surface, color, points, width=0) -> Rect\ndraw a polygon"
 #define DOC_PYGAMEDRAWCIRCLE "circle(surface=Surface, color=Color, center=(x, y), radius=radius) -> Rect\ncircle(surface=Surface, color=Color, center=(x, y), radius=radius, width=0) -> Rect\ndraw a circle"
 #define DOC_PYGAMEDRAWELLIPSE "ellipse(Surface, color, Rect, width=0) -> Rect\ndraw a round shape inside a rectangle"
 #define DOC_PYGAMEDRAWARC "arc(Surface, color, Rect, start_angle, stop_angle, width=1) -> Rect\ndraw a partial section of an ellipse"
@@ -24,8 +24,8 @@ pygame.draw.rect
 draw a rectangle
 
 pygame.draw.polygon
- polygon(surface=Surface, color=Color, points=points) -> Rect
- polygon(surface=Surface, color=Color, points=points, width=0) -> Rect
+ polygon(surface, color, points) -> Rect
+ polygon(surface, color, points, width=0) -> Rect
 draw a polygon
 
 pygame.draw.circle

@@ -92,8 +92,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: polygon
 
    | :sl:`draw a polygon`
-   | :sg:`polygon(surface=Surface, color=Color, points=points) -> Rect`
-   | :sg:`polygon(surface=Surface, color=Color, points=points, width=0) -> Rect`
+   | :sg:`polygon(surface, color, points) -> Rect`
+   | :sg:`polygon(surface, color, points, width=0) -> Rect`
 
    Draws a polygon on the given surface.
 
@@ -102,8 +102,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       tuple ``(RGB[A])``
    :type color: Color or int or tuple(int, int, int, [int])
    :param points: a sequence of 3 or more points that make up the vertices of
-      the polygon
-   :type points: tuple(int, int) or list(int, int)
+      the polygon, each point/vertex must be a tuple/list of 2 numbers
+   :type points: tuple or list
    :param int width: (optional) used for line thickness or to indicate that
       the polygon is to be filled
 
