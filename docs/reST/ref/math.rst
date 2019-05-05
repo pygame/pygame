@@ -225,22 +225,46 @@ Multiple coordinates can be set using slices or swizzling::
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(float) -> Vector2`
+      | :sg:`rotate(angle) -> Vector2`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees.
 
       .. ## Vector2.rotate ##
 
+   .. method:: rotate_rad
+
+      | :sl:`rotates a vector by a given angle in radians.`
+      | :sg:`rotate_rad(angle) -> Vector2`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector2.rotate_rad ##
+
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(float) -> None`
+      | :sg:`rotate_ip(angle) -> None`
 
       Rotates the vector counterclockwise by the given angle in degrees. The
       length of the vector is not changed.
 
       .. ## Vector2.rotate_ip ##
+
+   .. method:: rotate_ip_rad
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise by the given angle in radians. The
+      length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector2.rotate_ip_rad ##
 
    .. method:: angle_to
 
@@ -474,82 +498,176 @@ Multiple coordinates can be set using slices or swizzling::
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(Vector3, float) -> Vector3`
+      | :sg:`rotate(Vector3, angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees around the given axis.
 
       .. ## Vector3.rotate ##
 
+   .. method:: rotate_rad
+
+      | :sl:`rotates a vector by a given angle in radians.`
+      | :sg:`rotate_rad(Vector3, angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise by the given angle in radians around the given axis.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_rad ##
+
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(Vector3, float) -> None`
+      | :sg:`rotate_ip(Vector3, angle) -> None`
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_ip ##
 
+   .. method:: rotate_ip_rad
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_ip_rad(Vector3, angle) -> None`
+
+      Rotates the vector counterclockwise around the given axis by the given
+      angle in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_ip_rad ##
+
    .. method:: rotate_x
 
       | :sl:`rotates a vector around the x-axis by the angle in degrees.`
-      | :sg:`rotate_x(float) -> Vector3`
+      | :sg:`rotate_x(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the x-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_x ##
 
+   .. method:: rotate_x_rad
+
+      | :sl:`rotates a vector around the x-axis by the angle in radians.`
+      | :sg:`rotate_x_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the x-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_x_rad ##
+
    .. method:: rotate_x_ip
 
       | :sl:`rotates the vector around the x-axis by the angle in degrees in place.`
-      | :sg:`rotate_x_ip(float) -> None`
+      | :sg:`rotate_x_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the x-axis by the given angle
       in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_x_ip ##
 
+   .. method:: rotate_x_ip_rad
+
+      | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
+      | :sg:`rotate_x_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the x-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_x_ip_rad ##
+
    .. method:: rotate_y
 
       | :sl:`rotates a vector around the y-axis by the angle in degrees.`
-      | :sg:`rotate_y(float) -> Vector3`
+      | :sg:`rotate_y(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the y-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_y ##
 
+   .. method:: rotate_y_rad
+
+      | :sl:`rotates a vector around the y-axis by the angle in radians.`
+      | :sg:`rotate_y_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the y-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_y_rad ##
+
    .. method:: rotate_y_ip
 
       | :sl:`rotates the vector around the y-axis by the angle in degrees in place.`
-      | :sg:`rotate_y_ip(float) -> None`
+      | :sg:`rotate_y_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the y-axis by the given angle
       in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_y_ip ##
 
+   .. method:: rotate_y_ip_rad
+
+      | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
+      | :sg:`rotate_y_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the y-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_y_ip_rad ##
+
    .. method:: rotate_z
 
       | :sl:`rotates a vector around the z-axis by the angle in degrees.`
-      | :sg:`rotate_z(float) -> Vector3`
+      | :sg:`rotate_z(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the z-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_z ##
 
+   .. method:: rotate_z_rad
+
+      | :sl:`rotates a vector around the z-axis by the angle in radians.`
+      | :sg:`rotate_z_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the z-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_z_rad ##
+
    .. method:: rotate_z_ip
 
       | :sl:`rotates the vector around the z-axis by the angle in degrees in place.`
-      | :sg:`rotate_z_ip(float) -> None`
+      | :sg:`rotate_z_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the z-axis by the given angle
       in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_z_ip ##
+
+   .. method:: rotate_z_ip_rad
+
+      | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
+      | :sg:`rotate_z_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the z-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. ## Vector3.rotate_z_ip_rad ##
 
    .. method:: angle_to
 

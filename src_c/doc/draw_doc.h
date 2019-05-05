@@ -33,8 +33,9 @@ pygame.draw.circle
 draw a circle
 
 pygame.draw.ellipse
- ellipse(Surface, color, Rect, width=0) -> Rect
-draw a round shape inside a rectangle
+ ellipse(surface=Surface, color=Color, rect=Rect) -> Rect
+ ellipse(surface=Surface, color=Color, rect=Rect, width=0) -> Rect
+draw an ellipse
 
 pygame.draw.arc
  arc(surface, color, rect, start_angle, stop_angle) -> Rect

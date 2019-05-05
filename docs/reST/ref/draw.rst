@@ -56,9 +56,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       the rectangle is to be filled (not to be confused with the width value
       of the ``rect`` parameter)
 
-         | if width == 0, (default) fill the rectangle
-         | if width > 0, used for line thickness
-         | if width < 0, nothing will be drawn
+         | if ``width == 0``, (default) fill the rectangle
+         | if ``width > 0``, used for line thickness
+         | if ``width < 0``, nothing will be drawn
          |
 
          .. note::
@@ -114,7 +114,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
    :type color: Color or int or tuple(int, int, int, [int])
-   :param int center: center point of the circle
+   :param center: center point of the circle
+   :type center: tuple(int, int) or list(int, int)
    :param int radius: radius of the circle, measured from the ``center``
       parameter, a radius of 0 will only draw the ``center`` pixel
    :param int width: (optional) used for line thickness or to indicate that
@@ -142,12 +143,41 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: ellipse
 
-   | :sl:`draw a round shape inside a rectangle`
-   | :sg:`ellipse(Surface, color, Rect, width=0) -> Rect`
+   | :sl:`draw an ellipse`
+   | :sg:`ellipse(surface=Surface, color=Color, rect=Rect) -> Rect`
+   | :sg:`ellipse(surface=Surface, color=Color, rect=Rect, width=0) -> Rect`
 
-   Draws an elliptical shape on the Surface. The given rectangle is the area
-   that the circle will fill. The width argument is the thickness to draw the
-   outer edge. If width is zero then the ellipse will be filled.
+   Draws an ellipse on the given surface.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param Rect rect: rectangle to indicate the position and dimensions of the
+      ellipse, the ellipse will be centered inside the rectangle and bounded
+      by it
+   :param int width: (optional) used for line thickness or to indicate that
+      the ellipse is to be filled (not to be confused with the width value
+      of the ``rect`` parameter)
+
+         | if ``width == 0``, (default) fill the ellipse
+         | if ``width > 0``, used for line thickness
+         | if ``width < 0``, raises a ``ValueError``
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will only grow
+            inward from the original boundary of the ``rect`` parameter.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the given ``rect``
+      parameter and its width and height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``width < 0`` or ``width > rect.w / 2`` or
+      ``width > rect.h / 2``
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.ellipse ##
 

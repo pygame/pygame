@@ -20,6 +20,8 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
+#include "../pygame.h"
+
 #include "ft_wrap.h"
 #include FT_MODULE_H
 

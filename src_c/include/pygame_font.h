@@ -20,13 +20,34 @@
     pete@shinners.org
 */
 
-/* This will use PYGAMEAPI_DEFINE_SLOTS instead
- * of PYGAMEAPI_EXTERN_SLOTS for base modules.
- */
-#ifndef PYGAME_INTERNAL_H
-#define PYGAME_INTERNAL_H
+#include <Python.h>
+#include "pgplatform.h"
 
-#define PYGAME_H
-#include "_pygame.h"
+typedef struct TTF_Font;
 
-#endif /* ~PYGAME_INTERNAL_H */
+typedef struct {
+  PyObject_HEAD
+  TTF_Font* font;
+  PyObject* weakreflist;
+} PyFontObject;
+#define PyFont_AsFont(x) (((PyFontObject*)x)->font)
+
+#ifndef PYGAMEAPI_FONT_INTERNAL
+
+#include "pgimport.h"
+
+PYGAMEAPI_DEFINE_SLOTS(font);
+
+#define PyFont_Type (*(PyTypeObject*) \
+    PYGAMEAPI_GET_SLOT(font, 0))
+#define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
+
+#define PyFont_New (*(PyObject*(*)(TTF_Font*))\
+    PYGAMEAPI_GET_SLOT(font, 1))
+
+/*slot 2 taken by FONT_INIT_CHECK*/
+
+#define import_pygame_font() _IMPORT_PYGAME_MODULE(font)
+
+#endif
+

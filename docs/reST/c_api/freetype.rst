@@ -11,7 +11,7 @@ src_c/_freetype.c
 
 This extension module defines Python type :py:class:`pygame.freetype.Font`.
 
-Header file: src_c/freetype.h
+Header file: src_c/include/pygame_freetype.h
 
 
 .. c:type:: pgFontObject

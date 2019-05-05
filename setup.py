@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev0",
+    "version":          "2.0.0.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -343,7 +343,7 @@ def parse_source_version():
     major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
     minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
     patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
-    pg_header = os.path.join('src_c', '_pygame.h')
+    pg_header = os.path.join('src_c', 'include', '_pygame.h')
     with open(pg_header) as f:
         for line in f:
             if pgh_major == -1:
