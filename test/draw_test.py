@@ -1786,7 +1786,7 @@ class DrawRectMixin(object):
                   'rect'    : None,
                   'width'   : 0}
         rects = (pygame.Rect(pos, (1, 1)), (pos, (2, 2)),
-                 (pos[0], pos[1], 3, 3))
+                 (pos[0], pos[1], 3, 3), [pos, (2.1, 2.2)])
 
         for rect in rects:
             surface.fill(surface_color)  # Clear for each test.
@@ -1796,6 +1796,22 @@ class DrawRectMixin(object):
 
             self.assertEqual(surface.get_at(pos), expected_color)
             self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__invalid_rect_formats(self):
+        """Ensures draw rect handles invalid rect formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : pygame.Color('red'),
+                  'rect'    : None,
+                  'width'   : 0}
+
+        invalid_fmts = ([], [1], [1, 2], [1, 2, 3], [1, 2, 3, 4, 5],
+                        set([1, 2, 3, 4]), [1, 2, 3, '4'])
+
+        for rect in invalid_fmts:
+            kwargs['rect'] = rect
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_rect(**kwargs)
 
     def test_rect__valid_color_formats(self):
         """Ensures draw rect accepts different color formats."""
