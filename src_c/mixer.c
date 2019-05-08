@@ -338,11 +338,23 @@ pgMixer_AutoQuit(void)
     }
 }
 
+static PyObject*
+import_music()
+{
+    PyObject *music = PyImport_ImportModule(IMPPREFIX "mixer_music");
+    if (music == NULL) {
+        PyErr_Clear();
+        music = PyImport_ImportModule(RELATIVE_MODULE("mixer_music"));
+    }
+    return music;
+}
+
 static PyObject *
 _init(int freq, int size, int channels, int chunk, char *devicename, int allowedchanges)
 {
     Uint16 fmt = 0;
     int i;
+    PyObject *music;
 
     if (!freq) {
         freq = request_frequency;
@@ -458,6 +470,28 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
 
         Mix_VolumeMusic(127);
     }
+
+    music = import_music();
+    if (music != NULL) {
+        PyObject *ptr, *_dict;
+        _dict = PyModule_GetDict(music);
+        ptr = PyDict_GetItemString(_dict, "_MUSIC_POINTER");
+        current_music =
+            (Mix_Music **)PyCapsule_GetPointer(ptr,
+                                               "pygame.music_mixer."
+                                               "_MUSIC_POINTER");
+        ptr = PyDict_GetItemString(_dict, "_QUEUE_POINTER");
+        queue_music = (Mix_Music **)PyCapsule_GetPointer(ptr,
+                                                         "pygame.music_mixer."
+                                                         "_QUEUE_POINTER");
+        Py_DECREF(music);
+    }
+    else {
+        current_music = NULL;
+        queue_music = NULL;
+        PyErr_Clear();
+    }
+
     return PyInt_FromLong(1);
 }
 
@@ -1945,39 +1979,15 @@ MODINIT_DEFINE(mixer)
         MODINIT_ERROR;
     }
 
-    music = PyImport_ImportModule(IMPPREFIX "mixer_music");
-    if (music == NULL) {
-        PyErr_Clear();
-        /* try loading it under this name...
-         */
-        music = PyImport_ImportModule(RELATIVE_MODULE("mixer_music"));
-        /*printf("NOTE3: here in mixer.c...\n");
-         */
-    }
-
+    music = import_music();
     if (music != NULL) {
-        PyObject *ptr, *_dict;
-        /* printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
-         */
         if (PyModule_AddObject(module, "music", music) < 0) {
             DECREF_MOD(module);
             Py_DECREF(music);
             MODINIT_ERROR;
         }
-        _dict = PyModule_GetDict(music);
-        ptr = PyDict_GetItemString(_dict, "_MUSIC_POINTER");
-        current_music =
-            (Mix_Music **)PyCapsule_GetPointer(ptr,
-                                               "pygame.music_mixer."
-                                               "_MUSIC_POINTER");
-        ptr = PyDict_GetItemString(_dict, "_QUEUE_POINTER");
-        queue_music = (Mix_Music **)PyCapsule_GetPointer(ptr,
-                                                         "pygame.music_mixer."
-                                                         "_QUEUE_POINTER");
     }
-    else /*music module not compiled? cleanly ignore*/
-    {
-        current_music = NULL;
+    else {
         PyErr_Clear();
     }
     MODINIT_RETURN(module);

@@ -261,5 +261,21 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
+    def test_init(self):
+        """issue #955. unload music whenever mixer.quit() is called"""
+        import tempfile
+        import shutil
+        testfile = example_path(os.path.join('data', 'house_lo.wav'))
+        tempcopy = os.path.join(tempfile.gettempdir(), 'tempfile.wav')
+
+        for i in range(10):
+            pygame.mixer.init()
+            try:
+                shutil.copy2(testfile, tempcopy)
+                pygame.mixer.music.load(tempcopy)
+                pygame.mixer.quit()
+            finally:
+                os.remove(tempcopy)
+
 if __name__ == '__main__':
     unittest.main()
