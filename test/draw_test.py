@@ -2199,15 +2199,14 @@ class DrawCircleMixin(object):
             with self.assertRaises(TypeError):
                 bounds_rect = self.draw_circle(**kwargs)
 
-    def test_circle(self):
-        """Ensure draw circle works correctly."""
-        surf = pygame.Surface((10, 10))
-        col = (255, 255, 255)
-        pos = (0, 0)
-        radius = 5
-        draw.circle(surf, col, pos, radius)
-        fpos = (0.1, 0.1)
-        draw.circle(surf, col, fpos, radius)
+    def test_circle__floats(self):
+        """Ensure that floats are accepted."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : None,
+                  'center'  : (1.5, 1.5),
+                  'radius'  : 1,
+                  'width'   : 0}
+        draw.circle(**kwargs)
 
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """Test draw module function circle.
