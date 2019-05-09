@@ -1240,8 +1240,14 @@ class DrawCircleMixin(object):
     This class contains all the general circle drawing tests.
     """
 
-    def todo_test_circle(self):
-        self.fail()
+    def test_circle(self):
+        surf = pygame.Surface((10, 10))
+        col = (255, 255, 255)
+        pos = (0, 0)
+        radius = 5
+        draw.circle(surf, col, pos, radius)
+        fpos = (0.1, 0.1)
+        draw.circle(surf, col, fpos, radius)
 
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """Test draw module function circle.
