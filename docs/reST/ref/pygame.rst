@@ -222,6 +222,18 @@ variables to check with version of pygame has been imported.
            print 'Warning, older version of pygame (%s)' %  pygame.version.ver
            disable_advanced_features = True
 
+   .. versionadded:: 1.9.6 Attributes ``major``, ``minor``, and ``patch``.
+
+   ::
+
+      vernum.major == vernum[0]
+      vernum.minor == vernum[1]
+      vernum.patch == vernum[2]
+
+   .. versionchanged:: 1.9.6 str(vernum) returns a string like "2.0.0" instead of "(2, 0, 0)".
+
+   .. versionchanged:: 1.9.6 repr(vernum) returns a string like "PygameVersion(major=2, minor=0, patch=0)" instead of "(2, 0, 0)".
+
    .. ## pygame.version.vernum ##
 
 .. data:: rev

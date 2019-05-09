@@ -31,6 +31,12 @@ subscripts::
    v.y == v[1]
    v.z == v[2]
 
+Multiple coordinates can be set using slices or swizzling::
+
+   v = pygame.Vector2()
+   v.xy = 1, 2
+   v[:] = 1, 2
+
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
@@ -119,12 +125,10 @@ subscripts::
    .. method:: normalize_ip
 
       | :sl:`normalizes the vector in place so that its length is 1.`
-      | :sg:`normalize_ip() -> Vector2`
+      | :sg:`normalize_ip() -> None`
 
       Normalizes the vector so that it has length == 1. The direction of the
       vector is not changed.
-
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.normalize_ip ##
 
@@ -139,15 +143,13 @@ subscripts::
 
    .. method:: scale_to_length
 
-      | :sl:`scales the vector in place to a given length.`
-      | :sg:`scale_to_length(float) -> Vector2`
+      | :sl:`scales the vector to a given length.`
+      | :sg:`scale_to_length(float) -> None`
 
-      Scales the vector in place so that it has the given length. The direction of
-      the vector is not changed. You can also scale to length 0. If the vector is
+      Scales the vector so that it has the given length. The direction of the
+      vector is not changed. You can also scale to length 0. If the vector is
       the zero vector (i.e. has length 0 thus no direction) an
       ZeroDivisionError is raised.
-
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.scale_to_length ##
 
@@ -165,12 +167,10 @@ subscripts::
    .. method:: reflect_ip
 
       | :sl:`reflect the vector of a given normal in place.`
-      | :sg:`reflect_ip(Vector2) -> Vector2`
+      | :sg:`reflect_ip(Vector2) -> None`
 
       Changes the direction of self as if it would have been reflected of a
       surface with the given surface normal.
-
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector2.reflect_ip ##
 
@@ -225,24 +225,46 @@ subscripts::
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(float) -> Vector2`
+      | :sg:`rotate(angle) -> Vector2`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees.
 
       .. ## Vector2.rotate ##
 
+   .. method:: rotate_rad
+
+      | :sl:`rotates a vector by a given angle in radians.`
+      | :sg:`rotate_rad(angle) -> Vector2`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector2.rotate_rad ##
+
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(float) -> Vector2`
+      | :sg:`rotate_ip(angle) -> None`
 
       Rotates the vector counterclockwise by the given angle in degrees. The
       length of the vector is not changed.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector2.rotate_ip ##
+
+   .. method:: rotate_ip_rad
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise by the given angle in radians. The
+      length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector2.rotate_ip_rad ##
 
    .. method:: angle_to
 
@@ -266,30 +288,28 @@ subscripts::
    .. method:: from_polar
 
       | :sl:`Sets x and y from a polar coordinates tuple.`
-      | :sg:`from_polar((r, phi)) -> Vector2`
+      | :sg:`from_polar((r, phi)) -> None`
 
       Sets x and y from a tuple (r, phi) where r is the radial distance, and
       phi is the azimuthal angle.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector2.from_polar ##
 
-   .. method:: set
+   .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
-      | :sg:`set() -> Vector2`
-      | :sg:`set(int) -> Vector2`
-      | :sg:`set(float) -> Vector2`
-      | :sg:`set(Vector2) -> Vector2`
-      | :sg:`set(x, y) -> Vector2`
-      | :sg:`set((x, y)) -> Vector2`
+      | :sg:`update() -> None`
+      | :sg:`update(int) -> None`
+      | :sg:`update(float) -> None`
+      | :sg:`update(Vector2) -> None`
+      | :sg:`update(x, y) -> None`
+      | :sg:`update((x, y)) -> None`
 
-      Sets coordinates x and y in place and returns the vector itself.
+      Sets coordinates x and y in place.
 
       .. versionadded:: 1.9.5
 
-      .. ## Vector2.set ##
+      .. ## Vector2.update ##
 
    .. ## pygame.math.Vector2 ##
 
@@ -378,12 +398,10 @@ subscripts::
    .. method:: normalize_ip
 
       | :sl:`normalizes the vector in place so that its length is 1.`
-      | :sg:`normalize_ip() -> Vector3`
+      | :sg:`normalize_ip() -> None`
 
       Normalizes the vector so that it has length == 1. The direction of the
       vector is not changed.
-
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.normalize_ip ##
 
@@ -398,15 +416,13 @@ subscripts::
 
    .. method:: scale_to_length
 
-      | :sl:`scales the vector in place to a given length.`
-      | :sg:`scale_to_length(float) -> Vector3`
+      | :sl:`scales the vector to a given length.`
+      | :sg:`scale_to_length(float) -> None`
 
-      Scales the vector in place so that it has the given length. The direction of
-      the vector is not changed. You can also scale to length 0. If the vector is
+      Scales the vector so that it has the given length. The direction of the
+      vector is not changed. You can also scale to length 0. If the vector is
       the zero vector (i.e. has length 0 thus no direction) an
       ZeroDivisionError is raised.
-
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.scale_to_length ##
 
@@ -424,12 +440,10 @@ subscripts::
    .. method:: reflect_ip
 
       | :sl:`reflect the vector of a given normal in place.`
-      | :sg:`reflect_ip(Vector3) -> Vector3`
+      | :sg:`reflect_ip(Vector3) -> None`
 
       Changes the direction of self as if it would have been reflected of a
       surface with the given surface normal.
-
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
 
       .. ## Vector3.reflect_ip ##
 
@@ -484,90 +498,176 @@ subscripts::
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(Vector3, float) -> Vector3`
+      | :sg:`rotate(Vector3, angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees around the given axis.
 
       .. ## Vector3.rotate ##
 
+   .. method:: rotate_rad
+
+      | :sl:`rotates a vector by a given angle in radians.`
+      | :sg:`rotate_rad(Vector3, angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise by the given angle in radians around the given axis.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_rad ##
+
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(Vector3, float) -> Vector3`
+      | :sg:`rotate_ip(Vector3, angle) -> None`
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in degrees. The length of the vector is not changed.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector3.rotate_ip ##
+
+   .. method:: rotate_ip_rad
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_ip_rad(Vector3, angle) -> None`
+
+      Rotates the vector counterclockwise around the given axis by the given
+      angle in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_ip_rad ##
 
    .. method:: rotate_x
 
       | :sl:`rotates a vector around the x-axis by the angle in degrees.`
-      | :sg:`rotate_x(float) -> Vector3`
+      | :sg:`rotate_x(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the x-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_x ##
 
+   .. method:: rotate_x_rad
+
+      | :sl:`rotates a vector around the x-axis by the angle in radians.`
+      | :sg:`rotate_x_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the x-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_x_rad ##
+
    .. method:: rotate_x_ip
 
       | :sl:`rotates the vector around the x-axis by the angle in degrees in place.`
-      | :sg:`rotate_x_ip(float) -> Vector3`
+      | :sg:`rotate_x_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the x-axis by the given angle
       in degrees. The length of the vector is not changed.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector3.rotate_x_ip ##
+
+   .. method:: rotate_x_ip_rad
+
+      | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
+      | :sg:`rotate_x_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the x-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_x_ip_rad ##
 
    .. method:: rotate_y
 
       | :sl:`rotates a vector around the y-axis by the angle in degrees.`
-      | :sg:`rotate_y(float) -> Vector3`
+      | :sg:`rotate_y(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the y-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_y ##
 
+   .. method:: rotate_y_rad
+
+      | :sl:`rotates a vector around the y-axis by the angle in radians.`
+      | :sg:`rotate_y_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the y-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_y_rad ##
+
    .. method:: rotate_y_ip
 
       | :sl:`rotates the vector around the y-axis by the angle in degrees in place.`
-      | :sg:`rotate_y_ip(float) -> Vector3`
+      | :sg:`rotate_y_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the y-axis by the given angle
       in degrees. The length of the vector is not changed.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector3.rotate_y_ip ##
+
+   .. method:: rotate_y_ip_rad
+
+      | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
+      | :sg:`rotate_y_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the y-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_y_ip_rad ##
 
    .. method:: rotate_z
 
       | :sl:`rotates a vector around the z-axis by the angle in degrees.`
-      | :sg:`rotate_z(float) -> Vector3`
+      | :sg:`rotate_z(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the z-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_z ##
 
+   .. method:: rotate_z_rad
+
+      | :sl:`rotates a vector around the z-axis by the angle in radians.`
+      | :sg:`rotate_z_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the z-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_z_rad ##
+
    .. method:: rotate_z_ip
 
       | :sl:`rotates the vector around the z-axis by the angle in degrees in place.`
-      | :sg:`rotate_z_ip(float) -> Vector3`
+      | :sg:`rotate_z_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the z-axis by the given angle
       in degrees. The length of the vector is not changed.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector3.rotate_z_ip ##
+
+   .. method:: rotate_z_ip_rad
+
+      | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
+      | :sg:`rotate_z_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the z-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. ## Vector3.rotate_z_ip_rad ##
 
    .. method:: angle_to
 
@@ -591,30 +691,28 @@ subscripts::
    .. method:: from_spherical
 
       | :sl:`Sets x, y and z from a spherical coordinates 3-tuple.`
-      | :sg:`from_spherical((r, theta, phi)) -> Vector3`
+      | :sg:`from_spherical((r, theta, phi)) -> None`
 
       Sets x, y and z from a tuple (r, theta, phi) where r is the radial
       distance, theta is the inclination angle and phi is the azimuthal angle.
 
-      .. versionchanged:: 1.9.5 The vector itself is returned instead of ``None``.
-
       .. ## Vector3.from_spherical ##
 
-   .. method:: set
+   .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
-      | :sg:`set() -> Vector3`
-      | :sg:`set(int) -> Vector3`
-      | :sg:`set(float) -> Vector3`
-      | :sg:`set(Vector3) -> Vector3`
-      | :sg:`set(x, y, z) -> Vector3`
-      | :sg:`set((x, y, z)) -> Vector3`
+      | :sg:`update() -> None`
+      | :sg:`update(int) -> None`
+      | :sg:`update(float) -> None`
+      | :sg:`update(Vector3) -> None`
+      | :sg:`update(x, y, z) -> None`
+      | :sg:`update((x, y, z)) -> None`
 
-      Sets coordinates x, y, and z in place and returns the vector itself.
+      Sets coordinates x, y, and z in place.
 
       .. versionadded:: 1.9.5
 
-      .. ## Vector3.set ##
+      .. ## Vector3.update ##
 
    .. ##  ##
 
@@ -630,6 +728,9 @@ subscripts::
 
    Enables swizzling for all vectors until ``disable_swizzling()`` is called.
    By default swizzling is disabled.
+
+   Lets you get or set multiple coordinates as one attribute, eg
+   ``vec.xyz = 1, 2, 3``.
 
    .. ## pygame.math.enable_swizzling ##
 

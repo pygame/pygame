@@ -36,6 +36,16 @@ def corners(surface):
     return ((0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1))
 
 
+def rect_corners_mids_and_center(rect):
+    """Returns a tuple with each corner, mid, and the center for a given rect.
+
+    Clockwise from the top left corner and ending with the center point.
+    """
+    return (rect.topleft, rect.midtop, rect.topright, rect.midright,
+            rect.bottomright, rect.midbottom, rect.bottomleft,
+            rect.midleft, rect.center)
+
+
 def border_pos_and_color(surface):
     """Yields each border position and its color for a given surface.
 
@@ -102,6 +112,261 @@ class DrawEllipseMixin(object):
 
     This class contains all the general ellipse drawing tests.
     """
+    def test_ellipse__args(self):
+        """Ensures draw ellipse accepts the correct args."""
+        bounds_rect = self.draw_ellipse(pygame.Surface((3, 3)),
+            (0, 10, 0, 50), pygame.Rect((0, 0), (3, 2)), 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__args_without_width(self):
+        """Ensures draw ellipse accepts the args without a width."""
+        bounds_rect = self.draw_ellipse(pygame.Surface((2, 2)), (1, 1, 1, 99),
+                                        pygame.Rect((1, 1), (1, 1)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__kwargs(self):
+        """Ensures draw ellipse accepts the correct kwargs
+        with and without a width arg.
+        """
+        kwargs_list = [{'surface' : pygame.Surface((4, 4)),
+                        'color'   : pygame.Color('yellow'),
+                        'rect'    : pygame.Rect((0, 0), (3, 2)),
+                        'width'   : 1 },
+
+                       {'surface' : pygame.Surface((2, 1)),
+                        'color'   : (0, 10, 20),
+                        'rect'    : (0, 0, 1, 1)}]
+
+        for kwargs in kwargs_list:
+            bounds_rect = self.draw_ellipse(**kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__kwargs_order_independent(self):
+        """Ensures draw ellipse's kwargs are not order dependent."""
+        bounds_rect = self.draw_ellipse(color=(1, 2, 3),
+                                        surface=pygame.Surface((3, 2)),
+                                        width=0,
+                                        rect=pygame.Rect((1, 0), (1, 1)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__args_missing(self):
+        """Ensures draw ellipse detects any missing required args."""
+        surface = pygame.Surface((1, 1))
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_ellipse(surface, pygame.Color('red'))
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_ellipse(surface)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_ellipse()
+
+    def test_ellipse__kwargs_missing(self):
+        """Ensures draw ellipse detects any missing required kwargs."""
+        kwargs = {'surface' : pygame.Surface((1, 2)),
+                  'color'   : pygame.Color('red'),
+                  'rect'    : pygame.Rect((1, 0), (2, 2)),
+                  'width'   : 2}
+
+        for name in ('rect', 'color', 'surface'):
+            invalid_kwargs = dict(kwargs)
+            invalid_kwargs.pop(name)  # Pop from a copy.
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_ellipse(**invalid_kwargs)
+
+    def test_ellipse__arg_invalid_types(self):
+        """Ensures draw ellipse detects invalid arg types."""
+        surface = pygame.Surface((2, 2))
+        color = pygame.Color('blue')
+        rect = pygame.Rect((1, 1), (1, 1))
+
+        with self.assertRaises(TypeError):
+            # Invalid width.
+            bounds_rect = self.draw_ellipse(surface, color, rect, '1')
+
+        with self.assertRaises(TypeError):
+            # Invalid rect.
+            bounds_rect = self.draw_ellipse(surface, color, (1, 2, 3, 4, 5), 1)
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            bounds_rect = self.draw_ellipse(surface, 'blue', rect, 0)
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            bounds_rect = self.draw_ellipse(rect, color, rect, 2)
+
+    def test_ellipse__kwarg_invalid_types(self):
+        """Ensures draw ellipse detects invalid kwarg types."""
+        surface = pygame.Surface((3, 3))
+        color = pygame.Color('green')
+        rect = pygame.Rect((0, 1), (1, 1))
+        kwargs_list = [{'surface' : pygame.Surface,  # Invalid surface.
+                        'color'   : color,
+                        'rect'    : rect,
+                        'width'   : 1 },
+
+                       {'surface' : surface,
+                        'color'   : 'green',  # Invalid color.
+                        'rect'    : rect,
+                        'width'   : 1 },
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'rect'    : (0, 0, 0),  # Invalid rect.
+                        'width'   : 1 },
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'rect'    : rect,
+                        'width'   : 1.1 }]  # Invalid width.
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_ellipse(**kwargs)
+
+    def test_ellipse__kwarg_invalid_name(self):
+        """Ensures draw ellipse detects invalid kwarg names."""
+        surface = pygame.Surface((2, 3))
+        color = pygame.Color('cyan')
+        rect = pygame.Rect((0, 1), (2, 2))
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'rect'    : rect,
+                        'width'   : 1,
+                        'invalid' : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'rect'    : rect,
+                        'invalid' : 1 }]
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_ellipse(**kwargs)
+
+    def test_ellipse__args_and_kwargs(self):
+        """Ensures draw ellipse accepts a combination of args/kwargs"""
+        surface = pygame.Surface((3, 1))
+        color = (255, 255, 0, 0)
+        rect = pygame.Rect((1, 0), (2, 1))
+        width = 0
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'rect'    : rect,
+                  'width'   : width}
+
+        for name in ('surface', 'color', 'rect', 'width'):
+            kwargs.pop(name)
+
+            if 'surface' == name:
+                bounds_rect = self.draw_ellipse(surface, **kwargs)
+            elif 'color' == name:
+                bounds_rect = self.draw_ellipse(surface, color, **kwargs)
+            elif 'rect' == name:
+                bounds_rect = self.draw_ellipse(surface, color, rect, **kwargs)
+            else:
+                bounds_rect = self.draw_ellipse(surface, color, rect, width,
+                                                **kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    # This decorator can be removed when the ellipse portion of issues #975
+    # and #976 are resolved.
+    @unittest.expectedFailure
+    def test_ellipse__valid_width_values(self):
+        """Ensures draw ellipse accepts different width values."""
+        pos = (1, 1)
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        color = (10, 20, 30, 255)
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'rect'    : pygame.Rect(pos, (3, 1)),
+                  'width'   : None}
+
+        for width in (-1000, -10, -1, 0, 1, 10, 1000):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['width'] = width
+            expected_color = color if width >= 0 else surface_color
+
+            bounds_rect = self.draw_ellipse(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__valid_rect_formats(self):
+        """Ensures draw ellipse accepts different rect formats."""
+        pos = (1, 1)
+        expected_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((4, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : expected_color,
+                  'rect'    : None,
+                  'width'   : 0}
+        rects = (pygame.Rect(pos, (1, 3)), (pos, (2, 1)),
+                 (pos[0], pos[1], 1, 1))
+
+        for rect in rects:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['rect'] = rect
+
+            bounds_rect = self.draw_ellipse(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__valid_color_formats(self):
+        """Ensures draw ellipse accepts different color formats."""
+        pos = (1, 1)
+        green_color = pygame.Color('green')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'rect'    : pygame.Rect(pos, (1, 2)),
+                  'width'   : 0}
+        reds = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green_color),
+                green_color)
+
+        for color in reds:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['color'] = color
+
+            if isinstance(color, int):
+                expected_color = surface.unmap_rgb(color)
+            else:
+                expected_color = green_color
+
+            bounds_rect = self.draw_ellipse(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_ellipse__invalid_color_formats(self):
+        """Ensures draw ellipse handles invalid color formats correctly."""
+        pos = (1, 1)
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((4, 3))
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'rect'    : pygame.Rect(pos, (2, 2)),
+                  'width'   : 1}
+
+        # These color formats are currently not supported (it would be
+        # nice to eventually support them).
+        for expected_color in ('green', '#00FF00FF', '0x00FF00FF'):
+            kwargs['color'] = expected_color
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_ellipse(**kwargs)
 
     def test_ellipse(self):
         """Tests ellipses of differing sizes on surfaces of differing sizes.
@@ -440,35 +705,77 @@ class LineMixin(object):
     tests.
     """
 
-    def setUp(self):
-        self._colors = ((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255),
-                        (255, 255, 0), (255, 0, 255), (0, 255, 255),
-                        (255, 255, 255))
+    COLORS = ((0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+              (255, 0, 255), (0, 255, 255), (255, 255, 255))
 
+    @staticmethod
+    def _create_surfaces():
         # Create some surfaces with different sizes, depths, and flags.
-        self._surfaces = []
+        surfaces = []
         for size in ((49, 49), (50, 50)):
             for depth in (8, 16, 24, 32):
                 for flags in (0, SRCALPHA):
                     surface = pygame.display.set_mode(size, flags, depth)
-                    self._surfaces.append(surface)
-                    self._surfaces.append(surface.convert_alpha())
+                    surfaces.append(surface)
+                    surfaces.append(surface.convert_alpha())
+        return surfaces
+
+    @staticmethod
+    def _rect_lines(rect):
+        # Yields pairs of end points and their reverse (to test symmetry).
+        # Uses a rect with the points radiating from its midleft.
+        for pt in rect_corners_mids_and_center(rect):
+            if pt == rect.midleft or pt == rect.center:
+                # Don't bother with these points.
+                continue
+            yield (rect.midleft, pt)
+            yield (pt, rect.midleft)
+
+    @staticmethod
+    def _create_line_bounding_rect(surface, start, end, surf_color):
+        # Helper method to create a bounding rect for a given line.
+        # This method checks the surface for drawn points, then creates a
+        # bounding rect to enclose all the points.
+        width, height = surface.get_clip().size
+        xmin, ymin = width, height
+        xmax, ymax = -1, -1
+
+        surface.lock() # For possible speed up.
+        for y in range(height):
+            for x in range(width):
+                if surface.get_at((x, y)) != surf_color:
+                    xmin = min(x, xmin)
+                    xmax = max(x, xmax)
+                    ymin = min(y, ymin)
+                    ymax = max(y, ymax)
+
+        surface.unlock()
+
+        if -1 == xmax:
+            # No points means 0 sized rect with the position at the start.
+            return pygame.Rect(start, (0, 0))
+
+        return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
 
     def test_line__color(self):
         """Tests if the line drawn is the correct color."""
         pos = (0, 0)
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_line(surface, expected_color, pos, (1, 0))
 
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
+    def todo_test_line__color_with_thickness(self):
+        """Ensures a thick line is drawn using the correct color."""
+        self.fail()
+
     def test_aaline__color(self):
         """Tests if the aaline drawn is the correct color."""
         pos = (0, 0)
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_aaline(surface, expected_color, pos, (1, 0))
 
                 self.assertEqual(surface.get_at(pos), expected_color,
@@ -477,7 +784,7 @@ class LineMixin(object):
     def test_line__gaps(self):
         """Tests if the line drawn contains any gaps."""
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             width = surface.get_width()
             self.draw_line(surface, expected_color, (0, 0), (width - 1, 0))
 
@@ -486,13 +793,17 @@ class LineMixin(object):
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
+    def todo_test_line__gaps_with_thickness(self):
+        """Ensures a thick line is drawn without any gaps."""
+        self.fail()
+
     def test_aaline__gaps(self):
         """Tests if the aaline drawn contains any gaps.
 
         See: #512
         """
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             width = surface.get_width()
             self.draw_aaline(surface, expected_color, (0, 0), (width - 1, 0))
 
@@ -501,14 +812,65 @@ class LineMixin(object):
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
+    def test_line__bounding_rect(self):
+        """Ensures draw line returns the correct bounding rect.
+
+        Tests lines with endpoints on and off the surface and a range of
+        width/thickness values.
+        """
+        if isinstance(self, PythonDrawTestCase):
+            self.skipTest('bounding rects not supported in draw_py.draw_line')
+
+        line_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        width = height = 30
+        # Using a rect to help manage where the lines are drawn.
+        helper_rect = pygame.Rect((0, 0), (width, height))
+
+        # Testing surfaces of different sizes. One larger than the helper_rect
+        # and one smaller (to test lines that span the surface).
+        for size in ((width + 5, height + 5), (width - 5, height - 5)):
+            surface = pygame.Surface(size, 0, 32)
+            surf_rect = surface.get_rect()
+
+            # Move the helper rect to different positions to test line
+            # endpoints on and off the surface.
+            for pos in rect_corners_mids_and_center(surf_rect):
+                helper_rect.center = pos
+
+                # Draw using different thicknesses.
+                for thickness in range(-1, 5):
+                    for start, end in self._rect_lines(helper_rect):
+                        surface.fill(surf_color) # Clear for each test.
+
+                        bounding_rect = self.draw_line(surface, line_color,
+                                                       start, end, thickness)
+
+                        if 0 < thickness:
+                            # Calculating the expected_rect after the line is
+                            # drawn (it uses what is actually drawn).
+                            expected_rect = self._create_line_bounding_rect(
+                                surface, start, end, surf_color)
+                        else:
+                            # Nothing drawn.
+                            expected_rect = pygame.Rect(start, (0, 0))
+
+                        self.assertEqual(bounding_rect, expected_rect,
+                            'start={}, end={}, size={}, thickness={}'.format(
+                                start, end, size, thickness))
+
+    def todo_test_aaline__bounding_rect(self):
+        """Ensures draw aaline returns the correct bounding rect."""
+        self.fail()
+
     def test_lines__color(self):
         """Tests if the lines drawn are the correct color.
 
         Draws lines around the border of the given surface and checks if all
         borders of the surface only contain the given color.
         """
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_lines(surface, expected_color, True,
                                 corners(surface))
 
@@ -516,14 +878,18 @@ class LineMixin(object):
                     self.assertEqual(color, expected_color,
                                      'pos={}'.format(pos))
 
+    def todo_test_lines__color_with_thickness(self):
+        """Ensures thick lines are drawn using the correct color."""
+        self.fail()
+
     def test_aalines__color(self):
         """Tests if the aalines drawn are the correct color.
 
         Draws aalines around the border of the given surface and checks if all
         borders of the surface only contain the given color.
         """
-        for surface in self._surfaces:
-            for expected_color in self._colors:
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
                 self.draw_aalines(surface, expected_color, True,
                                   corners(surface))
 
@@ -538,11 +904,15 @@ class LineMixin(object):
         all borders of the surface contain any gaps.
         """
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             self.draw_lines(surface, expected_color, True, corners(surface))
 
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
+
+    def todo_test_lines__gaps_with_thickness(self):
+        """Ensures thick lines are drawn without any gaps."""
+        self.fail()
 
     def test_aalines__gaps(self):
         """Tests if the aalines drawn contain any gaps.
@@ -553,14 +923,22 @@ class LineMixin(object):
         See: #512
         """
         expected_color = (255, 255, 255)
-        for surface in self._surfaces:
+        for surface in self._create_surfaces():
             self.draw_aalines(surface, expected_color, True, corners(surface))
 
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
 
+    def todo_test_lines__bounding_rect(self):
+        """Ensures draw lines returns the correct bounding rect."""
+        self.fail()
 
-class PythonDrawLineTest(LineMixin, DrawTestCase):
+    def todo_test_aalines__bounding_rect(self):
+        """Ensures draw aalines returns the correct bounding rect."""
+        self.fail()
+
+
+class PythonDrawLineTest(LineMixin, PythonDrawTestCase):
     """Test draw_py module functions: line, lines, aaline, and aalines.
 
     This class inherits the general tests from LineMixin. It is also the class
@@ -568,7 +946,7 @@ class PythonDrawLineTest(LineMixin, DrawTestCase):
     """
 
 
-class DrawLineTest(LineMixin, PythonDrawTestCase):
+class DrawLineTest(LineMixin, DrawTestCase):
     """Test draw module functions: line, lines, aaline, and aalines.
 
     This class inherits the general tests from LineMixin. It is also the class
@@ -1211,9 +1589,274 @@ class DrawRectMixin(object):
 
     This class contains all the general rect drawing tests.
     """
+    def test_rect__args(self):
+        """Ensures draw rect accepts the correct args."""
+        bounds_rect = self.draw_rect(pygame.Surface((2, 2)), (20, 10, 20, 150),
+                                     pygame.Rect((0, 0), (1, 1)), 2)
 
-    def todo_test_circle(self):
-        self.fail()
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__args_without_width(self):
+        """Ensures draw rect accepts the args without a width."""
+        bounds_rect = self.draw_rect(pygame.Surface((3, 5)), (0, 0, 0, 255),
+                                     pygame.Rect((0, 0), (1, 1)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__kwargs(self):
+        """Ensures draw rect accepts the correct kwargs
+        with and without a width arg.
+        """
+        kwargs_list = [{'surface' : pygame.Surface((5, 5)),
+                        'color'   : pygame.Color('red'),
+                        'rect'    : pygame.Rect((0, 0), (1, 2)),
+                        'width'   : 1},
+
+                       {'surface' : pygame.Surface((1, 2)),
+                        'color'   : (0, 100, 200),
+                        'rect'    : (0, 0, 1, 1)}]
+
+        for kwargs in kwargs_list:
+            bounds_rect = self.draw_rect(**kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__kwargs_order_independent(self):
+        """Ensures draw rect's kwargs are not order dependent."""
+        bounds_rect = self.draw_rect(color=(0, 1, 2),
+                                     surface=pygame.Surface((2, 3)),
+                                     width=-2,
+                                     rect=pygame.Rect((0, 0), (0, 0)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__args_missing(self):
+        """Ensures draw rect detects any missing required args."""
+        surface = pygame.Surface((1, 1))
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_rect(surface, pygame.Color('white'))
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_rect(surface)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_rect()
+
+    def test_rect__kwargs_missing(self):
+        """Ensures draw rect detects any missing required kwargs."""
+        kwargs = {'surface' : pygame.Surface((1, 3)),
+                  'color'   : pygame.Color('red'),
+                  'rect'    : pygame.Rect((0, 0), (2, 2)),
+                  'width'   : 5}
+
+        for name in ('rect', 'color', 'surface'):
+            invalid_kwargs = dict(kwargs)
+            invalid_kwargs.pop(name)  # Pop from a copy.
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_rect(**invalid_kwargs)
+
+    def test_rect__arg_invalid_types(self):
+        """Ensures draw rect detects invalid arg types."""
+        surface = pygame.Surface((3, 3))
+        color = pygame.Color('white')
+        rect = pygame.Rect((1, 1), (1, 1))
+
+        with self.assertRaises(TypeError):
+            # Invalid width.
+            bounds_rect = self.draw_rect(surface, color, rect, '2')
+
+        with self.assertRaises(TypeError):
+            # Invalid rect.
+            bounds_rect = self.draw_rect(surface, color, (1, 2, 3), 2)
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            bounds_rect = self.draw_rect(surface, 'yellow', rect, 3)
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            bounds_rect = self.draw_rect(rect, color, rect, 4)
+
+    def test_rect__kwarg_invalid_types(self):
+        """Ensures draw rect detects invalid kwarg types."""
+        surface = pygame.Surface((2, 3))
+        color = pygame.Color('red')
+        rect = pygame.Rect((0, 0), (1, 1))
+        kwargs_list = [{'surface' : pygame.Surface,  # Invalid surface.
+                        'color'   : color,
+                        'rect'    : rect,
+                        'width'   : 1},
+
+                       {'surface' : surface,
+                        'color'   : 'red',  # Invalid color.
+                        'rect'    : rect,
+                        'width'   : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'rect'    : (1, 1, 2),  # Invalid rect.
+                        'width'   : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'rect'    : rect,
+                        'width'   : 1.1}]  # Invalid width.
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_rect(**kwargs)
+
+    def test_rect__kwarg_invalid_name(self):
+        """Ensures draw rect detects invalid kwarg names."""
+        surface = pygame.Surface((2, 1))
+        color = pygame.Color('green')
+        rect = pygame.Rect((0, 0), (3, 3))
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'rect'    : rect,
+                        'width'   : 1,
+                        'invalid' : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'rect'    : rect,
+                        'invalid' : 1}]
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_rect(**kwargs)
+
+    def test_rect__args_and_kwargs(self):
+        """Ensures draw rect accepts a combination of args/kwargs"""
+        surface = pygame.Surface((3, 1))
+        color = (255, 255, 255, 0)
+        rect = pygame.Rect((1, 0), (2, 5))
+        width = 0
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'rect'    : rect,
+                  'width'   : width}
+
+        for name in ('surface', 'color', 'rect', 'width'):
+            kwargs.pop(name)
+
+            if 'surface' == name:
+                bounds_rect = self.draw_rect(surface, **kwargs)
+            elif 'color' == name:
+                bounds_rect = self.draw_rect(surface, color, **kwargs)
+            elif 'rect' == name:
+                bounds_rect = self.draw_rect(surface, color, rect, **kwargs)
+            else:
+                bounds_rect = self.draw_rect(surface, color, rect, width,
+                                             **kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__valid_width_values(self):
+        """Ensures draw rect accepts different width values."""
+        pos = (1, 1)
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        color = (1, 2, 3, 255)
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'rect'    : pygame.Rect(pos, (2, 2)),
+                  'width'   : None}
+
+        for width in (-1000, -10, -1, 0, 1, 10, 1000):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['width'] = width
+            expected_color = color if width >= 0 else surface_color
+
+            bounds_rect = self.draw_rect(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__valid_rect_formats(self):
+        """Ensures draw rect accepts different rect formats."""
+        pos = (1, 1)
+        expected_color = pygame.Color('yellow')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : expected_color,
+                  'rect'    : None,
+                  'width'   : 0}
+        rects = (pygame.Rect(pos, (1, 1)), (pos, (2, 2)),
+                 (pos[0], pos[1], 3, 3), [pos, (2.1, 2.2)])
+
+        for rect in rects:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['rect'] = rect
+
+            bounds_rect = self.draw_rect(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__invalid_rect_formats(self):
+        """Ensures draw rect handles invalid rect formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : pygame.Color('red'),
+                  'rect'    : None,
+                  'width'   : 0}
+
+        invalid_fmts = ([], [1], [1, 2], [1, 2, 3], [1, 2, 3, 4, 5],
+                        set([1, 2, 3, 4]), [1, 2, 3, '4'])
+
+        for rect in invalid_fmts:
+            kwargs['rect'] = rect
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_rect(**kwargs)
+
+    def test_rect__valid_color_formats(self):
+        """Ensures draw rect accepts different color formats."""
+        pos = (1, 1)
+        red_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'rect'    : pygame.Rect(pos, (1, 1)),
+                  'width'   : 3}
+        reds = ((255, 0, 0), (255, 0, 0, 255), surface.map_rgb(red_color),
+                red_color)
+
+        for color in reds:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['color'] = color
+
+            if isinstance(color, int):
+                expected_color = surface.unmap_rgb(color)
+            else:
+                expected_color = red_color
+
+            bounds_rect = self.draw_rect(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_rect__invalid_color_formats(self):
+        """Ensures draw rect handles invalid color formats correctly."""
+        pos = (1, 1)
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'rect'    : pygame.Rect(pos, (1, 1)),
+                  'width'   : 1}
+
+        # These color formats are currently not supported (it would be
+        # nice to eventually support them).
+        for expected_color in ('red', '#FF0000FF', '0xFF0000FF'):
+            kwargs['color'] = expected_color
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_rect(**kwargs)
 
 
 class DrawRectTest(DrawRectMixin, DrawTestCase):
@@ -1224,6 +1867,7 @@ class DrawRectTest(DrawRectMixin, DrawTestCase):
     """
 
 
+@unittest.skip('draw_py.draw_rect not supported yet')
 class PythonDrawRectTest(DrawRectMixin, PythonDrawTestCase):
     """Test draw_py module function draw_rect.
 
@@ -1239,8 +1883,324 @@ class DrawCircleMixin(object):
 
     This class contains all the general circle drawing tests.
     """
+    def test_circle__args(self):
+        """Ensures draw circle accepts the correct args."""
+        bounds_rect = self.draw_circle(pygame.Surface((3, 3)), (0, 10, 0, 50),
+                                                      (0, 0), 3, 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__args_without_width(self):
+        """Ensures draw circle accepts the args without a width."""
+        bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       (1, 1), 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__kwargs(self):
+        """Ensures draw circle accepts the correct kwargs
+        with and without a width arg.
+        """
+        kwargs_list = [{'surface' : pygame.Surface((4, 4)),
+                        'color'   : pygame.Color('yellow'),
+                        'center'  : (2, 2),
+                        'radius'  : 2,
+                        'width'   : 1},
+
+                       {'surface' : pygame.Surface((2, 1)),
+                        'color'   : (0, 10, 20),
+                        'center'  : (1, 1),
+                        'radius'  : 1}]
+
+        for kwargs in kwargs_list:
+            bounds_rect = self.draw_circle(**kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__kwargs_order_independent(self):
+        """Ensures draw circle's kwargs are not order dependent."""
+        bounds_rect = self.draw_circle(color=(10, 20, 30),
+                                       surface=pygame.Surface((3, 2)),
+                                       width=0,
+                                       center=(1, 0),
+                                       radius=2)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__args_missing(self):
+        """Ensures draw circle detects any missing required args."""
+        surface = pygame.Surface((1, 1))
+        color = pygame.Color('blue')
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_circle(surface, color, (0, 0))
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_circle(surface, color)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_circle(surface)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_circle()
+
+    def test_circle__kwargs_missing(self):
+        """Ensures draw circle detects any missing required kwargs."""
+        kwargs = {'surface' : pygame.Surface((1, 2)),
+                  'color'   : pygame.Color('red'),
+                  'center'  : (1, 0),
+                  'radius'  : 2,
+                  'width'   : 1}
+
+        for name in ('radius', 'center', 'color', 'surface'):
+            invalid_kwargs = dict(kwargs)
+            invalid_kwargs.pop(name)  # Pop from a copy.
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_circle(**invalid_kwargs)
+
+    def test_circle__arg_invalid_types(self):
+        """Ensures draw circle detects invalid arg types."""
+        surface = pygame.Surface((2, 2))
+        color = pygame.Color('blue')
+        center = (1, 1)
+        radius = 1
+
+        with self.assertRaises(TypeError):
+            # Invalid width.
+            bounds_rect = self.draw_circle(surface, color, center, radius, '1')
+
+        with self.assertRaises(TypeError):
+            # Invalid radius.
+            bounds_rect = self.draw_circle(surface, color, center, '2')
+
+        with self.assertRaises(TypeError):
+            # Invalid center.
+            bounds_rect = self.draw_circle(surface, color, (1, 2, 3), radius)
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            bounds_rect = self.draw_circle(surface, 'blue', center, radius)
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            bounds_rect = self.draw_circle((1, 2, 3, 4), color, center, radius)
+
+    def test_circle__kwarg_invalid_types(self):
+        """Ensures draw circle detects invalid kwarg types."""
+        surface = pygame.Surface((3, 3))
+        color = pygame.Color('green')
+        center = (0, 1)
+        radius = 1
+        width = 1
+        kwargs_list = [{'surface' : pygame.Surface,  # Invalid surface.
+                        'color'   : color,
+                        'center'  : center,
+                        'radius'  : radius,
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : 'green',  # Invalid color.
+                        'center'  : center,
+                        'radius'  : radius,
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'center'  : (1, 1, 1),  # Invalid center.
+                        'radius'  : radius,
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'center'  : center,
+                        'radius'  : 1.1,  # Invalid radius.
+                        'width'   : width},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'center'  : center,
+                        'radius'  : radius,
+                        'width'   : 1.2}]  # Invalid width.
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_circle(**kwargs)
+
+    def test_circle__kwarg_invalid_name(self):
+        """Ensures draw circle detects invalid kwarg names."""
+        surface = pygame.Surface((2, 3))
+        color = pygame.Color('cyan')
+        center = (0, 0)
+        radius = 2
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'center'  : center,
+                        'radius'  : radius,
+                        'width'   : 1,
+                        'invalid' : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'center'  : center,
+                        'radius'  : radius,
+                        'invalid' : 1}]
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_circle(**kwargs)
+
+    def test_circle__args_and_kwargs(self):
+        """Ensures draw circle accepts a combination of args/kwargs"""
+        surface = pygame.Surface((3, 1))
+        color = (255, 255, 0, 0)
+        center = (1, 0)
+        radius = 2
+        width = 0
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'center'  : center,
+                  'radius'  : radius,
+                  'width'   : width}
+
+        for name in ('surface', 'color', 'center', 'radius', 'width'):
+            kwargs.pop(name)
+
+            if 'surface' == name:
+                bounds_rect = self.draw_circle(surface, **kwargs)
+            elif 'color' == name:
+                bounds_rect = self.draw_circle(surface, color, **kwargs)
+            elif 'center' == name:
+                bounds_rect = self.draw_circle(surface, color, center,
+                                               **kwargs)
+            elif 'radius' == name:
+                bounds_rect = self.draw_circle(surface, color, center, radius,
+                                               **kwargs)
+            else:
+                bounds_rect = self.draw_circle(surface, color, center, radius,
+                                               width, **kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    # This decorator can be removed when the circle portion of issues #975
+    # and #976 are resolved.
+    @unittest.expectedFailure
+    def test_circle__valid_width_values(self):
+        """Ensures draw circle accepts different width values."""
+        center = (2, 2)
+        radius = 1
+        pos = (center[0] - radius, center[1])
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        color = (10, 20, 30, 255)
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'center'  : center,
+                  'radius'  : radius,
+                  'width'   : None}
+
+        for width in (-100, -10, -1, 0, 1, 10, 100):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['width'] = width
+            expected_color = color if width >= 0 else surface_color
+
+            bounds_rect = self.draw_circle(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    # This decorator can be removed when issue #983 is resolved.
+    @unittest.expectedFailure
+    def test_circle__valid_radius_values(self):
+        """Ensures draw circle accepts different radius values."""
+        pos = center = (2, 2)
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        color = (10, 20, 30, 255)
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'center'  : center,
+                  'radius'  : None,
+                  'width'   : 0}
+
+        for radius in (-10, -1, 0, 1, 10):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['radius'] = radius
+            expected_color = color if radius > 0 else surface_color
+
+            bounds_rect = self.draw_circle(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__valid_center_formats(self):
+        """Ensures draw circle accepts different center formats."""
+        expected_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((4, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : expected_color,
+                  'center'  : None,
+                  'radius'  : 1,
+                  'width'   : 0}
+
+        for center in ((2, 2), [2, 2]):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['center'] = center
+
+            bounds_rect = self.draw_circle(**kwargs)
+
+            self.assertEqual(surface.get_at(center), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__valid_color_formats(self):
+        """Ensures draw circle accepts different color formats."""
+        center = (2, 2)
+        radius = 1
+        pos = (center[0] - radius, center[1])
+        green_color = pygame.Color('green')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'center'  : center,
+                  'radius'  : radius,
+                  'width'   : 0}
+        greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green_color),
+                  green_color)
+
+        for color in greens:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['color'] = color
+
+            if isinstance(color, int):
+                expected_color = surface.unmap_rgb(color)
+            else:
+                expected_color = green_color
+
+            bounds_rect = self.draw_circle(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_circle__invalid_color_formats(self):
+        """Ensures draw circle handles invalid color formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 3)),
+                  'color'   : None,
+                  'center'  : (1, 2),
+                  'radius'  : 1,
+                  'width'   : 0}
+
+        # These color formats are currently not supported (it would be
+        # nice to eventually support them).
+        for expected_color in ('green', '#00FF00FF', '0x00FF00FF'):
+            kwargs['color'] = expected_color
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_circle(**kwargs)
 
     def test_circle(self):
+        """Ensure draw circle works correctly."""
         surf = pygame.Surface((10, 10))
         col = (255, 255, 255)
         pos = (0, 0)
@@ -1257,6 +2217,7 @@ class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """
 
 
+@unittest.skip('draw_py.draw_circle not supported yet')
 class PythonDrawCircleTest(DrawCircleMixin, PythonDrawTestCase):
     """Test draw_py module function draw_circle."
 
@@ -1273,7 +2234,394 @@ class DrawArcMixin(object):
     This class contains all the general arc drawing tests.
     """
 
+    def test_arc__args(self):
+        """Ensures draw arc accepts the correct args."""
+        bounds_rect = self.draw_arc(pygame.Surface((3, 3)),
+            (0, 10, 0, 50), (1, 1, 2, 2), 0, 1, 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_arc__args_without_width(self):
+        """Ensures draw arc accepts the args without a width."""
+        bounds_rect = self.draw_arc(pygame.Surface((2, 2)), (1, 1, 1, 99),
+                                    pygame.Rect((0, 0), (2, 2)), 1.1, 2.1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_arc__kwargs(self):
+        """Ensures draw arc accepts the correct kwargs
+        with and without a width arg.
+        """
+        kwargs_list = [{'surface'     : pygame.Surface((4, 4)),
+                        'color'       : pygame.Color('yellow'),
+                        'rect'        : pygame.Rect((0, 0), (3, 2)),
+                        'start_angle' : 0.5,
+                        'stop_angle'  : 3,
+                        'width'       : 1},
+
+                       {'surface'     : pygame.Surface((2, 1)),
+                        'color'       : (0, 10, 20),
+                        'rect'        : (0, 0, 2, 2),
+                        'start_angle' : 1,
+                        'stop_angle'  : 3.1}]
+
+        for kwargs in kwargs_list:
+            bounds_rect = self.draw_arc(**kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_arc__kwargs_order_independent(self):
+        """Ensures draw arc's kwargs are not order dependent."""
+        bounds_rect = self.draw_arc(stop_angle=1,
+                                    start_angle=2.2,
+                                    color=(1, 2, 3),
+                                    surface=pygame.Surface((3, 2)),
+                                    width=1,
+                                    rect=pygame.Rect((1, 0), (2, 3)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_arc__args_missing(self):
+        """Ensures draw arc detects any missing required args."""
+        surface = pygame.Surface((1, 1))
+        color = pygame.Color('red')
+        rect = pygame.Rect((0, 0), (2, 2))
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_arc(surface, color, rect, 0.1)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_arc(surface, color, rect)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_arc(surface, color)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_arc(surface)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_arc()
+
+    def test_arc__kwargs_missing(self):
+        """Ensures draw arc detects any missing required kwargs."""
+        kwargs = {'surface'     : pygame.Surface((1, 2)),
+                  'color'       : pygame.Color('red'),
+                  'rect'        : pygame.Rect((1, 0), (2, 2)),
+                  'start_angle' : 0.1,
+                  'stop_angle'  : 2,
+                  'width'       : 1}
+
+        for name in ('stop_angle', 'start_angle', 'rect', 'color', 'surface'):
+            invalid_kwargs = dict(kwargs)
+            invalid_kwargs.pop(name)  # Pop from a copy.
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_arc(**invalid_kwargs)
+
+    def test_arc__arg_invalid_types(self):
+        """Ensures draw arc detects invalid arg types."""
+        surface = pygame.Surface((2, 2))
+        color = pygame.Color('blue')
+        rect = pygame.Rect((1, 1), (3, 3))
+
+        with self.assertRaises(TypeError):
+            # Invalid width.
+            bounds_rect = self.draw_arc(surface, color, rect, 0, 1, '1')
+
+        with self.assertRaises(TypeError):
+            # Invalid stop_angle.
+            bounds_rect = self.draw_arc(surface, color, rect, 0, '1', 1)
+
+        with self.assertRaises(TypeError):
+            # Invalid start_angle.
+            bounds_rect = self.draw_arc(surface, color, rect, '1', 0, 1)
+
+        with self.assertRaises(TypeError):
+            # Invalid rect.
+            bounds_rect = self.draw_arc(surface, color, (1, 2, 3, 4, 5),
+                                        0, 1, 1)
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            bounds_rect = self.draw_arc(surface, 'blue', rect, 0, 1, 1)
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            bounds_rect = self.draw_arc(rect, color, rect, 0, 1, 1)
+
+    def test_arc__kwarg_invalid_types(self):
+        """Ensures draw arc detects invalid kwarg types."""
+        surface = pygame.Surface((3, 3))
+        color = pygame.Color('green')
+        rect = pygame.Rect((0, 1), (4, 2))
+        start = 3
+        stop = 4
+        kwargs_list = [{'surface'     : pygame.Surface,  # Invalid surface.
+                        'color'       : color,
+                        'rect'        : rect,
+                        'start_angle' : start,
+                        'stop_angle'  : stop,
+                        'width'       : 1},
+
+                       {'surface'     : surface,
+                        'color'       : 'green',  # Invalid color.
+                        'rect'        : rect,
+                        'start_angle' : start,
+                        'stop_angle'  : stop,
+                        'width'       : 1},
+
+                       {'surface'     : surface,
+                        'color'       : color,
+                        'rect'        : (0, 0, 0),  # Invalid rect.
+                        'start_angle' : start,
+                        'stop_angle'  : stop,
+                        'width'       : 1},
+
+                       {'surface'     : surface,
+                        'color'       : color,
+                        'rect'        : rect,
+                        'start_angle' : '1',  # Invalid start_angle.
+                        'stop_angle'  : stop,
+                        'width'       : 1},
+
+                       {'surface'     : surface,
+                        'color'       : color,
+                        'rect'        : rect,
+                        'start_angle' : start,
+                        'stop_angle'  : '1',  # Invalid stop_angle.
+                        'width'       : 1},
+
+                       {'surface'     : surface,
+                        'color'       : color,
+                        'rect'        : rect,
+                        'start_angle' : start,
+                        'stop_angle'  : stop,
+                        'width'       : 1.1}]  # Invalid width.
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_arc(**kwargs)
+
+    def test_arc__kwarg_invalid_name(self):
+        """Ensures draw arc detects invalid kwarg names."""
+        surface = pygame.Surface((2, 3))
+        color = pygame.Color('cyan')
+        rect = pygame.Rect((0, 1), (2, 2))
+        start = 0.9
+        stop = 2.3
+        kwargs_list = [{'surface'     : surface,
+                        'color'       : color,
+                        'rect'        : rect,
+                        'start_angle' : start,
+                        'stop_angle'  : stop,
+                        'width'       : 1,
+                        'invalid'     : 1},
+
+                       {'surface'     : surface,
+                        'color'       : color,
+                        'rect'        : rect,
+                        'start_angle' : start,
+                        'stop_angle'  : stop,
+                        'invalid'     : 1}]
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_arc(**kwargs)
+
+    def test_arc__args_and_kwargs(self):
+        """Ensures draw arc accepts a combination of args/kwargs"""
+        surface = pygame.Surface((3, 1))
+        color = (255, 255, 0, 0)
+        rect = pygame.Rect((1, 0), (2, 3))
+        start = 0.6
+        stop = 2
+        width = 1
+        kwargs = {'surface'     : surface,
+                  'color'       : color,
+                  'rect'        : rect,
+                  'start_angle' : start,
+                  'stop_angle'  : stop,
+                  'width'       : width}
+
+        for name in ('surface', 'color', 'rect', 'start_angle', 'stop_angle'):
+            kwargs.pop(name)
+
+            if 'surface' == name:
+                bounds_rect = self.draw_arc(surface, **kwargs)
+            elif 'color' == name:
+                bounds_rect = self.draw_arc(surface, color, **kwargs)
+            elif 'rect' == name:
+                bounds_rect = self.draw_arc(surface, color, rect, **kwargs)
+            elif 'start_angle' == name:
+                bounds_rect = self.draw_arc(surface, color, rect, start,
+                                            **kwargs)
+            elif 'stop_angle' == name:
+                bounds_rect = self.draw_arc(surface, color, rect, start,
+                                            stop, **kwargs)
+            else:
+                bounds_rect = self.draw_arc(surface, color, rect, start,
+                                            stop, width, **kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    # This decorator can be removed when the arc portion of issues #975
+    # and #976 are resolved.
+    @unittest.expectedFailure
+    def test_arc__valid_width_values(self):
+        """Ensures draw arc accepts different width values."""
+        arc_color = pygame.Color('yellow')
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((6, 6))
+        rect = pygame.Rect((0, 0), (4, 4))
+        rect.center = surface.get_rect().center
+        pos = rect.centerx + 1, rect.centery + 1
+        kwargs = {'surface'     : surface,
+                  'color'       : arc_color,
+                  'rect'        : rect,
+                  'start_angle' : 0,
+                  'stop_angle'  : 7,
+                  'width'       : None}
+
+        for width in (-50, -10, -3, -2, -1, 0, 1, 2, 3, 10, 50):
+            msg = 'width={}'.format(width)
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['width'] = width
+            expected_color = arc_color if width > 0 else surface_color
+
+            bounds_rect = self.draw_arc(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color, msg)
+            self.assertIsInstance(bounds_rect, pygame.Rect, msg)
+
+    def test_arc__valid_stop_angle_values(self):
+        """Ensures draw arc accepts different stop_angle values."""
+        expected_color = pygame.Color('blue')
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((6, 6))
+        rect = pygame.Rect((0, 0), (4, 4))
+        rect.center = surface.get_rect().center
+        pos = rect.centerx, rect.centery + 1
+        kwargs = {'surface'     : surface,
+                  'color'       : expected_color,
+                  'rect'        : rect,
+                  'start_angle' : -17,
+                  'stop_angle'  : None,
+                  'width'       : 1}
+
+        for stop_angle in (-10, -5.5, -1, 0, 1, 5.5, 10):
+            msg = 'stop_angle={}'.format(stop_angle)
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['stop_angle'] = stop_angle
+
+            bounds_rect = self.draw_arc(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color, msg)
+            self.assertIsInstance(bounds_rect, pygame.Rect, msg)
+
+    def test_arc__valid_start_angle_values(self):
+        """Ensures draw arc accepts different start_angle values."""
+        expected_color = pygame.Color('blue')
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((6, 6))
+        rect = pygame.Rect((0, 0), (4, 4))
+        rect.center = surface.get_rect().center
+        pos = rect.centerx + 1, rect.centery + 1
+        kwargs = {'surface'     : surface,
+                  'color'       : expected_color,
+                  'rect'        : rect,
+                  'start_angle' : None,
+                  'stop_angle'  : 17,
+                  'width'       : 1}
+
+        for start_angle in (-10.0, -5.5, -1, 0, 1, 5.5, 10.0):
+            msg = 'start_angle={}'.format(start_angle)
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['start_angle'] = start_angle
+
+            bounds_rect = self.draw_arc(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color, msg)
+            self.assertIsInstance(bounds_rect, pygame.Rect, msg)
+
+    def test_arc__valid_rect_formats(self):
+        """Ensures draw arc accepts different rect formats."""
+        expected_color = pygame.Color('red')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((6, 6))
+        rect = pygame.Rect((0, 0), (4, 4))
+        rect.center = surface.get_rect().center
+        pos = rect.centerx + 1, rect.centery + 1
+        kwargs = {'surface'     : surface,
+                  'color'       : expected_color,
+                  'rect'        : None,
+                  'start_angle' : 0,
+                  'stop_angle'  : 7,
+                  'width'       : 1}
+        rects = (rect, (rect.topleft, rect.size),
+                 (rect.x, rect.y, rect.w, rect.h))
+
+        for rect in rects:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['rect'] = rect
+
+            bounds_rect = self.draw_arc(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_arc__valid_color_formats(self):
+        """Ensures draw arc accepts different color formats."""
+        green_color = pygame.Color('green')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((6, 6))
+        rect = pygame.Rect((0, 0), (4, 4))
+        rect.center = surface.get_rect().center
+        pos = rect.centerx + 1, rect.centery + 1
+        kwargs = {'surface'     : surface,
+                  'color'       : None,
+                  'rect'        : rect,
+                  'start_angle' : 0,
+                  'stop_angle'  : 7,
+                  'width'       : 1}
+        greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green_color),
+                  green_color)
+
+        for color in greens:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['color'] = color
+
+            if isinstance(color, int):
+                expected_color = surface.unmap_rgb(color)
+            else:
+                expected_color = green_color
+
+            bounds_rect = self.draw_arc(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_arc__invalid_color_formats(self):
+        """Ensures draw arc handles invalid color formats correctly."""
+        pos = (1, 1)
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((4, 3))
+        kwargs = {'surface'     : surface,
+                  'color'       : None,
+                  'rect'        : pygame.Rect(pos, (2, 2)),
+                  'start_angle' : 5,
+                  'stop_angle'  : 6.1,
+                  'width'       : 1}
+
+        # These color formats are currently not supported (it would be
+        # nice to eventually support them).
+        for expected_color in ('green', '#00FF00FF', '0x00FF00FF'):
+            kwargs['color'] = expected_color
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_arc(**kwargs)
+
     def todo_test_arc(self):
+        """Ensure draw arc works correctly."""
         self.fail()
 
 
@@ -1285,6 +2633,7 @@ class DrawArcTest(DrawArcMixin, DrawTestCase):
     """
 
 
+@unittest.skip('draw_py.draw_arc not supported yet')
 class PythonDrawArcTest(DrawArcMixin, PythonDrawTestCase):
     """Test draw_py module function draw_arc.
 

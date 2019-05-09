@@ -233,16 +233,16 @@ typedef struct {
     FT_UInt resolution;
 } _FreeTypeState;
 
-#if defined(IS_PYTHON_3) && !defined(PYPY_VERSION)
+#if PY3 && !defined(PYPY_VERSION)
     extern struct PyModuleDef _freetypemodule;
 #   define FREETYPE_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
 #   define FREETYPE_STATE \
     FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
-#else
+#else /* !PY3 || defined(PYPY_VERSION) */
     extern _FreeTypeState _modstate;
 #   define FREETYPE_MOD_STATE(mod) (&_modstate)
 #   define FREETYPE_STATE FREETYPE_MOD_STATE(0)
-#endif
+#endif /* !PY3 || defined(PYPY_VERSION) */
 
 #define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
     ft_ptr = FREETYPE_STATE->freetype;                          \

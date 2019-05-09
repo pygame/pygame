@@ -44,11 +44,17 @@ echo $TRAVIS_PULL_REQUEST
 if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_BRANCH" = "master" ]); then
 	echo "building more things from source"
 
-	brew uninstall --force --ignore-dependencies sdl
-	brew uninstall --force --ignore-dependencies sdl_image
-	brew uninstall --force --ignore-dependencies sdl_mixer
-	brew uninstall --force --ignore-dependencies sdl_ttf
-	brew uninstall --force --ignore-dependencies smpeg
+	# brew uninstall --force --ignore-dependencies sdl
+	# brew uninstall --force --ignore-dependencies sdl_image
+	# brew uninstall --force --ignore-dependencies sdl_mixer
+	# brew uninstall --force --ignore-dependencies sdl_ttf
+	# brew uninstall --force --ignore-dependencies smpeg
+  brew uninstall --force --ignore-dependencies sdl2
+  brew uninstall --force --ignore-dependencies sdl2_image
+  brew uninstall --force --ignore-dependencies sdl2_mixer
+  brew uninstall --force --ignore-dependencies sdl2_ttf
+  brew uninstall --force --ignore-dependencies smpeg2
+
 	brew uninstall --force --ignore-dependencies jpeg
 	brew uninstall --force --ignore-dependencies libpng
 	brew uninstall --force --ignore-dependencies libtiff
@@ -57,7 +63,6 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_B
 	brew uninstall --force --ignore-dependencies fluid-synth
 	brew uninstall --force --ignore-dependencies libmikmod
 	brew uninstall --force --ignore-dependencies libvorbis
-	brew uninstall --force --ignore-dependencies smpeg
 	brew uninstall --force --ignore-dependencies portmidi
 	brew uninstall --force --ignore-dependencies freetype
 fi
@@ -103,7 +108,7 @@ brew tap-pin pygame/portmidi
 
 check_local_bottles
 
-install_or_upgrade sdl ${UNIVERSAL_FLAG}
+# install_or_upgrade sdl ${UNIVERSAL_FLAG}
 install_or_upgrade jpeg ${UNIVERSAL_FLAG}
 UPDATE_UNBOTTLED='1' install_or_upgrade libpng ${UNIVERSAL_FLAG}
 UPDATE_UNBOTTLED='1' install_or_upgrade xz ${UNIVERSAL_FLAG}
@@ -114,7 +119,8 @@ install_or_upgrade libvorbis ${UNIVERSAL_FLAG}
 install_or_upgrade flac ${UNIVERSAL_FLAG}
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
-install_or_upgrade smpeg
+# install_or_upgrade smpeg
+install_or_upgrade smpeg2
 
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.
@@ -122,9 +128,16 @@ install_or_upgrade smpeg
 install_or_upgrade portmidi ${UNIVERSAL_FLAG}
 
 install_or_upgrade freetype ${UNIVERSAL_FLAG}
-install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
-install_or_upgrade sdl_image ${UNIVERSAL_FLAG}
-install_or_upgrade sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-smpeg
+# install_or_upgrade sdl_ttf ${UNIVERSAL_FLAG}
+# install_or_upgrade sdl_image ${UNIVERSAL_FLAG}
+# install_or_upgrade sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-smpeg
+
+
+install_or_upgrade sdl2
+install_or_upgrade sdl2_gfx
+install_or_upgrade sdl2_image
+install_or_upgrade sdl2_mixer
+install_or_upgrade sdl2_ttf
 
 set -e
 

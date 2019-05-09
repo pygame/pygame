@@ -6,7 +6,7 @@
 # otool -L `find . -name image.so`
 # otool -L /usr/local/opt/sdl_image/lib/libSDL_image-1.2.0.dylib
 
-$PYTHON_EXE setup.py -config -auto
+$PYTHON_EXE setup.py -config -auto -sdl2
 
 # Removes any X11R6 stuff so that png headers are not picked up by accident.
 sed 's/-I\/usr\/X11R6\/include //g' Setup > Setup.new

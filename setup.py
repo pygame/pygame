@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev0",
+    "version":          "2.0.0.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -343,7 +343,7 @@ def parse_source_version():
     major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
     minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
     patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
-    pg_header = os.path.join('src_c', '_pygame.h')
+    pg_header = os.path.join('src_c', 'include', '_pygame.h')
     with open(pg_header) as f:
         for line in f:
             if pgh_major == -1:
@@ -374,7 +374,7 @@ def write_version_module(pygame_version, revision):
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"\n')
-        version_file.write('vernum = ' + vernum + '\n')
+        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
 
 write_version_module(METADATA['version'], revision)
@@ -609,7 +609,7 @@ PACKAGEDATA = {
        "cmdclass":    cmdclass,
        "packages":    ['pygame',
                        'pygame.threads',
-                       # 'pygame._sdl2',
+                       'pygame._sdl2',
                        'pygame.tests',
                        'pygame.tests.test_utils',
                        'pygame.tests.run_tests__tests',
@@ -626,7 +626,7 @@ PACKAGEDATA = {
                        'pygame.docs',
                        'pygame.examples'],
        "package_dir": {'pygame': 'src_py',
-                       # 'pygame._sdl2': 'src_py/_sdl2',
+                       'pygame._sdl2': 'src_py/_sdl2',
                        'pygame.threads': 'src_py/threads',
                        'pygame.tests': 'test',
                        'pygame.docs': 'docs',
