@@ -542,32 +542,42 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                 for (i = 0; i < astripes; i++) {
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                          ap++, bp++, cp++)
-                        *cp = *ap & (*bp << shift);
+                        *cp |= *ap & (*bp << shift);
+
+                    /* The c_entry (output mask) must advance with a_entry. */
                     a_entry += a->h;
                     a_end += a->h;
+                    c_entry += c->h;
+
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                          ap++, bp++, cp++)
                         *cp |= *ap & (*bp >> rshift);
+
                     b_entry += b->h;
-                    c_entry += c->h;
                 }
+
+                /* This is the '.. zig' to handle the remaining bits. */
                 for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                      ap++, bp++, cp++)
-                    *cp = *ap & (*bp << shift);
+                    *cp |= *ap & (*bp << shift);
             }
             else /* zig-zag */
             {
                 for (i = 0; i < bstripes; i++) {
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                          ap++, bp++, cp++)
-                        *cp = *ap & (*bp << shift);
+                        *cp |= *ap & (*bp << shift);
+
+                    /* The c_entry (output mask) must advance with a_entry. */
                     a_entry += a->h;
                     a_end += a->h;
+                    c_entry += c->h;
+
                     for (ap = a_entry, bp = b_entry, cp = c_entry; ap < a_end;
                          ap++, bp++, cp++)
                         *cp |= *ap & (*bp >> rshift);
+
                     b_entry += b->h;
-                    c_entry += c->h;
                 }
             }
         }
