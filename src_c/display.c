@@ -954,7 +954,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
 
                     SDL_GetRendererInfo(pg_renderer, &info);
-                    printf("renderer backend: %s\n", info.name);
 
                     pg_texture = SDL_CreateTexture(pg_renderer,
                                                    SDL_PIXELFORMAT_ARGB8888,
