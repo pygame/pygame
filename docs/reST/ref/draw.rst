@@ -42,8 +42,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: rect
 
    | :sl:`draw a rectangle`
-   | :sg:`rect(surface=Surface, color=Color, rect=Rect) -> Rect`
-   | :sg:`rect(surface=Surface, color=Color, rect=Rect, width=0) -> Rect`
+   | :sg:`rect(surface, color, rect) -> Rect`
+   | :sg:`rect(surface, color, rect, width=0) -> Rect`
 
    Draws a rectangle on the given surface.
 
@@ -137,8 +137,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: circle
 
    | :sl:`draw a circle`
-   | :sg:`circle(surface=Surface, color=Color, center=(x, y), radius=radius) -> Rect`
-   | :sg:`circle(surface=Surface, color=Color, center=(x, y), radius=radius, width=0) -> Rect`
+   | :sg:`circle(surface, color, center, radius) -> Rect`
+   | :sg:`circle(surface, color, center, radius, width=0) -> Rect`
 
    Draws a circle on the given surface.
 
@@ -146,7 +146,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
    :type color: Color or int or tuple(int, int, int, [int])
-   :param center: center point of the circle
+   :param center: center point of the circle, (x, y)
    :type center: tuple(int, int) or list(int, int)
    :param int radius: radius of the circle, measured from the ``center``
       parameter, a radius of 0 will only draw the ``center`` pixel
@@ -176,8 +176,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: ellipse
 
    | :sl:`draw an ellipse`
-   | :sg:`ellipse(surface=Surface, color=Color, rect=Rect) -> Rect`
-   | :sg:`ellipse(surface=Surface, color=Color, rect=Rect, width=0) -> Rect`
+   | :sg:`ellipse(surface, color, rect) -> Rect`
+   | :sg:`ellipse(surface, color, rect, width=0) -> Rect`
 
    Draws an ellipse on the given surface.
 
