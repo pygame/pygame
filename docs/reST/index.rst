@@ -20,30 +20,30 @@ Documents
 ---------
 
 `Readme`_
-  Basic information about Pygame, what it is, who is involved, and where to find it.
+  Basic information about pygame: what it is, who is involved, and where to find it.
 
 `Install`_
-  Steps needed to compile Pygame on several platforms.
+  Steps needed to compile pygame on several platforms.
   Also help on finding and installing prebuilt binaries for your system.
 
 `File Path Function Arguments`_
-  How Pygame handles file system paths.
+  How pygame handles file system paths.
 
 `LGPL License`_
-  This is the license Pygame is distributed under.
-  It provides for Pygame to be distributed with open source and commercial software.
-  Generally, if Pygame is not changed, it can be used with any type of program.
-  
+  This is the license pygame is distributed under.
+  It provides for pygame to be distributed with open source and commercial software.
+  Generally, if pygame is not changed, it can be used with any type of program.
+
 Tutorials
 ---------
 
 :doc:`Introduction to Pygame <tut/PygameIntro>`
-  An introduction to the basics of Pygame.
+  An introduction to the basics of pygame.
   This is written for users of Python and appeared in volume two of the Py magazine.
 
 :doc:`Import and Initialize <tut/ImportInit>`
-  The beginning steps on importing and initializing Pygame.
-  The Pygame package is made of several modules.
+  The beginning steps on importing and initializing pygame.
+  The pygame package is made of several modules.
   Some modules are not included on all platforms.
 
 :doc:`How do I move an Image? <tut/MoveIt>`
@@ -58,7 +58,7 @@ Tutorials
 :doc:`Sprite Module Introduction <tut/SpriteIntro>`
   Pygame includes a higher level sprite module to help organize games.
   The sprite module includes several classes that help manage details found in almost all games types.
-  The Sprite classes are a bit more advanced than the regular Pygame modules,
+  The Sprite classes are a bit more advanced than the regular pygame modules,
   and need more understanding to be properly used.
 
 :doc:`Surfarray Introduction <tut/SurfarrayIntro>`
@@ -114,7 +114,7 @@ Reference
   Loading and rendering TrueType fonts.
 
 :doc:`ref/freetype`
-  Enhanced Pygame module for loading and rendering font faces.
+  Enhanced pygame module for loading and rendering font faces.
 
 :doc:`ref/gfxdraw`
   Anti-aliasing draw functions.
@@ -144,7 +144,7 @@ Reference
   Access advanced video overlays.
 
 :doc:`ref/pygame`
-  Top level functions to manage Pygame.
+  Top level functions to manage pygame.
 
 :doc:`ref/pixelarray`
   Manipulate image pixel data.
@@ -168,7 +168,7 @@ Reference
   Manipulate image pixel data.
 
 :doc:`ref/tests`
-  Test Pygame.
+  Test pygame.
 
 :doc:`ref/time`
   Manage timing and framerate.
@@ -180,7 +180,7 @@ Reference
   The C api shared amongst pygame extension modules.
 
 :ref:`search`
-  Search Pygame documents by keyword.
+  Search pygame documents by keyword.
 
 .. _Readme: ../wiki/about
 
@@ -188,4 +188,4 @@ Reference
 
 .. _File Path Function Arguments: filepaths.html
 
-.. _LGPL License: ../LGPL
+.. _LGPL License: LGPL.txt
