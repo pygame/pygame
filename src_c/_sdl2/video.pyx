@@ -580,7 +580,7 @@ cdef class Texture:
         res = SDL_GetTextureAlphaMod(self._tex, &alpha)
         if res < 0:
             raise error()
-            
+
         return alpha
 
     @alpha.setter
@@ -597,7 +597,7 @@ cdef class Texture:
         res = SDL_GetTextureBlendMode(self._tex, &blendMode)
         if res < 0:
             raise error()
-            
+
         return blendMode
 
     @blend_mode.setter
@@ -615,7 +615,7 @@ cdef class Texture:
         res = SDL_GetTextureColorMod(self._tex, &r, &g, &b)
         if res < 0:
             raise error()
-            
+
         return (r,g,b)
 
     @color.setter
@@ -627,16 +627,16 @@ cdef class Texture:
                                      new_value[2])
         if res < 0:
             raise error()
-    
+
     def get_rect(self, **kwargs):
         """ Get the rectangular area of the texture.
-        like surface.get_rect(), returns a new rectangle covering the entire surface. 
+        like surface.get_rect(), returns a new rectangle covering the entire surface.
         This rectangle will always start at 0, 0 with a width. and height the same size as the texture.
         """
         rect = pgRect_New4(0, 0, self.width, self.height)
         for key in kwargs:
             setattr(rect, key, kwargs[key])
-        
+
         return rect
 
     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
@@ -658,13 +658,13 @@ cdef class Texture:
         cdef SDL_Point corigin
         cdef SDL_Point *originptr
         cdef int flip = SDL_FLIP_NONE
-        
+
         if srcrect and not csrcrect:
             raise error("the argument is not a rectangle or None")
 
         if not cdstrect and dstrect:
             if len(dstrect) == 2:
-                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1], 
+                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1],
                                               self.width, self.height), &dst)
             else:
                 raise error("the argument is not a rectangle or None")
@@ -688,15 +688,6 @@ cdef class Texture:
 
 
 cdef class Image:
-    cdef public float angle
-    cdef public float origin[2]
-    cdef public bint flipX
-    cdef public bint flipY
-    cdef public object color
-    cdef public float alpha
-
-    cdef public Texture texture
-    cdef public SDL_Rect srcrect
 
     def __cinit__(self):
         self.angle = 0

@@ -13,7 +13,7 @@ cdef extern from "SDL.h" nogil:
         int w, h
     ctypedef struct SDL_Point:
         int x, y
-    enum SDL_RendererFlip:
+    ctypedef enum SDL_RendererFlip:
         SDL_FLIP_NONE,
         SDL_FLIP_HORIZONTAL,
         SDL_FLIP_VERTICAL
@@ -259,14 +259,14 @@ cdef extern from "SDL.h" nogil:
     int SDL_SetTextureAlphaMod(SDL_Texture* texture,
                                Uint8        alpha)
     ctypedef enum SDL_BlendMode:
-        SDL_BLENDMODE_NONE = 0x00000000,          
+        SDL_BLENDMODE_NONE = 0x00000000,
         SDL_BLENDMODE_BLEND = 0x00000001,
         SDL_BLENDMODE_ADD = 0x00000002,
         SDL_BLENDMODE_MOD = 0x00000004,
         SDL_BLENDMODE_INVALID = 0x7FFFFFFF
-        
+
     int SDL_GetTextureBlendMode(SDL_Texture*   texture,
-                                SDL_BlendMode* blendMode)                                   
+                                SDL_BlendMode* blendMode)
     int SDL_SetTextureBlendMode(SDL_Texture*  texture,
                                 SDL_BlendMode blendMode)
     int SDL_GetTextureColorMod(SDL_Texture* texture,
@@ -277,7 +277,7 @@ cdef extern from "SDL.h" nogil:
                                Uint8        r,
                                Uint8        g,
                                Uint8        b)
-                               
+
 cdef class Window:
     cdef SDL_Window* _win
 
@@ -291,3 +291,14 @@ cdef class Texture:
     cdef readonly Renderer renderer
     cdef readonly int width
     cdef readonly int height
+
+cdef class Image:
+    cdef public float angle
+    cdef public float origin[2]
+    cdef public bint flipX
+    cdef public bint flipY
+    cdef public object color
+    cdef public float alpha
+
+    cdef public Texture texture
+    cdef public SDL_Rect srcrect
