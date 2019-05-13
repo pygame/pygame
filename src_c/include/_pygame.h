@@ -554,6 +554,10 @@ typedef struct pgEventObject pgEventObject;
     (*(int (*)(PyObject *, Uint8 *)) \
         PYGAMEAPI_GET_SLOT(color, 2))
 
+#define pgColor_AsArray(x) (((pgColorObject *)x)->data)
+#define pgColor_NumComponents(x) (((pgColorObject *)x)->len)
+
+
 #define import_pygame_color() IMPORT_PYGAME_MODULE(color)
 #endif /* PYGAMEAPI_COLOR_INTERNAL */
 

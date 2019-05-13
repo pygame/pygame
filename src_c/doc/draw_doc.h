@@ -24,8 +24,9 @@ pygame.draw.rect
 draw a rectangle
 
 pygame.draw.polygon
- polygon(Surface, color, pointlist, width=0) -> Rect
-draw a shape with any number of sides
+ polygon(surface, color, points) -> Rect
+ polygon(surface, color, points, width=0) -> Rect
+draw a polygon
 
 pygame.draw.circle
  circle(surface, color, center, radius) -> Rect
@@ -38,8 +39,9 @@ pygame.draw.ellipse
 draw an ellipse
 
 pygame.draw.arc
- arc(Surface, color, Rect, start_angle, stop_angle, width=1) -> Rect
-draw a partial section of an ellipse
+ arc(surface, color, rect, start_angle, stop_angle) -> Rect
+ arc(surface, color, rect, start_angle, stop_angle, width=1) -> Rect
+draw an elliptical arc
 
 pygame.draw.line
  line(Surface, color, start_pos, end_pos, width=1) -> Rect

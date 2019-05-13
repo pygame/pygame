@@ -18,8 +18,14 @@ cdef extern from "../pygame.h" nogil:
     void import_pygame_surface()
     SDL_Rect *pgRect_FromObject(object obj, SDL_Rect *temp)
     object pgRect_New(SDL_Rect *r)
+    object pgRect_New4(int x, int y, int w, int h)
+    SDL_Rect pgRect_AsRect(object rect)
     void import_pygame_rect()
+    object pgColor_New(Uint8 rgba[])
+    object pgColor_NewLength(Uint8 rgba[], Uint8 length)
+    void import_pygame_color()
 
+import_pygame_color()
 import_pygame_surface()
 import_pygame_rect()
 
@@ -574,7 +580,7 @@ cdef class Texture:
         res = SDL_GetTextureAlphaMod(self._tex, &alpha)
         if res < 0:
             raise error()
-            
+
         return alpha
 
     @alpha.setter
@@ -591,7 +597,7 @@ cdef class Texture:
         res = SDL_GetTextureBlendMode(self._tex, &blendMode)
         if res < 0:
             raise error()
-            
+
         return blendMode
 
     @blend_mode.setter
@@ -609,7 +615,7 @@ cdef class Texture:
         res = SDL_GetTextureColorMod(self._tex, &r, &g, &b)
         if res < 0:
             raise error()
-            
+
         return (r,g,b)
 
     @color.setter
@@ -621,7 +627,140 @@ cdef class Texture:
                                      new_value[2])
         if res < 0:
             raise error()
-            
+
+    def get_rect(self, **kwargs):
+        """ Get the rectangular area of the texture.
+        like surface.get_rect(), returns a new rectangle covering the entire surface.
+        This rectangle will always start at 0, 0 with a width. and height the same size as the texture.
+        """
+        rect = pgRect_New4(0, 0, self.width, self.height)
+        for key in kwargs:
+            setattr(rect, key, kwargs[key])
+
+        return rect
+
+    def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
+             bint flipX=False, bint flipY=False):
+        """ Copy a portion of the texture to the rendering target.
+
+        :param srcrect: source rectangle on the texture, or None for the entire texture.
+        :param dstrect: destination rectangle on the render target, or None for entire target.
+                        The texture is stretched to fill dstrect.
+        :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
+        :param origin: point around which dstrect will be rotated.
+                       If None, it will equal the center: (dstrect.w/2, dstrect.h/2).
+        :param bool flipX: flip horizontally.
+        :param bool flipY: flip vertically.
+        """
+        cdef SDL_Rect src, dst
+        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
+        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
+        cdef SDL_Point corigin
+        cdef SDL_Point *originptr
+        cdef int flip = SDL_FLIP_NONE
+
+        if srcrect and not csrcrect:
+            raise error("the argument is not a rectangle or None")
+
+        if not cdstrect and dstrect:
+            if len(dstrect) == 2:
+                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1],
+                                              self.width, self.height), &dst)
+            else:
+                raise error("the argument is not a rectangle or None")
+
+        if origin:
+            originptr = &corigin
+            corigin.x = origin[0]
+            corigin.y = origin[1]
+        else:
+            originptr = NULL
+
+        if flipX:
+            flip |= SDL_FLIP_HORIZONTAL
+        if flipY:
+            flip |= SDL_FLIP_VERTICAL
+
+        res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
+                               angle, originptr, <SDL_RendererFlip>flip)
+        if res < 0:
+            raise error()
+
+
+cdef class Image:
+
+    def __cinit__(self):
+        self.angle = 0
+        self.origin[0] = 0
+        self.origin[1] = 0
+        self.flipX = False
+        self.flipY = False
+
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
+        self.color = pgColor_NewLength(defaultColor, 3)
+        self.alpha = 255
+
+    def __init__(self, textureOrImage, srcrect=None):
+        cdef SDL_Rect temp
+
+        if isinstance(textureOrImage, Image):
+            self.texture = textureOrImage.texture
+            self.srcrect = textureOrImage.srcrect
+        else:
+            self.texture = textureOrImage
+            self.srcrect = pgRect_AsRect(textureOrImage.get_rect())
+
+        if srcrect is not None:
+            if pgRect_FromObject(srcrect, &temp) == NULL:
+                raise error('srcrect must be None or a rectangle')
+            if temp.x < 0 or temp.x >= self.srcrect.w or \
+                temp.y < 0 or temp.y >= self.srcrect.h or \
+                temp.w < 0 or temp.h < 0 or \
+                temp.x + temp.w >= self.srcrect.w or \
+                temp.y + temp.h >= self.srcrect.h:
+                raise ValueError('rect values are out of range')
+            temp.x += self.srcrect.x
+            temp.y += self.srcrect.y
+            self.srcrect = temp
+
+        self.origin[0] = self.srcrect.w / 2
+        self.origin[1] = self.srcrect.h / 2
+
+    def get_rect(self):
+        return pgRect_New(&self.srcrect)
+
+    def draw(self, srcrect=None, dstrect=None):
+        """ Copy a portion of the image to the rendering target.
+
+        :param srcrect: source rectangle specifying a sub-image, or None for the entire image.
+        :param dstrect: destination rectangle on the render target, or None for entire target.
+                        The image is stretched to fill dstrect.
+        """
+        cdef SDL_Rect temp
+
+        if dstrect is not None:
+            if pgRect_FromObject(dstrect, &temp) == NULL:
+                if len(dstrect) == 2:
+                    dstrect = (dstrect[0], dstrect[1], self.srcrect.w, self.srcrect.h)
+                else:
+                    raise error('dstrect must be a position, rect, or None')
+
+        if srcrect is None:
+            srcrect = self.get_rect()
+        else:
+            if pgRect_FromObject(srcrect, &temp) == NULL:
+                raise error('srcrect must be a rect or None')
+            srcrect = (temp.x + self.srcrect.x,
+                       temp.y + self.srcrect.y,
+                       temp.w, temp.h)
+
+        self.texture.color = self.color
+        self.texture.alpha = self.alpha
+
+        self.texture.draw(srcrect, dstrect, self.angle,
+                          self.origin, self.flipX, self.flipY)
+
+
 cdef class Renderer:
     def __init__(self, Window window, int index=-1,
                  int accelerated=-1, bint vsync=False,
@@ -687,24 +826,6 @@ cdef class Renderer:
         if res < 0:
             raise error()
 
-    def copy(self, Texture texture, srcrect=None, dstrect=None):
-        """ Copy portion of texture to rendering target.
-
-        :param Texture texture: the source texture.
-        :param srcrect: source rectangle on the texture, or None for the entire texture.
-        :type srcrect: pygame.Rect or None
-        :param dstrect: destination rectangle on the render target, or None for entire target.
-                        The texture is stretched to fill dstrect.
-        :type dstrect: pygame.Rect or None
-        """
-        # https://wiki.libsdl.org/SDL_RenderCopy
-        cdef SDL_Rect src, dst
-        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
-        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
-        res = SDL_RenderCopy(self._renderer, texture._tex, csrcrect, cdstrect)
-        if res < 0:
-            raise error()
-
     def present(self):
         """ Present the composed backbuffer to the screen.
 
@@ -764,3 +885,22 @@ cdef class Renderer:
                 raise error()
         else:
             raise error('target must be a Texture or None')
+
+    def blit(self, source, dest=None, area=None, special_flags = 0):
+        """ Only for compatibility.
+        Textures created by different Renderers cannot shared with each other!
+        :param source: A Texture or Image to draw.
+        :param dest: destination on the render target.
+        :param area: the portion of source texture.
+        :param special_flags: have no effect at this moment.
+        """
+        if not hasattr(source, 'draw'):
+            raise TypeError('source must be drawable')
+        if not area:
+            area = ((0,0), source.get_rect().size)
+        if not dest:
+            dest = self.get_viewport()
+
+        source.draw(area, dest)
+
+        return dest

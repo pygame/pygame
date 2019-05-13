@@ -91,14 +91,46 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: polygon
 
-   | :sl:`draw a shape with any number of sides`
-   | :sg:`polygon(Surface, color, pointlist, width=0) -> Rect`
+   | :sl:`draw a polygon`
+   | :sg:`polygon(surface, color, points) -> Rect`
+   | :sg:`polygon(surface, color, points, width=0) -> Rect`
 
-   Draws a polygonal shape on the Surface. The pointlist argument is the
-   vertices of the polygon. The width argument is the thickness to draw the
-   outer edge. If width is zero then the polygon will be filled.
+   Draws a polygon on the given surface.
 
-   For aapolygon, use aalines with the 'closed' parameter.
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param points: a sequence of 3 or more points that make up the vertices of
+      the polygon, each point/vertex must be a tuple/list of 2 numbers
+   :type points: tuple or list
+   :param int width: (optional) used for line thickness or to indicate that
+      the polygon is to be filled
+
+         | if width == 0, (default) fill the polygon
+         | if width > 0, used for line thickness
+         | if width < 0, nothing will be drawn
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will grow
+            outside the original boundary of the polygon. For more details on
+            how the thickness for edge lines grow, refer to the ``width`` notes
+            for :func:`rect`.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the first point in the
+      ``points`` parameter and its width and height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``len(points) < 3`` (must have at least 3 points)
+   :raises TypeError: if ``points`` is not a sequence or ``points`` does not
+      contain number pairs
+
+   .. note::
+       For an aapolygon, use :func:`aalines()` with ``closed=True``.
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.polygon ##
 
@@ -108,7 +140,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    | :sg:`circle(surface, color, center, radius) -> Rect`
    | :sg:`circle(surface, color, center, radius, width=0) -> Rect`
 
-   Draws an circle on the given surface.
+   Draws a circle on the given surface.
 
    :param Surface surface: surface to draw on
    :param color: color to draw with, the alpha value is optional if using a
@@ -183,13 +215,57 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: arc
 
-   | :sl:`draw a partial section of an ellipse`
-   | :sg:`arc(Surface, color, Rect, start_angle, stop_angle, width=1) -> Rect`
+   | :sl:`draw an elliptical arc`
+   | :sg:`arc(surface, color, rect, start_angle, stop_angle) -> Rect`
+   | :sg:`arc(surface, color, rect, start_angle, stop_angle, width=1) -> Rect`
 
-   Draws an elliptical arc on the Surface. The rect argument is the area that
-   the ellipse will fill. The two angle arguments are the initial and final
-   angle in radians, with the zero on the right. The width argument is the
-   thickness to draw the outer edge.
+   Draws an elliptical arc on the given surface.
+
+   The two angle arguments are given in radians and indicate the start and stop
+   positions of the arc. The arc is drawn in a counterclockwise direction from
+   the ``start_angle`` to the ``stop_angle``.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param Rect rect: rectangle to indicate the position and dimensions of the
+      ellipse which the arc will be based on, the ellipse will be centered
+      inside the rectangle
+   :param float start_angle: start angle of the arc in radians
+   :param float stop_angle: stop angle of the arc in
+      radians
+
+         | if ``start_angle < stop_angle``, the arc is drawn in a
+            counterclockwise direction from the ``start_angle`` to the
+            ``stop_angle``
+         | if ``start_angle > stop_angle``, tau (tau == 2 * pi) will be added
+            to the ``stop_angle``, if the resulting stop angle value is greater
+            than the ``start_angle`` the above ``start_angle < stop_angle`` case
+            applies, otherwise nothing will be drawn
+         | if ``start_angle == stop_angle``, nothing will be drawn
+         |
+
+   :param int width: (optional) used for line thickness (not to be confused
+      with the width value of the ``rect`` parameter)
+
+         | if ``width == 0``, nothing will be drawn
+         | if ``width > 0``, (default is 1) used for line thickness
+         | if ``width < 0``, raises a ``ValueError``
+         |
+
+         .. note::
+            When using ``width`` values ``> 1``, the edge lines will only grow
+            inward from the original boundary of the ``rect`` parameter.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the given ``rect``
+   :rtype: Rect
+
+   :raises ValueError: if ``width < 0`` or ``width > rect.w / 2`` or
+      ``width > rect.h / 2``
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.arc ##
 

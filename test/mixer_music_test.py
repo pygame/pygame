@@ -83,6 +83,20 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(temp_file)
 
+    def test_unload(self):
+        import shutil
+        import tempfile
+        ep = unicode_(example_path('data'))
+        org_file = os.path.join(ep, u'house_lo.wav')
+        tmpfd, tmppath = tempfile.mkstemp('.wav')
+        os.close(tmpfd)
+        shutil.copy(org_file, tmppath)
+        try:
+            pygame.mixer.music.load(tmppath)
+            pygame.mixer.music.unload()
+        finally:
+            os.remove(tmppath)
+
     def todo_test_queue(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.queue:
@@ -260,6 +274,22 @@ class MixerMusicModuleTest(unittest.TestCase):
           #
 
         self.fail()
+
+    def test_init(self):
+        """issue #955. unload music whenever mixer.quit() is called"""
+        import tempfile
+        import shutil
+        testfile = example_path(os.path.join('data', 'house_lo.wav'))
+        tempcopy = os.path.join(tempfile.gettempdir(), 'tempfile.wav')
+
+        for i in range(10):
+            pygame.mixer.init()
+            try:
+                shutil.copy2(testfile, tempcopy)
+                pygame.mixer.music.load(tempcopy)
+                pygame.mixer.quit()
+            finally:
+                os.remove(tempcopy)
 
 if __name__ == '__main__':
     unittest.main()

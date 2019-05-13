@@ -392,51 +392,70 @@ lines(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-arc(PyObject *self, PyObject *arg)
+arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *rectobj;
-    GAME_Rect *rect, temp;
-    SDL_Surface *surf;
+    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
+    GAME_Rect *rect = NULL, temp;
+    SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int width = 1, loop, t, l, b, r;
+    int loop, t, l, b, r;
+    int width = 1; /* Default width. */
     double angle_start, angle_stop;
+    static char *keywords[] = {"surface", "color", "rect", "start_angle",
+                               "stop_angle", "width", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OOdd|i", &pgSurface_Type, &surfobj,
-                          &colorobj, &rectobj, &angle_start, &angle_stop,
-                          &width))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOdd|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &rectobj, &angle_start, &angle_stop,
+                                     &width)) {
+        return NULL; /* Exception already set. */
+    }
+
     rect = pgRect_FromObject(rectobj, &temp);
-    if (!rect)
-        return RAISE(PyExc_TypeError, "Invalid recstyle argument");
+
+    if (!rect) {
+        return RAISE(PyExc_TypeError, "rect argument is invalid");
+    }
 
     surf = pgSurface_AsSurface(surfobj);
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
-        return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
+
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (width < 0)
+    if (width < 0) {
         return RAISE(PyExc_ValueError, "negative width");
-    if (width > rect->w / 2 || width > rect->h / 2)
-        return RAISE(PyExc_ValueError, "width greater than ellipse radius");
-    if (angle_stop < angle_start)
+    }
+
+    if (width > rect->w / 2 || width > rect->h / 2) {
+        return RAISE(PyExc_ValueError, "width greater than arc radius");
+    }
+
+    if (angle_stop < angle_start) {
         // Angle is in radians
         angle_stop += 2 * M_PI;
+    }
 
-    if (!pgSurface_Lock(surfobj))
-        return NULL;
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
 
     width = MIN(width, MIN(rect->w, rect->h) / 2);
+
     for (loop = 0; loop < width; ++loop) {
         draw_arc(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
                  rect->w / 2 - loop, rect->h / 2 - loop, angle_start,
                  angle_stop, color);
     }
 
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
 
     l = MAX(rect->x, surf->clip_rect.x);
     t = MAX(rect->y, surf->clip_rect.y);
@@ -522,15 +541,23 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
+    PyObject *posobj;
     int posx, posy, radius, t, l, b, r;
     int width = 0; /* Default width. */
     static char *keywords[] = {"surface", "color", "center",
                                "radius",  "width", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O(ii)i|i", keywords,
-                                     &pgSurface_Type, &surfobj, &colorobj,
-                                     &posx, &posy, &radius, &width)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OOi|i", keywords,
+                          &pgSurface_Type, &surfobj,
+                          &colorobj,
+                          &posobj,
+                          &radius, &width))
         return NULL; /* Exception already set. */
+
+    if (!pg_TwoIntsFromObj(posobj, &posx, &posy)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "expected a pair of numbers");
+        return 0;
     }
 
     surf = pgSurface_AsSurface(surfobj);
@@ -592,26 +619,34 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-polygon(PyObject *self, PyObject *arg)
+polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *points, *item;
-    SDL_Surface *surf;
+    PyObject *surfobj = NULL, *colorobj = NULL, *points = NULL, *item = NULL;
+    SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int width = 0, length, loop;
-    int *xlist, *ylist;
-    int x, y, top, left, bottom, right, result;
+    int *xlist = NULL, *ylist = NULL;
+    int width = 0; /* Default width. */
+    int top = INT_MAX, left = INT_MAX;
+    int bottom = INT_MIN, right = INT_MIN;
+    int x, y, result, length, loop;
+    static char *keywords[] = {"surface", "color", "points", "width", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OO|i", &pgSurface_Type, &surfobj, &colorobj,
-                          &points, &width))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OO|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &points, &width)) {
+        return NULL; /* Exception already set. */
+    }
 
     if (width) {
-        PyObject *args, *ret;
-        args = Py_BuildValue("(OOiOi)", surfobj, colorobj, 1, points, width);
-        if (!args)
-            return NULL;
+        PyObject *ret = NULL;
+        PyObject *args =
+            Py_BuildValue("(OOiOi)", surfobj, colorobj, 1, points, width);
+
+        if (!args) {
+            return NULL; /* Exception already set. */
+        }
+
         ret = lines(NULL, args);
         Py_DECREF(args);
         return ret;
@@ -619,21 +654,25 @@ polygon(PyObject *self, PyObject *arg)
 
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
-        return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (!PySequence_Check(points))
+    if (!PySequence_Check(points)) {
         return RAISE(PyExc_TypeError,
                      "points argument must be a sequence of number pairs");
+    }
+
     length = PySequence_Length(points);
-    if (length < 3)
+
+    if (length < 3) {
         return RAISE(PyExc_ValueError,
                      "points argument must contain more than 2 points");
-
-    left = top = 10000;
-    right = bottom = -10000;
+    }
 
     xlist = PyMem_New(int, length);
     ylist = PyMem_New(int, length);
@@ -642,11 +681,13 @@ polygon(PyObject *self, PyObject *arg)
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);
         Py_DECREF(item);
+
         if (!result) {
             PyMem_Del(xlist);
             PyMem_Del(ylist);
             return RAISE(PyExc_TypeError, "points must be number pairs");
         }
+
         xlist[loop] = x;
         ylist[loop] = y;
         left = MIN(x, left);
@@ -658,15 +699,16 @@ polygon(PyObject *self, PyObject *arg)
     if (!pgSurface_Lock(surfobj)) {
         PyMem_Del(xlist);
         PyMem_Del(ylist);
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
     draw_fillpoly(surf, xlist, ylist, length, color);
-
     PyMem_Del(xlist);
     PyMem_Del(ylist);
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
+
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
 
     left = MAX(left, surf->clip_rect.x);
     top = MAX(top, surf->clip_rect.y);
@@ -706,7 +748,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL; /* Exception already set. */
     }
 
-    ret = polygon(NULL, poly_args);
+    ret = polygon(NULL, poly_args, NULL);
     Py_DECREF(poly_args);
     return ret;
 }
@@ -1820,10 +1862,11 @@ static PyMethodDef _draw_methods[] = {
     {"lines", lines, METH_VARARGS, DOC_PYGAMEDRAWLINES},
     {"ellipse", (PyCFunction)ellipse, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWELLIPSE},
-    {"arc", arc, METH_VARARGS, DOC_PYGAMEDRAWARC},
+    {"arc", (PyCFunction)arc, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDRAWARC},
     {"circle", (PyCFunction)circle, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWCIRCLE},
-    {"polygon", polygon, METH_VARARGS, DOC_PYGAMEDRAWPOLYGON},
+    {"polygon", (PyCFunction)polygon, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWPOLYGON},
     {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWRECT},
 
