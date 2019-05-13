@@ -72,7 +72,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -84,11 +84,11 @@ image_load_basic(PyObject *self, PyObject *arg)
     }
     else {
         Py_DECREF(oencoded);
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }
-        if (pgRWopsCheckObject(rw)) {
+        if (pgRWops_IsFileObject(rw)) {
             surf = SDL_LoadBMP_RW(rw, 1);
         }
         else {
@@ -216,9 +216,9 @@ image_save(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
-        SDL_RWops *rw = pgRWopsFromFileObject(obj);
+        SDL_RWops *rw = pgRWops_FromFileObject(obj);
         if (rw != NULL) {
             result = SaveTGA_RW(surf, rw, 1);
         }
@@ -1427,7 +1427,9 @@ MODINIT_DEFINE(image)
     else {
         PyObject *basicload = PyObject_GetAttrString(module, "load_basic");
         PyErr_Clear();
+        Py_INCREF(Py_None);
         PyModule_AddObject(module, "load_extended", Py_None);
+        Py_INCREF(Py_None);
         PyModule_AddObject(module, "save_extended", Py_None);
         PyModule_AddObject(module, "load", basicload);
         st->is_extended = 0;

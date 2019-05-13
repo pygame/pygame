@@ -16,11 +16,29 @@ number*vec, vec/number, vec//number, vec+=vec, vec-=vec, vec*=number,
 vec/=number, vec//=number. All these operations will be performed elementwise.
 In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
-you can use the elementwise method: ``v.elementwise()`` ``\*`` w
+you can use the elementwise method: ``v.elementwise() * w``
+
+The coordinates of a vector can be retrieved or set using attributes or
+subscripts::
+
+   v = pygame.Vector3()
+
+   v.x = 5
+   v[1] = 2 * v.x
+   print(v[1]) # 10
+
+   v.x == v[0]
+   v.y == v[1]
+   v.z == v[2]
+
+Multiple coordinates can be set using slices or swizzling::
+
+   v = pygame.Vector2()
+   v.xy = 1, 2
+   v[:] = 1, 2
 
 .. versionadded:: 1.9.2pre
 .. versionchanged:: 1.9.4 Removed experimental notice.
-.. versionchanged:: 1.9.4 Constructors require 2-3 elements rather than assigning 0 by default.
 .. versionchanged:: 1.9.4 Allow scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
 .. versionchanged:: 1.9.4 :mod:`pygame.math` required import. More convenient ``pygame.Vector2`` and ``pygame.Vector3``.
 
@@ -207,22 +225,46 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(float) -> Vector2`
+      | :sg:`rotate(angle) -> Vector2`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees.
 
       .. ## Vector2.rotate ##
 
+   .. method:: rotate_rad
+
+      | :sl:`rotates a vector by a given angle in radians.`
+      | :sg:`rotate_rad(angle) -> Vector2`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector2.rotate_rad ##
+
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(float) -> None`
+      | :sg:`rotate_ip(angle) -> None`
 
       Rotates the vector counterclockwise by the given angle in degrees. The
       length of the vector is not changed.
 
       .. ## Vector2.rotate_ip ##
+
+   .. method:: rotate_ip_rad
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise by the given angle in radians. The
+      length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector2.rotate_ip_rad ##
 
    .. method:: angle_to
 
@@ -253,14 +295,30 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
       .. ## Vector2.from_polar ##
 
+   .. method:: update
+
+      | :sl:`Sets the coordinates of the vector.`
+      | :sg:`update() -> None`
+      | :sg:`update(int) -> None`
+      | :sg:`update(float) -> None`
+      | :sg:`update(Vector2) -> None`
+      | :sg:`update(x, y) -> None`
+      | :sg:`update((x, y)) -> None`
+
+      Sets coordinates x and y in place.
+
+      .. versionadded:: 1.9.5
+
+      .. ## Vector2.update ##
+
    .. ## pygame.math.Vector2 ##
 
 .. class:: Vector3
 
    | :sl:`a 3-Dimensional Vector`
    | :sg:`Vector3() -> Vector3`
-   | :sg:`Vector3(int) -> Vector2`
-   | :sg:`Vector3(float) -> Vector2`
+   | :sg:`Vector3(int) -> Vector3`
+   | :sg:`Vector3(float) -> Vector3`
    | :sg:`Vector3(Vector3) -> Vector3`
    | :sg:`Vector3(x, y, z) -> Vector3`
    | :sg:`Vector3((x, y, z)) -> Vector3`
@@ -440,82 +498,176 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(Vector3, float) -> Vector3`
+      | :sg:`rotate(Vector3, angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees around the given axis.
 
       .. ## Vector3.rotate ##
 
+   .. method:: rotate_rad
+
+      | :sl:`rotates a vector by a given angle in radians.`
+      | :sg:`rotate_rad(Vector3, angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise by the given angle in radians around the given axis.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_rad ##
+
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(Vector3, float) -> None`
+      | :sg:`rotate_ip(Vector3, angle) -> None`
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_ip ##
 
+   .. method:: rotate_ip_rad
+
+      | :sl:`rotates the vector by a given angle in radians in place.`
+      | :sg:`rotate_ip_rad(Vector3, angle) -> None`
+
+      Rotates the vector counterclockwise around the given axis by the given
+      angle in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_ip_rad ##
+
    .. method:: rotate_x
 
       | :sl:`rotates a vector around the x-axis by the angle in degrees.`
-      | :sg:`rotate_x(float) -> Vector3`
+      | :sg:`rotate_x(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the x-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_x ##
 
+   .. method:: rotate_x_rad
+
+      | :sl:`rotates a vector around the x-axis by the angle in radians.`
+      | :sg:`rotate_x_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the x-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_x_rad ##
+
    .. method:: rotate_x_ip
 
       | :sl:`rotates the vector around the x-axis by the angle in degrees in place.`
-      | :sg:`rotate_x_ip(float) -> None`
+      | :sg:`rotate_x_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the x-axis by the given angle
       in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_x_ip ##
 
+   .. method:: rotate_x_ip_rad
+
+      | :sl:`rotates the vector around the x-axis by the angle in radians in place.`
+      | :sg:`rotate_x_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the x-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_x_ip_rad ##
+
    .. method:: rotate_y
 
       | :sl:`rotates a vector around the y-axis by the angle in degrees.`
-      | :sg:`rotate_y(float) -> Vector3`
+      | :sg:`rotate_y(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the y-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_y ##
 
+   .. method:: rotate_y_rad
+
+      | :sl:`rotates a vector around the y-axis by the angle in radians.`
+      | :sg:`rotate_y_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the y-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_y_rad ##
+
    .. method:: rotate_y_ip
 
       | :sl:`rotates the vector around the y-axis by the angle in degrees in place.`
-      | :sg:`rotate_y_ip(float) -> None`
+      | :sg:`rotate_y_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the y-axis by the given angle
       in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_y_ip ##
 
+   .. method:: rotate_y_ip_rad
+
+      | :sl:`rotates the vector around the y-axis by the angle in radians in place.`
+      | :sg:`rotate_y_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the y-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_y_ip_rad ##
+
    .. method:: rotate_z
 
       | :sl:`rotates a vector around the z-axis by the angle in degrees.`
-      | :sg:`rotate_z(float) -> Vector3`
+      | :sg:`rotate_z(angle) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the z-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_z ##
 
+   .. method:: rotate_z_rad
+
+      | :sl:`rotates a vector around the z-axis by the angle in radians.`
+      | :sg:`rotate_z_rad(angle) -> Vector3`
+
+      Returns a vector which has the same length as self but is rotated
+      counterclockwise around the z-axis by the given angle in radians.
+
+      .. versionadded:: 2.0
+
+      .. ## Vector3.rotate_z_rad ##
+
    .. method:: rotate_z_ip
 
       | :sl:`rotates the vector around the z-axis by the angle in degrees in place.`
-      | :sg:`rotate_z_ip(float) -> None`
+      | :sg:`rotate_z_ip(angle) -> None`
 
       Rotates the vector counterclockwise around the z-axis by the given angle
       in degrees. The length of the vector is not changed.
 
       .. ## Vector3.rotate_z_ip ##
+
+   .. method:: rotate_z_ip_rad
+
+      | :sl:`rotates the vector around the z-axis by the angle in radians in place.`
+      | :sg:`rotate_z_ip_rad(angle) -> None`
+
+      Rotates the vector counterclockwise around the z-axis by the given angle
+      in radians. The length of the vector is not changed.
+
+      .. ## Vector3.rotate_z_ip_rad ##
 
    .. method:: angle_to
 
@@ -546,6 +698,22 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
       .. ## Vector3.from_spherical ##
 
+   .. method:: update
+
+      | :sl:`Sets the coordinates of the vector.`
+      | :sg:`update() -> None`
+      | :sg:`update(int) -> None`
+      | :sg:`update(float) -> None`
+      | :sg:`update(Vector3) -> None`
+      | :sg:`update(x, y, z) -> None`
+      | :sg:`update((x, y, z)) -> None`
+
+      Sets coordinates x, y, and z in place.
+
+      .. versionadded:: 1.9.5
+
+      .. ## Vector3.update ##
+
    .. ##  ##
 
    .. ## pygame.math.Vector3 ##
@@ -560,6 +728,9 @@ you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
    Enables swizzling for all vectors until ``disable_swizzling()`` is called.
    By default swizzling is disabled.
+
+   Lets you get or set multiple coordinates as one attribute, eg
+   ``vec.xyz = 1, 2, 3``.
 
    .. ## pygame.math.enable_swizzling ##
 

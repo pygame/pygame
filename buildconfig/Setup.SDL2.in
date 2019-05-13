@@ -17,7 +17,7 @@ PORTTIME = -lporttime
 FREETYPE = -lfreetype
 #--EndConfig
 
-DEBUG = 
+DEBUG =
 
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have
@@ -29,9 +29,12 @@ mixer src_c/mixer.c $(SDL) $(MIXER) $(DEBUG)
 mixer_music src_c/music.c $(SDL) $(MIXER) $(DEBUG)
 #scrap src_c/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 pypm src_c/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
+
 _sdl2.sdl2 src_c/_sdl2/sdl2.c $(SDL) $(DEBUG)
 _sdl2.audio src_c/_sdl2/audio.c $(SDL) $(DEBUG)
 _sdl2.video src_c/_sdl2/video.c $(SDL) $(DEBUG)
+_sdl2.mixer src_c/_sdl2/mixer.c $(SDL) $(MIXER) $(DEBUG)
+_sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG)
 
 GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
 #GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
@@ -49,7 +52,7 @@ color src_c/color.c $(SDL) $(DEBUG)
 constants src_c/constants.c $(SDL) $(DEBUG)
 display src_c/display.c $(SDL) $(DEBUG)
 event src_c/event.c $(SDL) $(DEBUG)
-#fastevent src_c/fastevent.c src_c/fastevents.c $(SDL) $(DEBUG)
+fastevent src_c/fastevent.c src_c/fastevents.c $(SDL) $(DEBUG)
 key src_c/key.c $(SDL) $(DEBUG)
 mouse src_c/mouse.c $(SDL) $(DEBUG)
 rect src_c/rect.c $(SDL) $(DEBUG)

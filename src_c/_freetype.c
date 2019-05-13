@@ -728,7 +728,7 @@ _ftfont_dealloc(pgFontObject *self)
     _PGFT_UnloadFont(self->freetype, self);
 #ifdef HAVE_PYGAME_SDL_RWOPS
     if (src) {
-        pgRWopsReleaseObject(src);
+        pgRWops_ReleaseObject(src);
     }
 #endif
     _PGFT_Quit(self->freetype);
@@ -800,7 +800,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
 
 #if !defined(WIN32) || !defined(HAVE_PYGAME_SDL_RWOPS)
-    file = pgRWopsEncodeString(file, "UTF-8", NULL, NULL);
+    file = pg_EncodeString(file, "UTF-8", NULL, NULL);
     if (!file) {
         goto end;
     }
@@ -829,7 +829,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         PyObject *path = 0;
         if (!PG_CHECK_THREADS())
             goto end;
-        source = pgRWopsFromFileObject(original_file);
+        source = pgRWops_FromFileObject(original_file);
         if (!source) {
             goto end;
         }
@@ -874,13 +874,13 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         Py_INCREF(file);
     if (!PG_CHECK_THREADS())
         goto end;
-    source = pgRWopsFromObject(file);
+    source = pgRWops_FromObject(file);
     if (!source) {
         goto end;
     } else {
         PyObject *path = 0;
 
-        if (pgRWopsCheckObject(source)) {
+        if (pgRWops_IsFileObject(source)) {
             path = PyObject_GetAttrString(file, "name");
         } else {
             Py_INCREF(file);

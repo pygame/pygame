@@ -46,6 +46,12 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define TWO_PI (2. * M_PI)
+
+#ifndef M_PI_2
+#define M_PI_2 (M_PI / 2.0)
+#endif /* M_PI_2 */
+
 #define VECTOR_EPSILON (1e-6)
 #define VECTOR_MAX_SIZE (4)
 #define STRING_BUF_SIZE (100)
@@ -1829,15 +1835,8 @@ vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
+_vector2_set(pgVector *self, PyObject *xOrSequence, PyObject *y)
 {
-    PyObject *xOrSequence = NULL, *y = NULL;
-    static char *kwlist[] = {"x", "y", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
-                                     &xOrSequence, &y))
-        return -1;
-
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
@@ -1897,23 +1896,52 @@ vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
     return 0;
 error:
     PyErr_SetString(PyExc_ValueError,
-                    "Vector2 must be initialized with 2 real numbers or a "
-                    "sequence of 2 real numbers");
+                    "Vector2 must be set with 2 real numbers, a "
+                    "sequence of 2 real numbers, or "
+                    "another Vector2 instance");
     return -1;
+}
+
+static int
+vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL;
+    static char *kwlist[] = {"x", "y", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
+                                     &xOrSequence, &y))
+        return -1;
+
+    return _vector2_set(self, xOrSequence, y);
+}
+
+static PyObject*
+vector2_update(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL;
+    static char *kwlist[] = {"x", "y", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
+                                     &xOrSequence, &y))
+        return NULL;
+
+    if (_vector2_set(self, xOrSequence, y) == 0)
+        Py_RETURN_NONE;
+    return NULL;
 }
 
 static int
 _vector2_rotate_helper(double *dst_coords, const double *src_coords,
                        double angle, double epsilon)
 {
-    /* make sure angle is in range [0, 360) */
-    angle = fmod(angle, 360.);
+    /* make sure angle is in range [0, 2 PI) */
+    angle = fmod(angle, TWO_PI);
     if (angle < 0)
-        angle += 360.;
+        angle += TWO_PI;
 
     /* special-case rotation by 0, 90, 180 and 270 degrees */
-    if (fmod(angle + epsilon, 90.) < 2 * epsilon) {
-        switch ((int)((angle + epsilon) / 90)) {
+    if (fmod(angle + epsilon, M_PI_2) < 2 * epsilon) {
+        switch ((int)((angle + epsilon) / M_PI_2)) {
             case 0: /* 0 degrees */
             case 4: /* 360 degree (see issue 214) */
                 dst_coords[0] = src_coords[0];
@@ -1942,8 +1970,6 @@ _vector2_rotate_helper(double *dst_coords, const double *src_coords,
     }
     else {
         double sinValue, cosValue;
-
-        angle = DEG2RAD(angle);
         sinValue = sin(angle);
         cosValue = cos(angle);
 
@@ -1954,12 +1980,13 @@ _vector2_rotate_helper(double *dst_coords, const double *src_coords,
 }
 
 static PyObject *
-vector2_rotate(pgVector *self, PyObject *args)
+vector2_rotate_rad(pgVector *self, PyObject *angleObject)
 {
     double angle;
     pgVector *ret;
 
-    if (!PyArg_ParseTuple(args, "d:rotate", &angle)) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
 
@@ -1973,14 +2000,56 @@ vector2_rotate(pgVector *self, PyObject *args)
 }
 
 static PyObject *
-vector2_rotate_ip(pgVector *self, PyObject *args)
+vector2_rotate_ip_rad(pgVector *self, PyObject *angleObject)
 {
     double angle;
     double tmp[2];
 
-    if (!PyArg_ParseTuple(args, "d:rotate_ip", &angle)) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+
+    tmp[0] = self->coords[0];
+    tmp[1] = self->coords[1];
+    if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+vector2_rotate(pgVector *self, PyObject *angleObject)
+{
+    double angle;
+    pgVector *ret;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    angle = DEG2RAD(angle);
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL || !_vector2_rotate_helper(ret->coords, self->coords,
+                                               angle, self->epsilon)) {
+        Py_XDECREF(ret);
+        return NULL;
+    }
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector2_rotate_ip(pgVector *self, PyObject *angleObject)
+{
+    double angle;
+    double tmp[2];
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    angle = DEG2RAD(angle);
 
     tmp[0] = self->coords[0];
     tmp[1] = self->coords[1];
@@ -2070,9 +2139,16 @@ static PyMethodDef vector2_methods[] = {
     {"length", (PyCFunction)vector_length, METH_NOARGS, DOC_VECTOR2LENGTH},
     {"length_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
      DOC_VECTOR2LENGTHSQUARED},
-    {"rotate", (PyCFunction)vector2_rotate, METH_VARARGS, DOC_VECTOR2ROTATE},
-    {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_VARARGS,
+    {"magnitude", (PyCFunction)vector_length, METH_NOARGS,
+     DOC_VECTOR2MAGNITUDE},
+    {"magnitude_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
+     DOC_VECTOR2MAGNITUDESQUARED},
+    {"rotate", (PyCFunction)vector2_rotate, METH_O, DOC_VECTOR2ROTATE},
+    {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_O,
      DOC_VECTOR2ROTATEIP},
+    {"rotate_rad", (PyCFunction)vector2_rotate_rad, METH_O, DOC_VECTOR2ROTATERAD},
+    {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
+     DOC_VECTOR2ROTATEIPRAD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR2LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -2084,6 +2160,8 @@ static PyMethodDef vector2_methods[] = {
     {"cross", (PyCFunction)vector2_cross, METH_O, DOC_VECTOR2CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR2DOT},
     {"angle_to", (PyCFunction)vector2_angle_to, METH_O, DOC_VECTOR2ANGLETO},
+    {"update", (PyCFunction)vector2_update, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR2UPDATE},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
      DOC_VECTOR2SCALETOLENGTH},
     {"reflect", (PyCFunction)vector_reflect, METH_O, DOC_VECTOR2REFLECT},
@@ -2209,15 +2287,8 @@ vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
+_vector3_set(pgVector *self, PyObject *xOrSequence, PyObject *y, PyObject *z)
 {
-    PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
-    static char *kwlist[] = {"x", "y", "z", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
-                                     &xOrSequence, &y, &z))
-        return -1;
-
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
@@ -2277,9 +2348,38 @@ vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
     return 0;
 error:
     PyErr_SetString(PyExc_ValueError,
-                    "Vector3 must be initialized with 3 real numbers or a "
-                    "sequence of 3 real numbers");
+                    "Vector3 must be set with 3 real numbers, a "
+                    "sequence of 3 real numbers, or "
+                    "another Vector3 instance");
     return -1;
+}
+
+static int
+vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
+    static char *kwlist[] = {"x", "y", "z", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+                                     &xOrSequence, &y, &z))
+        return -1;
+
+    return _vector3_set(self, xOrSequence, y, z);
+}
+
+static PyObject*
+vector3_update(pgVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
+    static char *kwlist[] = {"x", "y", "z", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+                                     &xOrSequence, &y, &z))
+        return NULL;
+
+    if (_vector3_set(self, xOrSequence, y, z) == 0)
+        Py_RETURN_NONE;
+    return NULL;
 }
 
 static int
@@ -2292,10 +2392,10 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
     double axis[3];
     int i;
 
-    /* make sure angle is in range [0, 360) */
-    angle = fmod(angle, 360.);
+    /* make sure angle is in range [0, 2 PI) */
+    angle = fmod(angle, TWO_PI);
     if (angle < 0)
-        angle += 360.;
+        angle += TWO_PI;
 
     for (i = 0; i < 3; ++i) {
         axisLength2 += axis_coords[i] * axis_coords[i];
@@ -2316,8 +2416,8 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
     }
 
     /* special-case rotation by 0, 90, 180 and 270 degrees */
-    if (fmod(angle + epsilon, 90.) < 2 * epsilon) {
-        switch ((int)((angle + epsilon) / 90)) {
+    if (fmod(angle + epsilon, M_PI_2) < 2 * epsilon) {
+        switch ((int)((angle + epsilon) / M_PI_2)) {
             case 0: /* 0 degrees */
             case 4: /* 360 degrees (see issue 214) */
                 memcpy(dst_coords, src_coords, 3 * sizeof(src_coords[0]));
@@ -2371,7 +2471,6 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
         }
     }
     else {
-        angle = DEG2RAD(angle);
         sinValue = sin(angle);
         cosValue = cos(angle);
         cosComplement = 1 - cosValue;
@@ -2399,6 +2498,62 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
 }
 
 static PyObject *
+vector3_rotate_rad(pgVector *self, PyObject *args)
+{
+    pgVector *ret;
+    PyObject *axis;
+    double axis_coords[3];
+    double angle;
+
+    if (!PyArg_ParseTuple(args, "dO:rotate", &angle, &axis)) {
+        return NULL;
+    }
+    if (!pgVectorCompatible_Check(axis, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(axis, axis_coords, 3)) {
+        return NULL;
+    }
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL ||
+        !_vector3_rotate_helper(ret->coords, self->coords, axis_coords, angle,
+                                self->epsilon)) {
+        Py_XDECREF(ret);
+        return NULL;
+    }
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector3_rotate_ip_rad(pgVector *self, PyObject *args)
+{
+    PyObject *axis;
+    double axis_coords[3];
+    double angle;
+    double tmp[3];
+
+    if (!PyArg_ParseTuple(args, "dO:rotate", &angle, &axis)) {
+        return NULL;
+    }
+    if (!pgVectorCompatible_Check(axis, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(axis, axis_coords, 3)) {
+        return NULL;
+    }
+
+    memcpy(tmp, self->coords, 3 * sizeof(self->coords[0]));
+    if (!_vector3_rotate_helper(self->coords, tmp, axis_coords, angle,
+                                self->epsilon)) {
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 vector3_rotate(pgVector *self, PyObject *args)
 {
     pgVector *ret;
@@ -2409,6 +2564,7 @@ vector3_rotate(pgVector *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "dO:rotate", &angle, &axis)) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     if (!pgVectorCompatible_Check(axis, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
         return NULL;
@@ -2438,6 +2594,7 @@ vector3_rotate_ip(pgVector *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "dO:rotate_ip", &angle, &axis)) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     if (!pgVectorCompatible_Check(axis, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
         return NULL;
@@ -2455,16 +2612,61 @@ vector3_rotate_ip(pgVector *self, PyObject *args)
 }
 
 static PyObject *
+vector3_rotate_x_rad(pgVector *self, PyObject *angleObject)
+{
+    pgVector *ret;
+    double sinValue, cosValue;
+    double angle;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
+    ret->coords[0] = self->coords[0];
+    ret->coords[1] = self->coords[1] * cosValue - self->coords[2] * sinValue;
+    ret->coords[2] = self->coords[1] * sinValue + self->coords[2] * cosValue;
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector3_rotate_x_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    double tmp_coords[3];
+    double sinValue, cosValue;
+    double angle;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
+
+    self->coords[1] = tmp_coords[1] * cosValue - tmp_coords[2] * sinValue;
+    self->coords[2] = tmp_coords[1] * sinValue + tmp_coords[2] * cosValue;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 vector3_rotate_x(pgVector *self, PyObject *angleObject)
 {
     pgVector *ret;
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
 
@@ -2485,10 +2687,11 @@ vector3_rotate_x_ip(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
     memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
@@ -2499,16 +2702,62 @@ vector3_rotate_x_ip(pgVector *self, PyObject *angleObject)
 }
 
 static PyObject *
+vector3_rotate_y_rad(pgVector *self, PyObject *angleObject)
+{
+    pgVector *ret;
+    double sinValue, cosValue;
+    double angle;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
+    ret->coords[0] = self->coords[0] * cosValue + self->coords[2] * sinValue;
+    ret->coords[1] = self->coords[1];
+    ret->coords[2] = -self->coords[0] * sinValue + self->coords[2] * cosValue;
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector3_rotate_y_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    double tmp_coords[3];
+    double sinValue, cosValue;
+    double angle;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
+
+    self->coords[0] = tmp_coords[0] * cosValue + tmp_coords[2] * sinValue;
+    self->coords[2] = -tmp_coords[0] * sinValue + tmp_coords[2] * cosValue;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 vector3_rotate_y(pgVector *self, PyObject *angleObject)
 {
     pgVector *ret;
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
 
@@ -2530,10 +2779,11 @@ vector3_rotate_y_ip(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
     memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
@@ -2544,16 +2794,62 @@ vector3_rotate_y_ip(pgVector *self, PyObject *angleObject)
 }
 
 static PyObject *
+vector3_rotate_z_rad(pgVector *self, PyObject *angleObject)
+{
+    pgVector *ret;
+    double sinValue, cosValue;
+    double angle;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
+    ret->coords[0] = self->coords[0] * cosValue - self->coords[1] * sinValue;
+    ret->coords[1] = self->coords[0] * sinValue + self->coords[1] * cosValue;
+    ret->coords[2] = self->coords[2];
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector3_rotate_z_ip_rad(pgVector *self, PyObject *angleObject)
+{
+    double tmp_coords[3];
+    double sinValue, cosValue;
+    double angle;
+
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
+        return NULL;
+    }
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
+
+    self->coords[0] = tmp_coords[0] * cosValue - tmp_coords[1] * sinValue;
+    self->coords[1] = tmp_coords[0] * sinValue + tmp_coords[1] * cosValue;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 vector3_rotate_z(pgVector *self, PyObject *angleObject)
 {
     pgVector *ret;
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
 
@@ -2575,10 +2871,11 @@ vector3_rotate_z_ip(pgVector *self, PyObject *angleObject)
     double sinValue, cosValue;
     double angle;
 
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
+    angle = PyFloat_AsDouble(angleObject);
+    if (angle == -1.0 && PyErr_Occurred()) {
         return NULL;
     }
+    angle = DEG2RAD(angle);
     sinValue = sin(angle);
     cosValue = cos(angle);
     memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
@@ -2710,15 +3007,27 @@ static PyMethodDef vector3_methods[] = {
     {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS, DOC_VECTOR3ROTATE},
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
      DOC_VECTOR3ROTATEIP},
+    {"rotate_rad", (PyCFunction)vector3_rotate_rad, METH_VARARGS, DOC_VECTOR3ROTATERAD},
+    {"rotate_ip_rad", (PyCFunction)vector3_rotate_ip_rad, METH_VARARGS,
+     DOC_VECTOR3ROTATEIPRAD},
     {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O, DOC_VECTOR3ROTATEX},
     {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
      DOC_VECTOR3ROTATEXIP},
+    {"rotate_x_rad", (PyCFunction)vector3_rotate_x_rad, METH_O, DOC_VECTOR3ROTATEXRAD},
+    {"rotate_x_ip_rad", (PyCFunction)vector3_rotate_x_ip_rad, METH_O,
+     DOC_VECTOR3ROTATEXIPRAD},
     {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O, DOC_VECTOR3ROTATEY},
     {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
      DOC_VECTOR3ROTATEYIP},
+    {"rotate_y_rad", (PyCFunction)vector3_rotate_y_rad, METH_O, DOC_VECTOR3ROTATEYRAD},
+    {"rotate_y_ip_rad", (PyCFunction)vector3_rotate_y_ip_rad, METH_O,
+     DOC_VECTOR3ROTATEYIPRAD},
     {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O, DOC_VECTOR3ROTATEZ},
     {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
      DOC_VECTOR3ROTATEZIP},
+    {"rotate_z_rad", (PyCFunction)vector3_rotate_z_rad, METH_O, DOC_VECTOR3ROTATEZRAD},
+    {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
+     DOC_VECTOR3ROTATEZIPRAD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS, DOC_VECTOR3LERP},
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
@@ -2730,6 +3039,8 @@ static PyMethodDef vector3_methods[] = {
     {"cross", (PyCFunction)vector3_cross, METH_O, DOC_VECTOR3CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR3DOT},
     {"angle_to", (PyCFunction)vector3_angle_to, METH_O, DOC_VECTOR3ANGLETO},
+    {"update", (PyCFunction)vector3_update, METH_VARARGS | METH_KEYWORDS,
+     DOC_VECTOR3UPDATE},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
      DOC_VECTOR3SCALETOLENGTH},
     {"reflect", (PyCFunction)vector_reflect, METH_O, DOC_VECTOR3REFLECT},
@@ -3690,12 +4001,17 @@ MODINIT_DEFINE(math)
         (PyModule_AddObject(module, "VectorElementwiseProxy", (PyObject *)&pgVectorElementwiseProxy_Type) != 0) ||
         (PyModule_AddObject(module, "VectorIterator", (PyObject *)&pgVectorIter_Type) != 0) /*||
         (PyModule_AddObject(module, "Vector4", (PyObject *)&pgVector4_Type) != 0)*/) {
-        Py_DECREF(&pgVector2_Type);
-        Py_DECREF(&pgVector3_Type);
-        Py_DECREF(&pgVectorElementwiseProxy_Type);
-        Py_DECREF(&pgVectorIter_Type);
+        if (!PyObject_HasAttrString(module, "Vector2"))
+            Py_DECREF(&pgVector2_Type);
+        if (!PyObject_HasAttrString(module, "Vector3"))
+            Py_DECREF(&pgVector3_Type);
+        if (!PyObject_HasAttrString(module, "VectorElementwiseProxy"))
+            Py_DECREF(&pgVectorElementwiseProxy_Type);
+        if (!PyObject_HasAttrString(module, "VectorIterator"))
+            Py_DECREF(&pgVectorIter_Type);
         /*
-        Py_DECREF(&pgVector4_Type);
+        if (!PyObject_HasAttrString(module, "Vector4"))
+            Py_DECREF(&pgVector4_Type);
         */
         DECREF_MOD(module);
         MODINIT_ERROR;

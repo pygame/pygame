@@ -375,6 +375,15 @@ _pg_name_from_eventtype(int type)
             return "TextInput";
         case SDL_TEXTEDITING:
             return "TextEditing";
+        case SDL_DROPFILE:
+            return "DropFile";
+        case SDL_DROPTEXT:
+            return "DropText";
+        case SDL_DROPBEGIN:
+            return "DropBegin";
+        case SDL_DROPCOMPLETE:
+            return "DropComplete";
+        
 #endif
 
     }
@@ -632,10 +641,22 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
+        /*  https://wiki.libsdl.org/SDL_DropEvent */
+        case SDL_DROPFILE:
+            _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
+			SDL_free(event->drop.file);
+            break;
+        case SDL_DROPTEXT:
+            _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
+			SDL_free(event->drop.file);
+            break;
+        case SDL_DROPBEGIN:
+        case SDL_DROPCOMPLETE:
+            break;
 #endif
 
 
-#if IS_SDLv1
+#if IS_SDLv1    
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
             _pg_insobj(dict, "size", obj);

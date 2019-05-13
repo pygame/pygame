@@ -70,6 +70,22 @@
 static SDL_mutex *_pg_img_mutex = 0;
 #endif /* WITH_THREAD */
 
+#ifdef WIN32
+
+#include <windows.h>
+
+#if IS_SDLv1
+#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.win32io.h) ? 0 : -1)
+#else /* IS_SDLv2 */
+#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
+#endif /* IS_SDLv2 */
+
+#else /* ~WIN32 */
+
+#define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
+
+#endif /* ~WIN32 */
+
 static const char *
 find_extension(const char *fullname)
 {
@@ -104,8 +120,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    /*oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);*/
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -149,8 +164,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         if (name == NULL) {
             oname = PyObject_GetAttrString(obj, "name");
             if (oname != NULL) {
-                /*oencoded = pgRWopsEncodeFilePath(oname, NULL);*/
-                oencoded = pgRWopsEncodeString(oname, "UTF-8", NULL, NULL);
+                oencoded = pg_EncodeString(oname, "UTF-8", NULL, NULL);
                 Py_DECREF(oname);
                 if (oencoded == NULL) {
                     return NULL;
@@ -163,7 +177,7 @@ image_load_ext(PyObject *self, PyObject *arg)
                 PyErr_Clear();
             }
         }
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             Py_XDECREF(oencoded);
             return NULL;
@@ -215,20 +229,20 @@ image_load_ext(PyObject *self, PyObject *arg)
 static void
 png_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
-    if (fwrite(data, 1, length, fp) != length) {
-        fclose(fp);
-        png_error(png_ptr, "Error while writing to the PNG file (fwrite)");
+    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
+    if (SDL_RWwrite(rwops, data, 1, length) != length) {
+        SDL_RWclose(rwops);
+        png_error(png_ptr, "Error while writing to the PNG file (SDL_RWwrite)");
     }
 }
 
 static void
 png_flush_fn(png_structp png_ptr)
 {
-    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
-    if (fflush(fp) == EOF) {
-        fclose(fp);
-        png_error(png_ptr, "Error while writing to PNG file (fflush)");
+    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
+    if (pg_RWflush(rwops)) {
+        SDL_RWclose(rwops);
+        png_error(png_ptr, "Error while writing to PNG file (flush)");
     }
 }
 
@@ -238,10 +252,10 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
-    FILE *fp;
+    SDL_RWops *rwops;
     char *doing;
 
-    if (!(fp = pg_FopenUTF8(file_name, "wb"))) {
+    if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
         return -1;
     }
 
@@ -257,7 +271,7 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
         goto fail;
 
     doing = "init IO";
-    png_set_write_fn(png_ptr, fp, png_write_fn, png_flush_fn);
+    png_set_write_fn(png_ptr, rwops, png_write_fn, png_flush_fn);
 
     doing = "write header";
     png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype,
@@ -274,7 +288,7 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
     png_write_end(png_ptr, NULL);
 
     doing = "closing file";
-    if (0 != fclose(fp))
+    if (0 != SDL_RWclose(rwops))
         goto fail;
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return 0;
@@ -450,7 +464,7 @@ SavePNG(SDL_Surface *surface, const char *file)
 typedef struct {
     struct jpeg_destination_mgr pub; /* public fields */
 
-    FILE *outfile;  /* target stream */
+    SDL_RWops *outfile;  /* target stream */
     JOCTET *buffer; /* start of buffer */
 } j_outfile_mgr;
 
@@ -473,7 +487,7 @@ j_empty_output_buffer(j_compress_ptr cinfo)
 {
     j_outfile_mgr *dest = (j_outfile_mgr *)cinfo->dest;
 
-    if (fwrite(dest->buffer, 1, OUTPUT_BUF_SIZE, dest->outfile) !=
+    if (SDL_RWwrite(dest->outfile, dest->buffer, 1, OUTPUT_BUF_SIZE) !=
         (size_t)OUTPUT_BUF_SIZE) {
         ERREXIT(cinfo, JERR_FILE_WRITE);
     }
@@ -491,19 +505,17 @@ j_term_destination(j_compress_ptr cinfo)
 
     /* Write any data remaining in the buffer */
     if (datacount > 0) {
-        if (fwrite(dest->buffer, 1, datacount, dest->outfile) != datacount) {
+        if (SDL_RWwrite(dest->outfile, dest->buffer, 1, datacount) != datacount) {
             ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
-    fflush(dest->outfile);
-    /* Make sure we wrote the output file OK */
-    if (ferror(dest->outfile)) {
+    if (pg_RWflush(dest->outfile)) {
         ERREXIT(cinfo, JERR_FILE_WRITE);
     }
 }
 
 static void
-j_stdio_dest(j_compress_ptr cinfo, FILE *outfile)
+j_stdio_dest(j_compress_ptr cinfo, SDL_RWops *outfile)
 {
     j_outfile_mgr *dest;
 
@@ -535,7 +547,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
-    FILE *outfile;
+    SDL_RWops *outfile;
     JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
     int num_lines_to_write;
     int i;
@@ -545,7 +557,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if (!(outfile = pg_FopenUTF8(file_name, "wb"))) {
+    if (!(outfile = SDL_RWFromFile(file_name, "wb"))) {
         return -1;
     }
     j_stdio_dest(&cinfo, outfile);
@@ -579,7 +591,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     }
 
     jpeg_finish_compress(&cinfo);
-    fclose(outfile);
+    SDL_RWclose(outfile);
     jpeg_destroy_compress(&cinfo);
     return 0;
 }
@@ -801,7 +813,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a string for the file argument: got %.1024s",

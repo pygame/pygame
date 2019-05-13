@@ -688,8 +688,6 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
                    PGFT_String *text, int invert,
                    int x, int y, SDL_Rect *r)
 {
-    static int view_init = 0;
-
     pg_buffer pg_view;
     Py_buffer *view_p = (Py_buffer *)&pg_view;
 
@@ -706,12 +704,6 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
     Layout *font_text;
 
     /* Get target buffer */
-    if (!view_init) {
-        import_pygame_base();
-        if (PyErr_Occurred()) {
-            return -1;
-        }
-    }
     if (pgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         return -1;
     }

@@ -84,8 +84,11 @@ key_get_repeat(PyObject *self, PyObject *args)
 *     https://github.com/pygame/pygame/issues/659
 * so that they work with SDL_GetKeyboardState().
 */
+#define _PG_SCANCODEWRAPPER_TYPE_NAME "ScancodeWrapper"
+#define _PG_SCANCODEWRAPPER_TYPE_FULLNAME "pygame.key." _PG_SCANCODEWRAPPER_TYPE_NAME
+
 typedef struct {
-    PyObject_HEAD
+    PyTupleObject tuple;
 } pgScancodeWrapper;
 
 static PyObject*
@@ -97,8 +100,7 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
         return NULL;
     index = SDL_GetScancodeFromKey(index);
     adjustedvalue = PyLong_FromLong(index);
-    ret = ((PyObject*)self)->ob_type->tp_base->
-          tp_as_mapping->mp_subscript(self, adjustedvalue);
+    ret = PyTuple_Type.tp_as_mapping->mp_subscript(self, adjustedvalue);
     Py_DECREF(adjustedvalue);
     return ret;
 }
@@ -109,20 +111,14 @@ static PyMappingMethods pg_scancodewrapper_mapping = {
     NULL
 };
 
-static void
-pg_scancodewrapper_dealloc(pgScancodeWrapper *self)
-{
-    ((PyObject*)self)->ob_type->tp_free(self);
-}
-
 static PyObject*
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
-    PyObject *baserepr = ((PyObject*)self)->ob_type->tp_base->tp_repr(self);
+    PyObject *baserepr = PyTuple_Type.tp_repr(self);
 #if PY3
-    PyObject *ret = Text_FromFormat("pygame._ScancodeWrapper%S", baserepr);
+    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
 #else /* PY2 */
-    PyObject *ret = Text_FromFormat("pygame._ScancodeWrapper%s",
+    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%s",
                                     PyString_AsString(baserepr));
 #endif /* PY2 */
     Py_DECREF(baserepr);
@@ -130,10 +126,10 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    TYPE_HEAD(NULL, 0) "pygame._ScancodeWrapper", /* name */
-    sizeof(pgScancodeWrapper),                    /* basic size */
+    TYPE_HEAD(NULL, 0) _PG_SCANCODEWRAPPER_TYPE_FULLNAME, /* name */
+    0,                                            /* basic size */
     0,                                            /* itemsize */
-    pg_scancodewrapper_dealloc,                   /* dealloc */
+    0,                                            /* dealloc */
     0,                                            /* print */
     NULL,                                         /* getattr */
     NULL,                                         /* setattr */
@@ -148,8 +144,8 @@ static PyTypeObject pgScancodeWrapper_Type = {
     0,                                            /* tp_getattro */
     0L,
     0L,
-    Py_TPFLAGS_DEFAULT |
-    Py_TPFLAGS_TUPLE_SUBCLASS,                /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS |
+    Py_TPFLAGS_BASETYPE,                      /* tp_flags */
     NULL,                                     /* Documentation string */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
@@ -849,6 +845,14 @@ MODINIT_DEFINE(key)
     }
 
 #if IS_SDLv2
+    Py_INCREF((PyObject*)&pgScancodeWrapper_Type);
+    if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
+                           (PyObject*)&pgScancodeWrapper_Type) == -1) {
+        Py_DECREF((PyObject *)&pgScancodeWrapper_Type);
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
     _use_sdl1_key_names();
 #endif /* IS_SDLv2 */
 
