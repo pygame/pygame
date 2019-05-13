@@ -11,6 +11,8 @@ from pygame._sdl2 import (
     AUDIO_F32,
     AUDIO_ALLOW_FORMAT_CHANGE
 )
+from pygame._sdl2.mixer import set_post_mix
+
 
 pg.mixer.pre_init(44100, 32, 2, 512)
 pg.init()
@@ -32,6 +34,16 @@ def callback(audiodevice, audiomemoryview):
     # print(audiodevice)
     sound_chunks.append(bytes(audiomemoryview))
 
+
+def postmix_callback(postmix, audiomemoryview):
+    """ This is called in the sound thread.
+
+    At the end of mixing we get this data.
+    """
+    print(type(audiomemoryview), len(audiomemoryview))
+    print(postmix)
+
+set_post_mix(postmix_callback)
 
 audio = AudioDevice(
     devicename=names[0],
