@@ -30,6 +30,18 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    .. ## pygame.mixer.music.load ##
 
+.. function:: unload
+
+   | :sl:`Unload the currently loaded music to free up resources`
+   | :sg:`unload() -> None`
+
+   This closes resources like files for any music that may be loaded.
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mixer.music.load ##
+
+
 .. function:: play
 
    | :sl:`Start the playback of the music stream`

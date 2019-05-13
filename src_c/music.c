@@ -432,7 +432,7 @@ static PyMethodDef _music_methods[] = {
      DOC_PYGAMEMIXERMUSICGETPOS},
 
     {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},
-    {"unload", music_unload, METH_NOARGS, NULL},
+    {"unload", music_unload, METH_NOARGS, DOC_PYGAMEMIXERMUSICUNLOAD},
     {"queue", music_queue, METH_VARARGS, DOC_PYGAMEMIXERMUSICQUEUE},
 
     {NULL, NULL, 0, NULL}};
