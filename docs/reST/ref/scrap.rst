@@ -8,81 +8,80 @@
 
 | :sl:`pygame module for clipboard support.`
 
-EXPERIMENTAL!: meaning this API may change, or disappear in later pygame
-releases. If you use this, your code will break with the next pygame release.
+**EXPERIMENTAL!**: This API may change or disappear in later pygame releases. If
+you use this, your code may break with the next pygame release.
 
-The scrap module is for getting and putting stuff from the clipboard. So you
-can copy and paste things between pygame, and other application types. It
-defines some basic own data types
-
-::
-
-  SCRAP_PPM
-  SCRAP_PBM
-  SCRAP_BMP
-  SCRAP_TEXT
-
-to be placed into the clipboard and allows to use define own clipboard types.
-``SCRAP_PPM``, ``SCRAP_PBM`` and ``SCRAP_BMP`` are suitable for surface buffers
-to be shared with other applications, while ``SCRAP_TEXT`` is an alias for the
-plain text clipboard type.
-
-The SCRAP_* types refer to the following ``MIME`` types and register those as
-well as the default operating system type for this type of data:
+The scrap module is for transferring data to/from the clipboard. This allows
+for cutting and pasting data between pygame and other applications. Some basic
+data (MIME) types are defined and registered:
 
 ::
 
-  SCRAP_TEXT text/plain    for plain text
-  SCRAP_PBM  image/pbm     for PBM encoded image data
-  SCRAP_PPM  image/ppm     for PPM encoded image data
-  SCRAP_BMP  image/bmp     for BMP encoded image data
+   pygame         string
+  constant        value        description
+  --------------------------------------------------
+  SCRAP_TEXT   "text/plain"    plain text
+  SCRAP_BMP    "image/bmp"     BMP encoded image data
+  SCRAP_PBM    "image/pbm"     PBM encoded image data
+  SCRAP_PPM    "image/ppm"     PPM encoded image data
 
-Depending on the platform additional types are automatically registered when
+``pygame.SCRAP_PPM``, ``pygame.SCRAP_PBM`` and ``pygame.SCRAP_BMP`` are
+suitable for surface buffers to be shared with other applications.
+``pygame.SCRAP_TEXT`` is an alias for the plain text clipboard type.
+
+Depending on the platform, additional types are automatically registered when
 data is placed into the clipboard to guarantee a consistent sharing behaviour
-with other applications. The following listed types can be used as string to be
-passed to the respective :mod:`pygame.scrap` module functions.
+with other applications. The following listed types can be used as strings to
+be passed to the respective :mod:`pygame.scrap` module functions.
 
-For Windows platforms, the additional types are supported automatically and
+For **Windows** platforms, these additional types are supported automatically
+and resolve to their internal definitions:
+
+::
+
+  "text/plain;charset=utf-8"   UTF-8 encoded text
+  "audio/wav"                  WAV encoded audio
+  "image/tiff"                 TIFF encoded image data
+
+For **X11** platforms, these additional types are supported automatically and
 resolve to their internal definitions:
 
 ::
 
-  text/plain;charset=utf-8 for UTF-8 encoded text
-  audio/wav                for WAV encoded audio
-  image/tiff               for TIFF encoded image data
+  "text/plain;charset=utf-8"   UTF-8 encoded text
+  "UTF8_STRING"                UTF-8 encoded text
+  "COMPOUND_TEXT"              COMPOUND text
 
-For ``X11`` platforms, the additional types are supported automatically and
-resolve to their internal definitions:
+User defined types can be used, but the data might not be accessible by other
+applications unless they know what data type to look for.
+Example: Data placed into the clipboard by
+``pygame.scrap.put("my_data_type", byte_data)`` can only be accessed by
+applications which query the clipboard for the ``"my_data_type"`` data type.
 
-::
+For an example of how the scrap module works refer to the examples page
+(:func:`pygame.examples.scrap_clipboard.main`) or the code directly in GitHub
+(`pygame/examples/scrap_clipboard.py <https://github.com/pygame/pygame/blob/master/examples/scrap_clipboard.py>`_).
 
-  UTF8_STRING               for UTF-8 encoded text
-  text/plain;charset=utf-8  for UTF-8 encoded text
-  COMPOUND_TEXT             for COMPOUND text
+.. versionadded:: 1.8
 
-As stated before you can define own types for the clipboard, those however
-might not be usable by other applications. Thus data pasted into the clipboard
-using
-
-::
-
-  pygame.scrap.put ("own_data", data)
-
-can only be used by applications, which query the clipboard for the "own_data"
-type.
-
-New in pygame 1.8. Only works for Windows, ``X11`` and Mac ``OS`` ``X`` so far.
-On Mac ``OSX`` only text works at the moment - other types will be supported in
-the next release.
+.. note::
+   The scrap module is currently only supported for Windows, X11 and Mac OS X.
+   On Mac OS X only text works at the moment - other types may be supported in
+   future releases.
 
 .. function:: init
 
    | :sl:`Initializes the scrap module.`
-   | :sg:`init () -> None`
+   | :sg:`init() -> None`
 
-   Tries to initialize the scrap module and raises an exception, if it fails.
-   Note that this module requires a set display surface, so you have to make
-   sure, you acquired one earlier using ``pygame.display.set_mode()``.
+   Initialize the scrap module.
+
+   :raises pygame.error: if unable to initialize scrap module
+
+   |
+
+   .. note:: The scrap module requires :func:`pygame.display.set_mode()` be
+      called before being initialized.
 
    .. ## pygame.scrap.init ##
 
@@ -91,50 +90,61 @@ the next release.
    | :sl:`Returns True if the scrap module is currently initialized.`
    | :sg:`get_init() -> bool`
 
-   Returns ``True`` if the ``pygame.scrap`` module is currently initialized.
+   Gets the scrap module's initialization state.
 
-   New in pygame 1.9.5.
+   :returns: ``True`` if the :mod:`pygame.scrap` module is currently
+      initialized, ``False`` otherwise
+   :rtype: bool
+
+   .. versionadded:: 1.9.5
 
    .. ## pygame.scrap.get_init ##
 
 .. function:: get
 
    | :sl:`Gets the data for the specified type from the clipboard.`
-   | :sg:`get (type) -> bytes`
+   | :sg:`get(type) -> bytes or str or None`
 
-   Returns the data for the specified type from the clipboard. The data is
-   returned as a byte string and might need further processing,
-   such as decoding to Unicode.
-   If no data for the passed type is available, None is returned.
+   Retrieves the data for the specified type from the clipboard. In python 3
+   the data is returned as a byte string and might need further processing
+   (such as decoding to Unicode).
+
+   :param string type: data type to retrieve from the clipboard
+
+   :returns: data (byte string in python 3 or str in python 2) for the given
+      type identifier or ``None`` if no data for the given type is available
+   :rtype: bytes or str or None
 
    ::
 
-     text = pygame.scrap.get (SCRAP_TEXT)
+     text = pygame.scrap.get(pygame.SCRAP_TEXT)
      if text:
-         # Do stuff with it.
+         print("There is text in the clipboard.")
      else:
-         print "There does not seem to be text in the clipboard."
+         print("There does not seem to be text in the clipboard.")
 
    .. ## pygame.scrap.get ##
 
 .. function:: get_types
 
    | :sl:`Gets a list of the available clipboard types.`
-   | :sg:`get_types () -> list`
+   | :sg:`get_types() -> list`
 
-   Gets a list of strings with the identifiers for the available clipboard
-   types. Each identifier can be used in the ``scrap.get()`` method to get the
-   clipboard content of the specific type. If there is no data in the
-   clipboard, an empty list is returned.
+   Gets a list of data type string identifiers for the data currently
+   available on the clipboard. Each identifier can be used in the
+   :func:`pygame.scrap.get()` method to get the clipboard content of the
+   specific type.
+
+   :returns: list of strings of the available clipboard data types, if there
+      is no data in the clipboard an empty list is returned
+   :rtype: list
 
    ::
 
-     types = pygame.scrap.get_types ()
-     for t in types:
+     for t in pygame.scrap.get_types():
          if "text" in t:
-             # There is some content with the word "text" in it. It's
-             # possibly text, so print it.
-             print pygame.scrap.get (t)
+             # There is some content with the word "text" in its type string.
+             print(pygame.scrap.get(t))
 
    .. ## pygame.scrap.get_types ##
 
@@ -143,56 +153,70 @@ the next release.
    | :sl:`Places data into the clipboard.`
    | :sg:`put(type, data) -> None`
 
-   Places data for a specific clipboard type into the clipboard. The data must
-   be a string buffer. The type is a string identifying the type of data placed
-   into the clipboard. This can be one of the native ``SCRAP_PBM``,
-   ``SCRAP_PPM``, ``SCRAP_BMP`` or ``SCRAP_TEXT`` values or an own string
-   identifier.
+   Places data for a given clipboard type into the clipboard. The data must
+   be a string buffer. The type is a string identifying the type of data to be
+   placed into the clipboard. This can be one of the predefined
+   ``pygame.SCRAP_PBM``, ``pygame.SCRAP_PPM``, ``pygame.SCRAP_BMP`` or
+   ``pygame.SCRAP_TEXT`` values or a user defined string identifier.
 
-   The method raises an exception, if the content could not be placed into the
-   clipboard.
+   :param string type: type identifier of the data to be placed into the
+      clipboard
+   :param data: data to be place into the clipboard (in python 3 data is a
+      byte string and in python 2 data is a str)
+   :type data: bytes or str
+
+   :raises pygame.error: if unable to put the data into the clipboard
 
    ::
 
-     fp = open ("example.bmp", "rb")
-     pygame.scrap.put (SCRAP_BMP, fp.read ())
-     fp.close ()
-     # Now you can acquire the image data from the clipboard in other
-     # applications.
-     pygame.scrap.put (SCRAP_TEXT, "A text to copy")
-     pygame.scrap.put ("Plain text", "A text to copy")
+     with open("example.bmp", "rb") as fp:
+         pygame.scrap.put(pygame.SCRAP_BMP, fp.read())
+     # The image data is now on the clipboard for other applications to access
+     # it.
+     pygame.scrap.put(pygame.SCRAP_TEXT, b"A text to copy")
+     pygame.scrap.put("Plain text", b"Data for user defined type 'Plain text'")
 
    .. ## pygame.scrap.put ##
 
 .. function:: contains
 
-   | :sl:`Checks, whether a certain type is available in the clipboard.`
-   | :sg:`contains (type) -> bool`
+   | :sl:`Checks whether data for a given type is available in the clipboard.`
+   | :sg:`contains(type) -> bool`
 
-   Returns True, if data for the passed type is available in the clipboard,
-   False otherwise.
+   Checks whether data for the given type is currently available in the
+   clipboard.
+
+   :param string type: data type to check availability of
+
+   :returns: ``True`` if data for the passed type is available in the
+      clipboard, ``False`` otherwise
+   :rtype: bool
 
    ::
 
-     if pygame.scrap.contains (SCRAP_TEXT):
-         print "There is text in the clipboard."
-     if pygame.scrap.contains ("own_data_type"):
-         print "There is stuff in the clipboard."
+     if pygame.scrap.contains(pygame.SCRAP_TEXT):
+         print("There is text in the clipboard.")
+     if pygame.scrap.contains("own_data_type"):
+         print("There is stuff in the clipboard.")
 
    .. ## pygame.scrap.contains ##
 
 .. function:: lost
 
-   | :sl:`Checks whether the clipboard is currently owned by the application.`
+   | :sl:`Indicates if the clipboard ownership has been lost by the pygame application.`
    | :sg:`lost() -> bool`
 
-   Returns True, if the clipboard is currently owned by the pygame application,
-   False otherwise.
+   Indicates if the clipboard ownership has been lost by the pygame
+   application.
+
+   :returns: ``True``, if the clipboard ownership has been lost by the pygame
+      application, ``False`` if the pygame application still owns the clipboard
+   :rtype: bool
 
    ::
 
-     if pygame.scrap.lost ():
-        print "No content from me anymore. The clipboard is used by someone else."
+     if pygame.scrap.lost():
+         print("The clipboard is in use by another application.")
 
    .. ## pygame.scrap.lost ##
 
@@ -201,13 +225,18 @@ the next release.
    | :sl:`Sets the clipboard access mode.`
    | :sg:`set_mode(mode) -> None`
 
-   Sets the access mode for the clipboard. This is only of interest for ``X11``
-   environments, where clipboard modes for mouse selections (SRAP_SELECTION)
-   and the clipboard (SCRAP_CLIPBOARD) are available. Setting the mode to
-   ``SCRAP_SELECTION`` in other environments will not cause any difference.
+   Sets the access mode for the clipboard. This is only of interest for X11
+   environments where clipboard modes ``pygame.SCRAP_SELECTION`` (for mouse
+   selections) and ``pygame.SCRAP_CLIPBOARD`` (for the clipboard) are
+   available. Setting the mode to ``pygame.SCRAP_SELECTION`` in other
+   environments will not change the mode from ``pygame.SCRAP_CLIPBOARD``.
 
-   If a value different from ``SCRAP_CLIPBOARD`` or ``SCRAP_SELECTION`` is
-   passed, a ValueError will be raised.
+   :param mode: access mode, supported values are ``pygame.SCRAP_CLIPBOARD``
+      and ``pygame.SCRAP_SELECTION`` (``pygame.SCRAP_SELECTION`` only has an
+      effect when used on X11 platforms)
+
+   :raises ValueError: if the ``mode`` parameter is not
+      ``pygame.SCRAP_CLIPBOARD`` or ``pygame.SCRAP_SELECTION``
 
    .. ## pygame.scrap.set_mode ##
 

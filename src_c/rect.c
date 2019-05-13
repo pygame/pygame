@@ -232,7 +232,7 @@ _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
 }
 
 static PyObject *
-pg_rect_normalize(pgRectObject *self)
+pg_rect_normalize(pgRectObject *self, PyObject *args)
 {
     if (self->r.w < 0) {
         self->r.x += self->r.w;
@@ -815,7 +815,7 @@ pg_rect_clamp_ip(pgRectObject *self, PyObject *args)
 
 /* for pickling */
 static PyObject *
-pg_rect_reduce(pgRectObject *self)
+pg_rect_reduce(pgRectObject *self, PyObject *args)
 {
     return Py_BuildValue("(O(iiii))", Py_TYPE(self), (int)self->r.x,
                          (int)self->r.y, (int)self->r.w, (int)self->r.h);
@@ -823,7 +823,7 @@ pg_rect_reduce(pgRectObject *self)
 
 /* for copy module */
 static PyObject *
-pg_rect_copy(pgRectObject *self)
+pg_rect_copy(pgRectObject *self, PyObject *args)
 {
     return _pg_rect_subtype_new4(Py_TYPE(self), self->r.x, self->r.y,
                                  self->r.w, self->r.h);

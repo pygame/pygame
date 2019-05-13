@@ -569,6 +569,11 @@ div.topic {
     background-color: #eee;
 }
 
+div.caution {
+    background-color: #eeffcc;
+    border: 1px solid #aabb88;
+}
+
 div.warning {
     background-color: #ffe4e4;
     border: 1px solid #f66;
@@ -622,6 +627,10 @@ ul.simple {
     list-style-type: circle;
     list-style-position: inside;
     margin-bottom: 1em;
+}
+
+.versionmodified {
+    font-style: italic;
 }
 
 /* Top level section title format */

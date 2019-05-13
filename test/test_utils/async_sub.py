@@ -262,11 +262,11 @@ class AsyncTest(unittest.TestCase):
         ret_code, response = proc_in_time_or_kill(
             [sys.executable, '-c', 'while 1: pass'], time_out = 1
         )
-        
-        self.assert_( 'rocess timed out' in ret_code )
-        self.assert_( 'successfully terminated' in ret_code )
+
+        self.assertIn('rocess timed out', ret_code)
+        self.assertIn('successfully terminated', ret_code)
 
 ################################################################################
-    
+
 if __name__ == '__main__':
     unittest.main()

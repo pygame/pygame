@@ -1,26 +1,15 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEKEY "pygame module to work with the keyboard"
-
 #define DOC_PYGAMEKEYGETFOCUSED "get_focused() -> bool\ntrue if the display is receiving keyboard input from the system"
-
 #define DOC_PYGAMEKEYGETPRESSED "get_pressed() -> bools\nget the state of all keyboard buttons"
-
 #define DOC_PYGAMEKEYGETMODS "get_mods() -> int\ndetermine which modifier keys are being held"
-
 #define DOC_PYGAMEKEYSETMODS "set_mods(int) -> None\ntemporarily set which modifier keys are pressed"
-
 #define DOC_PYGAMEKEYSETREPEAT "set_repeat() -> None\nset_repeat(delay, interval) -> None\ncontrol how held keys are repeated"
-
 #define DOC_PYGAMEKEYGETREPEAT "get_repeat() -> (delay, interval)\nsee how held keys are repeated"
-
 #define DOC_PYGAMEKEYNAME "name(key) -> string\nget the name of a key identifier"
-
 #define DOC_PYGAMEKEYSTARTTEXTINPUT "start_text_input() -> None\nstart handling IME compositions"
-
 #define DOC_PYGAMEKEYSTOPTEXTINPUT "stop_text_input() -> None\nstop handling IME compositions"
-
 #define DOC_PYGAMEKEYSETTEXTINPUTRECT "set_text_input_rect(Rect) -> None\ncontrols the position of the candidate list"
-
 
 
 /* Docs in a comment... slightly easier to read. */

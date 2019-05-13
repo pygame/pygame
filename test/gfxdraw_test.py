@@ -2,6 +2,7 @@ import unittest
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
+from pygame.tests.test_utils import SurfaceSubclass
 
 def intensity(c, i):
     """Return color c changed by intensity i
@@ -54,35 +55,72 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                      surf.get_masks()))
         self.assertNotEqual(sc, color, fail_msg)
 
+    @classmethod
+    def setUpClass(cls):
+        # Necessary for Surface.set_palette.
+        pygame.init()
+        pygame.display.set_mode((1, 1))
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.quit()
+
     def setUp(self):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
+
         Surface = pygame.Surface
         size = self.default_size
         palette = self.default_palette
         if not self.is_started:
-            # Necessary for Surface.set_palette.
-            pygame.init()
-            pygame.display.set_mode((1, 1))
             # Create test surfaces
             self.surfaces = [Surface(size, 0, 8),
-                             Surface(size, 0, 16),
-                             Surface(size, 0, 24),
-                             Surface(size, 0, 32),
                              Surface(size, SRCALPHA, 16),
                              Surface(size, SRCALPHA, 32)]
             self.surfaces[0].set_palette(palette)
-            # Special pixel formats
-            for i in range(1, 6):
-                s = self.surfaces[i]
-                flags = s.get_flags()
-                bitsize = s.get_bitsize()
-                masks = s.get_masks()
-                if flags:
-                    masks = (masks[1], masks[2], masks[3], masks[0])
-                else:
-                    masks = (masks[1], masks[2], masks[0], masks[3])
-                self.surfaces.append(Surface(size, flags, bitsize, masks))
+            nonpalette_fmts = (
+                #(8, (0xe0, 0x1c, 0x3, 0x0)),
+                (12, (0xf00, 0xf0, 0xf, 0x0)),
+                (15, (0x7c00, 0x3e0, 0x1f, 0x0)),
+                (15, (0x1f, 0x3e0, 0x7c00, 0x0)),
+                (16, (0xf00, 0xf0, 0xf, 0xf000)),
+                (16, (0xf000, 0xf00, 0xf0, 0xf)),
+                (16, (0xf, 0xf0, 0xf00, 0xf000)),
+                (16, (0xf0, 0xf00, 0xf000, 0xf)),
+                (16, (0x7c00, 0x3e0, 0x1f, 0x8000)),
+                (16, (0xf800, 0x7c0, 0x3e, 0x1)),
+                (16, (0x1f, 0x3e0, 0x7c00, 0x8000)),
+                (16, (0x3e, 0x7c0, 0xf800, 0x1)),
+                (16, (0xf800, 0x7e0, 0x1f, 0x0)),
+                (16, (0x1f, 0x7e0, 0xf800, 0x0)),
+                (24, (0xff, 0xff00, 0xff0000, 0x0)),
+                (24, (0xff0000, 0xff00, 0xff, 0x0)),
+                (32, (0xff0000, 0xff00, 0xff, 0x0)),
+                (32, (0xff000000, 0xff0000, 0xff00, 0x0)),
+                (32, (0xff, 0xff00, 0xff0000, 0x0)),
+                (32, (0xff00, 0xff0000, 0xff000000, 0x0)),
+                (32, (0xff0000, 0xff00, 0xff, 0xff000000)),
+                (32, (0xff000000, 0xff0000, 0xff00, 0xff)),
+                (32, (0xff, 0xff00, 0xff0000, 0xff000000)),
+                (32, (0xff00, 0xff0000, 0xff000000, 0xff))
+            )
+            for bitsize, masks in nonpalette_fmts:
+                self.surfaces.append(Surface(size, 0, bitsize, masks))
         for surf in self.surfaces:
             surf.fill(self.background_color)
+
+    def test_gfxdraw__subclassed_surface(self):
+        """Ensure pygame.gfxdraw works on subclassed surfaces."""
+        surface = SurfaceSubclass((11, 13), SRCALPHA, 32)
+        surface.fill(pygame.Color('blue'))
+        expected_color = pygame.Color('red')
+        x, y = 1, 2
+
+        pygame.gfxdraw.pixel(surface, x, y, expected_color)
+
+        self.assertEqual(surface.get_at((x, y)), expected_color)
 
     def test_pixel(self):
         """pixel(surface, x, y, color): return None"""
@@ -507,6 +545,49 @@ class GfxdrawDefaultTest( unittest.TestCase ):
             for posn in bg_test_points:
                 self.check_at(surf, posn, bg_adjusted)
 
+    @unittest.expectedFailure
+    def test_aatrigon__with_horizontal_edge(self):
+        """Ensure aatrigon draws horizontal edges correctly.
+
+        This test creates 2 surfaces and draws an aatrigon on each. The pixels
+        on each surface are compared to ensure they are the same. The only
+        difference between the 2 aatrigons is the order the points are drawn.
+        The order of the points should have no impact on the final drawing.
+
+        Related to issue #622.
+        """
+        bg_color = pygame.Color('white')
+        line_color = pygame.Color('black')
+        width, height = 11, 10
+        expected_surface = pygame.Surface((width, height), 0, 32)
+        expected_surface.fill(bg_color)
+        surface = pygame.Surface((width, height), 0, 32)
+        surface.fill(bg_color)
+
+        x1, y1 = width - 1, 0
+        x2, y2 = (width - 1) // 2, height - 1
+        x3, y3 = 0, 0
+
+        # The points in this order draw as expected.
+        pygame.gfxdraw.aatrigon(expected_surface, x1, y1, x2, y2, x3, y3,
+                                line_color)
+
+        # The points in reverse order fail to draw the horizontal edge along
+        # the top.
+        pygame.gfxdraw.aatrigon(surface, x3, y3, x2, y2, x1, y1, line_color)
+
+        # The surfaces are locked for a possible speed up of pixel access.
+        expected_surface.lock()
+        surface.lock()
+        for x in range(width):
+            for y in range(height):
+                self.assertEqual(expected_surface.get_at((x, y)),
+                                 surface.get_at((x, y)),
+                                 'pos=({}, {})'.format(x, y))
+
+        surface.unlock()
+        expected_surface.unlock()
+
     def test_filled_trigon(self):
         """filled_trigon(surface, x1, y1, x2, y2, x3, y3, color): return None"""
         fg = self.foreground_color
@@ -593,6 +674,50 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                 self.check_not_at(surf, posn, fg_adjusted)
             for posn in bg_test_points:
                 self.check_at(surf, posn, bg_adjusted)
+
+    @unittest.expectedFailure
+    def test_aapolygon__with_horizontal_edge(self):
+        """Ensure aapolygon draws horizontal edges correctly.
+
+        This test creates 2 surfaces and draws a polygon on each. The pixels
+        on each surface are compared to ensure they are the same. The only
+        difference between the 2 polygons is that one is drawn using
+        aapolygon() and the other using multiple line() calls. They should
+        produce the same final drawing.
+
+        Related to issue #622.
+        """
+        bg_color = pygame.Color('white')
+        line_color = pygame.Color('black')
+        width, height = 11, 10
+        expected_surface = pygame.Surface((width, height), 0, 32)
+        expected_surface.fill(bg_color)
+        surface = pygame.Surface((width, height), 0, 32)
+        surface.fill(bg_color)
+
+        points = ((0, 0), (0, height - 1), (width - 1, height - 1),
+                  (width - 1, 0))
+
+        # The points are used to draw the expected aapolygon using the line()
+        # function.
+        for (x1, y1), (x2, y2) in zip(points, points[1:] + points[:1]):
+            pygame.gfxdraw.line(expected_surface, x1, y1, x2, y2, line_color)
+
+        # The points in this order fail to draw the horizontal edge along
+        # the top.
+        pygame.gfxdraw.aapolygon(surface, points, line_color)
+
+        # The surfaces are locked for a possible speed up of pixel access.
+        expected_surface.lock()
+        surface.lock()
+        for x in range(width):
+            for y in range(height):
+                self.assertEqual(expected_surface.get_at((x, y)),
+                                 surface.get_at((x, y)),
+                                 'pos=({}, {})'.format(x, y))
+
+        surface.unlock()
+        expected_surface.unlock()
 
     def test_filled_polygon(self):
         """filled_polygon(surface, points, color): return None"""

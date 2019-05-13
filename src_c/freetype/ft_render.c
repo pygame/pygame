@@ -569,8 +569,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
             SDL_SetAlpha(surface, SDL_SRCALPHA, fgcolor->a);
 #else /* IS_SDLv2 */
             SDL_SetSurfaceAlphaMod(surface, fgcolor->a);
-#pragma PG_WARN(SRCALPHA flag problem here. Blend mode not set to SDL_BLENDMODE_BLEND.)
-#pragma PG_WARN(Probably should keep flags in pgFontObject.)
+            SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 #endif /* IS_SDLv2 */
         }
         fgcolor = &mono_fgcolor;
@@ -689,8 +688,6 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
                    PGFT_String *text, int invert,
                    int x, int y, SDL_Rect *r)
 {
-    static int view_init = 0;
-
     pg_buffer pg_view;
     Py_buffer *view_p = (Py_buffer *)&pg_view;
 
@@ -707,12 +704,6 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
     Layout *font_text;
 
     /* Get target buffer */
-    if (!view_init) {
-        import_pygame_base();
-        if (PyErr_Occurred()) {
-            return -1;
-        }
-    }
     if (pgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         return -1;
     }

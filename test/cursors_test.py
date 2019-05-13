@@ -42,13 +42,18 @@ class CursorsModuleTest(unittest.TestCase):
         cursor = pygame.cursors.load_xbm(cursorfile, maskfile)
 
         # Test that load_xbm will take file objects as arguments
-        cursorfile, maskfile = [open(pth) for pth in (cursorfile, maskfile)]
-        cursor = pygame.cursors.load_xbm(cursorfile, maskfile)
+        with open(cursorfile) as cursor_f, open(maskfile) as mask_f:
+            cursor = pygame.cursors.load_xbm(cursor_f, mask_f)
 
         # Is it in a format that mouse.set_cursor won't blow up on?
         pygame.display.init()
-        pygame.mouse.set_cursor(*cursor)
-        pygame.display.quit()
+        try:
+            pygame.mouse.set_cursor(*cursor)
+        except pygame.error as e:
+            if 'not currently supported' in str(e):
+                unittest.skip('skipping test as set_cursor() is not supported')
+        finally:
+            pygame.display.quit()
 
 ################################################################################
 

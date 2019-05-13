@@ -188,109 +188,6 @@ static void
 pg_SetDefaultWindowSurface(PyObject *);
 #endif /* IS_SDLv2 */
 
-
-#include <errno.h>
-#ifdef WIN32
-
-static char*
-_new_win_error_msg_utf8() {
-    /* must be free()'d by the caller */
-    size_t utf8_len;
-    char *utf8_buf = NULL;
-    size_t nwritten;
-    wchar_t* buffer = NULL;
-    DWORD numChars =
-        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM |
-                       FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                       FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL,
-                       GetLastError(),
-                       0,
-                       (wchar_t*)&buffer,
-                       0, 0);
-    if (!numChars)
-        goto leave;
-    utf8_len =
-        WideCharToMultiByte(CP_UTF8, 0,
-                            buffer, numChars,
-                            NULL, 0,
-                            NULL, NULL);
-    if (!utf8_len)
-        goto leave;
-    utf8_buf = malloc(utf8_len + 1);
-    if (!utf8_buf)
-        goto leave;
-    nwritten =
-        WideCharToMultiByte(CP_UTF8, 0,
-                            buffer, numChars,
-                            utf8_buf, utf8_len,
-                            NULL, NULL);
-    if (!nwritten) {
-        free(utf8_buf);
-        utf8_buf = NULL;
-        goto leave;
-    }
-    utf8_buf[nwritten] = 0;
-
-leave:
-    LocalFree(buffer);
-    return utf8_buf;
-}
-
-static FILE*
-pg_FopenUTF8(const char *filename, const char *mode) {
-    FILE *fp = NULL;
-    static wchar_t modebuf[24];
-    size_t nameInputSize = strlen(filename) + 1;
-    size_t namebuf_chars = MultiByteToWideChar(CP_UTF8, 0, filename, nameInputSize, 0, 0);
-    wchar_t* namebuf;
-    if (namebuf_chars == 0)
-        return NULL;
-    namebuf = malloc(namebuf_chars * sizeof(wchar_t));
-    if (!namebuf)
-        goto leave;
-
-    if (MultiByteToWideChar(CP_UTF8, 0, filename, nameInputSize,
-                            namebuf, namebuf_chars) == 0) {
-        char *utf8_buf = _new_win_error_msg_utf8();
-        if (utf8_buf) {
-            SDL_SetError("Cannot open file %s: %s.", filename, utf8_buf);
-            free(utf8_buf);
-        } else {
-            SDL_SetError("Cannot open file %s.", filename);
-        }
-        goto leave;
-    }
-    if (MultiByteToWideChar(CP_UTF8, 0, mode, -1,
-                            modebuf, sizeof(modebuf) / sizeof(wchar_t)) == 0) {
-        char *utf8_buf = _new_win_error_msg_utf8();
-        if (utf8_buf) {
-            SDL_SetError("Cannot open file %s: %s.", filename, utf8_buf);
-            free(utf8_buf);
-        } else {
-            SDL_SetError("Cannot open file %s.", filename);
-        }
-        goto leave;
-    }
-
-    fp = _wfopen(namebuf, modebuf);
-    if (!fp)
-        SDL_SetError("Cannot open file %s. %s", filename, strerror(errno));
-
-leave:
-    free(namebuf);
-    return fp;
-}
-#else /* !WIN32 */
-static FILE*
-pg_FopenUTF8(const char *filename, const char *mode) {
-    FILE *fp = fopen(filename, mode);
-    if (!fp)
-        SDL_SetError("Cannot open file %s. %s", filename, strerror(errno));
-    return fp;
-}
-#endif /* !WIN32 */
-
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
@@ -366,7 +263,7 @@ pg_register_quit(PyObject *self, PyObject *value)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *args)
 {
     PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
     int loop, num;
@@ -442,7 +339,7 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self)
+pg_get_sdl_version(PyObject *self, PyObject *args)
 {
 #if IS_SDLv1
     const SDL_version *v;
@@ -458,13 +355,13 @@ pg_get_sdl_version(PyObject *self)
 }
 
 static PyObject *
-pg_get_sdl_byteorder(PyObject *self)
+pg_get_sdl_byteorder(PyObject *self, PyObject *args)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
 }
 
 static PyObject *
-pg_quit(PyObject *self)
+pg_quit(PyObject *self, PyObject *args)
 {
     _pg_quit();
     Py_RETURN_NONE;
@@ -506,7 +403,7 @@ _pg_quit(void)
 }
 
 static PyObject *
-pg_get_init(PyObject *self)
+pg_get_init(PyObject *self, PyObject *args)
 {
     return PyBool_FromLong(pg_is_init);
 }
@@ -667,9 +564,9 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 }
 
 static PyObject *
-pg_get_error(PyObject *self)
+pg_get_error(PyObject *self, PyObject *args)
 {
-#if IS_SDLv1 && PY3
+#if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
     /* SDL 1's encoding is ambiguous */
     PyObject *obj;
     if (obj = PyUnicode_DecodeUTF8(SDL_GetError(),
@@ -686,7 +583,7 @@ static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
-#if PY2
+#if PY2 || defined(PYPY_VERSION)
     if (!PyArg_ParseTuple(args, "es",
                           "UTF-8", &errstring))
     {
@@ -2158,7 +2055,7 @@ pg_uninstall_parachute(void)
 /* bind functions to python */
 
 static PyObject *
-pg_do_segfault(PyObject *self)
+pg_do_segfault(PyObject *self, PyObject *args)
 {
     // force crash
     *((int *)1) = 45;
@@ -2167,21 +2064,21 @@ pg_do_segfault(PyObject *self)
 }
 
 static PyMethodDef _base_methods[] = {
-    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
-    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"init", pg_init, METH_NOARGS, DOC_PYGAMEINIT},
+    {"quit", pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
+    {"get_init", pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
     {"register_quit", pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
-    {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
-    {"set_error", (PyCFunction)pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
-    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,
+    {"get_error", pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
+    {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
+    {"get_sdl_version", pg_get_sdl_version, METH_NOARGS,
      DOC_PYGAMEGETSDLVERSION},
-    {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
+    {"get_sdl_byteorder", pg_get_sdl_byteorder, METH_NOARGS,
      DOC_PYGAMEGETSDLBYTEORDER},
 
-    {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
+    {"get_array_interface", pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
 
-    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
+    {"segfault", pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
@@ -2287,15 +2184,14 @@ MODINIT_DEFINE(base)
     c_api[16] = pgBuffer_Release;
     c_api[17] = pgDict_AsBuffer;
     c_api[18] = pgExc_BufferError;
-    c_api[19] = pg_FopenUTF8;
 #if IS_SDLv1
-#define FILLED_SLOTS 20
+#define FILLED_SLOTS 19
 #else /* IS_SDLv2 */
-    c_api[20] = pg_GetDefaultWindow;
-    c_api[21] = pg_SetDefaultWindow;
-    c_api[22] = pg_GetDefaultWindowSurface;
-    c_api[23] = pg_SetDefaultWindowSurface;
-#define FILLED_SLOTS 24
+    c_api[19] = pg_GetDefaultWindow;
+    c_api[20] = pg_SetDefaultWindow;
+    c_api[21] = pg_GetDefaultWindowSurface;
+    c_api[22] = pg_SetDefaultWindowSurface;
+#define FILLED_SLOTS 23
 #endif /* IS_SDLv2 */
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS

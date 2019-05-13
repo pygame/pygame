@@ -43,27 +43,27 @@ _ft_clear(PyObject *);
 #endif
 
 static PyObject *
-_ft_quit(PyObject *);
+_ft_quit(PyObject *, PyObject *);
 static PyObject *
 _ft_init(PyObject *, PyObject *, PyObject *);
 static PyObject *
-_ft_get_version(PyObject *);
+_ft_get_version(PyObject *, PyObject *);
 static PyObject *
-_ft_get_error(PyObject *);
+_ft_get_error(PyObject *, PyObject *);
 static PyObject *
-_ft_get_init(PyObject *);
+_ft_get_init(PyObject *, PyObject *);
 static PyObject *
-_ft_autoinit(PyObject *);
+_ft_autoinit(PyObject *, PyObject *);
 static void
 _ft_autoquit(void);
 static PyObject *
-_ft_get_cache_size(PyObject *);
+_ft_get_cache_size(PyObject *, PyObject *);
 static PyObject *
-_ft_get_default_resolution(PyObject *);
+_ft_get_default_resolution(PyObject *, PyObject *);
 static PyObject *
 _ft_set_default_resolution(PyObject *, PyObject *);
 static PyObject *
-_ft_get_default_font(PyObject *self);
+_ft_get_default_font(PyObject *self, PyObject *args);
 
 /*
  * Constructor/init/destructor
@@ -239,6 +239,15 @@ load_font_res(const char *filename)
 #if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp) {
+        PyObject *closeret;
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            result = NULL;
+            goto font_resource_end;
+        }
+        Py_DECREF(closeret);
+
         Py_DECREF(result);
         result = tmp;
     }
@@ -247,8 +256,19 @@ load_font_res(const char *filename)
     }
 #else
     if (PyFile_Check(result)) {
+        PyObject *closeret;
+
         tmp = PyFile_Name(result);
         Py_INCREF(tmp);
+
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            result = NULL;
+            goto font_resource_end;
+        }
+        Py_DECREF(closeret);
+
         Py_DECREF(result);
         result = tmp;
     }
@@ -496,26 +516,26 @@ free_string(PGFT_String *p)
  * FREETYPE MODULE METHODS TABLE
  */
 static PyMethodDef _ft_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)_ft_autoinit, METH_NOARGS,
+    {"__PYGAMEinit__", _ft_autoinit, METH_NOARGS,
      "auto initialize function for _freetype"},
     {"init", (PyCFunction)_ft_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEINIT},
-    {"quit", (PyCFunction)_ft_quit, METH_NOARGS, DOC_PYGAMEFREETYPEQUIT},
-    {"get_init", (PyCFunction)_ft_get_init, METH_NOARGS,
+    {"quit", _ft_quit, METH_NOARGS, DOC_PYGAMEFREETYPEQUIT},
+    {"get_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETINIT},
-    {"was_init", (PyCFunction)_ft_get_init, METH_NOARGS,
+    {"was_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEWASINIT},  // DEPRECATED
-    {"get_error", (PyCFunction)_ft_get_error, METH_NOARGS,
+    {"get_error", _ft_get_error, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETERROR},
-    {"get_version", (PyCFunction)_ft_get_version, METH_NOARGS,
+    {"get_version", _ft_get_version, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETVERSION},
-    {"get_cache_size", (PyCFunction)_ft_get_cache_size, METH_NOARGS,
+    {"get_cache_size", _ft_get_cache_size, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETCACHESIZE},
-    {"get_default_resolution", (PyCFunction)_ft_get_default_resolution,
+    {"get_default_resolution", _ft_get_default_resolution,
      METH_NOARGS, DOC_PYGAMEFREETYPEGETDEFAULTRESOLUTION},
-    {"set_default_resolution", (PyCFunction)_ft_set_default_resolution,
+    {"set_default_resolution", _ft_set_default_resolution,
      METH_VARARGS, DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION},
-    {"get_default_font", (PyCFunction)_ft_get_default_font, METH_NOARGS,
+    {"get_default_font", _ft_get_default_font, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETDEFAULTFONT},
 
     {0, 0, 0, 0}};
@@ -708,7 +728,7 @@ _ftfont_dealloc(pgFontObject *self)
     _PGFT_UnloadFont(self->freetype, self);
 #ifdef HAVE_PYGAME_SDL_RWOPS
     if (src) {
-        pgRWopsReleaseObject(src);
+        pgRWops_ReleaseObject(src);
     }
 #endif
     _PGFT_Quit(self->freetype);
@@ -780,7 +800,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
 
 #if !defined(WIN32) || !defined(HAVE_PYGAME_SDL_RWOPS)
-    file = pgRWopsEncodeString(file, "UTF-8", NULL, NULL);
+    file = pg_EncodeString(file, "UTF-8", NULL, NULL);
     if (!file) {
         goto end;
     }
@@ -809,7 +829,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         PyObject *path = 0;
         if (!PG_CHECK_THREADS())
             goto end;
-        source = pgRWopsFromFileObject(original_file);
+        source = pgRWops_FromFileObject(original_file);
         if (!source) {
             goto end;
         }
@@ -854,13 +874,13 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
         Py_INCREF(file);
     if (!PG_CHECK_THREADS())
         goto end;
-    source = pgRWopsFromObject(file);
+    source = pgRWops_FromObject(file);
     if (!source) {
         goto end;
     } else {
         PyObject *path = 0;
 
-        if (pgRWopsCheckObject(source)) {
+        if (pgRWops_IsFileObject(source)) {
             path = PyObject_GetAttrString(file, "name");
         } else {
             Py_INCREF(file);
@@ -1985,7 +2005,7 @@ pgFont_New(const char *filename, long font_index)
  ***************************************************************/
 
 static PyObject *
-_ft_autoinit(PyObject *self)
+_ft_autoinit(PyObject *self, PyObject *args)
 {
     int cache_size = FREETYPE_MOD_STATE(self)->cache_size;
     FT_Error result = 1;
@@ -2018,7 +2038,7 @@ _ft_autoquit(void)
 }
 
 static PyObject *
-_ft_quit(PyObject *self)
+_ft_quit(PyObject *self, PyObject *args)
 {
     _ft_autoquit();
     Py_RETURN_NONE;
@@ -2043,7 +2063,7 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
         state->cache_size = cache_size;
         state->resolution =
             (resolution ? (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
-        result = _ft_autoinit(self);
+        result = _ft_autoinit(self, NULL);
 
         if (!result) {
             PyErr_Clear();
@@ -2058,7 +2078,7 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-_ft_get_error(PyObject *self)
+_ft_get_error(PyObject *self, PyObject *args)
 {
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
@@ -2071,7 +2091,7 @@ _ft_get_error(PyObject *self)
 }
 
 static PyObject *
-_ft_get_version(PyObject *self)
+_ft_get_version(PyObject *self, PyObject *args)
 {
     /* Return the linked FreeType2 version */
     return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR,
@@ -2079,14 +2099,14 @@ _ft_get_version(PyObject *self)
 }
 
 static PyObject *
-_ft_get_cache_size(PyObject *self)
+_ft_get_cache_size(PyObject *self, PyObject *args)
 {
     return PyLong_FromUnsignedLong(
         (unsigned long)(FREETYPE_STATE->cache_size));
 }
 
 static PyObject *
-_ft_get_default_resolution(PyObject *self)
+_ft_get_default_resolution(PyObject *self, PyObject *args)
 {
     return PyLong_FromUnsignedLong(
         (unsigned long)(FREETYPE_STATE->resolution));
@@ -2108,13 +2128,13 @@ _ft_set_default_resolution(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_ft_get_init(PyObject *self)
+_ft_get_init(PyObject *self, PyObject *args)
 {
     return PyBool_FromLong(FREETYPE_MOD_STATE(self)->freetype ? 1 : 0);
 }
 
 static PyObject *
-_ft_get_default_font(PyObject *self)
+_ft_get_default_font(PyObject *self, PyObject *args)
 {
     return Text_FromUTF8(DEFAULT_FONT_NAME);
 }

@@ -35,7 +35,7 @@ if answer == 1 or (answer == 2 and random.random() < .5):
 
 win = Window('asdf', resizable=True)
 renderer = Renderer(win)
-tex = Texture(renderer, load_img('alien1.gif'))
+tex = Texture.from_surface(renderer, load_img('alien1.gif'))
 
 running = True
 
@@ -51,13 +51,15 @@ win2 = Window('2nd window', size=(256, 256), always_on_top=True)
 win2.opacity = 0.5
 win2.set_icon(load_img('bomb.gif'))
 renderer2 = Renderer(win2)
-tex2 = Texture(renderer2, load_img('asprite.bmp'))
+tex2 = Texture.from_surface(renderer2, load_img('asprite.bmp'))
 renderer2.clear()
 renderer2.copy(tex2)
 renderer2.present()
 del tex2
 
 full = 0
+
+srcrect = (0, 0, tex.width, tex.height)
 
 while running:
     for event in pygame.event.get():
@@ -89,8 +91,9 @@ while running:
                 bg_index = (bg_index + 1) % len(backgrounds)
                 renderer.draw_color = backgrounds[bg_index]
 
+    dstrect = (x, y, tex.width, tex.height)
     renderer.clear()
-    renderer.copy_pos(tex, x, y)
+    renderer.copy(tex, srcrect, dstrect)
     renderer.present()
 
     clock.tick(60)

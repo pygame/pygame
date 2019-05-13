@@ -19,6 +19,30 @@ except NameError:
 def geterror():
     return sys.exc_info()[1]
 
+
+class AssertRaisesRegexMixin(object):
+    """Provides a way to prevent DeprecationWarnings in python >= 3.2.
+
+    For this mixin to override correctly it needs to be before the
+    unittest.TestCase in the multiple inheritance hierarchy.
+    e.g. class TestClass(AssertRaisesRegexMixin, unittest.TestCase)
+
+    This class/mixin and its usage can be removed when pygame no longer
+    supports python < 3.2.
+    """
+    def assertRaisesRegex(self, *args, **kwargs):
+        try:
+            return super(AssertRaisesRegexMixin, self).assertRaisesRegex(
+                *args, **kwargs)
+        except AttributeError:
+            try:
+                return super(AssertRaisesRegexMixin, self).assertRaisesRegexp(
+                    *args, **kwargs)
+            except AttributeError:
+                self.skipTest(
+                    'No assertRaisesRegex/assertRaisesRegexp method')
+
+
 ################################################################################
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -48,10 +72,10 @@ def get_tmp_dir():
 ################################################################################
 
 def question(q):
-    return raw_input_('%s ' % q.rstrip(' ')).lower().strip() == 'y'
+    return raw_input_('\n%s (y/n): ' % q.rstrip(' ')).lower().strip() == 'y'
 
 def prompt(p):
-    return raw_input_('%s (and press enter to continue) ' % p.rstrip(' '))
+    return raw_input_('\n%s (press enter to continue): ' % p.rstrip(' '))
 
 #################################### HELPERS ###################################
 
@@ -91,26 +115,6 @@ def gradient(width, height):
         for t in xrange_(height):
             yield (l,t), tuple(map(rgba_between, (l, t, l, l+t)))
 
-def unordered_equality(seq1, seq2):
-    """
-    
-    Tests to see if the contents of one sequence is contained in the other
-    and that they are of the same length.
-    
-    """
-            
-    if len(seq1) != len(seq2):
-        return False
-
-    # if isinstance(seq1, dict) and isinstance(seq2, dict):
-    #    seq1 = seq1.items()
-    #    seq2 = seq2.items()
-
-    for val in seq1:
-        if val not in seq2:
-            return False
-        
-    return True
 
 def rect_area_pts(rect):
     for l in xrange_(rect.left, rect.right):
@@ -166,6 +170,14 @@ def import_submodule(module):
     for n in module.split('.')[1:]:
         m = getattr(m, n)
     return m
+
+
+class SurfaceSubclass(pygame.Surface):
+    """A subclassed Surface to test inheritance."""
+    def __init__(self, *args, **kwargs):
+        super(SurfaceSubclass, self).__init__(*args, **kwargs)
+        self.test_attribute = True
+
 
 def test():
     """

@@ -30,18 +30,24 @@
 
 #include "doc/display_doc.h"
 
+#include <SDL_syswm.h>
+
+static PyTypeObject pgVidInfo_Type;
+
 #if IS_SDLv1
 
-#include <SDL_syswm.h>
-static PyTypeObject pgVidInfo_Type;
 static PyObject *
 pgVidInfo_New(const SDL_VideoInfo *info);
+
 static void
 pg_do_set_icon(PyObject *surface);
 static PyObject *pgDisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 
 #else /* IS_SDLv2 */
+
+static PyObject *
+pgVidInfo_New(const pg_VideoInfo *info);
 
 typedef struct _display_state_s {
     char *title;
@@ -224,7 +230,7 @@ pg_quit(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_init(PyObject *self)
+pg_init(PyObject *self, PyObject *args)
 {
     if (!pgVideo_AutoInit())
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -234,31 +240,27 @@ pg_init(PyObject *self)
 }
 
 static PyObject *
-pg_get_init(PyObject *self)
+pg_get_init(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
 }
 
 #if IS_SDLv2
 static PyObject *
-pg_get_active(PyObject *self)
+pg_get_active(PyObject *self, PyObject *args)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
     return PyInt_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
 }
 #else  /* IS_SDLv1 */
 static PyObject *
-pg_get_active(PyObject *self)
+pg_get_active(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
 #endif /* IS_SDLv1 */
 
 /* vidinfo object */
-#if IS_SDLv2
-#pragma PG_WARN(The vidinfo object is not used in SDL2 so far.)
-
-#else /* IS_SDLv1 */
 static void
 pg_vidinfo_dealloc(PyObject *self)
 {
@@ -268,7 +270,11 @@ pg_vidinfo_dealloc(PyObject *self)
 static PyObject *
 pg_vidinfo_getattr(PyObject *self, char *name)
 {
+#if IS_SDLv1
     SDL_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#else
+    pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#endif
 
     int current_w = -1;
     int current_h = -1;
@@ -276,8 +282,8 @@ pg_vidinfo_getattr(PyObject *self, char *name)
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
 
-    if (versioninfo.major >= 1 && versioninfo.minor >= 2 &&
-        versioninfo.patch >= 10) {
+    if (versioninfo.major > 1 || (versioninfo.minor >= 2 &&
+        versioninfo.patch >= 10)) {
         current_w = info->current_w;
         current_h = info->current_h;
     }
@@ -329,13 +335,17 @@ pg_vidinfo_str(PyObject *self)
     char str[1024];
     int current_w = -1;
     int current_h = -1;
+#if IS_SDLv1
     SDL_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#else
+    pg_VideoInfo *info = &((pgVidInfoObject *)self)->info;
+#endif
 
     SDL_version versioninfo;
     SDL_VERSION(&versioninfo);
 
-    if (versioninfo.major >= 1 && versioninfo.minor >= 2 &&
-        versioninfo.patch >= 10) {
+    if (versioninfo.major > 1 || (versioninfo.minor >= 2 &&
+        versioninfo.patch >= 10)) {
         current_w = info->current_w;
         current_h = info->current_h;
     }
@@ -379,8 +389,13 @@ static PyTypeObject pgVidInfo_Type = {
     (reprfunc)NULL,               /*str*/
 };
 
+#if IS_SDLv1
 static PyObject *
 pgVidInfo_New(const SDL_VideoInfo *i)
+#else
+static PyObject *
+pgVidInfo_New(const pg_VideoInfo *i)
+#endif
 {
     pgVidInfoObject *info;
     if (!i)
@@ -388,22 +403,99 @@ pgVidInfo_New(const SDL_VideoInfo *i)
     info = PyObject_NEW(pgVidInfoObject, &pgVidInfo_Type);
     if (!info)
         return NULL;
+#if IS_SDLv1
     memcpy(&info->info, i, sizeof(SDL_VideoInfo));
+#else
+    info->info = *i;
+    info->info.vfmt = &info->info.vfmt_data;
+#endif
     return (PyObject *)info;
 }
 
+#if IS_SDLv2
+static pg_VideoInfo *
+pg_GetVideoInfo(pg_VideoInfo *info)
+{
+    SDL_DisplayMode mode;
+    SDL_PixelFormat *tempformat;
+    Uint32 formatenum;
+    PyObject *winsurfobj;
+    SDL_Surface *winsurf;
+
+#pragma PG_WARN(hardcoding wm_available to 1)
+#pragma PG_WARN(setting available video RAM to 0 KB)
+
+    memset(info, 0, sizeof(pg_VideoInfo));
+    info->wm_available = 1;
+
+    winsurfobj = pg_GetDefaultWindowSurface();
+    if (winsurfobj) {
+        winsurf = pgSurface_AsSurface(winsurfobj);
+        info->current_w = winsurf->w;
+        info->current_h = winsurf->h;
+        info->vfmt_data = *(winsurf->format);
+        info->vfmt = &info->vfmt_data;
+    }
+    else {
+        if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+            info->current_w = mode.w;
+            info->current_h = mode.h;
+            formatenum = mode.format;
+        }
+        else {
+            info->current_w = -1;
+            info->current_h = -1;
+            formatenum = SDL_PIXELFORMAT_UNKNOWN;
+        }
+
+        if (tempformat = SDL_AllocFormat(formatenum)) {
+            info->vfmt_data = *tempformat;
+            info->vfmt = &info->vfmt_data;
+            SDL_FreeFormat(tempformat);
+        }
+        else {
+            return NULL;
+        }
+    }
+
+    return info;
+}
+#endif /* IS_SDLv2 */
+
 static PyObject *
-pg_get_wm_info(PyObject *self)
+pgInfo(PyObject *self, PyObject *args)
+{
+#if IS_SDLv1
+    const SDL_VideoInfo *info;
+    VIDEO_INIT_CHECK();
+    info = SDL_GetVideoInfo();
+    return pgVidInfo_New(info);
+#else /* IS_SDLv2 */
+    pg_VideoInfo info;
+    VIDEO_INIT_CHECK();
+    return pgVidInfo_New(pg_GetVideoInfo(&info));
+#endif /* IS_SDLv2 */
+}
+
+static PyObject *
+pg_get_wm_info(PyObject *self, PyObject *args)
 {
     PyObject *dict;
     PyObject *tmp;
     SDL_SysWMinfo info;
+#if IS_SDLv2
+    SDL_Window *win;
+#endif
 
     VIDEO_INIT_CHECK();
 
     SDL_VERSION(&(info.version))
     dict = PyDict_New();
-    if (!dict || !SDL_GetWMInfo(&info))
+    if (!dict)
+        return NULL;
+
+#if IS_SDLv1
+    if (!SDL_GetWMInfo(&info))
         return dict;
 
 /*scary #ifdef's match SDL_syswm.h*/
@@ -468,23 +560,126 @@ pg_get_wm_info(PyObject *self)
     Py_DECREF(tmp);
 #endif
 
+#else /* IS_SDLv2 */
+
+    win = pg_GetDefaultWindow();
+    if (!win)
+        return dict;
+    if (!SDL_GetWindowWMInfo(win, &info))
+        return dict;
+
+#if defined(SDL_VIDEO_DRIVER_WINDOWS)
+    tmp = PyLong_FromLong((long)info.info.win.window);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.win.hdc);
+    PyDict_SetItemString(dict, "hdc", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.win.hinstance);
+    PyDict_SetItemString(dict, "hinstance", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_WINRT)
+    tmp = PyCapsule_New(info.info.winrt.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_X11)
+    tmp = PyInt_FromLong(info.info.x11.window);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.x11.display, "display", NULL);
+    PyDict_SetItemString(dict, "display", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_DIRECTFB)
+    tmp = PyCapsule_New(info.info.dfb.dfb, "dfb", NULL);
+    PyDict_SetItemString(dict, "dfb", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.dfb.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.dfb.surface, "surface", NULL);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_COCOA)
+    tmp = PyCapsule_New(info.info.cocoa.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_UIKIT)
+    tmp = PyCapsule_New(info.info.uikit.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong(info.info.uikit.framebuffer);
+    PyDict_SetItemString(dict, "framebuffer", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong(info.info.uikit.colorbuffer);
+    PyDict_SetItemString(dict, "colorbuffer", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong(info.info.uikit.resolveFramebuffer);
+    PyDict_SetItemString(dict, "resolveFramebuffer", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_WAYLAND)
+    tmp = PyCapsule_New(info.info.wl.display, "display", NULL);
+    PyDict_SetItemString(dict, "display", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.wl.surface, "surface", NULL);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.wl.shell_surface, "shell_surface", NULL);
+    PyDict_SetItemString(dict, "shell_surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_MIR)  /* no longer available, left for API/ABI compatibility. Remove in 2.1! */
+    tmp = PyCapsule_New(info.info.mir.connection, "connection", NULL);
+    PyDict_SetItemString(dict, "connection", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyCapsule_New(info.info.mir.surface, "surface", NULL);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_ANDROID)
+    tmp = PyCapsule_New(info.info.android.window, "window", NULL);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.android.surface);
+    PyDict_SetItemString(dict, "surface", tmp);
+    Py_DECREF(tmp);
+#endif
+#if defined(SDL_VIDEO_DRIVER_VIVANTE)
+    tmp = PyLong_FromLong((long)info.info.vivante.display);
+    PyDict_SetItemString(dict, "display", tmp);
+    Py_DECREF(tmp);
+
+    tmp = PyLong_FromLong((long)info.info.vivante.window);
+    PyDict_SetItemString(dict, "window", tmp);
+    Py_DECREF(tmp);
+#endif
+
+#endif /* IS_SDLv2 */
+
     return dict;
 }
-
-static PyObject *
-pgInfo(PyObject *self)
-{
-    const SDL_VideoInfo *info;
-    VIDEO_INIT_CHECK();
-    info = SDL_GetVideoInfo();
-    return pgVidInfo_New(info);
-}
-#endif /* IS_SDLv1: pgInfo stuff is not defined in SDL2 */
 
 /* display functions */
 #if IS_SDLv2
 static PyObject *
-pg_get_driver(PyObject *self)
+pg_get_driver(PyObject *self, PyObject *args)
 {
     const char *name = NULL;
     name = SDL_GetCurrentVideoDriver();
@@ -494,7 +689,7 @@ pg_get_driver(PyObject *self)
 }
 
 static PyObject *
-pg_get_surface(PyObject *self)
+pg_get_surface(PyObject *self, PyObject *args)
 {
     PyObject *surface = pg_GetDefaultWindowSurface();
     if (!surface)
@@ -504,7 +699,7 @@ pg_get_surface(PyObject *self)
 }
 #else  /* IS_SDLv1 */
 static PyObject *
-pg_get_driver(PyObject *self)
+pg_get_driver(PyObject *self, PyObject *args)
 {
     char buf[256];
     VIDEO_INIT_CHECK();
@@ -514,7 +709,7 @@ pg_get_driver(PyObject *self)
 }
 
 static PyObject *
-pg_get_surface(PyObject *self)
+pg_get_surface(PyObject *self, PyObject *args)
 {
     if (!pgDisplaySurfaceObject)
         Py_RETURN_NONE;
@@ -568,7 +763,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int display = 0;
     char *title = state->title;
 
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -596,7 +791,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /*note SDL works special like this too*/
-        if (!pg_init(NULL))
+        if (!pg_init(NULL, NULL))
             return NULL;
     }
 
@@ -737,6 +932,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             pgSurface_AsSurface(surface) = surf;
         }
         if (!surface) {
+            if (state->using_gl)
+                SDL_FreeSurface(surf);
             _display_state_cleanup(state);
             SDL_DestroyWindow(win);
             return 0;
@@ -745,6 +942,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         /*no errors; make the window available*/
         pg_SetDefaultWindow(win);
         pg_SetDefaultWindowSurface(surface);
+        ((pgSurfaceObject*)surface)->owner = state->using_gl;
         Py_DECREF(surface);
     }
 
@@ -816,7 +1014,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
     int flags = SDL_SWSURFACE;
     int display_index = 0;
 
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -874,8 +1072,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     int flags = PGS_FULLSCREEN;
     int display_index = 0;
     PyObject *list, *size;
-
-    VIDEO_INIT_CHECK();
+    int i;
 
     char *keywords[] = {
         "depth",
@@ -883,6 +1080,8 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
         "display",
         NULL
     };
+
+    VIDEO_INIT_CHECK();
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords,
                                      &bpp, &flags, &display_index)) {
@@ -898,7 +1097,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (bpp == 0) {
         SDL_DisplayMode curmode;
-        if (SDL_GetDesktopDisplayMode(display_index, &curmode))
+        if (SDL_GetCurrentDisplayMode(display_index, &curmode))
             return RAISE(pgExc_SDLError, SDL_GetError());
         bpp = SDL_BITSPERPIXEL(curmode.format);
     }
@@ -910,11 +1109,18 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     if (!(list = PyList_New(0)))
         return NULL;
 
-    for (int i=0; i<nummodes; i++) {
+    for (i=0; i<nummodes; i++) {
         if (SDL_GetDisplayMode(display_index, i, &mode) < 0) {
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
+        /* use reasonable defaults (cf. SDL_video.c) */
+        if (!mode.format)
+            mode.format = SDL_PIXELFORMAT_RGB888;
+        if (!mode.w)
+            mode.w = 640;
+        if (!mode.h)
+            mode.h = 480;
         if (SDL_BITSPERPIXEL(mode.format) != bpp)
             continue;
         if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
@@ -928,7 +1134,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-pg_flip(PyObject *self)
+pg_flip(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     _DisplayState *state = DISPLAY_MOD_STATE(self);
@@ -953,7 +1159,7 @@ pg_flip(PyObject *self)
 }
 
 static PyObject *
-pg_num_displays()
+pg_num_displays(PyObject *self, PyObject *args)
 {
     int ret = SDL_GetNumVideoDisplays();
     if (ret < 0)
@@ -974,7 +1180,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int hasbuf;
     char *title, *icontitle;
 
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -1002,7 +1208,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /*note SDL works special like this too*/
-        if (!pg_init(NULL))
+        if (!pg_init(NULL, NULL))
             return NULL;
     }
 
@@ -1068,7 +1274,7 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
     int w, h;
     int flags = SDL_SWSURFACE;
     int display = 0;
-    const char *keywords[] = {
+    char *keywords[] = {
         "size",
         "flags",
         "depth",
@@ -1137,7 +1343,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-pg_flip(PyObject *self)
+pg_flip(PyObject *self, PyObject *args)
 {
     SDL_Surface *screen;
     int status = 0;
@@ -1161,7 +1367,7 @@ pg_flip(PyObject *self)
 }
 
 static PyObject *
-pg_num_displays()
+pg_num_displays(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong(1);
 }
@@ -1630,7 +1836,7 @@ error:
 }
 
 static PyObject *
-pg_get_caption(PyObject *self)
+pg_get_caption(PyObject *self, PyObject *args)
 {
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
@@ -1669,7 +1875,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_iconify(PyObject *self)
+pg_iconify(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     VIDEO_INIT_CHECK();
@@ -1681,7 +1887,7 @@ pg_iconify(PyObject *self)
 }
 
 static PyObject *
-pg_toggle_fullscreen(PyObject *self)
+pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
     int result;
@@ -1745,7 +1951,7 @@ pg_set_caption(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_get_caption(PyObject *self)
+pg_get_caption(PyObject *self, PyObject *args)
 {
     char *title, *icontitle;
     SDL_WM_GetCaption(&title, &icontitle);
@@ -1781,7 +1987,7 @@ pg_set_icon(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-pg_iconify(PyObject *self)
+pg_iconify(PyObject *self, PyObject *args)
 {
     int result;
     VIDEO_INIT_CHECK();
@@ -1796,7 +2002,7 @@ pg_iconify(PyObject *self)
 }
 
 static PyObject *
-pg_toggle_fullscreen(PyObject *self)
+pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Surface *screen;
     int result;
@@ -1813,30 +2019,23 @@ pg_toggle_fullscreen(PyObject *self)
 static PyMethodDef _pg_display_methods[] = {
     {"__PYGAMEinit__", pg_display_autoinit, 1,
      "auto initialize function for display."},
-    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEDISPLAYINIT},
-    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEDISPLAYQUIT},
-    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETINIT},
-    {"get_active", (PyCFunction)pg_get_active, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETACTIVE},
+    {"init", pg_init, METH_NOARGS, DOC_PYGAMEDISPLAYINIT},
+    {"quit", pg_quit, METH_NOARGS, DOC_PYGAMEDISPLAYQUIT},
+    {"get_init", pg_get_init, METH_NOARGS, DOC_PYGAMEDISPLAYGETINIT},
+    {"get_active", pg_get_active, METH_NOARGS, DOC_PYGAMEDISPLAYGETACTIVE},
 
     /*    { "set_driver", set_driver, 1, doc_set_driver },*/
-    {"get_driver", (PyCFunction)pg_get_driver, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETDRIVER},
-#if IS_SDLv1
-    {"get_wm_info", (PyCFunction)pg_get_wm_info, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETWMINFO},
-    {"Info", (PyCFunction)pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
-#endif /* IS_SDLv1 */
-    {"get_surface", (PyCFunction)pg_get_surface, METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETSURFACE},
+    {"get_driver", pg_get_driver, METH_NOARGS, DOC_PYGAMEDISPLAYGETDRIVER},
+    {"get_wm_info", pg_get_wm_info, METH_NOARGS, DOC_PYGAMEDISPLAYGETWMINFO},
+    {"Info", pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
+    {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
 
-    {"set_mode", pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
-    {"mode_ok", pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
-    {"list_modes", pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
+    {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
+    {"mode_ok", (PyCFunction)pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
+    {"list_modes", (PyCFunction)pg_list_modes, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYLISTMODES},
     {"get_num_displays", pg_num_displays, METH_NOARGS, DOC_PYGAMEDISPLAYGETNUMDISPLAYS},
 
-    {"flip", (PyCFunction)pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
+    {"flip", pg_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP},
     {"update", pg_update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE},
 
     {"set_palette", pg_set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE},
@@ -1845,13 +2044,12 @@ static PyMethodDef _pg_display_methods[] = {
      DOC_PYGAMEDISPLAYSETGAMMARAMP},
 
     {"set_caption", pg_set_caption, METH_VARARGS, DOC_PYGAMEDISPLAYSETCAPTION},
-    {"get_caption", (PyCFunction)pg_get_caption, METH_NOARGS,
+    {"get_caption", pg_get_caption, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETCAPTION},
     {"set_icon", pg_set_icon, METH_VARARGS, DOC_PYGAMEDISPLAYSETICON},
 
-    {"iconify", (PyCFunction)pg_iconify, METH_NOARGS,
-     DOC_PYGAMEDISPLAYICONIFY},
-    {"toggle_fullscreen", (PyCFunction)pg_toggle_fullscreen, METH_NOARGS,
+    {"iconify", pg_iconify, METH_NOARGS, DOC_PYGAMEDISPLAYICONIFY},
+    {"toggle_fullscreen", pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
     {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS,

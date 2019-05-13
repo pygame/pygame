@@ -1,19 +1,20 @@
 FROM quay.io/pypa/manylinux1_i686
+ENV MAKEFLAGS="-j 4"
 
 # Set up repoforge
 COPY RPM-GPG-KEY.dag.txt /tmp/
 RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 
-ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.el5.rf.i386.rpm"
-ADD "https://repoforge.cu.be/redhat/el5/en/i386/dag/RPMS/${RPMFORGE_FILE}" /tmp/${RPMFORGE_FILE}
+#ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.el5.rf.i386.rpm"
+#ADD "https://repoforge.cu.be/redhat/el5/en/i386/dag/RPMS/${RPMFORGE_FILE}" /tmp/${RPMFORGE_FILE}
 
-RUN rpm -i /tmp/${RPMFORGE_FILE}
+#RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
 RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel \
     mesa-libGLU-devel audiofile-devel \
     java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
-    giflib-devel mikmod-devel
+    giflib-devel mikmod-devel subversion
 RUN linux32 yum install -y libsndfile-devel libsndfile smpeg-devel dbus-devel \
     pulseaudio-libs-devel cmake
 
@@ -50,6 +51,8 @@ RUN ["linux32", "bash", "/flac_build/build-flac.sh"]
 # Build and install SDL
 ADD sdl_libs /sdl_build/
 RUN ["linux32", "bash", "/sdl_build/build-sdl-libs.sh"]
+
+ENV MAKEFLAGS=
 
 # Build and install SDL and portmidi
 ADD portmidi /portmidi_build/

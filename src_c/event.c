@@ -146,6 +146,7 @@ pg_event_filter(void *_, SDL_Event *event)
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
                                             NULL);
         }
+#pragma PG_WARN(PumpEvents is not thread-safe)
         SDL_PumpEvents();
         if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
                            SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
@@ -183,26 +184,24 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
     else if (type == SDL_MOUSEWHEEL) {
-        
+        SDL_Event newevent;
+        int x, y;
+
         if (event->wheel.x == 0 && event->wheel.y == 0) {
             //#691 We are not moving wheel!
             return 1;
         }
         // Generate a MouseButtonDown event for compatibility.
         // https://wiki.libsdl.org/SDL_MouseWheelEvent
-        SDL_Event newevent;
         newevent.type = SDL_MOUSEBUTTONDOWN;
-        
-        int x, y;
-        VIDEO_INIT_CHECK();
-        
+
         SDL_GetMouseState(&x, &y);
         newevent.button.x = x;
         newevent.button.y = y;
-        
+
         newevent.button.state = SDL_PRESSED;
         newevent.button.clicks = 1;
-        
+
         if (event->wheel.y != 0) {
             newevent.button.button = (event->wheel.y > 0) ?
                                      PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
@@ -214,7 +213,7 @@ pg_event_filter(void *_, SDL_Event *event)
         newevent.button.button |= PGM_BUTTON_KEEP;
 
         if (SDL_PushEvent(&newevent) < 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
+            return RAISE(pgExc_SDLError, SDL_GetError()), 0;
     }
     return 1;
 }
@@ -376,6 +375,15 @@ _pg_name_from_eventtype(int type)
             return "TextInput";
         case SDL_TEXTEDITING:
             return "TextEditing";
+        case SDL_DROPFILE:
+            return "DropFile";
+        case SDL_DROPTEXT:
+            return "DropText";
+        case SDL_DROPBEGIN:
+            return "DropBegin";
+        case SDL_DROPCOMPLETE:
+            return "DropComplete";
+        
 #endif
 
     }
@@ -633,10 +641,22 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "start", PyLong_FromLong(event->edit.start));
             _pg_insobj(dict, "length", PyLong_FromLong(event->edit.length));
             break;
+        /*  https://wiki.libsdl.org/SDL_DropEvent */
+        case SDL_DROPFILE:
+            _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
+			SDL_free(event->drop.file);
+            break;
+        case SDL_DROPTEXT:
+            _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
+			SDL_free(event->drop.file);
+            break;
+        case SDL_DROPBEGIN:
+        case SDL_DROPCOMPLETE:
+            break;
 #endif
 
 
-#if IS_SDLv1
+#if IS_SDLv1    
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
             _pg_insobj(dict, "size", obj);
@@ -801,7 +821,7 @@ pg_event_str(PyObject *self)
     PyObject *strobj;
     PyObject *pyobj;
     char *s;
-    int size;
+    size_t size;
 #if PY3
     PyObject *encodedobj;
 #endif
@@ -1129,23 +1149,36 @@ pg_event_poll(PyObject *self, PyObject *args)
 
 #if IS_SDLv1
 static PyObject *
-pg_event_clear(PyObject *self, PyObject *args)
+pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int mask = 0;
     int loop, num;
-    PyObject *type;
+    PyObject *type = NULL;
+    int dopump = 1;
     int val;
 
-    if (PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
+    static char *kwids[] = {
+        "eventtype",
+        "pump",
+        NULL
+    };
+
+#if PY3
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
+                                     &type, &dopump))
+        return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
-    if (PyTuple_Size(args) == 0)
+    if (type == NULL || type == Py_None)
         mask = SDL_ALLEVENTS;
     else {
-        type = PyTuple_GET_ITEM(args, 0);
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
@@ -1163,7 +1196,8 @@ pg_event_clear(PyObject *self, PyObject *args)
                          "get type must be numeric or a sequence");
     }
 
-    SDL_PumpEvents();
+    if (dopump)
+        SDL_PumpEvents();
 
     while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, mask) == 1)
     {
@@ -1173,25 +1207,39 @@ pg_event_clear(PyObject *self, PyObject *args)
 }
 #else /* IS_SDLv2 */
 static PyObject *
-pg_event_clear(PyObject *self, PyObject *args)
+pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int loop, num;
-    PyObject *type;
+    PyObject *type = NULL;
+    int dopump = 1;
     int val;
 
-    if (PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
+    static char *kwids[] = {
+        "eventtype",
+        "pump",
+        NULL
+    };
+
+#if PY3
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
+                                     &type, &dopump))
+        return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
-    if (PyTuple_Size(args) == 0) {
+    if (dopump)
         SDL_PumpEvents();
+
+    if (type == NULL || type == Py_None) {
         SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
     } else {
-        type = PyTuple_GET_ITEM(args, 0);
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
-            SDL_PumpEvents();
             for (loop = 0; loop < num; ++loop) {
                 if (!pg_IntFromObjIndex(type, loop, &val))
                     return RAISE(
@@ -1213,23 +1261,36 @@ pg_event_clear(PyObject *self, PyObject *args)
 
 #if IS_SDLv1
 static PyObject *
-pg_event_get(PyObject *self, PyObject *args)
+pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int mask = 0;
     int loop, num;
-    PyObject *type, *list, *e;
+    PyObject *type = NULL, *list, *e;
+    int dopump = 1;
     int val;
 
-    if (PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
+    static char *kwids[] = {
+        "eventtype",
+        "pump",
+        NULL
+    };
+
+#if PY3
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
+                                     &type, &dopump))
+        return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
-    if (PyTuple_Size(args) == 0)
+    if (type == NULL || type == Py_None)
         mask = SDL_ALLEVENTS;
     else {
-        type = PyTuple_GET_ITEM(args, 0);
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
@@ -1244,14 +1305,15 @@ pg_event_get(PyObject *self, PyObject *args)
             mask = SDL_EVENTMASK(val);
         else
             return RAISE(PyExc_TypeError,
-                         "get type must be numeric or a sequence");
+                         "eventtype must be numeric or a sequence");
     }
 
     list = PyList_New(0);
     if (!list)
         return NULL;
 
-    SDL_PumpEvents();
+    if (dopump)
+        SDL_PumpEvents();
 
     while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, mask) == 1)
     {
@@ -1281,32 +1343,47 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
-pg_event_get(PyObject *self, PyObject *args)
+pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int loop, num;
-    PyObject *type, *list;
+    PyObject *type = NULL, *list;
+    int dopump = 1;
     int val;
 
-    if (PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
+    static char *kwids[] = {
+        "eventtype",
+        "pump",
+        NULL
+    };
+
+#if PY3
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
+                                     &type, &dopump))
+        return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
     list = PyList_New(0);
     if (!list)
         return NULL;
-    SDL_PumpEvents();
+    if (dopump)
+        SDL_PumpEvents();
 
-    if (PyTuple_Size(args) == 0) {
-        while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 1) {
+    if (type == NULL || type == Py_None) {
+        while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+                              SDL_FIRSTEVENT, SDL_LASTEVENT) == 1) {
             if(!_pg_event_append_to_list(list, &event))
                 return NULL;
         }
         return list;
     }
 
-    type = PyTuple_GET_ITEM(args, 0);
     if (PySequence_Check(type)) {
         num = PySequence_Size(type);
         for (loop = 0; loop < num; ++loop) {
@@ -1332,35 +1409,50 @@ pg_event_get(PyObject *self, PyObject *args)
         if(!_pg_event_append_to_list(list, &event))
             return NULL;
     }
-
-    Py_DECREF(list);
-    return RAISE(PyExc_TypeError,
-                 "get type must be numeric or a sequence");
+    else {
+        Py_DECREF(list);
+        return RAISE(PyExc_TypeError,
+                     "get type must be numeric or a sequence");
+    }
+    return list;
 }
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv1
 static PyObject *
-pg_event_peek(PyObject *self, PyObject *args)
+pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int result;
     int mask = 0;
     int loop, num, noargs = 0;
-    PyObject *type;
+    PyObject *type = NULL;
     int val;
+    int dopump = 1;
 
-    if (PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "peek requires 0 or 1 argument");
+    static char *kwids[] = {
+        "eventtype",
+        "pump",
+        NULL
+    };
+
+#if PY3
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
+                                     &type, &dopump))
+        return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
-    if (PyTuple_Size(args) == 0) {
+    if (!type || type == Py_None) {
         mask = SDL_ALLEVENTS;
         noargs = 1;
     }
     else {
-        type = PyTuple_GET_ITEM(args, 0);
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
@@ -1378,37 +1470,55 @@ pg_event_peek(PyObject *self, PyObject *args)
                          "peek type must be numeric or a sequence");
     }
 
-    SDL_PumpEvents();
+    if (dopump)
+        SDL_PumpEvents();
     result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, mask);
+    if (result < 0)
+        return RAISE(pgExc_SDLError, SDL_GetError());
 
     if (noargs)
-        return pgEvent_New(&event);
+        return pgEvent_New(result ? &event : NULL);
     return PyInt_FromLong(result == 1);
 }
 #else /* IS_SDLv2 */
 static PyObject *
-pg_event_peek(PyObject *self, PyObject *args)
+pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int result;
     int loop, num;
-    PyObject *type;
+    PyObject *type = NULL;
     int val;
+    int dopump = 1;
 
-    if (PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-        return RAISE(PyExc_ValueError, "peek requires 0 or 1 argument");
+    static char *kwids[] = {
+        "eventtype",
+        "pump",
+        NULL
+    };
+
+#if PY3
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
+                                     &type, &dopump))
+        return NULL;
+#else
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
+                                     &type, &dopump))
+        return NULL;
+#endif
 
     VIDEO_INIT_CHECK();
 
-    SDL_PumpEvents();
+    if (dopump)
+        SDL_PumpEvents();
 
-    if (PyTuple_Size(args) == 0) {
-        if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) < 0)
+    if (type == NULL || type == Py_None) {
+        result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+        if (result < 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
-        return pgEvent_New(&event);
+        return pgEvent_New(result ? &event : NULL);
     }
 
-    type = PyTuple_GET_ITEM(args, 0);
     if (PySequence_Check(type)) {
         num = PySequence_Size(type);
         for (loop = 0; loop < num; ++loop) {
@@ -1608,18 +1718,18 @@ static PyMethodDef _event_methods[] = {
      "auto initialize for event module"},
 #endif /* IS_SDLv2 */
 
-    {"Event", (PyCFunction)pg_Event, 3, DOC_PYGAMEEVENTEVENT},
+    {"Event", pg_Event, 3, DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
-    {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
+    {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
-    {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
-    {"wait", (PyCFunction)pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
-    {"poll", (PyCFunction)pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
-    {"clear", pg_event_clear, METH_VARARGS, DOC_PYGAMEEVENTCLEAR},
-    {"get", pg_event_get, METH_VARARGS, DOC_PYGAMEEVENTGET},
-    {"peek", pg_event_peek, METH_VARARGS, DOC_PYGAMEEVENTPEEK},
+    {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
+    {"wait", pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
+    {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
+    {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
+    {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
+    {"peek", (PyCFunction)pg_event_peek, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTPEEK},
     {"post", pg_event_post, METH_VARARGS, DOC_PYGAMEEVENTPOST},
 
     {"set_allowed", pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},

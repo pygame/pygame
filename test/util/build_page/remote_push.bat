@@ -1,1 +1,0 @@
-rsync -za * -e ssh wazoocom@wazoo.com.au:~/www/pygame/

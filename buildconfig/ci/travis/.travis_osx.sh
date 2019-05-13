@@ -49,6 +49,7 @@ elif [[ "$PY_VERSION_" == "3.7" ]]; then
 	export PYTHON_EXE=python3.7
 	export PIP_CMD="python3.7 -m pip"
 else
+	brew uninstall --force --ignore-dependencies python@2
 	install_or_upgrade_deps "python@2"
 	get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
 fi

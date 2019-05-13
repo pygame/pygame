@@ -11,7 +11,7 @@ src_c/surface.c
 
 This extension module defines Python type :py:class:`pygame.Surface`.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 
 .. c:type:: pgSurfaceObject

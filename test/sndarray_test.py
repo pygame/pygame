@@ -7,8 +7,11 @@ from pygame.compat import as_bytes
 import pygame.sndarray
 
 
+SDL2 = pygame.get_sdl_version()[0] >= 2
+
+
 class SndarrayTest (unittest.TestCase):
-    array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16}
+    array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16, 32: float32}
 
     def _assert_compatible(self, arr, size):
         dtype = self.array_dtypes[size]
@@ -18,7 +21,7 @@ class SndarrayTest (unittest.TestCase):
 
         def check_array(size, channels, test_data):
             try:
-                pygame.mixer.init(22050, size, channels)
+                pygame.mixer.init(22050, size, channels, allowedchanges=0)
             except pygame.error:
                 # Not all sizes are supported on all systems.
                 return
@@ -29,9 +32,9 @@ class SndarrayTest (unittest.TestCase):
                     snd = pygame.sndarray.make_sound(srcarr)
                     arr = pygame.sndarray.array(snd)
                     self._assert_compatible(arr, size)
-                    self.failUnless(alltrue(arr == srcarr),
-                                    "size: %i\n%s\n%s" %
-                                    (size, arr, test_data))
+                    self.assertTrue(alltrue(arr == srcarr),
+                                    "size: %i\n%s\n%s" % (
+                                        size, arr, test_data))
             finally:
                 pygame.mixer.quit()
 
@@ -49,24 +52,23 @@ class SndarrayTest (unittest.TestCase):
                              [0x7fff, 0], [0, 0x7fff]])
 
     def test_get_arraytype(self):
-        self.failUnless((pygame.sndarray.get_arraytype() in
-                         ['numpy']),
-                        ("unknown array type %s" %
-                         pygame.sndarray.get_arraytype()))
+        array_type = pygame.sndarray.get_arraytype()
+
+        self.assertEqual(array_type, 'numpy',
+                         "unknown array type %s" % array_type)
 
     def test_get_arraytypes(self):
         arraytypes = pygame.sndarray.get_arraytypes()
-        self.failUnless('numpy' in arraytypes)
+        self.assertIn('numpy', arraytypes)
 
         for atype in arraytypes:
-            self.failUnless(atype in ['numpy'],
-                            "unknown array type %s" % atype)
+            self.assertEqual(atype, 'numpy', "unknown array type %s" % atype)
 
     def test_make_sound(self):
 
         def check_sound(size, channels, test_data):
             try:
-                pygame.mixer.init(22050, size, channels)
+                pygame.mixer.init(22050, size, channels, allowedchanges=0)
             except pygame.error:
                 # Not all sizes are supported on all systems.
                 return
@@ -76,9 +78,9 @@ class SndarrayTest (unittest.TestCase):
                     srcarr = array(test_data, self.array_dtypes[size])
                     snd = pygame.sndarray.make_sound(srcarr)
                     arr = pygame.sndarray.samples(snd)
-                    self.failUnless(alltrue(arr == srcarr),
-                                    "size: %i\n%s\n%s" %
-                                    (size, arr, test_data))
+                    self.assertTrue(alltrue(arr == srcarr),
+                                    "size: %i\n%s\n%s" % (
+                                        size, arr, test_data))
             finally:
                 pygame.mixer.quit()
 
@@ -95,16 +97,15 @@ class SndarrayTest (unittest.TestCase):
         check_sound(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
                              [0x7fff, 0], [0, 0x7fff]])
 
-        if pygame.get_sdl_version()[0] >= 2:
-            check_sound(32, 2, [[0.0, -1.0], [-1.0, 0],
-                                 [1.0, 0], [0, 1.0]])
+        if SDL2:
+            check_sound(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
 
     def test_samples(self):
 
         null_byte = as_bytes('\x00')
         def check_sample(size, channels, test_data):
             try:
-                pygame.mixer.init(22050, size, channels)
+                pygame.mixer.init(22050, size, channels, allowedchanges=0)
             except pygame.error:
                 # Not all sizes are supported on all systems.
                 return
@@ -121,9 +122,9 @@ class SndarrayTest (unittest.TestCase):
                     ##print ('Y %s' % (test_data,))
                     samples[...] = test_data
                     arr = pygame.sndarray.array(snd)
-                    self.failUnless(alltrue(samples == arr),
-                                    "size: %i\n%s\n%s" %
-                                    (size, arr, test_data))
+                    self.assertTrue(alltrue(samples == arr),
+                                    "size: %i\n%s\n%s" % (
+                                        size, arr, test_data))
             finally:
                 pygame.mixer.quit()
 
@@ -140,9 +141,8 @@ class SndarrayTest (unittest.TestCase):
         check_sample(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
                              [0x7fff, 0], [0, 0x7fff]])
 
-        if pygame.get_sdl_version()[0] >= 2:
-            check_sample(32, 2, [[0.0, -1.0], [-1.0, 0],
-                                 [1.0, 0], [0, 1.0]])
+        if SDL2:
+            check_sample(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
 
     def test_use_arraytype(self):
 
@@ -155,20 +155,19 @@ class SndarrayTest (unittest.TestCase):
         self.assertRaises(ValueError, do_use_arraytype, 'not an option')
 
 
+    @unittest.skipIf(not SDL2, 'requires SDL2')
     def test_float32(self):
         """ sized arrays work with Sounds and 32bit float arrays.
         """
-        if pygame.get_sdl_version()[0] < 2:
-            return
         try:
-            pygame.mixer.init(22050, 32, 2)
+            pygame.mixer.init(22050, 32, 2, allowedchanges=0)
         except pygame.error:
             # Not all sizes are supported on all systems.
-            return
+            self.skipTest("unsupported mixer configuration")
+
         arr = array([[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]], float32)
         newsound = pygame.mixer.Sound(array=arr)
         pygame.mixer.quit()
-
 
 
 if __name__ == '__main__':

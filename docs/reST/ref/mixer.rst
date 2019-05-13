@@ -10,7 +10,7 @@
 
 This module contains classes for loading Sound objects and controlling
 playback. The mixer module is optional and depends on SDL_mixer. Your program
-should test that :mod:`pygame.mixer` is available and intialized before using
+should test that :mod:`pygame.mixer` is available and initialized before using
 it.
 
 The mixer module has a limited number of channels for playback of sounds.
@@ -32,17 +32,17 @@ arguments to control the playback rate and sample size. Pygame will default to
 reasonable values, but pygame cannot perform Sound resampling, so the mixer
 should be initialized to match the values of your audio resources.
 
-``NOTE``: Not to get less laggy sound, use a smaller buffer size. The default
+``NOTE``: For less laggy sound use a smaller buffer size. The default
 is set to reduce the chance of scratchy sounds on some computers. You can
 change the default buffer by calling :func:`pygame.mixer.pre_init` before
 :func:`pygame.mixer.init` or :func:`pygame.init` is called. For example:
-``pygame.mixer.pre_init(44100,-16,2, 1024)`` The default size was changed from
-1024 to 3072 in pygame 1.8.
+``pygame.mixer.pre_init(44100,-16,2, 1024)``
+
 
 .. function:: init
 
    | :sl:`initialize the mixer module`
-   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None`
+   | :sg:`init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None`
 
    Initialize the mixer module for Sound loading and playback. The default
    arguments can be overridden to provide specific audio mixing. Keyword
@@ -54,11 +54,12 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    values mean unsigned audio samples will be used. An invalid value raises an
    exception.
 
-   New in pygame 2(when compiled with SDL2) - size can be 32 (32bit floats).
+   .. versionadded:: 2 When compiled with SDL2, size can be 32 (32bit floats).
 
    The channels argument is used to specify whether to use mono or stereo. 1
-   for mono and 2 for stereo. No other values are supported (negative values
-   are treated as 1, values greater than 2 as 2).
+   for mono and 2 for stereo.
+
+   .. versionadded:: 2 The number of channels can also be 4 or 6.
 
    The buffer argument controls the number of internal samples used in the
    sound mixer. The default value should work for most cases. It can be lowered
@@ -73,23 +74,51 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    init. To solve this, mixer has a function ``pygame.mixer.pre_init()`` to set
    the proper defaults before the toplevel init is used.
 
+   When using allowedchanges=0 it will convert the samples at runtime to match
+   what the hardware supports. For example a sound card may not
+   support 16bit sound samples, so instead it will use 8bit samples internally.
+   If AUDIO_ALLOW_FORMAT_CHANGE is supplied, then the requested format will
+   change to the closest that SDL2 supports.
+
+   Apart from 0, allowedchanged accepts the following constants ORed together:
+
+      - AUDIO_ALLOW_FREQUENCY_CHANGE
+      - AUDIO_ALLOW_FORMAT_CHANGE
+      - AUDIO_ALLOW_CHANNELS_CHANGE
+      - AUDIO_ALLOW_ANY_CHANGE
+
+   .. versionadded:: 2 allowedchanges added for SDL2.
+                     This has no effect with SDL1 (i.e. the requested format
+                     may always differ from the returned format).
+
+
    It is safe to call this more than once, but after the mixer is initialized
    you cannot change the playback arguments without first calling
    ``pygame.mixer.quit()``.
+
+   .. versionchanged:: 1.8 The default ``buffersize`` was changed from 1024
+      to 3072.
+   .. versionchanged:: 1.9.1 The default ``buffersize`` was changed from 3072
+      to 4096.
 
    .. ## pygame.mixer.init ##
 
 .. function:: pre_init
 
    | :sl:`preset the mixer init arguments`
-   | :sg:`pre_init(frequency=22050, size=-16, channels=2, buffersize=4096, devicename=None) -> None`
+   | :sg:`pre_init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None`
 
    Call pre_init to change the defaults used when the real
    ``pygame.mixer.init()`` is called. Keyword arguments are accepted. The best
    way to set custom mixer playback values is to call
    ``pygame.mixer.pre_init()`` before calling the top level ``pygame.init()``.
-   For backward compatibility argument values of zero is replaced with the
+   For backward compatibility argument values of zero are replaced with the
    startup defaults.
+
+   .. versionchanged:: 1.8 The default ``buffersize`` was changed from 1024
+      to 3072.
+   .. versionchanged:: 1.9.1 The default ``buffersize`` was changed from 3072
+      to 4096.
 
    .. ## pygame.mixer.pre_init ##
 
@@ -110,7 +139,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    | :sg:`get_init() -> (frequency, format, channels)`
 
    If the mixer is initialized, this returns the playback arguments it is
-   using. If the mixer has not been initialized this returns None
+   using. If the mixer has not been initialized this returns ``None``.
 
    .. ## pygame.mixer.get_init ##
 
@@ -193,9 +222,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    | :sg:`find_channel(force=False) -> Channel`
 
    This will find and return an inactive Channel object. If there are no
-   inactive Channels this function will return None. If there are no inactive
-   channels and the force argument is True, this will find the Channel with the
-   longest running Sound and return it.
+   inactive Channels this function will return ``None``. If there are no
+   inactive channels and the force argument is ``True``, this will find the
+   Channel with the longest running Sound and return it.
 
    If the mixer has reserved channels from ``pygame.mixer.set_reserved()`` then
    those channels will not be returned here.
@@ -207,8 +236,8 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    | :sl:`test if any sound is being mixed`
    | :sg:`get_busy() -> bool`
 
-   Returns True if the mixer is busy mixing any channels. If the mixer is idle
-   then this return False.
+   Returns ``True`` if the mixer is busy mixing any channels. If the mixer is
+   idle then this return ``False``.
 
    .. ## pygame.mixer.get_busy ##
 
@@ -250,9 +279,10 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    an exception when different. Also, source samples are truncated to fit the
    audio sample size. This will not change.
 
-   ``pygame.mixer.Sound(buffer)`` is new in pygame 1.8
-   :class:`pygame.mixer.Sound` keyword arguments and array interface support
-   new in pygame 1.9.2
+   .. versionadded:: 1.8 ``pygame.mixer.Sound(buffer)``
+
+   .. versionadded:: 1.9.2
+      :class:`pygame.mixer.Sound` keyword arguments and array interface support
 
    .. method:: play
 
@@ -308,7 +338,12 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 
       This will set the playback volume (loudness) for this Sound. This will
       immediately affect the Sound if it is playing. It will also affect any
-      future playback of this Sound. The argument is a value from 0.0 to 1.0.
+      future playback of this Sound.
+
+      :param float value: volume in the range of 0.0 to 1.0 (inclusive)
+
+         | If value < 0.0, the volume will not be changed
+         | If value > 1.0, the volume will be set to 1.0
 
       .. ## Sound.set_volume ##
 
@@ -347,7 +382,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       Return a copy of the Sound object buffer as a bytes (for Python 3.x)
       or str (for Python 2.x) object.
 
-      New in pygame 1.9.2.
+      .. versionadded:: 1.9.2
 
       .. ## Sound.get_raw ##
 
@@ -438,8 +473,8 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       If one argument is passed, it will be the volume of both speakers. If two
       arguments are passed and the mixer is in stereo mode, the first argument
       will be the volume of the left speaker and the second will be the volume
-      of the right speaker. (If the second argument is None, the first argument
-      will be the volume of both speakers.)
+      of the right speaker. (If the second argument is ``None``, the first
+      argument will be the volume of both speakers.)
 
       If the channel is playing a Sound on which ``set_volume()`` has also been
       called, both calls are taken into account. For example:
@@ -471,8 +506,8 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       | :sl:`check if the channel is active`
       | :sg:`get_busy() -> bool`
 
-      Returns true if the channel is actively mixing sound. If the channel is
-      idle this returns False.
+      Returns ``True`` if the channel is actively mixing sound. If the channel
+      is idle this returns ``False``.
 
       .. ## Channel.get_busy ##
 
@@ -482,7 +517,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       | :sg:`get_sound() -> Sound`
 
       Return the actual Sound object currently playing on this channel. If the
-      channel is idle None is returned.
+      channel is idle ``None`` is returned.
 
       .. ## Channel.get_sound ##
 

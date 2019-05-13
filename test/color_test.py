@@ -640,10 +640,10 @@ class ColorTypeTest (unittest.TestCase):
 
         t = c.normalize()
 
-        self.assertAlmostEquals(t[0], 0.800000, 5)
-        self.assertAlmostEquals(t[1], 0.149016, 5)
-        self.assertAlmostEquals(t[2], 0.760784, 5)
-        self.assertAlmostEquals(t[3], 0.215686, 5)
+        self.assertAlmostEqual(t[0], 0.800000, 5)
+        self.assertAlmostEqual(t[1], 0.149016, 5)
+        self.assertAlmostEqual(t[2], 0.760784, 5)
+        self.assertAlmostEqual(t[3], 0.215686, 5)
 
     def test_len(self):
         c = pygame.Color(204, 38, 194, 55)

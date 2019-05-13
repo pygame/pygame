@@ -37,6 +37,7 @@ typedef struct {
     PyObject *seek;
     PyObject *tell;
     PyObject *close;
+    PyObject *file;
     int fileno;
 } pgRWHelper;
 
@@ -144,8 +145,8 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
 }
 
 static PyObject *
-pgRWopsEncodeString(PyObject *obj, const char *encoding, const char *errors,
-                    PyObject *eclass)
+pg_EncodeString(PyObject *obj, const char *encoding, const char *errors,
+                PyObject *eclass)
 {
     PyObject *oencoded;
     PyObject *exc_type;
@@ -194,7 +195,7 @@ pgRWopsEncodeString(PyObject *obj, const char *encoding, const char *errors,
                  errors == pg_default_errors) {
             /* The default encoding and error handling should not fail */
             return RAISE(PyExc_SystemError,
-                         "Pygame bug (in pgRWopsEncodeString):"
+                         "Pygame bug (in pg_EncodeString):"
                          " unexpected encoding error");
         }
         PyErr_Clear();
@@ -208,17 +209,17 @@ pgRWopsEncodeString(PyObject *obj, const char *encoding, const char *errors,
 }
 
 static PyObject *
-pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
+pg_EncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-    PyObject *result = pgRWopsEncodeString(obj, UNICODE_DEF_FS_CODEC,
-                                           UNICODE_DEF_FS_ERROR, eclass);
+    PyObject *result = pg_EncodeString(obj, UNICODE_DEF_FS_CODEC,
+                                            UNICODE_DEF_FS_ERROR, eclass);
     if (result == NULL || result == Py_None) {
         return result;
     }
     if ((size_t)Bytes_GET_SIZE(result) != strlen(Bytes_AS_STRING(result))) {
         if (eclass != NULL) {
             Py_DECREF(result);
-            result = pgRWopsEncodeString(obj, NULL, NULL, NULL);
+            result = pg_EncodeString(obj, NULL, NULL, NULL);
             if (result == NULL) {
                 return NULL;
             }
@@ -235,7 +236,7 @@ pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
 }
 
 static int
-pgRWopsCheckObject(SDL_RWops *rw)
+pgRWops_IsFileObject(SDL_RWops *rw)
 {
     return rw->close == _pg_rw_close;
 }
@@ -386,6 +387,7 @@ _pg_rw_close(SDL_RWops *context)
     Py_XDECREF(helper->write);
     Py_XDECREF(helper->read);
     Py_XDECREF(helper->close);
+    Py_XDECREF(helper->file);
 
     PyMem_Del(helper);
 #ifdef WITH_THREAD
@@ -396,7 +398,7 @@ _pg_rw_close(SDL_RWops *context)
 }
 
 static SDL_RWops *
-pgRWopsFromFileObject(PyObject *obj)
+pgRWops_FromFileObject(PyObject *obj)
 {
     SDL_RWops *rw;
     pgRWHelper *helper;
@@ -414,10 +416,15 @@ pgRWopsFromFileObject(PyObject *obj)
         PyMem_Del(helper);
         return (SDL_RWops *)PyErr_NoMemory();
     }
+
     helper->fileno = PyObject_AsFileDescriptor(obj);
     if (helper->fileno == -1)
         PyErr_Clear();
     fetch_object_methods(helper, obj);
+
+    helper->file = obj;
+    Py_INCREF(obj);
+
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
     rw->size = _pg_rw_size;
@@ -435,18 +442,41 @@ pgRWopsFromFileObject(PyObject *obj)
 }
 
 static int
-pgRWopsReleaseObject(SDL_RWops *context)
+pgRWops_ReleaseObject(SDL_RWops *context)
 {
-    if (pgRWopsCheckObject(context)) {
+    if (pgRWops_IsFileObject(context)) {
+#ifdef WITH_THREAD
+        PyGILState_STATE state = PyGILState_Ensure();
+#endif /* WITH_THREAD */
+
         pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
-        Py_XDECREF(helper->seek);
-        Py_XDECREF(helper->tell);
-        Py_XDECREF(helper->write);
-        Py_XDECREF(helper->read);
-        Py_XDECREF(helper->close);
-        PyMem_Del(helper);
-        SDL_FreeRW(context);
-    } else {
+        PyObject *fileobj = helper->file;
+        int filerefcnt = Py_REFCNT(fileobj) - 1 - 5 /* 5 helper functions */;
+
+        if (filerefcnt) {
+            Py_XDECREF(helper->seek);
+            Py_XDECREF(helper->tell);
+            Py_XDECREF(helper->write);
+            Py_XDECREF(helper->read);
+            Py_XDECREF(helper->close);
+            Py_DECREF(fileobj);
+            PyMem_Del(helper);
+            SDL_FreeRW(context);
+        }
+        else {
+            int ret;
+            if ((ret = SDL_RWclose(context)) < 0) {
+                RAISE(PyExc_IOError, SDL_GetError());
+                Py_DECREF(fileobj);
+                return ret;
+            }
+        }
+
+#ifdef WITH_THREAD
+        PyGILState_Release(state);
+#endif /* WITH_THREAD */
+    }
+    else {
         int ret;
         if ((ret = SDL_RWclose(context)) < 0) {
             RAISE(PyExc_IOError, SDL_GetError());
@@ -604,7 +634,7 @@ _rwops_from_pystr(PyObject *obj)
     if (obj != NULL) {
         SDL_RWops *rw = NULL;
         PyObject *oencoded;
-        oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, NULL);
+        oencoded = pg_EncodeString(obj, "UTF-8", NULL, NULL);
         if (oencoded == NULL) {
             return NULL;
         }
@@ -633,7 +663,7 @@ _rwops_from_pystr(PyObject *obj)
 }
 
 static SDL_RWops *
-pgRWopsFromObject(PyObject *obj)
+pgRWops_FromObject(PyObject *obj)
 {
     SDL_RWops *rw = _rwops_from_pystr(obj);
     if (!rw) {
@@ -642,7 +672,7 @@ pgRWopsFromObject(PyObject *obj)
     } else {
         return rw;
     }
-    return pgRWopsFromFileObject(obj);
+    return pgRWops_FromFileObject(obj);
 }
 
 static PyObject *
@@ -663,7 +693,7 @@ pg_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
     if (obj == NULL) {
         RAISE(PyExc_SyntaxError, "Forwarded exception");
     }
-    return pgRWopsEncodeString(obj, encoding, errors, eclass);
+    return pg_EncodeString(obj, encoding, errors, eclass);
 }
 
 static PyObject *
@@ -681,7 +711,7 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     if (obj == NULL) {
         RAISE(PyExc_SyntaxError, "Forwarded exception");
     }
-    return pgRWopsEncodeFilePath(obj, eclass);
+    return pg_EncodeFilePath(obj, eclass);
 }
 
 static PyMethodDef _pg_module_methods[] = {
@@ -725,12 +755,12 @@ MODINIT_DEFINE(rwobject)
     dict = PyModule_GetDict(module);
 
     /* export the c api */
-    c_api[0] = pgRWopsFromObject;
-    c_api[1] = pgRWopsCheckObject;
-    c_api[2] = pgRWopsEncodeFilePath;
-    c_api[3] = pgRWopsEncodeString;
-    c_api[4] = pgRWopsFromFileObject;
-    c_api[5] = pgRWopsReleaseObject;
+    c_api[0] = pgRWops_FromObject;
+    c_api[1] = pgRWops_IsFileObject;
+    c_api[2] = pg_EncodeFilePath;
+    c_api[3] = pg_EncodeString;
+    c_api[4] = pgRWops_FromFileObject;
+    c_api[5] = pgRWops_ReleaseObject;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD(module);

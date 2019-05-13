@@ -149,7 +149,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    Function :func:`set_pos` calls underlining SDL_mixer function
    ``Mix_SetMusicPosition``.
 
-   New in pygame 1.9.2
+   .. versionadded:: 1.9.2
 
    .. ## pygame.mixer.music.set_pos ##
 

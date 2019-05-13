@@ -19,19 +19,20 @@ import unittest
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
-        self.assert_(True) 
+        self.assertTrue(True)
 
     def test_get_mods(self):
-        self.assert_(True) 
+        self.assertTrue(True)
 
     def test_get_pressed(self):
-        self.assert_(True) 
+        self.assertTrue(True)
 
     def test_name(self):
-        self.assert_(True) 
+        self.assertTrue(True)
 
     def test_set_mods(self):
-        self.assert_(True) 
+        self.assertTrue(True)
+
 
 if __name__ == '__main__':
     unittest.main()

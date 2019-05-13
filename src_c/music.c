@@ -108,10 +108,17 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject *
-music_get_busy(PyObject *self)
+music_get_busy(PyObject *self, PyObject *args)
 {
+    int playing;
+
     MIXER_INIT_CHECK();
-    return PyInt_FromLong(Mix_PlayingMusic());
+
+    Py_BEGIN_ALLOW_THREADS
+    playing = Mix_PlayingMusic();
+    Py_END_ALLOW_THREADS
+
+    return PyInt_FromLong(playing);
 }
 
 static PyObject *
@@ -134,7 +141,7 @@ music_fadeout(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_stop(PyObject *self)
+music_stop(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -149,7 +156,7 @@ music_stop(PyObject *self)
 }
 
 static PyObject *
-music_pause(PyObject *self)
+music_pause(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -158,7 +165,7 @@ music_pause(PyObject *self)
 }
 
 static PyObject *
-music_unpause(PyObject *self)
+music_unpause(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
@@ -167,11 +174,14 @@ music_unpause(PyObject *self)
 }
 
 static PyObject *
-music_rewind(PyObject *self)
+music_rewind(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_RewindMusic();
+    Py_END_ALLOW_THREADS
+
     Py_RETURN_NONE;
 }
 
@@ -185,12 +195,15 @@ music_set_volume(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_VolumeMusic((int)(volume * 128));
+    Py_END_ALLOW_THREADS
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_get_volume(PyObject *self)
+music_get_volume(PyObject *self, PyObject *args)
 {
     int volume;
     MIXER_INIT_CHECK();
@@ -202,6 +215,7 @@ music_get_volume(PyObject *self)
 static PyObject *
 music_set_pos(PyObject *self, PyObject *arg)
 {
+    int position_set;
     double pos = PyFloat_AsDouble(arg);
     if (pos == -1 && PyErr_Occurred()) {
         PyErr_Clear();
@@ -210,14 +224,18 @@ music_set_pos(PyObject *self, PyObject *arg)
 
     MIXER_INIT_CHECK();
 
-    if (Mix_SetMusicPosition(pos) == -1) {
+    Py_BEGIN_ALLOW_THREADS
+    position_set = Mix_SetMusicPosition(pos);
+    Py_END_ALLOW_THREADS
+
+    if (position_set == -1)
         return RAISE(pgExc_SDLError, "set_pos unsupported for this codec");
-    }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
-music_get_pos(PyObject *self)
+music_get_pos(PyObject *self, PyObject *args)
 {
     long ticks;
 
@@ -247,7 +265,7 @@ music_set_endevent(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-music_get_endevent(PyObject *self)
+music_get_endevent(PyObject *self, PyObject *args)
 {
     return PyInt_FromLong(endmusic_event);
 }
@@ -267,12 +285,12 @@ music_load(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
         if (!PG_CHECK_THREADS())
             return NULL;
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }
@@ -327,12 +345,12 @@ music_queue(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
         if (!PG_CHECK_THREADS())
             return NULL;
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }
@@ -371,28 +389,28 @@ music_queue(PyObject *self, PyObject *args)
 static PyMethodDef _music_methods[] = {
     {"set_endevent", music_set_endevent, METH_VARARGS,
      DOC_PYGAMEMIXERMUSICSETENDEVENT},
-    {"get_endevent", (PyCFunction)music_get_endevent, METH_NOARGS,
+    {"get_endevent", music_get_endevent, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETENDEVENT},
 
     {"play", (PyCFunction)music_play, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERMUSICPLAY},
-    {"get_busy", (PyCFunction)music_get_busy, METH_NOARGS,
+    {"get_busy", music_get_busy, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETBUSY},
     {"fadeout", music_fadeout, METH_VARARGS, DOC_PYGAMEMIXERMUSICFADEOUT},
-    {"stop", (PyCFunction)music_stop, METH_NOARGS, DOC_PYGAMEMIXERMUSICSTOP},
-    {"pause", (PyCFunction)music_pause, METH_NOARGS,
+    {"stop", music_stop, METH_NOARGS, DOC_PYGAMEMIXERMUSICSTOP},
+    {"pause", music_pause, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICPAUSE},
-    {"unpause", (PyCFunction)music_unpause, METH_NOARGS,
+    {"unpause", music_unpause, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICUNPAUSE},
-    {"rewind", (PyCFunction)music_rewind, METH_NOARGS,
+    {"rewind", music_rewind, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICREWIND},
     {"set_volume", music_set_volume, METH_VARARGS,
      DOC_PYGAMEMIXERMUSICSETVOLUME},
-    {"get_volume", (PyCFunction)music_get_volume, METH_NOARGS,
+    {"get_volume", music_get_volume, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETVOLUME},
-    {"set_pos", (PyCFunction)music_set_pos, METH_O,
+    {"set_pos", music_set_pos, METH_O,
      DOC_PYGAMEMIXERMUSICSETPOS},
-    {"get_pos", (PyCFunction)music_get_pos, METH_NOARGS,
+    {"get_pos", music_get_pos, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETPOS},
 
     {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},
@@ -416,8 +434,6 @@ MODINIT_DEFINE(mixer_music)
                                          NULL,
                                          NULL};
 #endif
-
-    pgMIXER_C_API[0] = pgMIXER_C_API[0]; /*clean an unused warning*/
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.

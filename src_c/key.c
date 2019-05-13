@@ -84,8 +84,11 @@ key_get_repeat(PyObject *self, PyObject *args)
 *     https://github.com/pygame/pygame/issues/659
 * so that they work with SDL_GetKeyboardState().
 */
+#define _PG_SCANCODEWRAPPER_TYPE_NAME "ScancodeWrapper"
+#define _PG_SCANCODEWRAPPER_TYPE_FULLNAME "pygame.key." _PG_SCANCODEWRAPPER_TYPE_NAME
+
 typedef struct {
-    PyObject_HEAD
+    PyTupleObject tuple;
 } pgScancodeWrapper;
 
 static PyObject*
@@ -97,8 +100,7 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
         return NULL;
     index = SDL_GetScancodeFromKey(index);
     adjustedvalue = PyLong_FromLong(index);
-    ret = ((PyObject*)self)->ob_type->tp_base->
-          tp_as_mapping->mp_subscript(self, adjustedvalue);
+    ret = PyTuple_Type.tp_as_mapping->mp_subscript(self, adjustedvalue);
     Py_DECREF(adjustedvalue);
     return ret;
 }
@@ -109,20 +111,14 @@ static PyMappingMethods pg_scancodewrapper_mapping = {
     NULL
 };
 
-static void
-pg_scancodewrapper_dealloc(pgScancodeWrapper *self)
-{
-    ((PyObject*)self)->ob_type->tp_free(self);
-}
-
 static PyObject*
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
-    PyObject *baserepr = ((PyObject*)self)->ob_type->tp_base->tp_repr(self);
+    PyObject *baserepr = PyTuple_Type.tp_repr(self);
 #if PY3
-    PyObject *ret = Text_FromFormat("pygame._ScancodeWrapper%S", baserepr);
+    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
 #else /* PY2 */
-    PyObject *ret = Text_FromFormat("pygame._ScancodeWrapper%s",
+    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%s",
                                     PyString_AsString(baserepr));
 #endif /* PY2 */
     Py_DECREF(baserepr);
@@ -130,10 +126,10 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    TYPE_HEAD(NULL, 0) "pygame._ScancodeWrapper", /* name */
-    sizeof(pgScancodeWrapper),                    /* basic size */
+    TYPE_HEAD(NULL, 0) _PG_SCANCODEWRAPPER_TYPE_FULLNAME, /* name */
+    0,                                            /* basic size */
     0,                                            /* itemsize */
-    pg_scancodewrapper_dealloc,                   /* dealloc */
+    0,                                            /* dealloc */
     0,                                            /* print */
     NULL,                                         /* getattr */
     NULL,                                         /* setattr */
@@ -148,8 +144,8 @@ static PyTypeObject pgScancodeWrapper_Type = {
     0,                                            /* tp_getattro */
     0L,
     0L,
-    Py_TPFLAGS_DEFAULT |
-    Py_TPFLAGS_TUPLE_SUBCLASS,                /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_TUPLE_SUBCLASS |
+    Py_TPFLAGS_BASETYPE,                      /* tp_flags */
     NULL,                                     /* Documentation string */
     0,                                        /* tp_traverse */
     0,                                        /* tp_clear */
@@ -172,10 +168,14 @@ static PyTypeObject pgScancodeWrapper_Type = {
 #endif /* IS_SDLv2 */
 
 static PyObject *
-key_get_pressed(PyObject *self)
+key_get_pressed(PyObject *self, PyObject *args)
 {
     int num_keys;
+#if IS_SDLv1
     Uint8 *key_state;
+#else
+    const Uint8 *key_state;
+#endif
     PyObject *key_tuple;
     int i;
 
@@ -658,7 +658,7 @@ SDL_UCS4ToUTF8(Uint32 ch, char *dst)
 static const char *
 _get_keycode_name(SDL_Keycode key)
 {
-#pragma WARN(Add missing keycode names here? )
+#pragma PG_WARN(Add missing keycode names here? )
 
     static char name[8];
     char *end;
@@ -706,7 +706,7 @@ key_name(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_mods(PyObject *self)
+key_get_mods(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
@@ -728,7 +728,7 @@ key_set_mods(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-key_get_focused(PyObject *self)
+key_get_focused(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
@@ -740,7 +740,7 @@ key_get_focused(PyObject *self)
 }
 
 static PyObject *
-key_start_text_input(PyObject *self)
+key_start_text_input(PyObject *self, PyObject *args)
 {
 #if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StartTextInput */
@@ -750,7 +750,7 @@ key_start_text_input(PyObject *self)
 }
 
 static PyObject *
-key_stop_text_input(PyObject *self)
+key_stop_text_input(PyObject *self, PyObject *args)
 {
 #if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StopTextInput */
@@ -779,18 +779,18 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
 static PyMethodDef _key_methods[] = {
     {"set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT},
     {"get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT},
-    {"get_pressed", (PyCFunction)key_get_pressed, METH_NOARGS,
+    {"get_pressed", key_get_pressed, METH_NOARGS,
      DOC_PYGAMEKEYGETPRESSED},
     {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
-    {"get_mods", (PyCFunction)key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
+    {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
-    {"get_focused", (PyCFunction)key_get_focused, METH_NOARGS,
+    {"get_focused", key_get_focused, METH_NOARGS,
      DOC_PYGAMEKEYGETFOCUSED},
-    {"start_text_input", (PyCFunction)key_start_text_input, METH_NOARGS,
+    {"start_text_input", key_start_text_input, METH_NOARGS,
      DOC_PYGAMEKEYSTARTTEXTINPUT},
-    {"stop_text_input", (PyCFunction)key_stop_text_input, METH_NOARGS,
+    {"stop_text_input", key_stop_text_input, METH_NOARGS,
      DOC_PYGAMEKEYSTOPTEXTINPUT},
-    {"set_text_input_rect", (PyCFunction)key_set_text_input_rect, METH_O,
+    {"set_text_input_rect", key_set_text_input_rect, METH_O,
      DOC_PYGAMEKEYSETTEXTINPUTRECT},
 
     {NULL, NULL, 0, NULL}};
@@ -845,6 +845,14 @@ MODINIT_DEFINE(key)
     }
 
 #if IS_SDLv2
+    Py_INCREF((PyObject*)&pgScancodeWrapper_Type);
+    if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
+                           (PyObject*)&pgScancodeWrapper_Type) == -1) {
+        Py_DECREF((PyObject *)&pgScancodeWrapper_Type);
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
     _use_sdl1_key_names();
 #endif /* IS_SDLv2 */
 

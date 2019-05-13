@@ -11,7 +11,7 @@ src_c/display.c
 
 This is the :py:mod:`pygame.display` extension module.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 
 .. c:type:: pgVidInfoObject

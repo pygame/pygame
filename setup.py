@@ -15,11 +15,11 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.5.dev0",
+    "version":          "2.0.0.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
-    "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
-    "author_email":     "pygame@seul.org",
+    "author":           "A community project.",
+    "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
     "long_description": DESCRIPTION,
 }
@@ -264,6 +264,11 @@ data_files = [('pygame', pygame_data_files)]
 # pygame_data_files.append('readme.html')
 # pygame_data_files.append('install.html')
 
+# add *.pyi files into distribution directory
+# type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
+# for type_file in type_files:
+#     pygame_data_files.append(type_file)
+
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
@@ -338,7 +343,7 @@ def parse_source_version():
     major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
     minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
     patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
-    pg_header = os.path.join('src_c', '_pygame.h')
+    pg_header = os.path.join('src_c', 'include', '_pygame.h')
     with open(pg_header) as f:
         for line in f:
             if pgh_major == -1:
@@ -369,7 +374,7 @@ def write_version_module(pygame_version, revision):
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"\n')
-        version_file.write('vernum = ' + vernum + '\n')
+        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
 
 write_version_module(METADATA['version'], revision)
@@ -602,7 +607,9 @@ date_files = [(path, files) for path, files in data_files if files]
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads', 'pygame._sdl2',
+       "packages":    ['pygame',
+                       'pygame.threads',
+                       'pygame._sdl2',
                        'pygame.tests',
                        'pygame.tests.test_utils',
                        'pygame.tests.run_tests__tests',
@@ -621,7 +628,6 @@ PACKAGEDATA = {
        "package_dir": {'pygame': 'src_py',
                        'pygame._sdl2': 'src_py/_sdl2',
                        'pygame.threads': 'src_py/threads',
-                       'pygame.gp2x': 'src_py/gp2x',
                        'pygame.tests': 'test',
                        'pygame.docs': 'docs',
                        'pygame.examples': 'examples'},

@@ -1,120 +1,62 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMESPRITE "pygame module with basic game object classes"
-
 #define DOC_PYGAMESPRITESPRITE "Sprite(*groups) -> Sprite\nSimple base class for visible game objects."
-
 #define DOC_SPRITEUPDATE "update(*args) -> None\nmethod to control sprite behavior"
-
 #define DOC_SPRITEADD "add(*groups) -> None\nadd the sprite to groups"
-
 #define DOC_SPRITEREMOVE "remove(*groups) -> None\nremove the sprite from groups"
-
 #define DOC_SPRITEKILL "kill() -> None\nremove the Sprite from all Groups"
-
 #define DOC_SPRITEALIVE "alive() -> bool\ndoes the sprite belong to any groups"
-
 #define DOC_SPRITEGROUPS "groups() -> group_list\nlist of Groups that contain this Sprite"
-
 #define DOC_PYGAMESPRITEDIRTYSPRITE "DirtySprite(*groups) -> DirtySprite\nA subclass of Sprite with more attributes and features."
-
 #define DOC_PYGAMESPRITEGROUP "Group(*sprites) -> Group\nA container class to hold and manage multiple Sprite objects."
-
 #define DOC_GROUPSPRITES "sprites() -> sprite_list\nlist of the Sprites this Group contains"
-
 #define DOC_GROUPCOPY "copy() -> Group\nduplicate the Group"
-
 #define DOC_GROUPADD "add(*sprites) -> None\nadd Sprites to this Group"
-
 #define DOC_GROUPREMOVE "remove(*sprites) -> None\nremove Sprites from the Group"
-
 #define DOC_GROUPHAS "has(*sprites) -> None\ntest if a Group contains Sprites"
-
 #define DOC_GROUPUPDATE "update(*args) -> None\ncall the update method on contained Sprites"
-
 #define DOC_GROUPDRAW "draw(Surface) -> None\nblit the Sprite images"
-
 #define DOC_GROUPCLEAR "clear(Surface_dest, background) -> None\ndraw a background over the Sprites"
-
 #define DOC_GROUPEMPTY "empty() -> None\nremove all Sprites"
-
 #define DOC_PYGAMESPRITERENDERPLAIN "Same as pygame.sprite.Group"
-
 #define DOC_PYGAMESPRITERENDERCLEAR "Same as pygame.sprite.Group"
-
 #define DOC_PYGAMESPRITERENDERUPDATES "RenderUpdates(*sprites) -> RenderUpdates\nGroup sub-class that tracks dirty updates."
-
 #define DOC_RENDERUPDATESDRAW "draw(surface) -> Rect_list\nblit the Sprite images and track changed areas"
-
 #define DOC_PYGAMESPRITEORDEREDUPDATES "OrderedUpdates(*spites) -> OrderedUpdates\nRenderUpdates sub-class that draws Sprites in order of addition."
-
 #define DOC_PYGAMESPRITELAYEREDUPDATES "LayeredUpdates(*spites, **kwargs) -> LayeredUpdates\nLayeredUpdates is a sprite group that handles layers and draws like OrderedUpdates."
-
 #define DOC_LAYEREDUPDATESADD "add(*sprites, **kwargs) -> None\nadd a sprite or sequence of sprites to a group"
-
 #define DOC_LAYEREDUPDATESSPRITES "sprites() -> sprites\nreturns a ordered list of sprites (first back, last top)."
-
 #define DOC_LAYEREDUPDATESDRAW "draw(surface) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
-
 #define DOC_LAYEREDUPDATESGETSPRITESAT "get_sprites_at(pos) -> colliding_sprites\nreturns a list with all sprites at that position."
-
 #define DOC_LAYEREDUPDATESGETSPRITE "get_sprite(idx) -> sprite\nreturns the sprite at the index idx from the groups sprites"
-
 #define DOC_LAYEREDUPDATESREMOVESPRITESOFLAYER "remove_sprites_of_layer(layer_nr) -> sprites\nremoves all sprites from a layer and returns them as a list."
-
 #define DOC_LAYEREDUPDATESLAYERS "layers() -> layers\nreturns a list of layers defined (unique), sorted from bottom up."
-
 #define DOC_LAYEREDUPDATESCHANGELAYER "change_layer(sprite, new_layer) -> None\nchanges the layer of the sprite"
-
 #define DOC_LAYEREDUPDATESGETLAYEROFSPRITE "get_layer_of_sprite(sprite) -> layer\nreturns the layer that sprite is currently in."
-
 #define DOC_LAYEREDUPDATESGETTOPLAYER "get_top_layer() -> layer\nreturns the top layer"
-
 #define DOC_LAYEREDUPDATESGETBOTTOMLAYER "get_bottom_layer() -> layer\nreturns the bottom layer"
-
 #define DOC_LAYEREDUPDATESMOVETOFRONT "move_to_front(sprite) -> None\nbrings the sprite to front layer"
-
 #define DOC_LAYEREDUPDATESMOVETOBACK "move_to_back(sprite) -> None\nmoves the sprite to the bottom layer"
-
 #define DOC_LAYEREDUPDATESGETTOPSPRITE "get_top_sprite() -> Sprite\nreturns the topmost sprite"
-
 #define DOC_LAYEREDUPDATESGETSPRITESFROMLAYER "get_sprites_from_layer(layer) -> sprites\nreturns all sprites from a layer, ordered by how they where added"
-
 #define DOC_LAYEREDUPDATESSWITCHLAYER "switch_layer(layer1_nr, layer2_nr) -> None\nswitches the sprites from layer1 to layer2"
-
 #define DOC_PYGAMESPRITELAYEREDDIRTY "LayeredDirty(*spites, **kwargs) -> LayeredDirty\nLayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates."
-
 #define DOC_LAYEREDDIRTYDRAW "draw(surface, bgd=None) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
-
 #define DOC_LAYEREDDIRTYCLEAR "clear(surface, bgd) -> None\nused to set background"
-
 #define DOC_LAYEREDDIRTYREPAINTRECT "repaint_rect(screen_rect) -> None\nrepaints the given area"
-
 #define DOC_LAYEREDDIRTYSETCLIP "set_clip(screen_rect=None) -> None\nclip the area where to draw. Just pass None (default) to reset the clip"
-
 #define DOC_LAYEREDDIRTYGETCLIP "get_clip() -> Rect\nclip the area where to draw. Just pass None (default) to reset the clip"
-
 #define DOC_LAYEREDDIRTYCHANGELAYER "change_layer(sprite, new_layer) -> None\nchanges the layer of the sprite"
-
 #define DOC_LAYEREDDIRTYSETTIMINGTRESHOLD "set_timing_treshold(time_ms) -> None\nsets the threshold in milliseconds"
-
 #define DOC_PYGAMESPRITEGROUPSINGLE "GroupSingle(sprite=None) -> GroupSingle\nGroup container that holds a single sprite."
-
 #define DOC_PYGAMESPRITESPRITECOLLIDE "spritecollide(sprite, group, dokill, collided = None) -> Sprite_list\nFind sprites in a group that intersect another sprite."
-
 #define DOC_PYGAMESPRITECOLLIDERECT "collide_rect(left, right) -> bool\nCollision detection between two sprites, using rects."
-
 #define DOC_PYGAMESPRITECOLLIDERECTRATIO "collide_rect_ratio(ratio) -> collided_callable\nCollision detection between two sprites, using rects scaled to a ratio."
-
 #define DOC_PYGAMESPRITECOLLIDECIRCLE "collide_circle(left, right) -> bool\nCollision detection between two sprites, using circles."
-
 #define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "collide_circle_ratio(ratio) -> collided_callable\nCollision detection between two sprites, using circles scaled to a ratio."
-
 #define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(SpriteLeft, SpriteRight) -> point\nCollision detection between two sprites, using masks."
-
 #define DOC_PYGAMESPRITEGROUPCOLLIDE "groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict\nFind all sprites that collide between two groups."
-
 #define DOC_PYGAMESPRITESPRITECOLLIDEANY "spritecollideany(sprite, group, collided = None) -> Sprite\nspritecollideany(sprite, group, collided = None) -> None\nSimple test if a sprite intersects anything in a group."
-
 
 
 /* Docs in a comment... slightly easier to read. */

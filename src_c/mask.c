@@ -37,15 +37,27 @@
 
 #include "structmember.h"
 
-#include "bitmask.h"
-
 #include <math.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
+/* Macro to create mask objects. This will call the type's tp_new and tp_init.
+ * Params:
+ *     w: width of mask
+ *     h: height of mask
+ *     f: fill, 1 is used to set all the bits (to 1) and 0 is used to clear
+ *        all the bits (to 0)
+ */
+#define CREATE_MASK_OBJ(w, h, f)                                             \
+    (pgMaskObject *)PyObject_CallFunction((PyObject *)&pgMask_Type, "(ii)i", \
+                                          (w), (h), (f))
+
+/* Prototypes */
 static PyTypeObject pgMask_Type;
+static PG_INLINE pgMaskObject *
+_create_mask_using_bitmask(bitmask_t *bitmask);
 
 /* mask object methods */
 
@@ -147,23 +159,24 @@ static PyObject *
 mask_overlap_mask(PyObject *self, PyObject *args)
 {
     int x, y;
-    bitmask_t *mask = pgMask_AsBitmap(self);
-    bitmask_t *output = bitmask_create(mask->w, mask->h);
-    bitmask_t *othermask;
-    PyObject *maskobj;
-    pgMaskObject *maskobj2 = PyObject_New(pgMaskObject, &pgMask_Type);
+    bitmask_t *bitmask = pgMask_AsBitmap(self);
+    PyObject *maskobj = NULL;
+    pgMaskObject *output_maskobj = NULL;
 
     if (!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
-        return NULL;
+        return NULL; /* Exception already set. */
     }
-    othermask = pgMask_AsBitmap(maskobj);
 
-    bitmask_overlap_mask(mask, othermask, output, x, y);
+    output_maskobj = CREATE_MASK_OBJ(bitmask->w, bitmask->h, 0);
 
-    if (maskobj2)
-        maskobj2->mask = output;
+    if (NULL == output_maskobj) {
+        return NULL; /* Exception already set. */
+    }
 
-    return (PyObject *)maskobj2;
+    bitmask_overlap_mask(bitmask, pgMask_AsBitmap(maskobj),
+                         output_maskobj->mask, x, y);
+
+    return (PyObject *)output_maskobj;
 }
 
 static PyObject *
@@ -200,23 +213,23 @@ static PyObject *
 mask_scale(PyObject *self, PyObject *args)
 {
     int x, y;
-    bitmask_t *input = pgMask_AsBitmap(self);
-    bitmask_t *output;
-    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
+    bitmask_t *bitmask = NULL;
 
     if (!PyArg_ParseTuple(args, "(ii)", &x, &y)) {
-        return NULL;
+        return NULL; /* Exception already set. */
     }
 
     if (x < 0 || y < 0) {
-        return RAISE(PyExc_ValueError, "Cannot scale mask to negative size");
+        return RAISE(PyExc_ValueError, "cannot scale mask to negative size");
     }
-    output = bitmask_scale(input, x, y);
 
-    if (maskobj)
-        maskobj->mask = output;
+    bitmask = bitmask_scale(pgMask_AsBitmap(self), x, y);
 
-    return (PyObject *)maskobj;
+    if (NULL == bitmask) {
+        return RAISE(PyExc_MemoryError, "cannot allocate memory for bitmask");
+    }
+
+    return (PyObject *)_create_mask_using_bitmask(bitmask);
 }
 
 static PyObject *
@@ -336,34 +349,39 @@ static PyObject *
 mask_outline(PyObject *self, PyObject *args)
 {
     bitmask_t *c = pgMask_AsBitmap(self);
-    bitmask_t *m = bitmask_create(c->w + 2, c->h + 2);
-    PyObject *plist, *value;
-    int x, y, every, e, firstx, firsty, secx, secy, currx, curry, nextx, nexty,
-        n;
-    int a[14], b[14];
-    a[0] = a[1] = a[7] = a[8] = a[9] = b[1] = b[2] = b[3] = b[9] = b[10] =
-        b[11] = 1;
-    a[2] = a[6] = a[10] = b[4] = b[0] = b[12] = b[8] = 0;
-    a[3] = a[4] = a[5] = a[11] = a[12] = a[13] = b[5] = b[6] = b[7] = b[13] =
-        -1;
+    bitmask_t *m = NULL;
+    PyObject *plist = NULL;
+    PyObject *value = NULL;
+    int x, y, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
+    int e, every = 1;
+    int a[] = {1, 1, 0, -1, -1, -1,  0,  1, 1, 1, 0, -1, -1, -1};
+    int b[] = {0, 1, 1,  1,  0, -1, -1, -1, 0, 1, 1,  1,  0, -1};
 
-    plist = NULL;
-    plist = PyList_New(0);
-    if (!plist)
-        return NULL;
-
-    every = 1;
     n = firstx = firsty = secx = x = 0;
 
     if (!PyArg_ParseTuple(args, "|i", &every)) {
         return NULL;
     }
 
-    /* by copying to a new, larger mask, we avoid having to check if we are at
-       a border pixel every time.  */
-    bitmask_draw(m, c, 1, 1);
+    plist = PyList_New(0);
+    if (!plist) {
+        return RAISE(PyExc_MemoryError,
+                     "outline cannot allocate memory for list");
+    }
 
-    e = every;
+    if (!c->w || !c->h) {
+        return plist;
+    }
+
+    /* Copying to a larger mask to avoid border checking. */
+    m = bitmask_create(c->w + 2, c->h + 2);
+    if (!m) {
+        Py_DECREF(plist);
+        return RAISE(PyExc_MemoryError,
+                     "outline cannot allocate memory for mask");
+    }
+
+    bitmask_draw(m, c, 1, 1);
 
     /* find the first set pixel in the mask */
     for (y = 1; y < m->h - 1; y++) {
@@ -381,11 +399,13 @@ mask_outline(PyObject *self, PyObject *args)
             break;
     }
 
-    /* covers the mask having zero pixels or only the final pixel */
+    /* covers the mask having zero pixels set or only the final pixel */
     if ((x == m->w - 1) && (y == m->h - 1)) {
         bitmask_free(m);
         return plist;
     }
+
+    e = every;
 
     /* check just the first pixel for neighbors */
     for (n = 0; n < 8; n++) {
@@ -449,159 +469,199 @@ mask_outline(PyObject *self, PyObject *args)
 static PyObject *
 mask_convolve(PyObject *aobj, PyObject *args)
 {
-    PyObject *bobj, *oobj = Py_None;
-    bitmask_t *a, *b, *o;
+    PyObject *bobj = NULL;
+    PyObject *oobj = Py_None;
+    bitmask_t *a = NULL, *b = NULL, *output = NULL;
     int xoffset = 0, yoffset = 0;
 
     if (!PyArg_ParseTuple(args, "O!|O(ii)", &pgMask_Type, &bobj, &oobj,
-                          &xoffset, &yoffset))
-        return NULL;
+                          &xoffset, &yoffset)) {
+        return NULL; /* Exception already set. */
+    }
 
     a = pgMask_AsBitmap(aobj);
     b = pgMask_AsBitmap(bobj);
 
-    if (oobj == Py_None) {
-        pgMaskObject *result = PyObject_New(pgMaskObject, &pgMask_Type);
-
-        result->mask = bitmask_create(a->w + b->w - 1, a->h + b->h - 1);
-        oobj = (PyObject *)result;
-    }
-    else
+    if (oobj != Py_None) {
+        /* Use this mask for the output. */
         Py_INCREF(oobj);
+    }
+    else {
+        pgMaskObject *maskobj = CREATE_MASK_OBJ(MAX(0, a->w + b->w - 1),
+                                                MAX(0, a->h + b->h - 1), 0);
 
-    o = pgMask_AsBitmap(oobj);
+        if (NULL == maskobj) {
+            return NULL; /* Exception already set. */
+        }
 
-    bitmask_convolve(a, b, o, xoffset, yoffset);
+        oobj = (PyObject *)maskobj;
+    }
+
+    bitmask_convolve(a, b, pgMask_AsBitmap(oobj), xoffset, yoffset);
+
     return oobj;
 }
 
+/* Gets the color of a given pixel.
+ *
+ * Params:
+ *     pixel: pixel to get the color of
+ *     bpp: bytes per pixel
+ *
+ * Returns:
+ *     pixel color
+ */
+static PG_INLINE Uint32
+get_pixel_color(Uint8 *pixel, Uint8 bpp)
+{
+    switch (bpp) {
+        case 1:
+            return *((Uint8 *)pixel);
+
+        case 2:
+            return *((Uint16 *)pixel);
+
+        case 3:
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            return (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16);
+#else  /* SDL_BIG_ENDIAN */
+            return (pixel[2]) + (pixel[1] << 8) + (pixel[0] << 16);
+#endif /* SDL_BIG_ENDIAN */
+
+        default: /* case 4: */
+            return *((Uint32 *)pixel);
+    }
+}
+
+/* For each surface pixel's alpha that is greater than the threshold,
+ * the corresponding bitmask bit is set.
+ *
+ * Params:
+ *     surf: surface
+ *     bitmask: bitmask to alter
+ *     threshold: threshold used check surface pixels (alpha) against
+ *
+ * Returns:
+ *     void
+ */
+static void
+set_from_threshold(SDL_Surface *surf, bitmask_t *bitmask, int threshold)
+{
+    SDL_PixelFormat *format = surf->format;
+    Uint8 bpp = format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    Uint8 rgba[4];
+    int x, y;
+
+    for (y = 0; y < surf->h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < surf->w; ++x, pixel += bpp) {
+            SDL_GetRGBA(get_pixel_color(pixel, bpp), format, rgba, rgba + 1,
+                        rgba + 2, rgba + 3);
+            if (rgba[3] > threshold) {
+                bitmask_setbit(bitmask, x, y);
+            }
+        }
+    }
+}
+
+/* For each surface pixel's color that is not equal to the colorkey, the
+ * corresponding bitmask bit is set.
+ *
+ * Params:
+ *     surf: surface
+ *     bitmask: bitmask to alter
+ *     colorkey: color used to check surface pixels against
+ *
+ * Returns:
+ *     void
+ */
+static void
+set_from_colorkey(SDL_Surface *surf, bitmask_t *bitmask, Uint32 colorkey)
+{
+    Uint8 bpp = surf->format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    int x, y;
+
+    for (y = 0; y < surf->h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < surf->w; ++x, pixel += bpp) {
+            if (get_pixel_color(pixel, bpp) != colorkey) {
+                bitmask_setbit(bitmask, x, y);
+            }
+        }
+    }
+}
+
+/* Creates a mask from a given surface.
+ *
+ * Returns:
+ *     Mask object or NULL to indicate a fail
+ */
 static PyObject *
 mask_from_surface(PyObject *self, PyObject *args)
 {
-    bitmask_t *mask;
-    SDL_Surface *surf;
-
-    PyObject *surfobj;
-    pgMaskObject *maskobj;
-
-    int x, y, threshold, ashift, aloss, usethresh;
-    Uint8 *pixels;
-
-    SDL_PixelFormat *format;
-    Uint32 color, amask;
-#if IS_SDLv2
+    SDL_Surface *surf = NULL;
+    PyObject *surfobj = NULL;
+    pgMaskObject *maskobj = NULL;
     Uint32 colorkey;
-#endif /* IS_SDLv2 */
-    Uint8 *pix;
-    Uint8 a;
-
-    /* set threshold as 127 default argument. */
-    threshold = 127;
-
-    /* get the surface from the passed in arguments.
-     *   surface, threshold
-     */
+    int threshold = 127; /* default value */
+    int use_thresh = 1;
 
     if (!PyArg_ParseTuple(args, "O!|i", &pgSurface_Type, &surfobj,
                           &threshold)) {
-        return NULL;
+        return NULL; /* Exception already set. */
     }
 
     surf = pgSurface_AsSurface(surfobj);
 
     if (surf->w < 0 || surf->h < 0) {
         return RAISE(PyExc_ValueError,
-                     "Cannot create mask with negative size");
+                     "cannot create mask with negative size");
     }
 
-    /* lock the surface, release the GIL. */
-    pgSurface_Lock(surfobj);
+    maskobj = CREATE_MASK_OBJ(surf->w, surf->h, 0);
 
-    Py_BEGIN_ALLOW_THREADS;
-
-    /* get the size from the surface, and create the mask. */
-    mask = bitmask_create(surf->w, surf->h);
-
-    if (!mask) {
-        /* Py_END_ALLOW_THREADS;
-         */
-        return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
+    if (NULL == maskobj) {
+        return NULL; /* Exception already set. */
     }
 
-    pixels = (Uint8 *)surf->pixels;
-    format = surf->format;
-    amask = format->Amask;
-    ashift = format->Ashift;
-    aloss = format->Aloss;
-#if IS_SDLv1
-    usethresh = !(surf->flags & SDL_SRCCOLORKEY);
-#else  /* IS_SDLv2 */
-    usethresh = (SDL_GetColorKey(surf, &colorkey) == -1);
-#endif /* IS_SDLv2 */
-
-    for (y = 0; y < surf->h; y++) {
-        pixels = (Uint8 *)surf->pixels + y * surf->pitch;
-        for (x = 0; x < surf->w; x++) {
-            /* Get the color.  TODO: should use an inline helper
-             *   function for this common function. */
-            switch (format->BytesPerPixel) {
-                case 1:
-                    color = (Uint32) * ((Uint8 *)pixels);
-                    pixels++;
-                    break;
-                case 2:
-                    color = (Uint32) * ((Uint16 *)pixels);
-                    pixels += 2;
-                    break;
-                case 3:
-                    pix = ((Uint8 *)pixels);
-                    pixels += 3;
-#if IS_SDLv1
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                    color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
-#else
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif
-#else  /* IS_SDLv2 */
-                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
-                    break;
-                default: /* case 4: */
-                    color = *((Uint32 *)pixels);
-                    pixels += 4;
-                    break;
-            }
-
-            if (usethresh) {
-                a = ((color & amask) >> ashift) << aloss;
-                /* no colorkey, so we check the threshold of the alpha */
-                if (a > threshold) {
-                    bitmask_setbit(mask, x, y);
-                }
-            }
-            else {
-                /*  test against the colour key. */
-#if IS_SDLv1
-                if (format->colorkey != color) {
-#else  /* IS_SDLv2 */
-                if (colorkey != color) {
-#endif /* IS_SDLv2 */
-                    bitmask_setbit(mask, x, y);
-                }
-            }
-        }
+    if (surf->w == 0 || surf->h == 0) {
+        /* Nothing left to do for 0 sized surfaces. */
+        return (PyObject *)maskobj;
     }
 
-    Py_END_ALLOW_THREADS;
+    if (!pgSurface_Lock(surfobj)) {
+        Py_DECREF((PyObject *)maskobj);
+        return RAISE(PyExc_RuntimeError, "cannot lock surface");
+    }
 
-    /* unlock the surface, release the GIL.
-     */
-    pgSurface_Unlock(surfobj);
+    Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
 
-    /*create the new python object from mask*/
-    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-    if (maskobj)
-        maskobj->mask = mask;
+#if IS_SDLv1
+    if (surf->flags & SDL_SRCCOLORKEY) {
+        colorkey = surf->format->colorkey;
+        use_thresh = 0;
+    }
+#else  /* IS_SDLv2 */
+    use_thresh = (SDL_GetColorKey(surf, &colorkey) == -1);
+#endif /* IS_SDLv2 */
+
+    if (use_thresh) {
+        set_from_threshold(surf, maskobj->mask, threshold);
+    }
+    else {
+        set_from_colorkey(surf, maskobj->mask, colorkey);
+    }
+
+    Py_END_ALLOW_THREADS; /* Obtain the GIL. */
+
+    if (!pgSurface_Unlock(surfobj)) {
+        Py_DECREF((PyObject *)maskobj);
+        return RAISE(PyExc_RuntimeError, "cannot unlock surface");
+    }
 
     return (PyObject *)maskobj;
 }
@@ -687,15 +747,11 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                 case 3:
                     pix = ((Uint8 *)pixels);
                     pixels += 3;
-#if IS_SDLv1
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
                     the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
-#else  /* IS_SDLv2 */
-                    the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
                     break;
                 default: /* case 4: */
                     the_color = *((Uint32 *)pixels);
@@ -716,15 +772,11 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                     case 3:
                         pix = ((Uint8 *)pixels2);
                         pixels2 += 3;
-#if IS_SDLv1
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                         the_color2 = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
                         the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
-#else  /* IS_SDLv2 */
-                        the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif /* IS_SDLv2 */
                         break;
                     default: /* case 4: */
                         the_color2 = *((Uint32 *)pixels2);
@@ -778,8 +830,7 @@ static PyObject *
 mask_from_threshold(PyObject *self, PyObject *args)
 {
     PyObject *surfobj, *surfobj2 = NULL;
-    pgMaskObject *maskobj;
-    bitmask_t *m;
+    pgMaskObject *maskobj = NULL;
     SDL_Surface *surf = NULL, *surf2 = NULL;
     int bpp;
     PyObject *rgba_obj_color, *rgba_obj_threshold = NULL;
@@ -833,7 +884,11 @@ mask_from_threshold(PyObject *self, PyObject *args)
     }
 
     bpp = surf->format->BytesPerPixel;
-    m = bitmask_create(surf->w, surf->h);
+    maskobj = CREATE_MASK_OBJ(surf->w, surf->h, 0);
+
+    if (NULL == maskobj) {
+        return NULL; /* Exception already set. */
+    }
 
     pgSurface_Lock(surfobj);
     if (surfobj2) {
@@ -841,7 +896,8 @@ mask_from_threshold(PyObject *self, PyObject *args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    bitmask_threshold(m, surf, surf2, color, color_threshold, palette_colors);
+    bitmask_threshold(maskobj->mask, surf, surf2, color, color_threshold,
+                      palette_colors);
     Py_END_ALLOW_THREADS;
 
     pgSurface_Unlock(surfobj);
@@ -849,23 +905,28 @@ mask_from_threshold(PyObject *self, PyObject *args)
         pgSurface_Unlock(surfobj2);
     }
 
-    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-    if (maskobj)
-        maskobj->mask = m;
-
     return (PyObject *)maskobj;
 }
 
-/* the initial labelling phase of the connected components algorithm
-
-Returns: The highest label in the labelled image
-
-input - The input Mask
-image - An array to store labelled pixels
-ufind - The union-find label equivalence array
-largest - An array to store the number of pixels for each label
-
-*/
+/* The initial labelling phase of the connected components algorithm.
+ *
+ * Connected component labeling based on the SAUF algorithm by Kesheng Wu,
+ * Ekow Otoo, and Kenji Suzuki. The algorithm is best explained by their
+ * paper, "Two Strategies to Speed up Connected Component Labeling Algorithms",
+ * but in summary, it is a very efficient two pass method for 8-connected
+ * components. It uses a decision tree to minimize the number of neighbors that
+ * need to be checked. It stores equivalence information in an array based
+ * union-find.
+ *
+ * Params:
+ *     input - the input mask
+ *     image - an array to store labelled pixels
+ *     ufind - the union-find label equivalence array
+ *     largest - an array to store the number of pixels for each label
+ *
+ * Returns:
+ *     the highest label in the labelled image
+ */
 unsigned int
 cc_label(bitmask_t *input, unsigned int *image, unsigned int *ufind,
          unsigned int *largest)
@@ -1048,23 +1109,20 @@ cc_label(bitmask_t *input, unsigned int *image, unsigned int *ufind,
     return label;
 }
 
-/* Connected component labeling based on the SAUF algorithm by Kesheng Wu,
-   Ekow Otoo, and Kenji Suzuki.  The algorithm is best explained by their
-   paper, "Two Strategies to Speed up Connected Component Labeling Algorithms",
-   but in summary, it is a very efficient two pass method for 8-connected
-   components. It uses a decision tree to minimize the number of neighbors that
-   need to be checked.  It stores equivalence information in an array based
-   union-find. This implementation also has a final step of finding bounding
-   boxes. */
-
-/*
-returns -2 on memory allocation error, otherwise 0 on success.
-
-input - the input mask.
-num_bounding_boxes - returns the number of bounding rects found.
-rects - returns the rects that are found.  Allocates the memory for the rects.
-
-*/
+/* Creates a bounding rect for each connected component in the given mask.
+ *
+ * Allocates memory for rects.
+ *
+ * Params:
+ *     input - mask to search in for the connected components to bound
+ *     num_bounding_boxes - passes back the number of bounding rects found
+ *     rects - passes back the bounding rects that are found, memory is
+ *         allocated
+ *
+ * Returns:
+ *     0 on success
+ *     -2 on memory allocation error
+ */
 static int
 get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
                    GAME_Rect **ret_rects)
@@ -1080,7 +1138,7 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
     h = input->h;
 
     if (!w || !h) {
-        ret_rects = rects;
+        *ret_rects = rects;
         return 0;
     }
     /* a temporary image to assign labels to each bit of the mask */
@@ -1219,12 +1277,22 @@ mask_get_bounding_rects(PyObject *self, PyObject *args)
     return ret;
 }
 
-/*
-returns the number of connected components.
-returns -2 on memory allocation error.
-Allocates memory for components.
-
-*/
+/* Finds all the connected components in a given mask.
+ *
+ * Allocates memory for components.
+ *
+ * NOTE: Caller is responsible for freeing the "components" memory.
+ *
+ * Params:
+ *     mask - mask to search in for the connected components
+ *     components - passes back an array of connected component masks with the
+ *         first component at index 1, memory is allocated
+ *     min - minimum number of pixels for a component to be considered
+ *
+ * Returns:
+ *     the number of connected components (>= 0)
+ *     -2 on memory allocation error
+ */
 static int
 get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 {
@@ -1236,6 +1304,10 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 
     w = mask->w;
     h = mask->h;
+
+    if (!w || !h) {
+        return 0;
+    }
 
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *)malloc(sizeof(int) * w * h);
@@ -1331,58 +1403,76 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 static PyObject *
 mask_connected_components(PyObject *self, PyObject *args)
 {
-    PyObject *ret;
-    pgMaskObject *maskobj;
-    bitmask_t **components;
+    PyObject *mask_list = NULL;
+    pgMaskObject *maskobj = NULL;
+    bitmask_t **components = NULL;
     bitmask_t *mask = pgMask_AsBitmap(self);
-    int i, num_components, min;
-
-    min = 0;
-    components = NULL;
+    int i, m, num_components, min = 0; /* Default min value. */
 
     if (!PyArg_ParseTuple(args, "|i", &min)) {
-        return NULL;
+        return NULL; /* Exception already set. */
     }
 
     Py_BEGIN_ALLOW_THREADS;
     num_components = get_connected_components(mask, &components, min);
     Py_END_ALLOW_THREADS;
 
-    if (num_components == -2)
+    if (num_components == -2) {
         return RAISE(PyExc_MemoryError,
-                     "Not enough memory to get components. \n");
+                     "cannot allocate memory for connected components");
+    }
 
-    ret = PyList_New(0);
-    if (!ret)
-        return NULL;
+    mask_list = PyList_New(0);
+    if (!mask_list) {
+        return NULL; /* Exception already set. */
+    }
 
-    for (i = 1; i <= num_components; i++) {
-        maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-        if (maskobj) {
-            maskobj->mask = components[i];
-            PyList_Append(ret, (PyObject *)maskobj);
-            Py_DECREF((PyObject *)maskobj);
+    for (i = 1; i <= num_components; ++i) {
+        maskobj = _create_mask_using_bitmask(components[i]);
+
+        if (NULL == maskobj) {
+            for (m = i; m <= num_components; ++m) {
+                bitmask_free(components[m]);
+            }
+            Py_DECREF(mask_list);
+            return NULL; /* Exception already set. */
         }
+
+        if (0 != PyList_Append(mask_list, (PyObject *)maskobj)) {
+            /* Can't append to the list. */
+            for (m = i + 1; m <= num_components; ++m) {
+                bitmask_free(components[m]);
+            }
+            Py_DECREF((PyObject *)maskobj);
+            Py_DECREF(mask_list);
+            return NULL; /* Exception already set. */
+        }
+
+        Py_DECREF((PyObject *)maskobj);
     }
 
     free(components);
-    return ret;
+    return mask_list;
 }
 
-/* Connected component labeling based on the SAUF algorithm by Kesheng Wu,
-   Ekow Otoo, and Kenji Suzuki.  The algorithm is best explained by their
-   paper, "Two Strategies to Speed up Connected Component Labeling Algorithms",
-   but in summary, it is a very efficient two pass method for 8-connected
-   components. It uses a decision tree to minimize the number of neighbors that
-   need to be checked.  It stores equivalence information in an array based
-   union-find. This implementation also tracks the number of pixels in each
-   label, finding the biggest one while flattening the union-find equivalence
-   array.  It then
-   writes an output mask containing only the largest connected component. */
-
-/*
-returns -2 on memory allocation error.
-*/
+/* Finds the largest connected component in a given mask.
+ *
+ * Tracks the number of pixels in each label, finding the biggest one while
+ * flattening the union-find equivalence array. It then writes an output mask
+ * containing only the largest connected component.
+ *
+ * Params:
+ *     input - mask to search in for the largest connected component
+ *     output - this mask is updated with the largest connected component
+ *     ccx - x index, if < 0 then the largest connected component in the input
+ *         mask is found and copied to the output mask, otherwise the connected
+ *         component at (ccx, ccy) is copied to the output mask
+ *     ccy - y index
+ *
+ * Returns:
+ *     0 on success
+ *     -2 on memory allocation error
+ */
 static int
 largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
 {
@@ -1391,6 +1481,10 @@ largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
 
     w = input->w;
     h = input->h;
+
+    if (!w || !h) {
+        return 0;
+    }
 
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *)malloc(sizeof(int) * w * h);
@@ -1451,28 +1545,39 @@ static PyObject *
 mask_connected_component(PyObject *self, PyObject *args)
 {
     bitmask_t *input = pgMask_AsBitmap(self);
-    bitmask_t *output = bitmask_create(input->w, input->h);
-    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-    int x, y;
+    pgMaskObject *output_maskobj = NULL;
+    int x = -1, y = -1;
+    Py_ssize_t args_exist = PyTuple_Size(args);
 
-    x = -1;
+    if (args_exist) {
+        if (!PyArg_ParseTuple(args, "|(ii)", &x, &y)) {
+            return NULL; /* Exception already set. */
+        }
 
-    if (!PyArg_ParseTuple(args, "|(ii)", &x, &y)) {
-        return NULL;
-    }
-
-    /* if a coordinate is specified, make the pixel there is actually set */
-    if (x == -1 || bitmask_getbit(input, x, y)) {
-        if (largest_connected_comp(input, output, x, y) == -2) {
-            return RAISE(PyExc_MemoryError,
-                         "Not enough memory to get bounding rects. \n");
+        if (x < 0 || x >= input->w || y < 0 || y >= input->h) {
+            return PyErr_Format(PyExc_IndexError, "%d, %d is out of bounds", x,
+                                y);
         }
     }
 
-    if (maskobj)
-        maskobj->mask = output;
+    output_maskobj = CREATE_MASK_OBJ(input->w, input->h, 0);
 
-    return (PyObject *)maskobj;
+    if (NULL == output_maskobj) {
+        return NULL; /* Exception already set. */
+    }
+
+    /* If a pixel index is provided and the indexed bit is not set, then the
+     * returned mask is empty.
+     */
+    if (!args_exist || bitmask_getbit(input, x, y)) {
+        if (largest_connected_comp(input, output_maskobj->mask, x, y) == -2) {
+            Py_DECREF(output_maskobj);
+            return RAISE(PyExc_MemoryError,
+                         "cannot allocate memory for connected component");
+        }
+    }
+
+    return (PyObject *)output_maskobj;
 }
 
 static PyMethodDef mask_methods[] = {
@@ -1504,34 +1609,125 @@ static PyMethodDef mask_methods[] = {
 
 /*mask object internals*/
 
+/* Creates a mask object using an existing bitmask. This is a helper function
+ * for internal use only.
+ *
+ * Params:
+ *     bitmask: pointer to the bitmask to use
+ *
+ * Returns:
+ *     Mask object
+ */
+static PG_INLINE pgMaskObject *
+_create_mask_using_bitmask(bitmask_t *bitmask)
+{
+    /* tp_init is not needed as the bitmask has already been created. */
+    pgMaskObject *maskobj =
+        (pgMaskObject *)pgMask_Type.tp_new(&pgMask_Type, NULL, NULL);
+
+    if (NULL == maskobj) {
+        return (pgMaskObject *)RAISE(PyExc_MemoryError,
+                                     "cannot allocate memory for mask");
+    }
+
+    maskobj->mask = bitmask;
+    return maskobj;
+}
+
 static void
 mask_dealloc(PyObject *self)
 {
+    bitmask_t *bitmask = pgMask_AsBitmap(self);
+
+    if (NULL != bitmask) {
+        /* Free up the bitmask. */
+        bitmask_free(bitmask);
+    }
+
+    /* Free up the mask. */
+    Py_TYPE(self)->tp_free(self);
+}
+
+static PyObject *
+mask_repr(PyObject *self)
+{
     bitmask_t *mask = pgMask_AsBitmap(self);
-    bitmask_free(mask);
-    PyObject_DEL(self);
+    return Text_FromFormat("<Mask(%dx%d)>", mask->w, mask->h);
+}
+
+static PyObject *
+mask_new(PyTypeObject *subtype, PyObject *args, PyObject *kwargs)
+{
+    pgMaskObject *maskobj = (pgMaskObject *)subtype->tp_alloc(subtype, 0);
+
+    if (NULL == maskobj) {
+        return RAISE(PyExc_MemoryError, "cannot allocate memory for mask");
+    }
+
+    maskobj->mask = NULL;
+    return (PyObject *)maskobj;
+}
+
+static int
+mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    bitmask_t *bitmask = NULL;
+    int w, h;
+    int fill = 0; /* Default is false. */
+    char *keywords[] = {"size", "fill", NULL};
+#if PY3
+    const char *format = "(ii)|p";
+#else
+    const char *format = "(ii)|i";
+#endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
+                                     &fill)) {
+        return -1;
+    }
+
+    if (w < 0 || h < 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "cannot create mask with negative size");
+        return -1;
+    }
+
+    bitmask = bitmask_create(w, h);
+
+    if (NULL == bitmask) {
+        PyErr_SetString(PyExc_MemoryError,
+                        "cannot allocate memory for bitmask");
+        return -1;
+    }
+
+    if (fill) {
+        bitmask_fill(bitmask);
+    }
+
+    ((pgMaskObject *)self)->mask = bitmask;
+    return 0;
 }
 
 static PyTypeObject pgMask_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.mask.Mask",
-    sizeof(pgMaskObject),
-    0,
-    mask_dealloc,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    NULL,
-    0,
-    (hashfunc)NULL,
-    (ternaryfunc)NULL,
-    (reprfunc)NULL,
-    0L,
-    0L,
-    0L,
-    0L,
+    TYPE_HEAD(NULL, 0) "pygame.mask.Mask", /* tp_name */
+    sizeof(pgMaskObject), /* tp_basicsize */
+    0,                    /* tp_itemsize */
+    mask_dealloc,         /* tp_dealloc */
+    0,                    /* tp_print */
+    0,                    /* tp_getattr */
+    0,                    /* tp_setattr */
+    0,                    /* tp_as_async (formerly tp_compare/tp_reserved) */
+    (reprfunc)mask_repr,  /* tp_repr */
+    0,                    /* tp_as_number */
+    NULL,                 /* tp_as_sequence */
+    0,                    /* tp_as_mapping */
+    (hashfunc)NULL,       /* tp_hash */
+    (ternaryfunc)NULL,    /* tp_call */
+    (reprfunc)NULL,       /* tp_str */
+    0L,                   /* tp_getattro */
+    0L,                   /* tp_setattro */
+    0L,                   /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */
@@ -1547,35 +1743,13 @@ static PyTypeObject pgMask_Type = {
     0,                  /* tp_descr_get */
     0,                  /* tp_descr_set */
     0,                  /* tp_dictoffset */
-    0,                  /* tp_init */
+    mask_init,          /* tp_init */
     0,                  /* tp_alloc */
-    0,                  /* tp_new */
+    mask_new,           /* tp_new */
 };
 
 /*mask module methods*/
-
-static PyObject *
-Mask(PyObject *self, PyObject *args)
-{
-    bitmask_t *mask;
-    int w, h;
-    pgMaskObject *maskobj;
-    if (!PyArg_ParseTuple(args, "(ii)", &w, &h))
-        return NULL;
-    mask = bitmask_create(w, h);
-
-    if (!mask)
-        return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
-
-    /*create the new python object from mask*/
-    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
-    if (maskobj)
-        maskobj->mask = mask;
-    return (PyObject *)maskobj;
-}
-
 static PyMethodDef _mask_methods[] = {
-    {"Mask", Mask, METH_VARARGS, DOC_PYGAMEMASKMASK},
     {"from_surface", mask_from_surface, METH_VARARGS,
      DOC_PYGAMEMASKFROMSURFACE},
     {"from_threshold", mask_from_threshold, METH_VARARGS,
@@ -1639,6 +1813,12 @@ MODINIT_DEFINE(mask)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+    if (PyDict_SetItemString(dict, "Mask", (PyObject *)&pgMask_Type) == -1) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
     /* export the c api */
     c_api[0] = &pgMask_Type;
     apiobj = encapsulate_api(c_api, "mask");

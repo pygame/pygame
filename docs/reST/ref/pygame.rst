@@ -64,7 +64,7 @@ object instead of the module, which can be used to test for availability.
 
    Returns ``True`` if pygame is currently initialized.
 
-   New in pygame 1.9.5.
+   .. versionadded:: 1.9.5
 
    .. ## pygame.get_init ##
 
@@ -113,7 +113,7 @@ object instead of the module, which can be used to test for availability.
    built at compile time. It can be used to detect which features may not be
    available through pygame.
 
-   get_sdl_version is new in pygame 1.7.0
+   .. versionadded:: 1.7.0
 
    .. ## pygame.get_sdl_version ##
 
@@ -125,7 +125,7 @@ object instead of the module, which can be used to test for availability.
    Returns the byte order of the ``SDL`` library. It returns ``LIL_ENDIAN`` for
    little endian byte order and ``BIG_ENDIAN`` for big endian byte order.
 
-   get_sdl_byteorder is new in pygame 1.8
+   .. versionadded:: 1.8
 
    .. ## pygame.get_sdl_byteorder ##
 
@@ -221,6 +221,18 @@ variables to check with version of pygame has been imported.
        if pygame.version.vernum < (1, 5):
            print 'Warning, older version of pygame (%s)' %  pygame.version.ver
            disable_advanced_features = True
+
+   .. versionadded:: 1.9.6 Attributes ``major``, ``minor``, and ``patch``.
+
+   ::
+
+      vernum.major == vernum[0]
+      vernum.minor == vernum[1]
+      vernum.patch == vernum[2]
+
+   .. versionchanged:: 1.9.6 str(vernum) returns a string like "2.0.0" instead of "(2, 0, 0)".
+
+   .. versionchanged:: 1.9.6 repr(vernum) returns a string like "PygameVersion(major=2, minor=0, patch=0)" instead of "(2, 0, 0)".
 
    .. ## pygame.version.vernum ##
 

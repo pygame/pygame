@@ -24,10 +24,9 @@
 {#- -#}
 
 
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 {% for item in hdr_items -%}
 #define {{ cmacro(item) }} "{{ join_sigs(item) }}{{ item['summary'] }}"
-
 {% endfor %}
 
 /* Docs in a comment... slightly easier to read. */

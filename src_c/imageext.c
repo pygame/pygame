@@ -28,8 +28,6 @@
  */
 #include "pygame.h"
 
-#if IS_SDLv1
-
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
 #undef HAVE_PROTOTYPES
@@ -53,8 +51,6 @@
 #include <jerror.h>
 #include <jpeglib.h>
 
-#endif /* IS_SDLv1 */
-
 #include "pgcompat.h"
 
 #include "doc/image_doc.h"
@@ -62,8 +58,33 @@
 #include "pgopengl.h"
 
 #include <SDL_image.h>
+#ifdef WIN32
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
 
 #define JPEG_QUALITY 85
+
+#ifdef WITH_THREAD
+static SDL_mutex *_pg_img_mutex = 0;
+#endif /* WITH_THREAD */
+
+#ifdef WIN32
+
+#include <windows.h>
+
+#if IS_SDLv1
+#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.win32io.h) ? 0 : -1)
+#else /* IS_SDLv2 */
+#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
+#endif /* IS_SDLv2 */
+
+#else /* ~WIN32 */
+
+#define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
+
+#endif /* ~WIN32 */
 
 static const char *
 find_extension(const char *fullname)
@@ -88,6 +109,7 @@ image_load_ext(PyObject *self, PyObject *arg)
     PyObject *final;
     PyObject *oencoded;
     PyObject *oname;
+    size_t namelen;
     const char *name = NULL;
     const char *cext;
     char *ext = NULL;
@@ -98,18 +120,34 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    /*oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);*/
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
     if (oencoded != Py_None) {
+        name = Bytes_AS_STRING(oencoded);
+#ifdef WITH_THREAD
+        namelen = Bytes_GET_SIZE(oencoded);
         Py_BEGIN_ALLOW_THREADS;
-        surf = IMG_Load(Bytes_AS_STRING(oencoded));
+        if (namelen > 4 && !strcasecmp(name + namelen - 4, ".gif")) {
+            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+            SDL_LockMutex(_pg_img_mutex);
+            surf = IMG_Load(name);
+            SDL_UnlockMutex(_pg_img_mutex);
+        }
+        else {
+            surf = IMG_Load(name);
+        }
         Py_END_ALLOW_THREADS;
+#else /* ~WITH_THREAD */
+        surf = IMG_Load(name);
+#endif /* WITH_THREAD */
         Py_DECREF(oencoded);
     }
     else {
+#ifdef WITH_THREAD
+        int lock_mutex = 0;
+#endif /* WITH_THREAD */
         Py_DECREF(oencoded);
         oencoded = NULL;
 #if PY2
@@ -126,8 +164,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         if (name == NULL) {
             oname = PyObject_GetAttrString(obj, "name");
             if (oname != NULL) {
-                /*oencoded = pgRWopsEncodeFilePath(oname, NULL);*/
-                oencoded = pgRWopsEncodeString(oname, "UTF-8", NULL, NULL);
+                oencoded = pg_EncodeString(oname, "UTF-8", NULL, NULL);
                 Py_DECREF(oname);
                 if (oencoded == NULL) {
                     return NULL;
@@ -140,7 +177,7 @@ image_load_ext(PyObject *self, PyObject *arg)
                 PyErr_Clear();
             }
         }
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             Py_XDECREF(oencoded);
             return NULL;
@@ -154,11 +191,26 @@ image_load_ext(PyObject *self, PyObject *arg)
                 return PyErr_NoMemory();
             }
             strcpy(ext, cext);
+#ifdef WITH_THREAD
+            lock_mutex = !strcasecmp(ext, "gif");
+#endif /* WITH_THREAD */
         }
         Py_XDECREF(oencoded);
+#ifdef WITH_THREAD
         Py_BEGIN_ALLOW_THREADS;
-        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        if (lock_mutex) {
+            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+            SDL_LockMutex(_pg_img_mutex);
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
+            SDL_UnlockMutex(_pg_img_mutex);
+        }
+        else {
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
+        }
         Py_END_ALLOW_THREADS;
+#else /* ~WITH_THREAD */
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+#endif /* ~WITH_THREAD */
         PyMem_Free(ext);
     }
 
@@ -177,20 +229,20 @@ image_load_ext(PyObject *self, PyObject *arg)
 static void
 png_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
-    if (fwrite(data, 1, length, fp) != length) {
-        fclose(fp);
-        png_error(png_ptr, "Error while writing to the PNG file (fwrite)");
+    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
+    if (SDL_RWwrite(rwops, data, 1, length) != length) {
+        SDL_RWclose(rwops);
+        png_error(png_ptr, "Error while writing to the PNG file (SDL_RWwrite)");
     }
 }
 
 static void
 png_flush_fn(png_structp png_ptr)
 {
-    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
-    if (fflush(fp) == EOF) {
-        fclose(fp);
-        png_error(png_ptr, "Error while writing to PNG file (fflush)");
+    SDL_RWops *rwops = (SDL_RWops *)png_get_io_ptr(png_ptr);
+    if (pg_RWflush(rwops)) {
+        SDL_RWclose(rwops);
+        png_error(png_ptr, "Error while writing to PNG file (flush)");
     }
 }
 
@@ -200,10 +252,10 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
-    FILE *fp;
+    SDL_RWops *rwops;
     char *doing;
 
-    if (!(fp = pg_FopenUTF8(file_name, "wb"))) {
+    if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
         return -1;
     }
 
@@ -219,7 +271,7 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
         goto fail;
 
     doing = "init IO";
-    png_set_write_fn(png_ptr, fp, png_write_fn, png_flush_fn);
+    png_set_write_fn(png_ptr, rwops, png_write_fn, png_flush_fn);
 
     doing = "write header";
     png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype,
@@ -236,7 +288,7 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
     png_write_end(png_ptr, NULL);
 
     doing = "closing file";
-    if (0 != fclose(fp))
+    if (0 != SDL_RWclose(rwops))
         goto fail;
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return 0;
@@ -274,6 +326,8 @@ SavePNG(SDL_Surface *surface, const char *file)
 #else  /* IS_SDLv2 */
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
+    int has_colorkey = 0;
+    SDL_BlendMode surf_mode;
 #endif /* IS_SDLv2 */
 
     ss_rows = 0;
@@ -338,7 +392,17 @@ SavePNG(SDL_Surface *surface, const char *file)
         SDL_SetAlpha(surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey(surface, 0, surface->format->colorkey);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    SDL_GetSurfaceAlphaMod(surface, &surf_alpha);
+    SDL_SetSurfaceAlphaMod(surface, 255);
+    SDL_GetSurfaceBlendMode(surface, &surf_mode);
+    SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+    if (SDL_GetColorKey(surface, &surf_colorkey) == 0) {
+        has_colorkey = 1;
+        SDL_SetColorKey(surface, SDL_FALSE, surf_colorkey);
+    }
+#endif /* IS_SDLv2 */
 
     ss_rect.x = 0;
     ss_rect.y = 0;
@@ -358,10 +422,10 @@ SavePNG(SDL_Surface *surface, const char *file)
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey(surface, SDL_SRCCOLORKEY, surf_colorkey);
 #else  /* IS_SDLv2 */
-    if (SDL_GetColorKey(surface, &surf_colorkey) == 0)
-        SDL_SetColorKey(ss_surface, SDL_TRUE, surf_colorkey);
-    SDL_GetSurfaceAlphaMod(surface, &surf_alpha);
+    if (has_colorkey)
+        SDL_SetColorKey(surface, SDL_TRUE, surf_colorkey);
     SDL_SetSurfaceAlphaMod(surface, surf_alpha);
+    SDL_SetSurfaceBlendMode(surface, surf_mode);
 #endif /* IS_SDLv2 */
 
     for (i = 0; i < ss_h; i++) {
@@ -400,7 +464,7 @@ SavePNG(SDL_Surface *surface, const char *file)
 typedef struct {
     struct jpeg_destination_mgr pub; /* public fields */
 
-    FILE *outfile;  /* target stream */
+    SDL_RWops *outfile;  /* target stream */
     JOCTET *buffer; /* start of buffer */
 } j_outfile_mgr;
 
@@ -423,14 +487,14 @@ j_empty_output_buffer(j_compress_ptr cinfo)
 {
     j_outfile_mgr *dest = (j_outfile_mgr *)cinfo->dest;
 
-    if (fwrite(dest->buffer, 1, OUTPUT_BUF_SIZE, dest->outfile) !=
+    if (SDL_RWwrite(dest->outfile, dest->buffer, 1, OUTPUT_BUF_SIZE) !=
         (size_t)OUTPUT_BUF_SIZE) {
         ERREXIT(cinfo, JERR_FILE_WRITE);
     }
     dest->pub.next_output_byte = dest->buffer;
     dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 
-    return TRUE;
+    return 1;
 }
 
 static void
@@ -441,19 +505,17 @@ j_term_destination(j_compress_ptr cinfo)
 
     /* Write any data remaining in the buffer */
     if (datacount > 0) {
-        if (fwrite(dest->buffer, 1, datacount, dest->outfile) != datacount) {
+        if (SDL_RWwrite(dest->outfile, dest->buffer, 1, datacount) != datacount) {
             ERREXIT(cinfo, JERR_FILE_WRITE);
         }
     }
-    fflush(dest->outfile);
-    /* Make sure we wrote the output file OK */
-    if (ferror(dest->outfile)) {
+    if (pg_RWflush(dest->outfile)) {
         ERREXIT(cinfo, JERR_FILE_WRITE);
     }
 }
 
 static void
-j_stdio_dest(j_compress_ptr cinfo, FILE *outfile)
+j_stdio_dest(j_compress_ptr cinfo, SDL_RWops *outfile)
 {
     j_outfile_mgr *dest;
 
@@ -485,7 +547,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
-    FILE *outfile;
+    SDL_RWops *outfile;
     JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
     int num_lines_to_write;
     int i;
@@ -495,7 +557,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if (!(outfile = pg_FopenUTF8(file_name, "wb"))) {
+    if (!(outfile = SDL_RWFromFile(file_name, "wb"))) {
         return -1;
     }
     j_stdio_dest(&cinfo, outfile);
@@ -510,9 +572,9 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
      */
 
     jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, quality, TRUE);
+    jpeg_set_quality(&cinfo, quality, 1);
 
-    jpeg_start_compress(&cinfo, TRUE);
+    jpeg_start_compress(&cinfo, 1);
 
     /* try and write many scanlines at once.  */
     while (cinfo.next_scanline < cinfo.image_height) {
@@ -529,7 +591,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     }
 
     jpeg_finish_compress(&cinfo);
-    fclose(outfile);
+    SDL_RWclose(outfile);
     jpeg_destroy_compress(&cinfo);
     return 0;
 }
@@ -751,7 +813,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a string for the file argument: got %.1024s",
@@ -762,7 +824,6 @@ image_save_ext(PyObject *self, PyObject *arg)
         const char *name = Bytes_AS_STRING(oencoded);
         Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
 
-#if IS_SDLv1
         if ((namelen >= 4) &&
             (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
               (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
@@ -799,24 +860,6 @@ image_save_ext(PyObject *self, PyObject *arg)
             result = -2;
 #endif /* ~PNG_H */
         }
-#else /* IS_SDLv2 */
-        if ((namelen >= 4) &&
-            (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
-              (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
-              (name[namelen - 4] == 'j' || name[namelen - 4] == 'J')) ||
-             ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
-              (name[namelen - 3] == 'j' || name[namelen - 3] == 'J')))) {
-            result = IMG_SaveJPG(surf, name, JPEG_QUALITY);
-        }
-        else if ((namelen >= 3) &&
-                 ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                  (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
-                  (name[namelen - 3] == 'p' || name[namelen - 3] == 'P'))) {
-            result = IMG_SavePNG(surf, name);
-        }
-#endif /* IS_SDLv2 */
     }
     else {
         result = -2;
@@ -845,6 +888,28 @@ image_save_ext(PyObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+#ifdef WITH_THREAD
+#if PY3
+static void
+_imageext_free(void *ptr)
+{
+    if (_pg_img_mutex) {
+        SDL_DestroyMutex(_pg_img_mutex);
+        _pg_img_mutex = 0;
+    }
+}
+#else /* PY2 */
+static void
+_imageext_free(void)
+{
+    if (_pg_img_mutex) {
+        SDL_DestroyMutex(_pg_img_mutex);
+        _pg_img_mutex = 0;
+    }
+}
+#endif /* PY2 */
+#endif /* WITH_THREAD */
+
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
@@ -864,7 +929,11 @@ MODINIT_DEFINE(imageext)
                                          NULL,
                                          NULL,
                                          NULL,
-                                         NULL};
+#ifdef WITH_THREAD
+                                         _imageext_free};
+#else /* ~WITH_THREAD */
+                                         0};
+#endif /* ~WITH_THREAD */
 #endif
 
     /* imported needed apis; Do this first so if there is an error
@@ -883,6 +952,19 @@ MODINIT_DEFINE(imageext)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
+
+#ifdef WITH_THREAD
+#if PY2
+    if (Py_AtExit(_imageext_free)) {
+        MODINIT_ERROR;
+    }
+#endif /* PY2 */
+    _pg_img_mutex = SDL_CreateMutex();
+    if (!_pg_img_mutex) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        MODINIT_ERROR;
+    }
+#endif /* WITH_THREAD */
 
     /* create the module */
 #if PY3
