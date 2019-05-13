@@ -600,8 +600,6 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(mask1.get_size(), mask1_size)
         self.assertEqual(mask2.get_size(), mask2_size)
 
-    # This decorator can be removed when issue #1026 is resolved.
-    @unittest.expectedFailure
     def test_overlap_mask__offset(self):
         """Ensure an offset overlap_mask's mask is correctly calculated."""
         mask1 = pygame.mask.Mask((65, 3), fill=True)
@@ -635,8 +633,6 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask1.get_size(), mask1_size, msg)
             self.assertEqual(mask2.get_size(), mask2_size, msg)
 
-    # This decorator can be removed when issue #1026 is resolved.
-    @unittest.expectedFailure
     def test_overlap_mask__specific_offsets(self):
         """Ensure an offset overlap_mask's mask is correctly calculated.
 
