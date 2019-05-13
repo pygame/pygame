@@ -541,15 +541,23 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
+    PyObject *posobj;
     int posx, posy, radius, t, l, b, r;
     int width = 0; /* Default width. */
     static char *keywords[] = {"surface", "color", "center",
                                "radius",  "width", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O(ii)i|i", keywords,
-                                     &pgSurface_Type, &surfobj, &colorobj,
-                                     &posx, &posy, &radius, &width)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OOi|i", keywords,
+                          &pgSurface_Type, &surfobj,
+                          &colorobj,
+                          &posobj,
+                          &radius, &width))
         return NULL; /* Exception already set. */
+
+    if (!pg_TwoIntsFromObj(posobj, &posx, &posy)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "expected a pair of numbers");
+        return 0;
     }
 
     surf = pgSurface_AsSurface(surfobj);
