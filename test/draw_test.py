@@ -2501,12 +2501,22 @@ class DrawCircleMixin(object):
 
     def test_circle__floats(self):
         """Ensure that floats are accepted."""
-        kwargs = {'surface' : pygame.Surface((4, 4)),
-                  'color'   : None,
-                  'center'  : (1.5, 1.5),
-                  'radius'  : 1,
-                  'width'   : 0}
-        draw.circle(**kwargs)
+        draw.circle(
+            surface=pygame.Surface((4, 4)),
+            color=(255, 255, 127),
+            center=(1.5, 1.5),
+            radius=1,
+            width=0,
+        )
+        from pygame.math import Vector2
+        draw.circle(
+            surface=pygame.Surface((4, 4)),
+            color=(255, 255, 127),
+            center=Vector2(1.5, 1.5),
+            radius=1,
+            width=0,
+        )
+
 
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """Test draw module function circle.
