@@ -822,20 +822,20 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         Uint32 sdl_flags = 0;
 
         if (flags & PGS_FULLSCREEN){
-            if (flags & PGS_LOGICAL){
+            if (flags & PGS_SCALED){
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
             } else {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN;
             }
         }
 
-        if (flags & PGS_LOGICAL){
+        if (flags & PGS_SCALED){
             if (flags & PGS_OPENGL)
                 return RAISE(pgExc_SDLError,
-                             "Cannot use OPENGL with LOGICAL mode");
+                             "Cannot use OPENGL with SCALED mode");
             if (flags & PGS_RESIZABLE)
                 return RAISE(pgExc_SDLError,
-                             "Cannot use RESIZABLE with LOGICAL mode");
+                             "Cannot use RESIZABLE with SCALED mode");
         }
 
         if (flags & PGS_OPENGL)
@@ -880,7 +880,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (!win) {
                 /*open window*/
-                if (flags & PGS_LOGICAL && !(flags & PGS_FULLSCREEN)){
+                if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)){
                     SDL_DisplayMode dm;
                     int scale=1;
 
@@ -945,7 +945,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 state->gl_context = NULL;
             }
 
-            if (flags & PGS_LOGICAL) {
+            if (flags & PGS_SCALED) {
                 if (pg_renderer==NULL){
                     SDL_RendererInfo info;
 
@@ -1005,7 +1005,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         /*no errors; make the window available*/
         pg_SetDefaultWindow(win);
         pg_SetDefaultWindowSurface(surface);
-        if(state->using_gl || flags & PGS_LOGICAL)
+        if(state->using_gl || flags & PGS_SCALED)
             ((pgSurfaceObject*)surface)->owner = 1;
         Py_DECREF(surface);
     }
