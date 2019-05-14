@@ -42,7 +42,26 @@ mouse_set_pos(PyObject *self, PyObject *args)
 
 #if IS_SDLv1
     SDL_WarpMouse((Uint16)x, (Uint16)y);
+
 #else  /* IS_SDLv2 */
+    {
+        SDL_Window *sdlWindow = pg_GetDefaultWindow();
+        SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+        if (sdlRenderer!=NULL){
+            SDL_Rect vprect;
+            float scalex, scaley;
+
+            SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+            SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+            x+=vprect.x;
+            y+=vprect.y;
+
+            x*=scalex;
+            y*=scaley;
+        }
+    }
+
     SDL_WarpMouseInWindow(NULL, (Uint16)x, (Uint16)y);
 #endif /* IS_SDLv2 */
     Py_RETURN_NONE;
@@ -55,6 +74,36 @@ mouse_get_pos(PyObject *self)
 
     VIDEO_INIT_CHECK();
     SDL_GetMouseState(&x, &y);
+
+#if IS_SDLv2
+    {
+        SDL_Window *sdlWindow = pg_GetDefaultWindow();
+        SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+        if (sdlRenderer!=NULL){
+            SDL_Rect vprect;
+            float scalex, scaley;
+
+            SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+            SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+            x/=scalex;
+            y/=scaley;
+
+            x-=vprect.x;
+            y-=vprect.y;
+
+            if (x<0)
+                x=0;
+            if (x>=vprect.w)
+                x=vprect.w-1;
+            if (y<0)
+                y=0;
+            if (y>=vprect.h)
+                y=vprect.h-1;
+        }
+    }
+#endif
+
     return Py_BuildValue("(ii)", x, y);
 }
 
@@ -66,6 +115,21 @@ mouse_get_rel(PyObject *self)
     VIDEO_INIT_CHECK();
 
     SDL_GetRelativeMouseState(&x, &y);
+
+/*
+#if IS_SDLv2
+    SDL_Window *sdlWindow = pg_GetDefaultWindow();
+    SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+    if (sdlRenderer!=NULL){
+        float scalex, scaley;
+
+        SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+
+        x/=scalex;
+        y/=scaley;
+    }
+#endif
+*/
     return Py_BuildValue("(ii)", x, y);
 }
 

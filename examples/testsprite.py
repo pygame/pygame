@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# like the testsprite.c that comes with sdl, this pygame version shows 
+# like the testsprite.c that comes with sdl, this pygame version shows
 #   lots of sprites moving around.
 
 
@@ -63,6 +63,8 @@ if "-hw" in sys.argv:
     flags ^= HWSURFACE
     use_rle = False
 
+if "-scaled" in sys.argv:
+    flags ^= SCALED
 
 screen_dims = [640, 480]
 
@@ -133,7 +135,7 @@ class Static(FRG.DirtySprite):
 
 
 
-def main(update_rects = True, 
+def main(update_rects = True,
         use_static = False,
         use_FastRenderGroup = False,
         screen_dims = [640, 480],
@@ -196,7 +198,7 @@ def main(update_rects = True,
     Thingy.images = [sprite_surface]
     if use_static:
         Static.images = [sprite_surface2]
-    
+
     if len(sys.argv) > 1:
         try:
             numsprites = int(sys.argv[-1])

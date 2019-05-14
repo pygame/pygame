@@ -273,6 +273,14 @@ class DisplayModuleTest(unittest.TestCase):
                                 size,
                                 flags=pygame.FULLSCREEN), 0)
 
+    def test_mode_ok_scaled(self):
+        modes = pygame.display.list_modes()
+        if modes != -1:
+            size = modes[0]
+            self.assertNotEqual(pygame.display.mode_ok(
+                                size,
+                                flags=pygame.SCALED), 0)
+
     def test_get_num_displays(self):
         self.assertGreater(pygame.display.get_num_displays(), 0)
 
@@ -351,6 +359,9 @@ class DisplayModuleTest(unittest.TestCase):
 
         pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
 
+
+    def test_set_mode_scaled(self):
+        pygame.display.set_mode(size=(1, 1), flags=pygame.SCALED, depth=0, display=0)
 
     def todo_test_set_palette(self):
 
