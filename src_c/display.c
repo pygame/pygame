@@ -887,6 +887,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 xscale = dm.w / w;
                 yscale = dm.h / h;
                 scale = xscale < yscale ? xscale : yscale;
+                if (scale < 1)
+                    scale = 1;
             }
             w_1 = w * scale;
             h_1 = h * scale;
