@@ -864,8 +864,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         {
             int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
             int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-            int w_1=w;
-            int h_1=h;
+            int w_1, h_1;
+            int scale = 1;
 
             if(win){
                 if (SDL_GetWindowDisplayIndex(win) == display) {
@@ -878,23 +878,21 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
             }
 
+            if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)) {
+                SDL_DisplayMode dm;
+                int xscale, yscale;
+                if (SDL_GetCurrentDisplayMode(0, &dm) != 0) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+                xscale = dm.w / w;
+                yscale = dm.h / h;
+                scale = xscale < yscale ? xscale : yscale;
+            }
+            w_1 = w * scale;
+            h_1 = h * scale;
+
             if (!win) {
                 /*open window*/
-                if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)){
-                    SDL_DisplayMode dm;
-                    int scale=1;
-
-                    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
-                        return RAISE(pgExc_SDLError, SDL_GetError());
-                    }
-
-                    while(w*(scale+1) <= dm.w && h*(scale+1) <= dm.h){
-                        scale++;
-                    }
-
-                    w_1=w*scale;
-                    h_1=h*scale;
-                }
                 win = SDL_CreateWindow(title,
                                        x, y, w_1, h_1, sdl_flags);
                 if (!win)
@@ -902,7 +900,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             } else {
                 /*change existing window*/
                 SDL_SetWindowTitle(win, title);
-                SDL_SetWindowSize(win, w, h);
+                SDL_SetWindowSize(win, w_1, h_1);
                 SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
                 SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
 
