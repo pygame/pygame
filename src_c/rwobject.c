@@ -101,7 +101,7 @@ _pg_is_exception_class(PyObject *obj, void **optr)
     return 1;
 }
 
-static void
+static int
 fetch_object_methods(pgRWHelper *helper, PyObject *obj)
 {
     helper->read = helper->write = helper->seek = helper->tell =
@@ -142,6 +142,11 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
             helper->close = NULL;
         }
     }
+    if (!helper->read && !helper->write) {
+        RAISE(PyExc_ValueError, "Object has no callable read or write method");
+        return -1;
+    }
+    return 0;
 }
 
 static PyObject *
@@ -420,7 +425,9 @@ pgRWops_FromFileObject(PyObject *obj)
     helper->fileno = PyObject_AsFileDescriptor(obj);
     if (helper->fileno == -1)
         PyErr_Clear();
-    fetch_object_methods(helper, obj);
+    if (fetch_object_methods(helper, obj)) {
+        return NULL;
+    }
 
     helper->file = obj;
     Py_INCREF(obj);
