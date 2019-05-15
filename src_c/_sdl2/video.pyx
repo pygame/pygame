@@ -713,11 +713,10 @@ cdef class Image:
         if srcrect is not None:
             if pgRect_FromObject(srcrect, &temp) == NULL:
                 raise error('srcrect must be None or a rectangle')
-            if temp.x < 0 or temp.x >= self.srcrect.w or \
-                temp.y < 0 or temp.y >= self.srcrect.h or \
+            if temp.x < 0 or temp.y < 0 or \
                 temp.w < 0 or temp.h < 0 or \
-                temp.x + temp.w >= self.srcrect.w or \
-                temp.y + temp.h >= self.srcrect.h:
+                temp.x + temp.w > self.srcrect.w or \
+                temp.y + temp.h > self.srcrect.h:
                 raise ValueError('rect values are out of range')
             temp.x += self.srcrect.x
             temp.y += self.srcrect.y
