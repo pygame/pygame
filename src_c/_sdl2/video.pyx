@@ -439,7 +439,7 @@ cdef class Window:
     @property
     def brightness(self):
         """ The brightness (gamma multiplier) for the display that owns a given window.
-        It ranges between 0.0 (completely dark) and 1.0 (normal brightness)."""
+        0.0 is completely dark and 1.0 is normal brightness."""
         return SDL_GetWindowBrightness(self._win)
 
     @brightness.setter
