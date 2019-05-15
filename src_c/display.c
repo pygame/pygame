@@ -1221,7 +1221,9 @@ pg_flip(PyObject *self, PyObject *args)
             SDL_RenderCopy(pg_renderer, pg_texture, NULL, NULL);
             SDL_RenderPresent(pg_renderer);
         }
-        status = SDL_UpdateWindowSurface(win) == -1;
+        else {
+            status = SDL_UpdateWindowSurface(win) == -1;
+        }
     }
     Py_END_ALLOW_THREADS;
 
