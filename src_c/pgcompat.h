@@ -1,8 +1,9 @@
-/* Python 2.x/3.x compitibility tools
+/* Python 2.x/3.x compatibility tools (internal)
  */
+#ifndef PGCOMPAT_INTERNAL_H
+#define PGCOMPAT_INTERNAL_H
 
-#if !defined(PGCOMPAT_H)
-#define PGCOMPAT_H
+#include "include/pgcompat.h"
 
 #if PY_MAJOR_VERSION >= 3
 
@@ -190,6 +191,6 @@
 #else
 #define PG_ENABLE_NEWBUF 0
 #endif
-#endif
+#endif /* !defined(PG_ENABLE_NEWBUF) */
 
-#endif /* #if !defined(PGCOMPAT_H) */
+#endif /* ~PGCOMPAT_INTERNAL_H */

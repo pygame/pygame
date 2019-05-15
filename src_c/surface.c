@@ -4053,7 +4053,7 @@ static PyMethodDef _surface_methods[] = {{NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(surface)
 {
-    PyObject *module, *dict, *apiobj, *lockmodule;
+    PyObject *module, *dict, *apiobj;
     int ecode;
     static void *c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
 
@@ -4088,24 +4088,8 @@ MODINIT_DEFINE(surface)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-
-    /* import the surflock module manually */
-    lockmodule = PyImport_ImportModule(IMPPREFIX "surflock");
-    if (lockmodule != NULL) {
-        PyObject *_dict = PyModule_GetDict(lockmodule);
-        PyObject *_c_api = PyDict_GetItemString(_dict, PYGAMEAPI_LOCAL_ENTRY);
-
-        if (PyCapsule_CheckExact(_c_api)) {
-            int i;
-            void **localptr = (void *)PyCapsule_GetPointer(
-                _c_api, PG_CAPSULE_NAME("surflock"));
-
-            for (i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)
-                PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
-        }
-        Py_DECREF(lockmodule);
-    }
-    else {
+    _IMPORT_PYGAME_MODULE(surflock);
+    if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
 

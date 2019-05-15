@@ -110,8 +110,15 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
 static PyObject *
 music_get_busy(PyObject *self, PyObject *args)
 {
+    int playing;
+
     MIXER_INIT_CHECK();
-    return PyInt_FromLong(Mix_PlayingMusic());
+
+    Py_BEGIN_ALLOW_THREADS
+    playing = Mix_PlayingMusic();
+    Py_END_ALLOW_THREADS
+
+    return PyInt_FromLong(playing);
 }
 
 static PyObject *
@@ -171,7 +178,10 @@ music_rewind(PyObject *self, PyObject *args)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_RewindMusic();
+    Py_END_ALLOW_THREADS
+
     Py_RETURN_NONE;
 }
 
@@ -185,7 +195,10 @@ music_set_volume(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS
     Mix_VolumeMusic((int)(volume * 128));
+    Py_END_ALLOW_THREADS
+
     Py_RETURN_NONE;
 }
 
@@ -202,6 +215,7 @@ music_get_volume(PyObject *self, PyObject *args)
 static PyObject *
 music_set_pos(PyObject *self, PyObject *arg)
 {
+    int position_set;
     double pos = PyFloat_AsDouble(arg);
     if (pos == -1 && PyErr_Occurred()) {
         PyErr_Clear();
@@ -210,9 +224,13 @@ music_set_pos(PyObject *self, PyObject *arg)
 
     MIXER_INIT_CHECK();
 
-    if (Mix_SetMusicPosition(pos) == -1) {
+    Py_BEGIN_ALLOW_THREADS
+    position_set = Mix_SetMusicPosition(pos);
+    Py_END_ALLOW_THREADS
+
+    if (position_set == -1)
         return RAISE(pgExc_SDLError, "set_pos unsupported for this codec");
-    }
+
     Py_RETURN_NONE;
 }
 
@@ -313,6 +331,24 @@ music_load(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+music_unload(PyObject *self, PyObject *noarg)
+{
+    MIXER_INIT_CHECK();
+
+    Py_BEGIN_ALLOW_THREADS
+    if (current_music) {
+        Mix_FreeMusic(current_music);
+        current_music = NULL;
+    }
+    if (queue_music) {
+        Mix_FreeMusic(queue_music);
+        queue_music = NULL;
+    }
+    Py_END_ALLOW_THREADS
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 music_queue(PyObject *self, PyObject *args)
 {
     PyObject *obj;
@@ -396,6 +432,7 @@ static PyMethodDef _music_methods[] = {
      DOC_PYGAMEMIXERMUSICGETPOS},
 
     {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},
+    {"unload", music_unload, METH_NOARGS, DOC_PYGAMEMIXERMUSICUNLOAD},
     {"queue", music_queue, METH_VARARGS, DOC_PYGAMEMIXERMUSICQUEUE},
 
     {NULL, NULL, 0, NULL}};
@@ -416,8 +453,6 @@ MODINIT_DEFINE(mixer_music)
                                          NULL,
                                          NULL};
 #endif
-
-    pgMIXER_C_API[0] = pgMIXER_C_API[0]; /*clean an unused warning*/
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.

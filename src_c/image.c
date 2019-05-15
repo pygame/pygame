@@ -1427,7 +1427,9 @@ MODINIT_DEFINE(image)
     else {
         PyObject *basicload = PyObject_GetAttrString(module, "load_basic");
         PyErr_Clear();
+        Py_INCREF(Py_None);
         PyModule_AddObject(module, "load_extended", Py_None);
+        Py_INCREF(Py_None);
         PyModule_AddObject(module, "save_extended", Py_None);
         PyModule_AddObject(module, "load", basicload);
         st->is_extended = 0;

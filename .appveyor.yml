@@ -25,71 +25,92 @@ environment:
     #   PYPY_VERSION: "pypy3-v5.10.1-win32"
     #   PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
-    # - PYTHON: "C:\\Python27\\python"
-    #   PYTHON_VERSION: "2.7.13"
-    #   PYTHON_ARCH: "32"
-    #   USE_SDL2: "-sdl2"
-
-    # - PYTHON: "C:\\Python37\\python"
-    #   PYTHON_VERSION: "3.7.0"
-    #   PYTHON_ARCH: "32"
-    #   USE_SDL2: "-sdl2"
-
-    # - PYTHON: "C:\\Python27-x64\\python"
-    #   PYTHON_VERSION: "2.7.13"
-    #   PYTHON_ARCH: "64"
-    #   USE_SDL2: "-sdl2"
-
-    # - PYTHON: "C:\\Python37-x64\\python"
-    #   PYTHON_VERSION: "3.7.0"
-    #   PYTHON_ARCH: "64"
-    #   USE_SDL2: "-sdl2"
-
     - PYTHON: "C:\\Python27\\python"
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "32"
-
-    - PYTHON: "C:\\Python34\\python"
-      PYTHON_VERSION: "3.4.4"
-      PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python35\\python"
-      PYTHON_VERSION: "3.5.2"
+      PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python36\\python"
       PYTHON_VERSION: "3.6.0"
       PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python37\\python"
       PYTHON_VERSION: "3.7.0"
       PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python27-x64\\python"
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "64"
-
-    - PYTHON: "C:\\Python34-x64\\python"
-      PYTHON_VERSION: "3.4.4"
-      PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python35-x64\\python"
-      PYTHON_VERSION: "3.5.2"
+      PYTHON_VERSION: "3.5.0"
       PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python36-x64\\python"
       PYTHON_VERSION: "3.6.0"
       PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
 
     - PYTHON: "C:\\Python37-x64\\python"
       PYTHON_VERSION: "3.7.0"
       PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
+
+#     - PYTHON: "C:\\Python27\\python"
+#       PYTHON_VERSION: "2.7.13"
+#       PYTHON_ARCH: "32"
+
+#     - PYTHON: "C:\\Python34\\python"
+#       PYTHON_VERSION: "3.4.4"
+#       PYTHON_ARCH: "32"
+
+#     - PYTHON: "C:\\Python35\\python"
+#       PYTHON_VERSION: "3.5.2"
+#       PYTHON_ARCH: "32"
+
+#     - PYTHON: "C:\\Python36\\python"
+#       PYTHON_VERSION: "3.6.0"
+#       PYTHON_ARCH: "32"
+
+#     - PYTHON: "C:\\Python37\\python"
+#       PYTHON_VERSION: "3.7.0"
+#       PYTHON_ARCH: "32"
+
+#     - PYTHON: "C:\\Python27-x64\\python"
+#       PYTHON_VERSION: "2.7.13"
+#       PYTHON_ARCH: "64"
+
+#     - PYTHON: "C:\\Python34-x64\\python"
+#       PYTHON_VERSION: "3.4.4"
+#       PYTHON_ARCH: "64"
+
+#     - PYTHON: "C:\\Python35-x64\\python"
+#       PYTHON_VERSION: "3.5.2"
+#       PYTHON_ARCH: "64"
+
+#     - PYTHON: "C:\\Python36-x64\\python"
+#       PYTHON_VERSION: "3.6.0"
+#       PYTHON_ARCH: "64"
+
+#     - PYTHON: "C:\\Python37-x64\\python"
+#       PYTHON_VERSION: "3.7.0"
+#       PYTHON_ARCH: "64"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "powershell buildconfig\\ci\\appveyor\\install.ps1"
+  # install.ps1 only needed for SDL1 stuff.
+  # - "powershell buildconfig\\ci\\appveyor\\install.ps1"
   - "%PYPY_DOWNLOAD%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"

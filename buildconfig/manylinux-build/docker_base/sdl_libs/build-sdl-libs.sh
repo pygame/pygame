@@ -26,6 +26,19 @@ cd ..
 # Link sdl-config into /usr/bin so that smpeg-config can find it
 ln -s /usr/local/bin/sdl-config /usr/bin/
 
+# Build smpeg.
+svn co svn://svn.icculus.org/smpeg/tags/release_0_4_5
+# Check the sha512sum of the svn checkout is the same.
+find release_0_4_5 -not -iwholename '*.svn*' -exec sha512sum {} + | awk '{print $1}' | sort | sha512sum -c smpeg.sha512
+
+
+cd release_0_4_5
+./autogen.sh
+./configure --disable-dependency-tracking --disable-debug --disable-gtk-player --disable-gtktest --disable-opengl-player --disable-sdltest
+make
+make install
+cd ..
+
 # Build SDL_image
 tar xzf ${IMG}.tar.gz
 cd $IMG

@@ -9,7 +9,7 @@
 src_py/version.py
 =================
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 Version information can be retrieved at compile-time using these macros.
 

@@ -18,12 +18,15 @@
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
-#define DOC_VECTOR2ROTATE "rotate(float) -> Vector2\nrotates a vector by a given angle in degrees."
-#define DOC_VECTOR2ROTATEIP "rotate_ip(float) -> None\nrotates the vector by a given angle in degrees in place."
+#define DOC_VECTOR2ROTATE "rotate(angle) -> Vector2\nrotates a vector by a given angle in degrees."
+#define DOC_VECTOR2ROTATERAD "rotate_rad(angle) -> Vector2\nrotates a vector by a given angle in radians."
+#define DOC_VECTOR2ROTATEIP "rotate_ip(angle) -> None\nrotates the vector by a given angle in degrees in place."
+#define DOC_VECTOR2ROTATEIPRAD "rotate_ip_rad(angle) -> None\nrotates the vector by a given angle in radians in place."
 #define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
-#define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector2\nVector3(float) -> Vector2\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
+#define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
+#define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
 #define DOC_VECTOR3CROSS "cross(Vector3) -> Vector3\ncalculates the cross- or vector-product"
 #define DOC_VECTOR3MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
@@ -41,17 +44,26 @@
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
-#define DOC_VECTOR3ROTATE "rotate(Vector3, float) -> Vector3\nrotates a vector by a given angle in degrees."
-#define DOC_VECTOR3ROTATEIP "rotate_ip(Vector3, float) -> None\nrotates the vector by a given angle in degrees in place."
-#define DOC_VECTOR3ROTATEX "rotate_x(float) -> Vector3\nrotates a vector around the x-axis by the angle in degrees."
-#define DOC_VECTOR3ROTATEXIP "rotate_x_ip(float) -> None\nrotates the vector around the x-axis by the angle in degrees in place."
-#define DOC_VECTOR3ROTATEY "rotate_y(float) -> Vector3\nrotates a vector around the y-axis by the angle in degrees."
-#define DOC_VECTOR3ROTATEYIP "rotate_y_ip(float) -> None\nrotates the vector around the y-axis by the angle in degrees in place."
-#define DOC_VECTOR3ROTATEZ "rotate_z(float) -> Vector3\nrotates a vector around the z-axis by the angle in degrees."
-#define DOC_VECTOR3ROTATEZIP "rotate_z_ip(float) -> None\nrotates the vector around the z-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATE "rotate(Vector3, angle) -> Vector3\nrotates a vector by a given angle in degrees."
+#define DOC_VECTOR3ROTATERAD "rotate_rad(Vector3, angle) -> Vector3\nrotates a vector by a given angle in radians."
+#define DOC_VECTOR3ROTATEIP "rotate_ip(Vector3, angle) -> None\nrotates the vector by a given angle in degrees in place."
+#define DOC_VECTOR3ROTATEIPRAD "rotate_ip_rad(Vector3, angle) -> None\nrotates the vector by a given angle in radians in place."
+#define DOC_VECTOR3ROTATEX "rotate_x(angle) -> Vector3\nrotates a vector around the x-axis by the angle in degrees."
+#define DOC_VECTOR3ROTATEXRAD "rotate_x_rad(angle) -> Vector3\nrotates a vector around the x-axis by the angle in radians."
+#define DOC_VECTOR3ROTATEXIP "rotate_x_ip(angle) -> None\nrotates the vector around the x-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATEXIPRAD "rotate_x_ip_rad(angle) -> None\nrotates the vector around the x-axis by the angle in radians in place."
+#define DOC_VECTOR3ROTATEY "rotate_y(angle) -> Vector3\nrotates a vector around the y-axis by the angle in degrees."
+#define DOC_VECTOR3ROTATEYRAD "rotate_y_rad(angle) -> Vector3\nrotates a vector around the y-axis by the angle in radians."
+#define DOC_VECTOR3ROTATEYIP "rotate_y_ip(angle) -> None\nrotates the vector around the y-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATEYIPRAD "rotate_y_ip_rad(angle) -> None\nrotates the vector around the y-axis by the angle in radians in place."
+#define DOC_VECTOR3ROTATEZ "rotate_z(angle) -> Vector3\nrotates a vector around the z-axis by the angle in degrees."
+#define DOC_VECTOR3ROTATEZRAD "rotate_z_rad(angle) -> Vector3\nrotates a vector around the z-axis by the angle in radians."
+#define DOC_VECTOR3ROTATEZIP "rotate_z_ip(angle) -> None\nrotates the vector around the z-axis by the angle in degrees in place."
+#define DOC_VECTOR3ROTATEZIPRAD "rotate_z_ip_rad(angle) -> None\nrotates the vector around the z-axis by the angle in radians in place."
 #define DOC_VECTOR3ANGLETO "angle_to(Vector3) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR3ASSPHERICAL "as_spherical() -> (r, theta, phi)\nreturns a tuple with radial distance, inclination and azimuthal angle."
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
+#define DOC_VECTOR3UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector3) -> None\nupdate(x, y, z) -> None\nupdate((x, y, z)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
 #define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
 
@@ -141,12 +153,20 @@ pygame.math.Vector2.elementwise
 The next operation will be performed elementwise.
 
 pygame.math.Vector2.rotate
- rotate(float) -> Vector2
+ rotate(angle) -> Vector2
 rotates a vector by a given angle in degrees.
 
+pygame.math.Vector2.rotate_rad
+ rotate_rad(angle) -> Vector2
+rotates a vector by a given angle in radians.
+
 pygame.math.Vector2.rotate_ip
- rotate_ip(float) -> None
+ rotate_ip(angle) -> None
 rotates the vector by a given angle in degrees in place.
+
+pygame.math.Vector2.rotate_ip_rad
+ rotate_ip_rad(angle) -> None
+rotates the vector by a given angle in radians in place.
 
 pygame.math.Vector2.angle_to
  angle_to(Vector2) -> float
@@ -160,10 +180,19 @@ pygame.math.Vector2.from_polar
  from_polar((r, phi)) -> None
 Sets x and y from a polar coordinates tuple.
 
+pygame.math.Vector2.update
+ update() -> None
+ update(int) -> None
+ update(float) -> None
+ update(Vector2) -> None
+ update(x, y) -> None
+ update((x, y)) -> None
+Sets the coordinates of the vector.
+
 pygame.math.Vector3
  Vector3() -> Vector3
- Vector3(int) -> Vector2
- Vector3(float) -> Vector2
+ Vector3(int) -> Vector3
+ Vector3(float) -> Vector3
  Vector3(Vector3) -> Vector3
  Vector3(x, y, z) -> Vector3
  Vector3((x, y, z)) -> Vector3
@@ -238,36 +267,68 @@ pygame.math.Vector3.elementwise
 The next operation will be performed elementwise.
 
 pygame.math.Vector3.rotate
- rotate(Vector3, float) -> Vector3
+ rotate(Vector3, angle) -> Vector3
 rotates a vector by a given angle in degrees.
 
+pygame.math.Vector3.rotate_rad
+ rotate_rad(Vector3, angle) -> Vector3
+rotates a vector by a given angle in radians.
+
 pygame.math.Vector3.rotate_ip
- rotate_ip(Vector3, float) -> None
+ rotate_ip(Vector3, angle) -> None
 rotates the vector by a given angle in degrees in place.
 
+pygame.math.Vector3.rotate_ip_rad
+ rotate_ip_rad(Vector3, angle) -> None
+rotates the vector by a given angle in radians in place.
+
 pygame.math.Vector3.rotate_x
- rotate_x(float) -> Vector3
+ rotate_x(angle) -> Vector3
 rotates a vector around the x-axis by the angle in degrees.
 
+pygame.math.Vector3.rotate_x_rad
+ rotate_x_rad(angle) -> Vector3
+rotates a vector around the x-axis by the angle in radians.
+
 pygame.math.Vector3.rotate_x_ip
- rotate_x_ip(float) -> None
+ rotate_x_ip(angle) -> None
 rotates the vector around the x-axis by the angle in degrees in place.
 
+pygame.math.Vector3.rotate_x_ip_rad
+ rotate_x_ip_rad(angle) -> None
+rotates the vector around the x-axis by the angle in radians in place.
+
 pygame.math.Vector3.rotate_y
- rotate_y(float) -> Vector3
+ rotate_y(angle) -> Vector3
 rotates a vector around the y-axis by the angle in degrees.
 
+pygame.math.Vector3.rotate_y_rad
+ rotate_y_rad(angle) -> Vector3
+rotates a vector around the y-axis by the angle in radians.
+
 pygame.math.Vector3.rotate_y_ip
- rotate_y_ip(float) -> None
+ rotate_y_ip(angle) -> None
 rotates the vector around the y-axis by the angle in degrees in place.
 
+pygame.math.Vector3.rotate_y_ip_rad
+ rotate_y_ip_rad(angle) -> None
+rotates the vector around the y-axis by the angle in radians in place.
+
 pygame.math.Vector3.rotate_z
- rotate_z(float) -> Vector3
+ rotate_z(angle) -> Vector3
 rotates a vector around the z-axis by the angle in degrees.
 
+pygame.math.Vector3.rotate_z_rad
+ rotate_z_rad(angle) -> Vector3
+rotates a vector around the z-axis by the angle in radians.
+
 pygame.math.Vector3.rotate_z_ip
- rotate_z_ip(float) -> None
+ rotate_z_ip(angle) -> None
 rotates the vector around the z-axis by the angle in degrees in place.
+
+pygame.math.Vector3.rotate_z_ip_rad
+ rotate_z_ip_rad(angle) -> None
+rotates the vector around the z-axis by the angle in radians in place.
 
 pygame.math.Vector3.angle_to
  angle_to(Vector3) -> float
@@ -280,6 +341,15 @@ returns a tuple with radial distance, inclination and azimuthal angle.
 pygame.math.Vector3.from_spherical
  from_spherical((r, theta, phi)) -> None
 Sets x, y and z from a spherical coordinates 3-tuple.
+
+pygame.math.Vector3.update
+ update() -> None
+ update(int) -> None
+ update(float) -> None
+ update(Vector3) -> None
+ update(x, y, z) -> None
+ update((x, y, z)) -> None
+Sets the coordinates of the vector.
 
 pygame.math.enable_swizzling
  enable_swizzling() -> None

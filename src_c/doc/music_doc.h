@@ -1,6 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMIXERMUSIC "pygame module for controlling streamed audio"
 #define DOC_PYGAMEMIXERMUSICLOAD "load(filename) -> None\nload(object) -> None\nLoad a music file for playback"
+#define DOC_PYGAMEMIXERMUSICUNLOAD "unload() -> None\nUnload the currently loaded music to free up resources"
 #define DOC_PYGAMEMIXERMUSICPLAY "play(loops=0, start=0.0) -> None\nStart the playback of the music stream"
 #define DOC_PYGAMEMIXERMUSICREWIND "rewind() -> None\nrestart music"
 #define DOC_PYGAMEMIXERMUSICSTOP "stop() -> None\nstop the music playback"
@@ -28,6 +29,10 @@ pygame.mixer.music.load
  load(filename) -> None
  load(object) -> None
 Load a music file for playback
+
+pygame.mixer.music.unload
+ unload() -> None
+Unload the currently loaded music to free up resources
 
 pygame.mixer.music.play
  play(loops=0, start=0.0) -> None

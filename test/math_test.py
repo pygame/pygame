@@ -308,6 +308,17 @@ class Vector2TypeTest(unittest.TestCase):
         # issue 214
         self.assertEqual(Vector2(0, 1).rotate(359.99999999), Vector2(0, 1))
 
+    def test_rotate_rad(self):
+        tests = (
+            ( (1, 0),  math.pi ),
+            ( (1, 0),  math.pi / 2 ),
+            ( (1, 0), -math.pi / 2 ),
+            ( (1, 0),  math.pi / 4 )
+        )
+        for initialVec, radians in tests:
+            self.assertEqual(Vector2(initialVec).rotate_rad( radians ),
+                             ( math.cos(radians), math.sin(radians) ))
+
     def test_rotate_ip(self):
         v = Vector2(1, 0)
         self.assertEqual(v.rotate_ip(90), None)
@@ -317,6 +328,18 @@ class Vector2TypeTest(unittest.TestCase):
         v.rotate_ip(-90)
         self.assertEqual(v.x, -1)
         self.assertEqual(v.y, 1)
+
+    def test_rotate_ip_rad(self):
+        tests = (
+            ( (1, 0),  math.pi ),
+            ( (1, 0),  math.pi / 2 ),
+            ( (1, 0), -math.pi / 2 ),
+            ( (1, 0),  math.pi / 4 )
+        )
+        for initialVec, radians in tests:
+            vec = Vector2(initialVec)
+            vec.rotate_ip_rad( radians )
+            self.assertEqual(vec, ( math.cos(radians), math.sin(radians) ))
 
     def test_normalize(self):
         v = self.v1.normalize()
@@ -433,6 +456,15 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
+
+    def test_update(self):
+        v = Vector2(3, 4)
+        v.update(0)
+        self.assertEqual(v, Vector2((0, 0)))
+        v.update(5, 1)
+        self.assertEqual(v, Vector2(5, 1))
+        v.update((4, 1))
+        self.assertNotEqual(v, Vector2((5, 1)))
 
     def test_swizzle(self):
         self.assertTrue(hasattr(pygame.math, "enable_swizzling"))
@@ -1086,6 +1118,18 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(Vector3(0, 1, 0).rotate(359.9999999, Vector3(0, 0, 1)),
                          Vector3(0, 1, 0))
 
+    def test_rotate_rad(self):
+        axis = Vector3(0, 0, 1)
+        tests = (
+            ( (1, 0, 0),  math.pi ),
+            ( (1, 0, 0),  math.pi / 2 ),
+            ( (1, 0, 0), -math.pi / 2 ),
+            ( (1, 0, 0),  math.pi / 4 )
+        )
+        for initialVec, radians in tests:
+            vec = Vector3(initialVec).rotate_rad( radians, axis )
+            self.assertEqual(vec, ( math.cos(radians), math.sin(radians), 0 ))
+
     def test_rotate_ip(self):
         v = Vector3(1, 0, 0)
         axis = Vector3(0, 1, 0)
@@ -1098,6 +1142,19 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.x, -1)
         self.assertEqual(v.y, -1)
         self.assertEqual(v.z, -1)
+
+    def test_rotate_ip_rad(self):
+        axis = Vector3(0, 0, 1)
+        tests = (
+            ( (1, 0, 0),  math.pi ),
+            ( (1, 0, 0),  math.pi / 2 ),
+            ( (1, 0, 0), -math.pi / 2 ),
+            ( (1, 0, 0),  math.pi / 4 )
+        )
+        for initialVec, radians in tests:
+            vec = Vector3(initialVec)
+            vec.rotate_ip_rad( radians, axis )
+            self.assertEqual(vec, ( math.cos(radians), math.sin(radians), 0 ))
 
     def test_rotate_x(self):
         v1 = Vector3(1, 0, 0)
@@ -1126,6 +1183,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertAlmostEqual(v1.y, v2.y)
         self.assertAlmostEqual(v1.z, v2.z)
 
+    def test_rotate_x_rad(self):
+        vec = Vector3(0, 1, 0)
+        result = vec.rotate_x_rad(math.pi / 2)
+        self.assertEqual(result, (0, 0, 1))
+
     def test_rotate_x_ip(self):
         v = Vector3(1, 0, 0)
         self.assertEqual(v.rotate_x_ip(90), None)
@@ -1137,6 +1199,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.x, -1)
         self.assertAlmostEqual(v.y, 1)
         self.assertAlmostEqual(v.z, 1)
+
+    def test_rotate_x_ip_rad(self):
+        vec = Vector3(0, 1, 0)
+        vec.rotate_x_ip_rad(math.pi / 2)
+        self.assertEqual(vec, (0, 0, 1))
 
     def test_rotate_y(self):
         v1 = Vector3(1, 0, 0)
@@ -1165,6 +1232,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v1.y, v2.y)
         self.assertEqual(v1.z, v2.z)
 
+    def test_rotate_y_rad(self):
+        vec = Vector3(1, 0, 0)
+        result = vec.rotate_y_rad(math.pi / 2)
+        self.assertEqual(result, (0, 0, -1))
+
     def test_rotate_y_ip(self):
         v = Vector3(1, 0, 0)
         self.assertEqual(v.rotate_y_ip(90), None)
@@ -1176,6 +1248,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertAlmostEqual(v.x, -1)
         self.assertEqual(v.y, -1)
         self.assertAlmostEqual(v.z, -1)
+
+    def test_rotate_y_ip_rad(self):
+        vec = Vector3(1, 0, 0)
+        vec.rotate_y_ip_rad(math.pi / 2)
+        self.assertEqual(vec, (0, 0, -1))
 
     def test_rotate_z(self):
         v1 = Vector3(1, 0, 0)
@@ -1204,6 +1281,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertAlmostEqual(v1.y, v2.y)
         self.assertEqual(v1.z, v2.z)
 
+    def test_rotate_z_rad(self):
+        vec = Vector3(1, 0, 0)
+        result = vec.rotate_z_rad(math.pi / 2)
+        self.assertEqual(result, (0, 1, 0))
+
     def test_rotate_z_ip(self):
         v = Vector3(1, 0, 0)
         self.assertEqual(v.rotate_z_ip(90), None)
@@ -1215,6 +1297,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertAlmostEqual(v.x, -1)
         self.assertAlmostEqual(v.y, 1)
         self.assertEqual(v.z, 1)
+
+    def test_rotate_z_ip_rad(self):
+        vec = Vector3(1, 0, 0)
+        vec.rotate_z_ip_rad(math.pi / 2)
+        self.assertEqual(vec, (0, 1, 0))
 
     def test_normalize(self):
         v = self.v1.normalize()

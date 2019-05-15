@@ -11,7 +11,7 @@ src_c/cdrom.c
 
 The :py:mod:`pygame.cdrom` extension module. Only available for SDL 1.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 
 .. c:type:: pgCDObject

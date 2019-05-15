@@ -3,7 +3,7 @@
 About pygame
 ============
 
-     Pygame, the library is cross-platfrom and designed to make it easy to
+     Pygame: this library is cross-platform and designed to make it easy to
      write multimedia software, such as games, in Python. Pygame
      requires the Python language and SDL multimedia library. It can
      also make use of several other popular libraries.
@@ -22,12 +22,12 @@ Installation
      You should definitely begin by installing a binary package for your
      system. The binary packages usually come with or give the
      information needed for dependencies. Choose an appropriate
-     installer for your system and version of python from the pygame
+     installer for your system and version of Python from the pygame
      downloads page. https://www.pygame.org/download.shtml
 
      Installing from source is fairly automated. The most work will
      involve compiling and installing all the pygame dependencies. Once
-     that is done run the "setup.py" script which will attempt to
+     that is done, run the "setup.py" script which will attempt to
      auto-configure, build, and install pygame.
 
      Much more information about installing and compiling is available
@@ -39,16 +39,16 @@ Help
      If you are just getting started with pygame, you should be able to
      get started fairly quickly. Pygame comes with many tutorials and
      introductions. There is also full reference documentation for the
-     entire library. Browse the documentation from the documenantation
-     index. docs/index.html.
+     entire library. Browse the documentation from the documentation
+     index: docs/index.html.
 
      On the pygame website, there is also an online copy of this
      documentation. You should know that the online documentation stays
      up to date with the development version of pygame in hg. This may
      be a bit newer than the version of pygame you are using.
 
-     Best of all the examples directory has many playable small programs
-     which can get started playing with the code right away.
+     Best of all, the examples directory has many playable small programs
+     which can get you started playing with the code right away.
 
 Credits
 =======
@@ -135,8 +135,8 @@ Dependencies
      (and mixer.music) modules depend on SDL_mixer. The image module
      depends on SDL_image, which also can use libjpeg and libpng. The
      transform module has an embedded version of SDL_rotozoom for its
-     own rotozoom function. The surfarray module requires the python
-     numpy package for its multidimensional numeric arrays.
+     own rotozoom function. The surfarray module requires the Python
+     NumPy package for its multidimensional numeric arrays.
      Dependency versions:
 
      * Python >= 2.7 or PyPy >= 6.0.0 (and pypy3)
@@ -191,5 +191,5 @@ License
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/1.9.4.svg
-.. _GithubCommits: https://github.com/pygame/pygame/compare/1.9.4...master
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/1.9.5.svg
+.. _GithubCommits: https://github.com/pygame/pygame/compare/1.9.5...master

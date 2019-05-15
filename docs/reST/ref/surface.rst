@@ -15,8 +15,8 @@
    resolution and pixel format. Surfaces with 8-bit pixels use a color palette
    to map to 24-bit color.
 
-   Call ``pygame.Surface()`` to create a new image object. The Surface will be
-   cleared to all black. The only required arguments are the sizes. With no
+   Call :meth:`pygame.Surface()` to create a new image object. The Surface will
+   be cleared to all black. The only required arguments are the sizes. With no
    additional arguments, the Surface will be created in a format that best
    matches the display Surface.
 
@@ -26,8 +26,8 @@
 
    ::
 
-     HWSURFACE, creates the image in video memory
-     SRCALPHA, the pixel format will include a per-pixel alpha
+     HWSURFACE    creates the image in video memory
+     SRCALPHA     the pixel format will include a per-pixel alpha
 
    Both flags are only a request, and may not be possible for all displays and
    formats.
@@ -57,29 +57,30 @@
 
    There is support for pixel access for the Surfaces. Pixel access on hardware
    surfaces is slow and not recommended. Pixels can be accessed using the
-   ``get_at()`` and ``set_at()`` functions. These methods are fine for simple
-   access, but will be considerably slow when doing of pixel work with them. If
-   you plan on doing a lot of pixel level work, it is recommended to use a
-   :class:`pygame.PixelArray`, which gives an array like view of the surface.
-   For involved mathematical manipulations try the :mod:`pygame.surfarray`
-   module (It's quite quick, but requires NumPy.)
+   :meth:`get_at()` and :meth:`set_at()` functions. These methods are fine for
+   simple access, but will be considerably slow when doing of pixel work with
+   them. If you plan on doing a lot of pixel level work, it is recommended to
+   use a :class:`pygame.PixelArray`, which gives an array like view of the
+   surface. For involved mathematical manipulations try the
+   :mod:`pygame.surfarray` module (It's quite quick, but requires NumPy.)
 
    Any functions that directly access a surface's pixel data will need that
-   surface to be lock()'ed. These functions can ``lock()`` and ``unlock()`` the
-   surfaces themselves without assistance. But, if a function will be called
-   many times, there will be a lot of overhead for multiple locking and
-   unlocking of the surface. It is best to lock the surface manually before
-   making the function call many times, and then unlocking when you are
-   finished. All functions that need a locked surface will say so in their
-   docs. Remember to leave the Surface locked only while necessary.
+   surface to be lock()'ed. These functions can :meth:`lock()` and
+   :meth:`unlock()` the surfaces themselves without assistance. But, if a
+   function will be called many times, there will be a lot of overhead for
+   multiple locking and unlocking of the surface. It is best to lock the
+   surface manually before making the function call many times, and then
+   unlocking when you are finished. All functions that need a locked surface
+   will say so in their docs. Remember to leave the Surface locked only while
+   necessary.
 
    Surface pixels are stored internally as a single number that has all the
-   colors encoded into it. Use the ``Surface.map_rgb()`` and
-   ``Surface.unmap_rgb()`` to convert between individual red, green, and blue
+   colors encoded into it. Use the :meth:`map_rgb()` and
+   :meth:`unmap_rgb()` to convert between individual red, green, and blue
    values into a packed integer for that Surface.
 
    Surfaces can also reference sections of other Surfaces. These are created
-   with the ``Surface.subsurface()`` method. Any change to either Surface will
+   with the :meth:`subsurface()` method. Any change to either Surface will
    effect the other.
 
    Each Surface contains a clipping area. By default the clip area covers the
@@ -102,15 +103,14 @@
       smaller portion of the source Surface to draw.
 
       .. versionadded:: 1.8
-
-         Optional special flags ``BLEND_ADD``, ``BLEND_SUB``, ``BLEND_MULT``,
-         ``BLEND_MIN``, ``BLEND_MAX``.
+         Optional ``special_flags``: ``BLEND_ADD``, ``BLEND_SUB``,
+         ``BLEND_MULT``, ``BLEND_MIN``, ``BLEND_MAX``.
 
       .. versionadded:: 1.8.1
-         Special flags ``BLEND_RGBA_ADD``, ``BLEND_RGBA_SUB``, ``BLEND_RGBA_MULT``,
-         ``BLEND_RGBA_MIN``, ``BLEND_RGBA_MAX`` ``BLEND_RGB_ADD``,
-         ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``, ``BLEND_RGB_MIN``,
-         ``BLEND_RGB_MAX``.
+         Optional ``special_flags``: ``BLEND_RGBA_ADD``, ``BLEND_RGBA_SUB``,
+         ``BLEND_RGBA_MULT``, ``BLEND_RGBA_MIN``, ``BLEND_RGBA_MAX``
+         ``BLEND_RGB_ADD``, ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``,
+         ``BLEND_RGB_MIN``, ``BLEND_RGB_MAX``.
 
       The return rectangle is the area of the affected pixels, excluding any
       pixels outside the destination Surface, or outside the clipping area.
@@ -125,21 +125,22 @@
    .. method:: blits
 
       | :sl:`draw many images onto another`
-      | :sg:`blits(blit_sequence=(source, dest), ...), doreturn=1) -> (Rect, ...)`
-      | :sg:`blits((source, dest, area), ...)) -> (Rect, ...)`
-      | :sg:`blits((source, dest, area, special_flags), ...)) -> (Rect, ...)`
+      | :sg:`blits(blit_sequence=(source, dest), ...), doreturn=1) -> [Rect, ...] or None`
+      | :sg:`blits((source, dest, area), ...)) -> [Rect, ...]`
+      | :sg:`blits((source, dest, area, special_flags), ...)) -> [Rect, ...]`
 
       Draws many surfaces onto this Surface. It takes a sequence as input,
-      with each of the elements corresponding to the ones of ``Surface.blit()``.
+      with each of the elements corresponding to the ones of :meth:`blit()`.
       It needs at minimum a sequence of (source, dest).
 
-      :param blit_sequence: a sequence of surfaces, and arguments to blit them.
-       They correspond to the ``Surface.blit()`` arguments.
+      :param blit_sequence: a sequence of surfaces and arguments to blit them,
+         they correspond to the :meth:`blit()` arguments
+      :param doreturn: if ``True``, return a list of rects of the areas changed,
+         otherwise return ``None``
 
-      :param doreturn: if true, we return otherwise return None.
-
-      :returns: a list of rects of the areas changed.
-       If doreturn is false, returns None.
+      :returns: a list of rects of the areas changed if ``doreturn`` is
+         ``True``, otherwise ``None``
+      :rtype: list or None
 
       New in pygame 1.9.4.
 
@@ -156,7 +157,7 @@
       Creates a new copy of the Surface with the pixel format changed. The new
       pixel format can be determined from another existing Surface. Otherwise
       depth, flags, and masks arguments can be used, similar to the
-      ``pygame.Surface()`` call.
+      :meth:`pygame.Surface()` call.
 
       If no arguments are passed the new Surface will have the same pixel
       format as the display Surface. This is always the fastest format for
@@ -164,7 +165,7 @@
       blitted many times.
 
       The converted Surface will have no pixel alphas. They will be stripped if
-      the original had them. See ``Surface.convert_alpha()`` for preserving or
+      the original had them. See :meth:`convert_alpha()` for preserving or
       creating per-pixel alphas.
 
       The new copy will have the same class as the copied surface. This lets
@@ -184,11 +185,11 @@
       with per pixel alpha. If no surface is given, the new surface will be
       optimized for blitting to the current display.
 
-      Unlike the ``Surface.convert()`` method, the pixel format for the new
+      Unlike the :meth:`convert()` method, the pixel format for the new
       image will not be exactly the same as the requested source, but it will
       be optimized for fast alpha blitting to the destination.
 
-      As with ``Surface.convert()`` the returned surface has the same class as
+      As with :meth:`convert()` the returned surface has the same class as
       the converted surface.
 
       .. ## Surface.convert_alpha ##
@@ -219,13 +220,15 @@
       ``RGBA``) is ignored unless the surface uses per pixel alpha (Surface has
       the ``SRCALPHA`` flag).
 
-      An optional special_flags is for passing in new in 1.8.0: ``BLEND_ADD``,
-      ``BLEND_SUB``, ``BLEND_MULT``, ``BLEND_MIN``, ``BLEND_MAX`` new in 1.8.1:
-      ``BLEND_RGBA_ADD``, ``BLEND_RGBA_SUB``, ``BLEND_RGBA_MULT``,
-      ``BLEND_RGBA_MIN``, ``BLEND_RGBA_MAX`` ``BLEND_RGB_ADD``,
-      ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``, ``BLEND_RGB_MIN``,
-      ``BLEND_RGB_MAX`` With other special blitting flags perhaps added in the
-      future.
+      .. versionadded:: 1.8
+         Optional ``special_flags``: ``BLEND_ADD``, ``BLEND_SUB``,
+         ``BLEND_MULT``, ``BLEND_MIN``, ``BLEND_MAX``.
+
+      .. versionadded:: 1.8.1
+         Optional ``special_flags``: ``BLEND_RGBA_ADD``, ``BLEND_RGBA_SUB``,
+         ``BLEND_RGBA_MULT``, ``BLEND_RGBA_MIN``, ``BLEND_RGBA_MAX``
+         ``BLEND_RGB_ADD``, ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``,
+         ``BLEND_RGB_MIN``, ``BLEND_RGB_MAX``.
 
       This will return the affected Surface area.
 
@@ -255,7 +258,7 @@
       Set the current color key for the Surface. When blitting this Surface
       onto a destination, any pixels that have the same color as the colorkey
       will be transparent. The color can be an ``RGB`` color or a mapped color
-      integer. If None is passed, the colorkey will be unset.
+      integer. If ``None`` is passed, the colorkey will be unset.
 
       The colorkey will be ignored if the Surface is formatted to use per pixel
       alpha values. The colorkey can be mixed with the full Surface alpha
@@ -273,7 +276,7 @@
       | :sg:`get_colorkey() -> RGB or None`
 
       Return the current colorkey value for the Surface. If the colorkey is not
-      set then None is returned.
+      set then ``None`` is returned.
 
       .. ## Surface.get_colorkey ##
 
@@ -283,11 +286,11 @@
       | :sg:`set_alpha(value, flags=0) -> None`
       | :sg:`set_alpha(None) -> None`
 
-      Set the current alpha value fo r the Surface. When blitting this Surface
+      Set the current alpha value for the Surface. When blitting this Surface
       onto a destination, the pixels will be drawn slightly transparent. The
       alpha value is an integer from 0 to 255, 0 is fully transparent and 255
-      is fully opaque. If None is passed for the alpha value, then alpha blending
-      will be disabled, including per-pixel alpha.
+      is fully opaque. If ``None`` is passed for the alpha value, then alpha
+      blending will be disabled, including per-pixel alpha.
 
       This value is different than the per pixel Surface alpha. For a surface
       with per pixel alpha, blanket alpha is ignored and ``None`` is returned.
@@ -324,7 +327,7 @@
       Surfaces should not remain locked for more than necessary. A locked
       Surface can often not be displayed or managed by pygame.
 
-      Not all Surfaces require locking. The ``Surface.mustlock()`` method can
+      Not all Surfaces require locking. The :meth:`mustlock()` method can
       determine if it is actually required. There is no performance penalty for
       locking and unlocking a Surface that does not need it.
 
@@ -345,7 +348,7 @@
 
       Unlock the Surface pixel data after it has been locked. The unlocked
       Surface can once again be drawn and managed by pygame. See the
-      ``Surface.lock()`` documentation for more details.
+      :meth:`lock()` documentation for more details.
 
       All pygame functions will automatically lock and unlock the Surface data
       as needed. If a section of code is going to make calls that will
@@ -362,7 +365,7 @@
       | :sl:`test if the Surface requires locking`
       | :sg:`mustlock() -> bool`
 
-      Returns True if the Surface is required to be locked to access pixel
+      Returns ``True`` if the Surface is required to be locked to access pixel
       data. Usually pure software Surfaces do not require locking. This method
       is rarely needed, since it is safe and quickest to just lock all Surfaces
       as needed.
@@ -379,8 +382,8 @@
       | :sl:`test if the Surface is current locked`
       | :sg:`get_locked() -> bool`
 
-      Returns True when the Surface is locked. It doesn't matter how many times
-      the Surface is locked.
+      Returns ``True`` when the Surface is locked. It doesn't matter how many
+      times the Surface is locked.
 
       .. ## Surface.get_locked ##
 
@@ -401,12 +404,12 @@
       Return a copy of the ``RGBA`` Color value at the given pixel. If the
       Surface has no per pixel alpha, then the alpha value will always be 255
       (opaque). If the pixel position is outside the area of the Surface an
-      IndexError exception will be raised.
+      ``IndexError`` exception will be raised.
 
       Getting and setting pixels one at a time is generally too slow to be used
       in a game or realtime situation. It is better to use methods which
       operate on many pixels at a time like with the blit, fill and draw
-      methods - or by using surfarray/PixelArray.
+      methods - or by using :mod:`pygame.surfarray`/:mod:`pygame.PixelArray`.
 
       This function will temporarily lock and unlock the Surface as needed.
 
@@ -440,7 +443,8 @@
       | :sg:`get_at_mapped((x, y)) -> Color`
 
       Return the integer value of the given pixel. If the pixel position is
-      outside the area of the Surface an IndexError exception will be raised.
+      outside the area of the Surface an ``IndexError`` exception will be
+      raised.
 
       This method is intended for pygame unit testing. It unlikely has any use
       in an application.
@@ -460,7 +464,8 @@
       colors used in an 8-bit Surface. The returned list is a copy of the
       palette, and changes will have no effect on the Surface.
 
-      Returning a list of ``Color(with length 3)`` instances instead of tuples,
+      Returning a list of ``Color(with length 3)`` instances instead of tuples.
+
       .. versionadded:: 1.9
 
       .. ## Surface.get_palette ##
@@ -539,9 +544,9 @@
       | :sg:`set_clip(None) -> None`
 
       Each Surface has an active clipping area. This is a rectangle that
-      represents the only pixels on the Surface that can be modified. If None
-      is passed for the rectangle the full Surface will be available for
-      changes.
+      represents the only pixels on the Surface that can be modified. If
+      ``None`` is passed for the rectangle the full Surface will be available
+      for changes.
 
       The clipping area is always restricted to the area of the Surface itself.
       If the clip rectangle is too large it will be shrunk to fit inside the
@@ -556,8 +561,8 @@
 
       Return a rectangle of the current clipping area. The Surface will always
       return a valid rectangle that will never be outside the bounds of the
-      image. If the Surface has had None set for the clipping area, the Surface
-      will return a rectangle with the full area of the Surface.
+      image. If the Surface has had ``None`` set for the clipping area, the
+      Surface will return a rectangle with the full area of the Surface.
 
       .. ## Surface.get_clip ##
 
@@ -578,7 +583,7 @@
       the parent. It is also possible to subsurface the display Surface if the
       display mode is not hardware accelerated.
 
-      See the ``Surface.get_offset()``, ``Surface.get_parent()`` to learn more
+      See :meth:`get_offset()` and :meth:`get_parent()` to learn more
       about the state of a subsurface.
 
       A subsurface will have the same class as the parent surface.
@@ -591,7 +596,7 @@
       | :sg:`get_parent() -> Surface`
 
       Returns the parent Surface of a subsurface. If this is not a subsurface
-      then None will be returned.
+      then ``None`` will be returned.
 
       .. ## Surface.get_parent ##
 
@@ -656,14 +661,14 @@
    .. method:: get_rect
 
       | :sl:`get the rectangular area of the Surface`
-      | :sg:`get_rect(**kwargs) -> Rect`
+      | :sg:`get_rect(\**kwargs) -> Rect`
 
       Returns a new rectangle covering the entire surface. This rectangle will
-      always start at 0, 0 with a width. and height the same size as the image.
+      always start at (0, 0) with a width and height the same size as the image.
 
       You can pass keyword argument values to this function. These named values
       will be applied to the attributes of the Rect before it is returned. An
-      example would be 'mysurf.get_rect(center=(100,100))' to create a
+      example would be ``mysurf.get_rect(center=(100, 100))`` to create a
       rectangle for the Surface centered at a given position.
 
       .. ## Surface.get_rect ##
@@ -702,34 +707,33 @@
 
       ::
 
-        SWSURFACE	0x00000000	# Surface is in system memory
-        HWSURFACE	0x00000001	# Surface is in video memory
-        ASYNCBLIT	0x00000004	# Use asynchronous blits if possible
+        SWSURFACE      0x00000000    # Surface is in system memory
+        HWSURFACE      0x00000001    # Surface is in video memory
+        ASYNCBLIT      0x00000004    # Use asynchronous blits if possible
 
-      Available for ``pygame.display.set_mode()``
+      Available for :func:`pygame.display.set_mode()`
 
       ::
 
-        ANYFORMAT	0x10000000	# Allow any video depth/pixel-format
-        HWPALETTE	0x20000000	# Surface has exclusive palette
-        DOUBLEBUF	0x40000000	# Set up double-buffered video mode
-        FULLSCREEN	0x80000000	# Surface is a full screen display
-        OPENGL        0x00000002      # Create an OpenGL rendering context
-        OPENGLBLIT	0x0000000A	# Create an OpenGL rendering context
-                                      #   and use it for blitting.  Obsolete.
-        RESIZABLE	0x00000010	# This video mode may be resized
-        NOFRAME       0x00000020	# No window caption or edge frame
+        ANYFORMAT      0x10000000    # Allow any video depth/pixel-format
+        HWPALETTE      0x20000000    # Surface has exclusive palette
+        DOUBLEBUF      0x40000000    # Set up double-buffered video mode
+        FULLSCREEN     0x80000000    # Surface is a full screen display
+        OPENGL         0x00000002    # Create an OpenGL rendering context
+        OPENGLBLIT     0x0000000A    # OBSOLETE. Create an OpenGL rendering context and use it for blitting.
+        RESIZABLE      0x00000010    # This video mode may be resized
+        NOFRAME        0x00000020    # No window caption or edge frame
 
       Used internally (read-only)
 
       ::
 
-        HWACCEL       0x00000100	# Blit uses hardware acceleration
-        SRCCOLORKEY	0x00001000	# Blit uses a source color key
-        RLEACCELOK	0x00002000	# Private flag
-        RLEACCEL	0x00004000	# Surface is RLE encoded
-        SRCALPHA	0x00010000	# Blit uses source alpha blending
-        PREALLOC	0x01000000	# Surface uses preallocated memory
+        HWACCEL        0x00000100    # Blit uses hardware acceleration
+        SRCCOLORKEY    0x00001000    # Blit uses a source color key
+        RLEACCELOK     0x00002000    # Private flag
+        RLEACCEL       0x00004000    # Surface is RLE encoded
+        SRCALPHA       0x00010000    # Blit uses source alpha blending
+        PREALLOC       0x01000000    # Surface uses preallocated memory
 
       .. ## Surface.get_flags ##
 
@@ -836,11 +840,12 @@
       string. The default is '2'.
 
       '0' returns a contiguous unstructured bytes view. No surface shape
-      information is given. A ValueError is raised if the surface's pixels
+      information is given. A ``ValueError`` is raised if the surface's pixels
       are discontinuous.
 
       '1' returns a (surface-width * surface-height) array of continuous
-      pixels. A ValueError is raised if the surface pixels are discontinuous.
+      pixels. A ``ValueError`` is raised if the surface pixels are
+      discontinuous.
 
       '2' returns a (surface-width, surface-height) array of raw pixels.
       The pixels are surface-bytesize-d unsigned integers. The pixel format is
@@ -878,7 +883,7 @@
       included in the length, but otherwise ignored.
 
       This method implicitly locks the Surface. The lock will be released when
-      the returned BufferProxy object is garbage collected.
+      the returned :mod:`pygame.BufferProxy` object is garbage collected.
 
       .. versionadded:: 1.8
 

@@ -101,7 +101,7 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
-                if filter(os.path.isfile, glob(path+'*')):
+                if any(map(os.path.isfile, glob(path+'*'))):
                     self.lib_dir = dir
 
         if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
