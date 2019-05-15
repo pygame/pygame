@@ -873,8 +873,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
                 if (!(flags & PGS_OPENGL) !=
                     !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)){
-                    SDL_DestroyWindow(win);
-                    win=NULL;
+                    pg_SetDefaultWindow(NULL);
+                    win = NULL;
                 }
             }
 
@@ -925,8 +925,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 if (!state->gl_context) {
                     _display_state_cleanup(state);
                     PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                    SDL_DestroyWindow(win);
-                    return NULL;
+                    goto DESTROY_WINDOW;
                 }
                 /* SDL_GetWindowSurface can not be used when using GL.
                 According to https://wiki.libsdl.org/SDL_GetWindowSurface
@@ -977,16 +976,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
                 /* Recover error, then destroy the window */
                 RAISE(pgExc_SDLError, SDL_GetError());
-                SDL_DestroyWindow(win);
-                return NULL;
+                goto DESTROY_WINDOW;
             }
         }
 
         if (!surf) {
             _display_state_cleanup(state);
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            SDL_DestroyWindow(win);
-            return NULL;
+            goto DESTROY_WINDOW;
         }
         if (!surface) {
             surface = pgSurface_NewNoOwn(surf);
@@ -998,8 +995,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (state->using_gl)
                 SDL_FreeSurface(surf);
             _display_state_cleanup(state);
-            SDL_DestroyWindow(win);
-            return 0;
+            goto DESTROY_WINDOW;
         }
 
         /*no errors; make the window available*/
@@ -1030,6 +1026,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     /*return the window's surface (screen)*/
     Py_INCREF(surface);
     return surface;
+
+DESTROY_WINDOW:
+
+    if (win == pg_GetDefaultWindow())
+        pg_SetDefaultWindow(NULL);
+    else if (win)
+        SDL_DestroyWindow(win);
+    return NULL;
 }
 
 static int
