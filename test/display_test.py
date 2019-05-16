@@ -361,7 +361,13 @@ class DisplayModuleTest(unittest.TestCase):
 
 
     def test_set_mode_scaled(self):
-        pygame.display.set_mode(size=(1, 1), flags=pygame.SCALED, depth=0, display=0)
+        surf = pygame.display.set_mode(size=(1, 1), flags=pygame.SCALED, depth=0, display=0)
+        winsize = pygame.display.get_window_size()
+        self.assertEqual(winsize[0] % surf.get_size()[0], 0,
+            "window width should be a multiple of the surface width")
+        self.assertEqual(winsize[1] % surf.get_size()[1], 0,
+            "window height should be a multiple of the surface height")
+        self.assertEqual(winsize[0] / surf.get_size()[0], winsize[1] / surf.get_size()[1])
 
     def todo_test_set_palette(self):
 
