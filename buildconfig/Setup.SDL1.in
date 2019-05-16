@@ -17,6 +17,7 @@ SCRAP = -lX11
 PORTMIDI = -lportmidi
 PORTTIME = -lporttime
 FREETYPE = -lfreetype
+BASE =
 #--EndConfig
 
 DEBUG = 
@@ -43,7 +44,7 @@ _freetype src_c/freetype/ft_cache.c src_c/freetype/ft_wrap.c src_c/freetype/ft_r
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
 
-base src_c/base.c $(SDL) $(DEBUG)
+base src_c/base.c $(SDL) $(DEBUG) $(BASE)
 cdrom src_c/cdrom.c $(SDL) $(DEBUG)
 color src_c/color.c $(SDL) $(DEBUG)
 constants src_c/constants.c $(SDL) $(DEBUG)

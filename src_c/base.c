@@ -41,6 +41,9 @@
 #include <windows.h>
 extern int
 SDL_RegisterApp(char *, Uint32, void *);
+#if WINVER >= 0x0602
+#include <shellscalingapi.h>
+#endif /* Windows 8+ */
 #endif
 
 #if defined(macintosh)
@@ -616,6 +619,10 @@ pgVideo_AutoInit(void)
 {
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         int status;
+#if WINVER >= 0x0602
+        /* disable DPI scaling */
+        SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
+#endif /* Windows 8+ */
 #if defined(__APPLE__) && defined(darwin)
         PyObject *module = PyImport_ImportModule("pygame.macosx");
         PyObject *rval;
