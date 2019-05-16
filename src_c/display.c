@@ -864,8 +864,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         {
             int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
             int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-            int w_1=w;
-            int h_1=h;
+            int w_1, h_1;
+            int scale = 1;
 
             if(win){
                 if (SDL_GetWindowDisplayIndex(win) == display) {
@@ -878,23 +878,23 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
             }
 
+            if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)) {
+                SDL_DisplayMode dm;
+                int xscale, yscale;
+                if (SDL_GetDesktopDisplayMode(display, &dm) != 0) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+                xscale = dm.w / w;
+                yscale = dm.h / h;
+                scale = xscale < yscale ? xscale : yscale;
+                if (scale < 1)
+                    scale = 1;
+            }
+            w_1 = w * scale;
+            h_1 = h * scale;
+
             if (!win) {
                 /*open window*/
-                if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)){
-                    SDL_DisplayMode dm;
-                    int scale=1;
-
-                    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
-                        return RAISE(pgExc_SDLError, SDL_GetError());
-                    }
-
-                    while(w*(scale+1) <= dm.w && h*(scale+1) <= dm.h){
-                        scale++;
-                    }
-
-                    w_1=w*scale;
-                    h_1=h*scale;
-                }
                 win = SDL_CreateWindow(title,
                                        x, y, w_1, h_1, sdl_flags);
                 if (!win)
@@ -902,7 +902,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             } else {
                 /*change existing window*/
                 SDL_SetWindowTitle(win, title);
-                SDL_SetWindowSize(win, w, h);
+                SDL_SetWindowSize(win, w_1, h_1);
                 SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
                 SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
 
@@ -1072,6 +1072,17 @@ _pg_get_default_display_masks(int bpp,
         return -1;
     }
     return 0;
+}
+
+static PyObject *
+pg_window_size(PyObject *self, PyObject *args)
+{
+    SDL_Window *win = pg_GetDefaultWindow();
+    int w, h;
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+    SDL_GetWindowSize(win, &w, &h);
+    return Py_BuildValue("(ii)", w, h);
 }
 
 static PyObject *
@@ -1342,6 +1353,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 #endif
     Py_INCREF(pgDisplaySurfaceObject);
     return pgDisplaySurfaceObject;
+}
+
+static PyObject *
+pg_window_size(PyObject *self, PyObject *args)
+{
+    if (!pgDisplaySurfaceObject) {
+        return RAISE(pgExc_SDLError, "No open window");
+    }
+    return Py_BuildValue("(ii)",
+        pgSurface_AsSurface(pgDisplaySurfaceObject)->w,
+        pgSurface_AsSurface(pgDisplaySurfaceObject)->h);
 }
 
 /* SDL1 mode_ok. Note, there is a separate SDL2 version of this. */
@@ -2110,6 +2132,7 @@ static PyMethodDef _pg_display_methods[] = {
     {"get_wm_info", pg_get_wm_info, METH_NOARGS, DOC_PYGAMEDISPLAYGETWMINFO},
     {"Info", pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
     {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
+    {"get_window_size", pg_window_size, METH_NOARGS, DOC_PYGAMEDISPLAYGETWINDOWSIZE},
 
     {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
     {"mode_ok", (PyCFunction)pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
