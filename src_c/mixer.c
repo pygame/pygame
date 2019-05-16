@@ -1717,14 +1717,9 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             }
             return -1;
         }
-        if (pgRWops_IsFileObject(rw)) {
-            chunk = Mix_LoadWAV_RW(rw, 1);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            chunk = Mix_LoadWAV_RW(rw, 1);
-            Py_END_ALLOW_THREADS;
-        }
+        Py_BEGIN_ALLOW_THREADS;
+        chunk = Mix_LoadWAV_RW(rw, 1);
+        Py_END_ALLOW_THREADS;
         if (chunk == NULL) {
             if (obj)
                 return RAISE(pgExc_SDLError, SDL_GetError());

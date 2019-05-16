@@ -761,14 +761,9 @@ fileobject:
             goto error;
         }
 
-        if (pgRWops_IsFileObject(rw)) {
-            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-            Py_END_ALLOW_THREADS;
-        }
+        Py_BEGIN_ALLOW_THREADS;
+        font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+        Py_END_ALLOW_THREADS;
 #else
         RAISE(PyExc_NotImplementedError,
               "nonstring fonts require SDL_ttf-2.0.6");
