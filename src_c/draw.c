@@ -157,38 +157,49 @@ aaline(PyObject *self, PyObject *arg)
  * Returns a Rect bounding the drawn area.
  */
 static PyObject *
-line(PyObject *self, PyObject *arg)
+line(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *start, *end;
-    SDL_Surface *surf;
-    int startx, starty, endx, endy;
-    int width = 1;
+    PyObject *surfobj = NULL, *colorobj = NULL, *start = NULL, *end = NULL;
+    SDL_Surface *surf = NULL;
+    int startx, starty, endx, endy, anydraw;
     int pts[4];
     Uint8 rgba[4];
     Uint32 color;
-    int anydraw;
+    int width = 1; /* Default width. */
+    static char *keywords[] = {"surface", "color", "start_pos",
+                               "end_pos", "width", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
-                          &start, &end, &width))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOO|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &start, &end, &width)) {
+        return NULL; /* Exception already set. */
+    }
+
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
-        return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (!pg_TwoIntsFromObj(start, &startx, &starty))
-        return RAISE(PyExc_TypeError, "Invalid start position argument");
-    if (!pg_TwoIntsFromObj(end, &endx, &endy))
-        return RAISE(PyExc_TypeError, "Invalid end position argument");
+    if (!pg_TwoIntsFromObj(start, &startx, &starty)) {
+        return RAISE(PyExc_TypeError, "invalid start_pos argument");
+    }
 
-    if (width < 1)
+    if (!pg_TwoIntsFromObj(end, &endx, &endy)) {
+        return RAISE(PyExc_TypeError, "invalid end_pos argument");
+    }
+
+    if (width < 1) {
         return pgRect_New4(startx, starty, 0, 0);
+    }
 
-    if (!pgSurface_Lock(surfobj))
-        return NULL;
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
 
     pts[0] = startx;
     pts[1] = starty;
@@ -197,8 +208,9 @@ line(PyObject *self, PyObject *arg)
     anydraw =
         clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
 
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
 
     if (!anydraw) {
         return pgRect_New4(startx, starty, 0, 0);
@@ -1857,7 +1869,8 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points,
 
 static PyMethodDef _draw_methods[] = {
     {"aaline", aaline, METH_VARARGS, DOC_PYGAMEDRAWAALINE},
-    {"line", line, METH_VARARGS, DOC_PYGAMEDRAWLINE},
+    {"line", (PyCFunction)line, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWLINE},
     {"aalines", aalines, METH_VARARGS, DOC_PYGAMEDRAWAALINES},
     {"lines", lines, METH_VARARGS, DOC_PYGAMEDRAWLINES},
     {"ellipse", (PyCFunction)ellipse, METH_VARARGS | METH_KEYWORDS,

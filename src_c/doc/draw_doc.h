@@ -1,11 +1,11 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEDRAW "pygame module for drawing shapes"
 #define DOC_PYGAMEDRAWRECT "rect(surface, color, rect) -> Rect\nrect(surface, color, rect, width=0) -> Rect\ndraw a rectangle"
-#define DOC_PYGAMEDRAWPOLYGON "polygon(Surface, color, pointlist, width=0) -> Rect\ndraw a shape with any number of sides"
+#define DOC_PYGAMEDRAWPOLYGON "polygon(surface, color, points) -> Rect\npolygon(surface, color, points, width=0) -> Rect\ndraw a polygon"
 #define DOC_PYGAMEDRAWCIRCLE "circle(surface, color, center, radius) -> Rect\ncircle(surface, color, center, radius, width=0) -> Rect\ndraw a circle"
 #define DOC_PYGAMEDRAWELLIPSE "ellipse(surface, color, rect) -> Rect\nellipse(surface, color, rect, width=0) -> Rect\ndraw an ellipse"
-#define DOC_PYGAMEDRAWARC "arc(Surface, color, Rect, start_angle, stop_angle, width=1) -> Rect\ndraw a partial section of an ellipse"
-#define DOC_PYGAMEDRAWLINE "line(Surface, color, start_pos, end_pos, width=1) -> Rect\ndraw a straight line segment"
+#define DOC_PYGAMEDRAWARC "arc(surface, color, rect, start_angle, stop_angle) -> Rect\narc(surface, color, rect, start_angle, stop_angle, width=1) -> Rect\ndraw an elliptical arc"
+#define DOC_PYGAMEDRAWLINE "line(surface, color, start_pos, end_pos, width) -> Rect\nline(surface, color, start_pos, end_pos, width=1) -> Rect\ndraw a straight line"
 #define DOC_PYGAMEDRAWLINES "lines(Surface, color, closed, pointlist, width=1) -> Rect\ndraw multiple contiguous line segments"
 #define DOC_PYGAMEDRAWAALINE "aaline(Surface, color, startpos, endpos, blend=1) -> Rect\ndraw fine antialiased lines"
 #define DOC_PYGAMEDRAWAALINES "aalines(Surface, color, closed, pointlist, blend=1) -> Rect\ndraw a connected sequence of antialiased lines"
@@ -44,8 +44,9 @@ pygame.draw.arc
 draw an elliptical arc
 
 pygame.draw.line
- line(Surface, color, start_pos, end_pos, width=1) -> Rect
-draw a straight line segment
+ line(surface, color, start_pos, end_pos, width) -> Rect
+ line(surface, color, start_pos, end_pos, width=1) -> Rect
+draw a straight line
 
 pygame.draw.lines
  lines(Surface, color, closed, pointlist, width=1) -> Rect
