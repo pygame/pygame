@@ -1071,6 +1071,17 @@ _pg_get_default_display_masks(int bpp,
 }
 
 static PyObject *
+pg_window_size(PyObject *self, PyObject *args)
+{
+    SDL_Window *win = pg_GetDefaultWindow();
+    int w, h;
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+    SDL_GetWindowSize(win, &w, &h);
+    return Py_BuildValue("(ii)", w, h);
+}
+
+static PyObject *
 pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_DisplayMode desired, closest;
@@ -1336,6 +1347,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 #endif
     Py_INCREF(pgDisplaySurfaceObject);
     return pgDisplaySurfaceObject;
+}
+
+static PyObject *
+pg_window_size(PyObject *self, PyObject *args)
+{
+    if (!pgDisplaySurfaceObject) {
+        return RAISE(pgExc_SDLError, "No open window");
+    }
+    return Py_BuildValue("(ii)",
+        pgDisplaySurfaceObject->w,
+        pgDisplaySurfaceObject->h);
 }
 
 /* SDL1 mode_ok. Note, there is a separate SDL2 version of this. */
@@ -2104,6 +2126,7 @@ static PyMethodDef _pg_display_methods[] = {
     {"get_wm_info", pg_get_wm_info, METH_NOARGS, DOC_PYGAMEDISPLAYGETWMINFO},
     {"Info", pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
     {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
+    {"get_window_size", pg_window_size, METH_NOARGS, NULL}, /* TODO: add docs */
 
     {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYSETMODE},
     {"mode_ok", (PyCFunction)pg_mode_ok, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDISPLAYMODEOK},
