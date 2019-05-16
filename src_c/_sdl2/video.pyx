@@ -439,7 +439,7 @@ cdef class Window:
     @property
     def brightness(self):
         """ The brightness (gamma multiplier) for the display that owns a given window.
-        It ranges between 0.0 (completely dark) and 1.0 (normal brightness)."""
+        0.0 is completely dark and 1.0 is normal brightness."""
         return SDL_GetWindowBrightness(self._win)
 
     @brightness.setter
@@ -644,7 +644,7 @@ cdef class Texture:
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the texture, or None for the entire texture.
-        :param dstrect: destination rectangle on the render target, or None for entire target.
+        :param dstrect: destination rectangle or position on the render target, or None for entire target.
                         The texture is stretched to fill dstrect.
         :param float angle: angle (in degrees) to rotate dstrect around (clockwise).
         :param origin: point around which dstrect will be rotated.
@@ -733,7 +733,7 @@ cdef class Image:
         """ Copy a portion of the image to the rendering target.
 
         :param srcrect: source rectangle specifying a sub-image, or None for the entire image.
-        :param dstrect: destination rectangle on the render target, or None for entire target.
+        :param dstrect: destination rectangle or position on the render target, or None for entire target.
                         The image is stretched to fill dstrect.
         """
         cdef SDL_Rect temp
