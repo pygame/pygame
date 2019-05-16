@@ -121,6 +121,10 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
             helper->write = NULL;
         }
     }
+    if (!helper->read && !helper->write) {
+        RAISE(PyExc_TypeError, "not a file object");
+        return -1;
+    }
     if (PyObject_HasAttrString(obj, "seek")) {
         helper->seek = PyObject_GetAttrString(obj, "seek");
         if (helper->seek && !PyCallable_Check(helper->seek)) {
@@ -141,10 +145,6 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
             Py_DECREF(helper->close);
             helper->close = NULL;
         }
-    }
-    if (!helper->read && !helper->write) {
-        RAISE(PyExc_ValueError, "Object has no callable read or write method");
-        return -1;
     }
     return 0;
 }
@@ -416,17 +416,18 @@ pgRWops_FromFileObject(PyObject *obj)
     if (helper == NULL) {
         return (SDL_RWops *)PyErr_NoMemory();
     }
-    rw = SDL_AllocRW();
-    if (rw == NULL) {
-        PyMem_Del(helper);
-        return (SDL_RWops *)PyErr_NoMemory();
-    }
-
     helper->fileno = PyObject_AsFileDescriptor(obj);
     if (helper->fileno == -1)
         PyErr_Clear();
     if (fetch_object_methods(helper, obj)) {
+        PyMem_Del(helper);
         return NULL;
+    }
+
+    rw = SDL_AllocRW();
+    if (rw == NULL) {
+        PyMem_Del(helper);
+        return (SDL_RWops *)PyErr_NoMemory();
     }
 
     helper->file = obj;
