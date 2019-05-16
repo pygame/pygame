@@ -63,17 +63,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
          .. note::
             When using ``width`` values ``> 1``, the edge lines will grow
-            outside the original boundary of the ``rect``.
-
-            For odd ``width`` values, the thickness of each edge line
-            grows with the original line being in the center.
-
-            For even ``width`` values, the thickness of each edge
-            line grows with the original line being offset from the center
-            (as there is no exact center line drawn). As a result,
-            horizontal edge lines have 1 more pixel of thickness below the
-            original line and vertical edge lines have 1 more pixel of
-            thickness to the right of the original line.
+            outside the original boundary of the rect. For more details on
+            how the thickness for edge lines grow, refer to the ``width`` notes
+            for :func:`line`.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the given ``rect``
@@ -116,7 +108,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             When using ``width`` values ``> 1``, the edge lines will grow
             outside the original boundary of the polygon. For more details on
             how the thickness for edge lines grow, refer to the ``width`` notes
-            for :func:`rect`.
+            for :func:`line`.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the first point in the
@@ -271,11 +263,52 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: line
 
-   | :sl:`draw a straight line segment`
-   | :sg:`line(Surface, color, start_pos, end_pos, width=1) -> Rect`
+   | :sl:`draw a straight line`
+   | :sg:`line(surface, color, start_pos, end_pos, width) -> Rect`
+   | :sg:`line(surface, color, start_pos, end_pos, width=1) -> Rect`
 
-   Draw a straight line segment on a Surface. There are no endcaps, the ends
-   are squared off for thick lines.
+   Draws a straight line on the given surface. There are no endcaps. For thick
+   lines the ends are squared off.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param start_pos: start position of the line, (x, y)
+   :type start_pos: tuple(int or float, int or float) or
+      list(int or float, int or float) or Vector2(int or float, int or float)
+   :param end_pos: end position of the line, (x, y)
+   :type end_pos: tuple(int or float, int or float) or
+      list(int or float, int or float) or Vector2(int or float, int or float)
+   :param int width: (optional) used for line thickness
+
+         | if width >= 1, used for line thickness (default is 1)
+         | if width < 1, nothing will be drawn
+         |
+
+         .. note::
+            When using ``width`` values ``> 1`` lines will grow as follows.
+
+            For odd ``width`` values, the thickness of each line grows with the
+            original line being in the center.
+
+            For even ``width`` values, the thickness of each line grows with the
+            original line being offset from the center (as there is no exact
+            center line drawn). As a result, lines with a slope < 1
+            (horizontal-ish) will have 1 more pixel of thickness below the
+            original line (in the y direction). Lines with a slope >= 1
+            (vertical-ish) will have 1 more pixel of thickness to the right of
+            the original line (in the x direction).
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the ``start_pos`` parameter (float values
+      will be truncated) and its width and height will be 0
+   :rtype: Rect
+
+   :raises TypeError: if ``start_pos`` or ``end_pos`` is not a sequence of
+      two numbers
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.line ##
 
