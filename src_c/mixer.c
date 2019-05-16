@@ -1710,9 +1710,11 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         rw = pgRWops_FromObject(file);
 
         if (rw == NULL) {
-            /* pgRWops_FromObject only raises critical Python exceptions,
-               so automatically pass them on.
-            */
+            if (obj) {
+                /* use 'buffer' as fallback for single arg */
+                PyErr_Clear();
+                goto LOAD_BUFFER;
+            }
             return -1;
         }
         if (pgRWops_IsFileObject(rw)) {
@@ -1723,21 +1725,23 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             chunk = Mix_LoadWAV_RW(rw, 1);
             Py_END_ALLOW_THREADS;
         }
-        if (chunk == NULL && obj == NULL) {
+        if (chunk == NULL) {
+            if (obj)
+                return RAISE(pgExc_SDLError, SDL_GetError());
             obj = pg_EncodeString(file, NULL, NULL, NULL);
-            if (obj != NULL) {
-                if (obj == Py_None) {
-                    RAISE(pgExc_SDLError, SDL_GetError());
-                }
-                else {
-                    PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
-                                 Bytes_AS_STRING(obj));
-                }
-                Py_XDECREF(obj);
+            if (obj == Py_None) {
+                RAISE(pgExc_SDLError, SDL_GetError());
             }
+            else {
+                PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
+                             Bytes_AS_STRING(obj));
+            }
+            Py_XDECREF(obj);
             return -1;
         }
     }
+
+LOAD_BUFFER:
 
 #if PY2
     if (!chunk && buffer && /* conditional and */

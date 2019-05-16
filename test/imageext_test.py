@@ -17,7 +17,7 @@ class ImageextModuleTest( unittest.TestCase ):
         self.assertRaises(TypeError, imageext.save_extended, im, [])
 
     def test_load_non_string_file(self):
-        self.assertRaises(pygame.error, imageext.load_extended, [])
+        self.assertRaises(TypeError, imageext.load_extended, [])
 
     @unittest.skip("SDL silently removes invalid characters")
     def test_save_bad_filename(self):
