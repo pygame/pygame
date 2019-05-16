@@ -881,7 +881,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)) {
                 SDL_DisplayMode dm;
                 int xscale, yscale;
-                if (SDL_GetCurrentDisplayMode(0, &dm) != 0) {
+                if (SDL_GetDesktopDisplayMode(display, &dm) != 0) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
                 xscale = dm.w / w;
