@@ -1710,7 +1710,11 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         rw = pgRWops_FromObject(file);
 
         if (rw == NULL) {
+#if PY3
             if (obj) {
+#else
+            if (obj && PyErr_ExceptionMatches(PyExc_TypeError)) {
+#endif
                 /* use 'buffer' as fallback for single arg */
                 PyErr_Clear();
                 goto LOAD_BUFFER;
