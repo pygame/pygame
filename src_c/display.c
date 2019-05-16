@@ -1356,8 +1356,8 @@ pg_window_size(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "No open window");
     }
     return Py_BuildValue("(ii)",
-        pgDisplaySurfaceObject->w,
-        pgDisplaySurfaceObject->h);
+        pgSurface_AsSurface(pgDisplaySurfaceObject)->w,
+        pgSurface_AsSurface(pgDisplaySurfaceObject)->h);
 }
 
 /* SDL1 mode_ok. Note, there is a separate SDL2 version of this. */
