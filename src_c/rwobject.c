@@ -101,7 +101,7 @@ _pg_is_exception_class(PyObject *obj, void **optr)
     return 1;
 }
 
-static void
+static int
 fetch_object_methods(pgRWHelper *helper, PyObject *obj)
 {
     helper->read = helper->write = helper->seek = helper->tell =
@@ -120,6 +120,10 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
             Py_DECREF(helper->write);
             helper->write = NULL;
         }
+    }
+    if (!helper->read && !helper->write) {
+        RAISE(PyExc_TypeError, "not a file object");
+        return -1;
     }
     if (PyObject_HasAttrString(obj, "seek")) {
         helper->seek = PyObject_GetAttrString(obj, "seek");
@@ -142,6 +146,7 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
             helper->close = NULL;
         }
     }
+    return 0;
 }
 
 static PyObject *
@@ -411,16 +416,19 @@ pgRWops_FromFileObject(PyObject *obj)
     if (helper == NULL) {
         return (SDL_RWops *)PyErr_NoMemory();
     }
+    helper->fileno = PyObject_AsFileDescriptor(obj);
+    if (helper->fileno == -1)
+        PyErr_Clear();
+    if (fetch_object_methods(helper, obj)) {
+        PyMem_Del(helper);
+        return NULL;
+    }
+
     rw = SDL_AllocRW();
     if (rw == NULL) {
         PyMem_Del(helper);
         return (SDL_RWops *)PyErr_NoMemory();
     }
-
-    helper->fileno = PyObject_AsFileDescriptor(obj);
-    if (helper->fileno == -1)
-        PyErr_Clear();
-    fetch_object_methods(helper, obj);
 
     helper->file = obj;
     Py_INCREF(obj);

@@ -88,14 +88,9 @@ image_load_basic(PyObject *self, PyObject *arg)
         if (rw == NULL) {
             return NULL;
         }
-        if (pgRWops_IsFileObject(rw)) {
-            surf = SDL_LoadBMP_RW(rw, 1);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            surf = SDL_LoadBMP_RW(rw, 1);
-            Py_END_ALLOW_THREADS;
-        }
+        Py_BEGIN_ALLOW_THREADS;
+        surf = SDL_LoadBMP_RW(rw, 1);
+        Py_END_ALLOW_THREADS;
     }
 
     if (surf == NULL) {
