@@ -536,6 +536,8 @@ typedef struct pgEventObject pgEventObject;
 /*
  * Color module
  */
+typedef struct pgColorObject pgColorObject;
+
 #ifndef PYGAMEAPI_COLOR_INTERNAL
 #define pgColor_Type (*(PyObject *) \
     PYGAMEAPI_GET_SLOT(color, 0))

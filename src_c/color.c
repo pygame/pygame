@@ -156,6 +156,8 @@ _color_slice(register pgColorObject *, register Py_ssize_t,
 /* Mapping protocol methods. */
 static PyObject *
 _color_subscript(pgColorObject *, PyObject *);
+static int
+_color_set_slice(pgColorObject *, PyObject *, PyObject *);
 
 /* Comparison */
 static PyObject *
@@ -276,7 +278,10 @@ static PySequenceMethods _color_as_sequence = {
 };
 
 static PyMappingMethods _color_as_mapping = {
-    (lenfunc)_color_length, (binaryfunc)_color_subscript, NULL};
+    (lenfunc)_color_length,
+    (binaryfunc)_color_subscript,
+    (objobjargproc)_color_set_slice
+};
 
 #if PG_ENABLE_NEWBUF
 static PyBufferProcs _color_as_buffer = {
@@ -1837,6 +1842,78 @@ _color_slice(register pgColorObject *a, register Py_ssize_t ilow,
     else {
         return Py_BuildValue("()");
     }
+}
+
+static int
+_color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
+{
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError,
+            "Color object doesn't support item deletion");
+        return -1;
+    }
+#if PY2
+    if (PyInt_Check(idx)) {
+        return _color_ass_item(color, PyInt_AS_LONG(idx), val);
+    }
+#endif
+    if (PyLong_Check(idx)) {
+        return _color_ass_item(color, PyLong_AsLong(idx), val);
+    }
+    else if (PySlice_Check(idx)) {
+        Py_ssize_t start, stop, step, slicelength;
+        PyObject *fastitems;
+        int c;
+        Py_ssize_t i, cur;
+
+        if (Slice_GET_INDICES_EX(idx, color->len, &start, &stop, &step,
+                                 &slicelength) < 0) {
+            return -1;
+        }
+        if ((step < 0 && start < stop) || (step > 0 && start > stop))
+            stop = start;
+
+        if (!(fastitems = PySequence_Fast(val, "expected sequence"))) {
+            return -1;
+        }
+        if (PySequence_Fast_GET_SIZE(fastitems) != slicelength) {
+            PyErr_Format(PyExc_ValueError,
+                "attempting to assign sequence of length %d "
+                "to slice of length %d",
+                PySequence_Fast_GET_SIZE(fastitems), slicelength);
+            Py_DECREF(fastitems);
+            return -1;
+        }
+
+        for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+            PyObject *obj = PySequence_Fast_GET_ITEM(fastitems, i);
+            if (PyLong_Check(obj)) {
+                c = PyLong_AsLong(obj);
+            }
+#if PY2
+            else if (PyInt_Check(obj)) {
+                c = PyInt_AS_LONG(obj);
+            }
+#endif /* PY2 */
+            else {
+                PyErr_SetString(PyExc_TypeError, "color components must be integers");
+                Py_DECREF(fastitems);
+                return -1;
+            }
+            if (c < 0 || c > 255) {
+                PyErr_SetString(PyExc_ValueError, "color component must be 0-255");
+                Py_DECREF(fastitems);
+                return -1;
+            }
+            color->data[cur] = (Uint8)c;
+        }
+
+        Py_DECREF(fastitems);
+        return 0;
+    }
+    PyErr_SetString(PyExc_IndexError,
+        "Index must be an integer or slice");
+    return -1;
 }
 
 /*
