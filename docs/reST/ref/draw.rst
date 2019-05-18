@@ -28,7 +28,7 @@ following formats:
    - an ``(RGB)`` triplet (tuple/list)
    - an ``(RGBA)`` quadruplet (tuple/list)
    - an integer value that has been mapped to the surface's pixel format
-     (see :func:`pygame.Surface.map_rgb` and :func:`pygame.Surface.map_rgb`).
+     (see :func:`pygame.Surface.map_rgb` and :func:`pygame.Surface.unmap_rgb`)
 
 A color's alpha value will be written directly into the surface (if the
 surface contains pixel alphas), but the draw function will not draw
@@ -37,7 +37,7 @@ transparently.
 These functions temporarily lock the surface they are operating on. Many
 sequential drawing calls can be sped up by locking and unlocking the surface
 object around the draw calls (see :func:`pygame.Surface.lock` and
-:func:`pygame.Surface.lock`).
+:func:`pygame.Surface.unlock`).
 
 .. function:: rect
 
