@@ -180,13 +180,14 @@ struct pgSubSurface_Data {
     int offsetx, offsety;
 };
 
-
-typedef struct {
+/*
+ * color module internals
+ */
+struct pgColorObject {
     PyObject_HEAD
-    /* RGBA */
     Uint8 data[4];
     Uint8 len;
-} pgColorObject;
+};
 
 /*
  * include public API
