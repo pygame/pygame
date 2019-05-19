@@ -1708,6 +1708,66 @@ mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
     return 0;
 }
 
+typedef struct {
+    int numbufs;
+    Py_ssize_t shape[2];
+    Py_ssize_t strides[2];
+} mask_bufinfo;
+
+static int
+pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
+{
+    bitmask_t *m = self->mask;
+    mask_bufinfo *bufinfo = (mask_bufinfo*)self->bufdata;
+
+    if (bufinfo == NULL) {
+        bufinfo = malloc(sizeof(mask_bufinfo));
+        bufinfo->numbufs = 1;
+
+        bufinfo->shape[0] = (m->w - 1) / BITMASK_W_LEN + 1;
+        bufinfo->shape[1] = m->h;
+
+        bufinfo->strides[0] = m->h * sizeof(BITMASK_W);
+        bufinfo->strides[1] = sizeof(BITMASK_W);
+
+        self->bufdata = bufinfo;
+    }
+    else {
+        bufinfo->numbufs++;
+    }
+
+    view->buf = m->bits;
+    view->len = m->h * ((m->w - 1) / BITMASK_W_LEN + 1) * sizeof(BITMASK_W);
+    view->readonly = 0;
+    view->itemsize = sizeof(BITMASK_W);
+    view->ndim = 2;
+    view->internal = bufinfo;
+    view->shape = bufinfo->shape;
+    view->strides = bufinfo->strides;
+
+    Py_INCREF(self);
+    view->obj = self;
+
+    return 0;
+}
+
+static void
+pgMask_ReleaseBuffer(pgMaskObject *self, Py_buffer *view)
+{
+    mask_bufinfo *bufinfo = (mask_bufinfo*)view->internal;
+
+    bufinfo->numbufs--;
+    if (bufinfo->numbufs == 0) {
+        free(bufinfo);
+        self->bufdata = NULL;
+    }
+}
+
+static PyBufferProcs pgMask_BufferProcs = {
+    (getbufferproc)pgMask_GetBuffer,
+    (releasebufferproc)pgMask_ReleaseBuffer
+};
+
 static PyTypeObject pgMask_Type = {
     TYPE_HEAD(NULL, 0) "pygame.mask.Mask", /* tp_name */
     sizeof(pgMaskObject), /* tp_basicsize */
@@ -1726,7 +1786,7 @@ static PyTypeObject pgMask_Type = {
     (reprfunc)NULL,       /* tp_str */
     0L,                   /* tp_getattro */
     0L,                   /* tp_setattro */
-    0L,                   /* tp_as_buffer */
+    &pgMask_BufferProcs,  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */

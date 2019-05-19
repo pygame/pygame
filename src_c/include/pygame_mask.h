@@ -25,6 +25,7 @@
 typedef struct {
   PyObject_HEAD
   bitmask_t *mask;
+  void *bufdata;
 } pgMaskObject;
 
 #define pgMask_AsBitmap(x) (((pgMaskObject*)x)->mask)
