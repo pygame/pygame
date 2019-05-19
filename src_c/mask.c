@@ -73,6 +73,28 @@ mask_get_size(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+mask_array(PyObject *self, PyObject *args)
+{
+    bitmask_t *m = pgMask_AsBitmap(self);
+    int x, y;
+    PyObject *bytesobj;
+    char *bytesdata;
+
+    bytesobj = Bytes_FromStringAndSize(NULL, m->w * m->h);
+    if (!bytesobj) {
+        return NULL;
+    }
+    bytesdata = Bytes_AS_STRING(bytesobj);
+
+    for (y=0; y < m->h; y++) {
+        for (x=0; x < m->w; x++) {
+            bytesdata[x + y * m->w] = bitmask_getbit(m, x, y);
+        }
+    }
+    return bytesobj;
+}
+
+static PyObject *
 mask_get_at(PyObject *self, PyObject *args)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
@@ -1587,6 +1609,7 @@ static PyMethodDef mask_methods[] = {
     {"overlap", mask_overlap, METH_VARARGS, DOC_MASKOVERLAP},
     {"overlap_area", mask_overlap_area, METH_VARARGS, DOC_MASKOVERLAPAREA},
     {"overlap_mask", mask_overlap_mask, METH_VARARGS, DOC_MASKOVERLAPMASK},
+    {"get_array", mask_array, METH_NOARGS, NULL}, /* TODO: docs */
     {"fill", mask_fill, METH_NOARGS, DOC_MASKFILL},
     {"clear", mask_clear, METH_NOARGS, DOC_MASKCLEAR},
     {"invert", mask_invert, METH_NOARGS, DOC_MASKINVERT},
