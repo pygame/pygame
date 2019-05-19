@@ -5,6 +5,7 @@ import platform
 
 import pygame
 from pygame.compat import long_
+from pygame.colordict import THECOLORS
 
 
 IS_PYPY = 'PyPy' == platform.python_implementation()
@@ -295,28 +296,168 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(pygame.color.Color('red'), pygame.color.Color('Red'))
 
     def test_color(self):
-        c = pygame.Color(10, 20, 30, 40)
-        self.assertEqual(c.r, 10)
-        self.assertEqual(c.g, 20)
-        self.assertEqual(c.b, 30)
-        self.assertEqual(c.a, 40)
+        """Ensures Color objects can be created."""
+        color = pygame.Color(0, 0, 0, 0)
 
-        c = pygame.Color("indianred3")
-        self.assertEqual(c.r, 205)
-        self.assertEqual(c.g, 85)
-        self.assertEqual(c.b, 85)
-        self.assertEqual(c.a, 255)
+        self.assertIsInstance(color, pygame.Color)
 
-        c = pygame.Color(0xAABBCCDD)
-        self.assertEqual(c.r, 0xAA)
-        self.assertEqual(c.g, 0xBB)
-        self.assertEqual(c.b, 0xCC)
-        self.assertEqual(c.a, 0xDD)
+    def test_color__rgba_int_args(self):
+        """Ensures Color objects can be created using ints."""
+        color = pygame.Color(10, 20, 30, 40)
 
+        self.assertEqual(color.r, 10)
+        self.assertEqual(color.g, 20)
+        self.assertEqual(color.b, 30)
+        self.assertEqual(color.a, 40)
+
+    def test_color__rgba_int_args_without_alpha(self):
+        """Ensures Color objects can be created without providing alpha."""
+        color = pygame.Color(10, 20, 30)
+
+        self.assertEqual(color.r, 10)
+        self.assertEqual(color.g, 20)
+        self.assertEqual(color.b, 30)
+        self.assertEqual(color.a, 255)
+
+    def test_color__rgba_int_args_invalid_value(self):
+        """Ensures invalid values are detected when creating Color objects."""
         self.assertRaises(ValueError, pygame.Color, 257, 10, 105, 44)
         self.assertRaises(ValueError, pygame.Color, 10, 257, 105, 44)
         self.assertRaises(ValueError, pygame.Color, 10, 105, 257, 44)
         self.assertRaises(ValueError, pygame.Color, 10, 105, 44, 257)
+
+    def test_color__rgba_int_args_invalid_value_without_alpha(self):
+        """Ensures invalid values are detected when creating Color objects
+        without providing an alpha.
+        """
+        self.assertRaises(ValueError, pygame.Color, 256, 10, 105)
+        self.assertRaises(ValueError, pygame.Color, 10, 256, 105)
+        self.assertRaises(ValueError, pygame.Color, 10, 105, 256)
+
+    def test_color__color_object_arg(self):
+        """Ensures Color objects can be created using Color objects."""
+        color_args = (10, 20, 30, 40)
+        color_obj = pygame.Color(*color_args)
+
+        new_color_obj = pygame.Color(color_obj)
+
+        self.assertIsInstance(new_color_obj, pygame.Color)
+        self.assertEqual(new_color_obj, color_obj)
+        self.assertEqual(new_color_obj.r, color_args[0])
+        self.assertEqual(new_color_obj.g, color_args[1])
+        self.assertEqual(new_color_obj.b, color_args[2])
+        self.assertEqual(new_color_obj.a, color_args[3])
+
+    def test_color__name_str_arg(self):
+        """Ensures Color objects can be created using str names."""
+        for name in ('aquamarine3', 'AQUAMARINE3', 'AqUAmArIne3'):
+            color = pygame.Color(name)
+
+            self.assertEqual(color.r, 102)
+            self.assertEqual(color.g, 205)
+            self.assertEqual(color.b, 170)
+            self.assertEqual(color.a, 255)
+
+    def test_color__name_str_arg_from_colordict(self):
+        """Ensures Color objects can be created using str names
+        from the THECOLORS dict."""
+        for name, values in THECOLORS.items():
+            color = pygame.Color(name)
+
+            self.assertEqual(color.r, values[0])
+            self.assertEqual(color.g, values[1])
+            self.assertEqual(color.b, values[2])
+            self.assertEqual(color.a, values[3])
+
+    def test_color__html_str_arg(self):
+        """Ensures Color objects can be created using html strings."""
+        # See test_webstyle() for related tests.
+        color = pygame.Color('#a1B2c3D4')
+
+        self.assertEqual(color.r, 0xA1)
+        self.assertEqual(color.g, 0xB2)
+        self.assertEqual(color.b, 0XC3)
+        self.assertEqual(color.a, 0xD4)
+
+    def test_color__hex_str_arg(self):
+        """Ensures Color objects can be created using hex strings."""
+        # See test_webstyle() for related tests.
+        color = pygame.Color('0x1a2B3c4D')
+
+        self.assertEqual(color.r, 0x1A)
+        self.assertEqual(color.g, 0x2B)
+        self.assertEqual(color.b, 0X3C)
+        self.assertEqual(color.a, 0x4D)
+
+    def test_color__int_arg(self):
+        """Ensures Color objects can be created using one int value."""
+        for value in (0x0, 0xFFFFFFFF, 0xAABBCCDD):
+            color = pygame.Color(value)
+
+            self.assertEqual(color.r, (value >> 24) & 0xFF)
+            self.assertEqual(color.g, (value >> 16) & 0xFF)
+            self.assertEqual(color.b, (value >> 8) & 0xFF)
+            self.assertEqual(color.a, value & 0xFF)
+
+    def test_color__int_arg_invalid(self):
+        """Ensures invalid int values are detected when creating Color objects.
+        """
+        with self.assertRaises(ValueError):
+            color = pygame.Color(0x1FFFFFFFF)
+
+    def test_color__sequence_arg(self):
+        """Ensures Color objects can be created using tuples/lists."""
+        color_values = (33, 44, 55, 66)
+        for seq_type in (tuple, list):
+            color = pygame.Color(seq_type(color_values))
+
+            self.assertEqual(color.r, color_values[0])
+            self.assertEqual(color.g, color_values[1])
+            self.assertEqual(color.b, color_values[2])
+            self.assertEqual(color.a, color_values[3])
+
+    def test_color__sequence_arg_without_alpha(self):
+        """Ensures Color objects can be created using tuples/lists
+        without providing an alpha value.
+        """
+        color_values = (33, 44, 55)
+        for seq_type in (tuple, list):
+            color = pygame.Color(seq_type(color_values))
+
+            self.assertEqual(color.r, color_values[0])
+            self.assertEqual(color.g, color_values[1])
+            self.assertEqual(color.b, color_values[2])
+            self.assertEqual(color.a, 255)
+
+    def test_color__sequence_arg_invalid_value(self):
+        """Ensures invalid sequences are detected when creating Color objects.
+        """
+        cls = pygame.Color
+        for seq_type in (tuple, list):
+            self.assertRaises(ValueError, cls, seq_type((256, 90, 80, 70)))
+            self.assertRaises(ValueError, cls, seq_type((100, 256, 80, 70)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 256, 70)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 80, 256)))
+
+    def test_color__sequence_arg_invalid_value_without_alpha(self):
+        """Ensures invalid sequences are detected when creating Color objects
+        without providing an alpha.
+        """
+        cls = pygame.Color
+        for seq_type in (tuple, list):
+            self.assertRaises(ValueError, cls, seq_type((256, 90, 80)))
+            self.assertRaises(ValueError, cls, seq_type((100, 256, 80)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 256)))
+
+    def test_color__sequence_arg_invalid_format(self):
+        """Ensures invalid sequences are detected when creating Color objects
+        with the wrong number of values.
+        """
+        cls = pygame.Color
+        for seq_type in (tuple, list):
+            self.assertRaises(ValueError, cls, seq_type((100,)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 80, 70, 60)))
 
     def test_rgba(self):
         c = pygame.Color(0)
