@@ -1744,6 +1744,9 @@ pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
     view->internal = bufinfo;
     view->shape = bufinfo->shape;
     view->strides = bufinfo->strides;
+    if (flags & PyBUF_FORMAT) {
+        view->format = "L"; /* L = unsigned long */
+    }
 
     Py_INCREF(self);
     view->obj = self;
