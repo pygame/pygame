@@ -93,9 +93,11 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
    :type color: Color or int or tuple(int, int, int, [int])
-   :param points: a sequence of 3 or more points that make up the vertices of
-      the polygon, each point/vertex must be a tuple/list of 2 numbers
-   :type points: tuple or list
+   :param points: a sequence of 3 or more (x, y) coordinates that make up the
+      vertices of the polygon, each *coordinate* in the sequence must be a
+      tuple/list/:class:`pygame.math.Vector2` of 2 ints/floats,
+      e.g. ``[(x1, y1), (x2, y2), (x3, y3)]``
+   :type points: tuple(coordinate) or list(coordinate)
    :param int width: (optional) used for line thickness or to indicate that
       the polygon is to be filled
 
@@ -138,8 +140,10 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
    :type color: Color or int or tuple(int, int, int, [int])
-   :param center: center point of the circle, (x, y)
-   :type center: tuple(int, int) or list(int, int)
+   :param center: center point of the circle as a sequence of 2 ints/floats,
+      e.g. ``(x, y)``
+   :type center: tuple(int or float, int or float) or
+      list(int or float, int or float) or Vector2(int or float, int or float)
    :param int radius: radius of the circle, measured from the ``center``
       parameter, a radius of 0 will only draw the ``center`` pixel
    :param int width: (optional) used for line thickness or to indicate that
