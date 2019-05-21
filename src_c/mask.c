@@ -1708,6 +1708,7 @@ mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
     return 0;
 }
 
+#if PY3
 typedef struct {
     int numbufs;
     Py_ssize_t shape[2];
@@ -1767,12 +1768,11 @@ pgMask_ReleaseBuffer(pgMaskObject *self, Py_buffer *view)
 }
 
 static PyBufferProcs pgMask_BufferProcs = {
-#if PY2
-    NULL, NULL, NULL, NULL,
-#endif
     (getbufferproc)pgMask_GetBuffer,
     (releasebufferproc)pgMask_ReleaseBuffer
 };
+
+#endif /* PY3 */
 
 static PyTypeObject pgMask_Type = {
     TYPE_HEAD(NULL, 0) "pygame.mask.Mask", /* tp_name */
@@ -1792,12 +1792,12 @@ static PyTypeObject pgMask_Type = {
     (reprfunc)NULL,       /* tp_str */
     0L,                   /* tp_getattro */
     0L,                   /* tp_setattro */
-    &pgMask_BufferProcs,  /* tp_as_buffer */
 #if PY3
+    &pgMask_BufferProcs,  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
 #else /* PY2 */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
-        Py_TPFLAGS_HAVE_NEWBUFFER, /* tp_flags */
+    0L,                   /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
 #endif /* PY2 */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */

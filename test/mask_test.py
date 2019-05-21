@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import random
 import unittest
+import sys
 
 import pygame
 from pygame.locals import *
@@ -2637,6 +2638,7 @@ class MaskModuleTest(unittest.TestCase):
                 rects = mask.get_bounding_rects()
                 self.assertEqual(rects, [])
 
+    @unittest.skipUnless(sys.version_info[0], 3)
     def test_buffer_interface(self):
         size = (1000, 100)
         pixels_set = (
