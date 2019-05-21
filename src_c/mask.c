@@ -1723,6 +1723,10 @@ pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
 
     if (bufinfo == NULL) {
         bufinfo = PyMem_Malloc(sizeof(mask_bufinfo));
+        if (bufinfo == NULL) {
+            PyErr_NoMemory();
+            return -1;
+        }
         bufinfo->numbufs = 1;
 
         bufinfo->shape[0] = (m->w - 1) / BITMASK_W_LEN + 1;

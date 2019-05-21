@@ -2638,7 +2638,7 @@ class MaskModuleTest(unittest.TestCase):
                 rects = mask.get_bounding_rects()
                 self.assertEqual(rects, [])
 
-    @unittest.skipUnless(sys.version_info[0], 3)
+    @unittest.skipIf(sys.version_info < (3, ), "Python 3 only")
     def test_buffer_interface(self):
         size = (1000, 100)
         pixels_set = (
