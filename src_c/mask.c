@@ -1721,7 +1721,7 @@ pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
     mask_bufinfo *bufinfo = (mask_bufinfo*)self->bufdata;
 
     if (bufinfo == NULL) {
-        bufinfo = malloc(sizeof(mask_bufinfo));
+        bufinfo = PyMem_Malloc(sizeof(mask_bufinfo));
         bufinfo->numbufs = 1;
 
         bufinfo->shape[0] = (m->w - 1) / BITMASK_W_LEN + 1;
@@ -1761,7 +1761,7 @@ pgMask_ReleaseBuffer(pgMaskObject *self, Py_buffer *view)
 
     bufinfo->numbufs--;
     if (bufinfo->numbufs == 0) {
-        free(bufinfo);
+        PyMem_Free(bufinfo);
         self->bufdata = NULL;
     }
 }
