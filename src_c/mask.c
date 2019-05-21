@@ -1767,6 +1767,9 @@ pgMask_ReleaseBuffer(pgMaskObject *self, Py_buffer *view)
 }
 
 static PyBufferProcs pgMask_BufferProcs = {
+#if PY2
+    NULL, NULL, NULL, NULL,
+#endif
     (getbufferproc)pgMask_GetBuffer,
     (releasebufferproc)pgMask_ReleaseBuffer
 };
@@ -1790,7 +1793,12 @@ static PyTypeObject pgMask_Type = {
     0L,                   /* tp_getattro */
     0L,                   /* tp_setattro */
     &pgMask_BufferProcs,  /* tp_as_buffer */
+#if PY3
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+#else /* PY2 */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
+        Py_TPFLAGS_HAVE_NEWBUFFER, /* tp_flags */
+#endif /* PY2 */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */
