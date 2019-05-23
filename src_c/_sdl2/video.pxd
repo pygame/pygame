@@ -278,16 +278,22 @@ cdef extern from "SDL.h" nogil:
                                Uint8        g,
                                Uint8        b)
 
+cdef extern from "../pygame.h" nogil:
+    ctypedef class pygame.Color [object pgColorObject]:
+        cdef Uint8 data[4]
+        cdef Uint8 len
+
 cdef class Window:
     cdef SDL_Window* _win
 
 cdef class Renderer:
     cdef SDL_Renderer* _renderer
-    cdef tuple _draw_color
+    cdef Color _draw_color
     cdef Texture _target
 
 cdef class Texture:
     cdef SDL_Texture* _tex
+    cdef Color _color
     cdef readonly Renderer renderer
     cdef readonly int width
     cdef readonly int height
@@ -297,7 +303,7 @@ cdef class Image:
     cdef public float origin[2]
     cdef public bint flipX
     cdef public bint flipY
-    cdef public object color
+    cdef public Color color
     cdef public float alpha
 
     cdef public Texture texture

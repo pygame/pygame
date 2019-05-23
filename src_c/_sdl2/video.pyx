@@ -487,6 +487,10 @@ cdef Uint32 format_from_depth(int depth):
 
 
 cdef class Texture:
+    def __cinit__(self):
+        cdef Uint8[3] defaultColor = [255, 255, 255]
+        self._color = pgColor_NewLength(defaultColor, 3)
+
     def __init__(self,
                  Renderer renderer,
                  size, int depth=0,
@@ -610,13 +614,14 @@ cdef class Texture:
     @property
     def color(self):
         # https://wiki.libsdl.org/SDL_GetTextureColorMod
-        # TODO: pygame.Color?
-        cdef Uint8 r,g,b
-        res = SDL_GetTextureColorMod(self._tex, &r, &g, &b)
+        res = SDL_GetTextureColorMod(self._tex,
+            &self._color.data[0],
+            &self._color.data[1],
+            &self._color.data[2])
         if res < 0:
             raise error()
 
-        return (r,g,b)
+        return self._color
 
     @color.setter
     def color(self, new_value):
@@ -789,7 +794,8 @@ cdef class Renderer:
         if not self._renderer:
             raise error()
 
-        self._draw_color = (255, 255, 255, 255)
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
+        self._draw_color = pgColor_NewLength(defaultColor, 4)
         self._target = None
 
     def __dealloc__(self):
@@ -807,8 +813,7 @@ cdef class Renderer:
         """ color used by the drawing functions.
         """
         # https://wiki.libsdl.org/SDL_SetRenderDrawColor
-        # TODO: this should probably be a pygame.Color.
-        self._draw_color = new_value[:]
+        self._draw_color[:] = new_value
         res = SDL_SetRenderDrawColor(self._renderer,
                                      new_value[0],
                                      new_value[1],
