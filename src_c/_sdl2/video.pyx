@@ -16,11 +16,14 @@ cdef extern from "../pygame.h" nogil:
     int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
     void import_pygame_surface()
+
+    int pgRect_Check(object rect)
     SDL_Rect *pgRect_FromObject(object obj, SDL_Rect *temp)
     object pgRect_New(SDL_Rect *r)
     object pgRect_New4(int x, int y, int w, int h)
     SDL_Rect pgRect_AsRect(object rect)
     void import_pygame_rect()
+
     object pgColor_New(Uint8 rgba[])
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
     void import_pygame_color()
@@ -644,6 +647,19 @@ cdef class Texture:
 
         return rect
 
+    cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=0, SDL_Point *originptr=NULL,
+                       bint flipX=False, bint flipY=False):
+        cdef int flip = SDL_FLIP_NONE
+        if flipX:
+            flip |= SDL_FLIP_HORIZONTAL
+        if flipY:
+            flip |= SDL_FLIP_VERTICAL
+
+        res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
+                               angle, originptr, <SDL_RendererFlip>flip)
+        if res < 0:
+            raise error()
+
     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
              bint flipX=False, bint flipY=False):
         """ Copy a portion of the texture to the rendering target.
@@ -658,21 +674,27 @@ cdef class Texture:
         :param bool flipY: flip vertically.
         """
         cdef SDL_Rect src, dst
-        cdef SDL_Rect *csrcrect = pgRect_FromObject(srcrect, &src)
-        cdef SDL_Rect *cdstrect = pgRect_FromObject(dstrect, &dst)
+        cdef SDL_Rect *csrcrect = NULL
+        cdef SDL_Rect *cdstrect = NULL
         cdef SDL_Point corigin
         cdef SDL_Point *originptr
-        cdef int flip = SDL_FLIP_NONE
 
-        if srcrect and not csrcrect:
-            raise error("the argument is not a rectangle or None")
-
-        if not cdstrect and dstrect:
-            if len(dstrect) == 2:
-                cdstrect = pgRect_FromObject((dstrect[0], dstrect[1],
-                                              self.width, self.height), &dst)
-            else:
+        if srcrect is not None:
+            csrcrect = pgRect_FromObject(srcrect, &src)
+            if not csrcrect:
                 raise error("the argument is not a rectangle or None")
+
+        if dstrect is not None:
+            cdstrect = pgRect_FromObject(dstrect, &dst)
+            if cdstrect == NULL:
+                if len(dstrect) == 2:
+                    dst.x = dstrect[0]
+                    dst.y = dstrect[1]
+                    dst.w = self.width
+                    dst.h = self.height
+                    cdstrect = &dst
+                else:
+                    raise error('dstrect must be a position, rect, or None')
 
         if origin:
             originptr = &corigin
@@ -681,15 +703,8 @@ cdef class Texture:
         else:
             originptr = NULL
 
-        if flipX:
-            flip |= SDL_FLIP_HORIZONTAL
-        if flipY:
-            flip |= SDL_FLIP_VERTICAL
-
-        res = SDL_RenderCopyEx(self.renderer._renderer, self._tex, csrcrect, cdstrect,
-                               angle, originptr, <SDL_RendererFlip>flip)
-        if res < 0:
-            raise error()
+        self.draw_internal(csrcrect, cdstrect, angle, originptr,
+                           flipX, flipY)
 
 
 cdef class Image:
@@ -740,29 +755,44 @@ cdef class Image:
         :param dstrect: destination rectangle or position on the render target, or None for entire target.
                         The image is stretched to fill dstrect.
         """
-        cdef SDL_Rect temp
-
-        if dstrect is not None:
-            if pgRect_FromObject(dstrect, &temp) == NULL:
-                if len(dstrect) == 2:
-                    dstrect = (dstrect[0], dstrect[1], self.srcrect.w, self.srcrect.h)
-                else:
-                    raise error('dstrect must be a position, rect, or None')
+        cdef SDL_Rect src
+        cdef SDL_Rect dst
+        cdef SDL_Rect *csrcrect = NULL
+        cdef SDL_Rect *cdstrect = NULL
+        cdef SDL_Point origin
 
         if srcrect is None:
-            srcrect = self.srcrect
+            csrcrect = &self.srcrect.r
         else:
-            if pgRect_FromObject(srcrect, &temp) == NULL:
-                raise error('srcrect must be a rect or None')
-            srcrect = (temp.x + self.srcrect.x,
-                       temp.y + self.srcrect.y,
-                       temp.w, temp.h)
+            if pgRect_Check(srcrect):
+                src = (<Rect>srcrect).r
+            else:
+                if pgRect_FromObject(srcrect, &src) == NULL:
+                    raise error('srcrect must be a rect or None')
+            src.x += self.srcrect.x
+            src.y += self.srcrect.y
+            csrcrect = &src
+
+        if dstrect is not None:
+            cdstrect = pgRect_FromObject(dstrect, &dst)
+            if cdstrect == NULL:
+                if len(dstrect) == 2:
+                    dst.x = dstrect[0]
+                    dst.y = dstrect[1]
+                    dst.w = self.srcrect.w
+                    dst.h = self.srcrect.h
+                    cdstrect = &dst
+                else:
+                    raise error('dstrect must be a position, rect, or None')
 
         self.texture.color = self.color
         self.texture.alpha = self.alpha
 
-        self.texture.draw(srcrect, dstrect, self.angle,
-                          self.origin, self.flipX, self.flipY)
+        origin.x = <int>self.origin[0]
+        origin.y = <int>self.origin[1]
+
+        self.texture.draw_internal(csrcrect, cdstrect, self.angle,
+                                   &origin, self.flipX, self.flipY)
 
 
 cdef class Renderer:
@@ -890,7 +920,7 @@ cdef class Renderer:
         else:
             raise error('target must be a Texture or None')
 
-    def blit(self, source, dest=None, area=None, special_flags = 0):
+    def blit(self, source, dest=None, area=None, special_flags=0):
         """ Only for compatibility.
         Textures created by different Renderers cannot shared with each other!
         :param source: A Texture or Image to draw.
@@ -900,11 +930,9 @@ cdef class Renderer:
         """
         if not hasattr(source, 'draw'):
             raise TypeError('source must be drawable')
-        if not area:
-            area = ((0,0), source.get_rect().size)
-        if not dest:
-            dest = self.get_viewport()
 
         source.draw(area, dest)
 
+        if not dest:
+            return self.get_viewport()
         return dest
