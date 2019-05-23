@@ -92,34 +92,51 @@ draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
     else                                                                   \
         return RAISE(PyExc_TypeError, "invalid color argument");
 
+/* Draws an antialiased line on the given surface.
+ *
+ * Returns a Rect bounding the drawn area.
+ */
 static PyObject *
-aaline(PyObject *self, PyObject *arg)
+aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *start, *end;
-    SDL_Surface *surf;
+    PyObject *surfobj = NULL, *colorobj = NULL, *start = NULL, *end = NULL;
+    SDL_Surface *surf = NULL;
     float startx, starty, endx, endy;
-    int top, left, bottom, right;
-    int blend = 1;
+    int top, left, bottom, right, anydraw;
+    int blend = 1; /* Default blend. */
     float pts[4];
     Uint8 rgba[4];
     Uint32 color;
-    int anydraw;
+    static char *keywords[] = {"surface", "color", "start_pos",
+                               "end_pos", "blend", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
-                          &start, &end, &blend))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOO|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &start, &end, &blend)) {
+        return NULL; /* Exception already set. */
+    }
+
     surf = pgSurface_AsSurface(surfobj);
+
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (!pg_TwoFloatsFromObj(start, &startx, &starty))
-        return RAISE(PyExc_TypeError, "Invalid start position argument");
-    if (!pg_TwoFloatsFromObj(end, &endx, &endy))
-        return RAISE(PyExc_TypeError, "Invalid end position argument");
+    if (!pg_TwoFloatsFromObj(start, &startx, &starty)) {
+        return RAISE(PyExc_TypeError, "invalid start_pos argument");
+    }
 
-    if (!pgSurface_Lock(surfobj))
-        return NULL;
+    if (!pg_TwoFloatsFromObj(end, &endx, &endy)) {
+        return RAISE(PyExc_TypeError, "invalid end_pos argument");
+    }
+
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
 
     pts[0] = startx;
     pts[1] = starty;
@@ -127,12 +144,15 @@ aaline(PyObject *self, PyObject *arg)
     pts[3] = endy;
     anydraw = clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
 
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
 
-    /*compute return rect*/
-    if (!anydraw)
-        return pgRect_New4(startx, starty, 0, 0);
+    /* Compute return rect. */
+    if (!anydraw) {
+        return pgRect_New4((int)startx, (int)starty, 0, 0);
+    }
+
     if (pts[0] < pts[2]) {
         left = (int)(pts[0]);
         right = (int)(pts[2]);
@@ -141,6 +161,7 @@ aaline(PyObject *self, PyObject *arg)
         left = (int)(pts[2]);
         right = (int)(pts[0]);
     }
+
     if (pts[1] < pts[3]) {
         top = (int)(pts[1]);
         bottom = (int)(pts[3]);
@@ -149,6 +170,7 @@ aaline(PyObject *self, PyObject *arg)
         top = (int)(pts[3]);
         bottom = (int)(pts[1]);
     }
+
     return pgRect_New4(left, top, right - left + 2, bottom - top + 2);
 }
 
@@ -1868,7 +1890,8 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y, int num_points,
 }
 
 static PyMethodDef _draw_methods[] = {
-    {"aaline", aaline, METH_VARARGS, DOC_PYGAMEDRAWAALINE},
+    {"aaline", (PyCFunction)aaline, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWAALINE},
     {"line", (PyCFunction)line, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWLINE},
     {"aalines", aalines, METH_VARARGS, DOC_PYGAMEDRAWAALINES},
