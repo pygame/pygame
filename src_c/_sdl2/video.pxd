@@ -283,6 +283,10 @@ cdef extern from "../pygame.h" nogil:
         cdef Uint8 data[4]
         cdef Uint8 len
 
+    ctypedef class pygame.Rect [object pgRectObject]:
+        cdef SDL_Rect r
+        cdef object weakreflist
+
 cdef class Window:
     cdef SDL_Window* _win
 
@@ -307,4 +311,4 @@ cdef class Image:
     cdef public float alpha
 
     cdef public Texture texture
-    cdef public SDL_Rect srcrect
+    cdef public Rect srcrect

@@ -710,10 +710,10 @@ cdef class Image:
 
         if isinstance(textureOrImage, Image):
             self.texture = textureOrImage.texture
-            self.srcrect = textureOrImage.srcrect
+            self.srcrect = pgRect_New(&(<Rect>textureOrImage.srcrect).r)
         else:
             self.texture = textureOrImage
-            self.srcrect = pgRect_AsRect(textureOrImage.get_rect())
+            self.srcrect = textureOrImage.get_rect()
 
         if srcrect is not None:
             if pgRect_FromObject(srcrect, &temp) == NULL:
@@ -725,13 +725,13 @@ cdef class Image:
                 raise ValueError('rect values are out of range')
             temp.x += self.srcrect.x
             temp.y += self.srcrect.y
-            self.srcrect = temp
+            self.srcrect = pgRect_New(&temp)
 
         self.origin[0] = self.srcrect.w / 2
         self.origin[1] = self.srcrect.h / 2
 
     def get_rect(self):
-        return pgRect_New(&self.srcrect)
+        return pgRect_New(&self.srcrect.r)
 
     def draw(self, srcrect=None, dstrect=None):
         """ Copy a portion of the image to the rendering target.
@@ -750,7 +750,7 @@ cdef class Image:
                     raise error('dstrect must be a position, rect, or None')
 
         if srcrect is None:
-            srcrect = self.get_rect()
+            srcrect = self.srcrect
         else:
             if pgRect_FromObject(srcrect, &temp) == NULL:
                 raise error('srcrect must be a rect or None')
