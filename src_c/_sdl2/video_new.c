@@ -125,13 +125,26 @@ static PyMethodDef pg_renderer_methods[] = {
 static PyObject *
 pg_renderer_get_color(pgRendererObject *self, void *closure)
 {
-    /* TODO */
+    Py_INCREF(self->drawcolor);
+    return self->drawcolor;
 }
 
 static int
 pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
 {
-    /* TODO */
+    Uint8 *colarray = pgColor_AsArray(self->drawcolor);
+    if (!pg_RGBAFromColorObj(val, colarray)) {
+        RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
+        return -1;
+    }
+
+    if (SDL_SetRenderDrawColor(self->renderer,
+                               colarray[0], colarray[1],
+                               colarray[2], colarray[3]) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
 }
 
 static PyGetSetDef pg_renderer_getset[] = {
