@@ -21,22 +21,245 @@
 #include <structmember.h>
 
 
+typedef struct pgRendererObject pgRendererObject;
+
 typedef struct {
     PyObject_HEAD
     SDL_Texture *_tex;
-    PyObject *renderer;
-    SDL_Renderer *_renderer; /* FIXME */
+    pgRendererObject *renderer;
     int width;
     int height;
     pgColorObject *_color;
 } pgTextureObject;
 
+/* FIXME: hack */
+typedef struct {
+    PyObject_HEAD
+    SDL_Window *_win;
+} pgWindowObject;
+
+
+/*
+ * RENDERER
+ */
+
+struct pgRendererObject {
+    PyObject_HEAD
+    pgWindowObject *window;
+    SDL_Renderer *renderer;
+    pgColorObject *drawcolor;
+    pgTextureObject *target;
+};
+
+static PyTypeObject pgRenderer_Type;
+
+#define pgRenderer_Check(x) (((PyObject*)(x))->ob_type == &pgRenderer_Type)
+
+
+static PyObject *
+pg_renderer_clear(pgRendererObject *self, PyObject *args)
+{
+    SDL_RenderClear(self->renderer);
+    /* TODO: error check */
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_renderer_present(pgRendererObject *self, PyObject *args)
+{
+    SDL_RenderPresent(self->renderer);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_renderer_blit(pgRendererObject *self, PyObject *args, PyObject *kw)
+{
+    /* only for compatibility with pygame.sprite */
+    char* keywords[] = {
+        "source",
+        "dest",
+        "area",
+        "special_flags",
+        NULL
+    };
+    PyObject *source;
+    PyObject *dest = Py_None;
+    PyObject *area = Py_None;
+    int flags = 0;
+    PyObject *drawstr;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "O|OOi", keywords,
+                                     &source, &dest, &area, &flags))
+    {
+        return NULL;
+    }
+
+    if (!PyObject_HasAttrString(source, "draw")) {
+        return RAISE(PyExc_TypeError, "source must be drawable");
+    }
+
+    drawstr = PyUnicode_FromString("draw");
+    if (!drawstr)
+        return NULL;
+    if (!PyObject_CallMethodObjArgs(source, drawstr, area, dest, NULL)) {
+        Py_DECREF(drawstr);
+        return NULL;
+    }
+    Py_DECREF(drawstr);
+
+    /* TODO: */
+    /*if (dest == Py_None) {
+        return self.get_viewport();
+    }*/
+    Py_RETURN_NONE;
+}
+
+static PyMethodDef pg_renderer_methods[] = {
+    { "clear", (PyCFunction)pg_renderer_clear, METH_NOARGS, NULL /* TODO */ },
+    { "present", (PyCFunction)pg_renderer_present, METH_NOARGS, NULL /* TODO */ },
+    { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { NULL }
+};
+
+static PyObject *
+pg_renderer_get_color(pgRendererObject *self, void *closure)
+{
+    /* TODO */
+}
+
+static int
+pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
+{
+    /* TODO */
+}
+
+static PyGetSetDef pg_renderer_getset[] = {
+    { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, NULL /*TODO*/, NULL },
+    { NULL }
+};
+
+static int
+pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
+{
+    char* keywords[] = {
+        "window",
+        "index",
+        "accelerated",
+        "vsync",
+        "target_texture",
+        NULL
+    };
+    PyObject *winobj;
+    int index = -1;
+    int accelerated = -1;
+    int vsync = 0;
+    int target_texture = 0;
+    int flags = 0;
+
+#if PY3
+    const char *formatstr = "O|iipp";
+#else
+    const char *formatstr = "O|iiii";
+#endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords,
+                                     &winobj,
+                                     &index, &accelerated, &vsync,
+                                     &target_texture)) {
+        return -1;
+    }
+
+    /* TODO: check window */
+    Py_INCREF(winobj);
+    self->window = (pgWindowObject*)winobj;
+
+    if (accelerated > 0)
+        flags |= SDL_RENDERER_ACCELERATED;
+    else if (accelerated == 0)
+        flags |= SDL_RENDERER_SOFTWARE;
+    if (vsync)
+        flags |= SDL_RENDERER_PRESENTVSYNC;
+    if (target_texture)
+        flags |= SDL_RENDERER_TARGETTEXTURE;
+
+    self->renderer =
+        SDL_CreateRenderer(self->window->_win, index, flags);
+    /* TODO: error check */
+
+    return 0;
+}
+
+static PyObject *
+pg_renderer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Uint8 rgba[] = { 255, 255, 255, 255 };
+    pgColorObject *col = (pgColorObject*) pgColor_NewLength(rgba, 4);
+    pgRendererObject *obj;
+    if (!col) {
+        return NULL;
+    }
+    obj = (pgRendererObject*) type->tp_alloc(type, 0);
+    obj->drawcolor = col;
+    return (PyObject*)obj;
+}
+
+static void
+pg_renderer_dealloc(pgRendererObject *self)
+{
+    Py_DECREF(self->window);
+    /* TODO: destroy renderer */
+    Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
+static PyTypeObject pgRenderer_Type = {
+    TYPE_HEAD(NULL, 0) "pygame._sdl2.Renderer", /*name*/
+    sizeof(pgRendererObject), /*basicsize*/
+    0, /*itemsize*/
+    (destructor)pg_renderer_dealloc, /*dealloc*/
+    NULL, /*print*/
+    NULL, /*getattr*/
+    NULL, /*setattr*/
+    NULL, /*compare/reserved*/
+    NULL, /*repr*/
+    NULL, /*as_number*/
+    NULL, /*as_sequence*/
+    NULL, /*as_mapping*/
+    NULL, /*hash*/
+    NULL, /*call*/
+    NULL, /*str*/
+    0L,
+    0L,
+    0L,
+    Py_TPFLAGS_DEFAULT, /* tp_flags */
+    NULL, /* TODO: docstring */
+    NULL, /* tp_traverse */
+    NULL, /* tp_clear */
+    NULL, /* tp_richcompare */
+    NULL, /* tp_weaklistoffset */
+    NULL, /* tp_iter */
+    NULL, /* tp_iternext */
+    pg_renderer_methods, /* tp_methods */
+    NULL, /* tp_members */
+    pg_renderer_getset, /* tp_getset */
+    NULL, /* tp_base */
+    NULL, /* tp_dict */
+    NULL, /* tp_descr_get */
+    NULL, /* tp_descr_set */
+    0, /* tp_dictoffset */
+    (initproc)pg_renderer_init, /* tp_init */
+    NULL, /* tp_alloc */
+    pg_renderer_new /* tp_new */
+};
+
+/*
+ * TEXTURE
+ */
+
 
 static PyTypeObject pgTexture_Type;
 
-static PyObject *
-pg_texture_from_surface(pgTextureObject *self, PyObject *args, PyObject *kw);
-
+static pgTextureObject *
+pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw);
 
 static PyMemberDef pg_texture_members[] = {
     { "renderer", T_OBJECT_EX, offsetof(pgTextureObject, renderer), READONLY, NULL /* TODO */ },
@@ -71,7 +294,7 @@ pgTexture_Draw(pgTextureObject *self,
     if (flipY)
         flip |= SDL_FLIP_VERTICAL;
 
-    if (SDL_RenderCopyEx(self->_renderer, self->_tex,
+    if (SDL_RenderCopyEx(self->renderer->renderer, self->_tex,
                          srcrect, dstrect,
                          angle, origin ? &pointorigin : NULL,
                          flip) < 0) {
@@ -229,7 +452,6 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
     int target = 0;
     int format;
     int access;
-    PyObject* renderercapsule;
 
 #if PY3
     const char *formatstr = "OO|Ippp";
@@ -245,8 +467,11 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
         return -1;
     }
 
-    /* TODO: check renderer */
     Py_INCREF(self->renderer);
+    if (!pgRenderer_Check(self->renderer)) {
+        RAISE(PyExc_TypeError, "not a renderer object");
+        return -1;
+    }
 
     if (!pg_TwoIntsFromObj(sizeobj, &self->width, &self->height)) {
         RAISE(PyExc_TypeError,
@@ -263,19 +488,10 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
 
     /* TODO: check type args */
 
-    /* TODO: get rid of capsule */
-    renderercapsule = PyObject_GetAttrString(self->renderer, "get_remove_renderer");
-    if (!renderercapsule) {
-        Py_DECREF(self->renderer);
-        return -1;
-    }
-    self->_renderer = (SDL_Renderer*) PyCapsule_GetPointer(renderercapsule, NULL);
-    Py_DECREF(renderercapsule);
-
     format = format_from_depth(depth);
     access = SDL_TEXTUREACCESS_STATIC;
     self->_tex = SDL_CreateTexture(
-        self->_renderer,
+        self->renderer->renderer,
         format, access,
         self->width, self->height);
 
@@ -289,10 +505,11 @@ pg_texture_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Uint8 rgba[] = { 255, 255, 255 };
     pgColorObject *col = (pgColorObject*) pgColor_NewLength(rgba, 3);
+    pgTextureObject *obj;
     if (!col) {
         return NULL;
     }
-    pgTextureObject *obj = (pgTextureObject*) type->tp_alloc(type, 0);
+    obj = (pgTextureObject*) type->tp_alloc(type, 0);
     obj->_color = col;
     return (PyObject*)obj;
 }
@@ -305,7 +522,7 @@ pg_texture_dealloc(pgTextureObject *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *
+static pgTextureObject *
 pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
 {
     /* TODO: use O! for args */
@@ -328,23 +545,25 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
         pg_texture_dealloc(textureobj);
         return NULL;
     }
-    Py_INCREF(textureobj->renderer);
 
-    /* TODO: get rid of capsule */
-    renderercapsule = PyObject_CallMethod(textureobj->renderer, "get_remove_renderer", NULL);
-    if (!renderercapsule) {
-        Py_DECREF(textureobj->renderer);
+    Py_INCREF(textureobj->renderer);
+    if (!pgRenderer_Check(textureobj->renderer)) {
+        RAISE(PyExc_TypeError, "not a renderer object");
         pg_texture_dealloc(textureobj);
         return NULL;
     }
-    textureobj->_renderer = (SDL_Renderer*) PyCapsule_GetPointer(renderercapsule, NULL);
-    Py_DECREF(renderercapsule);
 
+    if (!pgSurface_Check(surfaceobj)) {
+        RAISE(PyExc_TypeError, "not a surface");
+        pg_texture_dealloc(textureobj);
+        return NULL;
+    }
     surf = pgSurface_AsSurface((pgSurfaceObject*) surfaceobj);
 
     textureobj->width = surf->w;
     textureobj->height = surf->h;
-    textureobj->_tex = SDL_CreateTextureFromSurface(textureobj->_renderer, surf);
+    textureobj->_tex = SDL_CreateTextureFromSurface(textureobj->renderer->renderer,
+                                                    surf);
     /* TODO: error handling */
 
     return textureobj;
@@ -413,6 +632,9 @@ MODINIT_DEFINE(video_new)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
+    if (PyType_Ready(&pgRenderer_Type) < 0) {
+        MODINIT_ERROR;
+    }
     if (PyType_Ready(&pgTexture_Type) < 0) {
         MODINIT_ERROR;
     }
@@ -429,8 +651,15 @@ MODINIT_DEFINE(video_new)
 
     dict = PyModule_GetDict(module);
 
+    Py_INCREF(&pgRenderer_Type);
+    if (PyDict_SetItemString(dict, "Renderer", (PyObject *)&pgRenderer_Type)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
     Py_INCREF(&pgTexture_Type);
     if (PyDict_SetItemString(dict, "Texture", (PyObject *)&pgTexture_Type)) {
+        Py_DECREF(&pgRenderer_Type);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
