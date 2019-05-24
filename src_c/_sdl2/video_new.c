@@ -25,11 +25,12 @@ typedef struct pgRendererObject pgRendererObject;
 
 typedef struct {
     PyObject_HEAD
-    SDL_Texture *_tex;
+    SDL_Texture *texture;
     pgRendererObject *renderer;
     int width;
     int height;
-    pgColorObject *_color;
+    pgColorObject *color;
+    Uint8 alpha;
 } pgTextureObject;
 
 /* FIXME: hack */
@@ -294,7 +295,7 @@ pgTexture_Draw(pgTextureObject *self,
     if (flipY)
         flip |= SDL_FLIP_VERTICAL;
 
-    if (SDL_RenderCopyEx(self->renderer->renderer, self->_tex,
+    if (SDL_RenderCopyEx(self->renderer->renderer, self->texture,
                          srcrect, dstrect,
                          angle, origin ? &pointorigin : NULL,
                          flip) < 0) {
@@ -382,25 +383,52 @@ static PyMethodDef pg_texture_methods[] = {
 static PyObject *
 pg_texture_get_color(pgTextureObject *self, void *closure)
 {
-    /* TODO */
+    Py_INCREF(self->color);
+    return self->color;
 }
 
 static int
 pg_texture_set_color(pgTextureObject *self, PyObject *val, void *closure)
 {
-    /* TODO */
+    Uint8 *colarray = pgColor_AsArray(self->color);
+    if (!pg_RGBAFromColorObj(val, colarray)) {
+        RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
+        return -1;
+    }
+
+    if (SDL_SetTextureColorMod(self->texture,
+                               colarray[0], colarray[1], colarray[2]) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
 }
 
 static PyObject *
 pg_texture_get_alpha(pgTextureObject *self, void *closure)
 {
-    /* TODO */
+    return PyLong_FromLong(self->alpha);
 }
 
 static int
 pg_texture_set_alpha(pgTextureObject *self, PyObject *val, void *closure)
 {
-    /* TODO */
+    int alpha;
+    if ((alpha = PyLong_AsLong(val)) == -1 && PyErr_Occurred()) {
+        RAISE(PyExc_TypeError, "alpha should be an integer");
+        return -1;
+    }
+    if (alpha < 0 || alpha > 255) {
+        RAISE(PyExc_ValueError, "alpha should be between 0 and 255 (inclusive)");
+        return -1;
+    }
+
+    self->alpha = (Uint8)alpha;
+    if (SDL_SetTextureAlphaMod(self->texture, self->alpha) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
 }
 
 static PyGetSetDef pg_texture_getset[] = {
@@ -490,7 +518,7 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
 
     format = format_from_depth(depth);
     access = SDL_TEXTUREACCESS_STATIC;
-    self->_tex = SDL_CreateTexture(
+    self->texture = SDL_CreateTexture(
         self->renderer->renderer,
         format, access,
         self->width, self->height);
@@ -510,7 +538,7 @@ pg_texture_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
     obj = (pgTextureObject*) type->tp_alloc(type, 0);
-    obj->_color = col;
+    obj->color = col;
     return (PyObject*)obj;
 }
 
@@ -562,8 +590,8 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
 
     textureobj->width = surf->w;
     textureobj->height = surf->h;
-    textureobj->_tex = SDL_CreateTextureFromSurface(textureobj->renderer->renderer,
-                                                    surf);
+    textureobj->texture = SDL_CreateTextureFromSurface(
+        textureobj->renderer->renderer, surf);
     /* TODO: error handling */
 
     return textureobj;
