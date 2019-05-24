@@ -60,8 +60,9 @@ static PyTypeObject pgRenderer_Type;
 static PyObject *
 pg_renderer_clear(pgRendererObject *self, PyObject *args)
 {
-    SDL_RenderClear(self->renderer);
-    /* TODO: error check */
+    if (SDL_RenderClear(self->renderer) < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
     Py_RETURN_NONE;
 }
 
@@ -198,7 +199,10 @@ pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
 
     self->renderer =
         SDL_CreateRenderer(self->window->_win, index, flags);
-    /* TODO: error check */
+    if (self->renderer == NULL) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return 0;
+    }
 
     return 0;
 }
@@ -220,8 +224,11 @@ pg_renderer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pg_renderer_dealloc(pgRendererObject *self)
 {
-    Py_DECREF(self->window);
-    /* TODO: destroy renderer */
+    if (self->renderer) {
+        SDL_DestroyRenderer(self->renderer);
+        self->renderer = NULL;
+    }
+    Py_XDECREF(self->window);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -487,6 +494,7 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
         NULL
     };
     PyObject *sizeobj;
+    PyObject *renderobj;
     int depth;
     int static_ = 1;
     int streaming = 0;
@@ -501,29 +509,28 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
 #endif
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords,
-                                     &self->renderer,
+                                     &renderobj,
                                      &sizeobj,
                                      &depth,
                                      &static_, &streaming, &target)) {
         return -1;
     }
 
-    Py_INCREF(self->renderer);
-    if (!pgRenderer_Check(self->renderer)) {
+    if (!pgRenderer_Check(renderobj)) {
         RAISE(PyExc_TypeError, "not a renderer object");
         return -1;
     }
+    self->renderer = (pgRendererObject*) renderobj;
+    Py_INCREF(renderobj);
 
     if (!pg_TwoIntsFromObj(sizeobj, &self->width, &self->height)) {
         RAISE(PyExc_TypeError,
               "size should be a sequence of two elements");
-        Py_DECREF(self->renderer);
         return -1;
     }
     if (self->width < 0 || self->height < 0) {
         RAISE(PyExc_ValueError,
               "width and height must be positive");
-        Py_DECREF(self->renderer);
         return -1;
     }
 
@@ -536,7 +543,10 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
         format, access,
         self->width, self->height);
 
-    /* TODO: check error here */
+    if (!self->texture) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
 
     return 0;
 }
@@ -558,7 +568,10 @@ pg_texture_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pg_texture_dealloc(pgTextureObject *self)
 {
-    /* TODO: destroy texture */
+    if (self->texture) {
+        SDL_DestroyTexture(self->texture);
+        self->texture = NULL;
+    }
     Py_XDECREF(self->renderer);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
@@ -567,7 +580,6 @@ static pgTextureObject *
 pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
 {
     /* TODO: use O! for args */
-    /* FIXME: check types */
     char* keywords[] = {
         "renderer",
         "surface",
@@ -605,7 +617,11 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
     textureobj->height = surf->h;
     textureobj->texture = SDL_CreateTextureFromSurface(
         textureobj->renderer->renderer, surf);
-    /* TODO: error handling */
+    if (!textureobj->texture) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        pg_texture_dealloc(textureobj);
+        return NULL;
+    }
 
     return textureobj;
 }
