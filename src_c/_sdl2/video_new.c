@@ -56,6 +56,9 @@ static PyTypeObject pgRenderer_Type;
 
 #define pgRenderer_Check(x) (((PyObject*)(x))->ob_type == &pgRenderer_Type)
 
+static PyObject *
+pg_renderer_get_viewport(pgRendererObject *self, PyObject *args);
+
 
 static PyObject *
 pg_renderer_clear(pgRendererObject *self, PyObject *args)
@@ -109,10 +112,40 @@ pg_renderer_blit(pgRendererObject *self, PyObject *args, PyObject *kw)
     }
     Py_DECREF(drawstr);
 
-    /* TODO: */
-    /*if (dest == Py_None) {
-        return self.get_viewport();
-    }*/
+    if (dest == Py_None) {
+        return pg_renderer_get_viewport(self, NULL);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_renderer_get_viewport(pgRendererObject *self, PyObject *args)
+{
+    SDL_Rect rect;
+    SDL_RenderGetViewport(self->renderer, &rect);
+    return pgRect_New(&rect);
+}
+
+static PyObject *
+pg_renderer_set_viewport(pgRendererObject *self, PyObject *area)
+{
+    SDL_Rect rect;
+
+    if (area == NULL || area == Py_None) {
+        if (SDL_RenderSetViewport(self->renderer, NULL) < 0) {
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+        Py_RETURN_NONE;
+    }
+
+    if (pgRect_FromObject(area, &rect) == NULL) {
+        return RAISE(PyExc_TypeError, "the argument must be a rectangle "
+                                      "or None");
+    }
+    if (SDL_RenderSetViewport(self->renderer, &rect) < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
     Py_RETURN_NONE;
 }
 
@@ -120,6 +153,8 @@ static PyMethodDef pg_renderer_methods[] = {
     { "clear", (PyCFunction)pg_renderer_clear, METH_NOARGS, NULL /* TODO */ },
     { "present", (PyCFunction)pg_renderer_present, METH_NOARGS, NULL /* TODO */ },
     { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, NULL /* TODO */ },
+    { "set_viewport", (PyCFunction)pg_renderer_set_viewport, METH_O, NULL /* TODO */ },
     { NULL }
 };
 
