@@ -507,9 +507,37 @@ pg_texture_set_alpha(pgTextureObject *self, PyObject *val, void *closure)
     return 0;
 }
 
+static PyObject *
+pg_texture_get_mode(pgTextureObject *self, void *closure)
+{
+    SDL_BlendMode mode;
+    if (SDL_GetTextureBlendMode(self->texture, &mode) < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    return PyLong_FromLong(mode);
+}
+
+static int
+pg_texture_set_mode(pgTextureObject *self, PyObject *val, void *closure)
+{
+    int mode;
+    if ((mode = PyLong_AsLong(val)) == -1 && PyErr_Occurred()) {
+        RAISE(PyExc_TypeError, "mode should be an integer");
+        return -1;
+    }
+    /* TODO: check values */
+
+    if (SDL_SetTextureBlendMode(self->texture, (SDL_BlendMode)mode) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
+}
+
 static PyGetSetDef pg_texture_getset[] = {
     { "color", (getter)pg_texture_get_color, (setter)pg_texture_set_color, NULL /*TODO*/, NULL },
     { "alpha", (getter)pg_texture_get_alpha, (setter)pg_texture_set_alpha, NULL /*TODO*/, NULL },
+    { "blend_mode", (getter)pg_texture_get_mode, (setter)pg_texture_set_mode, NULL /*TODO*/, NULL },
     { NULL }
 };
 
@@ -663,7 +691,6 @@ pg_texture_dealloc(pgTextureObject *self)
 static pgTextureObject *
 pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
 {
-    /* TODO: use O! for args */
     char* keywords[] = {
         "renderer",
         "surface",
