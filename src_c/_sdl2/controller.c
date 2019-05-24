@@ -4,16 +4,16 @@
 {
     "distutils": {
         "depends": [
-            "src_c/pygame.h"
-        ], 
+            "src_c\\pygame.h"
+        ],
         "include_dirs": [
             "src_c/_sdl2"
-        ], 
-        "name": "controller", 
+        ],
+        "name": "controller",
         "sources": [
-            "src_c/_sdl2/controller.pyx"
+            "src_c/_sdl2\\controller.pyx"
         ]
-    }, 
+    },
     "module_name": "controller"
 }
 END: Cython Metadata */
@@ -818,7 +818,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src_c/_sdl2/controller.pyx",
+  "src_c\\_sdl2\\controller.pyx",
   "stringsource",
 };
 
@@ -1272,7 +1272,7 @@ static const char __pyx_k_set_eventstate[] = "set_eventstate";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_GAMECONTROLLER_INIT_CHECK[] = "GAMECONTROLLER_INIT_CHECK";
-static const char __pyx_k_src_c__sdl2_controller_pyx[] = "src_c/_sdl2/controller.pyx";
+static const char __pyx_k_src_c__sdl2_controller_pyx[] = "src_c\\_sdl2\\controller.pyx";
 static const char __pyx_k_Could_not_open_controller_d[] = "Could not open controller %d.";
 static const char __pyx_k_called_on_a_closed_controller[] = "called on a closed controller";
 static const char __pyx_k_Index_is_invalid_or_not_a_suppor[] = "Index is invalid or not a supported joystick.";

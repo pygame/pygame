@@ -3,12 +3,12 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
-        "depends": [], 
-        "name": "mixer", 
+        "depends": [],
+        "name": "mixer",
         "sources": [
-            "src_c/_sdl2/mixer.pyx"
+            "src_c/_sdl2\\mixer.pyx"
         ]
-    }, 
+    },
     "module_name": "mixer"
 }
 END: Cython Metadata */
@@ -817,7 +817,7 @@ static const char *__pyx_filename;
 
 static const char *__pyx_f[] = {
   "stringsource",
-  "src_c/_sdl2/mixer.pyx",
+  "src_c\\_sdl2\\mixer.pyx",
 };
 /* ForceInitThreads.proto */
 #ifndef __PYX_FORCE_INIT_THREADS

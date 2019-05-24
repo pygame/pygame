@@ -3,12 +3,12 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
-        "depends": [], 
-        "name": "audio", 
+        "depends": [],
+        "name": "audio",
         "sources": [
-            "src_c/_sdl2/audio.pyx"
+            "src_c/_sdl2\\audio.pyx"
         ]
-    }, 
+    },
     "module_name": "audio"
 }
 END: Cython Metadata */
@@ -816,7 +816,7 @@ static const char *__pyx_filename;
 
 static const char *__pyx_f[] = {
   "stringsource",
-  "src_c/_sdl2/audio.pyx",
+  "src_c\\_sdl2\\audio.pyx",
 };
 /* ForceInitThreads.proto */
 #ifndef __PYX_FORCE_INIT_THREADS
@@ -1935,7 +1935,7 @@ static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_get_audio_device_name[] = "get_audio_device_name";
 static const char __pyx_k_get_num_audio_devices[] = "get_num_audio_devices";
-static const char __pyx_k_src_c__sdl2_audio_pyx[] = "src_c/_sdl2/audio.pyx";
+static const char __pyx_k_src_c__sdl2_audio_pyx[] = "src_c\\_sdl2\\audio.pyx";
 static const char __pyx_k_AUDIO_ALLOW_ANY_CHANGE[] = "AUDIO_ALLOW_ANY_CHANGE";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";

@@ -281,17 +281,6 @@ cdef extern from "SDL.h" nogil:
 cdef class Window:
     cdef SDL_Window* _win
 
-cdef class Renderer:
-    cdef SDL_Renderer* _renderer
-    cdef tuple _draw_color
-    cdef Texture _target
-
-cdef class Texture:
-    cdef SDL_Texture* _tex
-    cdef readonly Renderer renderer
-    cdef readonly int width
-    cdef readonly int height
-
 cdef class Image:
     cdef public float angle
     cdef public float origin[2]
@@ -300,5 +289,5 @@ cdef class Image:
     cdef public object color
     cdef public float alpha
 
-    cdef public Texture texture
+    cdef public object texture
     cdef public SDL_Rect srcrect
