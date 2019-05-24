@@ -21,7 +21,15 @@
 #include <structmember.h>
 
 
+static PyTypeObject pgRenderer_Type;
+static PyTypeObject pgTexture_Type;
+
 typedef struct pgRendererObject pgRendererObject;
+
+#define pgRenderer_Check(x) (((PyObject*)(x))->ob_type == &pgRenderer_Type)
+#define pgTexture_Check(x) (((PyObject*)(x))->ob_type == &pgTexture_Type)
+
+static PyObject *drawfnc_str = NULL;
 
 typedef struct {
     PyObject_HEAD
@@ -39,6 +47,15 @@ typedef struct {
     SDL_Window *_win;
 } pgWindowObject;
 
+static int
+pgTexture_DrawObj(pgTextureObject *self, PyObject *srcrect, PyObject *dstrect);
+
+static int
+pgTexture_Draw(pgTextureObject *self,
+               SDL_Rect *srcrect, SDL_Rect *dstrect,
+               float angle, const int * origin,
+               int flipX, int flipY);
+
 
 /*
  * RENDERER
@@ -51,10 +68,6 @@ struct pgRendererObject {
     pgColorObject *drawcolor;
     pgTextureObject *target;
 };
-
-static PyTypeObject pgRenderer_Type;
-
-#define pgRenderer_Check(x) (((PyObject*)(x))->ob_type == &pgRenderer_Type)
 
 static PyObject *
 pg_renderer_get_viewport(pgRendererObject *self, PyObject *args);
@@ -91,7 +104,7 @@ pg_renderer_blit(pgRendererObject *self, PyObject *args, PyObject *kw)
     PyObject *dest = Py_None;
     PyObject *area = Py_None;
     int flags = 0;
-    PyObject *drawstr;
+    PyObject *ret;
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, "O|OOi", keywords,
                                      &source, &dest, &area, &flags))
@@ -99,23 +112,29 @@ pg_renderer_blit(pgRendererObject *self, PyObject *args, PyObject *kw)
         return NULL;
     }
 
-    if (!PyObject_HasAttrString(source, "draw")) {
+    if (pgTexture_Check(source)) {
+        if (pgTexture_DrawObj((pgTextureObject*) source, area, dest))
+            return NULL;
+        goto RETURN_VIEWPORT;
+    }
+    if (!PyObject_HasAttr(source, drawfnc_str)) {
         return RAISE(PyExc_TypeError, "source must be drawable");
     }
 
-    drawstr = PyUnicode_FromString("draw");
-    if (!drawstr)
-        return NULL;
-    if (!PyObject_CallMethodObjArgs(source, drawstr, area, dest, NULL)) {
-        Py_DECREF(drawstr);
+    ret = PyObject_CallMethodObjArgs(source, drawfnc_str, area, dest, NULL);
+    if (ret == NULL) {
         return NULL;
     }
-    Py_DECREF(drawstr);
+    Py_DECREF(ret);
 
     if (dest == Py_None) {
+
+RETURN_VIEWPORT:
+
         return pg_renderer_get_viewport(self, NULL);
     }
-    Py_RETURN_NONE;
+    Py_INCREF(dest);
+    return dest;
 }
 
 static PyObject *
@@ -162,7 +181,7 @@ static PyObject *
 pg_renderer_get_color(pgRendererObject *self, void *closure)
 {
     Py_INCREF(self->drawcolor);
-    return self->drawcolor;
+    return (PyObject*)self->drawcolor;
 }
 
 static int
@@ -312,8 +331,6 @@ static PyTypeObject pgRenderer_Type = {
  */
 
 
-static PyTypeObject pgTexture_Type;
-
 static pgTextureObject *
 pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw);
 
@@ -355,15 +372,15 @@ pg_texture_get_rect(pgTextureObject *self, PyObject *args, PyObject *kw)
 static int
 pgTexture_Draw(pgTextureObject *self,
                SDL_Rect *srcrect, SDL_Rect *dstrect,
-               float angle, const int * origin[2],
+               float angle, const int * origin,
                int flipX, int flipY)
 {
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     SDL_Point pointorigin;
 
     if (origin) {
-        pointorigin.x = (*origin)[0];
-        pointorigin.y = (*origin)[1];
+        pointorigin.x = origin[0];
+        pointorigin.y = origin[1];
     }
 
     if (flipX)
@@ -376,6 +393,45 @@ pgTexture_Draw(pgTextureObject *self,
                          angle, origin ? &pointorigin : NULL,
                          flip) < 0) {
         RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
+}
+
+static int
+pgTexture_DrawObj(pgTextureObject *self, PyObject *srcrect, PyObject *dstrect)
+{
+    SDL_Rect src;
+    SDL_Rect dst;
+    SDL_Rect *srcptr = NULL;
+    SDL_Rect *dstptr = NULL;
+
+    if (srcrect && srcrect != Py_None) {
+        if (!(srcptr = pgRect_FromObject(srcrect, &src))) {
+            RAISE(PyExc_TypeError, "srcrect must be a rectangle");
+            return -1;
+        }
+    }
+    if (dstrect && dstrect != Py_None) {
+        if (!(dstptr = pgRect_FromObject(dstrect, &dst))) {
+            if (pg_TwoIntsFromObj(dstrect, &dst.x, &dst.y)) {
+                dst.w = ((pgTextureObject*) self)->width;
+                dst.h = ((pgTextureObject*) self)->height;
+                dstptr = &dst;
+            }
+            else {
+                RAISE(PyExc_TypeError, "dstrect must be a rectangle or "
+                                       "a position");
+                return -1;
+            }
+        }
+    }
+
+    if (pgTexture_Draw(self,
+                       srcptr, dstptr,
+                       0, NULL,
+                       0, 0))
+    {
         return -1;
     }
     return 0;
@@ -443,7 +499,7 @@ pg_texture_draw(pgTextureObject *self, PyObject *args, PyObject *kw)
         }
     }
 
-    if (pgTexture_Draw(self, srcptr, dstptr, angle, originobj ? &origin : NULL, flipX, flipY)) {
+    if (pgTexture_Draw(self, srcptr, dstptr, angle, originobj ? origin : NULL, flipX, flipY)) {
         return NULL;
     }
     Py_RETURN_NONE;
@@ -460,7 +516,7 @@ static PyObject *
 pg_texture_get_color(pgTextureObject *self, void *closure)
 {
     Py_INCREF(self->color);
-    return self->color;
+    return (PyObject*) self->color;
 }
 
 static int
@@ -674,6 +730,7 @@ pg_texture_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     obj = (pgTextureObject*) type->tp_alloc(type, 0);
     obj->color = col;
+    obj->alpha = 255;
     return (PyObject*)obj;
 }
 
@@ -698,7 +755,6 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
     };
     PyObject *surfaceobj;
     SDL_Surface *surf;
-    PyObject *renderercapsule;
     pgTextureObject *textureobj = (pgTextureObject*) pg_texture_new(&pgTexture_Type, NULL, NULL);
 
     if (textureobj == NULL)
@@ -816,6 +872,13 @@ MODINIT_DEFINE(video_new)
     if (module == NULL) {
         MODINIT_ERROR;
     }
+
+    drawfnc_str = PyUnicode_FromString("draw");
+    if (!drawfnc_str) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+    /* TODO: cleanup for drawfnc_str */
 
     dict = PyModule_GetDict(module);
 
