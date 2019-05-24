@@ -292,8 +292,29 @@ static PyMemberDef pg_texture_members[] = {
 static PyObject *
 pg_texture_get_rect(pgTextureObject *self, PyObject *args, PyObject *kw)
 {
-    /* TODO: kwargs */
-    return pgRect_New4(0, 0, self->width, self->height);
+    PyObject *rectobj;
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+
+    rectobj = pgRect_New4(0, 0, self->width, self->height);
+    if (!rectobj)
+        return NULL;
+
+    if (kw) {
+#if PY3
+        if (PyArg_ValidateKeywordArguments(kw)) {
+            Py_DECREF(rectobj);
+            return NULL;
+        }
+#endif /* PY3 */
+        while (PyDict_Next(kw, &pos, &key, &value)) {
+            if (PyObject_SetAttr(rectobj, key, value)) {
+                Py_DECREF(rectobj);
+                return NULL;
+            }
+        }
+    }
+    return rectobj;
 }
 
 static int
@@ -528,7 +549,7 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
               "size should be a sequence of two elements");
         return -1;
     }
-    if (self->width < 0 || self->height < 0) {
+    if (self->width <= 0 || self->height <= 0) {
         RAISE(PyExc_ValueError,
               "width and height must be positive");
         return -1;
