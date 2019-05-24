@@ -819,15 +819,12 @@ MODINIT_DEFINE(video_new)
 
     dict = PyModule_GetDict(module);
 
-    Py_INCREF(&pgRenderer_Type);
     if (PyDict_SetItemString(dict, "Renderer", (PyObject *)&pgRenderer_Type)) {
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
 
-    Py_INCREF(&pgTexture_Type);
     if (PyDict_SetItemString(dict, "Texture", (PyObject *)&pgTexture_Type)) {
-        Py_DECREF(&pgRenderer_Type);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
