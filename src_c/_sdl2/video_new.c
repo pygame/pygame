@@ -495,7 +495,8 @@ format_from_depth(int depth)
         Bmask = 0xF;
         Amask = 0xF << 24;
     default:
-        /* TODO: raise value error */
+        RAISE(PyExc_ValueError,
+              "no standard masks exist for given bitdepth with alpha");
         return 0;
     }
     return SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
@@ -504,7 +505,6 @@ format_from_depth(int depth)
 static int
 pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
 {
-    /* TODO: use O! for args */
     char* keywords[] = {
         "renderer",
         "size",
@@ -555,10 +555,32 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
         return -1;
     }
 
-    /* TODO: check type args */
+    if (static_) {
+        if (streaming || target) {
+            goto ACCESS_ERROR;
+        }
+        access = SDL_TEXTUREACCESS_STATIC;
+    }
+    else if (streaming) {
+        if (static_ || target) {
+            goto ACCESS_ERROR;
+        }
+        access = SDL_TEXTUREACCESS_STREAMING;
+    }
+    else if (target) {
+        if (streaming || static_) {
+            goto ACCESS_ERROR;
+        }
+        access = SDL_TEXTUREACCESS_TARGET;
+    }
+    else {
+        access = SDL_TEXTUREACCESS_STATIC;
+    }
 
     format = format_from_depth(depth);
-    access = SDL_TEXTUREACCESS_STATIC;
+    if (!format && PyErr_Occurred())
+        return -1;
+
     self->texture = SDL_CreateTexture(
         self->renderer->renderer,
         format, access,
@@ -570,6 +592,12 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
     }
 
     return 0;
+
+ACCESS_ERROR:
+
+    RAISE(PyExc_ValueError, "only one of static, streaming, "
+                            "or target can be true");
+    return -1;
 }
 
 static PyObject *
