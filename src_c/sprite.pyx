@@ -115,6 +115,8 @@ cdef extern from "include/_pygame.h" nogil:
 
 #import_pygame_rect()
 
+cdef class AbstractGroup
+
 
 cdef class Sprite:
     """simple base class for visible game objects
@@ -157,8 +159,8 @@ cdef class Sprite:
         for group in groups:
             if hasattr(group, '_spritegroup'):
                 if not has(group):
-                    group.add_internal(self)
-                    self.add_internal(group)
+                    (<AbstractGroup>group).add_internal(self)
+                    self.add_internal(<AbstractGroup>group)
             else:
                 self.add(*group)
 
@@ -176,14 +178,14 @@ cdef class Sprite:
             if hasattr(group, '_spritegroup'):
                 if has(group):
                     group.remove_internal(self)
-                    self.remove_internal(group)
+                    self.remove_internal(<AbstractGroup>group)
             else:
                 self.remove(*group)
 
-    def add_internal(self, group):
+    cpdef void add_internal(self, group):
         self.__g[group] = 0
 
-    def remove_internal(self, group):
+    cpdef void remove_internal(self, group):
         del self.__g[group]
 
     def update(self, *args):
@@ -338,16 +340,16 @@ cdef class AbstractGroup:
         """
         return list(self.spritedict)
 
-    def add_internal(self, sprite):
+    cpdef void add_internal(self, sprite):
         self.spritedict[sprite] = 0
 
-    def remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite):
         r = self.spritedict[sprite]
         if r:
             self.lostsprites.append(r)
         del self.spritedict[sprite]
 
-    def has_internal(self, sprite):
+    cpdef bint has_internal(self, sprite):
         return sprite in self.spritedict
 
     def copy(self):
@@ -380,9 +382,9 @@ cdef class AbstractGroup:
             # If this is the case, we should add the sprite itself,
             # and not the iterator object.
             if isinstance(sprite, Sprite):
-                if not self.has_internal(sprite):
-                    self.add_internal(sprite)
-                    sprite.add_internal(self)
+                if not self.has_internal(<Sprite>sprite):
+                    self.add_internal(<Sprite>sprite)
+                    (<Sprite>sprite).add_internal(self)
             else:
                 try:
                     # See if sprite is an iterator, like a list or sprite
@@ -418,8 +420,8 @@ cdef class AbstractGroup:
         # normal Sprite methods should be used.
         for sprite in sprites:
             if isinstance(sprite, Sprite):
-                if self.has_internal(sprite):
-                    self.remove_internal(sprite)
+                if self.has_internal(<Sprite>sprite):
+                    self.remove_internal(<Sprite>sprite)
                     sprite.remove_internal(self)
             else:
                 try:
@@ -449,7 +451,7 @@ cdef class AbstractGroup:
         for sprite in sprites:
             if isinstance(sprite, Sprite):
                 # Check for Sprite instance's membership in this group
-                if self.has_internal(sprite):
+                if self.has_internal(<Sprite>sprite):
                     return_value = True
                 else:
                     return False
@@ -486,7 +488,7 @@ cdef class AbstractGroup:
         for s in self.sprites():
             s.update(*args)
 
-    def draw(self, surface):
+    cpdef draw(self, surface):
         """draw all sprites onto the surface
 
         Group.draw(surface): return None
@@ -494,11 +496,11 @@ cdef class AbstractGroup:
         Draws all of the member sprites onto the given surface.
 
         """
-        sprites = self.sprites()
+        cdef list sprites = self.sprites()
         surface_blit = surface.blit
         for spr in sprites:
             self.spritedict[spr] = surface_blit(spr.image, spr.rect)
-        self.lostsprites = []
+        self.lostsprites.clear()
 
     def clear(self, surface, bgd):
         """erase the previous position of all sprites
@@ -534,7 +536,7 @@ cdef class AbstractGroup:
 
         """
         for s in self.sprites():
-            self.remove_internal(s)
+            self.remove_internal(<Sprite>s)
             s.remove_internal(self)
 
     def __nonzero__(self):
@@ -553,7 +555,7 @@ cdef class AbstractGroup:
     def __repr__(self):
         return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
 
-class Group(AbstractGroup):
+cdef class Group(AbstractGroup):
     """container class for many Sprites
 
     pygame.sprite.Group(*sprites): return Group
@@ -579,7 +581,7 @@ class Group(AbstractGroup):
 RenderPlain = Group
 RenderClear = Group
 
-class RenderUpdates(Group):
+cdef class RenderUpdates(Group):
     """Group class that tracks dirty updates
 
     pygame.sprite.RenderUpdates(*sprites): return RenderUpdates
@@ -588,11 +590,11 @@ class RenderUpdates(Group):
     method that tracks the changed areas of the screen.
 
     """
-    def draw(self, surface):
+    cpdef draw(self, surface):
        spritedict = self.spritedict
        surface_blit = surface.blit
        dirty = self.lostsprites
-       self.lostsprites = []
+       self.lostsprites.clear()
        dirty_append = dirty.append
        for s in self.sprites():
            r = spritedict[s]
@@ -608,7 +610,7 @@ class RenderUpdates(Group):
            spritedict[s] = newrect
        return dirty
 
-class OrderedUpdates(RenderUpdates):
+cdef class OrderedUpdates(RenderUpdates):
     """RenderUpdates class that draws Sprites in order of addition
 
     pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates
@@ -619,6 +621,9 @@ class OrderedUpdates(RenderUpdates):
     slower than regular Groups.
 
     """
+
+    cdef public list _spritelist
+
     def __init__(self, *sprites):
         self._spritelist = []
         RenderUpdates.__init__(self, *sprites)
@@ -626,16 +631,16 @@ class OrderedUpdates(RenderUpdates):
     def sprites(self):
         return list(self._spritelist)
 
-    def add_internal(self, sprite):
+    cpdef void add_internal(self, sprite):
         RenderUpdates.add_internal(self, sprite)
         self._spritelist.append(sprite)
 
-    def remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite):
         RenderUpdates.remove_internal(self, sprite)
         self._spritelist.remove(sprite)
 
 
-class LayeredUpdates(AbstractGroup):
+cdef class LayeredUpdates(AbstractGroup):
     """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
 
     pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates
@@ -646,6 +651,14 @@ class LayeredUpdates(AbstractGroup):
     """
 
     _init_rect = Rect(0, 0, 0, 0)
+
+    cdef public dict _spritelayers
+    cdef public list _spritelist
+    cdef public int _default_layer
+
+    def __cinit__(self):
+        self._spritelayers = {}
+        self._spritelist = []
 
     def __init__(self, *sprites, **kwargs):
         """initialize an instance of LayeredUpdates with the given attributes
@@ -660,14 +673,12 @@ class LayeredUpdates(AbstractGroup):
         used to add the sprites.
 
         """
-        self._spritelayers = {}
-        self._spritelist = []
         AbstractGroup.__init__(self)
         self._default_layer = kwargs.get('default_layer', 0)
 
         self.add(*sprites, **kwargs)
 
-    def add_internal(self, sprite, layer=None):
+    cpdef void add_internal(self, sprite, layer=None):
         """Do not use this method directly.
 
         It is used by the group to add a sprite internally.
@@ -727,9 +738,9 @@ class LayeredUpdates(AbstractGroup):
             # If this is the case, we should add the sprite itself,
             # and not the iterator object.
             if isinstance(sprite, Sprite):
-                if not self.has_internal(sprite):
-                    self.add_internal(sprite, layer)
-                    sprite.add_internal(self)
+                if not self.has_internal(<Sprite>sprite):
+                    self.add_internal(<Sprite>sprite, layer)
+                    (<Sprite>sprite).add_internal(self)
             else:
                 try:
                     # See if sprite is an iterator, like a list or sprite
@@ -749,7 +760,7 @@ class LayeredUpdates(AbstractGroup):
                         self.add_internal(sprite, layer)
                         sprite.add_internal(self)
 
-    def remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite):
         """Do not use this method directly.
 
         The group uses it to add a sprite.
@@ -774,7 +785,7 @@ class LayeredUpdates(AbstractGroup):
         """
         return list(self._spritelist)
 
-    def draw(self, surface):
+    cpdef draw(self, surface):
         """draw all sprites in the right order onto the passed surface
 
         LayeredUpdates.draw(surface): return Rect_list
@@ -783,7 +794,7 @@ class LayeredUpdates(AbstractGroup):
         spritedict = self.spritedict
         surface_blit = surface.blit
         dirty = self.lostsprites
-        self.lostsprites = []
+        self.lostsprites.clear()
         dirty_append = dirty.append
         init_rect = self._init_rect
         for spr in self.sprites():
@@ -970,7 +981,7 @@ class LayeredUpdates(AbstractGroup):
         self.add(layer=layer2_nr, *sprites1)
 
 
-class LayeredDirty(LayeredUpdates):
+cdef class LayeredDirty(LayeredUpdates):
     """LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates
 
     pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty
@@ -996,6 +1007,11 @@ class LayeredDirty(LayeredUpdates):
     New in pygame 1.8.0
 
     """
+
+    cdef public Rect _clip
+    cdef public bint _use_update
+    cdef public float _time_threshold
+    cdef public object _bgd
 
     def __init__(self, *sprites, **kwargs):
         """initialize group.
@@ -1024,7 +1040,7 @@ class LayeredDirty(LayeredUpdates):
                 if hasattr(self, key):
                     setattr(self, key, val)
 
-    def add_internal(self, sprite, layer=None):
+    cpdef void add_internal(self, sprite, layer=None):
         """Do not use this method directly.
 
         It is used by the group to add a sprite internally.
@@ -1046,7 +1062,7 @@ class LayeredDirty(LayeredUpdates):
 
         LayeredUpdates.add_internal(self, sprite, layer)
 
-    def draw(self, surface, bgd=None):
+    cpdef draw(self, surface, bgd=None):
         """draw all sprites in the right order onto the given surface
 
         LayeredDirty.draw(surface, bgd=None): return Rect_list
@@ -1254,7 +1270,7 @@ class LayeredDirty(LayeredUpdates):
         self._time_threshold = time_ms
 
 
-class GroupSingle(AbstractGroup):
+cdef class GroupSingle(AbstractGroup):
     """A group container that holds a single most recent item.
 
     This class works just like a regular group, but it only keeps a single
@@ -1265,6 +1281,8 @@ class GroupSingle(AbstractGroup):
     attribute will properly remove the old sprite and then add the new one.
 
     """
+
+    cdef public object __sprite
 
     def __init__(self, sprite=None):
         AbstractGroup.__init__(self)
@@ -1281,10 +1299,10 @@ class GroupSingle(AbstractGroup):
         else:
             return []
 
-    def add_internal(self, sprite):
+    cpdef void add_internal(self, sprite):
         if self.__sprite is not None:
             self.__sprite.remove_internal(self)
-            self.remove_internal(self.__sprite)
+            self.remove_internal(<Sprite>self.__sprite)
         self.__sprite = sprite
 
     def __nonzero__(self):
@@ -1303,13 +1321,13 @@ class GroupSingle(AbstractGroup):
                       None,
                       "The sprite contained in this group")
 
-    def remove_internal(self, sprite):
+    cpdef void remove_internal(self, sprite):
         if sprite is self.__sprite:
             self.__sprite = None
         if sprite in self.spritedict:
             AbstractGroup.remove_internal(self, sprite)
 
-    def has_internal(self, sprite):
+    cpdef bint has_internal(self, sprite):
         return self.__sprite is sprite
 
     # Optimizations...
