@@ -303,7 +303,7 @@ class DirtySprite(Sprite):
             (self.__class__.__name__, len(self.groups()))
 
 
-class AbstractGroup(object):
+cdef class AbstractGroup:
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
@@ -318,7 +318,10 @@ class AbstractGroup(object):
     # dummy val to identify sprite groups, and avoid infinite recursion
     _spritegroup = True
 
-    def __init__(self):
+    cdef public dict spritedict
+    cdef public list lostsprites
+
+    def __cinit__(self):
         self.spritedict = {}
         self.lostsprites = []
 
