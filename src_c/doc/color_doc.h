@@ -1,5 +1,5 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
-#define DOC_PYGAMECOLOR "Color(name) -> Color\nColor(r, g, b, a) -> Color\nColor(rgbvalue) -> Color\npygame object for color representations"
+#define DOC_PYGAMECOLOR "Color(r, g, b) -> Color\nColor(r, g, b, a=255) -> Color\nColor(color_value) -> Color\npygame object for color representations"
 #define DOC_COLORR "r -> int\nGets or sets the red value of the Color."
 #define DOC_COLORG "g -> int\nGets or sets the green value of the Color."
 #define DOC_COLORB "b -> int\nGets or sets the blue value of the Color."
@@ -18,9 +18,9 @@
 /*
 
 pygame.Color
- Color(name) -> Color
- Color(r, g, b, a) -> Color
- Color(rgbvalue) -> Color
+ Color(r, g, b) -> Color
+ Color(r, g, b, a=255) -> Color
+ Color(color_value) -> Color
 pygame object for color representations
 
 pygame.Color.r

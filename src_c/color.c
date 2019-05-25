@@ -710,21 +710,23 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
         }
     }
     else if (!obj1) {
-        /* Single integer color value or tuple */
-        Uint32 color;
-        if (_get_color(obj, &color)) {
-            rgba[0] = (Uint8)(color >> 24);
-            rgba[1] = (Uint8)(color >> 16);
-            rgba[2] = (Uint8)(color >> 8);
-            rgba[3] = (Uint8)color;
-        }
-        else if (!pg_RGBAFromObj(obj, rgba)) {
-            RAISE(PyExc_ValueError, "invalid argument");
-            return -1;
-        }
-        else {
-            RAISE(PyExc_ValueError, "invalid argument");
-            return -1;
+        /* At this point color is either tuple-like or a single integer. */
+
+        if (!pg_RGBAFromObj(obj, rgba)) {
+            /* Color is not tuple-like. */
+            Uint32 color;
+
+            if (_get_color(obj, &color)) {
+                /* Color is a single interger. */
+                rgba[0] = (Uint8)(color >> 24);
+                rgba[1] = (Uint8)(color >> 16);
+                rgba[2] = (Uint8)(color >> 8);
+                rgba[3] = (Uint8)color;
+            }
+            else {
+                /* Exception already set by _get_color(). */
+                return -1;
+            }
         }
     }
     else {
