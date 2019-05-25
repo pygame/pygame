@@ -302,6 +302,9 @@ cdef class Texture:
     cdef readonly int width
     cdef readonly int height
 
+    cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
+                       bint flipX=*, bint flipY=*)
+
 cdef class Image:
     cdef public float angle
     cdef public float origin[2]
