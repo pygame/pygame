@@ -487,6 +487,10 @@ cdef Uint32 format_from_depth(int depth):
 
 
 cdef class Texture:
+    def __cinit__(self):
+        cdef Uint8[3] defaultColor = [255, 255, 255]
+        self._color = pgColor_NewLength(defaultColor, 3)
+
     def __init__(self,
                  Renderer renderer,
                  size, int depth=0,
@@ -610,13 +614,14 @@ cdef class Texture:
     @property
     def color(self):
         # https://wiki.libsdl.org/SDL_GetTextureColorMod
-        # TODO: pygame.Color?
-        cdef Uint8 r,g,b
-        res = SDL_GetTextureColorMod(self._tex, &r, &g, &b)
+        res = SDL_GetTextureColorMod(self._tex,
+            &self._color.data[0],
+            &self._color.data[1],
+            &self._color.data[2])
         if res < 0:
             raise error()
 
-        return (r,g,b)
+        return self._color
 
     @color.setter
     def color(self, new_value):
@@ -705,10 +710,10 @@ cdef class Image:
 
         if isinstance(textureOrImage, Image):
             self.texture = textureOrImage.texture
-            self.srcrect = textureOrImage.srcrect
+            self.srcrect = pgRect_New(&(<Rect>textureOrImage.srcrect).r)
         else:
             self.texture = textureOrImage
-            self.srcrect = pgRect_AsRect(textureOrImage.get_rect())
+            self.srcrect = textureOrImage.get_rect()
 
         if srcrect is not None:
             if pgRect_FromObject(srcrect, &temp) == NULL:
@@ -720,13 +725,13 @@ cdef class Image:
                 raise ValueError('rect values are out of range')
             temp.x += self.srcrect.x
             temp.y += self.srcrect.y
-            self.srcrect = temp
+            self.srcrect = pgRect_New(&temp)
 
         self.origin[0] = self.srcrect.w / 2
         self.origin[1] = self.srcrect.h / 2
 
     def get_rect(self):
-        return pgRect_New(&self.srcrect)
+        return pgRect_New(&self.srcrect.r)
 
     def draw(self, srcrect=None, dstrect=None):
         """ Copy a portion of the image to the rendering target.
@@ -745,7 +750,7 @@ cdef class Image:
                     raise error('dstrect must be a position, rect, or None')
 
         if srcrect is None:
-            srcrect = self.get_rect()
+            srcrect = self.srcrect
         else:
             if pgRect_FromObject(srcrect, &temp) == NULL:
                 raise error('srcrect must be a rect or None')
@@ -789,7 +794,8 @@ cdef class Renderer:
         if not self._renderer:
             raise error()
 
-        self._draw_color = (255, 255, 255, 255)
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
+        self._draw_color = pgColor_NewLength(defaultColor, 4)
         self._target = None
 
     def __dealloc__(self):
@@ -807,8 +813,7 @@ cdef class Renderer:
         """ color used by the drawing functions.
         """
         # https://wiki.libsdl.org/SDL_SetRenderDrawColor
-        # TODO: this should probably be a pygame.Color.
-        self._draw_color = new_value[:]
+        self._draw_color[:] = new_value
         res = SDL_SetRenderDrawColor(self._renderer,
                                      new_value[0],
                                      new_value[1],
