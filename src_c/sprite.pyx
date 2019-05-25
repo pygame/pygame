@@ -500,7 +500,7 @@ cdef class AbstractGroup:
         surface_blit = surface.blit
         for spr in sprites:
             self.spritedict[spr] = surface_blit(spr.image, spr.rect)
-        self.lostsprites.clear()
+        self.lostsprites[:] = []
 
     def clear(self, surface, bgd):
         """erase the previous position of all sprites
