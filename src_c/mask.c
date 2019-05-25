@@ -1722,7 +1722,7 @@ pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
     mask_bufinfo *bufinfo = (mask_bufinfo*)self->bufdata;
 
     if (bufinfo == NULL) {
-        bufinfo = PyMem_Malloc(sizeof(mask_bufinfo));
+        bufinfo = PyMem_RawMalloc(sizeof(mask_bufinfo));
         if (bufinfo == NULL) {
             PyErr_NoMemory();
             return -1;
@@ -1747,11 +1747,15 @@ pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
     view->itemsize = sizeof(BITMASK_W);
     view->ndim = 2;
     view->internal = bufinfo;
-    view->shape = bufinfo->shape;
-    view->strides = bufinfo->strides;
+    view->shape = (flags & PyBUF_ND) ? bufinfo->shape : NULL;
+    view->strides = (flags & PyBUF_STRIDES) ? bufinfo->strides : NULL;
     if (flags & PyBUF_FORMAT) {
         view->format = "L"; /* L = unsigned long */
     }
+    else {
+        view->format = NULL;
+    }
+    view->suboffsets = NULL;
 
     Py_INCREF(self);
     view->obj = self;
@@ -1766,7 +1770,7 @@ pgMask_ReleaseBuffer(pgMaskObject *self, Py_buffer *view)
 
     bufinfo->numbufs--;
     if (bufinfo->numbufs == 0) {
-        PyMem_Free(bufinfo);
+        PyMem_RawFree(bufinfo);
         self->bufdata = NULL;
     }
 }
