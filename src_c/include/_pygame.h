@@ -350,10 +350,10 @@ typedef struct {
  * SURFACE module
  */
 struct pgSubSurface_Data;
-typedef struct SDL_Surface;
+struct SDL_Surface;
 
 typedef struct {
-    PyObject_HEAD SDL_Surface *surf;
+    PyObject_HEAD struct SDL_Surface *surf;
 #if PG_API_VERSION == 2
     int owner;
 #endif /* PG_API_VERSION == 2 */

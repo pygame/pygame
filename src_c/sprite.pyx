@@ -102,8 +102,21 @@ try:
 except:
     pass
 
+cdef extern from "include/_pygame.h" nogil:
+    ctypedef struct GAME_Rect:
+        int x
+        int y
+        int w
+        int h
 
-class Sprite(object):
+    ctypedef class pygame.Rect [object pgRectObject]:
+        cdef GAME_Rect r
+        cdef object weakreflist
+
+#import_pygame_rect()
+
+
+cdef class Sprite:
     """simple base class for visible game objects
 
     pygame.sprite.Sprite(*groups): return Sprite
@@ -118,8 +131,16 @@ class Sprite(object):
 
     """
 
-    def __init__(self, *groups):
+    cdef public dict __g
+    cdef public object image
+    cdef public Rect rect
+    cdef dict __dict__
+
+    def __cinit__(self):
+        self.__dict__ = {}
         self.__g = {} # The groups the sprite is in
+
+    def __init__(self, *groups):
         if groups:
             self.add(*groups)
 
