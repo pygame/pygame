@@ -332,14 +332,34 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: aaline
 
-   | :sl:`draw fine antialiased lines`
-   | :sg:`aaline(Surface, color, startpos, endpos, blend=1) -> Rect`
+   | :sl:`draw a straight antialiased line`
+   | :sg:`aaline(surface, color, start_pos, end_pos) -> Rect`
+   | :sg:`aaline(surface, color, start_pos, end_pos, blend=1) -> Rect`
 
-   Draws an anti-aliased line on a surface. This will respect the clipping
-   rectangle. A bounding box of the affected area is returned as a
-   rectangle. If blend is true, the shades will be be blended with existing
-   pixel shades instead of overwriting them. This function accepts floating
-   point values for the end points.
+   Draws a straight antialiased line on the given surface.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param start_pos: start position of the line, (x, y)
+   :type start_pos: tuple(int or float, int or float) or
+      list(int or float, int or float) or Vector2(int or float, int or float)
+   :param end_pos: end position of the line, (x, y)
+   :type end_pos: tuple(int or float, int or float) or
+      list(int or float, int or float) or Vector2(int or float, int or float)
+   :param int blend: (optional) if non-zero (default) the line will be blended
+      with the surface's existing pixel shades, otherwise it will overwrite them
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the ``start_pos`` parameter (float values
+      will be truncated) and its width and height will be 0
+   :rtype: Rect
+
+   :raises TypeError: if ``start_pos`` or ``end_pos`` is not a sequence of
+      two numbers
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.aaline ##
 
