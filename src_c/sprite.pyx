@@ -91,6 +91,9 @@ from pygame import Rect
 from pygame.time import get_ticks
 from operator import truth
 
+from cpython cimport PyObject_CallFunctionObjArgs, PyDict_SetItem, \
+    PyObject, PyList_SetSlice
+
 # Python 3 does not have the callable function, but an equivalent can be made
 # with the hasattr function.
 if 'callable' not in dir(__builtins__):
@@ -327,7 +330,7 @@ cdef class AbstractGroup:
         self.spritedict = {}
         self.lostsprites = []
 
-    def sprites(self):
+    cpdef list sprites(self):
         """get a list of sprites in the group
 
         Group.sprite(): return list
@@ -497,9 +500,16 @@ cdef class AbstractGroup:
 
         """
         cdef list sprites = self.sprites()
-        surface_blit = surface.blit
+        cdef object surface_blit = surface.blit
+        cdef spritedict = self.spritedict
+        cdef object ret
+
         for spr in sprites:
-            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+            #spritedict[spr] = surface_blit(spr.image, spr.rect)
+            ret = PyObject_CallFunctionObjArgs(surface_blit,
+                                               <PyObject*>spr.image,
+                                               <PyObject*>spr.rect, NULL)
+            PyDict_SetItem(spritedict, spr, ret)
         self.lostsprites[:] = []
 
     def clear(self, surface, bgd):
@@ -628,7 +638,7 @@ cdef class OrderedUpdates(RenderUpdates):
         self._spritelist = []
         RenderUpdates.__init__(self, *sprites)
 
-    def sprites(self):
+    cpdef list sprites(self):
         return list(self._spritelist)
 
     cpdef void add_internal(self, sprite):
@@ -777,7 +787,7 @@ cdef class LayeredUpdates(AbstractGroup):
         del self.spritedict[sprite]
         del self._spritelayers[sprite]
 
-    def sprites(self):
+    cpdef list sprites(self):
         """return a ordered list of sprites (first back, last top).
 
         LayeredUpdates.sprites(): return sprites
@@ -1293,7 +1303,7 @@ cdef class GroupSingle(AbstractGroup):
     def copy(self):
         return GroupSingle(self.__sprite)
 
-    def sprites(self):
+    cpdef list sprites(self):
         if self.__sprite is not None:
             return [self.__sprite]
         else:
