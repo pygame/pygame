@@ -1008,7 +1008,9 @@ class LineMixin(BaseLineMixin):
                   'width'     : 2}
         x, y = 2, 1 # start position
 
+        # The point values can be ints or floats.
         for start_pos in ((x, y), (x + .1, y), (x, y + .1), (x + .1, y + .1)):
+            # The point type can be a tuple/list/Vector2.
             for seq_type in (tuple, list, Vector2):
                 surface.fill(surface_color)  # Clear for each test.
                 kwargs['start_pos'] = seq_type(start_pos)
@@ -1030,7 +1032,9 @@ class LineMixin(BaseLineMixin):
                   'width'     : 2}
         x, y = 2, 2 # end position
 
+        # The point values can be ints or floats.
         for end_pos in ((x, y), (x + .2, y), (x, y + .2), (x + .2, y + .2)):
+            # The point type can be a tuple/list/Vector2.
             for seq_type in (tuple, list, Vector2):
                 surface.fill(surface_color)  # Clear for each test.
                 kwargs['end_pos'] = seq_type(end_pos)
@@ -2341,21 +2345,32 @@ class DrawPolygonMixin(object):
                   'points'  : None,
                   'width'   : 0}
 
-        points_fmts = (((1, 1), (2, 1), (2, 2), (1, 2)),
-                       ([1, 1], [2, 1], [2, 2], [1, 2]),
-                       ([1, 1], (2, 1), [2, 2], (1, 2)),
-                       ([1, 1], (2.2, 1), [2.2, 2.2], (1, 2.1)))
+        # The point type can be a tuple/list/Vector2.
+        point_types = ((tuple, tuple, tuple, tuple), # all tuples
+                       (list, list, list, list),     # all lists
+                       (Vector2, Vector2, Vector2, Vector2), # all Vector2s
+                       (list, Vector2, tuple, Vector2))      # mix
 
-        for points in points_fmts:
-            for seq_type in (tuple, list):  # Test as tuples and lists.
-                surface.fill(surface_color)  # Clear for each test.
-                pos = points[0]
-                kwargs['points'] = seq_type(points)
+        # The point values can be ints or floats.
+        point_values = (((1, 1), (2, 1), (2, 2), (1, 2)),
+                        ((1, 1), (2.2, 1), (2.1, 2.2), (1, 2.1)))
 
-                bounds_rect = self.draw_polygon(**kwargs)
+        # Each sequence of points can be a tuple or a list.
+        seq_types = (tuple, list)
 
-                self.assertEqual(surface.get_at(pos), expected_color)
-                self.assertIsInstance(bounds_rect, pygame.Rect)
+        for point_type in point_types:
+            for values in point_values:
+                check_pos = values[0]
+                points = [point_type[i](pt) for i, pt in enumerate(values)]
+
+                for seq_type in seq_types:
+                    surface.fill(surface_color)  # Clear for each test.
+                    kwargs['points'] = seq_type(points)
+
+                    bounds_rect = self.draw_polygon(**kwargs)
+
+                    self.assertEqual(surface.get_at(check_pos), expected_color)
+                    self.assertIsInstance(bounds_rect, pygame.Rect)
 
     def test_polygon__invalid_points_formats(self):
         """Ensures draw polygon handles invalid points formats correctly."""
@@ -3221,15 +3236,19 @@ class DrawCircleMixin(object):
                   'center'  : None,
                   'radius'  : 1,
                   'width'   : 0}
+        x, y = 2, 2 # center position
 
-        for center in ((2, 2), [2, 2]):
-            surface.fill(surface_color)  # Clear for each test.
-            kwargs['center'] = center
+        # The center values can be ints or floats.
+        for center in ((x, y), (x + .1, y), (x, y + .1), (x + .1, y + .1)):
+            # The center type can be a tuple/list/Vector2.
+            for seq_type in (tuple, list, Vector2):
+                surface.fill(surface_color)  # Clear for each test.
+                kwargs['center'] = seq_type(center)
 
-            bounds_rect = self.draw_circle(**kwargs)
+                bounds_rect = self.draw_circle(**kwargs)
 
-            self.assertEqual(surface.get_at(center), expected_color)
-            self.assertIsInstance(bounds_rect, pygame.Rect)
+                self.assertEqual(surface.get_at((x, y)), expected_color)
+                self.assertIsInstance(bounds_rect, pygame.Rect)
 
     def test_circle__valid_color_formats(self):
         """Ensures draw circle accepts different color formats."""
