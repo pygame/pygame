@@ -3305,7 +3305,7 @@ class DrawCircleMixin(object):
             radius=1,
             width=0,
         )
-        from pygame.math import Vector2
+
         draw.circle(
             surface=pygame.Surface((4, 4)),
             color=(255, 255, 127),
