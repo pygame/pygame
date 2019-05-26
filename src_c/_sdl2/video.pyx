@@ -27,6 +27,7 @@ cdef extern from "../pygame.h" nogil:
     object pgColor_New(Uint8 rgba[])
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
     void import_pygame_color()
+    object pgSurface_New2(SDL_Surface *info, int owner)
 
 import_pygame_color()
 import_pygame_surface()
@@ -470,7 +471,6 @@ cdef class Window:
     def __dealloc__(self):
         self.destroy()
 
-
 cdef Uint32 format_from_depth(int depth):
     cdef Uint32 Rmask, Gmask, Bmask, Amask
     if depth == 16:
@@ -541,7 +541,7 @@ cdef class Texture:
                 raise ValueError('only one of static, streaming, or target can be true')
             access = _SDL_TEXTUREACCESS_TARGET
         else:
-            #raise ValueError('one of static, streaming, or target must be true')
+            # Create static texture by default.
             access = _SDL_TEXTUREACCESS_STATIC
 
         self.renderer = renderer
@@ -706,6 +706,31 @@ cdef class Texture:
         self.draw_internal(csrcrect, cdstrect, angle, originptr,
                            flipX, flipY)
 
+    def update(self, surface, area=None):
+        # https://wiki.libsdl.org/SDL_UpdateTexture
+        # Should it accept a raw pixel data array too?
+        """ Update the texture with Surface.
+        This is a fairly slow function, intended for use with static textures that do not change often.
+
+        If the texture is intended to be updated often,
+        it is preferred to create the texture as streaming and use the locking functions.
+
+        While this function will work with streaming textures,
+        for optimization reasons you may not get the pixels back if you lock the texture afterward.
+
+        :param surface: source Surface.
+        """
+
+        if not pgSurface_Check(surface):
+            raise error("update source should be a Surface.")
+
+
+        cdef SDL_Rect rect = pgRect_AsRect(area)
+        cdef SDL_Surface *surf = pgSurface_AsSurface(surface)
+
+        res = SDL_UpdateTexture(self._tex, &rect, surf.pixels, surf.pitch)
+        if res < 0:
+            raise error()
 
 cdef class Image:
 
@@ -827,6 +852,7 @@ cdef class Renderer:
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._draw_color = pgColor_NewLength(defaultColor, 4)
         self._target = None
+        self._win = window
 
     def __dealloc__(self):
         if self._renderer:
@@ -936,3 +962,57 @@ cdef class Renderer:
         if not dest:
             return self.get_viewport()
         return dest
+
+    def draw_line(self, p1, p2):
+        # https://wiki.libsdl.org/SDL_RenderDrawLine
+        res = SDL_RenderDrawLine(self._renderer,
+                                 p1[0], p1[1],
+                                 p2[0], p2[1])
+        if res < 0:
+            raise error()
+
+    def draw_point(self, point):
+        # https://wiki.libsdl.org/SDL_RenderDrawPoint
+        res = SDL_RenderDrawPoint(self._renderer,
+                                  point[0], point[1])
+        if res < 0:
+            raise error()
+
+    def draw_rect(self, rect):
+        # https://wiki.libsdl.org/SDL_RenderDrawRect
+        cdef SDL_Rect _rect = pgRect_AsRect(rect)
+        res = SDL_RenderDrawRect(self._renderer, &_rect)
+        if res < 0:
+            raise error()
+
+    def fill_rect(self, rect):
+        # https://wiki.libsdl.org/SDL_RenderFillRect
+        cdef SDL_Rect _rect = pgRect_AsRect(rect)
+        res = SDL_RenderFillRect(self._renderer, &_rect)
+
+        if res < 0:
+            raise error()
+
+    def read_surface(self, depth=32):
+        # https://wiki.libsdl.org/SDL_RenderReadPixels
+        """
+            Read pixels from the current rendering target and create a pygame.Surface.
+            WARNING: This is a very slow operation, and should not be used frequently.
+        """
+        cdef Uint32 format
+        try:
+            format = format_from_depth(depth)
+        except ValueError as e:
+            raise e
+
+        cdef SDL_Texture* tex = SDL_GetRenderTarget(self._renderer)
+        cdef int width, height
+        if tex == NULL:
+            # NULL for default target (the window that created the renderer)
+            width, height = self._win.size
+        else:
+            SDL_QueryTexture(tex, &format, NULL, &width, &height)
+
+        cdef SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
+        SDL_RenderReadPixels(self._renderer, NULL, format, surface.pixels, surface.pitch);
+        return pgSurface_New2(surface, 1)
