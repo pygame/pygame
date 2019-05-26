@@ -1708,6 +1708,80 @@ mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
     return 0;
 }
 
+#if PY3
+typedef struct {
+    int numbufs;
+    Py_ssize_t shape[2];
+    Py_ssize_t strides[2];
+} mask_bufinfo;
+
+static int
+pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
+{
+    bitmask_t *m = self->mask;
+    mask_bufinfo *bufinfo = (mask_bufinfo*)self->bufdata;
+
+    if (bufinfo == NULL) {
+        bufinfo = PyMem_RawMalloc(sizeof(mask_bufinfo));
+        if (bufinfo == NULL) {
+            PyErr_NoMemory();
+            return -1;
+        }
+        bufinfo->numbufs = 1;
+
+        bufinfo->shape[0] = (m->w - 1) / BITMASK_W_LEN + 1;
+        bufinfo->shape[1] = m->h;
+
+        bufinfo->strides[0] = m->h * sizeof(BITMASK_W);
+        bufinfo->strides[1] = sizeof(BITMASK_W);
+
+        self->bufdata = bufinfo;
+    }
+    else {
+        bufinfo->numbufs++;
+    }
+
+    view->buf = m->bits;
+    view->len = m->h * ((m->w - 1) / BITMASK_W_LEN + 1) * sizeof(BITMASK_W);
+    view->readonly = 0;
+    view->itemsize = sizeof(BITMASK_W);
+    view->ndim = 2;
+    view->internal = bufinfo;
+    view->shape = (flags & PyBUF_ND) ? bufinfo->shape : NULL;
+    view->strides = (flags & PyBUF_STRIDES) ? bufinfo->strides : NULL;
+    if (flags & PyBUF_FORMAT) {
+        view->format = "L"; /* L = unsigned long */
+    }
+    else {
+        view->format = NULL;
+    }
+    view->suboffsets = NULL;
+
+    Py_INCREF(self);
+    view->obj = self;
+
+    return 0;
+}
+
+static void
+pgMask_ReleaseBuffer(pgMaskObject *self, Py_buffer *view)
+{
+    mask_bufinfo *bufinfo = (mask_bufinfo*)view->internal;
+
+    bufinfo->numbufs--;
+    if (bufinfo->numbufs == 0) {
+        PyMem_RawFree(bufinfo);
+        self->bufdata = NULL;
+    }
+}
+
+static PyBufferProcs pgMask_BufferProcs = {
+    (getbufferproc)pgMask_GetBuffer,
+    (releasebufferproc)pgMask_ReleaseBuffer
+};
+
+#endif /* PY3 */
+
 static PyTypeObject pgMask_Type = {
     TYPE_HEAD(NULL, 0) "pygame.mask.Mask", /* tp_name */
     sizeof(pgMaskObject), /* tp_basicsize */
@@ -1726,8 +1800,13 @@ static PyTypeObject pgMask_Type = {
     (reprfunc)NULL,       /* tp_str */
     0L,                   /* tp_getattro */
     0L,                   /* tp_setattro */
+#if PY3
+    &pgMask_BufferProcs,  /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+#else /* PY2 */
     0L,                   /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+#endif /* PY2 */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */

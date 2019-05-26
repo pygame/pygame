@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import random
 import unittest
+import sys
 
 import pygame
 from pygame.locals import *
@@ -2636,6 +2637,41 @@ class MaskModuleTest(unittest.TestCase):
 
                 rects = mask.get_bounding_rects()
                 self.assertEqual(rects, [])
+
+    @unittest.skipIf(sys.version_info < (3, ), "Python 3 only")
+    def test_buffer_interface(self):
+        size = (1000, 100)
+        pixels_set = (
+            (0, 1),
+            (100, 10),
+            (173, 90)
+        )
+        pixels_unset = (
+            (0, 0),
+            (101, 10),
+            (173, 91)
+        )
+
+        mask = pygame.Mask(size)
+        for point in pixels_set:
+            mask.set_at(point, 1)
+
+        view = memoryview(mask)
+        intwidth = 8 * view.strides[1]
+
+        for point in pixels_set:
+            x, y = point
+            col = x // intwidth
+            self.assertEqual(
+                (view[col, y] >> (x % intwidth)) & 1, 1,
+                "the pixel at {} is not set to 1".format(point))
+
+        for point in pixels_unset:
+            x, y = point
+            col = x // intwidth
+            self.assertEqual(
+                (view[col, y] >> (x % intwidth)) & 1, 0,
+                "the pixel at {} is not set to 0".format(point))
 
 if __name__ == '__main__':
     unittest.main()
