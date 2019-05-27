@@ -304,6 +304,8 @@ cdef class Texture:
 
     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
                        bint flipX=*, bint flipY=*)
+    cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
+                    bint flipX=*, bint flipY=*)
 
 cdef class Image:
     cdef public float angle
@@ -315,3 +317,5 @@ cdef class Image:
 
     cdef public Texture texture
     cdef public Rect srcrect
+
+    cpdef void draw(self, srcrect=*, dstrect=*)

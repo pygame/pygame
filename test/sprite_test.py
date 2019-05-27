@@ -756,7 +756,7 @@ class LayeredGroupBase:
         sprite_count = 10
         for i in range(sprite_count):
             sprites.append(self.sprite())
-            sprites[-1].rect = 0
+            sprites[-1].rect = pygame.Rect((0,0,0,0))
 
         self.LG.add(sprites)
 

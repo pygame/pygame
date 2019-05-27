@@ -660,8 +660,8 @@ cdef class Texture:
         if res < 0:
             raise error()
 
-    def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
-             bint flipX=False, bint flipY=False):
+    cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
+                    bint flipX=False, bint flipY=False):
         """ Copy a portion of the texture to the rendering target.
 
         :param srcrect: source rectangle on the texture, or None for the entire texture.
@@ -748,7 +748,7 @@ cdef class Image:
     def get_rect(self):
         return pgRect_New(&self.srcrect.r)
 
-    def draw(self, srcrect=None, dstrect=None):
+    cpdef void draw(self, srcrect=None, dstrect=None):
         """ Copy a portion of the image to the rendering target.
 
         :param srcrect: source rectangle specifying a sub-image, or None for the entire image.
@@ -928,10 +928,14 @@ cdef class Renderer:
         :param area: the portion of source texture.
         :param special_flags: have no effect at this moment.
         """
-        if not hasattr(source, 'draw'):
+        if isinstance(source, Texture):
+            (<Texture>source).draw(area, dest)
+        elif isinstance(source, Image):
+            (<Image>source).draw(area, dest)
+        elif not hasattr(source, 'draw'):
             raise TypeError('source must be drawable')
-
-        source.draw(area, dest)
+        else:
+            source.draw(area, dest)
 
         if not dest:
             return self.get_viewport()
