@@ -9,12 +9,12 @@
         "include_dirs": [
             "src_c"
         ],
-        "name": "sprite",
+        "name": "_sprite",
         "sources": [
-            "src_c/sprite.pyx"
+            "src_c/_sprite.pyx"
         ]
     },
-    "module_name": "sprite"
+    "module_name": "_sprite"
 }
 END: Cython Metadata */
 
@@ -603,8 +603,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__sprite
-#define __PYX_HAVE_API__sprite
+#define __PYX_HAVE___sprite
+#define __PYX_HAVE_API___sprite
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -818,7 +818,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src_c\\sprite.pyx",
+  "src_c\\_sprite.pyx",
   "stringsource",
   "type.pxd",
   "bool.pxd",
@@ -826,64 +826,64 @@ static const char *__pyx_f[] = {
 };
 
 /*--- Type declarations ---*/
-struct __pyx_obj_6sprite_Sprite;
-struct __pyx_obj_6sprite_AbstractGroup;
-struct __pyx_obj_6sprite_Group;
-struct __pyx_obj_6sprite_RenderUpdates;
-struct __pyx_obj_6sprite_OrderedUpdates;
-struct __pyx_obj_6sprite_LayeredUpdates;
-struct __pyx_obj_6sprite_LayeredDirty;
-struct __pyx_obj_6sprite_GroupSingle;
-struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal;
-struct __pyx_opt_args_6sprite_12LayeredDirty_add_internal;
-struct __pyx_opt_args_6sprite_12LayeredDirty_draw;
+struct __pyx_obj_7_sprite_Sprite;
+struct __pyx_obj_7_sprite_AbstractGroup;
+struct __pyx_obj_7_sprite_Group;
+struct __pyx_obj_7_sprite_RenderUpdates;
+struct __pyx_obj_7_sprite_OrderedUpdates;
+struct __pyx_obj_7_sprite_LayeredUpdates;
+struct __pyx_obj_7_sprite_LayeredDirty;
+struct __pyx_obj_7_sprite_GroupSingle;
+struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal;
+struct __pyx_opt_args_7_sprite_12LayeredDirty_add_internal;
+struct __pyx_opt_args_7_sprite_12LayeredDirty_draw;
 
-/* "sprite.pyx":691
+/* "_sprite.pyx":691
  *         self.add(*sprites, **kwargs)
  * 
  *     cpdef void add_internal(self, sprite, layer=None):             # <<<<<<<<<<<<<<
  *         """Do not use this method directly.
  * 
  */
-struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal {
+struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal {
   int __pyx_n;
   PyObject *layer;
 };
 
-/* "sprite.pyx":1053
+/* "_sprite.pyx":1053
  *                     setattr(self, key, val)
  * 
  *     cpdef void add_internal(self, sprite, layer=None):             # <<<<<<<<<<<<<<
  *         """Do not use this method directly.
  * 
  */
-struct __pyx_opt_args_6sprite_12LayeredDirty_add_internal {
+struct __pyx_opt_args_7_sprite_12LayeredDirty_add_internal {
   int __pyx_n;
   PyObject *layer;
 };
 
-/* "sprite.pyx":1075
+/* "_sprite.pyx":1075
  *         LayeredUpdates.add_internal(self, sprite, layer)
  * 
  *     cpdef draw(self, surface, bgd=None):             # <<<<<<<<<<<<<<
  *         """draw all sprites in the right order onto the given surface
  * 
  */
-struct __pyx_opt_args_6sprite_12LayeredDirty_draw {
+struct __pyx_opt_args_7_sprite_12LayeredDirty_draw {
   int __pyx_n;
   PyObject *bgd;
 };
 
-/* "sprite.pyx":124
+/* "_sprite.pyx":124
  * 
  * 
  * cdef class Sprite:             # <<<<<<<<<<<<<<
  *     """simple base class for visible game objects
  * 
  */
-struct __pyx_obj_6sprite_Sprite {
+struct __pyx_obj_7_sprite_Sprite {
   PyObject_HEAD
-  struct __pyx_vtabstruct_6sprite_Sprite *__pyx_vtab;
+  struct __pyx_vtabstruct_7_sprite_Sprite *__pyx_vtab;
   PyObject *__g;
   PyObject *image;
   pgRectObject *rect;
@@ -891,82 +891,82 @@ struct __pyx_obj_6sprite_Sprite {
 };
 
 
-/* "sprite.pyx":121
+/* "_sprite.pyx":121
  * #import_pygame_rect()
  * 
  * cdef class AbstractGroup             # <<<<<<<<<<<<<<
  * 
  * 
  */
-struct __pyx_obj_6sprite_AbstractGroup {
+struct __pyx_obj_7_sprite_AbstractGroup {
   PyObject_HEAD
-  struct __pyx_vtabstruct_6sprite_AbstractGroup *__pyx_vtab;
+  struct __pyx_vtabstruct_7_sprite_AbstractGroup *__pyx_vtab;
   PyObject *spritedict;
   PyObject *lostsprites;
 };
 
 
-/* "sprite.pyx":568
+/* "_sprite.pyx":568
  *         return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
  * 
  * cdef class Group(AbstractGroup):             # <<<<<<<<<<<<<<
  *     """container class for many Sprites
  * 
  */
-struct __pyx_obj_6sprite_Group {
-  struct __pyx_obj_6sprite_AbstractGroup __pyx_base;
+struct __pyx_obj_7_sprite_Group {
+  struct __pyx_obj_7_sprite_AbstractGroup __pyx_base;
 };
 
 
-/* "sprite.pyx":594
+/* "_sprite.pyx":594
  * RenderClear = Group
  * 
  * cdef class RenderUpdates(Group):             # <<<<<<<<<<<<<<
  *     """Group class that tracks dirty updates
  * 
  */
-struct __pyx_obj_6sprite_RenderUpdates {
-  struct __pyx_obj_6sprite_Group __pyx_base;
+struct __pyx_obj_7_sprite_RenderUpdates {
+  struct __pyx_obj_7_sprite_Group __pyx_base;
 };
 
 
-/* "sprite.pyx":623
+/* "_sprite.pyx":623
  *        return dirty
  * 
  * cdef class OrderedUpdates(RenderUpdates):             # <<<<<<<<<<<<<<
  *     """RenderUpdates class that draws Sprites in order of addition
  * 
  */
-struct __pyx_obj_6sprite_OrderedUpdates {
-  struct __pyx_obj_6sprite_RenderUpdates __pyx_base;
+struct __pyx_obj_7_sprite_OrderedUpdates {
+  struct __pyx_obj_7_sprite_RenderUpdates __pyx_base;
   PyObject *_spritelist;
 };
 
 
-/* "sprite.pyx":653
+/* "_sprite.pyx":653
  * 
  * 
  * cdef class LayeredUpdates(AbstractGroup):             # <<<<<<<<<<<<<<
  *     """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
  * 
  */
-struct __pyx_obj_6sprite_LayeredUpdates {
-  struct __pyx_obj_6sprite_AbstractGroup __pyx_base;
+struct __pyx_obj_7_sprite_LayeredUpdates {
+  struct __pyx_obj_7_sprite_AbstractGroup __pyx_base;
   PyObject *_spritelayers;
   PyObject *_spritelist;
   int _default_layer;
 };
 
 
-/* "sprite.pyx":994
+/* "_sprite.pyx":994
  * 
  * 
  * cdef class LayeredDirty(LayeredUpdates):             # <<<<<<<<<<<<<<
  *     """LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates
  * 
  */
-struct __pyx_obj_6sprite_LayeredDirty {
-  struct __pyx_obj_6sprite_LayeredUpdates __pyx_base;
+struct __pyx_obj_7_sprite_LayeredDirty {
+  struct __pyx_obj_7_sprite_LayeredUpdates __pyx_base;
   pgRectObject *_clip;
   int _use_update;
   float _time_threshold;
@@ -974,21 +974,21 @@ struct __pyx_obj_6sprite_LayeredDirty {
 };
 
 
-/* "sprite.pyx":1283
+/* "_sprite.pyx":1283
  * 
  * 
  * cdef class GroupSingle(AbstractGroup):             # <<<<<<<<<<<<<<
  *     """A group container that holds a single most recent item.
  * 
  */
-struct __pyx_obj_6sprite_GroupSingle {
-  struct __pyx_obj_6sprite_AbstractGroup __pyx_base;
+struct __pyx_obj_7_sprite_GroupSingle {
+  struct __pyx_obj_7_sprite_AbstractGroup __pyx_base;
   PyObject *__sprite;
 };
 
 
 
-/* "sprite.pyx":311
+/* "_sprite.pyx":311
  * 
  * 
  * cdef class AbstractGroup:             # <<<<<<<<<<<<<<
@@ -996,17 +996,17 @@ struct __pyx_obj_6sprite_GroupSingle {
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_AbstractGroup {
-  PyObject *(*sprites)(struct __pyx_obj_6sprite_AbstractGroup *, int __pyx_skip_dispatch);
-  void (*add_internal)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
-  void (*remove_internal)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
-  int (*has_internal)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
-  PyObject *(*draw)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_7_sprite_AbstractGroup {
+  PyObject *(*sprites)(struct __pyx_obj_7_sprite_AbstractGroup *, int __pyx_skip_dispatch);
+  void (*add_internal)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
+  void (*remove_internal)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
+  int (*has_internal)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*draw)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_6sprite_AbstractGroup *__pyx_vtabptr_6sprite_AbstractGroup;
+static struct __pyx_vtabstruct_7_sprite_AbstractGroup *__pyx_vtabptr_7_sprite_AbstractGroup;
 
 
-/* "sprite.pyx":124
+/* "_sprite.pyx":124
  * 
  * 
  * cdef class Sprite:             # <<<<<<<<<<<<<<
@@ -1014,14 +1014,14 @@ static struct __pyx_vtabstruct_6sprite_AbstractGroup *__pyx_vtabptr_6sprite_Abst
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_Sprite {
-  void (*add_internal)(struct __pyx_obj_6sprite_Sprite *, PyObject *, int __pyx_skip_dispatch);
-  void (*remove_internal)(struct __pyx_obj_6sprite_Sprite *, PyObject *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_7_sprite_Sprite {
+  void (*add_internal)(struct __pyx_obj_7_sprite_Sprite *, PyObject *, int __pyx_skip_dispatch);
+  void (*remove_internal)(struct __pyx_obj_7_sprite_Sprite *, PyObject *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_6sprite_Sprite *__pyx_vtabptr_6sprite_Sprite;
+static struct __pyx_vtabstruct_7_sprite_Sprite *__pyx_vtabptr_7_sprite_Sprite;
 
 
-/* "sprite.pyx":568
+/* "_sprite.pyx":568
  *         return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
  * 
  * cdef class Group(AbstractGroup):             # <<<<<<<<<<<<<<
@@ -1029,13 +1029,13 @@ static struct __pyx_vtabstruct_6sprite_Sprite *__pyx_vtabptr_6sprite_Sprite;
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_Group {
-  struct __pyx_vtabstruct_6sprite_AbstractGroup __pyx_base;
+struct __pyx_vtabstruct_7_sprite_Group {
+  struct __pyx_vtabstruct_7_sprite_AbstractGroup __pyx_base;
 };
-static struct __pyx_vtabstruct_6sprite_Group *__pyx_vtabptr_6sprite_Group;
+static struct __pyx_vtabstruct_7_sprite_Group *__pyx_vtabptr_7_sprite_Group;
 
 
-/* "sprite.pyx":594
+/* "_sprite.pyx":594
  * RenderClear = Group
  * 
  * cdef class RenderUpdates(Group):             # <<<<<<<<<<<<<<
@@ -1043,13 +1043,13 @@ static struct __pyx_vtabstruct_6sprite_Group *__pyx_vtabptr_6sprite_Group;
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_RenderUpdates {
-  struct __pyx_vtabstruct_6sprite_Group __pyx_base;
+struct __pyx_vtabstruct_7_sprite_RenderUpdates {
+  struct __pyx_vtabstruct_7_sprite_Group __pyx_base;
 };
-static struct __pyx_vtabstruct_6sprite_RenderUpdates *__pyx_vtabptr_6sprite_RenderUpdates;
+static struct __pyx_vtabstruct_7_sprite_RenderUpdates *__pyx_vtabptr_7_sprite_RenderUpdates;
 
 
-/* "sprite.pyx":623
+/* "_sprite.pyx":623
  *        return dirty
  * 
  * cdef class OrderedUpdates(RenderUpdates):             # <<<<<<<<<<<<<<
@@ -1057,13 +1057,13 @@ static struct __pyx_vtabstruct_6sprite_RenderUpdates *__pyx_vtabptr_6sprite_Rend
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_OrderedUpdates {
-  struct __pyx_vtabstruct_6sprite_RenderUpdates __pyx_base;
+struct __pyx_vtabstruct_7_sprite_OrderedUpdates {
+  struct __pyx_vtabstruct_7_sprite_RenderUpdates __pyx_base;
 };
-static struct __pyx_vtabstruct_6sprite_OrderedUpdates *__pyx_vtabptr_6sprite_OrderedUpdates;
+static struct __pyx_vtabstruct_7_sprite_OrderedUpdates *__pyx_vtabptr_7_sprite_OrderedUpdates;
 
 
-/* "sprite.pyx":653
+/* "_sprite.pyx":653
  * 
  * 
  * cdef class LayeredUpdates(AbstractGroup):             # <<<<<<<<<<<<<<
@@ -1071,14 +1071,14 @@ static struct __pyx_vtabstruct_6sprite_OrderedUpdates *__pyx_vtabptr_6sprite_Ord
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_LayeredUpdates {
-  struct __pyx_vtabstruct_6sprite_AbstractGroup __pyx_base;
-  void (*add_internal)(struct __pyx_obj_6sprite_LayeredUpdates *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal *__pyx_optional_args);
+struct __pyx_vtabstruct_7_sprite_LayeredUpdates {
+  struct __pyx_vtabstruct_7_sprite_AbstractGroup __pyx_base;
+  void (*add_internal)(struct __pyx_obj_7_sprite_LayeredUpdates *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal *__pyx_optional_args);
 };
-static struct __pyx_vtabstruct_6sprite_LayeredUpdates *__pyx_vtabptr_6sprite_LayeredUpdates;
+static struct __pyx_vtabstruct_7_sprite_LayeredUpdates *__pyx_vtabptr_7_sprite_LayeredUpdates;
 
 
-/* "sprite.pyx":994
+/* "_sprite.pyx":994
  * 
  * 
  * cdef class LayeredDirty(LayeredUpdates):             # <<<<<<<<<<<<<<
@@ -1086,14 +1086,14 @@ static struct __pyx_vtabstruct_6sprite_LayeredUpdates *__pyx_vtabptr_6sprite_Lay
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_LayeredDirty {
-  struct __pyx_vtabstruct_6sprite_LayeredUpdates __pyx_base;
-  PyObject *(*draw)(struct __pyx_obj_6sprite_LayeredDirty *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_12LayeredDirty_draw *__pyx_optional_args);
+struct __pyx_vtabstruct_7_sprite_LayeredDirty {
+  struct __pyx_vtabstruct_7_sprite_LayeredUpdates __pyx_base;
+  PyObject *(*draw)(struct __pyx_obj_7_sprite_LayeredDirty *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_12LayeredDirty_draw *__pyx_optional_args);
 };
-static struct __pyx_vtabstruct_6sprite_LayeredDirty *__pyx_vtabptr_6sprite_LayeredDirty;
+static struct __pyx_vtabstruct_7_sprite_LayeredDirty *__pyx_vtabptr_7_sprite_LayeredDirty;
 
 
-/* "sprite.pyx":1283
+/* "_sprite.pyx":1283
  * 
  * 
  * cdef class GroupSingle(AbstractGroup):             # <<<<<<<<<<<<<<
@@ -1101,10 +1101,10 @@ static struct __pyx_vtabstruct_6sprite_LayeredDirty *__pyx_vtabptr_6sprite_Layer
  * 
  */
 
-struct __pyx_vtabstruct_6sprite_GroupSingle {
-  struct __pyx_vtabstruct_6sprite_AbstractGroup __pyx_base;
+struct __pyx_vtabstruct_7_sprite_GroupSingle {
+  struct __pyx_vtabstruct_7_sprite_AbstractGroup __pyx_base;
 };
-static struct __pyx_vtabstruct_6sprite_GroupSingle *__pyx_vtabptr_6sprite_GroupSingle;
+static struct __pyx_vtabstruct_7_sprite_GroupSingle *__pyx_vtabptr_7_sprite_GroupSingle;
 
 /* --- Runtime support code (head) --- */
 /* Refnanny.proto */
@@ -1808,30 +1808,30 @@ static int __Pyx_check_binary_version(void);
 /* InitStrings.proto */
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static void __pyx_f_6sprite_6Sprite_add_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_6Sprite_remove_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_13AbstractGroup_add_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_14OrderedUpdates_add_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal *__pyx_optional_args); /* proto*/
-void __pyx_f_6sprite_14LayeredUpdates_add_internal__pyx_wrap_1(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
-void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_12LayeredDirty_add_internal *__pyx_optional_args); /* proto*/
-void __pyx_f_6sprite_12LayeredDirty_add_internal__pyx_wrap_1(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_12LayeredDirty_draw *__pyx_optional_args); /* proto*/
-PyObject *__pyx_f_6sprite_12LayeredDirty_draw__pyx_wrap_1(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
-static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_6Sprite_add_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_6Sprite_remove_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_13AbstractGroup_sprites(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_13AbstractGroup_add_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_13AbstractGroup_remove_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static int __pyx_f_7_sprite_13AbstractGroup_has_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_13AbstractGroup_draw(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_13RenderUpdates_draw(struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_14OrderedUpdates_sprites(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_14OrderedUpdates_add_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+void __pyx_f_7_sprite_14LayeredUpdates_add_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal *__pyx_optional_args); /* proto*/
+void __pyx_f_7_sprite_14LayeredUpdates_add_internal__pyx_wrap_1(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_14LayeredUpdates_sprites(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_14LayeredUpdates_draw(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
+void __pyx_f_7_sprite_12LayeredDirty_add_internal(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_12LayeredDirty_add_internal *__pyx_optional_args); /* proto*/
+void __pyx_f_7_sprite_12LayeredDirty_add_internal__pyx_wrap_1(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+PyObject *__pyx_f_7_sprite_12LayeredDirty_draw(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_12LayeredDirty_draw *__pyx_optional_args); /* proto*/
+PyObject *__pyx_f_7_sprite_12LayeredDirty_draw__pyx_wrap_1(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_7_sprite_11GroupSingle_sprites(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_11GroupSingle_add_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_7_sprite_11GroupSingle_remove_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
+static int __pyx_f_7_sprite_11GroupSingle_has_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch); /* proto*/
 
 /* Module declarations from 'cpython.version' */
 
@@ -1918,21 +1918,21 @@ static PyTypeObject *__pyx_ptype_7cpython_7complex_complex = 0;
 
 /* Module declarations from 'pygame' */
 
-/* Module declarations from 'sprite' */
-static PyTypeObject *__pyx_ptype_6sprite_Rect = 0;
-static PyTypeObject *__pyx_ptype_6sprite_AbstractGroup = 0;
-static PyTypeObject *__pyx_ptype_6sprite_Sprite = 0;
-static PyTypeObject *__pyx_ptype_6sprite_Group = 0;
-static PyTypeObject *__pyx_ptype_6sprite_RenderUpdates = 0;
-static PyTypeObject *__pyx_ptype_6sprite_OrderedUpdates = 0;
-static PyTypeObject *__pyx_ptype_6sprite_LayeredUpdates = 0;
-static PyTypeObject *__pyx_ptype_6sprite_LayeredDirty = 0;
-static PyTypeObject *__pyx_ptype_6sprite_GroupSingle = 0;
-#define __Pyx_MODULE_NAME "sprite"
-extern int __pyx_module_is_main_sprite;
-int __pyx_module_is_main_sprite = 0;
+/* Module declarations from '_sprite' */
+static PyTypeObject *__pyx_ptype_7_sprite_Rect = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_AbstractGroup = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_Sprite = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_Group = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_RenderUpdates = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_OrderedUpdates = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_LayeredUpdates = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_LayeredDirty = 0;
+static PyTypeObject *__pyx_ptype_7_sprite_GroupSingle = 0;
+#define __Pyx_MODULE_NAME "_sprite"
+extern int __pyx_module_is_main__sprite;
+int __pyx_module_is_main__sprite = 0;
 
-/* Implementation of 'sprite' */
+/* Implementation of '_sprite' */
 static PyObject *__pyx_builtin_property;
 static PyObject *__pyx_builtin_object;
 static PyObject *__pyx_builtin_TypeError;
@@ -2026,6 +2026,7 @@ static const char __pyx_k_property[] = "property";
 static const char __pyx_k_qualname[] = "__qualname__";
 static const char __pyx_k_set_clip[] = "set_clip";
 static const char __pyx_k_setstate[] = "__setstate__";
+static const char __pyx_k_sprite_2[] = "_sprite";
 static const char __pyx_k_union_ip[] = "union_ip";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_blendmode[] = "blendmode";
@@ -2088,7 +2089,7 @@ static const char __pyx_k_remove_internal[] = "remove_internal";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_get_bottom_layer[] = "get_bottom_layer";
 static const char __pyx_k_spritecollideany[] = "spritecollideany";
-static const char __pyx_k_src_c_sprite_pyx[] = "src_c\\sprite.pyx";
+static const char __pyx_k_src_c__sprite_pyx[] = "src_c\\_sprite.pyx";
 static const char __pyx_k_DirtySprite___init[] = "DirtySprite.__init__";
 static const char __pyx_k_DirtySprite___repr[] = "DirtySprite.__repr__";
 static const char __pyx_k_DirtySprite_lambda[] = "DirtySprite.<lambda>";
@@ -2261,11 +2262,12 @@ static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_source_rect;
 static PyObject *__pyx_n_s_sprite;
+static PyObject *__pyx_n_s_sprite_2;
 static PyObject *__pyx_n_s_spritecollide;
 static PyObject *__pyx_n_s_spritecollideany;
 static PyObject *__pyx_n_s_spritegroup;
 static PyObject *__pyx_n_s_sprites;
-static PyObject *__pyx_kp_s_src_c_sprite_pyx;
+static PyObject *__pyx_kp_s_src_c__sprite_pyx;
 static PyObject *__pyx_n_s_surface;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_time_threshold;
@@ -2286,160 +2288,160 @@ static PyObject *__pyx_n_s_xoffset;
 static PyObject *__pyx_n_s_ydistance;
 static PyObject *__pyx_n_s_yoffset;
 static PyObject *__pyx_kp_s_you_can_make_this_sprite_disappe;
-static PyObject *__pyx_lambda_funcdef_6sprite_lambda(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_obj); /* proto */
-static int __pyx_pf_6sprite_6Sprite___cinit__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_8add_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_10remove_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_6sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_16groups(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_3__g___get__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_6Sprite_3__g_2__set__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_6Sprite_3__g_4__del__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_5image___get__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_6Sprite_5image_2__set__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_6Sprite_5image_4__del__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_4rect___get__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_6Sprite_4rect_2__set__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_6Sprite_4rect_4__del__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Sprite *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_6Sprite_24__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda1(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda2(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
-static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_val); /* proto */
-static PyObject *__pyx_pf_6sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup___cinit__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_2sprites(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_4add_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_6remove_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_8has_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup_14__contains__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_24draw(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static Py_ssize_t __pyx_pf_6sprite_13AbstractGroup_32__len__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_10spritedict___get__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_2__set__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_4__del__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_11lostsprites___get__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_2__set__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_4__del__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_36__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_38__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
-static PyObject *__pyx_pf_6sprite_5Group_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Group *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_5Group_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Group *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
-static PyObject *__pyx_pf_6sprite_13RenderUpdates_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_13RenderUpdates_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_2sprites(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_4add_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_6remove_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_11_spritelist___get__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_2__set__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_4__del__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates___cinit__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_4add_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_8remove_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_10sprites(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_12draw(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_pos); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_idx); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer_nr); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer1_nr, PyObject *__pyx_v_layer2_nr); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_13_spritelayers___get__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_2__set__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_4__del__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_11_spritelist___get__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_2__set__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_4__del__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14_default_layer___get__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_14LayeredUpdates_14_default_layer_2__set__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_40__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_42__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_2add_internal(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_4draw(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_6clear(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_12get_clip(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_time_ms); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_5_clip___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty_5_clip_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty_5_clip_4__del__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_11_use_update___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty_11_use_update_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_15_time_threshold___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty_15_time_threshold_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_4_bgd___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty_4_bgd_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_12LayeredDirty_4_bgd_4__del__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_18__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_20__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_2copy(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_4sprites(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_6add_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static int __pyx_pf_6sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_14remove_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_16has_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static int __pyx_pf_6sprite_11GroupSingle_18__contains__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_8__sprite___get__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static int __pyx_pf_6sprite_11GroupSingle_8__sprite_2__set__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6sprite_11GroupSingle_8__sprite_4__del__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_20__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6sprite_11GroupSingle_22__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
-static PyObject *__pyx_pf_6sprite_18collide_rect_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio); /* proto */
-static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
-static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
-static PyObject *__pyx_pf_6sprite_20collide_circle_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio); /* proto */
-static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
-static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
-static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_dokill, PyObject *__pyx_v_collided); /* proto */
-static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_groupa, PyObject *__pyx_v_groupb, PyObject *__pyx_v_dokilla, PyObject *__pyx_v_dokillb, PyObject *__pyx_v_collided); /* proto */
-static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_collided); /* proto */
-static PyObject *__pyx_tp_new_6sprite_AbstractGroup(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_Sprite(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_Group(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_RenderUpdates(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_OrderedUpdates(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_LayeredUpdates(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_LayeredDirty(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6sprite_GroupSingle(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_lambda_funcdef_7_sprite_lambda(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_obj); /* proto */
+static int __pyx_pf_7_sprite_6Sprite___cinit__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_2__init__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_4add(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_6remove(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_8add_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_10remove_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_14kill(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_16groups(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_18alive(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_20__repr__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_3__g___get__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_3__g_2__set__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_3__g_4__del__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_5image___get__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_5image_2__set__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_5image_4__del__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_4rect___get__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_4rect_2__set__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_6Sprite_4rect_4__del__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Sprite *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_6Sprite_24__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_lambda_funcdef_7_sprite_11DirtySprite_lambda1(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_lambda_funcdef_7_sprite_11DirtySprite_lambda2(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_7_sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
+static PyObject *__pyx_pf_7_sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_val); /* proto */
+static PyObject *__pyx_pf_7_sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup___cinit__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_2sprites(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_4add_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_6remove_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_8has_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_10copy(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_12__iter__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup_14__contains__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_16add(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_18remove(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_20has(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_22update(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_24draw(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_26clear(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_28empty(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static Py_ssize_t __pyx_pf_7_sprite_13AbstractGroup_32__len__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_34__repr__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_10spritedict___get__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup_10spritedict_2__set__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup_10spritedict_4__del__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_11lostsprites___get__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup_11lostsprites_2__set__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_13AbstractGroup_11lostsprites_4__del__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_36__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_38__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_7_sprite_5Group___init__(struct __pyx_obj_7_sprite_Group *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
+static PyObject *__pyx_pf_7_sprite_5Group_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Group *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_5Group_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Group *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_7_sprite_13RenderUpdates_draw(struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
+static PyObject *__pyx_pf_7_sprite_13RenderUpdates_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_13RenderUpdates_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_7_sprite_14OrderedUpdates___init__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_2sprites(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_4add_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_6remove_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_11_spritelist___get__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist_2__set__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist_4__del__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates___cinit__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates_2__init__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_4add_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_6add(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_8remove_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_10sprites(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_12draw(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_14get_sprites_at(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_pos); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_idx); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_18remove_sprites_of_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer_nr); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_20layers(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_22change_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_24get_layer_of_sprite(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_26get_top_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_28get_bottom_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_30move_to_front(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_32move_to_back(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_34get_top_sprite(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_36get_sprites_from_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_38switch_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer1_nr, PyObject *__pyx_v_layer2_nr); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers___get__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers_2__set__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers_4__del__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_11_spritelist___get__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist_2__set__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist_4__del__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_14_default_layer___get__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_14LayeredUpdates_14_default_layer_2__set__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_40__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_42__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty___init__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_2add_internal(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_4draw(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_6clear(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_10set_clip(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_12get_clip(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_14change_layer(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_16set_timing_treshold(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_time_ms); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_5_clip___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty_5_clip_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty_5_clip_4__del__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_11_use_update___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty_11_use_update_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_15_time_threshold___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty_15_time_threshold_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_4_bgd___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty_4_bgd_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_12LayeredDirty_4_bgd_4__del__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_18__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_20__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_7_sprite_11GroupSingle___init__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_2copy(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_4sprites(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_6add_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static int __pyx_pf_7_sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_14remove_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_16has_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static int __pyx_pf_7_sprite_11GroupSingle_18__contains__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_8__sprite___get__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static int __pyx_pf_7_sprite_11GroupSingle_8__sprite_2__set__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_7_sprite_11GroupSingle_8__sprite_4__del__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_20__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_22__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_7_sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_7_sprite_18collide_rect_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio); /* proto */
+static PyObject *__pyx_pf_7_sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_7_sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_7_sprite_20collide_circle_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio); /* proto */
+static PyObject *__pyx_pf_7_sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_7_sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_7_sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_dokill, PyObject *__pyx_v_collided); /* proto */
+static PyObject *__pyx_pf_7_sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_groupa, PyObject *__pyx_v_groupb, PyObject *__pyx_v_dokilla, PyObject *__pyx_v_dokillb, PyObject *__pyx_v_collided); /* proto */
+static PyObject *__pyx_pf_7_sprite_10spritecollideany(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_collided); /* proto */
+static PyObject *__pyx_tp_new_7_sprite_AbstractGroup(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_Sprite(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_Group(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_RenderUpdates(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_OrderedUpdates(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_LayeredUpdates(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_LayeredDirty(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7_sprite_GroupSingle(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_get = {0, &__pyx_n_s_get, 0, 0, 0};
 static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items = {0, &__pyx_n_s_items, 0, 0, 0};
 static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop = {0, &__pyx_n_s_pop, 0, 0, 0};
@@ -2499,7 +2501,7 @@ static PyObject *__pyx_codeobj__45;
 static PyObject *__pyx_codeobj__47;
 /* Late includes */
 
-/* "sprite.pyx":100
+/* "_sprite.pyx":100
  * # with the hasattr function.
  * if 'callable' not in dir(__builtins__):
  *     callable = lambda obj: hasattr(obj, '__call__')             # <<<<<<<<<<<<<<
@@ -2508,20 +2510,20 @@ static PyObject *__pyx_codeobj__47;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12lambda(PyObject *__pyx_self, PyObject *__pyx_v_obj); /*proto*/
-static PyMethodDef __pyx_mdef_6sprite_12lambda = {"lambda", (PyCFunction)__pyx_pw_6sprite_12lambda, METH_O, 0};
-static PyObject *__pyx_pw_6sprite_12lambda(PyObject *__pyx_self, PyObject *__pyx_v_obj) {
+static PyObject *__pyx_pw_7_sprite_12lambda(PyObject *__pyx_self, PyObject *__pyx_v_obj); /*proto*/
+static PyMethodDef __pyx_mdef_7_sprite_12lambda = {"lambda", (PyCFunction)__pyx_pw_7_sprite_12lambda, METH_O, 0};
+static PyObject *__pyx_pw_7_sprite_12lambda(PyObject *__pyx_self, PyObject *__pyx_v_obj) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("lambda (wrapper)", 0);
-  __pyx_r = __pyx_lambda_funcdef_6sprite_lambda(__pyx_self, ((PyObject *)__pyx_v_obj));
+  __pyx_r = __pyx_lambda_funcdef_7_sprite_lambda(__pyx_self, ((PyObject *)__pyx_v_obj));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_lambda_funcdef_6sprite_lambda(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_obj) {
+static PyObject *__pyx_lambda_funcdef_7_sprite_lambda(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_obj) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2538,7 +2540,7 @@ static PyObject *__pyx_lambda_funcdef_6sprite_lambda(CYTHON_UNUSED PyObject *__p
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.lambda", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.lambda", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2546,7 +2548,7 @@ static PyObject *__pyx_lambda_funcdef_6sprite_lambda(CYTHON_UNUSED PyObject *__p
   return __pyx_r;
 }
 
-/* "sprite.pyx":144
+/* "_sprite.pyx":144
  *     cdef dict __dict__
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -2555,28 +2557,28 @@ static PyObject *__pyx_lambda_funcdef_6sprite_lambda(CYTHON_UNUSED PyObject *__p
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_6Sprite_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
     __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_6sprite_6Sprite___cinit__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite___cinit__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite___cinit__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static int __pyx_pf_7_sprite_6Sprite___cinit__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "sprite.pyx":145
+  /* "_sprite.pyx":145
  * 
  *     def __cinit__(self):
  *         self.__dict__ = {}             # <<<<<<<<<<<<<<
@@ -2591,7 +2593,7 @@ static int __pyx_pf_6sprite_6Sprite___cinit__(struct __pyx_obj_6sprite_Sprite *_
   __pyx_v_self->__dict__ = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":146
+  /* "_sprite.pyx":146
  *     def __cinit__(self):
  *         self.__dict__ = {}
  *         self.__g = {} # The groups the sprite is in             # <<<<<<<<<<<<<<
@@ -2606,7 +2608,7 @@ static int __pyx_pf_6sprite_6Sprite___cinit__(struct __pyx_obj_6sprite_Sprite *_
   __pyx_v_self->__g = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":144
+  /* "_sprite.pyx":144
  *     cdef dict __dict__
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -2619,14 +2621,14 @@ static int __pyx_pf_6sprite_6Sprite___cinit__(struct __pyx_obj_6sprite_Sprite *_
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":148
+/* "_sprite.pyx":148
  *         self.__g = {} # The groups the sprite is in
  * 
  *     def __init__(self, *groups):             # <<<<<<<<<<<<<<
@@ -2635,8 +2637,8 @@ static int __pyx_pf_6sprite_6Sprite___cinit__(struct __pyx_obj_6sprite_Sprite *_
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_6Sprite_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_groups = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -2644,7 +2646,7 @@ static int __pyx_pw_6sprite_6Sprite_3__init__(PyObject *__pyx_v_self, PyObject *
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__init__", 0))) return -1;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_groups = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_6Sprite_2__init__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), __pyx_v_groups);
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_2__init__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), __pyx_v_groups);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_groups);
@@ -2652,7 +2654,7 @@ static int __pyx_pw_6sprite_6Sprite_3__init__(PyObject *__pyx_v_self, PyObject *
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups) {
+static int __pyx_pf_7_sprite_6Sprite_2__init__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2660,7 +2662,7 @@ static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *_
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":149
+  /* "_sprite.pyx":149
  * 
  *     def __init__(self, *groups):
  *         if groups:             # <<<<<<<<<<<<<<
@@ -2670,7 +2672,7 @@ static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *_
   __pyx_t_1 = (PyTuple_GET_SIZE(__pyx_v_groups) != 0);
   if (__pyx_t_1) {
 
-    /* "sprite.pyx":150
+    /* "_sprite.pyx":150
  *     def __init__(self, *groups):
  *         if groups:
  *             self.add(*groups)             # <<<<<<<<<<<<<<
@@ -2684,7 +2686,7 @@ static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *_
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "sprite.pyx":149
+    /* "_sprite.pyx":149
  * 
  *     def __init__(self, *groups):
  *         if groups:             # <<<<<<<<<<<<<<
@@ -2693,7 +2695,7 @@ static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *_
  */
   }
 
-  /* "sprite.pyx":148
+  /* "_sprite.pyx":148
  *         self.__g = {} # The groups the sprite is in
  * 
  *     def __init__(self, *groups):             # <<<<<<<<<<<<<<
@@ -2707,14 +2709,14 @@ static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *_
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.Sprite.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":152
+/* "_sprite.pyx":152
  *             self.add(*groups)
  * 
  *     def add(self, *groups):             # <<<<<<<<<<<<<<
@@ -2723,9 +2725,9 @@ static int __pyx_pf_6sprite_6Sprite_2__init__(struct __pyx_obj_6sprite_Sprite *_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_5add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_6Sprite_4add[] = "add the sprite to groups\n\n        Sprite.add(*groups): return None\n\n        Any number of Group instances can be passed as arguments. The\n        Sprite will be added to the Groups it is not already a member of.\n\n        ";
-static PyObject *__pyx_pw_6sprite_6Sprite_5add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_5add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_6Sprite_4add[] = "add the sprite to groups\n\n        Sprite.add(*groups): return None\n\n        Any number of Group instances can be passed as arguments. The\n        Sprite will be added to the Groups it is not already a member of.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_6Sprite_5add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_groups = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2733,7 +2735,7 @@ static PyObject *__pyx_pw_6sprite_6Sprite_5add(PyObject *__pyx_v_self, PyObject 
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "add", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_groups = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_6Sprite_4add(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), __pyx_v_groups);
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_4add(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), __pyx_v_groups);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_groups);
@@ -2741,7 +2743,7 @@ static PyObject *__pyx_pw_6sprite_6Sprite_5add(PyObject *__pyx_v_self, PyObject 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_4add(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups) {
   PyObject *__pyx_v_has = NULL;
   PyObject *__pyx_v_group = NULL;
   PyObject *__pyx_r = NULL;
@@ -2755,7 +2757,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("add", 0);
 
-  /* "sprite.pyx":161
+  /* "_sprite.pyx":161
  * 
  *         """
  *         has = self.__g.__contains__             # <<<<<<<<<<<<<<
@@ -2767,7 +2769,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
   __pyx_v_has = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":162
+  /* "_sprite.pyx":162
  *         """
  *         has = self.__g.__contains__
  *         for group in groups:             # <<<<<<<<<<<<<<
@@ -2786,7 +2788,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
     __Pyx_XDECREF_SET(__pyx_v_group, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":163
+    /* "_sprite.pyx":163
  *         has = self.__g.__contains__
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -2797,7 +2799,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
     __pyx_t_5 = (__pyx_t_4 != 0);
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":164
+      /* "_sprite.pyx":164
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):
  *                 if not has(group):             # <<<<<<<<<<<<<<
@@ -2825,25 +2827,25 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
       __pyx_t_4 = ((!__pyx_t_5) != 0);
       if (__pyx_t_4) {
 
-        /* "sprite.pyx":165
+        /* "_sprite.pyx":165
  *             if hasattr(group, '_spritegroup'):
  *                 if not has(group):
  *                     (<AbstractGroup>group).add_internal(self)             # <<<<<<<<<<<<<<
  *                     self.add_internal(<AbstractGroup>group)
  *             else:
  */
-        ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_group)->__pyx_vtab)->add_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_group), ((PyObject *)__pyx_v_self), 0);
+        ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_group)->__pyx_vtab)->add_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_group), ((PyObject *)__pyx_v_self), 0);
 
-        /* "sprite.pyx":166
+        /* "_sprite.pyx":166
  *                 if not has(group):
  *                     (<AbstractGroup>group).add_internal(self)
  *                     self.add_internal(<AbstractGroup>group)             # <<<<<<<<<<<<<<
  *             else:
  *                 self.add(*group)
  */
-        ((struct __pyx_vtabstruct_6sprite_Sprite *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_group, 0);
+        ((struct __pyx_vtabstruct_7_sprite_Sprite *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_group, 0);
 
-        /* "sprite.pyx":164
+        /* "_sprite.pyx":164
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):
  *                 if not has(group):             # <<<<<<<<<<<<<<
@@ -2852,7 +2854,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
  */
       }
 
-      /* "sprite.pyx":163
+      /* "_sprite.pyx":163
  *         has = self.__g.__contains__
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -2862,7 +2864,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":168
+    /* "_sprite.pyx":168
  *                     self.add_internal(<AbstractGroup>group)
  *             else:
  *                 self.add(*group)             # <<<<<<<<<<<<<<
@@ -2882,7 +2884,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":162
+    /* "_sprite.pyx":162
  *         """
  *         has = self.__g.__contains__
  *         for group in groups:             # <<<<<<<<<<<<<<
@@ -2892,7 +2894,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":152
+  /* "_sprite.pyx":152
  *             self.add(*groups)
  * 
  *     def add(self, *groups):             # <<<<<<<<<<<<<<
@@ -2908,7 +2910,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("sprite.Sprite.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_has);
@@ -2918,7 +2920,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
   return __pyx_r;
 }
 
-/* "sprite.pyx":170
+/* "_sprite.pyx":170
  *                 self.add(*group)
  * 
  *     def remove(self, *groups):             # <<<<<<<<<<<<<<
@@ -2927,9 +2929,9 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4add(struct __pyx_obj_6sprite_Sprite *
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_7remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_6Sprite_6remove[] = "remove the sprite from groups\n\n        Sprite.remove(*groups): return None\n\n        Any number of Group instances can be passed as arguments. The Sprite\n        will be removed from the Groups it is currently a member of.\n\n        ";
-static PyObject *__pyx_pw_6sprite_6Sprite_7remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_7remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_6Sprite_6remove[] = "remove the sprite from groups\n\n        Sprite.remove(*groups): return None\n\n        Any number of Group instances can be passed as arguments. The Sprite\n        will be removed from the Groups it is currently a member of.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_6Sprite_7remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_groups = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2937,7 +2939,7 @@ static PyObject *__pyx_pw_6sprite_6Sprite_7remove(PyObject *__pyx_v_self, PyObje
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "remove", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_groups = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_6Sprite_6remove(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), __pyx_v_groups);
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_6remove(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), __pyx_v_groups);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_groups);
@@ -2945,7 +2947,7 @@ static PyObject *__pyx_pw_6sprite_6Sprite_7remove(PyObject *__pyx_v_self, PyObje
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_6remove(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups) {
   PyObject *__pyx_v_has = NULL;
   PyObject *__pyx_v_group = NULL;
   PyObject *__pyx_r = NULL;
@@ -2959,7 +2961,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("remove", 0);
 
-  /* "sprite.pyx":179
+  /* "_sprite.pyx":179
  * 
  *         """
  *         has = self.__g.__contains__             # <<<<<<<<<<<<<<
@@ -2971,7 +2973,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
   __pyx_v_has = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":180
+  /* "_sprite.pyx":180
  *         """
  *         has = self.__g.__contains__
  *         for group in groups:             # <<<<<<<<<<<<<<
@@ -2990,7 +2992,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
     __Pyx_XDECREF_SET(__pyx_v_group, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":181
+    /* "_sprite.pyx":181
  *         has = self.__g.__contains__
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -3001,7 +3003,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
     __pyx_t_5 = (__pyx_t_4 != 0);
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":182
+      /* "_sprite.pyx":182
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):
  *                 if has(group):             # <<<<<<<<<<<<<<
@@ -3028,7 +3030,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (__pyx_t_5) {
 
-        /* "sprite.pyx":183
+        /* "_sprite.pyx":183
  *             if hasattr(group, '_spritegroup'):
  *                 if has(group):
  *                     group.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -3054,16 +3056,16 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "sprite.pyx":184
+        /* "_sprite.pyx":184
  *                 if has(group):
  *                     group.remove_internal(self)
  *                     self.remove_internal(<AbstractGroup>group)             # <<<<<<<<<<<<<<
  *             else:
  *                 self.remove(*group)
  */
-        ((struct __pyx_vtabstruct_6sprite_Sprite *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_group, 0);
+        ((struct __pyx_vtabstruct_7_sprite_Sprite *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_group, 0);
 
-        /* "sprite.pyx":182
+        /* "_sprite.pyx":182
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):
  *                 if has(group):             # <<<<<<<<<<<<<<
@@ -3072,7 +3074,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
  */
       }
 
-      /* "sprite.pyx":181
+      /* "_sprite.pyx":181
  *         has = self.__g.__contains__
  *         for group in groups:
  *             if hasattr(group, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -3082,7 +3084,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":186
+    /* "_sprite.pyx":186
  *                     self.remove_internal(<AbstractGroup>group)
  *             else:
  *                 self.remove(*group)             # <<<<<<<<<<<<<<
@@ -3102,7 +3104,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":180
+    /* "_sprite.pyx":180
  *         """
  *         has = self.__g.__contains__
  *         for group in groups:             # <<<<<<<<<<<<<<
@@ -3112,7 +3114,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":170
+  /* "_sprite.pyx":170
  *                 self.add(*group)
  * 
  *     def remove(self, *groups):             # <<<<<<<<<<<<<<
@@ -3128,7 +3130,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("sprite.Sprite.remove", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.remove", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_has);
@@ -3138,7 +3140,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":188
+/* "_sprite.pyx":188
  *                 self.remove(*group)
  * 
  *     cpdef void add_internal(self, group):             # <<<<<<<<<<<<<<
@@ -3146,8 +3148,8 @@ static PyObject *__pyx_pf_6sprite_6Sprite_6remove(struct __pyx_obj_6sprite_Sprit
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_6Sprite_9add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
-static void __pyx_f_6sprite_6Sprite_add_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_9add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
+static void __pyx_f_7_sprite_6Sprite_add_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3165,7 +3167,7 @@ static void __pyx_f_6sprite_6Sprite_add_internal(struct __pyx_obj_6sprite_Sprite
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_6Sprite_9add_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_6Sprite_9add_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3199,7 +3201,7 @@ static void __pyx_f_6sprite_6Sprite_add_internal(struct __pyx_obj_6sprite_Sprite
     #endif
   }
 
-  /* "sprite.pyx":189
+  /* "_sprite.pyx":189
  * 
  *     cpdef void add_internal(self, group):
  *         self.__g[group] = 0             # <<<<<<<<<<<<<<
@@ -3212,7 +3214,7 @@ static void __pyx_f_6sprite_6Sprite_add_internal(struct __pyx_obj_6sprite_Sprite
   }
   if (unlikely(PyDict_SetItem(__pyx_v_self->__g, __pyx_v_group, __pyx_int_0) < 0)) __PYX_ERR(0, 189, __pyx_L1_error)
 
-  /* "sprite.pyx":188
+  /* "_sprite.pyx":188
  *                 self.remove(*group)
  * 
  *     cpdef void add_internal(self, group):             # <<<<<<<<<<<<<<
@@ -3227,31 +3229,31 @@ static void __pyx_f_6sprite_6Sprite_add_internal(struct __pyx_obj_6sprite_Sprite
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.Sprite.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.Sprite.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_9add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_9add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_9add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_9add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("add_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_8add_internal(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_group));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_8add_internal(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_group));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_8add_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_8add_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("add_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_6Sprite_add_internal(__pyx_v_self, __pyx_v_group, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_6Sprite_add_internal(__pyx_v_self, __pyx_v_group, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3260,7 +3262,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_8add_internal(struct __pyx_obj_6sprite
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3268,7 +3270,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_8add_internal(struct __pyx_obj_6sprite
   return __pyx_r;
 }
 
-/* "sprite.pyx":191
+/* "_sprite.pyx":191
  *         self.__g[group] = 0
  * 
  *     cpdef void remove_internal(self, group):             # <<<<<<<<<<<<<<
@@ -3276,8 +3278,8 @@ static PyObject *__pyx_pf_6sprite_6Sprite_8add_internal(struct __pyx_obj_6sprite
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_6Sprite_11remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
-static void __pyx_f_6sprite_6Sprite_remove_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_11remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
+static void __pyx_f_7_sprite_6Sprite_remove_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3295,7 +3297,7 @@ static void __pyx_f_6sprite_6Sprite_remove_internal(struct __pyx_obj_6sprite_Spr
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_remove_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_6Sprite_11remove_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_6Sprite_11remove_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3329,7 +3331,7 @@ static void __pyx_f_6sprite_6Sprite_remove_internal(struct __pyx_obj_6sprite_Spr
     #endif
   }
 
-  /* "sprite.pyx":192
+  /* "_sprite.pyx":192
  * 
  *     cpdef void remove_internal(self, group):
  *         del self.__g[group]             # <<<<<<<<<<<<<<
@@ -3342,7 +3344,7 @@ static void __pyx_f_6sprite_6Sprite_remove_internal(struct __pyx_obj_6sprite_Spr
   }
   if (unlikely(PyDict_DelItem(__pyx_v_self->__g, __pyx_v_group) < 0)) __PYX_ERR(0, 192, __pyx_L1_error)
 
-  /* "sprite.pyx":191
+  /* "_sprite.pyx":191
  *         self.__g[group] = 0
  * 
  *     cpdef void remove_internal(self, group):             # <<<<<<<<<<<<<<
@@ -3357,31 +3359,31 @@ static void __pyx_f_6sprite_6Sprite_remove_internal(struct __pyx_obj_6sprite_Spr
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.Sprite.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.Sprite.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_11remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_11remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_11remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_11remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_group) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("remove_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_10remove_internal(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_group));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_10remove_internal(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_group));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_10remove_internal(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_10remove_internal(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("remove_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_6Sprite_remove_internal(__pyx_v_self, __pyx_v_group, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_6Sprite_remove_internal(__pyx_v_self, __pyx_v_group, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3390,7 +3392,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_10remove_internal(struct __pyx_obj_6sp
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3398,7 +3400,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_10remove_internal(struct __pyx_obj_6sp
   return __pyx_r;
 }
 
-/* "sprite.pyx":194
+/* "_sprite.pyx":194
  *         del self.__g[group]
  * 
  *     def update(self, *args):             # <<<<<<<<<<<<<<
@@ -3407,9 +3409,9 @@ static PyObject *__pyx_pf_6sprite_6Sprite_10remove_internal(struct __pyx_obj_6sp
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_6Sprite_12update[] = "method to control sprite behavior\n\n        Sprite.update(*args):\n\n        The default implementation of this method does nothing; it's just a\n        convenient \"hook\" that you can override. This method is called by\n        Group.update() with whatever arguments you give it.\n\n        There is no need to use this method if not using the convenience\n        method by the same name in the Group class.\n\n        ";
-static PyObject *__pyx_pw_6sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_6Sprite_12update[] = "method to control sprite behavior\n\n        Sprite.update(*args):\n\n        The default implementation of this method does nothing; it's just a\n        convenient \"hook\" that you can override. This method is called by\n        Group.update() with whatever arguments you give it.\n\n        There is no need to use this method if not using the convenience\n        method by the same name in the Group class.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_args = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3417,7 +3419,7 @@ static PyObject *__pyx_pw_6sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObj
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "update", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_args = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_6Sprite_12update(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), __pyx_v_args);
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_12update(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), __pyx_v_args);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_args);
@@ -3425,7 +3427,7 @@ static PyObject *__pyx_pw_6sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObj
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_6sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("update", 0);
@@ -3437,7 +3439,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_ob
   return __pyx_r;
 }
 
-/* "sprite.pyx":209
+/* "_sprite.pyx":209
  *         pass
  * 
  *     def kill(self):             # <<<<<<<<<<<<<<
@@ -3446,20 +3448,20 @@ static PyObject *__pyx_pf_6sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_ob
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_15kill(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_6Sprite_14kill[] = "remove the Sprite from all Groups\n\n        Sprite.kill(): return None\n\n        The Sprite is removed from all the Groups that contain it. This won't\n        change anything about the state of the Sprite. It is possible to\n        continue to use the Sprite after this method has been called, including\n        adding it to Groups.\n\n        ";
-static PyObject *__pyx_pw_6sprite_6Sprite_15kill(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_15kill(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_6Sprite_14kill[] = "remove the Sprite from all Groups\n\n        Sprite.kill(): return None\n\n        The Sprite is removed from all the Groups that contain it. This won't\n        change anything about the state of the Sprite. It is possible to\n        continue to use the Sprite after this method has been called, including\n        adding it to Groups.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_6Sprite_15kill(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("kill (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_14kill(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_14kill(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_14kill(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_v_c = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3474,7 +3476,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("kill", 0);
 
-  /* "sprite.pyx":220
+  /* "_sprite.pyx":220
  * 
  *         """
  *         for c in self.__g:             # <<<<<<<<<<<<<<
@@ -3499,7 +3501,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
     __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "sprite.pyx":221
+    /* "_sprite.pyx":221
  *         """
  *         for c in self.__g:
  *             c.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -3527,7 +3529,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":222
+  /* "_sprite.pyx":222
  *         for c in self.__g:
  *             c.remove_internal(self)
  *         self.__g.clear()             # <<<<<<<<<<<<<<
@@ -3540,7 +3542,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
   }
   __pyx_t_9 = __Pyx_PyDict_Clear(__pyx_v_self->__g); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 222, __pyx_L1_error)
 
-  /* "sprite.pyx":209
+  /* "_sprite.pyx":209
  *         pass
  * 
  *     def kill(self):             # <<<<<<<<<<<<<<
@@ -3556,7 +3558,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("sprite.Sprite.kill", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.kill", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_c);
@@ -3565,7 +3567,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
   return __pyx_r;
 }
 
-/* "sprite.pyx":224
+/* "_sprite.pyx":224
  *         self.__g.clear()
  * 
  *     def groups(self):             # <<<<<<<<<<<<<<
@@ -3574,26 +3576,26 @@ static PyObject *__pyx_pf_6sprite_6Sprite_14kill(struct __pyx_obj_6sprite_Sprite
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_17groups(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_6Sprite_16groups[] = "list of Groups that contain this Sprite\n\n        Sprite.groups(): return group_list\n\n        Returns a list of all the Groups that contain this Sprite.\n\n        ";
-static PyObject *__pyx_pw_6sprite_6Sprite_17groups(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_17groups(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_6Sprite_16groups[] = "list of Groups that contain this Sprite\n\n        Sprite.groups(): return group_list\n\n        Returns a list of all the Groups that contain this Sprite.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_6Sprite_17groups(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("groups (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_16groups(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_16groups(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_16groups(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_16groups(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("groups", 0);
 
-  /* "sprite.pyx":232
+  /* "_sprite.pyx":232
  * 
  *         """
  *         return list(self.__g)             # <<<<<<<<<<<<<<
@@ -3607,7 +3609,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_16groups(struct __pyx_obj_6sprite_Spri
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":224
+  /* "_sprite.pyx":224
  *         self.__g.clear()
  * 
  *     def groups(self):             # <<<<<<<<<<<<<<
@@ -3618,7 +3620,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_16groups(struct __pyx_obj_6sprite_Spri
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.groups", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.groups", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3626,7 +3628,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_16groups(struct __pyx_obj_6sprite_Spri
   return __pyx_r;
 }
 
-/* "sprite.pyx":234
+/* "_sprite.pyx":234
  *         return list(self.__g)
  * 
  *     def alive(self):             # <<<<<<<<<<<<<<
@@ -3635,20 +3637,20 @@ static PyObject *__pyx_pf_6sprite_6Sprite_16groups(struct __pyx_obj_6sprite_Spri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_19alive(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_6Sprite_18alive[] = "does the sprite belong to any groups\n\n        Sprite.alive(): return bool\n\n        Returns True when the Sprite belongs to one or more Groups.\n        ";
-static PyObject *__pyx_pw_6sprite_6Sprite_19alive(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_19alive(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_6Sprite_18alive[] = "does the sprite belong to any groups\n\n        Sprite.alive(): return bool\n\n        Returns True when the Sprite belongs to one or more Groups.\n        ";
+static PyObject *__pyx_pw_7_sprite_6Sprite_19alive(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("alive (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_18alive(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_18alive(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_18alive(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3656,7 +3658,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprit
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("alive", 0);
 
-  /* "sprite.pyx":241
+  /* "_sprite.pyx":241
  *         Returns True when the Sprite belongs to one or more Groups.
  *         """
  *         return truth(self.__g)             # <<<<<<<<<<<<<<
@@ -3685,7 +3687,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprit
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":234
+  /* "_sprite.pyx":234
  *         return list(self.__g)
  * 
  *     def alive(self):             # <<<<<<<<<<<<<<
@@ -3698,7 +3700,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprit
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.Sprite.alive", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.alive", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3706,7 +3708,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":243
+/* "_sprite.pyx":243
  *         return truth(self.__g)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -3715,19 +3717,19 @@ static PyObject *__pyx_pf_6sprite_6Sprite_18alive(struct __pyx_obj_6sprite_Sprit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_21__repr__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_21__repr__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_21__repr__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_21__repr__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__repr__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_20__repr__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_20__repr__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_20__repr__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3736,7 +3738,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sp
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "sprite.pyx":244
+  /* "_sprite.pyx":244
  * 
  *     def __repr__(self):
  *         return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))             # <<<<<<<<<<<<<<
@@ -3774,7 +3776,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sp
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":243
+  /* "_sprite.pyx":243
  *         return truth(self.__g)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -3787,7 +3789,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sp
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.Sprite.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3795,7 +3797,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sp
   return __pyx_r;
 }
 
-/* "sprite.pyx":139
+/* "_sprite.pyx":139
  *     """
  * 
  *     cdef public dict __g             # <<<<<<<<<<<<<<
@@ -3804,19 +3806,19 @@ static PyObject *__pyx_pf_6sprite_6Sprite_20__repr__(struct __pyx_obj_6sprite_Sp
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_3__g_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_3__g_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_3__g_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_3__g_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_3__g___get__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_3__g___get__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_3__g___get__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_3__g___get__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -3833,19 +3835,19 @@ static PyObject *__pyx_pf_6sprite_6Sprite_3__g___get__(struct __pyx_obj_6sprite_
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_3__g_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_3__g_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_6Sprite_3__g_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_3__g_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_3__g_2__set__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_3__g_2__set__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_3__g_2__set__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_6Sprite_3__g_2__set__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3864,7 +3866,7 @@ static int __pyx_pf_6sprite_6Sprite_3__g_2__set__(struct __pyx_obj_6sprite_Sprit
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.__g.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.__g.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -3872,19 +3874,19 @@ static int __pyx_pf_6sprite_6Sprite_3__g_2__set__(struct __pyx_obj_6sprite_Sprit
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_3__g_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_3__g_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_6Sprite_3__g_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_3__g_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_3__g_4__del__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_3__g_4__del__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_3__g_4__del__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static int __pyx_pf_7_sprite_6Sprite_3__g_4__del__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -3900,7 +3902,7 @@ static int __pyx_pf_6sprite_6Sprite_3__g_4__del__(struct __pyx_obj_6sprite_Sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":140
+/* "_sprite.pyx":140
  * 
  *     cdef public dict __g
  *     cdef public object image             # <<<<<<<<<<<<<<
@@ -3909,19 +3911,19 @@ static int __pyx_pf_6sprite_6Sprite_3__g_4__del__(struct __pyx_obj_6sprite_Sprit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_5image_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_5image_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_5image_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_5image_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_5image___get__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_5image___get__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_5image___get__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_5image___get__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -3938,19 +3940,19 @@ static PyObject *__pyx_pf_6sprite_6Sprite_5image___get__(struct __pyx_obj_6sprit
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_5image_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_5image_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_6Sprite_5image_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_5image_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_5image_2__set__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_5image_2__set__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_5image_2__set__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_6Sprite_5image_2__set__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__", 0);
@@ -3967,19 +3969,19 @@ static int __pyx_pf_6sprite_6Sprite_5image_2__set__(struct __pyx_obj_6sprite_Spr
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_5image_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_5image_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_6Sprite_5image_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_5image_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_5image_4__del__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_5image_4__del__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_5image_4__del__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static int __pyx_pf_7_sprite_6Sprite_5image_4__del__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -3995,7 +3997,7 @@ static int __pyx_pf_6sprite_6Sprite_5image_4__del__(struct __pyx_obj_6sprite_Spr
   return __pyx_r;
 }
 
-/* "sprite.pyx":141
+/* "_sprite.pyx":141
  *     cdef public dict __g
  *     cdef public object image
  *     cdef public Rect rect             # <<<<<<<<<<<<<<
@@ -4004,19 +4006,19 @@ static int __pyx_pf_6sprite_6Sprite_5image_4__del__(struct __pyx_obj_6sprite_Spr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_4rect_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_4rect_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_4rect_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_4rect_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_4rect___get__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_4rect___get__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_4rect___get__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_4rect___get__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -4033,24 +4035,24 @@ static PyObject *__pyx_pf_6sprite_6Sprite_4rect___get__(struct __pyx_obj_6sprite
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_4rect_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_4rect_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_6Sprite_4rect_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_4rect_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_4rect_2__set__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_4rect_2__set__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_4rect_2__set__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_6Sprite_4rect_2__set__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6sprite_Rect))))) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_7_sprite_Rect))))) __PYX_ERR(0, 141, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -4064,7 +4066,7 @@ static int __pyx_pf_6sprite_6Sprite_4rect_2__set__(struct __pyx_obj_6sprite_Spri
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.rect.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.rect.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -4072,19 +4074,19 @@ static int __pyx_pf_6sprite_6Sprite_4rect_2__set__(struct __pyx_obj_6sprite_Spri
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_6Sprite_4rect_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_6Sprite_4rect_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_6Sprite_4rect_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_6Sprite_4rect_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_4rect_4__del__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_4rect_4__del__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_6Sprite_4rect_4__del__(struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static int __pyx_pf_7_sprite_6Sprite_4rect_4__del__(struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -4107,19 +4109,19 @@ static int __pyx_pf_6sprite_6Sprite_4rect_4__del__(struct __pyx_obj_6sprite_Spri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_23__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_23__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_23__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_23__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_22__reduce_cython__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_22__reduce_cython__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Sprite *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_22__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Sprite *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4146,7 +4148,7 @@ static PyObject *__pyx_pf_6sprite_6Sprite_22__reduce_cython__(CYTHON_UNUSED stru
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -4161,19 +4163,19 @@ static PyObject *__pyx_pf_6sprite_6Sprite_22__reduce_cython__(CYTHON_UNUSED stru
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_6Sprite_25__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_6Sprite_25__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_6Sprite_25__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_6Sprite_25__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_6Sprite_24__setstate_cython__(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_6Sprite_24__setstate_cython__(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6Sprite_24__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_6Sprite_24__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4200,14 +4202,14 @@ static PyObject *__pyx_pf_6sprite_6Sprite_24__setstate_cython__(CYTHON_UNUSED st
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Sprite.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Sprite.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":300
+/* "_sprite.pyx":300
  *         return self._visible
  * 
  *     visible = property(lambda self: self._get_visible(),             # <<<<<<<<<<<<<<
@@ -4216,20 +4218,20 @@ static PyObject *__pyx_pf_6sprite_6Sprite_24__setstate_cython__(CYTHON_UNUSED st
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11DirtySprite_8lambda1(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_6sprite_11DirtySprite_8lambda1 = {"lambda1", (PyCFunction)__pyx_pw_6sprite_11DirtySprite_8lambda1, METH_O, 0};
-static PyObject *__pyx_pw_6sprite_11DirtySprite_8lambda1(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_8lambda1(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static PyMethodDef __pyx_mdef_7_sprite_11DirtySprite_8lambda1 = {"lambda1", (PyCFunction)__pyx_pw_7_sprite_11DirtySprite_8lambda1, METH_O, 0};
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_8lambda1(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("lambda1 (wrapper)", 0);
-  __pyx_r = __pyx_lambda_funcdef_6sprite_11DirtySprite_lambda1(__pyx_self, ((PyObject *)__pyx_v_self));
+  __pyx_r = __pyx_lambda_funcdef_7_sprite_11DirtySprite_lambda1(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda1(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_lambda_funcdef_7_sprite_11DirtySprite_lambda1(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4263,7 +4265,7 @@ static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda1(CYTHON_UNUSE
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.DirtySprite.lambda1", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite.lambda1", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4271,7 +4273,7 @@ static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda1(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "sprite.pyx":301
+/* "_sprite.pyx":301
  * 
  *     visible = property(lambda self: self._get_visible(),
  *                        lambda self, value: self._set_visible(value),             # <<<<<<<<<<<<<<
@@ -4280,9 +4282,9 @@ static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda1(CYTHON_UNUSE
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11DirtySprite_9lambda2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6sprite_11DirtySprite_9lambda2 = {"lambda2", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_11DirtySprite_9lambda2, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6sprite_11DirtySprite_9lambda2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_9lambda2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_7_sprite_11DirtySprite_9lambda2 = {"lambda2", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_11DirtySprite_9lambda2, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_9lambda2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_value = 0;
   PyObject *__pyx_r = 0;
@@ -4330,18 +4332,18 @@ static PyObject *__pyx_pw_6sprite_11DirtySprite_9lambda2(PyObject *__pyx_self, P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("lambda2", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 301, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.DirtySprite.lambda2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite.lambda2", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_lambda_funcdef_6sprite_11DirtySprite_lambda2(__pyx_self, __pyx_v_self, __pyx_v_value);
+  __pyx_r = __pyx_lambda_funcdef_7_sprite_11DirtySprite_lambda2(__pyx_self, __pyx_v_self, __pyx_v_value);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda2(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static PyObject *__pyx_lambda_funcdef_7_sprite_11DirtySprite_lambda2(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4375,7 +4377,7 @@ static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda2(CYTHON_UNUSE
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.DirtySprite.lambda2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite.lambda2", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4383,7 +4385,7 @@ static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda2(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "sprite.pyx":279
+/* "_sprite.pyx":279
  *     """
  * 
  *     def __init__(self, *groups):             # <<<<<<<<<<<<<<
@@ -4392,9 +4394,9 @@ static PyObject *__pyx_lambda_funcdef_6sprite_11DirtySprite_lambda2(CYTHON_UNUSE
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11DirtySprite_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6sprite_11DirtySprite_1__init__ = {"__init__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_11DirtySprite_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6sprite_11DirtySprite_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_7_sprite_11DirtySprite_1__init__ = {"__init__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_11DirtySprite_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_groups = 0;
   PyObject *__pyx_r = 0;
@@ -4444,11 +4446,11 @@ static PyObject *__pyx_pw_6sprite_11DirtySprite_1__init__(PyObject *__pyx_self, 
   __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 279, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_groups); __pyx_v_groups = 0;
-  __Pyx_AddTraceback("sprite.DirtySprite.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_11DirtySprite___init__(__pyx_self, __pyx_v_self, __pyx_v_groups);
+  __pyx_r = __pyx_pf_7_sprite_11DirtySprite___init__(__pyx_self, __pyx_v_self, __pyx_v_groups);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_groups);
@@ -4456,7 +4458,7 @@ static PyObject *__pyx_pw_6sprite_11DirtySprite_1__init__(PyObject *__pyx_self, 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_groups) {
+static PyObject *__pyx_pf_7_sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_groups) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4464,7 +4466,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":281
+  /* "_sprite.pyx":281
  *     def __init__(self, *groups):
  * 
  *         self.dirty = 1             # <<<<<<<<<<<<<<
@@ -4473,7 +4475,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dirty, __pyx_int_1) < 0) __PYX_ERR(0, 281, __pyx_L1_error)
 
-  /* "sprite.pyx":282
+  /* "_sprite.pyx":282
  * 
  *         self.dirty = 1
  *         self.blendmode = 0  # pygame 1.8, referred to as special_flags in             # <<<<<<<<<<<<<<
@@ -4482,7 +4484,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_blendmode, __pyx_int_0) < 0) __PYX_ERR(0, 282, __pyx_L1_error)
 
-  /* "sprite.pyx":284
+  /* "_sprite.pyx":284
  *         self.blendmode = 0  # pygame 1.8, referred to as special_flags in
  *                             # the documentation of Surface.blit
  *         self._visible = 1             # <<<<<<<<<<<<<<
@@ -4491,7 +4493,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_visible, __pyx_int_1) < 0) __PYX_ERR(0, 284, __pyx_L1_error)
 
-  /* "sprite.pyx":285
+  /* "_sprite.pyx":285
  *                             # the documentation of Surface.blit
  *         self._visible = 1
  *         self._layer = getattr(self, '_layer', 0)    # Default 0 unless             # <<<<<<<<<<<<<<
@@ -4503,7 +4505,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_layer, __pyx_t_1) < 0) __PYX_ERR(0, 285, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":287
+  /* "_sprite.pyx":287
  *         self._layer = getattr(self, '_layer', 0)    # Default 0 unless
  *                                                     # initialized differently.
  *         self.source_rect = None             # <<<<<<<<<<<<<<
@@ -4512,14 +4514,14 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_source_rect, Py_None) < 0) __PYX_ERR(0, 287, __pyx_L1_error)
 
-  /* "sprite.pyx":288
+  /* "_sprite.pyx":288
  *                                                     # initialized differently.
  *         self.source_rect = None
  *         Sprite.__init__(self, *groups)             # <<<<<<<<<<<<<<
  * 
  *     def _set_visible(self, val):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_Sprite), __pyx_n_s_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_Sprite), __pyx_n_s_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -4535,7 +4537,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":279
+  /* "_sprite.pyx":279
  *     """
  * 
  *     def __init__(self, *groups):             # <<<<<<<<<<<<<<
@@ -4550,7 +4552,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.DirtySprite.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4558,7 +4560,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
   return __pyx_r;
 }
 
-/* "sprite.pyx":290
+/* "_sprite.pyx":290
  *         Sprite.__init__(self, *groups)
  * 
  *     def _set_visible(self, val):             # <<<<<<<<<<<<<<
@@ -4567,10 +4569,10 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite___init__(CYTHON_UNUSED PyObject 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11DirtySprite_3_set_visible(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_11DirtySprite_2_set_visible[] = "set the visible value (0 or 1) and makes the sprite dirty";
-static PyMethodDef __pyx_mdef_6sprite_11DirtySprite_3_set_visible = {"_set_visible", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_11DirtySprite_3_set_visible, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_11DirtySprite_2_set_visible};
-static PyObject *__pyx_pw_6sprite_11DirtySprite_3_set_visible(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_3_set_visible(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_11DirtySprite_2_set_visible[] = "set the visible value (0 or 1) and makes the sprite dirty";
+static PyMethodDef __pyx_mdef_7_sprite_11DirtySprite_3_set_visible = {"_set_visible", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_11DirtySprite_3_set_visible, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_11DirtySprite_2_set_visible};
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_3_set_visible(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_val = 0;
   PyObject *__pyx_r = 0;
@@ -4618,18 +4620,18 @@ static PyObject *__pyx_pw_6sprite_11DirtySprite_3_set_visible(PyObject *__pyx_se
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("_set_visible", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 290, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.DirtySprite._set_visible", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite._set_visible", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_11DirtySprite_2_set_visible(__pyx_self, __pyx_v_self, __pyx_v_val);
+  __pyx_r = __pyx_pf_7_sprite_11DirtySprite_2_set_visible(__pyx_self, __pyx_v_self, __pyx_v_val);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_val) {
+static PyObject *__pyx_pf_7_sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_val) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4637,7 +4639,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("_set_visible", 0);
 
-  /* "sprite.pyx":292
+  /* "_sprite.pyx":292
  *     def _set_visible(self, val):
  *         """set the visible value (0 or 1) and makes the sprite dirty"""
  *         self._visible = val             # <<<<<<<<<<<<<<
@@ -4646,7 +4648,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_visible, __pyx_v_val) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
 
-  /* "sprite.pyx":293
+  /* "_sprite.pyx":293
  *         """set the visible value (0 or 1) and makes the sprite dirty"""
  *         self._visible = val
  *         if self.dirty < 2:             # <<<<<<<<<<<<<<
@@ -4661,7 +4663,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_3) {
 
-    /* "sprite.pyx":294
+    /* "_sprite.pyx":294
  *         self._visible = val
  *         if self.dirty < 2:
  *             self.dirty = 1             # <<<<<<<<<<<<<<
@@ -4670,7 +4672,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
  */
     if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dirty, __pyx_int_1) < 0) __PYX_ERR(0, 294, __pyx_L1_error)
 
-    /* "sprite.pyx":293
+    /* "_sprite.pyx":293
  *         """set the visible value (0 or 1) and makes the sprite dirty"""
  *         self._visible = val
  *         if self.dirty < 2:             # <<<<<<<<<<<<<<
@@ -4679,7 +4681,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
  */
   }
 
-  /* "sprite.pyx":290
+  /* "_sprite.pyx":290
  *         Sprite.__init__(self, *groups)
  * 
  *     def _set_visible(self, val):             # <<<<<<<<<<<<<<
@@ -4693,7 +4695,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.DirtySprite._set_visible", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite._set_visible", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4701,7 +4703,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-/* "sprite.pyx":296
+/* "_sprite.pyx":296
  *             self.dirty = 1
  * 
  *     def _get_visible(self):             # <<<<<<<<<<<<<<
@@ -4710,27 +4712,27 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_2_set_visible(CYTHON_UNUSED PyOb
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11DirtySprite_5_get_visible(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_6sprite_11DirtySprite_4_get_visible[] = "return the visible value of that sprite";
-static PyMethodDef __pyx_mdef_6sprite_11DirtySprite_5_get_visible = {"_get_visible", (PyCFunction)__pyx_pw_6sprite_11DirtySprite_5_get_visible, METH_O, __pyx_doc_6sprite_11DirtySprite_4_get_visible};
-static PyObject *__pyx_pw_6sprite_11DirtySprite_5_get_visible(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_5_get_visible(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_7_sprite_11DirtySprite_4_get_visible[] = "return the visible value of that sprite";
+static PyMethodDef __pyx_mdef_7_sprite_11DirtySprite_5_get_visible = {"_get_visible", (PyCFunction)__pyx_pw_7_sprite_11DirtySprite_5_get_visible, METH_O, __pyx_doc_7_sprite_11DirtySprite_4_get_visible};
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_5_get_visible(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_get_visible (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11DirtySprite_4_get_visible(__pyx_self, ((PyObject *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11DirtySprite_4_get_visible(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("_get_visible", 0);
 
-  /* "sprite.pyx":298
+  /* "_sprite.pyx":298
  *     def _get_visible(self):
  *         """return the visible value of that sprite"""
  *         return self._visible             # <<<<<<<<<<<<<<
@@ -4744,7 +4746,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyOb
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":296
+  /* "_sprite.pyx":296
  *             self.dirty = 1
  * 
  *     def _get_visible(self):             # <<<<<<<<<<<<<<
@@ -4755,7 +4757,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyOb
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.DirtySprite._get_visible", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite._get_visible", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4763,7 +4765,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-/* "sprite.pyx":306
+/* "_sprite.pyx":306
  *                            "assign 0 for invisible and 1 for visible")
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -4772,20 +4774,20 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_4_get_visible(CYTHON_UNUSED PyOb
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11DirtySprite_7__repr__(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_6sprite_11DirtySprite_7__repr__ = {"__repr__", (PyCFunction)__pyx_pw_6sprite_11DirtySprite_7__repr__, METH_O, 0};
-static PyObject *__pyx_pw_6sprite_11DirtySprite_7__repr__(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_7__repr__(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static PyMethodDef __pyx_mdef_7_sprite_11DirtySprite_7__repr__ = {"__repr__", (PyCFunction)__pyx_pw_7_sprite_11DirtySprite_7__repr__, METH_O, 0};
+static PyObject *__pyx_pw_7_sprite_11DirtySprite_7__repr__(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__repr__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11DirtySprite_6__repr__(__pyx_self, ((PyObject *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11DirtySprite_6__repr__(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4795,7 +4797,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
   Py_ssize_t __pyx_t_5;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "sprite.pyx":307
+  /* "_sprite.pyx":307
  * 
  *     def __repr__(self):
  *         return "<%s DirtySprite(in %d groups)>" % \             # <<<<<<<<<<<<<<
@@ -4804,7 +4806,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "sprite.pyx":308
+  /* "_sprite.pyx":308
  *     def __repr__(self):
  *         return "<%s DirtySprite(in %d groups)>" % \
  *             (self.__class__.__name__, len(self.groups()))             # <<<<<<<<<<<<<<
@@ -4846,7 +4848,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
   __pyx_t_2 = 0;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":307
+  /* "_sprite.pyx":307
  * 
  *     def __repr__(self):
  *         return "<%s DirtySprite(in %d groups)>" % \             # <<<<<<<<<<<<<<
@@ -4860,7 +4862,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":306
+  /* "_sprite.pyx":306
  *                            "assign 0 for invisible and 1 for visible")
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -4874,7 +4876,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.DirtySprite.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.DirtySprite.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4882,7 +4884,7 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "sprite.pyx":329
+/* "_sprite.pyx":329
  *     cdef public list lostsprites
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -4891,28 +4893,28 @@ static PyObject *__pyx_pf_6sprite_11DirtySprite_6__repr__(CYTHON_UNUSED PyObject
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_13AbstractGroup_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
     __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup___cinit__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup___cinit__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup___cinit__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static int __pyx_pf_7_sprite_13AbstractGroup___cinit__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "sprite.pyx":330
+  /* "_sprite.pyx":330
  * 
  *     def __cinit__(self):
  *         self.spritedict = {}             # <<<<<<<<<<<<<<
@@ -4927,7 +4929,7 @@ static int __pyx_pf_6sprite_13AbstractGroup___cinit__(struct __pyx_obj_6sprite_A
   __pyx_v_self->spritedict = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":331
+  /* "_sprite.pyx":331
  *     def __cinit__(self):
  *         self.spritedict = {}
  *         self.lostsprites = []             # <<<<<<<<<<<<<<
@@ -4942,7 +4944,7 @@ static int __pyx_pf_6sprite_13AbstractGroup___cinit__(struct __pyx_obj_6sprite_A
   __pyx_v_self->lostsprites = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":329
+  /* "_sprite.pyx":329
  *     cdef public list lostsprites
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -4955,14 +4957,14 @@ static int __pyx_pf_6sprite_13AbstractGroup___cinit__(struct __pyx_obj_6sprite_A
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":333
+/* "_sprite.pyx":333
  *         self.lostsprites = []
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -4970,8 +4972,8 @@ static int __pyx_pf_6sprite_13AbstractGroup___cinit__(struct __pyx_obj_6sprite_A
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_f_7_sprite_13AbstractGroup_sprites(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, int __pyx_skip_dispatch) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4990,7 +4992,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprit
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sprites); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_13AbstractGroup_3sprites)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_13AbstractGroup_3sprites)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -5027,7 +5029,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprit
     #endif
   }
 
-  /* "sprite.pyx":344
+  /* "_sprite.pyx":344
  * 
  *         """
  *         return list(self.spritedict)             # <<<<<<<<<<<<<<
@@ -5041,7 +5043,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprit
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":333
+  /* "_sprite.pyx":333
  *         self.lostsprites = []
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -5055,7 +5057,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.AbstractGroup.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5064,26 +5066,26 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_sprites(struct __pyx_obj_6sprit
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_2sprites[] = "get a list of sprites in the group\n\n        Group.sprite(): return list\n\n        Returns an object that can be looped over with a 'for' loop. (For now,\n        it is always a list, but this could change in a future version of\n        pygame.) Alternatively, you can get the same information by iterating\n        directly over the sprite group, e.g. 'for sprite in group'.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_2sprites[] = "get a list of sprites in the group\n\n        Group.sprite(): return list\n\n        Returns an object that can be looped over with a 'for' loop. (For now,\n        it is always a list, but this could change in a future version of\n        pygame.) Alternatively, you can get the same information by iterating\n        directly over the sprite group, e.g. 'for sprite in group'.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("sprites (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_2sprites(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_2sprites(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_2sprites(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_2sprites(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("sprites", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_13AbstractGroup_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_13AbstractGroup_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5092,7 +5094,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_2sprites(struct __pyx_obj_6spr
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5100,7 +5102,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_2sprites(struct __pyx_obj_6spr
   return __pyx_r;
 }
 
-/* "sprite.pyx":346
+/* "_sprite.pyx":346
  *         return list(self.spritedict)
  * 
  *     cpdef void add_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -5108,8 +5110,8 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_2sprites(struct __pyx_obj_6spr
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_13AbstractGroup_add_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_13AbstractGroup_add_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5127,7 +5129,7 @@ static void __pyx_f_6sprite_13AbstractGroup_add_internal(struct __pyx_obj_6sprit
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_13AbstractGroup_5add_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_13AbstractGroup_5add_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5161,7 +5163,7 @@ static void __pyx_f_6sprite_13AbstractGroup_add_internal(struct __pyx_obj_6sprit
     #endif
   }
 
-  /* "sprite.pyx":347
+  /* "_sprite.pyx":347
  * 
  *     cpdef void add_internal(self, sprite):
  *         self.spritedict[sprite] = 0             # <<<<<<<<<<<<<<
@@ -5174,7 +5176,7 @@ static void __pyx_f_6sprite_13AbstractGroup_add_internal(struct __pyx_obj_6sprit
   }
   if (unlikely(PyDict_SetItem(__pyx_v_self->spritedict, __pyx_v_sprite, __pyx_int_0) < 0)) __PYX_ERR(0, 347, __pyx_L1_error)
 
-  /* "sprite.pyx":346
+  /* "_sprite.pyx":346
  *         return list(self.spritedict)
  * 
  *     cpdef void add_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -5189,31 +5191,31 @@ static void __pyx_f_6sprite_13AbstractGroup_add_internal(struct __pyx_obj_6sprit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.AbstractGroup.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.AbstractGroup.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("add_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_4add_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_4add_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_4add_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_4add_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("add_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_13AbstractGroup_add_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_13AbstractGroup_add_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5222,7 +5224,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_4add_internal(struct __pyx_obj
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5230,7 +5232,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_4add_internal(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "sprite.pyx":349
+/* "_sprite.pyx":349
  *         self.spritedict[sprite] = 0
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -5238,8 +5240,8 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_4add_internal(struct __pyx_obj
  *         if r:
  */
 
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_13AbstractGroup_remove_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5260,7 +5262,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_remove_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_13AbstractGroup_7remove_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_13AbstractGroup_7remove_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5294,7 +5296,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
     #endif
   }
 
-  /* "sprite.pyx":350
+  /* "_sprite.pyx":350
  * 
  *     cpdef void remove_internal(self, sprite):
  *         r = self.spritedict[sprite]             # <<<<<<<<<<<<<<
@@ -5310,7 +5312,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
   __pyx_v_r = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":351
+  /* "_sprite.pyx":351
  *     cpdef void remove_internal(self, sprite):
  *         r = self.spritedict[sprite]
  *         if r:             # <<<<<<<<<<<<<<
@@ -5320,7 +5322,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
   __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_r); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 351, __pyx_L1_error)
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":352
+    /* "_sprite.pyx":352
  *         r = self.spritedict[sprite]
  *         if r:
  *             self.lostsprites.append(r)             # <<<<<<<<<<<<<<
@@ -5333,7 +5335,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
     }
     __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_self->lostsprites, __pyx_v_r); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 352, __pyx_L1_error)
 
-    /* "sprite.pyx":351
+    /* "_sprite.pyx":351
  *     cpdef void remove_internal(self, sprite):
  *         r = self.spritedict[sprite]
  *         if r:             # <<<<<<<<<<<<<<
@@ -5342,7 +5344,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
  */
   }
 
-  /* "sprite.pyx":353
+  /* "_sprite.pyx":353
  *         if r:
  *             self.lostsprites.append(r)
  *         del self.spritedict[sprite]             # <<<<<<<<<<<<<<
@@ -5355,7 +5357,7 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
   }
   if (unlikely(PyDict_DelItem(__pyx_v_self->spritedict, __pyx_v_sprite) < 0)) __PYX_ERR(0, 353, __pyx_L1_error)
 
-  /* "sprite.pyx":349
+  /* "_sprite.pyx":349
  *         self.spritedict[sprite] = 0
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -5370,32 +5372,32 @@ static void __pyx_f_6sprite_13AbstractGroup_remove_internal(struct __pyx_obj_6sp
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.AbstractGroup.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.AbstractGroup.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_r);
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("remove_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_6remove_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_6remove_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_6remove_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_6remove_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("remove_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_13AbstractGroup_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_13AbstractGroup_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5404,7 +5406,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_6remove_internal(struct __pyx_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5412,7 +5414,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_6remove_internal(struct __pyx_
   return __pyx_r;
 }
 
-/* "sprite.pyx":355
+/* "_sprite.pyx":355
  *         del self.spritedict[sprite]
  * 
  *     cpdef bint has_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -5420,8 +5422,8 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_6remove_internal(struct __pyx_
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_9has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_9has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static int __pyx_f_7_sprite_13AbstractGroup_has_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5441,7 +5443,7 @@ static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_has_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_13AbstractGroup_9has_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_13AbstractGroup_9has_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5477,7 +5479,7 @@ static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite
     #endif
   }
 
-  /* "sprite.pyx":356
+  /* "_sprite.pyx":356
  * 
  *     cpdef bint has_internal(self, sprite):
  *         return sprite in self.spritedict             # <<<<<<<<<<<<<<
@@ -5492,7 +5494,7 @@ static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite
   __pyx_r = __pyx_t_5;
   goto __pyx_L0;
 
-  /* "sprite.pyx":355
+  /* "_sprite.pyx":355
  *         del self.spritedict[sprite]
  * 
  *     cpdef bint has_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -5506,7 +5508,7 @@ static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.AbstractGroup.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.AbstractGroup.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -5514,25 +5516,25 @@ static int __pyx_f_6sprite_13AbstractGroup_has_internal(struct __pyx_obj_6sprite
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_9has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_9has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_9has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_9has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("has_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_8has_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_8has_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_8has_internal(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_8has_internal(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("has_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_f_6sprite_13AbstractGroup_has_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_f_7_sprite_13AbstractGroup_has_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5541,7 +5543,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_8has_internal(struct __pyx_obj
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5549,7 +5551,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_8has_internal(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "sprite.pyx":358
+/* "_sprite.pyx":358
  *         return sprite in self.spritedict
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
@@ -5558,20 +5560,20 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_8has_internal(struct __pyx_obj
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_11copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_10copy[] = "copy a group with all the same sprites\n\n        Group.copy(): return Group\n\n        Returns a copy of the group that is an instance of the same class\n        and has the same sprites in it.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_11copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_11copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_10copy[] = "copy a group with all the same sprites\n\n        Group.copy(): return Group\n\n        Returns a copy of the group that is an instance of the same class\n        and has the same sprites in it.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_11copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("copy (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_10copy(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_10copy(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_10copy(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5580,7 +5582,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprit
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("copy", 0);
 
-  /* "sprite.pyx":367
+  /* "_sprite.pyx":367
  * 
  *         """
  *         return self.__class__(self.sprites())             # <<<<<<<<<<<<<<
@@ -5590,7 +5592,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprit
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_class); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 367, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
+  __pyx_t_3 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5612,7 +5614,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprit
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":358
+  /* "_sprite.pyx":358
  *         return sprite in self.spritedict
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
@@ -5626,7 +5628,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.AbstractGroup.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5634,7 +5636,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":369
+/* "_sprite.pyx":369
  *         return self.__class__(self.sprites())
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5643,26 +5645,26 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10copy(struct __pyx_obj_6sprit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_13__iter__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_13__iter__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_13__iter__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_13__iter__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_12__iter__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_12__iter__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_12__iter__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("__iter__", 0);
 
-  /* "sprite.pyx":370
+  /* "_sprite.pyx":370
  * 
  *     def __iter__(self):
  *         return iter(self.sprites())             # <<<<<<<<<<<<<<
@@ -5670,7 +5672,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6s
  *     def __contains__(self, sprite):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 370, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -5679,7 +5681,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6s
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":369
+  /* "_sprite.pyx":369
  *         return self.__class__(self.sprites())
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5691,7 +5693,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6s
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__iter__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__iter__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5699,7 +5701,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6s
   return __pyx_r;
 }
 
-/* "sprite.pyx":372
+/* "_sprite.pyx":372
  *         return iter(self.sprites())
  * 
  *     def __contains__(self, sprite):             # <<<<<<<<<<<<<<
@@ -5708,19 +5710,19 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_12__iter__(struct __pyx_obj_6s
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_15__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_15__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static int __pyx_pw_7_sprite_13AbstractGroup_15__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_15__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__contains__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_14__contains__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_14__contains__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup_14__contains__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static int __pyx_pf_7_sprite_13AbstractGroup_14__contains__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprite) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5729,7 +5731,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_14__contains__(struct __pyx_obj_6spr
   int __pyx_t_4;
   __Pyx_RefNannySetupContext("__contains__", 0);
 
-  /* "sprite.pyx":373
+  /* "_sprite.pyx":373
  * 
  *     def __contains__(self, sprite):
  *         return self.has(sprite)             # <<<<<<<<<<<<<<
@@ -5758,7 +5760,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_14__contains__(struct __pyx_obj_6spr
   __pyx_r = __pyx_t_4;
   goto __pyx_L0;
 
-  /* "sprite.pyx":372
+  /* "_sprite.pyx":372
  *         return iter(self.sprites())
  * 
  *     def __contains__(self, sprite):             # <<<<<<<<<<<<<<
@@ -5771,14 +5773,14 @@ static int __pyx_pf_6sprite_13AbstractGroup_14__contains__(struct __pyx_obj_6spr
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__contains__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__contains__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":375
+/* "_sprite.pyx":375
  *         return self.has(sprite)
  * 
  *     def add(self, *sprites):             # <<<<<<<<<<<<<<
@@ -5787,9 +5789,9 @@ static int __pyx_pf_6sprite_13AbstractGroup_14__contains__(struct __pyx_obj_6spr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_17add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_16add[] = "add sprite(s) to group\n\n        Group.add(sprite, list, group, ...): return None\n\n        Adds a sprite or sequence of sprites to a group.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_17add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_17add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_16add[] = "add sprite(s) to group\n\n        Group.add(sprite, list, group, ...): return None\n\n        Adds a sprite or sequence of sprites to a group.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_17add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5797,7 +5799,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_17add(PyObject *__pyx_v_self, 
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "add", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_16add(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprites);
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_16add(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprites);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -5805,7 +5807,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_17add(PyObject *__pyx_v_self, 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_16add(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites) {
   PyObject *__pyx_v_sprite = NULL;
   PyObject *__pyx_v_spr = NULL;
   PyObject *__pyx_r = NULL;
@@ -5829,7 +5831,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
   PyObject *__pyx_t_17 = NULL;
   __Pyx_RefNannySetupContext("add", 0);
 
-  /* "sprite.pyx":383
+  /* "_sprite.pyx":383
  * 
  *         """
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -5848,46 +5850,46 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
     __Pyx_XDECREF_SET(__pyx_v_sprite, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":387
+    /* "_sprite.pyx":387
  *             # If this is the case, we should add the sprite itself,
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
  *                 if not self.has_internal(<Sprite>sprite):
  *                     self.add_internal(<Sprite>sprite)
  */
-    __pyx_t_4 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_6sprite_Sprite); 
+    __pyx_t_4 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_7_sprite_Sprite); 
     __pyx_t_5 = (__pyx_t_4 != 0);
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":388
+      /* "_sprite.pyx":388
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):
  *                 if not self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
  *                     self.add_internal(<Sprite>sprite)
  *                     (<Sprite>sprite).add_internal(self)
  */
-      __pyx_t_5 = ((!(((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0)) != 0);
+      __pyx_t_5 = ((!(((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0)) != 0);
       if (__pyx_t_5) {
 
-        /* "sprite.pyx":389
+        /* "_sprite.pyx":389
  *             if isinstance(sprite, Sprite):
  *                 if not self.has_internal(<Sprite>sprite):
  *                     self.add_internal(<Sprite>sprite)             # <<<<<<<<<<<<<<
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  */
-        ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0);
+        ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0);
 
-        /* "sprite.pyx":390
+        /* "_sprite.pyx":390
  *                 if not self.has_internal(<Sprite>sprite):
  *                     self.add_internal(<Sprite>sprite)
  *                     (<Sprite>sprite).add_internal(self)             # <<<<<<<<<<<<<<
  *             else:
  *                 try:
  */
-        ((struct __pyx_vtabstruct_6sprite_Sprite *)((struct __pyx_obj_6sprite_Sprite *)__pyx_v_sprite)->__pyx_vtab)->add_internal(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_sprite), ((PyObject *)__pyx_v_self), 0);
+        ((struct __pyx_vtabstruct_7_sprite_Sprite *)((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_sprite)->__pyx_vtab)->add_internal(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_sprite), ((PyObject *)__pyx_v_self), 0);
 
-        /* "sprite.pyx":388
+        /* "_sprite.pyx":388
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):
  *                 if not self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
@@ -5896,7 +5898,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
  */
       }
 
-      /* "sprite.pyx":387
+      /* "_sprite.pyx":387
  *             # If this is the case, we should add the sprite itself,
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
@@ -5906,7 +5908,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":392
+    /* "_sprite.pyx":392
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -5923,7 +5925,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
         __Pyx_XGOTREF(__pyx_t_8);
         /*try:*/ {
 
-          /* "sprite.pyx":395
+          /* "_sprite.pyx":395
  *                     # See if sprite is an iterator, like a list or sprite
  *                     # group.
  *                     self.add(*sprite)             # <<<<<<<<<<<<<<
@@ -5940,7 +5942,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-          /* "sprite.pyx":392
+          /* "_sprite.pyx":392
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -5957,7 +5959,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "sprite.pyx":396
+        /* "_sprite.pyx":396
  *                     # group.
  *                     self.add(*sprite)
  *                 except (TypeError, AttributeError):             # <<<<<<<<<<<<<<
@@ -5966,13 +5968,13 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
  */
         __pyx_t_11 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_TypeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
         if (__pyx_t_11) {
-          __Pyx_AddTraceback("sprite.AbstractGroup.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
+          __Pyx_AddTraceback("_sprite.AbstractGroup.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
           if (__Pyx_GetException(&__pyx_t_10, &__pyx_t_9, &__pyx_t_3) < 0) __PYX_ERR(0, 396, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_GOTREF(__pyx_t_9);
           __Pyx_GOTREF(__pyx_t_3);
 
-          /* "sprite.pyx":401
+          /* "_sprite.pyx":401
  *                     # subclass of the Sprite class. Alternately, it could be an
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -5983,7 +5985,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
           __pyx_t_4 = (__pyx_t_5 != 0);
           if (__pyx_t_4) {
 
-            /* "sprite.pyx":402
+            /* "_sprite.pyx":402
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -6050,26 +6052,26 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
               __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_12);
               __pyx_t_12 = 0;
 
-              /* "sprite.pyx":403
+              /* "_sprite.pyx":403
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if not self.has_internal(spr):             # <<<<<<<<<<<<<<
  *                                 self.add_internal(spr)
  *                                 spr.add_internal(self)
  */
-              __pyx_t_4 = ((!(((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_spr, 0) != 0)) != 0);
+              __pyx_t_4 = ((!(((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_spr, 0) != 0)) != 0);
               if (__pyx_t_4) {
 
-                /* "sprite.pyx":404
+                /* "_sprite.pyx":404
  *                         for spr in sprite.sprites():
  *                             if not self.has_internal(spr):
  *                                 self.add_internal(spr)             # <<<<<<<<<<<<<<
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):
  */
-                ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_spr, 0);
+                ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_spr, 0);
 
-                /* "sprite.pyx":405
+                /* "_sprite.pyx":405
  *                             if not self.has_internal(spr):
  *                                 self.add_internal(spr)
  *                                 spr.add_internal(self)             # <<<<<<<<<<<<<<
@@ -6095,7 +6097,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
                 __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
                 __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-                /* "sprite.pyx":403
+                /* "_sprite.pyx":403
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if not self.has_internal(spr):             # <<<<<<<<<<<<<<
@@ -6104,7 +6106,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
  */
               }
 
-              /* "sprite.pyx":402
+              /* "_sprite.pyx":402
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -6114,7 +6116,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
             }
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-            /* "sprite.pyx":401
+            /* "_sprite.pyx":401
  *                     # subclass of the Sprite class. Alternately, it could be an
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -6124,26 +6126,26 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
             goto __pyx_L17;
           }
 
-          /* "sprite.pyx":406
+          /* "_sprite.pyx":406
  *                                 self.add_internal(spr)
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):             # <<<<<<<<<<<<<<
  *                         self.add_internal(sprite)
  *                         sprite.add_internal(self)
  */
-          __pyx_t_4 = ((!(((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0)) != 0);
+          __pyx_t_4 = ((!(((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0)) != 0);
           if (__pyx_t_4) {
 
-            /* "sprite.pyx":407
+            /* "_sprite.pyx":407
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):
  *                         self.add_internal(sprite)             # <<<<<<<<<<<<<<
  *                         sprite.add_internal(self)
  * 
  */
-            ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0);
+            ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0);
 
-            /* "sprite.pyx":408
+            /* "_sprite.pyx":408
  *                     elif not self.has_internal(sprite):
  *                         self.add_internal(sprite)
  *                         sprite.add_internal(self)             # <<<<<<<<<<<<<<
@@ -6169,7 +6171,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-            /* "sprite.pyx":406
+            /* "_sprite.pyx":406
  *                                 self.add_internal(spr)
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):             # <<<<<<<<<<<<<<
@@ -6186,7 +6188,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
         goto __pyx_L9_except_error;
         __pyx_L9_except_error:;
 
-        /* "sprite.pyx":392
+        /* "_sprite.pyx":392
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -6208,7 +6210,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":383
+    /* "_sprite.pyx":383
  * 
  *         """
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -6218,7 +6220,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":375
+  /* "_sprite.pyx":375
  *         return self.has(sprite)
  * 
  *     def add(self, *sprites):             # <<<<<<<<<<<<<<
@@ -6238,7 +6240,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_17);
-  __Pyx_AddTraceback("sprite.AbstractGroup.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprite);
@@ -6248,7 +6250,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
   return __pyx_r;
 }
 
-/* "sprite.pyx":410
+/* "_sprite.pyx":410
  *                         sprite.add_internal(self)
  * 
  *     def remove(self, *sprites):             # <<<<<<<<<<<<<<
@@ -6257,9 +6259,9 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_16add(struct __pyx_obj_6sprite
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_19remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_18remove[] = "remove sprite(s) from group\n\n        Group.remove(sprite, list, or group, ...): return None\n\n        Removes a sprite or sequence of sprites from a group.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_19remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_19remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_18remove[] = "remove sprite(s) from group\n\n        Group.remove(sprite, list, or group, ...): return None\n\n        Removes a sprite or sequence of sprites from a group.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_19remove(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6267,7 +6269,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_19remove(PyObject *__pyx_v_sel
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "remove", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_18remove(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprites);
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_18remove(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprites);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -6275,7 +6277,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_19remove(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_18remove(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites) {
   PyObject *__pyx_v_sprite = NULL;
   PyObject *__pyx_v_spr = NULL;
   PyObject *__pyx_r = NULL;
@@ -6299,7 +6301,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
   PyObject *__pyx_t_17 = NULL;
   __Pyx_RefNannySetupContext("remove", 0);
 
-  /* "sprite.pyx":424
+  /* "_sprite.pyx":424
  *         # old-style sprite group. Lastly, if that fails, it assumes that the
  *         # normal Sprite methods should be used.
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -6318,37 +6320,37 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
     __Pyx_XDECREF_SET(__pyx_v_sprite, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":425
+    /* "_sprite.pyx":425
  *         # normal Sprite methods should be used.
  *         for sprite in sprites:
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
  *                 if self.has_internal(<Sprite>sprite):
  *                     self.remove_internal(<Sprite>sprite)
  */
-    __pyx_t_4 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_6sprite_Sprite); 
+    __pyx_t_4 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_7_sprite_Sprite); 
     __pyx_t_5 = (__pyx_t_4 != 0);
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":426
+      /* "_sprite.pyx":426
  *         for sprite in sprites:
  *             if isinstance(sprite, Sprite):
  *                 if self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
  *                     self.remove_internal(<Sprite>sprite)
  *                     sprite.remove_internal(self)
  */
-      __pyx_t_5 = (((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
+      __pyx_t_5 = (((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
       if (__pyx_t_5) {
 
-        /* "sprite.pyx":427
+        /* "_sprite.pyx":427
  *             if isinstance(sprite, Sprite):
  *                 if self.has_internal(<Sprite>sprite):
  *                     self.remove_internal(<Sprite>sprite)             # <<<<<<<<<<<<<<
  *                     sprite.remove_internal(self)
  *             else:
  */
-        ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_sprite, 0);
+        ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_sprite, 0);
 
-        /* "sprite.pyx":428
+        /* "_sprite.pyx":428
  *                 if self.has_internal(<Sprite>sprite):
  *                     self.remove_internal(<Sprite>sprite)
  *                     sprite.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -6374,7 +6376,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "sprite.pyx":426
+        /* "_sprite.pyx":426
  *         for sprite in sprites:
  *             if isinstance(sprite, Sprite):
  *                 if self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
@@ -6383,7 +6385,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
  */
       }
 
-      /* "sprite.pyx":425
+      /* "_sprite.pyx":425
  *         # normal Sprite methods should be used.
  *         for sprite in sprites:
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
@@ -6393,7 +6395,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":430
+    /* "_sprite.pyx":430
  *                     sprite.remove_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -6410,7 +6412,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
         __Pyx_XGOTREF(__pyx_t_10);
         /*try:*/ {
 
-          /* "sprite.pyx":431
+          /* "_sprite.pyx":431
  *             else:
  *                 try:
  *                     self.remove(*sprite)             # <<<<<<<<<<<<<<
@@ -6427,7 +6429,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-          /* "sprite.pyx":430
+          /* "_sprite.pyx":430
  *                     sprite.remove_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -6444,7 +6446,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-        /* "sprite.pyx":432
+        /* "_sprite.pyx":432
  *                 try:
  *                     self.remove(*sprite)
  *                 except (TypeError, AttributeError):             # <<<<<<<<<<<<<<
@@ -6453,13 +6455,13 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
  */
         __pyx_t_11 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_TypeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
         if (__pyx_t_11) {
-          __Pyx_AddTraceback("sprite.AbstractGroup.remove", __pyx_clineno, __pyx_lineno, __pyx_filename);
+          __Pyx_AddTraceback("_sprite.AbstractGroup.remove", __pyx_clineno, __pyx_lineno, __pyx_filename);
           if (__Pyx_GetException(&__pyx_t_7, &__pyx_t_6, &__pyx_t_3) < 0) __PYX_ERR(0, 432, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_7);
           __Pyx_GOTREF(__pyx_t_6);
           __Pyx_GOTREF(__pyx_t_3);
 
-          /* "sprite.pyx":433
+          /* "_sprite.pyx":433
  *                     self.remove(*sprite)
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -6470,7 +6472,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
           __pyx_t_4 = (__pyx_t_5 != 0);
           if (__pyx_t_4) {
 
-            /* "sprite.pyx":434
+            /* "_sprite.pyx":434
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -6537,26 +6539,26 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
               __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_12);
               __pyx_t_12 = 0;
 
-              /* "sprite.pyx":435
+              /* "_sprite.pyx":435
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if self.has_internal(spr):             # <<<<<<<<<<<<<<
  *                                 self.remove_internal(spr)
  *                                 spr.remove_internal(self)
  */
-              __pyx_t_4 = (((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_spr, 0) != 0);
+              __pyx_t_4 = (((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_spr, 0) != 0);
               if (__pyx_t_4) {
 
-                /* "sprite.pyx":436
+                /* "_sprite.pyx":436
  *                         for spr in sprite.sprites():
  *                             if self.has_internal(spr):
  *                                 self.remove_internal(spr)             # <<<<<<<<<<<<<<
  *                                 spr.remove_internal(self)
  *                     elif self.has_internal(sprite):
  */
-                ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_spr, 0);
+                ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_spr, 0);
 
-                /* "sprite.pyx":437
+                /* "_sprite.pyx":437
  *                             if self.has_internal(spr):
  *                                 self.remove_internal(spr)
  *                                 spr.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -6582,7 +6584,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
                 __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
                 __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-                /* "sprite.pyx":435
+                /* "_sprite.pyx":435
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if self.has_internal(spr):             # <<<<<<<<<<<<<<
@@ -6591,7 +6593,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
  */
               }
 
-              /* "sprite.pyx":434
+              /* "_sprite.pyx":434
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -6601,7 +6603,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
             }
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-            /* "sprite.pyx":433
+            /* "_sprite.pyx":433
  *                     self.remove(*sprite)
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -6611,26 +6613,26 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
             goto __pyx_L17;
           }
 
-          /* "sprite.pyx":438
+          /* "_sprite.pyx":438
  *                                 self.remove_internal(spr)
  *                                 spr.remove_internal(self)
  *                     elif self.has_internal(sprite):             # <<<<<<<<<<<<<<
  *                         self.remove_internal(sprite)
  *                         sprite.remove_internal(self)
  */
-          __pyx_t_4 = (((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
+          __pyx_t_4 = (((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
           if (__pyx_t_4) {
 
-            /* "sprite.pyx":439
+            /* "_sprite.pyx":439
  *                                 spr.remove_internal(self)
  *                     elif self.has_internal(sprite):
  *                         self.remove_internal(sprite)             # <<<<<<<<<<<<<<
  *                         sprite.remove_internal(self)
  * 
  */
-            ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_sprite, 0);
+            ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_sprite, 0);
 
-            /* "sprite.pyx":440
+            /* "_sprite.pyx":440
  *                     elif self.has_internal(sprite):
  *                         self.remove_internal(sprite)
  *                         sprite.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -6656,7 +6658,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-            /* "sprite.pyx":438
+            /* "_sprite.pyx":438
  *                                 self.remove_internal(spr)
  *                                 spr.remove_internal(self)
  *                     elif self.has_internal(sprite):             # <<<<<<<<<<<<<<
@@ -6673,7 +6675,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
         goto __pyx_L9_except_error;
         __pyx_L9_except_error:;
 
-        /* "sprite.pyx":430
+        /* "_sprite.pyx":430
  *                     sprite.remove_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -6695,7 +6697,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":424
+    /* "_sprite.pyx":424
  *         # old-style sprite group. Lastly, if that fails, it assumes that the
  *         # normal Sprite methods should be used.
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -6705,7 +6707,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":410
+  /* "_sprite.pyx":410
  *                         sprite.add_internal(self)
  * 
  *     def remove(self, *sprites):             # <<<<<<<<<<<<<<
@@ -6725,7 +6727,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_17);
-  __Pyx_AddTraceback("sprite.AbstractGroup.remove", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.remove", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprite);
@@ -6735,7 +6737,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
   return __pyx_r;
 }
 
-/* "sprite.pyx":442
+/* "_sprite.pyx":442
  *                         sprite.remove_internal(self)
  * 
  *     def has(self, *sprites):             # <<<<<<<<<<<<<<
@@ -6744,9 +6746,9 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_18remove(struct __pyx_obj_6spr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_21has(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_20has[] = "ask if group has a sprite or sprites\n\n        Group.has(sprite or group, ...): return bool\n\n        Returns True if the given sprite or sprites are contained in the\n        group. Alternatively, you can get the same information using the\n        'in' operator, e.g. 'sprite in group', 'subgroup in group'.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_21has(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_21has(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_20has[] = "ask if group has a sprite or sprites\n\n        Group.has(sprite or group, ...): return bool\n\n        Returns True if the given sprite or sprites are contained in the\n        group. Alternatively, you can get the same information using the\n        'in' operator, e.g. 'sprite in group', 'subgroup in group'.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_21has(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -6754,7 +6756,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_21has(PyObject *__pyx_v_self, 
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "has", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_20has(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprites);
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_20has(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprites);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -6762,7 +6764,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_21has(PyObject *__pyx_v_self, 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_20has(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites) {
   int __pyx_v_return_value;
   PyObject *__pyx_v_sprite = NULL;
   PyObject *__pyx_v_spr = NULL;
@@ -6786,7 +6788,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
   PyObject *(*__pyx_t_16)(PyObject *);
   __Pyx_RefNannySetupContext("has", 0);
 
-  /* "sprite.pyx":452
+  /* "_sprite.pyx":452
  * 
  *         """
  *         return_value = False             # <<<<<<<<<<<<<<
@@ -6795,7 +6797,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
   __pyx_v_return_value = 0;
 
-  /* "sprite.pyx":454
+  /* "_sprite.pyx":454
  *         return_value = False
  * 
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -6814,28 +6816,28 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
     __Pyx_XDECREF_SET(__pyx_v_sprite, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":455
+    /* "_sprite.pyx":455
  * 
  *         for sprite in sprites:
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
  *                 # Check for Sprite instance's membership in this group
  *                 if self.has_internal(<Sprite>sprite):
  */
-    __pyx_t_4 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_6sprite_Sprite); 
+    __pyx_t_4 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_7_sprite_Sprite); 
     __pyx_t_5 = (__pyx_t_4 != 0);
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":457
+      /* "_sprite.pyx":457
  *             if isinstance(sprite, Sprite):
  *                 # Check for Sprite instance's membership in this group
  *                 if self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
  *                     return_value = True
  *                 else:
  */
-      __pyx_t_5 = (((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
+      __pyx_t_5 = (((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
       if (__pyx_t_5) {
 
-        /* "sprite.pyx":458
+        /* "_sprite.pyx":458
  *                 # Check for Sprite instance's membership in this group
  *                 if self.has_internal(<Sprite>sprite):
  *                     return_value = True             # <<<<<<<<<<<<<<
@@ -6844,7 +6846,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
         __pyx_v_return_value = 1;
 
-        /* "sprite.pyx":457
+        /* "_sprite.pyx":457
  *             if isinstance(sprite, Sprite):
  *                 # Check for Sprite instance's membership in this group
  *                 if self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
@@ -6854,7 +6856,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
         goto __pyx_L6;
       }
 
-      /* "sprite.pyx":460
+      /* "_sprite.pyx":460
  *                     return_value = True
  *                 else:
  *                     return False             # <<<<<<<<<<<<<<
@@ -6870,7 +6872,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
       }
       __pyx_L6:;
 
-      /* "sprite.pyx":455
+      /* "_sprite.pyx":455
  * 
  *         for sprite in sprites:
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
@@ -6880,7 +6882,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":462
+    /* "_sprite.pyx":462
  *                     return False
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -6897,7 +6899,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
         __Pyx_XGOTREF(__pyx_t_8);
         /*try:*/ {
 
-          /* "sprite.pyx":463
+          /* "_sprite.pyx":463
  *             else:
  *                 try:
  *                     if self.has(*sprite):             # <<<<<<<<<<<<<<
@@ -6916,7 +6918,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
           if (__pyx_t_5) {
 
-            /* "sprite.pyx":464
+            /* "_sprite.pyx":464
  *                 try:
  *                     if self.has(*sprite):
  *                         return_value = True             # <<<<<<<<<<<<<<
@@ -6925,7 +6927,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
             __pyx_v_return_value = 1;
 
-            /* "sprite.pyx":463
+            /* "_sprite.pyx":463
  *             else:
  *                 try:
  *                     if self.has(*sprite):             # <<<<<<<<<<<<<<
@@ -6935,7 +6937,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
             goto __pyx_L15;
           }
 
-          /* "sprite.pyx":466
+          /* "_sprite.pyx":466
  *                         return_value = True
  *                     else:
  *                         return False             # <<<<<<<<<<<<<<
@@ -6951,7 +6953,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
           }
           __pyx_L15:;
 
-          /* "sprite.pyx":462
+          /* "_sprite.pyx":462
  *                     return False
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -6968,7 +6970,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "sprite.pyx":467
+        /* "_sprite.pyx":467
  *                     else:
  *                         return False
  *                 except (TypeError, AttributeError):             # <<<<<<<<<<<<<<
@@ -6977,13 +6979,13 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
         __pyx_t_11 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_TypeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
         if (__pyx_t_11) {
-          __Pyx_AddTraceback("sprite.AbstractGroup.has", __pyx_clineno, __pyx_lineno, __pyx_filename);
+          __Pyx_AddTraceback("_sprite.AbstractGroup.has", __pyx_clineno, __pyx_lineno, __pyx_filename);
           if (__Pyx_GetException(&__pyx_t_10, &__pyx_t_9, &__pyx_t_3) < 0) __PYX_ERR(0, 467, __pyx_L9_except_error)
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_GOTREF(__pyx_t_9);
           __Pyx_GOTREF(__pyx_t_3);
 
-          /* "sprite.pyx":468
+          /* "_sprite.pyx":468
  *                         return False
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -6994,7 +6996,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
           __pyx_t_4 = (__pyx_t_5 != 0);
           if (__pyx_t_4) {
 
-            /* "sprite.pyx":469
+            /* "_sprite.pyx":469
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -7061,17 +7063,17 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
               __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_12);
               __pyx_t_12 = 0;
 
-              /* "sprite.pyx":470
+              /* "_sprite.pyx":470
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if self.has_internal(spr):             # <<<<<<<<<<<<<<
  *                                 return_value = True
  *                             else:
  */
-              __pyx_t_4 = (((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_spr, 0) != 0);
+              __pyx_t_4 = (((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_spr, 0) != 0);
               if (__pyx_t_4) {
 
-                /* "sprite.pyx":471
+                /* "_sprite.pyx":471
  *                         for spr in sprite.sprites():
  *                             if self.has_internal(spr):
  *                                 return_value = True             # <<<<<<<<<<<<<<
@@ -7080,7 +7082,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
                 __pyx_v_return_value = 1;
 
-                /* "sprite.pyx":470
+                /* "_sprite.pyx":470
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if self.has_internal(spr):             # <<<<<<<<<<<<<<
@@ -7090,7 +7092,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
                 goto __pyx_L21;
               }
 
-              /* "sprite.pyx":473
+              /* "_sprite.pyx":473
  *                                 return_value = True
  *                             else:
  *                                 return False             # <<<<<<<<<<<<<<
@@ -7110,7 +7112,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
               }
               __pyx_L21:;
 
-              /* "sprite.pyx":469
+              /* "_sprite.pyx":469
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -7120,7 +7122,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
             }
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-            /* "sprite.pyx":468
+            /* "_sprite.pyx":468
  *                         return False
  *                 except (TypeError, AttributeError):
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -7130,7 +7132,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
             goto __pyx_L18;
           }
 
-          /* "sprite.pyx":475
+          /* "_sprite.pyx":475
  *                                 return False
  *                     else:
  *                         if self.has_internal(sprite):             # <<<<<<<<<<<<<<
@@ -7138,10 +7140,10 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  *                         else:
  */
           /*else*/ {
-            __pyx_t_4 = (((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
+            __pyx_t_4 = (((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->has_internal(__pyx_v_self, __pyx_v_sprite, 0) != 0);
             if (__pyx_t_4) {
 
-              /* "sprite.pyx":476
+              /* "_sprite.pyx":476
  *                     else:
  *                         if self.has_internal(sprite):
  *                             return_value = True             # <<<<<<<<<<<<<<
@@ -7150,7 +7152,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
               __pyx_v_return_value = 1;
 
-              /* "sprite.pyx":475
+              /* "_sprite.pyx":475
  *                                 return False
  *                     else:
  *                         if self.has_internal(sprite):             # <<<<<<<<<<<<<<
@@ -7160,7 +7162,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
               goto __pyx_L22;
             }
 
-            /* "sprite.pyx":478
+            /* "_sprite.pyx":478
  *                             return_value = True
  *                         else:
  *                             return False             # <<<<<<<<<<<<<<
@@ -7188,7 +7190,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
         goto __pyx_L9_except_error;
         __pyx_L9_except_error:;
 
-        /* "sprite.pyx":462
+        /* "_sprite.pyx":462
  *                     return False
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -7222,7 +7224,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":454
+    /* "_sprite.pyx":454
  *         return_value = False
  * 
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -7232,7 +7234,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":480
+  /* "_sprite.pyx":480
  *                             return False
  * 
  *         return return_value             # <<<<<<<<<<<<<<
@@ -7246,7 +7248,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":442
+  /* "_sprite.pyx":442
  *                         sprite.remove_internal(self)
  * 
  *     def has(self, *sprites):             # <<<<<<<<<<<<<<
@@ -7263,7 +7265,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
-  __Pyx_AddTraceback("sprite.AbstractGroup.has", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.has", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprite);
@@ -7273,7 +7275,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
   return __pyx_r;
 }
 
-/* "sprite.pyx":482
+/* "_sprite.pyx":482
  *         return return_value
  * 
  *     def update(self, *args):             # <<<<<<<<<<<<<<
@@ -7282,9 +7284,9 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_20has(struct __pyx_obj_6sprite
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_23update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_22update[] = "call the update method of every member sprite\n\n        Group.update(*args): return None\n\n        Calls the update method of every member sprite. All arguments that\n        were passed to this method are passed to the Sprite update function.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_23update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_23update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_22update[] = "call the update method of every member sprite\n\n        Group.update(*args): return None\n\n        Calls the update method of every member sprite. All arguments that\n        were passed to this method are passed to the Sprite update function.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_23update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_args = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -7292,7 +7294,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_23update(PyObject *__pyx_v_sel
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "update", 0))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_args = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_22update(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_args);
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_22update(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_args);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_args);
@@ -7300,7 +7302,7 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_23update(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_22update(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args) {
   PyObject *__pyx_v_s = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -7310,14 +7312,14 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("update", 0);
 
-  /* "sprite.pyx":491
+  /* "_sprite.pyx":491
  * 
  *         """
  *         for s in self.sprites():             # <<<<<<<<<<<<<<
  *             s.update(*args)
  * 
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 491, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 491, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_t_1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
@@ -7336,7 +7338,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
     __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":492
+    /* "_sprite.pyx":492
  *         """
  *         for s in self.sprites():
  *             s.update(*args)             # <<<<<<<<<<<<<<
@@ -7350,7 +7352,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "sprite.pyx":491
+    /* "_sprite.pyx":491
  * 
  *         """
  *         for s in self.sprites():             # <<<<<<<<<<<<<<
@@ -7360,7 +7362,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":482
+  /* "_sprite.pyx":482
  *         return return_value
  * 
  *     def update(self, *args):             # <<<<<<<<<<<<<<
@@ -7375,7 +7377,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.AbstractGroup.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_s);
@@ -7384,7 +7386,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
   return __pyx_r;
 }
 
-/* "sprite.pyx":494
+/* "_sprite.pyx":494
  *             s.update(*args)
  * 
  *     cpdef draw(self, surface):             # <<<<<<<<<<<<<<
@@ -7392,8 +7394,8 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_22update(struct __pyx_obj_6spr
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_25draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
-static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_25draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
+static PyObject *__pyx_f_7_sprite_13AbstractGroup_draw(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_v_surface_blit = 0;
   PyObject *__pyx_v_spritedict = 0;
@@ -7419,7 +7421,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_13AbstractGroup_25draw)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_13AbstractGroup_25draw)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -7455,19 +7457,19 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
     #endif
   }
 
-  /* "sprite.pyx":502
+  /* "_sprite.pyx":502
  * 
  *         """
  *         cdef list sprites = self.sprites()             # <<<<<<<<<<<<<<
  *         cdef object surface_blit = surface.blit
  *         cdef spritedict = self.spritedict
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 502, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 502, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_sprites = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":503
+  /* "_sprite.pyx":503
  *         """
  *         cdef list sprites = self.sprites()
  *         cdef object surface_blit = surface.blit             # <<<<<<<<<<<<<<
@@ -7479,7 +7481,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
   __pyx_v_surface_blit = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":504
+  /* "_sprite.pyx":504
  *         cdef list sprites = self.sprites()
  *         cdef object surface_blit = surface.blit
  *         cdef spritedict = self.spritedict             # <<<<<<<<<<<<<<
@@ -7491,7 +7493,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
   __pyx_v_spritedict = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":507
+  /* "_sprite.pyx":507
  *         cdef object ret
  * 
  *         for spr in sprites:             # <<<<<<<<<<<<<<
@@ -7514,7 +7516,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
     __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":510
+    /* "_sprite.pyx":510
  *             #spritedict[spr] = surface_blit(spr.image, spr.rect)
  *             ret = PyObject_CallFunctionObjArgs(surface_blit,
  *                                                <PyObject*>spr.image,             # <<<<<<<<<<<<<<
@@ -7524,7 +7526,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
     __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_image); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 510, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
 
-    /* "sprite.pyx":511
+    /* "_sprite.pyx":511
  *             ret = PyObject_CallFunctionObjArgs(surface_blit,
  *                                                <PyObject*>spr.image,
  *                                                <PyObject*>spr.rect, NULL)             # <<<<<<<<<<<<<<
@@ -7534,7 +7536,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
     __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_rect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 511, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
 
-    /* "sprite.pyx":509
+    /* "_sprite.pyx":509
  *         for spr in sprites:
  *             #spritedict[spr] = surface_blit(spr.image, spr.rect)
  *             ret = PyObject_CallFunctionObjArgs(surface_blit,             # <<<<<<<<<<<<<<
@@ -7548,7 +7550,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
     __Pyx_XDECREF_SET(__pyx_v_ret, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "sprite.pyx":512
+    /* "_sprite.pyx":512
  *                                                <PyObject*>spr.image,
  *                                                <PyObject*>spr.rect, NULL)
  *             PyDict_SetItem(spritedict, spr, ret)             # <<<<<<<<<<<<<<
@@ -7557,7 +7559,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
  */
     __pyx_t_6 = PyDict_SetItem(__pyx_v_spritedict, __pyx_v_spr, __pyx_v_ret); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 512, __pyx_L1_error)
 
-    /* "sprite.pyx":507
+    /* "_sprite.pyx":507
  *         cdef object ret
  * 
  *         for spr in sprites:             # <<<<<<<<<<<<<<
@@ -7567,7 +7569,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":513
+  /* "_sprite.pyx":513
  *                                                <PyObject*>spr.rect, NULL)
  *             PyDict_SetItem(spritedict, spr, ret)
  *         self.lostsprites[:] = []             # <<<<<<<<<<<<<<
@@ -7583,7 +7585,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
   if (__Pyx_PyObject_SetSlice(__pyx_v_self->lostsprites, __pyx_t_1, 0, 0, NULL, NULL, NULL, 0, 0, 1) < 0) __PYX_ERR(0, 513, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":494
+  /* "_sprite.pyx":494
  *             s.update(*args)
  * 
  *     cpdef draw(self, surface):             # <<<<<<<<<<<<<<
@@ -7599,7 +7601,7 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.AbstractGroup.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -7613,26 +7615,26 @@ static PyObject *__pyx_f_6sprite_13AbstractGroup_draw(struct __pyx_obj_6sprite_A
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_25draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_24draw[] = "draw all sprites onto the surface\n\n        Group.draw(surface): return None\n\n        Draws all of the member sprites onto the given surface.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_25draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_25draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_24draw[] = "draw all sprites onto the surface\n\n        Group.draw(surface): return None\n\n        Draws all of the member sprites onto the given surface.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_25draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("draw (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_24draw(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_surface));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_24draw(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_surface));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_24draw(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_24draw(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("draw", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_13AbstractGroup_draw(__pyx_v_self, __pyx_v_surface, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_13AbstractGroup_draw(__pyx_v_self, __pyx_v_surface, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7641,7 +7643,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_24draw(struct __pyx_obj_6sprit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7649,7 +7651,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_24draw(struct __pyx_obj_6sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":515
+/* "_sprite.pyx":515
  *         self.lostsprites[:] = []
  * 
  *     def clear(self, surface, bgd):             # <<<<<<<<<<<<<<
@@ -7658,9 +7660,9 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_24draw(struct __pyx_obj_6sprit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_27clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_26clear[] = "erase the previous position of all sprites\n\n        Group.clear(surface, bgd): return None\n\n        Clears the area under every drawn sprite in the group. The bgd\n        argument should be Surface which is the same dimensions as the\n        screen surface. The bgd could also be a function which accepts\n        the given surface and the area to be cleared as arguments.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_27clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_27clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_26clear[] = "erase the previous position of all sprites\n\n        Group.clear(surface, bgd): return None\n\n        Clears the area under every drawn sprite in the group. The bgd\n        argument should be Surface which is the same dimensions as the\n        screen surface. The bgd could also be a function which accepts\n        the given surface and the area to be cleared as arguments.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_27clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_surface = 0;
   PyObject *__pyx_v_bgd = 0;
   PyObject *__pyx_r = 0;
@@ -7708,18 +7710,18 @@ static PyObject *__pyx_pw_6sprite_13AbstractGroup_27clear(PyObject *__pyx_v_self
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("clear", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 515, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.AbstractGroup.clear", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.clear", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_26clear(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_surface, __pyx_v_bgd);
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_26clear(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_surface, __pyx_v_bgd);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_26clear(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd) {
   PyObject *__pyx_v_r = NULL;
   PyObject *__pyx_v_surface_blit = NULL;
   PyObject *__pyx_r = NULL;
@@ -7735,7 +7737,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
   PyObject *(*__pyx_t_9)(PyObject *);
   __Pyx_RefNannySetupContext("clear", 0);
 
-  /* "sprite.pyx":526
+  /* "_sprite.pyx":526
  * 
  *         """
  *         if callable(bgd):             # <<<<<<<<<<<<<<
@@ -7763,7 +7765,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "sprite.pyx":527
+    /* "_sprite.pyx":527
  *         """
  *         if callable(bgd):
  *             for r in self.lostsprites:             # <<<<<<<<<<<<<<
@@ -7786,7 +7788,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __Pyx_XDECREF_SET(__pyx_v_r, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "sprite.pyx":528
+      /* "_sprite.pyx":528
  *         if callable(bgd):
  *             for r in self.lostsprites:
  *                 bgd(surface, r)             # <<<<<<<<<<<<<<
@@ -7841,7 +7843,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "sprite.pyx":527
+      /* "_sprite.pyx":527
  *         """
  *         if callable(bgd):
  *             for r in self.lostsprites:             # <<<<<<<<<<<<<<
@@ -7851,7 +7853,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":529
+    /* "_sprite.pyx":529
  *             for r in self.lostsprites:
  *                 bgd(surface, r)
  *             for r in self.spritedict.values():             # <<<<<<<<<<<<<<
@@ -7907,7 +7909,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __Pyx_XDECREF_SET(__pyx_v_r, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":530
+      /* "_sprite.pyx":530
  *                 bgd(surface, r)
  *             for r in self.spritedict.values():
  *                 if r:             # <<<<<<<<<<<<<<
@@ -7917,7 +7919,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_r); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 530, __pyx_L1_error)
       if (__pyx_t_4) {
 
-        /* "sprite.pyx":531
+        /* "_sprite.pyx":531
  *             for r in self.spritedict.values():
  *                 if r:
  *                     bgd(surface, r)             # <<<<<<<<<<<<<<
@@ -7972,7 +7974,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "sprite.pyx":530
+        /* "_sprite.pyx":530
  *                 bgd(surface, r)
  *             for r in self.spritedict.values():
  *                 if r:             # <<<<<<<<<<<<<<
@@ -7981,7 +7983,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
  */
       }
 
-      /* "sprite.pyx":529
+      /* "_sprite.pyx":529
  *             for r in self.lostsprites:
  *                 bgd(surface, r)
  *             for r in self.spritedict.values():             # <<<<<<<<<<<<<<
@@ -7991,7 +7993,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "sprite.pyx":526
+    /* "_sprite.pyx":526
  * 
  *         """
  *         if callable(bgd):             # <<<<<<<<<<<<<<
@@ -8001,7 +8003,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":533
+  /* "_sprite.pyx":533
  *                     bgd(surface, r)
  *         else:
  *             surface_blit = surface.blit             # <<<<<<<<<<<<<<
@@ -8014,7 +8016,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
     __pyx_v_surface_blit = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":534
+    /* "_sprite.pyx":534
  *         else:
  *             surface_blit = surface.blit
  *             for r in self.lostsprites:             # <<<<<<<<<<<<<<
@@ -8037,7 +8039,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __Pyx_XDECREF_SET(__pyx_v_r, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":535
+      /* "_sprite.pyx":535
  *             surface_blit = surface.blit
  *             for r in self.lostsprites:
  *                 surface_blit(bgd, r, r)             # <<<<<<<<<<<<<<
@@ -8095,7 +8097,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "sprite.pyx":534
+      /* "_sprite.pyx":534
  *         else:
  *             surface_blit = surface.blit
  *             for r in self.lostsprites:             # <<<<<<<<<<<<<<
@@ -8105,7 +8107,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "sprite.pyx":536
+    /* "_sprite.pyx":536
  *             for r in self.lostsprites:
  *                 surface_blit(bgd, r, r)
  *             for r in self.spritedict.values():             # <<<<<<<<<<<<<<
@@ -8161,7 +8163,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __Pyx_XDECREF_SET(__pyx_v_r, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "sprite.pyx":537
+      /* "_sprite.pyx":537
  *                 surface_blit(bgd, r, r)
  *             for r in self.spritedict.values():
  *                 if r:             # <<<<<<<<<<<<<<
@@ -8171,7 +8173,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
       __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_r); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 537, __pyx_L1_error)
       if (__pyx_t_4) {
 
-        /* "sprite.pyx":538
+        /* "_sprite.pyx":538
  *             for r in self.spritedict.values():
  *                 if r:
  *                     surface_blit(bgd, r, r)             # <<<<<<<<<<<<<<
@@ -8229,7 +8231,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-        /* "sprite.pyx":537
+        /* "_sprite.pyx":537
  *                 surface_blit(bgd, r, r)
  *             for r in self.spritedict.values():
  *                 if r:             # <<<<<<<<<<<<<<
@@ -8238,7 +8240,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
  */
       }
 
-      /* "sprite.pyx":536
+      /* "_sprite.pyx":536
  *             for r in self.lostsprites:
  *                 surface_blit(bgd, r, r)
  *             for r in self.spritedict.values():             # <<<<<<<<<<<<<<
@@ -8250,7 +8252,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":515
+  /* "_sprite.pyx":515
  *         self.lostsprites[:] = []
  * 
  *     def clear(self, surface, bgd):             # <<<<<<<<<<<<<<
@@ -8267,7 +8269,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("sprite.AbstractGroup.clear", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.clear", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_r);
@@ -8277,7 +8279,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
   return __pyx_r;
 }
 
-/* "sprite.pyx":540
+/* "_sprite.pyx":540
  *                     surface_blit(bgd, r, r)
  * 
  *     def empty(self):             # <<<<<<<<<<<<<<
@@ -8286,20 +8288,20 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_26clear(struct __pyx_obj_6spri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_29empty(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_28empty[] = "remove all sprites\n\n        Group.empty(): return None\n\n        Removes all the sprites from the group.\n\n        ";
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_29empty(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_29empty(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_28empty[] = "remove all sprites\n\n        Group.empty(): return None\n\n        Removes all the sprites from the group.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_29empty(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("empty (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_28empty(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_28empty(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_28empty(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_v_s = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -8310,14 +8312,14 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("empty", 0);
 
-  /* "sprite.pyx":548
+  /* "_sprite.pyx":548
  * 
  *         """
  *         for s in self.sprites():             # <<<<<<<<<<<<<<
  *             self.remove_internal(<Sprite>s)
  *             s.remove_internal(self)
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_t_1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
@@ -8336,16 +8338,16 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
     __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":549
+    /* "_sprite.pyx":549
  *         """
  *         for s in self.sprites():
  *             self.remove_internal(<Sprite>s)             # <<<<<<<<<<<<<<
  *             s.remove_internal(self)
  * 
  */
-    ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_s, 0);
+    ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->remove_internal(__pyx_v_self, __pyx_v_s, 0);
 
-    /* "sprite.pyx":550
+    /* "_sprite.pyx":550
  *         for s in self.sprites():
  *             self.remove_internal(<Sprite>s)
  *             s.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -8371,7 +8373,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":548
+    /* "_sprite.pyx":548
  * 
  *         """
  *         for s in self.sprites():             # <<<<<<<<<<<<<<
@@ -8381,7 +8383,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":540
+  /* "_sprite.pyx":540
  *                     surface_blit(bgd, r, r)
  * 
  *     def empty(self):             # <<<<<<<<<<<<<<
@@ -8397,7 +8399,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("sprite.AbstractGroup.empty", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.empty", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_s);
@@ -8406,7 +8408,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
   return __pyx_r;
 }
 
-/* "sprite.pyx":552
+/* "_sprite.pyx":552
  *             s.remove_internal(self)
  * 
  *     def __nonzero__(self):             # <<<<<<<<<<<<<<
@@ -8415,19 +8417,19 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_28empty(struct __pyx_obj_6spri
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_31__nonzero__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_31__nonzero__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_13AbstractGroup_31__nonzero__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_31__nonzero__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__nonzero__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_30__nonzero__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static int __pyx_pf_7_sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8437,7 +8439,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6spri
   int __pyx_t_5;
   __Pyx_RefNannySetupContext("__nonzero__", 0);
 
-  /* "sprite.pyx":553
+  /* "_sprite.pyx":553
  * 
  *     def __nonzero__(self):
  *         return truth(self.sprites())             # <<<<<<<<<<<<<<
@@ -8446,7 +8448,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6spri
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_truth); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 553, __pyx_L1_error)
+  __pyx_t_3 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -8469,7 +8471,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6spri
   __pyx_r = __pyx_t_5;
   goto __pyx_L0;
 
-  /* "sprite.pyx":552
+  /* "_sprite.pyx":552
  *             s.remove_internal(self)
  * 
  *     def __nonzero__(self):             # <<<<<<<<<<<<<<
@@ -8483,14 +8485,14 @@ static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__nonzero__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__nonzero__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":555
+/* "_sprite.pyx":555
  *         return truth(self.sprites())
  * 
  *     def __len__(self):             # <<<<<<<<<<<<<<
@@ -8499,37 +8501,37 @@ static int __pyx_pf_6sprite_13AbstractGroup_30__nonzero__(struct __pyx_obj_6spri
  */
 
 /* Python wrapper */
-static Py_ssize_t __pyx_pw_6sprite_13AbstractGroup_33__len__(PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_6sprite_13AbstractGroup_32__len__[] = "return number of sprites in group\n\n        Group.len(group): return int\n\n        Returns the number of sprites contained in the group.\n\n        ";
+static Py_ssize_t __pyx_pw_7_sprite_13AbstractGroup_33__len__(PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_7_sprite_13AbstractGroup_32__len__[] = "return number of sprites in group\n\n        Group.len(group): return int\n\n        Returns the number of sprites contained in the group.\n\n        ";
 #if CYTHON_COMPILING_IN_CPYTHON
-struct wrapperbase __pyx_wrapperbase_6sprite_13AbstractGroup_32__len__;
+struct wrapperbase __pyx_wrapperbase_7_sprite_13AbstractGroup_32__len__;
 #endif
-static Py_ssize_t __pyx_pw_6sprite_13AbstractGroup_33__len__(PyObject *__pyx_v_self) {
+static Py_ssize_t __pyx_pw_7_sprite_13AbstractGroup_33__len__(PyObject *__pyx_v_self) {
   Py_ssize_t __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__len__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_32__len__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_32__len__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static Py_ssize_t __pyx_pf_6sprite_13AbstractGroup_32__len__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static Py_ssize_t __pyx_pf_7_sprite_13AbstractGroup_32__len__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   Py_ssize_t __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
   __Pyx_RefNannySetupContext("__len__", 0);
 
-  /* "sprite.pyx":563
+  /* "_sprite.pyx":563
  * 
  *         """
  *         return len(self.sprites())             # <<<<<<<<<<<<<<
  * 
  *     def __repr__(self):
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 563, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_t_1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
@@ -8540,7 +8542,7 @@ static Py_ssize_t __pyx_pf_6sprite_13AbstractGroup_32__len__(struct __pyx_obj_6s
   __pyx_r = __pyx_t_2;
   goto __pyx_L0;
 
-  /* "sprite.pyx":555
+  /* "_sprite.pyx":555
  *         return truth(self.sprites())
  * 
  *     def __len__(self):             # <<<<<<<<<<<<<<
@@ -8551,14 +8553,14 @@ static Py_ssize_t __pyx_pf_6sprite_13AbstractGroup_32__len__(struct __pyx_obj_6s
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__len__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__len__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":565
+/* "_sprite.pyx":565
  *         return len(self.sprites())
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -8567,19 +8569,19 @@ static Py_ssize_t __pyx_pf_6sprite_13AbstractGroup_32__len__(struct __pyx_obj_6s
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_35__repr__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_35__repr__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_35__repr__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_35__repr__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__repr__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_34__repr__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_34__repr__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_34__repr__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8588,7 +8590,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6s
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "sprite.pyx":566
+  /* "_sprite.pyx":566
  * 
  *     def __repr__(self):
  *         return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))             # <<<<<<<<<<<<<<
@@ -8619,7 +8621,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6s
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":565
+  /* "_sprite.pyx":565
  *         return len(self.sprites())
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -8632,7 +8634,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6s
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -8640,7 +8642,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6s
   return __pyx_r;
 }
 
-/* "sprite.pyx":326
+/* "_sprite.pyx":326
  *     _spritegroup = True
  * 
  *     cdef public dict spritedict             # <<<<<<<<<<<<<<
@@ -8649,19 +8651,19 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_34__repr__(struct __pyx_obj_6s
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_10spritedict_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_10spritedict_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_10spritedict_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_10spritedict_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_10spritedict___get__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_10spritedict___get__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_10spritedict___get__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_10spritedict___get__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -8678,19 +8680,19 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_10spritedict___get__(struct __
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_10spritedict_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_10spritedict_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_13AbstractGroup_10spritedict_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_10spritedict_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_10spritedict_2__set__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_10spritedict_2__set__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_2__set__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_13AbstractGroup_10spritedict_2__set__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8709,7 +8711,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_2__set__(struct __pyx_o
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.spritedict.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.spritedict.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -8717,19 +8719,19 @@ static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_2__set__(struct __pyx_o
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_10spritedict_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_10spritedict_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_13AbstractGroup_10spritedict_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_10spritedict_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_10spritedict_4__del__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_10spritedict_4__del__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_4__del__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static int __pyx_pf_7_sprite_13AbstractGroup_10spritedict_4__del__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -8745,7 +8747,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_4__del__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "sprite.pyx":327
+/* "_sprite.pyx":327
  * 
  *     cdef public dict spritedict
  *     cdef public list lostsprites             # <<<<<<<<<<<<<<
@@ -8754,19 +8756,19 @@ static int __pyx_pf_6sprite_13AbstractGroup_10spritedict_4__del__(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_11lostsprites_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_11lostsprites_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_11lostsprites_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_11lostsprites_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_11lostsprites___get__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_11lostsprites___get__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_11lostsprites___get__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_11lostsprites___get__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -8783,19 +8785,19 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_11lostsprites___get__(struct _
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_11lostsprites_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_11lostsprites_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_11lostsprites_2__set__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_11lostsprites_2__set__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_2__set__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_13AbstractGroup_11lostsprites_2__set__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8814,7 +8816,7 @@ static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_2__set__(struct __pyx_
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.lostsprites.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.lostsprites.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -8822,19 +8824,19 @@ static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_2__set__(struct __pyx_
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_13AbstractGroup_11lostsprites_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_13AbstractGroup_11lostsprites_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_11lostsprites_4__del__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_11lostsprites_4__del__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_4__del__(struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static int __pyx_pf_7_sprite_13AbstractGroup_11lostsprites_4__del__(struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -8857,19 +8859,19 @@ static int __pyx_pf_6sprite_13AbstractGroup_11lostsprites_4__del__(struct __pyx_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_37__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_37__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_37__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_37__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_36__reduce_cython__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_36__reduce_cython__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_36__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_36__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8896,7 +8898,7 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_36__reduce_cython__(CYTHON_UNU
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -8911,19 +8913,19 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_36__reduce_cython__(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_39__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_13AbstractGroup_39__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_39__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13AbstractGroup_39__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13AbstractGroup_38__setstate_cython__(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_13AbstractGroup_38__setstate_cython__(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13AbstractGroup_38__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_AbstractGroup *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_13AbstractGroup_38__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_AbstractGroup *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8950,14 +8952,14 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_38__setstate_cython__(CYTHON_U
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.AbstractGroup.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.AbstractGroup.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":587
+/* "_sprite.pyx":587
  * 
  *     """
  *     def __init__(self, *sprites):             # <<<<<<<<<<<<<<
@@ -8966,8 +8968,8 @@ static PyObject *__pyx_pf_6sprite_13AbstractGroup_38__setstate_cython__(CYTHON_U
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_5Group_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_5Group_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_5Group_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_5Group_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -8975,7 +8977,7 @@ static int __pyx_pw_6sprite_5Group_1__init__(PyObject *__pyx_v_self, PyObject *_
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__init__", 0))) return -1;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_5Group___init__(((struct __pyx_obj_6sprite_Group *)__pyx_v_self), __pyx_v_sprites);
+  __pyx_r = __pyx_pf_7_sprite_5Group___init__(((struct __pyx_obj_7_sprite_Group *)__pyx_v_self), __pyx_v_sprites);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -8983,7 +8985,7 @@ static int __pyx_pw_6sprite_5Group_1__init__(PyObject *__pyx_v_self, PyObject *_
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__pyx_v_self, PyObject *__pyx_v_sprites) {
+static int __pyx_pf_7_sprite_5Group___init__(struct __pyx_obj_7_sprite_Group *__pyx_v_self, PyObject *__pyx_v_sprites) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8991,14 +8993,14 @@ static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__py
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":588
+  /* "_sprite.pyx":588
  *     """
  *     def __init__(self, *sprites):
  *         AbstractGroup.__init__(self)             # <<<<<<<<<<<<<<
  *         self.add(*sprites)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_AbstractGroup), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 588, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_AbstractGroup), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 588, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -9017,7 +9019,7 @@ static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__py
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":589
+  /* "_sprite.pyx":589
  *     def __init__(self, *sprites):
  *         AbstractGroup.__init__(self)
  *         self.add(*sprites)             # <<<<<<<<<<<<<<
@@ -9031,7 +9033,7 @@ static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":587
+  /* "_sprite.pyx":587
  * 
  *     """
  *     def __init__(self, *sprites):             # <<<<<<<<<<<<<<
@@ -9046,7 +9048,7 @@ static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__py
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.Group.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Group.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -9060,19 +9062,19 @@ static int __pyx_pf_6sprite_5Group___init__(struct __pyx_obj_6sprite_Group *__py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_5Group_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_5Group_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_5Group_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_5Group_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_5Group_2__reduce_cython__(((struct __pyx_obj_6sprite_Group *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_5Group_2__reduce_cython__(((struct __pyx_obj_7_sprite_Group *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_5Group_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Group *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_5Group_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Group *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -9099,7 +9101,7 @@ static PyObject *__pyx_pf_6sprite_5Group_2__reduce_cython__(CYTHON_UNUSED struct
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Group.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Group.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -9114,19 +9116,19 @@ static PyObject *__pyx_pf_6sprite_5Group_2__reduce_cython__(CYTHON_UNUSED struct
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_5Group_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_5Group_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_5Group_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_5Group_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_5Group_4__setstate_cython__(((struct __pyx_obj_6sprite_Group *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_5Group_4__setstate_cython__(((struct __pyx_obj_7_sprite_Group *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_5Group_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_Group *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_5Group_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_Group *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -9153,14 +9155,14 @@ static PyObject *__pyx_pf_6sprite_5Group_4__setstate_cython__(CYTHON_UNUSED stru
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.Group.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.Group.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":603
+/* "_sprite.pyx":603
  * 
  *     """
  *     cpdef draw(self, surface):             # <<<<<<<<<<<<<<
@@ -9168,8 +9170,8 @@ static PyObject *__pyx_pf_6sprite_5Group_4__setstate_cython__(CYTHON_UNUSED stru
  *        surface_blit = surface.blit
  */
 
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_1draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
-static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_1draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
+static PyObject *__pyx_f_7_sprite_13RenderUpdates_draw(struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_spritedict = NULL;
   PyObject *__pyx_v_surface_blit = NULL;
   PyObject *__pyx_v_dirty = NULL;
@@ -9202,7 +9204,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 603, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_13RenderUpdates_1draw)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_13RenderUpdates_1draw)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -9238,7 +9240,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     #endif
   }
 
-  /* "sprite.pyx":604
+  /* "_sprite.pyx":604
  *     """
  *     cpdef draw(self, surface):
  *        spritedict = self.spritedict             # <<<<<<<<<<<<<<
@@ -9250,7 +9252,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __pyx_v_spritedict = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":605
+  /* "_sprite.pyx":605
  *     cpdef draw(self, surface):
  *        spritedict = self.spritedict
  *        surface_blit = surface.blit             # <<<<<<<<<<<<<<
@@ -9262,7 +9264,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __pyx_v_surface_blit = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":606
+  /* "_sprite.pyx":606
  *        spritedict = self.spritedict
  *        surface_blit = surface.blit
  *        dirty = self.lostsprites             # <<<<<<<<<<<<<<
@@ -9274,7 +9276,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __pyx_v_dirty = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":607
+  /* "_sprite.pyx":607
  *        surface_blit = surface.blit
  *        dirty = self.lostsprites
  *        self.lostsprites.clear()             # <<<<<<<<<<<<<<
@@ -9300,7 +9302,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":608
+  /* "_sprite.pyx":608
  *        dirty = self.lostsprites
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -9312,14 +9314,14 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __pyx_v_dirty_append = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":609
+  /* "_sprite.pyx":609
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append
  *        for s in self.sprites():             # <<<<<<<<<<<<<<
  *            r = spritedict[s]
  *            newrect = surface_blit(s.image, s.rect)
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_RenderUpdates *)__pyx_v_self->__pyx_base.__pyx_base.__pyx_vtab)->__pyx_base.__pyx_base.sprites(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 609, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_RenderUpdates *)__pyx_v_self->__pyx_base.__pyx_base.__pyx_vtab)->__pyx_base.__pyx_base.sprites(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 609, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_t_1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
@@ -9338,7 +9340,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":610
+    /* "_sprite.pyx":610
  *        dirty_append = dirty.append
  *        for s in self.sprites():
  *            r = spritedict[s]             # <<<<<<<<<<<<<<
@@ -9354,7 +9356,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     __Pyx_XDECREF_SET(__pyx_v_r, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":611
+    /* "_sprite.pyx":611
  *        for s in self.sprites():
  *            r = spritedict[s]
  *            newrect = surface_blit(s.image, s.rect)             # <<<<<<<<<<<<<<
@@ -9418,7 +9420,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     __Pyx_XDECREF_SET(__pyx_v_newrect, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":612
+    /* "_sprite.pyx":612
  *            r = spritedict[s]
  *            newrect = surface_blit(s.image, s.rect)
  *            if r:             # <<<<<<<<<<<<<<
@@ -9428,7 +9430,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_v_r); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 612, __pyx_L1_error)
     if (__pyx_t_10) {
 
-      /* "sprite.pyx":613
+      /* "_sprite.pyx":613
  *            newrect = surface_blit(s.image, s.rect)
  *            if r:
  *                if newrect.colliderect(r):             # <<<<<<<<<<<<<<
@@ -9456,7 +9458,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (__pyx_t_10) {
 
-        /* "sprite.pyx":608
+        /* "_sprite.pyx":608
  *        dirty = self.lostsprites
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -9468,7 +9470,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
           __PYX_ERR(0, 608, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":614
+        /* "_sprite.pyx":614
  *            if r:
  *                if newrect.colliderect(r):
  *                    dirty_append(newrect.union(r))             # <<<<<<<<<<<<<<
@@ -9495,7 +9497,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
         __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_dirty, __pyx_t_1); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 614, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "sprite.pyx":613
+        /* "_sprite.pyx":613
  *            newrect = surface_blit(s.image, s.rect)
  *            if r:
  *                if newrect.colliderect(r):             # <<<<<<<<<<<<<<
@@ -9505,7 +9507,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
         goto __pyx_L6;
       }
 
-      /* "sprite.pyx":616
+      /* "_sprite.pyx":616
  *                    dirty_append(newrect.union(r))
  *                else:
  *                    dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -9514,7 +9516,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
  */
       /*else*/ {
 
-        /* "sprite.pyx":608
+        /* "_sprite.pyx":608
  *        dirty = self.lostsprites
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -9526,7 +9528,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
           __PYX_ERR(0, 608, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":616
+        /* "_sprite.pyx":616
  *                    dirty_append(newrect.union(r))
  *                else:
  *                    dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -9535,7 +9537,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
  */
         __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_dirty, __pyx_v_newrect); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 616, __pyx_L1_error)
 
-        /* "sprite.pyx":608
+        /* "_sprite.pyx":608
  *        dirty = self.lostsprites
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -9547,7 +9549,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
           __PYX_ERR(0, 608, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":617
+        /* "_sprite.pyx":617
  *                else:
  *                    dirty_append(newrect)
  *                    dirty_append(r)             # <<<<<<<<<<<<<<
@@ -9558,7 +9560,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
       }
       __pyx_L6:;
 
-      /* "sprite.pyx":612
+      /* "_sprite.pyx":612
  *            r = spritedict[s]
  *            newrect = surface_blit(s.image, s.rect)
  *            if r:             # <<<<<<<<<<<<<<
@@ -9568,7 +9570,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":619
+    /* "_sprite.pyx":619
  *                    dirty_append(r)
  *            else:
  *                dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -9577,7 +9579,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
  */
     /*else*/ {
 
-      /* "sprite.pyx":608
+      /* "_sprite.pyx":608
  *        dirty = self.lostsprites
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -9589,7 +9591,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
         __PYX_ERR(0, 608, __pyx_L1_error)
       }
 
-      /* "sprite.pyx":619
+      /* "_sprite.pyx":619
  *                    dirty_append(r)
  *            else:
  *                dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -9600,7 +9602,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":620
+    /* "_sprite.pyx":620
  *            else:
  *                dirty_append(newrect)
  *            spritedict[s] = newrect             # <<<<<<<<<<<<<<
@@ -9613,7 +9615,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
     }
     if (unlikely(PyDict_SetItem(__pyx_v_spritedict, __pyx_v_s, __pyx_v_newrect) < 0)) __PYX_ERR(0, 620, __pyx_L1_error)
 
-    /* "sprite.pyx":609
+    /* "_sprite.pyx":609
  *        self.lostsprites.clear()
  *        dirty_append = dirty.append
  *        for s in self.sprites():             # <<<<<<<<<<<<<<
@@ -9623,7 +9625,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":621
+  /* "_sprite.pyx":621
  *                dirty_append(newrect)
  *            spritedict[s] = newrect
  *        return dirty             # <<<<<<<<<<<<<<
@@ -9635,7 +9637,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __pyx_r = __pyx_v_dirty;
   goto __pyx_L0;
 
-  /* "sprite.pyx":603
+  /* "_sprite.pyx":603
  * 
  *     """
  *     cpdef draw(self, surface):             # <<<<<<<<<<<<<<
@@ -9652,7 +9654,7 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("sprite.RenderUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.RenderUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_spritedict);
@@ -9668,25 +9670,25 @@ static PyObject *__pyx_f_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_R
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_1draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_1draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface) {
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_1draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_1draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("draw (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13RenderUpdates_draw(((struct __pyx_obj_6sprite_RenderUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_surface));
+  __pyx_r = __pyx_pf_7_sprite_13RenderUpdates_draw(((struct __pyx_obj_7_sprite_RenderUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_surface));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface) {
+static PyObject *__pyx_pf_7_sprite_13RenderUpdates_draw(struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self, PyObject *__pyx_v_surface) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("draw", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_13RenderUpdates_draw(__pyx_v_self, __pyx_v_surface, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 603, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_13RenderUpdates_draw(__pyx_v_self, __pyx_v_surface, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 603, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9695,7 +9697,7 @@ static PyObject *__pyx_pf_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.RenderUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.RenderUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -9710,19 +9712,19 @@ static PyObject *__pyx_pf_6sprite_13RenderUpdates_draw(struct __pyx_obj_6sprite_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13RenderUpdates_2__reduce_cython__(((struct __pyx_obj_6sprite_RenderUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_13RenderUpdates_2__reduce_cython__(((struct __pyx_obj_7_sprite_RenderUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13RenderUpdates_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_13RenderUpdates_2__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -9749,7 +9751,7 @@ static PyObject *__pyx_pf_6sprite_13RenderUpdates_2__reduce_cython__(CYTHON_UNUS
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.RenderUpdates.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.RenderUpdates.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -9764,19 +9766,19 @@ static PyObject *__pyx_pf_6sprite_13RenderUpdates_2__reduce_cython__(CYTHON_UNUS
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_13RenderUpdates_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_13RenderUpdates_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_13RenderUpdates_4__setstate_cython__(((struct __pyx_obj_6sprite_RenderUpdates *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_13RenderUpdates_4__setstate_cython__(((struct __pyx_obj_7_sprite_RenderUpdates *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_13RenderUpdates_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_RenderUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_13RenderUpdates_4__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_RenderUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -9803,14 +9805,14 @@ static PyObject *__pyx_pf_6sprite_13RenderUpdates_4__setstate_cython__(CYTHON_UN
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.RenderUpdates.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.RenderUpdates.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":637
+/* "_sprite.pyx":637
  *     cdef public list _spritelist
  * 
  *     def __init__(self, *sprites):             # <<<<<<<<<<<<<<
@@ -9819,8 +9821,8 @@ static PyObject *__pyx_pf_6sprite_13RenderUpdates_4__setstate_cython__(CYTHON_UN
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14OrderedUpdates_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_14OrderedUpdates_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_14OrderedUpdates_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_14OrderedUpdates_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -9828,7 +9830,7 @@ static int __pyx_pw_6sprite_14OrderedUpdates_1__init__(PyObject *__pyx_v_self, P
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__init__", 0))) return -1;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates___init__(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self), __pyx_v_sprites);
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates___init__(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self), __pyx_v_sprites);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -9836,7 +9838,7 @@ static int __pyx_pw_6sprite_14OrderedUpdates_1__init__(PyObject *__pyx_v_self, P
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprites) {
+static int __pyx_pf_7_sprite_14OrderedUpdates___init__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprites) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -9844,7 +9846,7 @@ static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_O
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":638
+  /* "_sprite.pyx":638
  * 
  *     def __init__(self, *sprites):
  *         self._spritelist = []             # <<<<<<<<<<<<<<
@@ -9859,14 +9861,14 @@ static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_O
   __pyx_v_self->_spritelist = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":639
+  /* "_sprite.pyx":639
  *     def __init__(self, *sprites):
  *         self._spritelist = []
  *         RenderUpdates.__init__(self, *sprites)             # <<<<<<<<<<<<<<
  * 
  *     cpdef list sprites(self):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_RenderUpdates), __pyx_n_s_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 639, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_RenderUpdates), __pyx_n_s_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 639, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 639, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -9882,7 +9884,7 @@ static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_O
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":637
+  /* "_sprite.pyx":637
  *     cdef public list _spritelist
  * 
  *     def __init__(self, *sprites):             # <<<<<<<<<<<<<<
@@ -9897,14 +9899,14 @@ static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_O
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":641
+/* "_sprite.pyx":641
  *         RenderUpdates.__init__(self, *sprites)
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -9912,8 +9914,8 @@ static int __pyx_pf_6sprite_14OrderedUpdates___init__(struct __pyx_obj_6sprite_O
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_f_7_sprite_14OrderedUpdates_sprites(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, int __pyx_skip_dispatch) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -9932,7 +9934,7 @@ static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6spri
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sprites); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 641, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14OrderedUpdates_3sprites)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14OrderedUpdates_3sprites)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -9969,7 +9971,7 @@ static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6spri
     #endif
   }
 
-  /* "sprite.pyx":642
+  /* "_sprite.pyx":642
  * 
  *     cpdef list sprites(self):
  *         return list(self._spritelist)             # <<<<<<<<<<<<<<
@@ -9983,7 +9985,7 @@ static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6spri
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":641
+  /* "_sprite.pyx":641
  *         RenderUpdates.__init__(self, *sprites)
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -9997,7 +9999,7 @@ static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -10006,25 +10008,25 @@ static PyObject *__pyx_f_6sprite_14OrderedUpdates_sprites(struct __pyx_obj_6spri
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_3sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("sprites (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_2sprites(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_2sprites(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_2sprites(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_2sprites(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("sprites", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_14OrderedUpdates_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 641, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_14OrderedUpdates_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10033,7 +10035,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_2sprites(struct __pyx_obj_6sp
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -10041,7 +10043,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_2sprites(struct __pyx_obj_6sp
   return __pyx_r;
 }
 
-/* "sprite.pyx":644
+/* "_sprite.pyx":644
  *         return list(self._spritelist)
  * 
  *     cpdef void add_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -10049,8 +10051,8 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_2sprites(struct __pyx_obj_6sp
  *         self._spritelist.append(sprite)
  */
 
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_14OrderedUpdates_add_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_14OrderedUpdates_add_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -10069,7 +10071,7 @@ static void __pyx_f_6sprite_14OrderedUpdates_add_internal(struct __pyx_obj_6spri
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 644, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14OrderedUpdates_5add_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14OrderedUpdates_5add_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -10103,16 +10105,16 @@ static void __pyx_f_6sprite_14OrderedUpdates_add_internal(struct __pyx_obj_6spri
     #endif
   }
 
-  /* "sprite.pyx":645
+  /* "_sprite.pyx":645
  * 
  *     cpdef void add_internal(self, sprite):
  *         RenderUpdates.add_internal(self, sprite)             # <<<<<<<<<<<<<<
  *         self._spritelist.append(sprite)
  * 
  */
-  __pyx_vtabptr_6sprite_RenderUpdates->__pyx_base.__pyx_base.add_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 1);
+  __pyx_vtabptr_7_sprite_RenderUpdates->__pyx_base.__pyx_base.add_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 1);
 
-  /* "sprite.pyx":646
+  /* "_sprite.pyx":646
  *     cpdef void add_internal(self, sprite):
  *         RenderUpdates.add_internal(self, sprite)
  *         self._spritelist.append(sprite)             # <<<<<<<<<<<<<<
@@ -10125,7 +10127,7 @@ static void __pyx_f_6sprite_14OrderedUpdates_add_internal(struct __pyx_obj_6spri
   }
   __pyx_t_5 = __Pyx_PyList_Append(__pyx_v_self->_spritelist, __pyx_v_sprite); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 646, __pyx_L1_error)
 
-  /* "sprite.pyx":644
+  /* "_sprite.pyx":644
  *         return list(self._spritelist)
  * 
  *     cpdef void add_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -10140,31 +10142,31 @@ static void __pyx_f_6sprite_14OrderedUpdates_add_internal(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.OrderedUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.OrderedUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("add_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_4add_internal(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_4add_internal(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_4add_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_4add_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("add_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_14OrderedUpdates_add_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 644, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_14OrderedUpdates_add_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 644, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10173,7 +10175,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_4add_internal(struct __pyx_ob
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -10181,7 +10183,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_4add_internal(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "sprite.pyx":648
+/* "_sprite.pyx":648
  *         self._spritelist.append(sprite)
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -10189,8 +10191,8 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_4add_internal(struct __pyx_ob
  *         self._spritelist.remove(sprite)
  */
 
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -10208,7 +10210,7 @@ static void __pyx_f_6sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_6s
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_remove_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14OrderedUpdates_7remove_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14OrderedUpdates_7remove_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -10242,16 +10244,16 @@ static void __pyx_f_6sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_6s
     #endif
   }
 
-  /* "sprite.pyx":649
+  /* "_sprite.pyx":649
  * 
  *     cpdef void remove_internal(self, sprite):
  *         RenderUpdates.remove_internal(self, sprite)             # <<<<<<<<<<<<<<
  *         self._spritelist.remove(sprite)
  * 
  */
-  __pyx_vtabptr_6sprite_RenderUpdates->__pyx_base.__pyx_base.remove_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 1);
+  __pyx_vtabptr_7_sprite_RenderUpdates->__pyx_base.__pyx_base.remove_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 1);
 
-  /* "sprite.pyx":650
+  /* "_sprite.pyx":650
  *     cpdef void remove_internal(self, sprite):
  *         RenderUpdates.remove_internal(self, sprite)
  *         self._spritelist.remove(sprite)             # <<<<<<<<<<<<<<
@@ -10277,7 +10279,7 @@ static void __pyx_f_6sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_6s
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":648
+  /* "_sprite.pyx":648
  *         self._spritelist.append(sprite)
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -10292,31 +10294,31 @@ static void __pyx_f_6sprite_14OrderedUpdates_remove_internal(struct __pyx_obj_6s
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.OrderedUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.OrderedUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_7remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("remove_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_6remove_internal(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_6remove_internal(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_6remove_internal(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_6remove_internal(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("remove_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_14OrderedUpdates_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_14OrderedUpdates_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10325,7 +10327,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_6remove_internal(struct __pyx
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -10333,7 +10335,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_6remove_internal(struct __pyx
   return __pyx_r;
 }
 
-/* "sprite.pyx":635
+/* "_sprite.pyx":635
  *     """
  * 
  *     cdef public list _spritelist             # <<<<<<<<<<<<<<
@@ -10342,19 +10344,19 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_6remove_internal(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_11_spritelist___get__(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist___get__(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_11_spritelist___get__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_11_spritelist___get__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -10371,19 +10373,19 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_11_spritelist___get__(struct 
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_2__set__(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist_2__set__(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_2__set__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist_2__set__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10402,7 +10404,7 @@ static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_2__set__(struct __pyx
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.OrderedUpdates._spritelist.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates._spritelist.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -10410,19 +10412,19 @@ static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_2__set__(struct __pyx
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_4__del__(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist_4__del__(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_4__del__(struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self) {
+static int __pyx_pf_7_sprite_14OrderedUpdates_11_spritelist_4__del__(struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -10445,19 +10447,19 @@ static int __pyx_pf_6sprite_14OrderedUpdates_11_spritelist_4__del__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_8__reduce_cython__(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_8__reduce_cython__(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10484,7 +10486,7 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_8__reduce_cython__(CYTHON_UNU
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -10499,19 +10501,19 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_8__reduce_cython__(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_14OrderedUpdates_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14OrderedUpdates_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14OrderedUpdates_10__setstate_cython__(((struct __pyx_obj_6sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_14OrderedUpdates_10__setstate_cython__(((struct __pyx_obj_7_sprite_OrderedUpdates *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14OrderedUpdates_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_OrderedUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_14OrderedUpdates_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_OrderedUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10538,14 +10540,14 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_10__setstate_cython__(CYTHON_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.OrderedUpdates.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.OrderedUpdates.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":669
+/* "_sprite.pyx":669
  *     cdef public int _default_layer
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -10554,28 +10556,28 @@ static PyObject *__pyx_pf_6sprite_14OrderedUpdates_10__setstate_cython__(CYTHON_
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_14LayeredUpdates_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_14LayeredUpdates_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
     __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates___cinit__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates___cinit__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates___cinit__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static int __pyx_pf_7_sprite_14LayeredUpdates___cinit__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "sprite.pyx":670
+  /* "_sprite.pyx":670
  * 
  *     def __cinit__(self):
  *         self._spritelayers = {}             # <<<<<<<<<<<<<<
@@ -10590,7 +10592,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates___cinit__(struct __pyx_obj_6sprite_
   __pyx_v_self->_spritelayers = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":671
+  /* "_sprite.pyx":671
  *     def __cinit__(self):
  *         self._spritelayers = {}
  *         self._spritelist = []             # <<<<<<<<<<<<<<
@@ -10605,7 +10607,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates___cinit__(struct __pyx_obj_6sprite_
   __pyx_v_self->_spritelist = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":669
+  /* "_sprite.pyx":669
  *     cdef public int _default_layer
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -10618,14 +10620,14 @@ static int __pyx_pf_6sprite_14LayeredUpdates___cinit__(struct __pyx_obj_6sprite_
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":673
+/* "_sprite.pyx":673
  *         self._spritelist = []
  * 
  *     def __init__(self, *sprites, **kwargs):             # <<<<<<<<<<<<<<
@@ -10634,12 +10636,12 @@ static int __pyx_pf_6sprite_14LayeredUpdates___cinit__(struct __pyx_obj_6sprite_
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_2__init__[] = "initialize an instance of LayeredUpdates with the given attributes\n\n        You can set the default layer through kwargs using 'default_layer'\n        and an integer for the layer. The default layer is 0.\n\n        If the sprite you add has an attribute _layer, then that layer will be\n        used. If **kwarg contains 'layer', then the passed sprites will be\n        added to that layer (overriding the sprite._layer attribute). If\n        neither the sprite nor **kwarg has a 'layer', then the default layer is\n        used to add the sprites.\n\n        ";
+static int __pyx_pw_7_sprite_14LayeredUpdates_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_2__init__[] = "initialize an instance of LayeredUpdates with the given attributes\n\n        You can set the default layer through kwargs using 'default_layer'\n        and an integer for the layer. The default layer is 0.\n\n        If the sprite you add has an attribute _layer, then that layer will be\n        used. If **kwarg contains 'layer', then the passed sprites will be\n        added to that layer (overriding the sprite._layer attribute). If\n        neither the sprite nor **kwarg has a 'layer', then the default layer is\n        used to add the sprites.\n\n        ";
 #if CYTHON_COMPILING_IN_CPYTHON
-struct wrapperbase __pyx_wrapperbase_6sprite_14LayeredUpdates_2__init__;
+struct wrapperbase __pyx_wrapperbase_7_sprite_14LayeredUpdates_2__init__;
 #endif
-static int __pyx_pw_6sprite_14LayeredUpdates_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_3__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_v_kwargs = 0;
   int __pyx_r;
@@ -10650,7 +10652,7 @@ static int __pyx_pw_6sprite_14LayeredUpdates_3__init__(PyObject *__pyx_v_self, P
   __Pyx_GOTREF(__pyx_v_kwargs);
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_2__init__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprites, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_2__init__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprites, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -10659,7 +10661,7 @@ static int __pyx_pw_6sprite_14LayeredUpdates_3__init__(PyObject *__pyx_v_self, P
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs) {
+static int __pyx_pf_7_sprite_14LayeredUpdates_2__init__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10668,14 +10670,14 @@ static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_
   int __pyx_t_4;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":686
+  /* "_sprite.pyx":686
  * 
  *         """
  *         AbstractGroup.__init__(self)             # <<<<<<<<<<<<<<
  *         self._default_layer = kwargs.get('default_layer', 0)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_AbstractGroup), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 686, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_AbstractGroup), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 686, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -10694,7 +10696,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":687
+  /* "_sprite.pyx":687
  *         """
  *         AbstractGroup.__init__(self)
  *         self._default_layer = kwargs.get('default_layer', 0)             # <<<<<<<<<<<<<<
@@ -10707,7 +10709,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->_default_layer = __pyx_t_4;
 
-  /* "sprite.pyx":689
+  /* "_sprite.pyx":689
  *         self._default_layer = kwargs.get('default_layer', 0)
  * 
  *         self.add(*sprites, **kwargs)             # <<<<<<<<<<<<<<
@@ -10721,7 +10723,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":673
+  /* "_sprite.pyx":673
  *         self._spritelist = []
  * 
  *     def __init__(self, *sprites, **kwargs):             # <<<<<<<<<<<<<<
@@ -10736,14 +10738,14 @@ static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":691
+/* "_sprite.pyx":691
  *         self.add(*sprites, **kwargs)
  * 
  *     cpdef void add_internal(self, sprite, layer=None):             # <<<<<<<<<<<<<<
@@ -10751,8 +10753,8 @@ static int __pyx_pf_6sprite_14LayeredUpdates_2__init__(struct __pyx_obj_6sprite_
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal *__pyx_optional_args) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+void __pyx_f_7_sprite_14LayeredUpdates_add_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal *__pyx_optional_args) {
   PyObject *__pyx_v_layer = ((PyObject *)Py_None);
   PyObject *__pyx_v_sprites = NULL;
   PyObject *__pyx_v_sprites_layers = NULL;
@@ -10792,7 +10794,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 691, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14LayeredUpdates_5add_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14LayeredUpdates_5add_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         __pyx_t_5 = 0;
@@ -10856,7 +10858,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     #endif
   }
 
-  /* "sprite.pyx":697
+  /* "_sprite.pyx":697
  * 
  *         """
  *         self.spritedict[sprite] = self._init_rect             # <<<<<<<<<<<<<<
@@ -10872,7 +10874,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   if (unlikely(PyDict_SetItem(__pyx_v_self->__pyx_base.spritedict, __pyx_v_sprite, __pyx_t_1) < 0)) __PYX_ERR(0, 697, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":699
+  /* "_sprite.pyx":699
  *         self.spritedict[sprite] = self._init_rect
  * 
  *         if layer is None:             # <<<<<<<<<<<<<<
@@ -10883,7 +10885,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_t_8 = (__pyx_t_7 != 0);
   if (__pyx_t_8) {
 
-    /* "sprite.pyx":700
+    /* "_sprite.pyx":700
  * 
  *         if layer is None:
  *             try:             # <<<<<<<<<<<<<<
@@ -10899,7 +10901,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       __Pyx_XGOTREF(__pyx_t_11);
       /*try:*/ {
 
-        /* "sprite.pyx":701
+        /* "_sprite.pyx":701
  *         if layer is None:
  *             try:
  *                 layer = sprite._layer             # <<<<<<<<<<<<<<
@@ -10911,7 +10913,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
         __Pyx_DECREF_SET(__pyx_v_layer, __pyx_t_1);
         __pyx_t_1 = 0;
 
-        /* "sprite.pyx":700
+        /* "_sprite.pyx":700
  * 
  *         if layer is None:
  *             try:             # <<<<<<<<<<<<<<
@@ -10930,7 +10932,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-      /* "sprite.pyx":702
+      /* "_sprite.pyx":702
  *             try:
  *                 layer = sprite._layer
  *             except AttributeError:             # <<<<<<<<<<<<<<
@@ -10939,13 +10941,13 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
  */
       __pyx_t_5 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
       if (__pyx_t_5) {
-        __Pyx_AddTraceback("sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+        __Pyx_AddTraceback("_sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
         if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3) < 0) __PYX_ERR(0, 702, __pyx_L6_except_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_GOTREF(__pyx_t_3);
 
-        /* "sprite.pyx":703
+        /* "_sprite.pyx":703
  *                 layer = sprite._layer
  *             except AttributeError:
  *                 layer = sprite._layer = self._default_layer             # <<<<<<<<<<<<<<
@@ -10966,7 +10968,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       goto __pyx_L6_except_error;
       __pyx_L6_except_error:;
 
-      /* "sprite.pyx":700
+      /* "_sprite.pyx":700
  * 
  *         if layer is None:
  *             try:             # <<<<<<<<<<<<<<
@@ -10986,7 +10988,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       __pyx_L9_try_end:;
     }
 
-    /* "sprite.pyx":699
+    /* "_sprite.pyx":699
  *         self.spritedict[sprite] = self._init_rect
  * 
  *         if layer is None:             # <<<<<<<<<<<<<<
@@ -10996,7 +10998,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":704
+  /* "_sprite.pyx":704
  *             except AttributeError:
  *                 layer = sprite._layer = self._default_layer
  *         elif hasattr(sprite, '_layer'):             # <<<<<<<<<<<<<<
@@ -11007,7 +11009,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_t_7 = (__pyx_t_8 != 0);
   if (__pyx_t_7) {
 
-    /* "sprite.pyx":705
+    /* "_sprite.pyx":705
  *                 layer = sprite._layer = self._default_layer
  *         elif hasattr(sprite, '_layer'):
  *             sprite._layer = layer             # <<<<<<<<<<<<<<
@@ -11016,7 +11018,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
  */
     if (__Pyx_PyObject_SetAttrStr(__pyx_v_sprite, __pyx_n_s_layer, __pyx_v_layer) < 0) __PYX_ERR(0, 705, __pyx_L1_error)
 
-    /* "sprite.pyx":704
+    /* "_sprite.pyx":704
  *             except AttributeError:
  *                 layer = sprite._layer = self._default_layer
  *         elif hasattr(sprite, '_layer'):             # <<<<<<<<<<<<<<
@@ -11026,7 +11028,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":707
+  /* "_sprite.pyx":707
  *             sprite._layer = layer
  * 
  *         sprites = self._spritelist # speedup             # <<<<<<<<<<<<<<
@@ -11038,7 +11040,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_v_sprites = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "sprite.pyx":708
+  /* "_sprite.pyx":708
  * 
  *         sprites = self._spritelist # speedup
  *         sprites_layers = self._spritelayers             # <<<<<<<<<<<<<<
@@ -11050,7 +11052,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_v_sprites_layers = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "sprite.pyx":709
+  /* "_sprite.pyx":709
  *         sprites = self._spritelist # speedup
  *         sprites_layers = self._spritelayers
  *         sprites_layers[sprite] = layer             # <<<<<<<<<<<<<<
@@ -11063,7 +11065,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   }
   if (unlikely(PyDict_SetItem(__pyx_v_sprites_layers, __pyx_v_sprite, __pyx_v_layer) < 0)) __PYX_ERR(0, 709, __pyx_L1_error)
 
-  /* "sprite.pyx":713
+  /* "_sprite.pyx":713
  *         # add the sprite at the right position
  *         # bisect algorithmus
  *         leng = len(sprites)             # <<<<<<<<<<<<<<
@@ -11080,7 +11082,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_v_leng = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sprite.pyx":714
+  /* "_sprite.pyx":714
  *         # bisect algorithmus
  *         leng = len(sprites)
  *         low = mid = 0             # <<<<<<<<<<<<<<
@@ -11092,7 +11094,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_mid = __pyx_int_0;
 
-  /* "sprite.pyx":715
+  /* "_sprite.pyx":715
  *         leng = len(sprites)
  *         low = mid = 0
  *         high = leng - 1             # <<<<<<<<<<<<<<
@@ -11104,7 +11106,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_v_high = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sprite.pyx":716
+  /* "_sprite.pyx":716
  *         low = mid = 0
  *         high = leng - 1
  *         while low <= high:             # <<<<<<<<<<<<<<
@@ -11117,7 +11119,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (!__pyx_t_7) break;
 
-    /* "sprite.pyx":717
+    /* "_sprite.pyx":717
  *         high = leng - 1
  *         while low <= high:
  *             mid = low + (high - low) // 2             # <<<<<<<<<<<<<<
@@ -11135,7 +11137,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     __Pyx_DECREF_SET(__pyx_v_mid, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":718
+    /* "_sprite.pyx":718
  *         while low <= high:
  *             mid = low + (high - low) // 2
  *             if sprites_layers[sprites[mid]] <= layer:             # <<<<<<<<<<<<<<
@@ -11161,7 +11163,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (__pyx_t_7) {
 
-      /* "sprite.pyx":719
+      /* "_sprite.pyx":719
  *             mid = low + (high - low) // 2
  *             if sprites_layers[sprites[mid]] <= layer:
  *                 low = mid + 1             # <<<<<<<<<<<<<<
@@ -11173,7 +11175,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       __Pyx_DECREF_SET(__pyx_v_low, __pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "sprite.pyx":718
+      /* "_sprite.pyx":718
  *         while low <= high:
  *             mid = low + (high - low) // 2
  *             if sprites_layers[sprites[mid]] <= layer:             # <<<<<<<<<<<<<<
@@ -11183,7 +11185,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
       goto __pyx_L14;
     }
 
-    /* "sprite.pyx":721
+    /* "_sprite.pyx":721
  *                 low = mid + 1
  *             else:
  *                 high = mid - 1             # <<<<<<<<<<<<<<
@@ -11199,7 +11201,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     __pyx_L14:;
   }
 
-  /* "sprite.pyx":723
+  /* "_sprite.pyx":723
  *                 high = mid - 1
  *         # linear search to find final position
  *         while mid < leng and sprites_layers[sprites[mid]] <= layer:             # <<<<<<<<<<<<<<
@@ -11236,7 +11238,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     __pyx_L17_bool_binop_done:;
     if (!__pyx_t_7) break;
 
-    /* "sprite.pyx":724
+    /* "_sprite.pyx":724
  *         # linear search to find final position
  *         while mid < leng and sprites_layers[sprites[mid]] <= layer:
  *             mid += 1             # <<<<<<<<<<<<<<
@@ -11249,7 +11251,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
     __pyx_t_3 = 0;
   }
 
-  /* "sprite.pyx":725
+  /* "_sprite.pyx":725
  *         while mid < leng and sprites_layers[sprites[mid]] <= layer:
  *             mid += 1
  *         sprites.insert(mid, sprite)             # <<<<<<<<<<<<<<
@@ -11263,7 +11265,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __pyx_t_12 = __Pyx_PyIndex_AsSsize_t(__pyx_v_mid); if (unlikely((__pyx_t_12 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 725, __pyx_L1_error)
   __pyx_t_13 = PyList_Insert(__pyx_v_sprites, __pyx_t_12, __pyx_v_sprite); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 725, __pyx_L1_error)
 
-  /* "sprite.pyx":691
+  /* "_sprite.pyx":691
  *         self.add(*sprites, **kwargs)
  * 
  *     cpdef void add_internal(self, sprite, layer=None):             # <<<<<<<<<<<<<<
@@ -11279,7 +11281,7 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_WriteUnraisable("sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprites);
   __Pyx_XDECREF(__pyx_v_sprites_layers);
@@ -11292,9 +11294,9 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal(struct __pyx_obj_6sprite_Laye
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_4add_internal[] = "Do not use this method directly.\n\n        It is used by the group to add a sprite internally.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_4add_internal[] = "Do not use this method directly.\n\n        It is used by the group to add a sprite internally.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_5add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   PyObject *__pyx_v_layer = 0;
   PyObject *__pyx_r = 0;
@@ -11346,27 +11348,27 @@ static PyObject *__pyx_pw_6sprite_14LayeredUpdates_5add_internal(PyObject *__pyx
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("add_internal", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 691, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_4add_internal(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, __pyx_v_layer);
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_4add_internal(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, __pyx_v_layer);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_4add_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_4add_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal __pyx_t_1;
+  struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("add_internal", 0);
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1.__pyx_n = 1;
   __pyx_t_1.layer = __pyx_v_layer;
-  __pyx_vtabptr_6sprite_LayeredUpdates->add_internal(__pyx_v_self, __pyx_v_sprite, 1, &__pyx_t_1); 
+  __pyx_vtabptr_7_sprite_LayeredUpdates->add_internal(__pyx_v_self, __pyx_v_sprite, 1, &__pyx_t_1); 
   __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 691, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
@@ -11376,7 +11378,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_4add_internal(struct __pyx_ob
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -11384,11 +11386,11 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_4add_internal(struct __pyx_ob
   return __pyx_r;
 }
 
-void __pyx_f_6sprite_14LayeredUpdates_add_internal__pyx_wrap_1(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
-  __pyx_f_6sprite_14LayeredUpdates_add_internal(__pyx_v_self, __pyx_v_sprite, __pyx_skip_dispatch, NULL);
+void __pyx_f_7_sprite_14LayeredUpdates_add_internal__pyx_wrap_1(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+  __pyx_f_7_sprite_14LayeredUpdates_add_internal(__pyx_v_self, __pyx_v_sprite, __pyx_skip_dispatch, NULL);
 }
 
-/* "sprite.pyx":727
+/* "_sprite.pyx":727
  *         sprites.insert(mid, sprite)
  * 
  *     def add(self, *sprites, **kwargs):             # <<<<<<<<<<<<<<
@@ -11397,9 +11399,9 @@ void __pyx_f_6sprite_14LayeredUpdates_add_internal__pyx_wrap_1(struct __pyx_obj_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_7add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_6add[] = "add a sprite or sequence of sprites to a group\n\n        LayeredUpdates.add(*sprites, **kwargs): return None\n\n        If the sprite you add has an attribute _layer, then that layer will be\n        used. If **kwarg contains 'layer', then the passed sprites will be\n        added to that layer (overriding the sprite._layer attribute). If\n        neither the sprite nor **kwarg has a 'layer', then the default layer is\n        used to add the sprites.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_7add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_7add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_6add[] = "add a sprite or sequence of sprites to a group\n\n        LayeredUpdates.add(*sprites, **kwargs): return None\n\n        If the sprite you add has an attribute _layer, then that layer will be\n        used. If **kwarg contains 'layer', then the passed sprites will be\n        added to that layer (overriding the sprite._layer attribute). If\n        neither the sprite nor **kwarg has a 'layer', then the default layer is\n        used to add the sprites.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_7add(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_v_kwargs = 0;
   PyObject *__pyx_r = 0;
@@ -11410,7 +11412,7 @@ static PyObject *__pyx_pw_6sprite_14LayeredUpdates_7add(PyObject *__pyx_v_self, 
   __Pyx_GOTREF(__pyx_v_kwargs);
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_6add(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprites, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_6add(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprites, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -11419,7 +11421,7 @@ static PyObject *__pyx_pw_6sprite_14LayeredUpdates_7add(PyObject *__pyx_v_self, 
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_6add(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs) {
   PyObject *__pyx_v_layer = NULL;
   PyObject *__pyx_v_sprite = NULL;
   PyObject *__pyx_v_spr = NULL;
@@ -11430,7 +11432,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   PyObject *__pyx_t_3 = NULL;
   Py_ssize_t __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
-  struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal __pyx_t_6;
+  struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal __pyx_t_6;
   PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
   PyObject *__pyx_t_9 = NULL;
@@ -11445,7 +11447,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   PyObject *__pyx_t_18 = NULL;
   __Pyx_RefNannySetupContext("add", 0);
 
-  /* "sprite.pyx":740
+  /* "_sprite.pyx":740
  *         """
  * 
  *         if not sprites:             # <<<<<<<<<<<<<<
@@ -11456,7 +11458,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   __pyx_t_2 = ((!__pyx_t_1) != 0);
   if (__pyx_t_2) {
 
-    /* "sprite.pyx":741
+    /* "_sprite.pyx":741
  * 
  *         if not sprites:
  *             return             # <<<<<<<<<<<<<<
@@ -11467,7 +11469,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "sprite.pyx":740
+    /* "_sprite.pyx":740
  *         """
  * 
  *         if not sprites:             # <<<<<<<<<<<<<<
@@ -11476,7 +11478,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
   }
 
-  /* "sprite.pyx":742
+  /* "_sprite.pyx":742
  *         if not sprites:
  *             return
  *         if 'layer' in kwargs:             # <<<<<<<<<<<<<<
@@ -11487,7 +11489,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "sprite.pyx":743
+    /* "_sprite.pyx":743
  *             return
  *         if 'layer' in kwargs:
  *             layer = kwargs['layer']             # <<<<<<<<<<<<<<
@@ -11499,7 +11501,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
     __pyx_v_layer = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":742
+    /* "_sprite.pyx":742
  *         if not sprites:
  *             return
  *         if 'layer' in kwargs:             # <<<<<<<<<<<<<<
@@ -11509,7 +11511,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
     goto __pyx_L4;
   }
 
-  /* "sprite.pyx":745
+  /* "_sprite.pyx":745
  *             layer = kwargs['layer']
  *         else:
  *             layer = None             # <<<<<<<<<<<<<<
@@ -11522,7 +11524,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   }
   __pyx_L4:;
 
-  /* "sprite.pyx":746
+  /* "_sprite.pyx":746
  *         else:
  *             layer = None
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -11541,28 +11543,28 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
     __Pyx_XDECREF_SET(__pyx_v_sprite, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "sprite.pyx":750
+    /* "_sprite.pyx":750
  *             # If this is the case, we should add the sprite itself,
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
  *                 if not self.has_internal(<Sprite>sprite):
  *                     self.add_internal(<Sprite>sprite, layer)
  */
-    __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_6sprite_Sprite); 
+    __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_sprite, __pyx_ptype_7_sprite_Sprite); 
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "sprite.pyx":751
+      /* "_sprite.pyx":751
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):
  *                 if not self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
  *                     self.add_internal(<Sprite>sprite, layer)
  *                     (<Sprite>sprite).add_internal(self)
  */
-      __pyx_t_2 = ((!(((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.has_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 0) != 0)) != 0);
+      __pyx_t_2 = ((!(((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.has_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 0) != 0)) != 0);
       if (__pyx_t_2) {
 
-        /* "sprite.pyx":752
+        /* "_sprite.pyx":752
  *             if isinstance(sprite, Sprite):
  *                 if not self.has_internal(<Sprite>sprite):
  *                     self.add_internal(<Sprite>sprite, layer)             # <<<<<<<<<<<<<<
@@ -11571,18 +11573,18 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
         __pyx_t_6.__pyx_n = 1;
         __pyx_t_6.layer = __pyx_v_layer;
-        ((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0, &__pyx_t_6); 
+        ((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0, &__pyx_t_6); 
 
-        /* "sprite.pyx":753
+        /* "_sprite.pyx":753
  *                 if not self.has_internal(<Sprite>sprite):
  *                     self.add_internal(<Sprite>sprite, layer)
  *                     (<Sprite>sprite).add_internal(self)             # <<<<<<<<<<<<<<
  *             else:
  *                 try:
  */
-        ((struct __pyx_vtabstruct_6sprite_Sprite *)((struct __pyx_obj_6sprite_Sprite *)__pyx_v_sprite)->__pyx_vtab)->add_internal(((struct __pyx_obj_6sprite_Sprite *)__pyx_v_sprite), ((PyObject *)__pyx_v_self), 0);
+        ((struct __pyx_vtabstruct_7_sprite_Sprite *)((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_sprite)->__pyx_vtab)->add_internal(((struct __pyx_obj_7_sprite_Sprite *)__pyx_v_sprite), ((PyObject *)__pyx_v_self), 0);
 
-        /* "sprite.pyx":751
+        /* "_sprite.pyx":751
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):
  *                 if not self.has_internal(<Sprite>sprite):             # <<<<<<<<<<<<<<
@@ -11591,7 +11593,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
       }
 
-      /* "sprite.pyx":750
+      /* "_sprite.pyx":750
  *             # If this is the case, we should add the sprite itself,
  *             # and not the iterator object.
  *             if isinstance(sprite, Sprite):             # <<<<<<<<<<<<<<
@@ -11601,7 +11603,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
       goto __pyx_L7;
     }
 
-    /* "sprite.pyx":755
+    /* "_sprite.pyx":755
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -11618,7 +11620,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
         __Pyx_XGOTREF(__pyx_t_9);
         /*try:*/ {
 
-          /* "sprite.pyx":758
+          /* "_sprite.pyx":758
  *                     # See if sprite is an iterator, like a list or sprite
  *                     # group.
  *                     self.add(*sprite, **kwargs)             # <<<<<<<<<<<<<<
@@ -11635,7 +11637,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
-          /* "sprite.pyx":755
+          /* "_sprite.pyx":755
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -11652,7 +11654,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
         __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "sprite.pyx":759
+        /* "_sprite.pyx":759
  *                     # group.
  *                     self.add(*sprite, **kwargs)
  *                 except (TypeError, AttributeError):             # <<<<<<<<<<<<<<
@@ -11661,13 +11663,13 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
         __pyx_t_12 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_TypeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
         if (__pyx_t_12) {
-          __Pyx_AddTraceback("sprite.LayeredUpdates.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
+          __Pyx_AddTraceback("_sprite.LayeredUpdates.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
           if (__Pyx_GetException(&__pyx_t_11, &__pyx_t_10, &__pyx_t_5) < 0) __PYX_ERR(0, 759, __pyx_L11_except_error)
           __Pyx_GOTREF(__pyx_t_11);
           __Pyx_GOTREF(__pyx_t_10);
           __Pyx_GOTREF(__pyx_t_5);
 
-          /* "sprite.pyx":764
+          /* "_sprite.pyx":764
  *                     # subclass of the Sprite class. Alternately, it could be an
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -11678,7 +11680,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
           __pyx_t_1 = (__pyx_t_2 != 0);
           if (__pyx_t_1) {
 
-            /* "sprite.pyx":765
+            /* "_sprite.pyx":765
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -11745,17 +11747,17 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
               __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_13);
               __pyx_t_13 = 0;
 
-              /* "sprite.pyx":766
+              /* "_sprite.pyx":766
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if not self.has_internal(spr):             # <<<<<<<<<<<<<<
  *                                 self.add_internal(spr, layer)
  *                                 spr.add_internal(self)
  */
-              __pyx_t_1 = ((!(((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.has_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_spr, 0) != 0)) != 0);
+              __pyx_t_1 = ((!(((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.has_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_spr, 0) != 0)) != 0);
               if (__pyx_t_1) {
 
-                /* "sprite.pyx":767
+                /* "_sprite.pyx":767
  *                         for spr in sprite.sprites():
  *                             if not self.has_internal(spr):
  *                                 self.add_internal(spr, layer)             # <<<<<<<<<<<<<<
@@ -11764,9 +11766,9 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
                 __pyx_t_6.__pyx_n = 1;
                 __pyx_t_6.layer = __pyx_v_layer;
-                ((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_spr, 0, &__pyx_t_6); 
+                ((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_spr, 0, &__pyx_t_6); 
 
-                /* "sprite.pyx":768
+                /* "_sprite.pyx":768
  *                             if not self.has_internal(spr):
  *                                 self.add_internal(spr, layer)
  *                                 spr.add_internal(self)             # <<<<<<<<<<<<<<
@@ -11792,7 +11794,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
                 __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
                 __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-                /* "sprite.pyx":766
+                /* "_sprite.pyx":766
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():
  *                             if not self.has_internal(spr):             # <<<<<<<<<<<<<<
@@ -11801,7 +11803,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
               }
 
-              /* "sprite.pyx":765
+              /* "_sprite.pyx":765
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):
  *                         for spr in sprite.sprites():             # <<<<<<<<<<<<<<
@@ -11811,7 +11813,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
             }
             __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-            /* "sprite.pyx":764
+            /* "_sprite.pyx":764
  *                     # subclass of the Sprite class. Alternately, it could be an
  *                     # old-style sprite group.
  *                     if hasattr(sprite, '_spritegroup'):             # <<<<<<<<<<<<<<
@@ -11821,17 +11823,17 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
             goto __pyx_L19;
           }
 
-          /* "sprite.pyx":769
+          /* "_sprite.pyx":769
  *                                 self.add_internal(spr, layer)
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):             # <<<<<<<<<<<<<<
  *                         self.add_internal(sprite, layer)
  *                         sprite.add_internal(self)
  */
-          __pyx_t_1 = ((!(((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.has_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 0) != 0)) != 0);
+          __pyx_t_1 = ((!(((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.has_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 0) != 0)) != 0);
           if (__pyx_t_1) {
 
-            /* "sprite.pyx":770
+            /* "_sprite.pyx":770
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):
  *                         self.add_internal(sprite, layer)             # <<<<<<<<<<<<<<
@@ -11840,9 +11842,9 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  */
             __pyx_t_6.__pyx_n = 1;
             __pyx_t_6.layer = __pyx_v_layer;
-            ((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0, &__pyx_t_6); 
+            ((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->add_internal(__pyx_v_self, __pyx_v_sprite, 0, &__pyx_t_6); 
 
-            /* "sprite.pyx":771
+            /* "_sprite.pyx":771
  *                     elif not self.has_internal(sprite):
  *                         self.add_internal(sprite, layer)
  *                         sprite.add_internal(self)             # <<<<<<<<<<<<<<
@@ -11868,7 +11870,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-            /* "sprite.pyx":769
+            /* "_sprite.pyx":769
  *                                 self.add_internal(spr, layer)
  *                                 spr.add_internal(self)
  *                     elif not self.has_internal(sprite):             # <<<<<<<<<<<<<<
@@ -11885,7 +11887,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
         goto __pyx_L11_except_error;
         __pyx_L11_except_error:;
 
-        /* "sprite.pyx":755
+        /* "_sprite.pyx":755
  *                     (<Sprite>sprite).add_internal(self)
  *             else:
  *                 try:             # <<<<<<<<<<<<<<
@@ -11907,7 +11909,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
     }
     __pyx_L7:;
 
-    /* "sprite.pyx":746
+    /* "_sprite.pyx":746
  *         else:
  *             layer = None
  *         for sprite in sprites:             # <<<<<<<<<<<<<<
@@ -11917,7 +11919,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "sprite.pyx":727
+  /* "_sprite.pyx":727
  *         sprites.insert(mid, sprite)
  * 
  *     def add(self, *sprites, **kwargs):             # <<<<<<<<<<<<<<
@@ -11937,7 +11939,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
   __Pyx_XDECREF(__pyx_t_18);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.add", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_layer);
@@ -11948,7 +11950,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
   return __pyx_r;
 }
 
-/* "sprite.pyx":773
+/* "_sprite.pyx":773
  *                         sprite.add_internal(self)
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -11956,8 +11958,8 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_6add(struct __pyx_obj_6sprite
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_9remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_9remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -11979,7 +11981,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_remove_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 773, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14LayeredUpdates_9remove_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14LayeredUpdates_9remove_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -12013,7 +12015,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
     #endif
   }
 
-  /* "sprite.pyx":779
+  /* "_sprite.pyx":779
  * 
  *         """
  *         self._spritelist.remove(sprite)             # <<<<<<<<<<<<<<
@@ -12039,7 +12041,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":781
+  /* "_sprite.pyx":781
  *         self._spritelist.remove(sprite)
  *         # these dirty rects are suboptimal for one frame
  *         r = self.spritedict[sprite]             # <<<<<<<<<<<<<<
@@ -12055,7 +12057,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   __pyx_v_r = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":782
+  /* "_sprite.pyx":782
  *         # these dirty rects are suboptimal for one frame
  *         r = self.spritedict[sprite]
  *         if r is not self._init_rect:             # <<<<<<<<<<<<<<
@@ -12069,7 +12071,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "sprite.pyx":783
+    /* "_sprite.pyx":783
  *         r = self.spritedict[sprite]
  *         if r is not self._init_rect:
  *             self.lostsprites.append(r) # dirty rect             # <<<<<<<<<<<<<<
@@ -12082,7 +12084,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
     }
     __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_self->__pyx_base.lostsprites, __pyx_v_r); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 783, __pyx_L1_error)
 
-    /* "sprite.pyx":782
+    /* "_sprite.pyx":782
  *         # these dirty rects are suboptimal for one frame
  *         r = self.spritedict[sprite]
  *         if r is not self._init_rect:             # <<<<<<<<<<<<<<
@@ -12091,7 +12093,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
  */
   }
 
-  /* "sprite.pyx":784
+  /* "_sprite.pyx":784
  *         if r is not self._init_rect:
  *             self.lostsprites.append(r) # dirty rect
  *         if hasattr(sprite, 'rect'):             # <<<<<<<<<<<<<<
@@ -12102,7 +12104,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   __pyx_t_5 = (__pyx_t_6 != 0);
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":785
+    /* "_sprite.pyx":785
  *             self.lostsprites.append(r) # dirty rect
  *         if hasattr(sprite, 'rect'):
  *             self.lostsprites.append(sprite.rect) # dirty rect             # <<<<<<<<<<<<<<
@@ -12118,7 +12120,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
     __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_self->__pyx_base.lostsprites, __pyx_t_1); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 785, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":784
+    /* "_sprite.pyx":784
  *         if r is not self._init_rect:
  *             self.lostsprites.append(r) # dirty rect
  *         if hasattr(sprite, 'rect'):             # <<<<<<<<<<<<<<
@@ -12127,7 +12129,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
  */
   }
 
-  /* "sprite.pyx":787
+  /* "_sprite.pyx":787
  *             self.lostsprites.append(sprite.rect) # dirty rect
  * 
  *         del self.spritedict[sprite]             # <<<<<<<<<<<<<<
@@ -12140,7 +12142,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   }
   if (unlikely(PyDict_DelItem(__pyx_v_self->__pyx_base.spritedict, __pyx_v_sprite) < 0)) __PYX_ERR(0, 787, __pyx_L1_error)
 
-  /* "sprite.pyx":788
+  /* "_sprite.pyx":788
  * 
  *         del self.spritedict[sprite]
  *         del self._spritelayers[sprite]             # <<<<<<<<<<<<<<
@@ -12153,7 +12155,7 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   }
   if (unlikely(PyDict_DelItem(__pyx_v_self->_spritelayers, __pyx_v_sprite) < 0)) __PYX_ERR(0, 788, __pyx_L1_error)
 
-  /* "sprite.pyx":773
+  /* "_sprite.pyx":773
  *                         sprite.add_internal(self)
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -12168,33 +12170,33 @@ static void __pyx_f_6sprite_14LayeredUpdates_remove_internal(struct __pyx_obj_6s
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.LayeredUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.LayeredUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_r);
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_9remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_8remove_internal[] = "Do not use this method directly.\n\n        The group uses it to add a sprite.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_9remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_9remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_8remove_internal[] = "Do not use this method directly.\n\n        The group uses it to add a sprite.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_9remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("remove_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_8remove_internal(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_8remove_internal(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_8remove_internal(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_8remove_internal(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("remove_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_14LayeredUpdates_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 773, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_14LayeredUpdates_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 773, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12203,7 +12205,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_8remove_internal(struct __pyx
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -12211,7 +12213,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_8remove_internal(struct __pyx
   return __pyx_r;
 }
 
-/* "sprite.pyx":790
+/* "_sprite.pyx":790
  *         del self._spritelayers[sprite]
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -12219,8 +12221,8 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_8remove_internal(struct __pyx
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_11sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_11sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_f_7_sprite_14LayeredUpdates_sprites(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, int __pyx_skip_dispatch) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -12239,7 +12241,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6spri
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sprites); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 790, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14LayeredUpdates_11sprites)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14LayeredUpdates_11sprites)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -12276,7 +12278,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6spri
     #endif
   }
 
-  /* "sprite.pyx":796
+  /* "_sprite.pyx":796
  * 
  *         """
  *         return list(self._spritelist)             # <<<<<<<<<<<<<<
@@ -12290,7 +12292,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6spri
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":790
+  /* "_sprite.pyx":790
  *         del self._spritelayers[sprite]
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -12304,7 +12306,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -12313,26 +12315,26 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_sprites(struct __pyx_obj_6spri
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_11sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_10sprites[] = "return a ordered list of sprites (first back, last top).\n\n        LayeredUpdates.sprites(): return sprites\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_11sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_11sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_10sprites[] = "return a ordered list of sprites (first back, last top).\n\n        LayeredUpdates.sprites(): return sprites\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_11sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("sprites (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_10sprites(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_10sprites(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_10sprites(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_10sprites(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("sprites", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_14LayeredUpdates_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 790, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_14LayeredUpdates_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 790, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12341,7 +12343,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_10sprites(struct __pyx_obj_6s
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -12349,7 +12351,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_10sprites(struct __pyx_obj_6s
   return __pyx_r;
 }
 
-/* "sprite.pyx":798
+/* "_sprite.pyx":798
  *         return list(self._spritelist)
  * 
  *     cpdef draw(self, surface):             # <<<<<<<<<<<<<<
@@ -12357,8 +12359,8 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_10sprites(struct __pyx_obj_6s
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_13draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
-static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_13draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
+static PyObject *__pyx_f_7_sprite_14LayeredUpdates_draw(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_spritedict = NULL;
   PyObject *__pyx_v_surface_blit = NULL;
   PyObject *__pyx_v_dirty = NULL;
@@ -12393,7 +12395,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 798, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_14LayeredUpdates_13draw)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_14LayeredUpdates_13draw)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -12429,7 +12431,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     #endif
   }
 
-  /* "sprite.pyx":804
+  /* "_sprite.pyx":804
  * 
  *         """
  *         spritedict = self.spritedict             # <<<<<<<<<<<<<<
@@ -12441,7 +12443,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __pyx_v_spritedict = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":805
+  /* "_sprite.pyx":805
  *         """
  *         spritedict = self.spritedict
  *         surface_blit = surface.blit             # <<<<<<<<<<<<<<
@@ -12453,7 +12455,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __pyx_v_surface_blit = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":806
+  /* "_sprite.pyx":806
  *         spritedict = self.spritedict
  *         surface_blit = surface.blit
  *         dirty = self.lostsprites             # <<<<<<<<<<<<<<
@@ -12465,7 +12467,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __pyx_v_dirty = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":807
+  /* "_sprite.pyx":807
  *         surface_blit = surface.blit
  *         dirty = self.lostsprites
  *         self.lostsprites.clear()             # <<<<<<<<<<<<<<
@@ -12491,7 +12493,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":808
+  /* "_sprite.pyx":808
  *         dirty = self.lostsprites
  *         self.lostsprites.clear()
  *         dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -12503,7 +12505,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __pyx_v_dirty_append = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":809
+  /* "_sprite.pyx":809
  *         self.lostsprites.clear()
  *         dirty_append = dirty.append
  *         init_rect = self._init_rect             # <<<<<<<<<<<<<<
@@ -12515,14 +12517,14 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __pyx_v_init_rect = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":810
+  /* "_sprite.pyx":810
  *         dirty_append = dirty.append
  *         init_rect = self._init_rect
  *         for spr in self.sprites():             # <<<<<<<<<<<<<<
  *             rec = spritedict[spr]
  *             newrect = surface_blit(spr.image, spr.rect)
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.sprites(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 810, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_7_sprite_LayeredUpdates *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.sprites(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_t_1 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
@@ -12541,7 +12543,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":811
+    /* "_sprite.pyx":811
  *         init_rect = self._init_rect
  *         for spr in self.sprites():
  *             rec = spritedict[spr]             # <<<<<<<<<<<<<<
@@ -12557,7 +12559,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     __Pyx_XDECREF_SET(__pyx_v_rec, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":812
+    /* "_sprite.pyx":812
  *         for spr in self.sprites():
  *             rec = spritedict[spr]
  *             newrect = surface_blit(spr.image, spr.rect)             # <<<<<<<<<<<<<<
@@ -12621,7 +12623,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     __Pyx_XDECREF_SET(__pyx_v_newrect, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":813
+    /* "_sprite.pyx":813
  *             rec = spritedict[spr]
  *             newrect = surface_blit(spr.image, spr.rect)
  *             if rec is init_rect:             # <<<<<<<<<<<<<<
@@ -12632,7 +12634,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     __pyx_t_11 = (__pyx_t_10 != 0);
     if (__pyx_t_11) {
 
-      /* "sprite.pyx":808
+      /* "_sprite.pyx":808
  *         dirty = self.lostsprites
  *         self.lostsprites.clear()
  *         dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -12644,7 +12646,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
         __PYX_ERR(0, 808, __pyx_L1_error)
       }
 
-      /* "sprite.pyx":814
+      /* "_sprite.pyx":814
  *             newrect = surface_blit(spr.image, spr.rect)
  *             if rec is init_rect:
  *                 dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -12653,7 +12655,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
  */
       __pyx_t_12 = __Pyx_PyList_Append(__pyx_v_dirty, __pyx_v_newrect); if (unlikely(__pyx_t_12 == ((int)-1))) __PYX_ERR(0, 814, __pyx_L1_error)
 
-      /* "sprite.pyx":813
+      /* "_sprite.pyx":813
  *             rec = spritedict[spr]
  *             newrect = surface_blit(spr.image, spr.rect)
  *             if rec is init_rect:             # <<<<<<<<<<<<<<
@@ -12663,7 +12665,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":816
+    /* "_sprite.pyx":816
  *                 dirty_append(newrect)
  *             else:
  *                 if newrect.colliderect(rec):             # <<<<<<<<<<<<<<
@@ -12692,7 +12694,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (__pyx_t_11) {
 
-        /* "sprite.pyx":808
+        /* "_sprite.pyx":808
  *         dirty = self.lostsprites
  *         self.lostsprites.clear()
  *         dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -12704,7 +12706,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
           __PYX_ERR(0, 808, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":817
+        /* "_sprite.pyx":817
  *             else:
  *                 if newrect.colliderect(rec):
  *                     dirty_append(newrect.union(rec))             # <<<<<<<<<<<<<<
@@ -12731,7 +12733,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
         __pyx_t_12 = __Pyx_PyList_Append(__pyx_v_dirty, __pyx_t_1); if (unlikely(__pyx_t_12 == ((int)-1))) __PYX_ERR(0, 817, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "sprite.pyx":816
+        /* "_sprite.pyx":816
  *                 dirty_append(newrect)
  *             else:
  *                 if newrect.colliderect(rec):             # <<<<<<<<<<<<<<
@@ -12741,7 +12743,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
         goto __pyx_L6;
       }
 
-      /* "sprite.pyx":819
+      /* "_sprite.pyx":819
  *                     dirty_append(newrect.union(rec))
  *                 else:
  *                     dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -12750,7 +12752,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
  */
       /*else*/ {
 
-        /* "sprite.pyx":808
+        /* "_sprite.pyx":808
  *         dirty = self.lostsprites
  *         self.lostsprites.clear()
  *         dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -12762,7 +12764,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
           __PYX_ERR(0, 808, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":819
+        /* "_sprite.pyx":819
  *                     dirty_append(newrect.union(rec))
  *                 else:
  *                     dirty_append(newrect)             # <<<<<<<<<<<<<<
@@ -12771,7 +12773,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
  */
         __pyx_t_12 = __Pyx_PyList_Append(__pyx_v_dirty, __pyx_v_newrect); if (unlikely(__pyx_t_12 == ((int)-1))) __PYX_ERR(0, 819, __pyx_L1_error)
 
-        /* "sprite.pyx":808
+        /* "_sprite.pyx":808
  *         dirty = self.lostsprites
  *         self.lostsprites.clear()
  *         dirty_append = dirty.append             # <<<<<<<<<<<<<<
@@ -12783,7 +12785,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
           __PYX_ERR(0, 808, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":820
+        /* "_sprite.pyx":820
  *                 else:
  *                     dirty_append(newrect)
  *                     dirty_append(rec)             # <<<<<<<<<<<<<<
@@ -12796,7 +12798,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":821
+    /* "_sprite.pyx":821
  *                     dirty_append(newrect)
  *                     dirty_append(rec)
  *             spritedict[spr] = newrect             # <<<<<<<<<<<<<<
@@ -12809,7 +12811,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
     }
     if (unlikely(PyDict_SetItem(__pyx_v_spritedict, __pyx_v_spr, __pyx_v_newrect) < 0)) __PYX_ERR(0, 821, __pyx_L1_error)
 
-    /* "sprite.pyx":810
+    /* "_sprite.pyx":810
  *         dirty_append = dirty.append
  *         init_rect = self._init_rect
  *         for spr in self.sprites():             # <<<<<<<<<<<<<<
@@ -12819,7 +12821,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":822
+  /* "_sprite.pyx":822
  *                     dirty_append(rec)
  *             spritedict[spr] = newrect
  *         return dirty             # <<<<<<<<<<<<<<
@@ -12831,7 +12833,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __pyx_r = __pyx_v_dirty;
   goto __pyx_L0;
 
-  /* "sprite.pyx":798
+  /* "_sprite.pyx":798
  *         return list(self._spritelist)
  * 
  *     cpdef draw(self, surface):             # <<<<<<<<<<<<<<
@@ -12848,7 +12850,7 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_spritedict);
@@ -12865,26 +12867,26 @@ static PyObject *__pyx_f_6sprite_14LayeredUpdates_draw(struct __pyx_obj_6sprite_
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_13draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_12draw[] = "draw all sprites in the right order onto the passed surface\n\n        LayeredUpdates.draw(surface): return Rect_list\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_13draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_13draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_12draw[] = "draw all sprites in the right order onto the passed surface\n\n        LayeredUpdates.draw(surface): return Rect_list\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_13draw(PyObject *__pyx_v_self, PyObject *__pyx_v_surface) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("draw (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_12draw(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_surface));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_12draw(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_surface));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_12draw(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_12draw(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_surface) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("draw", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_14LayeredUpdates_draw(__pyx_v_self, __pyx_v_surface, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 798, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_14LayeredUpdates_draw(__pyx_v_self, __pyx_v_surface, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 798, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12893,7 +12895,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_12draw(struct __pyx_obj_6spri
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -12901,7 +12903,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_12draw(struct __pyx_obj_6spri
   return __pyx_r;
 }
 
-/* "sprite.pyx":824
+/* "_sprite.pyx":824
  *         return dirty
  * 
  *     def get_sprites_at(self, pos):             # <<<<<<<<<<<<<<
@@ -12910,20 +12912,20 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_12draw(struct __pyx_obj_6spri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_15get_sprites_at(PyObject *__pyx_v_self, PyObject *__pyx_v_pos); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_14get_sprites_at[] = "return a list with all sprites at that position\n\n        LayeredUpdates.get_sprites_at(pos): return colliding_sprites\n\n        Bottom sprites are listed first; the top ones are listed last.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_15get_sprites_at(PyObject *__pyx_v_self, PyObject *__pyx_v_pos) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_15get_sprites_at(PyObject *__pyx_v_self, PyObject *__pyx_v_pos); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_14get_sprites_at[] = "return a list with all sprites at that position\n\n        LayeredUpdates.get_sprites_at(pos): return colliding_sprites\n\n        Bottom sprites are listed first; the top ones are listed last.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_15get_sprites_at(PyObject *__pyx_v_self, PyObject *__pyx_v_pos) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_sprites_at (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_pos));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_14get_sprites_at(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_pos));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_pos) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_14get_sprites_at(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_pos) {
   PyObject *__pyx_v__sprites = NULL;
   pgRectObject *__pyx_v_rect = NULL;
   PyObject *__pyx_v_colliding_idx = NULL;
@@ -12938,7 +12940,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   PyObject *(*__pyx_t_5)(PyObject *);
   __Pyx_RefNannySetupContext("get_sprites_at", 0);
 
-  /* "sprite.pyx":832
+  /* "_sprite.pyx":832
  * 
  *         """
  *         _sprites = self._spritelist             # <<<<<<<<<<<<<<
@@ -12950,7 +12952,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   __pyx_v__sprites = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":833
+  /* "_sprite.pyx":833
  *         """
  *         _sprites = self._spritelist
  *         rect = Rect(pos, (0, 0))             # <<<<<<<<<<<<<<
@@ -12965,13 +12967,13 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   __Pyx_INCREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
   PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_tuple__11);
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_6sprite_Rect), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 833, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7_sprite_Rect), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 833, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_rect = ((pgRectObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "sprite.pyx":834
+  /* "_sprite.pyx":834
  *         _sprites = self._spritelist
  *         rect = Rect(pos, (0, 0))
  *         colliding_idx = rect.collidelistall(_sprites)             # <<<<<<<<<<<<<<
@@ -12998,7 +13000,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   __pyx_v_colliding_idx = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sprite.pyx":835
+  /* "_sprite.pyx":835
  *         rect = Rect(pos, (0, 0))
  *         colliding_idx = rect.collidelistall(_sprites)
  *         colliding = [_sprites[i] for i in colliding_idx]             # <<<<<<<<<<<<<<
@@ -13061,7 +13063,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   __pyx_v_colliding = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "sprite.pyx":836
+  /* "_sprite.pyx":836
  *         colliding_idx = rect.collidelistall(_sprites)
  *         colliding = [_sprites[i] for i in colliding_idx]
  *         return colliding             # <<<<<<<<<<<<<<
@@ -13073,7 +13075,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   __pyx_r = __pyx_v_colliding;
   goto __pyx_L0;
 
-  /* "sprite.pyx":824
+  /* "_sprite.pyx":824
  *         return dirty
  * 
  *     def get_sprites_at(self, pos):             # <<<<<<<<<<<<<<
@@ -13086,7 +13088,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_sprites_at", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_sprites_at", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v__sprites);
@@ -13099,7 +13101,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
   return __pyx_r;
 }
 
-/* "sprite.pyx":838
+/* "_sprite.pyx":838
  *         return colliding
  * 
  *     def get_sprite(self, idx):             # <<<<<<<<<<<<<<
@@ -13108,26 +13110,26 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14get_sprites_at(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_17get_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_idx); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_16get_sprite[] = "return the sprite at the index idx from the groups sprites\n\n        LayeredUpdates.get_sprite(idx): return sprite\n\n        Raises IndexOutOfBounds if the idx is not within range.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_17get_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_idx) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_17get_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_idx); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_16get_sprite[] = "return the sprite at the index idx from the groups sprites\n\n        LayeredUpdates.get_sprite(idx): return sprite\n\n        Raises IndexOutOfBounds if the idx is not within range.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_17get_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_idx) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_sprite (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_16get_sprite(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_idx));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_16get_sprite(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_idx));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_idx) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_idx) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_sprite", 0);
 
-  /* "sprite.pyx":846
+  /* "_sprite.pyx":846
  * 
  *         """
  *         return self._spritelist[idx]             # <<<<<<<<<<<<<<
@@ -13145,7 +13147,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":838
+  /* "_sprite.pyx":838
  *         return colliding
  * 
  *     def get_sprite(self, idx):             # <<<<<<<<<<<<<<
@@ -13156,7 +13158,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -13164,7 +13166,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "sprite.pyx":848
+/* "_sprite.pyx":848
  *         return self._spritelist[idx]
  * 
  *     def remove_sprites_of_layer(self, layer_nr):             # <<<<<<<<<<<<<<
@@ -13173,20 +13175,20 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_16get_sprite(struct __pyx_obj
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_19remove_sprites_of_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer_nr); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_18remove_sprites_of_layer[] = "remove all sprites from a layer and return them as a list\n\n        LayeredUpdates.remove_sprites_of_layer(layer_nr): return sprites\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_19remove_sprites_of_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer_nr) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_19remove_sprites_of_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer_nr); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_18remove_sprites_of_layer[] = "remove all sprites from a layer and return them as a list\n\n        LayeredUpdates.remove_sprites_of_layer(layer_nr): return sprites\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_19remove_sprites_of_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer_nr) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("remove_sprites_of_layer (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_layer_nr));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_18remove_sprites_of_layer(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_layer_nr));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer_nr) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_18remove_sprites_of_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer_nr) {
   PyObject *__pyx_v_sprites = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -13195,7 +13197,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("remove_sprites_of_layer", 0);
 
-  /* "sprite.pyx":854
+  /* "_sprite.pyx":854
  * 
  *         """
  *         sprites = self.get_sprites_from_layer(layer_nr)             # <<<<<<<<<<<<<<
@@ -13222,7 +13224,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
   __pyx_v_sprites = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":855
+  /* "_sprite.pyx":855
  *         """
  *         sprites = self.get_sprites_from_layer(layer_nr)
  *         self.remove(*sprites)             # <<<<<<<<<<<<<<
@@ -13239,7 +13241,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "sprite.pyx":856
+  /* "_sprite.pyx":856
  *         sprites = self.get_sprites_from_layer(layer_nr)
  *         self.remove(*sprites)
  *         return sprites             # <<<<<<<<<<<<<<
@@ -13251,7 +13253,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
   __pyx_r = __pyx_v_sprites;
   goto __pyx_L0;
 
-  /* "sprite.pyx":848
+  /* "_sprite.pyx":848
  *         return self._spritelist[idx]
  * 
  *     def remove_sprites_of_layer(self, layer_nr):             # <<<<<<<<<<<<<<
@@ -13264,7 +13266,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.remove_sprites_of_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.remove_sprites_of_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -13273,7 +13275,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
   return __pyx_r;
 }
 
-/* "sprite.pyx":859
+/* "_sprite.pyx":859
  * 
  *     #---# layer methods
  *     def layers(self):             # <<<<<<<<<<<<<<
@@ -13282,20 +13284,20 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_18remove_sprites_of_layer(str
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_21layers(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_20layers[] = "return a list of unique defined layers defined.\n\n        LayeredUpdates.layers(): return layers\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_21layers(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_21layers(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_20layers[] = "return a list of unique defined layers defined.\n\n        LayeredUpdates.layers(): return layers\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_21layers(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("layers (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_20layers(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_20layers(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_20layers(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -13304,7 +13306,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sp
   int __pyx_t_4;
   __Pyx_RefNannySetupContext("layers", 0);
 
-  /* "sprite.pyx":865
+  /* "_sprite.pyx":865
  * 
  *         """
  *         return sorted(set(self._spritelayers.values()))             # <<<<<<<<<<<<<<
@@ -13331,7 +13333,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sp
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":859
+  /* "_sprite.pyx":859
  * 
  *     #---# layer methods
  *     def layers(self):             # <<<<<<<<<<<<<<
@@ -13344,7 +13346,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sp
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.layers", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.layers", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -13352,7 +13354,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sp
   return __pyx_r;
 }
 
-/* "sprite.pyx":867
+/* "_sprite.pyx":867
  *         return sorted(set(self._spritelayers.values()))
  * 
  *     def change_layer(self, sprite, new_layer):             # <<<<<<<<<<<<<<
@@ -13361,9 +13363,9 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_20layers(struct __pyx_obj_6sp
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_23change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_22change_layer[] = "change the layer of the sprite\n\n        LayeredUpdates.change_layer(sprite, new_layer): return None\n\n        The sprite must have been added to the renderer already. This is not\n        checked.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_23change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_23change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_22change_layer[] = "change the layer of the sprite\n\n        LayeredUpdates.change_layer(sprite, new_layer): return None\n\n        The sprite must have been added to the renderer already. This is not\n        checked.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_23change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   PyObject *__pyx_v_new_layer = 0;
   PyObject *__pyx_r = 0;
@@ -13411,18 +13413,18 @@ static PyObject *__pyx_pw_6sprite_14LayeredUpdates_23change_layer(PyObject *__py
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("change_layer", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 867, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredUpdates.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_22change_layer(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, __pyx_v_new_layer);
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_22change_layer(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, __pyx_v_new_layer);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_22change_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer) {
   PyObject *__pyx_v_sprites = NULL;
   PyObject *__pyx_v_sprites_layers = NULL;
   PyObject *__pyx_v_leng = NULL;
@@ -13439,7 +13441,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("change_layer", 0);
 
-  /* "sprite.pyx":876
+  /* "_sprite.pyx":876
  * 
  *         """
  *         sprites = self._spritelist # speedup             # <<<<<<<<<<<<<<
@@ -13451,7 +13453,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_v_sprites = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":877
+  /* "_sprite.pyx":877
  *         """
  *         sprites = self._spritelist # speedup
  *         sprites_layers = self._spritelayers # speedup             # <<<<<<<<<<<<<<
@@ -13463,7 +13465,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_v_sprites_layers = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":879
+  /* "_sprite.pyx":879
  *         sprites_layers = self._spritelayers # speedup
  * 
  *         sprites.remove(sprite)             # <<<<<<<<<<<<<<
@@ -13474,7 +13476,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":880
+  /* "_sprite.pyx":880
  * 
  *         sprites.remove(sprite)
  *         sprites_layers.pop(sprite)             # <<<<<<<<<<<<<<
@@ -13489,7 +13491,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":884
+  /* "_sprite.pyx":884
  *         # add the sprite at the right position
  *         # bisect algorithmus
  *         leng = len(sprites)             # <<<<<<<<<<<<<<
@@ -13506,7 +13508,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_v_leng = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":885
+  /* "_sprite.pyx":885
  *         # bisect algorithmus
  *         leng = len(sprites)
  *         low = mid = 0             # <<<<<<<<<<<<<<
@@ -13518,7 +13520,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_mid = __pyx_int_0;
 
-  /* "sprite.pyx":886
+  /* "_sprite.pyx":886
  *         leng = len(sprites)
  *         low = mid = 0
  *         high = leng - 1             # <<<<<<<<<<<<<<
@@ -13530,7 +13532,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_v_high = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":887
+  /* "_sprite.pyx":887
  *         low = mid = 0
  *         high = leng - 1
  *         while low <= high:             # <<<<<<<<<<<<<<
@@ -13543,7 +13545,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (!__pyx_t_3) break;
 
-    /* "sprite.pyx":888
+    /* "_sprite.pyx":888
  *         high = leng - 1
  *         while low <= high:
  *             mid = low + (high - low) // 2             # <<<<<<<<<<<<<<
@@ -13561,7 +13563,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
     __Pyx_DECREF_SET(__pyx_v_mid, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":889
+    /* "_sprite.pyx":889
  *         while low <= high:
  *             mid = low + (high - low) // 2
  *             if sprites_layers[sprites[mid]] <= new_layer:             # <<<<<<<<<<<<<<
@@ -13587,7 +13589,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (__pyx_t_3) {
 
-      /* "sprite.pyx":890
+      /* "_sprite.pyx":890
  *             mid = low + (high - low) // 2
  *             if sprites_layers[sprites[mid]] <= new_layer:
  *                 low = mid + 1             # <<<<<<<<<<<<<<
@@ -13599,7 +13601,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
       __Pyx_DECREF_SET(__pyx_v_low, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":889
+      /* "_sprite.pyx":889
  *         while low <= high:
  *             mid = low + (high - low) // 2
  *             if sprites_layers[sprites[mid]] <= new_layer:             # <<<<<<<<<<<<<<
@@ -13609,7 +13611,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":892
+    /* "_sprite.pyx":892
  *                 low = mid + 1
  *             else:
  *                 high = mid - 1             # <<<<<<<<<<<<<<
@@ -13625,7 +13627,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
     __pyx_L5:;
   }
 
-  /* "sprite.pyx":894
+  /* "_sprite.pyx":894
  *                 high = mid - 1
  *         # linear search to find final position
  *         while mid < leng and sprites_layers[sprites[mid]] <= new_layer:             # <<<<<<<<<<<<<<
@@ -13662,7 +13664,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
     __pyx_L8_bool_binop_done:;
     if (!__pyx_t_3) break;
 
-    /* "sprite.pyx":895
+    /* "_sprite.pyx":895
  *         # linear search to find final position
  *         while mid < leng and sprites_layers[sprites[mid]] <= new_layer:
  *             mid += 1             # <<<<<<<<<<<<<<
@@ -13675,7 +13677,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
     __pyx_t_1 = 0;
   }
 
-  /* "sprite.pyx":896
+  /* "_sprite.pyx":896
  *         while mid < leng and sprites_layers[sprites[mid]] <= new_layer:
  *             mid += 1
  *         sprites.insert(mid, sprite)             # <<<<<<<<<<<<<<
@@ -13689,7 +13691,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_t_2 = __Pyx_PyIndex_AsSsize_t(__pyx_v_mid); if (unlikely((__pyx_t_2 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 896, __pyx_L1_error)
   __pyx_t_6 = PyList_Insert(__pyx_v_sprites, __pyx_t_2, __pyx_v_sprite); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 896, __pyx_L1_error)
 
-  /* "sprite.pyx":897
+  /* "_sprite.pyx":897
  *             mid += 1
  *         sprites.insert(mid, sprite)
  *         if hasattr(sprite, 'layer'):             # <<<<<<<<<<<<<<
@@ -13700,7 +13702,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_t_5 = (__pyx_t_3 != 0);
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":898
+    /* "_sprite.pyx":898
  *         sprites.insert(mid, sprite)
  *         if hasattr(sprite, 'layer'):
  *             sprite.layer = new_layer             # <<<<<<<<<<<<<<
@@ -13709,7 +13711,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
  */
     if (__Pyx_PyObject_SetAttrStr(__pyx_v_sprite, __pyx_n_s_layer_2, __pyx_v_new_layer) < 0) __PYX_ERR(0, 898, __pyx_L1_error)
 
-    /* "sprite.pyx":897
+    /* "_sprite.pyx":897
  *             mid += 1
  *         sprites.insert(mid, sprite)
  *         if hasattr(sprite, 'layer'):             # <<<<<<<<<<<<<<
@@ -13718,7 +13720,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
  */
   }
 
-  /* "sprite.pyx":901
+  /* "_sprite.pyx":901
  * 
  *         # add layer info
  *         sprites_layers[sprite] = new_layer             # <<<<<<<<<<<<<<
@@ -13731,7 +13733,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   }
   if (unlikely(PyDict_SetItem(__pyx_v_sprites_layers, __pyx_v_sprite, __pyx_v_new_layer) < 0)) __PYX_ERR(0, 901, __pyx_L1_error)
 
-  /* "sprite.pyx":867
+  /* "_sprite.pyx":867
  *         return sorted(set(self._spritelayers.values()))
  * 
  *     def change_layer(self, sprite, new_layer):             # <<<<<<<<<<<<<<
@@ -13745,7 +13747,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -13759,7 +13761,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
   return __pyx_r;
 }
 
-/* "sprite.pyx":903
+/* "_sprite.pyx":903
  *         sprites_layers[sprite] = new_layer
  * 
  *     def get_layer_of_sprite(self, sprite):             # <<<<<<<<<<<<<<
@@ -13768,27 +13770,27 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_22change_layer(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_25get_layer_of_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_24get_layer_of_sprite[] = "return the layer that sprite is currently in\n\n        If the sprite is not found, then it will return the default layer.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_25get_layer_of_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_25get_layer_of_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_24get_layer_of_sprite[] = "return the layer that sprite is currently in\n\n        If the sprite is not found, then it will return the default layer.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_25get_layer_of_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_layer_of_sprite (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_24get_layer_of_sprite(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_24get_layer_of_sprite(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("get_layer_of_sprite", 0);
 
-  /* "sprite.pyx":909
+  /* "_sprite.pyx":909
  * 
  *         """
  *         return self._spritelayers.get(sprite, self._default_layer)             # <<<<<<<<<<<<<<
@@ -13809,7 +13811,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(struct 
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":903
+  /* "_sprite.pyx":903
  *         sprites_layers[sprite] = new_layer
  * 
  *     def get_layer_of_sprite(self, sprite):             # <<<<<<<<<<<<<<
@@ -13821,7 +13823,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(struct 
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_layer_of_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_layer_of_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -13829,7 +13831,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(struct 
   return __pyx_r;
 }
 
-/* "sprite.pyx":911
+/* "_sprite.pyx":911
  *         return self._spritelayers.get(sprite, self._default_layer)
  * 
  *     def get_top_layer(self):             # <<<<<<<<<<<<<<
@@ -13838,27 +13840,27 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_24get_layer_of_sprite(struct 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_27get_top_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_26get_top_layer[] = "return the top layer\n\n        LayeredUpdates.get_top_layer(): return layer\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_27get_top_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_27get_top_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_26get_top_layer[] = "return the top layer\n\n        LayeredUpdates.get_top_layer(): return layer\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_27get_top_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_top_layer (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_26get_top_layer(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_26get_top_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("get_top_layer", 0);
 
-  /* "sprite.pyx":917
+  /* "_sprite.pyx":917
  * 
  *         """
  *         return self._spritelayers[self._spritelist[-1]]             # <<<<<<<<<<<<<<
@@ -13883,7 +13885,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(struct __pyx_
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":911
+  /* "_sprite.pyx":911
  *         return self._spritelayers.get(sprite, self._default_layer)
  * 
  *     def get_top_layer(self):             # <<<<<<<<<<<<<<
@@ -13895,7 +13897,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(struct __pyx_
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_top_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_top_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -13903,7 +13905,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(struct __pyx_
   return __pyx_r;
 }
 
-/* "sprite.pyx":919
+/* "_sprite.pyx":919
  *         return self._spritelayers[self._spritelist[-1]]
  * 
  *     def get_bottom_layer(self):             # <<<<<<<<<<<<<<
@@ -13912,27 +13914,27 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_26get_top_layer(struct __pyx_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_29get_bottom_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_28get_bottom_layer[] = "return the bottom layer\n\n        LayeredUpdates.get_bottom_layer(): return layer\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_29get_bottom_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_29get_bottom_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_28get_bottom_layer[] = "return the bottom layer\n\n        LayeredUpdates.get_bottom_layer(): return layer\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_29get_bottom_layer(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_bottom_layer (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_28get_bottom_layer(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_28get_bottom_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("get_bottom_layer", 0);
 
-  /* "sprite.pyx":925
+  /* "_sprite.pyx":925
  * 
  *         """
  *         return self._spritelayers[self._spritelist[0]]             # <<<<<<<<<<<<<<
@@ -13957,7 +13959,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(struct __p
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":919
+  /* "_sprite.pyx":919
  *         return self._spritelayers[self._spritelist[-1]]
  * 
  *     def get_bottom_layer(self):             # <<<<<<<<<<<<<<
@@ -13969,7 +13971,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(struct __p
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_bottom_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_bottom_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -13977,7 +13979,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(struct __p
   return __pyx_r;
 }
 
-/* "sprite.pyx":927
+/* "_sprite.pyx":927
  *         return self._spritelayers[self._spritelist[0]]
  * 
  *     def move_to_front(self, sprite):             # <<<<<<<<<<<<<<
@@ -13986,20 +13988,20 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_28get_bottom_layer(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_31move_to_front(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_30move_to_front[] = "bring the sprite to front layer\n\n        LayeredUpdates.move_to_front(sprite): return None\n\n        Brings the sprite to front by changing the sprite layer to the top-most\n        layer. The sprite is added at the end of the list of sprites in that\n        top-most layer.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_31move_to_front(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_31move_to_front(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_30move_to_front[] = "bring the sprite to front layer\n\n        LayeredUpdates.move_to_front(sprite): return None\n\n        Brings the sprite to front by changing the sprite layer to the top-most\n        layer. The sprite is added at the end of the list of sprites in that\n        top-most layer.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_31move_to_front(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("move_to_front (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_30move_to_front(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_30move_to_front(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_30move_to_front(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -14010,7 +14012,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("move_to_front", 0);
 
-  /* "sprite.pyx":937
+  /* "_sprite.pyx":937
  * 
  *         """
  *         self.change_layer(sprite, self.get_top_layer())             # <<<<<<<<<<<<<<
@@ -14085,7 +14087,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":927
+  /* "_sprite.pyx":927
  *         return self._spritelayers[self._spritelist[0]]
  * 
  *     def move_to_front(self, sprite):             # <<<<<<<<<<<<<<
@@ -14102,7 +14104,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.move_to_front", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.move_to_front", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -14110,7 +14112,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_
   return __pyx_r;
 }
 
-/* "sprite.pyx":939
+/* "_sprite.pyx":939
  *         self.change_layer(sprite, self.get_top_layer())
  * 
  *     def move_to_back(self, sprite):             # <<<<<<<<<<<<<<
@@ -14119,20 +14121,20 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_30move_to_front(struct __pyx_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_33move_to_back(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_32move_to_back[] = "move the sprite to the bottom layer\n\n        LayeredUpdates.move_to_back(sprite): return None\n\n        Moves the sprite to the bottom layer by moving it to a new layer below\n        the current bottom layer.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_33move_to_back(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_33move_to_back(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_32move_to_back[] = "move the sprite to the bottom layer\n\n        LayeredUpdates.move_to_back(sprite): return None\n\n        Moves the sprite to the bottom layer by moving it to a new layer below\n        the current bottom layer.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_33move_to_back(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("move_to_back (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_32move_to_back(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_32move_to_back(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_32move_to_back(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -14143,7 +14145,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_o
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("move_to_back", 0);
 
-  /* "sprite.pyx":948
+  /* "_sprite.pyx":948
  * 
  *         """
  *         self.change_layer(sprite, self.get_bottom_layer() - 1)             # <<<<<<<<<<<<<<
@@ -14221,7 +14223,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_o
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":939
+  /* "_sprite.pyx":939
  *         self.change_layer(sprite, self.get_top_layer())
  * 
  *     def move_to_back(self, sprite):             # <<<<<<<<<<<<<<
@@ -14238,7 +14240,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_o
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.move_to_back", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.move_to_back", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -14246,7 +14248,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_o
   return __pyx_r;
 }
 
-/* "sprite.pyx":950
+/* "_sprite.pyx":950
  *         self.change_layer(sprite, self.get_bottom_layer() - 1)
  * 
  *     def get_top_sprite(self):             # <<<<<<<<<<<<<<
@@ -14255,26 +14257,26 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_32move_to_back(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_35get_top_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_34get_top_sprite[] = "return the topmost sprite\n\n        LayeredUpdates.get_top_sprite(): return Sprite\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_35get_top_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_35get_top_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_34get_top_sprite[] = "return the topmost sprite\n\n        LayeredUpdates.get_top_sprite(): return Sprite\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_35get_top_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_top_sprite (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_34get_top_sprite(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_34get_top_sprite(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_top_sprite", 0);
 
-  /* "sprite.pyx":956
+  /* "_sprite.pyx":956
  * 
  *         """
  *         return self._spritelist[-1]             # <<<<<<<<<<<<<<
@@ -14292,7 +14294,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(struct __pyx
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":950
+  /* "_sprite.pyx":950
  *         self.change_layer(sprite, self.get_bottom_layer() - 1)
  * 
  *     def get_top_sprite(self):             # <<<<<<<<<<<<<<
@@ -14303,7 +14305,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(struct __pyx
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_top_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_top_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -14311,7 +14313,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(struct __pyx
   return __pyx_r;
 }
 
-/* "sprite.pyx":958
+/* "_sprite.pyx":958
  *         return self._spritelist[-1]
  * 
  *     def get_sprites_from_layer(self, layer):             # <<<<<<<<<<<<<<
@@ -14320,20 +14322,20 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_34get_top_sprite(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_37get_sprites_from_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_36get_sprites_from_layer[] = "return all sprites from a layer ordered as they where added\n\n        LayeredUpdates.get_sprites_from_layer(layer): return sprites\n\n        Returns all sprites from a layer. The sprites are ordered in the\n        sequence that they where added. (The sprites are not removed from the\n        layer.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_37get_sprites_from_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_37get_sprites_from_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_36get_sprites_from_layer[] = "return all sprites from a layer ordered as they where added\n\n        LayeredUpdates.get_sprites_from_layer(layer): return sprites\n\n        Returns all sprites from a layer. The sprites are ordered in the\n        sequence that they where added. (The sprites are not removed from the\n        layer.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_37get_sprites_from_layer(PyObject *__pyx_v_self, PyObject *__pyx_v_layer) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_sprites_from_layer (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_layer));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_36get_sprites_from_layer(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_layer));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_36get_sprites_from_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer) {
   PyObject *__pyx_v_sprites = NULL;
   PyObject *__pyx_v_sprites_append = NULL;
   PyObject *__pyx_v_sprite_layers = NULL;
@@ -14348,7 +14350,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("get_sprites_from_layer", 0);
 
-  /* "sprite.pyx":968
+  /* "_sprite.pyx":968
  * 
  *         """
  *         sprites = []             # <<<<<<<<<<<<<<
@@ -14360,7 +14362,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   __pyx_v_sprites = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":969
+  /* "_sprite.pyx":969
  *         """
  *         sprites = []
  *         sprites_append = sprites.append             # <<<<<<<<<<<<<<
@@ -14372,7 +14374,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   __pyx_v_sprites_append = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":970
+  /* "_sprite.pyx":970
  *         sprites = []
  *         sprites_append = sprites.append
  *         sprite_layers = self._spritelayers             # <<<<<<<<<<<<<<
@@ -14384,7 +14386,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   __pyx_v_sprite_layers = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":971
+  /* "_sprite.pyx":971
  *         sprites_append = sprites.append
  *         sprite_layers = self._spritelayers
  *         for spr in self._spritelist:             # <<<<<<<<<<<<<<
@@ -14407,7 +14409,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
     __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":972
+    /* "_sprite.pyx":972
  *         sprite_layers = self._spritelayers
  *         for spr in self._spritelist:
  *             if sprite_layers[spr] == layer:             # <<<<<<<<<<<<<<
@@ -14426,7 +14428,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":973
+      /* "_sprite.pyx":973
  *         for spr in self._spritelist:
  *             if sprite_layers[spr] == layer:
  *                 sprites_append(spr)             # <<<<<<<<<<<<<<
@@ -14435,7 +14437,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
  */
       __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_sprites, __pyx_v_spr); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 973, __pyx_L1_error)
 
-      /* "sprite.pyx":972
+      /* "_sprite.pyx":972
  *         sprite_layers = self._spritelayers
  *         for spr in self._spritelist:
  *             if sprite_layers[spr] == layer:             # <<<<<<<<<<<<<<
@@ -14445,7 +14447,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
       goto __pyx_L5;
     }
 
-    /* "sprite.pyx":974
+    /* "_sprite.pyx":974
  *             if sprite_layers[spr] == layer:
  *                 sprites_append(spr)
  *             elif sprite_layers[spr] > layer:# break after because no other will             # <<<<<<<<<<<<<<
@@ -14464,7 +14466,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (__pyx_t_5) {
 
-      /* "sprite.pyx":976
+      /* "_sprite.pyx":976
  *             elif sprite_layers[spr] > layer:# break after because no other will
  *                                             # follow with same layer
  *                 break             # <<<<<<<<<<<<<<
@@ -14473,7 +14475,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
  */
       goto __pyx_L4_break;
 
-      /* "sprite.pyx":974
+      /* "_sprite.pyx":974
  *             if sprite_layers[spr] == layer:
  *                 sprites_append(spr)
  *             elif sprite_layers[spr] > layer:# break after because no other will             # <<<<<<<<<<<<<<
@@ -14483,7 +14485,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
     }
     __pyx_L5:;
 
-    /* "sprite.pyx":971
+    /* "_sprite.pyx":971
  *         sprites_append = sprites.append
  *         sprite_layers = self._spritelayers
  *         for spr in self._spritelist:             # <<<<<<<<<<<<<<
@@ -14494,7 +14496,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   __pyx_L4_break:;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":977
+  /* "_sprite.pyx":977
  *                                             # follow with same layer
  *                 break
  *         return sprites             # <<<<<<<<<<<<<<
@@ -14506,7 +14508,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   __pyx_r = __pyx_v_sprites;
   goto __pyx_L0;
 
-  /* "sprite.pyx":958
+  /* "_sprite.pyx":958
  *         return self._spritelist[-1]
  * 
  *     def get_sprites_from_layer(self, layer):             # <<<<<<<<<<<<<<
@@ -14519,7 +14521,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.get_sprites_from_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.get_sprites_from_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -14531,7 +14533,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
   return __pyx_r;
 }
 
-/* "sprite.pyx":979
+/* "_sprite.pyx":979
  *         return sprites
  * 
  *     def switch_layer(self, layer1_nr, layer2_nr):             # <<<<<<<<<<<<<<
@@ -14540,9 +14542,9 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_36get_sprites_from_layer(stru
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_39switch_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_14LayeredUpdates_38switch_layer[] = "switch the sprites from layer1_nr to layer2_nr\n\n        LayeredUpdates.switch_layer(layer1_nr, layer2_nr): return None\n\n        The layers number must exist. This method does not check for the\n        existence of the given layers.\n\n        ";
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_39switch_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_39switch_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_14LayeredUpdates_38switch_layer[] = "switch the sprites from layer1_nr to layer2_nr\n\n        LayeredUpdates.switch_layer(layer1_nr, layer2_nr): return None\n\n        The layers number must exist. This method does not check for the\n        existence of the given layers.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_39switch_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_layer1_nr = 0;
   PyObject *__pyx_v_layer2_nr = 0;
   PyObject *__pyx_r = 0;
@@ -14590,18 +14592,18 @@ static PyObject *__pyx_pw_6sprite_14LayeredUpdates_39switch_layer(PyObject *__py
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("switch_layer", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 979, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredUpdates.switch_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.switch_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_38switch_layer(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_layer1_nr, __pyx_v_layer2_nr);
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_38switch_layer(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_layer1_nr, __pyx_v_layer2_nr);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer1_nr, PyObject *__pyx_v_layer2_nr) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_38switch_layer(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_layer1_nr, PyObject *__pyx_v_layer2_nr) {
   PyObject *__pyx_v_sprites1 = NULL;
   PyObject *__pyx_v_spr = NULL;
   PyObject *__pyx_r = NULL;
@@ -14616,7 +14618,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("switch_layer", 0);
 
-  /* "sprite.pyx":988
+  /* "_sprite.pyx":988
  * 
  *         """
  *         sprites1 = self.remove_sprites_of_layer(layer1_nr)             # <<<<<<<<<<<<<<
@@ -14643,7 +14645,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
   __pyx_v_sprites1 = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":989
+  /* "_sprite.pyx":989
  *         """
  *         sprites1 = self.remove_sprites_of_layer(layer1_nr)
  *         for spr in self.get_sprites_from_layer(layer2_nr):             # <<<<<<<<<<<<<<
@@ -14710,7 +14712,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
     __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":990
+    /* "_sprite.pyx":990
  *         sprites1 = self.remove_sprites_of_layer(layer1_nr)
  *         for spr in self.get_sprites_from_layer(layer2_nr):
  *             self.change_layer(spr, layer1_nr)             # <<<<<<<<<<<<<<
@@ -14766,7 +14768,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":989
+    /* "_sprite.pyx":989
  *         """
  *         sprites1 = self.remove_sprites_of_layer(layer1_nr)
  *         for spr in self.get_sprites_from_layer(layer2_nr):             # <<<<<<<<<<<<<<
@@ -14776,7 +14778,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":991
+  /* "_sprite.pyx":991
  *         for spr in self.get_sprites_from_layer(layer2_nr):
  *             self.change_layer(spr, layer1_nr)
  *         self.add(layer=layer2_nr, *sprites1)             # <<<<<<<<<<<<<<
@@ -14797,7 +14799,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "sprite.pyx":979
+  /* "_sprite.pyx":979
  *         return sprites
  * 
  *     def switch_layer(self, layer1_nr, layer2_nr):             # <<<<<<<<<<<<<<
@@ -14814,7 +14816,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.switch_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.switch_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sprites1);
@@ -14824,7 +14826,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
   return __pyx_r;
 }
 
-/* "sprite.pyx":665
+/* "_sprite.pyx":665
  *     _init_rect = Rect(0, 0, 0, 0)
  * 
  *     cdef public dict _spritelayers             # <<<<<<<<<<<<<<
@@ -14833,19 +14835,19 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_38switch_layer(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers___get__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers___get__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_13_spritelayers___get__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers___get__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -14862,19 +14864,19 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_13_spritelayers___get__(struc
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_2__set__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers_2__set__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_2__set__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers_2__set__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -14893,7 +14895,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_2__set__(struct __p
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates._spritelayers.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates._spritelayers.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -14901,19 +14903,19 @@ static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_2__set__(struct __p
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_4__del__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers_4__del__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_4__del__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static int __pyx_pf_7_sprite_14LayeredUpdates_13_spritelayers_4__del__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -14929,7 +14931,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_4__del__(struct __p
   return __pyx_r;
 }
 
-/* "sprite.pyx":666
+/* "_sprite.pyx":666
  * 
  *     cdef public dict _spritelayers
  *     cdef public list _spritelist             # <<<<<<<<<<<<<<
@@ -14938,19 +14940,19 @@ static int __pyx_pf_6sprite_14LayeredUpdates_13_spritelayers_4__del__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_11_spritelist___get__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist___get__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_11_spritelist___get__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_11_spritelist___get__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -14967,19 +14969,19 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_11_spritelist___get__(struct 
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_2__set__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist_2__set__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_2__set__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist_2__set__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -14998,7 +15000,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_2__set__(struct __pyx
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates._spritelist.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates._spritelist.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -15006,19 +15008,19 @@ static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_2__set__(struct __pyx
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_4__del__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist_4__del__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_4__del__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static int __pyx_pf_7_sprite_14LayeredUpdates_11_spritelist_4__del__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -15034,7 +15036,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_4__del__(struct __pyx
   return __pyx_r;
 }
 
-/* "sprite.pyx":667
+/* "_sprite.pyx":667
  *     cdef public dict _spritelayers
  *     cdef public list _spritelist
  *     cdef public int _default_layer             # <<<<<<<<<<<<<<
@@ -15043,19 +15045,19 @@ static int __pyx_pf_6sprite_14LayeredUpdates_11_spritelist_4__del__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_14_default_layer_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_14_default_layer_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_14_default_layer_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_14_default_layer_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_14_default_layer___get__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_14_default_layer___get__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14_default_layer___get__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_14_default_layer___get__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -15070,7 +15072,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14_default_layer___get__(stru
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates._default_layer.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates._default_layer.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -15079,19 +15081,19 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_14_default_layer___get__(stru
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_14LayeredUpdates_14_default_layer_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_14LayeredUpdates_14_default_layer_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_14LayeredUpdates_14_default_layer_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_14LayeredUpdates_14_default_layer_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_14_default_layer_2__set__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_14_default_layer_2__set__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_14LayeredUpdates_14_default_layer_2__set__(struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_14LayeredUpdates_14_default_layer_2__set__(struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -15103,7 +15105,7 @@ static int __pyx_pf_6sprite_14LayeredUpdates_14_default_layer_2__set__(struct __
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("sprite.LayeredUpdates._default_layer.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates._default_layer.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -15117,19 +15119,19 @@ static int __pyx_pf_6sprite_14LayeredUpdates_14_default_layer_2__set__(struct __
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_41__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_41__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_41__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_41__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_40__reduce_cython__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_40__reduce_cython__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_40__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_40__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -15156,7 +15158,7 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_40__reduce_cython__(CYTHON_UN
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -15171,19 +15173,19 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_40__reduce_cython__(CYTHON_UN
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_43__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_14LayeredUpdates_43__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_43__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_14LayeredUpdates_43__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_14LayeredUpdates_42__setstate_cython__(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_14LayeredUpdates_42__setstate_cython__(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_14LayeredUpdates_42__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_14LayeredUpdates_42__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredUpdates *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -15210,14 +15212,14 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_42__setstate_cython__(CYTHON_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredUpdates.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredUpdates.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":1026
+/* "_sprite.pyx":1026
  *     cdef public object _bgd
  * 
  *     def __init__(self, *sprites, **kwargs):             # <<<<<<<<<<<<<<
@@ -15226,12 +15228,12 @@ static PyObject *__pyx_pf_6sprite_14LayeredUpdates_42__setstate_cython__(CYTHON_
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty___init__[] = "initialize group.\n\n        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n        You can specify some additional attributes through kwargs:\n            _use_update: True/False   (default is False)\n            _default_layer: default layer where the sprites without a layer are\n                added\n            _time_threshold: treshold time for switching between dirty rect\n                mode and fullscreen mode; defaults to updating at 80 frames per\n                second, which is equal to 1000.0 / 80.0\n\n        ";
+static int __pyx_pw_7_sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty___init__[] = "initialize group.\n\n        pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n        You can specify some additional attributes through kwargs:\n            _use_update: True/False   (default is False)\n            _default_layer: default layer where the sprites without a layer are\n                added\n            _time_threshold: treshold time for switching between dirty rect\n                mode and fullscreen mode; defaults to updating at 80 frames per\n                second, which is equal to 1000.0 / 80.0\n\n        ";
 #if CYTHON_COMPILING_IN_CPYTHON
-struct wrapperbase __pyx_wrapperbase_6sprite_12LayeredDirty___init__;
+struct wrapperbase __pyx_wrapperbase_7_sprite_12LayeredDirty___init__;
 #endif
-static int __pyx_pw_6sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprites = 0;
   PyObject *__pyx_v_kwargs = 0;
   int __pyx_r;
@@ -15242,7 +15244,7 @@ static int __pyx_pw_6sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyO
   __Pyx_GOTREF(__pyx_v_kwargs);
   __Pyx_INCREF(__pyx_args);
   __pyx_v_sprites = __pyx_args;
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty___init__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), __pyx_v_sprites, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty___init__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), __pyx_v_sprites, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_sprites);
@@ -15251,7 +15253,7 @@ static int __pyx_pw_6sprite_12LayeredDirty_1__init__(PyObject *__pyx_v_self, PyO
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs) {
+static int __pyx_pf_7_sprite_12LayeredDirty___init__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprites, PyObject *__pyx_v_kwargs) {
   PyObject *__pyx_v_key = NULL;
   PyObject *__pyx_v_val = NULL;
   int __pyx_r;
@@ -15269,14 +15271,14 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   int __pyx_t_11;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":1040
+  /* "_sprite.pyx":1040
  * 
  *         """
  *         LayeredUpdates.__init__(self, *sprites, **kwargs)             # <<<<<<<<<<<<<<
  *         self._clip = None
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_LayeredUpdates), __pyx_n_s_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1040, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_LayeredUpdates), __pyx_n_s_init); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1040, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1040, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -15292,7 +15294,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":1041
+  /* "_sprite.pyx":1041
  *         """
  *         LayeredUpdates.__init__(self, *sprites, **kwargs)
  *         self._clip = None             # <<<<<<<<<<<<<<
@@ -15305,7 +15307,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_clip));
   __pyx_v_self->_clip = ((pgRectObject *)Py_None);
 
-  /* "sprite.pyx":1043
+  /* "_sprite.pyx":1043
  *         self._clip = None
  * 
  *         self._use_update = False             # <<<<<<<<<<<<<<
@@ -15314,7 +15316,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
  */
   __pyx_v_self->_use_update = 0;
 
-  /* "sprite.pyx":1045
+  /* "_sprite.pyx":1045
  *         self._use_update = False
  * 
  *         self._time_threshold = 1000.0 / 80.0 # 1000.0 / fps             # <<<<<<<<<<<<<<
@@ -15323,7 +15325,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
  */
   __pyx_v_self->_time_threshold = (1000.0 / 80.0);
 
-  /* "sprite.pyx":1047
+  /* "_sprite.pyx":1047
  *         self._time_threshold = 1000.0 / 80.0 # 1000.0 / fps
  * 
  *         self._bgd = None             # <<<<<<<<<<<<<<
@@ -15336,7 +15338,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   __Pyx_DECREF(__pyx_v_self->_bgd);
   __pyx_v_self->_bgd = Py_None;
 
-  /* "sprite.pyx":1048
+  /* "_sprite.pyx":1048
  * 
  *         self._bgd = None
  *         for key, val in kwargs.items():             # <<<<<<<<<<<<<<
@@ -15436,7 +15438,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
     __Pyx_XDECREF_SET(__pyx_v_val, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "sprite.pyx":1049
+    /* "_sprite.pyx":1049
  *         self._bgd = None
  *         for key, val in kwargs.items():
  *             if key in ['_use_update', '_time_threshold', '_default_layer']:             # <<<<<<<<<<<<<<
@@ -15464,7 +15466,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
     __pyx_t_10 = (__pyx_t_9 != 0);
     if (__pyx_t_10) {
 
-      /* "sprite.pyx":1050
+      /* "_sprite.pyx":1050
  *         for key, val in kwargs.items():
  *             if key in ['_use_update', '_time_threshold', '_default_layer']:
  *                 if hasattr(self, key):             # <<<<<<<<<<<<<<
@@ -15475,7 +15477,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
       __pyx_t_9 = (__pyx_t_10 != 0);
       if (__pyx_t_9) {
 
-        /* "sprite.pyx":1051
+        /* "_sprite.pyx":1051
  *             if key in ['_use_update', '_time_threshold', '_default_layer']:
  *                 if hasattr(self, key):
  *                     setattr(self, key, val)             # <<<<<<<<<<<<<<
@@ -15484,7 +15486,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
  */
         __pyx_t_11 = PyObject_SetAttr(((PyObject *)__pyx_v_self), __pyx_v_key, __pyx_v_val); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 1051, __pyx_L1_error)
 
-        /* "sprite.pyx":1050
+        /* "_sprite.pyx":1050
  *         for key, val in kwargs.items():
  *             if key in ['_use_update', '_time_threshold', '_default_layer']:
  *                 if hasattr(self, key):             # <<<<<<<<<<<<<<
@@ -15493,7 +15495,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
  */
       }
 
-      /* "sprite.pyx":1049
+      /* "_sprite.pyx":1049
  *         self._bgd = None
  *         for key, val in kwargs.items():
  *             if key in ['_use_update', '_time_threshold', '_default_layer']:             # <<<<<<<<<<<<<<
@@ -15502,7 +15504,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
  */
     }
 
-    /* "sprite.pyx":1048
+    /* "_sprite.pyx":1048
  * 
  *         self._bgd = None
  *         for key, val in kwargs.items():             # <<<<<<<<<<<<<<
@@ -15512,7 +15514,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "sprite.pyx":1026
+  /* "_sprite.pyx":1026
  *     cdef public object _bgd
  * 
  *     def __init__(self, *sprites, **kwargs):             # <<<<<<<<<<<<<<
@@ -15529,7 +15531,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("sprite.LayeredDirty.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_key);
@@ -15538,7 +15540,7 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
   return __pyx_r;
 }
 
-/* "sprite.pyx":1053
+/* "_sprite.pyx":1053
  *                     setattr(self, key, val)
  * 
  *     cpdef void add_internal(self, sprite, layer=None):             # <<<<<<<<<<<<<<
@@ -15546,8 +15548,8 @@ static int __pyx_pf_6sprite_12LayeredDirty___init__(struct __pyx_obj_6sprite_Lay
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_12LayeredDirty_add_internal *__pyx_optional_args) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+void __pyx_f_7_sprite_12LayeredDirty_add_internal(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_12LayeredDirty_add_internal *__pyx_optional_args) {
   PyObject *__pyx_v_layer = ((PyObject *)Py_None);
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -15558,7 +15560,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   PyObject *__pyx_t_6 = NULL;
   int __pyx_t_7;
   int __pyx_t_8;
-  struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal __pyx_t_9;
+  struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal __pyx_t_9;
   __Pyx_RefNannySetupContext("add_internal", 0);
   if (__pyx_optional_args) {
     if (__pyx_optional_args->__pyx_n > 0) {
@@ -15576,7 +15578,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1053, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_12LayeredDirty_3add_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_12LayeredDirty_3add_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         __pyx_t_5 = 0;
@@ -15640,7 +15642,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
     #endif
   }
 
-  /* "sprite.pyx":1060
+  /* "_sprite.pyx":1060
  *         """
  *         # check if all needed attributes are set
  *         if not hasattr(sprite, 'dirty'):             # <<<<<<<<<<<<<<
@@ -15651,7 +15653,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   __pyx_t_8 = ((!(__pyx_t_7 != 0)) != 0);
   if (unlikely(__pyx_t_8)) {
 
-    /* "sprite.pyx":1061
+    /* "_sprite.pyx":1061
  *         # check if all needed attributes are set
  *         if not hasattr(sprite, 'dirty'):
  *             raise AttributeError()             # <<<<<<<<<<<<<<
@@ -15664,7 +15666,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 1061, __pyx_L1_error)
 
-    /* "sprite.pyx":1060
+    /* "_sprite.pyx":1060
  *         """
  *         # check if all needed attributes are set
  *         if not hasattr(sprite, 'dirty'):             # <<<<<<<<<<<<<<
@@ -15673,7 +15675,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
   }
 
-  /* "sprite.pyx":1062
+  /* "_sprite.pyx":1062
  *         if not hasattr(sprite, 'dirty'):
  *             raise AttributeError()
  *         if not hasattr(sprite, 'visible'):             # <<<<<<<<<<<<<<
@@ -15684,7 +15686,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   __pyx_t_7 = ((!(__pyx_t_8 != 0)) != 0);
   if (unlikely(__pyx_t_7)) {
 
-    /* "sprite.pyx":1063
+    /* "_sprite.pyx":1063
  *             raise AttributeError()
  *         if not hasattr(sprite, 'visible'):
  *             raise AttributeError()             # <<<<<<<<<<<<<<
@@ -15697,7 +15699,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 1063, __pyx_L1_error)
 
-    /* "sprite.pyx":1062
+    /* "_sprite.pyx":1062
  *         if not hasattr(sprite, 'dirty'):
  *             raise AttributeError()
  *         if not hasattr(sprite, 'visible'):             # <<<<<<<<<<<<<<
@@ -15706,7 +15708,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
   }
 
-  /* "sprite.pyx":1064
+  /* "_sprite.pyx":1064
  *         if not hasattr(sprite, 'visible'):
  *             raise AttributeError()
  *         if not hasattr(sprite, 'blendmode'):             # <<<<<<<<<<<<<<
@@ -15717,7 +15719,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   __pyx_t_8 = ((!(__pyx_t_7 != 0)) != 0);
   if (unlikely(__pyx_t_8)) {
 
-    /* "sprite.pyx":1065
+    /* "_sprite.pyx":1065
  *             raise AttributeError()
  *         if not hasattr(sprite, 'blendmode'):
  *             raise AttributeError()             # <<<<<<<<<<<<<<
@@ -15730,7 +15732,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 1065, __pyx_L1_error)
 
-    /* "sprite.pyx":1064
+    /* "_sprite.pyx":1064
  *         if not hasattr(sprite, 'visible'):
  *             raise AttributeError()
  *         if not hasattr(sprite, 'blendmode'):             # <<<<<<<<<<<<<<
@@ -15739,7 +15741,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
   }
 
-  /* "sprite.pyx":1067
+  /* "_sprite.pyx":1067
  *             raise AttributeError()
  * 
  *         if not isinstance(sprite, DirtySprite):             # <<<<<<<<<<<<<<
@@ -15753,7 +15755,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   __pyx_t_7 = ((!(__pyx_t_8 != 0)) != 0);
   if (unlikely(__pyx_t_7)) {
 
-    /* "sprite.pyx":1068
+    /* "_sprite.pyx":1068
  * 
  *         if not isinstance(sprite, DirtySprite):
  *             raise TypeError()             # <<<<<<<<<<<<<<
@@ -15766,7 +15768,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 1068, __pyx_L1_error)
 
-    /* "sprite.pyx":1067
+    /* "_sprite.pyx":1067
  *             raise AttributeError()
  * 
  *         if not isinstance(sprite, DirtySprite):             # <<<<<<<<<<<<<<
@@ -15775,7 +15777,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
   }
 
-  /* "sprite.pyx":1070
+  /* "_sprite.pyx":1070
  *             raise TypeError()
  * 
  *         if sprite.dirty == 0: # set it dirty if it is not             # <<<<<<<<<<<<<<
@@ -15791,7 +15793,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_7) {
 
-    /* "sprite.pyx":1071
+    /* "_sprite.pyx":1071
  * 
  *         if sprite.dirty == 0: # set it dirty if it is not
  *             sprite.dirty = 1             # <<<<<<<<<<<<<<
@@ -15800,7 +15802,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
     if (__Pyx_PyObject_SetAttrStr(__pyx_v_sprite, __pyx_n_s_dirty, __pyx_int_1) < 0) __PYX_ERR(0, 1071, __pyx_L1_error)
 
-    /* "sprite.pyx":1070
+    /* "_sprite.pyx":1070
  *             raise TypeError()
  * 
  *         if sprite.dirty == 0: # set it dirty if it is not             # <<<<<<<<<<<<<<
@@ -15809,7 +15811,7 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
   }
 
-  /* "sprite.pyx":1073
+  /* "_sprite.pyx":1073
  *             sprite.dirty = 1
  * 
  *         LayeredUpdates.add_internal(self, sprite, layer)             # <<<<<<<<<<<<<<
@@ -15818,9 +15820,9 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
  */
   __pyx_t_9.__pyx_n = 1;
   __pyx_t_9.layer = __pyx_v_layer;
-  __pyx_vtabptr_6sprite_LayeredUpdates->add_internal(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, 1, &__pyx_t_9); 
+  __pyx_vtabptr_7_sprite_LayeredUpdates->add_internal(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, 1, &__pyx_t_9); 
 
-  /* "sprite.pyx":1053
+  /* "_sprite.pyx":1053
  *                     setattr(self, key, val)
  * 
  *     cpdef void add_internal(self, sprite, layer=None):             # <<<<<<<<<<<<<<
@@ -15836,15 +15838,15 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal(struct __pyx_obj_6sprite_Layere
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_WriteUnraisable("sprite.LayeredDirty.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.LayeredDirty.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_2add_internal[] = "Do not use this method directly.\n\n        It is used by the group to add a sprite internally.\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_2add_internal[] = "Do not use this method directly.\n\n        It is used by the group to add a sprite internally.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   PyObject *__pyx_v_layer = 0;
   PyObject *__pyx_r = 0;
@@ -15896,27 +15898,27 @@ static PyObject *__pyx_pw_6sprite_12LayeredDirty_3add_internal(PyObject *__pyx_v
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("add_internal", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1053, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_2add_internal(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), __pyx_v_sprite, __pyx_v_layer);
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_2add_internal(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), __pyx_v_sprite, __pyx_v_layer);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_2add_internal(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_2add_internal(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_layer) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal __pyx_t_1;
+  struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("add_internal", 0);
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1.__pyx_n = 1;
   __pyx_t_1.layer = __pyx_v_layer;
-  __pyx_vtabptr_6sprite_LayeredDirty->__pyx_base.add_internal(((struct __pyx_obj_6sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, 1, &__pyx_t_1); 
+  __pyx_vtabptr_7_sprite_LayeredDirty->__pyx_base.add_internal(((struct __pyx_obj_7_sprite_LayeredUpdates *)__pyx_v_self), __pyx_v_sprite, 1, &__pyx_t_1); 
   __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1053, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
@@ -15926,7 +15928,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_2add_internal(struct __pyx_obj_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("sprite.LayeredDirty.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -15934,11 +15936,11 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_2add_internal(struct __pyx_obj_
   return __pyx_r;
 }
 
-void __pyx_f_6sprite_12LayeredDirty_add_internal__pyx_wrap_1(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
-  __pyx_f_6sprite_12LayeredDirty_add_internal(__pyx_v_self, __pyx_v_sprite, __pyx_skip_dispatch, NULL);
+void __pyx_f_7_sprite_12LayeredDirty_add_internal__pyx_wrap_1(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+  __pyx_f_7_sprite_12LayeredDirty_add_internal(__pyx_v_self, __pyx_v_sprite, __pyx_skip_dispatch, NULL);
 }
 
-/* "sprite.pyx":1075
+/* "_sprite.pyx":1075
  *         LayeredUpdates.add_internal(self, sprite, layer)
  * 
  *     cpdef draw(self, surface, bgd=None):             # <<<<<<<<<<<<<<
@@ -15946,8 +15948,8 @@ void __pyx_f_6sprite_12LayeredDirty_add_internal__pyx_wrap_1(struct __pyx_obj_6s
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_12LayeredDirty_draw *__pyx_optional_args) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+PyObject *__pyx_f_7_sprite_12LayeredDirty_draw(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_12LayeredDirty_draw *__pyx_optional_args) {
   PyObject *__pyx_v_bgd = ((PyObject *)Py_None);
   PyObject *__pyx_v__orig_clip = NULL;
   PyObject *__pyx_v__clip = NULL;
@@ -16010,7 +16012,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1075, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_12LayeredDirty_5draw)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_12LayeredDirty_5draw)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -16076,7 +16078,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     #endif
   }
 
-  /* "sprite.pyx":1085
+  /* "_sprite.pyx":1085
  *         """
  *         # speedups
  *         _orig_clip = surface.get_clip()             # <<<<<<<<<<<<<<
@@ -16103,7 +16105,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__orig_clip = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1086
+  /* "_sprite.pyx":1086
  *         # speedups
  *         _orig_clip = surface.get_clip()
  *         _clip = self._clip             # <<<<<<<<<<<<<<
@@ -16115,7 +16117,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__clip = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1087
+  /* "_sprite.pyx":1087
  *         _orig_clip = surface.get_clip()
  *         _clip = self._clip
  *         if _clip is None:             # <<<<<<<<<<<<<<
@@ -16126,7 +16128,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_t_8 = (__pyx_t_7 != 0);
   if (__pyx_t_8) {
 
-    /* "sprite.pyx":1088
+    /* "_sprite.pyx":1088
  *         _clip = self._clip
  *         if _clip is None:
  *             _clip = _orig_clip             # <<<<<<<<<<<<<<
@@ -16136,7 +16138,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     __Pyx_INCREF(__pyx_v__orig_clip);
     __Pyx_DECREF_SET(__pyx_v__clip, __pyx_v__orig_clip);
 
-    /* "sprite.pyx":1087
+    /* "_sprite.pyx":1087
  *         _orig_clip = surface.get_clip()
  *         _clip = self._clip
  *         if _clip is None:             # <<<<<<<<<<<<<<
@@ -16145,7 +16147,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
   }
 
-  /* "sprite.pyx":1090
+  /* "_sprite.pyx":1090
  *             _clip = _orig_clip
  * 
  *         _surf = surface             # <<<<<<<<<<<<<<
@@ -16155,7 +16157,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __Pyx_INCREF(__pyx_v_surface);
   __pyx_v__surf = __pyx_v_surface;
 
-  /* "sprite.pyx":1091
+  /* "_sprite.pyx":1091
  * 
  *         _surf = surface
  *         _sprites = self._spritelist             # <<<<<<<<<<<<<<
@@ -16167,7 +16169,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__sprites = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1092
+  /* "_sprite.pyx":1092
  *         _surf = surface
  *         _sprites = self._spritelist
  *         _old_rect = self.spritedict             # <<<<<<<<<<<<<<
@@ -16179,7 +16181,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__old_rect = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1093
+  /* "_sprite.pyx":1093
  *         _sprites = self._spritelist
  *         _old_rect = self.spritedict
  *         _update = self.lostsprites             # <<<<<<<<<<<<<<
@@ -16191,7 +16193,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__update = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1094
+  /* "_sprite.pyx":1094
  *         _old_rect = self.spritedict
  *         _update = self.lostsprites
  *         _update_append = _update.append             # <<<<<<<<<<<<<<
@@ -16203,7 +16205,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__update_append = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1095
+  /* "_sprite.pyx":1095
  *         _update = self.lostsprites
  *         _update_append = _update.append
  *         _ret = None             # <<<<<<<<<<<<<<
@@ -16213,7 +16215,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __Pyx_INCREF(Py_None);
   __pyx_v__ret = ((PyObject*)Py_None);
 
-  /* "sprite.pyx":1096
+  /* "_sprite.pyx":1096
  *         _update_append = _update.append
  *         _ret = None
  *         _surf_blit = _surf.blit             # <<<<<<<<<<<<<<
@@ -16225,17 +16227,17 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__surf_blit = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1097
+  /* "_sprite.pyx":1097
  *         _ret = None
  *         _surf_blit = _surf.blit
  *         _rect = Rect             # <<<<<<<<<<<<<<
  *         if bgd is not None:
  *             self._bgd = bgd
  */
-  __Pyx_INCREF(((PyObject *)__pyx_ptype_6sprite_Rect));
-  __pyx_v__rect = __pyx_ptype_6sprite_Rect;
+  __Pyx_INCREF(((PyObject *)__pyx_ptype_7_sprite_Rect));
+  __pyx_v__rect = __pyx_ptype_7_sprite_Rect;
 
-  /* "sprite.pyx":1098
+  /* "_sprite.pyx":1098
  *         _surf_blit = _surf.blit
  *         _rect = Rect
  *         if bgd is not None:             # <<<<<<<<<<<<<<
@@ -16246,7 +16248,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_t_7 = (__pyx_t_8 != 0);
   if (__pyx_t_7) {
 
-    /* "sprite.pyx":1099
+    /* "_sprite.pyx":1099
  *         _rect = Rect
  *         if bgd is not None:
  *             self._bgd = bgd             # <<<<<<<<<<<<<<
@@ -16259,7 +16261,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     __Pyx_DECREF(__pyx_v_self->_bgd);
     __pyx_v_self->_bgd = __pyx_v_bgd;
 
-    /* "sprite.pyx":1098
+    /* "_sprite.pyx":1098
  *         _surf_blit = _surf.blit
  *         _rect = Rect
  *         if bgd is not None:             # <<<<<<<<<<<<<<
@@ -16268,7 +16270,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
   }
 
-  /* "sprite.pyx":1100
+  /* "_sprite.pyx":1100
  *         if bgd is not None:
  *             self._bgd = bgd
  *         _bgd = self._bgd             # <<<<<<<<<<<<<<
@@ -16280,7 +16282,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v__bgd = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1101
+  /* "_sprite.pyx":1101
  *             self._bgd = bgd
  *         _bgd = self._bgd
  *         init_rect = self._init_rect             # <<<<<<<<<<<<<<
@@ -16292,7 +16294,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v_init_rect = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1103
+  /* "_sprite.pyx":1103
  *         init_rect = self._init_rect
  * 
  *         _surf.set_clip(_clip)             # <<<<<<<<<<<<<<
@@ -16318,7 +16320,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1106
+  /* "_sprite.pyx":1106
  *         # -------
  *         # 0. decide whether to render with update or flip
  *         start_time = get_ticks()             # <<<<<<<<<<<<<<
@@ -16345,7 +16347,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v_start_time = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1107
+  /* "_sprite.pyx":1107
  *         # 0. decide whether to render with update or flip
  *         start_time = get_ticks()
  *         if self._use_update: # dirty rects mode             # <<<<<<<<<<<<<<
@@ -16355,7 +16357,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_t_7 = (__pyx_v_self->_use_update != 0);
   if (__pyx_t_7) {
 
-    /* "sprite.pyx":1110
+    /* "_sprite.pyx":1110
  *             # 1. find dirty area on screen and put the rects into _update
  *             # still not happy with that part
  *             for spr in _sprites:             # <<<<<<<<<<<<<<
@@ -16378,7 +16380,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "sprite.pyx":1111
+      /* "_sprite.pyx":1111
  *             # still not happy with that part
  *             for spr in _sprites:
  *                 if 0 < spr.dirty:             # <<<<<<<<<<<<<<
@@ -16393,7 +16395,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (__pyx_t_7) {
 
-        /* "sprite.pyx":1113
+        /* "_sprite.pyx":1113
  *                 if 0 < spr.dirty:
  *                     # chose the right rect
  *                     if spr.source_rect:             # <<<<<<<<<<<<<<
@@ -16406,7 +16408,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         if (__pyx_t_7) {
 
-          /* "sprite.pyx":1114
+          /* "_sprite.pyx":1114
  *                     # chose the right rect
  *                     if spr.source_rect:
  *                         _union_rect = _rect(spr.rect.topleft,             # <<<<<<<<<<<<<<
@@ -16419,7 +16421,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-          /* "sprite.pyx":1115
+          /* "_sprite.pyx":1115
  *                     if spr.source_rect:
  *                         _union_rect = _rect(spr.rect.topleft,
  *                                             spr.source_rect.size)             # <<<<<<<<<<<<<<
@@ -16432,7 +16434,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_GOTREF(__pyx_t_6);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-          /* "sprite.pyx":1114
+          /* "_sprite.pyx":1114
  *                     # chose the right rect
  *                     if spr.source_rect:
  *                         _union_rect = _rect(spr.rect.topleft,             # <<<<<<<<<<<<<<
@@ -16453,7 +16455,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_XDECREF_SET(__pyx_v__union_rect, __pyx_t_6);
           __pyx_t_6 = 0;
 
-          /* "sprite.pyx":1113
+          /* "_sprite.pyx":1113
  *                 if 0 < spr.dirty:
  *                     # chose the right rect
  *                     if spr.source_rect:             # <<<<<<<<<<<<<<
@@ -16463,7 +16465,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           goto __pyx_L9;
         }
 
-        /* "sprite.pyx":1117
+        /* "_sprite.pyx":1117
  *                                             spr.source_rect.size)
  *                     else:
  *                         _union_rect = _rect(spr.rect)             # <<<<<<<<<<<<<<
@@ -16481,7 +16483,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         }
         __pyx_L9:;
 
-        /* "sprite.pyx":1119
+        /* "_sprite.pyx":1119
  *                         _union_rect = _rect(spr.rect)
  * 
  *                     _union_rect_collidelist = _union_rect.collidelist             # <<<<<<<<<<<<<<
@@ -16493,7 +16495,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_XDECREF_SET(__pyx_v__union_rect_collidelist, __pyx_t_3);
         __pyx_t_3 = 0;
 
-        /* "sprite.pyx":1120
+        /* "_sprite.pyx":1120
  * 
  *                     _union_rect_collidelist = _union_rect.collidelist
  *                     _union_rect_union_ip = _union_rect.union_ip             # <<<<<<<<<<<<<<
@@ -16505,7 +16507,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_XDECREF_SET(__pyx_v__union_rect_union_ip, __pyx_t_3);
         __pyx_t_3 = 0;
 
-        /* "sprite.pyx":1121
+        /* "_sprite.pyx":1121
  *                     _union_rect_collidelist = _union_rect.collidelist
  *                     _union_rect_union_ip = _union_rect.union_ip
  *                     i = _union_rect_collidelist(_update)             # <<<<<<<<<<<<<<
@@ -16531,7 +16533,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_3);
         __pyx_t_3 = 0;
 
-        /* "sprite.pyx":1122
+        /* "_sprite.pyx":1122
  *                     _union_rect_union_ip = _union_rect.union_ip
  *                     i = _union_rect_collidelist(_update)
  *                     while -1 < i:             # <<<<<<<<<<<<<<
@@ -16544,7 +16546,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           if (!__pyx_t_7) break;
 
-          /* "sprite.pyx":1123
+          /* "_sprite.pyx":1123
  *                     i = _union_rect_collidelist(_update)
  *                     while -1 < i:
  *                         _union_rect_union_ip(_update[i])             # <<<<<<<<<<<<<<
@@ -16576,7 +16578,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-          /* "sprite.pyx":1124
+          /* "_sprite.pyx":1124
  *                     while -1 < i:
  *                         _union_rect_union_ip(_update[i])
  *                         del _update[i]             # <<<<<<<<<<<<<<
@@ -16589,7 +16591,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           }
           if (unlikely(PyObject_DelItem(__pyx_v__update, __pyx_v_i) < 0)) __PYX_ERR(0, 1124, __pyx_L1_error)
 
-          /* "sprite.pyx":1125
+          /* "_sprite.pyx":1125
  *                         _union_rect_union_ip(_update[i])
  *                         del _update[i]
  *                         i = _union_rect_collidelist(_update)             # <<<<<<<<<<<<<<
@@ -16616,7 +16618,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __pyx_t_3 = 0;
         }
 
-        /* "sprite.pyx":1094
+        /* "_sprite.pyx":1094
  *         _old_rect = self.spritedict
  *         _update = self.lostsprites
  *         _update_append = _update.append             # <<<<<<<<<<<<<<
@@ -16628,7 +16630,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __PYX_ERR(0, 1094, __pyx_L1_error)
         }
 
-        /* "sprite.pyx":1126
+        /* "_sprite.pyx":1126
  *                         del _update[i]
  *                         i = _union_rect_collidelist(_update)
  *                     _update_append(_union_rect.clip(_clip))             # <<<<<<<<<<<<<<
@@ -16655,7 +16657,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __pyx_t_10 = __Pyx_PyList_Append(__pyx_v__update, __pyx_t_3); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 1126, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "sprite.pyx":1128
+        /* "_sprite.pyx":1128
  *                     _update_append(_union_rect.clip(_clip))
  * 
  *                     if _old_rect[spr] is not init_rect:             # <<<<<<<<<<<<<<
@@ -16673,7 +16675,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __pyx_t_8 = (__pyx_t_7 != 0);
         if (__pyx_t_8) {
 
-          /* "sprite.pyx":1129
+          /* "_sprite.pyx":1129
  * 
  *                     if _old_rect[spr] is not init_rect:
  *                         _union_rect = _rect(_old_rect[spr])             # <<<<<<<<<<<<<<
@@ -16692,7 +16694,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_DECREF_SET(__pyx_v__union_rect, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1130
+          /* "_sprite.pyx":1130
  *                     if _old_rect[spr] is not init_rect:
  *                         _union_rect = _rect(_old_rect[spr])
  *                         _union_rect_collidelist = _union_rect.collidelist             # <<<<<<<<<<<<<<
@@ -16704,7 +16706,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_DECREF_SET(__pyx_v__union_rect_collidelist, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1131
+          /* "_sprite.pyx":1131
  *                         _union_rect = _rect(_old_rect[spr])
  *                         _union_rect_collidelist = _union_rect.collidelist
  *                         _union_rect_union_ip = _union_rect.union_ip             # <<<<<<<<<<<<<<
@@ -16716,7 +16718,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_DECREF_SET(__pyx_v__union_rect_union_ip, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1132
+          /* "_sprite.pyx":1132
  *                         _union_rect_collidelist = _union_rect.collidelist
  *                         _union_rect_union_ip = _union_rect.union_ip
  *                         i = _union_rect_collidelist(_update)             # <<<<<<<<<<<<<<
@@ -16742,7 +16744,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_DECREF_SET(__pyx_v_i, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1133
+          /* "_sprite.pyx":1133
  *                         _union_rect_union_ip = _union_rect.union_ip
  *                         i = _union_rect_collidelist(_update)
  *                         while -1 < i:             # <<<<<<<<<<<<<<
@@ -16755,7 +16757,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
             if (!__pyx_t_8) break;
 
-            /* "sprite.pyx":1134
+            /* "_sprite.pyx":1134
  *                         i = _union_rect_collidelist(_update)
  *                         while -1 < i:
  *                             _union_rect_union_ip(_update[i])             # <<<<<<<<<<<<<<
@@ -16787,7 +16789,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
             __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-            /* "sprite.pyx":1135
+            /* "_sprite.pyx":1135
  *                         while -1 < i:
  *                             _union_rect_union_ip(_update[i])
  *                             del _update[i]             # <<<<<<<<<<<<<<
@@ -16800,7 +16802,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             }
             if (unlikely(PyObject_DelItem(__pyx_v__update, __pyx_v_i) < 0)) __PYX_ERR(0, 1135, __pyx_L1_error)
 
-            /* "sprite.pyx":1136
+            /* "_sprite.pyx":1136
  *                             _union_rect_union_ip(_update[i])
  *                             del _update[i]
  *                             i = _union_rect_collidelist(_update)             # <<<<<<<<<<<<<<
@@ -16827,7 +16829,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __pyx_t_2 = 0;
           }
 
-          /* "sprite.pyx":1094
+          /* "_sprite.pyx":1094
  *         _old_rect = self.spritedict
  *         _update = self.lostsprites
  *         _update_append = _update.append             # <<<<<<<<<<<<<<
@@ -16839,7 +16841,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __PYX_ERR(0, 1094, __pyx_L1_error)
           }
 
-          /* "sprite.pyx":1137
+          /* "_sprite.pyx":1137
  *                             del _update[i]
  *                             i = _union_rect_collidelist(_update)
  *                         _update_append(_union_rect.clip(_clip))             # <<<<<<<<<<<<<<
@@ -16866,7 +16868,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __pyx_t_10 = __Pyx_PyList_Append(__pyx_v__update, __pyx_t_2); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 1137, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1128
+          /* "_sprite.pyx":1128
  *                     _update_append(_union_rect.clip(_clip))
  * 
  *                     if _old_rect[spr] is not init_rect:             # <<<<<<<<<<<<<<
@@ -16875,7 +16877,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
         }
 
-        /* "sprite.pyx":1111
+        /* "_sprite.pyx":1111
  *             # still not happy with that part
  *             for spr in _sprites:
  *                 if 0 < spr.dirty:             # <<<<<<<<<<<<<<
@@ -16884,7 +16886,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
       }
 
-      /* "sprite.pyx":1110
+      /* "_sprite.pyx":1110
  *             # 1. find dirty area on screen and put the rects into _update
  *             # still not happy with that part
  *             for spr in _sprites:             # <<<<<<<<<<<<<<
@@ -16894,7 +16896,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1142
+    /* "_sprite.pyx":1142
  * 
  *             # clear using background
  *             if _bgd is not None:             # <<<<<<<<<<<<<<
@@ -16905,7 +16907,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     __pyx_t_7 = (__pyx_t_8 != 0);
     if (__pyx_t_7) {
 
-      /* "sprite.pyx":1143
+      /* "_sprite.pyx":1143
  *             # clear using background
  *             if _bgd is not None:
  *                 for rec in _update:             # <<<<<<<<<<<<<<
@@ -16928,7 +16930,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_XDECREF_SET(__pyx_v_rec, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "sprite.pyx":1144
+        /* "_sprite.pyx":1144
  *             if _bgd is not None:
  *                 for rec in _update:
  *                     _surf_blit(_bgd, rec, rec)             # <<<<<<<<<<<<<<
@@ -16986,7 +16988,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-        /* "sprite.pyx":1143
+        /* "_sprite.pyx":1143
  *             # clear using background
  *             if _bgd is not None:
  *                 for rec in _update:             # <<<<<<<<<<<<<<
@@ -16996,7 +16998,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1142
+      /* "_sprite.pyx":1142
  * 
  *             # clear using background
  *             if _bgd is not None:             # <<<<<<<<<<<<<<
@@ -17005,7 +17007,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
     }
 
-    /* "sprite.pyx":1147
+    /* "_sprite.pyx":1147
  * 
  *             # 2. draw
  *             for spr in _sprites:             # <<<<<<<<<<<<<<
@@ -17028,7 +17030,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "sprite.pyx":1148
+      /* "_sprite.pyx":1148
  *             # 2. draw
  *             for spr in _sprites:
  *                 if 1 > spr.dirty:             # <<<<<<<<<<<<<<
@@ -17043,7 +17045,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       if (__pyx_t_7) {
 
-        /* "sprite.pyx":1149
+        /* "_sprite.pyx":1149
  *             for spr in _sprites:
  *                 if 1 > spr.dirty:
  *                     if spr._visible:             # <<<<<<<<<<<<<<
@@ -17056,7 +17058,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         if (__pyx_t_7) {
 
-          /* "sprite.pyx":1151
+          /* "_sprite.pyx":1151
  *                     if spr._visible:
  *                         # sprite not dirty; blit only the intersecting part
  *                         if spr.source_rect is not None:             # <<<<<<<<<<<<<<
@@ -17070,7 +17072,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __pyx_t_8 = (__pyx_t_7 != 0);
           if (__pyx_t_8) {
 
-            /* "sprite.pyx":1154
+            /* "_sprite.pyx":1154
  *                             # For possible future speed up, source_rect's data
  *                             # can be prefetched outside of this loop.
  *                             _spr_rect = _rect(spr.rect.topleft,             # <<<<<<<<<<<<<<
@@ -17083,7 +17085,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_GOTREF(__pyx_t_2);
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1155
+            /* "_sprite.pyx":1155
  *                             # can be prefetched outside of this loop.
  *                             _spr_rect = _rect(spr.rect.topleft,
  *                                               spr.source_rect.size)             # <<<<<<<<<<<<<<
@@ -17096,7 +17098,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_GOTREF(__pyx_t_4);
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1154
+            /* "_sprite.pyx":1154
  *                             # For possible future speed up, source_rect's data
  *                             # can be prefetched outside of this loop.
  *                             _spr_rect = _rect(spr.rect.topleft,             # <<<<<<<<<<<<<<
@@ -17117,7 +17119,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v__spr_rect, __pyx_t_4);
             __pyx_t_4 = 0;
 
-            /* "sprite.pyx":1156
+            /* "_sprite.pyx":1156
  *                             _spr_rect = _rect(spr.rect.topleft,
  *                                               spr.source_rect.size)
  *                             rect_offset_x = spr.source_rect[0] - _spr_rect[0]             # <<<<<<<<<<<<<<
@@ -17138,7 +17140,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v_rect_offset_x, __pyx_t_2);
             __pyx_t_2 = 0;
 
-            /* "sprite.pyx":1157
+            /* "_sprite.pyx":1157
  *                                               spr.source_rect.size)
  *                             rect_offset_x = spr.source_rect[0] - _spr_rect[0]
  *                             rect_offset_y = spr.source_rect[1] - _spr_rect[1]             # <<<<<<<<<<<<<<
@@ -17159,7 +17161,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v_rect_offset_y, __pyx_t_6);
             __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1151
+            /* "_sprite.pyx":1151
  *                     if spr._visible:
  *                         # sprite not dirty; blit only the intersecting part
  *                         if spr.source_rect is not None:             # <<<<<<<<<<<<<<
@@ -17169,7 +17171,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             goto __pyx_L22;
           }
 
-          /* "sprite.pyx":1159
+          /* "_sprite.pyx":1159
  *                             rect_offset_y = spr.source_rect[1] - _spr_rect[1]
  *                         else:
  *                             _spr_rect = spr.rect             # <<<<<<<<<<<<<<
@@ -17182,7 +17184,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v__spr_rect, __pyx_t_6);
             __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1160
+            /* "_sprite.pyx":1160
  *                         else:
  *                             _spr_rect = spr.rect
  *                             rect_offset_x = -_spr_rect[0]             # <<<<<<<<<<<<<<
@@ -17197,7 +17199,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v_rect_offset_x, __pyx_t_2);
             __pyx_t_2 = 0;
 
-            /* "sprite.pyx":1161
+            /* "_sprite.pyx":1161
  *                             _spr_rect = spr.rect
  *                             rect_offset_x = -_spr_rect[0]
  *                             rect_offset_y = -_spr_rect[1]             # <<<<<<<<<<<<<<
@@ -17214,7 +17216,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           }
           __pyx_L22:;
 
-          /* "sprite.pyx":1163
+          /* "_sprite.pyx":1163
  *                             rect_offset_y = -_spr_rect[1]
  * 
  *                         _spr_rect_clip = _spr_rect.clip             # <<<<<<<<<<<<<<
@@ -17226,7 +17228,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __Pyx_XDECREF_SET(__pyx_v__spr_rect_clip, __pyx_t_6);
           __pyx_t_6 = 0;
 
-          /* "sprite.pyx":1165
+          /* "_sprite.pyx":1165
  *                         _spr_rect_clip = _spr_rect.clip
  * 
  *                         for idx in _spr_rect.collidelistall(_update):             # <<<<<<<<<<<<<<
@@ -17293,7 +17295,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v_idx, __pyx_t_6);
             __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1167
+            /* "_sprite.pyx":1167
  *                         for idx in _spr_rect.collidelistall(_update):
  *                             # clip
  *                             clip = _spr_rect_clip(_update[idx])             # <<<<<<<<<<<<<<
@@ -17326,7 +17328,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_XDECREF_SET(__pyx_v_clip, __pyx_t_6);
             __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1168
+            /* "_sprite.pyx":1168
  *                             # clip
  *                             clip = _spr_rect_clip(_update[idx])
  *                             _surf_blit(spr.image,             # <<<<<<<<<<<<<<
@@ -17336,7 +17338,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_image); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1168, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_3);
 
-            /* "sprite.pyx":1170
+            /* "_sprite.pyx":1170
  *                             _surf_blit(spr.image,
  *                                        clip,
  *                                        (clip[0] + rect_offset_x,             # <<<<<<<<<<<<<<
@@ -17349,7 +17351,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_GOTREF(__pyx_t_13);
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-            /* "sprite.pyx":1171
+            /* "_sprite.pyx":1171
  *                                        clip,
  *                                        (clip[0] + rect_offset_x,
  *                                         clip[1] + rect_offset_y,             # <<<<<<<<<<<<<<
@@ -17362,7 +17364,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_GOTREF(__pyx_t_14);
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-            /* "sprite.pyx":1172
+            /* "_sprite.pyx":1172
  *                                        (clip[0] + rect_offset_x,
  *                                         clip[1] + rect_offset_y,
  *                                         clip[2],             # <<<<<<<<<<<<<<
@@ -17372,7 +17374,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_clip, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1172, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_4);
 
-            /* "sprite.pyx":1173
+            /* "_sprite.pyx":1173
  *                                         clip[1] + rect_offset_y,
  *                                         clip[2],
  *                                         clip[3]),             # <<<<<<<<<<<<<<
@@ -17382,7 +17384,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __pyx_t_15 = __Pyx_GetItemInt(__pyx_v_clip, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1173, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_15);
 
-            /* "sprite.pyx":1170
+            /* "_sprite.pyx":1170
  *                             _surf_blit(spr.image,
  *                                        clip,
  *                                        (clip[0] + rect_offset_x,             # <<<<<<<<<<<<<<
@@ -17404,7 +17406,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __pyx_t_4 = 0;
             __pyx_t_15 = 0;
 
-            /* "sprite.pyx":1174
+            /* "_sprite.pyx":1174
  *                                         clip[2],
  *                                         clip[3]),
  *                                        spr.blendmode)             # <<<<<<<<<<<<<<
@@ -17473,7 +17475,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-            /* "sprite.pyx":1165
+            /* "_sprite.pyx":1165
  *                         _spr_rect_clip = _spr_rect.clip
  * 
  *                         for idx in _spr_rect.collidelistall(_update):             # <<<<<<<<<<<<<<
@@ -17483,7 +17485,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           }
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1149
+          /* "_sprite.pyx":1149
  *             for spr in _sprites:
  *                 if 1 > spr.dirty:
  *                     if spr._visible:             # <<<<<<<<<<<<<<
@@ -17492,7 +17494,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
         }
 
-        /* "sprite.pyx":1148
+        /* "_sprite.pyx":1148
  *             # 2. draw
  *             for spr in _sprites:
  *                 if 1 > spr.dirty:             # <<<<<<<<<<<<<<
@@ -17502,7 +17504,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         goto __pyx_L20;
       }
 
-      /* "sprite.pyx":1176
+      /* "_sprite.pyx":1176
  *                                        spr.blendmode)
  *                 else: # dirty sprite
  *                     if spr._visible:             # <<<<<<<<<<<<<<
@@ -17516,7 +17518,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_8) {
 
-          /* "sprite.pyx":1177
+          /* "_sprite.pyx":1177
  *                 else: # dirty sprite
  *                     if spr._visible:
  *                         _old_rect[spr] = _surf_blit(spr.image,             # <<<<<<<<<<<<<<
@@ -17526,7 +17528,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_image); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1177, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
 
-          /* "sprite.pyx":1178
+          /* "_sprite.pyx":1178
  *                     if spr._visible:
  *                         _old_rect[spr] = _surf_blit(spr.image,
  *                                                     spr.rect,             # <<<<<<<<<<<<<<
@@ -17536,7 +17538,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_rect); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1178, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_4);
 
-          /* "sprite.pyx":1179
+          /* "_sprite.pyx":1179
  *                         _old_rect[spr] = _surf_blit(spr.image,
  *                                                     spr.rect,
  *                                                     spr.source_rect,             # <<<<<<<<<<<<<<
@@ -17546,7 +17548,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_source_rect); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 1179, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_13);
 
-          /* "sprite.pyx":1180
+          /* "_sprite.pyx":1180
  *                                                     spr.rect,
  *                                                     spr.source_rect,
  *                                                     spr.blendmode)             # <<<<<<<<<<<<<<
@@ -17616,7 +17618,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           }
           __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
 
-          /* "sprite.pyx":1177
+          /* "_sprite.pyx":1177
  *                 else: # dirty sprite
  *                     if spr._visible:
  *                         _old_rect[spr] = _surf_blit(spr.image,             # <<<<<<<<<<<<<<
@@ -17630,7 +17632,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
           if (unlikely(PyDict_SetItem(__pyx_v__old_rect, __pyx_v_spr, __pyx_t_2) < 0)) __PYX_ERR(0, 1177, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1176
+          /* "_sprite.pyx":1176
  *                                        spr.blendmode)
  *                 else: # dirty sprite
  *                     if spr._visible:             # <<<<<<<<<<<<<<
@@ -17639,7 +17641,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
         }
 
-        /* "sprite.pyx":1181
+        /* "_sprite.pyx":1181
  *                                                     spr.source_rect,
  *                                                     spr.blendmode)
  *                     if spr.dirty == 1:             # <<<<<<<<<<<<<<
@@ -17655,7 +17657,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
         if (__pyx_t_8) {
 
-          /* "sprite.pyx":1182
+          /* "_sprite.pyx":1182
  *                                                     spr.blendmode)
  *                     if spr.dirty == 1:
  *                         spr.dirty = 0             # <<<<<<<<<<<<<<
@@ -17664,7 +17666,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
           if (__Pyx_PyObject_SetAttrStr(__pyx_v_spr, __pyx_n_s_dirty, __pyx_int_0) < 0) __PYX_ERR(0, 1182, __pyx_L1_error)
 
-          /* "sprite.pyx":1181
+          /* "_sprite.pyx":1181
  *                                                     spr.source_rect,
  *                                                     spr.blendmode)
  *                     if spr.dirty == 1:             # <<<<<<<<<<<<<<
@@ -17675,7 +17677,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       }
       __pyx_L20:;
 
-      /* "sprite.pyx":1147
+      /* "_sprite.pyx":1147
  * 
  *             # 2. draw
  *             for spr in _sprites:             # <<<<<<<<<<<<<<
@@ -17685,7 +17687,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1183
+    /* "_sprite.pyx":1183
  *                     if spr.dirty == 1:
  *                         spr.dirty = 0
  *             _ret = list(_update)             # <<<<<<<<<<<<<<
@@ -17697,7 +17699,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     __Pyx_DECREF_SET(__pyx_v__ret, ((PyObject*)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1107
+    /* "_sprite.pyx":1107
  *         # 0. decide whether to render with update or flip
  *         start_time = get_ticks()
  *         if self._use_update: # dirty rects mode             # <<<<<<<<<<<<<<
@@ -17707,7 +17709,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     goto __pyx_L5;
   }
 
-  /* "sprite.pyx":1185
+  /* "_sprite.pyx":1185
  *             _ret = list(_update)
  *         else: # flip, full screen mode
  *             if _bgd is not None:             # <<<<<<<<<<<<<<
@@ -17719,7 +17721,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     __pyx_t_7 = (__pyx_t_8 != 0);
     if (__pyx_t_7) {
 
-      /* "sprite.pyx":1186
+      /* "_sprite.pyx":1186
  *         else: # flip, full screen mode
  *             if _bgd is not None:
  *                 _surf_blit(_bgd, (0, 0))             # <<<<<<<<<<<<<<
@@ -17774,7 +17776,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1185
+      /* "_sprite.pyx":1185
  *             _ret = list(_update)
  *         else: # flip, full screen mode
  *             if _bgd is not None:             # <<<<<<<<<<<<<<
@@ -17783,7 +17785,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
     }
 
-    /* "sprite.pyx":1187
+    /* "_sprite.pyx":1187
  *             if _bgd is not None:
  *                 _surf_blit(_bgd, (0, 0))
  *             for spr in _sprites:             # <<<<<<<<<<<<<<
@@ -17806,7 +17808,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_XDECREF_SET(__pyx_v_spr, __pyx_t_16);
       __pyx_t_16 = 0;
 
-      /* "sprite.pyx":1188
+      /* "_sprite.pyx":1188
  *                 _surf_blit(_bgd, (0, 0))
  *             for spr in _sprites:
  *                 if spr._visible:             # <<<<<<<<<<<<<<
@@ -17819,7 +17821,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
       if (__pyx_t_7) {
 
-        /* "sprite.pyx":1189
+        /* "_sprite.pyx":1189
  *             for spr in _sprites:
  *                 if spr._visible:
  *                     _old_rect[spr] = _surf_blit(spr.image,             # <<<<<<<<<<<<<<
@@ -17829,7 +17831,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_image); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 1189, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_14);
 
-        /* "sprite.pyx":1190
+        /* "_sprite.pyx":1190
  *                 if spr._visible:
  *                     _old_rect[spr] = _surf_blit(spr.image,
  *                                                 spr.rect,             # <<<<<<<<<<<<<<
@@ -17839,7 +17841,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_rect); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1190, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
 
-        /* "sprite.pyx":1191
+        /* "_sprite.pyx":1191
  *                     _old_rect[spr] = _surf_blit(spr.image,
  *                                                 spr.rect,
  *                                                 spr.source_rect,             # <<<<<<<<<<<<<<
@@ -17849,7 +17851,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_v_spr, __pyx_n_s_source_rect); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1191, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_15);
 
-        /* "sprite.pyx":1192
+        /* "_sprite.pyx":1192
  *                                                 spr.rect,
  *                                                 spr.source_rect,
  *                                                 spr.blendmode)             # <<<<<<<<<<<<<<
@@ -17919,7 +17921,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         }
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-        /* "sprite.pyx":1189
+        /* "_sprite.pyx":1189
  *             for spr in _sprites:
  *                 if spr._visible:
  *                     _old_rect[spr] = _surf_blit(spr.image,             # <<<<<<<<<<<<<<
@@ -17933,7 +17935,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
         if (unlikely(PyDict_SetItem(__pyx_v__old_rect, __pyx_v_spr, __pyx_t_16) < 0)) __PYX_ERR(0, 1189, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
 
-        /* "sprite.pyx":1188
+        /* "_sprite.pyx":1188
  *                 _surf_blit(_bgd, (0, 0))
  *             for spr in _sprites:
  *                 if spr._visible:             # <<<<<<<<<<<<<<
@@ -17942,7 +17944,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
       }
 
-      /* "sprite.pyx":1187
+      /* "_sprite.pyx":1187
  *             if _bgd is not None:
  *                 _surf_blit(_bgd, (0, 0))
  *             for spr in _sprites:             # <<<<<<<<<<<<<<
@@ -17952,7 +17954,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1193
+    /* "_sprite.pyx":1193
  *                                                 spr.source_rect,
  *                                                 spr.blendmode)
  *             _ret = [_rect(_clip)] # return only the part of the screen changed             # <<<<<<<<<<<<<<
@@ -17971,7 +17973,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   }
   __pyx_L5:;
 
-  /* "sprite.pyx":1198
+  /* "_sprite.pyx":1198
  *         # timing for switching modes
  *         # How may a good threshold be found? It depends on the hardware.
  *         end_time = get_ticks()             # <<<<<<<<<<<<<<
@@ -17998,7 +18000,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_v_end_time = __pyx_t_16;
   __pyx_t_16 = 0;
 
-  /* "sprite.pyx":1199
+  /* "_sprite.pyx":1199
  *         # How may a good threshold be found? It depends on the hardware.
  *         end_time = get_ticks()
  *         if end_time-start_time > self._time_threshold:             # <<<<<<<<<<<<<<
@@ -18016,7 +18018,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "sprite.pyx":1200
+    /* "_sprite.pyx":1200
  *         end_time = get_ticks()
  *         if end_time-start_time > self._time_threshold:
  *             self._use_update = False             # <<<<<<<<<<<<<<
@@ -18025,7 +18027,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
  */
     __pyx_v_self->_use_update = 0;
 
-    /* "sprite.pyx":1199
+    /* "_sprite.pyx":1199
  *         # How may a good threshold be found? It depends on the hardware.
  *         end_time = get_ticks()
  *         if end_time-start_time > self._time_threshold:             # <<<<<<<<<<<<<<
@@ -18035,7 +18037,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
     goto __pyx_L31;
   }
 
-  /* "sprite.pyx":1202
+  /* "_sprite.pyx":1202
  *             self._use_update = False
  *         else:
  *             self._use_update = True             # <<<<<<<<<<<<<<
@@ -18047,7 +18049,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   }
   __pyx_L31:;
 
-  /* "sprite.pyx":1208
+  /* "_sprite.pyx":1208
  * 
  *         # emtpy dirty rects list
  *         _update[:] = []             # <<<<<<<<<<<<<<
@@ -18063,7 +18065,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   if (__Pyx_PyObject_SetSlice(__pyx_v__update, __pyx_t_4, 0, 0, NULL, NULL, NULL, 0, 0, 1) < 0) __PYX_ERR(0, 1208, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "sprite.pyx":1212
+  /* "_sprite.pyx":1212
  *         # -------
  *         # restore original clip
  *         _surf.set_clip(_orig_clip)             # <<<<<<<<<<<<<<
@@ -18089,7 +18091,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "sprite.pyx":1213
+  /* "_sprite.pyx":1213
  *         # restore original clip
  *         _surf.set_clip(_orig_clip)
  *         return _ret             # <<<<<<<<<<<<<<
@@ -18101,7 +18103,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __pyx_r = __pyx_v__ret;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1075
+  /* "_sprite.pyx":1075
  *         LayeredUpdates.add_internal(self, sprite, layer)
  * 
  *     cpdef draw(self, surface, bgd=None):             # <<<<<<<<<<<<<<
@@ -18120,7 +18122,7 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
   __Pyx_XDECREF(__pyx_t_16);
-  __Pyx_AddTraceback("sprite.LayeredDirty.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v__orig_clip);
@@ -18155,9 +18157,9 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw(struct __pyx_obj_6sprite_LayeredDi
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_4draw[] = "draw all sprites in the right order onto the given surface\n\n        LayeredDirty.draw(surface, bgd=None): return Rect_list\n\n        You can pass the background too. If a self.bgd is already set to some\n        value that is not None, then the bgd argument has no effect.\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_4draw[] = "draw all sprites in the right order onto the given surface\n\n        LayeredDirty.draw(surface, bgd=None): return Rect_list\n\n        You can pass the background too. If a self.bgd is already set to some\n        value that is not None, then the bgd argument has no effect.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_surface = 0;
   PyObject *__pyx_v_bgd = 0;
   PyObject *__pyx_r = 0;
@@ -18209,27 +18211,27 @@ static PyObject *__pyx_pw_6sprite_12LayeredDirty_5draw(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("draw", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1075, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_4draw(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), __pyx_v_surface, __pyx_v_bgd);
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_4draw(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), __pyx_v_surface, __pyx_v_bgd);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_4draw(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_4draw(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  struct __pyx_opt_args_6sprite_12LayeredDirty_draw __pyx_t_2;
+  struct __pyx_opt_args_7_sprite_12LayeredDirty_draw __pyx_t_2;
   __Pyx_RefNannySetupContext("draw", 0);
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.bgd = __pyx_v_bgd;
-  __pyx_t_1 = __pyx_vtabptr_6sprite_LayeredDirty->draw(__pyx_v_self, __pyx_v_surface, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1075, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_7_sprite_LayeredDirty->draw(__pyx_v_self, __pyx_v_surface, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1075, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -18238,7 +18240,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_4draw(struct __pyx_obj_6sprite_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredDirty.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -18246,11 +18248,11 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_4draw(struct __pyx_obj_6sprite_
   return __pyx_r;
 }
 
-PyObject *__pyx_f_6sprite_12LayeredDirty_draw__pyx_wrap_1(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
-  return __pyx_f_6sprite_12LayeredDirty_draw(__pyx_v_self, __pyx_v_surface, __pyx_skip_dispatch, NULL);
+PyObject *__pyx_f_7_sprite_12LayeredDirty_draw__pyx_wrap_1(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_surface, int __pyx_skip_dispatch) {
+  return __pyx_f_7_sprite_12LayeredDirty_draw(__pyx_v_self, __pyx_v_surface, __pyx_skip_dispatch, NULL);
 }
 
-/* "sprite.pyx":1215
+/* "_sprite.pyx":1215
  *         return _ret
  * 
  *     def clear(self, surface, bgd):             # <<<<<<<<<<<<<<
@@ -18259,9 +18261,9 @@ PyObject *__pyx_f_6sprite_12LayeredDirty_draw__pyx_wrap_1(struct __pyx_obj_6spri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_7clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_6clear[] = "use to set background\n\n        Group.clear(surface, bgd): return None\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_7clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_7clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_6clear[] = "use to set background\n\n        Group.clear(surface, bgd): return None\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_7clear(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_surface = 0;
   PyObject *__pyx_v_bgd = 0;
   PyObject *__pyx_r = 0;
@@ -18309,23 +18311,23 @@ static PyObject *__pyx_pw_6sprite_12LayeredDirty_7clear(PyObject *__pyx_v_self, 
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("clear", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1215, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty.clear", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.clear", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_6clear(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), __pyx_v_surface, __pyx_v_bgd);
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_6clear(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), __pyx_v_surface, __pyx_v_bgd);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_6clear(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_6clear(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("clear", 0);
 
-  /* "sprite.pyx":1221
+  /* "_sprite.pyx":1221
  * 
  *         """
  *         self._bgd = bgd             # <<<<<<<<<<<<<<
@@ -18338,7 +18340,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_6clear(struct __pyx_obj_6sprite
   __Pyx_DECREF(__pyx_v_self->_bgd);
   __pyx_v_self->_bgd = __pyx_v_bgd;
 
-  /* "sprite.pyx":1215
+  /* "_sprite.pyx":1215
  *         return _ret
  * 
  *     def clear(self, surface, bgd):             # <<<<<<<<<<<<<<
@@ -18353,7 +18355,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_6clear(struct __pyx_obj_6sprite
   return __pyx_r;
 }
 
-/* "sprite.pyx":1223
+/* "_sprite.pyx":1223
  *         self._bgd = bgd
  * 
  *     def repaint_rect(self, screen_rect):             # <<<<<<<<<<<<<<
@@ -18362,20 +18364,20 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_6clear(struct __pyx_obj_6sprite
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_9repaint_rect(PyObject *__pyx_v_self, PyObject *__pyx_v_screen_rect); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_8repaint_rect[] = "repaint the given area\n\n        LayeredDirty.repaint_rect(screen_rect): return None\n\n        screen_rect is in screen coordinates.\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_9repaint_rect(PyObject *__pyx_v_self, PyObject *__pyx_v_screen_rect) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_9repaint_rect(PyObject *__pyx_v_self, PyObject *__pyx_v_screen_rect); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_8repaint_rect[] = "repaint the given area\n\n        LayeredDirty.repaint_rect(screen_rect): return None\n\n        screen_rect is in screen coordinates.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_9repaint_rect(PyObject *__pyx_v_self, PyObject *__pyx_v_screen_rect) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("repaint_rect (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_8repaint_rect(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_screen_rect));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_8repaint_rect(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_screen_rect));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -18385,7 +18387,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
   int __pyx_t_5;
   __Pyx_RefNannySetupContext("repaint_rect", 0);
 
-  /* "sprite.pyx":1231
+  /* "_sprite.pyx":1231
  * 
  *         """
  *         if self._clip:             # <<<<<<<<<<<<<<
@@ -18395,7 +18397,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
   __pyx_t_1 = __Pyx_PyObject_IsTrue(((PyObject *)__pyx_v_self->_clip)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1231, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "sprite.pyx":1232
+    /* "_sprite.pyx":1232
  *         """
  *         if self._clip:
  *             self.lostsprites.append(screen_rect.clip(self._clip))             # <<<<<<<<<<<<<<
@@ -18426,7 +18428,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
     __pyx_t_5 = __Pyx_PyList_Append(__pyx_v_self->__pyx_base.__pyx_base.lostsprites, __pyx_t_2); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 1232, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1231
+    /* "_sprite.pyx":1231
  * 
  *         """
  *         if self._clip:             # <<<<<<<<<<<<<<
@@ -18436,7 +18438,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":1234
+  /* "_sprite.pyx":1234
  *             self.lostsprites.append(screen_rect.clip(self._clip))
  *         else:
  *             self.lostsprites.append(Rect(screen_rect))             # <<<<<<<<<<<<<<
@@ -18448,14 +18450,14 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "append");
       __PYX_ERR(0, 1234, __pyx_L1_error)
     }
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_6sprite_Rect), __pyx_v_screen_rect); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1234, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_7_sprite_Rect), __pyx_v_screen_rect); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_5 = __Pyx_PyList_Append(__pyx_v_self->__pyx_base.__pyx_base.lostsprites, __pyx_t_2); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 1234, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":1223
+  /* "_sprite.pyx":1223
  *         self._bgd = bgd
  * 
  *     def repaint_rect(self, screen_rect):             # <<<<<<<<<<<<<<
@@ -18470,7 +18472,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.LayeredDirty.repaint_rect", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.repaint_rect", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -18478,7 +18480,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "sprite.pyx":1236
+/* "_sprite.pyx":1236
  *             self.lostsprites.append(Rect(screen_rect))
  * 
  *     def set_clip(self, screen_rect=None):             # <<<<<<<<<<<<<<
@@ -18487,9 +18489,9 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_8repaint_rect(struct __pyx_obj_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_11set_clip(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_10set_clip[] = "clip the area where to draw; pass None (default) to reset the clip\n\n        LayeredDirty.set_clip(screen_rect=None): return None\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_11set_clip(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_11set_clip(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_10set_clip[] = "clip the area where to draw; pass None (default) to reset the clip\n\n        LayeredDirty.set_clip(screen_rect=None): return None\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_11set_clip(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_screen_rect = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18532,18 +18534,18 @@ static PyObject *__pyx_pw_6sprite_12LayeredDirty_11set_clip(PyObject *__pyx_v_se
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("set_clip", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1236, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty.set_clip", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.set_clip", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_10set_clip(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), __pyx_v_screen_rect);
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_10set_clip(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), __pyx_v_screen_rect);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_10set_clip(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_screen_rect) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -18554,7 +18556,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("set_clip", 0);
 
-  /* "sprite.pyx":1242
+  /* "_sprite.pyx":1242
  * 
  *         """
  *         if screen_rect is None:             # <<<<<<<<<<<<<<
@@ -18565,7 +18567,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "sprite.pyx":1243
+    /* "_sprite.pyx":1243
  *         """
  *         if screen_rect is None:
  *             self._clip = pygame.display.get_surface().get_rect()             # <<<<<<<<<<<<<<
@@ -18613,14 +18615,14 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
     if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1243, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_6sprite_Rect))))) __PYX_ERR(0, 1243, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_7_sprite_Rect))))) __PYX_ERR(0, 1243, __pyx_L1_error)
     __Pyx_GIVEREF(__pyx_t_3);
     __Pyx_GOTREF(__pyx_v_self->_clip);
     __Pyx_DECREF(((PyObject *)__pyx_v_self->_clip));
     __pyx_v_self->_clip = ((pgRectObject *)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1242
+    /* "_sprite.pyx":1242
  * 
  *         """
  *         if screen_rect is None:             # <<<<<<<<<<<<<<
@@ -18630,7 +18632,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":1245
+  /* "_sprite.pyx":1245
  *             self._clip = pygame.display.get_surface().get_rect()
  *         else:
  *             self._clip = screen_rect             # <<<<<<<<<<<<<<
@@ -18638,7 +18640,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
  * 
  */
   /*else*/ {
-    if (!(likely(((__pyx_v_screen_rect) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_screen_rect, __pyx_ptype_6sprite_Rect))))) __PYX_ERR(0, 1245, __pyx_L1_error)
+    if (!(likely(((__pyx_v_screen_rect) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_screen_rect, __pyx_ptype_7_sprite_Rect))))) __PYX_ERR(0, 1245, __pyx_L1_error)
     __pyx_t_3 = __pyx_v_screen_rect;
     __Pyx_INCREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_3);
@@ -18649,7 +18651,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":1246
+  /* "_sprite.pyx":1246
  *         else:
  *             self._clip = screen_rect
  *         self._use_update = False             # <<<<<<<<<<<<<<
@@ -18658,7 +18660,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
  */
   __pyx_v_self->_use_update = 0;
 
-  /* "sprite.pyx":1236
+  /* "_sprite.pyx":1236
  *             self.lostsprites.append(Rect(screen_rect))
  * 
  *     def set_clip(self, screen_rect=None):             # <<<<<<<<<<<<<<
@@ -18674,7 +18676,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("sprite.LayeredDirty.set_clip", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.set_clip", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -18682,7 +18684,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
   return __pyx_r;
 }
 
-/* "sprite.pyx":1248
+/* "_sprite.pyx":1248
  *         self._use_update = False
  * 
  *     def get_clip(self):             # <<<<<<<<<<<<<<
@@ -18691,25 +18693,25 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_10set_clip(struct __pyx_obj_6sp
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_13get_clip(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_12get_clip[] = "get the area where drawing will occur\n\n        LayeredDirty.get_clip(): return Rect\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_13get_clip(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_13get_clip(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_12get_clip[] = "get the area where drawing will occur\n\n        LayeredDirty.get_clip(): return Rect\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_13get_clip(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_clip (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_12get_clip(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_12get_clip(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_12get_clip(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_12get_clip(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_clip", 0);
 
-  /* "sprite.pyx":1254
+  /* "_sprite.pyx":1254
  * 
  *         """
  *         return self._clip             # <<<<<<<<<<<<<<
@@ -18721,7 +18723,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_12get_clip(struct __pyx_obj_6sp
   __pyx_r = ((PyObject *)__pyx_v_self->_clip);
   goto __pyx_L0;
 
-  /* "sprite.pyx":1248
+  /* "_sprite.pyx":1248
  *         self._use_update = False
  * 
  *     def get_clip(self):             # <<<<<<<<<<<<<<
@@ -18736,7 +18738,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_12get_clip(struct __pyx_obj_6sp
   return __pyx_r;
 }
 
-/* "sprite.pyx":1256
+/* "_sprite.pyx":1256
  *         return self._clip
  * 
  *     def change_layer(self, sprite, new_layer):             # <<<<<<<<<<<<<<
@@ -18745,9 +18747,9 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_12get_clip(struct __pyx_obj_6sp
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_15change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_14change_layer[] = "change the layer of the sprite\n\n        LayeredUpdates.change_layer(sprite, new_layer): return None\n\n        The sprite must have been added to the renderer already. This is not\n        checked.\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_15change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_15change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_14change_layer[] = "change the layer of the sprite\n\n        LayeredUpdates.change_layer(sprite, new_layer): return None\n\n        The sprite must have been added to the renderer already. This is not\n        checked.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_15change_layer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   PyObject *__pyx_v_new_layer = 0;
   PyObject *__pyx_r = 0;
@@ -18795,18 +18797,18 @@ static PyObject *__pyx_pw_6sprite_12LayeredDirty_15change_layer(PyObject *__pyx_
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("change_layer", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1256, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_14change_layer(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), __pyx_v_sprite, __pyx_v_new_layer);
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_14change_layer(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), __pyx_v_sprite, __pyx_v_new_layer);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_14change_layer(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_new_layer) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -18817,14 +18819,14 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("change_layer", 0);
 
-  /* "sprite.pyx":1265
+  /* "_sprite.pyx":1265
  * 
  *         """
  *         LayeredUpdates.change_layer(self, sprite, new_layer)             # <<<<<<<<<<<<<<
  *         if sprite.dirty == 0:
  *             sprite.dirty = 1
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_LayeredUpdates), __pyx_n_s_change_layer); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1265, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_LayeredUpdates), __pyx_n_s_change_layer); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
@@ -18876,7 +18878,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1266
+  /* "_sprite.pyx":1266
  *         """
  *         LayeredUpdates.change_layer(self, sprite, new_layer)
  *         if sprite.dirty == 0:             # <<<<<<<<<<<<<<
@@ -18892,7 +18894,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_6) {
 
-    /* "sprite.pyx":1267
+    /* "_sprite.pyx":1267
  *         LayeredUpdates.change_layer(self, sprite, new_layer)
  *         if sprite.dirty == 0:
  *             sprite.dirty = 1             # <<<<<<<<<<<<<<
@@ -18901,7 +18903,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
  */
     if (__Pyx_PyObject_SetAttrStr(__pyx_v_sprite, __pyx_n_s_dirty, __pyx_int_1) < 0) __PYX_ERR(0, 1267, __pyx_L1_error)
 
-    /* "sprite.pyx":1266
+    /* "_sprite.pyx":1266
  *         """
  *         LayeredUpdates.change_layer(self, sprite, new_layer)
  *         if sprite.dirty == 0:             # <<<<<<<<<<<<<<
@@ -18910,7 +18912,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
  */
   }
 
-  /* "sprite.pyx":1256
+  /* "_sprite.pyx":1256
  *         return self._clip
  * 
  *     def change_layer(self, sprite, new_layer):             # <<<<<<<<<<<<<<
@@ -18926,7 +18928,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("sprite.LayeredDirty.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.change_layer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -18934,7 +18936,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "sprite.pyx":1269
+/* "_sprite.pyx":1269
  *             sprite.dirty = 1
  * 
  *     def set_timing_treshold(self, time_ms):             # <<<<<<<<<<<<<<
@@ -18943,26 +18945,26 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_14change_layer(struct __pyx_obj
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_17set_timing_treshold(PyObject *__pyx_v_self, PyObject *__pyx_v_time_ms); /*proto*/
-static char __pyx_doc_6sprite_12LayeredDirty_16set_timing_treshold[] = "set the treshold in milliseconds\n\n        set_timing_treshold(time_ms): return None\n\n        Defaults to 1000.0 / 80.0. This means that the screen will be painted\n        using the flip method rather than the update method if the update\n        method is taking so long to update the screen that the frame rate falls\n        below 80 frames per second.\n\n        ";
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_17set_timing_treshold(PyObject *__pyx_v_self, PyObject *__pyx_v_time_ms) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_17set_timing_treshold(PyObject *__pyx_v_self, PyObject *__pyx_v_time_ms); /*proto*/
+static char __pyx_doc_7_sprite_12LayeredDirty_16set_timing_treshold[] = "set the treshold in milliseconds\n\n        set_timing_treshold(time_ms): return None\n\n        Defaults to 1000.0 / 80.0. This means that the screen will be painted\n        using the flip method rather than the update method if the update\n        method is taking so long to update the screen that the frame rate falls\n        below 80 frames per second.\n\n        ";
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_17set_timing_treshold(PyObject *__pyx_v_self, PyObject *__pyx_v_time_ms) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("set_timing_treshold (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_time_ms));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_16set_timing_treshold(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_time_ms));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_time_ms) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_16set_timing_treshold(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_time_ms) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   float __pyx_t_1;
   __Pyx_RefNannySetupContext("set_timing_treshold", 0);
 
-  /* "sprite.pyx":1280
+  /* "_sprite.pyx":1280
  * 
  *         """
  *         self._time_threshold = time_ms             # <<<<<<<<<<<<<<
@@ -18972,7 +18974,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(struct __
   __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_time_ms); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1280, __pyx_L1_error)
   __pyx_v_self->_time_threshold = __pyx_t_1;
 
-  /* "sprite.pyx":1269
+  /* "_sprite.pyx":1269
  *             sprite.dirty = 1
  * 
  *     def set_timing_treshold(self, time_ms):             # <<<<<<<<<<<<<<
@@ -18984,7 +18986,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(struct __
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty.set_timing_treshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.set_timing_treshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -18992,7 +18994,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(struct __
   return __pyx_r;
 }
 
-/* "sprite.pyx":1021
+/* "_sprite.pyx":1021
  *     """
  * 
  *     cdef public Rect _clip             # <<<<<<<<<<<<<<
@@ -19001,19 +19003,19 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_16set_timing_treshold(struct __
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_5_clip_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_5_clip_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_5_clip_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_5_clip_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_5_clip___get__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_5_clip___get__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_5_clip___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_5_clip___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -19030,24 +19032,24 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_5_clip___get__(struct __pyx_obj
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_5_clip_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_12LayeredDirty_5_clip_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_12LayeredDirty_5_clip_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_12LayeredDirty_5_clip_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_5_clip_2__set__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_5_clip_2__set__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty_5_clip_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_12LayeredDirty_5_clip_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6sprite_Rect))))) __PYX_ERR(0, 1021, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_7_sprite_Rect))))) __PYX_ERR(0, 1021, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -19061,7 +19063,7 @@ static int __pyx_pf_6sprite_12LayeredDirty_5_clip_2__set__(struct __pyx_obj_6spr
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredDirty._clip.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty._clip.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -19069,19 +19071,19 @@ static int __pyx_pf_6sprite_12LayeredDirty_5_clip_2__set__(struct __pyx_obj_6spr
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_5_clip_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_12LayeredDirty_5_clip_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_12LayeredDirty_5_clip_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_12LayeredDirty_5_clip_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_5_clip_4__del__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_5_clip_4__del__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty_5_clip_4__del__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static int __pyx_pf_7_sprite_12LayeredDirty_5_clip_4__del__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -19097,7 +19099,7 @@ static int __pyx_pf_6sprite_12LayeredDirty_5_clip_4__del__(struct __pyx_obj_6spr
   return __pyx_r;
 }
 
-/* "sprite.pyx":1022
+/* "_sprite.pyx":1022
  * 
  *     cdef public Rect _clip
  *     cdef public bint _use_update             # <<<<<<<<<<<<<<
@@ -19106,19 +19108,19 @@ static int __pyx_pf_6sprite_12LayeredDirty_5_clip_4__del__(struct __pyx_obj_6spr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_11_use_update_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_11_use_update_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_11_use_update_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_11_use_update_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_11_use_update___get__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_11_use_update___get__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_11_use_update___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_11_use_update___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -19133,7 +19135,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_11_use_update___get__(struct __
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredDirty._use_update.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty._use_update.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -19142,19 +19144,19 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_11_use_update___get__(struct __
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_11_use_update_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_12LayeredDirty_11_use_update_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_12LayeredDirty_11_use_update_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_12LayeredDirty_11_use_update_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_11_use_update_2__set__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_11_use_update_2__set__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty_11_use_update_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_12LayeredDirty_11_use_update_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -19166,14 +19168,14 @@ static int __pyx_pf_6sprite_12LayeredDirty_11_use_update_2__set__(struct __pyx_o
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty._use_update.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty._use_update.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":1023
+/* "_sprite.pyx":1023
  *     cdef public Rect _clip
  *     cdef public bint _use_update
  *     cdef public float _time_threshold             # <<<<<<<<<<<<<<
@@ -19182,19 +19184,19 @@ static int __pyx_pf_6sprite_12LayeredDirty_11_use_update_2__set__(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_15_time_threshold_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_15_time_threshold_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_15_time_threshold_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_15_time_threshold_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_15_time_threshold___get__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_15_time_threshold___get__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_15_time_threshold___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_15_time_threshold___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -19209,7 +19211,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_15_time_threshold___get__(struc
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredDirty._time_threshold.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty._time_threshold.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -19218,19 +19220,19 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_15_time_threshold___get__(struc
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_15_time_threshold_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_12LayeredDirty_15_time_threshold_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_12LayeredDirty_15_time_threshold_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_12LayeredDirty_15_time_threshold_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_15_time_threshold_2__set__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_15_time_threshold_2__set__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty_15_time_threshold_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_12LayeredDirty_15_time_threshold_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   float __pyx_t_1;
@@ -19242,14 +19244,14 @@ static int __pyx_pf_6sprite_12LayeredDirty_15_time_threshold_2__set__(struct __p
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("sprite.LayeredDirty._time_threshold.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty._time_threshold.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":1024
+/* "_sprite.pyx":1024
  *     cdef public bint _use_update
  *     cdef public float _time_threshold
  *     cdef public object _bgd             # <<<<<<<<<<<<<<
@@ -19258,19 +19260,19 @@ static int __pyx_pf_6sprite_12LayeredDirty_15_time_threshold_2__set__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_4_bgd_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_4_bgd_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_4_bgd_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_4_bgd_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_4_bgd___get__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_4_bgd___get__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_4_bgd___get__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_4_bgd___get__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -19287,19 +19289,19 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_4_bgd___get__(struct __pyx_obj_
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_4_bgd_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_12LayeredDirty_4_bgd_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_12LayeredDirty_4_bgd_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_12LayeredDirty_4_bgd_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_4_bgd_2__set__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_4_bgd_2__set__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty_4_bgd_2__set__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_12LayeredDirty_4_bgd_2__set__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__", 0);
@@ -19316,19 +19318,19 @@ static int __pyx_pf_6sprite_12LayeredDirty_4_bgd_2__set__(struct __pyx_obj_6spri
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_12LayeredDirty_4_bgd_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_12LayeredDirty_4_bgd_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_12LayeredDirty_4_bgd_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_12LayeredDirty_4_bgd_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_4_bgd_4__del__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_4_bgd_4__del__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_12LayeredDirty_4_bgd_4__del__(struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static int __pyx_pf_7_sprite_12LayeredDirty_4_bgd_4__del__(struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -19351,19 +19353,19 @@ static int __pyx_pf_6sprite_12LayeredDirty_4_bgd_4__del__(struct __pyx_obj_6spri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_18__reduce_cython__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_18__reduce_cython__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_18__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_18__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -19390,7 +19392,7 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_18__reduce_cython__(CYTHON_UNUS
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredDirty.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -19405,19 +19407,19 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_18__reduce_cython__(CYTHON_UNUS
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_12LayeredDirty_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_12LayeredDirty_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_12LayeredDirty_20__setstate_cython__(((struct __pyx_obj_6sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_12LayeredDirty_20__setstate_cython__(((struct __pyx_obj_7_sprite_LayeredDirty *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_12LayeredDirty_20__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_12LayeredDirty_20__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_LayeredDirty *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -19444,14 +19446,14 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_20__setstate_cython__(CYTHON_UN
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.LayeredDirty.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.LayeredDirty.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":1297
+/* "_sprite.pyx":1297
  *     cdef public object __sprite
  * 
  *     def __init__(self, sprite=None):             # <<<<<<<<<<<<<<
@@ -19460,8 +19462,8 @@ static PyObject *__pyx_pf_6sprite_12LayeredDirty_20__setstate_cython__(CYTHON_UN
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_11GroupSingle_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6sprite_11GroupSingle_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7_sprite_11GroupSingle_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7_sprite_11GroupSingle_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -19504,18 +19506,18 @@ static int __pyx_pw_6sprite_11GroupSingle_1__init__(PyObject *__pyx_v_self, PyOb
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1297, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.GroupSingle.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle___init__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), __pyx_v_sprite);
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle___init__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), __pyx_v_sprite);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static int __pyx_pf_7_sprite_11GroupSingle___init__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -19525,14 +19527,14 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
   int __pyx_t_5;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":1298
+  /* "_sprite.pyx":1298
  * 
  *     def __init__(self, sprite=None):
  *         AbstractGroup.__init__(self)             # <<<<<<<<<<<<<<
  *         self.__sprite = None
  *         if sprite is not None:
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6sprite_AbstractGroup), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1298, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_7_sprite_AbstractGroup), __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -19551,7 +19553,7 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1299
+  /* "_sprite.pyx":1299
  *     def __init__(self, sprite=None):
  *         AbstractGroup.__init__(self)
  *         self.__sprite = None             # <<<<<<<<<<<<<<
@@ -19564,7 +19566,7 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
   __Pyx_DECREF(__pyx_v_self->__sprite);
   __pyx_v_self->__sprite = Py_None;
 
-  /* "sprite.pyx":1300
+  /* "_sprite.pyx":1300
  *         AbstractGroup.__init__(self)
  *         self.__sprite = None
  *         if sprite is not None:             # <<<<<<<<<<<<<<
@@ -19575,7 +19577,7 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
   __pyx_t_5 = (__pyx_t_4 != 0);
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":1301
+    /* "_sprite.pyx":1301
  *         self.__sprite = None
  *         if sprite is not None:
  *             self.add(sprite)             # <<<<<<<<<<<<<<
@@ -19601,7 +19603,7 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1300
+    /* "_sprite.pyx":1300
  *         AbstractGroup.__init__(self)
  *         self.__sprite = None
  *         if sprite is not None:             # <<<<<<<<<<<<<<
@@ -19610,7 +19612,7 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
  */
   }
 
-  /* "sprite.pyx":1297
+  /* "_sprite.pyx":1297
  *     cdef public object __sprite
  * 
  *     def __init__(self, sprite=None):             # <<<<<<<<<<<<<<
@@ -19625,14 +19627,14 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.GroupSingle.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":1303
+/* "_sprite.pyx":1303
  *             self.add(sprite)
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
@@ -19641,25 +19643,25 @@ static int __pyx_pf_6sprite_11GroupSingle___init__(struct __pyx_obj_6sprite_Grou
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_3copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_3copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_3copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_3copy(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("copy (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_2copy(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_2copy(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_2copy(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_2copy(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("copy", 0);
 
-  /* "sprite.pyx":1304
+  /* "_sprite.pyx":1304
  * 
  *     def copy(self):
  *         return GroupSingle(self.__sprite)             # <<<<<<<<<<<<<<
@@ -19667,13 +19669,13 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_2copy(struct __pyx_obj_6sprite_G
  *     cpdef list sprites(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_6sprite_GroupSingle), __pyx_v_self->__sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1304, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_7_sprite_GroupSingle), __pyx_v_self->__sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1303
+  /* "_sprite.pyx":1303
  *             self.add(sprite)
  * 
  *     def copy(self):             # <<<<<<<<<<<<<<
@@ -19684,7 +19686,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_2copy(struct __pyx_obj_6sprite_G
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -19692,7 +19694,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_2copy(struct __pyx_obj_6sprite_G
   return __pyx_r;
 }
 
-/* "sprite.pyx":1306
+/* "_sprite.pyx":1306
  *         return GroupSingle(self.__sprite)
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -19700,8 +19702,8 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_2copy(struct __pyx_obj_6sprite_G
  *             return [self.__sprite]
  */
 
-static PyObject *__pyx_pw_6sprite_11GroupSingle_5sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_5sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_f_7_sprite_11GroupSingle_sprites(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, int __pyx_skip_dispatch) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -19722,7 +19724,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sprites); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1306, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_11GroupSingle_5sprites)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_11GroupSingle_5sprites)) {
         __Pyx_XDECREF(__pyx_r);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
@@ -19759,7 +19761,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
     #endif
   }
 
-  /* "sprite.pyx":1307
+  /* "_sprite.pyx":1307
  * 
  *     cpdef list sprites(self):
  *         if self.__sprite is not None:             # <<<<<<<<<<<<<<
@@ -19770,7 +19772,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "sprite.pyx":1308
+    /* "_sprite.pyx":1308
  *     cpdef list sprites(self):
  *         if self.__sprite is not None:
  *             return [self.__sprite]             # <<<<<<<<<<<<<<
@@ -19787,7 +19789,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "sprite.pyx":1307
+    /* "_sprite.pyx":1307
  * 
  *     cpdef list sprites(self):
  *         if self.__sprite is not None:             # <<<<<<<<<<<<<<
@@ -19796,7 +19798,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
  */
   }
 
-  /* "sprite.pyx":1310
+  /* "_sprite.pyx":1310
  *             return [self.__sprite]
  *         else:
  *             return []             # <<<<<<<<<<<<<<
@@ -19812,7 +19814,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
     goto __pyx_L0;
   }
 
-  /* "sprite.pyx":1306
+  /* "_sprite.pyx":1306
  *         return GroupSingle(self.__sprite)
  * 
  *     cpdef list sprites(self):             # <<<<<<<<<<<<<<
@@ -19826,7 +19828,7 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.GroupSingle.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -19835,25 +19837,25 @@ static PyObject *__pyx_f_6sprite_11GroupSingle_sprites(struct __pyx_obj_6sprite_
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_5sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_5sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_5sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_5sprites(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("sprites (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_4sprites(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_4sprites(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_4sprites(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_4sprites(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("sprites", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6sprite_11GroupSingle_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1306, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7_sprite_11GroupSingle_sprites(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -19862,7 +19864,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_4sprites(struct __pyx_obj_6sprit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.sprites", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -19870,7 +19872,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_4sprites(struct __pyx_obj_6sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":1312
+/* "_sprite.pyx":1312
  *             return []
  * 
  *     cpdef void add_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -19878,8 +19880,8 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_4sprites(struct __pyx_obj_6sprit
  *             self.__sprite.remove_internal(self)
  */
 
-static PyObject *__pyx_pw_6sprite_11GroupSingle_7add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_7add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_11GroupSingle_add_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -19899,7 +19901,7 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1312, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_11GroupSingle_7add_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_11GroupSingle_7add_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -19933,7 +19935,7 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
     #endif
   }
 
-  /* "sprite.pyx":1313
+  /* "_sprite.pyx":1313
  * 
  *     cpdef void add_internal(self, sprite):
  *         if self.__sprite is not None:             # <<<<<<<<<<<<<<
@@ -19944,7 +19946,7 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "sprite.pyx":1314
+    /* "_sprite.pyx":1314
  *     cpdef void add_internal(self, sprite):
  *         if self.__sprite is not None:
  *             self.__sprite.remove_internal(self)             # <<<<<<<<<<<<<<
@@ -19970,7 +19972,7 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1315
+    /* "_sprite.pyx":1315
  *         if self.__sprite is not None:
  *             self.__sprite.remove_internal(self)
  *             self.remove_internal(<Sprite>self.__sprite)             # <<<<<<<<<<<<<<
@@ -19979,10 +19981,10 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
  */
     __pyx_t_1 = __pyx_v_self->__sprite;
     __Pyx_INCREF(__pyx_t_1);
-    ((struct __pyx_vtabstruct_6sprite_GroupSingle *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.remove_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_t_1, 0);
+    ((struct __pyx_vtabstruct_7_sprite_GroupSingle *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.remove_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_t_1, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":1313
+    /* "_sprite.pyx":1313
  * 
  *     cpdef void add_internal(self, sprite):
  *         if self.__sprite is not None:             # <<<<<<<<<<<<<<
@@ -19991,7 +19993,7 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
  */
   }
 
-  /* "sprite.pyx":1316
+  /* "_sprite.pyx":1316
  *             self.__sprite.remove_internal(self)
  *             self.remove_internal(<Sprite>self.__sprite)
  *         self.__sprite = sprite             # <<<<<<<<<<<<<<
@@ -20004,7 +20006,7 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
   __Pyx_DECREF(__pyx_v_self->__sprite);
   __pyx_v_self->__sprite = __pyx_v_sprite;
 
-  /* "sprite.pyx":1312
+  /* "_sprite.pyx":1312
  *             return []
  * 
  *     cpdef void add_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -20019,31 +20021,31 @@ static void __pyx_f_6sprite_11GroupSingle_add_internal(struct __pyx_obj_6sprite_
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.GroupSingle.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.GroupSingle.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_7add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_7add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_7add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_7add_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("add_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_6add_internal(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_6add_internal(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_6add_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_6add_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("add_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_11GroupSingle_add_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1312, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_11GroupSingle_add_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -20052,7 +20054,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_6add_internal(struct __pyx_obj_6
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.add_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -20060,7 +20062,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_6add_internal(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "sprite.pyx":1318
+/* "_sprite.pyx":1318
  *         self.__sprite = sprite
  * 
  *     def __nonzero__(self):             # <<<<<<<<<<<<<<
@@ -20069,25 +20071,25 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_6add_internal(struct __pyx_obj_6
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_11GroupSingle_9__nonzero__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_11GroupSingle_9__nonzero__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_11GroupSingle_9__nonzero__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_11GroupSingle_9__nonzero__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__nonzero__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_8__nonzero__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_8__nonzero__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static int __pyx_pf_7_sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__nonzero__", 0);
 
-  /* "sprite.pyx":1319
+  /* "_sprite.pyx":1319
  * 
  *     def __nonzero__(self):
  *         return self.__sprite is not None             # <<<<<<<<<<<<<<
@@ -20098,7 +20100,7 @@ static int __pyx_pf_6sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_6sprite_
   __pyx_r = __pyx_t_1;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1318
+  /* "_sprite.pyx":1318
  *         self.__sprite = sprite
  * 
  *     def __nonzero__(self):             # <<<<<<<<<<<<<<
@@ -20112,7 +20114,7 @@ static int __pyx_pf_6sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_6sprite_
   return __pyx_r;
 }
 
-/* "sprite.pyx":1321
+/* "_sprite.pyx":1321
  *         return self.__sprite is not None
  * 
  *     def _get_sprite(self):             # <<<<<<<<<<<<<<
@@ -20121,24 +20123,24 @@ static int __pyx_pf_6sprite_11GroupSingle_8__nonzero__(struct __pyx_obj_6sprite_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_11_get_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_11_get_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_11_get_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_11_get_sprite(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_get_sprite (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_10_get_sprite(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_10_get_sprite(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_get_sprite", 0);
 
-  /* "sprite.pyx":1322
+  /* "_sprite.pyx":1322
  * 
  *     def _get_sprite(self):
  *         return self.__sprite             # <<<<<<<<<<<<<<
@@ -20150,7 +20152,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_6
   __pyx_r = __pyx_v_self->__sprite;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1321
+  /* "_sprite.pyx":1321
  *         return self.__sprite is not None
  * 
  *     def _get_sprite(self):             # <<<<<<<<<<<<<<
@@ -20165,7 +20167,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "sprite.pyx":1324
+/* "_sprite.pyx":1324
  *         return self.__sprite
  * 
  *     def _set_sprite(self, sprite):             # <<<<<<<<<<<<<<
@@ -20174,19 +20176,19 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_10_get_sprite(struct __pyx_obj_6
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_13_set_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_13_set_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_13_set_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_13_set_sprite(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_set_sprite (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_12_set_sprite(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_12_set_sprite(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20194,16 +20196,16 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("_set_sprite", 0);
 
-  /* "sprite.pyx":1325
+  /* "_sprite.pyx":1325
  * 
  *     def _set_sprite(self, sprite):
  *         self.add_internal(sprite)             # <<<<<<<<<<<<<<
  *         sprite.add_internal(self)
  *         return sprite
  */
-  ((struct __pyx_vtabstruct_6sprite_GroupSingle *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.add_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 0);
+  ((struct __pyx_vtabstruct_7_sprite_GroupSingle *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.add_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 0);
 
-  /* "sprite.pyx":1326
+  /* "_sprite.pyx":1326
  *     def _set_sprite(self, sprite):
  *         self.add_internal(sprite)
  *         sprite.add_internal(self)             # <<<<<<<<<<<<<<
@@ -20229,7 +20231,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1327
+  /* "_sprite.pyx":1327
  *         self.add_internal(sprite)
  *         sprite.add_internal(self)
  *         return sprite             # <<<<<<<<<<<<<<
@@ -20241,7 +20243,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6
   __pyx_r = __pyx_v_sprite;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1324
+  /* "_sprite.pyx":1324
  *         return self.__sprite
  * 
  *     def _set_sprite(self, sprite):             # <<<<<<<<<<<<<<
@@ -20254,7 +20256,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.GroupSingle._set_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle._set_sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -20262,7 +20264,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "sprite.pyx":1334
+/* "_sprite.pyx":1334
  *                       "The sprite contained in this group")
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -20270,8 +20272,8 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_12_set_sprite(struct __pyx_obj_6
  *             self.__sprite = None
  */
 
-static PyObject *__pyx_pw_6sprite_11GroupSingle_15remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_15remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static void __pyx_f_7_sprite_11GroupSingle_remove_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -20291,7 +20293,7 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_remove_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1334, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_11GroupSingle_15remove_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_11GroupSingle_15remove_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -20325,7 +20327,7 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
     #endif
   }
 
-  /* "sprite.pyx":1335
+  /* "_sprite.pyx":1335
  * 
  *     cpdef void remove_internal(self, sprite):
  *         if sprite is self.__sprite:             # <<<<<<<<<<<<<<
@@ -20336,7 +20338,7 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "sprite.pyx":1336
+    /* "_sprite.pyx":1336
  *     cpdef void remove_internal(self, sprite):
  *         if sprite is self.__sprite:
  *             self.__sprite = None             # <<<<<<<<<<<<<<
@@ -20349,7 +20351,7 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
     __Pyx_DECREF(__pyx_v_self->__sprite);
     __pyx_v_self->__sprite = Py_None;
 
-    /* "sprite.pyx":1335
+    /* "_sprite.pyx":1335
  * 
  *     cpdef void remove_internal(self, sprite):
  *         if sprite is self.__sprite:             # <<<<<<<<<<<<<<
@@ -20358,7 +20360,7 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
  */
   }
 
-  /* "sprite.pyx":1337
+  /* "_sprite.pyx":1337
  *         if sprite is self.__sprite:
  *             self.__sprite = None
  *         if sprite in self.spritedict:             # <<<<<<<<<<<<<<
@@ -20373,16 +20375,16 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
   __pyx_t_5 = (__pyx_t_6 != 0);
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":1338
+    /* "_sprite.pyx":1338
  *             self.__sprite = None
  *         if sprite in self.spritedict:
  *             AbstractGroup.remove_internal(self, sprite)             # <<<<<<<<<<<<<<
  * 
  *     cpdef bint has_internal(self, sprite):
  */
-    __pyx_f_6sprite_13AbstractGroup_remove_internal(((struct __pyx_obj_6sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 1);
+    __pyx_f_7_sprite_13AbstractGroup_remove_internal(((struct __pyx_obj_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_sprite, 1);
 
-    /* "sprite.pyx":1337
+    /* "_sprite.pyx":1337
  *         if sprite is self.__sprite:
  *             self.__sprite = None
  *         if sprite in self.spritedict:             # <<<<<<<<<<<<<<
@@ -20391,7 +20393,7 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
  */
   }
 
-  /* "sprite.pyx":1334
+  /* "_sprite.pyx":1334
  *                       "The sprite contained in this group")
  * 
  *     cpdef void remove_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -20406,31 +20408,31 @@ static void __pyx_f_6sprite_11GroupSingle_remove_internal(struct __pyx_obj_6spri
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.GroupSingle.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.GroupSingle.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_15remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_15remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_15remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_15remove_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("remove_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_14remove_internal(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_14remove_internal(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_14remove_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_14remove_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("remove_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6sprite_11GroupSingle_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1334, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_7_sprite_11GroupSingle_remove_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -20439,7 +20441,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_14remove_internal(struct __pyx_o
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.remove_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -20447,7 +20449,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_14remove_internal(struct __pyx_o
   return __pyx_r;
 }
 
-/* "sprite.pyx":1340
+/* "_sprite.pyx":1340
  *             AbstractGroup.remove_internal(self, sprite)
  * 
  *     cpdef bint has_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -20455,8 +20457,8 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_14remove_internal(struct __pyx_o
  * 
  */
 
-static PyObject *__pyx_pw_6sprite_11GroupSingle_17has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_17has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static int __pyx_f_7_sprite_11GroupSingle_has_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite, int __pyx_skip_dispatch) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20476,7 +20478,7 @@ static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_G
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_has_internal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1340, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6sprite_11GroupSingle_17has_internal)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_7_sprite_11GroupSingle_17has_internal)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -20512,7 +20514,7 @@ static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_G
     #endif
   }
 
-  /* "sprite.pyx":1341
+  /* "_sprite.pyx":1341
  * 
  *     cpdef bint has_internal(self, sprite):
  *         return self.__sprite is sprite             # <<<<<<<<<<<<<<
@@ -20523,7 +20525,7 @@ static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_G
   __pyx_r = __pyx_t_5;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1340
+  /* "_sprite.pyx":1340
  *             AbstractGroup.remove_internal(self, sprite)
  * 
  *     cpdef bint has_internal(self, sprite):             # <<<<<<<<<<<<<<
@@ -20537,7 +20539,7 @@ static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_G
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_WriteUnraisable("sprite.GroupSingle.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __Pyx_WriteUnraisable("_sprite.GroupSingle.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -20545,25 +20547,25 @@ static int __pyx_f_6sprite_11GroupSingle_has_internal(struct __pyx_obj_6sprite_G
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_17has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_17has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_17has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_17has_internal(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("has_internal (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_16has_internal(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_16has_internal(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_16has_internal(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_16has_internal(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("has_internal", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_f_6sprite_11GroupSingle_has_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1340, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_f_7_sprite_11GroupSingle_has_internal(__pyx_v_self, __pyx_v_sprite, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -20572,7 +20574,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_16has_internal(struct __pyx_obj_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.has_internal", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -20580,7 +20582,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_16has_internal(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "sprite.pyx":1344
+/* "_sprite.pyx":1344
  * 
  *     # Optimizations...
  *     def __contains__(self, sprite):             # <<<<<<<<<<<<<<
@@ -20589,25 +20591,25 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_16has_internal(struct __pyx_obj_
  */
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_11GroupSingle_19__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
-static int __pyx_pw_6sprite_11GroupSingle_19__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static int __pyx_pw_7_sprite_11GroupSingle_19__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite); /*proto*/
+static int __pyx_pw_7_sprite_11GroupSingle_19__contains__(PyObject *__pyx_v_self, PyObject *__pyx_v_sprite) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__contains__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_18__contains__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_18__contains__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_sprite));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_11GroupSingle_18__contains__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
+static int __pyx_pf_7_sprite_11GroupSingle_18__contains__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_sprite) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__contains__", 0);
 
-  /* "sprite.pyx":1345
+  /* "_sprite.pyx":1345
  *     # Optimizations...
  *     def __contains__(self, sprite):
  *         return self.__sprite is sprite             # <<<<<<<<<<<<<<
@@ -20618,7 +20620,7 @@ static int __pyx_pf_6sprite_11GroupSingle_18__contains__(struct __pyx_obj_6sprit
   __pyx_r = __pyx_t_1;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1344
+  /* "_sprite.pyx":1344
  * 
  *     # Optimizations...
  *     def __contains__(self, sprite):             # <<<<<<<<<<<<<<
@@ -20632,7 +20634,7 @@ static int __pyx_pf_6sprite_11GroupSingle_18__contains__(struct __pyx_obj_6sprit
   return __pyx_r;
 }
 
-/* "sprite.pyx":1295
+/* "_sprite.pyx":1295
  *     """
  * 
  *     cdef public object __sprite             # <<<<<<<<<<<<<<
@@ -20641,19 +20643,19 @@ static int __pyx_pf_6sprite_11GroupSingle_18__contains__(struct __pyx_obj_6sprit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_8__sprite_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_8__sprite_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_8__sprite_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_8__sprite_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_8__sprite___get__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_8__sprite___get__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_8__sprite___get__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_8__sprite___get__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -20670,19 +20672,19 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_8__sprite___get__(struct __pyx_o
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_11GroupSingle_8__sprite_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6sprite_11GroupSingle_8__sprite_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_7_sprite_11GroupSingle_8__sprite_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_7_sprite_11GroupSingle_8__sprite_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_8__sprite_2__set__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_8__sprite_2__set__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_11GroupSingle_8__sprite_2__set__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_7_sprite_11GroupSingle_8__sprite_2__set__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__", 0);
@@ -20699,19 +20701,19 @@ static int __pyx_pf_6sprite_11GroupSingle_8__sprite_2__set__(struct __pyx_obj_6s
 }
 
 /* Python wrapper */
-static int __pyx_pw_6sprite_11GroupSingle_8__sprite_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6sprite_11GroupSingle_8__sprite_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_7_sprite_11GroupSingle_8__sprite_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_7_sprite_11GroupSingle_8__sprite_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_8__sprite_4__del__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_8__sprite_4__del__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6sprite_11GroupSingle_8__sprite_4__del__(struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static int __pyx_pf_7_sprite_11GroupSingle_8__sprite_4__del__(struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -20734,19 +20736,19 @@ static int __pyx_pf_6sprite_11GroupSingle_8__sprite_4__del__(struct __pyx_obj_6s
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_21__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_21__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_21__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_21__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_20__reduce_cython__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_20__reduce_cython__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_20__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_20__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20773,7 +20775,7 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_20__reduce_cython__(CYTHON_UNUSE
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -20788,19 +20790,19 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_20__reduce_cython__(CYTHON_UNUSE
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11GroupSingle_23__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6sprite_11GroupSingle_23__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_23__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7_sprite_11GroupSingle_23__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6sprite_11GroupSingle_22__setstate_cython__(((struct __pyx_obj_6sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7_sprite_11GroupSingle_22__setstate_cython__(((struct __pyx_obj_7_sprite_GroupSingle *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_11GroupSingle_22__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_6sprite_GroupSingle *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7_sprite_11GroupSingle_22__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7_sprite_GroupSingle *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20827,14 +20829,14 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_22__setstate_cython__(CYTHON_UNU
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("sprite.GroupSingle.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.GroupSingle.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sprite.pyx":1349
+/* "_sprite.pyx":1349
  * 
  * # Some different collision detection functions that could be used.
  * def collide_rect(left, right):             # <<<<<<<<<<<<<<
@@ -20843,10 +20845,10 @@ static PyObject *__pyx_pf_6sprite_11GroupSingle_22__setstate_cython__(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_1collide_rect(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_collide_rect[] = "collision detection between two sprites, using rects.\n\n    pygame.sprite.collide_rect(left, right): return bool\n\n    Tests for collision between two sprites. Uses the pygame.Rect colliderect\n    function to calculate the collision. It is intended to be passed as a\n    collided callback function to the *collide functions. Sprites must have\n    \"rect\" attributes.\n\n    New in pygame 1.8.0\n\n    ";
-static PyMethodDef __pyx_mdef_6sprite_1collide_rect = {"collide_rect", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_1collide_rect, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_collide_rect};
-static PyObject *__pyx_pw_6sprite_1collide_rect(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_1collide_rect(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_collide_rect[] = "collision detection between two sprites, using rects.\n\n    pygame.sprite.collide_rect(left, right): return bool\n\n    Tests for collision between two sprites. Uses the pygame.Rect colliderect\n    function to calculate the collision. It is intended to be passed as a\n    collided callback function to the *collide functions. Sprites must have\n    \"rect\" attributes.\n\n    New in pygame 1.8.0\n\n    ";
+static PyMethodDef __pyx_mdef_7_sprite_1collide_rect = {"collide_rect", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_1collide_rect, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_collide_rect};
+static PyObject *__pyx_pw_7_sprite_1collide_rect(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_left = 0;
   PyObject *__pyx_v_right = 0;
   PyObject *__pyx_r = 0;
@@ -20894,18 +20896,18 @@ static PyObject *__pyx_pw_6sprite_1collide_rect(PyObject *__pyx_self, PyObject *
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("collide_rect", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1349, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_rect", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_rect", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_collide_rect(__pyx_self, __pyx_v_left, __pyx_v_right);
+  __pyx_r = __pyx_pf_7_sprite_collide_rect(__pyx_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
+static PyObject *__pyx_pf_7_sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20914,7 +20916,7 @@ static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_sel
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("collide_rect", 0);
 
-  /* "sprite.pyx":1362
+  /* "_sprite.pyx":1362
  * 
  *     """
  *     return left.rect.colliderect(right.rect)             # <<<<<<<<<<<<<<
@@ -20949,7 +20951,7 @@ static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_sel
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1349
+  /* "_sprite.pyx":1349
  * 
  * # Some different collision detection functions that could be used.
  * def collide_rect(left, right):             # <<<<<<<<<<<<<<
@@ -20963,7 +20965,7 @@ static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_sel
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sprite.collide_rect", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_rect", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -20971,7 +20973,7 @@ static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_sel
   return __pyx_r;
 }
 
-/* "sprite.pyx":1376
+/* "_sprite.pyx":1376
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
@@ -20980,10 +20982,10 @@ static PyObject *__pyx_pf_6sprite_collide_rect(CYTHON_UNUSED PyObject *__pyx_sel
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_18collide_rect_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_18collide_rect_ratio___init__[] = "create a new collide_rect_ratio callable\n\n        Ratio is expected to be a floating point value used to scale\n        the underlying sprite rect before checking for collisions.\n\n        ";
-static PyMethodDef __pyx_mdef_6sprite_18collide_rect_ratio_1__init__ = {"__init__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_18collide_rect_ratio_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_18collide_rect_ratio___init__};
-static PyObject *__pyx_pw_6sprite_18collide_rect_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_18collide_rect_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_18collide_rect_ratio___init__[] = "create a new collide_rect_ratio callable\n\n        Ratio is expected to be a floating point value used to scale\n        the underlying sprite rect before checking for collisions.\n\n        ";
+static PyMethodDef __pyx_mdef_7_sprite_18collide_rect_ratio_1__init__ = {"__init__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_18collide_rect_ratio_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_18collide_rect_ratio___init__};
+static PyObject *__pyx_pw_7_sprite_18collide_rect_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_ratio = 0;
   PyObject *__pyx_r = 0;
@@ -21031,23 +21033,23 @@ static PyObject *__pyx_pw_6sprite_18collide_rect_ratio_1__init__(PyObject *__pyx
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1376, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_rect_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_rect_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_18collide_rect_ratio___init__(__pyx_self, __pyx_v_self, __pyx_v_ratio);
+  __pyx_r = __pyx_pf_7_sprite_18collide_rect_ratio___init__(__pyx_self, __pyx_v_self, __pyx_v_ratio);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_18collide_rect_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio) {
+static PyObject *__pyx_pf_7_sprite_18collide_rect_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":1383
+  /* "_sprite.pyx":1383
  * 
  *         """
  *         self.ratio = ratio             # <<<<<<<<<<<<<<
@@ -21056,7 +21058,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio___init__(CYTHON_UNUSED Py
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_ratio, __pyx_v_ratio) < 0) __PYX_ERR(0, 1383, __pyx_L1_error)
 
-  /* "sprite.pyx":1376
+  /* "_sprite.pyx":1376
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
@@ -21068,7 +21070,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio___init__(CYTHON_UNUSED Py
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("sprite.collide_rect_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_rect_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -21076,7 +21078,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio___init__(CYTHON_UNUSED Py
   return __pyx_r;
 }
 
-/* "sprite.pyx":1385
+/* "_sprite.pyx":1385
  *         self.ratio = ratio
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
@@ -21085,10 +21087,10 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio___init__(CYTHON_UNUSED Py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_18collide_rect_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_18collide_rect_ratio_2__call__[] = "detect collision between two sprites using scaled rects\n\n        pygame.sprite.collide_rect_ratio(ratio)(left, right): return bool\n\n        Tests for collision between two sprites. Uses the pygame.Rect\n        colliderect function to calculate the collision after scaling the rects\n        by the stored ratio. Sprites must have \"rect\" attributes.\n\n        ";
-static PyMethodDef __pyx_mdef_6sprite_18collide_rect_ratio_3__call__ = {"__call__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_18collide_rect_ratio_3__call__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_18collide_rect_ratio_2__call__};
-static PyObject *__pyx_pw_6sprite_18collide_rect_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_18collide_rect_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_18collide_rect_ratio_2__call__[] = "detect collision between two sprites using scaled rects\n\n        pygame.sprite.collide_rect_ratio(ratio)(left, right): return bool\n\n        Tests for collision between two sprites. Uses the pygame.Rect\n        colliderect function to calculate the collision after scaling the rects\n        by the stored ratio. Sprites must have \"rect\" attributes.\n\n        ";
+static PyMethodDef __pyx_mdef_7_sprite_18collide_rect_ratio_3__call__ = {"__call__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_18collide_rect_ratio_3__call__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_18collide_rect_ratio_2__call__};
+static PyObject *__pyx_pw_7_sprite_18collide_rect_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_left = 0;
   PyObject *__pyx_v_right = 0;
@@ -21147,18 +21149,18 @@ static PyObject *__pyx_pw_6sprite_18collide_rect_ratio_3__call__(PyObject *__pyx
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__call__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1385, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_rect_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_rect_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_18collide_rect_ratio_2__call__(__pyx_self, __pyx_v_self, __pyx_v_left, __pyx_v_right);
+  __pyx_r = __pyx_pf_7_sprite_18collide_rect_ratio_2__call__(__pyx_self, __pyx_v_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
+static PyObject *__pyx_pf_7_sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
   PyObject *__pyx_v_ratio = NULL;
   PyObject *__pyx_v_leftrect = NULL;
   PyObject *__pyx_v_width = NULL;
@@ -21175,7 +21177,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("__call__", 0);
 
-  /* "sprite.pyx":1396
+  /* "_sprite.pyx":1396
  *         """
  * 
  *         ratio = self.ratio             # <<<<<<<<<<<<<<
@@ -21187,7 +21189,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __pyx_v_ratio = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1398
+  /* "_sprite.pyx":1398
  *         ratio = self.ratio
  * 
  *         leftrect = left.rect             # <<<<<<<<<<<<<<
@@ -21199,7 +21201,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __pyx_v_leftrect = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1399
+  /* "_sprite.pyx":1399
  * 
  *         leftrect = left.rect
  *         width = leftrect.width             # <<<<<<<<<<<<<<
@@ -21211,7 +21213,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __pyx_v_width = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1400
+  /* "_sprite.pyx":1400
  *         leftrect = left.rect
  *         width = leftrect.width
  *         height = leftrect.height             # <<<<<<<<<<<<<<
@@ -21223,7 +21225,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __pyx_v_height = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1401
+  /* "_sprite.pyx":1401
  *         width = leftrect.width
  *         height = leftrect.height
  *         leftrect = leftrect.inflate(width * ratio - width,             # <<<<<<<<<<<<<<
@@ -21238,7 +21240,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "sprite.pyx":1402
+  /* "_sprite.pyx":1402
  *         height = leftrect.height
  *         leftrect = leftrect.inflate(width * ratio - width,
  *                                     height * ratio - height)             # <<<<<<<<<<<<<<
@@ -21302,7 +21304,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_DECREF_SET(__pyx_v_leftrect, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1404
+  /* "_sprite.pyx":1404
  *                                     height * ratio - height)
  * 
  *         rightrect = right.rect             # <<<<<<<<<<<<<<
@@ -21314,7 +21316,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __pyx_v_rightrect = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1405
+  /* "_sprite.pyx":1405
  * 
  *         rightrect = right.rect
  *         width = rightrect.width             # <<<<<<<<<<<<<<
@@ -21326,7 +21328,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_DECREF_SET(__pyx_v_width, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1406
+  /* "_sprite.pyx":1406
  *         rightrect = right.rect
  *         width = rightrect.width
  *         height = rightrect.height             # <<<<<<<<<<<<<<
@@ -21338,7 +21340,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_DECREF_SET(__pyx_v_height, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1407
+  /* "_sprite.pyx":1407
  *         width = rightrect.width
  *         height = rightrect.height
  *         rightrect = rightrect.inflate(width * ratio - width,             # <<<<<<<<<<<<<<
@@ -21353,7 +21355,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "sprite.pyx":1408
+  /* "_sprite.pyx":1408
  *         height = rightrect.height
  *         rightrect = rightrect.inflate(width * ratio - width,
  *                                       height * ratio - height)             # <<<<<<<<<<<<<<
@@ -21417,7 +21419,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_DECREF_SET(__pyx_v_rightrect, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1410
+  /* "_sprite.pyx":1410
  *                                       height * ratio - height)
  * 
  *         return leftrect.colliderect(rightrect)             # <<<<<<<<<<<<<<
@@ -21446,7 +21448,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1385
+  /* "_sprite.pyx":1385
  *         self.ratio = ratio
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
@@ -21462,7 +21464,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("sprite.collide_rect_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_rect_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_ratio);
@@ -21475,7 +21477,7 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "sprite.pyx":1412
+/* "_sprite.pyx":1412
  *         return leftrect.colliderect(rightrect)
  * 
  * def collide_circle(left, right):             # <<<<<<<<<<<<<<
@@ -21484,10 +21486,10 @@ static PyObject *__pyx_pf_6sprite_18collide_rect_ratio_2__call__(CYTHON_UNUSED P
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_3collide_circle(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_2collide_circle[] = "detect collision between two sprites using circles\n\n    pygame.sprite.collide_circle(left, right): return bool\n\n    Tests for collision between two sprites by testing whether two circles\n    centered on the sprites overlap. If the sprites have a \"radius\" attribute,\n    then that radius is used to create the circle; otherwise, a circle is\n    created that is big enough to completely enclose the sprite's rect as\n    given by the \"rect\" attribute. This function is intended to be passed as\n    a collided callback function to the *collide functions. Sprites must have a\n    \"rect\" and an optional \"radius\" attribute.\n\n    New in pygame 1.8.0\n\n    ";
-static PyMethodDef __pyx_mdef_6sprite_3collide_circle = {"collide_circle", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_3collide_circle, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_2collide_circle};
-static PyObject *__pyx_pw_6sprite_3collide_circle(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_3collide_circle(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_2collide_circle[] = "detect collision between two sprites using circles\n\n    pygame.sprite.collide_circle(left, right): return bool\n\n    Tests for collision between two sprites by testing whether two circles\n    centered on the sprites overlap. If the sprites have a \"radius\" attribute,\n    then that radius is used to create the circle; otherwise, a circle is\n    created that is big enough to completely enclose the sprite's rect as\n    given by the \"rect\" attribute. This function is intended to be passed as\n    a collided callback function to the *collide functions. Sprites must have a\n    \"rect\" and an optional \"radius\" attribute.\n\n    New in pygame 1.8.0\n\n    ";
+static PyMethodDef __pyx_mdef_7_sprite_3collide_circle = {"collide_circle", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_3collide_circle, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_2collide_circle};
+static PyObject *__pyx_pw_7_sprite_3collide_circle(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_left = 0;
   PyObject *__pyx_v_right = 0;
   PyObject *__pyx_r = 0;
@@ -21535,18 +21537,18 @@ static PyObject *__pyx_pw_6sprite_3collide_circle(PyObject *__pyx_self, PyObject
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("collide_circle", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1412, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_circle", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_circle", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_2collide_circle(__pyx_self, __pyx_v_left, __pyx_v_right);
+  __pyx_r = __pyx_pf_7_sprite_2collide_circle(__pyx_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
+static PyObject *__pyx_pf_7_sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
   PyObject *__pyx_v_xdistance = NULL;
   PyObject *__pyx_v_ydistance = NULL;
   PyObject *__pyx_v_distancesquared = NULL;
@@ -21564,7 +21566,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("collide_circle", 0);
 
-  /* "sprite.pyx":1429
+  /* "_sprite.pyx":1429
  *     """
  * 
  *     xdistance = left.rect.centerx - right.rect.centerx             # <<<<<<<<<<<<<<
@@ -21588,7 +21590,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __pyx_v_xdistance = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1430
+  /* "_sprite.pyx":1430
  * 
  *     xdistance = left.rect.centerx - right.rect.centerx
  *     ydistance = left.rect.centery - right.rect.centery             # <<<<<<<<<<<<<<
@@ -21612,7 +21614,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __pyx_v_ydistance = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1431
+  /* "_sprite.pyx":1431
  *     xdistance = left.rect.centerx - right.rect.centerx
  *     ydistance = left.rect.centery - right.rect.centery
  *     distancesquared = xdistance ** 2 + ydistance ** 2             # <<<<<<<<<<<<<<
@@ -21630,7 +21632,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __pyx_v_distancesquared = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sprite.pyx":1433
+  /* "_sprite.pyx":1433
  *     distancesquared = xdistance ** 2 + ydistance ** 2
  * 
  *     if hasattr(left, 'radius'):             # <<<<<<<<<<<<<<
@@ -21641,7 +21643,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __pyx_t_5 = (__pyx_t_4 != 0);
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":1434
+    /* "_sprite.pyx":1434
  * 
  *     if hasattr(left, 'radius'):
  *         leftradius = left.radius             # <<<<<<<<<<<<<<
@@ -21653,7 +21655,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_leftradius = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1433
+    /* "_sprite.pyx":1433
  *     distancesquared = xdistance ** 2 + ydistance ** 2
  * 
  *     if hasattr(left, 'radius'):             # <<<<<<<<<<<<<<
@@ -21663,7 +21665,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":1436
+  /* "_sprite.pyx":1436
  *         leftradius = left.radius
  *     else:
  *         leftrect = left.rect             # <<<<<<<<<<<<<<
@@ -21676,7 +21678,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_leftrect = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1439
+    /* "_sprite.pyx":1439
  *         # approximating the radius of a square by using half of the diagonal,
  *         # might give false positives (especially if its a long small rect)
  *         leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)             # <<<<<<<<<<<<<<
@@ -21706,7 +21708,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_leftradius = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1441
+    /* "_sprite.pyx":1441
  *         leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
  *         # store the radius on the sprite for next time
  *         setattr(left, 'radius', leftradius)             # <<<<<<<<<<<<<<
@@ -21717,7 +21719,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":1443
+  /* "_sprite.pyx":1443
  *         setattr(left, 'radius', leftradius)
  * 
  *     if hasattr(right, 'radius'):             # <<<<<<<<<<<<<<
@@ -21728,7 +21730,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __pyx_t_4 = (__pyx_t_5 != 0);
   if (__pyx_t_4) {
 
-    /* "sprite.pyx":1444
+    /* "_sprite.pyx":1444
  * 
  *     if hasattr(right, 'radius'):
  *         rightradius = right.radius             # <<<<<<<<<<<<<<
@@ -21740,7 +21742,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_rightradius = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1443
+    /* "_sprite.pyx":1443
  *         setattr(left, 'radius', leftradius)
  * 
  *     if hasattr(right, 'radius'):             # <<<<<<<<<<<<<<
@@ -21750,7 +21752,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     goto __pyx_L4;
   }
 
-  /* "sprite.pyx":1446
+  /* "_sprite.pyx":1446
  *         rightradius = right.radius
  *     else:
  *         rightrect = right.rect             # <<<<<<<<<<<<<<
@@ -21763,7 +21765,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_rightrect = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1449
+    /* "_sprite.pyx":1449
  *         # approximating the radius of a square by using half of the diagonal
  *         # might give false positives (especially if its a long small rect)
  *         rightradius = 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)             # <<<<<<<<<<<<<<
@@ -21793,7 +21795,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_rightradius = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1451
+    /* "_sprite.pyx":1451
  *         rightradius = 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
  *         # store the radius on the sprite for next time
  *         setattr(right, 'radius', rightradius)             # <<<<<<<<<<<<<<
@@ -21804,7 +21806,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   }
   __pyx_L4:;
 
-  /* "sprite.pyx":1452
+  /* "_sprite.pyx":1452
  *         # store the radius on the sprite for next time
  *         setattr(right, 'radius', rightradius)
  *     return distancesquared <= (leftradius + rightradius) ** 2             # <<<<<<<<<<<<<<
@@ -21823,7 +21825,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1412
+  /* "_sprite.pyx":1412
  *         return leftrect.colliderect(rightrect)
  * 
  * def collide_circle(left, right):             # <<<<<<<<<<<<<<
@@ -21836,7 +21838,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("sprite.collide_circle", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_circle", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_xdistance);
@@ -21851,7 +21853,7 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
   return __pyx_r;
 }
 
-/* "sprite.pyx":1466
+/* "_sprite.pyx":1466
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
@@ -21860,10 +21862,10 @@ static PyObject *__pyx_pf_6sprite_2collide_circle(CYTHON_UNUSED PyObject *__pyx_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_20collide_circle_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_20collide_circle_ratio___init__[] = "creates a new collide_circle_ratio callable instance\n\n        The given ratio is expected to be a floating point value used to scale\n        the underlying sprite radius before checking for collisions.\n\n        When the ratio is ratio=1.0, then it behaves exactly like the \n        collide_circle method.\n\n        ";
-static PyMethodDef __pyx_mdef_6sprite_20collide_circle_ratio_1__init__ = {"__init__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_20collide_circle_ratio_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_20collide_circle_ratio___init__};
-static PyObject *__pyx_pw_6sprite_20collide_circle_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_20collide_circle_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_20collide_circle_ratio___init__[] = "creates a new collide_circle_ratio callable instance\n\n        The given ratio is expected to be a floating point value used to scale\n        the underlying sprite radius before checking for collisions.\n\n        When the ratio is ratio=1.0, then it behaves exactly like the \n        collide_circle method.\n\n        ";
+static PyMethodDef __pyx_mdef_7_sprite_20collide_circle_ratio_1__init__ = {"__init__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_20collide_circle_ratio_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_20collide_circle_ratio___init__};
+static PyObject *__pyx_pw_7_sprite_20collide_circle_ratio_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_ratio = 0;
   PyObject *__pyx_r = 0;
@@ -21911,23 +21913,23 @@ static PyObject *__pyx_pw_6sprite_20collide_circle_ratio_1__init__(PyObject *__p
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1466, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_circle_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_circle_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_20collide_circle_ratio___init__(__pyx_self, __pyx_v_self, __pyx_v_ratio);
+  __pyx_r = __pyx_pf_7_sprite_20collide_circle_ratio___init__(__pyx_self, __pyx_v_self, __pyx_v_ratio);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_20collide_circle_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio) {
+static PyObject *__pyx_pf_7_sprite_20collide_circle_ratio___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_ratio) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sprite.pyx":1476
+  /* "_sprite.pyx":1476
  * 
  *         """
  *         self.ratio = ratio             # <<<<<<<<<<<<<<
@@ -21936,7 +21938,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio___init__(CYTHON_UNUSED 
  */
   if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_ratio, __pyx_v_ratio) < 0) __PYX_ERR(0, 1476, __pyx_L1_error)
 
-  /* "sprite.pyx":1466
+  /* "_sprite.pyx":1466
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
@@ -21948,7 +21950,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio___init__(CYTHON_UNUSED 
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("sprite.collide_circle_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_circle_ratio.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -21956,7 +21958,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio___init__(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "sprite.pyx":1479
+/* "_sprite.pyx":1479
  * 
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
@@ -21965,10 +21967,10 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio___init__(CYTHON_UNUSED 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_20collide_circle_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_20collide_circle_ratio_2__call__[] = "detect collision between two sprites using scaled circles\n\n        pygame.sprite.collide_circle_radio(ratio)(left, right): return bool\n\n        Tests for collision between two sprites by testing whether two circles\n        centered on the sprites overlap after scaling the circle's radius by\n        the stored ratio. If the sprites have a \"radius\" attribute, that is\n        used to create the circle; otherwise, a circle is created that is big\n        enough to completely enclose the sprite's rect as given by the \"rect\"\n        attribute. Intended to be passed as a collided callback function to the\n        *collide functions. Sprites must have a \"rect\" and an optional \"radius\"\n        attribute.\n\n        ";
-static PyMethodDef __pyx_mdef_6sprite_20collide_circle_ratio_3__call__ = {"__call__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_20collide_circle_ratio_3__call__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_20collide_circle_ratio_2__call__};
-static PyObject *__pyx_pw_6sprite_20collide_circle_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_20collide_circle_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_20collide_circle_ratio_2__call__[] = "detect collision between two sprites using scaled circles\n\n        pygame.sprite.collide_circle_radio(ratio)(left, right): return bool\n\n        Tests for collision between two sprites by testing whether two circles\n        centered on the sprites overlap after scaling the circle's radius by\n        the stored ratio. If the sprites have a \"radius\" attribute, that is\n        used to create the circle; otherwise, a circle is created that is big\n        enough to completely enclose the sprite's rect as given by the \"rect\"\n        attribute. Intended to be passed as a collided callback function to the\n        *collide functions. Sprites must have a \"rect\" and an optional \"radius\"\n        attribute.\n\n        ";
+static PyMethodDef __pyx_mdef_7_sprite_20collide_circle_ratio_3__call__ = {"__call__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_20collide_circle_ratio_3__call__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_20collide_circle_ratio_2__call__};
+static PyObject *__pyx_pw_7_sprite_20collide_circle_ratio_3__call__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_left = 0;
   PyObject *__pyx_v_right = 0;
@@ -22027,18 +22029,18 @@ static PyObject *__pyx_pw_6sprite_20collide_circle_ratio_3__call__(PyObject *__p
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__call__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1479, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_circle_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_circle_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_20collide_circle_ratio_2__call__(__pyx_self, __pyx_v_self, __pyx_v_left, __pyx_v_right);
+  __pyx_r = __pyx_pf_7_sprite_20collide_circle_ratio_2__call__(__pyx_self, __pyx_v_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
+static PyObject *__pyx_pf_7_sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
   PyObject *__pyx_v_ratio = NULL;
   PyObject *__pyx_v_xdistance = NULL;
   PyObject *__pyx_v_ydistance = NULL;
@@ -22058,7 +22060,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__call__", 0);
 
-  /* "sprite.pyx":1495
+  /* "_sprite.pyx":1495
  *         """
  * 
  *         ratio = self.ratio             # <<<<<<<<<<<<<<
@@ -22070,7 +22072,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_v_ratio = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1496
+  /* "_sprite.pyx":1496
  * 
  *         ratio = self.ratio
  *         xdistance = left.rect.centerx - right.rect.centerx             # <<<<<<<<<<<<<<
@@ -22094,7 +22096,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_v_xdistance = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1497
+  /* "_sprite.pyx":1497
  *         ratio = self.ratio
  *         xdistance = left.rect.centerx - right.rect.centerx
  *         ydistance = left.rect.centery - right.rect.centery             # <<<<<<<<<<<<<<
@@ -22118,7 +22120,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_v_ydistance = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1498
+  /* "_sprite.pyx":1498
  *         xdistance = left.rect.centerx - right.rect.centerx
  *         ydistance = left.rect.centery - right.rect.centery
  *         distancesquared = xdistance ** 2 + ydistance ** 2             # <<<<<<<<<<<<<<
@@ -22136,7 +22138,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_v_distancesquared = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sprite.pyx":1500
+  /* "_sprite.pyx":1500
  *         distancesquared = xdistance ** 2 + ydistance ** 2
  * 
  *         if hasattr(left, "radius"):             # <<<<<<<<<<<<<<
@@ -22147,7 +22149,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_t_5 = (__pyx_t_4 != 0);
   if (__pyx_t_5) {
 
-    /* "sprite.pyx":1501
+    /* "_sprite.pyx":1501
  * 
  *         if hasattr(left, "radius"):
  *             leftradius = left.radius * ratio             # <<<<<<<<<<<<<<
@@ -22162,7 +22164,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     __pyx_v_leftradius = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1500
+    /* "_sprite.pyx":1500
  *         distancesquared = xdistance ** 2 + ydistance ** 2
  * 
  *         if hasattr(left, "radius"):             # <<<<<<<<<<<<<<
@@ -22172,7 +22174,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":1503
+  /* "_sprite.pyx":1503
  *             leftradius = left.radius * ratio
  *         else:
  *             leftrect = left.rect             # <<<<<<<<<<<<<<
@@ -22185,7 +22187,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     __pyx_v_leftrect = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1504
+    /* "_sprite.pyx":1504
  *         else:
  *             leftrect = left.rect
  *             leftradius = ratio * 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)             # <<<<<<<<<<<<<<
@@ -22218,7 +22220,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     __pyx_v_leftradius = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1506
+    /* "_sprite.pyx":1506
  *             leftradius = ratio * 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
  *             # store the radius on the sprite for next time
  *             setattr(left, 'radius', leftradius)             # <<<<<<<<<<<<<<
@@ -22229,7 +22231,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":1508
+  /* "_sprite.pyx":1508
  *             setattr(left, 'radius', leftradius)
  * 
  *         if hasattr(right, "radius"):             # <<<<<<<<<<<<<<
@@ -22240,7 +22242,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_t_4 = (__pyx_t_5 != 0);
   if (__pyx_t_4) {
 
-    /* "sprite.pyx":1509
+    /* "_sprite.pyx":1509
  * 
  *         if hasattr(right, "radius"):
  *             rightradius = right.radius * ratio             # <<<<<<<<<<<<<<
@@ -22255,7 +22257,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     __pyx_v_rightradius = __pyx_t_6;
     __pyx_t_6 = 0;
 
-    /* "sprite.pyx":1508
+    /* "_sprite.pyx":1508
  *             setattr(left, 'radius', leftradius)
  * 
  *         if hasattr(right, "radius"):             # <<<<<<<<<<<<<<
@@ -22265,7 +22267,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     goto __pyx_L4;
   }
 
-  /* "sprite.pyx":1511
+  /* "_sprite.pyx":1511
  *             rightradius = right.radius * ratio
  *         else:
  *             rightrect = right.rect             # <<<<<<<<<<<<<<
@@ -22278,7 +22280,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     __pyx_v_rightrect = __pyx_t_6;
     __pyx_t_6 = 0;
 
-    /* "sprite.pyx":1512
+    /* "_sprite.pyx":1512
  *         else:
  *             rightrect = right.rect
  *             rightradius = ratio * 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)             # <<<<<<<<<<<<<<
@@ -22311,7 +22313,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
     __pyx_v_rightradius = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1514
+    /* "_sprite.pyx":1514
  *             rightradius = ratio * 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
  *             # store the radius on the sprite for next time
  *             setattr(right, 'radius', rightradius)             # <<<<<<<<<<<<<<
@@ -22322,7 +22324,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   }
   __pyx_L4:;
 
-  /* "sprite.pyx":1516
+  /* "_sprite.pyx":1516
  *             setattr(right, 'radius', rightradius)
  * 
  *         return distancesquared <= (leftradius + rightradius) ** 2             # <<<<<<<<<<<<<<
@@ -22341,7 +22343,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1479
+  /* "_sprite.pyx":1479
  * 
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
@@ -22355,7 +22357,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("sprite.collide_circle_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_circle_ratio.__call__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_ratio);
@@ -22371,7 +22373,7 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "sprite.pyx":1518
+/* "_sprite.pyx":1518
  *         return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * def collide_mask(left, right):             # <<<<<<<<<<<<<<
@@ -22380,10 +22382,10 @@ static PyObject *__pyx_pf_6sprite_20collide_circle_ratio_2__call__(CYTHON_UNUSED
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_5collide_mask(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_4collide_mask[] = "collision detection between two sprites, using masks.\n\n    pygame.sprite.collide_mask(SpriteLeft, SpriteRight): bool\n\n    Tests for collision between two sprites by testing if their bitmasks\n    overlap. If the sprites have a \"mask\" attribute, that is used as the mask;\n    otherwise, a mask is created from the sprite image. Intended to be passed\n    as a collided callback function to the *collide functions. Sprites must\n    have a \"rect\" and an optional \"mask\" attribute.\n\n    New in pygame 1.8.0\n\n    ";
-static PyMethodDef __pyx_mdef_6sprite_5collide_mask = {"collide_mask", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_5collide_mask, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_4collide_mask};
-static PyObject *__pyx_pw_6sprite_5collide_mask(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_5collide_mask(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_4collide_mask[] = "collision detection between two sprites, using masks.\n\n    pygame.sprite.collide_mask(SpriteLeft, SpriteRight): bool\n\n    Tests for collision between two sprites by testing if their bitmasks\n    overlap. If the sprites have a \"mask\" attribute, that is used as the mask;\n    otherwise, a mask is created from the sprite image. Intended to be passed\n    as a collided callback function to the *collide functions. Sprites must\n    have a \"rect\" and an optional \"mask\" attribute.\n\n    New in pygame 1.8.0\n\n    ";
+static PyMethodDef __pyx_mdef_7_sprite_5collide_mask = {"collide_mask", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_5collide_mask, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_4collide_mask};
+static PyObject *__pyx_pw_7_sprite_5collide_mask(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_left = 0;
   PyObject *__pyx_v_right = 0;
   PyObject *__pyx_r = 0;
@@ -22431,18 +22433,18 @@ static PyObject *__pyx_pw_6sprite_5collide_mask(PyObject *__pyx_self, PyObject *
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("collide_mask", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1518, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_4collide_mask(__pyx_self, __pyx_v_left, __pyx_v_right);
+  __pyx_r = __pyx_pf_7_sprite_4collide_mask(__pyx_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
+static PyObject *__pyx_pf_7_sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_left, PyObject *__pyx_v_right) {
   PyObject *__pyx_v_xoffset = NULL;
   PyObject *__pyx_v_yoffset = NULL;
   PyObject *__pyx_v_leftmask = NULL;
@@ -22462,7 +22464,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
   PyObject *__pyx_t_11 = NULL;
   __Pyx_RefNannySetupContext("collide_mask", 0);
 
-  /* "sprite.pyx":1532
+  /* "_sprite.pyx":1532
  * 
  *     """
  *     xoffset = right.rect[0] - left.rect[0]             # <<<<<<<<<<<<<<
@@ -22486,7 +22488,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_v_xoffset = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1533
+  /* "_sprite.pyx":1533
  *     """
  *     xoffset = right.rect[0] - left.rect[0]
  *     yoffset = right.rect[1] - left.rect[1]             # <<<<<<<<<<<<<<
@@ -22510,7 +22512,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_v_yoffset = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1534
+  /* "_sprite.pyx":1534
  *     xoffset = right.rect[0] - left.rect[0]
  *     yoffset = right.rect[1] - left.rect[1]
  *     try:             # <<<<<<<<<<<<<<
@@ -22526,7 +22528,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     __Pyx_XGOTREF(__pyx_t_6);
     /*try:*/ {
 
-      /* "sprite.pyx":1535
+      /* "_sprite.pyx":1535
  *     yoffset = right.rect[1] - left.rect[1]
  *     try:
  *         leftmask = left.mask             # <<<<<<<<<<<<<<
@@ -22538,7 +22540,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_v_leftmask = __pyx_t_1;
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1534
+      /* "_sprite.pyx":1534
  *     xoffset = right.rect[0] - left.rect[0]
  *     yoffset = right.rect[1] - left.rect[1]
  *     try:             # <<<<<<<<<<<<<<
@@ -22555,7 +22557,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1536
+    /* "_sprite.pyx":1536
  *     try:
  *         leftmask = left.mask
  *     except AttributeError:             # <<<<<<<<<<<<<<
@@ -22564,13 +22566,13 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
  */
     __pyx_t_7 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
     if (__pyx_t_7) {
-      __Pyx_AddTraceback("sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("_sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
       if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3) < 0) __PYX_ERR(0, 1536, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_GOTREF(__pyx_t_3);
 
-      /* "sprite.pyx":1537
+      /* "_sprite.pyx":1537
  *         leftmask = left.mask
  *     except AttributeError:
  *         leftmask = from_surface(left.image)             # <<<<<<<<<<<<<<
@@ -22607,7 +22609,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "sprite.pyx":1534
+    /* "_sprite.pyx":1534
  *     xoffset = right.rect[0] - left.rect[0]
  *     yoffset = right.rect[1] - left.rect[1]
  *     try:             # <<<<<<<<<<<<<<
@@ -22627,7 +22629,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     __pyx_L8_try_end:;
   }
 
-  /* "sprite.pyx":1538
+  /* "_sprite.pyx":1538
  *     except AttributeError:
  *         leftmask = from_surface(left.image)
  *     try:             # <<<<<<<<<<<<<<
@@ -22643,7 +22645,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "sprite.pyx":1539
+      /* "_sprite.pyx":1539
  *         leftmask = from_surface(left.image)
  *     try:
  *         rightmask = right.mask             # <<<<<<<<<<<<<<
@@ -22655,7 +22657,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_v_rightmask = __pyx_t_3;
       __pyx_t_3 = 0;
 
-      /* "sprite.pyx":1538
+      /* "_sprite.pyx":1538
  *     except AttributeError:
  *         leftmask = from_surface(left.image)
  *     try:             # <<<<<<<<<<<<<<
@@ -22676,7 +22678,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-    /* "sprite.pyx":1540
+    /* "_sprite.pyx":1540
  *     try:
  *         rightmask = right.mask
  *     except AttributeError:             # <<<<<<<<<<<<<<
@@ -22685,13 +22687,13 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
  */
     __pyx_t_7 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
     if (__pyx_t_7) {
-      __Pyx_AddTraceback("sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("_sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
       if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_2, &__pyx_t_1) < 0) __PYX_ERR(0, 1540, __pyx_L13_except_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_GOTREF(__pyx_t_1);
 
-      /* "sprite.pyx":1541
+      /* "_sprite.pyx":1541
  *         rightmask = right.mask
  *     except AttributeError:
  *         rightmask = from_surface(right.image)             # <<<<<<<<<<<<<<
@@ -22728,7 +22730,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     goto __pyx_L13_except_error;
     __pyx_L13_except_error:;
 
-    /* "sprite.pyx":1538
+    /* "_sprite.pyx":1538
  *     except AttributeError:
  *         leftmask = from_surface(left.image)
  *     try:             # <<<<<<<<<<<<<<
@@ -22748,7 +22750,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
     __pyx_L16_try_end:;
   }
 
-  /* "sprite.pyx":1542
+  /* "_sprite.pyx":1542
  *     except AttributeError:
  *         rightmask = from_surface(right.image)
  *     return leftmask.overlap(rightmask, (xoffset, yoffset))             # <<<<<<<<<<<<<<
@@ -22817,7 +22819,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1518
+  /* "_sprite.pyx":1518
  *         return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * def collide_mask(left, right):             # <<<<<<<<<<<<<<
@@ -22834,7 +22836,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
-  __Pyx_AddTraceback("sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.collide_mask", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_xoffset);
@@ -22846,7 +22848,7 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
   return __pyx_r;
 }
 
-/* "sprite.pyx":1544
+/* "_sprite.pyx":1544
  *     return leftmask.overlap(rightmask, (xoffset, yoffset))
  * 
  * def spritecollide(sprite, group, dokill, collided=None):             # <<<<<<<<<<<<<<
@@ -22855,10 +22857,10 @@ static PyObject *__pyx_pf_6sprite_4collide_mask(CYTHON_UNUSED PyObject *__pyx_se
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_7spritecollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_6spritecollide[] = "find Sprites in a Group that intersect another Sprite\n\n    pygame.sprite.spritecollide(sprite, group, dokill, collided=None):\n        return Sprite_list\n\n    Return a list containing all Sprites in a Group that intersect with another\n    Sprite. Intersection is determined by comparing the Sprite.rect attribute\n    of each Sprite.\n\n    The dokill argument is a bool. If set to True, all Sprites that collide\n    will be removed from the Group.\n\n    The collided argument is a callback function used to calculate if two\n    sprites are colliding. it should take two sprites as values, and return a\n    bool value indicating if they are colliding. If collided is not passed, all\n    sprites must have a \"rect\" value, which is a rectangle of the sprite area,\n    which will be used to calculate the collision.\n\n    ";
-static PyMethodDef __pyx_mdef_6sprite_7spritecollide = {"spritecollide", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_7spritecollide, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_6spritecollide};
-static PyObject *__pyx_pw_6sprite_7spritecollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_7spritecollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_6spritecollide[] = "find Sprites in a Group that intersect another Sprite\n\n    pygame.sprite.spritecollide(sprite, group, dokill, collided=None):\n        return Sprite_list\n\n    Return a list containing all Sprites in a Group that intersect with another\n    Sprite. Intersection is determined by comparing the Sprite.rect attribute\n    of each Sprite.\n\n    The dokill argument is a bool. If set to True, all Sprites that collide\n    will be removed from the Group.\n\n    The collided argument is a callback function used to calculate if two\n    sprites are colliding. it should take two sprites as values, and return a\n    bool value indicating if they are colliding. If collided is not passed, all\n    sprites must have a \"rect\" value, which is a rectangle of the sprite area,\n    which will be used to calculate the collision.\n\n    ";
+static PyMethodDef __pyx_mdef_7_sprite_7spritecollide = {"spritecollide", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_7spritecollide, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_6spritecollide};
+static PyObject *__pyx_pw_7_sprite_7spritecollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   PyObject *__pyx_v_group = 0;
   PyObject *__pyx_v_dokill = 0;
@@ -22932,18 +22934,18 @@ static PyObject *__pyx_pw_6sprite_7spritecollide(PyObject *__pyx_self, PyObject 
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("spritecollide", 0, 3, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1544, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.spritecollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.spritecollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_6spritecollide(__pyx_self, __pyx_v_sprite, __pyx_v_group, __pyx_v_dokill, __pyx_v_collided);
+  __pyx_r = __pyx_pf_7_sprite_6spritecollide(__pyx_self, __pyx_v_sprite, __pyx_v_group, __pyx_v_dokill, __pyx_v_collided);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_dokill, PyObject *__pyx_v_collided) {
+static PyObject *__pyx_pf_7_sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_dokill, PyObject *__pyx_v_collided) {
   PyObject *__pyx_v_crashed = NULL;
   PyObject *__pyx_v_append = NULL;
   PyObject *__pyx_v_s = NULL;
@@ -22963,7 +22965,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
   PyObject *__pyx_t_11 = NULL;
   __Pyx_RefNannySetupContext("spritecollide", 0);
 
-  /* "sprite.pyx":1564
+  /* "_sprite.pyx":1564
  * 
  *     """
  *     if dokill:             # <<<<<<<<<<<<<<
@@ -22973,7 +22975,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_dokill); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1564, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "sprite.pyx":1566
+    /* "_sprite.pyx":1566
  *     if dokill:
  * 
  *         crashed = []             # <<<<<<<<<<<<<<
@@ -22985,7 +22987,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_v_crashed = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1567
+    /* "_sprite.pyx":1567
  * 
  *         crashed = []
  *         append = crashed.append             # <<<<<<<<<<<<<<
@@ -22997,7 +22999,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_v_append = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1569
+    /* "_sprite.pyx":1569
  *         append = crashed.append
  * 
  *         if collided:             # <<<<<<<<<<<<<<
@@ -23007,7 +23009,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_collided); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1569, __pyx_L1_error)
     if (__pyx_t_1) {
 
-      /* "sprite.pyx":1570
+      /* "_sprite.pyx":1570
  * 
  *         if collided:
  *             for s in group.sprites():             # <<<<<<<<<<<<<<
@@ -23074,7 +23076,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
         __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "sprite.pyx":1571
+        /* "_sprite.pyx":1571
  *         if collided:
  *             for s in group.sprites():
  *                 if collided(sprite, s):             # <<<<<<<<<<<<<<
@@ -23131,7 +23133,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_1) {
 
-          /* "sprite.pyx":1572
+          /* "_sprite.pyx":1572
  *             for s in group.sprites():
  *                 if collided(sprite, s):
  *                     s.kill()             # <<<<<<<<<<<<<<
@@ -23157,7 +23159,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1573
+          /* "_sprite.pyx":1573
  *                 if collided(sprite, s):
  *                     s.kill()
  *                     append(s)             # <<<<<<<<<<<<<<
@@ -23166,7 +23168,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
           __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_crashed, __pyx_v_s); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 1573, __pyx_L1_error)
 
-          /* "sprite.pyx":1571
+          /* "_sprite.pyx":1571
  *         if collided:
  *             for s in group.sprites():
  *                 if collided(sprite, s):             # <<<<<<<<<<<<<<
@@ -23175,7 +23177,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
         }
 
-        /* "sprite.pyx":1570
+        /* "_sprite.pyx":1570
  * 
  *         if collided:
  *             for s in group.sprites():             # <<<<<<<<<<<<<<
@@ -23185,7 +23187,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "sprite.pyx":1569
+      /* "_sprite.pyx":1569
  *         append = crashed.append
  * 
  *         if collided:             # <<<<<<<<<<<<<<
@@ -23195,7 +23197,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
       goto __pyx_L4;
     }
 
-    /* "sprite.pyx":1575
+    /* "_sprite.pyx":1575
  *                     append(s)
  *         else:
  *             spritecollide = sprite.rect.colliderect             # <<<<<<<<<<<<<<
@@ -23211,7 +23213,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
       __pyx_v_spritecollide = __pyx_t_2;
       __pyx_t_2 = 0;
 
-      /* "sprite.pyx":1576
+      /* "_sprite.pyx":1576
  *         else:
  *             spritecollide = sprite.rect.colliderect
  *             for s in group.sprites():             # <<<<<<<<<<<<<<
@@ -23278,7 +23280,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
         __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "sprite.pyx":1577
+        /* "_sprite.pyx":1577
  *             spritecollide = sprite.rect.colliderect
  *             for s in group.sprites():
  *                 if spritecollide(s.rect):             # <<<<<<<<<<<<<<
@@ -23308,7 +23310,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (__pyx_t_1) {
 
-          /* "sprite.pyx":1578
+          /* "_sprite.pyx":1578
  *             for s in group.sprites():
  *                 if spritecollide(s.rect):
  *                     s.kill()             # <<<<<<<<<<<<<<
@@ -23334,7 +23336,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "sprite.pyx":1579
+          /* "_sprite.pyx":1579
  *                 if spritecollide(s.rect):
  *                     s.kill()
  *                     append(s)             # <<<<<<<<<<<<<<
@@ -23343,7 +23345,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
           __pyx_t_10 = __Pyx_PyList_Append(__pyx_v_crashed, __pyx_v_s); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 1579, __pyx_L1_error)
 
-          /* "sprite.pyx":1577
+          /* "_sprite.pyx":1577
  *             spritecollide = sprite.rect.colliderect
  *             for s in group.sprites():
  *                 if spritecollide(s.rect):             # <<<<<<<<<<<<<<
@@ -23352,7 +23354,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
         }
 
-        /* "sprite.pyx":1576
+        /* "_sprite.pyx":1576
  *         else:
  *             spritecollide = sprite.rect.colliderect
  *             for s in group.sprites():             # <<<<<<<<<<<<<<
@@ -23364,7 +23366,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     }
     __pyx_L4:;
 
-    /* "sprite.pyx":1581
+    /* "_sprite.pyx":1581
  *                     append(s)
  * 
  *         return crashed             # <<<<<<<<<<<<<<
@@ -23376,7 +23378,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_r = __pyx_v_crashed;
     goto __pyx_L0;
 
-    /* "sprite.pyx":1564
+    /* "_sprite.pyx":1564
  * 
  *     """
  *     if dokill:             # <<<<<<<<<<<<<<
@@ -23385,7 +23387,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "sprite.pyx":1583
+  /* "_sprite.pyx":1583
  *         return crashed
  * 
  *     elif collided:             # <<<<<<<<<<<<<<
@@ -23395,7 +23397,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_collided); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1583, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "sprite.pyx":1584
+    /* "_sprite.pyx":1584
  * 
  *     elif collided:
  *         return [s for s in group if collided(sprite, s)]             # <<<<<<<<<<<<<<
@@ -23503,7 +23505,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_3 = 0;
     goto __pyx_L0;
 
-    /* "sprite.pyx":1583
+    /* "_sprite.pyx":1583
  *         return crashed
  * 
  *     elif collided:             # <<<<<<<<<<<<<<
@@ -23512,7 +23514,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "sprite.pyx":1586
+  /* "_sprite.pyx":1586
  *         return [s for s in group if collided(sprite, s)]
  *     else:
  *         spritecollide = sprite.rect.colliderect             # <<<<<<<<<<<<<<
@@ -23528,7 +23530,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_v_spritecollide = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1587
+    /* "_sprite.pyx":1587
  *     else:
  *         spritecollide = sprite.rect.colliderect
  *         return [s for s in group if spritecollide(s.rect)]             # <<<<<<<<<<<<<<
@@ -23610,7 +23612,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
     goto __pyx_L0;
   }
 
-  /* "sprite.pyx":1544
+  /* "_sprite.pyx":1544
  *     return leftmask.overlap(rightmask, (xoffset, yoffset))
  * 
  * def spritecollide(sprite, group, dokill, collided=None):             # <<<<<<<<<<<<<<
@@ -23626,7 +23628,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_11);
-  __Pyx_AddTraceback("sprite.spritecollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.spritecollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_crashed);
@@ -23638,7 +23640,7 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
   return __pyx_r;
 }
 
-/* "sprite.pyx":1590
+/* "_sprite.pyx":1590
  * 
  * 
  * def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):             # <<<<<<<<<<<<<<
@@ -23647,10 +23649,10 @@ static PyObject *__pyx_pf_6sprite_6spritecollide(CYTHON_UNUSED PyObject *__pyx_s
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_9groupcollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_8groupcollide[] = "detect collision between a group and another group\n\n    pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb):\n        return dict\n\n    Given two groups, this will find the intersections between all sprites in\n    each group. It returns a dictionary of all sprites in the first group that\n    collide. The value for each item in the dictionary is a list of the sprites\n    in the second group it collides with. The two dokill arguments control if\n    the sprites from either group will be automatically removed from all\n    groups. Collided is a callback function used to calculate if two sprites\n    are colliding. it should take two sprites as values, and return a bool\n    value indicating if they are colliding. If collided is not passed, all\n    sprites must have a \"rect\" value, which is a rectangle of the sprite area\n    that will be used to calculate the collision.\n\n    ";
-static PyMethodDef __pyx_mdef_6sprite_9groupcollide = {"groupcollide", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_9groupcollide, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_8groupcollide};
-static PyObject *__pyx_pw_6sprite_9groupcollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_9groupcollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_8groupcollide[] = "detect collision between a group and another group\n\n    pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb):\n        return dict\n\n    Given two groups, this will find the intersections between all sprites in\n    each group. It returns a dictionary of all sprites in the first group that\n    collide. The value for each item in the dictionary is a list of the sprites\n    in the second group it collides with. The two dokill arguments control if\n    the sprites from either group will be automatically removed from all\n    groups. Collided is a callback function used to calculate if two sprites\n    are colliding. it should take two sprites as values, and return a bool\n    value indicating if they are colliding. If collided is not passed, all\n    sprites must have a \"rect\" value, which is a rectangle of the sprite area\n    that will be used to calculate the collision.\n\n    ";
+static PyMethodDef __pyx_mdef_7_sprite_9groupcollide = {"groupcollide", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_9groupcollide, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_8groupcollide};
+static PyObject *__pyx_pw_7_sprite_9groupcollide(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_groupa = 0;
   PyObject *__pyx_v_groupb = 0;
   PyObject *__pyx_v_dokilla = 0;
@@ -23735,18 +23737,18 @@ static PyObject *__pyx_pw_6sprite_9groupcollide(PyObject *__pyx_self, PyObject *
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("groupcollide", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1590, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.groupcollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.groupcollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_8groupcollide(__pyx_self, __pyx_v_groupa, __pyx_v_groupb, __pyx_v_dokilla, __pyx_v_dokillb, __pyx_v_collided);
+  __pyx_r = __pyx_pf_7_sprite_8groupcollide(__pyx_self, __pyx_v_groupa, __pyx_v_groupb, __pyx_v_dokilla, __pyx_v_dokillb, __pyx_v_collided);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_groupa, PyObject *__pyx_v_groupb, PyObject *__pyx_v_dokilla, PyObject *__pyx_v_dokillb, PyObject *__pyx_v_collided) {
+static PyObject *__pyx_pf_7_sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_groupa, PyObject *__pyx_v_groupb, PyObject *__pyx_v_dokilla, PyObject *__pyx_v_dokillb, PyObject *__pyx_v_collided) {
   PyObject *__pyx_v_crashed = NULL;
   PyObject *__pyx_v_SC = NULL;
   PyObject *__pyx_v_s = NULL;
@@ -23764,7 +23766,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("groupcollide", 0);
 
-  /* "sprite.pyx":1608
+  /* "_sprite.pyx":1608
  * 
  *     """
  *     crashed = {}             # <<<<<<<<<<<<<<
@@ -23776,7 +23778,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_v_crashed = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1609
+  /* "_sprite.pyx":1609
  *     """
  *     crashed = {}
  *     SC = spritecollide             # <<<<<<<<<<<<<<
@@ -23788,7 +23790,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_v_SC = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1610
+  /* "_sprite.pyx":1610
  *     crashed = {}
  *     SC = spritecollide
  *     if dokilla:             # <<<<<<<<<<<<<<
@@ -23798,7 +23800,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_dokilla); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1610, __pyx_L1_error)
   if (__pyx_t_2) {
 
-    /* "sprite.pyx":1611
+    /* "_sprite.pyx":1611
  *     SC = spritecollide
  *     if dokilla:
  *         for s in groupa.sprites():             # <<<<<<<<<<<<<<
@@ -23865,7 +23867,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1612
+      /* "_sprite.pyx":1612
  *     if dokilla:
  *         for s in groupa.sprites():
  *             c = SC(s, groupb, dokillb, collided)             # <<<<<<<<<<<<<<
@@ -23927,7 +23929,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1613
+      /* "_sprite.pyx":1613
  *         for s in groupa.sprites():
  *             c = SC(s, groupb, dokillb, collided)
  *             if c:             # <<<<<<<<<<<<<<
@@ -23937,7 +23939,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_c); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1613, __pyx_L1_error)
       if (__pyx_t_2) {
 
-        /* "sprite.pyx":1614
+        /* "_sprite.pyx":1614
  *             c = SC(s, groupb, dokillb, collided)
  *             if c:
  *                 crashed[s] = c             # <<<<<<<<<<<<<<
@@ -23946,7 +23948,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
  */
         if (unlikely(PyDict_SetItem(__pyx_v_crashed, __pyx_v_s, __pyx_v_c) < 0)) __PYX_ERR(0, 1614, __pyx_L1_error)
 
-        /* "sprite.pyx":1615
+        /* "_sprite.pyx":1615
  *             if c:
  *                 crashed[s] = c
  *                 s.kill()             # <<<<<<<<<<<<<<
@@ -23972,7 +23974,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "sprite.pyx":1613
+        /* "_sprite.pyx":1613
  *         for s in groupa.sprites():
  *             c = SC(s, groupb, dokillb, collided)
  *             if c:             # <<<<<<<<<<<<<<
@@ -23981,7 +23983,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
  */
       }
 
-      /* "sprite.pyx":1611
+      /* "_sprite.pyx":1611
  *     SC = spritecollide
  *     if dokilla:
  *         for s in groupa.sprites():             # <<<<<<<<<<<<<<
@@ -23991,7 +23993,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "sprite.pyx":1610
+    /* "_sprite.pyx":1610
  *     crashed = {}
  *     SC = spritecollide
  *     if dokilla:             # <<<<<<<<<<<<<<
@@ -24001,7 +24003,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":1617
+  /* "_sprite.pyx":1617
  *                 s.kill()
  *     else:
  *         for s in groupa:             # <<<<<<<<<<<<<<
@@ -24051,7 +24053,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1618
+      /* "_sprite.pyx":1618
  *     else:
  *         for s in groupa:
  *             c = SC(s, groupb, dokillb, collided)             # <<<<<<<<<<<<<<
@@ -24113,7 +24115,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
       __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sprite.pyx":1619
+      /* "_sprite.pyx":1619
  *         for s in groupa:
  *             c = SC(s, groupb, dokillb, collided)
  *             if c:             # <<<<<<<<<<<<<<
@@ -24123,7 +24125,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
       __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_c); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 1619, __pyx_L1_error)
       if (__pyx_t_2) {
 
-        /* "sprite.pyx":1620
+        /* "_sprite.pyx":1620
  *             c = SC(s, groupb, dokillb, collided)
  *             if c:
  *                 crashed[s] = c             # <<<<<<<<<<<<<<
@@ -24132,7 +24134,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
  */
         if (unlikely(PyDict_SetItem(__pyx_v_crashed, __pyx_v_s, __pyx_v_c) < 0)) __PYX_ERR(0, 1620, __pyx_L1_error)
 
-        /* "sprite.pyx":1619
+        /* "_sprite.pyx":1619
  *         for s in groupa:
  *             c = SC(s, groupb, dokillb, collided)
  *             if c:             # <<<<<<<<<<<<<<
@@ -24141,7 +24143,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
  */
       }
 
-      /* "sprite.pyx":1617
+      /* "_sprite.pyx":1617
  *                 s.kill()
  *     else:
  *         for s in groupa:             # <<<<<<<<<<<<<<
@@ -24153,7 +24155,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":1621
+  /* "_sprite.pyx":1621
  *             if c:
  *                 crashed[s] = c
  *     return crashed             # <<<<<<<<<<<<<<
@@ -24165,7 +24167,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_r = __pyx_v_crashed;
   goto __pyx_L0;
 
-  /* "sprite.pyx":1590
+  /* "_sprite.pyx":1590
  * 
  * 
  * def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):             # <<<<<<<<<<<<<<
@@ -24180,7 +24182,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("sprite.groupcollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.groupcollide", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_crashed);
@@ -24192,7 +24194,7 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
   return __pyx_r;
 }
 
-/* "sprite.pyx":1623
+/* "_sprite.pyx":1623
  *     return crashed
  * 
  * def spritecollideany(sprite, group, collided=None):             # <<<<<<<<<<<<<<
@@ -24201,10 +24203,10 @@ static PyObject *__pyx_pf_6sprite_8groupcollide(CYTHON_UNUSED PyObject *__pyx_se
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6sprite_11spritecollideany(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6sprite_10spritecollideany[] = "finds any sprites in a group that collide with the given sprite\n\n    pygame.sprite.spritecollideany(sprite, group): return sprite\n\n    Given a sprite and a group of sprites, this will return return any single\n    sprite that collides with with the given sprite. If there are no\n    collisions, then this returns None.\n\n    If you don't need all the features of the spritecollide function, this\n    function will be a bit quicker.\n\n    Collided is a callback function used to calculate if two sprites are\n    colliding. It should take two sprites as values and return a bool value\n    indicating if they are colliding. If collided is not passed, then all\n    sprites must have a \"rect\" value, which is a rectangle of the sprite area,\n    which will be used to calculate the collision.\n\n\n    ";
-static PyMethodDef __pyx_mdef_6sprite_11spritecollideany = {"spritecollideany", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_11spritecollideany, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_10spritecollideany};
-static PyObject *__pyx_pw_6sprite_11spritecollideany(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7_sprite_11spritecollideany(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7_sprite_10spritecollideany[] = "finds any sprites in a group that collide with the given sprite\n\n    pygame.sprite.spritecollideany(sprite, group): return sprite\n\n    Given a sprite and a group of sprites, this will return return any single\n    sprite that collides with with the given sprite. If there are no\n    collisions, then this returns None.\n\n    If you don't need all the features of the spritecollide function, this\n    function will be a bit quicker.\n\n    Collided is a callback function used to calculate if two sprites are\n    colliding. It should take two sprites as values and return a bool value\n    indicating if they are colliding. If collided is not passed, then all\n    sprites must have a \"rect\" value, which is a rectangle of the sprite area,\n    which will be used to calculate the collision.\n\n\n    ";
+static PyMethodDef __pyx_mdef_7_sprite_11spritecollideany = {"spritecollideany", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_11spritecollideany, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_10spritecollideany};
+static PyObject *__pyx_pw_7_sprite_11spritecollideany(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_sprite = 0;
   PyObject *__pyx_v_group = 0;
   PyObject *__pyx_v_collided = 0;
@@ -24267,18 +24269,18 @@ static PyObject *__pyx_pw_6sprite_11spritecollideany(PyObject *__pyx_self, PyObj
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("spritecollideany", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1623, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sprite.spritecollideany", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.spritecollideany", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6sprite_10spritecollideany(__pyx_self, __pyx_v_sprite, __pyx_v_group, __pyx_v_collided);
+  __pyx_r = __pyx_pf_7_sprite_10spritecollideany(__pyx_self, __pyx_v_sprite, __pyx_v_group, __pyx_v_collided);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_collided) {
+static PyObject *__pyx_pf_7_sprite_10spritecollideany(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_sprite, PyObject *__pyx_v_group, PyObject *__pyx_v_collided) {
   PyObject *__pyx_v_s = NULL;
   PyObject *__pyx_v_spritecollide = NULL;
   PyObject *__pyx_r = NULL;
@@ -24294,7 +24296,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
   PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("spritecollideany", 0);
 
-  /* "sprite.pyx":1643
+  /* "_sprite.pyx":1643
  * 
  *     """
  *     if collided:             # <<<<<<<<<<<<<<
@@ -24304,7 +24306,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_collided); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 1643, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "sprite.pyx":1644
+    /* "_sprite.pyx":1644
  *     """
  *     if collided:
  *         for s in group:             # <<<<<<<<<<<<<<
@@ -24353,7 +24355,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
       __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "sprite.pyx":1645
+      /* "_sprite.pyx":1645
  *     if collided:
  *         for s in group:
  *             if collided(sprite, s):             # <<<<<<<<<<<<<<
@@ -24410,7 +24412,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (__pyx_t_1) {
 
-        /* "sprite.pyx":1646
+        /* "_sprite.pyx":1646
  *         for s in group:
  *             if collided(sprite, s):
  *                 return s             # <<<<<<<<<<<<<<
@@ -24423,7 +24425,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         goto __pyx_L0;
 
-        /* "sprite.pyx":1645
+        /* "_sprite.pyx":1645
  *     if collided:
  *         for s in group:
  *             if collided(sprite, s):             # <<<<<<<<<<<<<<
@@ -24432,7 +24434,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
  */
       }
 
-      /* "sprite.pyx":1644
+      /* "_sprite.pyx":1644
  *     """
  *     if collided:
  *         for s in group:             # <<<<<<<<<<<<<<
@@ -24442,7 +24444,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "sprite.pyx":1643
+    /* "_sprite.pyx":1643
  * 
  *     """
  *     if collided:             # <<<<<<<<<<<<<<
@@ -24452,7 +24454,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
     goto __pyx_L3;
   }
 
-  /* "sprite.pyx":1649
+  /* "_sprite.pyx":1649
  *     else:
  *         # Special case old behaviour for speed.
  *         spritecollide = sprite.rect.colliderect             # <<<<<<<<<<<<<<
@@ -24468,7 +24470,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
     __pyx_v_spritecollide = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "sprite.pyx":1650
+    /* "_sprite.pyx":1650
  *         # Special case old behaviour for speed.
  *         spritecollide = sprite.rect.colliderect
  *         for s in group:             # <<<<<<<<<<<<<<
@@ -24517,7 +24519,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
       __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "sprite.pyx":1651
+      /* "_sprite.pyx":1651
  *         spritecollide = sprite.rect.colliderect
  *         for s in group:
  *             if spritecollide(s.rect):             # <<<<<<<<<<<<<<
@@ -24547,7 +24549,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_1) {
 
-        /* "sprite.pyx":1652
+        /* "_sprite.pyx":1652
  *         for s in group:
  *             if spritecollide(s.rect):
  *                 return s             # <<<<<<<<<<<<<<
@@ -24559,7 +24561,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         goto __pyx_L0;
 
-        /* "sprite.pyx":1651
+        /* "_sprite.pyx":1651
  *         spritecollide = sprite.rect.colliderect
  *         for s in group:
  *             if spritecollide(s.rect):             # <<<<<<<<<<<<<<
@@ -24568,7 +24570,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
  */
       }
 
-      /* "sprite.pyx":1650
+      /* "_sprite.pyx":1650
  *         # Special case old behaviour for speed.
  *         spritecollide = sprite.rect.colliderect
  *         for s in group:             # <<<<<<<<<<<<<<
@@ -24580,7 +24582,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
   }
   __pyx_L3:;
 
-  /* "sprite.pyx":1653
+  /* "_sprite.pyx":1653
  *             if spritecollide(s.rect):
  *                 return s
  *     return None             # <<<<<<<<<<<<<<
@@ -24589,7 +24591,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "sprite.pyx":1623
+  /* "_sprite.pyx":1623
  *     return crashed
  * 
  * def spritecollideany(sprite, group, collided=None):             # <<<<<<<<<<<<<<
@@ -24604,7 +24606,7 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("sprite.spritecollideany", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("_sprite.spritecollideany", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_s);
@@ -24613,10 +24615,10 @@ static PyObject *__pyx_pf_6sprite_10spritecollideany(CYTHON_UNUSED PyObject *__p
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static struct __pyx_vtabstruct_6sprite_AbstractGroup __pyx_vtable_6sprite_AbstractGroup;
+static struct __pyx_vtabstruct_7_sprite_AbstractGroup __pyx_vtable_7_sprite_AbstractGroup;
 
-static PyObject *__pyx_tp_new_6sprite_AbstractGroup(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_6sprite_AbstractGroup *p;
+static PyObject *__pyx_tp_new_7_sprite_AbstractGroup(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_7_sprite_AbstractGroup *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -24624,19 +24626,19 @@ static PyObject *__pyx_tp_new_6sprite_AbstractGroup(PyTypeObject *t, CYTHON_UNUS
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_AbstractGroup *)o);
-  p->__pyx_vtab = __pyx_vtabptr_6sprite_AbstractGroup;
+  p = ((struct __pyx_obj_7_sprite_AbstractGroup *)o);
+  p->__pyx_vtab = __pyx_vtabptr_7_sprite_AbstractGroup;
   p->spritedict = ((PyObject*)Py_None); Py_INCREF(Py_None);
   p->lostsprites = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  if (unlikely(__pyx_pw_6sprite_13AbstractGroup_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  if (unlikely(__pyx_pw_7_sprite_13AbstractGroup_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_6sprite_AbstractGroup(PyObject *o) {
-  struct __pyx_obj_6sprite_AbstractGroup *p = (struct __pyx_obj_6sprite_AbstractGroup *)o;
+static void __pyx_tp_dealloc_7_sprite_AbstractGroup(PyObject *o) {
+  struct __pyx_obj_7_sprite_AbstractGroup *p = (struct __pyx_obj_7_sprite_AbstractGroup *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -24648,9 +24650,9 @@ static void __pyx_tp_dealloc_6sprite_AbstractGroup(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static int __pyx_tp_traverse_6sprite_AbstractGroup(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7_sprite_AbstractGroup(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6sprite_AbstractGroup *p = (struct __pyx_obj_6sprite_AbstractGroup *)o;
+  struct __pyx_obj_7_sprite_AbstractGroup *p = (struct __pyx_obj_7_sprite_AbstractGroup *)o;
   if (p->spritedict) {
     e = (*v)(p->spritedict, a); if (e) return e;
   }
@@ -24660,9 +24662,9 @@ static int __pyx_tp_traverse_6sprite_AbstractGroup(PyObject *o, visitproc v, voi
   return 0;
 }
 
-static int __pyx_tp_clear_6sprite_AbstractGroup(PyObject *o) {
+static int __pyx_tp_clear_7_sprite_AbstractGroup(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6sprite_AbstractGroup *p = (struct __pyx_obj_6sprite_AbstractGroup *)o;
+  struct __pyx_obj_7_sprite_AbstractGroup *p = (struct __pyx_obj_7_sprite_AbstractGroup *)o;
   tmp = ((PyObject*)p->spritedict);
   p->spritedict = ((PyObject*)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -24672,53 +24674,53 @@ static int __pyx_tp_clear_6sprite_AbstractGroup(PyObject *o) {
   return 0;
 }
 
-static PyObject *__pyx_getprop_6sprite_13AbstractGroup_spritedict(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_13AbstractGroup_10spritedict_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_13AbstractGroup_spritedict(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_13AbstractGroup_10spritedict_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_13AbstractGroup_spritedict(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_13AbstractGroup_spritedict(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_13AbstractGroup_10spritedict_3__set__(o, v);
+    return __pyx_pw_7_sprite_13AbstractGroup_10spritedict_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_13AbstractGroup_10spritedict_5__del__(o);
+    return __pyx_pw_7_sprite_13AbstractGroup_10spritedict_5__del__(o);
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_13AbstractGroup_lostsprites(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_13AbstractGroup_11lostsprites_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_13AbstractGroup_lostsprites(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_13AbstractGroup_lostsprites(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_13AbstractGroup_lostsprites(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_13AbstractGroup_11lostsprites_3__set__(o, v);
+    return __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_13AbstractGroup_11lostsprites_5__del__(o);
+    return __pyx_pw_7_sprite_13AbstractGroup_11lostsprites_5__del__(o);
   }
 }
 
-static PyMethodDef __pyx_methods_6sprite_AbstractGroup[] = {
-  {"sprites", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_3sprites, METH_NOARGS, __pyx_doc_6sprite_13AbstractGroup_2sprites},
-  {"add_internal", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_5add_internal, METH_O, 0},
-  {"remove_internal", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_7remove_internal, METH_O, 0},
-  {"has_internal", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_9has_internal, METH_O, 0},
-  {"copy", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_11copy, METH_NOARGS, __pyx_doc_6sprite_13AbstractGroup_10copy},
-  {"add", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_13AbstractGroup_17add, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_13AbstractGroup_16add},
-  {"remove", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_13AbstractGroup_19remove, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_13AbstractGroup_18remove},
-  {"has", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_13AbstractGroup_21has, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_13AbstractGroup_20has},
-  {"update", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_13AbstractGroup_23update, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_13AbstractGroup_22update},
-  {"draw", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_25draw, METH_O, __pyx_doc_6sprite_13AbstractGroup_24draw},
-  {"clear", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_13AbstractGroup_27clear, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_13AbstractGroup_26clear},
-  {"empty", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_29empty, METH_NOARGS, __pyx_doc_6sprite_13AbstractGroup_28empty},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_37__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_13AbstractGroup_39__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_AbstractGroup[] = {
+  {"sprites", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_3sprites, METH_NOARGS, __pyx_doc_7_sprite_13AbstractGroup_2sprites},
+  {"add_internal", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_5add_internal, METH_O, 0},
+  {"remove_internal", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_7remove_internal, METH_O, 0},
+  {"has_internal", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_9has_internal, METH_O, 0},
+  {"copy", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_11copy, METH_NOARGS, __pyx_doc_7_sprite_13AbstractGroup_10copy},
+  {"add", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_13AbstractGroup_17add, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_13AbstractGroup_16add},
+  {"remove", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_13AbstractGroup_19remove, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_13AbstractGroup_18remove},
+  {"has", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_13AbstractGroup_21has, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_13AbstractGroup_20has},
+  {"update", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_13AbstractGroup_23update, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_13AbstractGroup_22update},
+  {"draw", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_25draw, METH_O, __pyx_doc_7_sprite_13AbstractGroup_24draw},
+  {"clear", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_13AbstractGroup_27clear, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_13AbstractGroup_26clear},
+  {"empty", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_29empty, METH_NOARGS, __pyx_doc_7_sprite_13AbstractGroup_28empty},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_37__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_13AbstractGroup_39__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6sprite_AbstractGroup[] = {
-  {(char *)"spritedict", __pyx_getprop_6sprite_13AbstractGroup_spritedict, __pyx_setprop_6sprite_13AbstractGroup_spritedict, (char *)0, 0},
-  {(char *)"lostsprites", __pyx_getprop_6sprite_13AbstractGroup_lostsprites, __pyx_setprop_6sprite_13AbstractGroup_lostsprites, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_7_sprite_AbstractGroup[] = {
+  {(char *)"spritedict", __pyx_getprop_7_sprite_13AbstractGroup_spritedict, __pyx_setprop_7_sprite_13AbstractGroup_spritedict, (char *)0, 0},
+  {(char *)"lostsprites", __pyx_getprop_7_sprite_13AbstractGroup_lostsprites, __pyx_setprop_7_sprite_13AbstractGroup_lostsprites, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
@@ -24735,7 +24737,7 @@ static PyNumberMethods __pyx_tp_as_number_AbstractGroup = {
   0, /*nb_negative*/
   0, /*nb_positive*/
   0, /*nb_absolute*/
-  __pyx_pw_6sprite_13AbstractGroup_31__nonzero__, /*nb_nonzero*/
+  __pyx_pw_7_sprite_13AbstractGroup_31__nonzero__, /*nb_nonzero*/
   0, /*nb_invert*/
   0, /*nb_lshift*/
   0, /*nb_rshift*/
@@ -24785,30 +24787,30 @@ static PyNumberMethods __pyx_tp_as_number_AbstractGroup = {
 };
 
 static PySequenceMethods __pyx_tp_as_sequence_AbstractGroup = {
-  __pyx_pw_6sprite_13AbstractGroup_33__len__, /*sq_length*/
+  __pyx_pw_7_sprite_13AbstractGroup_33__len__, /*sq_length*/
   0, /*sq_concat*/
   0, /*sq_repeat*/
   0, /*sq_item*/
   0, /*sq_slice*/
   0, /*sq_ass_item*/
   0, /*sq_ass_slice*/
-  __pyx_pw_6sprite_13AbstractGroup_15__contains__, /*sq_contains*/
+  __pyx_pw_7_sprite_13AbstractGroup_15__contains__, /*sq_contains*/
   0, /*sq_inplace_concat*/
   0, /*sq_inplace_repeat*/
 };
 
 static PyMappingMethods __pyx_tp_as_mapping_AbstractGroup = {
-  __pyx_pw_6sprite_13AbstractGroup_33__len__, /*mp_length*/
+  __pyx_pw_7_sprite_13AbstractGroup_33__len__, /*mp_length*/
   0, /*mp_subscript*/
   0, /*mp_ass_subscript*/
 };
 
-static PyTypeObject __pyx_type_6sprite_AbstractGroup = {
+static PyTypeObject __pyx_type_7_sprite_AbstractGroup = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.AbstractGroup", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_AbstractGroup), /*tp_basicsize*/
+  "_sprite.AbstractGroup", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_AbstractGroup), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_AbstractGroup, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_AbstractGroup, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -24818,7 +24820,7 @@ static PyTypeObject __pyx_type_6sprite_AbstractGroup = {
   #if PY_MAJOR_VERSION >= 3
   0, /*tp_as_async*/
   #endif
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   &__pyx_tp_as_number_AbstractGroup, /*tp_as_number*/
   &__pyx_tp_as_sequence_AbstractGroup, /*tp_as_sequence*/
   &__pyx_tp_as_mapping_AbstractGroup, /*tp_as_mapping*/
@@ -24830,15 +24832,15 @@ static PyTypeObject __pyx_type_6sprite_AbstractGroup = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "base class for containers of sprites\n\n    AbstractGroup does everything needed to behave as a normal group. You can\n    easily subclass a new group class from this or the other groups below if\n    you want to add more features.\n\n    Any AbstractGroup-derived sprite groups act like sequences and support\n    iteration, len, and so on.\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_AbstractGroup, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_AbstractGroup, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_AbstractGroup, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_AbstractGroup, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_AbstractGroup, /*tp_methods*/
+  __pyx_methods_7_sprite_AbstractGroup, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6sprite_AbstractGroup, /*tp_getset*/
+  __pyx_getsets_7_sprite_AbstractGroup, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
@@ -24846,7 +24848,7 @@ static PyTypeObject __pyx_type_6sprite_AbstractGroup = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_AbstractGroup, /*tp_new*/
+  __pyx_tp_new_7_sprite_AbstractGroup, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -24860,10 +24862,10 @@ static PyTypeObject __pyx_type_6sprite_AbstractGroup = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_Sprite __pyx_vtable_6sprite_Sprite;
+static struct __pyx_vtabstruct_7_sprite_Sprite __pyx_vtable_7_sprite_Sprite;
 
-static PyObject *__pyx_tp_new_6sprite_Sprite(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_6sprite_Sprite *p;
+static PyObject *__pyx_tp_new_7_sprite_Sprite(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_7_sprite_Sprite *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -24871,20 +24873,20 @@ static PyObject *__pyx_tp_new_6sprite_Sprite(PyTypeObject *t, CYTHON_UNUSED PyOb
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_Sprite *)o);
-  p->__pyx_vtab = __pyx_vtabptr_6sprite_Sprite;
+  p = ((struct __pyx_obj_7_sprite_Sprite *)o);
+  p->__pyx_vtab = __pyx_vtabptr_7_sprite_Sprite;
   p->__g = ((PyObject*)Py_None); Py_INCREF(Py_None);
   p->image = Py_None; Py_INCREF(Py_None);
   p->rect = ((pgRectObject *)Py_None); Py_INCREF(Py_None);
-  p->__dict__ = PyDict_New(); if (unlikely(!p->__dict__)) goto bad;if (unlikely(__pyx_pw_6sprite_6Sprite_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  p->__dict__ = PyDict_New(); if (unlikely(!p->__dict__)) goto bad;if (unlikely(__pyx_pw_7_sprite_6Sprite_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_6sprite_Sprite(PyObject *o) {
-  struct __pyx_obj_6sprite_Sprite *p = (struct __pyx_obj_6sprite_Sprite *)o;
+static void __pyx_tp_dealloc_7_sprite_Sprite(PyObject *o) {
+  struct __pyx_obj_7_sprite_Sprite *p = (struct __pyx_obj_7_sprite_Sprite *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -24899,9 +24901,9 @@ static void __pyx_tp_dealloc_6sprite_Sprite(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static int __pyx_tp_traverse_6sprite_Sprite(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7_sprite_Sprite(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6sprite_Sprite *p = (struct __pyx_obj_6sprite_Sprite *)o;
+  struct __pyx_obj_7_sprite_Sprite *p = (struct __pyx_obj_7_sprite_Sprite *)o;
   if (p->__g) {
     e = (*v)(p->__g, a); if (e) return e;
   }
@@ -24917,9 +24919,9 @@ static int __pyx_tp_traverse_6sprite_Sprite(PyObject *o, visitproc v, void *a) {
   return 0;
 }
 
-static int __pyx_tp_clear_6sprite_Sprite(PyObject *o) {
+static int __pyx_tp_clear_7_sprite_Sprite(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6sprite_Sprite *p = (struct __pyx_obj_6sprite_Sprite *)o;
+  struct __pyx_obj_7_sprite_Sprite *p = (struct __pyx_obj_7_sprite_Sprite *)o;
   tmp = ((PyObject*)p->__g);
   p->__g = ((PyObject*)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -24935,8 +24937,8 @@ static int __pyx_tp_clear_6sprite_Sprite(PyObject *o) {
   return 0;
 }
 
-static PyObject *__pyx___dict__getter_6sprite_Sprite(PyObject *o, CYTHON_UNUSED void *x) {
-  struct __pyx_obj_6sprite_Sprite *p = (struct __pyx_obj_6sprite_Sprite *)o;
+static PyObject *__pyx___dict__getter_7_sprite_Sprite(PyObject *o, CYTHON_UNUSED void *x) {
+  struct __pyx_obj_7_sprite_Sprite *p = (struct __pyx_obj_7_sprite_Sprite *)o;
   if (unlikely(!p->__dict__)){
     p->__dict__ = PyDict_New();
   }
@@ -24944,73 +24946,73 @@ static PyObject *__pyx___dict__getter_6sprite_Sprite(PyObject *o, CYTHON_UNUSED 
   return p->__dict__;
 }
 
-static PyObject *__pyx_getprop_6sprite_6Sprite___g(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_6Sprite_3__g_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_6Sprite___g(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_6Sprite_3__g_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_6Sprite___g(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_6Sprite___g(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_6Sprite_3__g_3__set__(o, v);
+    return __pyx_pw_7_sprite_6Sprite_3__g_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_6Sprite_3__g_5__del__(o);
+    return __pyx_pw_7_sprite_6Sprite_3__g_5__del__(o);
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_6Sprite_image(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_6Sprite_5image_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_6Sprite_image(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_6Sprite_5image_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_6Sprite_image(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_6Sprite_image(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_6Sprite_5image_3__set__(o, v);
+    return __pyx_pw_7_sprite_6Sprite_5image_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_6Sprite_5image_5__del__(o);
+    return __pyx_pw_7_sprite_6Sprite_5image_5__del__(o);
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_6Sprite_rect(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_6Sprite_4rect_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_6Sprite_rect(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_6Sprite_4rect_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_6Sprite_rect(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_6Sprite_rect(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_6Sprite_4rect_3__set__(o, v);
+    return __pyx_pw_7_sprite_6Sprite_4rect_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_6Sprite_4rect_5__del__(o);
+    return __pyx_pw_7_sprite_6Sprite_4rect_5__del__(o);
   }
 }
 
-static PyMethodDef __pyx_methods_6sprite_Sprite[] = {
-  {"add", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_6Sprite_5add, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_6Sprite_4add},
-  {"remove", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_6Sprite_7remove, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_6Sprite_6remove},
-  {"add_internal", (PyCFunction)__pyx_pw_6sprite_6Sprite_9add_internal, METH_O, 0},
-  {"remove_internal", (PyCFunction)__pyx_pw_6sprite_6Sprite_11remove_internal, METH_O, 0},
-  {"update", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_6Sprite_13update, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_6Sprite_12update},
-  {"kill", (PyCFunction)__pyx_pw_6sprite_6Sprite_15kill, METH_NOARGS, __pyx_doc_6sprite_6Sprite_14kill},
-  {"groups", (PyCFunction)__pyx_pw_6sprite_6Sprite_17groups, METH_NOARGS, __pyx_doc_6sprite_6Sprite_16groups},
-  {"alive", (PyCFunction)__pyx_pw_6sprite_6Sprite_19alive, METH_NOARGS, __pyx_doc_6sprite_6Sprite_18alive},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_6Sprite_23__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_6Sprite_25__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_Sprite[] = {
+  {"add", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_6Sprite_5add, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_6Sprite_4add},
+  {"remove", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_6Sprite_7remove, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_6Sprite_6remove},
+  {"add_internal", (PyCFunction)__pyx_pw_7_sprite_6Sprite_9add_internal, METH_O, 0},
+  {"remove_internal", (PyCFunction)__pyx_pw_7_sprite_6Sprite_11remove_internal, METH_O, 0},
+  {"update", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_6Sprite_13update, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_6Sprite_12update},
+  {"kill", (PyCFunction)__pyx_pw_7_sprite_6Sprite_15kill, METH_NOARGS, __pyx_doc_7_sprite_6Sprite_14kill},
+  {"groups", (PyCFunction)__pyx_pw_7_sprite_6Sprite_17groups, METH_NOARGS, __pyx_doc_7_sprite_6Sprite_16groups},
+  {"alive", (PyCFunction)__pyx_pw_7_sprite_6Sprite_19alive, METH_NOARGS, __pyx_doc_7_sprite_6Sprite_18alive},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_6Sprite_23__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_6Sprite_25__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6sprite_Sprite[] = {
-  {(char *)"__dict__", __pyx___dict__getter_6sprite_Sprite, 0, (char *)0, 0},
-  {(char *)"__g", __pyx_getprop_6sprite_6Sprite___g, __pyx_setprop_6sprite_6Sprite___g, (char *)0, 0},
-  {(char *)"image", __pyx_getprop_6sprite_6Sprite_image, __pyx_setprop_6sprite_6Sprite_image, (char *)0, 0},
-  {(char *)"rect", __pyx_getprop_6sprite_6Sprite_rect, __pyx_setprop_6sprite_6Sprite_rect, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_7_sprite_Sprite[] = {
+  {(char *)"__dict__", __pyx___dict__getter_7_sprite_Sprite, 0, (char *)0, 0},
+  {(char *)"__g", __pyx_getprop_7_sprite_6Sprite___g, __pyx_setprop_7_sprite_6Sprite___g, (char *)0, 0},
+  {(char *)"image", __pyx_getprop_7_sprite_6Sprite_image, __pyx_setprop_7_sprite_6Sprite_image, (char *)0, 0},
+  {(char *)"rect", __pyx_getprop_7_sprite_6Sprite_rect, __pyx_setprop_7_sprite_6Sprite_rect, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6sprite_Sprite = {
+static PyTypeObject __pyx_type_7_sprite_Sprite = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.Sprite", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_Sprite), /*tp_basicsize*/
+  "_sprite.Sprite", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_Sprite), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_Sprite, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_Sprite, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25020,7 +25022,7 @@ static PyTypeObject __pyx_type_6sprite_Sprite = {
   #if PY_MAJOR_VERSION >= 3
   0, /*tp_as_async*/
   #endif
-  __pyx_pw_6sprite_6Sprite_21__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_6Sprite_21__repr__, /*tp_repr*/
   0, /*tp_as_number*/
   0, /*tp_as_sequence*/
   0, /*tp_as_mapping*/
@@ -25032,23 +25034,23 @@ static PyTypeObject __pyx_type_6sprite_Sprite = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "simple base class for visible game objects\n\n    pygame.sprite.Sprite(*groups): return Sprite\n\n    The base class for visible game objects. Derived classes will want to\n    override the Sprite.update() method and assign Sprite.image and Sprite.rect\n    attributes.  The initializer can accept any number of Group instances that\n    the Sprite will become a member of.\n\n    When subclassing the Sprite class, be sure to call the base initializer\n    before adding the Sprite to Groups.\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_Sprite, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_Sprite, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_Sprite, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_Sprite, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_Sprite, /*tp_methods*/
+  __pyx_methods_7_sprite_Sprite, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6sprite_Sprite, /*tp_getset*/
+  __pyx_getsets_7_sprite_Sprite, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
-  offsetof(struct __pyx_obj_6sprite_Sprite, __dict__), /*tp_dictoffset*/
-  __pyx_pw_6sprite_6Sprite_3__init__, /*tp_init*/
+  offsetof(struct __pyx_obj_7_sprite_Sprite, __dict__), /*tp_dictoffset*/
+  __pyx_pw_7_sprite_6Sprite_3__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_Sprite, /*tp_new*/
+  __pyx_tp_new_7_sprite_Sprite, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25062,29 +25064,29 @@ static PyTypeObject __pyx_type_6sprite_Sprite = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_Group __pyx_vtable_6sprite_Group;
+static struct __pyx_vtabstruct_7_sprite_Group __pyx_vtable_7_sprite_Group;
 
-static PyObject *__pyx_tp_new_6sprite_Group(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6sprite_Group *p;
-  PyObject *o = __pyx_tp_new_6sprite_AbstractGroup(t, a, k);
+static PyObject *__pyx_tp_new_7_sprite_Group(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7_sprite_Group *p;
+  PyObject *o = __pyx_tp_new_7_sprite_AbstractGroup(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_Group *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6sprite_AbstractGroup*)__pyx_vtabptr_6sprite_Group;
+  p = ((struct __pyx_obj_7_sprite_Group *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_7_sprite_AbstractGroup*)__pyx_vtabptr_7_sprite_Group;
   return o;
 }
 
-static PyMethodDef __pyx_methods_6sprite_Group[] = {
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_5Group_3__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_5Group_5__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_Group[] = {
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_5Group_3__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_5Group_5__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6sprite_Group = {
+static PyTypeObject __pyx_type_7_sprite_Group = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.Group", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_Group), /*tp_basicsize*/
+  "_sprite.Group", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_Group), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_AbstractGroup, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_AbstractGroup, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25095,7 +25097,7 @@ static PyTypeObject __pyx_type_6sprite_Group = {
   0, /*tp_as_async*/
   #endif
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   #else
   0, /*tp_repr*/
   #endif
@@ -25110,17 +25112,17 @@ static PyTypeObject __pyx_type_6sprite_Group = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "container class for many Sprites\n\n    pygame.sprite.Group(*sprites): return Group\n\n    A simple container for Sprite objects. This class can be subclassed to\n    create containers with more specific behaviors. The constructor takes any\n    number of Sprite arguments to add to the Group. The group supports the\n    following standard Python operations:\n\n        in      test if a Sprite is contained\n        len     the number of Sprites contained\n        bool    test if any Sprites are contained\n        iter    iterate through all the Sprites\n\n    The Sprites in the Group are not ordered, so the Sprites are drawn and\n    iterated over in no particular order.\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_AbstractGroup, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_AbstractGroup, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_AbstractGroup, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_AbstractGroup, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   #else
   0, /*tp_iter*/
   #endif
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_Group, /*tp_methods*/
+  __pyx_methods_7_sprite_Group, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -25128,9 +25130,9 @@ static PyTypeObject __pyx_type_6sprite_Group = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6sprite_5Group_1__init__, /*tp_init*/
+  __pyx_pw_7_sprite_5Group_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_Group, /*tp_new*/
+  __pyx_tp_new_7_sprite_Group, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25144,30 +25146,30 @@ static PyTypeObject __pyx_type_6sprite_Group = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_RenderUpdates __pyx_vtable_6sprite_RenderUpdates;
+static struct __pyx_vtabstruct_7_sprite_RenderUpdates __pyx_vtable_7_sprite_RenderUpdates;
 
-static PyObject *__pyx_tp_new_6sprite_RenderUpdates(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6sprite_RenderUpdates *p;
-  PyObject *o = __pyx_tp_new_6sprite_Group(t, a, k);
+static PyObject *__pyx_tp_new_7_sprite_RenderUpdates(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7_sprite_RenderUpdates *p;
+  PyObject *o = __pyx_tp_new_7_sprite_Group(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_RenderUpdates *)o);
-  p->__pyx_base.__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6sprite_AbstractGroup*)__pyx_vtabptr_6sprite_RenderUpdates;
+  p = ((struct __pyx_obj_7_sprite_RenderUpdates *)o);
+  p->__pyx_base.__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_7_sprite_AbstractGroup*)__pyx_vtabptr_7_sprite_RenderUpdates;
   return o;
 }
 
-static PyMethodDef __pyx_methods_6sprite_RenderUpdates[] = {
-  {"draw", (PyCFunction)__pyx_pw_6sprite_13RenderUpdates_1draw, METH_O, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_13RenderUpdates_3__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_13RenderUpdates_5__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_RenderUpdates[] = {
+  {"draw", (PyCFunction)__pyx_pw_7_sprite_13RenderUpdates_1draw, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_13RenderUpdates_3__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_13RenderUpdates_5__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6sprite_RenderUpdates = {
+static PyTypeObject __pyx_type_7_sprite_RenderUpdates = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.RenderUpdates", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_RenderUpdates), /*tp_basicsize*/
+  "_sprite.RenderUpdates", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_RenderUpdates), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_AbstractGroup, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_AbstractGroup, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25178,7 +25180,7 @@ static PyTypeObject __pyx_type_6sprite_RenderUpdates = {
   0, /*tp_as_async*/
   #endif
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   #else
   0, /*tp_repr*/
   #endif
@@ -25193,17 +25195,17 @@ static PyTypeObject __pyx_type_6sprite_RenderUpdates = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "Group class that tracks dirty updates\n\n    pygame.sprite.RenderUpdates(*sprites): return RenderUpdates\n\n    This class is derived from pygame.sprite.Group(). It has an enhanced draw\n    method that tracks the changed areas of the screen.\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_AbstractGroup, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_AbstractGroup, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_AbstractGroup, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_AbstractGroup, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   #else
   0, /*tp_iter*/
   #endif
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_RenderUpdates, /*tp_methods*/
+  __pyx_methods_7_sprite_RenderUpdates, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -25212,12 +25214,12 @@ static PyTypeObject __pyx_type_6sprite_RenderUpdates = {
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_5Group_1__init__, /*tp_init*/
+  __pyx_pw_7_sprite_5Group_1__init__, /*tp_init*/
   #else
   0, /*tp_init*/
   #endif
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_RenderUpdates, /*tp_new*/
+  __pyx_tp_new_7_sprite_RenderUpdates, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25231,20 +25233,20 @@ static PyTypeObject __pyx_type_6sprite_RenderUpdates = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_OrderedUpdates __pyx_vtable_6sprite_OrderedUpdates;
+static struct __pyx_vtabstruct_7_sprite_OrderedUpdates __pyx_vtable_7_sprite_OrderedUpdates;
 
-static PyObject *__pyx_tp_new_6sprite_OrderedUpdates(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6sprite_OrderedUpdates *p;
-  PyObject *o = __pyx_tp_new_6sprite_RenderUpdates(t, a, k);
+static PyObject *__pyx_tp_new_7_sprite_OrderedUpdates(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7_sprite_OrderedUpdates *p;
+  PyObject *o = __pyx_tp_new_7_sprite_RenderUpdates(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_OrderedUpdates *)o);
-  p->__pyx_base.__pyx_base.__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6sprite_AbstractGroup*)__pyx_vtabptr_6sprite_OrderedUpdates;
+  p = ((struct __pyx_obj_7_sprite_OrderedUpdates *)o);
+  p->__pyx_base.__pyx_base.__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_7_sprite_AbstractGroup*)__pyx_vtabptr_7_sprite_OrderedUpdates;
   p->_spritelist = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6sprite_OrderedUpdates(PyObject *o) {
-  struct __pyx_obj_6sprite_OrderedUpdates *p = (struct __pyx_obj_6sprite_OrderedUpdates *)o;
+static void __pyx_tp_dealloc_7_sprite_OrderedUpdates(PyObject *o) {
+  struct __pyx_obj_7_sprite_OrderedUpdates *p = (struct __pyx_obj_7_sprite_OrderedUpdates *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -25253,62 +25255,62 @@ static void __pyx_tp_dealloc_6sprite_OrderedUpdates(PyObject *o) {
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->_spritelist);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6sprite_AbstractGroup(o);
+  __pyx_tp_dealloc_7_sprite_AbstractGroup(o);
 }
 
-static int __pyx_tp_traverse_6sprite_OrderedUpdates(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7_sprite_OrderedUpdates(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6sprite_OrderedUpdates *p = (struct __pyx_obj_6sprite_OrderedUpdates *)o;
-  e = __pyx_tp_traverse_6sprite_AbstractGroup(o, v, a); if (e) return e;
+  struct __pyx_obj_7_sprite_OrderedUpdates *p = (struct __pyx_obj_7_sprite_OrderedUpdates *)o;
+  e = __pyx_tp_traverse_7_sprite_AbstractGroup(o, v, a); if (e) return e;
   if (p->_spritelist) {
     e = (*v)(p->_spritelist, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_6sprite_OrderedUpdates(PyObject *o) {
+static int __pyx_tp_clear_7_sprite_OrderedUpdates(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6sprite_OrderedUpdates *p = (struct __pyx_obj_6sprite_OrderedUpdates *)o;
-  __pyx_tp_clear_6sprite_AbstractGroup(o);
+  struct __pyx_obj_7_sprite_OrderedUpdates *p = (struct __pyx_obj_7_sprite_OrderedUpdates *)o;
+  __pyx_tp_clear_7_sprite_AbstractGroup(o);
   tmp = ((PyObject*)p->_spritelist);
   p->_spritelist = ((PyObject*)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyObject *__pyx_getprop_6sprite_14OrderedUpdates__spritelist(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_14OrderedUpdates__spritelist(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_14OrderedUpdates__spritelist(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_14OrderedUpdates__spritelist(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_3__set__(o, v);
+    return __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_14OrderedUpdates_11_spritelist_5__del__(o);
+    return __pyx_pw_7_sprite_14OrderedUpdates_11_spritelist_5__del__(o);
   }
 }
 
-static PyMethodDef __pyx_methods_6sprite_OrderedUpdates[] = {
-  {"sprites", (PyCFunction)__pyx_pw_6sprite_14OrderedUpdates_3sprites, METH_NOARGS, 0},
-  {"add_internal", (PyCFunction)__pyx_pw_6sprite_14OrderedUpdates_5add_internal, METH_O, 0},
-  {"remove_internal", (PyCFunction)__pyx_pw_6sprite_14OrderedUpdates_7remove_internal, METH_O, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_14OrderedUpdates_9__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_14OrderedUpdates_11__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_OrderedUpdates[] = {
+  {"sprites", (PyCFunction)__pyx_pw_7_sprite_14OrderedUpdates_3sprites, METH_NOARGS, 0},
+  {"add_internal", (PyCFunction)__pyx_pw_7_sprite_14OrderedUpdates_5add_internal, METH_O, 0},
+  {"remove_internal", (PyCFunction)__pyx_pw_7_sprite_14OrderedUpdates_7remove_internal, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_14OrderedUpdates_9__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_14OrderedUpdates_11__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6sprite_OrderedUpdates[] = {
-  {(char *)"_spritelist", __pyx_getprop_6sprite_14OrderedUpdates__spritelist, __pyx_setprop_6sprite_14OrderedUpdates__spritelist, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_7_sprite_OrderedUpdates[] = {
+  {(char *)"_spritelist", __pyx_getprop_7_sprite_14OrderedUpdates__spritelist, __pyx_setprop_7_sprite_14OrderedUpdates__spritelist, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6sprite_OrderedUpdates = {
+static PyTypeObject __pyx_type_7_sprite_OrderedUpdates = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.OrderedUpdates", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_OrderedUpdates), /*tp_basicsize*/
+  "_sprite.OrderedUpdates", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_OrderedUpdates), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_OrderedUpdates, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_OrderedUpdates, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25319,7 +25321,7 @@ static PyTypeObject __pyx_type_6sprite_OrderedUpdates = {
   0, /*tp_as_async*/
   #endif
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   #else
   0, /*tp_repr*/
   #endif
@@ -25334,27 +25336,27 @@ static PyTypeObject __pyx_type_6sprite_OrderedUpdates = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "RenderUpdates class that draws Sprites in order of addition\n\n    pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates\n\n    This class derives from pygame.sprite.RenderUpdates().  It maintains\n    the order in which the Sprites were added to the Group for rendering.\n    This makes adding and removing Sprites from the Group a little\n    slower than regular Groups.\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_OrderedUpdates, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_OrderedUpdates, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_OrderedUpdates, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_OrderedUpdates, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   #else
   0, /*tp_iter*/
   #endif
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_OrderedUpdates, /*tp_methods*/
+  __pyx_methods_7_sprite_OrderedUpdates, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6sprite_OrderedUpdates, /*tp_getset*/
+  __pyx_getsets_7_sprite_OrderedUpdates, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6sprite_14OrderedUpdates_1__init__, /*tp_init*/
+  __pyx_pw_7_sprite_14OrderedUpdates_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_OrderedUpdates, /*tp_new*/
+  __pyx_tp_new_7_sprite_OrderedUpdates, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25368,25 +25370,25 @@ static PyTypeObject __pyx_type_6sprite_OrderedUpdates = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_LayeredUpdates __pyx_vtable_6sprite_LayeredUpdates;
+static struct __pyx_vtabstruct_7_sprite_LayeredUpdates __pyx_vtable_7_sprite_LayeredUpdates;
 
-static PyObject *__pyx_tp_new_6sprite_LayeredUpdates(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6sprite_LayeredUpdates *p;
-  PyObject *o = __pyx_tp_new_6sprite_AbstractGroup(t, a, k);
+static PyObject *__pyx_tp_new_7_sprite_LayeredUpdates(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7_sprite_LayeredUpdates *p;
+  PyObject *o = __pyx_tp_new_7_sprite_AbstractGroup(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_LayeredUpdates *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6sprite_AbstractGroup*)__pyx_vtabptr_6sprite_LayeredUpdates;
+  p = ((struct __pyx_obj_7_sprite_LayeredUpdates *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_7_sprite_AbstractGroup*)__pyx_vtabptr_7_sprite_LayeredUpdates;
   p->_spritelayers = ((PyObject*)Py_None); Py_INCREF(Py_None);
   p->_spritelist = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  if (unlikely(__pyx_pw_6sprite_14LayeredUpdates_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  if (unlikely(__pyx_pw_7_sprite_14LayeredUpdates_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_6sprite_LayeredUpdates(PyObject *o) {
-  struct __pyx_obj_6sprite_LayeredUpdates *p = (struct __pyx_obj_6sprite_LayeredUpdates *)o;
+static void __pyx_tp_dealloc_7_sprite_LayeredUpdates(PyObject *o) {
+  struct __pyx_obj_7_sprite_LayeredUpdates *p = (struct __pyx_obj_7_sprite_LayeredUpdates *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -25396,13 +25398,13 @@ static void __pyx_tp_dealloc_6sprite_LayeredUpdates(PyObject *o) {
   Py_CLEAR(p->_spritelayers);
   Py_CLEAR(p->_spritelist);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6sprite_AbstractGroup(o);
+  __pyx_tp_dealloc_7_sprite_AbstractGroup(o);
 }
 
-static int __pyx_tp_traverse_6sprite_LayeredUpdates(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7_sprite_LayeredUpdates(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6sprite_LayeredUpdates *p = (struct __pyx_obj_6sprite_LayeredUpdates *)o;
-  e = __pyx_tp_traverse_6sprite_AbstractGroup(o, v, a); if (e) return e;
+  struct __pyx_obj_7_sprite_LayeredUpdates *p = (struct __pyx_obj_7_sprite_LayeredUpdates *)o;
+  e = __pyx_tp_traverse_7_sprite_AbstractGroup(o, v, a); if (e) return e;
   if (p->_spritelayers) {
     e = (*v)(p->_spritelayers, a); if (e) return e;
   }
@@ -25412,10 +25414,10 @@ static int __pyx_tp_traverse_6sprite_LayeredUpdates(PyObject *o, visitproc v, vo
   return 0;
 }
 
-static int __pyx_tp_clear_6sprite_LayeredUpdates(PyObject *o) {
+static int __pyx_tp_clear_7_sprite_LayeredUpdates(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6sprite_LayeredUpdates *p = (struct __pyx_obj_6sprite_LayeredUpdates *)o;
-  __pyx_tp_clear_6sprite_AbstractGroup(o);
+  struct __pyx_obj_7_sprite_LayeredUpdates *p = (struct __pyx_obj_7_sprite_LayeredUpdates *)o;
+  __pyx_tp_clear_7_sprite_AbstractGroup(o);
   tmp = ((PyObject*)p->_spritelayers);
   p->_spritelayers = ((PyObject*)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -25425,39 +25427,39 @@ static int __pyx_tp_clear_6sprite_LayeredUpdates(PyObject *o) {
   return 0;
 }
 
-static PyObject *__pyx_getprop_6sprite_14LayeredUpdates__spritelayers(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_14LayeredUpdates__spritelayers(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_14LayeredUpdates__spritelayers(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_14LayeredUpdates__spritelayers(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_3__set__(o, v);
+    return __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_14LayeredUpdates_13_spritelayers_5__del__(o);
+    return __pyx_pw_7_sprite_14LayeredUpdates_13_spritelayers_5__del__(o);
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_14LayeredUpdates__spritelist(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_14LayeredUpdates__spritelist(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_14LayeredUpdates__spritelist(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_14LayeredUpdates__spritelist(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_3__set__(o, v);
+    return __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_14LayeredUpdates_11_spritelist_5__del__(o);
+    return __pyx_pw_7_sprite_14LayeredUpdates_11_spritelist_5__del__(o);
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_14LayeredUpdates__default_layer(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_14LayeredUpdates_14_default_layer_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_14LayeredUpdates__default_layer(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_14LayeredUpdates_14_default_layer_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_14LayeredUpdates__default_layer(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_14LayeredUpdates__default_layer(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_14LayeredUpdates_14_default_layer_3__set__(o, v);
+    return __pyx_pw_7_sprite_14LayeredUpdates_14_default_layer_3__set__(o, v);
   }
   else {
     PyErr_SetString(PyExc_NotImplementedError, "__del__");
@@ -25465,43 +25467,43 @@ static int __pyx_setprop_6sprite_14LayeredUpdates__default_layer(PyObject *o, Py
   }
 }
 
-static PyMethodDef __pyx_methods_6sprite_LayeredUpdates[] = {
-  {"add_internal", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_14LayeredUpdates_5add_internal, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_14LayeredUpdates_4add_internal},
-  {"add", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_14LayeredUpdates_7add, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_14LayeredUpdates_6add},
-  {"remove_internal", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_9remove_internal, METH_O, __pyx_doc_6sprite_14LayeredUpdates_8remove_internal},
-  {"sprites", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_11sprites, METH_NOARGS, __pyx_doc_6sprite_14LayeredUpdates_10sprites},
-  {"draw", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_13draw, METH_O, __pyx_doc_6sprite_14LayeredUpdates_12draw},
-  {"get_sprites_at", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_15get_sprites_at, METH_O, __pyx_doc_6sprite_14LayeredUpdates_14get_sprites_at},
-  {"get_sprite", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_17get_sprite, METH_O, __pyx_doc_6sprite_14LayeredUpdates_16get_sprite},
-  {"remove_sprites_of_layer", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_19remove_sprites_of_layer, METH_O, __pyx_doc_6sprite_14LayeredUpdates_18remove_sprites_of_layer},
-  {"layers", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_21layers, METH_NOARGS, __pyx_doc_6sprite_14LayeredUpdates_20layers},
-  {"change_layer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_14LayeredUpdates_23change_layer, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_14LayeredUpdates_22change_layer},
-  {"get_layer_of_sprite", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_25get_layer_of_sprite, METH_O, __pyx_doc_6sprite_14LayeredUpdates_24get_layer_of_sprite},
-  {"get_top_layer", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_27get_top_layer, METH_NOARGS, __pyx_doc_6sprite_14LayeredUpdates_26get_top_layer},
-  {"get_bottom_layer", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_29get_bottom_layer, METH_NOARGS, __pyx_doc_6sprite_14LayeredUpdates_28get_bottom_layer},
-  {"move_to_front", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_31move_to_front, METH_O, __pyx_doc_6sprite_14LayeredUpdates_30move_to_front},
-  {"move_to_back", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_33move_to_back, METH_O, __pyx_doc_6sprite_14LayeredUpdates_32move_to_back},
-  {"get_top_sprite", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_35get_top_sprite, METH_NOARGS, __pyx_doc_6sprite_14LayeredUpdates_34get_top_sprite},
-  {"get_sprites_from_layer", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_37get_sprites_from_layer, METH_O, __pyx_doc_6sprite_14LayeredUpdates_36get_sprites_from_layer},
-  {"switch_layer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_14LayeredUpdates_39switch_layer, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_14LayeredUpdates_38switch_layer},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_41__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_14LayeredUpdates_43__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_LayeredUpdates[] = {
+  {"add_internal", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_14LayeredUpdates_5add_internal, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_14LayeredUpdates_4add_internal},
+  {"add", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_14LayeredUpdates_7add, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_14LayeredUpdates_6add},
+  {"remove_internal", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_9remove_internal, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_8remove_internal},
+  {"sprites", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_11sprites, METH_NOARGS, __pyx_doc_7_sprite_14LayeredUpdates_10sprites},
+  {"draw", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_13draw, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_12draw},
+  {"get_sprites_at", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_15get_sprites_at, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_14get_sprites_at},
+  {"get_sprite", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_17get_sprite, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_16get_sprite},
+  {"remove_sprites_of_layer", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_19remove_sprites_of_layer, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_18remove_sprites_of_layer},
+  {"layers", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_21layers, METH_NOARGS, __pyx_doc_7_sprite_14LayeredUpdates_20layers},
+  {"change_layer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_14LayeredUpdates_23change_layer, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_14LayeredUpdates_22change_layer},
+  {"get_layer_of_sprite", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_25get_layer_of_sprite, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_24get_layer_of_sprite},
+  {"get_top_layer", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_27get_top_layer, METH_NOARGS, __pyx_doc_7_sprite_14LayeredUpdates_26get_top_layer},
+  {"get_bottom_layer", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_29get_bottom_layer, METH_NOARGS, __pyx_doc_7_sprite_14LayeredUpdates_28get_bottom_layer},
+  {"move_to_front", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_31move_to_front, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_30move_to_front},
+  {"move_to_back", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_33move_to_back, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_32move_to_back},
+  {"get_top_sprite", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_35get_top_sprite, METH_NOARGS, __pyx_doc_7_sprite_14LayeredUpdates_34get_top_sprite},
+  {"get_sprites_from_layer", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_37get_sprites_from_layer, METH_O, __pyx_doc_7_sprite_14LayeredUpdates_36get_sprites_from_layer},
+  {"switch_layer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_14LayeredUpdates_39switch_layer, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_14LayeredUpdates_38switch_layer},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_41__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_14LayeredUpdates_43__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6sprite_LayeredUpdates[] = {
-  {(char *)"_spritelayers", __pyx_getprop_6sprite_14LayeredUpdates__spritelayers, __pyx_setprop_6sprite_14LayeredUpdates__spritelayers, (char *)0, 0},
-  {(char *)"_spritelist", __pyx_getprop_6sprite_14LayeredUpdates__spritelist, __pyx_setprop_6sprite_14LayeredUpdates__spritelist, (char *)0, 0},
-  {(char *)"_default_layer", __pyx_getprop_6sprite_14LayeredUpdates__default_layer, __pyx_setprop_6sprite_14LayeredUpdates__default_layer, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_7_sprite_LayeredUpdates[] = {
+  {(char *)"_spritelayers", __pyx_getprop_7_sprite_14LayeredUpdates__spritelayers, __pyx_setprop_7_sprite_14LayeredUpdates__spritelayers, (char *)0, 0},
+  {(char *)"_spritelist", __pyx_getprop_7_sprite_14LayeredUpdates__spritelist, __pyx_setprop_7_sprite_14LayeredUpdates__spritelist, (char *)0, 0},
+  {(char *)"_default_layer", __pyx_getprop_7_sprite_14LayeredUpdates__default_layer, __pyx_setprop_7_sprite_14LayeredUpdates__default_layer, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6sprite_LayeredUpdates = {
+static PyTypeObject __pyx_type_7_sprite_LayeredUpdates = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.LayeredUpdates", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_LayeredUpdates), /*tp_basicsize*/
+  "_sprite.LayeredUpdates", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_LayeredUpdates), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_LayeredUpdates, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_LayeredUpdates, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25512,7 +25514,7 @@ static PyTypeObject __pyx_type_6sprite_LayeredUpdates = {
   0, /*tp_as_async*/
   #endif
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   #else
   0, /*tp_repr*/
   #endif
@@ -25527,27 +25529,27 @@ static PyTypeObject __pyx_type_6sprite_LayeredUpdates = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "LayeredUpdates Group handles layers, which are drawn like OrderedUpdates\n\n    pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates\n\n    This group is fully compatible with pygame.sprite.Sprite.\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_LayeredUpdates, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_LayeredUpdates, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_LayeredUpdates, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_LayeredUpdates, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   #else
   0, /*tp_iter*/
   #endif
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_LayeredUpdates, /*tp_methods*/
+  __pyx_methods_7_sprite_LayeredUpdates, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6sprite_LayeredUpdates, /*tp_getset*/
+  __pyx_getsets_7_sprite_LayeredUpdates, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6sprite_14LayeredUpdates_3__init__, /*tp_init*/
+  __pyx_pw_7_sprite_14LayeredUpdates_3__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_LayeredUpdates, /*tp_new*/
+  __pyx_tp_new_7_sprite_LayeredUpdates, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25561,21 +25563,21 @@ static PyTypeObject __pyx_type_6sprite_LayeredUpdates = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_LayeredDirty __pyx_vtable_6sprite_LayeredDirty;
+static struct __pyx_vtabstruct_7_sprite_LayeredDirty __pyx_vtable_7_sprite_LayeredDirty;
 
-static PyObject *__pyx_tp_new_6sprite_LayeredDirty(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6sprite_LayeredDirty *p;
-  PyObject *o = __pyx_tp_new_6sprite_LayeredUpdates(t, a, k);
+static PyObject *__pyx_tp_new_7_sprite_LayeredDirty(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7_sprite_LayeredDirty *p;
+  PyObject *o = __pyx_tp_new_7_sprite_LayeredUpdates(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_LayeredDirty *)o);
-  p->__pyx_base.__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6sprite_AbstractGroup*)__pyx_vtabptr_6sprite_LayeredDirty;
+  p = ((struct __pyx_obj_7_sprite_LayeredDirty *)o);
+  p->__pyx_base.__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_7_sprite_AbstractGroup*)__pyx_vtabptr_7_sprite_LayeredDirty;
   p->_clip = ((pgRectObject *)Py_None); Py_INCREF(Py_None);
   p->_bgd = Py_None; Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6sprite_LayeredDirty(PyObject *o) {
-  struct __pyx_obj_6sprite_LayeredDirty *p = (struct __pyx_obj_6sprite_LayeredDirty *)o;
+static void __pyx_tp_dealloc_7_sprite_LayeredDirty(PyObject *o) {
+  struct __pyx_obj_7_sprite_LayeredDirty *p = (struct __pyx_obj_7_sprite_LayeredDirty *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -25585,13 +25587,13 @@ static void __pyx_tp_dealloc_6sprite_LayeredDirty(PyObject *o) {
   Py_CLEAR(p->_clip);
   Py_CLEAR(p->_bgd);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6sprite_LayeredUpdates(o);
+  __pyx_tp_dealloc_7_sprite_LayeredUpdates(o);
 }
 
-static int __pyx_tp_traverse_6sprite_LayeredDirty(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7_sprite_LayeredDirty(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6sprite_LayeredDirty *p = (struct __pyx_obj_6sprite_LayeredDirty *)o;
-  e = __pyx_tp_traverse_6sprite_LayeredUpdates(o, v, a); if (e) return e;
+  struct __pyx_obj_7_sprite_LayeredDirty *p = (struct __pyx_obj_7_sprite_LayeredDirty *)o;
+  e = __pyx_tp_traverse_7_sprite_LayeredUpdates(o, v, a); if (e) return e;
   if (p->_clip) {
     e = (*v)(((PyObject *)p->_clip), a); if (e) return e;
   }
@@ -25601,10 +25603,10 @@ static int __pyx_tp_traverse_6sprite_LayeredDirty(PyObject *o, visitproc v, void
   return 0;
 }
 
-static int __pyx_tp_clear_6sprite_LayeredDirty(PyObject *o) {
+static int __pyx_tp_clear_7_sprite_LayeredDirty(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6sprite_LayeredDirty *p = (struct __pyx_obj_6sprite_LayeredDirty *)o;
-  __pyx_tp_clear_6sprite_LayeredUpdates(o);
+  struct __pyx_obj_7_sprite_LayeredDirty *p = (struct __pyx_obj_7_sprite_LayeredDirty *)o;
+  __pyx_tp_clear_7_sprite_LayeredUpdates(o);
   tmp = ((PyObject*)p->_clip);
   p->_clip = ((pgRectObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -25614,40 +25616,26 @@ static int __pyx_tp_clear_6sprite_LayeredDirty(PyObject *o) {
   return 0;
 }
 
-static PyObject *__pyx_getprop_6sprite_12LayeredDirty__clip(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_12LayeredDirty_5_clip_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_12LayeredDirty__clip(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_12LayeredDirty_5_clip_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_12LayeredDirty__clip(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_12LayeredDirty__clip(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_12LayeredDirty_5_clip_3__set__(o, v);
+    return __pyx_pw_7_sprite_12LayeredDirty_5_clip_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_12LayeredDirty_5_clip_5__del__(o);
+    return __pyx_pw_7_sprite_12LayeredDirty_5_clip_5__del__(o);
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_12LayeredDirty__use_update(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_12LayeredDirty_11_use_update_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_12LayeredDirty__use_update(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_12LayeredDirty_11_use_update_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_12LayeredDirty__use_update(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_12LayeredDirty__use_update(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_12LayeredDirty_11_use_update_3__set__(o, v);
-  }
-  else {
-    PyErr_SetString(PyExc_NotImplementedError, "__del__");
-    return -1;
-  }
-}
-
-static PyObject *__pyx_getprop_6sprite_12LayeredDirty__time_threshold(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_12LayeredDirty_15_time_threshold_1__get__(o);
-}
-
-static int __pyx_setprop_6sprite_12LayeredDirty__time_threshold(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
-  if (v) {
-    return __pyx_pw_6sprite_12LayeredDirty_15_time_threshold_3__set__(o, v);
+    return __pyx_pw_7_sprite_12LayeredDirty_11_use_update_3__set__(o, v);
   }
   else {
     PyErr_SetString(PyExc_NotImplementedError, "__del__");
@@ -25655,47 +25643,61 @@ static int __pyx_setprop_6sprite_12LayeredDirty__time_threshold(PyObject *o, PyO
   }
 }
 
-static PyObject *__pyx_getprop_6sprite_12LayeredDirty__bgd(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_12LayeredDirty_4_bgd_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_12LayeredDirty__time_threshold(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_12LayeredDirty_15_time_threshold_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_12LayeredDirty__bgd(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_12LayeredDirty__time_threshold(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_12LayeredDirty_4_bgd_3__set__(o, v);
+    return __pyx_pw_7_sprite_12LayeredDirty_15_time_threshold_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_12LayeredDirty_4_bgd_5__del__(o);
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
   }
 }
 
-static PyMethodDef __pyx_methods_6sprite_LayeredDirty[] = {
-  {"add_internal", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_12LayeredDirty_3add_internal, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_12LayeredDirty_2add_internal},
-  {"draw", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_12LayeredDirty_5draw, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_12LayeredDirty_4draw},
-  {"clear", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_12LayeredDirty_7clear, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_12LayeredDirty_6clear},
-  {"repaint_rect", (PyCFunction)__pyx_pw_6sprite_12LayeredDirty_9repaint_rect, METH_O, __pyx_doc_6sprite_12LayeredDirty_8repaint_rect},
-  {"set_clip", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_12LayeredDirty_11set_clip, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_12LayeredDirty_10set_clip},
-  {"get_clip", (PyCFunction)__pyx_pw_6sprite_12LayeredDirty_13get_clip, METH_NOARGS, __pyx_doc_6sprite_12LayeredDirty_12get_clip},
-  {"change_layer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6sprite_12LayeredDirty_15change_layer, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6sprite_12LayeredDirty_14change_layer},
-  {"set_timing_treshold", (PyCFunction)__pyx_pw_6sprite_12LayeredDirty_17set_timing_treshold, METH_O, __pyx_doc_6sprite_12LayeredDirty_16set_timing_treshold},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_12LayeredDirty_19__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_12LayeredDirty_21__setstate_cython__, METH_O, 0},
+static PyObject *__pyx_getprop_7_sprite_12LayeredDirty__bgd(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_12LayeredDirty_4_bgd_1__get__(o);
+}
+
+static int __pyx_setprop_7_sprite_12LayeredDirty__bgd(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_7_sprite_12LayeredDirty_4_bgd_3__set__(o, v);
+  }
+  else {
+    return __pyx_pw_7_sprite_12LayeredDirty_4_bgd_5__del__(o);
+  }
+}
+
+static PyMethodDef __pyx_methods_7_sprite_LayeredDirty[] = {
+  {"add_internal", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_12LayeredDirty_3add_internal, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_12LayeredDirty_2add_internal},
+  {"draw", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_12LayeredDirty_5draw, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_12LayeredDirty_4draw},
+  {"clear", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_12LayeredDirty_7clear, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_12LayeredDirty_6clear},
+  {"repaint_rect", (PyCFunction)__pyx_pw_7_sprite_12LayeredDirty_9repaint_rect, METH_O, __pyx_doc_7_sprite_12LayeredDirty_8repaint_rect},
+  {"set_clip", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_12LayeredDirty_11set_clip, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_12LayeredDirty_10set_clip},
+  {"get_clip", (PyCFunction)__pyx_pw_7_sprite_12LayeredDirty_13get_clip, METH_NOARGS, __pyx_doc_7_sprite_12LayeredDirty_12get_clip},
+  {"change_layer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7_sprite_12LayeredDirty_15change_layer, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7_sprite_12LayeredDirty_14change_layer},
+  {"set_timing_treshold", (PyCFunction)__pyx_pw_7_sprite_12LayeredDirty_17set_timing_treshold, METH_O, __pyx_doc_7_sprite_12LayeredDirty_16set_timing_treshold},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_12LayeredDirty_19__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_12LayeredDirty_21__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6sprite_LayeredDirty[] = {
-  {(char *)"_clip", __pyx_getprop_6sprite_12LayeredDirty__clip, __pyx_setprop_6sprite_12LayeredDirty__clip, (char *)0, 0},
-  {(char *)"_use_update", __pyx_getprop_6sprite_12LayeredDirty__use_update, __pyx_setprop_6sprite_12LayeredDirty__use_update, (char *)0, 0},
-  {(char *)"_time_threshold", __pyx_getprop_6sprite_12LayeredDirty__time_threshold, __pyx_setprop_6sprite_12LayeredDirty__time_threshold, (char *)0, 0},
-  {(char *)"_bgd", __pyx_getprop_6sprite_12LayeredDirty__bgd, __pyx_setprop_6sprite_12LayeredDirty__bgd, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_7_sprite_LayeredDirty[] = {
+  {(char *)"_clip", __pyx_getprop_7_sprite_12LayeredDirty__clip, __pyx_setprop_7_sprite_12LayeredDirty__clip, (char *)0, 0},
+  {(char *)"_use_update", __pyx_getprop_7_sprite_12LayeredDirty__use_update, __pyx_setprop_7_sprite_12LayeredDirty__use_update, (char *)0, 0},
+  {(char *)"_time_threshold", __pyx_getprop_7_sprite_12LayeredDirty__time_threshold, __pyx_setprop_7_sprite_12LayeredDirty__time_threshold, (char *)0, 0},
+  {(char *)"_bgd", __pyx_getprop_7_sprite_12LayeredDirty__bgd, __pyx_setprop_7_sprite_12LayeredDirty__bgd, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6sprite_LayeredDirty = {
+static PyTypeObject __pyx_type_7_sprite_LayeredDirty = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.LayeredDirty", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_LayeredDirty), /*tp_basicsize*/
+  "_sprite.LayeredDirty", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_LayeredDirty), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_LayeredDirty, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_LayeredDirty, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25706,7 +25708,7 @@ static PyTypeObject __pyx_type_6sprite_LayeredDirty = {
   0, /*tp_as_async*/
   #endif
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   #else
   0, /*tp_repr*/
   #endif
@@ -25721,27 +25723,27 @@ static PyTypeObject __pyx_type_6sprite_LayeredDirty = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "LayeredDirty Group is for DirtySprites; subclasses LayeredUpdates\n\n    pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\n\n    This group requires pygame.sprite.DirtySprite or any sprite that\n    has the following attributes:\n        image, rect, dirty, visible, blendmode (see doc of DirtySprite).\n\n    It uses the dirty flag technique and is therefore faster than\n    pygame.sprite.RenderUpdates if you have many static sprites.  It\n    also switches automatically between dirty rect updating and full\n    screen drawing, so you do no have to worry which would be faster.\n\n    As with the pygame.sprite.Group, you can specify some additional attributes\n    through kwargs:\n        _use_update: True/False   (default is False)\n        _default_layer: default layer where the sprites without a layer are\n            added\n        _time_threshold: treshold time for switching between dirty rect mode\n            and fullscreen mode; defaults to updating at 80 frames per second,\n            which is equal to 1000.0 / 80.0\n\n    New in pygame 1.8.0\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_LayeredDirty, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_LayeredDirty, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_LayeredDirty, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_LayeredDirty, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   #else
   0, /*tp_iter*/
   #endif
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_LayeredDirty, /*tp_methods*/
+  __pyx_methods_7_sprite_LayeredDirty, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6sprite_LayeredDirty, /*tp_getset*/
+  __pyx_getsets_7_sprite_LayeredDirty, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6sprite_12LayeredDirty_1__init__, /*tp_init*/
+  __pyx_pw_7_sprite_12LayeredDirty_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_LayeredDirty, /*tp_new*/
+  __pyx_tp_new_7_sprite_LayeredDirty, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25755,20 +25757,20 @@ static PyTypeObject __pyx_type_6sprite_LayeredDirty = {
   0, /*tp_finalize*/
   #endif
 };
-static struct __pyx_vtabstruct_6sprite_GroupSingle __pyx_vtable_6sprite_GroupSingle;
+static struct __pyx_vtabstruct_7_sprite_GroupSingle __pyx_vtable_7_sprite_GroupSingle;
 
-static PyObject *__pyx_tp_new_6sprite_GroupSingle(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6sprite_GroupSingle *p;
-  PyObject *o = __pyx_tp_new_6sprite_AbstractGroup(t, a, k);
+static PyObject *__pyx_tp_new_7_sprite_GroupSingle(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7_sprite_GroupSingle *p;
+  PyObject *o = __pyx_tp_new_7_sprite_AbstractGroup(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6sprite_GroupSingle *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6sprite_AbstractGroup*)__pyx_vtabptr_6sprite_GroupSingle;
+  p = ((struct __pyx_obj_7_sprite_GroupSingle *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_7_sprite_AbstractGroup*)__pyx_vtabptr_7_sprite_GroupSingle;
   p->__sprite = Py_None; Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6sprite_GroupSingle(PyObject *o) {
-  struct __pyx_obj_6sprite_GroupSingle *p = (struct __pyx_obj_6sprite_GroupSingle *)o;
+static void __pyx_tp_dealloc_7_sprite_GroupSingle(PyObject *o) {
+  struct __pyx_obj_7_sprite_GroupSingle *p = (struct __pyx_obj_7_sprite_GroupSingle *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -25777,57 +25779,57 @@ static void __pyx_tp_dealloc_6sprite_GroupSingle(PyObject *o) {
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__sprite);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6sprite_AbstractGroup(o);
+  __pyx_tp_dealloc_7_sprite_AbstractGroup(o);
 }
 
-static int __pyx_tp_traverse_6sprite_GroupSingle(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7_sprite_GroupSingle(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6sprite_GroupSingle *p = (struct __pyx_obj_6sprite_GroupSingle *)o;
-  e = __pyx_tp_traverse_6sprite_AbstractGroup(o, v, a); if (e) return e;
+  struct __pyx_obj_7_sprite_GroupSingle *p = (struct __pyx_obj_7_sprite_GroupSingle *)o;
+  e = __pyx_tp_traverse_7_sprite_AbstractGroup(o, v, a); if (e) return e;
   if (p->__sprite) {
     e = (*v)(p->__sprite, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_6sprite_GroupSingle(PyObject *o) {
+static int __pyx_tp_clear_7_sprite_GroupSingle(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6sprite_GroupSingle *p = (struct __pyx_obj_6sprite_GroupSingle *)o;
-  __pyx_tp_clear_6sprite_AbstractGroup(o);
+  struct __pyx_obj_7_sprite_GroupSingle *p = (struct __pyx_obj_7_sprite_GroupSingle *)o;
+  __pyx_tp_clear_7_sprite_AbstractGroup(o);
   tmp = ((PyObject*)p->__sprite);
   p->__sprite = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyObject *__pyx_getprop_6sprite_11GroupSingle___sprite(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6sprite_11GroupSingle_8__sprite_1__get__(o);
+static PyObject *__pyx_getprop_7_sprite_11GroupSingle___sprite(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_7_sprite_11GroupSingle_8__sprite_1__get__(o);
 }
 
-static int __pyx_setprop_6sprite_11GroupSingle___sprite(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_7_sprite_11GroupSingle___sprite(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_6sprite_11GroupSingle_8__sprite_3__set__(o, v);
+    return __pyx_pw_7_sprite_11GroupSingle_8__sprite_3__set__(o, v);
   }
   else {
-    return __pyx_pw_6sprite_11GroupSingle_8__sprite_5__del__(o);
+    return __pyx_pw_7_sprite_11GroupSingle_8__sprite_5__del__(o);
   }
 }
 
-static PyMethodDef __pyx_methods_6sprite_GroupSingle[] = {
-  {"copy", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_3copy, METH_NOARGS, 0},
-  {"sprites", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_5sprites, METH_NOARGS, 0},
-  {"add_internal", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_7add_internal, METH_O, 0},
-  {"_get_sprite", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_11_get_sprite, METH_NOARGS, 0},
-  {"_set_sprite", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_13_set_sprite, METH_O, 0},
-  {"remove_internal", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_15remove_internal, METH_O, 0},
-  {"has_internal", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_17has_internal, METH_O, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_21__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6sprite_11GroupSingle_23__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7_sprite_GroupSingle[] = {
+  {"copy", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_3copy, METH_NOARGS, 0},
+  {"sprites", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_5sprites, METH_NOARGS, 0},
+  {"add_internal", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_7add_internal, METH_O, 0},
+  {"_get_sprite", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_11_get_sprite, METH_NOARGS, 0},
+  {"_set_sprite", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_13_set_sprite, METH_O, 0},
+  {"remove_internal", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_15remove_internal, METH_O, 0},
+  {"has_internal", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_17has_internal, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_21__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7_sprite_11GroupSingle_23__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6sprite_GroupSingle[] = {
-  {(char *)"__sprite", __pyx_getprop_6sprite_11GroupSingle___sprite, __pyx_setprop_6sprite_11GroupSingle___sprite, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_7_sprite_GroupSingle[] = {
+  {(char *)"__sprite", __pyx_getprop_7_sprite_11GroupSingle___sprite, __pyx_setprop_7_sprite_11GroupSingle___sprite, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
@@ -25844,7 +25846,7 @@ static PyNumberMethods __pyx_tp_as_number_GroupSingle = {
   0, /*nb_negative*/
   0, /*nb_positive*/
   0, /*nb_absolute*/
-  __pyx_pw_6sprite_11GroupSingle_9__nonzero__, /*nb_nonzero*/
+  __pyx_pw_7_sprite_11GroupSingle_9__nonzero__, /*nb_nonzero*/
   0, /*nb_invert*/
   0, /*nb_lshift*/
   0, /*nb_rshift*/
@@ -25895,7 +25897,7 @@ static PyNumberMethods __pyx_tp_as_number_GroupSingle = {
 
 static PySequenceMethods __pyx_tp_as_sequence_GroupSingle = {
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_33__len__, /*sq_length*/
+  __pyx_pw_7_sprite_13AbstractGroup_33__len__, /*sq_length*/
   #else
   0, /*sq_length*/
   #endif
@@ -25905,17 +25907,17 @@ static PySequenceMethods __pyx_tp_as_sequence_GroupSingle = {
   0, /*sq_slice*/
   0, /*sq_ass_item*/
   0, /*sq_ass_slice*/
-  __pyx_pw_6sprite_11GroupSingle_19__contains__, /*sq_contains*/
+  __pyx_pw_7_sprite_11GroupSingle_19__contains__, /*sq_contains*/
   0, /*sq_inplace_concat*/
   0, /*sq_inplace_repeat*/
 };
 
-static PyTypeObject __pyx_type_6sprite_GroupSingle = {
+static PyTypeObject __pyx_type_7_sprite_GroupSingle = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sprite.GroupSingle", /*tp_name*/
-  sizeof(struct __pyx_obj_6sprite_GroupSingle), /*tp_basicsize*/
+  "_sprite.GroupSingle", /*tp_name*/
+  sizeof(struct __pyx_obj_7_sprite_GroupSingle), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6sprite_GroupSingle, /*tp_dealloc*/
+  __pyx_tp_dealloc_7_sprite_GroupSingle, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -25926,7 +25928,7 @@ static PyTypeObject __pyx_type_6sprite_GroupSingle = {
   0, /*tp_as_async*/
   #endif
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_35__repr__, /*tp_repr*/
+  __pyx_pw_7_sprite_13AbstractGroup_35__repr__, /*tp_repr*/
   #else
   0, /*tp_repr*/
   #endif
@@ -25941,27 +25943,27 @@ static PyTypeObject __pyx_type_6sprite_GroupSingle = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "A group container that holds a single most recent item.\n\n    This class works just like a regular group, but it only keeps a single\n    sprite in the group. Whatever sprite has been added to the group last will\n    be the only sprite in the group.\n\n    You can access its one sprite as the .sprite attribute.  Assigning to this\n    attribute will properly remove the old sprite and then add the new one.\n\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6sprite_GroupSingle, /*tp_traverse*/
-  __pyx_tp_clear_6sprite_GroupSingle, /*tp_clear*/
+  __pyx_tp_traverse_7_sprite_GroupSingle, /*tp_traverse*/
+  __pyx_tp_clear_7_sprite_GroupSingle, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   #if CYTHON_COMPILING_IN_PYPY
-  __pyx_pw_6sprite_13AbstractGroup_13__iter__, /*tp_iter*/
+  __pyx_pw_7_sprite_13AbstractGroup_13__iter__, /*tp_iter*/
   #else
   0, /*tp_iter*/
   #endif
   0, /*tp_iternext*/
-  __pyx_methods_6sprite_GroupSingle, /*tp_methods*/
+  __pyx_methods_7_sprite_GroupSingle, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6sprite_GroupSingle, /*tp_getset*/
+  __pyx_getsets_7_sprite_GroupSingle, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6sprite_11GroupSingle_1__init__, /*tp_init*/
+  __pyx_pw_7_sprite_11GroupSingle_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6sprite_GroupSingle, /*tp_new*/
+  __pyx_tp_new_7_sprite_GroupSingle, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -25983,17 +25985,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_sprite(PyObject* module); /*proto*/
+static int __pyx_pymod_exec__sprite(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_sprite},
+  {Py_mod_exec, (void*)__pyx_pymod_exec__sprite},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "sprite",
+    "_sprite",
     __pyx_k_pygame_module_with_basic_game_ob, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -26171,11 +26173,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
   {&__pyx_n_s_source_rect, __pyx_k_source_rect, sizeof(__pyx_k_source_rect), 0, 0, 1, 1},
   {&__pyx_n_s_sprite, __pyx_k_sprite, sizeof(__pyx_k_sprite), 0, 0, 1, 1},
+  {&__pyx_n_s_sprite_2, __pyx_k_sprite_2, sizeof(__pyx_k_sprite_2), 0, 0, 1, 1},
   {&__pyx_n_s_spritecollide, __pyx_k_spritecollide, sizeof(__pyx_k_spritecollide), 0, 0, 1, 1},
   {&__pyx_n_s_spritecollideany, __pyx_k_spritecollideany, sizeof(__pyx_k_spritecollideany), 0, 0, 1, 1},
   {&__pyx_n_s_spritegroup, __pyx_k_spritegroup, sizeof(__pyx_k_spritegroup), 0, 0, 1, 1},
   {&__pyx_n_s_sprites, __pyx_k_sprites, sizeof(__pyx_k_sprites), 0, 0, 1, 1},
-  {&__pyx_kp_s_src_c_sprite_pyx, __pyx_k_src_c_sprite_pyx, sizeof(__pyx_k_src_c_sprite_pyx), 0, 0, 1, 0},
+  {&__pyx_kp_s_src_c__sprite_pyx, __pyx_k_src_c__sprite_pyx, sizeof(__pyx_k_src_c__sprite_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_surface, __pyx_k_surface, sizeof(__pyx_k_surface), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_time_threshold, __pyx_k_time_threshold, sizeof(__pyx_k_time_threshold), 0, 0, 1, 1},
@@ -26307,7 +26310,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "sprite.pyx":833
+  /* "_sprite.pyx":833
  *         """
  *         _sprites = self._spritelist
  *         rect = Rect(pos, (0, 0))             # <<<<<<<<<<<<<<
@@ -26375,7 +26378,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__17);
   __Pyx_GIVEREF(__pyx_tuple__17);
 
-  /* "sprite.pyx":279
+  /* "_sprite.pyx":279
  *     """
  * 
  *     def __init__(self, *groups):             # <<<<<<<<<<<<<<
@@ -26385,9 +26388,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__18 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_groups); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
-  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_init, 279, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 279, __pyx_L1_error)
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_init, 279, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 279, __pyx_L1_error)
 
-  /* "sprite.pyx":290
+  /* "_sprite.pyx":290
  *         Sprite.__init__(self, *groups)
  * 
  *     def _set_visible(self, val):             # <<<<<<<<<<<<<<
@@ -26397,9 +26400,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_val); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
-  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_set_visible, 290, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_set_visible, 290, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 290, __pyx_L1_error)
 
-  /* "sprite.pyx":296
+  /* "_sprite.pyx":296
  *             self.dirty = 1
  * 
  *     def _get_visible(self):             # <<<<<<<<<<<<<<
@@ -26409,9 +26412,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__22 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 296, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
-  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_get_visible, 296, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_get_visible, 296, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 296, __pyx_L1_error)
 
-  /* "sprite.pyx":306
+  /* "_sprite.pyx":306
  *                            "assign 0 for invisible and 1 for visible")
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -26421,9 +26424,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__24 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__24);
   __Pyx_GIVEREF(__pyx_tuple__24);
-  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_repr, 306, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_repr, 306, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 306, __pyx_L1_error)
 
-  /* "sprite.pyx":663
+  /* "_sprite.pyx":663
  *     """
  * 
  *     _init_rect = Rect(0, 0, 0, 0)             # <<<<<<<<<<<<<<
@@ -26434,7 +26437,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_GIVEREF(__pyx_tuple__26);
 
-  /* "sprite.pyx":1349
+  /* "_sprite.pyx":1349
  * 
  * # Some different collision detection functions that could be used.
  * def collide_rect(left, right):             # <<<<<<<<<<<<<<
@@ -26444,9 +26447,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__27 = PyTuple_Pack(2, __pyx_n_s_left, __pyx_n_s_right); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 1349, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_collide_rect, 1349, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 1349, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_collide_rect, 1349, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 1349, __pyx_L1_error)
 
-  /* "sprite.pyx":1376
+  /* "_sprite.pyx":1376
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
@@ -26456,9 +26459,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__29 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_ratio); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 1376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
-  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_init, 1376, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 1376, __pyx_L1_error)
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_init, 1376, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 1376, __pyx_L1_error)
 
-  /* "sprite.pyx":1385
+  /* "_sprite.pyx":1385
  *         self.ratio = ratio
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
@@ -26468,9 +26471,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__31 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_ratio, __pyx_n_s_leftrect, __pyx_n_s_width, __pyx_n_s_height, __pyx_n_s_rightrect); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 1385, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
   __Pyx_GIVEREF(__pyx_tuple__31);
-  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(3, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_call, 1385, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 1385, __pyx_L1_error)
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(3, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_call, 1385, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 1385, __pyx_L1_error)
 
-  /* "sprite.pyx":1412
+  /* "_sprite.pyx":1412
  *         return leftrect.colliderect(rightrect)
  * 
  * def collide_circle(left, right):             # <<<<<<<<<<<<<<
@@ -26480,9 +26483,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__33 = PyTuple_Pack(9, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_xdistance, __pyx_n_s_ydistance, __pyx_n_s_distancesquared, __pyx_n_s_leftradius, __pyx_n_s_leftrect, __pyx_n_s_rightradius, __pyx_n_s_rightrect); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 1412, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__33);
   __Pyx_GIVEREF(__pyx_tuple__33);
-  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(2, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_collide_circle, 1412, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 1412, __pyx_L1_error)
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(2, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_collide_circle, 1412, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 1412, __pyx_L1_error)
 
-  /* "sprite.pyx":1454
+  /* "_sprite.pyx":1454
  *     return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * class collide_circle_ratio(object):             # <<<<<<<<<<<<<<
@@ -26493,7 +26496,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__35);
   __Pyx_GIVEREF(__pyx_tuple__35);
 
-  /* "sprite.pyx":1466
+  /* "_sprite.pyx":1466
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
@@ -26503,9 +26506,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__36 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_ratio); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 1466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_init, 1466, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_init, 1466, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 1466, __pyx_L1_error)
 
-  /* "sprite.pyx":1479
+  /* "_sprite.pyx":1479
  * 
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
@@ -26515,9 +26518,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__38 = PyTuple_Pack(11, __pyx_n_s_self, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_ratio, __pyx_n_s_xdistance, __pyx_n_s_ydistance, __pyx_n_s_distancesquared, __pyx_n_s_leftradius, __pyx_n_s_leftrect, __pyx_n_s_rightradius, __pyx_n_s_rightrect); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 1479, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(3, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_call, 1479, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 1479, __pyx_L1_error)
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(3, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_call, 1479, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 1479, __pyx_L1_error)
 
-  /* "sprite.pyx":1518
+  /* "_sprite.pyx":1518
  *         return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * def collide_mask(left, right):             # <<<<<<<<<<<<<<
@@ -26527,9 +26530,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__40 = PyTuple_Pack(6, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_xoffset, __pyx_n_s_yoffset, __pyx_n_s_leftmask, __pyx_n_s_rightmask); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 1518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__40);
   __Pyx_GIVEREF(__pyx_tuple__40);
-  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(2, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_collide_mask, 1518, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 1518, __pyx_L1_error)
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(2, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_collide_mask, 1518, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 1518, __pyx_L1_error)
 
-  /* "sprite.pyx":1544
+  /* "_sprite.pyx":1544
  *     return leftmask.overlap(rightmask, (xoffset, yoffset))
  * 
  * def spritecollide(sprite, group, dokill, collided=None):             # <<<<<<<<<<<<<<
@@ -26539,9 +26542,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__42 = PyTuple_Pack(8, __pyx_n_s_sprite, __pyx_n_s_group, __pyx_n_s_dokill, __pyx_n_s_collided, __pyx_n_s_crashed, __pyx_n_s_append, __pyx_n_s_s, __pyx_n_s_spritecollide); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 1544, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__42);
   __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(4, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_spritecollide, 1544, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 1544, __pyx_L1_error)
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(4, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_spritecollide, 1544, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 1544, __pyx_L1_error)
 
-  /* "sprite.pyx":1590
+  /* "_sprite.pyx":1590
  * 
  * 
  * def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):             # <<<<<<<<<<<<<<
@@ -26551,9 +26554,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__44 = PyTuple_Pack(9, __pyx_n_s_groupa, __pyx_n_s_groupb, __pyx_n_s_dokilla, __pyx_n_s_dokillb, __pyx_n_s_collided, __pyx_n_s_crashed, __pyx_n_s_SC, __pyx_n_s_s, __pyx_n_s_c); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 1590, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__44);
   __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(5, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_groupcollide, 1590, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 1590, __pyx_L1_error)
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(5, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_groupcollide, 1590, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 1590, __pyx_L1_error)
 
-  /* "sprite.pyx":1623
+  /* "_sprite.pyx":1623
  *     return crashed
  * 
  * def spritecollideany(sprite, group, collided=None):             # <<<<<<<<<<<<<<
@@ -26563,7 +26566,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__46 = PyTuple_Pack(5, __pyx_n_s_sprite, __pyx_n_s_group, __pyx_n_s_collided, __pyx_n_s_s, __pyx_n_s_spritecollide); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 1623, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__46);
   __Pyx_GIVEREF(__pyx_tuple__46);
-  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c_sprite_pyx, __pyx_n_s_spritecollideany, 1623, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 1623, __pyx_L1_error)
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_c__sprite_pyx, __pyx_n_s_spritecollideany, 1623, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 1623, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -26627,151 +26630,151 @@ static int __Pyx_modinit_type_init_code(void) {
   /*--- Type init code ---*/
   __pyx_t_1 = PyImport_ImportModule("pygame"); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_6sprite_Rect = __Pyx_ImportType(__pyx_t_1, "pygame", "Rect", sizeof(pgRectObject), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_6sprite_Rect) __PYX_ERR(0, 115, __pyx_L1_error)
-  __pyx_vtabptr_6sprite_AbstractGroup = &__pyx_vtable_6sprite_AbstractGroup;
-  __pyx_vtable_6sprite_AbstractGroup.sprites = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_6sprite_13AbstractGroup_sprites;
-  __pyx_vtable_6sprite_AbstractGroup.add_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_13AbstractGroup_add_internal;
-  __pyx_vtable_6sprite_AbstractGroup.remove_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_13AbstractGroup_remove_internal;
-  __pyx_vtable_6sprite_AbstractGroup.has_internal = (int (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_13AbstractGroup_has_internal;
-  __pyx_vtable_6sprite_AbstractGroup.draw = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_13AbstractGroup_draw;
-  if (PyType_Ready(&__pyx_type_6sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
-  __pyx_type_6sprite_AbstractGroup.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_AbstractGroup.tp_dictoffset && __pyx_type_6sprite_AbstractGroup.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_AbstractGroup.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  __pyx_ptype_7_sprite_Rect = __Pyx_ImportType(__pyx_t_1, "pygame", "Rect", sizeof(pgRectObject), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_7_sprite_Rect) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_vtabptr_7_sprite_AbstractGroup = &__pyx_vtable_7_sprite_AbstractGroup;
+  __pyx_vtable_7_sprite_AbstractGroup.sprites = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_7_sprite_13AbstractGroup_sprites;
+  __pyx_vtable_7_sprite_AbstractGroup.add_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_13AbstractGroup_add_internal;
+  __pyx_vtable_7_sprite_AbstractGroup.remove_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_13AbstractGroup_remove_internal;
+  __pyx_vtable_7_sprite_AbstractGroup.has_internal = (int (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_13AbstractGroup_has_internal;
+  __pyx_vtable_7_sprite_AbstractGroup.draw = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_13AbstractGroup_draw;
+  if (PyType_Ready(&__pyx_type_7_sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  __pyx_type_7_sprite_AbstractGroup.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_AbstractGroup.tp_dictoffset && __pyx_type_7_sprite_AbstractGroup.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_AbstractGroup.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6sprite_AbstractGroup, "__len__"); if (unlikely(!wrapper)) __PYX_ERR(0, 311, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_7_sprite_AbstractGroup, "__len__"); if (unlikely(!wrapper)) __PYX_ERR(0, 311, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
-      __pyx_wrapperbase_6sprite_13AbstractGroup_32__len__ = *((PyWrapperDescrObject *)wrapper)->d_base;
-      __pyx_wrapperbase_6sprite_13AbstractGroup_32__len__.doc = __pyx_doc_6sprite_13AbstractGroup_32__len__;
-      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_6sprite_13AbstractGroup_32__len__;
+      __pyx_wrapperbase_7_sprite_13AbstractGroup_32__len__ = *((PyWrapperDescrObject *)wrapper)->d_base;
+      __pyx_wrapperbase_7_sprite_13AbstractGroup_32__len__.doc = __pyx_doc_7_sprite_13AbstractGroup_32__len__;
+      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_7_sprite_13AbstractGroup_32__len__;
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_6sprite_AbstractGroup.tp_dict, __pyx_vtabptr_6sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_AbstractGroup, (PyObject *)&__pyx_type_6sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
-  __pyx_ptype_6sprite_AbstractGroup = &__pyx_type_6sprite_AbstractGroup;
-  __pyx_vtabptr_6sprite_Sprite = &__pyx_vtable_6sprite_Sprite;
-  __pyx_vtable_6sprite_Sprite.add_internal = (void (*)(struct __pyx_obj_6sprite_Sprite *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_6Sprite_add_internal;
-  __pyx_vtable_6sprite_Sprite.remove_internal = (void (*)(struct __pyx_obj_6sprite_Sprite *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_6Sprite_remove_internal;
-  if (PyType_Ready(&__pyx_type_6sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
-  __pyx_type_6sprite_Sprite.tp_print = 0;
-  if (__Pyx_SetVtable(__pyx_type_6sprite_Sprite.tp_dict, __pyx_vtabptr_6sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Sprite, (PyObject *)&__pyx_type_6sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
-  __pyx_ptype_6sprite_Sprite = &__pyx_type_6sprite_Sprite;
-  __pyx_vtabptr_6sprite_Group = &__pyx_vtable_6sprite_Group;
-  __pyx_vtable_6sprite_Group.__pyx_base = *__pyx_vtabptr_6sprite_AbstractGroup;
-  __pyx_type_6sprite_Group.tp_base = __pyx_ptype_6sprite_AbstractGroup;
-  if (PyType_Ready(&__pyx_type_6sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
-  __pyx_type_6sprite_Group.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_Group.tp_dictoffset && __pyx_type_6sprite_Group.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_Group.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_AbstractGroup.tp_dict, __pyx_vtabptr_7_sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_AbstractGroup, (PyObject *)&__pyx_type_7_sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_AbstractGroup) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  __pyx_ptype_7_sprite_AbstractGroup = &__pyx_type_7_sprite_AbstractGroup;
+  __pyx_vtabptr_7_sprite_Sprite = &__pyx_vtable_7_sprite_Sprite;
+  __pyx_vtable_7_sprite_Sprite.add_internal = (void (*)(struct __pyx_obj_7_sprite_Sprite *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_6Sprite_add_internal;
+  __pyx_vtable_7_sprite_Sprite.remove_internal = (void (*)(struct __pyx_obj_7_sprite_Sprite *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_6Sprite_remove_internal;
+  if (PyType_Ready(&__pyx_type_7_sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_type_7_sprite_Sprite.tp_print = 0;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_Sprite.tp_dict, __pyx_vtabptr_7_sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Sprite, (PyObject *)&__pyx_type_7_sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_Sprite) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_ptype_7_sprite_Sprite = &__pyx_type_7_sprite_Sprite;
+  __pyx_vtabptr_7_sprite_Group = &__pyx_vtable_7_sprite_Group;
+  __pyx_vtable_7_sprite_Group.__pyx_base = *__pyx_vtabptr_7_sprite_AbstractGroup;
+  __pyx_type_7_sprite_Group.tp_base = __pyx_ptype_7_sprite_AbstractGroup;
+  if (PyType_Ready(&__pyx_type_7_sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
+  __pyx_type_7_sprite_Group.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_Group.tp_dictoffset && __pyx_type_7_sprite_Group.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_Group.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6sprite_Group.tp_dict, __pyx_vtabptr_6sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Group, (PyObject *)&__pyx_type_6sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
-  __pyx_ptype_6sprite_Group = &__pyx_type_6sprite_Group;
-  __pyx_vtabptr_6sprite_RenderUpdates = &__pyx_vtable_6sprite_RenderUpdates;
-  __pyx_vtable_6sprite_RenderUpdates.__pyx_base = *__pyx_vtabptr_6sprite_Group;
-  __pyx_vtable_6sprite_RenderUpdates.__pyx_base.__pyx_base.draw = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_13RenderUpdates_draw;
-  __pyx_type_6sprite_RenderUpdates.tp_base = __pyx_ptype_6sprite_Group;
-  if (PyType_Ready(&__pyx_type_6sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
-  __pyx_type_6sprite_RenderUpdates.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_RenderUpdates.tp_dictoffset && __pyx_type_6sprite_RenderUpdates.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_RenderUpdates.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_Group.tp_dict, __pyx_vtabptr_7_sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Group, (PyObject *)&__pyx_type_7_sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_Group) < 0) __PYX_ERR(0, 568, __pyx_L1_error)
+  __pyx_ptype_7_sprite_Group = &__pyx_type_7_sprite_Group;
+  __pyx_vtabptr_7_sprite_RenderUpdates = &__pyx_vtable_7_sprite_RenderUpdates;
+  __pyx_vtable_7_sprite_RenderUpdates.__pyx_base = *__pyx_vtabptr_7_sprite_Group;
+  __pyx_vtable_7_sprite_RenderUpdates.__pyx_base.__pyx_base.draw = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_13RenderUpdates_draw;
+  __pyx_type_7_sprite_RenderUpdates.tp_base = __pyx_ptype_7_sprite_Group;
+  if (PyType_Ready(&__pyx_type_7_sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_type_7_sprite_RenderUpdates.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_RenderUpdates.tp_dictoffset && __pyx_type_7_sprite_RenderUpdates.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_RenderUpdates.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6sprite_RenderUpdates.tp_dict, __pyx_vtabptr_6sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_RenderUpdates, (PyObject *)&__pyx_type_6sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
-  __pyx_ptype_6sprite_RenderUpdates = &__pyx_type_6sprite_RenderUpdates;
-  __pyx_vtabptr_6sprite_OrderedUpdates = &__pyx_vtable_6sprite_OrderedUpdates;
-  __pyx_vtable_6sprite_OrderedUpdates.__pyx_base = *__pyx_vtabptr_6sprite_RenderUpdates;
-  __pyx_vtable_6sprite_OrderedUpdates.__pyx_base.__pyx_base.__pyx_base.sprites = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_6sprite_14OrderedUpdates_sprites;
-  __pyx_vtable_6sprite_OrderedUpdates.__pyx_base.__pyx_base.__pyx_base.add_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_14OrderedUpdates_add_internal;
-  __pyx_vtable_6sprite_OrderedUpdates.__pyx_base.__pyx_base.__pyx_base.remove_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_14OrderedUpdates_remove_internal;
-  __pyx_type_6sprite_OrderedUpdates.tp_base = __pyx_ptype_6sprite_RenderUpdates;
-  if (PyType_Ready(&__pyx_type_6sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
-  __pyx_type_6sprite_OrderedUpdates.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_OrderedUpdates.tp_dictoffset && __pyx_type_6sprite_OrderedUpdates.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_OrderedUpdates.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_RenderUpdates.tp_dict, __pyx_vtabptr_7_sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_RenderUpdates, (PyObject *)&__pyx_type_7_sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_RenderUpdates) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_ptype_7_sprite_RenderUpdates = &__pyx_type_7_sprite_RenderUpdates;
+  __pyx_vtabptr_7_sprite_OrderedUpdates = &__pyx_vtable_7_sprite_OrderedUpdates;
+  __pyx_vtable_7_sprite_OrderedUpdates.__pyx_base = *__pyx_vtabptr_7_sprite_RenderUpdates;
+  __pyx_vtable_7_sprite_OrderedUpdates.__pyx_base.__pyx_base.__pyx_base.sprites = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14OrderedUpdates_sprites;
+  __pyx_vtable_7_sprite_OrderedUpdates.__pyx_base.__pyx_base.__pyx_base.add_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14OrderedUpdates_add_internal;
+  __pyx_vtable_7_sprite_OrderedUpdates.__pyx_base.__pyx_base.__pyx_base.remove_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14OrderedUpdates_remove_internal;
+  __pyx_type_7_sprite_OrderedUpdates.tp_base = __pyx_ptype_7_sprite_RenderUpdates;
+  if (PyType_Ready(&__pyx_type_7_sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
+  __pyx_type_7_sprite_OrderedUpdates.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_OrderedUpdates.tp_dictoffset && __pyx_type_7_sprite_OrderedUpdates.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_OrderedUpdates.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6sprite_OrderedUpdates.tp_dict, __pyx_vtabptr_6sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_OrderedUpdates, (PyObject *)&__pyx_type_6sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
-  __pyx_ptype_6sprite_OrderedUpdates = &__pyx_type_6sprite_OrderedUpdates;
-  __pyx_vtabptr_6sprite_LayeredUpdates = &__pyx_vtable_6sprite_LayeredUpdates;
-  __pyx_vtable_6sprite_LayeredUpdates.__pyx_base = *__pyx_vtabptr_6sprite_AbstractGroup;
-  __pyx_vtable_6sprite_LayeredUpdates.__pyx_base.sprites = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_6sprite_14LayeredUpdates_sprites;
-  __pyx_vtable_6sprite_LayeredUpdates.__pyx_base.add_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_14LayeredUpdates_add_internal__pyx_wrap_1;
-  __pyx_vtable_6sprite_LayeredUpdates.__pyx_base.remove_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_14LayeredUpdates_remove_internal;
-  __pyx_vtable_6sprite_LayeredUpdates.__pyx_base.draw = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_14LayeredUpdates_draw;
-  __pyx_vtable_6sprite_LayeredUpdates.add_internal = (void (*)(struct __pyx_obj_6sprite_LayeredUpdates *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal *__pyx_optional_args))__pyx_f_6sprite_14LayeredUpdates_add_internal;
-  __pyx_type_6sprite_LayeredUpdates.tp_base = __pyx_ptype_6sprite_AbstractGroup;
-  if (PyType_Ready(&__pyx_type_6sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
-  __pyx_type_6sprite_LayeredUpdates.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_LayeredUpdates.tp_dictoffset && __pyx_type_6sprite_LayeredUpdates.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_LayeredUpdates.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_OrderedUpdates.tp_dict, __pyx_vtabptr_7_sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_OrderedUpdates, (PyObject *)&__pyx_type_7_sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_OrderedUpdates) < 0) __PYX_ERR(0, 623, __pyx_L1_error)
+  __pyx_ptype_7_sprite_OrderedUpdates = &__pyx_type_7_sprite_OrderedUpdates;
+  __pyx_vtabptr_7_sprite_LayeredUpdates = &__pyx_vtable_7_sprite_LayeredUpdates;
+  __pyx_vtable_7_sprite_LayeredUpdates.__pyx_base = *__pyx_vtabptr_7_sprite_AbstractGroup;
+  __pyx_vtable_7_sprite_LayeredUpdates.__pyx_base.sprites = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14LayeredUpdates_sprites;
+  __pyx_vtable_7_sprite_LayeredUpdates.__pyx_base.add_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14LayeredUpdates_add_internal__pyx_wrap_1;
+  __pyx_vtable_7_sprite_LayeredUpdates.__pyx_base.remove_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14LayeredUpdates_remove_internal;
+  __pyx_vtable_7_sprite_LayeredUpdates.__pyx_base.draw = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_14LayeredUpdates_draw;
+  __pyx_vtable_7_sprite_LayeredUpdates.add_internal = (void (*)(struct __pyx_obj_7_sprite_LayeredUpdates *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal *__pyx_optional_args))__pyx_f_7_sprite_14LayeredUpdates_add_internal;
+  __pyx_type_7_sprite_LayeredUpdates.tp_base = __pyx_ptype_7_sprite_AbstractGroup;
+  if (PyType_Ready(&__pyx_type_7_sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
+  __pyx_type_7_sprite_LayeredUpdates.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_LayeredUpdates.tp_dictoffset && __pyx_type_7_sprite_LayeredUpdates.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_LayeredUpdates.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6sprite_LayeredUpdates, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 653, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_7_sprite_LayeredUpdates, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 653, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
-      __pyx_wrapperbase_6sprite_14LayeredUpdates_2__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
-      __pyx_wrapperbase_6sprite_14LayeredUpdates_2__init__.doc = __pyx_doc_6sprite_14LayeredUpdates_2__init__;
-      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_6sprite_14LayeredUpdates_2__init__;
+      __pyx_wrapperbase_7_sprite_14LayeredUpdates_2__init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
+      __pyx_wrapperbase_7_sprite_14LayeredUpdates_2__init__.doc = __pyx_doc_7_sprite_14LayeredUpdates_2__init__;
+      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_7_sprite_14LayeredUpdates_2__init__;
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_6sprite_LayeredUpdates.tp_dict, __pyx_vtabptr_6sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LayeredUpdates, (PyObject *)&__pyx_type_6sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
-  __pyx_ptype_6sprite_LayeredUpdates = &__pyx_type_6sprite_LayeredUpdates;
-  __pyx_vtabptr_6sprite_LayeredDirty = &__pyx_vtable_6sprite_LayeredDirty;
-  __pyx_vtable_6sprite_LayeredDirty.__pyx_base = *__pyx_vtabptr_6sprite_LayeredUpdates;
-  __pyx_vtable_6sprite_LayeredDirty.__pyx_base.__pyx_base.add_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_12LayeredDirty_add_internal__pyx_wrap_1;
-  __pyx_vtable_6sprite_LayeredDirty.__pyx_base.__pyx_base.draw = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_12LayeredDirty_draw__pyx_wrap_1;
-  __pyx_vtable_6sprite_LayeredDirty.__pyx_base.add_internal = (void (*)(struct __pyx_obj_6sprite_LayeredUpdates *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_14LayeredUpdates_add_internal *__pyx_optional_args))__pyx_f_6sprite_12LayeredDirty_add_internal;
-  __pyx_vtable_6sprite_LayeredDirty.draw = (PyObject *(*)(struct __pyx_obj_6sprite_LayeredDirty *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6sprite_12LayeredDirty_draw *__pyx_optional_args))__pyx_f_6sprite_12LayeredDirty_draw;
-  __pyx_type_6sprite_LayeredDirty.tp_base = __pyx_ptype_6sprite_LayeredUpdates;
-  if (PyType_Ready(&__pyx_type_6sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
-  __pyx_type_6sprite_LayeredDirty.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_LayeredDirty.tp_dictoffset && __pyx_type_6sprite_LayeredDirty.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_LayeredDirty.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_LayeredUpdates.tp_dict, __pyx_vtabptr_7_sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LayeredUpdates, (PyObject *)&__pyx_type_7_sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_LayeredUpdates) < 0) __PYX_ERR(0, 653, __pyx_L1_error)
+  __pyx_ptype_7_sprite_LayeredUpdates = &__pyx_type_7_sprite_LayeredUpdates;
+  __pyx_vtabptr_7_sprite_LayeredDirty = &__pyx_vtable_7_sprite_LayeredDirty;
+  __pyx_vtable_7_sprite_LayeredDirty.__pyx_base = *__pyx_vtabptr_7_sprite_LayeredUpdates;
+  __pyx_vtable_7_sprite_LayeredDirty.__pyx_base.__pyx_base.add_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_12LayeredDirty_add_internal__pyx_wrap_1;
+  __pyx_vtable_7_sprite_LayeredDirty.__pyx_base.__pyx_base.draw = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_12LayeredDirty_draw__pyx_wrap_1;
+  __pyx_vtable_7_sprite_LayeredDirty.__pyx_base.add_internal = (void (*)(struct __pyx_obj_7_sprite_LayeredUpdates *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_14LayeredUpdates_add_internal *__pyx_optional_args))__pyx_f_7_sprite_12LayeredDirty_add_internal;
+  __pyx_vtable_7_sprite_LayeredDirty.draw = (PyObject *(*)(struct __pyx_obj_7_sprite_LayeredDirty *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_7_sprite_12LayeredDirty_draw *__pyx_optional_args))__pyx_f_7_sprite_12LayeredDirty_draw;
+  __pyx_type_7_sprite_LayeredDirty.tp_base = __pyx_ptype_7_sprite_LayeredUpdates;
+  if (PyType_Ready(&__pyx_type_7_sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
+  __pyx_type_7_sprite_LayeredDirty.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_LayeredDirty.tp_dictoffset && __pyx_type_7_sprite_LayeredDirty.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_LayeredDirty.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_6sprite_LayeredDirty, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 994, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_7_sprite_LayeredDirty, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 994, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
-      __pyx_wrapperbase_6sprite_12LayeredDirty___init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
-      __pyx_wrapperbase_6sprite_12LayeredDirty___init__.doc = __pyx_doc_6sprite_12LayeredDirty___init__;
-      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_6sprite_12LayeredDirty___init__;
+      __pyx_wrapperbase_7_sprite_12LayeredDirty___init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
+      __pyx_wrapperbase_7_sprite_12LayeredDirty___init__.doc = __pyx_doc_7_sprite_12LayeredDirty___init__;
+      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_7_sprite_12LayeredDirty___init__;
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_6sprite_LayeredDirty.tp_dict, __pyx_vtabptr_6sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LayeredDirty, (PyObject *)&__pyx_type_6sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
-  __pyx_ptype_6sprite_LayeredDirty = &__pyx_type_6sprite_LayeredDirty;
-  __pyx_vtabptr_6sprite_GroupSingle = &__pyx_vtable_6sprite_GroupSingle;
-  __pyx_vtable_6sprite_GroupSingle.__pyx_base = *__pyx_vtabptr_6sprite_AbstractGroup;
-  __pyx_vtable_6sprite_GroupSingle.__pyx_base.sprites = (PyObject *(*)(struct __pyx_obj_6sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_6sprite_11GroupSingle_sprites;
-  __pyx_vtable_6sprite_GroupSingle.__pyx_base.add_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_11GroupSingle_add_internal;
-  __pyx_vtable_6sprite_GroupSingle.__pyx_base.remove_internal = (void (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_11GroupSingle_remove_internal;
-  __pyx_vtable_6sprite_GroupSingle.__pyx_base.has_internal = (int (*)(struct __pyx_obj_6sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_6sprite_11GroupSingle_has_internal;
-  __pyx_type_6sprite_GroupSingle.tp_base = __pyx_ptype_6sprite_AbstractGroup;
-  if (PyType_Ready(&__pyx_type_6sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
-  __pyx_type_6sprite_GroupSingle.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6sprite_GroupSingle.tp_dictoffset && __pyx_type_6sprite_GroupSingle.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6sprite_GroupSingle.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_LayeredDirty.tp_dict, __pyx_vtabptr_7_sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LayeredDirty, (PyObject *)&__pyx_type_7_sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_LayeredDirty) < 0) __PYX_ERR(0, 994, __pyx_L1_error)
+  __pyx_ptype_7_sprite_LayeredDirty = &__pyx_type_7_sprite_LayeredDirty;
+  __pyx_vtabptr_7_sprite_GroupSingle = &__pyx_vtable_7_sprite_GroupSingle;
+  __pyx_vtable_7_sprite_GroupSingle.__pyx_base = *__pyx_vtabptr_7_sprite_AbstractGroup;
+  __pyx_vtable_7_sprite_GroupSingle.__pyx_base.sprites = (PyObject *(*)(struct __pyx_obj_7_sprite_AbstractGroup *, int __pyx_skip_dispatch))__pyx_f_7_sprite_11GroupSingle_sprites;
+  __pyx_vtable_7_sprite_GroupSingle.__pyx_base.add_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_11GroupSingle_add_internal;
+  __pyx_vtable_7_sprite_GroupSingle.__pyx_base.remove_internal = (void (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_11GroupSingle_remove_internal;
+  __pyx_vtable_7_sprite_GroupSingle.__pyx_base.has_internal = (int (*)(struct __pyx_obj_7_sprite_AbstractGroup *, PyObject *, int __pyx_skip_dispatch))__pyx_f_7_sprite_11GroupSingle_has_internal;
+  __pyx_type_7_sprite_GroupSingle.tp_base = __pyx_ptype_7_sprite_AbstractGroup;
+  if (PyType_Ready(&__pyx_type_7_sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
+  __pyx_type_7_sprite_GroupSingle.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7_sprite_GroupSingle.tp_dictoffset && __pyx_type_7_sprite_GroupSingle.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7_sprite_GroupSingle.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6sprite_GroupSingle.tp_dict, __pyx_vtabptr_6sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_GroupSingle, (PyObject *)&__pyx_type_6sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
-  __pyx_ptype_6sprite_GroupSingle = &__pyx_type_6sprite_GroupSingle;
+  if (__Pyx_SetVtable(__pyx_type_7_sprite_GroupSingle.tp_dict, __pyx_vtabptr_7_sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_GroupSingle, (PyObject *)&__pyx_type_7_sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7_sprite_GroupSingle) < 0) __PYX_ERR(0, 1283, __pyx_L1_error)
+  __pyx_ptype_7_sprite_GroupSingle = &__pyx_type_7_sprite_GroupSingle;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -26848,11 +26851,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initsprite(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initsprite(void)
+__Pyx_PyMODINIT_FUNC init_sprite(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC init_sprite(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_sprite(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_sprite(void)
+__Pyx_PyMODINIT_FUNC PyInit__sprite(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit__sprite(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -26919,7 +26922,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_sprite(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec__sprite(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -26938,7 +26941,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_sprite(PyObject *__pyx_pyinit_modu
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'sprite' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module '_sprite' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -26953,7 +26956,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_sprite(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit__sprite(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -26992,7 +26995,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("sprite", __pyx_methods, __pyx_k_pygame_module_with_basic_game_ob, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("_sprite", __pyx_methods, __pyx_k_pygame_module_with_basic_game_ob, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -27010,14 +27013,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_sprite) {
+  if (__pyx_module_is_main__sprite) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "sprite")) {
-      if (unlikely(PyDict_SetItemString(modules, "sprite", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "_sprite")) {
+      if (unlikely(PyDict_SetItemString(modules, "_sprite", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -27038,7 +27041,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "sprite.pyx":89
+  /* "_sprite.pyx":89
  * ## specialized cases.
  * 
  * import pygame             # <<<<<<<<<<<<<<
@@ -27050,7 +27053,7 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pygame, __pyx_t_1) < 0) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":90
+  /* "_sprite.pyx":90
  * 
  * import pygame
  * from pygame import Rect             # <<<<<<<<<<<<<<
@@ -27067,7 +27070,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":91
+  /* "_sprite.pyx":91
  * import pygame
  * from pygame import Rect
  * from pygame.time import get_ticks             # <<<<<<<<<<<<<<
@@ -27088,7 +27091,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":92
+  /* "_sprite.pyx":92
  * from pygame import Rect
  * from pygame.time import get_ticks
  * from operator import truth             # <<<<<<<<<<<<<<
@@ -27109,7 +27112,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":99
+  /* "_sprite.pyx":99
  * # Python 3 does not have the callable function, but an equivalent can be made
  * # with the hasattr function.
  * if 'callable' not in dir(__builtins__):             # <<<<<<<<<<<<<<
@@ -27126,19 +27129,19 @@ if (!__Pyx_RefNanny) {
   __pyx_t_4 = (__pyx_t_3 != 0);
   if (__pyx_t_4) {
 
-    /* "sprite.pyx":100
+    /* "_sprite.pyx":100
  * # with the hasattr function.
  * if 'callable' not in dir(__builtins__):
  *     callable = lambda obj: hasattr(obj, '__call__')             # <<<<<<<<<<<<<<
  * 
  * # Don't depend on pygame.mask if it's not there...
  */
-    __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_12lambda, 0, __pyx_n_s_lambda, NULL, __pyx_n_s_sprite, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_12lambda, 0, __pyx_n_s_lambda, NULL, __pyx_n_s_sprite_2, __pyx_d, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (PyDict_SetItem(__pyx_d, __pyx_n_s_callable, __pyx_t_1) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "sprite.pyx":99
+    /* "_sprite.pyx":99
  * # Python 3 does not have the callable function, but an equivalent can be made
  * # with the hasattr function.
  * if 'callable' not in dir(__builtins__):             # <<<<<<<<<<<<<<
@@ -27147,7 +27150,7 @@ if (!__Pyx_RefNanny) {
  */
   }
 
-  /* "sprite.pyx":103
+  /* "_sprite.pyx":103
  * 
  * # Don't depend on pygame.mask if it's not there...
  * try:             # <<<<<<<<<<<<<<
@@ -27163,7 +27166,7 @@ if (!__Pyx_RefNanny) {
     __Pyx_XGOTREF(__pyx_t_7);
     /*try:*/ {
 
-      /* "sprite.pyx":104
+      /* "_sprite.pyx":104
  * # Don't depend on pygame.mask if it's not there...
  * try:
  *     from pygame.mask import from_surface             # <<<<<<<<<<<<<<
@@ -27184,7 +27187,7 @@ if (!__Pyx_RefNanny) {
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "sprite.pyx":103
+      /* "_sprite.pyx":103
  * 
  * # Don't depend on pygame.mask if it's not there...
  * try:             # <<<<<<<<<<<<<<
@@ -27200,7 +27203,7 @@ if (!__Pyx_RefNanny) {
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "sprite.pyx":105
+    /* "_sprite.pyx":105
  * try:
  *     from pygame.mask import from_surface
  * except:             # <<<<<<<<<<<<<<
@@ -27219,7 +27222,7 @@ if (!__Pyx_RefNanny) {
     __pyx_L8_try_end:;
   }
 
-  /* "sprite.pyx":247
+  /* "_sprite.pyx":247
  * 
  * 
  * class DirtySprite(Sprite):             # <<<<<<<<<<<<<<
@@ -27228,71 +27231,71 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_INCREF(((PyObject *)__pyx_ptype_6sprite_Sprite));
-  __Pyx_GIVEREF(((PyObject *)__pyx_ptype_6sprite_Sprite));
-  PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_6sprite_Sprite));
+  __Pyx_INCREF(((PyObject *)__pyx_ptype_7_sprite_Sprite));
+  __Pyx_GIVEREF(((PyObject *)__pyx_ptype_7_sprite_Sprite));
+  PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_7_sprite_Sprite));
   __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_DirtySprite, __pyx_n_s_DirtySprite, (PyObject *) NULL, __pyx_n_s_sprite, __pyx_kp_s_a_more_featureful_subclass_of_Sp); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 247, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_DirtySprite, __pyx_n_s_DirtySprite, (PyObject *) NULL, __pyx_n_s_sprite_2, __pyx_kp_s_a_more_featureful_subclass_of_Sp); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
 
-  /* "sprite.pyx":279
+  /* "_sprite.pyx":279
  *     """
  * 
  *     def __init__(self, *groups):             # <<<<<<<<<<<<<<
  * 
  *         self.dirty = 1
  */
-  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_11DirtySprite_1__init__, 0, __pyx_n_s_DirtySprite___init, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 279, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_11DirtySprite_1__init__, 0, __pyx_n_s_DirtySprite___init, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_init, __pyx_t_9) < 0) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "sprite.pyx":290
+  /* "_sprite.pyx":290
  *         Sprite.__init__(self, *groups)
  * 
  *     def _set_visible(self, val):             # <<<<<<<<<<<<<<
  *         """set the visible value (0 or 1) and makes the sprite dirty"""
  *         self._visible = val
  */
-  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_11DirtySprite_3_set_visible, 0, __pyx_n_s_DirtySprite__set_visible, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_11DirtySprite_3_set_visible, 0, __pyx_n_s_DirtySprite__set_visible, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_set_visible, __pyx_t_9) < 0) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "sprite.pyx":296
+  /* "_sprite.pyx":296
  *             self.dirty = 1
  * 
  *     def _get_visible(self):             # <<<<<<<<<<<<<<
  *         """return the visible value of that sprite"""
  *         return self._visible
  */
-  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_11DirtySprite_5_get_visible, 0, __pyx_n_s_DirtySprite__get_visible, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_11DirtySprite_5_get_visible, 0, __pyx_n_s_DirtySprite__get_visible, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 296, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_get_visible, __pyx_t_9) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "sprite.pyx":300
+  /* "_sprite.pyx":300
  *         return self._visible
  * 
  *     visible = property(lambda self: self._get_visible(),             # <<<<<<<<<<<<<<
  *                        lambda self, value: self._set_visible(value),
  *                        doc="you can make this sprite disappear without "
  */
-  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_11DirtySprite_8lambda1, 0, __pyx_n_s_DirtySprite_lambda, NULL, __pyx_n_s_sprite, __pyx_d, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_11DirtySprite_8lambda1, 0, __pyx_n_s_DirtySprite_lambda, NULL, __pyx_n_s_sprite_2, __pyx_d, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
 
-  /* "sprite.pyx":301
+  /* "_sprite.pyx":301
  * 
  *     visible = property(lambda self: self._get_visible(),
  *                        lambda self, value: self._set_visible(value),             # <<<<<<<<<<<<<<
  *                        doc="you can make this sprite disappear without "
  *                            "removing it from the group,\n"
  */
-  __pyx_t_10 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_11DirtySprite_9lambda2, 0, __pyx_n_s_DirtySprite_lambda, NULL, __pyx_n_s_sprite, __pyx_d, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_11DirtySprite_9lambda2, 0, __pyx_n_s_DirtySprite_lambda, NULL, __pyx_n_s_sprite_2, __pyx_d, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 301, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
 
-  /* "sprite.pyx":300
+  /* "_sprite.pyx":300
  *         return self._visible
  * 
  *     visible = property(lambda self: self._get_visible(),             # <<<<<<<<<<<<<<
@@ -27308,7 +27311,7 @@ if (!__Pyx_RefNanny) {
   __pyx_t_9 = 0;
   __pyx_t_10 = 0;
 
-  /* "sprite.pyx":302
+  /* "_sprite.pyx":302
  *     visible = property(lambda self: self._get_visible(),
  *                        lambda self, value: self._set_visible(value),
  *                        doc="you can make this sprite disappear without "             # <<<<<<<<<<<<<<
@@ -27319,7 +27322,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_GOTREF(__pyx_t_10);
   if (PyDict_SetItem(__pyx_t_10, __pyx_n_s_doc, __pyx_kp_s_you_can_make_this_sprite_disappe) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
 
-  /* "sprite.pyx":300
+  /* "_sprite.pyx":300
  *         return self._visible
  * 
  *     visible = property(lambda self: self._get_visible(),             # <<<<<<<<<<<<<<
@@ -27333,19 +27336,19 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_visible_2, __pyx_t_9) < 0) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "sprite.pyx":306
+  /* "_sprite.pyx":306
  *                            "assign 0 for invisible and 1 for visible")
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         return "<%s DirtySprite(in %d groups)>" % \
  *             (self.__class__.__name__, len(self.groups()))
  */
-  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_11DirtySprite_7__repr__, 0, __pyx_n_s_DirtySprite___repr, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_11DirtySprite_7__repr__, 0, __pyx_n_s_DirtySprite___repr, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_repr, __pyx_t_9) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "sprite.pyx":247
+  /* "_sprite.pyx":247
  * 
  * 
  * class DirtySprite(Sprite):             # <<<<<<<<<<<<<<
@@ -27360,68 +27363,68 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":324
+  /* "_sprite.pyx":324
  * 
  *     # dummy val to identify sprite groups, and avoid infinite recursion
  *     _spritegroup = True             # <<<<<<<<<<<<<<
  * 
  *     cdef public dict spritedict
  */
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6sprite_AbstractGroup->tp_dict, __pyx_n_s_spritegroup, Py_True) < 0) __PYX_ERR(0, 324, __pyx_L1_error)
-  PyType_Modified(__pyx_ptype_6sprite_AbstractGroup);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_7_sprite_AbstractGroup->tp_dict, __pyx_n_s_spritegroup, Py_True) < 0) __PYX_ERR(0, 324, __pyx_L1_error)
+  PyType_Modified(__pyx_ptype_7_sprite_AbstractGroup);
 
-  /* "sprite.pyx":591
+  /* "_sprite.pyx":591
  *         self.add(*sprites)
  * 
  * RenderPlain = Group             # <<<<<<<<<<<<<<
  * RenderClear = Group
  * 
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_RenderPlain, ((PyObject *)__pyx_ptype_6sprite_Group)) < 0) __PYX_ERR(0, 591, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_RenderPlain, ((PyObject *)__pyx_ptype_7_sprite_Group)) < 0) __PYX_ERR(0, 591, __pyx_L1_error)
 
-  /* "sprite.pyx":592
+  /* "_sprite.pyx":592
  * 
  * RenderPlain = Group
  * RenderClear = Group             # <<<<<<<<<<<<<<
  * 
  * cdef class RenderUpdates(Group):
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_RenderClear, ((PyObject *)__pyx_ptype_6sprite_Group)) < 0) __PYX_ERR(0, 592, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_RenderClear, ((PyObject *)__pyx_ptype_7_sprite_Group)) < 0) __PYX_ERR(0, 592, __pyx_L1_error)
 
-  /* "sprite.pyx":663
+  /* "_sprite.pyx":663
  *     """
  * 
  *     _init_rect = Rect(0, 0, 0, 0)             # <<<<<<<<<<<<<<
  * 
  *     cdef public dict _spritelayers
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_6sprite_Rect), __pyx_tuple__26, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7_sprite_Rect), __pyx_tuple__26, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6sprite_LayeredUpdates->tp_dict, __pyx_n_s_init_rect, __pyx_t_2) < 0) __PYX_ERR(0, 663, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_7_sprite_LayeredUpdates->tp_dict, __pyx_n_s_init_rect, __pyx_t_2) < 0) __PYX_ERR(0, 663, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_ptype_6sprite_LayeredUpdates);
+  PyType_Modified(__pyx_ptype_7_sprite_LayeredUpdates);
 
-  /* "sprite.pyx":1329
+  /* "_sprite.pyx":1329
  *         return sprite
  * 
  *     sprite = property(_get_sprite,             # <<<<<<<<<<<<<<
  *                       _set_sprite,
  *                       None,
  */
-  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_6sprite_GroupSingle, __pyx_n_s_get_sprite); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1329, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_7_sprite_GroupSingle, __pyx_n_s_get_sprite); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "sprite.pyx":1330
+  /* "_sprite.pyx":1330
  * 
  *     sprite = property(_get_sprite,
  *                       _set_sprite,             # <<<<<<<<<<<<<<
  *                       None,
  *                       "The sprite contained in this group")
  */
-  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_6sprite_GroupSingle, __pyx_n_s_set_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1330, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_1, (PyObject *)__pyx_ptype_7_sprite_GroupSingle, __pyx_n_s_set_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "sprite.pyx":1329
+  /* "_sprite.pyx":1329
  *         return sprite
  * 
  *     sprite = property(_get_sprite,             # <<<<<<<<<<<<<<
@@ -27445,57 +27448,57 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_property, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_6sprite_GroupSingle->tp_dict, __pyx_n_s_sprite, __pyx_t_1) < 0) __PYX_ERR(0, 1329, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_7_sprite_GroupSingle->tp_dict, __pyx_n_s_sprite, __pyx_t_1) < 0) __PYX_ERR(0, 1329, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  PyType_Modified(__pyx_ptype_6sprite_GroupSingle);
+  PyType_Modified(__pyx_ptype_7_sprite_GroupSingle);
 
-  /* "sprite.pyx":1349
+  /* "_sprite.pyx":1349
  * 
  * # Some different collision detection functions that could be used.
  * def collide_rect(left, right):             # <<<<<<<<<<<<<<
  *     """collision detection between two sprites, using rects.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6sprite_1collide_rect, NULL, __pyx_n_s_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1349, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7_sprite_1collide_rect, NULL, __pyx_n_s_sprite_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1349, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_collide_rect, __pyx_t_1) < 0) __PYX_ERR(0, 1349, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1364
+  /* "_sprite.pyx":1364
  *     return left.rect.colliderect(right.rect)
  * 
  * class collide_rect_ratio:             # <<<<<<<<<<<<<<
  *     """A callable class that checks for collisions using scaled rects
  * 
  */
-  __pyx_t_1 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_collide_rect_ratio, __pyx_n_s_collide_rect_ratio, (PyObject *) NULL, __pyx_n_s_sprite, __pyx_kp_s_A_callable_class_that_checks_for); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1364, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_collide_rect_ratio, __pyx_n_s_collide_rect_ratio, (PyObject *) NULL, __pyx_n_s_sprite_2, __pyx_kp_s_A_callable_class_that_checks_for); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1364, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "sprite.pyx":1376
+  /* "_sprite.pyx":1376
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
  *         """create a new collide_rect_ratio callable
  * 
  */
-  __pyx_t_8 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_18collide_rect_ratio_1__init__, 0, __pyx_n_s_collide_rect_ratio___init, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1376, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_18collide_rect_ratio_1__init__, 0, __pyx_n_s_collide_rect_ratio___init, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_init, __pyx_t_8) < 0) __PYX_ERR(0, 1376, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "sprite.pyx":1385
+  /* "_sprite.pyx":1385
  *         self.ratio = ratio
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
  *         """detect collision between two sprites using scaled rects
  * 
  */
-  __pyx_t_8 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_18collide_rect_ratio_3__call__, 0, __pyx_n_s_collide_rect_ratio___call, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1385, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_18collide_rect_ratio_3__call__, 0, __pyx_n_s_collide_rect_ratio___call, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1385, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_call, __pyx_t_8) < 0) __PYX_ERR(0, 1385, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "sprite.pyx":1364
+  /* "_sprite.pyx":1364
  *     return left.rect.colliderect(right.rect)
  * 
  * class collide_rect_ratio:             # <<<<<<<<<<<<<<
@@ -27508,19 +27511,19 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1412
+  /* "_sprite.pyx":1412
  *         return leftrect.colliderect(rightrect)
  * 
  * def collide_circle(left, right):             # <<<<<<<<<<<<<<
  *     """detect collision between two sprites using circles
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6sprite_3collide_circle, NULL, __pyx_n_s_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1412, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7_sprite_3collide_circle, NULL, __pyx_n_s_sprite_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1412, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_collide_circle, __pyx_t_1) < 0) __PYX_ERR(0, 1412, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1454
+  /* "_sprite.pyx":1454
  *     return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * class collide_circle_ratio(object):             # <<<<<<<<<<<<<<
@@ -27529,34 +27532,34 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_tuple__35); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_tuple__35, __pyx_n_s_collide_circle_ratio, __pyx_n_s_collide_circle_ratio, (PyObject *) NULL, __pyx_n_s_sprite, __pyx_kp_s_detect_collision_between_two_spr); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1454, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_tuple__35, __pyx_n_s_collide_circle_ratio, __pyx_n_s_collide_circle_ratio, (PyObject *) NULL, __pyx_n_s_sprite_2, __pyx_kp_s_detect_collision_between_two_spr); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
 
-  /* "sprite.pyx":1466
+  /* "_sprite.pyx":1466
  *     """
  * 
  *     def __init__(self, ratio):             # <<<<<<<<<<<<<<
  *         """creates a new collide_circle_ratio callable instance
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_20collide_circle_ratio_1__init__, 0, __pyx_n_s_collide_circle_ratio___init, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_20collide_circle_ratio_1__init__, 0, __pyx_n_s_collide_circle_ratio___init, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_init, __pyx_t_2) < 0) __PYX_ERR(0, 1466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":1479
+  /* "_sprite.pyx":1479
  * 
  * 
  *     def __call__(self, left, right):             # <<<<<<<<<<<<<<
  *         """detect collision between two sprites using scaled circles
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6sprite_20collide_circle_ratio_3__call__, 0, __pyx_n_s_collide_circle_ratio___call, NULL, __pyx_n_s_sprite, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1479, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_7_sprite_20collide_circle_ratio_3__call__, 0, __pyx_n_s_collide_circle_ratio___call, NULL, __pyx_n_s_sprite_2, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1479, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_n_s_call, __pyx_t_2) < 0) __PYX_ERR(0, 1479, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sprite.pyx":1454
+  /* "_sprite.pyx":1454
  *     return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * class collide_circle_ratio(object):             # <<<<<<<<<<<<<<
@@ -27570,55 +27573,55 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1518
+  /* "_sprite.pyx":1518
  *         return distancesquared <= (leftradius + rightradius) ** 2
  * 
  * def collide_mask(left, right):             # <<<<<<<<<<<<<<
  *     """collision detection between two sprites, using masks.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6sprite_5collide_mask, NULL, __pyx_n_s_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1518, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7_sprite_5collide_mask, NULL, __pyx_n_s_sprite_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_collide_mask, __pyx_t_1) < 0) __PYX_ERR(0, 1518, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1544
+  /* "_sprite.pyx":1544
  *     return leftmask.overlap(rightmask, (xoffset, yoffset))
  * 
  * def spritecollide(sprite, group, dokill, collided=None):             # <<<<<<<<<<<<<<
  *     """find Sprites in a Group that intersect another Sprite
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6sprite_7spritecollide, NULL, __pyx_n_s_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1544, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7_sprite_7spritecollide, NULL, __pyx_n_s_sprite_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1544, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_spritecollide, __pyx_t_1) < 0) __PYX_ERR(0, 1544, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1590
+  /* "_sprite.pyx":1590
  * 
  * 
  * def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):             # <<<<<<<<<<<<<<
  *     """detect collision between a group and another group
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6sprite_9groupcollide, NULL, __pyx_n_s_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1590, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7_sprite_9groupcollide, NULL, __pyx_n_s_sprite_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1590, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_groupcollide, __pyx_t_1) < 0) __PYX_ERR(0, 1590, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1623
+  /* "_sprite.pyx":1623
  *     return crashed
  * 
  * def spritecollideany(sprite, group, collided=None):             # <<<<<<<<<<<<<<
  *     """finds any sprites in a group that collide with the given sprite
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6sprite_11spritecollideany, NULL, __pyx_n_s_sprite); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1623, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7_sprite_11spritecollideany, NULL, __pyx_n_s_sprite_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1623, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_spritecollideany, __pyx_t_1) < 0) __PYX_ERR(0, 1623, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sprite.pyx":1
+  /* "_sprite.pyx":1
  * ##    pygame - Python Game Library             # <<<<<<<<<<<<<<
  * ##    Copyright (C) 2000-2003, 2007  Pete Shinners
  * ##              (C) 2004 Joe Wreschnig
@@ -27640,11 +27643,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_11);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init _sprite", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init sprite");
+    PyErr_SetString(PyExc_ImportError, "init _sprite");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

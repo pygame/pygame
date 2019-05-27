@@ -94,7 +94,7 @@ if 'cython' in sys.argv:
     except ImportError:
         print("You need cython. https://cython.org/, pip install cython --user")
 
-    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx", "src_c/sprite.pyx"],
+    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx", "src_c/_sprite.pyx"],
               include_path=["src_c/_sdl2", "src_c"])
     sys.argv.remove('cython')
 
