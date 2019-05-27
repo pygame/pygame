@@ -1,6 +1,6 @@
 from . import error
 
-cdef extern from "../pygame.h" nogil:
+cdef extern from "pygame.h" nogil:
     int pgJoystick_Check(object joy)
     object pgJoystick_New(int);
     void import_pygame_joystick()
