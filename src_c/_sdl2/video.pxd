@@ -10,10 +10,24 @@ cdef extern from "SDL.h" nogil:
     ctypedef struct SDL_Rect:
         int x, y
         int w, h
+
+    ctypedef enum SDL_PixelFormatEnum:
+        SDL_PIXELFORMAT_UNKNOWN
+
+    int SDL_BITSPERPIXEL(Uint32 format)
+
+    ctypedef struct SDL_PixelFormat:
+        Uint32 format
+
     ctypedef struct SDL_Surface:
+        Uint32 flags
+        SDL_PixelFormat *format
         int w,h
         int pitch
         void* pixels
+        void *userdata
+        int locked
+        void *lock_data
         SDL_Rect clip_rect
 
     ctypedef struct SDL_Point:

@@ -12,6 +12,10 @@ MESSAGEBOX_WARNING = _SDL_MESSAGEBOX_WARNING
 MESSAGEBOX_INFORMATION = _SDL_MESSAGEBOX_INFORMATION
 
 
+cdef extern from "SDL.h" nogil:
+    Uint32 SDL_GetWindowPixelFormat(SDL_Window* window)
+
+
 cdef extern from "../pygame.h" nogil:
     int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
@@ -28,6 +32,7 @@ cdef extern from "../pygame.h" nogil:
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
     void import_pygame_color()
     object pgSurface_New2(SDL_Surface *info, int owner)
+
 
 import_pygame_color()
 import_pygame_surface()
@@ -1006,26 +1011,61 @@ cdef class Renderer:
         if res < 0:
             raise error()
 
-    def get_surface(self, depth=32):
+    def to_surface(self, surface=None, area=None):
         # https://wiki.libsdl.org/SDL_RenderReadPixels
         """
             Read pixels from the current rendering target and create a pygame.Surface.
             WARNING: This is a very slow operation, and should not be used frequently.
+
+        :param surface: A surface to read the pixel data into.
+                        If ``None``, a new surface is returned.
+        :param area: The area of the screen to read pixels from.
+                     If ``None``, the entire viewport is used.
         """
         cdef Uint32 format
-        try:
-            format = format_from_depth(depth)
-        except ValueError as e:
-            raise e
+        cdef SDL_Rect rarea
+        cdef SDL_Surface *surf
+        cdef SDL_Texture *targettex
 
-        cdef SDL_Texture* tex = SDL_GetRenderTarget(self._renderer)
-        cdef int width, height
-        if tex == NULL:
-            # NULL for default target (the window that created the renderer)
-            width, height = self._win.size
+        # obtain area to use
+        if area is not None:
+            if pgRect_FromObject(area, &rarea) == NULL:
+                raise TypeError('area must be None or a rect')
         else:
-            SDL_QueryTexture(tex, &format, NULL, &width, &height)
+            SDL_RenderGetViewport(self._renderer, &rarea)
 
-        cdef SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
-        SDL_RenderReadPixels(self._renderer, NULL, format, surface.pixels, surface.pitch);
-        return pgSurface_New2(surface, 1)
+        # prepare surface and format
+        if surface is None:
+            # create a new surface
+            targettex = SDL_GetRenderTarget(self._renderer)
+
+            if targettex == NULL:
+                format = SDL_GetWindowPixelFormat(self._win._win)
+                if format == SDL_PIXELFORMAT_UNKNOWN:
+                    raise error()
+            else:
+                if SDL_QueryTexture(targettex, &format, NULL, NULL, NULL) < 0:
+                    raise error()
+
+            surf = SDL_CreateRGBSurfaceWithFormat(
+                0,
+                rarea.w, rarea.h,
+                SDL_BITSPERPIXEL(format),
+                format)
+            if surf == NULL:
+                raise MemoryError("not enough memory for the surface")
+
+            surface = pgSurface_New2(surf, 1)
+        elif pgSurface_Check(surface):
+            surf = pgSurface_AsSurface(surface)
+            if surf.w != rarea.w or surf.h != rarea.h:
+                raise ValueError('surface size must equal the area')
+            format = surf.format.format
+        else:
+            raise TypeError("'surface' must be a surface or None")
+
+        if SDL_RenderReadPixels(self._renderer,
+                                &rarea,
+                                format, surf.pixels, surf.pitch):
+            raise error()
+        return surface
