@@ -454,7 +454,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong(0);
 
-#if IS_SDLv2
+#ifdef Mix_OpenAudioDevice
         if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
                                 allowedchanges) == -1) {
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
