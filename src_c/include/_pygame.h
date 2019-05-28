@@ -79,6 +79,13 @@
 
 #include "pgcompat.h"
 
+#if defined(SDL_VERSION_ATLEAST)
+#ifndef SDL_WINDOW_VULKAN
+#define SDL_WINDOW_VULKAN 0
+#endif
+#endif
+
+
 /* Flag indicating a pg_buffer; used for assertions within callbacks */
 #ifndef NDEBUG
 #define PyBUF_PYGAME 0x4000
@@ -350,10 +357,10 @@ typedef struct {
  * SURFACE module
  */
 struct pgSubSurface_Data;
-typedef struct SDL_Surface;
+struct SDL_Surface;
 
 typedef struct {
-    PyObject_HEAD SDL_Surface *surf;
+    PyObject_HEAD struct SDL_Surface *surf;
 #if PG_API_VERSION == 2
     int owner;
 #endif /* PG_API_VERSION == 2 */

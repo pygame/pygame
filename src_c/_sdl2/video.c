@@ -835,13 +835,15 @@ struct __pyx_obj_5video_Texture;
 struct __pyx_obj_5video_Image;
 struct __pyx_obj_5video___pyx_scope_struct__get_drivers;
 struct __pyx_opt_args_5video_7Texture_draw_internal;
+struct __pyx_opt_args_5video_7Texture_draw;
+struct __pyx_opt_args_5video_5Image_draw;
 
 /* "video.pxd":357
  *     cdef readonly int height
  * 
  *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,             # <<<<<<<<<<<<<<
  *                        bint flipX=*, bint flipY=*)
- * 
+ *     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,
  */
 struct __pyx_opt_args_5video_7Texture_draw_internal {
   int __pyx_n;
@@ -849,6 +851,34 @@ struct __pyx_opt_args_5video_7Texture_draw_internal {
   SDL_Point *originptr;
   int flipX;
   int flipY;
+};
+
+/* "video.pxd":359
+ *     cdef draw_internal(self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, float angle=*, SDL_Point *originptr=*,
+ *                        bint flipX=*, bint flipY=*)
+ *     cpdef void draw(self, srcrect=*, dstrect=*, float angle=*, origin=*,             # <<<<<<<<<<<<<<
+ *                     bint flipX=*, bint flipY=*)
+ * 
+ */
+struct __pyx_opt_args_5video_7Texture_draw {
+  int __pyx_n;
+  PyObject *srcrect;
+  PyObject *dstrect;
+  float angle;
+  PyObject *origin;
+  int flipX;
+  int flipY;
+};
+
+/* "video.pxd":373
+ *     cdef public Rect srcrect
+ * 
+ *     cpdef void draw(self, srcrect=*, dstrect=*)             # <<<<<<<<<<<<<<
+ */
+struct __pyx_opt_args_5video_5Image_draw {
+  int __pyx_n;
+  PyObject *srcrect;
+  PyObject *dstrect;
 };
 
 /* "video.pxd":341
@@ -898,8 +928,8 @@ struct __pyx_obj_5video_Texture {
 };
 
 
-/* "video.pxd":360
- *                        bint flipX=*, bint flipY=*)
+/* "video.pxd":362
+ *                     bint flipX=*, bint flipY=*)
  * 
  * cdef class Image:             # <<<<<<<<<<<<<<
  *     cdef public float angle
@@ -907,6 +937,7 @@ struct __pyx_obj_5video_Texture {
  */
 struct __pyx_obj_5video_Image {
   PyObject_HEAD
+  struct __pyx_vtabstruct_5video_Image *__pyx_vtab;
   float angle;
   float origin[2];
   int flipX;
@@ -946,8 +977,23 @@ struct __pyx_obj_5video___pyx_scope_struct__get_drivers {
 
 struct __pyx_vtabstruct_5video_Texture {
   PyObject *(*draw_internal)(struct __pyx_obj_5video_Texture *, SDL_Rect *, SDL_Rect *, struct __pyx_opt_args_5video_7Texture_draw_internal *__pyx_optional_args);
+  void (*draw)(struct __pyx_obj_5video_Texture *, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_7Texture_draw *__pyx_optional_args);
 };
 static struct __pyx_vtabstruct_5video_Texture *__pyx_vtabptr_5video_Texture;
+
+
+/* "video.pyx":735
+ *             raise error()
+ * 
+ * cdef class Image:             # <<<<<<<<<<<<<<
+ * 
+ *     def __cinit__(self):
+ */
+
+struct __pyx_vtabstruct_5video_Image {
+  void (*draw)(struct __pyx_obj_5video_Image *, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_5Image_draw *__pyx_optional_args);
+};
+static struct __pyx_vtabstruct_5video_Image *__pyx_vtabptr_5video_Image;
 
 /* --- Runtime support code (head) --- */
 /* Refnanny.proto */
@@ -1701,6 +1747,8 @@ static int __Pyx_check_binary_version(void);
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 static PyObject *__pyx_f_5video_7Texture_draw_internal(struct __pyx_obj_5video_Texture *__pyx_v_self, SDL_Rect *__pyx_v_csrcrect, SDL_Rect *__pyx_v_cdstrect, struct __pyx_opt_args_5video_7Texture_draw_internal *__pyx_optional_args); /* proto*/
+static void __pyx_f_5video_7Texture_draw(struct __pyx_obj_5video_Texture *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_7Texture_draw *__pyx_optional_args); /* proto*/
+static void __pyx_f_5video_5Image_draw(struct __pyx_obj_5video_Image *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_5Image_draw *__pyx_optional_args); /* proto*/
 
 /* Module declarations from 'libc.string' */
 
@@ -9839,7 +9887,7 @@ static PyObject *__pyx_f_5video_7Texture_draw_internal(struct __pyx_obj_5video_T
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
- *     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
  */
     __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 661, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
@@ -9897,10 +9945,530 @@ static PyObject *__pyx_f_5video_7Texture_draw_internal(struct __pyx_obj_5video_T
 /* "video.pyx":663
  *             raise error()
  * 
- *     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
- *              bint flipX=False, bint flipY=False):
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
+ *                     bint flipX=False, bint flipY=False):
  *         """ Copy a portion of the texture to the rendering target.
  */
+
+static PyObject *__pyx_pw_5video_7Texture_11draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static void __pyx_f_5video_7Texture_draw(struct __pyx_obj_5video_Texture *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_7Texture_draw *__pyx_optional_args) {
+  PyObject *__pyx_v_srcrect = ((PyObject *)Py_None);
+  PyObject *__pyx_v_dstrect = ((PyObject *)Py_None);
+  float __pyx_v_angle = ((float)0.0);
+  PyObject *__pyx_v_origin = ((PyObject *)Py_None);
+
+  /* "video.pyx":664
+ * 
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
+ *                     bint flipX=False, bint flipY=False):             # <<<<<<<<<<<<<<
+ *         """ Copy a portion of the texture to the rendering target.
+ * 
+ */
+  int __pyx_v_flipX = ((int)0);
+  int __pyx_v_flipY = ((int)0);
+  SDL_Rect __pyx_v_src;
+  SDL_Rect __pyx_v_dst;
+  SDL_Rect *__pyx_v_csrcrect;
+  SDL_Rect *__pyx_v_cdstrect;
+  SDL_Point __pyx_v_corigin;
+  SDL_Point *__pyx_v_originptr;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
+  int __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
+  int __pyx_t_10;
+  int __pyx_t_11;
+  Py_ssize_t __pyx_t_12;
+  struct __pyx_opt_args_5video_7Texture_draw_internal __pyx_t_13;
+  __Pyx_RefNannySetupContext("draw", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_srcrect = __pyx_optional_args->srcrect;
+      if (__pyx_optional_args->__pyx_n > 1) {
+        __pyx_v_dstrect = __pyx_optional_args->dstrect;
+        if (__pyx_optional_args->__pyx_n > 2) {
+          __pyx_v_angle = __pyx_optional_args->angle;
+          if (__pyx_optional_args->__pyx_n > 3) {
+            __pyx_v_origin = __pyx_optional_args->origin;
+            if (__pyx_optional_args->__pyx_n > 4) {
+              __pyx_v_flipX = __pyx_optional_args->flipX;
+              if (__pyx_optional_args->__pyx_n > 5) {
+                __pyx_v_flipY = __pyx_optional_args->flipY;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* "video.pyx":663
+ *             raise error()
+ * 
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
+ *                     bint flipX=False, bint flipY=False):
+ *         """ Copy a portion of the texture to the rendering target.
+ */
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 663, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_5video_7Texture_11draw)) {
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_angle); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 663, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_4 = __Pyx_PyBool_FromLong(__pyx_v_flipX); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 663, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_flipY); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 663, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_6 = __pyx_t_1; __pyx_t_7 = NULL;
+        __pyx_t_8 = 0;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
+          __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_6);
+          if (likely(__pyx_t_7)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+            __Pyx_INCREF(__pyx_t_7);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_6, function);
+            __pyx_t_8 = 1;
+          }
+        }
+        #if CYTHON_FAST_PYCALL
+        if (PyFunction_Check(__pyx_t_6)) {
+          PyObject *__pyx_temp[7] = {__pyx_t_7, __pyx_v_srcrect, __pyx_v_dstrect, __pyx_t_3, __pyx_v_origin, __pyx_t_4, __pyx_t_5};
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        } else
+        #endif
+        #if CYTHON_FAST_PYCCALL
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
+          PyObject *__pyx_temp[7] = {__pyx_t_7, __pyx_v_srcrect, __pyx_v_dstrect, __pyx_t_3, __pyx_v_origin, __pyx_t_4, __pyx_t_5};
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        } else
+        #endif
+        {
+          __pyx_t_9 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 663, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_9);
+          if (__pyx_t_7) {
+            __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
+          }
+          __Pyx_INCREF(__pyx_v_srcrect);
+          __Pyx_GIVEREF(__pyx_v_srcrect);
+          PyTuple_SET_ITEM(__pyx_t_9, 0+__pyx_t_8, __pyx_v_srcrect);
+          __Pyx_INCREF(__pyx_v_dstrect);
+          __Pyx_GIVEREF(__pyx_v_dstrect);
+          PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_v_dstrect);
+          __Pyx_GIVEREF(__pyx_t_3);
+          PyTuple_SET_ITEM(__pyx_t_9, 2+__pyx_t_8, __pyx_t_3);
+          __Pyx_INCREF(__pyx_v_origin);
+          __Pyx_GIVEREF(__pyx_v_origin);
+          PyTuple_SET_ITEM(__pyx_t_9, 3+__pyx_t_8, __pyx_v_origin);
+          __Pyx_GIVEREF(__pyx_t_4);
+          PyTuple_SET_ITEM(__pyx_t_9, 4+__pyx_t_8, __pyx_t_4);
+          __Pyx_GIVEREF(__pyx_t_5);
+          PyTuple_SET_ITEM(__pyx_t_9, 5+__pyx_t_8, __pyx_t_5);
+          __pyx_t_3 = 0;
+          __pyx_t_4 = 0;
+          __pyx_t_5 = 0;
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        }
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+
+  /* "video.pyx":677
+ *         """
+ *         cdef SDL_Rect src, dst
+ *         cdef SDL_Rect *csrcrect = NULL             # <<<<<<<<<<<<<<
+ *         cdef SDL_Rect *cdstrect = NULL
+ *         cdef SDL_Point corigin
+ */
+  __pyx_v_csrcrect = NULL;
+
+  /* "video.pyx":678
+ *         cdef SDL_Rect src, dst
+ *         cdef SDL_Rect *csrcrect = NULL
+ *         cdef SDL_Rect *cdstrect = NULL             # <<<<<<<<<<<<<<
+ *         cdef SDL_Point corigin
+ *         cdef SDL_Point *originptr
+ */
+  __pyx_v_cdstrect = NULL;
+
+  /* "video.pyx":682
+ *         cdef SDL_Point *originptr
+ * 
+ *         if srcrect is not None:             # <<<<<<<<<<<<<<
+ *             csrcrect = pgRect_FromObject(srcrect, &src)
+ *             if not csrcrect:
+ */
+  __pyx_t_10 = (__pyx_v_srcrect != Py_None);
+  __pyx_t_11 = (__pyx_t_10 != 0);
+  if (__pyx_t_11) {
+
+    /* "video.pyx":683
+ * 
+ *         if srcrect is not None:
+ *             csrcrect = pgRect_FromObject(srcrect, &src)             # <<<<<<<<<<<<<<
+ *             if not csrcrect:
+ *                 raise error("the argument is not a rectangle or None")
+ */
+    __pyx_v_csrcrect = pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_src));
+
+    /* "video.pyx":684
+ *         if srcrect is not None:
+ *             csrcrect = pgRect_FromObject(srcrect, &src)
+ *             if not csrcrect:             # <<<<<<<<<<<<<<
+ *                 raise error("the argument is not a rectangle or None")
+ * 
+ */
+    __pyx_t_11 = ((!(__pyx_v_csrcrect != 0)) != 0);
+    if (unlikely(__pyx_t_11)) {
+
+      /* "video.pyx":685
+ *             csrcrect = pgRect_FromObject(srcrect, &src)
+ *             if not csrcrect:
+ *                 raise error("the argument is not a rectangle or None")             # <<<<<<<<<<<<<<
+ * 
+ *         if dstrect is not None:
+ */
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 685, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_6 = NULL;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_2);
+        if (likely(__pyx_t_6)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_6);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_2, function);
+        }
+      }
+      __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_6, __pyx_kp_s_the_argument_is_not_a_rectangle) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_s_the_argument_is_not_a_rectangle);
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 685, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __PYX_ERR(0, 685, __pyx_L1_error)
+
+      /* "video.pyx":684
+ *         if srcrect is not None:
+ *             csrcrect = pgRect_FromObject(srcrect, &src)
+ *             if not csrcrect:             # <<<<<<<<<<<<<<
+ *                 raise error("the argument is not a rectangle or None")
+ * 
+ */
+    }
+
+    /* "video.pyx":682
+ *         cdef SDL_Point *originptr
+ * 
+ *         if srcrect is not None:             # <<<<<<<<<<<<<<
+ *             csrcrect = pgRect_FromObject(srcrect, &src)
+ *             if not csrcrect:
+ */
+  }
+
+  /* "video.pyx":687
+ *                 raise error("the argument is not a rectangle or None")
+ * 
+ *         if dstrect is not None:             # <<<<<<<<<<<<<<
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ */
+  __pyx_t_11 = (__pyx_v_dstrect != Py_None);
+  __pyx_t_10 = (__pyx_t_11 != 0);
+  if (__pyx_t_10) {
+
+    /* "video.pyx":688
+ * 
+ *         if dstrect is not None:
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)             # <<<<<<<<<<<<<<
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:
+ */
+    __pyx_v_cdstrect = pgRect_FromObject(__pyx_v_dstrect, (&__pyx_v_dst));
+
+    /* "video.pyx":689
+ *         if dstrect is not None:
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]
+ */
+    __pyx_t_10 = ((__pyx_v_cdstrect == NULL) != 0);
+    if (__pyx_t_10) {
+
+      /* "video.pyx":690
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]
+ */
+      __pyx_t_12 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 690, __pyx_L1_error)
+      __pyx_t_10 = ((__pyx_t_12 == 2) != 0);
+      if (likely(__pyx_t_10)) {
+
+        /* "video.pyx":691
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]             # <<<<<<<<<<<<<<
+ *                     dst.y = dstrect[1]
+ *                     dst.w = self.width
+ */
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 691, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 691, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dst.x = __pyx_t_8;
+
+        /* "video.pyx":692
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]             # <<<<<<<<<<<<<<
+ *                     dst.w = self.width
+ *                     dst.h = self.height
+ */
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 692, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 692, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dst.y = __pyx_t_8;
+
+        /* "video.pyx":693
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]
+ *                     dst.w = self.width             # <<<<<<<<<<<<<<
+ *                     dst.h = self.height
+ *                     cdstrect = &dst
+ */
+        __pyx_t_8 = __pyx_v_self->width;
+        __pyx_v_dst.w = __pyx_t_8;
+
+        /* "video.pyx":694
+ *                     dst.y = dstrect[1]
+ *                     dst.w = self.width
+ *                     dst.h = self.height             # <<<<<<<<<<<<<<
+ *                     cdstrect = &dst
+ *                 else:
+ */
+        __pyx_t_8 = __pyx_v_self->height;
+        __pyx_v_dst.h = __pyx_t_8;
+
+        /* "video.pyx":695
+ *                     dst.w = self.width
+ *                     dst.h = self.height
+ *                     cdstrect = &dst             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     raise error('dstrect must be a position, rect, or None')
+ */
+        __pyx_v_cdstrect = (&__pyx_v_dst);
+
+        /* "video.pyx":690
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]
+ */
+        goto __pyx_L7;
+      }
+
+      /* "video.pyx":697
+ *                     cdstrect = &dst
+ *                 else:
+ *                     raise error('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
+ * 
+ *         if origin:
+ */
+      /*else*/ {
+        __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 697, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_6 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+          __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_2);
+          if (likely(__pyx_t_6)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+            __Pyx_INCREF(__pyx_t_6);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_2, function);
+          }
+        }
+        __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_6, __pyx_kp_s_dstrect_must_be_a_position_rect) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_s_dstrect_must_be_a_position_rect);
+        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 697, __pyx_L1_error)
+      }
+      __pyx_L7:;
+
+      /* "video.pyx":689
+ *         if dstrect is not None:
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]
+ */
+    }
+
+    /* "video.pyx":687
+ *                 raise error("the argument is not a rectangle or None")
+ * 
+ *         if dstrect is not None:             # <<<<<<<<<<<<<<
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ */
+  }
+
+  /* "video.pyx":699
+ *                     raise error('dstrect must be a position, rect, or None')
+ * 
+ *         if origin:             # <<<<<<<<<<<<<<
+ *             originptr = &corigin
+ *             corigin.x = origin[0]
+ */
+  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_v_origin); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 699, __pyx_L1_error)
+  if (__pyx_t_10) {
+
+    /* "video.pyx":700
+ * 
+ *         if origin:
+ *             originptr = &corigin             # <<<<<<<<<<<<<<
+ *             corigin.x = origin[0]
+ *             corigin.y = origin[1]
+ */
+    __pyx_v_originptr = (&__pyx_v_corigin);
+
+    /* "video.pyx":701
+ *         if origin:
+ *             originptr = &corigin
+ *             corigin.x = origin[0]             # <<<<<<<<<<<<<<
+ *             corigin.y = origin[1]
+ *         else:
+ */
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 701, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 701, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_v_corigin.x = __pyx_t_8;
+
+    /* "video.pyx":702
+ *             originptr = &corigin
+ *             corigin.x = origin[0]
+ *             corigin.y = origin[1]             # <<<<<<<<<<<<<<
+ *         else:
+ *             originptr = NULL
+ */
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 702, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 702, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_v_corigin.y = __pyx_t_8;
+
+    /* "video.pyx":699
+ *                     raise error('dstrect must be a position, rect, or None')
+ * 
+ *         if origin:             # <<<<<<<<<<<<<<
+ *             originptr = &corigin
+ *             corigin.x = origin[0]
+ */
+    goto __pyx_L8;
+  }
+
+  /* "video.pyx":704
+ *             corigin.y = origin[1]
+ *         else:
+ *             originptr = NULL             # <<<<<<<<<<<<<<
+ * 
+ *         self.draw_internal(csrcrect, cdstrect, angle, originptr,
+ */
+  /*else*/ {
+    __pyx_v_originptr = NULL;
+  }
+  __pyx_L8:;
+
+  /* "video.pyx":706
+ *             originptr = NULL
+ * 
+ *         self.draw_internal(csrcrect, cdstrect, angle, originptr,             # <<<<<<<<<<<<<<
+ *                            flipX, flipY)
+ * 
+ */
+  __pyx_t_13.__pyx_n = 4;
+  __pyx_t_13.angle = __pyx_v_angle;
+  __pyx_t_13.originptr = __pyx_v_originptr;
+  __pyx_t_13.flipX = __pyx_v_flipX;
+  __pyx_t_13.flipY = __pyx_v_flipY;
+  __pyx_t_1 = ((struct __pyx_vtabstruct_5video_Texture *)__pyx_v_self->__pyx_vtab)->draw_internal(__pyx_v_self, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_13); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 706, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "video.pyx":663
+ *             raise error()
+ * 
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
+ *                     bint flipX=False, bint flipY=False):
+ *         """ Copy a portion of the texture to the rendering target.
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_WriteUnraisable("video.Texture.draw", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+}
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5video_7Texture_11draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
@@ -10013,8 +10581,8 @@ static PyObject *__pyx_pw_5video_7Texture_11draw(PyObject *__pyx_v_self, PyObjec
 
       /* "video.pyx":664
  * 
- *     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
- *              bint flipX=False, bint flipY=False):             # <<<<<<<<<<<<<<
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,
+ *                     bint flipX=False, bint flipY=False):             # <<<<<<<<<<<<<<
  *         """ Copy a portion of the texture to the rendering target.
  * 
  */
@@ -10039,8 +10607,8 @@ static PyObject *__pyx_pw_5video_7Texture_11draw(PyObject *__pyx_v_self, PyObjec
   /* "video.pyx":663
  *             raise error()
  * 
- *     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
- *              bint flipX=False, bint flipY=False):
+ *     cpdef void draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
+ *                     bint flipX=False, bint flipY=False):
  *         """ Copy a portion of the texture to the rendering target.
  */
 
@@ -10050,371 +10618,29 @@ static PyObject *__pyx_pw_5video_7Texture_11draw(PyObject *__pyx_v_self, PyObjec
 }
 
 static PyObject *__pyx_pf_5video_7Texture_10draw(struct __pyx_obj_5video_Texture *__pyx_v_self, PyObject *__pyx_v_srcrect, PyObject *__pyx_v_dstrect, float __pyx_v_angle, PyObject *__pyx_v_origin, int __pyx_v_flipX, int __pyx_v_flipY) {
-  SDL_Rect __pyx_v_src;
-  SDL_Rect __pyx_v_dst;
-  SDL_Rect *__pyx_v_csrcrect;
-  SDL_Rect *__pyx_v_cdstrect;
-  SDL_Point __pyx_v_corigin;
-  SDL_Point *__pyx_v_originptr;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
-  int __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  Py_ssize_t __pyx_t_6;
-  int __pyx_t_7;
-  struct __pyx_opt_args_5video_7Texture_draw_internal __pyx_t_8;
+  struct __pyx_opt_args_5video_7Texture_draw __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("draw", 0);
-
-  /* "video.pyx":677
- *         """
- *         cdef SDL_Rect src, dst
- *         cdef SDL_Rect *csrcrect = NULL             # <<<<<<<<<<<<<<
- *         cdef SDL_Rect *cdstrect = NULL
- *         cdef SDL_Point corigin
- */
-  __pyx_v_csrcrect = NULL;
-
-  /* "video.pyx":678
- *         cdef SDL_Rect src, dst
- *         cdef SDL_Rect *csrcrect = NULL
- *         cdef SDL_Rect *cdstrect = NULL             # <<<<<<<<<<<<<<
- *         cdef SDL_Point corigin
- *         cdef SDL_Point *originptr
- */
-  __pyx_v_cdstrect = NULL;
-
-  /* "video.pyx":682
- *         cdef SDL_Point *originptr
- * 
- *         if srcrect is not None:             # <<<<<<<<<<<<<<
- *             csrcrect = pgRect_FromObject(srcrect, &src)
- *             if not csrcrect:
- */
-  __pyx_t_1 = (__pyx_v_srcrect != Py_None);
-  __pyx_t_2 = (__pyx_t_1 != 0);
-  if (__pyx_t_2) {
-
-    /* "video.pyx":683
- * 
- *         if srcrect is not None:
- *             csrcrect = pgRect_FromObject(srcrect, &src)             # <<<<<<<<<<<<<<
- *             if not csrcrect:
- *                 raise error("the argument is not a rectangle or None")
- */
-    __pyx_v_csrcrect = pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_src));
-
-    /* "video.pyx":684
- *         if srcrect is not None:
- *             csrcrect = pgRect_FromObject(srcrect, &src)
- *             if not csrcrect:             # <<<<<<<<<<<<<<
- *                 raise error("the argument is not a rectangle or None")
- * 
- */
-    __pyx_t_2 = ((!(__pyx_v_csrcrect != 0)) != 0);
-    if (unlikely(__pyx_t_2)) {
-
-      /* "video.pyx":685
- *             csrcrect = pgRect_FromObject(srcrect, &src)
- *             if not csrcrect:
- *                 raise error("the argument is not a rectangle or None")             # <<<<<<<<<<<<<<
- * 
- *         if dstrect is not None:
- */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 685, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = NULL;
-      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-        if (likely(__pyx_t_5)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-          __Pyx_INCREF(__pyx_t_5);
-          __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_4, function);
-        }
-      }
-      __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_kp_s_the_argument_is_not_a_rectangle) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_s_the_argument_is_not_a_rectangle);
-      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 685, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_Raise(__pyx_t_3, 0, 0, 0);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 685, __pyx_L1_error)
-
-      /* "video.pyx":684
- *         if srcrect is not None:
- *             csrcrect = pgRect_FromObject(srcrect, &src)
- *             if not csrcrect:             # <<<<<<<<<<<<<<
- *                 raise error("the argument is not a rectangle or None")
- * 
- */
-    }
-
-    /* "video.pyx":682
- *         cdef SDL_Point *originptr
- * 
- *         if srcrect is not None:             # <<<<<<<<<<<<<<
- *             csrcrect = pgRect_FromObject(srcrect, &src)
- *             if not csrcrect:
- */
-  }
-
-  /* "video.pyx":687
- *                 raise error("the argument is not a rectangle or None")
- * 
- *         if dstrect is not None:             # <<<<<<<<<<<<<<
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- */
-  __pyx_t_2 = (__pyx_v_dstrect != Py_None);
-  __pyx_t_1 = (__pyx_t_2 != 0);
-  if (__pyx_t_1) {
-
-    /* "video.pyx":688
- * 
- *         if dstrect is not None:
- *             cdstrect = pgRect_FromObject(dstrect, &dst)             # <<<<<<<<<<<<<<
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:
- */
-    __pyx_v_cdstrect = pgRect_FromObject(__pyx_v_dstrect, (&__pyx_v_dst));
-
-    /* "video.pyx":689
- *         if dstrect is not None:
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]
- */
-    __pyx_t_1 = ((__pyx_v_cdstrect == NULL) != 0);
-    if (__pyx_t_1) {
-
-      /* "video.pyx":690
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]
- */
-      __pyx_t_6 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 690, __pyx_L1_error)
-      __pyx_t_1 = ((__pyx_t_6 == 2) != 0);
-      if (likely(__pyx_t_1)) {
-
-        /* "video.pyx":691
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]             # <<<<<<<<<<<<<<
- *                     dst.y = dstrect[1]
- *                     dst.w = self.width
- */
-        __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 691, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 691, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_v_dst.x = __pyx_t_7;
-
-        /* "video.pyx":692
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]             # <<<<<<<<<<<<<<
- *                     dst.w = self.width
- *                     dst.h = self.height
- */
-        __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 692, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 692, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_v_dst.y = __pyx_t_7;
-
-        /* "video.pyx":693
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]
- *                     dst.w = self.width             # <<<<<<<<<<<<<<
- *                     dst.h = self.height
- *                     cdstrect = &dst
- */
-        __pyx_t_7 = __pyx_v_self->width;
-        __pyx_v_dst.w = __pyx_t_7;
-
-        /* "video.pyx":694
- *                     dst.y = dstrect[1]
- *                     dst.w = self.width
- *                     dst.h = self.height             # <<<<<<<<<<<<<<
- *                     cdstrect = &dst
- *                 else:
- */
-        __pyx_t_7 = __pyx_v_self->height;
-        __pyx_v_dst.h = __pyx_t_7;
-
-        /* "video.pyx":695
- *                     dst.w = self.width
- *                     dst.h = self.height
- *                     cdstrect = &dst             # <<<<<<<<<<<<<<
- *                 else:
- *                     raise error('dstrect must be a position, rect, or None')
- */
-        __pyx_v_cdstrect = (&__pyx_v_dst);
-
-        /* "video.pyx":690
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]
- */
-        goto __pyx_L7;
-      }
-
-      /* "video.pyx":697
- *                     cdstrect = &dst
- *                 else:
- *                     raise error('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
- * 
- *         if origin:
- */
-      /*else*/ {
-        __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_error); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 697, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = NULL;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-          __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-          if (likely(__pyx_t_5)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-            __Pyx_INCREF(__pyx_t_5);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_4, function);
-          }
-        }
-        __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_kp_s_dstrect_must_be_a_position_rect) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_kp_s_dstrect_must_be_a_position_rect);
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 697, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_Raise(__pyx_t_3, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __PYX_ERR(0, 697, __pyx_L1_error)
-      }
-      __pyx_L7:;
-
-      /* "video.pyx":689
- *         if dstrect is not None:
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]
- */
-    }
-
-    /* "video.pyx":687
- *                 raise error("the argument is not a rectangle or None")
- * 
- *         if dstrect is not None:             # <<<<<<<<<<<<<<
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- */
-  }
-
-  /* "video.pyx":699
- *                     raise error('dstrect must be a position, rect, or None')
- * 
- *         if origin:             # <<<<<<<<<<<<<<
- *             originptr = &corigin
- *             corigin.x = origin[0]
- */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_origin); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 699, __pyx_L1_error)
-  if (__pyx_t_1) {
-
-    /* "video.pyx":700
- * 
- *         if origin:
- *             originptr = &corigin             # <<<<<<<<<<<<<<
- *             corigin.x = origin[0]
- *             corigin.y = origin[1]
- */
-    __pyx_v_originptr = (&__pyx_v_corigin);
-
-    /* "video.pyx":701
- *         if origin:
- *             originptr = &corigin
- *             corigin.x = origin[0]             # <<<<<<<<<<<<<<
- *             corigin.y = origin[1]
- *         else:
- */
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 701, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 701, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_v_corigin.x = __pyx_t_7;
-
-    /* "video.pyx":702
- *             originptr = &corigin
- *             corigin.x = origin[0]
- *             corigin.y = origin[1]             # <<<<<<<<<<<<<<
- *         else:
- *             originptr = NULL
- */
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 702, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 702, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_v_corigin.y = __pyx_t_7;
-
-    /* "video.pyx":699
- *                     raise error('dstrect must be a position, rect, or None')
- * 
- *         if origin:             # <<<<<<<<<<<<<<
- *             originptr = &corigin
- *             corigin.x = origin[0]
- */
-    goto __pyx_L8;
-  }
-
-  /* "video.pyx":704
- *             corigin.y = origin[1]
- *         else:
- *             originptr = NULL             # <<<<<<<<<<<<<<
- * 
- *         self.draw_internal(csrcrect, cdstrect, angle, originptr,
- */
-  /*else*/ {
-    __pyx_v_originptr = NULL;
-  }
-  __pyx_L8:;
-
-  /* "video.pyx":706
- *             originptr = NULL
- * 
- *         self.draw_internal(csrcrect, cdstrect, angle, originptr,             # <<<<<<<<<<<<<<
- *                            flipX, flipY)
- * 
- */
-  __pyx_t_8.__pyx_n = 4;
-  __pyx_t_8.angle = __pyx_v_angle;
-  __pyx_t_8.originptr = __pyx_v_originptr;
-  __pyx_t_8.flipX = __pyx_v_flipX;
-  __pyx_t_8.flipY = __pyx_v_flipY;
-  __pyx_t_3 = ((struct __pyx_vtabstruct_5video_Texture *)__pyx_v_self->__pyx_vtab)->draw_internal(__pyx_v_self, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 706, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
-  /* "video.pyx":663
- *             raise error()
- * 
- *     def draw(self, srcrect=None, dstrect=None, float angle=0, origin=None,             # <<<<<<<<<<<<<<
- *              bint flipX=False, bint flipY=False):
- *         """ Copy a portion of the texture to the rendering target.
- */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1.__pyx_n = 6;
+  __pyx_t_1.srcrect = __pyx_v_srcrect;
+  __pyx_t_1.dstrect = __pyx_v_dstrect;
+  __pyx_t_1.angle = __pyx_v_angle;
+  __pyx_t_1.origin = __pyx_v_origin;
+  __pyx_t_1.flipX = __pyx_v_flipX;
+  __pyx_t_1.flipY = __pyx_v_flipY;
+  __pyx_vtabptr_5video_Texture->draw(__pyx_v_self, 1, &__pyx_t_1); 
+  __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
 
   /* function exit code */
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_AddTraceback("video.Texture.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -11531,7 +11757,7 @@ static PyObject *__pyx_pf_5video_5Image_4get_rect(struct __pyx_obj_5video_Image 
  *     def get_rect(self):
  *         return pgRect_New(&self.srcrect.r)             # <<<<<<<<<<<<<<
  * 
- *     def draw(self, srcrect=None, dstrect=None):
+ *     cpdef void draw(self, srcrect=None, dstrect=None):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = pgRect_New((&__pyx_v_self->srcrect->r)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 774, __pyx_L1_error)
@@ -11562,10 +11788,533 @@ static PyObject *__pyx_pf_5video_5Image_4get_rect(struct __pyx_obj_5video_Image 
 /* "video.pyx":776
  *         return pgRect_New(&self.srcrect.r)
  * 
- *     def draw(self, srcrect=None, dstrect=None):             # <<<<<<<<<<<<<<
+ *     cpdef void draw(self, srcrect=None, dstrect=None):             # <<<<<<<<<<<<<<
  *         """ Copy a portion of the image to the rendering target.
  * 
  */
+
+static PyObject *__pyx_pw_5video_5Image_7draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static void __pyx_f_5video_5Image_draw(struct __pyx_obj_5video_Image *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_5Image_draw *__pyx_optional_args) {
+  PyObject *__pyx_v_srcrect = ((PyObject *)Py_None);
+  PyObject *__pyx_v_dstrect = ((PyObject *)Py_None);
+  SDL_Rect __pyx_v_src;
+  SDL_Rect __pyx_v_dst;
+  SDL_Rect *__pyx_v_csrcrect;
+  SDL_Rect *__pyx_v_cdstrect;
+  SDL_Point __pyx_v_origin;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
+  int __pyx_t_8;
+  SDL_Rect __pyx_t_9;
+  Py_ssize_t __pyx_t_10;
+  struct __pyx_opt_args_5video_7Texture_draw_internal __pyx_t_11;
+  __Pyx_RefNannySetupContext("draw", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_srcrect = __pyx_optional_args->srcrect;
+      if (__pyx_optional_args->__pyx_n > 1) {
+        __pyx_v_dstrect = __pyx_optional_args->dstrect;
+      }
+    }
+  }
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_draw); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 776, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_5video_5Image_7draw)) {
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
+        __pyx_t_5 = 0;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          if (likely(__pyx_t_4)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+            __Pyx_INCREF(__pyx_t_4);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_3, function);
+            __pyx_t_5 = 1;
+          }
+        }
+        #if CYTHON_FAST_PYCALL
+        if (PyFunction_Check(__pyx_t_3)) {
+          PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_srcrect, __pyx_v_dstrect};
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_GOTREF(__pyx_t_2);
+        } else
+        #endif
+        #if CYTHON_FAST_PYCCALL
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+          PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_srcrect, __pyx_v_dstrect};
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_GOTREF(__pyx_t_2);
+        } else
+        #endif
+        {
+          __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 776, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_6);
+          if (__pyx_t_4) {
+            __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+          }
+          __Pyx_INCREF(__pyx_v_srcrect);
+          __Pyx_GIVEREF(__pyx_v_srcrect);
+          PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_v_srcrect);
+          __Pyx_INCREF(__pyx_v_dstrect);
+          __Pyx_GIVEREF(__pyx_v_dstrect);
+          PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_v_dstrect);
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        }
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+
+  /* "video.pyx":785
+ *         cdef SDL_Rect src
+ *         cdef SDL_Rect dst
+ *         cdef SDL_Rect *csrcrect = NULL             # <<<<<<<<<<<<<<
+ *         cdef SDL_Rect *cdstrect = NULL
+ *         cdef SDL_Point origin
+ */
+  __pyx_v_csrcrect = NULL;
+
+  /* "video.pyx":786
+ *         cdef SDL_Rect dst
+ *         cdef SDL_Rect *csrcrect = NULL
+ *         cdef SDL_Rect *cdstrect = NULL             # <<<<<<<<<<<<<<
+ *         cdef SDL_Point origin
+ * 
+ */
+  __pyx_v_cdstrect = NULL;
+
+  /* "video.pyx":789
+ *         cdef SDL_Point origin
+ * 
+ *         if srcrect is None:             # <<<<<<<<<<<<<<
+ *             csrcrect = &self.srcrect.r
+ *         else:
+ */
+  __pyx_t_7 = (__pyx_v_srcrect == Py_None);
+  __pyx_t_8 = (__pyx_t_7 != 0);
+  if (__pyx_t_8) {
+
+    /* "video.pyx":790
+ * 
+ *         if srcrect is None:
+ *             csrcrect = &self.srcrect.r             # <<<<<<<<<<<<<<
+ *         else:
+ *             if pgRect_Check(srcrect):
+ */
+    __pyx_v_csrcrect = (&__pyx_v_self->srcrect->r);
+
+    /* "video.pyx":789
+ *         cdef SDL_Point origin
+ * 
+ *         if srcrect is None:             # <<<<<<<<<<<<<<
+ *             csrcrect = &self.srcrect.r
+ *         else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "video.pyx":792
+ *             csrcrect = &self.srcrect.r
+ *         else:
+ *             if pgRect_Check(srcrect):             # <<<<<<<<<<<<<<
+ *                 src = (<Rect>srcrect).r
+ *             else:
+ */
+  /*else*/ {
+    __pyx_t_8 = (pgRect_Check(__pyx_v_srcrect) != 0);
+    if (__pyx_t_8) {
+
+      /* "video.pyx":793
+ *         else:
+ *             if pgRect_Check(srcrect):
+ *                 src = (<Rect>srcrect).r             # <<<<<<<<<<<<<<
+ *             else:
+ *                 if pgRect_FromObject(srcrect, &src) == NULL:
+ */
+      __pyx_t_9 = ((pgRectObject *)__pyx_v_srcrect)->r;
+      __pyx_v_src = __pyx_t_9;
+
+      /* "video.pyx":792
+ *             csrcrect = &self.srcrect.r
+ *         else:
+ *             if pgRect_Check(srcrect):             # <<<<<<<<<<<<<<
+ *                 src = (<Rect>srcrect).r
+ *             else:
+ */
+      goto __pyx_L4;
+    }
+
+    /* "video.pyx":795
+ *                 src = (<Rect>srcrect).r
+ *             else:
+ *                 if pgRect_FromObject(srcrect, &src) == NULL:             # <<<<<<<<<<<<<<
+ *                     raise error('srcrect must be a rect or None')
+ *             src.x += self.srcrect.x
+ */
+    /*else*/ {
+      __pyx_t_8 = ((pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_src)) == NULL) != 0);
+      if (unlikely(__pyx_t_8)) {
+
+        /* "video.pyx":796
+ *             else:
+ *                 if pgRect_FromObject(srcrect, &src) == NULL:
+ *                     raise error('srcrect must be a rect or None')             # <<<<<<<<<<<<<<
+ *             src.x += self.srcrect.x
+ *             src.y += self.srcrect.y
+ */
+        __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 796, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_3 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+          __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+          if (likely(__pyx_t_3)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+            __Pyx_INCREF(__pyx_t_3);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_2, function);
+          }
+        }
+        __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_s_srcrect_must_be_a_rect_or_None) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_s_srcrect_must_be_a_rect_or_None);
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 796, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 796, __pyx_L1_error)
+
+        /* "video.pyx":795
+ *                 src = (<Rect>srcrect).r
+ *             else:
+ *                 if pgRect_FromObject(srcrect, &src) == NULL:             # <<<<<<<<<<<<<<
+ *                     raise error('srcrect must be a rect or None')
+ *             src.x += self.srcrect.x
+ */
+      }
+    }
+    __pyx_L4:;
+
+    /* "video.pyx":797
+ *                 if pgRect_FromObject(srcrect, &src) == NULL:
+ *                     raise error('srcrect must be a rect or None')
+ *             src.x += self.srcrect.x             # <<<<<<<<<<<<<<
+ *             src.y += self.srcrect.y
+ *             csrcrect = &src
+ */
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_src.x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 797, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 797, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 797, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 797, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_v_src.x = __pyx_t_5;
+
+    /* "video.pyx":798
+ *                     raise error('srcrect must be a rect or None')
+ *             src.x += self.srcrect.x
+ *             src.y += self.srcrect.y             # <<<<<<<<<<<<<<
+ *             csrcrect = &src
+ * 
+ */
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_src.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 798, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 798, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 798, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 798, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_v_src.y = __pyx_t_5;
+
+    /* "video.pyx":799
+ *             src.x += self.srcrect.x
+ *             src.y += self.srcrect.y
+ *             csrcrect = &src             # <<<<<<<<<<<<<<
+ * 
+ *         if dstrect is not None:
+ */
+    __pyx_v_csrcrect = (&__pyx_v_src);
+  }
+  __pyx_L3:;
+
+  /* "video.pyx":801
+ *             csrcrect = &src
+ * 
+ *         if dstrect is not None:             # <<<<<<<<<<<<<<
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ */
+  __pyx_t_8 = (__pyx_v_dstrect != Py_None);
+  __pyx_t_7 = (__pyx_t_8 != 0);
+  if (__pyx_t_7) {
+
+    /* "video.pyx":802
+ * 
+ *         if dstrect is not None:
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)             # <<<<<<<<<<<<<<
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:
+ */
+    __pyx_v_cdstrect = pgRect_FromObject(__pyx_v_dstrect, (&__pyx_v_dst));
+
+    /* "video.pyx":803
+ *         if dstrect is not None:
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]
+ */
+    __pyx_t_7 = ((__pyx_v_cdstrect == NULL) != 0);
+    if (__pyx_t_7) {
+
+      /* "video.pyx":804
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]
+ */
+      __pyx_t_10 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_10 == ((Py_ssize_t)-1))) __PYX_ERR(0, 804, __pyx_L1_error)
+      __pyx_t_7 = ((__pyx_t_10 == 2) != 0);
+      if (likely(__pyx_t_7)) {
+
+        /* "video.pyx":805
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]             # <<<<<<<<<<<<<<
+ *                     dst.y = dstrect[1]
+ *                     dst.w = self.srcrect.w
+ */
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 805, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 805, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dst.x = __pyx_t_5;
+
+        /* "video.pyx":806
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]             # <<<<<<<<<<<<<<
+ *                     dst.w = self.srcrect.w
+ *                     dst.h = self.srcrect.h
+ */
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 806, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 806, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dst.y = __pyx_t_5;
+
+        /* "video.pyx":807
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]
+ *                     dst.w = self.srcrect.w             # <<<<<<<<<<<<<<
+ *                     dst.h = self.srcrect.h
+ *                     cdstrect = &dst
+ */
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_w); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 807, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 807, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dst.w = __pyx_t_5;
+
+        /* "video.pyx":808
+ *                     dst.y = dstrect[1]
+ *                     dst.w = self.srcrect.w
+ *                     dst.h = self.srcrect.h             # <<<<<<<<<<<<<<
+ *                     cdstrect = &dst
+ *                 else:
+ */
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_h); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 808, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 808, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_v_dst.h = __pyx_t_5;
+
+        /* "video.pyx":809
+ *                     dst.w = self.srcrect.w
+ *                     dst.h = self.srcrect.h
+ *                     cdstrect = &dst             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     raise error('dstrect must be a position, rect, or None')
+ */
+        __pyx_v_cdstrect = (&__pyx_v_dst);
+
+        /* "video.pyx":804
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
+ *                     dst.x = dstrect[0]
+ *                     dst.y = dstrect[1]
+ */
+        goto __pyx_L8;
+      }
+
+      /* "video.pyx":811
+ *                     cdstrect = &dst
+ *                 else:
+ *                     raise error('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
+ * 
+ *         self.texture.color = self.color
+ */
+      /*else*/ {
+        __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_error); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 811, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_3 = NULL;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+          __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+          if (likely(__pyx_t_3)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+            __Pyx_INCREF(__pyx_t_3);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_2, function);
+          }
+        }
+        __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_kp_s_dstrect_must_be_a_position_rect) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_kp_s_dstrect_must_be_a_position_rect);
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 811, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 811, __pyx_L1_error)
+      }
+      __pyx_L8:;
+
+      /* "video.pyx":803
+ *         if dstrect is not None:
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
+ *                 if len(dstrect) == 2:
+ *                     dst.x = dstrect[0]
+ */
+    }
+
+    /* "video.pyx":801
+ *             csrcrect = &src
+ * 
+ *         if dstrect is not None:             # <<<<<<<<<<<<<<
+ *             cdstrect = pgRect_FromObject(dstrect, &dst)
+ *             if cdstrect == NULL:
+ */
+  }
+
+  /* "video.pyx":813
+ *                     raise error('dstrect must be a position, rect, or None')
+ * 
+ *         self.texture.color = self.color             # <<<<<<<<<<<<<<
+ *         self.texture.alpha = self.alpha
+ * 
+ */
+  __pyx_t_1 = ((PyObject *)__pyx_v_self->color);
+  __Pyx_INCREF(__pyx_t_1);
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_color, __pyx_t_1) < 0) __PYX_ERR(0, 813, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "video.pyx":814
+ * 
+ *         self.texture.color = self.color
+ *         self.texture.alpha = self.alpha             # <<<<<<<<<<<<<<
+ * 
+ *         origin.x = <int>self.origin[0]
+ */
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 814, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_alpha, __pyx_t_1) < 0) __PYX_ERR(0, 814, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "video.pyx":816
+ *         self.texture.alpha = self.alpha
+ * 
+ *         origin.x = <int>self.origin[0]             # <<<<<<<<<<<<<<
+ *         origin.y = <int>self.origin[1]
+ * 
+ */
+  __pyx_v_origin.x = ((int)(__pyx_v_self->origin[0]));
+
+  /* "video.pyx":817
+ * 
+ *         origin.x = <int>self.origin[0]
+ *         origin.y = <int>self.origin[1]             # <<<<<<<<<<<<<<
+ * 
+ *         self.texture.draw_internal(csrcrect, cdstrect, self.angle,
+ */
+  __pyx_v_origin.y = ((int)(__pyx_v_self->origin[1]));
+
+  /* "video.pyx":819
+ *         origin.y = <int>self.origin[1]
+ * 
+ *         self.texture.draw_internal(csrcrect, cdstrect, self.angle,             # <<<<<<<<<<<<<<
+ *                                    &origin, self.flipX, self.flipY)
+ * 
+ */
+  __pyx_t_11.__pyx_n = 4;
+  __pyx_t_11.angle = __pyx_v_self->angle;
+  __pyx_t_11.originptr = (&__pyx_v_origin);
+  __pyx_t_11.flipX = __pyx_v_self->flipX;
+  __pyx_t_11.flipY = __pyx_v_self->flipY;
+  __pyx_t_1 = ((struct __pyx_vtabstruct_5video_Texture *)__pyx_v_self->texture->__pyx_vtab)->draw_internal(__pyx_v_self->texture, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 819, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "video.pyx":776
+ *         return pgRect_New(&self.srcrect.r)
+ * 
+ *     cpdef void draw(self, srcrect=None, dstrect=None):             # <<<<<<<<<<<<<<
+ *         """ Copy a portion of the image to the rendering target.
+ * 
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_WriteUnraisable("video.Image.draw", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+}
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5video_5Image_7draw(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
@@ -11638,436 +12387,25 @@ static PyObject *__pyx_pw_5video_5Image_7draw(PyObject *__pyx_v_self, PyObject *
 }
 
 static PyObject *__pyx_pf_5video_5Image_6draw(struct __pyx_obj_5video_Image *__pyx_v_self, PyObject *__pyx_v_srcrect, PyObject *__pyx_v_dstrect) {
-  SDL_Rect __pyx_v_src;
-  SDL_Rect __pyx_v_dst;
-  SDL_Rect *__pyx_v_csrcrect;
-  SDL_Rect *__pyx_v_cdstrect;
-  SDL_Point __pyx_v_origin;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
-  int __pyx_t_2;
-  SDL_Rect __pyx_t_3;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  int __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  struct __pyx_opt_args_5video_7Texture_draw_internal __pyx_t_9;
+  struct __pyx_opt_args_5video_5Image_draw __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("draw", 0);
-
-  /* "video.pyx":785
- *         cdef SDL_Rect src
- *         cdef SDL_Rect dst
- *         cdef SDL_Rect *csrcrect = NULL             # <<<<<<<<<<<<<<
- *         cdef SDL_Rect *cdstrect = NULL
- *         cdef SDL_Point origin
- */
-  __pyx_v_csrcrect = NULL;
-
-  /* "video.pyx":786
- *         cdef SDL_Rect dst
- *         cdef SDL_Rect *csrcrect = NULL
- *         cdef SDL_Rect *cdstrect = NULL             # <<<<<<<<<<<<<<
- *         cdef SDL_Point origin
- * 
- */
-  __pyx_v_cdstrect = NULL;
-
-  /* "video.pyx":789
- *         cdef SDL_Point origin
- * 
- *         if srcrect is None:             # <<<<<<<<<<<<<<
- *             csrcrect = &self.srcrect.r
- *         else:
- */
-  __pyx_t_1 = (__pyx_v_srcrect == Py_None);
-  __pyx_t_2 = (__pyx_t_1 != 0);
-  if (__pyx_t_2) {
-
-    /* "video.pyx":790
- * 
- *         if srcrect is None:
- *             csrcrect = &self.srcrect.r             # <<<<<<<<<<<<<<
- *         else:
- *             if pgRect_Check(srcrect):
- */
-    __pyx_v_csrcrect = (&__pyx_v_self->srcrect->r);
-
-    /* "video.pyx":789
- *         cdef SDL_Point origin
- * 
- *         if srcrect is None:             # <<<<<<<<<<<<<<
- *             csrcrect = &self.srcrect.r
- *         else:
- */
-    goto __pyx_L3;
-  }
-
-  /* "video.pyx":792
- *             csrcrect = &self.srcrect.r
- *         else:
- *             if pgRect_Check(srcrect):             # <<<<<<<<<<<<<<
- *                 src = (<Rect>srcrect).r
- *             else:
- */
-  /*else*/ {
-    __pyx_t_2 = (pgRect_Check(__pyx_v_srcrect) != 0);
-    if (__pyx_t_2) {
-
-      /* "video.pyx":793
- *         else:
- *             if pgRect_Check(srcrect):
- *                 src = (<Rect>srcrect).r             # <<<<<<<<<<<<<<
- *             else:
- *                 if pgRect_FromObject(srcrect, &src) == NULL:
- */
-      __pyx_t_3 = ((pgRectObject *)__pyx_v_srcrect)->r;
-      __pyx_v_src = __pyx_t_3;
-
-      /* "video.pyx":792
- *             csrcrect = &self.srcrect.r
- *         else:
- *             if pgRect_Check(srcrect):             # <<<<<<<<<<<<<<
- *                 src = (<Rect>srcrect).r
- *             else:
- */
-      goto __pyx_L4;
-    }
-
-    /* "video.pyx":795
- *                 src = (<Rect>srcrect).r
- *             else:
- *                 if pgRect_FromObject(srcrect, &src) == NULL:             # <<<<<<<<<<<<<<
- *                     raise error('srcrect must be a rect or None')
- *             src.x += self.srcrect.x
- */
-    /*else*/ {
-      __pyx_t_2 = ((pgRect_FromObject(__pyx_v_srcrect, (&__pyx_v_src)) == NULL) != 0);
-      if (unlikely(__pyx_t_2)) {
-
-        /* "video.pyx":796
- *             else:
- *                 if pgRect_FromObject(srcrect, &src) == NULL:
- *                     raise error('srcrect must be a rect or None')             # <<<<<<<<<<<<<<
- *             src.x += self.srcrect.x
- *             src.y += self.srcrect.y
- */
-        __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 796, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = NULL;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
-          __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-          if (likely(__pyx_t_6)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
-            __Pyx_INCREF(__pyx_t_6);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_5, function);
-          }
-        }
-        __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_kp_s_srcrect_must_be_a_rect_or_None) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_kp_s_srcrect_must_be_a_rect_or_None);
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 796, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_Raise(__pyx_t_4, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __PYX_ERR(0, 796, __pyx_L1_error)
-
-        /* "video.pyx":795
- *                 src = (<Rect>srcrect).r
- *             else:
- *                 if pgRect_FromObject(srcrect, &src) == NULL:             # <<<<<<<<<<<<<<
- *                     raise error('srcrect must be a rect or None')
- *             src.x += self.srcrect.x
- */
-      }
-    }
-    __pyx_L4:;
-
-    /* "video.pyx":797
- *                 if pgRect_FromObject(srcrect, &src) == NULL:
- *                     raise error('srcrect must be a rect or None')
- *             src.x += self.srcrect.x             # <<<<<<<<<<<<<<
- *             src.y += self.srcrect.y
- *             csrcrect = &src
- */
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_src.x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 797, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 797, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = PyNumber_InPlaceAdd(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 797, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 797, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_v_src.x = __pyx_t_7;
-
-    /* "video.pyx":798
- *                     raise error('srcrect must be a rect or None')
- *             src.x += self.srcrect.x
- *             src.y += self.srcrect.y             # <<<<<<<<<<<<<<
- *             csrcrect = &src
- * 
- */
-    __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_src.y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 798, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 798, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 798, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 798, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_v_src.y = __pyx_t_7;
-
-    /* "video.pyx":799
- *             src.x += self.srcrect.x
- *             src.y += self.srcrect.y
- *             csrcrect = &src             # <<<<<<<<<<<<<<
- * 
- *         if dstrect is not None:
- */
-    __pyx_v_csrcrect = (&__pyx_v_src);
-  }
-  __pyx_L3:;
-
-  /* "video.pyx":801
- *             csrcrect = &src
- * 
- *         if dstrect is not None:             # <<<<<<<<<<<<<<
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- */
-  __pyx_t_2 = (__pyx_v_dstrect != Py_None);
-  __pyx_t_1 = (__pyx_t_2 != 0);
-  if (__pyx_t_1) {
-
-    /* "video.pyx":802
- * 
- *         if dstrect is not None:
- *             cdstrect = pgRect_FromObject(dstrect, &dst)             # <<<<<<<<<<<<<<
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:
- */
-    __pyx_v_cdstrect = pgRect_FromObject(__pyx_v_dstrect, (&__pyx_v_dst));
-
-    /* "video.pyx":803
- *         if dstrect is not None:
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]
- */
-    __pyx_t_1 = ((__pyx_v_cdstrect == NULL) != 0);
-    if (__pyx_t_1) {
-
-      /* "video.pyx":804
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]
- */
-      __pyx_t_8 = PyObject_Length(__pyx_v_dstrect); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 804, __pyx_L1_error)
-      __pyx_t_1 = ((__pyx_t_8 == 2) != 0);
-      if (likely(__pyx_t_1)) {
-
-        /* "video.pyx":805
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]             # <<<<<<<<<<<<<<
- *                     dst.y = dstrect[1]
- *                     dst.w = self.srcrect.w
- */
-        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_dstrect, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 805, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 805, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_v_dst.x = __pyx_t_7;
-
-        /* "video.pyx":806
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]             # <<<<<<<<<<<<<<
- *                     dst.w = self.srcrect.w
- *                     dst.h = self.srcrect.h
- */
-        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_dstrect, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 806, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 806, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_v_dst.y = __pyx_t_7;
-
-        /* "video.pyx":807
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]
- *                     dst.w = self.srcrect.w             # <<<<<<<<<<<<<<
- *                     dst.h = self.srcrect.h
- *                     cdstrect = &dst
- */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_w); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 807, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 807, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_v_dst.w = __pyx_t_7;
-
-        /* "video.pyx":808
- *                     dst.y = dstrect[1]
- *                     dst.w = self.srcrect.w
- *                     dst.h = self.srcrect.h             # <<<<<<<<<<<<<<
- *                     cdstrect = &dst
- *                 else:
- */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->srcrect), __pyx_n_s_h); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 808, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 808, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_v_dst.h = __pyx_t_7;
-
-        /* "video.pyx":809
- *                     dst.w = self.srcrect.w
- *                     dst.h = self.srcrect.h
- *                     cdstrect = &dst             # <<<<<<<<<<<<<<
- *                 else:
- *                     raise error('dstrect must be a position, rect, or None')
- */
-        __pyx_v_cdstrect = (&__pyx_v_dst);
-
-        /* "video.pyx":804
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- *                 if len(dstrect) == 2:             # <<<<<<<<<<<<<<
- *                     dst.x = dstrect[0]
- *                     dst.y = dstrect[1]
- */
-        goto __pyx_L8;
-      }
-
-      /* "video.pyx":811
- *                     cdstrect = &dst
- *                 else:
- *                     raise error('dstrect must be a position, rect, or None')             # <<<<<<<<<<<<<<
- * 
- *         self.texture.color = self.color
- */
-      /*else*/ {
-        __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 811, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = NULL;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
-          __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-          if (likely(__pyx_t_6)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
-            __Pyx_INCREF(__pyx_t_6);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_5, function);
-          }
-        }
-        __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_kp_s_dstrect_must_be_a_position_rect) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_kp_s_dstrect_must_be_a_position_rect);
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 811, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_Raise(__pyx_t_4, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __PYX_ERR(0, 811, __pyx_L1_error)
-      }
-      __pyx_L8:;
-
-      /* "video.pyx":803
- *         if dstrect is not None:
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:             # <<<<<<<<<<<<<<
- *                 if len(dstrect) == 2:
- *                     dst.x = dstrect[0]
- */
-    }
-
-    /* "video.pyx":801
- *             csrcrect = &src
- * 
- *         if dstrect is not None:             # <<<<<<<<<<<<<<
- *             cdstrect = pgRect_FromObject(dstrect, &dst)
- *             if cdstrect == NULL:
- */
-  }
-
-  /* "video.pyx":813
- *                     raise error('dstrect must be a position, rect, or None')
- * 
- *         self.texture.color = self.color             # <<<<<<<<<<<<<<
- *         self.texture.alpha = self.alpha
- * 
- */
-  __pyx_t_4 = ((PyObject *)__pyx_v_self->color);
-  __Pyx_INCREF(__pyx_t_4);
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_color, __pyx_t_4) < 0) __PYX_ERR(0, 813, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-  /* "video.pyx":814
- * 
- *         self.texture.color = self.color
- *         self.texture.alpha = self.alpha             # <<<<<<<<<<<<<<
- * 
- *         origin.x = <int>self.origin[0]
- */
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 814, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self->texture), __pyx_n_s_alpha, __pyx_t_4) < 0) __PYX_ERR(0, 814, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-  /* "video.pyx":816
- *         self.texture.alpha = self.alpha
- * 
- *         origin.x = <int>self.origin[0]             # <<<<<<<<<<<<<<
- *         origin.y = <int>self.origin[1]
- * 
- */
-  __pyx_v_origin.x = ((int)(__pyx_v_self->origin[0]));
-
-  /* "video.pyx":817
- * 
- *         origin.x = <int>self.origin[0]
- *         origin.y = <int>self.origin[1]             # <<<<<<<<<<<<<<
- * 
- *         self.texture.draw_internal(csrcrect, cdstrect, self.angle,
- */
-  __pyx_v_origin.y = ((int)(__pyx_v_self->origin[1]));
-
-  /* "video.pyx":819
- *         origin.y = <int>self.origin[1]
- * 
- *         self.texture.draw_internal(csrcrect, cdstrect, self.angle,             # <<<<<<<<<<<<<<
- *                                    &origin, self.flipX, self.flipY)
- * 
- */
-  __pyx_t_9.__pyx_n = 4;
-  __pyx_t_9.angle = __pyx_v_self->angle;
-  __pyx_t_9.originptr = (&__pyx_v_origin);
-  __pyx_t_9.flipX = __pyx_v_self->flipX;
-  __pyx_t_9.flipY = __pyx_v_self->flipY;
-  __pyx_t_4 = ((struct __pyx_vtabstruct_5video_Texture *)__pyx_v_self->texture->__pyx_vtab)->draw_internal(__pyx_v_self->texture, __pyx_v_csrcrect, __pyx_v_cdstrect, &__pyx_t_9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 819, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-  /* "video.pyx":776
- *         return pgRect_New(&self.srcrect.r)
- * 
- *     def draw(self, srcrect=None, dstrect=None):             # <<<<<<<<<<<<<<
- *         """ Copy a portion of the image to the rendering target.
- * 
- */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1.__pyx_n = 2;
+  __pyx_t_1.srcrect = __pyx_v_srcrect;
+  __pyx_t_1.dstrect = __pyx_v_dstrect;
+  __pyx_vtabptr_5video_Image->draw(__pyx_v_self, 1, &__pyx_t_1); 
+  __pyx_t_2 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
 
   /* function exit code */
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_AddTraceback("video.Image.draw", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -12076,7 +12414,7 @@ static PyObject *__pyx_pf_5video_5Image_6draw(struct __pyx_obj_5video_Image *__p
   return __pyx_r;
 }
 
-/* "video.pxd":361
+/* "video.pxd":363
  * 
  * cdef class Image:
  *     cdef public float angle             # <<<<<<<<<<<<<<
@@ -12103,7 +12441,7 @@ static PyObject *__pyx_pf_5video_5Image_5angle___get__(struct __pyx_obj_5video_I
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->angle); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 361, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->angle); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 363, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12138,7 +12476,7 @@ static int __pyx_pf_5video_5Image_5angle_2__set__(struct __pyx_obj_5video_Image 
   __Pyx_RefNannyDeclarations
   float __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 361, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 363, __pyx_L1_error)
   __pyx_v_self->angle = __pyx_t_1;
 
   /* function exit code */
@@ -12152,7 +12490,7 @@ static int __pyx_pf_5video_5Image_5angle_2__set__(struct __pyx_obj_5video_Image 
   return __pyx_r;
 }
 
-/* "video.pxd":362
+/* "video.pxd":364
  * cdef class Image:
  *     cdef public float angle
  *     cdef public float origin[2]             # <<<<<<<<<<<<<<
@@ -12179,7 +12517,7 @@ static PyObject *__pyx_pf_5video_5Image_6origin___get__(struct __pyx_obj_5video_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_float(__pyx_v_self->origin, 2); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 362, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_float(__pyx_v_self->origin, 2); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 364, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12214,7 +12552,7 @@ static int __pyx_pf_5video_5Image_6origin_2__set__(struct __pyx_obj_5video_Image
   __Pyx_RefNannyDeclarations
   float __pyx_t_1[2];
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (unlikely(__Pyx_carray_from_py_float(__pyx_v_value, __pyx_t_1, 2) < 0)) __PYX_ERR(2, 362, __pyx_L1_error)
+  if (unlikely(__Pyx_carray_from_py_float(__pyx_v_value, __pyx_t_1, 2) < 0)) __PYX_ERR(2, 364, __pyx_L1_error)
   memcpy(&(__pyx_v_self->origin[0]), __pyx_t_1, sizeof(__pyx_v_self->origin[0]) * (2));
 
   /* function exit code */
@@ -12228,7 +12566,7 @@ static int __pyx_pf_5video_5Image_6origin_2__set__(struct __pyx_obj_5video_Image
   return __pyx_r;
 }
 
-/* "video.pxd":363
+/* "video.pxd":365
  *     cdef public float angle
  *     cdef public float origin[2]
  *     cdef public bint flipX             # <<<<<<<<<<<<<<
@@ -12255,7 +12593,7 @@ static PyObject *__pyx_pf_5video_5Image_5flipX___get__(struct __pyx_obj_5video_I
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipX); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 363, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipX); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 365, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12290,7 +12628,7 @@ static int __pyx_pf_5video_5Image_5flipX_2__set__(struct __pyx_obj_5video_Image 
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 363, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 365, __pyx_L1_error)
   __pyx_v_self->flipX = __pyx_t_1;
 
   /* function exit code */
@@ -12304,7 +12642,7 @@ static int __pyx_pf_5video_5Image_5flipX_2__set__(struct __pyx_obj_5video_Image 
   return __pyx_r;
 }
 
-/* "video.pxd":364
+/* "video.pxd":366
  *     cdef public float origin[2]
  *     cdef public bint flipX
  *     cdef public bint flipY             # <<<<<<<<<<<<<<
@@ -12331,7 +12669,7 @@ static PyObject *__pyx_pf_5video_5Image_5flipY___get__(struct __pyx_obj_5video_I
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipY); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 364, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipY); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 366, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12366,7 +12704,7 @@ static int __pyx_pf_5video_5Image_5flipY_2__set__(struct __pyx_obj_5video_Image 
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 364, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 366, __pyx_L1_error)
   __pyx_v_self->flipY = __pyx_t_1;
 
   /* function exit code */
@@ -12380,7 +12718,7 @@ static int __pyx_pf_5video_5Image_5flipY_2__set__(struct __pyx_obj_5video_Image 
   return __pyx_r;
 }
 
-/* "video.pxd":365
+/* "video.pxd":367
  *     cdef public bint flipX
  *     cdef public bint flipY
  *     cdef public Color color             # <<<<<<<<<<<<<<
@@ -12435,7 +12773,7 @@ static int __pyx_pf_5video_5Image_5color_2__set__(struct __pyx_obj_5video_Image 
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5video_Color))))) __PYX_ERR(2, 365, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5video_Color))))) __PYX_ERR(2, 367, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -12485,7 +12823,7 @@ static int __pyx_pf_5video_5Image_5color_4__del__(struct __pyx_obj_5video_Image 
   return __pyx_r;
 }
 
-/* "video.pxd":366
+/* "video.pxd":368
  *     cdef public bint flipY
  *     cdef public Color color
  *     cdef public float alpha             # <<<<<<<<<<<<<<
@@ -12512,7 +12850,7 @@ static PyObject *__pyx_pf_5video_5Image_5alpha___get__(struct __pyx_obj_5video_I
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 366, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 368, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -12547,7 +12885,7 @@ static int __pyx_pf_5video_5Image_5alpha_2__set__(struct __pyx_obj_5video_Image 
   __Pyx_RefNannyDeclarations
   float __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 366, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 368, __pyx_L1_error)
   __pyx_v_self->alpha = __pyx_t_1;
 
   /* function exit code */
@@ -12561,11 +12899,12 @@ static int __pyx_pf_5video_5Image_5alpha_2__set__(struct __pyx_obj_5video_Image 
   return __pyx_r;
 }
 
-/* "video.pxd":368
+/* "video.pxd":370
  *     cdef public float alpha
  * 
  *     cdef public Texture texture             # <<<<<<<<<<<<<<
  *     cdef public Rect srcrect
+ * 
  */
 
 /* Python wrapper */
@@ -12615,7 +12954,7 @@ static int __pyx_pf_5video_5Image_7texture_2__set__(struct __pyx_obj_5video_Imag
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5video_Texture))))) __PYX_ERR(2, 368, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5video_Texture))))) __PYX_ERR(2, 370, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -12665,10 +13004,12 @@ static int __pyx_pf_5video_5Image_7texture_4__del__(struct __pyx_obj_5video_Imag
   return __pyx_r;
 }
 
-/* "video.pxd":369
+/* "video.pxd":371
  * 
  *     cdef public Texture texture
  *     cdef public Rect srcrect             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef void draw(self, srcrect=*, dstrect=*)
  */
 
 /* Python wrapper */
@@ -12718,7 +13059,7 @@ static int __pyx_pf_5video_5Image_7srcrect_2__set__(struct __pyx_obj_5video_Imag
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5video_Rect))))) __PYX_ERR(2, 369, __pyx_L1_error)
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5video_Rect))))) __PYX_ERR(2, 371, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -14464,114 +14805,185 @@ static PyObject *__pyx_pf_5video_8Renderer_12blit(struct __pyx_obj_5video_Render
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   int __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
+  struct __pyx_opt_args_5video_7Texture_draw __pyx_t_3;
+  struct __pyx_opt_args_5video_5Image_draw __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
-  int __pyx_t_6;
+  PyObject *__pyx_t_6 = NULL;
   PyObject *__pyx_t_7 = NULL;
+  int __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("blit", 0);
 
   /* "video.pyx":957
  *         :param special_flags: have no effect at this moment.
  *         """
- *         if not hasattr(source, 'draw'):             # <<<<<<<<<<<<<<
- *             raise TypeError('source must be drawable')
- * 
+ *         if isinstance(source, Texture):             # <<<<<<<<<<<<<<
+ *             (<Texture>source).draw(area, dest)
+ *         elif isinstance(source, Image):
  */
-  __pyx_t_1 = __Pyx_HasAttr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 957, __pyx_L1_error)
-  __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
-  if (unlikely(__pyx_t_2)) {
+  __pyx_t_1 = __Pyx_TypeCheck(__pyx_v_source, __pyx_ptype_5video_Texture); 
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
 
     /* "video.pyx":958
  *         """
- *         if not hasattr(source, 'draw'):
- *             raise TypeError('source must be drawable')             # <<<<<<<<<<<<<<
- * 
- *         source.draw(area, dest)
+ *         if isinstance(source, Texture):
+ *             (<Texture>source).draw(area, dest)             # <<<<<<<<<<<<<<
+ *         elif isinstance(source, Image):
+ *             (<Image>source).draw(area, dest)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 958, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 958, __pyx_L1_error)
+    __pyx_t_3.__pyx_n = 2;
+    __pyx_t_3.srcrect = __pyx_v_area;
+    __pyx_t_3.dstrect = __pyx_v_dest;
+    ((struct __pyx_vtabstruct_5video_Texture *)((struct __pyx_obj_5video_Texture *)__pyx_v_source)->__pyx_vtab)->draw(((struct __pyx_obj_5video_Texture *)__pyx_v_source), 0, &__pyx_t_3); 
 
     /* "video.pyx":957
  *         :param special_flags: have no effect at this moment.
  *         """
- *         if not hasattr(source, 'draw'):             # <<<<<<<<<<<<<<
+ *         if isinstance(source, Texture):             # <<<<<<<<<<<<<<
+ *             (<Texture>source).draw(area, dest)
+ *         elif isinstance(source, Image):
+ */
+    goto __pyx_L3;
+  }
+
+  /* "video.pyx":959
+ *         if isinstance(source, Texture):
+ *             (<Texture>source).draw(area, dest)
+ *         elif isinstance(source, Image):             # <<<<<<<<<<<<<<
+ *             (<Image>source).draw(area, dest)
+ *         elif not hasattr(source, 'draw'):
+ */
+  __pyx_t_2 = __Pyx_TypeCheck(__pyx_v_source, __pyx_ptype_5video_Image); 
+  __pyx_t_1 = (__pyx_t_2 != 0);
+  if (__pyx_t_1) {
+
+    /* "video.pyx":960
+ *             (<Texture>source).draw(area, dest)
+ *         elif isinstance(source, Image):
+ *             (<Image>source).draw(area, dest)             # <<<<<<<<<<<<<<
+ *         elif not hasattr(source, 'draw'):
  *             raise TypeError('source must be drawable')
- * 
+ */
+    __pyx_t_4.__pyx_n = 2;
+    __pyx_t_4.srcrect = __pyx_v_area;
+    __pyx_t_4.dstrect = __pyx_v_dest;
+    ((struct __pyx_vtabstruct_5video_Image *)((struct __pyx_obj_5video_Image *)__pyx_v_source)->__pyx_vtab)->draw(((struct __pyx_obj_5video_Image *)__pyx_v_source), 0, &__pyx_t_4); 
+
+    /* "video.pyx":959
+ *         if isinstance(source, Texture):
+ *             (<Texture>source).draw(area, dest)
+ *         elif isinstance(source, Image):             # <<<<<<<<<<<<<<
+ *             (<Image>source).draw(area, dest)
+ *         elif not hasattr(source, 'draw'):
+ */
+    goto __pyx_L3;
+  }
+
+  /* "video.pyx":961
+ *         elif isinstance(source, Image):
+ *             (<Image>source).draw(area, dest)
+ *         elif not hasattr(source, 'draw'):             # <<<<<<<<<<<<<<
+ *             raise TypeError('source must be drawable')
+ *         else:
+ */
+  __pyx_t_1 = __Pyx_HasAttr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 961, __pyx_L1_error)
+  __pyx_t_2 = ((!(__pyx_t_1 != 0)) != 0);
+  if (unlikely(__pyx_t_2)) {
+
+    /* "video.pyx":962
+ *             (<Image>source).draw(area, dest)
+ *         elif not hasattr(source, 'draw'):
+ *             raise TypeError('source must be drawable')             # <<<<<<<<<<<<<<
+ *         else:
+ *             source.draw(area, dest)
+ */
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 962, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_Raise(__pyx_t_5, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __PYX_ERR(0, 962, __pyx_L1_error)
+
+    /* "video.pyx":961
+ *         elif isinstance(source, Image):
+ *             (<Image>source).draw(area, dest)
+ *         elif not hasattr(source, 'draw'):             # <<<<<<<<<<<<<<
+ *             raise TypeError('source must be drawable')
+ *         else:
  */
   }
 
-  /* "video.pyx":960
+  /* "video.pyx":964
  *             raise TypeError('source must be drawable')
- * 
- *         source.draw(area, dest)             # <<<<<<<<<<<<<<
+ *         else:
+ *             source.draw(area, dest)             # <<<<<<<<<<<<<<
  * 
  *         if not dest:
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 960, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = NULL;
-  __pyx_t_6 = 0;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-    if (likely(__pyx_t_5)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-      __Pyx_INCREF(__pyx_t_5);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_4, function);
-      __pyx_t_6 = 1;
+  /*else*/ {
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_source, __pyx_n_s_draw); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 964, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_7 = NULL;
+    __pyx_t_8 = 0;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
+      __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_6);
+      if (likely(__pyx_t_7)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+        __Pyx_INCREF(__pyx_t_7);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_6, function);
+        __pyx_t_8 = 1;
+      }
     }
-  }
-  #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_4)) {
-    PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_area, __pyx_v_dest};
-    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 960, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_GOTREF(__pyx_t_3);
-  } else
-  #endif
-  #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
-    PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_area, __pyx_v_dest};
-    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 960, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_GOTREF(__pyx_t_3);
-  } else
-  #endif
-  {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 960, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    if (__pyx_t_5) {
-      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_6)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_v_area, __pyx_v_dest};
+      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 964, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_v_area, __pyx_v_dest};
+      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 964, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+    } else
+    #endif
+    {
+      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 964, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      if (__pyx_t_7) {
+        __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
+      }
+      __Pyx_INCREF(__pyx_v_area);
+      __Pyx_GIVEREF(__pyx_v_area);
+      PyTuple_SET_ITEM(__pyx_t_9, 0+__pyx_t_8, __pyx_v_area);
+      __Pyx_INCREF(__pyx_v_dest);
+      __Pyx_GIVEREF(__pyx_v_dest);
+      PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_v_dest);
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 964, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
-    __Pyx_INCREF(__pyx_v_area);
-    __Pyx_GIVEREF(__pyx_v_area);
-    PyTuple_SET_ITEM(__pyx_t_7, 0+__pyx_t_6, __pyx_v_area);
-    __Pyx_INCREF(__pyx_v_dest);
-    __Pyx_GIVEREF(__pyx_v_dest);
-    PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_v_dest);
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 960, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_L3:;
 
-  /* "video.pyx":962
- *         source.draw(area, dest)
+  /* "video.pyx":966
+ *             source.draw(area, dest)
  * 
  *         if not dest:             # <<<<<<<<<<<<<<
  *             return self.get_viewport()
  *         return dest
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_dest); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 962, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_dest); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 966, __pyx_L1_error)
   __pyx_t_1 = ((!__pyx_t_2) != 0);
   if (__pyx_t_1) {
 
-    /* "video.pyx":963
+    /* "video.pyx":967
  * 
  *         if not dest:
  *             return self.get_viewport()             # <<<<<<<<<<<<<<
@@ -14579,29 +14991,29 @@ static PyObject *__pyx_pf_5video_8Renderer_12blit(struct __pyx_obj_5video_Render
  * 
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_viewport); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 963, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_7 = NULL;
-    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_7)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_7);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_viewport); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 967, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_9 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
+      __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_6);
+      if (likely(__pyx_t_9)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+        __Pyx_INCREF(__pyx_t_9);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_4, function);
+        __Pyx_DECREF_SET(__pyx_t_6, function);
       }
     }
-    __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_7) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
-    __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 963, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_r = __pyx_t_3;
-    __pyx_t_3 = 0;
+    __pyx_t_5 = (__pyx_t_9) ? __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_9) : __Pyx_PyObject_CallNoArg(__pyx_t_6);
+    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 967, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_r = __pyx_t_5;
+    __pyx_t_5 = 0;
     goto __pyx_L0;
 
-    /* "video.pyx":962
- *         source.draw(area, dest)
+    /* "video.pyx":966
+ *             source.draw(area, dest)
  * 
  *         if not dest:             # <<<<<<<<<<<<<<
  *             return self.get_viewport()
@@ -14609,7 +15021,7 @@ static PyObject *__pyx_pf_5video_8Renderer_12blit(struct __pyx_obj_5video_Render
  */
   }
 
-  /* "video.pyx":964
+  /* "video.pyx":968
  *         if not dest:
  *             return self.get_viewport()
  *         return dest             # <<<<<<<<<<<<<<
@@ -14631,10 +15043,10 @@ static PyObject *__pyx_pf_5video_8Renderer_12blit(struct __pyx_obj_5video_Render
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_9);
   __Pyx_AddTraceback("video.Renderer.blit", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -14643,7 +15055,7 @@ static PyObject *__pyx_pf_5video_8Renderer_12blit(struct __pyx_obj_5video_Render
   return __pyx_r;
 }
 
-/* "video.pyx":966
+/* "video.pyx":970
  *         return dest
  * 
  *     def draw_line(self, p1, p2):             # <<<<<<<<<<<<<<
@@ -14682,11 +15094,11 @@ static PyObject *__pyx_pw_5video_8Renderer_15draw_line(PyObject *__pyx_v_self, P
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, 1); __PYX_ERR(0, 966, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, 1); __PYX_ERR(0, 970, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw_line") < 0)) __PYX_ERR(0, 966, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "draw_line") < 0)) __PYX_ERR(0, 970, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -14699,7 +15111,7 @@ static PyObject *__pyx_pw_5video_8Renderer_15draw_line(PyObject *__pyx_v_self, P
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 966, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("draw_line", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 970, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("video.Renderer.draw_line", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -14726,39 +15138,39 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("draw_line", 0);
 
-  /* "video.pyx":969
+  /* "video.pyx":973
  *         # https://wiki.libsdl.org/SDL_RenderDrawLine
  *         res = SDL_RenderDrawLine(self._renderer,
  *                                  p1[0], p1[1],             # <<<<<<<<<<<<<<
  *                                  p2[0], p2[1])
  *         if res < 0:
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 969, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 973, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 969, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 973, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 969, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 973, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 969, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 973, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "video.pyx":970
+  /* "video.pyx":974
  *         res = SDL_RenderDrawLine(self._renderer,
  *                                  p1[0], p1[1],
  *                                  p2[0], p2[1])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 970, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 974, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 970, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 974, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 970, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 974, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 970, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 974, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "video.pyx":968
+  /* "video.pyx":972
  *     def draw_line(self, p1, p2):
  *         # https://wiki.libsdl.org/SDL_RenderDrawLine
  *         res = SDL_RenderDrawLine(self._renderer,             # <<<<<<<<<<<<<<
@@ -14767,7 +15179,7 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
  */
   __pyx_v_res = SDL_RenderDrawLine(__pyx_v_self->_renderer, __pyx_t_2, __pyx_t_3, __pyx_t_4, __pyx_t_5);
 
-  /* "video.pyx":971
+  /* "video.pyx":975
  *                                  p1[0], p1[1],
  *                                  p2[0], p2[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -14777,14 +15189,14 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
   __pyx_t_6 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_6)) {
 
-    /* "video.pyx":972
+    /* "video.pyx":976
  *                                  p2[0], p2[1])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def draw_point(self, point):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_error); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 972, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_error); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 976, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
@@ -14798,14 +15210,14 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
     }
     __pyx_t_1 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 972, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 976, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 972, __pyx_L1_error)
+    __PYX_ERR(0, 976, __pyx_L1_error)
 
-    /* "video.pyx":971
+    /* "video.pyx":975
  *                                  p1[0], p1[1],
  *                                  p2[0], p2[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -14814,7 +15226,7 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
  */
   }
 
-  /* "video.pyx":966
+  /* "video.pyx":970
  *         return dest
  * 
  *     def draw_line(self, p1, p2):             # <<<<<<<<<<<<<<
@@ -14837,7 +15249,7 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
   return __pyx_r;
 }
 
-/* "video.pyx":974
+/* "video.pyx":978
  *             raise error()
  * 
  *     def draw_point(self, point):             # <<<<<<<<<<<<<<
@@ -14870,23 +15282,23 @@ static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("draw_point", 0);
 
-  /* "video.pyx":977
+  /* "video.pyx":981
  *         # https://wiki.libsdl.org/SDL_RenderDrawPoint
  *         res = SDL_RenderDrawPoint(self._renderer,
  *                                   point[0], point[1])             # <<<<<<<<<<<<<<
  *         if res < 0:
  *             raise error()
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 977, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 977, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 977, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_point, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 977, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "video.pyx":976
+  /* "video.pyx":980
  *     def draw_point(self, point):
  *         # https://wiki.libsdl.org/SDL_RenderDrawPoint
  *         res = SDL_RenderDrawPoint(self._renderer,             # <<<<<<<<<<<<<<
@@ -14895,7 +15307,7 @@ static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_
  */
   __pyx_v_res = SDL_RenderDrawPoint(__pyx_v_self->_renderer, __pyx_t_2, __pyx_t_3);
 
-  /* "video.pyx":978
+  /* "video.pyx":982
  *         res = SDL_RenderDrawPoint(self._renderer,
  *                                   point[0], point[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -14905,14 +15317,14 @@ static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_
   __pyx_t_4 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_4)) {
 
-    /* "video.pyx":979
+    /* "video.pyx":983
  *                                   point[0], point[1])
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def draw_rect(self, rect):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 979, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_error); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 983, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -14926,14 +15338,14 @@ static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_
     }
     __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 979, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 983, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 979, __pyx_L1_error)
+    __PYX_ERR(0, 983, __pyx_L1_error)
 
-    /* "video.pyx":978
+    /* "video.pyx":982
  *         res = SDL_RenderDrawPoint(self._renderer,
  *                                   point[0], point[1])
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -14942,7 +15354,7 @@ static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_
  */
   }
 
-  /* "video.pyx":974
+  /* "video.pyx":978
  *             raise error()
  * 
  *     def draw_point(self, point):             # <<<<<<<<<<<<<<
@@ -14965,7 +15377,7 @@ static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_
   return __pyx_r;
 }
 
-/* "video.pyx":981
+/* "video.pyx":985
  *             raise error()
  * 
  *     def draw_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -14997,7 +15409,7 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("draw_rect", 0);
 
-  /* "video.pyx":983
+  /* "video.pyx":987
  *     def draw_rect(self, rect):
  *         # https://wiki.libsdl.org/SDL_RenderDrawRect
  *         cdef SDL_Rect _rect = pgRect_AsRect(rect)             # <<<<<<<<<<<<<<
@@ -15006,7 +15418,7 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
  */
   __pyx_v__rect = pgRect_AsRect(__pyx_v_rect);
 
-  /* "video.pyx":984
+  /* "video.pyx":988
  *         # https://wiki.libsdl.org/SDL_RenderDrawRect
  *         cdef SDL_Rect _rect = pgRect_AsRect(rect)
  *         res = SDL_RenderDrawRect(self._renderer, &_rect)             # <<<<<<<<<<<<<<
@@ -15015,7 +15427,7 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
  */
   __pyx_v_res = SDL_RenderDrawRect(__pyx_v_self->_renderer, (&__pyx_v__rect));
 
-  /* "video.pyx":985
+  /* "video.pyx":989
  *         cdef SDL_Rect _rect = pgRect_AsRect(rect)
  *         res = SDL_RenderDrawRect(self._renderer, &_rect)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15025,14 +15437,14 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "video.pyx":986
+    /* "video.pyx":990
  *         res = SDL_RenderDrawRect(self._renderer, &_rect)
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def fill_rect(self, rect):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 986, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 990, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -15046,14 +15458,14 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 986, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 990, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 986, __pyx_L1_error)
+    __PYX_ERR(0, 990, __pyx_L1_error)
 
-    /* "video.pyx":985
+    /* "video.pyx":989
  *         cdef SDL_Rect _rect = pgRect_AsRect(rect)
  *         res = SDL_RenderDrawRect(self._renderer, &_rect)
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15062,7 +15474,7 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
  */
   }
 
-  /* "video.pyx":981
+  /* "video.pyx":985
  *             raise error()
  * 
  *     def draw_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -15085,7 +15497,7 @@ static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_R
   return __pyx_r;
 }
 
-/* "video.pyx":988
+/* "video.pyx":992
  *             raise error()
  * 
  *     def fill_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -15117,7 +15529,7 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("fill_rect", 0);
 
-  /* "video.pyx":990
+  /* "video.pyx":994
  *     def fill_rect(self, rect):
  *         # https://wiki.libsdl.org/SDL_RenderFillRect
  *         cdef SDL_Rect _rect = pgRect_AsRect(rect)             # <<<<<<<<<<<<<<
@@ -15126,7 +15538,7 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
  */
   __pyx_v__rect = pgRect_AsRect(__pyx_v_rect);
 
-  /* "video.pyx":991
+  /* "video.pyx":995
  *         # https://wiki.libsdl.org/SDL_RenderFillRect
  *         cdef SDL_Rect _rect = pgRect_AsRect(rect)
  *         res = SDL_RenderFillRect(self._renderer, &_rect)             # <<<<<<<<<<<<<<
@@ -15135,7 +15547,7 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
  */
   __pyx_v_res = SDL_RenderFillRect(__pyx_v_self->_renderer, (&__pyx_v__rect));
 
-  /* "video.pyx":993
+  /* "video.pyx":997
  *         res = SDL_RenderFillRect(self._renderer, &_rect)
  * 
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15145,14 +15557,14 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
   __pyx_t_1 = ((__pyx_v_res < 0) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "video.pyx":994
+    /* "video.pyx":998
  * 
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
  *     def read_surface(self, depth=32):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 994, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 998, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -15166,14 +15578,14 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 994, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 998, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 994, __pyx_L1_error)
+    __PYX_ERR(0, 998, __pyx_L1_error)
 
-    /* "video.pyx":993
+    /* "video.pyx":997
  *         res = SDL_RenderFillRect(self._renderer, &_rect)
  * 
  *         if res < 0:             # <<<<<<<<<<<<<<
@@ -15182,7 +15594,7 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
  */
   }
 
-  /* "video.pyx":988
+  /* "video.pyx":992
  *             raise error()
  * 
  *     def fill_rect(self, rect):             # <<<<<<<<<<<<<<
@@ -15205,7 +15617,7 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
   return __pyx_r;
 }
 
-/* "video.pyx":996
+/* "video.pyx":1000
  *             raise error()
  * 
  *     def read_surface(self, depth=32):             # <<<<<<<<<<<<<<
@@ -15243,7 +15655,7 @@ static PyObject *__pyx_pw_5video_8Renderer_23read_surface(PyObject *__pyx_v_self
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "read_surface") < 0)) __PYX_ERR(0, 996, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "read_surface") < 0)) __PYX_ERR(0, 1000, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -15257,7 +15669,7 @@ static PyObject *__pyx_pw_5video_8Renderer_23read_surface(PyObject *__pyx_v_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("read_surface", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 996, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("read_surface", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1000, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("video.Renderer.read_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -15292,7 +15704,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
   int __pyx_t_11;
   __Pyx_RefNannySetupContext("read_surface", 0);
 
-  /* "video.pyx":1003
+  /* "video.pyx":1007
  *         """
  *         cdef Uint32 format
  *         try:             # <<<<<<<<<<<<<<
@@ -15308,17 +15720,17 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "video.pyx":1004
+      /* "video.pyx":1008
  *         cdef Uint32 format
  *         try:
  *             format = format_from_depth(depth)             # <<<<<<<<<<<<<<
  *         except ValueError as e:
  *             raise e
  */
-      __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_depth); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1004, __pyx_L3_error)
+      __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_depth); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1008, __pyx_L3_error)
       __pyx_v_format = __pyx_f_5video_format_from_depth(__pyx_t_4);
 
-      /* "video.pyx":1003
+      /* "video.pyx":1007
  *         """
  *         cdef Uint32 format
  *         try:             # <<<<<<<<<<<<<<
@@ -15332,7 +15744,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "video.pyx":1005
+    /* "video.pyx":1009
  *         try:
  *             format = format_from_depth(depth)
  *         except ValueError as e:             # <<<<<<<<<<<<<<
@@ -15342,14 +15754,14 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ValueError);
     if (__pyx_t_4) {
       __Pyx_AddTraceback("video.Renderer.read_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(0, 1005, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(0, 1009, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_INCREF(__pyx_t_6);
       __pyx_v_e = __pyx_t_6;
 
-      /* "video.pyx":1006
+      /* "video.pyx":1010
  *             format = format_from_depth(depth)
  *         except ValueError as e:
  *             raise e             # <<<<<<<<<<<<<<
@@ -15357,12 +15769,12 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
  *         cdef SDL_Texture* tex = SDL_GetRenderTarget(self._renderer)
  */
       __Pyx_Raise(__pyx_v_e, 0, 0, 0);
-      __PYX_ERR(0, 1006, __pyx_L5_except_error)
+      __PYX_ERR(0, 1010, __pyx_L5_except_error)
     }
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "video.pyx":1003
+    /* "video.pyx":1007
  *         """
  *         cdef Uint32 format
  *         try:             # <<<<<<<<<<<<<<
@@ -15377,7 +15789,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
     __pyx_L8_try_end:;
   }
 
-  /* "video.pyx":1008
+  /* "video.pyx":1012
  *             raise e
  * 
  *         cdef SDL_Texture* tex = SDL_GetRenderTarget(self._renderer)             # <<<<<<<<<<<<<<
@@ -15386,7 +15798,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
  */
   __pyx_v_tex = SDL_GetRenderTarget(__pyx_v_self->_renderer);
 
-  /* "video.pyx":1010
+  /* "video.pyx":1014
  *         cdef SDL_Texture* tex = SDL_GetRenderTarget(self._renderer)
  *         cdef int width, height
  *         if tex == NULL:             # <<<<<<<<<<<<<<
@@ -15396,14 +15808,14 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
   __pyx_t_8 = ((__pyx_v_tex == NULL) != 0);
   if (__pyx_t_8) {
 
-    /* "video.pyx":1012
+    /* "video.pyx":1016
  *         if tex == NULL:
  *             # NULL for default target (the window that created the renderer)
  *             width, height = self._win.size             # <<<<<<<<<<<<<<
  *         else:
  *             SDL_QueryTexture(tex, &format, NULL, &width, &height)
  */
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->_win), __pyx_n_s_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1012, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->_win), __pyx_n_s_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1016, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if ((likely(PyTuple_CheckExact(__pyx_t_7))) || (PyList_CheckExact(__pyx_t_7))) {
       PyObject* sequence = __pyx_t_7;
@@ -15411,7 +15823,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        __PYX_ERR(0, 1012, __pyx_L1_error)
+        __PYX_ERR(0, 1016, __pyx_L1_error)
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -15424,15 +15836,15 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
       __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(__pyx_t_5);
       #else
-      __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1012, __pyx_L1_error)
+      __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1016, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1012, __pyx_L1_error)
+      __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1016, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       #endif
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_9 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1012, __pyx_L1_error)
+      __pyx_t_9 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1016, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_10 = Py_TYPE(__pyx_t_9)->tp_iternext;
@@ -15440,7 +15852,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
       __Pyx_GOTREF(__pyx_t_6);
       index = 1; __pyx_t_5 = __pyx_t_10(__pyx_t_9); if (unlikely(!__pyx_t_5)) goto __pyx_L12_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_5);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_9), 2) < 0) __PYX_ERR(0, 1012, __pyx_L1_error)
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_9), 2) < 0) __PYX_ERR(0, 1016, __pyx_L1_error)
       __pyx_t_10 = NULL;
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       goto __pyx_L13_unpacking_done;
@@ -15448,17 +15860,17 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      __PYX_ERR(0, 1012, __pyx_L1_error)
+      __PYX_ERR(0, 1016, __pyx_L1_error)
       __pyx_L13_unpacking_done:;
     }
-    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1012, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1016, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1012, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1016, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_width = __pyx_t_4;
     __pyx_v_height = __pyx_t_11;
 
-    /* "video.pyx":1010
+    /* "video.pyx":1014
  *         cdef SDL_Texture* tex = SDL_GetRenderTarget(self._renderer)
  *         cdef int width, height
  *         if tex == NULL:             # <<<<<<<<<<<<<<
@@ -15468,7 +15880,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
     goto __pyx_L11;
   }
 
-  /* "video.pyx":1014
+  /* "video.pyx":1018
  *             width, height = self._win.size
  *         else:
  *             SDL_QueryTexture(tex, &format, NULL, &width, &height)             # <<<<<<<<<<<<<<
@@ -15480,17 +15892,17 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
   }
   __pyx_L11:;
 
-  /* "video.pyx":1016
+  /* "video.pyx":1020
  *             SDL_QueryTexture(tex, &format, NULL, &width, &height)
  * 
  *         cdef SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);             # <<<<<<<<<<<<<<
  *         SDL_RenderReadPixels(self._renderer, NULL, format, surface.pixels, surface.pitch);
  *         return pgSurface_New2(surface, 1)
  */
-  __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_v_depth); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1016, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_v_depth); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1020, __pyx_L1_error)
   __pyx_v_surface = SDL_CreateRGBSurfaceWithFormat(0, __pyx_v_width, __pyx_v_height, __pyx_t_11, __pyx_v_format);
 
-  /* "video.pyx":1017
+  /* "video.pyx":1021
  * 
  *         cdef SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
  *         SDL_RenderReadPixels(self._renderer, NULL, format, surface.pixels, surface.pitch);             # <<<<<<<<<<<<<<
@@ -15498,19 +15910,19 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
  */
   (void)(SDL_RenderReadPixels(__pyx_v_self->_renderer, NULL, __pyx_v_format, __pyx_v_surface->pixels, __pyx_v_surface->pitch));
 
-  /* "video.pyx":1018
+  /* "video.pyx":1022
  *         cdef SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, depth, format);
  *         SDL_RenderReadPixels(self._renderer, NULL, format, surface.pixels, surface.pitch);
  *         return pgSurface_New2(surface, 1)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = pgSurface_New2(__pyx_v_surface, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1018, __pyx_L1_error)
+  __pyx_t_7 = pgSurface_New2(__pyx_v_surface, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1022, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_r = __pyx_t_7;
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "video.pyx":996
+  /* "video.pyx":1000
  *             raise error()
  * 
  *     def read_surface(self, depth=32):             # <<<<<<<<<<<<<<
@@ -16789,6 +17201,7 @@ static PyTypeObject __pyx_type_5video_Texture = {
   0, /*tp_finalize*/
   #endif
 };
+static struct __pyx_vtabstruct_5video_Image __pyx_vtable_5video_Image;
 
 static PyObject *__pyx_tp_new_5video_Image(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   struct __pyx_obj_5video_Image *p;
@@ -16800,6 +17213,7 @@ static PyObject *__pyx_tp_new_5video_Image(PyTypeObject *t, CYTHON_UNUSED PyObje
   }
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_5video_Image *)o);
+  p->__pyx_vtab = __pyx_vtabptr_5video_Image;
   p->color = ((pgColorObject *)Py_None); Py_INCREF(Py_None);
   p->texture = ((struct __pyx_obj_5video_Texture *)Py_None); Py_INCREF(Py_None);
   p->srcrect = ((pgRectObject *)Py_None); Py_INCREF(Py_None);
@@ -17515,14 +17929,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice__16);
   __Pyx_GIVEREF(__pyx_slice__16);
 
-  /* "video.pyx":958
- *         """
- *         if not hasattr(source, 'draw'):
+  /* "video.pyx":962
+ *             (<Image>source).draw(area, dest)
+ *         elif not hasattr(source, 'draw'):
  *             raise TypeError('source must be drawable')             # <<<<<<<<<<<<<<
- * 
- *         source.draw(area, dest)
+ *         else:
+ *             source.draw(area, dest)
  */
-  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_source_must_be_drawable); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 958, __pyx_L1_error)
+  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_source_must_be_drawable); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 962, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__17);
   __Pyx_GIVEREF(__pyx_tuple__17);
 
@@ -17717,6 +18131,7 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_ptype_5video_Renderer = &__pyx_type_5video_Renderer;
   __pyx_vtabptr_5video_Texture = &__pyx_vtable_5video_Texture;
   __pyx_vtable_5video_Texture.draw_internal = (PyObject *(*)(struct __pyx_obj_5video_Texture *, SDL_Rect *, SDL_Rect *, struct __pyx_opt_args_5video_7Texture_draw_internal *__pyx_optional_args))__pyx_f_5video_7Texture_draw_internal;
+  __pyx_vtable_5video_Texture.draw = (void (*)(struct __pyx_obj_5video_Texture *, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_7Texture_draw *__pyx_optional_args))__pyx_f_5video_7Texture_draw;
   if (PyType_Ready(&__pyx_type_5video_Texture) < 0) __PYX_ERR(0, 492, __pyx_L1_error)
   __pyx_type_5video_Texture.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5video_Texture.tp_dictoffset && __pyx_type_5video_Texture.tp_getattro == PyObject_GenericGetAttr)) {
@@ -17736,11 +18151,14 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Texture, (PyObject *)&__pyx_type_5video_Texture) < 0) __PYX_ERR(0, 492, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5video_Texture) < 0) __PYX_ERR(0, 492, __pyx_L1_error)
   __pyx_ptype_5video_Texture = &__pyx_type_5video_Texture;
+  __pyx_vtabptr_5video_Image = &__pyx_vtable_5video_Image;
+  __pyx_vtable_5video_Image.draw = (void (*)(struct __pyx_obj_5video_Image *, int __pyx_skip_dispatch, struct __pyx_opt_args_5video_5Image_draw *__pyx_optional_args))__pyx_f_5video_5Image_draw;
   if (PyType_Ready(&__pyx_type_5video_Image) < 0) __PYX_ERR(0, 735, __pyx_L1_error)
   __pyx_type_5video_Image.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5video_Image.tp_dictoffset && __pyx_type_5video_Image.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5video_Image.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
+  if (__Pyx_SetVtable(__pyx_type_5video_Image.tp_dict, __pyx_vtabptr_5video_Image) < 0) __PYX_ERR(0, 735, __pyx_L1_error)
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Image, (PyObject *)&__pyx_type_5video_Image) < 0) __PYX_ERR(0, 735, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5video_Image) < 0) __PYX_ERR(0, 735, __pyx_L1_error)
   __pyx_ptype_5video_Image = &__pyx_type_5video_Image;
