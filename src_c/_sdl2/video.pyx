@@ -722,13 +722,16 @@ cdef class Texture:
         """
 
         if not pgSurface_Check(surface):
-            raise error("update source should be a Surface.")
+            raise TypeError("update source should be a Surface.")
 
-
-        cdef SDL_Rect rect = pgRect_AsRect(area)
+        cdef SDL_Rect rect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(area, &rect)
         cdef SDL_Surface *surf = pgSurface_AsSurface(surface)
 
-        res = SDL_UpdateTexture(self._tex, &rect, surf.pixels, surf.pitch)
+        if rectptr == NULL and area is not None:
+            raise TypeError('area must be a rectangle or None')
+
+        res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
         if res < 0:
             raise error()
 
@@ -984,15 +987,21 @@ cdef class Renderer:
 
     def draw_rect(self, rect):
         # https://wiki.libsdl.org/SDL_RenderDrawRect
-        cdef SDL_Rect _rect = pgRect_AsRect(rect)
-        res = SDL_RenderDrawRect(self._renderer, &_rect)
+        cdef SDL_Rect _rect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+        res = SDL_RenderDrawRect(self._renderer, rectptr)
         if res < 0:
             raise error()
 
     def fill_rect(self, rect):
         # https://wiki.libsdl.org/SDL_RenderFillRect
-        cdef SDL_Rect _rect = pgRect_AsRect(rect)
-        res = SDL_RenderFillRect(self._renderer, &_rect)
+        cdef SDL_Rect _rect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+        res = SDL_RenderFillRect(self._renderer, rectptr)
 
         if res < 0:
             raise error()
