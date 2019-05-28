@@ -217,7 +217,7 @@ cdef class Window:
 
         flags = 0
         if fullscreen and fullscreen_desktop:
-            raise error("fullscreen and fullscreen_desktop cannot be used at the same time.")
+            raise ValueError("fullscreen and fullscreen_desktop cannot be used at the same time.")
         if fullscreen:
             flags |= _SDL_WINDOW_FULLSCREEN
         elif fullscreen_desktop:
@@ -230,7 +230,7 @@ cdef class Window:
                 if v:
                     flags |= flag
             except KeyError:
-                raise error("unknown parameter: %s" % k)
+                raise TypeError("unknown parameter: %s" % k)
 
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
                                      size[0], size[1], flags)
@@ -386,7 +386,7 @@ cdef class Window:
         :param pygame.Surface surface: A Surface to use as the icon.
         """
         if not pgSurface_Check(surface):
-            raise error('surface must be a Surface object')
+            raise TypeError('surface must be a Surface object')
         SDL_SetWindowIcon(self._win, pgSurface_AsSurface(surface))
 
     @property
@@ -563,7 +563,7 @@ cdef class Texture:
         """
         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
         if not pgSurface_Check(surface):
-            raise error('2nd argument must be a surface')
+            raise TypeError('2nd argument must be a surface')
         cdef Texture self = Texture.__new__(Texture)
         self.renderer = renderer
         cdef SDL_Renderer* _renderer = renderer._renderer
@@ -682,7 +682,7 @@ cdef class Texture:
         if srcrect is not None:
             csrcrect = pgRect_FromObject(srcrect, &src)
             if not csrcrect:
-                raise error("the argument is not a rectangle or None")
+                raise TypeError("the argument is not a rectangle or None")
 
         if dstrect is not None:
             cdstrect = pgRect_FromObject(dstrect, &dst)
@@ -694,7 +694,7 @@ cdef class Texture:
                     dst.h = self.height
                     cdstrect = &dst
                 else:
-                    raise error('dstrect must be a position, rect, or None')
+                    raise TypeError('dstrect must be a position, rect, or None')
 
         if origin:
             originptr = &corigin
@@ -760,7 +760,7 @@ cdef class Image:
 
         if srcrect is not None:
             if pgRect_FromObject(srcrect, &temp) == NULL:
-                raise error('srcrect must be None or a rectangle')
+                raise TypeError('srcrect must be None or a rectangle')
             if temp.x < 0 or temp.y < 0 or \
                 temp.w < 0 or temp.h < 0 or \
                 temp.x + temp.w > self.srcrect.w or \
@@ -796,7 +796,7 @@ cdef class Image:
                 src = (<Rect>srcrect).r
             else:
                 if pgRect_FromObject(srcrect, &src) == NULL:
-                    raise error('srcrect must be a rect or None')
+                    raise TypeError('srcrect must be a rect or None')
             src.x += self.srcrect.x
             src.y += self.srcrect.y
             csrcrect = &src
@@ -811,7 +811,7 @@ cdef class Image:
                     dst.h = self.srcrect.h
                     cdstrect = &dst
                 else:
-                    raise error('dstrect must be a position, rect, or None')
+                    raise TypeError('dstrect must be a position, rect, or None')
 
         self.texture.color = self.color
         self.texture.alpha = self.alpha
@@ -921,7 +921,7 @@ cdef class Renderer:
             return
         cdef SDL_Rect rect
         if pgRect_FromObject(area, &rect) == NULL:
-            raise error("the argument is not a rectangle or None")
+            raise TypeError("the argument is not a rectangle or None")
         if SDL_RenderSetViewport(self._renderer, &rect) < 0:
             raise error()
 
@@ -947,7 +947,7 @@ cdef class Renderer:
                                    self._target._tex) < 0:
                 raise error()
         else:
-            raise error('target must be a Texture or None')
+            raise TypeError('target must be a Texture or None')
 
     def blit(self, source, dest=None, area=None, special_flags=0):
         """ Only for compatibility.
