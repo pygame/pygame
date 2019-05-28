@@ -35,9 +35,9 @@ def compilation_help():
     if the_system == 'Linux':
         if hasattr(platform, 'linux_distribution'):
             distro = platform.linux_distribution()
-            if distro[0] == 'Ubuntu':
+            if distro[0].lower() == 'ubuntu':
                 the_system = 'Ubuntu'
-            elif distro[0] == 'Debian':
+            elif distro[0].lower() == 'debian':
                 the_system = 'Debian'
 
     help_urls = {
@@ -49,18 +49,18 @@ def compilation_help():
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
-    url = help_urls.get(platform.system(), default)
+    url = help_urls.get(the_system, default)
 
     is_pypy = '__pypy__' in sys.builtin_module_names
     if is_pypy:
         url += '\n    https://www.pygame.org/wiki/CompilePyPy'
 
-    print ('---')
+    print ('\n---')
     print ('For help with compilation see:')
     print ('    %s' % url)
     print ('To contribute to pygame development see:')
     print ('    https://www.pygame.org/contribute.html')
-    print ('---')
+    print ('---\n')
 
 
 
@@ -191,7 +191,11 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 if AUTO_CONFIG or not os.path.isfile('Setup'):
     print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
-    buildconfig.config.main(AUTO_CONFIG)
+    try:
+        buildconfig.config.main(AUTO_CONFIG)
+    except:
+        compilation_help()
+        raise
     if '-config' in sys.argv:
         sys.exit(0)
     print ('\nContinuing With "setup.py"')
