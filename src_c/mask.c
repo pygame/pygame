@@ -1742,8 +1742,20 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
         draw_unsetbits = 1;
     }
 
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "cannot lock surface");
+    }
+
+    Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
+
     draw_to_surface(surf, bitmask, draw_setbits, draw_unsetbits, setcolor,
                     unsetcolor);
+
+    Py_END_ALLOW_THREADS; /* Obtain the GIL. */
+
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "cannot unlock surface");
+    }
 
     Py_INCREF(surfobj);
     return surfobj;
