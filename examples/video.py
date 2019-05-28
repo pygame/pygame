@@ -2,7 +2,7 @@ import pygame
 
 
 if pygame.get_sdl_version()[0] < 2:
-    raise SystemExit('This example requires pygame 2 and SDL2.')
+    raise SystemExit('This example requires pygame 2 and SDL2. _sdl2 is experimental and will change.')
 
 import os
 data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0],
@@ -60,7 +60,17 @@ del tex2
 
 full = 0
 
-tex = Image(tex, (0, 0, tex.width, tex.height))
+# TODO: This crashes now?
+# Traceback (most recent call last):
+#   File "video.py", line 63, in <module>
+#     tex = Image(tex, (0, 0, tex.width, tex.height))
+#   File "src_c/_sdl2/video.pyx", line 721, in video.Image.__init__
+# ValueError: rect values are out of range
+#
+# tex = Image(tex, (0, 0, tex.width, tex.height))
+
+
+
 
 while running:
     for event in pygame.event.get():
@@ -88,12 +98,46 @@ while running:
                 else:
                     win.set_windowed()
                     full = 0
+            elif event.key == pygame.K_s:
+                readsurf = renderer.get_surface()
+                pygame.image.save(readsurf, "test.png")
+
             elif event.key == pygame.K_SPACE:
                 bg_index = (bg_index + 1) % len(backgrounds)
                 renderer.draw_color = backgrounds[bg_index]
 
+
+
+    # TODO: use this from_surface somehow.
+    # surf = pg.Surface((64,64))
+    # surf.fill((0,255,0))
+    # # This should draw a green rect
+    # tex = Texture.from_surface(renderer, surf)
+    # tex.draw(None, pg.Rect(64, 64, 64, 64))
+    # # This should update the texture with a surface filled with red
+    # # Instead of creating texture every frame, use this will be less expensive
+    # surf.fill((255,0,0))
+    # tex.update(surf)
+    # tex.draw(None, pg.Rect(64, 128, 64, 64))
+
     renderer.clear()
     tex.draw(dstrect=(x, y))
+
+    #TODO: should these be?
+    # - line instead of draw_line
+    # - point instead of draw_point
+    # - rect(rect, width=1)->draw 1 pixel, instead of draw_rect
+    # - rect(rect, width=0)->filled ? , instead of fill_rect
+    #
+    # TODO: should these work with pygame.draw.line(renderer, ...) functions?
+    renderer.draw_color = (255,255,255, 255)
+    renderer.draw_line((0,0), (64,64))
+    renderer.draw_line((64,64), (128,0))
+    renderer.draw_point((72,32))
+    renderer.draw_rect(pygame.Rect(0, 64, 64, 64))
+    renderer.fill_rect(pygame.Rect(0, 128, 64, 64))
+    renderer.draw_color = backgrounds[bg_index]
+
     renderer.present()
 
     clock.tick(60)
