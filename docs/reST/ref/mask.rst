@@ -13,9 +13,6 @@ to store which parts collide.
 
 .. versionadded:: 1.8
 
-.. versionchanged:: 1.9.5
-   Added support for masks with a width and/or a height of 0.
-
 
 .. function:: from_surface
 
@@ -132,10 +129,12 @@ to store which parts collide.
    :returns: a newly created :class:`Mask` object
    :rtype: Mask
 
-   .. versionadded:: 1.9.5 Added support for keyword arguments.
-   .. versionadded:: 1.9.5 Added the optional keyword parameter ``fill``.
-   .. versionadded:: 2.0.0 Subclassing support added. The :class:`Mask` class
+   .. versionchanged:: 2.0.0 Subclassing support added. The :class:`Mask` class
       can be used as a base class.
+   .. versionchanged:: 1.9.5 Added support for keyword arguments.
+   .. versionchanged:: 1.9.5 Added the optional keyword parameter ``fill``.
+   .. versionchanged:: 1.9.5 Added support for masks with a width and/or a
+      height of 0.
 
    .. method:: get_size
 
