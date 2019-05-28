@@ -997,7 +997,7 @@ cdef class Renderer:
         if res < 0:
             raise error()
 
-    def read_surface(self, depth=32):
+    def get_surface(self, depth=32):
         # https://wiki.libsdl.org/SDL_RenderReadPixels
         """
             Read pixels from the current rendering target and create a pygame.Surface.

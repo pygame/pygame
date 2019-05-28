@@ -5,15 +5,15 @@
     "distutils": {
         "depends": [
             "src_c/pygame.h"
-        ],
+        ], 
         "include_dirs": [
             "src_c/_sdl2"
-        ],
-        "name": "video",
+        ], 
+        "name": "video", 
         "sources": [
             "src_c/_sdl2/video.pyx"
         ]
-    },
+    }, 
     "module_name": "video"
 }
 END: Cython Metadata */
@@ -2315,7 +2315,7 @@ static PyObject *__pyx_pf_5video_8Renderer_14draw_line(struct __pyx_obj_5video_R
 static PyObject *__pyx_pf_5video_8Renderer_16draw_point(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_point); /* proto */
 static PyObject *__pyx_pf_5video_8Renderer_18draw_rect(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_rect); /* proto */
 static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_rect); /* proto */
-static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_depth); /* proto */
+static PyObject *__pyx_pf_5video_8Renderer_22get_surface(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_depth); /* proto */
 static PyObject *__pyx_pf_5video_8Renderer_24__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5video_Renderer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5video_8Renderer_26__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5video_Renderer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_tp_new_5video_Window(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -15562,7 +15562,7 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
  *         if res < 0:
  *             raise error()             # <<<<<<<<<<<<<<
  * 
- *     def read_surface(self, depth=32):
+ *     def get_surface(self, depth=32):
  */
     __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_error); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 998, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
@@ -15620,19 +15620,19 @@ static PyObject *__pyx_pf_5video_8Renderer_20fill_rect(struct __pyx_obj_5video_R
 /* "video.pyx":1000
  *             raise error()
  * 
- *     def read_surface(self, depth=32):             # <<<<<<<<<<<<<<
+ *     def get_surface(self, depth=32):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_RenderReadPixels
  *         """
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5video_8Renderer_23read_surface(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5video_8Renderer_22read_surface[] = "\n            Read pixels from the current rendering target and create a pygame.Surface.\n            WARNING: This is a very slow operation, and should not be used frequently.\n        ";
-static PyObject *__pyx_pw_5video_8Renderer_23read_surface(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5video_8Renderer_23get_surface(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5video_8Renderer_22get_surface[] = "\n            Read pixels from the current rendering target and create a pygame.Surface.\n            WARNING: This is a very slow operation, and should not be used frequently.\n        ";
+static PyObject *__pyx_pw_5video_8Renderer_23get_surface(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_depth = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("read_surface (wrapper)", 0);
+  __Pyx_RefNannySetupContext("get_surface (wrapper)", 0);
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_depth,0};
     PyObject* values[1] = {0};
@@ -15655,7 +15655,7 @@ static PyObject *__pyx_pw_5video_8Renderer_23read_surface(PyObject *__pyx_v_self
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "read_surface") < 0)) __PYX_ERR(0, 1000, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_surface") < 0)) __PYX_ERR(0, 1000, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -15669,20 +15669,20 @@ static PyObject *__pyx_pw_5video_8Renderer_23read_surface(PyObject *__pyx_v_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("read_surface", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1000, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_surface", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1000, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("video.Renderer.read_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("video.Renderer.get_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5video_8Renderer_22read_surface(((struct __pyx_obj_5video_Renderer *)__pyx_v_self), __pyx_v_depth);
+  __pyx_r = __pyx_pf_5video_8Renderer_22get_surface(((struct __pyx_obj_5video_Renderer *)__pyx_v_self), __pyx_v_depth);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_depth) {
+static PyObject *__pyx_pf_5video_8Renderer_22get_surface(struct __pyx_obj_5video_Renderer *__pyx_v_self, PyObject *__pyx_v_depth) {
   Uint32 __pyx_v_format;
   PyObject *__pyx_v_e = NULL;
   SDL_Texture *__pyx_v_tex;
@@ -15702,7 +15702,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
   PyObject *__pyx_t_9 = NULL;
   PyObject *(*__pyx_t_10)(PyObject *);
   int __pyx_t_11;
-  __Pyx_RefNannySetupContext("read_surface", 0);
+  __Pyx_RefNannySetupContext("get_surface", 0);
 
   /* "video.pyx":1007
  *         """
@@ -15753,7 +15753,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
  */
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ValueError);
     if (__pyx_t_4) {
-      __Pyx_AddTraceback("video.Renderer.read_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("video.Renderer.get_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
       if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(0, 1009, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_6);
@@ -15925,7 +15925,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
   /* "video.pyx":1000
  *             raise error()
  * 
- *     def read_surface(self, depth=32):             # <<<<<<<<<<<<<<
+ *     def get_surface(self, depth=32):             # <<<<<<<<<<<<<<
  *         # https://wiki.libsdl.org/SDL_RenderReadPixels
  *         """
  */
@@ -15936,7 +15936,7 @@ static PyObject *__pyx_pf_5video_8Renderer_22read_surface(struct __pyx_obj_5vide
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("video.Renderer.read_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("video.Renderer.get_surface", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_e);
@@ -16934,7 +16934,7 @@ static PyMethodDef __pyx_methods_5video_Renderer[] = {
   {"draw_point", (PyCFunction)__pyx_pw_5video_8Renderer_17draw_point, METH_O, 0},
   {"draw_rect", (PyCFunction)__pyx_pw_5video_8Renderer_19draw_rect, METH_O, 0},
   {"fill_rect", (PyCFunction)__pyx_pw_5video_8Renderer_21fill_rect, METH_O, 0},
-  {"read_surface", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5video_8Renderer_23read_surface, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5video_8Renderer_22read_surface},
+  {"get_surface", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5video_8Renderer_23get_surface, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5video_8Renderer_22get_surface},
   {"__reduce_cython__", (PyCFunction)__pyx_pw_5video_8Renderer_25__reduce_cython__, METH_NOARGS, 0},
   {"__setstate_cython__", (PyCFunction)__pyx_pw_5video_8Renderer_27__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
