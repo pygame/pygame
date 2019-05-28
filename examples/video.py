@@ -60,16 +60,14 @@ del tex2
 
 full = 0
 
-# TODO: This crashes now?
-# Traceback (most recent call last):
-#   File "video.py", line 63, in <module>
-#     tex = Image(tex, (0, 0, tex.width, tex.height))
-#   File "src_c/_sdl2/video.pyx", line 721, in video.Image.__init__
-# ValueError: rect values are out of range
-#
-# tex = Image(tex, (0, 0, tex.width, tex.height))
+tex = Image(tex)
 
 
+from pygame.time import get_ticks
+surf = pygame.Surface((64, 64))
+streamtex = Texture(renderer, (64, 64), streaming=True)
+tex_update_interval = 1000
+next_tex_update = get_ticks()
 
 
 while running:
@@ -106,21 +104,23 @@ while running:
                 bg_index = (bg_index + 1) % len(backgrounds)
                 renderer.draw_color = backgrounds[bg_index]
 
-
-
-    # TODO: use this from_surface somehow.
-    # surf = pg.Surface((64,64))
-    # surf.fill((0,255,0))
-    # # This should draw a green rect
-    # tex = Texture.from_surface(renderer, surf)
-    # tex.draw(None, pg.Rect(64, 64, 64, 64))
-    # # This should update the texture with a surface filled with red
-    # # Instead of creating texture every frame, use this will be less expensive
-    # surf.fill((255,0,0))
-    # tex.update(surf)
-    # tex.draw(None, pg.Rect(64, 128, 64, 64))
-
     renderer.clear()
+
+    # update texture
+    curtime = get_ticks()
+    if curtime >= next_tex_update:
+        for x in range(streamtex.width // 4):
+            for y in range(streamtex.height // 4):
+                newcol = random.randint(0, 255), \
+                         random.randint(0, 255), \
+                         random.randint(0, 255), \
+                         255
+                area = (4*x, 4*y, 4, 4)
+                surf.fill(newcol, area)
+        streamtex.update(surf)
+        next_tex_update = curtime + tex_update_interval
+    streamtex.draw(dstrect=pygame.Rect(64, 128, 64, 64))
+
     tex.draw(dstrect=(x, y))
 
     #TODO: should these be?
