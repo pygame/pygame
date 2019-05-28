@@ -454,9 +454,13 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong(0);
 
-#ifdef Mix_OpenAudioDevice
+#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 0 && SDL_MIXER_PATCHLEVEL >= 2
         if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
                                 allowedchanges) == -1) {
+            /* mixer.init swallows errors, tell user a reason via a log. */
+            if(devicename) {
+                SDL_Log("Failed to open devicename:%s: with error :%s:", devicename, SDL_GetError());
+            }
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return PyInt_FromLong(0);
         }
