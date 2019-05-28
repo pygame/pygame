@@ -533,6 +533,40 @@ get_pixel_color(Uint8 *pixel, Uint8 bpp)
     }
 }
 
+/* Sets the color of a given pixel.
+ *
+ * Params:
+ *     pixel: pixel to set the color of
+ *     bpp: bytes per pixel
+ *     color: color to set
+ *
+ * Ref: src_c/draw.c set_pixel_32()
+ */
+static void *
+set_pixel_color(Uint8 *pixel, Uint8 bpp, Uint32 color)
+{
+    switch (bpp) {
+        case 1:
+            *pixel = color;
+
+        case 2:
+            *(Uint16 *)pixel = color;
+
+        case 3:
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            *(Uint16 *)pixel = color;
+            pixel[2] = color >> 16;
+#else  /* != SDL_LIL_ENDIAN */
+            pixel[2] = color;
+            pixel[1] = color >> 8;
+            pixel[0] = color >> 16;
+#endif /* SDL_LIL_ENDIAN */
+
+        default: /* case 4: */
+            *(Uint32 *)pixel = color;
+    }
+}
+
 /* For each surface pixel's alpha that is greater than the threshold,
  * the corresponding bitmask bit is set.
  *
@@ -1580,6 +1614,141 @@ mask_connected_component(PyObject *self, PyObject *args)
     return (PyObject *)output_maskobj;
 }
 
+/* Get the color data from a color object.
+ *
+ * Params:
+ *     surf: surface that color will be mapped from
+ *     color_obj: color object to extract color data from
+ *     rbga_color: rbga array, contains default color if color_obj is NULL
+ *     color: color value extracted from the color_obj (or from the default
+ *         value of rbga_color)
+ *
+ * Returns:
+ *     int: 1, means the color data extraction was successful and the color
+ *              parameter contains a valid color value
+ *          0, means the color data extraction has failed and an exception has
+ *              been set
+ */
+static int
+get_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
+          Uint32 *color)
+{
+    if ((NULL == color_obj) || (pg_RGBAFromColorObj(color_obj, rgba_color))) {
+        *color = SDL_MapRGBA(surf->format, rgba_color[0], rgba_color[1],
+                             rgba_color[2], rgba_color[3]);
+        return 1;
+    }
+    else if (PyLong_Check(color_obj)) {
+        unsigned long longval = PyLong_AsUnsignedLong(color_obj);
+
+        if (PyErr_Occurred() || longval > 0xFFFFFFFF) {
+            PyErr_SetString(PyExc_ValueError, "invalid color argument");
+            return 0;
+        }
+
+        *color = (Uint32)longval;
+        return 1;
+    }
+
+    PyErr_SetString(PyExc_TypeError, "invalid color argument");
+    return 0;
+}
+
+/* Draws a mask on a surface.
+ *
+ * Params:
+ *     surf: surface to draw on
+ *     bitmask: bitmask to draw
+ *     draw_setbits: if non-zero then draw the set bits (bits==1)
+ *     draw_unsetbits: if non-zero then draw the unset bits (bits==0)
+ *     setcolor: color to draw set bits (bits==1)
+ *     unsetcolor: color to draw unset bits (bits==0)
+ */
+static void
+draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int draw_setbits,
+                int draw_unsetbits, Uint32 setcolor, Uint32 unsetcolor)
+{
+    Uint8 bpp = surf->format->BytesPerPixel;
+    Uint8 *pixel = NULL;
+    int w, h, x, y;
+
+    /* There is nothing to do when any of these conditions exist:
+     * - surface has a width or height of <= 0
+     * - mask has a width or height of <= 0
+     * - draw_setbits and draw_unsetbits are both 0 */
+    if ((surf->h <= 0) || (surf->w <= 0) || (bitmask->h <= 0) ||
+        (bitmask->w <= 0) || (!draw_setbits && !draw_unsetbits)) {
+        return;
+    }
+
+    h = MIN(surf->h, bitmask->h);
+    w = MIN(surf->w, bitmask->w);
+
+    for (y = 0; y < h; ++y) {
+        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+        for (x = 0; x < w; ++x, pixel += bpp) {
+            if (bitmask_getbit(bitmask, x, y)) {
+                if (draw_setbits) {
+                    set_pixel_color(pixel, bpp, setcolor);
+                }
+            }
+            else if (draw_unsetbits) {
+                set_pixel_color(pixel, bpp, unsetcolor);
+            }
+        }
+    }
+}
+
+/* Draws a mask on a surface.
+ *
+ * Returns:
+ *     Surface object or NULL to indicate a fail.
+ */
+static PyObject *
+mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *surfobj = NULL, *setcolorobj = NULL, *unsetcolorobj = NULL;
+    SDL_Surface *surf = NULL;
+    bitmask_t *bitmask = pgMask_AsBitmap(self);
+    Uint32 setcolor, unsetcolor;
+    int draw_setbits = 0, draw_unsetbits = 0;
+    Uint8 dflt_setcolor[] = {255, 255, 255, 255}; /* Default set color. */
+    Uint8 dflt_unsetcolor[] = {0, 0, 0, 255};     /* Default unset color. */
+
+    static char *keywords[] = {"surface", "setcolor", "unsetcolor", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|OO", keywords,
+                                     &pgSurface_Type, &surfobj, &setcolorobj,
+                                     &unsetcolorobj)) {
+        return NULL; /* Exception already set. */
+    }
+
+    surf = pgSurface_AsSurface(surfobj);
+
+    if (Py_None != setcolorobj) {
+        if (!get_color(surf, setcolorobj, dflt_setcolor, &setcolor)) {
+            return NULL; /* Exception already set. */
+        }
+
+        draw_setbits = 1;
+    }
+
+    if (Py_None != unsetcolorobj) {
+        if (!get_color(surf, unsetcolorobj, dflt_unsetcolor, &unsetcolor)) {
+            return NULL; /* Exception already set. */
+        }
+
+        draw_unsetbits = 1;
+    }
+
+    draw_to_surface(surf, bitmask, draw_setbits, draw_unsetbits, setcolor,
+                    unsetcolor);
+
+    Py_INCREF(surfobj);
+    return surfobj;
+}
+
 static PyMethodDef mask_methods[] = {
     {"get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
     {"get_at", mask_get_at, METH_VARARGS, DOC_MASKGETAT},
@@ -1604,6 +1773,8 @@ static PyMethodDef mask_methods[] = {
      DOC_MASKCONNECTEDCOMPONENTS},
     {"get_bounding_rects", mask_get_bounding_rects, METH_NOARGS,
      DOC_MASKGETBOUNDINGRECTS},
+    {"to_surface", (PyCFunction)mask_to_surface, METH_VARARGS | METH_KEYWORDS,
+     DOC_MASKTOSURFACE},
 
     {NULL, NULL, 0, NULL}};
 

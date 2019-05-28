@@ -56,6 +56,17 @@ def zero_size_pairs(width, height):
     return ((a, b) for a in sizes for b in sizes if 0 in a or 0 in b)
 
 
+def assertSurfaceFilled(testcase, surface, expected_color):
+        """Checks to see if the given surface is filled with the given color.
+        """
+        w, h = surface.get_size()
+
+        surface.lock()  # Lock for possible speed up.
+        for pos in ((x, y) for y in range(h) for x in range(w)):
+            testcase.assertEqual(surface.get_at(pos), expected_color)
+        surface.unlock()
+
+
 class MaskTypeTest(unittest.TestCase):
     ORIGIN_OFFSETS = ((0, 0), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1),
                       (-1, -1), (-1, 0), (-1, 1))
@@ -1738,6 +1749,180 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(sorted(mask.get_bounding_rects(), key=tuple),
                                  expected_rects, 'size={}'.format(size))
 
+    def test_to_surface(self):
+        """Ensures masks can be drawn onto surfaces."""
+        expected_color = pygame.Color('blue')
+        size = (33, 65)
+        mask = pygame.mask.Mask(size, fill=True)
+        surface = pygame.Surface(size, SRCALPHA, 32)
+        surface.fill(pygame.Color('red'))
+
+        to_surface = mask.to_surface(surface, setcolor=expected_color)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__args(self):
+        """Ensures to_surface accepts the correct args."""
+        pos = (0, 0)
+        size = (5, 3)
+        expected_color = pygame.Color('white')
+        surface_color = pygame.Color('red')
+        mask = pygame.mask.Mask(size, fill=True)
+        surface = pygame.Surface(size)
+
+        # Only surface arg.
+        surface.fill(surface_color)  # Clear for each test.
+
+        to_surface = mask.to_surface(surface)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), size)
+        self.assertEqual(to_surface.get_at(pos), expected_color)
+
+        # Surface and setcolor args.
+        surface.fill(surface_color)  # Clear for each test.
+
+        to_surface = mask.to_surface(surface, expected_color)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), size)
+        self.assertEqual(to_surface.get_at(pos), expected_color)
+
+        # Surface, setcolor and unsetcolor args.
+        surface.fill(surface_color)  # Clear for each test.
+
+        to_surface = mask.to_surface(surface, expected_color, None)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), size)
+        self.assertEqual(to_surface.get_at(pos), expected_color)
+
+    def test_to_surface__kwargs(self):
+        """Ensures to_surface accepts the correct kwargs."""
+        pos = (0, 0)
+        size = (5, 3)
+        mask = pygame.mask.Mask(size, fill=True)
+        surface = pygame.Surface(size)
+        surface_color = pygame.Color('red')
+        expected_color = pygame.Color('white')
+        kwargs = {'surface'    : surface,
+                  'setcolor'   : expected_color,
+                  'unsetcolor' : pygame.Color('yellow')}
+
+        for name in ('unsetcolor', 'setcolor', 'surface'):
+            surface.fill(surface_color)  # Clear for each test.
+
+            to_surface = mask.to_surface(**kwargs)
+
+            self.assertIs(to_surface, surface)
+            self.assertEqual(to_surface.get_size(), size)
+            self.assertEqual(to_surface.get_at(pos), expected_color)
+
+            kwargs.pop(name)  # Get ready for next loop iteration.
+
+    def test_to_surface__kwargs_order_independent(self):
+        """Ensures to_surface kwargs are not order dependent."""
+        expected_color = pygame.Color('blue')
+        size = (3, 2)
+        mask = pygame.mask.Mask(size, fill=True)
+        surface = pygame.Surface(size)
+
+        to_surface = mask.to_surface(setcolor=expected_color,
+                                     unsetcolor=None,
+                                     surface=surface)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), size)
+        self.assertEqual(to_surface.get_at((0, 0)), expected_color)
+
+    def todo_test_to_surface__args_missing(self):
+        self.fail()
+
+    def todo_test_to_surface__kwargs_missing(self):
+        self.fail()
+
+    def todo_test_to_surface__args_invalid_types(self):
+        self.fail()
+
+    def todo_test_to_surface__kwargs_invalid_types(self):
+        self.fail()
+
+    def todo_test_to_surface__kwargs_invalid_name(self):
+        self.fail()
+
+    def todo_test_to_surface__args_and_kwargs(self):
+        self.fail()
+
+    def todo_test_to_surface__valid_setcolor_formats(self):
+        self.fail()
+
+    def todo_test_to_surface__valid_unsetcolor_formats(self):
+        self.fail()
+
+    def todo_test_to_surface__invalid_setcolor_formats(self):
+        self.fail()
+
+    def todo_test_to_surface__invalid_unsetcolor_formats(self):
+        self.fail()
+
+    def todo_test_to_surface__full_mask(self):
+        self.fail()
+
+    def todo_test_to_surface__empty_mask(self):
+        self.fail()
+
+    def todo_test_to_surface__set_and_unset_bits(self):
+        self.fail()
+
+    def todo_test_to_surface__setcolor_None(self):
+        self.fail()
+
+    def todo_test_to_surface__unsetcolor_None(self):
+        self.fail()
+
+    def todo_test_to_surface__setcolor_and_unsetcolor_None(self):
+        self.fail()
+
+    def todo_test_to_surface__setcolor_default(self):
+        self.fail()
+
+    def todo_test_to_surface__unsetcolor_default(self):
+        self.fail()
+
+    def todo_test_to_surface__mask_wider_than_surface(self):
+        self.fail()
+
+    def todo_test_to_surface__mask_taller_than_surface(self):
+        self.fail()
+
+    def todo_test_to_surface__mask_wider_and_taller_than_surface(self):
+        self.fail()
+
+    def todo_test_to_surface__surface_wider_than_mask(self):
+        self.fail()
+
+    def todo_test_to_surface__surface_taller_than_mask(self):
+        self.fail()
+
+    def todo_test_to_surface__surface_wider_and_taller_than_mask(self):
+        self.fail()
+
+    def todo_test_to_surface__setcolor(self):
+        # Colors and alphas.
+        self.fail()
+
+    def todo_test_to_surface__unsetcolor(self):
+        # Colors and alphas.
+        self.fail()
+
+    def todo_test_to_surface__surface_depths(self):
+        self.fail()
+
+    def todo_test_to_surface__surface_with_zero_size(self):
+        self.fail()
+
     def test_zero_mask(self):
         """Ensures masks can be created with zero sizes."""
         for size in ((100, 0), (0, 100), (0, 0)):
@@ -2035,6 +2220,27 @@ class MaskTypeTest(unittest.TestCase):
             self.assertListEqual(bounding_rects, expected_bounding_rects,
                                  'size={}'.format(size))
 
+    def test_zero_mask_to_surface(self):
+        """Ensures to_surface correctly handles zero sized masks and surfaces.
+        """
+        mask_color = pygame.Color('blue')
+        surf_color = pygame.Color('red')
+
+        for surf_size in ((7, 3), (7, 0), (0, 7), (0, 0)):
+            surface = pygame.Surface(surf_size, SRCALPHA, 32)
+            surface.fill(surf_color)
+
+            for mask_size in ((5, 0), (0, 5), (0, 0)):
+                mask = pygame.mask.Mask(mask_size, fill=True)
+
+                to_surface = mask.to_surface(surface, setcolor=mask_color)
+
+                self.assertIs(to_surface, surface)
+                self.assertEqual(to_surface.get_size(), surf_size)
+
+                if 0 not in surf_size:
+                    assertSurfaceFilled(self, to_surface, surf_color)
+
 
 class SubMask(pygame.mask.Mask):
     """Subclass of the Mask class to help test subclassing."""
@@ -2310,6 +2516,20 @@ class MaskSubclassTest(unittest.TestCase):
         bounding_rects = mask.get_bounding_rects()
 
         self.assertListEqual(bounding_rects, expected_bounding_rects)
+
+    def test_subclass_to_surface(self):
+        """Ensures to_surface works for subclassed Masks."""
+        expected_color = pygame.Color('blue')
+        size = (5, 3)
+        mask = SubMask(size, fill=True)
+        surface = pygame.Surface(size, SRCALPHA, 32)
+        surface.fill(pygame.Color('red'))
+
+        to_surface = mask.to_surface(surface, setcolor=expected_color)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
 
 
 class MaskModuleTest(unittest.TestCase):

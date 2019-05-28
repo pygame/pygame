@@ -23,6 +23,7 @@
 #define DOC_MASKCONNECTEDCOMPONENT "connected_component() -> Mask\nconnected_component((x, y)) -> Mask\nReturns a mask containing a connected component"
 #define DOC_MASKCONNECTEDCOMPONENTS "connected_components() -> [Mask, ...]\nconnected_components(min=0) -> [Mask, ...]\nReturns a list of masks of connected components"
 #define DOC_MASKGETBOUNDINGRECTS "get_bounding_rects() -> [Rect, ...]\nReturns a list of bounding rects of connected components"
+#define DOC_MASKTOSURFACE "to_surface(surface)) -> Surface\nto_surface(surface, setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 255)) -> Surface\nReturns a surface with the mask drawn on it"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -132,5 +133,10 @@ Returns a list of masks of connected components
 pygame.mask.Mask.get_bounding_rects
  get_bounding_rects() -> [Rect, ...]
 Returns a list of bounding rects of connected components
+
+pygame.mask.Mask.to_surface
+ to_surface(surface)) -> Surface
+ to_surface(surface, setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 255)) -> Surface
+Returns a surface with the mask drawn on it
 
 */
