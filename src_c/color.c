@@ -390,7 +390,7 @@ _get_color(PyObject *val, Uint32 *color)
 #if !PY3
     if (PyInt_Check(val)) {
         long intval = PyInt_AsLong(val);
-        if (intval == -1 && PyErr_Occurred()) {
+        if ((intval == -1 && PyErr_Occurred()) || (intval > 0xFFFFFFFF)) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
@@ -400,7 +400,7 @@ _get_color(PyObject *val, Uint32 *color)
 #endif
     if (PyLong_Check(val)) {
         unsigned long longval = PyLong_AsUnsignedLong(val);
-        if (PyErr_Occurred()) {
+        if (PyErr_Occurred() || (longval > 0xFFFFFFFF)) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
