@@ -97,7 +97,7 @@ while running:
                     win.set_windowed()
                     full = 0
             elif event.key == pygame.K_s:
-                readsurf = renderer.get_surface()
+                readsurf = renderer.to_surface()
                 pygame.image.save(readsurf, "test.png")
 
             elif event.key == pygame.K_SPACE:
@@ -109,13 +109,13 @@ while running:
     # update texture
     curtime = get_ticks()
     if curtime >= next_tex_update:
-        for x in range(streamtex.width // 4):
-            for y in range(streamtex.height // 4):
+        for x_ in range(streamtex.width // 4):
+            for y_ in range(streamtex.height // 4):
                 newcol = random.randint(0, 255), \
                          random.randint(0, 255), \
                          random.randint(0, 255), \
                          255
-                area = (4*x, 4*y, 4, 4)
+                area = (4*x_, 4*y_, 4, 4)
                 surf.fill(newcol, area)
         streamtex.update(surf)
         next_tex_update = curtime + tex_update_interval

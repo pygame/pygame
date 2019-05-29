@@ -14,6 +14,9 @@ MESSAGEBOX_INFORMATION = _SDL_MESSAGEBOX_INFORMATION
 
 cdef extern from "SDL.h" nogil:
     Uint32 SDL_GetWindowPixelFormat(SDL_Window* window)
+    SDL_bool SDL_IntersectRect(const SDL_Rect* A,
+                               const SDL_Rect* B,
+                               SDL_Rect*       result)
 
 
 cdef extern from "../pygame.h" nogil:
@@ -1018,12 +1021,17 @@ cdef class Renderer:
             WARNING: This is a very slow operation, and should not be used frequently.
 
         :param surface: A surface to read the pixel data into.
+                        It must be large enough to fit the area, or ``ValueError`` is
+                        raised.
                         If ``None``, a new surface is returned.
-        :param area: The area of the screen to read pixels from.
+        :param area: The area of the screen to read pixels from. The area is
+                     clipped to fit inside the viewport.
                      If ``None``, the entire viewport is used.
         """
         cdef Uint32 format
         cdef SDL_Rect rarea
+        cdef SDL_Rect tempviewport
+        cdef SDL_Rect *areaparam
         cdef SDL_Surface *surf
         cdef SDL_Texture *targettex
 
@@ -1031,8 +1039,15 @@ cdef class Renderer:
         if area is not None:
             if pgRect_FromObject(area, &rarea) == NULL:
                 raise TypeError('area must be None or a rect')
+
+            # clip area
+            SDL_RenderGetViewport(self._renderer, &tempviewport)
+            SDL_IntersectRect(&rarea, &tempviewport, &rarea)
+
+            areaparam = &rarea
         else:
             SDL_RenderGetViewport(self._renderer, &rarea)
+            areaparam = NULL
 
         # prepare surface and format
         if surface is None:
@@ -1058,14 +1073,14 @@ cdef class Renderer:
             surface = pgSurface_New2(surf, 1)
         elif pgSurface_Check(surface):
             surf = pgSurface_AsSurface(surface)
-            if surf.w != rarea.w or surf.h != rarea.h:
-                raise ValueError('surface size must equal the area')
+            if surf.w < rarea.w or surf.h < rarea.h:
+                raise ValueError("the surface is too small")
             format = surf.format.format
         else:
             raise TypeError("'surface' must be a surface or None")
 
         if SDL_RenderReadPixels(self._renderer,
-                                &rarea,
-                                format, surf.pixels, surf.pitch):
+                                areaparam,
+                                format, surf.pixels, surf.pitch) < 0:
             raise error()
         return surface
