@@ -337,16 +337,16 @@ add_datafiles(data_files, 'pygame/docs',
 #generate the version module
 def parse_version(ver):
     from re import findall
-    return ', '.join(s for s in findall('\d+', ver)[0:3])
+    return ', '.join(s for s in findall(r'\d+', ver)[0:3])
 
 def parse_source_version():
     pgh_major = -1
     pgh_minor = -1
     pgh_patch = -1
     import re
-    major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
-    minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
-    patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
+    major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
+    minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
+    patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
     pg_header = os.path.join('src_c', 'include', '_pygame.h')
     with open(pg_header) as f:
         for line in f:

@@ -14,9 +14,9 @@ class VersionTest(unittest.TestCase):
         pgh_minor = -1
         pgh_patch = -1
         import re
-        major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
-        minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
-        patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
+        major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
+        minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
+        patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
         with open(pg_header) as f:
             for line in f:
                 if pgh_major == -1:

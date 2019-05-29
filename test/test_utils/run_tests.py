@@ -134,7 +134,7 @@ def run(*args, **kwds):
     # Compile a list of test modules. If fake, then compile list of fake
     # xxxx_test.py from run_tests__tests
 
-    TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
+    TEST_MODULE_RE = re.compile(r'^(.+_test)\.py$')
 
     test_mods_pkg_name = test_pkg_name
 
