@@ -4,6 +4,7 @@
 #define DOC_PYGAMEMASKFROMTHRESHOLD "from_threshold(Surface, color) -> Mask\nfrom_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask\nCreates a mask by thresholding Surfaces"
 #define DOC_PYGAMEMASKMASK "Mask(size=(width, height)) -> Mask\nMask(size=(width, height), fill=False) -> Mask\npygame object for representing 2D bitmasks"
 #define DOC_MASKGETSIZE "get_size() -> (width, height)\nReturns the size of the mask"
+#define DOC_MASKGETRECT "get_rect(**kwargs) -> Rect\nReturns a Rect based on the size of the mask"
 #define DOC_MASKGETAT "get_at((x, y)) -> int\nGets the bit at the given position"
 #define DOC_MASKSETAT "set_at((x, y)) -> None\nset_at((x, y), value=1) -> None\nSets the bit at the given position"
 #define DOC_MASKOVERLAP "overlap(othermask, offset) -> (x, y)\noverlap(othermask, offset) -> None\nReturns the point of intersection"
@@ -51,6 +52,10 @@ pygame object for representing 2D bitmasks
 pygame.mask.Mask.get_size
  get_size() -> (width, height)
 Returns the size of the mask
+
+pygame.mask.Mask.get_rect
+ get_rect(**kwargs) -> Rect
+Returns a Rect based on the size of the mask
 
 pygame.mask.Mask.get_at
  get_at((x, y)) -> int

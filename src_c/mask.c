@@ -72,6 +72,46 @@ mask_get_size(PyObject *self, PyObject *args)
     return Py_BuildValue("(ii)", mask->w, mask->h);
 }
 
+/* Creates a Rect object based on the given mask's size. The rect's
+ * attributes can be altered via the kwargs.
+ *
+ * Returns:
+ *     Rect object or NULL to indicate a fail
+ *
+ * Ref: src_c/surface.c surf_get_rect()
+ */
+static PyObject *
+mask_get_rect(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *rect = NULL;
+    bitmask_t *bitmask = pgMask_AsBitmap(self);
+
+    if (0 != PyTuple_GET_SIZE(args)) {
+        return RAISE(PyExc_TypeError,
+                     "get_rect only supports keyword arguments");
+    }
+
+    rect = pgRect_New4(0, 0, bitmask->w, bitmask->h);
+
+    if (NULL == rect) {
+        return RAISE(PyExc_MemoryError, "cannot allocate memory for rect");
+    }
+
+    if (NULL != kwargs) {
+        PyObject *key = NULL, *value = NULL;
+        Py_ssize_t pos = 0;
+
+        while (PyDict_Next(kwargs, &pos, &key, &value)) {
+            if ((-1 == PyObject_SetAttr(rect, key, value))) {
+                Py_DECREF(rect);
+                return NULL;
+            }
+        }
+    }
+
+    return rect;
+}
+
 static PyObject *
 mask_get_at(PyObject *self, PyObject *args)
 {
@@ -1763,6 +1803,8 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
 static PyMethodDef mask_methods[] = {
     {"get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
+    {"get_rect", (PyCFunction)mask_get_rect, METH_VARARGS | METH_KEYWORDS,
+     DOC_MASKGETRECT},
     {"get_at", mask_get_at, METH_VARARGS, DOC_MASKGETAT},
     {"set_at", mask_set_at, METH_VARARGS, DOC_MASKSETAT},
     {"overlap", mask_overlap, METH_VARARGS, DOC_MASKOVERLAP},
