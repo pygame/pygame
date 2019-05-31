@@ -146,6 +146,31 @@ to store which parts collide.
 
       .. ## Mask.get_size ##
 
+   .. method:: get_rect
+
+      | :sl:`Returns a Rect based on the size of the mask`
+      | :sg:`get_rect(\**kwargs) -> Rect`
+
+      Returns a new :func:`pygame.Rect` object based on the size of this mask.
+      The rect's default position will be ``(0, 0)`` and its default width and
+      height will be the same as this mask's. The rect's attributes can be
+      altered via :func:`pygame.Rect` attribute keyword arguments/values passed
+      into this method. As an example, ``a_mask.get_rect(center=(10, 5))`` would
+      create a :func:`pygame.Rect` based on the mask's size centered at the
+      given position.
+
+      :param dict kwargs: :func:`pygame.Rect` attribute keyword arguments/values
+         that will be applied to the rect
+
+      :returns: a new :func:`pygame.Rect` object based on the size of this mask
+         with any :func:`pygame.Rect` attribute keyword arguments/values applied
+         to it
+      :rtype: Rect
+
+      .. versionadded:: 2.0.0
+
+      .. ## Mask.get_rect ##
+
    .. method:: get_at
 
       | :sl:`Gets the bit at the given position`
