@@ -1033,7 +1033,6 @@ cdef class Renderer:
         cdef SDL_Rect tempviewport
         cdef SDL_Rect *areaparam
         cdef SDL_Surface *surf
-        cdef SDL_Texture *targettex
 
         # obtain area to use
         if area is not None:
@@ -1049,18 +1048,12 @@ cdef class Renderer:
             SDL_RenderGetViewport(self._renderer, &rarea)
             areaparam = NULL
 
-        # prepare surface and format
+        # prepare surface
         if surface is None:
             # create a new surface
-            targettex = SDL_GetRenderTarget(self._renderer)
-
-            if targettex == NULL:
-                format = SDL_GetWindowPixelFormat(self._win._win)
-                if format == SDL_PIXELFORMAT_UNKNOWN:
-                    raise error()
-            else:
-                if SDL_QueryTexture(targettex, &format, NULL, NULL, NULL) < 0:
-                    raise error()
+            format = SDL_GetWindowPixelFormat(self._win._win)
+            if format == SDL_PIXELFORMAT_UNKNOWN:
+                raise error()
 
             surf = SDL_CreateRGBSurfaceWithFormat(
                 0,
