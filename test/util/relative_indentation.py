@@ -7,7 +7,7 @@ import re
 def strip_common_preceding_space(input_str):
     "Strips preceding common space so only relative indentation remains"
 
-    preceding_whitespace = re.compile("^(?:(\s*?)\S)?")
+    preceding_whitespace = re.compile(r"^(?:(\s*?)\S)?")
     common_start = len(input_str)
 
     split = input_str.split("\n")
@@ -23,7 +23,7 @@ def pad_secondary_lines(input_str, padding):
 
 ################################################################################
 
-ph_re = re.compile("\${(.*?)}")
+ph_re = re.compile(r"\${(.*?)}")
 multi_line_re = re.MULTILINE | re.DOTALL
 
 ################################################################################
@@ -69,7 +69,7 @@ class Template(object):
         for ph_name, replacement in replacements.items():
             ph_offset = self.ph_offsets[ph_name]
     
-            ph_search = re.search ("\${%s}" % ph_name, template, multi_line_re)
+            ph_search = re.search (r"\${%s}" % ph_name, template, multi_line_re)
             
             ph_start, ph_end = ph_search.span()
             
