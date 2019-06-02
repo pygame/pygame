@@ -12,6 +12,13 @@ MESSAGEBOX_WARNING = _SDL_MESSAGEBOX_WARNING
 MESSAGEBOX_INFORMATION = _SDL_MESSAGEBOX_INFORMATION
 
 
+cdef extern from "SDL.h" nogil:
+    Uint32 SDL_GetWindowPixelFormat(SDL_Window* window)
+    SDL_bool SDL_IntersectRect(const SDL_Rect* A,
+                               const SDL_Rect* B,
+                               SDL_Rect*       result)
+
+
 cdef extern from "../pygame.h" nogil:
     int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
@@ -27,6 +34,8 @@ cdef extern from "../pygame.h" nogil:
     object pgColor_New(Uint8 rgba[])
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
     void import_pygame_color()
+    object pgSurface_New2(SDL_Surface *info, int owner)
+
 
 import_pygame_color()
 import_pygame_surface()
@@ -216,7 +225,7 @@ cdef class Window:
 
         flags = 0
         if fullscreen and fullscreen_desktop:
-            raise error("fullscreen and fullscreen_desktop cannot be used at the same time.")
+            raise ValueError("fullscreen and fullscreen_desktop cannot be used at the same time.")
         if fullscreen:
             flags |= _SDL_WINDOW_FULLSCREEN
         elif fullscreen_desktop:
@@ -229,7 +238,7 @@ cdef class Window:
                 if v:
                     flags |= flag
             except KeyError:
-                raise error("unknown parameter: %s" % k)
+                raise TypeError("unknown parameter: %s" % k)
 
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
                                      size[0], size[1], flags)
@@ -385,7 +394,7 @@ cdef class Window:
         :param pygame.Surface surface: A Surface to use as the icon.
         """
         if not pgSurface_Check(surface):
-            raise error('surface must be a Surface object')
+            raise TypeError('surface must be a Surface object')
         SDL_SetWindowIcon(self._win, pgSurface_AsSurface(surface))
 
     @property
@@ -470,7 +479,6 @@ cdef class Window:
     def __dealloc__(self):
         self.destroy()
 
-
 cdef Uint32 format_from_depth(int depth):
     cdef Uint32 Rmask, Gmask, Bmask, Amask
     if depth == 16:
@@ -541,7 +549,7 @@ cdef class Texture:
                 raise ValueError('only one of static, streaming, or target can be true')
             access = _SDL_TEXTUREACCESS_TARGET
         else:
-            #raise ValueError('one of static, streaming, or target must be true')
+            # Create static texture by default.
             access = _SDL_TEXTUREACCESS_STATIC
 
         self.renderer = renderer
@@ -563,7 +571,7 @@ cdef class Texture:
         """
         # https://wiki.libsdl.org/SDL_CreateTextureFromSurface
         if not pgSurface_Check(surface):
-            raise error('2nd argument must be a surface')
+            raise TypeError('2nd argument must be a surface')
         cdef Texture self = Texture.__new__(Texture)
         self.renderer = renderer
         cdef SDL_Renderer* _renderer = renderer._renderer
@@ -682,7 +690,7 @@ cdef class Texture:
         if srcrect is not None:
             csrcrect = pgRect_FromObject(srcrect, &src)
             if not csrcrect:
-                raise error("the argument is not a rectangle or None")
+                raise TypeError("the argument is not a rectangle or None")
 
         if dstrect is not None:
             cdstrect = pgRect_FromObject(dstrect, &dst)
@@ -694,7 +702,7 @@ cdef class Texture:
                     dst.h = self.height
                     cdstrect = &dst
                 else:
-                    raise error('dstrect must be a position, rect, or None')
+                    raise TypeError('dstrect must be a position, rect, or None')
 
         if origin:
             originptr = &corigin
@@ -706,6 +714,34 @@ cdef class Texture:
         self.draw_internal(csrcrect, cdstrect, angle, originptr,
                            flipX, flipY)
 
+    def update(self, surface, area=None):
+        # https://wiki.libsdl.org/SDL_UpdateTexture
+        # Should it accept a raw pixel data array too?
+        """ Update the texture with Surface.
+        This is a fairly slow function, intended for use with static textures that do not change often.
+
+        If the texture is intended to be updated often,
+        it is preferred to create the texture as streaming and use the locking functions.
+
+        While this function will work with streaming textures,
+        for optimization reasons you may not get the pixels back if you lock the texture afterward.
+
+        :param surface: source Surface.
+        """
+
+        if not pgSurface_Check(surface):
+            raise TypeError("update source should be a Surface.")
+
+        cdef SDL_Rect rect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(area, &rect)
+        cdef SDL_Surface *surf = pgSurface_AsSurface(surface)
+
+        if rectptr == NULL and area is not None:
+            raise TypeError('area must be a rectangle or None')
+
+        res = SDL_UpdateTexture(self._tex, rectptr, surf.pixels, surf.pitch)
+        if res < 0:
+            raise error()
 
 cdef class Image:
 
@@ -732,7 +768,7 @@ cdef class Image:
 
         if srcrect is not None:
             if pgRect_FromObject(srcrect, &temp) == NULL:
-                raise error('srcrect must be None or a rectangle')
+                raise TypeError('srcrect must be None or a rectangle')
             if temp.x < 0 or temp.y < 0 or \
                 temp.w < 0 or temp.h < 0 or \
                 temp.x + temp.w > self.srcrect.w or \
@@ -768,7 +804,7 @@ cdef class Image:
                 src = (<Rect>srcrect).r
             else:
                 if pgRect_FromObject(srcrect, &src) == NULL:
-                    raise error('srcrect must be a rect or None')
+                    raise TypeError('srcrect must be a rect or None')
             src.x += self.srcrect.x
             src.y += self.srcrect.y
             csrcrect = &src
@@ -783,7 +819,7 @@ cdef class Image:
                     dst.h = self.srcrect.h
                     cdstrect = &dst
                 else:
-                    raise error('dstrect must be a position, rect, or None')
+                    raise TypeError('dstrect must be a position, rect, or None')
 
         self.texture.color = self.color
         self.texture.alpha = self.alpha
@@ -827,6 +863,7 @@ cdef class Renderer:
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._draw_color = pgColor_NewLength(defaultColor, 4)
         self._target = None
+        self._win = window
 
     def __dealloc__(self):
         if self._renderer:
@@ -892,7 +929,7 @@ cdef class Renderer:
             return
         cdef SDL_Rect rect
         if pgRect_FromObject(area, &rect) == NULL:
-            raise error("the argument is not a rectangle or None")
+            raise TypeError("the argument is not a rectangle or None")
         if SDL_RenderSetViewport(self._renderer, &rect) < 0:
             raise error()
 
@@ -918,7 +955,7 @@ cdef class Renderer:
                                    self._target._tex) < 0:
                 raise error()
         else:
-            raise error('target must be a Texture or None')
+            raise TypeError('target must be a Texture or None')
 
     def blit(self, source, dest=None, area=None, special_flags=0):
         """ Only for compatibility.
@@ -940,3 +977,103 @@ cdef class Renderer:
         if not dest:
             return self.get_viewport()
         return dest
+
+    def draw_line(self, p1, p2):
+        # https://wiki.libsdl.org/SDL_RenderDrawLine
+        res = SDL_RenderDrawLine(self._renderer,
+                                 p1[0], p1[1],
+                                 p2[0], p2[1])
+        if res < 0:
+            raise error()
+
+    def draw_point(self, point):
+        # https://wiki.libsdl.org/SDL_RenderDrawPoint
+        res = SDL_RenderDrawPoint(self._renderer,
+                                  point[0], point[1])
+        if res < 0:
+            raise error()
+
+    def draw_rect(self, rect):
+        # https://wiki.libsdl.org/SDL_RenderDrawRect
+        cdef SDL_Rect _rect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+        res = SDL_RenderDrawRect(self._renderer, rectptr)
+        if res < 0:
+            raise error()
+
+    def fill_rect(self, rect):
+        # https://wiki.libsdl.org/SDL_RenderFillRect
+        cdef SDL_Rect _rect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+        res = SDL_RenderFillRect(self._renderer, rectptr)
+
+        if res < 0:
+            raise error()
+
+    def to_surface(self, surface=None, area=None):
+        # https://wiki.libsdl.org/SDL_RenderReadPixels
+        """
+            Read pixels from the current rendering target and create a pygame.Surface.
+            WARNING: This is a very slow operation, and should not be used frequently.
+
+        :param surface: A surface to read the pixel data into.
+                        It must be large enough to fit the area, or ``ValueError`` is
+                        raised.
+                        If ``None``, a new surface is returned.
+        :param area: The area of the screen to read pixels from. The area is
+                     clipped to fit inside the viewport.
+                     If ``None``, the entire viewport is used.
+        """
+        cdef Uint32 format
+        cdef SDL_Rect rarea
+        cdef SDL_Rect tempviewport
+        cdef SDL_Rect *areaparam
+        cdef SDL_Surface *surf
+
+        # obtain area to use
+        if area is not None:
+            if pgRect_FromObject(area, &rarea) == NULL:
+                raise TypeError('area must be None or a rect')
+
+            # clip area
+            SDL_RenderGetViewport(self._renderer, &tempviewport)
+            SDL_IntersectRect(&rarea, &tempviewport, &rarea)
+
+            areaparam = &rarea
+        else:
+            SDL_RenderGetViewport(self._renderer, &rarea)
+            areaparam = NULL
+
+        # prepare surface
+        if surface is None:
+            # create a new surface
+            format = SDL_GetWindowPixelFormat(self._win._win)
+            if format == SDL_PIXELFORMAT_UNKNOWN:
+                raise error()
+
+            surf = SDL_CreateRGBSurfaceWithFormat(
+                0,
+                rarea.w, rarea.h,
+                SDL_BITSPERPIXEL(format),
+                format)
+            if surf == NULL:
+                raise MemoryError("not enough memory for the surface")
+
+            surface = pgSurface_New2(surf, 1)
+        elif pgSurface_Check(surface):
+            surf = pgSurface_AsSurface(surface)
+            if surf.w < rarea.w or surf.h < rarea.h:
+                raise ValueError("the surface is too small")
+            format = surf.format.format
+        else:
+            raise TypeError("'surface' must be a surface or None")
+
+        if SDL_RenderReadPixels(self._renderer,
+                                areaparam,
+                                format, surf.pixels, surf.pitch) < 0:
+            raise error()
+        return surface
