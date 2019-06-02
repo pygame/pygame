@@ -19,7 +19,7 @@ cdef extern from "SDL.h" nogil:
                                SDL_Rect*       result)
 
 
-cdef extern from "../pygame.h" nogil:
+cdef extern from "pygame.h" nogil:
     int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
     void import_pygame_surface()
