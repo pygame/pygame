@@ -399,8 +399,6 @@ class ColorTypeTest (unittest.TestCase):
             self.assertEqual(color.b, (value >> 8) & 0xFF)
             self.assertEqual(color.a, value & 0xFF)
 
-    # The skip decorator can be removed when issue #1060 is resolved.
-    @unittest.skip('invalid int value not detected on some platforms')
     def test_color__int_arg_invalid(self):
         """Ensures invalid int values are detected when creating Color objects.
         """
