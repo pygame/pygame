@@ -36,3 +36,4 @@ anenv
 dist
 .vagrant
 *.egg-info/
+*.so
