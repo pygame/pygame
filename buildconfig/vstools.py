@@ -52,7 +52,7 @@ def find_symbols(dll):
     next(it)
 
     symbols = []
-    exp = re.compile('\w+')
+    exp = re.compile(r'\w+')
 
     for line in it:
         if not line.strip():

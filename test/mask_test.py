@@ -5,6 +5,7 @@ import sys
 
 import pygame
 from pygame.locals import *
+from pygame.math import Vector2
 
 
 def random_mask(size = (100,100)):
@@ -161,6 +162,115 @@ class MaskTypeTest(unittest.TestCase):
         mask = pygame.mask.Mask(expected_size)
 
         self.assertEqual(mask.get_size(), expected_size)
+
+    def test_get_rect(self):
+        """Ensures get_rect works correctly."""
+        expected_rect = pygame.Rect((0, 0), (11, 13))
+
+        # Test on full and empty masks.
+        for fill in (True, False):
+            mask = pygame.mask.Mask(expected_rect.size, fill=fill)
+
+            rect = mask.get_rect()
+
+            self.assertEqual(rect, expected_rect)
+
+    def test_get_rect__one_kwarg(self):
+        """Ensures get_rect supports a single rect attribute kwarg.
+
+        Tests all the rect attributes.
+        """
+        # Rect attributes that take a single value.
+        RECT_SINGLE_VALUE_ATTRIBUTES = (
+            'x', 'y', 'top', 'left', 'bottom', 'right', 'centerx', 'centery',
+            'width', 'height', 'w', 'h')
+
+        # Rect attributes that take 2 values.
+        RECT_DOUBLE_VALUE_ATTRIBUTES = (
+            'topleft', 'bottomleft', 'topright', 'bottomright', 'midtop',
+            'midleft', 'midbottom', 'midright', 'center', 'size')
+
+        # Testing ints/floats and tuples/lists/Vector2s.
+        # {attribute_names : attribute_values}
+        rect_attributes = {
+            RECT_SINGLE_VALUE_ATTRIBUTES : (3, 5.1),
+            RECT_DOUBLE_VALUE_ATTRIBUTES : ((1, 2.2), [2.3, 3], Vector2(0, 1))}
+
+        size = (7, 3)
+        mask = pygame.mask.Mask(size)
+
+        for attributes, values in rect_attributes.items():
+            for attribute in attributes:
+                for value in values:
+                    expected_rect = pygame.Rect((0, 0), size)
+                    setattr(expected_rect, attribute, value)
+
+                    rect = mask.get_rect(**{attribute : value})
+
+                    self.assertEqual(rect, expected_rect)
+
+    def test_get_rect__multiple_kwargs(self):
+        """Ensures get_rect supports multiple rect attribute kwargs."""
+        mask = pygame.mask.Mask((5, 4))
+        expected_rect = pygame.Rect((0, 0), (0, 0))
+        kwargs = {'x' : 7.1,
+                  'top' : -1,
+                  'size': Vector2(2, 3.2)}
+
+        for attrib, value in kwargs.items():
+            setattr(expected_rect, attrib, value)
+
+        rect = mask.get_rect(**kwargs)
+
+        self.assertEqual(rect, expected_rect)
+
+    def test_get_rect__no_arg_support(self):
+        """Ensures get_rect only supports kwargs."""
+        mask = pygame.mask.Mask((4, 5))
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(3)
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect((1, 2))
+
+    def test_get_rect__invalid_kwarg_name(self):
+        """Ensures get_rect detects invalid kwargs."""
+        mask = pygame.mask.Mask((1, 2))
+
+        with self.assertRaises(AttributeError):
+            rect = mask.get_rect(righte=11)
+
+        with self.assertRaises(AttributeError):
+            rect = mask.get_rect(toplef=(1, 1))
+
+        with self.assertRaises(AttributeError):
+            rect = mask.get_rect(move=(3, 2))
+
+    def test_get_rect__invalid_kwarg_format(self):
+        """Ensures get_rect detects invalid kwarg formats."""
+        mask = pygame.mask.Mask((3, 11))
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(right='1')  # Wrong type.
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(bottom=(1,))  # Wrong type.
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(centerx=(1, 1))  # Wrong type.
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(midleft=(1, '1'))  # Wrong type.
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(topright=(1,))  # Too few.
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(bottomleft=(1, 2, 3))  # Too many.
+
+        with self.assertRaises(TypeError):
+            rect = mask.get_rect(midbottom=1)  # Wrong type.
 
     def test_get_at(self):
         """Ensure individual mask bits are correctly retrieved."""
@@ -480,8 +590,8 @@ class MaskTypeTest(unittest.TestCase):
         mask2_size = mask2.get_size()
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         for offset in self.ORIGIN_OFFSETS:
             msg = 'offset={}'.format(offset)
@@ -623,8 +733,8 @@ class MaskTypeTest(unittest.TestCase):
         expected_mask = pygame.Mask(mask1_size)
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         for offset in self.ORIGIN_OFFSETS:
             msg = 'offset={}'.format(offset)
@@ -655,13 +765,11 @@ class MaskTypeTest(unittest.TestCase):
         """
         mask1 = pygame.mask.Mask((65, 5), fill=True)
         mask2 = pygame.mask.Mask((33, 3), fill=True)
-        mask1_size = mask1.get_size()
-        mask2_size = mask2.get_size()
-        expected_mask = pygame.Mask(mask1_size)
+        expected_mask = pygame.Mask(mask1.get_size())
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         # This rect's corners are used to move rect2 around the inside of
         # rect1.
@@ -909,13 +1017,12 @@ class MaskTypeTest(unittest.TestCase):
         mask1 = pygame.mask.Mask((65, 3))
         mask2 = pygame.mask.Mask((66, 4), fill=True)
         mask2_count = mask2.count()
-        mask1_size = mask1.get_size()
         mask2_size = mask2.get_size()
-        expected_mask = pygame.Mask(mask1_size)
+        expected_mask = pygame.Mask(mask1.get_size())
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         for offset in self.ORIGIN_OFFSETS:
             msg = 'offset={}'.format(offset)
@@ -948,13 +1055,11 @@ class MaskTypeTest(unittest.TestCase):
         """
         mask1 = pygame.mask.Mask((65, 5))
         mask2 = pygame.mask.Mask((33, 3), fill=True)
-        mask1_size = mask1.get_size()
-        mask2_size = mask2.get_size()
-        expected_mask = pygame.Mask(mask1_size)
+        expected_mask = pygame.Mask(mask1.get_size())
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         # This rect's corners are used to move rect2 around the inside of
         # rect1.
@@ -1062,13 +1167,12 @@ class MaskTypeTest(unittest.TestCase):
         mask1 = pygame.mask.Mask((65, 3))
         mask2 = pygame.mask.Mask((66, 4), fill=True)
         mask2_count = mask2.count()
-        mask1_size = mask1.get_size()
         mask2_size = mask2.get_size()
-        expected_mask = pygame.Mask(mask1_size)
+        expected_mask = pygame.Mask(mask1.get_size())
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         for offset in self.ORIGIN_OFFSETS:
             msg = 'offset={}'.format(offset)
@@ -1101,13 +1205,11 @@ class MaskTypeTest(unittest.TestCase):
         """
         mask1 = pygame.mask.Mask((65, 5))
         mask2 = pygame.mask.Mask((33, 3), fill=True)
-        mask1_size = mask1.get_size()
-        mask2_size = mask2.get_size()
-        expected_mask = pygame.Mask(mask1_size)
+        expected_mask = pygame.Mask(mask1.get_size())
 
         # Using rects to help determine the overlapping area.
-        rect1 = pygame.Rect((0, 0), mask1_size)
-        rect2 = pygame.Rect((0, 0), mask2_size)
+        rect1 = mask1.get_rect()
+        rect2 = mask2.get_rect()
 
         # This rect's corners are used to move rect2 around the inside of
         # rect1.
@@ -1943,6 +2045,16 @@ class MaskTypeTest(unittest.TestCase):
 
             self.assertEqual(size, expected_size)
 
+    def test_zero_mask_get_rect(self):
+        """Ensures get_rect correctly handles zero sized masks."""
+        for expected_size in ((4, 0), (0, 4), (0, 0)):
+            expected_rect = pygame.Rect((0, 0), expected_size)
+            mask = pygame.mask.Mask(expected_size)
+
+            rect = mask.get_rect()
+
+            self.assertEqual(rect, expected_rect)
+
     def test_zero_mask_get_at(self):
         """Ensures get_at correctly handles zero sized masks."""
         for size in ((51, 0), (0, 50), (0, 0)):
@@ -2267,6 +2379,15 @@ class MaskSubclassTest(unittest.TestCase):
         size = mask.get_size()
 
         self.assertEqual(size, expected_size)
+
+    def test_subclass_mask_get_rect(self):
+        """Ensures get_rect works for subclassed Masks."""
+        expected_rect = pygame.Rect((0, 0), (65, 33))
+        mask = SubMask(expected_rect.size, fill=True)
+
+        rect = mask.get_rect()
+
+        self.assertEqual(rect, expected_rect)
 
     def test_subclass_get_at(self):
         """Ensures get_at works for subclassed Masks."""

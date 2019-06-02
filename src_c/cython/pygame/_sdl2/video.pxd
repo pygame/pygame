@@ -7,10 +7,29 @@ cdef extern from "SDL.h" nogil:
     ctypedef struct SDL_Window
     ctypedef struct SDL_Texture
     ctypedef struct SDL_Renderer
-    ctypedef struct SDL_Surface
     ctypedef struct SDL_Rect:
         int x, y
         int w, h
+
+    ctypedef enum SDL_PixelFormatEnum:
+        SDL_PIXELFORMAT_UNKNOWN
+
+    int SDL_BITSPERPIXEL(Uint32 format)
+
+    ctypedef struct SDL_PixelFormat:
+        Uint32 format
+
+    ctypedef struct SDL_Surface:
+        Uint32 flags
+        SDL_PixelFormat *format
+        int w,h
+        int pitch
+        void* pixels
+        void *userdata
+        int locked
+        void *lock_data
+        SDL_Rect clip_rect
+
     ctypedef struct SDL_Point:
         int x, y
     ctypedef enum SDL_RendererFlip:
@@ -278,7 +297,52 @@ cdef extern from "SDL.h" nogil:
                                Uint8        g,
                                Uint8        b)
 
-cdef extern from "../pygame.h" nogil:
+    # https://wiki.libsdl.org/SDL_UpdateTexture
+    int SDL_UpdateTexture(SDL_Texture*    texture,
+                          const SDL_Rect* rect,
+                          const void*     pixels,
+                          int             pitch)
+    # https://wiki.libsdl.org/SDL_RenderReadPixels
+    int SDL_RenderReadPixels(SDL_Renderer*   renderer,
+                             const SDL_Rect* rect,
+                             Uint32          format,
+                             void*           pixels,
+                             int             pitch)
+    # https://wiki.libsdl.org/SDL_QueryTexture
+    int SDL_QueryTexture(SDL_Texture* texture,
+                         Uint32*      format,
+                         int*         access,
+                         int*         w,
+                         int*         h)
+    # https://wiki.libsdl.org/SDL_GetRenderTarget
+    SDL_Texture* SDL_GetRenderTarget(SDL_Renderer* renderer)
+    # https://wiki.libsdl.org/SDL_CreateRGBSurfaceWithFormat
+    SDL_Surface* SDL_CreateRGBSurfaceWithFormat(Uint32 flags,
+                                            int    width,
+                                            int    height,
+                                            int    depth,
+                                            Uint32 format)
+    # https://wiki.libsdl.org/SDL_RenderDrawLine
+    # https://wiki.libsdl.org/SDL_RenderDrawPoint
+    # https://wiki.libsdl.org/SDL_RenderDrawRect
+    # https://wiki.libsdl.org/SDL_RenderFillRect
+    int SDL_RenderDrawLine(SDL_Renderer* renderer,
+                           int x1,
+                           int y1,
+                           int x2,
+                           int y2)
+    int SDL_RenderDrawPoint(SDL_Renderer* renderer,
+                           int x,
+                           int y)
+
+    int SDL_RenderDrawRect(SDL_Renderer* renderer,
+                           const SDL_Rect* rect)
+
+    int SDL_RenderFillRect(SDL_Renderer*   renderer,
+                           const SDL_Rect* rect)
+
+
+cdef extern from "pygame.h" nogil:
     ctypedef class pygame.Color [object pgColorObject]:
         cdef Uint8 data[4]
         cdef Uint8 len
@@ -287,6 +351,7 @@ cdef extern from "../pygame.h" nogil:
         cdef SDL_Rect r
         cdef object weakreflist
 
+
 cdef class Window:
     cdef SDL_Window* _win
 
@@ -294,6 +359,7 @@ cdef class Renderer:
     cdef SDL_Renderer* _renderer
     cdef Color _draw_color
     cdef Texture _target
+    cdef Window _win
 
 cdef class Texture:
     cdef SDL_Texture* _tex

@@ -2,7 +2,7 @@ import pygame
 
 
 if pygame.get_sdl_version()[0] < 2:
-    raise SystemExit('This example requires pygame 2 and SDL2.')
+    raise SystemExit('This example requires pygame 2 and SDL2. _sdl2 is experimental and will change.')
 
 import os
 data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0],
@@ -60,7 +60,15 @@ del tex2
 
 full = 0
 
-tex = Image(tex, (0, 0, tex.width, tex.height))
+tex = Image(tex)
+
+
+from pygame.time import get_ticks
+surf = pygame.Surface((64, 64))
+streamtex = Texture(renderer, (64, 64), streaming=True)
+tex_update_interval = 1000
+next_tex_update = get_ticks()
+
 
 while running:
     for event in pygame.event.get():
@@ -88,12 +96,48 @@ while running:
                 else:
                     win.set_windowed()
                     full = 0
+            elif event.key == pygame.K_s:
+                readsurf = renderer.to_surface()
+                pygame.image.save(readsurf, "test.png")
+
             elif event.key == pygame.K_SPACE:
                 bg_index = (bg_index + 1) % len(backgrounds)
                 renderer.draw_color = backgrounds[bg_index]
 
     renderer.clear()
+
+    # update texture
+    curtime = get_ticks()
+    if curtime >= next_tex_update:
+        for x_ in range(streamtex.width // 4):
+            for y_ in range(streamtex.height // 4):
+                newcol = random.randint(0, 255), \
+                         random.randint(0, 255), \
+                         random.randint(0, 255), \
+                         255
+                area = (4*x_, 4*y_, 4, 4)
+                surf.fill(newcol, area)
+        streamtex.update(surf)
+        next_tex_update = curtime + tex_update_interval
+    streamtex.draw(dstrect=pygame.Rect(64, 128, 64, 64))
+
     tex.draw(dstrect=(x, y))
+
+    #TODO: should these be?
+    # - line instead of draw_line
+    # - point instead of draw_point
+    # - rect(rect, width=1)->draw 1 pixel, instead of draw_rect
+    # - rect(rect, width=0)->filled ? , instead of fill_rect
+    #
+    # TODO: should these work with pygame.draw.line(renderer, ...) functions?
+    renderer.draw_color = (255,255,255, 255)
+    renderer.draw_line((0,0), (64,64))
+    renderer.draw_line((64,64), (128,0))
+    renderer.draw_point((72,32))
+    renderer.draw_rect(pygame.Rect(0, 64, 64, 64))
+    renderer.fill_rect(pygame.Rect(0, 128, 64, 64))
+    renderer.draw_color = backgrounds[bg_index]
+
     renderer.present()
 
     clock.tick(60)

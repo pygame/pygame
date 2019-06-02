@@ -41,7 +41,7 @@ main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 
 TAG_PAT = r'-?[a-zA-Z0-9_]+'
 TAG_RE = re.compile(TAG_PAT)
-EXCLUDE_RE = re.compile("(%s,?\s*)+$" % (TAG_PAT,))
+EXCLUDE_RE = re.compile(r"(%s,?\s*)+$" % (TAG_PAT,))
 
 def exclude_callback(option, opt, value, parser):
     if EXCLUDE_RE.match(value) is None:

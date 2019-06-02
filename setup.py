@@ -88,14 +88,76 @@ if "-warnings" in sys.argv:
     sys.argv.remove ("-warnings")
 
 if 'cython' in sys.argv:
+    # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
-        from Cython.Build import cythonize
+        from Cython.Build.Dependencies import cythonize_one
     except ImportError:
         print("You need cython. https://cython.org/, pip install cython --user")
+        sys.exit(1)
 
-    cythonize(["src_c/_sdl2/*.pyx", "src_c/pypm.pyx", "src_c/_sprite.pyx"],
-              include_path=["src_c/_sdl2", "src_c"])
+    from Cython.Build.Dependencies import create_extension_list
+    from Cython.Build.Dependencies import create_dependency_tree
+
+    try:
+        from Cython.Compiler.Main import Context
+        from Cython.Compiler.Options import CompilationOptions, default_options
+
+        c_options = CompilationOptions(default_options)
+        ctx = Context.from_options(c_options)
+    except ImportError:
+        from Cython.Compiler.Main import Context, CompilationOptions, default_options
+
+        c_options = CompilationOptions(default_options)
+        ctx = c_options.create_context()
+
+    import glob
+    pyx_files = glob.glob(os.path.join('src_c', 'cython', 'pygame', '*.pyx')) + \
+                glob.glob(os.path.join('src_c', 'cython', 'pygame', '**', '*.pyx'))
+
+    pyx_files, pyx_meta = create_extension_list(pyx_files, ctx=ctx)
+    deps = create_dependency_tree(ctx)
+
+    queue = []
+
+    for ext in pyx_files:
+        pyx_file = ext.sources[0] # TODO: check all sources, extension
+
+        c_file = os.path.splitext(pyx_file)[0].split(os.path.sep)
+        del c_file[1:3] # output in src_c/
+        c_file = os.path.sep.join(c_file) + '.c'
+
+        # update outdated .c files
+        if os.path.isfile(c_file):
+            c_timestamp = os.path.getmtime(c_file)
+            if c_timestamp < deps.timestamp(pyx_file):
+                dep_timestamp, dep = deps.timestamp(pyx_file), pyx_file
+                priority = 0
+            else:
+                dep_timestamp, dep = deps.newest_dependency(pyx_file)
+                priority = 2 - (dep in deps.immediate_dependencies(pyx_file))
+            if dep_timestamp > c_timestamp:
+                outdated = True
+            else:
+                outdated = False
+        else:
+            outdated = True
+            priority = 0
+        if outdated:
+            print('Compiling {} because it changed.'.format(pyx_file))
+            queue.append((priority, dict( pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
+                                          options=c_options, full_module_name=ext.name,
+                                          embedded_metadata=pyx_meta.get(ext.name) )))
+
+    # compile in right order
+    queue.sort(key=lambda a: a[0])
+    queue = [pair[1] for pair in queue]
+
+    count = len(queue)
+    for i, kwargs in enumerate(queue):
+        kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
+        cythonize_one(**kwargs)
+
     sys.argv.remove('cython')
 
 AUTO_CONFIG = False
@@ -337,16 +399,16 @@ add_datafiles(data_files, 'pygame/docs',
 #generate the version module
 def parse_version(ver):
     from re import findall
-    return ', '.join(s for s in findall('\d+', ver)[0:3])
+    return ', '.join(s for s in findall(r'\d+', ver)[0:3])
 
 def parse_source_version():
     pgh_major = -1
     pgh_minor = -1
     pgh_patch = -1
     import re
-    major_exp_search = re.compile('define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
-    minor_exp_search = re.compile('define\s+PG_MINOR_VERSION\s+([0-9]+)').search
-    patch_exp_search = re.compile('define\s+PG_PATCH_VERSION\s+([0-9]+)').search
+    major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
+    minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
+    patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
     pg_header = os.path.join('src_c', 'include', '_pygame.h')
     with open(pg_header) as f:
         for line in f:
