@@ -8,16 +8,20 @@
 
 | :sl:`pygame constants`
 
-This module contains various constants used by pygame. It's contents are
+This module contains various constants used by pygame. Its contents are
 automatically placed in the pygame module namespace. However, an application
-can use :mod:`pygame.locals` to include only the pygame constants with a 'from
-:mod:`pygame.locals` import \*'.
+can use ``pygame.locals`` to include only the pygame constants with a ``from
+pygame.locals import *``.
 
-Detailed descriptions of the various constants are found throughout the pygame
-documentation. :func:`pygame.display.set_mode` flags like ``HWSURFACE`` are
-found in the Display section. Event types are explained in the Event section.
-Keyboard ``K_`` constants relating to the key attribute of a ``KEYDOWN`` or
-``KEYUP`` event are listed in the Key section. Also found there are the various
-``MOD_`` key modifiers. Finally, ``TIMER_RESOLUTION`` is defined in Time.
+Detailed descriptions of the various constants can be found throughout the
+pygame documentation. Here are the locations of some of them.
+
+   - The :mod:`pygame.display` module contains flags like ``HWSURFACE`` used by
+     :func:`pygame.display.set_mode`.
+   - The :mod:`pygame.event` module contains the various event types.
+   - The :mod:`pygame.key` module lists the keyboard constants and modifiers
+     (``K_``\* and ``MOD_``\*) relating to the ``key`` and ``mod`` attributes of
+     the ``KEYDOWN`` and ``KEYUP`` events.
+   - The :mod:`pygame.time` module defines ``TIMER_RESOLUTION``.
 
 .. ## pygame.locals ##
