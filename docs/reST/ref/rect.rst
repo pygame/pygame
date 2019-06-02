@@ -67,11 +67,12 @@
    rect1.bottom=rect2.top), the two meet exactly on the screen but do not
    overlap, and ``rect1.colliderect(rect2)`` returns false.
 
-   The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
-   will recognize this and return instances of the subclass.
-   However, the subclass's ``__init__()`` method is not called,
-   and ``__new__()`` is assumed to take no arguments. So these methods should be
-   overridden if any extra attributes need to be copied. New in pygame 1.9.2.
+   .. versionadded:: 1.9.2
+      The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
+      will recognize this and return instances of the subclass.
+      However, the subclass's ``__init__()`` method is not called,
+      and ``__new__()`` is assumed to take no arguments. So these methods should be
+      overridden if any extra attributes need to be copied.
 
    .. method:: copy
 

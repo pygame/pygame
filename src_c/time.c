@@ -34,7 +34,7 @@
 #define pgNUMEVENTS SDL_NUMEVENTS
 #endif /* IS_SDLv1 */
 
-static SDL_TimerID event_timers[pgNUMEVENTS] = {NULL};
+static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
 
 #if IS_SDLv2
 static size_t
@@ -349,14 +349,14 @@ clock_get_fps(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-clock_get_time(PyObject *self)
+clock_get_time(PyObject *self, PyObject *args)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyInt_FromLong(_clock->timepassed);
 }
 
 static PyObject *
-clock_get_rawtime(PyObject *self)
+clock_get_rawtime(PyObject *self, PyObject *args)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     return PyInt_FromLong(_clock->rawpassed);
@@ -366,9 +366,9 @@ clock_get_rawtime(PyObject *self)
 
 static struct PyMethodDef clock_methods[] = {
     {"tick", clock_tick, METH_VARARGS, DOC_CLOCKTICK},
-    {"get_fps", (PyCFunction)clock_get_fps, METH_NOARGS, DOC_CLOCKGETFPS},
-    {"get_time", (PyCFunction)clock_get_time, METH_NOARGS, DOC_CLOCKGETTIME},
-    {"get_rawtime", (PyCFunction)clock_get_rawtime, METH_NOARGS,
+    {"get_fps", clock_get_fps, METH_NOARGS, DOC_CLOCKGETFPS},
+    {"get_time", clock_get_time, METH_NOARGS, DOC_CLOCKGETTIME},
+    {"get_rawtime", clock_get_rawtime, METH_NOARGS,
      DOC_CLOCKGETRAWTIME},
     {"tick_busy_loop", clock_tick_busy_loop, METH_VARARGS,
      DOC_CLOCKTICKBUSYLOOP},

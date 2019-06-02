@@ -12,10 +12,27 @@ class FasteventModuleTest(unittest.TestCase):
         pygame.display.init()
         fastevent.init()
         event.clear()
-        self.assert_(not event.get())
 
     def tearDown(self):
+        # fastevent.quit()  # Does not exist!
         pygame.display.quit()
+
+    def test_init(self):
+        # Test if module initialized after multiple init() calls.
+        fastevent.init()
+        fastevent.init()
+
+        self.assertTrue(fastevent.get_init())
+
+    def test_auto_quit(self):
+        # Test if module uninitialized after calling pygame.quit().
+        pygame.quit()
+
+        self.assertFalse(fastevent.get_init())
+
+    def test_get_init(self):
+        # Test if get_init() gets the init state.
+        self.assertTrue(fastevent.get_init())
 
     def test_get(self):
         # __doc__ (as of 2008-08-02) for pygame.fastevent.get:
@@ -26,18 +43,9 @@ class FasteventModuleTest(unittest.TestCase):
         for _ in range(1, 11):
             event.post(event.Event(pygame.USEREVENT))
 
-        self.assertEquals (
-            [e.type for e in fastevent.get()], [pygame.USEREVENT] * 10,
-            race_condition_notification
-        )
-
-    def todo_test_init(self):
-        # __doc__ (as of 2008-08-02) for pygame.fastevent.init:
-
-          # pygame.fastevent.init() -> None
-          # initialize pygame.fastevent.
-
-        self.fail()
+        self.assertListEqual([e.type for e in fastevent.get()],
+                             [pygame.USEREVENT] * 10,
+                             race_condition_notification)
 
     def test_poll(self):
 
@@ -49,9 +57,8 @@ class FasteventModuleTest(unittest.TestCase):
           # Returns next event on queue. If there is no event waiting on the
           # queue, this will return an event with type NOEVENT.
 
-        self.assertEquals (
-            fastevent.poll().type, pygame.NOEVENT, race_condition_notification
-        )
+        self.assertEqual(fastevent.poll().type, pygame.NOEVENT,
+                         race_condition_notification)
 
     def test_post(self):
 
@@ -76,10 +83,9 @@ class FasteventModuleTest(unittest.TestCase):
         for _ in range(1, 11):
             fastevent.post(event.Event(pygame.USEREVENT))
 
-        self.assertEquals (
-            [e.type for e in event.get()], [pygame.USEREVENT] * 10,
-            race_condition_notification
-        )
+        self.assertListEqual([e.type for e in event.get()],
+                             [pygame.USEREVENT] * 10,
+                             race_condition_notification)
 
         try:
             # Special case for post: METH_O.
@@ -91,6 +97,16 @@ class FasteventModuleTest(unittest.TestCase):
             self.assertEqual(str(e), msg)
         else:
             self.fail()
+
+    def test_post__clear(self):
+        """Ensure posted events can be cleared."""
+        for _ in range(10):
+            fastevent.post(event.Event(pygame.USEREVENT))
+
+        event.clear()
+
+        self.assertListEqual(fastevent.get(), [])
+        self.assertListEqual(event.get(), [])
 
     def todo_test_pump(self):
 
@@ -126,7 +142,7 @@ class FasteventModuleTest(unittest.TestCase):
           # when the user isn't doing anything with it.
 
         event.post(pygame.event.Event(1))
-        self.assertEquals(fastevent.wait().type, 1, race_condition_notification)
+        self.assertEqual(fastevent.wait().type, 1, race_condition_notification)
 
 ################################################################################
 

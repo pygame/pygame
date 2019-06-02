@@ -13,11 +13,14 @@ from . import import_submodule
 class PygameTestLoader(unittest.TestLoader):
     def __init__(self, randomize_tests=False, include_incomplete=False,
                  exclude=('interactive',)):
+        super(PygameTestLoader, self).__init__()
         self.randomize_tests = randomize_tests
+
         if exclude is None:
             self.exclude = set()
         else:
             self.exclude = set(exclude)
+
         if include_incomplete:
             self.testMethodPrefix = ('test', 'todo_')
 

@@ -233,16 +233,16 @@ typedef struct {
     FT_UInt resolution;
 } _FreeTypeState;
 
-#ifdef IS_PYTHON_3
+#if PY3 && !defined(PYPY_VERSION)
     extern struct PyModuleDef _freetypemodule;
 #   define FREETYPE_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
 #   define FREETYPE_STATE \
     FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
-#else
+#else /* !PY3 || defined(PYPY_VERSION) */
     extern _FreeTypeState _modstate;
 #   define FREETYPE_MOD_STATE(mod) (&_modstate)
 #   define FREETYPE_STATE FREETYPE_MOD_STATE(0)
-#endif
+#endif /* !PY3 || defined(PYPY_VERSION) */
 
 #define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
     ft_ptr = FREETYPE_STATE->freetype;                          \
@@ -284,6 +284,7 @@ int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
 #ifdef HAVE_PYGAME_SDL_RWOPS
 int _PGFT_TryLoadFont_RWops(FreeTypeInstance *,
                             pgFontObject *, SDL_RWops *, long);
+SDL_RWops* _PGFT_GetRWops(pgFontObject *fontobj);
 #endif
 void _PGFT_UnloadFont(FreeTypeInstance *, pgFontObject *);
 

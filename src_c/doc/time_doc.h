@@ -1,26 +1,15 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMETIME "pygame module for monitoring time"
-
 #define DOC_PYGAMETIMEGETTICKS "get_ticks() -> milliseconds\nget the time in milliseconds"
-
 #define DOC_PYGAMETIMEWAIT "wait(milliseconds) -> time\npause the program for an amount of time"
-
 #define DOC_PYGAMETIMEDELAY "delay(milliseconds) -> time\npause the program for an amount of time"
-
 #define DOC_PYGAMETIMESETTIMER "set_timer(eventid, milliseconds) -> None\nrepeatedly create an event on the event queue"
-
 #define DOC_PYGAMETIMECLOCK "Clock() -> Clock\ncreate an object to help track time"
-
 #define DOC_CLOCKTICK "tick(framerate=0) -> milliseconds\nupdate the clock"
-
 #define DOC_CLOCKTICKBUSYLOOP "tick_busy_loop(framerate=0) -> milliseconds\nupdate the clock"
-
 #define DOC_CLOCKGETTIME "get_time() -> milliseconds\ntime used in the previous tick"
-
 #define DOC_CLOCKGETRAWTIME "get_rawtime() -> milliseconds\nactual time used in the previous tick"
-
 #define DOC_CLOCKGETFPS "get_fps() -> float\ncompute the clock framerate"
-
 
 
 /* Docs in a comment... slightly easier to read. */

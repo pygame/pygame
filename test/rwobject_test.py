@@ -9,15 +9,21 @@ class RWopsEncodeStringTest(unittest.TestCase):
     global getrefcount
 
     def test_obj_None(self):
-        self.assert_(encode_string(None) is None)
+        encoded_string = encode_string(None)
+
+        self.assertIsNone(encoded_string)
 
     def test_returns_bytes(self):
         u = as_unicode(r"Hello")
-        self.assert_(isinstance(encode_string(u), bytes_))
+        encoded_string = encode_string(u)
+
+        self.assertIsInstance(encoded_string, bytes_)
 
     def test_obj_bytes(self):
         b = as_bytes("encyclop\xE6dia")
-        self.assert_(encode_string(b, 'ascii', 'strict') is b)
+        encoded_string = encode_string(b, 'ascii', 'strict')
+
+        self.assertIs(encoded_string, b)
 
     def test_encode_unicode(self):
         u = as_unicode(r"\u00DEe Olde Komp\u00FCter Shoppe")
@@ -35,12 +41,16 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_encoding_error(self):
         u = as_unicode(r"a\x80b")
-        self.assert_(encode_string(u, 'ascii', 'strict') is None)
+        encoded_string = encode_string(u, 'ascii', 'strict')
+
+        self.assertIsNone(encoded_string)
 
     def test_check_defaults(self):
         u = as_unicode(r"a\u01F7b")
         b = u.encode("unicode_escape", "backslashreplace")
-        self.assert_(encode_string(u) == b)
+        encoded_string = encode_string(u)
+
+        self.assertEqual(encoded_string, b)
 
     def test_etype(self):
         u = as_unicode(r"a\x80b")
@@ -49,9 +59,11 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_string_with_null_bytes(self):
         b = as_bytes("a\x00b\x00c")
-        self.assert_(encode_string(b, etype=SyntaxError) is b)
-        u = b.decode()
-        self.assert_(encode_string(u, 'ascii', 'strict') == b)
+        encoded_string = encode_string(b, etype=SyntaxError)
+        encoded_decode_string = encode_string(b.decode(), 'ascii', 'strict')
+
+        self.assertIs(encoded_string, b)
+        self.assertEqual(encoded_decode_string, b)
 
     try:
         from sys import getrefcount as _g
@@ -84,14 +96,18 @@ class RWopsEncodeFilePathTest(unittest.TestCase):
     # RWopsEncodeString
     def test_encoding(self):
         u = as_unicode(r"Hello")
-        self.assert_(isinstance(encode_file_path(u), bytes_))
+        encoded_file_path = encode_file_path(u)
+
+        self.assertIsInstance(encoded_file_path, bytes_)
 
     def test_error_fowarding(self):
         self.assertRaises(SyntaxError, encode_file_path)
 
     def test_path_with_null_bytes(self):
         b = as_bytes("a\x00b\x00c")
-        self.assert_(encode_file_path(b) is None)
+        encoded_file_path = encode_file_path(b)
+
+        self.assertIsNone(encoded_file_path)
 
     def test_etype(self):
         b = as_bytes("a\x00b\x00c")

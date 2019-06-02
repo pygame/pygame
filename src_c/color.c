@@ -45,13 +45,6 @@
 
 #include <ctype.h>
 
-typedef struct {
-    PyObject_HEAD
-        /* RGBA */
-        Uint8 data[4];
-    Uint8 len;
-} pgColorObject;
-
 typedef enum { TRISTATE_SUCCESS, TRISTATE_FAIL, TRISTATE_ERROR } tristate;
 
 static PyObject *_COLORDICT = NULL;
@@ -81,7 +74,7 @@ _color_dealloc(pgColorObject *);
 static PyObject *
 _color_repr(pgColorObject *);
 static PyObject *
-_color_normalize(pgColorObject *);
+_color_normalize(pgColorObject *, PyObject *);
 static PyObject *
 _color_correct_gamma(pgColorObject *, PyObject *);
 static PyObject *
@@ -163,6 +156,8 @@ _color_slice(register pgColorObject *, register Py_ssize_t,
 /* Mapping protocol methods. */
 static PyObject *
 _color_subscript(pgColorObject *, PyObject *);
+static int
+_color_set_slice(pgColorObject *, PyObject *, PyObject *);
 
 /* Comparison */
 static PyObject *
@@ -283,7 +278,10 @@ static PySequenceMethods _color_as_sequence = {
 };
 
 static PyMappingMethods _color_as_mapping = {
-    (lenfunc)_color_length, (binaryfunc)_color_subscript, NULL};
+    (lenfunc)_color_length,
+    (binaryfunc)_color_subscript,
+    (objobjargproc)_color_set_slice
+};
 
 #if PG_ENABLE_NEWBUF
 static PyBufferProcs _color_as_buffer = {
@@ -392,7 +390,7 @@ _get_color(PyObject *val, Uint32 *color)
 #if !PY3
     if (PyInt_Check(val)) {
         long intval = PyInt_AsLong(val);
-        if (intval == -1 && PyErr_Occurred()) {
+        if ((intval == -1 && PyErr_Occurred()) || (intval > 0xFFFFFFFF)) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
@@ -402,7 +400,7 @@ _get_color(PyObject *val, Uint32 *color)
 #endif
     if (PyLong_Check(val)) {
         unsigned long longval = PyLong_AsUnsignedLong(val);
-        if (PyErr_Occurred()) {
+        if (PyErr_Occurred() || (longval > 0xFFFFFFFF)) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
@@ -712,21 +710,23 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
         }
     }
     else if (!obj1) {
-        /* Single integer color value or tuple */
-        Uint32 color;
-        if (_get_color(obj, &color)) {
-            rgba[0] = (Uint8)(color >> 24);
-            rgba[1] = (Uint8)(color >> 16);
-            rgba[2] = (Uint8)(color >> 8);
-            rgba[3] = (Uint8)color;
-        }
-        else if (!pg_RGBAFromObj(obj, rgba)) {
-            RAISE(PyExc_ValueError, "invalid argument");
-            return -1;
-        }
-        else {
-            RAISE(PyExc_ValueError, "invalid argument");
-            return -1;
+        /* At this point color is either tuple-like or a single integer. */
+
+        if (!pg_RGBAFromObj(obj, rgba)) {
+            /* Color is not tuple-like. */
+            Uint32 color;
+
+            if (_get_color(obj, &color)) {
+                /* Color is a single interger. */
+                rgba[0] = (Uint8)(color >> 24);
+                rgba[1] = (Uint8)(color >> 16);
+                rgba[2] = (Uint8)(color >> 8);
+                rgba[3] = (Uint8)color;
+            }
+            else {
+                /* Exception already set by _get_color(). */
+                return -1;
+            }
         }
     }
     else {
@@ -791,7 +791,7 @@ _color_repr(pgColorObject *color)
  * color.normalize()
  */
 static PyObject *
-_color_normalize(pgColorObject *color)
+_color_normalize(pgColorObject *color, PyObject *args)
 {
     double rgba[4];
     rgba[0] = color->data[0] / 255.0;
@@ -1844,6 +1844,78 @@ _color_slice(register pgColorObject *a, register Py_ssize_t ilow,
     else {
         return Py_BuildValue("()");
     }
+}
+
+static int
+_color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
+{
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError,
+            "Color object doesn't support item deletion");
+        return -1;
+    }
+#if PY2
+    if (PyInt_Check(idx)) {
+        return _color_ass_item(color, PyInt_AS_LONG(idx), val);
+    }
+#endif
+    if (PyLong_Check(idx)) {
+        return _color_ass_item(color, PyLong_AsLong(idx), val);
+    }
+    else if (PySlice_Check(idx)) {
+        Py_ssize_t start, stop, step, slicelength;
+        PyObject *fastitems;
+        int c;
+        Py_ssize_t i, cur;
+
+        if (Slice_GET_INDICES_EX(idx, color->len, &start, &stop, &step,
+                                 &slicelength) < 0) {
+            return -1;
+        }
+        if ((step < 0 && start < stop) || (step > 0 && start > stop))
+            stop = start;
+
+        if (!(fastitems = PySequence_Fast(val, "expected sequence"))) {
+            return -1;
+        }
+        if (PySequence_Fast_GET_SIZE(fastitems) != slicelength) {
+            PyErr_Format(PyExc_ValueError,
+                "attempting to assign sequence of length %d "
+                "to slice of length %d",
+                PySequence_Fast_GET_SIZE(fastitems), slicelength);
+            Py_DECREF(fastitems);
+            return -1;
+        }
+
+        for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+            PyObject *obj = PySequence_Fast_GET_ITEM(fastitems, i);
+            if (PyLong_Check(obj)) {
+                c = PyLong_AsLong(obj);
+            }
+#if PY2
+            else if (PyInt_Check(obj)) {
+                c = PyInt_AS_LONG(obj);
+            }
+#endif /* PY2 */
+            else {
+                PyErr_SetString(PyExc_TypeError, "color components must be integers");
+                Py_DECREF(fastitems);
+                return -1;
+            }
+            if (c < 0 || c > 255) {
+                PyErr_SetString(PyExc_ValueError, "color component must be 0-255");
+                Py_DECREF(fastitems);
+                return -1;
+            }
+            color->data[cur] = (Uint8)c;
+        }
+
+        Py_DECREF(fastitems);
+        return 0;
+    }
+    PyErr_SetString(PyExc_IndexError,
+        "Index must be an integer or slice");
+    return -1;
 }
 
 /*

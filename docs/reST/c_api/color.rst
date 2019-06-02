@@ -11,7 +11,7 @@ src_c/color.c
 
 This extension module defines the Python type :py:class:`pygame.Color`.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 
 .. c:var:: PyTypeObject *pgColor_Type

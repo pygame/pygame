@@ -1,14 +1,9 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEPIXELCOPY "pygame module for general pixel array copying"
-
 #define DOC_PYGAMEPIXELCOPYSURFACETOARRAY "surface_to_array(array, surface, kind='P', opaque=255, clear=0) -> None\ncopy surface pixels to an array object"
-
 #define DOC_PYGAMEPIXELCOPYARRAYTOSURFACE "array_to_surface(<surface>, <array>) -> None\ncopy an array object to a surface"
-
 #define DOC_PYGAMEPIXELCOPYMAPARRAY "map_array(<array>, <array>, <surface>) -> None\ncopy an array to another array, using surface format"
-
 #define DOC_PYGAMEPIXELCOPYMAKESURFACE "pygame.pixelcopy.make_surface(array) -> Surface\nCopy an array to a new surface"
-
 
 
 /* Docs in a comment... slightly easier to read. */

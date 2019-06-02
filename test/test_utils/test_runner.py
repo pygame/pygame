@@ -41,7 +41,7 @@ main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 
 TAG_PAT = r'-?[a-zA-Z0-9_]+'
 TAG_RE = re.compile(TAG_PAT)
-EXCLUDE_RE = re.compile("(%s,?\s*)+$" % (TAG_PAT,))
+EXCLUDE_RE = re.compile(r"(%s,?\s*)+$" % (TAG_PAT,))
 
 def exclude_callback(option, opt, value, parser):
     if EXCLUDE_RE.match(value) is None:
@@ -106,7 +106,7 @@ return (first 10 and last 10 lines):
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
-DOTS = re.compile("^([FE.sx]*)$", re.MULTILINE)
+DOTS = re.compile("^([FE.sux]*)$", re.MULTILINE)
 
 def combine_results(all_results, t):
     """

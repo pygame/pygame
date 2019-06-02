@@ -261,7 +261,9 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
     int pixelsize = surf->format->BytesPerPixel;
 #if IS_SDLv1
     Uint32 flags = surf->flags;
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    SDL_BlendMode mode;
+#endif /* IS_SDLv2 */
     int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
     char *dst = (char *)view_p->buf;
@@ -291,6 +293,12 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
                      intsize);
         return -1;
     }
+#if IS_SDLv2
+    if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+#endif
     /* Select appropriate color plane element within the pixel */
     switch (view_kind) {
         case VIEWKIND_RED:
@@ -346,8 +354,7 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
              (view_kind != VIEWKIND_ALPHA || flags & SDL_SRCALPHA)) {
 #else  /* IS_SDLv2 */
     else if ((view_kind != VIEWKIND_COLORKEY) &&
-             (view_kind != VIEWKIND_ALPHA ||
-              SDL_ISPIXELFORMAT_ALPHA(format->format))) {
+             (view_kind != VIEWKIND_ALPHA || mode != SDL_BLENDMODE_NONE)) {
 #endif /* IS_SDLv2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {

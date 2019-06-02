@@ -130,7 +130,7 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 //#############################################################################
 // Defining the NSApplication class we will use
 //#############################################################################
-@interface SDLApplication : NSApplication
+@interface PYGSDLApplication : NSApplication
 @end
 
 /* For some reaon, Apple removed setAppleMenu from the headers in 10.4,
@@ -140,7 +140,7 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 - (void)setAppleMenu:(NSMenu *)menu;
 @end
 
-@implementation SDLApplication
+@implementation PYGSDLApplication
 /* Invoked from the Quit menu item */
 - (void)terminate:(id)sender
 {
@@ -150,9 +150,9 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 }
 @end
 
-@interface SDLApplicationDelegate : NSObject
+@interface PYGPYGSDLApplicationDelegate : NSObject
 @end
-@implementation SDLApplicationDelegate
+@implementation PYGPYGSDLApplicationDelegate
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
     int posted;
@@ -235,11 +235,11 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 {
     char* icon_data = NULL;
     int data_len = 0;
-    SDLApplicationDelegate *sdlApplicationDelegate = NULL;
+    PYGPYGSDLApplicationDelegate *sdlApplicationDelegate = NULL;
 
     NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
 
-    [SDLApplication sharedApplication];
+    [PYGSDLApplication sharedApplication];
 
     [NSApp setMainMenu:[[NSMenu alloc] init]];
     setApplicationMenu();
@@ -251,8 +251,8 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 
     HasInstalledApplication = 1;
 
-    /* Create SDLApplicationDelegate and make it the app delegate */
-    sdlApplicationDelegate = [[SDLApplicationDelegate alloc] init];
+    /* Create PYGSDLApplicationlicationDelegate and make it the app delegate */
+    sdlApplicationDelegate = [[PYGPYGSDLApplicationDelegate alloc] init];
     [NSApp setDelegate:sdlApplicationDelegate];
 
     _WMEnable(NULL);

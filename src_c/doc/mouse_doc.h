@@ -1,22 +1,13 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEMOUSE "pygame module to work with the mouse"
-
 #define DOC_PYGAMEMOUSEGETPRESSED "get_pressed() -> (button1, button2, button3)\nget the state of the mouse buttons"
-
 #define DOC_PYGAMEMOUSEGETPOS "get_pos() -> (x, y)\nget the mouse cursor position"
-
 #define DOC_PYGAMEMOUSEGETREL "get_rel() -> (x, y)\nget the amount of mouse movement"
-
 #define DOC_PYGAMEMOUSESETPOS "set_pos([x, y]) -> None\nset the mouse cursor position"
-
 #define DOC_PYGAMEMOUSESETVISIBLE "set_visible(bool) -> bool\nhide or show the mouse cursor"
-
 #define DOC_PYGAMEMOUSEGETFOCUSED "get_focused() -> bool\ncheck if the display is receiving mouse input"
-
 #define DOC_PYGAMEMOUSESETCURSOR "set_cursor(size, hotspot, xormasks, andmasks) -> None\nset the image for the system mouse cursor"
-
 #define DOC_PYGAMEMOUSEGETCURSOR "get_cursor() -> (size, hotspot, xormasks, andmasks)\nget the image for the system mouse cursor"
-
 
 
 /* Docs in a comment... slightly easier to read. */

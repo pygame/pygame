@@ -320,6 +320,8 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.init()
 
+        self.assertTrue(pygame.midi.get_init())
+
     def test_midis2events(self):
 
         midi_data = ([[0xc0, 0, 1, 2], 20000],
@@ -329,7 +331,6 @@ class MidiModuleTest(unittest.TestCase):
         self.assertEqual(len(events), 2)
 
         for eve in events:
-            print(eve, type(eve))
             # pygame.event.Event is a function, but ...
             self.assertEqual(eve.__class__.__name__, 'Event')
             self.assertEqual(eve.vice_id, 2)
@@ -350,6 +351,12 @@ class MidiModuleTest(unittest.TestCase):
         pygame.midi.init()
         pygame.midi.quit()
 
+        self.assertFalse(pygame.midi.get_init())
+
+    def test_get_init(self):
+        # Already initialized as pygame.midi.init() was called in setUp().
+        self.assertTrue(pygame.midi.get_init())
+
     def test_time(self):
 
         mtime = pygame.midi.time()
@@ -357,6 +364,22 @@ class MidiModuleTest(unittest.TestCase):
         # should be close to 2-3... since the timer is just init'd.
         self.assertTrue(0 <= mtime < 100)
 
+
+    def test_conversions(self):
+        """ of frequencies to midi note numbers and ansi note names.
+        """
+        from pygame.midi import (
+            frequency_to_midi, midi_to_frequency, midi_to_ansi_note
+        )
+        self.assertEqual(frequency_to_midi(27.5), 21)
+        self.assertEqual(frequency_to_midi(36.7), 26)
+        self.assertEqual(frequency_to_midi(4186.0), 108)
+        self.assertEqual(midi_to_frequency(21), 27.5)
+        self.assertEqual(midi_to_frequency(26), 36.7)
+        self.assertEqual(midi_to_frequency(108), 4186.0)
+        self.assertEqual(midi_to_ansi_note(21), 'A0')
+        self.assertEqual(midi_to_ansi_note(102), 'F#7')
+        self.assertEqual(midi_to_ansi_note(108), 'C8')
 
 if __name__ == '__main__':
     unittest.main()

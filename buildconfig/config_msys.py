@@ -126,7 +126,7 @@ class Dependency:
         libname = self.checklib
         for dir in libdirs:
             path = path_join(dir, libname)
-            if filter(os.path.isfile, glob(path+'*')):
+            if any(map(os.path.isfile, glob(path+'*'))):
                 self.lib_dir = dir
                 return
 

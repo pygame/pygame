@@ -23,7 +23,7 @@
 
    ::
 
-     YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, YVYU_OVERLAY
+     YV12_OVERLAY, IYUV_OVERLAY, YUY2_OVERLAY, UYVY_OVERLAY, YVYU_OVERLAY
 
    The width and height arguments control the size for the overlay image data.
    The overlay image can be displayed at any size, not just the resolution of

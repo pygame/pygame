@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 import sys
 import os
 import unittest
@@ -5,8 +7,11 @@ import platform
 
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
-from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
+from pygame.compat import as_unicode, unicode_, as_bytes, xrange_, filesystem_errors
 from pygame.compat import PY_MAJOR_VERSION
+
+FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
+                       'fixtures', 'fonts')
 
 UCS_4 = sys.maxunicode > 0xFFFF
 
@@ -37,11 +42,17 @@ class FontModuleTest( unittest.TestCase ):
     def test_SysFont(self):
         # Can only check that a font object is returned.
         fonts = pygame_font.get_fonts()
-        o = pygame_font.SysFont(fonts[0], 20)
+        if 'arial' in fonts:
+            # Try to use arial font if it is there, rather than a random font
+            #  which can be different depending on installed fonts on the system.
+            font_name = 'arial'
+        else:
+            font_name = sorted(fonts)[0]
+        o = pygame_font.SysFont(font_name, 20)
         self.assertTrue(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont(fonts[0], 20, italic=True)
+        o = pygame_font.SysFont(font_name, 20, italic=True)
         self.assertTrue(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont(fonts[0], 20, bold=True)
+        o = pygame_font.SysFont(font_name, 20, bold=True)
         self.assertTrue(isinstance(o, pygame_font.FontType))
         o = pygame_font.SysFont('thisisnotafont', 20)
         self.assertTrue(isinstance(o, pygame_font.FontType))
@@ -80,7 +91,9 @@ class FontModuleTest( unittest.TestCase ):
             # note, on ubuntu 2.6 they are all unicode strings.
 
             self.assertTrue(isinstance(name, name_types), name)
-            self.assertTrue(name.islower(), name)
+            # Font names can be comprised of only numeric characters, so
+            # just checking name.islower() will not work as expected here.
+            self.assertFalse(any(c.isupper() for c in name))
             self.assertTrue(name.isalnum(), name)
 
     def test_get_init(self):
@@ -228,27 +241,33 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(None, 20)
         um = f.metrics(as_unicode("."))
         bm = f.metrics(as_bytes("."))
-        self.assert_(len(um) == 1)
-        self.assert_(len(bm) == 1)
-        self.assert_(um[0] is not None)
-        self.assert_(um == bm)
-        u = as_unicode(r"\u212A")
+
+        self.assertEqual(len(um), 1)
+        self.assertEqual(len(bm), 1)
+        self.assertIsNotNone(um[0])
+        self.assertEqual(um, bm)
+
+        u = u"\u212A"
         b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
         bm = f.metrics(b)
-        self.assert_(len(bm) == 2)
+
+        self.assertEqual(len(bm), 2)
+
         try:  # FIXME why do we do this try/except ?
             um = f.metrics(u)
         except pygame.error:
             pass
         else:
-            self.assert_(len(um) == 1)
-            self.assert_(bm[0] != um[0])
-            self.assert_(bm[1] != um[0])
+            self.assertEqual(len(um), 1)
+            self.assertNotEqual(bm[0], um[0])
+            self.assertNotEqual(bm[1], um[0])
 
         if UCS_4:
-            u = as_unicode(r"\U00013000")
+            u = u"\U00013000"
             bm = f.metrics(u)
-            self.assert_(len(bm) == 1 and bm[0] is None)
+
+            self.assertEqual(len(bm), 1)
+            self.assertIsNone(bm[0])
 
         return # unfinished
         # The documentation is useless here. How large a list?
@@ -351,11 +370,14 @@ class FontTypeTest( unittest.TestCase ):
         text = as_unicode("Xg")
         size = f.size(text)
         w, h = size
-        self.assert_(isinstance(w, int) and isinstance(h, int))
         s = f.render(text, False, (255, 255, 255))
-        self.assert_(size == s.get_size())
         btext = text.encode("ascii")
-        self.assert_(f.size(btext) == size)
+
+        self.assertIsInstance(w, int)
+        self.assertIsInstance(h, int)
+        self.assertEqual(s.get_size(), size)
+        self.assertEqual(f.size(btext), size)
+
         text = as_unicode(r"\u212A")
         btext = text.encode("UTF-16")[2:] # Keep the byte order consistent.
         bsize = f.size(btext)
@@ -364,7 +386,7 @@ class FontTypeTest( unittest.TestCase ):
         except pygame.error:
             pass
         else:
-            self.assert_(size != bsize)
+            self.assertNotEqual(size, bsize)
 
     def test_font_file_not_found(self):
         # A per BUG reported by Bo Jangeborg on pygame-user mailing list,
@@ -373,7 +395,7 @@ class FontTypeTest( unittest.TestCase ):
         pygame_font.init()
         self.assertRaises(IOError,
                           pygame_font.Font,
-                          'some-fictional-font.ttf', 20)
+                          unicode_('some-fictional-font.ttf'), 20)
 
     def test_load_from_file(self):
         font_name = pygame_font.get_default_font()
@@ -385,21 +407,36 @@ class FontTypeTest( unittest.TestCase ):
         font_name = pygame_font.get_default_font()
         font_path = os.path.join(os.path.split(pygame.__file__)[0],
                                  pygame_font.get_default_font())
-        f = open(font_path, "rb")
-        font = pygame_font.Font(f, 20)
+        with open(font_path, "rb") as f:
+            font = pygame_font.Font(f, 20)
 
     def test_load_default_font_filename(self):
         # In font_init, a special case is when the filename argument is
         # identical to the default font file name.
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
-    def test_load_from_file_unicode(self):
-        base_dir = os.path.dirname(pygame.__file__)
-        font_path = os.path.join(base_dir, pygame_font.get_default_font())
-        if os.path.sep == '\\':
-            font_path = font_path.replace('\\', '\\\\')
-        ufont_path = as_unicode(font_path)
-        f = pygame_font.Font(ufont_path, 20)
+    def _load_unicode(self, path):
+        import shutil
+        fdir = unicode_(FONTDIR)
+        temp = os.path.join(fdir, path)
+        pgfont = os.path.join(fdir, u'test_sans.ttf')
+        shutil.copy(pgfont, temp)
+        try:
+            with open(temp, 'rb') as f:
+                pass
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
+        try:
+            pygame_font.Font(temp, 20)
+        finally:
+            os.remove(temp)
+
+    def test_load_from_file_unicode_0(self):
+        """ASCII string as a unicode object"""
+        self._load_unicode(u'temp_file.ttf')
+
+    def test_load_from_file_unicode_1(self):
+        self._load_unicode(u'你好.ttf')
 
     def test_load_from_file_bytes(self):
         font_path = os.path.join(os.path.split(pygame.__file__)[0],

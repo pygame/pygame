@@ -11,7 +11,7 @@ src_c/bufferproxy.c
 
 This extension module defines Python type :py:class:`pygame.BufferProxy`.
 
-Header file: src_c/pgbufferproxy.h
+Header file: src_c/include/pygame_bufferproxy.h
 
 
 .. c:var:: PyTypeObject *pgBufproxy_Type

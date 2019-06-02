@@ -45,8 +45,8 @@ static int _scrapinitialized = 0;
  * Currently active Clipboard object.
  */
 static ScrapClipType _currentmode;
-static PyObject *_selectiondata;
-static PyObject *_clipdata;
+static PyObject *_selectiondata = NULL;
+static PyObject *_clipdata = NULL;
 
 /* Forward declarations. */
 static PyObject *
@@ -103,8 +103,13 @@ static PyObject *
 _scrap_init(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
-    _clipdata = PyDict_New();
-    _selectiondata = PyDict_New();
+
+    if (!pygame_scrap_initialized()) {
+        Py_XDECREF(_clipdata);
+        Py_XDECREF(_selectiondata);
+        _clipdata = PyDict_New();
+        _selectiondata = PyDict_New();
+    }
 
     /* In case we've got not video surface, we won't initialize
      * anything.
@@ -117,6 +122,17 @@ _scrap_init(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 #endif
+
+/*
+ * Indicates whether the scrap module is currently initialized.
+ *
+ * Note: All platforms supported here.
+ */
+static PyObject *
+_scrap_get_init(PyObject *self, PyObject *args)
+{
+    return PyBool_FromLong(pygame_scrap_initialized());
+}
 
 #if !defined(MAC_SCRAP)
 /*
@@ -192,7 +208,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
     char *scrap = NULL;
     PyObject *retval;
     char *scrap_type;
-    PyObject *val;
     unsigned long count;
 
     PYGAME_SCRAP_INIT_CHECK();
@@ -201,17 +216,50 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
         return NULL;
 
     if (!pygame_scrap_lost()) {
-        /* We are still the active one. */
+        /* Still own the clipboard. */
+        PyObject *scrap_dict = NULL;
+        PyObject *key = NULL;
+        PyObject *val = NULL;
+
         switch (_currentmode) {
             case SCRAP_SELECTION:
-                val = PyDict_GetItemString(_selectiondata, scrap_type);
+                scrap_dict = _selectiondata;
                 break;
+
             case SCRAP_CLIPBOARD:
             default:
-                val = PyDict_GetItemString(_clipdata, scrap_type);
+                scrap_dict = _clipdata;
                 break;
         }
-        Py_XINCREF(val);
+
+#if PY3
+        key = PyUnicode_FromString(scrap_type);
+        if (NULL == key) {
+            return PyErr_Format(PyExc_ValueError,
+                                "invalid scrap data type identifier (%s)",
+                                scrap_type);
+        }
+
+        val = PyDict_GetItemWithError(scrap_dict, key);
+        Py_DECREF(key);
+
+        if (NULL == val) {
+            if (PyErr_Occurred()) {
+                return PyErr_Format(PyExc_SystemError,
+                                    "pygame.scrap internal error (key=%s)",
+                                    scrap_type);
+            }
+
+            Py_RETURN_NONE;
+        }
+#else  /* !PY3 */
+        val = PyDict_GetItemString(scrap_dict, scrap_type);
+        if (NULL == val) {
+            Py_RETURN_NONE;
+        }
+#endif /* !PY3 */
+
+        Py_INCREF(val);
         return val;
     }
 
@@ -324,6 +372,7 @@ static PyMethodDef scrap_builtins[] = {
      defined(MAC_SCRAP))
 
     {"init", _scrap_init, 1, DOC_PYGAMESCRAPINIT},
+    {"get_init", _scrap_get_init, METH_NOARGS, DOC_PYGAMESCRAPGETINIT},
     {"contains", _scrap_contains, METH_VARARGS, DOC_PYGAMESCRAPCONTAINS},
     {"get", _scrap_get_scrap, METH_VARARGS, DOC_PYGAMESCRAPGET},
     {"get_types", _scrap_get_types, METH_NOARGS, DOC_PYGAMESCRAPGETTYPES},

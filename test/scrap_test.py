@@ -10,130 +10,191 @@ from pygame import scrap
 from pygame.compat import as_bytes
 
 class ScrapModuleTest(unittest.TestCase):
-    not_initialized = True
 
-    def setUp(self):
-        if self.not_initialized:
-            pygame.init ()
-            pygame.display.set_mode ((1, 1))
-            scrap.init ()
-            self.not_initialized = False
+    @classmethod
+    def setUpClass(cls):
+        pygame.display.init()
+        pygame.display.set_mode((1, 1))
+        scrap.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        # scrap.quit()  # Does not exist!
+        pygame.display.quit()
+
+    def test_init(self):
+        """Ensures scrap module still initialized after multiple init calls."""
+        scrap.init()
+        scrap.init()
+
+        self.assertTrue(scrap.get_init())
+
+    def test_init__reinit(self):
+        """Ensures reinitializing the scrap module doesn't clear its data."""
+        data_type = pygame.SCRAP_TEXT
+        expected_data = as_bytes('test_init__reinit')
+        scrap.put(data_type, expected_data)
+
+        scrap.init()
+
+        self.assertEqual(scrap.get(data_type), expected_data)
+
+    def test_get_init(self):
+        """Ensures get_init gets the init state."""
+        self.assertTrue(scrap.get_init())
 
     def todo_test_contains(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.scrap.contains:
-
-          # scrap.contains (type) -> bool
-          # Checks, whether a certain type is available in the clipboard.
-          #
-          # Returns True, if data for the passed type is available in the
-          # clipboard, False otherwise.
-          #
-          #   if pygame.scrap.contains (SCRAP_TEXT):
-          #       print "There is text in the clipboard."
-          #   if pygame.scrap.contains ("own_data_type"):
-          #       print "There is stuff in the clipboard."
-
+        """Ensures contains works as expected."""
         self.fail()
 
     def todo_test_get(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.scrap.get:
-
-          # scrap.get (type) -> string
-          # Gets the data for the specified type from the clipboard.
-          #
-          # Returns the data for the specified type from the clipboard. The data
-          # is returned as string and might need further processing. If no data
-          # for the passed type is available, None is returned.
-          #
-          #   text = pygame.scrap.get (SCRAP_TEXT)
-          #   if text:
-          #       # Do stuff with it.
-          #   else:
-          #       print "There does not seem to be text in the clipboard."
-
+        """Ensures get works as expected."""
         self.fail()
+
+    def test_get__owned_empty_type(self):
+        """Ensures get works when there is no data of the requested type
+        in the clipboard and the clipboard is owned by the pygame application.
+        """
+        # Use a unique data type identifier to ensure there is no preexisting
+        # data.
+        DATA_TYPE = 'test_get__owned_empty_type'
+
+        if scrap.lost():
+            # Try to acquire the clipboard.
+            scrap.put(pygame.SCRAP_TEXT, b'text to clipboard')
+
+            if scrap.lost():
+                self.skipTest('requires the pygame application to own the '
+                              'clipboard')
+
+        data = scrap.get(DATA_TYPE)
+
+        self.assertIsNone(data)
 
     def todo_test_get_types(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.scrap.get_types:
-
-          # scrap.get_types () -> list
-          # Gets a list of the available clipboard types.
-          #
-          # Gets a list of strings with the identifiers for the available
-          # clipboard types. Each identifier can be used in the scrap.get()
-          # method to get the clipboard content of the specific type. If there
-          # is no data in the clipboard, an empty list is returned.
-          #
-          #   types = pygame.scrap.get_types ()
-          #   for t in types:
-          #       if "text" in t:
-          #           # There is some content with the word "text" in it. It's
-          #           # possibly text, so print it.
-          #           print pygame.scrap.get (t)
-
-        self.fail()
-
-    def todo_test_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.scrap.init:
-
-          # scrap.init () -> None
-          # Initializes the scrap module.
-          #
-          # Tries to initialize the scrap module and raises an exception, if it
-          # fails. Note that this module requires a set display surface, so you
-          # have to make sure, you acquired one earlier using
-          # pygame.display.set_mode().
-          #
-
+        """Ensures get_types works as expected."""
         self.fail()
 
     def todo_test_lost(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.scrap.lost:
-
-          # scrap.lost() -> bool
-          # Checks whether the clipboard is currently owned by the application.
-          #
-          # Returns True, if the clipboard is currently owned by the pygame
-          # application, False otherwise.
-          #
-          #   if pygame.scrap.lost ():
-          #      print "No content from me anymore. The clipboard is used by someone else."
-
+        """Ensures lost works as expected."""
         self.fail()
 
-    def test_set_mode (self):
-        scrap.set_mode (pygame.SCRAP_SELECTION)
-        scrap.set_mode (pygame.SCRAP_CLIPBOARD)
-        self.assertRaises (ValueError, scrap.set_mode, 1099)
+    def test_set_mode(self):
+        """Ensures set_mode works as expected."""
+        scrap.set_mode(pygame.SCRAP_SELECTION)
+        scrap.set_mode(pygame.SCRAP_CLIPBOARD)
 
-    def test_scrap_put_text (self):
-        scrap.put (pygame.SCRAP_TEXT, as_bytes("Hello world"))
-        self.assertEquals (scrap.get (pygame.SCRAP_TEXT),
-                           as_bytes("Hello world"))
+        self.assertRaises(ValueError, scrap.set_mode, 1099)
 
-        scrap.put (pygame.SCRAP_TEXT, as_bytes("Another String"))
-        self.assertEquals (scrap.get (pygame.SCRAP_TEXT),
-                           as_bytes("Another String"))
+    def test_put__text(self):
+        """Ensures put can place text into the clipboard."""
+        scrap.put(pygame.SCRAP_TEXT, as_bytes("Hello world"))
 
-    def test_scrap_put_image (self):
-        if 'pygame.image' not in sys.modules:
-            return
-        sf = pygame.image.load (
-            trunk_relative_path("examples/data/asprite.bmp")
-        )
-        string = pygame.image.tostring (sf, "RGBA")
-        scrap.put (pygame.SCRAP_BMP, string)
-        self.assertEquals (scrap.get(pygame.SCRAP_BMP), string)
+        self.assertEqual(scrap.get(pygame.SCRAP_TEXT), as_bytes("Hello world"))
 
-    def test_put (self):
-        scrap.put ("arbitrary buffer", as_bytes("buf"))
-        r = scrap.get ("arbitrary buffer")
-        self.assertEquals (r, as_bytes("buf"))
+        scrap.put(pygame.SCRAP_TEXT, as_bytes("Another String"))
+
+        self.assertEqual(scrap.get(pygame.SCRAP_TEXT),
+                         as_bytes("Another String"))
+
+    @unittest.skipIf('pygame.image' not in sys.modules,
+                     'requires pygame.image module')
+    def test_put__bmp_image(self):
+        """Ensures put can place a BMP image into the clipboard."""
+        sf = pygame.image.load(trunk_relative_path(
+            "examples/data/asprite.bmp"))
+        expected_string = pygame.image.tostring(sf, "RGBA")
+        scrap.put(pygame.SCRAP_BMP, expected_string)
+
+        self.assertEqual(scrap.get(pygame.SCRAP_BMP), expected_string)
+
+    def test_put(self):
+        """Ensures put can place data into the clipboard
+        when using a user defined type identifier.
+        """
+        DATA_TYPE = 'arbitrary buffer'
+
+        scrap.put(DATA_TYPE, as_bytes('buf'))
+        r = scrap.get(DATA_TYPE)
+
+        self.assertEqual(r, as_bytes('buf'))
+
+
+class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
+    """Test the scrap module's functionality when the pygame application is
+    not the current owner of the clipboard.
+
+    A separate class is used to prevent tests that acquire the clipboard from
+    interfering with these tests.
+    """
+    @classmethod
+    def setUpClass(cls):
+        pygame.display.init()
+        pygame.display.set_mode((1, 1))
+        scrap.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        # scrap.quit()  # Does not exist!
+        pygame.quit()
+        pygame.display.quit()
+
+    def _skip_if_clipboard_owned(self):
+        # Skip test if the pygame application owns the clipboard. Currently,
+        # there is no way to give up ownership.
+        if not scrap.lost():
+            self.skipTest('requires the pygame application to not own the '
+                          'clipboard')
+
+    def test_get__not_owned(self):
+        """Ensures get works when there is no data of the requested type
+        in the clipboard and the clipboard is not owned by the pygame
+        application.
+        """
+        self._skip_if_clipboard_owned()
+
+        # Use a unique data type identifier to ensure there is no preexisting
+        # data.
+        DATA_TYPE = 'test_get__not_owned'
+
+        data = scrap.get(DATA_TYPE)
+
+        self.assertIsNone(data)
+
+    def test_get_types__not_owned(self):
+        """Ensures get_types works when the clipboard is not owned
+        by the pygame application.
+        """
+        self._skip_if_clipboard_owned()
+
+        data_types = scrap.get_types()
+
+        self.assertIsInstance(data_types, list)
+
+    def test_contains__not_owned(self):
+        """Ensures contains works when the clipboard is not owned
+        by the pygame application.
+        """
+        self._skip_if_clipboard_owned()
+
+        # Use a unique data type identifier to ensure there is no preexisting
+        # data.
+        DATA_TYPE = 'test_contains__not_owned'
+
+        contains = scrap.contains(DATA_TYPE)
+
+        self.assertFalse(contains)
+
+    def test_lost__not_owned(self):
+        """Ensures lost works when the clipboard is not owned
+        by the pygame application.
+        """
+        self._skip_if_clipboard_owned()
+
+        lost = scrap.lost()
+
+        self.assertTrue(lost)
+
 
 class X11InteractiveTest(unittest.TestCase):
     __tags__ = ['ignore', 'subprocess_ignore']

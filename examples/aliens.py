@@ -178,11 +178,14 @@ class Score(pygame.sprite.Sprite):
 
 def main(winstyle = 0):
     # Initialize pygame
+    if pygame.get_sdl_version()[0] == 2:
+        pygame.mixer.pre_init(44100, 32, 2, 1024)
     pygame.init()
     if pygame.mixer and not pygame.mixer.get_init():
         print ('Warning, no sound')
         pygame.mixer = None
 
+    fullscreen = False
     # Set the display mode
     winstyle = 0  # |FULLSCREEN
     bestdepth = pygame.display.mode_ok(SCREENRECT.size, winstyle, 32)
@@ -256,6 +259,31 @@ def main(winstyle = 0):
             if event.type == QUIT or \
                 (event.type == KEYDOWN and event.key == K_ESCAPE):
                     return
+            elif event.type == KEYDOWN:
+                if event.key == pygame.K_f:
+                    if not fullscreen:
+                        print("Changing to FULLSCREEN")
+                        screen_backup = screen.copy()
+                        screen = pygame.display.set_mode(
+                            SCREENRECT.size,
+                            winstyle | FULLSCREEN,
+                            bestdepth
+                        )
+                        screen.blit(screen_backup, (0, 0))
+                    else:
+                        print("Changing to windowed mode")
+                        screen_backup = screen.copy()
+                        screen = pygame.display.set_mode(
+                            SCREENRECT.size,
+                            winstyle,
+                            bestdepth
+                        )
+                        screen.blit(screen_backup, (0, 0))
+                    # screen.fill((255, 0, 0))
+                    pygame.display.flip()
+                    fullscreen = not fullscreen
+
+
         keystate = pygame.key.get_pressed()
 
         # clear/erase the last drawn sprites

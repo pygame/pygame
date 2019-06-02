@@ -1,8 +1,6 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMETESTS "Pygame unit test suite package"
-
 #define DOC_PYGAMETESTSRUN "run(*args, **kwds) -> tuple\nRun the pygame unit test suite"
-
 
 
 /* Docs in a comment... slightly easier to read. */

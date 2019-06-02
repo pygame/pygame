@@ -409,6 +409,10 @@ dl.definition {
     padding-bottom: 0.7em;
 }
 
+dt.title {
+    font-family: monospace;
+}
+
 dd {
     margin-left: 30px;
 }
@@ -443,6 +447,10 @@ span.summaryline {
 span.signature {
     font-family: {{ theme_sigfont }};
     margin-bottom: 0.5em;
+}
+
+span.pre {
+    font-family: monospace;
 }
 
 table.docutils td.toc {
@@ -534,6 +542,19 @@ div.admonition ul, div.admonition ol {
     margin-bottom: 5px;
 }
 
+dl.definition div.note, dl.definition div.seealso {
+    background: none;
+    border: none;
+}
+
+dl.definition div.admonition {
+    margin-bottom: 0.5em;
+}
+
+dl.definition .admonition-title {
+    font-weight: bold;
+}
+
 div.note {
     background-color: #eee;
     border: 1px solid #ccc;
@@ -546,6 +567,11 @@ div.seealso {
 
 div.topic {
     background-color: #eee;
+}
+
+div.caution {
+    background-color: #eeffcc;
+    border: 1px solid #aabb88;
 }
 
 div.warning {
@@ -601,6 +627,10 @@ ul.simple {
     list-style-type: circle;
     list-style-position: inside;
     margin-bottom: 1em;
+}
+
+.versionmodified {
+    font-style: italic;
 }
 
 /* Top level section title format */

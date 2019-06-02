@@ -22,7 +22,8 @@ class KeyModuleTest(unittest.TestCase):
         stop_time = time.time() + 10.0
         while time.time() < stop_time:
             time.sleep(1)
-        self.assert_(True) 
+        self.assertTrue(True)
+
 
 if __name__ == '__main__':
     unittest.main()

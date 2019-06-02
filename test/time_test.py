@@ -6,8 +6,10 @@ Clock = pygame.time.Clock
 
 class ClockTypeTest(unittest.TestCase):
     def test_construction(self):
+        """Ensure a Clock object can be created"""
         c = Clock()
-        self.assert_(c, "Clock can be constructed")
+
+        self.assertTrue(c, "Clock cannot be constructed")
 
     def todo_test_get_fps(self):
 
@@ -30,7 +32,7 @@ class ClockTypeTest(unittest.TestCase):
         #     c.tick()
         #     time.sleep(delay_per_frame)
         #
-        # self.assert_(99.0 < c.get_fps() < 101.0)
+        # self.assertTrue(99.0 < c.get_fps() < 101.0)
 
     def todo_test_get_rawtime(self):
 
@@ -67,7 +69,7 @@ class ClockTypeTest(unittest.TestCase):
         #
         # time.sleep(0.02)
         #
-        # self.assert_(20 <= c.get_time() <= 30)
+        # self.assertTrue(20 <= c.get_time() <= 30)
 
 
     def todo_test_tick(self):
@@ -106,7 +108,7 @@ class ClockTypeTest(unittest.TestCase):
         # for outlier in [min(collection), max(collection)]:
         #     if outlier != 5: collection.remove(outlier)
         #
-        # self.assert_(sum(collection) / len(collection) == 5)
+        # self.assertEqual(sum(collection) / len(collection), 5)
 
     def todo_test_tick_busy_loop(self):
 

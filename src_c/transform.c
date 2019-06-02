@@ -80,6 +80,33 @@ scale2x(SDL_Surface *src, SDL_Surface *dst);
 extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
+
+#if IS_SDLv2
+static int
+_PgSurface_SrcAlpha(SDL_Surface *surf)
+{
+    if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+        SDL_BlendMode mode;
+        if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+            return -1;
+        }
+        if (mode == SDL_BLENDMODE_BLEND)
+            return 1;
+    }
+    else {
+        Uint8 color = SDL_ALPHA_OPAQUE;
+        if (SDL_GetSurfaceAlphaMod(surf, &color) != 0) {
+            return -1;
+        }
+        if (color != SDL_ALPHA_OPAQUE)
+            return 1;
+    }
+    return 0;
+}
+#endif /* IS_SDLv2 */
+
+
+
 static SDL_Surface *
 newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 {
@@ -87,8 +114,10 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 #if IS_SDLv2
     Uint32 colorkey;
     Uint8 alpha;
-#endif /* IS_SDLv2 */
+    int isalpha;
+#else /* IS_SDLv1 */
     int result;
+#endif /* IS_SDLv1 */
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
@@ -127,6 +156,38 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         }
     }
 
+    if (SDL_GetSurfaceAlphaMod(surf, &alpha) != 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        SDL_FreeSurface(newsurf);
+        return NULL;
+    }
+    if (alpha != 255) {
+        if (SDL_SetSurfaceAlphaMod(newsurf, alpha) != 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
+    }
+
+    isalpha = _PgSurface_SrcAlpha(surf);
+    if (isalpha == 1) {
+        if (SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND) != 0) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
+    } else if (isalpha == -1) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        SDL_FreeSurface(newsurf);
+        return NULL;
+    } else {
+        if (SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE) != 0){
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            SDL_FreeSurface(newsurf);
+            return NULL;
+        }
+    }
+
     if (SDL_GetColorKey(surf, &colorkey) == 0) {
         if (SDL_SetColorKey(newsurf, SDL_TRUE, colorkey) != 0 ||
             SDL_SetSurfaceRLE(newsurf, SDL_TRUE) != 0) {
@@ -136,12 +197,6 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         }
     }
 
-    SDL_GetSurfaceAlphaMod(surf, &alpha);
-    if (SDL_SetSurfaceAlphaMod(newsurf, alpha) != 0) {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        SDL_FreeSurface(newsurf);
-        return NULL;
-    }
 #endif /* IS_SDLv2 */
     return newsurf;
 }
@@ -1427,7 +1482,7 @@ surf_scalesmooth(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_get_smoothscale_backend(PyObject *self)
+surf_get_smoothscale_backend(PyObject *self, PyObject *args)
 {
     return Text_FromUTF8(GETSTATE(self)->filter_type);
 }
@@ -1490,20 +1545,6 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 #endif /* defined(SCALE_MMX_SUPPORT) */
 }
-
-#ifndef PG_INLINE
-#if defined(__clang__)
-#define PG_INLINE __inline__ __attribute__((__unused__))
-#elif defined(__GNUC__)
-#define PG_INLINE __inline__
-#elif defined(_MSC_VER)
-#define PG_INLINE __inline
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#define PG_INLINE inline
-#else
-#define PG_INLINE
-#endif
-#endif
 
 /* _get_color_move_pixels is for iterating over pixels in a Surface.
 
@@ -1584,9 +1625,8 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
               Uint32 color_set_color, int set_behavior,
               SDL_Surface *search_surf, int inverse_set)
 {
-    int x, y, result, similar;
+    int x, y, similar;
     Uint8 *pixels, *destpixels = NULL, *pixels2 = NULL;
-    SDL_Rect sdlrect;
     SDL_PixelFormat *format, *destformat = NULL;
     Uint32 the_color, the_color2, dest_set_color;
     Uint8 search_color_r, search_color_g, search_color_b;
@@ -2587,15 +2627,18 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 
     switch (format->BytesPerPixel) {
         case 1:
-            for (row = y; row < height_and_y; row++) {
-                pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
-                for (col = x; col < width_and_x; col++) {
-                    color = (Uint32) * ((Uint8 *)pixels);
-                    rtot += ((color & rmask) >> rshift) << rloss;
-                    gtot += ((color & gmask) >> gshift) << gloss;
-                    btot += ((color & bmask) >> bshift) << bloss;
-                    atot += ((color & amask) >> ashift) << aloss;
-                    pixels++;
+            {
+                Uint8 color8;
+                for (row = y; row < height_and_y; row++) {
+                    pixels = (Uint8 *)surf->pixels + row * surf->pitch + x;
+                    for (col = x; col < width_and_x; col++) {
+                        color8 = *(Uint8 *)pixels;
+                        rtot += ((color8 & rmask) >> rshift) << rloss;
+                        gtot += ((color8 & gmask) >> gshift) << gloss;
+                        btot += ((color8 & bmask) >> bshift) << bloss;
+                        atot += ((color8 & amask) >> ashift) << aloss;
+                        pixels++;
+                    }
                 }
             }
             break;
@@ -2702,7 +2745,7 @@ static PyMethodDef _transform_methods[] = {
     {"scale2x", surf_scale2x, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE2X},
     {"smoothscale", surf_scalesmooth, METH_VARARGS,
      DOC_PYGAMETRANSFORMSMOOTHSCALE},
-    {"get_smoothscale_backend", (PyCFunction)surf_get_smoothscale_backend,
+    {"get_smoothscale_backend", surf_get_smoothscale_backend,
      METH_NOARGS, DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND},
     {"set_smoothscale_backend", (PyCFunction)surf_set_smoothscale_backend,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND},

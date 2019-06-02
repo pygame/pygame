@@ -101,7 +101,7 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
-                if filter(os.path.isfile, glob(path+'*')):
+                if any(map(os.path.isfile, glob(path+'*'))):
                     self.lib_dir = dir
 
         if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
@@ -109,6 +109,7 @@ class Dependency:
             self.found = 1
         else:
             print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name, self.checkhead, self.checklib, incdirs, libdirs)
 
 
 class DependencyPython:
@@ -150,10 +151,12 @@ def main(sdl2=False):
     if sdl2:
         origincdirs = ['/include', '/include/SDL2']
         origlibdirs = ['/lib','/lib64','/X11R6/lib',
-                       '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu']
+                       '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu',
+                       '/lib/arm-linux-gnueabihf/']
+
     else:
         origincdirs = ['/include', '/include/SDL', '/include/SDL']
-        origlibdirs = ['/lib','/lib64','/X11R6/lib']
+        origlibdirs = ['/lib','/lib64','/X11R6/lib', '/lib/arm-linux-gnueabihf/']
     if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
         origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
 
@@ -231,7 +234,7 @@ def main(sdl2=False):
     DEPS.append(find_freetype())
 
     if not DEPS[0].found:
-        sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
+        raise RuntimeError('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
 
     incdirs = []
     libdirs = []

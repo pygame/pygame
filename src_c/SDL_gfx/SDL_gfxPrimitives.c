@@ -5818,6 +5818,9 @@ void gfxPrimitivesSetFontRotation(Uint32 rotation)
 	}
 }
 
+
+#if 0 /* not used by pygame.gfxdraw */
+
 /*!
 \brief Draw a character of the currently set font.
 
@@ -6076,6 +6079,8 @@ int stringRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, const char *s, Uint8 r, Ui
 	*/
 	return (stringColor(dst, x, y, s, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 }
+
+#endif /* not used by pygame.gfxdraw */
 
 /* ---- Bezier curve */
 

@@ -72,7 +72,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -84,18 +84,13 @@ image_load_basic(PyObject *self, PyObject *arg)
     }
     else {
         Py_DECREF(oencoded);
-        rw = pgRWopsFromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }
-        if (pgRWopsCheckObject(rw)) {
-            surf = SDL_LoadBMP_RW(rw, 1);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            surf = SDL_LoadBMP_RW(rw, 1);
-            Py_END_ALLOW_THREADS;
-        }
+        Py_BEGIN_ALLOW_THREADS;
+        surf = SDL_LoadBMP_RW(rw, 1);
+        Py_END_ALLOW_THREADS;
     }
 
     if (surf == NULL) {
@@ -180,6 +175,12 @@ opengltosdl()
 }
 #endif /* IS_SDLv1 */
 
+#ifdef WIN32
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
+
 PyObject *
 image_save(PyObject *self, PyObject *arg)
 {
@@ -210,9 +211,9 @@ image_save(PyObject *self, PyObject *arg)
     pgSurface_Prep(surfobj);
 #endif /* IS_SDLv2 */
 
-    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
-        SDL_RWops *rw = pgRWopsFromFileObject(obj);
+        SDL_RWops *rw = pgRWops_FromFileObject(obj);
         if (rw != NULL) {
             result = SaveTGA_RW(surf, rw, 1);
         }
@@ -226,27 +227,15 @@ image_save(PyObject *self, PyObject *arg)
         int written = 0;
 
         if (namelen > 3) {
-            if ((name[namelen - 1] == 'p' || name[namelen - 1] == 'P') &&
-                (name[namelen - 2] == 'm' || name[namelen - 2] == 'M') &&
-                (name[namelen - 3] == 'b' || name[namelen - 3] == 'B')) {
+            if (!strcasecmp(name + namelen - 3, "bmp")) {
                 Py_BEGIN_ALLOW_THREADS;
                 result = SDL_SaveBMP(surf, name);
                 Py_END_ALLOW_THREADS;
                 written = 1;
             }
-            else if (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                      (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
-                      (name[namelen - 3] == 'p' ||
-                       name[namelen - 3] == 'P')) ||
-                     ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                      (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
-                      (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
-                      (name[namelen - 4] == 'j' ||
-                       name[namelen - 4] == 'J')) ||
-                     ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                      (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
-                      (name[namelen - 3] == 'j' ||
-                       name[namelen - 3] == 'J'))) {
+            else if (!strcasecmp(name + namelen - 3, "png") ||
+                     !strcasecmp(name + namelen - 3, "jpg") ||
+                     !strcasecmp(name + namelen - 4, "jpeg")) {
                 /* If it is .png .jpg .jpeg use the extended module. */
                 /* try to get extended formats */
                 imgext = PyImport_ImportModule(IMPPREFIX "imageext");
@@ -1338,7 +1327,7 @@ SaveTGA(SDL_Surface *surface, const char *file, int rle)
 static PyMethodDef _image_methods[] = {
     {"load_basic", image_load_basic, METH_VARARGS, DOC_PYGAMEIMAGELOAD},
     {"save", image_save, METH_VARARGS, DOC_PYGAMEIMAGESAVE},
-    {"get_extended", (PyCFunction)image_get_extended, METH_NOARGS,
+    {"get_extended", image_get_extended, METH_NOARGS,
      DOC_PYGAMEIMAGEGETEXTENDED},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
@@ -1433,7 +1422,9 @@ MODINIT_DEFINE(image)
     else {
         PyObject *basicload = PyObject_GetAttrString(module, "load_basic");
         PyErr_Clear();
+        Py_INCREF(Py_None);
         PyModule_AddObject(module, "load_extended", Py_None);
+        Py_INCREF(Py_None);
         PyModule_AddObject(module, "save_extended", Py_None);
         PyModule_AddObject(module, "load", basicload);
         st->is_extended = 0;

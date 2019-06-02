@@ -24,6 +24,7 @@ import os
 import sys
 from pygame.compat import xrange_, PY_MAJOR_VERSION
 from os.path import basename, dirname, exists, join, splitext
+import xml.etree.ElementTree as ET
 
 
 OpenType_extensions = frozenset(('.ttf', '.ttc', '.otf'))
@@ -138,16 +139,57 @@ def initsysfonts_win32():
     return fonts
 
 
+def _add_font_paths(sub_elements, fonts):
+    """ Gets each element, checks its tag content,
+        if wanted fetches the next value in the iterable
+    """
+    font_name = font_path = None
+    for tag in sub_elements:
+        if tag.text == "_name":
+            font_name = next(sub_elements).text
+            if splitext(font_name)[1] not in OpenType_extensions:
+                break
+            bold = "bold" in font_name
+            italic = "italic" in font_name
+        if tag.text == "path" and font_name is not None:
+            font_path = next(sub_elements).text
+            _addfont(_simplename(font_name),bold,italic,font_path,fonts)
+            break
+
+
+def _system_profiler_darwin():
+    fonts = {}
+    flout, flerr = subprocess.Popen(
+        ' '.join(['system_profiler', '-xml','SPFontsDataType']),
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        close_fds=True
+    ).communicate()
+
+    for font_node in ET.fromstring(flout).iterfind('./array/dict/array/dict'):
+        _add_font_paths(font_node.iter("*"), fonts)
+
+    return fonts
+
+
+
 def initsysfonts_darwin():
-    """read the fonts on OS X. X11 is required for this to work."""
+    """ Read the fonts on MacOS, and OS X.
+    """
     # if the X11 binary exists... try and use that.
-    #  Not likely to be there on pre 10.4.x ...
-    if exists("/usr/X11/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11/bin/fc-list")
+    #  Not likely to be there on pre 10.4.x ... or MacOS 10.10+
+    if exists('/usr/X11/bin/fc-list'):
+        fonts = initsysfonts_unix('/usr/X11/bin/fc-list')
     # This fc-list path will work with the X11 from the OS X 10.3 installation
     # disc
-    elif exists("/usr/X11R6/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
+    elif exists('/usr/X11R6/bin/fc-list'):
+        fonts = initsysfonts_unix('/usr/X11R6/bin/fc-list')
+    elif exists('/usr/sbin/system_profiler'):
+        try:
+            fonts = _system_profiler_darwin()
+        except:
+            fonts = {}
     else:
         fonts = {}
 

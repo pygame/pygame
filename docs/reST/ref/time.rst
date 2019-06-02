@@ -112,7 +112,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       Note that this function uses :func:`pygame.time.delay`, which uses lots
       of CPU in a busy loop to make sure that timing is more accurate.
 
-      New in pygame 1.8.0.
+      .. versionadded:: 1.8
 
       .. ## Clock.tick_busy_loop ##
 

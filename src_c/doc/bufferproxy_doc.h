@@ -1,14 +1,9 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEBUFFERPROXY "BufferProxy(<parent>) -> BufferProxy\npygame object to export a surface buffer through an array protocol"
-
 #define DOC_BUFFERPROXYPARENT "parent -> Surface\nparent -> <parent>\nReturn wrapped exporting object."
-
 #define DOC_BUFFERPROXYLENGTH "length -> int\nThe size, in bytes, of the exported buffer."
-
 #define DOC_BUFFERPROXYRAW "raw -> bytes\nA copy of the exported buffer as a single block of bytes."
-
 #define DOC_BUFFERPROXYWRITE "write(buffer, offset=0)\nWrite raw bytes to object buffer."
-
 
 
 /* Docs in a comment... slightly easier to read. */

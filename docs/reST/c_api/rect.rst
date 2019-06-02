@@ -11,7 +11,7 @@ src_c/rect.c
 
 This extension module defines Python type :py:class:`pygame.Rect`.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 .. c:type:: GAME_Rect
 

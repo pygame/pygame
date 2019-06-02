@@ -71,7 +71,7 @@ one.
    ``get_arraytypes()`` tuple and indicates which type of array module is used
    for the array creation.
 
-   New in pygame 1.8
+   .. versionadded:: 1.8
 
    .. ## pygame.sndarray.get_arraytype ##
 
@@ -85,7 +85,7 @@ one.
    :func:`pygame.sndarray.use_arraytype` () method. If no supported array
    system could be found, None will be returned.
 
-   New in pygame 1.8.
+   .. versionadded:: 1.8
 
    .. ## pygame.sndarray.get_arraytypes ##
 

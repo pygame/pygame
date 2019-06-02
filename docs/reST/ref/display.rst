@@ -104,20 +104,20 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(resolution=(0,0), flags=0, depth=0) -> Surface`
+   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
    possible match supported by the system.
 
-   The resolution argument is a pair of numbers representing the width and
+   The size argument is a pair of numbers representing the width and
    height. The flags argument is a collection of additional options. The depth
    argument represents the number of bits to use for color.
 
    The Surface that gets returned can be drawn to like a regular Surface but
    changes will eventually be seen on the monitor.
 
-   If no resolution is passed or is set to (0, 0) and pygame uses ``SDL``
+   If no size is passed or is set to (0, 0) and pygame uses ``SDL``
    version 1.2.10 or above, the created Surface will have the same size as the
    current screen resolution. If only the width or height are set to 0, the
    Surface will have the same width or height as the screen resolution. Using a
@@ -129,9 +129,14 @@ required).
    will emulate an unavailable color depth which can be slow.
 
    When requesting fullscreen display modes, sometimes an exact match for the
-   requested resolution cannot be made. In these situations pygame will select
+   requested size cannot be made. In these situations pygame will select
    the closest compatible match. The returned surface will still always match
-   the requested resolution.
+   the requested size.
+
+   On high resolution displays(4k, 1080p) and tiny graphics games (640x480)
+   show up very small so that they are unplayable. SCALED scales up the window
+   for you. The game thinks it's a 640x480 window, but really it can be bigger.
+   Mouse events are scaled for you, so your game doesn't need to do it.
 
    The flags argument controls which type of display you want. There are
    several to choose from, and you can even combine multiple types using the
@@ -147,6 +152,9 @@ required).
       pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
+      pygame.SCALED        resolution depends on desktop size and scale graphics
+
+   .. versionadded:: 2.0.0 ``SCALED``
 
    For example:
 
@@ -156,6 +164,10 @@ required).
         screen_width=700
         screen_height=400
         screen=pygame.display.set_mode([screen_width,screen_height])
+
+   The display index 0 means the default display is used.
+
+   The display argument is new with pygame 1.9.5.
 
    .. ## pygame.display.set_mode ##
 
@@ -272,24 +284,28 @@ required).
 .. function:: list_modes
 
    | :sl:`Get list of available fullscreen modes`
-   | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN) -> list`
+   | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list`
 
-   This function returns a list of possible dimensions for a specified color
+   This function returns a list of possible sizes for a specified color
    depth. The return value will be an empty list if no display modes are
    available with the given arguments. A return value of -1 means that any
-   requested resolution should work (this is likely the case for windowed
+   requested size should work (this is likely the case for windowed
    modes). Mode sizes are sorted from biggest to smallest.
 
    If depth is 0, ``SDL`` will choose the current/best color depth for the
    display. The flags defaults to ``pygame.FULLSCREEN``, but you may need to
    add additional flags for specific fullscreen modes.
 
+   The display index 0 means the default display is used.
+
+   The display argument is new with pygame 1.9.5.
+
    .. ## pygame.display.list_modes ##
 
 .. function:: mode_ok
 
    | :sl:`Pick the best color depth for a display mode`
-   | :sg:`mode_ok(size, flags=0, depth=0) -> depth`
+   | :sg:`mode_ok(size, flags=0, depth=0, display=0) -> depth`
 
    This function uses the same arguments as ``pygame.display.set_mode()``. It
    is used to determine if a requested display mode is available. It will
@@ -303,6 +319,10 @@ required).
    The most useful flags to pass will be ``pygame.HWSURFACE``,
    ``pygame.DOUBLEBUF``, and maybe ``pygame.FULLSCREEN``. The function will
    return 0 if these display flags cannot be set.
+
+   The display index 0 means the default display is used.
+
+   The display argument is new with pygame 1.9.5.
 
    .. ## pygame.display.mode_ok ##
 
@@ -453,5 +473,29 @@ required).
    ``RGB`` triplets.
 
    .. ## pygame.display.set_palette ##
+
+.. function:: get_num_displays
+
+   | :sl:`Return the number of displays`
+   | :sg:`get_num_displays() -> int`
+
+   Returns the number of available displays. This is always 1 if
+   :func:`pygame.get_sdl_version()` returns a major version number below 2.
+
+   .. versionadded:: 1.9.5
+
+   .. ## pygame.display.get_num_displays ##
+
+.. function:: get_window_size
+
+   | :sl:`Return the size of the window or screen`
+   | :sg:`get_window_size() -> tuple`
+
+   Returns the size of the window initialized with :func:`pygame.set_mode()`.
+   This may differ from the size of the display surface if ``SCALED`` is used.
+
+   .. versionadded:: 2.0
+
+   .. ## pygame.display.get_window_size ##
 
 .. ## pygame.display ##

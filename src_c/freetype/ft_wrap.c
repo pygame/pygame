@@ -20,6 +20,8 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
+#include "../pygame.h"
+
 #include "ft_wrap.h"
 #include FT_MODULE_H
 
@@ -494,6 +496,14 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
 
     return init(ft, fontobj);
 }
+
+SDL_RWops*
+_PGFT_GetRWops(pgFontObject *fontobj)
+{
+    if (fontobj->id.open_args.flags == FT_OPEN_STREAM)
+        return fontobj->id.open_args.stream->descriptor.pointer;
+    return NULL;
+}
 #endif
 
 void
@@ -507,11 +517,11 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
         quit(fontobj);
     }
 
-    if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
+    if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {
         _PGFT_free(fontobj->id.open_args.pathname);
     fontobj->id.open_args.pathname = 0;
     }
-    else if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {
+    else if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
         _PGFT_free(fontobj->id.open_args.stream);
     }
     fontobj->id.open_args.flags = 0;

@@ -30,6 +30,18 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    .. ## pygame.mixer.music.load ##
 
+.. function:: unload
+
+   | :sl:`Unload the currently loaded music to free up resources`
+   | :sg:`unload() -> None`
+
+   This closes resources like files for any music that may be loaded.
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mixer.music.load ##
+
+
 .. function:: play
 
    | :sl:`Start the playback of the music stream`
@@ -149,7 +161,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    Function :func:`set_pos` calls underlining SDL_mixer function
    ``Mix_SetMusicPosition``.
 
-   New in pygame 1.9.2
+   .. versionadded:: 1.9.2
 
    .. ## pygame.mixer.music.set_pos ##
 

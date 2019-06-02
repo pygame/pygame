@@ -1,43 +1,101 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
+import platform
 import unittest
 
 from pygame.tests.test_utils import example_path
 import pygame
-from pygame.compat import as_unicode, filesystem_encode
+from pygame.compat import as_unicode, unicode_, filesystem_encode
 
 
 class MixerMusicModuleTest(unittest.TestCase):
-    def test_load(self):
-        "|tags:music|"
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.load:
-
-          # pygame.mixer.music.load(filename): return None
-          # Load a music file for playback
-
-        data_fname = example_path('data')
+    @classmethod
+    def setUpClass(cls):
+        # Initializing the mixer is slow, so minimize the times it is called.
         pygame.mixer.init()
 
-        # The mp3 test file can crash smpeg on some systems.
-        ## formats = ['mp3', 'ogg', 'wav']
-        formats = ['ogg', 'wav']
+    @classmethod
+    def tearDownClass(cls):
+        pygame.mixer.quit()
 
+    def setUp(cls):
+        # This makes sure the mixer is always initialized before each test (in
+        # case a test calls pygame.mixer.quit()).
+        if pygame.mixer.get_init() is None:
+            pygame.mixer.init()
+
+    @unittest.skipIf('Darwin' in platform.system(), 'SDL2_mixer not loading mp3 on travisci')
+    def test_load_mp3(self):
+        "|tags:music|"
+        self.music_load('mp3')
+
+    def test_load_ogg(self):
+        "|tags:music|"
+        self.music_load('ogg')
+
+    def test_load_wav(self):
+        "|tags:music|"
+        self.music_load('wav')
+
+    def music_load(self, format):
+        data_fname = example_path('data')
+
+        path = os.path.join(data_fname, 'house_lo.%s' % format)
+        if os.sep == '\\':
+            path = path.replace('\\', '\\\\')
+        umusfn = as_unicode(path)
+        bmusfn = filesystem_encode(umusfn)
+
+        pygame.mixer.music.load(umusfn)
+        pygame.mixer.music.load(bmusfn)
+
+    def test_load_object(self):
+        """test loading music from file-like objects."""
+        formats = ['ogg', 'wav']
+        data_fname = example_path('data')
         for f in formats:
             path = os.path.join(data_fname, 'house_lo.%s' % f)
             if os.sep == '\\':
                 path = path.replace('\\', '\\\\')
-            umusfn = as_unicode(path)
-            bmusfn = filesystem_encode(umusfn)
+            bmusfn = filesystem_encode(path)
 
-            pygame.mixer.music.load(umusfn)
-            pygame.mixer.music.load(bmusfn)
+            with open(bmusfn, 'rb') as musf:
+                pygame.mixer.music.load(musf)
 
-            #NOTE: TODO: loading from filelikes are disabled...
-            # because as of writing it only works in SDL_mixer svn.
-            #pygame.mixer.music.load(open(musfn))
-            #musf = open(musfn)
-            #pygame.mixer.music.load(musf)
-        pygame.mixer.quit()
+    def test_load_unicode(self):
+        """test non-ASCII unicode path"""
+        import shutil
+        ep = unicode_(example_path('data'))
+        temp_file = os.path.join(ep, u'你好.wav')
+        org_file = os.path.join(ep, u'house_lo.wav')
+        try:
+            with open(temp_file, 'w') as f:
+                pass
+            os.remove(temp_file)
+        except IOError:
+            raise unittest.SkipTest('the path cannot be opened')
+        shutil.copy(org_file, temp_file)
+        try:
+            pygame.mixer.music.load(temp_file)
+            pygame.mixer.music.load(org_file) # unload
+        finally:
+            os.remove(temp_file)
+
+    def test_unload(self):
+        import shutil
+        import tempfile
+        ep = unicode_(example_path('data'))
+        org_file = os.path.join(ep, u'house_lo.wav')
+        tmpfd, tmppath = tempfile.mkstemp('.wav')
+        os.close(tmpfd)
+        shutil.copy(org_file, tmppath)
+        try:
+            pygame.mixer.music.load(tmppath)
+            pygame.mixer.music.unload()
+        finally:
+            os.remove(tmppath)
 
     def todo_test_queue(self):
 
@@ -216,6 +274,22 @@ class MixerMusicModuleTest(unittest.TestCase):
           #
 
         self.fail()
+
+    def test_init(self):
+        """issue #955. unload music whenever mixer.quit() is called"""
+        import tempfile
+        import shutil
+        testfile = example_path(os.path.join('data', 'house_lo.wav'))
+        tempcopy = os.path.join(tempfile.gettempdir(), 'tempfile.wav')
+
+        for i in range(10):
+            pygame.mixer.init()
+            try:
+                shutil.copy2(testfile, tempcopy)
+                pygame.mixer.music.load(tempcopy)
+                pygame.mixer.quit()
+            finally:
+                os.remove(tempcopy)
 
 if __name__ == '__main__':
     unittest.main()
