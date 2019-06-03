@@ -114,7 +114,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the first point in the
-      ``points`` parameter and its width and height will be 0
+      ``points`` parameter (float values will be truncated) and its width and
+      height will be 0
    :rtype: Rect
 
    :raises ValueError: if ``len(points) < 3`` (must have at least 3 points)
@@ -159,8 +160,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             inward.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
-      bounding rect's position will be the ``center`` parameter value and its
-      width and height will be 0
+      bounding rect's position will be the ``center`` parameter value (float
+      values will be truncated) and its width and height will be 0
    :rtype: Rect
 
    :raises ValueError: if ``radius < 0`` or ``width < 0`` or ``width > radius``
@@ -256,6 +257,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the given ``rect``
+      parameter and its width and height will be 0
    :rtype: Rect
 
    :raises ValueError: if ``width < 0`` or ``width > rect.w / 2`` or
@@ -305,8 +307,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             the original line (in the x direction).
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
-      bounding rect's position will be the ``start_pos`` parameter (float values
-      will be truncated) and its width and height will be 0
+      bounding rect's position will be the ``start_pos`` parameter value (float
+      values will be truncated) and its width and height will be 0
    :rtype: Rect
 
    :raises TypeError: if ``start_pos`` or ``end_pos`` is not a sequence of
@@ -352,8 +354,8 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       with the surface's existing pixel shades, otherwise it will overwrite them
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
-      bounding rect's position will be the ``start_pos`` parameter (float values
-      will be truncated) and its width and height will be 0
+      bounding rect's position will be the ``start_pos`` parameter value (float
+      values will be truncated) and its width and height will be 0
    :rtype: Rect
 
    :raises TypeError: if ``start_pos`` or ``end_pos`` is not a sequence of
