@@ -65,7 +65,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             When using ``width`` values ``> 1``, the edge lines will grow
             outside the original boundary of the rect. For more details on
             how the thickness for edge lines grow, refer to the ``width`` notes
-            for :func:`line`.
+            of the :func:`pygame.draw.line` function.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the given ``rect``
@@ -110,7 +110,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             When using ``width`` values ``> 1``, the edge lines will grow
             outside the original boundary of the polygon. For more details on
             how the thickness for edge lines grow, refer to the ``width`` notes
-            for :func:`line`.
+            of the :func:`pygame.draw.line` function.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the first point in the
@@ -291,7 +291,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          |
 
          .. note::
-            When using ``width`` values ``> 1`` lines will grow as follows.
+            When using ``width`` values ``> 1``, lines will grow as follows.
 
             For odd ``width`` values, the thickness of each line grows with the
             original line being in the center.
