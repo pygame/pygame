@@ -582,7 +582,7 @@ get_pixel_color(Uint8 *pixel, Uint8 bpp)
  *
  * Ref: src_c/draw.c set_pixel_32()
  */
-static void *
+static void
 set_pixel_color(Uint8 *pixel, Uint8 bpp, Uint32 color)
 {
     switch (bpp) {
@@ -1983,7 +1983,7 @@ pgMask_GetBuffer(pgMaskObject *self, Py_buffer *view, int flags)
     view->suboffsets = NULL;
 
     Py_INCREF(self);
-    view->obj = self;
+    view->obj = (PyObject *)self;
 
     return 0;
 }
