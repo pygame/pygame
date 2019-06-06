@@ -905,7 +905,7 @@ cdef class Renderer:
         # https://wiki.libsdl.org/SDL_RenderPresent
         SDL_RenderPresent(self._renderer)
 
-    def get_viewport(self):
+    cpdef get_viewport(self):
         """ Returns the drawing area on the target.
 
         :rtype: pygame.Rect
@@ -957,7 +957,7 @@ cdef class Renderer:
         else:
             raise TypeError('target must be a Texture or None')
 
-    def blit(self, source, dest=None, area=None, special_flags=0):
+    cpdef object blit(self, object source, Rect dest=None, Rect area=None, int special_flags=0):
         """ Only for compatibility.
         Textures created by different Renderers cannot shared with each other!
         :param source: A Texture or Image to draw.

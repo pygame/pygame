@@ -105,7 +105,7 @@ try:
 except:
     pass
 
-cdef extern from "include/_pygame.h" nogil:
+cdef extern from "_pygame.h" nogil:
     ctypedef struct GAME_Rect:
         int x
         int y
@@ -117,6 +117,8 @@ cdef extern from "include/_pygame.h" nogil:
         cdef object weakreflist
 
 #import_pygame_rect()
+
+from ._sdl2.video cimport *
 
 cdef class AbstractGroup
 
@@ -491,7 +493,7 @@ cdef class AbstractGroup:
         for s in self.sprites():
             s.update(*args)
 
-    cpdef draw(self, surface):
+    def draw(self, surface):
         """draw all sprites onto the surface
 
         Group.draw(surface): return None
@@ -500,16 +502,22 @@ cdef class AbstractGroup:
 
         """
         cdef list sprites = self.sprites()
-        cdef object surface_blit = surface.blit
+        cdef object surface_blit
         cdef spritedict = self.spritedict
         cdef object ret
 
-        for spr in sprites:
-            #spritedict[spr] = surface_blit(spr.image, spr.rect)
-            ret = PyObject_CallFunctionObjArgs(surface_blit,
-                                               <PyObject*>spr.image,
-                                               <PyObject*>spr.rect, NULL)
-            PyDict_SetItem(spritedict, spr, ret)
+        if isinstance(surface, Renderer):
+            for spr in sprites:
+                ret = (<Renderer>surface).blit(spr.image, spr.rect)
+                PyDict_SetItem(spritedict, spr, ret)
+        else:
+            surface_blit = surface.blit
+            for spr in sprites:
+                ret = PyObject_CallFunctionObjArgs(surface_blit,
+                                                   <PyObject*>spr.image,
+                                                   <PyObject*>spr.rect, NULL)
+                PyDict_SetItem(spritedict, spr, ret)
+
         self.lostsprites[:] = []
 
     def clear(self, surface, bgd):
@@ -600,7 +608,7 @@ cdef class RenderUpdates(Group):
     method that tracks the changed areas of the screen.
 
     """
-    cpdef draw(self, surface):
+    def draw(self, surface):
        spritedict = self.spritedict
        surface_blit = surface.blit
        dirty = self.lostsprites
@@ -795,7 +803,7 @@ cdef class LayeredUpdates(AbstractGroup):
         """
         return list(self._spritelist)
 
-    cpdef draw(self, surface):
+    def draw(self, surface):
         """draw all sprites in the right order onto the passed surface
 
         LayeredUpdates.draw(surface): return Rect_list
@@ -1072,7 +1080,7 @@ cdef class LayeredDirty(LayeredUpdates):
 
         LayeredUpdates.add_internal(self, sprite, layer)
 
-    cpdef draw(self, surface, bgd=None):
+    def draw(self, surface, bgd=None):
         """draw all sprites in the right order onto the given surface
 
         LayeredDirty.draw(surface, bgd=None): return Rect_list
