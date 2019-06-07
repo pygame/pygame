@@ -124,7 +124,8 @@ bitmask_free(bitmask_t *m)
  *     bitmask if successful, otherwise NULL
  */
 bitmask_t *
-bitmask_copy(bitmask_t *mask) {
+bitmask_copy(bitmask_t *mask)
+{
     bitmask_t *mask_copy = NULL;
 
     if (mask->w < 0 || mask->h < 0) {
