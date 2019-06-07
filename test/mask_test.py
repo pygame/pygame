@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import copy
 import random
 import unittest
 import sys
@@ -68,22 +69,23 @@ def assertSurfaceFilled(testcase, surface, expected_color):
         surface.unlock()
 
 
+def assertMaskEqual(testcase, m1, m2, msg=None):
+    """Checks to see if the 2 given masks are equal."""
+    m1_count = m1.count()
+
+    testcase.assertEqual(m1.get_size(), m2.get_size(), msg=msg)
+    testcase.assertEqual(m1_count, m2.count(), msg=msg)
+    testcase.assertEqual(m1_count, m1.overlap_area(m2, (0, 0)), msg=msg)
+
+    # This can be used to help debug exact locations.
+    ##for i in range(m1.get_size()[0]):
+    ##    for j in range(m1.get_size()[1]):
+    ##        testcase.assertEqual(m1.get_at((i, j)), m2.get_at((i, j)))
+
+
 class MaskTypeTest(unittest.TestCase):
     ORIGIN_OFFSETS = ((0, 0), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1),
                       (-1, -1), (-1, 0), (-1, 1))
-
-    def _assertMaskEqual(self, m1, m2, msg=None):
-        # Checks to see if the 2 given masks are equal.
-        m1_count = m1.count()
-
-        self.assertEqual(m1.get_size(), m2.get_size(), msg=msg)
-        self.assertEqual(m1_count, m2.count(), msg=msg)
-        self.assertEqual(m1_count, m1.overlap_area(m2, (0, 0)), msg=msg)
-
-        # This can be used to help debug exact locations.
-        ##for i in range(m1.get_size()[0]):
-        ##    for j in range(m1.get_size()[1]):
-        ##        self.assertEqual(m1.get_at((i, j)), m2.get_at((i, j)))
 
     def test_mask(self):
         """Ensure masks are created correctly without fill parameter."""
@@ -155,6 +157,68 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask2.count(), expected_count, msg)
             self.assertEqual(mask1.get_size(), expected_size, msg)
             self.assertEqual(mask2.get_size(), expected_size, msg)
+
+    def test_copy(self):
+        """Ensures copy works correctly with some bits set and unset."""
+        # Test different widths and heights.
+        for width in (31, 32, 33, 63, 64, 65):
+            for height in (31, 32, 33, 63, 64, 65):
+                mask = pygame.mask.Mask((width, height))
+
+                # Create a checkerboard pattern of set/unset bits.
+                for x in range(width):
+                    for y in range(x & 1, height, 2):
+                        mask.set_at((x, y))
+
+                # Test both the copy() and __copy__() methods.
+                for mask_copy in (mask.copy(), copy.copy(mask)):
+                    self.assertIsInstance(mask_copy, pygame.mask.Mask)
+                    self.assertIsNot(mask_copy, mask)
+                    assertMaskEqual(self, mask_copy, mask)
+
+    def test_copy__full(self):
+        """Ensures copy works correctly on a filled masked."""
+        # Test different widths and heights.
+        for width in (31, 32, 33, 63, 64, 65):
+            for height in (31, 32, 33, 63, 64, 65):
+                mask = pygame.mask.Mask((width, height), fill=True)
+
+                # Test both the copy() and __copy__() methods.
+                for mask_copy in (mask.copy(), copy.copy(mask)):
+                    self.assertIsInstance(mask_copy, pygame.mask.Mask)
+                    self.assertIsNot(mask_copy, mask)
+                    assertMaskEqual(self, mask_copy, mask)
+
+    def test_copy__empty(self):
+        """Ensures copy works correctly on an empty mask."""
+        for width in (31, 32, 33, 63, 64, 65):
+            for height in (31, 32, 33, 63, 64, 65):
+                mask = pygame.mask.Mask((width, height))
+
+                # Test both the copy() and __copy__() methods.
+                for mask_copy in (mask.copy(), copy.copy(mask)):
+                    self.assertIsInstance(mask_copy, pygame.mask.Mask)
+                    self.assertIsNot(mask_copy, mask)
+                    assertMaskEqual(self, mask_copy, mask)
+
+    def test_copy__independent(self):
+        """Ensures copy makes an independent copy of the mask."""
+        mask_set_pos = (64, 1)
+        mask_copy_set_pos = (64, 2)
+        mask = pygame.mask.Mask((65, 3))
+
+        # Test both the copy() and __copy__() methods.
+        mask_copies = (mask.copy(), copy.copy(mask))
+        mask.set_at(mask_set_pos)
+
+        for mask_copy in mask_copies:
+            mask_copy.set_at(mask_copy_set_pos)
+
+            self.assertIsNot(mask_copy, mask)
+            self.assertNotEqual(mask_copy.get_at(mask_set_pos),
+                                mask.get_at(mask_set_pos))
+            self.assertNotEqual(mask_copy.get_at(mask_copy_set_pos),
+                                mask.get_at(mask_copy_set_pos))
 
     def test_get_size(self):
         """Ensure a mask's size is correctly retrieved."""
@@ -687,7 +751,7 @@ class MaskTypeTest(unittest.TestCase):
                 overlap_mask = mask1.overlap_mask(mask2, offset)
 
                 self.assertIsInstance(overlap_mask, pygame.mask.Mask, msg)
-                self._assertMaskEqual(overlap_mask, expected_mask, msg)
+                assertMaskEqual(self, overlap_mask, expected_mask, msg)
 
                 # Ensure mask1/mask2 unchanged.
                 self.assertEqual(mask1.count(), mask1_count, msg)
@@ -747,7 +811,7 @@ class MaskTypeTest(unittest.TestCase):
             overlap_mask = mask1.overlap_mask(mask2, offset)
 
             self.assertIsInstance(overlap_mask, pygame.mask.Mask, msg)
-            self._assertMaskEqual(overlap_mask, expected_mask, msg)
+            assertMaskEqual(self, overlap_mask, expected_mask, msg)
 
             # Ensure mask1/mask2 unchanged.
             self.assertEqual(mask1.count(), mask1_count, msg)
@@ -787,7 +851,7 @@ class MaskTypeTest(unittest.TestCase):
             overlap_mask = mask1.overlap_mask(mask2, offset)
 
             self.assertIsInstance(overlap_mask, pygame.mask.Mask, msg)
-            self._assertMaskEqual(overlap_mask, expected_mask, msg)
+            assertMaskEqual(self, overlap_mask, expected_mask, msg)
 
     def test_overlap_mask__offset_boundary(self):
         """Ensures overlap_mask handles offsets and boundaries correctly."""
@@ -1006,7 +1070,7 @@ class MaskTypeTest(unittest.TestCase):
 
                 mask1.draw(mask2, offset)
 
-                self._assertMaskEqual(mask1, expected_mask, msg)
+                assertMaskEqual(self, mask1, expected_mask, msg)
 
                 # Ensure mask2 unchanged.
                 self.assertEqual(mask2.count(), mask2_count, msg)
@@ -1039,7 +1103,7 @@ class MaskTypeTest(unittest.TestCase):
 
             mask1.draw(mask2, offset)
 
-            self._assertMaskEqual(mask1, expected_mask, msg)
+            assertMaskEqual(self, mask1, expected_mask, msg)
 
             # Ensure mask2 unchanged.
             self.assertEqual(mask2.count(), mask2_count, msg)
@@ -1081,7 +1145,7 @@ class MaskTypeTest(unittest.TestCase):
 
             mask1.draw(mask2, offset)
 
-            self._assertMaskEqual(mask1, expected_mask, msg)
+            assertMaskEqual(self, mask1, expected_mask, msg)
 
     def test_draw__offset_boundary(self):
         """Ensures draw handles offsets and boundaries correctly."""
@@ -1156,7 +1220,7 @@ class MaskTypeTest(unittest.TestCase):
 
                 mask1.erase(mask2, offset)
 
-                self._assertMaskEqual(mask1, expected_mask, msg)
+                assertMaskEqual(self, mask1, expected_mask, msg)
 
                 # Ensure mask2 unchanged.
                 self.assertEqual(mask2.count(), mask2_count, msg)
@@ -1189,7 +1253,7 @@ class MaskTypeTest(unittest.TestCase):
 
             mask1.erase(mask2, offset)
 
-            self._assertMaskEqual(mask1, expected_mask, msg)
+            assertMaskEqual(self, mask1, expected_mask, msg)
 
             # Ensure mask2 unchanged.
             self.assertEqual(mask2.count(), mask2_count, msg)
@@ -1231,7 +1295,7 @@ class MaskTypeTest(unittest.TestCase):
 
             mask1.erase(mask2, offset)
 
-            self._assertMaskEqual(mask1, expected_mask, msg)
+            assertMaskEqual(self, mask1, expected_mask, msg)
 
     def test_erase__offset_boundary(self):
         """Ensures erase handles offsets and boundaries correctly."""
@@ -1413,12 +1477,12 @@ class MaskTypeTest(unittest.TestCase):
         convolve_mask = m.convolve(k)
 
         self.assertIsInstance(convolve_mask, pygame.mask.Mask)
-        self._assertMaskEqual(m, convolve_mask)
+        assertMaskEqual(self, m, convolve_mask)
 
         convolve_mask = k.convolve(k.convolve(m))
 
         self.assertIsInstance(convolve_mask, pygame.mask.Mask)
-        self._assertMaskEqual(m, convolve_mask)
+        assertMaskEqual(self, m, convolve_mask)
 
     def test_convolve__with_output(self):
         """checks that convolution modifies only the correct portion of the output"""
@@ -1434,7 +1498,7 @@ class MaskTypeTest(unittest.TestCase):
         test.draw(m,(1,1))
 
         self.assertIsInstance(o, pygame.mask.Mask)
-        self._assertMaskEqual(o, test)
+        assertMaskEqual(self, o, test)
 
         o.clear()
         test.clear()
@@ -1443,7 +1507,7 @@ class MaskTypeTest(unittest.TestCase):
         test.draw(m,(11,11))
 
         self.assertIsInstance(o, pygame.mask.Mask)
-        self._assertMaskEqual(o, test)
+        assertMaskEqual(self, o, test)
 
     def test_convolve__out_of_range(self):
         full = pygame.Mask((2, 2), fill=True)
@@ -2036,6 +2100,17 @@ class MaskTypeTest(unittest.TestCase):
                 self.assertIsInstance(mask, pygame.mask.Mask, msg)
                 self.assertEqual(mask.get_size(), size, msg)
 
+    def test_zero_mask_copy(self):
+        """Ensures copy correctly handles zero sized masks."""
+        for expected_size in ((11, 0), (0, 11), (0, 0)):
+            mask = pygame.mask.Mask(expected_size)
+
+            mask_copy = mask.copy()
+
+            self.assertIsInstance(mask_copy, pygame.mask.Mask)
+            self.assertIsNot(mask_copy, mask)
+            assertMaskEqual(self, mask_copy, mask)
+
     def test_zero_mask_get_size(self):
         """Ensures get_size correctly handles zero sized masks."""
         for expected_size in ((41, 0), (0, 40), (0, 0)):
@@ -2361,6 +2436,28 @@ class SubMask(pygame.mask.Mask):
         self.test_attribute = True
 
 
+class SubMaskCopy(SubMask):
+    """Subclass of the Mask class to help test copying subclasses."""
+    def copy(self):
+        mask_copy = super(SubMaskCopy, self).copy()
+        mask_copy.test_attribute = self.test_attribute
+        return mask_copy
+
+
+class SubMaskDunderCopy(SubMask):
+    """Subclass of the Mask class to help test copying subclasses."""
+    def __copy__(self):
+        mask_copy = super(SubMaskDunderCopy, self).__copy__()
+        mask_copy.test_attribute = self.test_attribute
+        return mask_copy
+
+
+class SubMaskCopyAndDunderCopy(SubMaskDunderCopy):
+    """Subclass of the Mask class to help test copying subclasses."""
+    def copy(self):
+        return super(SubMaskCopyAndDunderCopy, self).copy()
+
+
 class MaskSubclassTest(unittest.TestCase):
     """Test subclassed Masks."""
     def test_subclass_mask(self):
@@ -2370,6 +2467,62 @@ class MaskSubclassTest(unittest.TestCase):
         self.assertIsInstance(mask, pygame.mask.Mask)
         self.assertIsInstance(mask, SubMask)
         self.assertTrue(mask.test_attribute)
+
+    def test_subclass_copy(self):
+        """Ensures copy works for subclassed Masks."""
+        mask = SubMask((65, 2), fill=True)
+
+        # Test both the copy() and __copy__() methods.
+        for mask_copy in (mask.copy(), copy.copy(mask)):
+            self.assertIsInstance(mask_copy, pygame.mask.Mask)
+            self.assertIsInstance(mask_copy, SubMask)
+            self.assertIsNot(mask_copy, mask)
+            assertMaskEqual(self, mask_copy, mask)
+            # No subclass attributes because copy()/__copy__() not overridden.
+            self.assertFalse(hasattr(mask_copy, 'test_attribute'))
+
+    def test_subclass_copy__override_copy(self):
+        """Ensures copy works for subclassed Masks overriding copy."""
+        mask = SubMaskCopy((65, 2), fill=True)
+
+        # Test both the copy() and __copy__() methods.
+        for i, mask_copy in enumerate((mask.copy(), copy.copy(mask))):
+            self.assertIsInstance(mask_copy, pygame.mask.Mask)
+            self.assertIsInstance(mask_copy, SubMaskCopy)
+            self.assertIsNot(mask_copy, mask)
+            assertMaskEqual(self, mask_copy, mask)
+
+            if 1 == i:
+                # No subclass attributes because __copy__() not overridden.
+                self.assertFalse(hasattr(mask_copy, 'test_attribute'))
+            else:
+                self.assertTrue(mask_copy.test_attribute)
+
+    def test_subclass_copy__override_dunder_copy(self):
+        """Ensures copy works for subclassed Masks overriding __copy__."""
+        mask = SubMaskDunderCopy((65, 2), fill=True)
+
+        # Test both the copy() and __copy__() methods.
+        for mask_copy in (mask.copy(), copy.copy(mask)):
+            self.assertIsInstance(mask_copy, pygame.mask.Mask)
+            self.assertIsInstance(mask_copy, SubMaskDunderCopy)
+            self.assertIsNot(mask_copy, mask)
+            assertMaskEqual(self, mask_copy, mask)
+            # Calls to copy() eventually call __copy__() internally so the
+            # attributes will be copied.
+            self.assertTrue(mask_copy.test_attribute)
+
+    def test_subclass_copy__override_both_copy_methods(self):
+        """Ensures copy works for subclassed Masks overriding copy/__copy__."""
+        mask = SubMaskCopyAndDunderCopy((65, 2), fill=True)
+
+        # Test both the copy() and __copy__() methods.
+        for mask_copy in (mask.copy(), copy.copy(mask)):
+            self.assertIsInstance(mask_copy, pygame.mask.Mask)
+            self.assertIsInstance(mask_copy, SubMaskCopyAndDunderCopy)
+            self.assertIsNot(mask_copy, mask)
+            assertMaskEqual(self, mask_copy, mask)
+            self.assertTrue(mask_copy.test_attribute)
 
     def test_subclass_get_size(self):
         """Ensures get_size works for subclassed Masks."""

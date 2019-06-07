@@ -3,6 +3,7 @@
 #define DOC_PYGAMEMASKFROMSURFACE "from_surface(Surface) -> Mask\nfrom_surface(Surface, threshold=127) -> Mask\nCreates a Mask from the given surface"
 #define DOC_PYGAMEMASKFROMTHRESHOLD "from_threshold(Surface, color) -> Mask\nfrom_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask\nCreates a mask by thresholding Surfaces"
 #define DOC_PYGAMEMASKMASK "Mask(size=(width, height)) -> Mask\nMask(size=(width, height), fill=False) -> Mask\npygame object for representing 2D bitmasks"
+#define DOC_MASKCOPY "copy() -> Mask\nReturns a new copy of the mask"
 #define DOC_MASKGETSIZE "get_size() -> (width, height)\nReturns the size of the mask"
 #define DOC_MASKGETRECT "get_rect(**kwargs) -> Rect\nReturns a Rect based on the size of the mask"
 #define DOC_MASKGETAT "get_at((x, y)) -> int\nGets the bit at the given position"
@@ -48,6 +49,10 @@ pygame.mask.Mask
  Mask(size=(width, height)) -> Mask
  Mask(size=(width, height), fill=False) -> Mask
 pygame object for representing 2D bitmasks
+
+pygame.mask.Mask.copy
+ copy() -> Mask
+Returns a new copy of the mask
 
 pygame.mask.Mask.get_size
  get_size() -> (width, height)

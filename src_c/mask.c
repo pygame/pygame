@@ -57,9 +57,34 @@
 /* Prototypes */
 static PyTypeObject pgMask_Type;
 static PG_INLINE pgMaskObject *
-_create_mask_using_bitmask(bitmask_t *bitmask);
+create_mask_using_bitmask(bitmask_t *bitmask);
+static PG_INLINE pgMaskObject *
+create_mask_using_bitmask_and_type(bitmask_t *bitmask, PyTypeObject *ob_type);
 
 /* mask object methods */
+
+/* Copies the given mask. */
+static PyObject *
+mask_copy(PyObject *self, PyObject *args)
+{
+    bitmask_t *new_bitmask = bitmask_copy(pgMask_AsBitmap(self));
+
+    if (NULL == new_bitmask) {
+        return RAISE(PyExc_MemoryError, "cannot allocate memory for bitmask");
+    }
+
+    return (PyObject *)create_mask_using_bitmask_and_type(new_bitmask,
+                                                          self->ob_type);
+}
+
+/* Redirects mask.copy() to mask.__copy__(). This is done to allow
+ * subclasses that override the __copy__() method to also override the copy()
+ * method automatically. */
+static PyObject *
+mask_call_copy(PyObject *self, PyObject *args)
+{
+    return PyObject_CallMethodObjArgs(self, Text_FromUTF8("__copy__"), args);
+}
 
 static PyObject *
 mask_get_size(PyObject *self, PyObject *args)
@@ -269,7 +294,7 @@ mask_scale(PyObject *self, PyObject *args)
         return RAISE(PyExc_MemoryError, "cannot allocate memory for bitmask");
     }
 
-    return (PyObject *)_create_mask_using_bitmask(bitmask);
+    return (PyObject *)create_mask_using_bitmask(bitmask);
 }
 
 static PyObject *
@@ -1502,7 +1527,7 @@ mask_connected_components(PyObject *self, PyObject *args)
     }
 
     for (i = 1; i <= num_components; ++i) {
-        maskobj = _create_mask_using_bitmask(components[i]);
+        maskobj = create_mask_using_bitmask(components[i]);
 
         if (NULL == maskobj) {
             for (m = i; m <= num_components; ++m) {
@@ -1802,6 +1827,8 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyMethodDef mask_methods[] = {
+    {"__copy__", mask_copy, METH_NOARGS, DOC_MASKCOPY},
+    {"copy", mask_call_copy, METH_NOARGS, DOC_MASKCOPY},
     {"get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
     {"get_rect", (PyCFunction)mask_get_rect, METH_VARARGS | METH_KEYWORDS,
      DOC_MASKGETRECT},
@@ -1834,21 +1861,37 @@ static PyMethodDef mask_methods[] = {
 
 /*mask object internals*/
 
-/* Creates a mask object using an existing bitmask. This is a helper function
- * for internal use only.
+/* This is a helper function for internal use only.
+ * Creates a mask object using an existing bitmask.
  *
  * Params:
  *     bitmask: pointer to the bitmask to use
  *
  * Returns:
- *     Mask object
+ *     Mask object or NULL to indicate a fail
  */
 static PG_INLINE pgMaskObject *
-_create_mask_using_bitmask(bitmask_t *bitmask)
+create_mask_using_bitmask(bitmask_t *bitmask)
+{
+    return create_mask_using_bitmask_and_type(bitmask, &pgMask_Type);
+}
+
+/* This is a helper function for internal use only.
+ * Creates a mask object using an existing bitmask and a type.
+ *
+ * Params:
+ *     bitmask: pointer to the bitmask to use
+ *     ob_type: pointer to the mask object type to create
+ *
+ * Returns:
+ *     Mask object or NULL to indicate a fail
+ */
+static PG_INLINE pgMaskObject *
+create_mask_using_bitmask_and_type(bitmask_t *bitmask, PyTypeObject *ob_type)
 {
     /* tp_init is not needed as the bitmask has already been created. */
     pgMaskObject *maskobj =
-        (pgMaskObject *)pgMask_Type.tp_new(&pgMask_Type, NULL, NULL);
+        (pgMaskObject *)pgMask_Type.tp_new(ob_type, NULL, NULL);
 
     if (NULL == maskobj) {
         return (pgMaskObject *)RAISE(PyExc_MemoryError,

@@ -62,6 +62,9 @@ bitmask_t *bitmask_create(int w, int h);
 /* Frees all the memory allocated by bitmask_create for m. */
 void bitmask_free(bitmask_t *m);
 
+/* Create a copy of the given bitmask. */
+bitmask_t *bitmask_copy(bitmask_t *m);
+
 /* Clears all bits in the mask */
 void bitmask_clear(bitmask_t *m);
 
