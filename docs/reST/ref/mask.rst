@@ -129,6 +129,9 @@ to store which parts collide.
    :returns: a newly created :class:`Mask` object
    :rtype: Mask
 
+   .. versionchanged:: 2.0.0
+      Shallow copy support added. The :class:`Mask` class supports the special
+      method ``__copy__()`` and shallow copying via ``copy.copy(mask)``.
    .. versionchanged:: 2.0.0 Subclassing support added. The :class:`Mask` class
       can be used as a base class.
    .. versionchanged:: 1.9.5 Added support for keyword arguments.
