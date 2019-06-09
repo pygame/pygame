@@ -1569,7 +1569,8 @@ pg_update(PyObject *self, PyObject *arg)
     else {
         PyObject *seq;
         PyObject *r;
-        int loop, num, count;
+        Py_ssize_t loop, num;
+        int count;
         SDL_Rect *rects;
         if (PyTuple_Size(arg) != 1)
             return RAISE(
