@@ -2580,6 +2580,83 @@ class DrawPolygonMixin(object):
         self.assertRaises(TypeError, lambda: self.draw_polygon(self.surface,
                           RED, ((0, 0), (0, 20), (20, 20), 20), 0))
 
+    def test_polygon__surface_clip(self):
+        """Ensures draw polygon respects a surface's clip area."""
+        surf_w = surf_h = 30
+        polygon_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surf_w, surf_h))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (8, 10))
+        clip_rect.center = surface.get_rect().center
+        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+
+        # Need 2 rects to manage drawing the polygon.
+        pos_rect = clip_rect.copy() # Manages the polygon's vertices.
+        poly_rect = pos_rect.copy().inflate(1, 1) # Manages actual drawn pts.
+
+        # Test centering the polygon along the clip rect's edge.
+        for test_pos in rect_corners_mids_and_center(clip_rect):
+            surface.fill(surface_color)
+            poly_rect.center = pos_rect.center = test_pos
+            polygon_edge_pts = set(test_utils.rect_perimeter_pts(poly_rect))
+
+            self.draw_polygon(surface, polygon_color, width=1,
+                              points=(pos_rect.topleft, pos_rect.topright,
+                                      pos_rect.bottomright,
+                                      pos_rect.bottomleft))
+
+            surface.lock() # For possible speed up.
+
+            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
+                if pt in polygon_edge_pts and clip_rect.collidepoint(pt):
+                    expected_color = polygon_color
+                else:
+                    expected_color = surface_color
+
+                self.assertEqual(surface.get_at(pt), expected_color)
+
+            surface.unlock()
+
+    def test_polygon__surface_clip_with_filled_polygon(self):
+        """Ensures draw filled polygon respects a surface's clip area."""
+        surf_w = surf_h = 30
+        polygon_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surf_w, surf_h))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (8, 10))
+        clip_rect.center = surface.get_rect().center
+        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+
+        # Need 2 rects to manage drawing the polygon.
+        pos_rect = clip_rect.copy() # Manages the polygon's vertices.
+        poly_rect = pos_rect.copy().inflate(1, 1) # Manages actual drawn area.
+
+        # Test centering the polygon along the clip rect's edge.
+        for test_pos in rect_corners_mids_and_center(clip_rect):
+            surface.fill(surface_color)
+            poly_rect.center = pos_rect.center = test_pos
+
+            self.draw_polygon(surface, polygon_color,
+                              points=(pos_rect.topleft, pos_rect.topright,
+                                      pos_rect.bottomright,
+                                      pos_rect.bottomleft))
+
+            surface.lock() # For possible speed up.
+
+            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
+                if clip_rect.collidepoint(pt) and poly_rect.collidepoint(pt):
+                    expected_color = polygon_color
+                else:
+                    expected_color = surface_color
+
+                self.assertEqual(surface.get_at(pt), expected_color)
+
+            surface.unlock()
+
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
     """Test draw module function polygon.
@@ -2948,6 +3025,71 @@ class DrawRectMixin(object):
             color_at_pt = self.surf.get_at(pt)
 
             self.assertNotEqual(color_at_pt, self.color)
+
+    def test_rect__surface_clip(self):
+        """Ensures draw rect respects a surface's clip area."""
+        surf_w = surf_h = 30
+        rect_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surf_w, surf_h))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (8, 10))
+        clip_rect.center = surface.get_rect().center
+        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+        test_rect = clip_rect.copy()
+
+        # Test centering the rect along the clip rect's edge.
+        for test_pos in rect_corners_mids_and_center(clip_rect):
+            surface.fill(surface_color)
+            test_rect.center = test_pos
+            rect_edge_pts = set(test_utils.rect_perimeter_pts(test_rect))
+
+            self.draw_rect(surface, rect_color, test_rect, width=1)
+
+            surface.lock() # For possible speed up.
+
+            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
+                if pt in rect_edge_pts and clip_rect.collidepoint(pt):
+                    expected_color = rect_color
+                else:
+                    expected_color = surface_color
+
+                self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+            surface.unlock()
+
+    def test_rect__surface_clip_with_filled_rect(self):
+        """Ensures draw filled rect respects a surface's clip area."""
+        surf_w = surf_h = 30
+        rect_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surf_w, surf_h))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (8, 10))
+        clip_rect.center = surface.get_rect().center
+        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+        test_rect = clip_rect.copy()
+
+        # Test centering the rect along the clip rect's edge.
+        for test_pos in rect_corners_mids_and_center(clip_rect):
+            surface.fill(surface_color)
+            test_rect.center = test_pos
+
+            self.draw_rect(surface, rect_color, test_rect)
+
+            surface.lock() # For possible speed up.
+
+            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
+                if clip_rect.collidepoint(pt) and test_rect.collidepoint(pt):
+                    expected_color = rect_color
+                else:
+                    expected_color = surface_color
+
+                self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+            surface.unlock()
 
 
 class DrawRectTest(DrawRectMixin, DrawTestCase):
