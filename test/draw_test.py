@@ -3314,6 +3314,132 @@ class DrawCircleMixin(object):
             width=0,
         )
 
+    def test_circle__surface_clip(self):
+        """Ensures draw circle respects a surface's clip area."""
+        surf_w = surf_h = 25
+        circle_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surf_w, surf_h))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (10, 10))
+        clip_rect.center = surface.get_rect().center
+        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+        radius = clip_rect.w // 2 + 1
+
+        # {center : set(some points to check)}
+        check_pts = {
+            clip_rect.topleft : set([clip_rect.midleft, clip_rect.midtop]),
+            clip_rect.topright : set([clip_rect.midright, clip_rect.midtop]),
+            clip_rect.bottomright : set([clip_rect.midright,
+                                         clip_rect.midbottom]),
+            clip_rect.bottomleft : set([clip_rect.midleft,
+                                        clip_rect.midbottom]),
+            clip_rect.midleft : set([clip_rect.center, clip_rect.topleft,
+                                     clip_rect.bottomleft]),
+            clip_rect.midtop : set([clip_rect.center, clip_rect.topleft,
+                                    clip_rect.topright]),
+            clip_rect.midright : set([clip_rect.center, clip_rect.topright,
+                                      clip_rect.bottomright]),
+            clip_rect.midbottom : set([clip_rect.center, clip_rect.bottomleft,
+                                       clip_rect.bottomright]),
+            clip_rect.center : set([clip_rect.midleft, clip_rect.midtop,
+                                    clip_rect.midright, clip_rect.midbottom])}
+
+        # Test centering the circle along the clip rect's edge.
+        for center in rect_corners_mids_and_center(clip_rect):
+            surface.fill(surface_color)
+
+            self.draw_circle(surface, circle_color, center, radius, width=1)
+
+            surface.lock() # For possible speed up.
+
+            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
+                if not clip_rect.collidepoint(pt):
+                    expected_color = surface_color
+                elif pt in check_pts:
+                    # For a point to be the circle_color it needs to be one
+                    # of the keys in check_pts and also in the set of pts
+                    # under the `center` key.
+                    if pt in check_pts[center]:
+                        expected_color = circle_color
+                    else:
+                        expected_color = surface_color
+                else:
+                    # Just checking all the points outside the clip_rect and
+                    # some known ones inside it.
+                    continue
+
+                self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+            surface.unlock()
+
+    def test_circle__surface_clip_with_filled_circle(self):
+        """Ensures draw filled circle respects a surface's clip area."""
+        surf_w = surf_h = 25
+        circle_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surf_w, surf_h))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (10, 10))
+        clip_rect.center = surface.get_rect().center
+        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+        radius = clip_rect.w // 2 + 1
+
+        # {center : set(some points to check)}
+        check_pts = {
+            clip_rect.topleft : set([clip_rect.midleft, clip_rect.midtop,
+                                     clip_rect.topleft]),
+            clip_rect.topright : set([clip_rect.midright, clip_rect.midtop,
+                                      clip_rect.topright]),
+            clip_rect.bottomright : set([clip_rect.midright,
+                                         clip_rect.midbottom,
+                                         clip_rect.bottomright]),
+            clip_rect.bottomleft : set([clip_rect.midleft, clip_rect.midbottom,
+                                        clip_rect.bottomleft]),
+            clip_rect.midleft : set([clip_rect.center, clip_rect.topleft,
+                                     clip_rect.bottomleft, clip_rect.midleft]),
+            clip_rect.midtop : set([clip_rect.center, clip_rect.topleft,
+                                    clip_rect.topright, clip_rect.midtop]),
+            clip_rect.midright : set([clip_rect.center, clip_rect.topright,
+                                      clip_rect.bottomright,
+                                      clip_rect.midright]),
+            clip_rect.midbottom : set([clip_rect.center, clip_rect.bottomleft,
+                                       clip_rect.bottomright,
+                                       clip_rect.midbottom]),
+            clip_rect.center : set([clip_rect.midleft, clip_rect.midtop,
+                                    clip_rect.midright, clip_rect.midbottom,
+                                    clip_rect.center])}
+
+        # Test centering the circle along the clip rect's edge.
+        for center in rect_corners_mids_and_center(clip_rect):
+            surface.fill(surface_color)
+
+            self.draw_circle(surface, circle_color, center, radius)
+
+            surface.lock() # For possible speed up.
+
+            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
+                if not clip_rect.collidepoint(pt):
+                    expected_color = surface_color
+                elif pt in check_pts:
+                    # For a point to be the circle_color it needs to be one
+                    # of the keys in check_pts and also in the set of pts
+                    # under the `center` key.
+                    if pt in check_pts[center]:
+                        expected_color = circle_color
+                    else:
+                        expected_color = surface_color
+                else:
+                    # Just checking all the points outside the clip_rect and
+                    # some known ones inside it.
+                    continue
+
+                self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+            surface.unlock()
+
 
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """Test draw module function circle.
