@@ -100,21 +100,22 @@ pg_scancodewrapper_subscript(pgScancodeWrapper *self, PyObject *item)
         return NULL;
     index = SDL_GetScancodeFromKey(index);
     adjustedvalue = PyLong_FromLong(index);
-    ret = PyTuple_Type.tp_as_mapping->mp_subscript(self, adjustedvalue);
+    ret = PyTuple_Type.tp_as_mapping->mp_subscript((PyObject *)self,
+                                                   adjustedvalue);
     Py_DECREF(adjustedvalue);
     return ret;
 }
 
 static PyMappingMethods pg_scancodewrapper_mapping = {
     NULL,
-    pg_scancodewrapper_subscript,
+    (binaryfunc)pg_scancodewrapper_subscript,
     NULL
 };
 
 static PyObject*
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
-    PyObject *baserepr = PyTuple_Type.tp_repr(self);
+    PyObject *baserepr = PyTuple_Type.tp_repr((PyObject *)self);
 #if PY3
     PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
 #else /* PY2 */
@@ -134,7 +135,7 @@ static PyTypeObject pgScancodeWrapper_Type = {
     NULL,                                         /* getattr */
     NULL,                                         /* setattr */
     NULL,                                         /* compare */
-    pg_scancodewrapper_repr,                      /* repr */
+    (reprfunc)pg_scancodewrapper_repr,            /* repr */
     NULL,                                         /* as_number */
     NULL,                                         /* as_sequence */
     &pg_scancodewrapper_mapping,                  /* as_mapping */
@@ -206,7 +207,7 @@ key_get_pressed(PyObject *self, PyObject *args)
 #if IS_SDLv1
     return key_tuple;
 #else
-    return PyObject_CallFunctionObjArgs(&pgScancodeWrapper_Type,
+    return PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
                                         key_tuple, NULL);
 #endif
 }
