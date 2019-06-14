@@ -129,12 +129,42 @@ to store which parts collide.
    :returns: a newly created :class:`Mask` object
    :rtype: Mask
 
+   .. versionchanged:: 2.0.0
+      Shallow copy support added. The :class:`Mask` class supports the special
+      method ``__copy__()`` and shallow copying via ``copy.copy(mask)``.
    .. versionchanged:: 2.0.0 Subclassing support added. The :class:`Mask` class
       can be used as a base class.
    .. versionchanged:: 1.9.5 Added support for keyword arguments.
    .. versionchanged:: 1.9.5 Added the optional keyword parameter ``fill``.
    .. versionchanged:: 1.9.5 Added support for masks with a width and/or a
       height of 0.
+
+   .. method:: copy
+
+      | :sl:`Returns a new copy of the mask`
+      | :sg:`copy() -> Mask`
+
+      :returns: a new copy of this mask, the new mask will have the same width,
+         height, and set/unset bits as the original
+      :rtype: Mask
+
+      .. note::
+         If a mask subclass needs to copy any instance specific attributes
+         then it should override the ``__copy__()`` method. The overridden
+         ``__copy__()`` method needs to call ``super().__copy__()`` and then
+         copy the required data as in the following example code.
+
+         ::
+
+            class SubMask(pygame.mask.Mask):
+                def __copy__(self):
+                    new_mask = super().__copy__()
+                    # Do any SubMask attribute copying here.
+                    return new_mask
+
+      .. versionadded:: 2.0.0
+
+      .. ## Mask.copy ##
 
    .. method:: get_size
 

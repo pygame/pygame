@@ -118,6 +118,37 @@ bitmask_free(bitmask_t *m)
     free(m);
 }
 
+/* Create a copy of the given bitmask.
+ *
+ * Returns:
+ *     bitmask if successful, otherwise NULL
+ */
+bitmask_t *
+bitmask_copy(bitmask_t *mask)
+{
+    bitmask_t *mask_copy = NULL;
+
+    if (mask->w < 0 || mask->h < 0) {
+        return NULL;
+    }
+
+    mask_copy = bitmask_create(mask->w, mask->h);
+
+    if (NULL == mask_copy) {
+        return NULL;
+    }
+
+    /* Nothing to copy if width or height is 0. */
+    if (!mask->w || !mask->h) {
+        return mask_copy;
+    }
+
+    memcpy(mask_copy->bits, mask->bits,
+           mask->h * ((mask->w - 1) / BITMASK_W_LEN + 1) * sizeof(BITMASK_W));
+
+    return mask_copy;
+}
+
 void
 bitmask_clear(bitmask_t *m)
 {
