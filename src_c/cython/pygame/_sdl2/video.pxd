@@ -361,6 +361,9 @@ cdef class Renderer:
     cdef Texture _target
     cdef Window _win
 
+    cpdef object get_viewport(self)
+    cpdef object blit(self, object source, Rect dest=*, Rect area=*, int special_flags=*)
+
 cdef class Texture:
     cdef SDL_Texture* _tex
     cdef Color _color
