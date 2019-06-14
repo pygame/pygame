@@ -320,15 +320,50 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: lines
 
-   | :sl:`draw multiple contiguous line segments`
-   | :sg:`lines(Surface, color, closed, pointlist, width=1) -> Rect`
+   | :sl:`draw multiple contiguous straight line segments`
+   | :sg:`lines(surface, color, closed, points) -> Rect`
+   | :sg:`lines(surface, color, closed, points, width=1) -> Rect`
 
-   Draw a sequence of lines on a Surface. The pointlist argument is a series of
-   points that are connected by a line. If the closed argument is true an
-   additional line segment is drawn between the first and last points.
+   Draws a sequence of contiguous straight lines on the given surface. There are
+   no endcaps or miter joints. For thick lines the ends are squared off.
+   Drawing thick lines with sharp corners can have undesired looking results.
 
-   This does not draw any endcaps or miter joints. Lines with sharp corners and
-   wide line widths can have improper looking corners.
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param bool closed: if ``True`` an additional line segment is drawn between
+      the first and last points in the ``points`` sequence
+   :param points: a sequence of 2 or more (x, y) coordinates, where each
+      *coordinate* in the sequence must be a
+      tuple/list/:class:`pygame.math.Vector2` of 2 ints/floats and adjacent
+      coordinates will be connected by a line segment, e.g. for the
+      points ``[(x1, y1), (x2, y2), (x3, y3)]`` a line segment will be drawn
+      from ``(x1, y1)`` to ``(x2, y2)`` and from ``(x2, y2)`` to ``(x3, y3)``,
+      additionally if the ``closed`` parameter is ``True`` another line segment
+      will be drawn from ``(x3, y3)`` to ``(x1, y1)``
+   :type points: tuple(coordinate) or list(coordinate)
+   :param int width: (optional) used for line thickness
+
+         | if width >= 1, used for line thickness (default is 1)
+         | if width < 1, nothing will be drawn
+         |
+
+         .. note::
+            When using ``width`` values ``> 1`` refer to the ``width`` notes
+            of :func:`line` for details on how thick lines grow.
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the first point in the
+      ``points`` parameter (float values will be truncated) and its width and
+      height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``len(points) < 2`` (must have at least 2 points)
+   :raises TypeError: if ``points`` is not a sequence or ``points`` does not
+      contain number pairs
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.lines ##
 

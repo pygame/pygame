@@ -331,56 +331,80 @@ aalines(PyObject *self, PyObject *arg)
                        (int)(bottom - top + 2));
 }
 
+/* Draws a series of lines on the given surface.
+ *
+ * Returns a Rect bounding the drawn area.
+ */
 static PyObject *
-lines(PyObject *self, PyObject *arg)
+lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *closedobj, *points, *item;
-    SDL_Surface *surf;
-    int x, y;
-    int top, left, bottom, right;
-    int pts[4], width = 1;
-    Uint8 rgba[4];
+    PyObject *surfobj = NULL, *colorobj = NULL, *closedobj = NULL;
+    PyObject *points = NULL, *item = NULL;
+    SDL_Surface *surf = NULL;
     Uint32 color;
-    int closed;
-    int result, loop, length;
-    int *xlist, *ylist;
+    Uint8 rgba[4];
+    int pts[4];
+    int x, y, closed, result, loop, length;
+    int top = INT_MAX, left = INT_MAX;
+    int bottom = INT_MIN, right = INT_MIN;
+    int *xlist = NULL, *ylist = NULL;
+    int width = 1; /* Default width. */
+    static char *keywords[] = {"surface", "color", "closed",
+                               "points",  "width", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
-                          &closedobj, &points, &width))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOO|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &closedobj, &points, &width)) {
+        return NULL; /* Exception already set. */
+    }
+
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
-        return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
     closed = PyObject_IsTrue(closedobj);
 
-    if (!PySequence_Check(points))
+    if (-1 == closed) {
+        return RAISE(PyExc_TypeError, "closed argument is invalid");
+    }
+
+    if (!PySequence_Check(points)) {
         return RAISE(PyExc_TypeError,
                      "points argument must be a sequence of number pairs");
-    length = PySequence_Length(points);
-    if (length < 2)
-        return RAISE(PyExc_ValueError,
-                     "points argument must contain more than 1 points");
+    }
 
-    left = top = 10000;
-    right = bottom = -10000;
+    length = PySequence_Length(points);
+
+    if (length < 2) {
+        return RAISE(PyExc_ValueError,
+                     "points argument must contain 2 or more points");
+    }
 
     xlist = PyMem_New(int, length);
     ylist = PyMem_New(int, length);
+
+    if (NULL == xlist || NULL == ylist) {
+        return RAISE(PyExc_MemoryError,
+                     "cannot allocate memory to draw lines");
+    }
 
     for (loop = 0; loop < length; ++loop) {
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);
         Py_DECREF(item);
+
         if (!result) {
             PyMem_Del(xlist);
             PyMem_Del(ylist);
             return RAISE(PyExc_TypeError, "points must be number pairs");
         }
+
         xlist[loop] = x;
         ylist[loop] = y;
         left = MIN(x, left);
@@ -398,7 +422,7 @@ lines(PyObject *self, PyObject *arg)
     if (!pgSurface_Lock(surfobj)) {
         PyMem_Del(xlist);
         PyMem_Del(ylist);
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
     for (loop = 1; loop < length; ++loop) {
@@ -408,6 +432,7 @@ lines(PyObject *self, PyObject *arg)
         pts[3] = ylist[loop];
         clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
     }
+
     if (closed && length > 2) {
         pts[0] = xlist[length - 1];
         pts[1] = ylist[length - 1];
@@ -418,10 +443,12 @@ lines(PyObject *self, PyObject *arg)
 
     PyMem_Del(xlist);
     PyMem_Del(ylist);
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
 
-    /*compute return rect*/
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    /* Compute return rect. */
     return pgRect_New4(left, top, right - left + 1, bottom - top + 1);
 }
 
@@ -681,7 +708,7 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
             return NULL; /* Exception already set. */
         }
 
-        ret = lines(NULL, args);
+        ret = lines(NULL, args, NULL);
         Py_DECREF(args);
         return ret;
     }
@@ -1900,7 +1927,8 @@ static PyMethodDef _draw_methods[] = {
     {"line", (PyCFunction)line, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWLINE},
     {"aalines", aalines, METH_VARARGS, DOC_PYGAMEDRAWAALINES},
-    {"lines", lines, METH_VARARGS, DOC_PYGAMEDRAWLINES},
+    {"lines", (PyCFunction)lines, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWLINES},
     {"ellipse", (PyCFunction)ellipse, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWELLIPSE},
     {"arc", (PyCFunction)arc, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEDRAWARC},
