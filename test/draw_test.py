@@ -79,6 +79,27 @@ def border_pos_and_color(surface):
         yield pos, surface.get_at(pos)
 
 
+def get_color_points(surface, color, bounds_rect=None):
+    """Get all the points of a given color on the surface within the given
+    bounds.
+
+    If bounds_rect is None the full surface is checked.
+    """
+    get_at = surface.get_at # For possible speed up.
+
+    if bounds_rect is None:
+        x_range = range(surface.get_width())
+        y_range = range(surface.get_height())
+    else:
+        x_range = range(bounds_rect.left, bounds_rect.right)
+        y_range = range(bounds_rect.top, bounds_rect.bottom)
+
+    surface.lock() # For possible speed up.
+    pts = [(x, y) for x in x_range for y in y_range if get_at((x, y)) == color]
+    surface.unlock()
+    return pts
+
+
 class InvalidBool(object):
     """To help test invalid bool values."""
     __nonzero__ = None
@@ -685,6 +706,54 @@ class DrawEllipseMixin(object):
             self._check_1_pixel_sized_ellipse(surface, rect, surface_color,
                                               ellipse_color)
 
+    def test_ellipse__surface_clip(self):
+        """Ensures draw ellipse respects a surface's clip area.
+
+        Tests drawing the ellipse filled and unfilled.
+        """
+        surfw = surfh = 30
+        ellipse_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (11, 11))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy() # Manages the ellipse's pos.
+
+        for width in (0, 1): # Filled and unfilled.
+            # Test centering the ellipse along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the ellipse without the
+                # clip area set.
+                pos_rect.center = center
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_ellipse(surface, ellipse_color, pos_rect, width)
+                expected_pts = get_color_points(surface, ellipse_color,
+                                                clip_rect)
+
+                # Clear the surface and set the clip area. Redraw the ellipse
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
+
+                self.draw_ellipse(surface, ellipse_color, pos_rect, width)
+
+                surface.lock() # For possible speed up.
+
+                # Check all the surface points to ensure only the expected_pts
+                # are the ellipse_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        expected_color = ellipse_color
+                    else:
+                        expected_color = surface_color
+
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+                surface.unlock()
+
 
 class DrawEllipseTest(DrawEllipseMixin, DrawTestCase):
     """Test draw module function ellipse.
@@ -1210,6 +1279,52 @@ class LineMixin(BaseLineMixin):
                             'start={}, end={}, size={}, thickness={}'.format(
                                 start, end, size, thickness))
 
+    def test_line__surface_clip(self):
+        """Ensures draw line respects a surface's clip area."""
+        surfw = surfh = 30
+        line_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (11, 11))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy() # Manages the line's pos.
+
+        for thickness in (1, 3): # Test different line widths.
+            # Test centering the line along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the line without the
+                # clip area set.
+                pos_rect.center = center
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_line(surface, line_color, pos_rect.midtop,
+                               pos_rect.midbottom, thickness)
+                expected_pts = get_color_points(surface, line_color,
+                                                clip_rect)
+
+                # Clear the surface and set the clip area. Redraw the line
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
+
+                self.draw_line(surface, line_color, pos_rect.midtop,
+                               pos_rect.midbottom, thickness)
+
+                surface.lock() # For possible speed up.
+
+                # Check all the surface points to ensure only the expected_pts
+                # are the line_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        expected_color = line_color
+                    else:
+                        expected_color = surface_color
+
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+                surface.unlock()
 
 # Commented out to avoid cluttering the test output. Add back in if draw_py
 # ever fully supports drawing single lines.
@@ -2936,81 +3051,54 @@ class DrawPolygonMixin(object):
                           RED, ((0, 0), (0, 20), (20, 20), 20), 0))
 
     def test_polygon__surface_clip(self):
-        """Ensures draw polygon respects a surface's clip area."""
-        surf_w = surf_h = 30
+        """Ensures draw polygon respects a surface's clip area.
+
+        Tests drawing the polygon filled and unfilled.
+        """
+        surfw = surfh = 30
         polygon_color = pygame.Color('red')
         surface_color = pygame.Color('green')
-        surface = pygame.Surface((surf_w, surf_h))
+        surface = pygame.Surface((surfw, surfh))
         surface.fill(surface_color)
 
         clip_rect = pygame.Rect((0, 0), (8, 10))
         clip_rect.center = surface.get_rect().center
-        surface.set_clip(clip_rect) # Now only the clip area can be modified.
+        pos_rect = clip_rect.copy() # Manages the polygon's pos.
 
-        # Need 2 rects to manage drawing the polygon.
-        pos_rect = clip_rect.copy() # Manages the polygon's vertices.
-        poly_rect = pos_rect.copy().inflate(1, 1) # Manages actual drawn pts.
+        for width in (0, 1): # Filled and unfilled.
+            # Test centering the polygon along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the polygon without the
+                # clip area set.
+                pos_rect.center = center
+                vertices = (pos_rect.topleft, pos_rect.topright,
+                            pos_rect.bottomright, pos_rect.bottomleft)
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_polygon(surface, polygon_color, vertices, width)
+                expected_pts = get_color_points(surface, polygon_color,
+                                                clip_rect)
 
-        # Test centering the polygon along the clip rect's edge.
-        for test_pos in rect_corners_mids_and_center(clip_rect):
-            surface.fill(surface_color)
-            poly_rect.center = pos_rect.center = test_pos
-            polygon_edge_pts = set(test_utils.rect_perimeter_pts(poly_rect))
+                # Clear the surface and set the clip area. Redraw the polygon
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
 
-            self.draw_polygon(surface, polygon_color, width=1,
-                              points=(pos_rect.topleft, pos_rect.topright,
-                                      pos_rect.bottomright,
-                                      pos_rect.bottomleft))
+                self.draw_polygon(surface, polygon_color, vertices, width)
 
-            surface.lock() # For possible speed up.
+                surface.lock() # For possible speed up.
 
-            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
-                if pt in polygon_edge_pts and clip_rect.collidepoint(pt):
-                    expected_color = polygon_color
-                else:
-                    expected_color = surface_color
+                # Check all the surface points to ensure only the expected_pts
+                # are the polygon_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        expected_color = polygon_color
+                    else:
+                        expected_color = surface_color
 
-                self.assertEqual(surface.get_at(pt), expected_color)
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
 
-            surface.unlock()
-
-    def test_polygon__surface_clip_with_filled_polygon(self):
-        """Ensures draw filled polygon respects a surface's clip area."""
-        surf_w = surf_h = 30
-        polygon_color = pygame.Color('red')
-        surface_color = pygame.Color('green')
-        surface = pygame.Surface((surf_w, surf_h))
-        surface.fill(surface_color)
-
-        clip_rect = pygame.Rect((0, 0), (8, 10))
-        clip_rect.center = surface.get_rect().center
-        surface.set_clip(clip_rect) # Now only the clip area can be modified.
-
-        # Need 2 rects to manage drawing the polygon.
-        pos_rect = clip_rect.copy() # Manages the polygon's vertices.
-        poly_rect = pos_rect.copy().inflate(1, 1) # Manages actual drawn area.
-
-        # Test centering the polygon along the clip rect's edge.
-        for test_pos in rect_corners_mids_and_center(clip_rect):
-            surface.fill(surface_color)
-            poly_rect.center = pos_rect.center = test_pos
-
-            self.draw_polygon(surface, polygon_color,
-                              points=(pos_rect.topleft, pos_rect.topright,
-                                      pos_rect.bottomright,
-                                      pos_rect.bottomleft))
-
-            surface.lock() # For possible speed up.
-
-            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
-                if clip_rect.collidepoint(pt) and poly_rect.collidepoint(pt):
-                    expected_color = polygon_color
-                else:
-                    expected_color = surface_color
-
-                self.assertEqual(surface.get_at(pt), expected_color)
-
-            surface.unlock()
+                surface.unlock()
 
 
 class DrawPolygonTest(DrawPolygonMixin, DrawTestCase):
@@ -3382,69 +3470,51 @@ class DrawRectMixin(object):
             self.assertNotEqual(color_at_pt, self.color)
 
     def test_rect__surface_clip(self):
-        """Ensures draw rect respects a surface's clip area."""
-        surf_w = surf_h = 30
+        """Ensures draw rect respects a surface's clip area.
+
+        Tests drawing the rect filled and unfilled.
+        """
+        surfw = surfh = 30
         rect_color = pygame.Color('red')
         surface_color = pygame.Color('green')
-        surface = pygame.Surface((surf_w, surf_h))
+        surface = pygame.Surface((surfw, surfh))
         surface.fill(surface_color)
 
         clip_rect = pygame.Rect((0, 0), (8, 10))
         clip_rect.center = surface.get_rect().center
-        surface.set_clip(clip_rect) # Now only the clip area can be modified.
-        test_rect = clip_rect.copy()
+        test_rect = clip_rect.copy() # Manages the rect's pos.
 
-        # Test centering the rect along the clip rect's edge.
-        for test_pos in rect_corners_mids_and_center(clip_rect):
-            surface.fill(surface_color)
-            test_rect.center = test_pos
-            rect_edge_pts = set(test_utils.rect_perimeter_pts(test_rect))
+        for width in (0, 1): # Filled and unfilled.
+            # Test centering the rect along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the rect without the
+                # clip area set.
+                test_rect.center = center
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_rect(surface, rect_color, test_rect, width)
+                expected_pts = get_color_points(surface, rect_color, clip_rect)
 
-            self.draw_rect(surface, rect_color, test_rect, width=1)
+                # Clear the surface and set the clip area. Redraw the rect
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
 
-            surface.lock() # For possible speed up.
+                self.draw_rect(surface, rect_color, test_rect, width)
 
-            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
-                if pt in rect_edge_pts and clip_rect.collidepoint(pt):
-                    expected_color = rect_color
-                else:
-                    expected_color = surface_color
+                surface.lock() # For possible speed up.
 
-                self.assertEqual(surface.get_at(pt), expected_color, pt)
+                # Check all the surface points to ensure only the expected_pts
+                # are the rect_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        expected_color = rect_color
+                    else:
+                        expected_color = surface_color
 
-            surface.unlock()
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
 
-    def test_rect__surface_clip_with_filled_rect(self):
-        """Ensures draw filled rect respects a surface's clip area."""
-        surf_w = surf_h = 30
-        rect_color = pygame.Color('red')
-        surface_color = pygame.Color('green')
-        surface = pygame.Surface((surf_w, surf_h))
-        surface.fill(surface_color)
-
-        clip_rect = pygame.Rect((0, 0), (8, 10))
-        clip_rect.center = surface.get_rect().center
-        surface.set_clip(clip_rect) # Now only the clip area can be modified.
-        test_rect = clip_rect.copy()
-
-        # Test centering the rect along the clip rect's edge.
-        for test_pos in rect_corners_mids_and_center(clip_rect):
-            surface.fill(surface_color)
-            test_rect.center = test_pos
-
-            self.draw_rect(surface, rect_color, test_rect)
-
-            surface.lock() # For possible speed up.
-
-            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
-                if clip_rect.collidepoint(pt) and test_rect.collidepoint(pt):
-                    expected_color = rect_color
-                else:
-                    expected_color = surface_color
-
-                self.assertEqual(surface.get_at(pt), expected_color, pt)
-
-            surface.unlock()
+                surface.unlock()
 
 
 class DrawRectTest(DrawRectMixin, DrawTestCase):
@@ -3812,130 +3882,51 @@ class DrawCircleMixin(object):
         )
 
     def test_circle__surface_clip(self):
-        """Ensures draw circle respects a surface's clip area."""
-        surf_w = surf_h = 25
+        """Ensures draw circle respects a surface's clip area.
+
+        Tests drawing the circle filled and unfilled.
+        """
+        surfw = surfh = 25
         circle_color = pygame.Color('red')
         surface_color = pygame.Color('green')
-        surface = pygame.Surface((surf_w, surf_h))
+        surface = pygame.Surface((surfw, surfh))
         surface.fill(surface_color)
 
         clip_rect = pygame.Rect((0, 0), (10, 10))
         clip_rect.center = surface.get_rect().center
-        surface.set_clip(clip_rect) # Now only the clip area can be modified.
         radius = clip_rect.w // 2 + 1
 
-        # {center : set(some points to check)}
-        check_pts = {
-            clip_rect.topleft : set([clip_rect.midleft, clip_rect.midtop]),
-            clip_rect.topright : set([clip_rect.midright, clip_rect.midtop]),
-            clip_rect.bottomright : set([clip_rect.midright,
-                                         clip_rect.midbottom]),
-            clip_rect.bottomleft : set([clip_rect.midleft,
-                                        clip_rect.midbottom]),
-            clip_rect.midleft : set([clip_rect.center, clip_rect.topleft,
-                                     clip_rect.bottomleft]),
-            clip_rect.midtop : set([clip_rect.center, clip_rect.topleft,
-                                    clip_rect.topright]),
-            clip_rect.midright : set([clip_rect.center, clip_rect.topright,
-                                      clip_rect.bottomright]),
-            clip_rect.midbottom : set([clip_rect.center, clip_rect.bottomleft,
-                                       clip_rect.bottomright]),
-            clip_rect.center : set([clip_rect.midleft, clip_rect.midtop,
-                                    clip_rect.midright, clip_rect.midbottom])}
+        for width in (0, 1): # Filled and unfilled.
+            # Test centering the circle along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the circle without the
+                # clip area set.
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_circle(surface, circle_color, center, radius, width)
+                expected_pts = get_color_points(surface, circle_color,
+                                                clip_rect)
 
-        # Test centering the circle along the clip rect's edge.
-        for center in rect_corners_mids_and_center(clip_rect):
-            surface.fill(surface_color)
+                # Clear the surface and set the clip area. Redraw the circle
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
 
-            self.draw_circle(surface, circle_color, center, radius, width=1)
+                self.draw_circle(surface, circle_color, center, radius, width)
 
-            surface.lock() # For possible speed up.
+                surface.lock() # For possible speed up.
 
-            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
-                if not clip_rect.collidepoint(pt):
-                    expected_color = surface_color
-                elif pt in check_pts:
-                    # For a point to be the circle_color it needs to be one
-                    # of the keys in check_pts and also in the set of pts
-                    # under the `center` key.
-                    if pt in check_pts[center]:
+                # Check all the surface points to ensure only the expected_pts
+                # are the circle_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
                         expected_color = circle_color
                     else:
                         expected_color = surface_color
-                else:
-                    # Just checking all the points outside the clip_rect and
-                    # some known ones inside it.
-                    continue
 
-                self.assertEqual(surface.get_at(pt), expected_color, pt)
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
 
-            surface.unlock()
-
-    def test_circle__surface_clip_with_filled_circle(self):
-        """Ensures draw filled circle respects a surface's clip area."""
-        surf_w = surf_h = 25
-        circle_color = pygame.Color('red')
-        surface_color = pygame.Color('green')
-        surface = pygame.Surface((surf_w, surf_h))
-        surface.fill(surface_color)
-
-        clip_rect = pygame.Rect((0, 0), (10, 10))
-        clip_rect.center = surface.get_rect().center
-        surface.set_clip(clip_rect) # Now only the clip area can be modified.
-        radius = clip_rect.w // 2 + 1
-
-        # {center : set(some points to check)}
-        check_pts = {
-            clip_rect.topleft : set([clip_rect.midleft, clip_rect.midtop,
-                                     clip_rect.topleft]),
-            clip_rect.topright : set([clip_rect.midright, clip_rect.midtop,
-                                      clip_rect.topright]),
-            clip_rect.bottomright : set([clip_rect.midright,
-                                         clip_rect.midbottom,
-                                         clip_rect.bottomright]),
-            clip_rect.bottomleft : set([clip_rect.midleft, clip_rect.midbottom,
-                                        clip_rect.bottomleft]),
-            clip_rect.midleft : set([clip_rect.center, clip_rect.topleft,
-                                     clip_rect.bottomleft, clip_rect.midleft]),
-            clip_rect.midtop : set([clip_rect.center, clip_rect.topleft,
-                                    clip_rect.topright, clip_rect.midtop]),
-            clip_rect.midright : set([clip_rect.center, clip_rect.topright,
-                                      clip_rect.bottomright,
-                                      clip_rect.midright]),
-            clip_rect.midbottom : set([clip_rect.center, clip_rect.bottomleft,
-                                       clip_rect.bottomright,
-                                       clip_rect.midbottom]),
-            clip_rect.center : set([clip_rect.midleft, clip_rect.midtop,
-                                    clip_rect.midright, clip_rect.midbottom,
-                                    clip_rect.center])}
-
-        # Test centering the circle along the clip rect's edge.
-        for center in rect_corners_mids_and_center(clip_rect):
-            surface.fill(surface_color)
-
-            self.draw_circle(surface, circle_color, center, radius)
-
-            surface.lock() # For possible speed up.
-
-            for pt in ((x, y) for x in range(surf_w) for y in range(surf_h)):
-                if not clip_rect.collidepoint(pt):
-                    expected_color = surface_color
-                elif pt in check_pts:
-                    # For a point to be the circle_color it needs to be one
-                    # of the keys in check_pts and also in the set of pts
-                    # under the `center` key.
-                    if pt in check_pts[center]:
-                        expected_color = circle_color
-                    else:
-                        expected_color = surface_color
-                else:
-                    # Just checking all the points outside the clip_rect and
-                    # some known ones inside it.
-                    continue
-
-                self.assertEqual(surface.get_at(pt), expected_color, pt)
-
-            surface.unlock()
+                surface.unlock()
 
 
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
@@ -4354,6 +4345,55 @@ class DrawArcMixin(object):
     def todo_test_arc(self):
         """Ensure draw arc works correctly."""
         self.fail()
+
+    def test_arc__surface_clip(self):
+        """Ensures draw arc respects a surface's clip area."""
+        surfw = surfh = 30
+        start = 0.1
+        end = 0 # end < start so a full circle will be drawn
+        arc_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (11, 11))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy() # Manages the arc's pos.
+
+        for thickness in (1, 3): # Different line widths.
+            # Test centering the arc along the clip rect's edge.
+            for center in rect_corners_mids_and_center(clip_rect):
+                # Get the expected points by drawing the arc without the
+                # clip area set.
+                pos_rect.center = center
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_arc(surface, arc_color, pos_rect, start, end,
+                              thickness)
+                expected_pts = get_color_points(surface, arc_color,
+                                                clip_rect)
+
+                # Clear the surface and set the clip area. Redraw the arc
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
+
+                self.draw_arc(surface, arc_color, pos_rect, start, end,
+                              thickness)
+
+                surface.lock() # For possible speed up.
+
+                # Check all the surface points to ensure only the expected_pts
+                # are the arc_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        expected_color = arc_color
+                    else:
+                        expected_color = surface_color
+
+                    self.assertEqual(surface.get_at(pt), expected_color, pt)
+
+                surface.unlock()
 
 
 class DrawArcTest(DrawArcMixin, DrawTestCase):
