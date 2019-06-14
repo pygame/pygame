@@ -120,7 +120,7 @@ static GAME_Rect *
 pgRect_FromObject(PyObject *obj, GAME_Rect *temp)
 {
     int val;
-    int length;
+    Py_ssize_t length;
 
     if (pgRect_Check(obj)) {
         return &((pgRectObject *)obj)->r;
@@ -342,7 +342,7 @@ static PyObject *
 pg_rect_unionall(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
-    int loop, size;
+    Py_ssize_t loop, size;
     PyObject *list, *obj;
     int t, l, b, r;
 
@@ -389,7 +389,7 @@ static PyObject *
 pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
-    int loop, size;
+    Py_ssize_t loop, size;
     PyObject *list, *obj;
     int t, l, b, r;
 

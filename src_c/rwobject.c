@@ -459,7 +459,8 @@ pgRWops_ReleaseObject(SDL_RWops *context)
 
         pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
         PyObject *fileobj = helper->file;
-        int filerefcnt = Py_REFCNT(fileobj) - 1 - 5 /* 5 helper functions */;
+        /* 5 helper functions */
+        Py_ssize_t filerefcnt = Py_REFCNT(fileobj) - 1 - 5;
 
         if (filerefcnt) {
             Py_XDECREF(helper->seek);

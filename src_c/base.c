@@ -266,7 +266,7 @@ static PyObject *
 pg_init(PyObject *self, PyObject *args)
 {
     PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
-    int loop, num;
+    Py_ssize_t loop, num;
 
     int success = 0, fail = 0;
 
@@ -372,7 +372,7 @@ _pg_quit(void)
 {
     PyObject *quit;
     PyObject *privatefuncs;
-    int num;
+    Py_ssize_t num;
 
     pg_is_init = 0;  // Considered uninitialized at this point?
 
@@ -526,7 +526,7 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
 static int
 pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 {
-    int length;
+    Py_ssize_t length;
     Uint32 val;
 
     if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
@@ -1594,8 +1594,7 @@ _pg_values_as_buffer(Py_buffer *view_p, int flags, PyObject *typestr,
 {
     Py_ssize_t ndim = PyTuple_GET_SIZE(shape);
     pgViewInternals *internal_p;
-    Py_ssize_t sz;
-    int i;
+    Py_ssize_t sz, i;
 
     assert(ndim > 0);
     view_p->obj = 0;
