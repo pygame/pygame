@@ -711,6 +711,11 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     xlist = PyMem_New(int, length);
     ylist = PyMem_New(int, length);
 
+    if (NULL == xlist || NULL == ylist) {
+        return RAISE(PyExc_MemoryError,
+                     "cannot allocate memory to draw polygon");
+    }
+
     for (loop = 0; loop < length; ++loop) {
         item = PySequence_GetItem(points, loop);
         result = pg_TwoIntsFromObj(item, &x, &y);

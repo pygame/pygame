@@ -984,7 +984,6 @@ class LineMixin(BaseLineMixin):
                   'start_pos' : pos,
                   'end_pos'   : (2, 2),
                   'width'     : None}
-        pos = kwargs['start_pos']
 
         for width in (-100, -10, -1, 0, 1, 10, 100):
             surface.fill(surface_color)  # Clear for each test.
