@@ -16,7 +16,7 @@ RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel 
     java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
     giflib-devel mikmod-devel subversion
 RUN linux32 yum install -y libsndfile-devel libsndfile smpeg-devel dbus-devel \
-    pulseaudio-libs-devel cmake
+    pulseaudio-libs-devel cmake libxcb1-devel
 
 # Build and install PNG
 ADD libpng /png_build/
@@ -51,6 +51,8 @@ RUN ["linux32", "bash", "/flac_build/build-flac.sh"]
 # Build and install SDL
 ADD sdl_libs /sdl_build/
 RUN ["linux32", "bash", "/sdl_build/build-sdl-libs.sh"]
+RUN ["linux32", "bash", "/sdl_build/build-sdl2-libs.sh"]
+
 
 ENV MAKEFLAGS=
 
