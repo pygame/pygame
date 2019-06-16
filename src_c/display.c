@@ -34,6 +34,7 @@
 
 static PyTypeObject pgVidInfo_Type;
 
+
 #if IS_SDLv1
 
 static PyObject *
@@ -903,7 +904,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 /*change existing window*/
                 SDL_SetWindowTitle(win, title);
                 SDL_SetWindowSize(win, w_1, h_1);
+
+#if defined(SDL_VERSION_ATLEAST)
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
                 SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
+#endif
+#endif
                 SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
 
                 if ((flags & PGS_SHOWN) || !(flags & PGS_HIDDEN))

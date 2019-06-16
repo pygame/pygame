@@ -164,7 +164,6 @@ def writesetupfile(deps, basepath, additional_lines, sdl2=False):
 
 def main(auto=False):
     additional_platform_setup = []
-    sdl2 = "-sdl2" in sys.argv
     sdl1 = "-sdl1" in sys.argv
     sdl2 = not sdl1
 

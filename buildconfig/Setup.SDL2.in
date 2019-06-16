@@ -32,7 +32,7 @@ pypm src_c/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 _sdl2.sdl2 src_c/_sdl2/sdl2.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.audio src_c/_sdl2/audio.c $(SDL) $(DEBUG) -Isrc_c
-_sdl2.video src_c/_sdl2/video.c $(SDL) $(DEBUG) -Isrc_c
+_sdl2.video src_c/_sdl2/video.c src_c/pgcompat.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.mixer src_c/_sdl2/mixer.c $(SDL) $(MIXER) $(DEBUG) -Isrc_c
 _sdl2.touch src_c/_sdl2/touch.c $(SDL) $(DEBUG) -Isrc_c
 _sdl2.controller src_c/_sdl2/controller.c $(SDL) $(DEBUG) -Isrc_c

@@ -79,12 +79,6 @@
 
 #include "pgcompat.h"
 
-#if defined(SDL_VERSION_ATLEAST)
-#ifndef SDL_WINDOW_VULKAN
-#define SDL_WINDOW_VULKAN 0
-#endif
-#endif
-
 
 /* Flag indicating a pg_buffer; used for assertions within callbacks */
 #ifndef NDEBUG
