@@ -19,7 +19,7 @@ sha512sum -c sdl2.sha512
 # Build SDL
 tar xzf ${SDL2}.tar.gz
 cd $SDL2
-./configure
+./configure --disable-video-vulkan
 make
 make install
 cd ..
