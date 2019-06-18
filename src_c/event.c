@@ -19,7 +19,7 @@
   Pete Shinners
   pete@shinners.org
 */
-    
+
 /*
  *  pygame event module
  */
@@ -377,12 +377,14 @@ _pg_name_from_eventtype(int type)
             return "TextEditing";
         case SDL_DROPFILE:
             return "DropFile";
+#ifdef SDL_DROPTEXT
         case SDL_DROPTEXT:
             return "DropText";
         case SDL_DROPBEGIN:
             return "DropBegin";
         case SDL_DROPCOMPLETE:
             return "DropComplete";
+#endif
         case SDL_CONTROLLERAXISMOTION:
             return "ControllerAxisMotion";
         case SDL_CONTROLLERBUTTONDOWN:
@@ -394,7 +396,7 @@ _pg_name_from_eventtype(int type)
         case SDL_CONTROLLERDEVICEREMOVED:
             return "ControllerDeviceRemoved";
         case SDL_CONTROLLERDEVICEREMAPPED:
-            return "ControllerDeviceMapped";        
+            return "ControllerDeviceMapped";
 #endif
 
     }
@@ -657,6 +659,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "file", Text_FromUTF8(event->drop.file));
             SDL_free(event->drop.file);
             break;
+
+#ifdef SDL_DROPTEXT
         case SDL_DROPTEXT:
             _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
             SDL_free(event->drop.file);
@@ -664,6 +668,8 @@ dict_from_event(SDL_Event *event)
         case SDL_DROPBEGIN:
         case SDL_DROPCOMPLETE:
             break;
+#endif
+
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
             _pg_insobj(dict, "joy", PyLong_FromLong(event->caxis.which));
@@ -685,7 +691,7 @@ dict_from_event(SDL_Event *event)
 #endif
 
 
-#if IS_SDLv1    
+#if IS_SDLv1
         case SDL_VIDEORESIZE:
             obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
             _pg_insobj(dict, "size", obj);

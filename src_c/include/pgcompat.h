@@ -86,4 +86,34 @@ typedef uint32_t Uint32;
 typedef uint8_t Uint8;
 #endif /* no SDL */
 
+
+#if defined(SDL_VERSION_ATLEAST)
+
+#ifndef SDL_WINDOW_VULKAN
+#define SDL_WINDOW_VULKAN 0
+#endif
+
+#ifndef SDL_WINDOW_ALWAYS_ON_TOP
+#define SDL_WINDOW_ALWAYS_ON_TOP 0
+#endif
+
+#ifndef SDL_WINDOW_SKIP_TASKBAR
+#define SDL_WINDOW_SKIP_TASKBAR 0
+#endif
+
+#ifndef SDL_WINDOW_UTILITY
+#define SDL_WINDOW_UTILITY 0
+#endif
+
+#ifndef SDL_WINDOW_TOOLTIP
+#define SDL_WINDOW_TOOLTIP 0
+#endif
+
+#ifndef SDL_WINDOW_POPUP_MENU
+#define SDL_WINDOW_POPUP_MENU 0
+#endif
+
+#endif
+
+
 #endif /* ~defined(PGCOMPAT_H) */
