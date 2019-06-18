@@ -568,12 +568,17 @@ to store which parts collide.
    .. method:: to_surface
 
       | :sl:`Returns a surface with the mask drawn on it`
-      | :sg:`to_surface(surface)) -> Surface`
-      | :sg:`to_surface(surface, setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 255)) -> Surface`
+      | :sg:`to_surface() -> Surface`
+      | :sg:`to_surface(surface=None, setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 255)) -> Surface`
 
       Draws this mask on the given surface.
 
-      :param Surface surface: Surface to draw mask onto
+      :param surface: (optional) Surface to draw mask onto, if no surface is
+         provided one will be created (default is ``None``, which will cause a
+         surface with the parameters
+         ``Surface(size=mask.get_size(), flags=SRCALPHA, depth=32)`` to be
+         created, drawn on, and returned
+      :type surface: Surface or None
       :param setcolor: (optional) color to draw set bits (bits set to 1),
          (default is ``(255, 255, 255, 255)``, white), use ``None`` to skip
          drawing the set bits
@@ -585,7 +590,8 @@ to store which parts collide.
       :type unsetcolor: Color or int or tuple(int, int, int, [int]) or
          list(int, int, int, [int]) or None
 
-      :returns: the ``surface`` parameter with this mask drawn on it
+      :returns: the ``surface`` parameter (or a newly created surface if no
+         ``surface`` parameter was provided) with this mask drawn on it
       :rtype: Surface
 
       .. versionadded:: 2.0.0

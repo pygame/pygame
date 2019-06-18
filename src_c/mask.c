@@ -1679,7 +1679,7 @@ mask_connected_component(PyObject *self, PyObject *args)
     return (PyObject *)output_maskobj;
 }
 
-/* Get the color data from a color object.
+/* Extract the color data from a color object.
  *
  * Params:
  *     surf: surface that color will be mapped from
@@ -1695,8 +1695,8 @@ mask_connected_component(PyObject *self, PyObject *args)
  *              been set
  */
 static int
-get_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
-          Uint32 *color)
+extract_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
+              Uint32 *color)
 {
     if ((NULL == color_obj) || (pg_RGBAFromColorObj(color_obj, rgba_color))) {
         *color = SDL_MapRGBA(surf->format, rgba_color[0], rgba_color[1],
@@ -1773,42 +1773,61 @@ draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int draw_setbits,
 static PyObject *
 mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *setcolorobj = NULL, *unsetcolorobj = NULL;
+    PyObject *surfobj = Py_None, *setcolorobj = NULL, *unsetcolorobj = NULL;
     SDL_Surface *surf = NULL;
     bitmask_t *bitmask = pgMask_AsBitmap(self);
     Uint32 setcolor, unsetcolor;
     int draw_setbits = 0, draw_unsetbits = 0;
+    int created_surfobj = 0; /* Set to 1 if this func creates the surfobj. */
     Uint8 dflt_setcolor[] = {255, 255, 255, 255}; /* Default set color. */
     Uint8 dflt_unsetcolor[] = {0, 0, 0, 255};     /* Default unset color. */
 
     static char *keywords[] = {"surface", "setcolor", "unsetcolor", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|OO", keywords,
-                                     &pgSurface_Type, &surfobj, &setcolorobj,
-                                     &unsetcolorobj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOO", keywords, &surfobj,
+                                     &setcolorobj, &unsetcolorobj)) {
         return NULL; /* Exception already set. */
+    }
+
+    if (Py_None == surfobj) {
+        surfobj =
+            PyObject_CallFunction((PyObject *)&pgSurface_Type, "(ii)ii",
+                                  bitmask->w, bitmask->h, PGS_SRCALPHA, 32);
+        if (NULL == surfobj) {
+            if (!PyErr_Occurred()) {
+                return RAISE(PyExc_RuntimeError, "unable to create surface");
+            }
+            return NULL;
+        }
+
+        created_surfobj = 1;
+    }
+    else if (!pgSurface_Check(surfobj)) {
+        return RAISE(PyExc_TypeError, "invalid surface argument");
     }
 
     surf = pgSurface_AsSurface(surfobj);
 
     if (Py_None != setcolorobj) {
-        if (!get_color(surf, setcolorobj, dflt_setcolor, &setcolor)) {
-            return NULL; /* Exception already set. */
+        if (!extract_color(surf, setcolorobj, dflt_setcolor, &setcolor)) {
+            goto to_surface_error; /* Exception already set. */
         }
 
         draw_setbits = 1;
     }
 
     if (Py_None != unsetcolorobj) {
-        if (!get_color(surf, unsetcolorobj, dflt_unsetcolor, &unsetcolor)) {
-            return NULL; /* Exception already set. */
+        if (!extract_color(surf, unsetcolorobj, dflt_unsetcolor,
+                           &unsetcolor)) {
+            goto to_surface_error; /* Exception already set. */
         }
 
         draw_unsetbits = 1;
     }
 
     if (!pgSurface_Lock(surfobj)) {
-        return RAISE(PyExc_RuntimeError, "cannot lock surface");
+        RAISE(PyExc_RuntimeError, "cannot lock surface");
+        goto to_surface_error;
     }
 
     Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
@@ -1819,11 +1838,25 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
     Py_END_ALLOW_THREADS; /* Obtain the GIL. */
 
     if (!pgSurface_Unlock(surfobj)) {
-        return RAISE(PyExc_RuntimeError, "cannot unlock surface");
+        RAISE(PyExc_RuntimeError, "cannot unlock surface");
+        goto to_surface_error;
     }
 
-    Py_INCREF(surfobj);
+    if (!created_surfobj) {
+        /* Only increase ref count if this func didn't create the surfobj. */
+        Py_INCREF(surfobj);
+    }
+
     return surfobj;
+
+/* Handles the cleanup for fail cases. */
+to_surface_error:
+    if (created_surfobj) {
+        /* Only decrease ref count if this func created the surfobj. */
+        Py_DECREF(surfobj);
+    }
+
+    return NULL;
 }
 
 static PyMethodDef mask_methods[] = {
