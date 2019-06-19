@@ -1916,27 +1916,66 @@ class MaskTypeTest(unittest.TestCase):
                                  expected_rects, 'size={}'.format(size))
 
     def test_to_surface(self):
-        """Ensures masks can be drawn onto surfaces."""
-        expected_color = pygame.Color('blue')
+        """Ensures empty and full masks can be drawn onto surfaces."""
+        expected_ref_count = 3
         size = (33, 65)
-        mask = pygame.mask.Mask(size, fill=True)
         surface = pygame.Surface(size, SRCALPHA, 32)
-        surface.fill(pygame.Color('red'))
+        surface_color = pygame.Color('red')
+        test_fills = ((pygame.Color('white'), True),
+                      (pygame.Color('black'), False))
 
-        to_surface = mask.to_surface(surface, setcolor=expected_color)
+        for expected_color, fill in test_fills:
+            surface.fill(surface_color)
+            mask = pygame.mask.Mask(size, fill=fill)
 
-        self.assertIs(to_surface, surface)
-        self.assertEqual(to_surface.get_size(), size)
-        assertSurfaceFilled(self, to_surface, expected_color)
+            to_surface = mask.to_surface(surface)
+
+            self.assertIs(to_surface, surface)
+            self.assertEqual(sys.getrefcount(to_surface), expected_ref_count)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__create_surface(self):
+        """Ensures empty and full masks can be drawn onto a created surface."""
+        size = (33, 65)
+        expected_flag = SRCALPHA
+        expected_depth = 32
+        expected_ref_count = 2
+        test_fills = ((pygame.Color('white'), True),
+                      (pygame.Color('black'), False))
+
+        for expected_color, fill in test_fills:
+            mask = pygame.mask.Mask(size, fill=fill)
+
+            to_surface = mask.to_surface()
+
+            self.assertEqual(sys.getrefcount(to_surface), expected_ref_count)
+            self.assertTrue(to_surface.get_flags() & expected_flag)
+            self.assertEqual(to_surface.get_bitsize(), expected_depth)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
 
     def test_to_surface__args(self):
         """Ensures to_surface accepts the correct args."""
-        pos = (0, 0)
         size = (5, 3)
         expected_color = pygame.Color('white')
         surface_color = pygame.Color('red')
         mask = pygame.mask.Mask(size, fill=True)
         surface = pygame.Surface(size)
+
+        # No args - surface will be created.
+        to_surface = mask.to_surface()
+
+        self.assertIsInstance(to_surface, pygame.Surface)
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
+
+        # surface=None - surface will be created.
+        to_surface = mask.to_surface(None)
+
+        self.assertIsInstance(to_surface, pygame.Surface)
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
 
         # Only surface arg.
         surface.fill(surface_color)  # Clear for each test.
@@ -1945,7 +1984,7 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertIs(to_surface, surface)
         self.assertEqual(to_surface.get_size(), size)
-        self.assertEqual(to_surface.get_at(pos), expected_color)
+        assertSurfaceFilled(self, to_surface, expected_color)
 
         # Surface and setcolor args.
         surface.fill(surface_color)  # Clear for each test.
@@ -1954,7 +1993,7 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertIs(to_surface, surface)
         self.assertEqual(to_surface.get_size(), size)
-        self.assertEqual(to_surface.get_at(pos), expected_color)
+        assertSurfaceFilled(self, to_surface, expected_color)
 
         # Surface, setcolor and unsetcolor args.
         surface.fill(surface_color)  # Clear for each test.
@@ -1963,11 +2002,10 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertIs(to_surface, surface)
         self.assertEqual(to_surface.get_size(), size)
-        self.assertEqual(to_surface.get_at(pos), expected_color)
+        assertSurfaceFilled(self, to_surface, expected_color)
 
     def test_to_surface__kwargs(self):
         """Ensures to_surface accepts the correct kwargs."""
-        pos = (0, 0)
         size = (5, 3)
         mask = pygame.mask.Mask(size, fill=True)
         surface = pygame.Surface(size)
@@ -1984,7 +2022,34 @@ class MaskTypeTest(unittest.TestCase):
 
             self.assertIs(to_surface, surface)
             self.assertEqual(to_surface.get_size(), size)
-            self.assertEqual(to_surface.get_at(pos), expected_color)
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+            kwargs.pop(name)  # Get ready for next loop iteration.
+
+        # Check last iteration with kwargs empty.
+        to_surface = mask.to_surface(**kwargs)
+
+        self.assertIsInstance(to_surface, pygame.Surface)
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__kwargs_create_surface(self):
+        """Ensures to_surface accepts the correct kwargs
+        when creating a surface.
+        """
+        size = (5, 3)
+        mask = pygame.mask.Mask(size)
+        expected_color = pygame.Color('black')
+        kwargs = {'surface'    : None,
+                  'setcolor'   : pygame.Color('yellow'),
+                  'unsetcolor' : expected_color}
+
+        for name in ('unsetcolor', 'setcolor', 'surface'):
+            to_surface = mask.to_surface(**kwargs)
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
 
             kwargs.pop(name)  # Get ready for next loop iteration.
 
@@ -2001,13 +2066,7 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertIs(to_surface, surface)
         self.assertEqual(to_surface.get_size(), size)
-        self.assertEqual(to_surface.get_at((0, 0)), expected_color)
-
-    def todo_test_to_surface__args_missing(self):
-        self.fail()
-
-    def todo_test_to_surface__kwargs_missing(self):
-        self.fail()
+        assertSurfaceFilled(self, to_surface, expected_color)
 
     def todo_test_to_surface__args_invalid_types(self):
         self.fail()
@@ -2031,12 +2090,6 @@ class MaskTypeTest(unittest.TestCase):
         self.fail()
 
     def todo_test_to_surface__invalid_unsetcolor_formats(self):
-        self.fail()
-
-    def todo_test_to_surface__full_mask(self):
-        self.fail()
-
-    def todo_test_to_surface__empty_mask(self):
         self.fail()
 
     def todo_test_to_surface__set_and_unset_bits(self):
@@ -2427,6 +2480,20 @@ class MaskTypeTest(unittest.TestCase):
 
                 if 0 not in surf_size:
                     assertSurfaceFilled(self, to_surface, surf_color)
+
+    def test_zero_mask_to_surface__create_surface(self):
+        """Ensures to_surface correctly handles zero sized masks and surfaces
+        when it has to create a default surface.
+        """
+        mask_color = pygame.Color('blue')
+
+        for mask_size in ((3, 0), (0, 3), (0, 0)):
+            mask = pygame.mask.Mask(mask_size, fill=True)
+
+            to_surface = mask.to_surface(setcolor=mask_color)
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), mask_size)
 
 
 class SubMask(pygame.mask.Mask):
