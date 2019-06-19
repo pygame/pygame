@@ -550,14 +550,13 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     Uint32 Rmask, Gmask, Bmask, Amask;
     SDL_Surface *surface;
     SDL_PixelFormat default_format;
-    int length;
 
     char *kwids[] = {"size", "flags", "depth", "masks", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwids, &size, &flags,
                                      &depth, &masks))
         return -1;
 
-    if (PySequence_Check(size) && (length = PySequence_Length(size)) == 2) {
+    if (PySequence_Check(size) && PySequence_Length(size) == 2) {
         if ((!pg_IntFromObjIndex(size, 0, &width)) ||
             (!pg_IntFromObjIndex(size, 1, &height))) {
             RAISE(PyExc_ValueError,
@@ -1646,7 +1645,6 @@ surf_convert(PyObject *self, PyObject *args)
     Uint32 flags = -1;
 
 #if IS_SDLv2
-    Uint8 alpha;
     Uint32 colorkey;
     Uint8 key_r, key_g, key_b, key_a = 255;
     int has_colorkey = SDL_FALSE;
@@ -2201,7 +2199,7 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
     PyObject *special_flags = NULL;
     PyObject *ret = NULL;
     PyObject *retrect = NULL;
-    int itemlength;
+    Py_ssize_t itemlength;
     int doreturn = 1;
     int bliterrornum = 0;
     static char *kwids[] = {"blit_sequence", "doreturn", NULL};
