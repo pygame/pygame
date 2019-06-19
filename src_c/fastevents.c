@@ -168,7 +168,11 @@ FE_Init()
     }
 
     eventTimer = SDL_AddTimer(10, timerCallback, NULL);
+#if IS_SDLv1
     if (NULL == eventTimer) {
+#else /* !IS_SDLv1 */
+    if (0 == eventTimer) {
+#endif /* IS_SDLv1 */
         setError("FE: can't add a timer");
         return -1;
     }

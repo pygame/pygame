@@ -1753,7 +1753,8 @@ static PyMethodDef _event_methods[] = {
      "auto initialize for event module"},
 #endif /* IS_SDLv2 */
 
-    {"Event", pg_Event, 3, DOC_PYGAMEEVENTEVENT},
+    {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEEVENTEVENT},
     {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
     {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
