@@ -8,7 +8,7 @@
 #define DOC_PYGAMEDRAWLINE "line(surface, color, start_pos, end_pos, width) -> Rect\nline(surface, color, start_pos, end_pos, width=1) -> Rect\ndraw a straight line"
 #define DOC_PYGAMEDRAWLINES "lines(surface, color, closed, points) -> Rect\nlines(surface, color, closed, points, width=1) -> Rect\ndraw multiple contiguous straight line segments"
 #define DOC_PYGAMEDRAWAALINE "aaline(surface, color, start_pos, end_pos) -> Rect\naaline(surface, color, start_pos, end_pos, blend=1) -> Rect\ndraw a straight antialiased line"
-#define DOC_PYGAMEDRAWAALINES "aalines(Surface, color, closed, pointlist, blend=1) -> Rect\ndraw a connected sequence of antialiased lines"
+#define DOC_PYGAMEDRAWAALINES "aalines(surface, color, closed, points) -> Rect\naalines(surface, color, closed, points, blend=1) -> Rect\ndraw multiple contiguous straight antialiased line segments"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -59,7 +59,8 @@ pygame.draw.aaline
 draw a straight antialiased line
 
 pygame.draw.aalines
- aalines(Surface, color, closed, pointlist, blend=1) -> Rect
-draw a connected sequence of antialiased lines
+ aalines(surface, color, closed, points) -> Rect
+ aalines(surface, color, closed, points, blend=1) -> Rect
+draw multiple contiguous straight antialiased line segments
 
 */

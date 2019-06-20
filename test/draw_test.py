@@ -2116,7 +2116,6 @@ class AALineMixin(BaseLineMixin):
                   'start_pos' : pos,
                   'end_pos'   : (2, 2),
                   'blend'     : None}
-        pos = kwargs['start_pos']
 
         for blend in (-10, -2, -1, 0, 1, 2, 10):
             surface.fill(surface_color)  # Clear for each test.
@@ -2544,6 +2543,356 @@ class AALinesMixin(BaseLineMixin):
     This class contains all the general aalines drawing tests.
     """
 
+    def test_aalines__args(self):
+        """Ensures draw aalines accepts the correct args."""
+        bounds_rect = self.draw_aalines(pygame.Surface((3, 3)), (0, 10, 0, 50),
+                                        False, ((0, 0), (1, 1)), 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__args_without_blend(self):
+        """Ensures draw aalines accepts the args without a blend."""
+        bounds_rect = self.draw_aalines(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                        False, ((0, 0), (1, 1)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__kwargs(self):
+        """Ensures draw aalines accepts the correct kwargs
+        with and without a blend arg.
+        """
+        surface = pygame.Surface((4, 4))
+        color = pygame.Color('yellow')
+        points = ((0, 0), (1, 1), (2, 2))
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'closed'  : False,
+                        'points'  : points,
+                        'blend'   : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'closed'  : False,
+                        'points'  : points}]
+
+        for kwargs in kwargs_list:
+            bounds_rect = self.draw_aalines(**kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__kwargs_order_independent(self):
+        """Ensures draw aalines's kwargs are not order dependent."""
+        bounds_rect = self.draw_aalines(closed=1,
+                                        points=((0, 0), (1, 1), (2, 2)),
+                                        blend=1,
+                                        color=(10, 20, 30),
+                                        surface=pygame.Surface((3, 2)))
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__args_missing(self):
+        """Ensures draw aalines detects any missing required args."""
+        surface = pygame.Surface((1, 1))
+        color = pygame.Color('blue')
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_aalines(surface, color, 0)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_aalines(surface, color)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_aalines(surface)
+
+        with self.assertRaises(TypeError):
+            bounds_rect = self.draw_aalines()
+
+    def test_aalines__kwargs_missing(self):
+        """Ensures draw aalines detects any missing required kwargs."""
+        kwargs = {'surface' : pygame.Surface((3, 2)),
+                  'color'   : pygame.Color('red'),
+                  'closed'  : 1,
+                  'points'  : ((2, 2), (1, 1)),
+                  'blend'   : 1}
+
+        for name in ('points', 'closed', 'color', 'surface'):
+            invalid_kwargs = dict(kwargs)
+            invalid_kwargs.pop(name)  # Pop from a copy.
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_aalines(**invalid_kwargs)
+
+    def test_aalines__arg_invalid_types(self):
+        """Ensures draw aalines detects invalid arg types."""
+        surface = pygame.Surface((2, 2))
+        color = pygame.Color('blue')
+        closed = 0
+        points = ((1, 2), (2, 1))
+
+        with self.assertRaises(TypeError):
+            # Invalid blend.
+            bounds_rect = self.draw_aalines(surface, color, closed, points,
+                                            '1')
+
+        with self.assertRaises(TypeError):
+            # Invalid points.
+            bounds_rect = self.draw_aalines(surface, color, closed, (1, 2, 3))
+
+        with self.assertRaises(TypeError):
+            # Invalid closed.
+            bounds_rect = self.draw_aalines(surface, color, InvalidBool(),
+                                            points)
+
+        with self.assertRaises(TypeError):
+            # Invalid color.
+            bounds_rect = self.draw_aalines(surface, 'blue', closed, points)
+
+        with self.assertRaises(TypeError):
+            # Invalid surface.
+            bounds_rect = self.draw_aalines((1, 2, 3, 4), color, closed,
+                                            points)
+
+    def test_aalines__kwarg_invalid_types(self):
+        """Ensures draw aalines detects invalid kwarg types."""
+        valid_kwargs = {'surface' : pygame.Surface((3, 3)),
+                        'color'   : pygame.Color('green'),
+                        'closed'  : False,
+                        'points'  : ((1, 2), (2, 1)),
+                        'blend'   : 1}
+
+        invalid_kwargs = {'surface' : pygame.Surface,
+                          'color'   : 'green',
+                          'closed'  : InvalidBool(),
+                          'points'  : (0, 0, 0),
+                          'blend'   : 1.2}
+
+        for kwarg in ('surface', 'color', 'closed', 'points', 'blend'):
+            kwargs = dict(valid_kwargs)
+            kwargs[kwarg] = invalid_kwargs[kwarg]
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_aalines(**kwargs)
+
+    def test_aalines__kwarg_invalid_name(self):
+        """Ensures draw aalines detects invalid kwarg names."""
+        surface = pygame.Surface((2, 3))
+        color = pygame.Color('cyan')
+        closed = 1
+        points = ((1, 2), (2, 1))
+        kwargs_list = [{'surface' : surface,
+                        'color'   : color,
+                        'closed'  : closed,
+                        'points'  : points,
+                        'blend'   : 1,
+                        'invalid' : 1},
+
+                       {'surface' : surface,
+                        'color'   : color,
+                        'closed'  : closed,
+                        'points'  : points,
+                        'invalid' : 1}]
+
+        for kwargs in kwargs_list:
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_aalines(**kwargs)
+
+    def test_aalines__args_and_kwargs(self):
+        """Ensures draw aalines accepts a combination of args/kwargs"""
+        surface = pygame.Surface((3, 2))
+        color = (255, 255, 0, 0)
+        closed = 0
+        points = ((1, 2), (2, 1))
+        blend = 1
+        kwargs = {'surface' : surface,
+                  'color'   : color,
+                  'closed'  : closed,
+                  'points'  : points,
+                  'blend'   : blend}
+
+        for name in ('surface', 'color', 'closed', 'points', 'blend'):
+            kwargs.pop(name)
+
+            if 'surface' == name:
+                bounds_rect = self.draw_aalines(surface, **kwargs)
+            elif 'color' == name:
+                bounds_rect = self.draw_aalines(surface, color, **kwargs)
+            elif 'closed' == name:
+                bounds_rect = self.draw_aalines(surface, color, closed,
+                                                **kwargs)
+            elif 'points' == name:
+                bounds_rect = self.draw_aalines(surface, color, closed, points,
+                                                **kwargs)
+            else:
+                bounds_rect = self.draw_aalines(surface, color, closed, points,
+                                                blend, **kwargs)
+
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__valid_blend_values(self):
+        """Ensures draw aalines accepts different blend values."""
+        expected_color = pygame.Color('yellow')
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        pos = (1, 1)
+        kwargs = {'surface' : surface,
+                  'color'   : expected_color,
+                  'closed'  : False,
+                  'points'  : (pos, (1, 3)),
+                  'blend'   : None}
+
+        for blend in (-10, -2, -1, 0, 1, 2, 10):
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['blend'] = blend
+
+            bounds_rect = self.draw_aalines(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color, blend)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__valid_points_format(self):
+        """Ensures draw aalines accepts different points formats."""
+        expected_color = (10, 20, 30, 255)
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((3, 4))
+        kwargs = {'surface' : surface,
+                  'color'   : expected_color,
+                  'closed'  : False,
+                  'points'  : None,
+                  'blend'   : 0}
+
+        # The point type can be a tuple/list/Vector2.
+        point_types = ((tuple, tuple, tuple, tuple), # all tuples
+                       (list, list, list, list),     # all lists
+                       (Vector2, Vector2, Vector2, Vector2), # all Vector2s
+                       (list, Vector2, tuple, Vector2))      # mix
+
+        # The point values can be ints or floats.
+        point_values = (((1, 1), (2, 1), (2, 2), (1, 2)),
+                        ((1, 1), (2.2, 1), (2.1, 2.2), (1, 2.1)))
+
+        # Each sequence of points can be a tuple or a list.
+        seq_types = (tuple, list)
+
+        for point_type in point_types:
+            for values in point_values:
+                check_pos = values[0]
+                points = [point_type[i](pt) for i, pt in enumerate(values)]
+
+                for seq_type in seq_types:
+                    surface.fill(surface_color)  # Clear for each test.
+                    kwargs['points'] = seq_type(points)
+
+                    bounds_rect = self.draw_aalines(**kwargs)
+
+                    self.assertEqual(surface.get_at(check_pos), expected_color)
+                    self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__invalid_points_formats(self):
+        """Ensures draw aalines handles invalid points formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : pygame.Color('red'),
+                  'closed'  : False,
+                  'points'  : None,
+                  'blend'   : 1}
+
+        points_fmts = (((1, 1), (2,)),          # Too few coords.
+                       ((1, 1), (2, 2, 2)),     # Too many coords.
+                       ((1, 1), (2, '2')),      # Wrong type.
+                       ((1, 1), set([2, 3])),   # Wrong type.
+                       ((1, 1), dict(((2, 2), (3, 3)))), # Wrong type.
+                       set(((1, 1), (1, 2))),   # Wrong type.
+                       dict(((1, 1), (4, 4))))  # Wrong type.
+
+        for points in points_fmts:
+            kwargs['points'] = points
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_aalines(**kwargs)
+
+    def test_aalines__invalid_points_values(self):
+        """Ensures draw aalines handles invalid points values correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 4)),
+                  'color'   : pygame.Color('red'),
+                  'closed'  : False,
+                  'points'  : None,
+                  'blend'   : 1}
+
+        for points in ([], ((1, 1),)):  # Too few points.
+            for seq_type in (tuple, list):  # Test as tuples and lists.
+                kwargs['points'] = seq_type(points)
+
+                with self.assertRaises(ValueError):
+                    bounds_rect = self.draw_aalines(**kwargs)
+
+    def test_aalines__valid_closed_values(self):
+        """Ensures draw aalines accepts different closed values."""
+        line_color = pygame.Color('blue')
+        surface_color = pygame.Color('white')
+        surface = pygame.Surface((5, 5))
+        pos = (1, 3)
+        kwargs = {'surface' : surface,
+                  'color'   : line_color,
+                  'closed'  : None,
+                  'points'  : ((1, 1), (4, 1), (4, 4), (1, 4)),
+                  'blend'   : 0}
+
+        true_values = (-7, 1, 10, '2', 3.1, (4,), [5], True)
+        false_values = (None, '', 0, (), [], False)
+
+        for closed in true_values + false_values:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['closed'] = closed
+            expected_color = line_color if closed else surface_color
+
+            bounds_rect = self.draw_aalines(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__valid_color_formats(self):
+        """Ensures draw aalines accepts different color formats."""
+        green_color = pygame.Color('green')
+        surface_color = pygame.Color('black')
+        surface = pygame.Surface((3, 4))
+        pos = (1, 1)
+        kwargs = {'surface' : surface,
+                  'color'   : None,
+                  'closed'  : False,
+                  'points'  : (pos, (2, 1)),
+                  'blend'   : 0}
+        greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green_color),
+                  green_color)
+
+        for color in greens:
+            surface.fill(surface_color)  # Clear for each test.
+            kwargs['color'] = color
+
+            if isinstance(color, int):
+                expected_color = surface.unmap_rgb(color)
+            else:
+                expected_color = green_color
+
+            bounds_rect = self.draw_aalines(**kwargs)
+
+            self.assertEqual(surface.get_at(pos), expected_color)
+            self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__invalid_color_formats(self):
+        """Ensures draw aalines handles invalid color formats correctly."""
+        kwargs = {'surface' : pygame.Surface((4, 3)),
+                  'color'   : None,
+                  'closed'  : False,
+                  'points'  : ((1, 1), (1, 2)),
+                  'blend'   : 0}
+
+        # These color formats are currently not supported (it would be
+        # nice to eventually support them).
+        for expected_color in ('green', '#00FF00FF', '0x00FF00FF'):
+            kwargs['color'] = expected_color
+
+            with self.assertRaises(TypeError):
+                bounds_rect = self.draw_aalines(**kwargs)
+
     def test_aalines__color(self):
         """Tests if the aalines drawn are the correct color.
 
@@ -2579,12 +2928,14 @@ class AALinesMixin(BaseLineMixin):
         self.fail()
 
 
-class PythonDrawAALinesTest(AALinesMixin, PythonDrawTestCase):
-    """Test draw_py module function aalines.
-
-    This class inherits the general tests from AALinesMixin. It is also the
-    class to add any draw_py.draw_aalines specific tests to.
-    """
+# Commented out to avoid cluttering the test output. Add back in if draw_py
+# ever fully supports drawing aalines.
+#class PythonDrawAALinesTest(AALinesMixin, PythonDrawTestCase):
+#    """Test draw_py module function aalines.
+#
+#    This class inherits the general tests from AALinesMixin. It is also the
+#    class to add any draw_py.draw_aalines specific tests to.
+#    """
 
 
 class DrawAALinesTest(AALinesMixin, DrawTestCase):

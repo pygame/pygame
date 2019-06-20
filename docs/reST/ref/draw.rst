@@ -402,15 +402,43 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
 .. function:: aalines
 
-   | :sl:`draw a connected sequence of antialiased lines`
-   | :sg:`aalines(Surface, color, closed, pointlist, blend=1) -> Rect`
+   | :sl:`draw multiple contiguous straight antialiased line segments`
+   | :sg:`aalines(surface, color, closed, points) -> Rect`
+   | :sg:`aalines(surface, color, closed, points, blend=1) -> Rect`
 
-   Draws a sequence on a surface. You must pass at least two points in the
-   sequence of points. The closed argument is a simple Boolean and if true, a
-   line will be draw between the first and last points. The Boolean blend
-   argument set to true will blend the shades with existing shades instead of
-   overwriting them. This function accepts floating point values for the end
-   points.
+   Draws a sequence of contiguous straight antialiased lines on the given
+   surface.
+
+   :param Surface surface: surface to draw on
+   :param color: color to draw with, the alpha value is optional if using a
+      tuple ``(RGB[A])``
+   :type color: Color or int or tuple(int, int, int, [int])
+   :param bool closed: if ``True`` an additional line segment is drawn between
+      the first and last points in the ``points`` sequence
+   :param points: a sequence of 2 or more (x, y) coordinates, where each
+      *coordinate* in the sequence must be a
+      tuple/list/:class:`pygame.math.Vector2` of 2 ints/floats and adjacent
+      coordinates will be connected by a line segment, e.g. for the
+      points ``[(x1, y1), (x2, y2), (x3, y3)]`` a line segment will be drawn
+      from ``(x1, y1)`` to ``(x2, y2)`` and from ``(x2, y2)`` to ``(x3, y3)``,
+      additionally if the ``closed`` parameter is ``True`` another line segment
+      will be drawn from ``(x3, y3)`` to ``(x1, y1)``
+   :type points: tuple(coordinate) or list(coordinate)
+   :param int blend: (optional) if non-zero (default) each line will be blended
+      with the surface's existing pixel shades, otherwise the pixels will be
+      overwritten
+
+   :returns: a rect bounding the changed pixels, if nothing is drawn the
+      bounding rect's position will be the position of the first point in the
+      ``points`` parameter (float values will be truncated) and its width and
+      height will be 0
+   :rtype: Rect
+
+   :raises ValueError: if ``len(points) < 2`` (must have at least 2 points)
+   :raises TypeError: if ``points`` is not a sequence or ``points`` does not
+      contain number pairs
+
+   .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
    .. ## pygame.draw.aalines ##
 
