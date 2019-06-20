@@ -31,6 +31,8 @@
 
 #include <math.h>
 
+#include <float.h>
+
 /*
     Many C libraries seem to lack the trunc call (added in C99).
 
