@@ -684,7 +684,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!width) {
         draw_ellipse(surf, posx, posy, radius * 2, radius * 2, 1, color);
-    } else if (width <= 4){
+    } else if (width <= 20){
         draw_circle_bresenham(surf, posx, posy,
                               radius, width, color);
     } else {
@@ -1716,6 +1716,7 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
     }
 }
 
+
 /* Bresenham Circle Algorithm
  * adapted from: https://de.wikipedia.org/wiki/Bresenham-Algorithmus
  * with additional line width parameter
@@ -1729,6 +1730,10 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
     int x = 0;
     int y = radius;
     int radius1, y1;
+    int i_y = radius-thickness;
+    int i_f = 1 - i_y;
+    int i_ddF_x = 0;
+    int i_ddF_y = -2 * i_y;
 
     /* to avoid holes/moire, draw thick line in inner loop,
      * instead of concentric circles in outer loop */
@@ -1748,9 +1753,21 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
         ddF_y += 2;
         f += ddF_y;
       }
+      if(i_f >= 0)
+      {
+        i_y--;
+        i_ddF_y += 2;
+        i_f += i_ddF_y;
+      }
       x++;
       ddF_x += 2;
       f += ddF_x + 1;
+
+      i_ddF_x += 2;
+      i_f += i_ddF_x + 1;
+
+      if(thickness>1)
+          thickness=y-i_y;
 
       /* as above:
        * to avoid holes/moire, draw thick line in inner loop,
