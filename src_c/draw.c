@@ -31,6 +31,8 @@
 
 #include <math.h>
 
+#include <float.h>
+
 /*
     Many C libraries seem to lack the trunc call (added in C99).
 
@@ -245,53 +247,82 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
                        pts[3] - pts[1] + 1);
 }
 
+/* Draws a series of antialiased lines on the given surface.
+ *
+ * Returns a Rect bounding the drawn area.
+ */
 static PyObject *
-aalines(PyObject *self, PyObject *arg)
+aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj, *colorobj, *closedobj, *points, *item;
-    SDL_Surface *surf;
-    float x, y;
-    float top, left, bottom, right;
-    float pts[4];
-    Uint8 rgba[4];
+    PyObject *surfobj = NULL, *colorobj = NULL, *closedobj = NULL;
+    PyObject *points = NULL, *item = NULL;
+    SDL_Surface *surf = NULL;
     Uint32 color;
-    int closed, blend=1;
-    int result, loop, length;
+    Uint8 rgba[4];
+    float pts[4];
     float *xlist, *ylist;
+    float x, y;
+    float top = FLT_MAX, left = FLT_MAX;
+    float bottom = FLT_MIN, right = FLT_MIN;
+    int result, loop, length;
+    int closed = 0; /* Default closed. */
+    int blend = 1;  /* Default blend. */
+    static char *keywords[] = {"surface", "color", "closed",
+                               "points",  "blend", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!OOO|i", &pgSurface_Type, &surfobj, &colorobj,
-                          &closedobj, &points, &blend))
-        return NULL;
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "O!OOO|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &closedobj, &points, &blend)) {
+        return NULL; /* Exception already set. */
+    }
+
     surf = pgSurface_AsSurface(surfobj);
+
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
 
     CHECK_LOAD_COLOR(colorobj)
 
     closed = PyObject_IsTrue(closedobj);
 
-    if (!PySequence_Check(points))
+    if (-1 == closed) {
+        return RAISE(PyExc_TypeError, "closed argument is invalid");
+    }
+
+    if (!PySequence_Check(points)) {
         return RAISE(PyExc_TypeError,
                      "points argument must be a sequence of number pairs");
+    }
+
     length = PySequence_Length(points);
-    if (length < 2)
+
+    if (length < 2) {
         return RAISE(PyExc_ValueError,
-                     "points argument must contain more than 1 points");
+                     "points argument must contain 2 or more points");
+    }
 
     xlist = PyMem_New(float, length);
     ylist = PyMem_New(float, length);
 
-    left = top = 10000;
-    right = bottom = -10000;
+    if (NULL == xlist || NULL == ylist) {
+        return RAISE(PyExc_MemoryError,
+                     "cannot allocate memory to draw aalines");
+    }
 
     for (loop = 0; loop < length; ++loop) {
         item = PySequence_GetItem(points, loop);
         result = pg_TwoFloatsFromObj(item, &x, &y);
         Py_DECREF(item);
+
         if (!result) {
             PyMem_Del(xlist);
             PyMem_Del(ylist);
             return RAISE(PyExc_TypeError, "points must be number pairs");
         }
+
         xlist[loop] = x;
         ylist[loop] = y;
         left = MIN(x, left);
@@ -303,7 +334,7 @@ aalines(PyObject *self, PyObject *arg)
     if (!pgSurface_Lock(surfobj)) {
         PyMem_Del(xlist);
         PyMem_Del(ylist);
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
     for (loop = 1; loop < length; ++loop) {
@@ -323,10 +354,12 @@ aalines(PyObject *self, PyObject *arg)
 
     PyMem_Del(xlist);
     PyMem_Del(ylist);
-    if (!pgSurface_Unlock(surfobj))
-        return NULL;
 
-    /*compute return rect*/
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    /* Compute return rect. */
     return pgRect_New4((int)left, (int)top, (int)(right - left + 2),
                        (int)(bottom - top + 2));
 }
@@ -1926,7 +1959,8 @@ static PyMethodDef _draw_methods[] = {
      DOC_PYGAMEDRAWAALINE},
     {"line", (PyCFunction)line, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWLINE},
-    {"aalines", aalines, METH_VARARGS, DOC_PYGAMEDRAWAALINES},
+    {"aalines", (PyCFunction)aalines, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWAALINES},
     {"lines", (PyCFunction)lines, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWLINES},
     {"ellipse", (PyCFunction)ellipse, METH_VARARGS | METH_KEYWORDS,
