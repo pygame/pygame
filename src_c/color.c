@@ -847,7 +847,7 @@ _color_correct_gamma(pgColorObject *color, PyObject *args)
 static PyObject *
 _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
 {
-    Uint8 rgab[4];
+    Uint8 rgba[4];
     PyObject* colobj;
     float amt;
     static char *keywords[] = {"color", "amount", NULL};
