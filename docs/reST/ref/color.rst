@@ -209,4 +209,18 @@
 
       .. ## Color.set_length ##
 
+   .. method:: lerp
+
+      | :sl:`returns a linear interpolation to the given Color.`
+      | :sg:`lerp(Color, float) -> Color`
+
+      Returns a Color which is a linear interpolation between self and the
+      given Color. The second parameter determines how far between self and
+      other the result is going to be. It must be a value between 0 and 1 where
+      0 means self and 1 means other will be returned.
+
+      .. versionadded:: 2.0.1
+
+      .. ## Color.lerp ##
+
    .. ## pygame.Color ##
