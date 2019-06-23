@@ -1,0 +1,158 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>C API &#8212; pygame v2.0.0.dev2 documentation</title>
+    <link rel="stylesheet" href="_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/pygame.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="High level API exported by pygame.base" href="c_api/base.html" />
+    <link rel="prev" title="Newbie Guide to Pygame" href="tut/newbieguide.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="index.html">Help Contents</a> ||
+	    <a href="genindex.html">Reference Index</a>
+
+        <form action="search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><b>Most useful stuff</b>:
+	    <a href="ref/color.html">Color</a> | 
+	    <a href="ref/display.html">display</a> | 
+	    <a href="ref/draw.html">draw</a> | 
+	    <a href="ref/event.html">event</a> | 
+	    <a href="ref/font.html">font</a> | 
+	    <a href="ref/image.html">image</a> | 
+	    <a href="ref/key.html">key</a> | 
+	    <a href="ref/locals.html">locals</a> | 
+	    <a href="ref/mixer.html">mixer</a> | 
+	    <a href="ref/mouse.html">mouse</a> | 
+	    <a href="ref/rect.html">Rect</a> | 
+	    <a href="ref/surface.html">Surface</a> | 
+	    <a href="ref/time.html">time</a> | 
+	    <a href="ref/music.html">music</a> | 
+	    <a href="ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><b>Advanced stuff</b>:
+	    <a href="ref/cursors.html">cursors</a> | 
+	    <a href="ref/joystick.html">joystick</a> | 
+	    <a href="ref/mask.html">mask</a> | 
+	    <a href="ref/sprite.html">sprite</a> | 
+	    <a href="ref/transform.html">transform</a> | 
+	    <a href="ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="ref/freetype.html">freetype</a> | 
+	    <a href="ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="ref/midi.html">midi</a> | 
+	    <a href="ref/overlay.html">Overlay</a> | 
+	    <a href="ref/pixelarray.html">PixelArray</a> | 
+	    <a href="ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="ref/sndarray.html">sndarray</a> | 
+	    <a href="ref/surfarray.html">surfarray</a> | 
+	    <a href="ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><b>Other</b>:
+	    <a href="ref/camera.html">camera</a> | 
+	    <a href="ref/cdrom.html">cdrom</a> | 
+	    <a href="ref/examples.html">examples</a> | 
+	    <a href="ref/scrap.html">scrap</a> | 
+	    <a href="ref/tests.html">tests</a> | 
+	    <a href="ref/touch.html">touch</a> | 
+	    <a href="ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<div class="section" id="c-api">
+<div class="section" id="pygame-c-api">
+<h2>pygame C API<a class="headerlink" href="#pygame-c-api" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="c_api/base.html">High level API exported by pygame.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/bufferproxy.html">Class BufferProxy API exported by pgyame.bufferproxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/cdrom.html">API exported by pygame.cdrom</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/color.html">Class Color API exported by pygame.color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/display.html">API exported by pygame.display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/event.html">API exported by pygame.event</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/freetype.html">API exported by pygame._freetype</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/mixer.html">API exported by pygame.mixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/rect.html">Class Rect API exported by pygame.rect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/rwobject.html">API exported by pygame.rwobject</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/surface.html">Class Surface API exported by pygame.surface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/surflock.html">API exported by pygame.surflock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_api/version.html">API exported by pygame.version</a></li>
+</ul>
+</div>
+<p>src_c/include/ contains header files for applications
+that use the pygame C API, while src_c/ contains
+headers used by pygame internally.</p>
+</div>
+</div>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/master/docs/reST/c_api.rst" rel="nofollow">Edit on GitHub</a>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="c_api/base.html" title="High level API exported by pygame.base"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tut/newbieguide.html" title="Newbie Guide to Pygame"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pygame v2.0.0.dev2 documentation</a> &#187;</li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2019, pygame developers.
+    </div>
+  </body>
+</html>

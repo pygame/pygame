@@ -1,0 +1,172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>API exported by pygame.version &#8212; pygame v2.0.0.dev2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="File Path Function Arguments" href="../filepaths.html" />
+    <link rel="prev" title="API exported by pygame.surflock" href="surflock.html" /> 
+  </head><body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="https://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <div class="top">
+	    <a href="https://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a>
+
+        <form action="../search.html" method="get" style="display:inline;float:right;">
+          <input name="q" value="" type="text">
+          <input value="search" type="submit">
+        </form>
+	  </div>
+	  <hr style="color:black;border-bottom:none;border-style: dotted;border-bottom-style:none;">
+	  <p class="bottom"><b>Most useful stuff</b>:
+	    <a href="../ref/color.html">Color</a> | 
+	    <a href="../ref/display.html">display</a> | 
+	    <a href="../ref/draw.html">draw</a> | 
+	    <a href="../ref/event.html">event</a> | 
+	    <a href="../ref/font.html">font</a> | 
+	    <a href="../ref/image.html">image</a> | 
+	    <a href="../ref/key.html">key</a> | 
+	    <a href="../ref/locals.html">locals</a> | 
+	    <a href="../ref/mixer.html">mixer</a> | 
+	    <a href="../ref/mouse.html">mouse</a> | 
+	    <a href="../ref/rect.html">Rect</a> | 
+	    <a href="../ref/surface.html">Surface</a> | 
+	    <a href="../ref/time.html">time</a> | 
+	    <a href="../ref/music.html">music</a> | 
+	    <a href="../ref/pygame.html">pygame</a>
+	  </p>
+
+	  <p class="bottom"><b>Advanced stuff</b>:
+	    <a href="../ref/cursors.html">cursors</a> | 
+	    <a href="../ref/joystick.html">joystick</a> | 
+	    <a href="../ref/mask.html">mask</a> | 
+	    <a href="../ref/sprite.html">sprite</a> | 
+	    <a href="../ref/transform.html">transform</a> | 
+	    <a href="../ref/bufferproxy.html">BufferProxy</a> | 
+	    <a href="../ref/freetype.html">freetype</a> | 
+	    <a href="../ref/gfxdraw.html">gfxdraw</a> | 
+	    <a href="../ref/midi.html">midi</a> | 
+	    <a href="../ref/overlay.html">Overlay</a> | 
+	    <a href="../ref/pixelarray.html">PixelArray</a> | 
+	    <a href="../ref/pixelcopy.html">pixelcopy</a> | 
+	    <a href="../ref/sndarray.html">sndarray</a> | 
+	    <a href="../ref/surfarray.html">surfarray</a> | 
+	    <a href="../ref/math.html">math</a>
+	  </p>
+
+	  <p class="bottom"><b>Other</b>:
+	    <a href="../ref/camera.html">camera</a> | 
+	    <a href="../ref/cdrom.html">cdrom</a> | 
+	    <a href="../ref/examples.html">examples</a> | 
+	    <a href="../ref/scrap.html">scrap</a> | 
+	    <a href="../ref/tests.html">tests</a> | 
+	    <a href="../ref/touch.html">touch</a> | 
+	    <a href="../ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+<div class="section" id="api-exported-by-pygame-version">
+<div class="section" id="src-py-version-py">
+<h2>src_py/version.py<a class="headerlink" href="#src-py-version-py" title="Permalink to this headline">¶</a></h2>
+<p>Header file: src_c/include/pygame.h</p>
+<p>Version information can be retrieved at compile-time using these macros.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in pygame 1.9.5.</span></p>
+</div>
+<dl class="macro">
+<dt id="c.PG_MAJOR_VERSION">
+<code class="descname">PG_MAJOR_VERSION</code><a class="headerlink" href="#c.PG_MAJOR_VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.PG_MINOR_VERSION">
+<code class="descname">PG_MINOR_VERSION</code><a class="headerlink" href="#c.PG_MINOR_VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="macro">
+<dt id="c.PG_PATCH_VERSION">
+<code class="descname">PG_PATCH_VERSION</code><a class="headerlink" href="#c.PG_PATCH_VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.PG_VERSIONNUM">
+<code class="descname">PG_VERSIONNUM</code><span class="sig-paren">(</span>MAJOR, MINOR, PATCH<span class="sig-paren">)</span><a class="headerlink" href="#c.PG_VERSIONNUM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an integer representing the given version.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PG_VERSION_ATLEAST">
+<code class="descname">PG_VERSION_ATLEAST</code><span class="sig-paren">(</span>MAJOR, MINOR, PATCH<span class="sig-paren">)</span><a class="headerlink" href="#c.PG_VERSION_ATLEAST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if the current version is at least equal
+to the specified version.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+<br /><br />
+<hr />
+<a href="https://github.com/pygame/pygame/edit/master/docs/reST/c_api\version.rst" rel="nofollow">Edit on GitHub</a>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../filepaths.html" title="File Path Function Arguments"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="surflock.html" title="API exported by pygame.surflock"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pygame v2.0.0.dev2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../c_api.html" accesskey="U">C API</a> &#187;</li>
+    <script type="text/javascript" src="https://www.pygame.org/comment/jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011-2019, pygame developers.
+    </div>
+  </body>
+</html>
