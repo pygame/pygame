@@ -1122,12 +1122,12 @@ class ColorTypeTest (unittest.TestCase):
                          Color(50, 50, 50, 50))
 
         # invalid input testing
-        self.assertRaises(ValueError, lambda: color.lerp(lerped, 2.5))
-        self.assertRaises(ValueError, lambda: color.lerp(lerped, -0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((256, 0, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((0, 256, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((0, 0, 256, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((0, 0, 0, 256), 0.5))
+        self.assertRaises(ValueError, lambda: color1.lerp(lerped, 2.5))
+        self.assertRaises(ValueError, lambda: color1.lerp(lerped, -0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((256, 0, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((0, 256, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((0, 0, 256, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((0, 0, 0, 256), 0.5))
 
 
 class SubclassTest(unittest.TestCase):
@@ -1234,12 +1234,12 @@ class SubclassTest(unittest.TestCase):
                          Color(50, 50, 50, 50))
 
         # invalid input testing
-        self.assertRaises(ValueError, lambda: color.lerp(lerped, 2.5))
-        self.assertRaises(ValueError, lambda: color.lerp(lerped, -0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((256, 0, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((0, 256, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((0, 0, 256, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color.lerp((0, 0, 0, 256), 0.5))
+        self.assertRaises(ValueError, lambda: color1.lerp(lerped, 2.5))
+        self.assertRaises(ValueError, lambda: color1.lerp(lerped, -0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((256, 0, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((0, 256, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((0, 0, 256, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color1.lerp((0, 0, 0, 256), 0.5))
 
 ################################################################################
 
