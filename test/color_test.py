@@ -1216,8 +1216,8 @@ class SubclassTest(unittest.TestCase):
         # common value testing
         self.assertEqual(color1.lerp(color2, 0.5), Color(64, 64, 64, 64))
         self.assertEqual(color1.lerp(color2, 0.5), Color(64, 64, 64, 64))
-        self.assertEqual(color2.lerp(color3, 0.5), Color(191, 191, 191, 191))
-        self.assertEqual(color1.lerp(color3, 0.5), Color(127, 127, 127, 127))
+        self.assertEqual(color2.lerp(color3, 0.5), Color(192, 192, 192, 192))
+        self.assertEqual(color1.lerp(color3, 0.5), Color(128, 128, 128, 128))
 
         # testing extremes
         self.assertEqual(color1.lerp(color4, 0), color1)
