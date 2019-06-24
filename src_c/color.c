@@ -45,6 +45,8 @@
 
 #include <ctype.h>
 
+#include <math.h>
+
 typedef enum { TRISTATE_SUCCESS, TRISTATE_FAIL, TRISTATE_ERROR } tristate;
 
 static PyObject *_COLORDICT = NULL;
