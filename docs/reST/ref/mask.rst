@@ -243,12 +243,15 @@ to store which parts collide.
       Returns the first point of intersection encountered between this mask and
       ``othermask``. A point of intersection is 2 overlapping set bits.
 
-      The current algorithm searches the overlapping area in 32 bit wide blocks.
-      Starting at the top left corner (``(0, 0)``), it checks bits 0 to 31 of
-      the first row (``(0, 0)`` to ``(31, 0)``) then continues to the next row. 
-      Once this entire 32 bit column is checked, it continues to the next 32 bit
-      column (32 to 63). This is repeated until it finds a point of intersection
-      or the entire overlapping area is checked.
+      The current algorithm searches the overlapping area in
+      ``sizeof(unsigned long int) * CHAR_BIT`` bit wide column blocks (the value
+      of ``sizeof(unsigned long int) * CHAR_BIT`` is platform dependent, for
+      clarity it will be referred to as ``W``). Starting at the top left corner
+      it checks bits 0 to ``W - 1`` of the first row (``(0, 0)`` to
+      ``(W - 1, 0)``) then continues to the next row (``(0, 1)`` to
+      ``(W - 1, 1)``). Once this entire column block is checked, it continues to
+      the next one (``W`` to ``2 * W - 1``). This is repeated until it finds a
+      point of intersection or the entire overlapping area is checked.
 
       :param Mask othermask: the other mask to overlap with this mask
       :param offset: the offset of ``othermask`` from this mask, for more
