@@ -79,11 +79,13 @@ def border_pos_and_color(surface):
         yield pos, surface.get_at(pos)
 
 
-def get_color_points(surface, color, bounds_rect=None):
+def get_color_points(surface, color, bounds_rect=None, match_color=True):
     """Get all the points of a given color on the surface within the given
     bounds.
 
     If bounds_rect is None the full surface is checked.
+    If match_color is True, all points matching the color are returned,
+        otherwise all points not matching the color are returned.
     """
     get_at = surface.get_at # For possible speed up.
 
@@ -95,7 +97,14 @@ def get_color_points(surface, color, bounds_rect=None):
         y_range = range(bounds_rect.top, bounds_rect.bottom)
 
     surface.lock() # For possible speed up.
-    pts = [(x, y) for x in x_range for y in y_range if get_at((x, y)) == color]
+
+    if match_color:
+        pts = [(x, y) for x in x_range for y in y_range
+               if get_at((x, y)) == color]
+    else:
+        pts = [(x, y) for x in x_range for y in y_range
+               if get_at((x, y)) != color]
+
     surface.unlock()
     return pts
 
@@ -1326,6 +1335,7 @@ class LineMixin(BaseLineMixin):
 
                 surface.unlock()
 
+
 # Commented out to avoid cluttering the test output. Add back in if draw_py
 # ever fully supports drawing single lines.
 #@unittest.skip('draw_py.draw_line not fully supported yet')
@@ -1873,6 +1883,59 @@ class LinesMixin(BaseLineMixin):
         """Ensures draw lines returns the correct bounding rect."""
         self.fail()
 
+    def test_lines__surface_clip(self):
+        """Ensures draw lines respects a surface's clip area."""
+        surfw = surfh = 30
+        line_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (11, 11))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy() # Manages the lines's pos.
+
+        # Test centering the pos_rect along the clip rect's edge to allow for
+        # drawing the lines over the clip_rect's bounds.
+        for center in rect_corners_mids_and_center(clip_rect):
+            pos_rect.center = center
+            pts = (pos_rect.midtop, pos_rect.center, pos_rect.midbottom)
+
+            for closed in (True, False): # Test closed and not closed.
+                for thickness in (1, 3): # Test different line widths.
+                    # Get the expected points by drawing the lines without the
+                    # clip area set.
+                    surface.set_clip(None)
+                    surface.fill(surface_color)
+                    self.draw_lines(surface, line_color, closed, pts,
+                                    thickness)
+                    expected_pts = get_color_points(surface, line_color,
+                                                    clip_rect)
+
+                    # Clear the surface and set the clip area. Redraw the lines
+                    # and check that only the clip area is modified.
+                    surface.fill(surface_color)
+                    surface.set_clip(clip_rect)
+
+                    self.draw_lines(surface, line_color, closed, pts,
+                                    thickness)
+
+                    surface.lock() # For possible speed up.
+
+                    # Check all the surface points to ensure only the
+                    # expected_pts are the line_color.
+                    for pt in ((x, y) for x in range(surfw)
+                                      for y in range(surfh)):
+                        if pt in expected_pts:
+                            expected_color = line_color
+                        else:
+                            expected_color = surface_color
+
+                        self.assertEqual(surface.get_at(pt), expected_color,
+                                         pt)
+
+                    surface.unlock()
+
 
 # Commented out to avoid cluttering the test output. Add back in if draw_py
 # ever fully supports drawing lines.
@@ -2292,6 +2355,57 @@ class AALineMixin(BaseLineMixin):
     def todo_test_aaline__bounding_rect(self):
         """Ensures draw aaline returns the correct bounding rect."""
         self.fail()
+
+    def test_aaline__surface_clip(self):
+        """Ensures draw aaline respects a surface's clip area."""
+        surfw = surfh = 30
+        aaline_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (11, 11))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy() # Manages the aaline's pos.
+
+        # Test centering the pos_rect along the clip rect's edge to allow for
+        # drawing the aaline over the clip_rect's bounds.
+        for center in rect_corners_mids_and_center(clip_rect):
+            pos_rect.center = center
+
+            for blend in (0, 1): # Test non-blending and blending.
+                # Get the expected points by drawing the aaline without the
+                # clip area set.
+                surface.set_clip(None)
+                surface.fill(surface_color)
+                self.draw_aaline(surface, aaline_color, pos_rect.midtop,
+                                 pos_rect.midbottom, blend)
+
+                # Need to get the points that are NOT surface_color due to the
+                # way blend=0 uses the color black to antialias.
+                expected_pts = get_color_points(surface, surface_color,
+                                                clip_rect, False)
+
+                # Clear the surface and set the clip area. Redraw the aaline
+                # and check that only the clip area is modified.
+                surface.fill(surface_color)
+                surface.set_clip(clip_rect)
+
+                self.draw_aaline(surface, aaline_color, pos_rect.midtop,
+                                 pos_rect.midbottom, blend)
+
+                surface.lock() # For possible speed up.
+
+                # Check all the surface points to ensure the expected_pts
+                # are not surface_color.
+                for pt in ((x, y) for x in range(surfw) for y in range(surfh)):
+                    if pt in expected_pts:
+                        self.assertNotEqual(surface.get_at(pt), surface_color,
+                                            pt)
+                    else:
+                        self.assertEqual(surface.get_at(pt), surface_color, pt)
+
+                surface.unlock()
 
 
 # Commented out to avoid cluttering the test output. Add back in if draw_py
@@ -2926,6 +3040,61 @@ class AALinesMixin(BaseLineMixin):
     def todo_test_aalines__bounding_rect(self):
         """Ensures draw aalines returns the correct bounding rect."""
         self.fail()
+
+    def test_aalines__surface_clip(self):
+        """Ensures draw aalines respects a surface's clip area."""
+        surfw = surfh = 30
+        aaline_color = pygame.Color('red')
+        surface_color = pygame.Color('green')
+        surface = pygame.Surface((surfw, surfh))
+        surface.fill(surface_color)
+
+        clip_rect = pygame.Rect((0, 0), (11, 11))
+        clip_rect.center = surface.get_rect().center
+        pos_rect = clip_rect.copy() # Manages the aalines's pos.
+
+        # Test centering the pos_rect along the clip rect's edge to allow for
+        # drawing the aalines over the clip_rect's bounds.
+        for center in rect_corners_mids_and_center(clip_rect):
+            pos_rect.center = center
+            pts = (pos_rect.midtop, pos_rect.center, pos_rect.midbottom)
+
+            for closed in (True, False): # Test closed and not closed.
+                for blend in (0, 1): # Test non-blending and blending.
+                    # Get the expected points by drawing the aalines without
+                    # the clip area set.
+                    surface.set_clip(None)
+                    surface.fill(surface_color)
+                    self.draw_aalines(surface, aaline_color, closed, pts,
+                                      blend)
+
+                    # Need to get the points that are NOT surface_color due to
+                    # the way blend=0 uses the color black to antialias.
+                    expected_pts = get_color_points(surface, surface_color,
+                                                    clip_rect, False)
+
+                    # Clear the surface and set the clip area. Redraw the
+                    # aalines and check that only the clip area is modified.
+                    surface.fill(surface_color)
+                    surface.set_clip(clip_rect)
+
+                    self.draw_aalines(surface, aaline_color, closed, pts,
+                                      blend)
+
+                    surface.lock() # For possible speed up.
+
+                    # Check all the surface points to ensure the expected_pts
+                    # are not surface_color.
+                    for pt in ((x, y) for x in range(surfw)
+                                      for y in range(surfh)):
+                        if pt in expected_pts:
+                            self.assertNotEqual(surface.get_at(pt),
+                                                surface_color, pt)
+                        else:
+                            self.assertEqual(surface.get_at(pt), surface_color,
+                                             pt)
+
+                    surface.unlock()
 
 
 # Commented out to avoid cluttering the test output. Add back in if draw_py
