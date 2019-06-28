@@ -79,6 +79,8 @@ static PyObject *
 _color_correct_gamma(pgColorObject *, PyObject *);
 static PyObject *
 _color_set_length(pgColorObject *, PyObject *);
+static PyObject *
+_color_lerp(pgColorObject *, PyObject *, PyObject *);
 
 /* Getters/setters */
 static PyObject *
@@ -185,6 +187,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORCORRECTGAMMA},
     {"set_length", (PyCFunction)_color_set_length, METH_VARARGS,
      DOC_COLORSETLENGTH},
+    {"lerp", (PyCFunction)_color_lerp, METH_VARARGS | METH_KEYWORDS,
+     DOC_COLORLERP},
     {NULL, NULL, 0, NULL}};
 
 /**
@@ -835,6 +839,41 @@ _color_correct_gamma(pgColorObject *color, PyObject *args)
                   ? 255
                   : ((frgba[3] < 0.0) ? 0 : (Uint8)(frgba[3] * 255 + .5));
     return (PyObject *)_color_new_internal(Py_TYPE(color), rgba);
+}
+
+/**
+ * color.lerp(other, x)
+ */
+static PyObject *
+_color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
+{
+    Uint8 rgba[4];
+    Uint8 new_rgba[4];
+    PyObject* colobj;
+    double amt;
+    static char *keywords[] = {"color", "amount", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "Od", keywords,
+                                     &colobj, &amt)) {
+        return NULL;
+    }
+
+    if (!pg_RGBAFromColorObj(colobj, rgba)) {
+        return RAISE(PyExc_TypeError,
+                        "Invalid color argument");
+    }
+
+    if (amt < 0 || amt > 1) {
+        return RAISE(PyExc_ValueError,
+                        "Argument 2 must be in range [0, 1]");
+    }
+
+    new_rgba[0] = (Uint8)(self->data[0] * (1 - amt) + rgba[0] * amt);
+    new_rgba[1] = (Uint8)(self->data[1] * (1 - amt) + rgba[1] * amt);
+    new_rgba[2] = (Uint8)(self->data[2] * (1 - amt) + rgba[2] * amt);
+    new_rgba[3] = (Uint8)(self->data[3] * (1 - amt) + rgba[3] * amt);
+
+    return (PyObject *)_color_new_internal(Py_TYPE(self), new_rgba);
 }
 
 /**
