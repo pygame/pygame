@@ -39,6 +39,10 @@ sequential drawing calls can be sped up by locking and unlocking the surface
 object around the draw calls (see :func:`pygame.Surface.lock` and
 :func:`pygame.Surface.unlock`).
 
+.. note ::
+   See the :mod:`pygame.gfxdraw` module for alternative draw methods.
+
+
 .. function:: rect
 
    | :sl:`draw a rectangle`
