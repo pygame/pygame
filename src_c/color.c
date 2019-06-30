@@ -45,6 +45,13 @@
 
 #include <ctype.h>
 
+
+#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L) && !defined(round)
+#define pg_round(d) (((d < 0) ? (ceil((d)-0.5)) : (floor((d)+0.5))))
+#else
+#define pg_round(d) round(d)
+#endif
+
 typedef enum { TRISTATE_SUCCESS, TRISTATE_FAIL, TRISTATE_ERROR } tristate;
 
 static PyObject *_COLORDICT = NULL;
@@ -868,10 +875,10 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
                         "Argument 2 must be in range [0, 1]");
     }
 
-    new_rgba[0] = (Uint8)(self->data[0] * (1 - amt) + rgba[0] * amt);
-    new_rgba[1] = (Uint8)(self->data[1] * (1 - amt) + rgba[1] * amt);
-    new_rgba[2] = (Uint8)(self->data[2] * (1 - amt) + rgba[2] * amt);
-    new_rgba[3] = (Uint8)(self->data[3] * (1 - amt) + rgba[3] * amt);
+    new_rgba[0] = (Uint8)pg_round(self->data[0] * (1 - amt) + rgba[0] * amt);
+    new_rgba[1] = (Uint8)pg_round(self->data[1] * (1 - amt) + rgba[1] * amt);
+    new_rgba[2] = (Uint8)pg_round(self->data[2] * (1 - amt) + rgba[2] * amt);
+    new_rgba[3] = (Uint8)pg_round(self->data[3] * (1 - amt) + rgba[3] * amt);
 
     return (PyObject *)_color_new_internal(Py_TYPE(self), new_rgba);
 }
