@@ -1703,6 +1703,17 @@ extract_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
                              rgba_color[2], rgba_color[3]);
         return 1;
     }
+    else if (PyInt_Check(color_obj)) {
+        long intval = PyInt_AsLong(color_obj);
+
+        if ((-1 == intval && PyErr_Occurred()) || intval > 0xFFFFFFFF) {
+            PyErr_SetString(PyExc_ValueError, "invalid color argument");
+            return 0;
+        }
+
+        *color = (Uint32)intval;
+        return 1;
+    }
     else if (PyLong_Check(color_obj)) {
         unsigned long longval = PyLong_AsUnsignedLong(color_obj);
 
@@ -1726,15 +1737,26 @@ extract_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
  *     bitmask: bitmask to draw
  *     draw_setbits: if non-zero then draw the set bits (bits==1)
  *     draw_unsetbits: if non-zero then draw the unset bits (bits==0)
- *     setcolor: color to draw set bits (bits==1)
- *     unsetcolor: color to draw unset bits (bits==0)
+ *     setsurf: use colors from this surface for set bits (bits==1)
+ *     unsetsurf: use colors from this surface for unset bits (bits==0)
+ *     setcolor: color for set bits, setsurf takes precedence (bits==1)
+ *     unsetcolor: color for unset bits, unsetsurf takes precedence (bits==0)
+ *     valid_setcolor: if non-zero then the setcolor value is valid
+ *     valid_unsetcolor: if non-zero then the unsetcolor value is valid
+ *
+ * Assumptions:
+ *     - surf and bitmask are non-NULL
+ *     - all surfaces have the same pixel format
+ *     - all surfaces that are non-NULL are locked
  */
 static void
 draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int draw_setbits,
-                int draw_unsetbits, Uint32 setcolor, Uint32 unsetcolor)
+                int draw_unsetbits, SDL_Surface *setsurf,
+                SDL_Surface *unsetsurf, Uint32 setcolor, Uint32 unsetcolor,
+                int valid_setcolor, int valid_unsetcolor)
 {
-    Uint8 bpp = surf->format->BytesPerPixel;
     Uint8 *pixel = NULL;
+    Uint8 bpp;
     int w, h, x, y;
 
     /* There is nothing to do when any of these conditions exist:
@@ -1746,23 +1768,139 @@ draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int draw_setbits,
         return;
     }
 
+    bpp = surf->format->BytesPerPixel;
     h = MIN(surf->h, bitmask->h);
     w = MIN(surf->w, bitmask->w);
 
-    for (y = 0; y < h; ++y) {
-        pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+    if (NULL == setsurf && NULL == unsetsurf) {
+        /* Draw just using color values. No surfaces. */
+        draw_setbits = draw_setbits && valid_setcolor;
+        draw_unsetbits = draw_unsetbits && valid_unsetcolor;
 
-        for (x = 0; x < w; ++x, pixel += bpp) {
-            if (bitmask_getbit(bitmask, x, y)) {
-                if (draw_setbits) {
-                    set_pixel_color(pixel, bpp, setcolor);
+        for (y = 0; y < h; ++y) {
+            pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+
+            for (x = 0; x < w; ++x, pixel += bpp) {
+                if (bitmask_getbit(bitmask, x, y)) {
+                    if (draw_setbits) {
+                        set_pixel_color(pixel, bpp, setcolor);
+                    }
                 }
-            }
-            else if (draw_unsetbits) {
-                set_pixel_color(pixel, bpp, unsetcolor);
+                else if (draw_unsetbits) {
+                    set_pixel_color(pixel, bpp, unsetcolor);
+                }
             }
         }
     }
+    else if (!valid_setcolor && !valid_unsetcolor && NULL != setsurf &&
+             NULL != unsetsurf && setsurf->h >= h && setsurf->w >= w &&
+             unsetsurf->h >= h && unsetsurf->w >= w) {
+        /* Draw using surfaces that are as big (or bigger) as what is being
+         * drawn and no color values are being used. */
+        Uint8 *setpixel = NULL, *unsetpixel = NULL;
+
+        for (y = 0; y < h; ++y) {
+            pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+            setpixel = (Uint8 *)setsurf->pixels + y * setsurf->pitch;
+            unsetpixel = (Uint8 *)unsetsurf->pixels + y * unsetsurf->pitch;
+
+            for (x = 0; x < w;
+                 ++x, pixel += bpp, setpixel += bpp, unsetpixel += bpp) {
+                if (bitmask_getbit(bitmask, x, y)) {
+                    if (draw_setbits) {
+                        set_pixel_color(pixel, bpp,
+                                        get_pixel_color(setpixel, bpp));
+                    }
+                }
+                else if (draw_unsetbits) {
+                    set_pixel_color(pixel, bpp,
+                                    get_pixel_color(unsetpixel, bpp));
+                }
+            }
+        }
+    }
+    else {
+        /* Draw using surfaces and color values. */
+        Uint8 *setpixel = NULL, *unsetpixel = NULL;
+        int use_setsurf = 0, use_unsetsurf = 0;
+
+        /* Looping over each bit in the mask and deciding whether to use a
+         * color from setsurf/unsetsurf or from setcolor/unsetcolor. */
+        for (y = 0; y < h; ++y) {
+            pixel = (Uint8 *)surf->pixels + y * surf->pitch;
+            use_setsurf = draw_setbits && NULL != setsurf && setsurf->h > y;
+            use_unsetsurf =
+                draw_unsetbits && NULL != unsetsurf && unsetsurf->h > y;
+
+            if (use_setsurf) {
+                setpixel = (Uint8 *)setsurf->pixels + y * setsurf->pitch;
+            }
+
+            if (use_unsetsurf) {
+                unsetpixel = (Uint8 *)unsetsurf->pixels + y * unsetsurf->pitch;
+            }
+
+            for (x = 0; x < w; ++x, pixel += bpp) {
+                if (bitmask_getbit(bitmask, x, y)) {
+                    if (draw_setbits) {
+                        if (use_setsurf && setsurf->w) {
+                            set_pixel_color(pixel, bpp,
+                                            get_pixel_color(setpixel, bpp));
+                        }
+                        else if (valid_setcolor) {
+                            set_pixel_color(pixel, bpp, setcolor);
+                        }
+                    }
+                }
+                else if (draw_unsetbits) {
+                    if (use_unsetsurf && unsetsurf->w) {
+                        set_pixel_color(pixel, bpp,
+                                        get_pixel_color(unsetpixel, bpp));
+                    }
+                    else if (valid_unsetcolor) {
+                        set_pixel_color(pixel, bpp, unsetcolor);
+                    }
+                }
+
+                if (use_setsurf) {
+                    setpixel += bpp;
+                }
+
+                if (use_unsetsurf) {
+                    unsetpixel += bpp;
+                }
+            }
+        }
+    }
+}
+
+/* Checks if the surfaces have the same pixel formats.
+ *
+ * Params:
+ *     surf: surface to check against
+ *     check_surf: surface to check
+ *
+ * Returns:
+ *     int: 0 to indicate surfaces don't have the same format
+ *          1 to indicate the surfaces have the same format
+ *
+ * Assumptions:
+ *     - both parameters are non-NULL
+ *     - these checks are enough to assume the pixel formats are the same
+ */
+static int
+check_surface_pixel_format(SDL_Surface *surf, SDL_Surface *check_surf)
+{
+    if ((surf->format->BytesPerPixel != check_surf->format->BytesPerPixel) ||
+        (surf->format->BitsPerPixel != check_surf->format->BitsPerPixel)
+#if IS_SDLv2
+        || (surf->format->format != check_surf->format->format)
+#endif
+    ) {
+        return 0;
+    }
+
+    return 1;
 }
 
 /* Draws a mask on a surface.
@@ -1774,17 +1912,21 @@ static PyObject *
 mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *surfobj = Py_None, *setcolorobj = NULL, *unsetcolorobj = NULL;
-    SDL_Surface *surf = NULL;
+    PyObject *setsurfobj = Py_None, *unsetsurfobj = Py_None;
+    SDL_Surface *surf = NULL, *setsurf = NULL, *unsetsurf = NULL;
     bitmask_t *bitmask = pgMask_AsBitmap(self);
     Uint32 setcolor, unsetcolor;
     int draw_setbits = 0, draw_unsetbits = 0;
+    int valid_setcolor = 0, valid_unsetcolor = 0;
     int created_surfobj = 0; /* Set to 1 if this func creates the surfobj. */
     Uint8 dflt_setcolor[] = {255, 255, 255, 255}; /* Default set color. */
     Uint8 dflt_unsetcolor[] = {0, 0, 0, 255};     /* Default unset color. */
 
-    static char *keywords[] = {"surface", "setcolor", "unsetcolor", NULL};
+    static char *keywords[] = {"surface",  "setsurface", "unsetsurface",
+                               "setcolor", "unsetcolor", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOO", keywords, &surfobj,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOO", keywords,
+                                     &surfobj, &setsurfobj, &unsetsurfobj,
                                      &setcolorobj, &unsetcolorobj)) {
         return NULL; /* Exception already set. */
     }
@@ -1808,12 +1950,60 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
     surf = pgSurface_AsSurface(surfobj);
 
+    if (Py_None != setsurfobj) {
+        if (!pgSurface_Check(setsurfobj)) {
+            PyErr_SetString(PyExc_TypeError, "invalid setsurface argument");
+            goto to_surface_error;
+        }
+
+        setsurf = pgSurface_AsSurface(setsurfobj);
+
+        if (0 == check_surface_pixel_format(surf, setsurf)) {
+            /* Needs to have the same format settings as surface. */
+            PyErr_SetString(PyExc_ValueError,
+                            "setsurface needs to have same "
+                            "bytesize/bitsize/alpha format as surface");
+            goto to_surface_error;
+        }
+        else if ((setsurf->h <= 0) || (setsurf->w <= 0)) {
+            /* Surface has no usable color positions, so ignore it. */
+            setsurf = NULL;
+        }
+        else {
+            draw_setbits = 1;
+        }
+    }
+
+    if (Py_None != unsetsurfobj) {
+        if (!pgSurface_Check(unsetsurfobj)) {
+            PyErr_SetString(PyExc_TypeError, "invalid unsetsurface argument");
+            goto to_surface_error;
+        }
+
+        unsetsurf = pgSurface_AsSurface(unsetsurfobj);
+
+        if (0 == check_surface_pixel_format(surf, unsetsurf)) {
+            /* Needs to have the same format settings as surface. */
+            PyErr_SetString(PyExc_ValueError,
+                            "unsetsurface needs to have same "
+                            "bytesize/bitsize/alpha format as surface");
+            goto to_surface_error;
+        }
+        else if ((unsetsurf->h <= 0) || (unsetsurf->w <= 0)) {
+            /* Surface has no usable color positions, so ignore it. */
+            unsetsurf = NULL;
+        }
+        else {
+            draw_unsetbits = 1;
+        }
+    }
+
     if (Py_None != setcolorobj) {
         if (!extract_color(surf, setcolorobj, dflt_setcolor, &setcolor)) {
             goto to_surface_error; /* Exception already set. */
         }
 
-        draw_setbits = 1;
+        valid_setcolor = draw_setbits = 1;
     }
 
     if (Py_None != unsetcolorobj) {
@@ -1822,23 +2012,48 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
             goto to_surface_error; /* Exception already set. */
         }
 
-        draw_unsetbits = 1;
+        valid_unsetcolor = draw_unsetbits = 1;
     }
 
     if (!pgSurface_Lock(surfobj)) {
-        RAISE(PyExc_RuntimeError, "cannot lock surface");
+        PyErr_SetString(PyExc_RuntimeError, "cannot lock surface");
+        goto to_surface_error;
+    }
+
+    /* Only lock the setsurface if it is being used.
+     * i.e. setsurf is non-NULL */
+    if (NULL != setsurf && !pgSurface_Lock(setsurfobj)) {
+        PyErr_SetString(PyExc_RuntimeError, "cannot lock setsurface");
+        goto to_surface_error;
+    }
+
+    /* Only lock the unsetsurface if it is being used.
+     * i.e.. unsetsurf is non-NULL. */
+    if (NULL != unsetsurf && !pgSurface_Lock(unsetsurfobj)) {
+        PyErr_SetString(PyExc_RuntimeError, "cannot lock unsetsurface");
         goto to_surface_error;
     }
 
     Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
 
-    draw_to_surface(surf, bitmask, draw_setbits, draw_unsetbits, setcolor,
-                    unsetcolor);
+    draw_to_surface(surf, bitmask, draw_setbits, draw_unsetbits, setsurf,
+                    unsetsurf, setcolor, unsetcolor, valid_setcolor,
+                    valid_unsetcolor);
 
     Py_END_ALLOW_THREADS; /* Obtain the GIL. */
 
+    if (NULL != unsetsurf && !pgSurface_Unlock(unsetsurfobj)) {
+        PyErr_SetString(PyExc_RuntimeError, "cannot unlock unsetsurface");
+        goto to_surface_error;
+    }
+
+    if (NULL != setsurf && !pgSurface_Unlock(setsurfobj)) {
+        PyErr_SetString(PyExc_RuntimeError, "cannot unlock setsurface");
+        goto to_surface_error;
+    }
+
     if (!pgSurface_Unlock(surfobj)) {
-        RAISE(PyExc_RuntimeError, "cannot unlock surface");
+        PyErr_SetString(PyExc_RuntimeError, "cannot unlock surface");
         goto to_surface_error;
     }
 
