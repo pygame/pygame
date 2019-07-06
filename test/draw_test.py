@@ -109,6 +109,36 @@ def get_color_points(surface, color, bounds_rect=None, match_color=True):
     return pts
 
 
+def create_bounding_rect(surface, start, surf_color):
+    """Create a rect to bound all the pixels that don't match surf_color.
+
+    The start parameter is used to position the bounding rect for the case
+    where all pixels match the surf_color.
+    """
+    width, height = surface.get_clip().size
+    xmin, ymin = width, height
+    xmax, ymax = -1, -1
+    get_at = surface.get_at # For possible speed up.
+
+    surface.lock() # For possible speed up.
+
+    for y in range(height):
+        for x in range(width):
+            if get_at((x, y)) != surf_color:
+                xmin = min(x, xmin)
+                xmax = max(x, xmax)
+                ymin = min(y, ymin)
+                ymax = max(y, ymax)
+
+    surface.unlock()
+
+    if -1 == xmax:
+        # No points means a 0 sized rect positioned at the start parameter.
+        return pygame.Rect(start, (0, 0))
+
+    return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
+
+
 class InvalidBool(object):
     """To help test invalid bool values."""
     __nonzero__ = None
@@ -818,32 +848,6 @@ class BaseLineMixin(object):
             yield (rect.midleft, pt)
             yield (pt, rect.midleft)
 
-    @staticmethod
-    def _create_line_bounding_rect(surface, start, end, surf_color):
-        # Helper method to create a bounding rect for a given line.
-        # This method checks the surface for drawn points, then creates a
-        # bounding rect to enclose all the points.
-        width, height = surface.get_clip().size
-        xmin, ymin = width, height
-        xmax, ymax = -1, -1
-
-        surface.lock() # For possible speed up.
-        for y in range(height):
-            for x in range(width):
-                if surface.get_at((x, y)) != surf_color:
-                    xmin = min(x, xmin)
-                    xmax = max(x, xmax)
-                    ymin = min(y, ymin)
-                    ymax = max(y, ymax)
-
-        surface.unlock()
-
-        if -1 == xmax:
-            # No points means 0 sized rect with the position at the start.
-            return pygame.Rect(start, (0, 0))
-
-        return pygame.Rect((xmin, ymin), (xmax - xmin + 1, ymax - ymin + 1))
-
 
 ### Line Testing ##############################################################
 
@@ -1278,8 +1282,9 @@ class LineMixin(BaseLineMixin):
                         if 0 < thickness:
                             # Calculating the expected_rect after the line is
                             # drawn (it uses what is actually drawn).
-                            expected_rect = self._create_line_bounding_rect(
-                                surface, start, end, surf_color)
+                            expected_rect = create_bounding_rect(surface,
+                                                                 start,
+                                                                 surf_color)
                         else:
                             # Nothing drawn.
                             expected_rect = pygame.Rect(start, (0, 0))
@@ -1879,9 +1884,52 @@ class LinesMixin(BaseLineMixin):
         """Ensures thick lines are drawn without any gaps."""
         self.fail()
 
-    def todo_test_lines__bounding_rect(self):
-        """Ensures draw lines returns the correct bounding rect."""
-        self.fail()
+    # This decorator can be removed when issue #1117 is resolved.
+    @unittest.expectedFailure
+    def test_lines__bounding_rect(self):
+        """Ensures draw lines returns the correct bounding rect.
+
+        Tests lines with endpoints on and off the surface and a range of
+        width/thickness values.
+        """
+        line_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        width = height = 30
+        # Using a rect to help manage where the lines are drawn.
+        pos_rect = pygame.Rect((0, 0), (width, height))
+
+        # Testing surfaces of different sizes. One larger than the pos_rect
+        # and one smaller (to test lines that span the surface).
+        for size in ((width + 5, height + 5), (width - 5, height - 5)):
+            surface = pygame.Surface(size, 0, 32)
+            surf_rect = surface.get_rect()
+
+            # Move pos_rect to different positions to test line endpoints on
+            # and off the surface.
+            for pos in rect_corners_mids_and_center(surf_rect):
+                pos_rect.center = pos
+                # Shape: Triangle (if closed), ^ caret (if not closed).
+                pts = (pos_rect.midleft, pos_rect.midtop, pos_rect.midright)
+                pos = pts[0] # Rect position if nothing drawn.
+
+                # Draw using different thickness and closed values.
+                for thickness in range(-1, 5):
+                    for closed in (True, False):
+                        surface.fill(surf_color) # Clear for each test.
+
+                        bounding_rect = self.draw_lines(surface, line_color,
+                                                        closed, pts, thickness)
+
+                        if 0 < thickness:
+                            # Calculating the expected_rect after the lines are
+                            # drawn (it uses what is actually drawn).
+                            expected_rect = create_bounding_rect(surface, pos,
+                                                                 surf_color)
+                        else:
+                            # Nothing drawn.
+                            expected_rect = pygame.Rect(pos, (0, 0))
+
+                        self.assertEqual(bounding_rect, expected_rect)
 
     def test_lines__surface_clip(self):
         """Ensures draw lines respects a surface's clip area."""
@@ -4400,6 +4448,41 @@ class DrawCircleMixin(object):
             radius=1,
             width=0,
         )
+
+    # This decorator can be removed when issue #1122 is resolved.
+    @unittest.expectedFailure
+    def test_circle__bounding_rect(self):
+        """Ensures draw circle returns the correct bounding rect.
+
+        Tests circles on and off the surface and a range of width/thickness
+        values.
+        """
+        circle_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        max_radius = 3
+        surface = pygame.Surface((30, 30), 0, 32)
+        surf_rect = surface.get_rect()
+        # Make a rect that is bigger than the surface to help test drawing
+        # circles off and partially off the surface.
+        big_rect = surf_rect.inflate(max_radius * 3, max_radius * 3)
+
+        for pos in (rect_corners_mids_and_center(surf_rect) +
+                    rect_corners_mids_and_center(big_rect)):
+            # Test using different radius and thickness values.
+            for radius in range(max_radius + 1):
+                for thickness in range(radius + 1):
+                    surface.fill(surf_color) # Clear for each test.
+
+                    bounding_rect = self.draw_circle(surface, circle_color,
+                                                     pos, radius, thickness)
+
+                    # Calculating the expected_rect after the circle is
+                    # drawn (it uses what is actually drawn).
+                    expected_rect = create_bounding_rect(surface, pos,
+                                                         surf_color)
+
+                    self.assertEqual(bounding_rect, expected_rect)
+
 
     def test_circle__surface_clip(self):
         """Ensures draw circle respects a surface's clip area.
