@@ -935,7 +935,7 @@ map_array(PyObject *self, PyObject *args)
     }
     if (src_view_p->shape[src_ndim - 1] != 3) {
         PyErr_Format(PyExc_ValueError,
-                     "Expected a (..., 3) source array: got (..., %d)",
+                     "Expected a (..., 3) source array: got (..., %zd)",
                      src_view_p->shape[src_ndim - 1]);
         goto fail;
     }

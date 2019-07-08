@@ -2556,8 +2556,6 @@ surf_average_surfaces(PyObject *self, PyObject *arg)
             ret = pgSurface_New(newsurf);
         }
     }
-    else {
-    }
 
     /* cleanup */
 
