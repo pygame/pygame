@@ -128,6 +128,8 @@ surf_get_alpha(PyObject *self, PyObject *args);
 #if IS_SDLv2
 static PyObject *
 surf_get_blendmode(PyObject *self, PyObject *args);
+static PyObject *
+depth_blit(PyObject *self, PyObject *args, PyObject *keywds);
 #endif /* IS_SDLv2 */
 static PyObject *
 surf_copy(PyObject *self, PyObject *args);
@@ -296,6 +298,8 @@ static struct PyMethodDef surface_methods[] = {
 #if IS_SDLv2
     {"get_blendmode", surf_get_blendmode, METH_NOARGS,
      "Return the surface's SDL 2 blend mode"},
+    {"depth_blit", (PyCFunction)depth_blit, METH_VARARGS | METH_KEYWORDS,
+     ""},
 #endif /* IS_SDLv2 */
 
     {"copy", surf_copy, METH_NOARGS, DOC_SURFACECOPY},
@@ -2172,6 +2176,123 @@ surf_blit(PyObject *self, PyObject *args, PyObject *keywds)
 
     return pgRect_New(&dest_rect);
 }
+
+#if IS_SDLv2
+
+static PyObject *
+depth_blit(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    SDL_Surface *src, *buf, *dest = pgSurface_AsSurface(self);
+    PyObject *srcobject, *bufobject, *argpos, *argrect = NULL;
+    int dx, dy;
+    SDL_Rect dest_rect, sdlsrc_rect;
+    int sx, sy;
+    int depth = 0;
+    Uint8 *src_pixel, *dest_pixel, *buf_pixel = NULL;
+    Uint32 src_skip, dest_skip, buf_skip;
+    Uint8 src_bpp, dest_bpp;
+    int w, h, x, y;
+    Uint32 colorkey, src_color;
+
+    static char *kwids[] = {"source", "dest", "buf", "depth", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!OO!|i", kwids,
+                                     &pgSurface_Type, &srcobject,
+                                     &argpos,
+                                     &pgSurface_Type, &bufobject,
+                                     &depth))
+        return NULL;
+
+    src = pgSurface_AsSurface(srcobject);
+    buf = pgSurface_AsSurface(bufobject);
+
+    if (!dest || !src)
+        return RAISE(pgExc_SDLError, "display Surface quit");
+
+    if (pg_TwoIntsFromObj(argpos, &sx, &sy)) {
+        dx = sx;
+        dy = sy;
+    }
+    else {
+        return RAISE(PyExc_TypeError, "invalid destination position for blit");
+    }
+
+    if (SDL_GetColorKey(src, &colorkey) != 0) {
+        return RAISE(PyExc_TypeError, "source surface must have colorkey");
+    }
+
+    if (buf->w != dest->w || buf->h != dest->h) {
+        return RAISE(PyExc_TypeError, "depth buffer must be same size as target surface");
+    }
+
+    if (dest->format->BytesPerPixel != 4 ||
+        src->format->BytesPerPixel != 4) {
+        return RAISE(PyExc_TypeError, "source must be same format as target, 32 bit depth");
+    }
+
+    if (buf->format->BytesPerPixel != 1) {
+        return RAISE(PyExc_TypeError, "depth buffer must have one byte per pixel");
+    }
+
+    dest_bpp = dest->format->BytesPerPixel;
+    src_bpp = src->format->BytesPerPixel;
+
+    w = src->w;
+    h = src->h;
+
+    if (dx + w > dest->w) {
+        w = dest->w - dx;
+        printf("ONE\n");
+    }
+
+    if (dy + h > dest->h) {
+        h = dest->h - dy;
+        printf("TWO\n");
+    }
+
+    dest_rect.x = dx;
+    dest_rect.y = dy;
+    dest_rect.w = w;
+    dest_rect.h = h;
+
+    sdlsrc_rect.x = 0;
+    sdlsrc_rect.y = 0;
+    sdlsrc_rect.w = w;
+    sdlsrc_rect.h = h;
+
+    src_pixel = (Uint8 *) src->pixels+
+        (Uint16) (sdlsrc_rect.y) * src->pitch +
+        (Uint16) (sdlsrc_rect.x) * src_bpp;
+    dest_pixel = (Uint8 *) dest->pixels +
+        (Uint16) (dest_rect.y) * dest->pitch +
+        (Uint16) (dest_rect.x) * dest_bpp;
+    buf_pixel = (Uint8 *) buf->pixels +
+        (Uint16) (dest_rect.y) * buf->pitch +
+        (Uint16) (dest_rect.x) * buf->format->BytesPerPixel;
+
+    src_skip = src->pitch - dest_rect.w * src_bpp;
+    dest_skip = dest->pitch - dest_rect.w * dest_bpp;
+    buf_skip = buf->pitch - dest_rect.w * buf->format->BytesPerPixel;
+
+    for (y = 0; y < h; ++y) {
+        for (x = 0; x < w; ++x) {
+            src_color=*(Uint32*)src_pixel;
+            if (src_color != colorkey
+                && depth <= *buf_pixel) {
+                *(Uint32*)dest_pixel=src_color;
+                *buf_pixel=depth;
+            }
+            src_pixel += src_bpp;
+            dest_pixel += dest_bpp;
+            buf_pixel+=1;
+        }
+        src_pixel += src_skip;
+        dest_pixel+=dest_skip;
+        buf_pixel+=buf_skip;
+    }
+
+    return pgRect_New(&dest_rect);
+}
+#endif
 
 #define BLITS_ERR_SEQUENCE_REQUIRED 1
 #define BLITS_ERR_DISPLAY_SURF_QUIT 2
