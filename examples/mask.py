@@ -81,12 +81,13 @@ class Sprite:
             self.kick([nx*J,ny*J])
             s.kick([-J*nx,-J*ny])
         return
-        """Separate the sprites"""
-        c1 = -overlap/vdot(n,n)
-        c2 = -c1/2
-        self.move([c2*nx,c2*ny])
-        s.move([(c1+c2)*nx,(c1+c2)*ny])
-        
+
+        #"""Separate the sprites"""
+        #c1 = -overlap/vdot(n,n)
+        #c2 = -c1/2
+        #self.move([c2*nx,c2*ny])
+        #s.move([(c1+c2)*nx,(c1+c2)*ny])
+
     def update(self,dt):
         self.pos[0] += dt*self.vel[0]
         self.pos[1] += dt*self.vel[1]
@@ -117,14 +118,14 @@ def main(*args):
     import time
     t1 = time.time()
     for x in range(numtimes):
-        m = maskFromSurface(images[-1])
+        unused_mask = maskFromSurface(images[-1])
     t2 = time.time()
 
     print ("python maskFromSurface :%s" % (t2-t1))
 
     t1 = time.time()
     for x in range(numtimes):
-        m = pygame.mask.from_surface(images[-1])
+        unused_mask = pygame.mask.from_surface(images[-1])
     t2 = time.time()
 
     print ("C pygame.mask.from_surface :%s" % (t2-t1))

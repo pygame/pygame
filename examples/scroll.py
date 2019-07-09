@@ -52,7 +52,6 @@ def add_arrow_button(screen, regions, posn, direction):
     draw_arrow(regions, (direction, 0, 0), posn, direction)
 
 def scroll_view(screen, image, direction, view_rect):
-    dx = dy = 0
     src_rect = None
     zoom_view_rect = screen.get_clip()
     image_w, image_h = image.get_size()

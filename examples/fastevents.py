@@ -79,7 +79,7 @@ def main():
 
     c = time.Clock()
 
-    win = display.set_mode((640, 480), RESIZABLE)
+    display.set_mode((640, 480), RESIZABLE)
     display.set_caption("fastevent Workout")
 
     poster = post_them()

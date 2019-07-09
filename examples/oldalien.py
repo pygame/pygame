@@ -13,7 +13,7 @@ and should be used whenever the fullscreen isn't being changed."""
 
 
 #import
-import random, os.path, sys
+import random, os.path
 import pygame
 from pygame.locals import *
 

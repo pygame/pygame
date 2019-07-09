@@ -12,7 +12,6 @@ import pygame
 import pygame.freetype
 from pygame.locals import *
 import sys
-import os
 
 class Window(object):
     """The application's Pygame window
