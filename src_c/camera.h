@@ -1,3 +1,5 @@
+#ifndef CAMERA_H
+#define CAMERA_H
 /*
   pygame - Python Game Library
 
@@ -199,3 +201,5 @@ void flip_image(const void* image, void* flipped_image, int width, int height,
                 short depth, int hflip, int vflip);
 
 #endif
+
+#endif /* !CAMERA_H */

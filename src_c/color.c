@@ -1926,8 +1926,8 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
         }
         if (PySequence_Fast_GET_SIZE(fastitems) != slicelength) {
             PyErr_Format(PyExc_ValueError,
-                "attempting to assign sequence of length %d "
-                "to slice of length %d",
+                "attempting to assign sequence of length %zd "
+                "to slice of length %zd",
                 PySequence_Fast_GET_SIZE(fastitems), slicelength);
             Py_DECREF(fastitems);
             return -1;
