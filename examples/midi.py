@@ -15,11 +15,6 @@ import pygame
 import pygame.midi
 from pygame.locals import *
 
-try:  # Ensure set available for output example
-    set
-except NameError:
-    from sets import Set as set
-
 
 def print_device_info():
     pygame.midi.init()
@@ -131,7 +126,8 @@ def output_main(device_id = None):
     #    to ensure that midi is properly shut down, it is best to do it
     #    explicitly. A try/finally statement is the safest way to do this.
     #
-    GRAND_PIANO = 0
+
+    #GRAND_PIANO = 0
     CHURCH_ORGAN = 19
 
     instrument = CHURCH_ORGAN
@@ -182,11 +178,9 @@ def output_main(device_id = None):
         keyboard.map_regions(regions)
 
         pygame.event.set_blocked(MOUSEMOTION)
-        repeat = 1
         mouse_note = 0
         on_notes = set()
         while 1:
-            update_rects = None
             e = pygame.event.wait()
             if e.type == pygame.MOUSEBUTTONDOWN:
                 mouse_note, velocity, __, __  = regions.get_at(e.pos)
@@ -317,7 +311,6 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
     #
     c_down_state_initial = down_state_none
     c_down_state_rect_initial = image_rects[0]
-    c_down_state_self = down_state_self
     c_updates = updates
     c_image_strip = image_strip
     c_width, c_height = image_rects[0].size

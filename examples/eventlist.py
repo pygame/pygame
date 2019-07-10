@@ -35,14 +35,14 @@ def drawstatus(win):
 
     pos = showtext(win, (10, 60), 'Mouse Position', (255, 255, 255), bgcolor)
     p = '%s, %s' % mouse.get_pos()
-    pos = showtext(win, pos, p, bgcolor, (255, 255, 55))
+    showtext(win, pos, p, bgcolor, (255, 255, 55))
 
     pos = showtext(win, (330, 60), 'Last Keypress', (255, 255, 255), bgcolor)
     if LastKey:
         p = '%d, %s' % (LastKey, key.name(LastKey))
     else:
         p = 'None'
-    pos = showtext(win, pos, p, bgcolor, (255, 255, 55))
+    showtext(win, pos, p, bgcolor, (255, 255, 55))
 
     pos = showtext(win, (10, 90), 'Input Grabbed', (255, 255, 255), bgcolor)
     win.blit(ImgOnOff[event.get_grab()], pos)

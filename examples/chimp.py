@@ -29,7 +29,7 @@ def load_image(name, colorkey=None):
         raise SystemExit(str(geterror()))
     image = image.convert()
     if colorkey is not None:
-        if colorkey is -1:
+        if colorkey == -1:
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
