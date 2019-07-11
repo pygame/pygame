@@ -21,7 +21,7 @@
 #define DOC_PYGAMEGFXDRAWAAPOLYGON "aapolygon(surface, points, color) -> None\ndraw an anti-aliased polygon"
 #define DOC_PYGAMEGFXDRAWFILLEDPOLYGON "filled_polygon(surface, points, color) -> None\ndraw a filled polygon"
 #define DOC_PYGAMEGFXDRAWTEXTUREDPOLYGON "textured_polygon(surface, points, texture, tx, ty) -> None\ndraw a textured polygon"
-#define DOC_PYGAMEGFXDRAWBEZIER "bezier(surface, points, steps, color) -> None\ndraw a Bézier curve"
+#define DOC_PYGAMEGFXDRAWBEZIER "bezier(surface, points, steps, color) -> None\ndraw a BÃ©zier curve"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -117,6 +117,6 @@ draw a textured polygon
 
 pygame.gfxdraw.bezier
  bezier(surface, points, steps, color) -> None
-draw a Bézier curve
+draw a BÃ©zier curve
 
 */
