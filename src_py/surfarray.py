@@ -63,7 +63,6 @@ and wonder about the values.
 # Try to import the necessary modules.
 import pygame._numpysurfarray as numpysf
 
-from pygame.pixelcopy import array_to_surface, make_surface as pc_make_surface
 
 def blit_array (surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None

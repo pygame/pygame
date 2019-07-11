@@ -17,8 +17,6 @@ def isgp2x():
             _is_gp2x = True
         else:
             _is_gp2x = False
-    else:
-        return _is_gp2x
 
-
+    return _is_gp2x
 
