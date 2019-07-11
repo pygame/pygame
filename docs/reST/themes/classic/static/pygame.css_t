@@ -262,6 +262,20 @@ div.document {
     }
 }
 
+
+/* */
+.toc td {
+    display:block;
+    width: 200%;
+}
+.toc td:last-child {
+    padding-bottom: 20px;
+}
+table.toc td:nth-child(2) {
+    display: none;
+}
+
+
 div.bodywrapper {
     margin: 0 0 0 230px;
 }
@@ -719,8 +733,7 @@ div.body span.codelineref {
 
 /* Highlight Code types and functions. */
 .py-class .pre,
-.reference,
-.reference em {
+.reference.internal em {
     font-weight: bold;
     background-color: lightgreen;
 }
