@@ -59,7 +59,7 @@ class post_them(Thread):
                 try:
                     event_module.post(ee)
                     try_post = 0
-                except:
+                except pygame.error:
                     pytime.sleep(0.001)
                     try_post = 1
 

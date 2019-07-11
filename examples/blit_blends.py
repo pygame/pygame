@@ -9,7 +9,7 @@ from pygame.locals import *
 try:
     import pygame.surfarray
     import numpy
-except:
+except ImportError:
     print ("no surfarray for you!  install numpy")
 
 import time
