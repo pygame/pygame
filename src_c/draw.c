@@ -81,6 +81,8 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
 static void
 draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thickness, Uint32 color);
 static void
+draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color);
+static void
 draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
              Uint32 color);
 static void
@@ -683,26 +685,12 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!width) {
-        draw_ellipse(surf, posx, posy, radius * 2, radius * 2, 1, color);
-    } else if (width <= 20){
+        //draw_ellipse(surf, posx, posy, radius * 2, radius * 2, 1, color);
+        draw_circle_filled(surf, posx, posy,
+                              radius, color);
+    } else {
         draw_circle_bresenham(surf, posx, posy,
                               radius, width, color);
-    } else {
-        int loop;
-
-        for (loop = 0; loop < width; ++loop) {
-            draw_ellipse(surf, posx, posy, 2 * (radius - loop),
-                         2 * (radius - loop), 0, color);
-            /* To avoid moiré pattern. Don't do an extra one on the outer
-             * ellipse.  We draw another ellipse offset by a pixel, over
-             * drawing the missed spots in the filled circle caused by which
-             * pixels are filled.
-             */
-            // if (width > 1 && loop > 0)
-            // removed due to: 'Gaps in circle for width greater than 1 #736'
-            draw_ellipse(surf, posx + 1, posy, 2 * (radius - loop),
-                         2 * (radius - loop), 0, color);
-        }
     }
 
     if (!pgSurface_Unlock(surfobj)) {
@@ -1787,7 +1775,44 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
     }
 }
 
+static void
+draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color)
+{
+    int f = 1 - radius;
+    int ddF_x = 0;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+    int y1;
 
+    for (y1=y0 - y; y1 <= y0 + y; y1++){
+        set_at(dst, x0, y1, color);
+    }
+    set_at(dst, x0 + radius, y0, color);
+    set_at(dst, x0 - radius, y0, color);
+
+    while(x < y)
+    {
+      if(f >= 0)
+      {
+        y--;
+        ddF_y += 2;
+        f += ddF_y;
+      }
+      x++;
+      ddF_x += 2;
+      f += ddF_x + 1;
+
+      for (y1=y0 - y; y1 <= y0 + y; y1++){
+        set_at(dst, x0+x, y1, color);
+        set_at(dst, x0-x, y1, color);
+      }
+      for (y1=y0 - x; y1 <= y0 + x; y1++){
+        set_at(dst, x0+y, y1, color);
+        set_at(dst, x0-y, y1, color);
+      }
+    }
+}
 static void
 draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
              Uint32 color)
