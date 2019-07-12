@@ -58,13 +58,21 @@ def zero_size_pairs(width, height):
     return ((a, b) for a in sizes for b in sizes if 0 in a or 0 in b)
 
 
-def assertSurfaceFilled(testcase, surface, expected_color):
+def assertSurfaceFilled(testcase, surface, expected_color, area_rect=None):
         """Checks to see if the given surface is filled with the given color.
+
+        If an area_rect is provided, only check that area of the surface.
         """
-        w, h = surface.get_size()
+        if area_rect is None:
+            x_range = range(surface.get_width())
+            y_range = range(surface.get_height())
+        else:
+            area_rect = area_rect.clip(surface.get_rect())
+            x_range = range(area_rect.left, area_rect.right)
+            y_range = range(area_rect.top, area_rect.bottom)
 
         surface.lock()  # Lock for possible speed up.
-        for pos in ((x, y) for y in range(h) for x in range(w)):
+        for pos in ((x, y) for y in y_range for x in x_range):
             testcase.assertEqual(surface.get_at(pos), expected_color)
         surface.unlock()
 
@@ -2276,7 +2284,6 @@ class MaskTypeTest(unittest.TestCase):
         greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green), green)
 
         for setcolor in greens:
-            print(setcolor)
             if isinstance(setcolor, int):
                 expected_color = surface.unmap_rgb(setcolor)
             else:
@@ -2478,9 +2485,92 @@ class MaskTypeTest(unittest.TestCase):
     def todo_test_to_surface__set_and_unset_bits(self):
         self.fail()
 
-    def todo_test_to_surface__mask_wider_than_surfaces(self):
-        # Wider than surface, setsurface, and unsetsurface.
-        self.fail()
+    def test_to_surface__mask_wider_than_surface(self):
+        """Ensures that masks wider than the surface work correctly."""
+        default_setcolor = pygame.Color('white')
+        default_unsetcolor = pygame.Color('black')
+        mask_size = (10, 20)
+        narrow_size = (6, 20)
+
+        surface = pygame.Surface(narrow_size)
+        surface_color = pygame.Color('red')
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(mask_size, fill=fill)
+            surface.fill(surface_color)  # Clear for each test.
+            expected_color = default_setcolor if fill else default_unsetcolor
+
+            to_surface = mask.to_surface(surface)
+
+            self.assertIs(to_surface, surface)
+            self.assertEqual(to_surface.get_size(), narrow_size)
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__mask_wider_than_setsurface(self):
+        """Ensures that masks wider than the setsurface work correctly."""
+        default_setcolor = pygame.Color('white')
+        default_unsetcolor = pygame.Color('black')
+        mask_size = (10, 20)
+        narrow_size = (6, 20)
+
+        setsurface = pygame.Surface(narrow_size, SRCALPHA, 32)
+        setsurface_color = pygame.Color('red')
+        setsurface.fill(setsurface_color)
+        setsurface_rect = setsurface.get_rect()
+
+        # Find the area that won't be covered by setsurface.
+        dftl_rect = pygame.Rect(setsurface_rect.topright,
+                                (mask_size[0] - narrow_size[0], mask_size[1]))
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(mask_size, fill=fill)
+
+            to_surface = mask.to_surface(setsurface=setsurface)
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), mask_size)
+
+            # Different checks depending on if the mask was filled or not.
+            if fill:
+                assertSurfaceFilled(self, to_surface, setsurface_color,
+                                    setsurface_rect)
+                assertSurfaceFilled(self, to_surface, default_setcolor,
+                                    dftl_rect)
+            else:
+                assertSurfaceFilled(self, to_surface, default_unsetcolor)
+
+    def test_to_surface__mask_wider_than_unsetsurface(self):
+        """Ensures that masks wider than the unsetsurface work correctly."""
+        default_setcolor = pygame.Color('white')
+        default_unsetcolor = pygame.Color('black')
+        mask_size = (10, 20)
+        narrow_size = (6, 20)
+
+        unsetsurface = pygame.Surface(narrow_size, SRCALPHA, 32)
+        unsetsurface_color = pygame.Color('red')
+        unsetsurface.fill(unsetsurface_color)
+        unsetsurface_rect = unsetsurface.get_rect()
+
+        # Find the area that won't be covered by unsetsurface.
+        dftl_rect = pygame.Rect(unsetsurface_rect.topright,
+                                (mask_size[0] - narrow_size[0], mask_size[1]))
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(mask_size, fill=fill)
+
+            to_surface = mask.to_surface(unsetsurface=unsetsurface)
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), mask_size)
+
+            # Different checks depending on if the mask was filled or not.
+            if fill:
+                assertSurfaceFilled(self, to_surface, default_setcolor)
+            else:
+                assertSurfaceFilled(self, to_surface, unsetsurface_color,
+                                    unsetsurface_rect)
+                assertSurfaceFilled(self, to_surface, default_unsetcolor,
+                                    dftl_rect)
 
     def todo_test_to_surface__mask_taller_than_surfaces(self):
         # Taller than surface, setsurface, and unsetsurface.

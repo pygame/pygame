@@ -1843,7 +1843,7 @@ draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int draw_setbits,
             for (x = 0; x < w; ++x, pixel += bpp) {
                 if (bitmask_getbit(bitmask, x, y)) {
                     if (draw_setbits) {
-                        if (use_setsurf && setsurf->w) {
+                        if (use_setsurf && setsurf->w > x) {
                             set_pixel_color(pixel, bpp,
                                             get_pixel_color(setpixel, bpp));
                         }
@@ -1853,7 +1853,7 @@ draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int draw_setbits,
                     }
                 }
                 else if (draw_unsetbits) {
-                    if (use_unsetsurf && unsetsurf->w) {
+                    if (use_unsetsurf && unsetsurf->w > x) {
                         set_pixel_color(pixel, bpp,
                                         get_pixel_color(unsetpixel, bpp));
                     }
