@@ -202,17 +202,15 @@ def main(arraytype=None):
     pygame.time.wait(2000)
 
 
-
-    if 0:
-        #TODO: this is broken.
-        print (("-" * 30) + "\n")
-        print ("Slow down the original sound.")
-        rate = 0.2
-        slowed_sound = slow_down_sound(sound, rate)
-
-        slowed_sound.play()
-        while mixer.get_busy():
-            pygame.time.wait(200)
+    #if 0:
+    #    #TODO: this is broken.
+    #    print (("-" * 30) + "\n")
+    #    print ("Slow down the original sound.")
+    #    rate = 0.2
+    #    slowed_sound = slow_down_sound(sound, rate)
+    #    slowed_sound.play()
+    #    while mixer.get_busy():
+    #        pygame.time.wait(200)
 
 
     print ("-" * 30)
