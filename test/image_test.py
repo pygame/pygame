@@ -283,7 +283,7 @@ class ImageModuleTest( unittest.TestCase ):
 
     def test_load_pathlike(self):
         import pathlib
-        pygame.image.load(pathlib.Path(example_path("data/asprite.bmp")))
+        pygame.image.load(pathlib.Path(example_path("data/chimp.bmp")))
 
     def _unicode_save(self, temp_file):
         im = pygame.Surface((10, 10), 0, 32)
