@@ -338,13 +338,11 @@ is dropped, ``file`` will be its path.
 
    Reserves a ``pygame.USEREVENT`` for a custom use.
 
-   If the event queue is full a :exc:`pygame.error` is raised.
+   If too many events are made a :exc:`pygame.error` is raised.
 
    .. versionadded:: 2.0.0.dev3
 
    .. ## pygame.event.custom_type ##
-
-DOC_PYGAMEEVENTCUSTOMTYPE
 
 .. function:: Event
 
