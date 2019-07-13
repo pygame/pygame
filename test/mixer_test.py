@@ -70,10 +70,10 @@ class MixerModuleTest(unittest.TestCase):
     def test_pre_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
         # default values. No way to check buffer size though.
-        mixer.pre_init(44100, -8, 1)  # Non default values
+        mixer.pre_init(22050, -8, 1)  # Non default values
         mixer.pre_init(0, 0, 0)       # Should reset to default values
         mixer.init()
-        self.assertEqual(mixer.get_init(), (22050, -16, 2))
+        self.assertEqual(mixer.get_init(), (44100, -16, 2))
 
     def test_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
