@@ -72,7 +72,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    oencoded = pg_EncodeString(PyOS_FSPath(obj), "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }

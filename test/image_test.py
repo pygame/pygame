@@ -281,6 +281,10 @@ class ImageModuleTest( unittest.TestCase ):
         finally:
             os.remove(temp)
 
+    def test_load_pathlike(self):
+        import pathlib
+        im = pygame.image.load(pathlib.Path(example_path("data/asprite.bmp")))
+
     def _unicode_save(self, temp_file):
         im = pygame.Surface((10, 10), 0, 32)
         try:
