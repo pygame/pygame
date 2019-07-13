@@ -1747,6 +1747,19 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
     return PyInt_FromLong(isblocked);
 }
 
+
+int _custom_event = SDL_USEREVENT + 1;
+static PyObject *
+pg_event_custom_type(PyObject *self, PyObject *args)
+{
+    int result = _custom_event + 1;
+    if (result > SDL_NUMEVENTS) {
+        return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
+    }
+    _custom_event++;
+    return PyInt_FromLong(result);
+}
+
 static PyMethodDef _event_methods[] = {
 #if IS_SDLv2
     {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
@@ -1771,6 +1784,8 @@ static PyMethodDef _event_methods[] = {
     {"set_allowed", pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},
     {"set_blocked", pg_event_set_blocked, METH_VARARGS, DOC_PYGAMEEVENTSETBLOCKED},
     {"get_blocked", pg_event_get_blocked, METH_VARARGS, DOC_PYGAMEEVENTGETBLOCKED},
+    {"custom_type", pg_event_custom_type, METH_NOARGS, DOC_PYGAMEEVENTCUSTOMTYPE},
+
 
     {NULL, NULL, 0, NULL}};
 

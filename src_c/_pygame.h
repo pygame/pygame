@@ -80,7 +80,7 @@ typedef enum {
 typedef enum {
     SDL_NOEVENT = 0,
     /* SDL 1.2 allowed for 8 user defined events. */
-    SDL_NUMEVENTS = SDL_USEREVENT + 8,
+    SDL_NUMEVENTS = SDL_USEREVENT + (32768-500),
     SDL_ACTIVEEVENT = SDL_NUMEVENTS,
     PGE_EVENTBEGIN = SDL_NUMEVENTS,
     SDL_VIDEORESIZE,
