@@ -61,10 +61,10 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
    rather than taken from SDL_mixer. It also means that the default
    size is defined in Pygame, rather than SDL AUDIO_xxx, terms.
  */
-#define PYGAME_MIXER_DEFAULT_FREQUENCY 22050
+#define PYGAME_MIXER_DEFAULT_FREQUENCY 44100
 #define PYGAME_MIXER_DEFAULT_SIZE -16
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
-#define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
+#define PYGAME_MIXER_DEFAULT_CHUNKSIZE 512
 #if IS_SDLv2
 #define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | \
                                             SDL_AUDIO_ALLOW_CHANNELS_CHANGE
