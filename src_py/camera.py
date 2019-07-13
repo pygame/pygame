@@ -50,7 +50,7 @@ def init():
     if use_opencv:
         try:
             from pygame import _camera_opencv_highgui
-        except:
+        except ImportError:
             _camera_opencv_highgui = None
 
         if _camera_opencv_highgui:
@@ -62,7 +62,7 @@ def init():
     if use_vidcapture:
         try:
             from pygame import _camera_vidcapture
-        except:
+        except ImportError:
             _camera_vidcapture = None
 
         if _camera_vidcapture:
@@ -73,14 +73,12 @@ def init():
 
 
     _is_init = 1
-    pass
 
 
 def quit():
     global _is_init
     _is_init = 0
-    pass
- 
+
 
 def _check_init():
     global _is_init

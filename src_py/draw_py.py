@@ -448,7 +448,7 @@ def _multi_lines(surf, color, closed, points, width=1, blend=False, aaline=False
         left = min(left, x)
         right = max(right, x)
         top = min(top, y)
-        bottom = max(right, x)
+        bottom = max(bottom, x)
 
     rect = surf.get_clip()
     for loop in range(1, length):

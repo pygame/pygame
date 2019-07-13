@@ -44,14 +44,11 @@ In contrast to Numeric Numpy does use unsigned 16bit integers, images
 with 16bit data will be treated as unsigned integers.
 """
 
-import pygame
-from pygame.compat import bytes_
 from pygame.pixelcopy import array_to_surface, surface_to_array, \
     map_array as pix_map_array, make_surface as pix_make_surface
 import numpy
 from numpy import array as numpy_array, empty as numpy_empty, \
-                  around as numpy_around, uint32 as numpy_uint32, \
-                  ndarray as numpy_ndarray
+                  uint32 as numpy_uint32, ndarray as numpy_ndarray
 
 #float96 not available on all numpy versions.
 numpy_floats = []

@@ -33,8 +33,7 @@ A stereo sound file has two values per sample, while a mono sound file
 only has one.
 """
 
-import pygame
-import pygame.mixer as mixer 
+import pygame.mixer as mixer
 import numpy
 
 
