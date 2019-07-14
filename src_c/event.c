@@ -325,10 +325,12 @@ _pg_name_from_eventtype(int type)
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
 #if IS_SDLv2
+#ifndef NO_SDL_AUDIODEVICE
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
+#endif
 #endif
         case SDL_KEYDOWN:
             return "KeyDown";
@@ -545,10 +547,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "gain", PyInt_FromLong(gain));
             _pg_insobj(dict, "state", PyInt_FromLong(state));
             break;
+#ifndef NO_SDL_AUDIODEVICE
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
             _pg_insobj(dict, "which", PyInt_FromLong(&event->adevice.which));
             _pg_insobj(dict, "iscapture", PyInt_FromLong(&event->adevice.iscapture));
+#endif
             break;
         case SDL_KEYDOWN:
             _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
@@ -639,7 +643,11 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
+#ifndef NO_SDL_MOUSEWHEEL_FLIPPED
             _pg_insobj(dict, "flipped", PyBool_FromLong(event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED));
+#else
+            _pg_insobj(dict, "flipped", PyBool_FromLong(0));
+#endif
             _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
             _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
             _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));
