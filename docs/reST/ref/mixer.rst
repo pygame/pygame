@@ -100,13 +100,15 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       to 3072.
    .. versionchanged:: 1.9.1 The default ``buffersize`` was changed from 3072
       to 4096.
+   .. versionchanged:: 2.0.0 The default ``buffersize`` was changed from 4096
+      to 512. The default frequency changed to 44100 from 22050.
 
    .. ## pygame.mixer.init ##
 
 .. function:: pre_init
 
    | :sl:`preset the mixer init arguments`
-   | :sg:`pre_init(frequency=22050, size=-16, channels=2, buffer=4096, devicename=None) -> None`
+   | :sg:`pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None) -> None`
 
    Call pre_init to change the defaults used when the real
    ``pygame.mixer.init()`` is called. Keyword arguments are accepted. The best
@@ -119,6 +121,8 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       to 3072.
    .. versionchanged:: 1.9.1 The default ``buffersize`` was changed from 3072
       to 4096.
+   .. versionchanged:: 2.0.0 The default ``buffersize`` was changed from 4096
+      to 512. The default frequency changed to 44100 from 22050.
 
    .. ## pygame.mixer.pre_init ##
 
