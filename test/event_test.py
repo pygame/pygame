@@ -296,6 +296,18 @@ class EventModuleTest(unittest.TestCase):
         self.assertTrue(a != d)
         self.assertFalse(a == d)
 
+    def test_custom_type(self):
+        atype = pygame.event.custom_type()
+        atype2 = pygame.event.custom_type()
+
+        self.assertEqual(atype, atype2 -1)
+
+        ev = pygame.event.Event(atype)
+        pygame.event.post(ev)
+        queue = pygame.event.get(atype)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, atype)
+
     def todo_test_get_blocked(self):
 
         # __doc__ (as of 2008-08-02) for pygame.event.get_blocked:
