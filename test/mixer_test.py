@@ -123,6 +123,8 @@ class MixerModuleTest(unittest.TestCase):
         mixer.quit()
         self.assertRaises(pygame.error, mixer.get_num_channels)
 
+    # TODO: FIXME: appveyor fails here sometimes.
+    @unittest.expectedFailure
     def test_sound_args(self):
         def get_bytes(snd):
             return snd.get_raw()
@@ -137,8 +139,7 @@ class MixerModuleTest(unittest.TestCase):
         snd_bytes = get_bytes(snd)
         self.assertTrue(len(snd_bytes) > 1000)
 
-        # TODO: FIXME: skipped because appveyor fails here sometimes.
-        # self.assertEqual(get_bytes(mixer.Sound(wave_path)), snd_bytes)
+        self.assertEqual(get_bytes(mixer.Sound(wave_path)), snd_bytes)
 
         self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
         self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
