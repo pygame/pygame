@@ -53,6 +53,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
 
    | :sl:`repeatedly create an event on the event queue`
    | :sg:`set_timer(eventid, milliseconds) -> None`
+   | :sg:`set_timer(eventid, milliseconds, once) -> None`
 
    Set an event type to appear on the event queue every given number of
    milliseconds. The first event will not appear until the amount of time has
@@ -62,6 +63,10 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
    the value between ``pygame.USEREVENT`` and ``pygame.NUMEVENTS``.
 
    To disable the timer for an event, set the milliseconds argument to 0.
+
+   If the once argument is True, then only send the timer once.
+
+   .. versionadded:: 2.0.0.dev3 once argument added.
 
    .. ## pygame.time.set_timer ##
 
@@ -106,7 +111,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       If you pass the optional framerate argument the function will delay to
       keep the game running slower than the given ticks per second. This can be
       used to help limit the runtime speed of a game. By calling
-      ``Clock.tick_busy_loop(40)`` once per frame, the program will never run at 
+      ``Clock.tick_busy_loop(40)`` once per frame, the program will never run at
       more than 40 frames per second.
 
       Note that this function uses :func:`pygame.time.delay`, which uses lots
