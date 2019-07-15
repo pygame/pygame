@@ -35,6 +35,18 @@ matrix:
       python: 3.7
       dist: xenial
 
+    - os: linux
+      sudo: required
+      python: 3.7
+      dist: xenial
+      env:
+        - MANYLINUX_WHL=yes
+        - UPLOAD_WHL_PYPI=yes
+        - PYTHON_EXE=python3
+      services:
+        - docker
+
+
     # pypy build is broken. The pypy on travis is really old.
     # - os: linux
     #   sudo: required
@@ -50,6 +62,7 @@ matrix:
         - PY_VERSION_=3.7
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
     - os: osx
       osx_image: xcode7.3
       language: generic
@@ -57,6 +70,7 @@ matrix:
         - PY_VERSION=2
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
     - os: osx
       osx_image: xcode7.3
       language: generic
@@ -65,6 +79,7 @@ matrix:
         - PY_VERSION_=3.6
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
     # - os: osx
     #   osx_image: xcode7.3
     #   language: generic
@@ -100,7 +115,6 @@ before_install:
         libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
     fi
 install:
-  - "python buildconfig/ci/travis/.travis_osx_upload_whl.py --write-config"
   - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_EXE=python PIP_CMD=pip; fi
@@ -108,7 +122,9 @@ install:
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders -auto; fi
+  - if [[ "$MANYLINUX_WHL" == "yes" ]]; then source buildconfig/ci/travis/.travis_linux_build_wheels.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_install.sh; fi
+
 env:
   global:
     - SDL_VIDEODRIVER=dummy
@@ -121,6 +137,8 @@ script:
 
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_after_success.sh; fi
+  - if [["${UPLOAD_WHL_PYPI}" = "yes" ]] && [["${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then   $PYTHON_EXE -m twine upload dist/*.whl; fi
+
 
 after_script:
   - rm -f .travis_tmp
