@@ -2400,9 +2400,44 @@ class AALineMixin(BaseLineMixin):
                 self.assertEqual(surface.get_at(pos), expected_color,
                                  'pos={}'.format(pos))
 
-    def todo_test_aaline__bounding_rect(self):
-        """Ensures draw aaline returns the correct bounding rect."""
-        self.fail()
+    # This decorator can be removed when issue #895 is resolved.
+    @unittest.expectedFailure
+    def test_aaline__bounding_rect(self):
+        """Ensures draw aaline returns the correct bounding rect.
+
+        Tests lines with endpoints on and off the surface and blending
+        enabled and disabled.
+        """
+        line_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        width = height = 30
+        # Using a rect to help manage where the lines are drawn.
+        helper_rect = pygame.Rect((0, 0), (width, height))
+
+        # Testing surfaces of different sizes. One larger than the helper_rect
+        # and one smaller (to test lines that span the surface).
+        for size in ((width + 5, height + 5), (width - 5, height - 5)):
+            surface = pygame.Surface(size, 0, 32)
+            surf_rect = surface.get_rect()
+
+            # Move the helper rect to different positions to test line
+            # endpoints on and off the surface.
+            for pos in rect_corners_mids_and_center(surf_rect):
+                helper_rect.center = pos
+
+                for blend in (False, True): # Test non-blending and blending.
+                    for start, end in self._rect_lines(helper_rect):
+                        surface.fill(surf_color) # Clear for each test.
+
+                        bounding_rect = self.draw_aaline(surface, line_color,
+                                                         start, end, blend)
+
+                        # Calculating the expected_rect after the line is
+                        # drawn (it uses what is actually drawn).
+                        expected_rect = create_bounding_rect(surface, start,
+                                                             surf_color)
+
+                        self.assertEqual(bounding_rect, expected_rect)
 
     def test_aaline__surface_clip(self):
         """Ensures draw aaline respects a surface's clip area."""
@@ -3085,9 +3120,47 @@ class AALinesMixin(BaseLineMixin):
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, 'pos={}'.format(pos))
 
-    def todo_test_aalines__bounding_rect(self):
-        """Ensures draw aalines returns the correct bounding rect."""
-        self.fail()
+    # This decorator can be removed when issue #1153 is resolved.
+    @unittest.expectedFailure
+    def test_aalines__bounding_rect(self):
+        """Ensures draw aalines returns the correct bounding rect.
+
+        Tests lines with endpoints on and off the surface and blending
+        enabled and disabled.
+        """
+        line_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        width = height = 30
+        # Using a rect to help manage where the lines are drawn.
+        pos_rect = pygame.Rect((0, 0), (width, height))
+
+        # Testing surfaces of different sizes. One larger than the pos_rect
+        # and one smaller (to test lines that span the surface).
+        for size in ((width + 5, height + 5), (width - 5, height - 5)):
+            surface = pygame.Surface(size, 0, 32)
+            surf_rect = surface.get_rect()
+
+            # Move pos_rect to different positions to test line endpoints on
+            # and off the surface.
+            for pos in rect_corners_mids_and_center(surf_rect):
+                pos_rect.center = pos
+                # Shape: Triangle (if closed), ^ caret (if not closed).
+                pts = (pos_rect.midleft, pos_rect.midtop, pos_rect.midright)
+                pos = pts[0] # Rect position if nothing drawn.
+
+                for blend in (False, True): # Test non-blending and blending.
+                    for closed in (True, False):
+                        surface.fill(surf_color) # Clear for each test.
+
+                        bounding_rect = self.draw_aalines(
+                            surface, line_color, closed, pts, blend)
+
+                        # Calculating the expected_rect after the lines are
+                        # drawn (it uses what is actually drawn).
+                        expected_rect = create_bounding_rect(surface, pos,
+                                                             surf_color)
+
+                        self.assertEqual(bounding_rect, expected_rect)
 
     def test_aalines__surface_clip(self):
         """Ensures draw aalines respects a surface's clip area."""
