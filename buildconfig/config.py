@@ -18,22 +18,23 @@ cflags: extra compile flags
 
 try:
     import msysio
-except:
+except ImportError:
     import buildconfig.msysio as msysio
 import sys, os, shutil
 import re
+
 
 BASE_PATH = '.'
 
 
 def print_(*args, **kwds):
-    """Simular to the Python 3.0 print function"""
+    """Similar to the Python 3.0 print function"""
     # This not only supports MSYS but is also a head start on the move to
     # Python 3.0. Also, this function can be overridden for testing.
     msysio.print_(*args, **kwds)
 
 def confirm(message, default=None):
-    "ask a yes/no question, return result"
+    """ask a yes/no question, return result"""
     if not sys.stdout.isatty():
         if default is None:
             raise RuntimeError("Non interactive, tried to ask: %s" % message)
@@ -58,7 +59,7 @@ def is_msys_mingw():
     # return 0
 
 def prepdep(dep, basepath):
-    "add some vars to a dep"
+    """add some vars to a dep"""
     if dep.libs:
         dep.line = dep.name + ' ='
         for lib in dep.libs:
@@ -77,7 +78,6 @@ def prepdep(dep, basepath):
 
     incs = []
     lids = []
-    lib = ""
     IPREFIX = ' -I$(BASE)' if basepath else ' -I'
     LPREFIX = ' -L$(BASE)' if basepath else ' -L'
     startind = len(basepath) if basepath else 0
@@ -103,11 +103,12 @@ def prepdep(dep, basepath):
         dep.line = dep.name+' =' + ''.join(incs) + ''.join(lids) + ' ' + dep.cflags + libs
 
 def writesetupfile(deps, basepath, additional_lines, sdl2=False):
-    "create a modified copy of Setup.SDLx.in"
+    """create a modified copy of Setup.SDLx.in"""
     if sdl2:
         origsetup = open(os.path.join(BASE_PATH, 'buildconfig', 'Setup.SDL2.in'), 'r')
     else:
         origsetup = open(os.path.join(BASE_PATH, 'buildconfig', 'Setup.SDL1.in'), 'r')
+
     newsetup = open(os.path.join(BASE_PATH, 'Setup'), 'w')
     line = ''
     while line.find('#--StartConfig') == -1:
@@ -181,20 +182,20 @@ def main(auto=False):
         print_('Using WINDOWS configuration...\n')
         try:
             import config_win as CFG
-        except:
+        except ImportError:
             import buildconfig.config_win as CFG
 
     elif sys.platform == 'win32':
         print_('Using WINDOWS mingw/msys configuration...\n')
         try:
             import config_msys as CFG
-        except:
+        except ImportError:
             import buildconfig.config_msys as CFG
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         try:
             import config_darwin as CFG
-        except:
+        except ImportError:
             import buildconfig.config_darwin as CFG
 
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
@@ -202,7 +203,7 @@ def main(auto=False):
         print_('Using UNIX configuration...\n')
         try:
             import config_unix as CFG
-        except:
+        except ImportError:
             import buildconfig.config_unix as CFG
 
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
@@ -210,6 +211,7 @@ def main(auto=False):
     if os.path.isfile('Setup'):
         if auto or confirm('Backup existing "Setup" file', False):
             shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
+
     if not auto and os.path.isdir(os.path.join(BASE_PATH, 'build')):
         if confirm('Remove old build directory (force recompile)', False):
             shutil.rmtree(os.path.join(BASE_PATH, 'build'), 0)
@@ -220,7 +222,7 @@ def main(auto=False):
         for d in deps:
             prepdep(d, basepath)
         writesetupfile(deps, basepath, additional_platform_setup, **kwds)
-        print_("""\nIf you get compiler errors during install, doublecheck
+        print_("""\nIf you get compiler errors during install, double-check
 the compiler flags in the "Setup" file.\n""")
     else:
         print_("""\nThere was an error creating the Setup file, check for errors

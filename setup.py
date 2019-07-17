@@ -168,7 +168,7 @@ if '-auto' in sys.argv:
 
 import os.path, glob, stat, shutil
 import distutils.sysconfig
-from distutils.core import setup, Extension, Command
+from distutils.core import setup, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 from distutils.command.sdist import sdist
@@ -210,15 +210,15 @@ def add_datafiles(data_files, dest_dir, pattern):
 
 # allow optionally using setuptools for bdist_egg.
 if "-setuptools" in sys.argv:
-    from setuptools import setup, find_packages
+    from setuptools import setup
     sys.argv.remove ("-setuptools")
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 # NOTE: the bdist_mpkg_support is for darwin.
 try:
     import bdist_mpkg_support
-    from setuptools import setup, Extension
+    from setuptools import setup
 except ImportError:
     pass
 else:
@@ -724,7 +724,7 @@ def remove_old_files():
     try:
         import pygame.base
         use_pygame = 1
-    except:
+    except ImportError:
         use_pygame = 0
 
     if use_pygame:

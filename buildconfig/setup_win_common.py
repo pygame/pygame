@@ -43,4 +43,4 @@ def get_definitions():
     finally:
         setup_in.close()
 
-__all__= ['read', 'get_dependencies']
+__all__= ['read', 'get_definitions']
