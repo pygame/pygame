@@ -1745,10 +1745,11 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
     int i_f = 1 - i_y;
     int i_ddF_x = 0;
     int i_ddF_y = -2 * i_y;
+    int i;
 
     /* to avoid holes/moire, draw thick line in inner loop,
      * instead of concentric circles in outer loop */
-    for (int i=0; i<thickness; i++){
+    for (i=0; i<thickness; i++){
         radius1=radius - i;
         set_at(dst, x0, y0 + radius1, color);
         set_at(dst, x0, y0 - radius1, color);
@@ -1783,7 +1784,7 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
       /* as above:
        * to avoid holes/moire, draw thick line in inner loop,
        * instead of concentric circles in outer loop */
-      for (int i=0; i<thickness; i++){
+      for (i=0; i<thickness; i++){
           y1=y-i;
 
           set_at(dst, x0 + x, y0 + y1, color);
