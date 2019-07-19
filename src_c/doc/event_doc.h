@@ -13,6 +13,7 @@
 #define DOC_PYGAMEEVENTSETGRAB "set_grab(bool) -> None\ncontrol the sharing of input devices with other applications"
 #define DOC_PYGAMEEVENTGETGRAB "get_grab() -> bool\ntest if the program is sharing input devices"
 #define DOC_PYGAMEEVENTPOST "post(Event) -> None\nplace a new event on the queue"
+#define DOC_PYGAMEEVENTCUSTOMTYPE "custom_type() -> int\nmake custom user event type"
 #define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> EventType instance\nEvent(type, **attributes) -> EventType instance\ncreate a new event object"
 #define DOC_PYGAMEEVENTEVENTTYPE "pygame object for representing events"
 #define DOC_EVENTTYPETYPE "type -> int\nevent type identifier."
@@ -84,6 +85,10 @@ test if the program is sharing input devices
 pygame.event.post
  post(Event) -> None
 place a new event on the queue
+
+pygame.event.custom_type
+ custom_type() -> int
+make custom user event type
 
 pygame.event.Event
  Event(type, dict) -> EventType instance

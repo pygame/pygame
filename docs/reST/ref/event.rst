@@ -331,6 +331,19 @@ is dropped, ``file`` will be its path.
 
    .. ## pygame.event.post ##
 
+.. function:: custom_type
+
+   | :sl:`make custom user event type`
+   | :sg:`custom_type() -> int`
+
+   Reserves a ``pygame.USEREVENT`` for a custom use.
+
+   If too many events are made a :exc:`pygame.error` is raised.
+
+   .. versionadded:: 2.0.0.dev3
+
+   .. ## pygame.event.custom_type ##
+
 .. function:: Event
 
    | :sl:`create a new event object`

@@ -43,8 +43,11 @@ The pygame.gfxdraw module differs from the draw module in the API it uses, and
 also the different functions available to draw.  It also wraps the primitives 
 from the library called SDL_gfx, rather than using modified versions.
 
+.. note ::
+   See the :mod:`pygame.draw` module for alternative draw methods.
 
 .. versionadded:: 1.9.0
+
 
 .. function:: pixel
 

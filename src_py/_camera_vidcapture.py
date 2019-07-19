@@ -15,15 +15,14 @@ def list_cameras():
     return [0]
 
     # this just cycles through all the cameras trying to open them
-    cameras = []
-    for x in range(256):
-        try:
-            c = Camera(x)
-        except:
-            break
-        cameras.append(x)
-
-    return cameras
+    #cameras = []
+    #for x in range(256):
+    #    try:
+    #        c = Camera(x)
+    #    except:
+    #        break
+    #    cameras.append(x)
+    #return cameras
 
 def init():
     global vidcap
@@ -35,7 +34,6 @@ def init():
 
 def quit():
     global vidcap
-    pass
     del vidcap
 
 

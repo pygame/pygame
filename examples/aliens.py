@@ -241,7 +241,6 @@ def main(winstyle = 0):
     #Create Some Starting Values
     global score
     alienreload = ALIEN_RELOAD
-    kills = 0
     clock = pygame.time.Clock()
 
     #initialize our starting sprites

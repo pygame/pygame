@@ -99,7 +99,7 @@ if 'callable' not in dir(__builtins__):
 # Don't depend on pygame.mask if it's not there...
 try:
     from pygame.mask import from_surface
-except:
+except ImportError:
     pass
 
 

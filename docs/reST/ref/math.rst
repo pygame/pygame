@@ -194,9 +194,9 @@ Multiple coordinates can be set using slices or swizzling::
       | :sg:`lerp(Vector2, float) -> Vector2`
 
       Returns a Vector which is a linear interpolation between self and the
-      given Vector. The second parameter determines how far between self an
+      given Vector. The second parameter determines how far between self and
       other the result is going to be. It must be a value between 0 and 1 where
-      0 means self an 1 means other will be returned.
+      0 means self and 1 means other will be returned.
 
       .. ## Vector2.lerp ##
 

@@ -62,9 +62,9 @@ def TestCursor(arrow):
             if arrow[y][x] in ['x', ',', 'O']:
                 hotspot = x,y
                 break
-        if hotspot != None:
+        if hotspot is not None:
             break
-    if hotspot == None:
+    if hotspot is None:
         raise Exception("No hotspot specified for cursor '%s'!" %
 cursorname)
     s2 = []

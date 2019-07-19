@@ -1089,6 +1089,46 @@ class ColorTypeTest (unittest.TestCase):
         self.assertRaises(BufferError, ColorImporter,
                           c, buftools.PyBUF_WRITABLE)
 
+    def test_lerp(self):
+        # setup
+        Color = pygame.color.Color
+
+        color0 = Color(0, 0, 0, 0)
+        color128 = Color(128, 128, 128, 128)
+        color255 = Color(255, 255, 255, 255)
+        color100 = Color(100, 100, 100, 100)
+
+        # type checking
+        self.assertTrue(isinstance(color0.lerp(color128, 0.5), Color))
+
+        # common value testing
+        self.assertEqual(color0.lerp(color128, 0.5), Color(64, 64, 64, 64))
+        self.assertEqual(color0.lerp(color128, 0.5), Color(64, 64, 64, 64))
+        self.assertEqual(color128.lerp(color255, 0.5), Color(192, 192, 192, 192))
+        self.assertEqual(color0.lerp(color255, 0.5), Color(128, 128, 128, 128))
+
+        # testing extremes
+        self.assertEqual(color0.lerp(color100, 0), color0)
+        self.assertEqual(color0.lerp(color100, 0.01), Color(1, 1, 1, 1))
+        self.assertEqual(color0.lerp(color100, 0.99), Color(99, 99, 99, 99))
+        self.assertEqual(color0.lerp(color100, 1), color100)
+
+        # kwarg testing
+        self.assertEqual(color0.lerp(color=color100,
+                                     amount=0.5),
+                         Color(50, 50, 50, 50))
+        self.assertEqual(color0.lerp(amount=0.5,
+                                     color=color100),
+                         Color(50, 50, 50, 50))
+
+        # invalid input testing
+        self.assertRaises(ValueError, lambda: color0.lerp(color128, 2.5))
+        self.assertRaises(ValueError, lambda: color0.lerp(color128, -0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((256, 0, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((0, 256, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 256, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 0, 256), 0.5))
+
 
 class SubclassTest(unittest.TestCase):
 

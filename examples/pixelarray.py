@@ -27,7 +27,7 @@ def main():
 
     # Create the PixelArray.
     ar = pygame.PixelArray (surface)
-    r, g, b = 0, 0, 0
+
     # Do some easy gradient effect.
     for y in xrange_ (255):
         r, g, b = y, y, y

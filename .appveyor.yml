@@ -11,6 +11,9 @@ environment:
     SDL_VIDEODRIVER: "dummy"
     SDL_AUDIODRIVER: "disk"
     PYTHONIOENCODING: "UTF-8"
+    TWINE_USERNAME: pygameci
+    TWINE_PASSWORD:
+      secure: FtHM0I+wubit/UWOzHsykHayL06KImKRZQznRUHUfzM=
 
   matrix:
     # - PYTHON: "pypy.exe"
@@ -115,7 +118,7 @@ install:
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
   - "%PYTHON% -m ensurepip"
-  - "%PYTHON% -m pip install -U wheel pip requests"
+  - "%PYTHON% -m pip install -U wheel pip twine requests"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
   - "%WITH_COMPILER% %PYTHON% setup.py build"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
@@ -146,13 +149,17 @@ artifacts:
 # For uploading releases to github.
 # https://www.appveyor.com/docs/deployment/github/
 deploy:
-  provider: GitHub
-  auth_token:
-    secure: lPFSARNb+pYeLKJUzLfSZ9OcSw74R/0vvAjYAkj7OcXOooeHIhIWjNoYDlXZL6hs # your encrypted token from GitHub
-  artifact: pypiartifacts
-  draft: true
-  prerelease: false
-  force_update: true
-  on:
-    # branch: master               # release from master branch only
-    appveyor_repo_tag: true        # deploy on tag push only
+  - provider: GitHub
+    auth_token:
+      secure: lPFSARNb+pYeLKJUzLfSZ9OcSw74R/0vvAjYAkj7OcXOooeHIhIWjNoYDlXZL6hs # your encrypted token from GitHub
+    artifact: pypiartifacts
+    draft: true
+    prerelease: false
+    force_update: true
+    on:
+      # branch: master               # release from master branch only
+      APPVEYOR_REPO_TAG: true        # deploy on tag push only
+
+
+on_success:
+  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] %PYTHON% -m twine upload dist\\*.whl"

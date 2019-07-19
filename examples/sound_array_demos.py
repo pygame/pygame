@@ -54,11 +54,11 @@ def make_echo(sound, samples_per_second,  mydebug = True):
     myarr = zeros(a1.shape, int32)
 
     if len(a1.shape) > 1:
-        mult = a1.shape[1]
+        #mult = a1.shape[1]
         size = (a1.shape[0] + int(echo_length * a1.shape[0]), a1.shape[1])
         #size = (a1.shape[0] + int(a1.shape[0] + (echo_length * 3000)), a1.shape[1])
     else:
-        mult = 1
+        #mult = 1
         size = (a1.shape[0] + int(echo_length * a1.shape[0]),)
         #size = (a1.shape[0] + int(a1.shape[0] + (echo_length * 3000)),)
 
@@ -102,24 +102,21 @@ def slow_down_sound(sound, rate):
     """
 
     raise NotImplementedError()
-    grow_rate = 1 / rate
-
+    #grow_rate = 1 / rate
     # make it 1/rate times longer.
+    #a1 = sndarray.array(sound)
+    #surf = pygame.surfarray.make_surface(a1)
+    #print (a1.shape[0] * grow_rate)
+    #scaled_surf = pygame.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
+    #print (scaled_surf)
+    #print (surf)
 
-    a1 = sndarray.array(sound)
-
-    surf = pygame.surfarray.make_surface(a1)
-    print (a1.shape[0] * grow_rate)
-    scaled_surf = pygame.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
-    print (scaled_surf)
-    print (surf)
-
-    a2 = a1 * rate
-    print (a1.shape)
-    print (a2.shape)
-    print (a2)
-    sound2 = sndarray.make_sound(a2.astype(int16))
-    return sound2
+    #a2 = a1 * rate
+    #print (a1.shape)
+    #print (a2.shape)
+    #print (a2)
+    #sound2 = sndarray.make_sound(a2.astype(int16))
+    #return sound2
 
 
 
@@ -171,11 +168,8 @@ def main(arraytype=None):
 
     print ("Using %s array package" % sndarray.get_arraytype())
     print ("mixer.get_init %s" % (mixer.get_init(),))
-    inited = mixer.get_init()
 
     samples_per_second = pygame.mixer.get_init()[0]
-
-    
 
     print (("-" * 30) + "\n")
     print ("loading sound")
@@ -208,17 +202,15 @@ def main(arraytype=None):
     pygame.time.wait(2000)
 
 
-
-    if 0:
-        #TODO: this is broken.
-        print (("-" * 30) + "\n")
-        print ("Slow down the original sound.")
-        rate = 0.2
-        slowed_sound = slow_down_sound(sound, rate)
-
-        slowed_sound.play()
-        while mixer.get_busy():
-            pygame.time.wait(200)
+    #if 0:
+    #    #TODO: this is broken.
+    #    print (("-" * 30) + "\n")
+    #    print ("Slow down the original sound.")
+    #    rate = 0.2
+    #    slowed_sound = slow_down_sound(sound, rate)
+    #    slowed_sound.play()
+    #    while mixer.get_busy():
+    #        pygame.time.wait(200)
 
 
     print ("-" * 30)

@@ -346,15 +346,71 @@ required).
    Pygame automatically handles setting the OpenGL attributes like color and
    double-buffering. OpenGL offers several other attributes you may want control
    over. Pass one of these attributes as the flag, and its appropriate value.
-   This must be called before ``pygame.display.set_mode()``
+   This must be called before ``pygame.display.set_mode()``.
 
-   The ``OPENGL`` flags are;
+   Many settings are the requested minimum. Creating a window with an OpenGL context
+   will fail if OpenGL cannot provide the requested attribute, but it may for example
+   give you a stencil buffer even if you request none, or it may give you a larger
+   one than requested.
+
+   The ``OPENGL`` flags are:
 
    ::
 
      GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE, GL_ACCUM_RED_SIZE,
      GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
      GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
+
+   :const:`GL_MULTISAMPLEBUFFERS`
+
+     Whether to enable multisampling anti-aliasing.
+     Defaults to 0 (disabled).
+
+     Set ``GL_MULTISAMPLESAMPLES`` to a value
+     above 0 to control the amount of anti-aliasing.
+     A typical value is 2 or 3.
+
+   :const:`GL_STENCIL_SIZE`
+
+     Minimum bit size of the stencil buffer. Defaults to 0.
+
+   :const:`GL_DEPTH_SIZE`
+
+     Minimum bit size of the depth buffer. Defaults to 16.
+
+   :const:`GL_STEREO`
+
+     1 enables stereo 3D. Defaults to 0.
+
+   :const:`GL_BUFFER_SIZE`
+
+     Minimum bit size of the frame buffer. Defaults to 0.
+
+   .. versionadded:: 2.0 Additional attributes:
+
+   ::
+
+     GL_ACCELERATED_VISUAL,
+     GL_CONTEXT_MAJOR_VERSION, GL_CONTEXT_MINOR_VERSION,
+     GL_CONTEXT_FLAGS, GL_CONTEXT_PROFILE_MASK,
+     GL_SHARE_WITH_CURRENT_CONTEXT,
+     GL_CONTEXT_RELEASE_BEHAVIOR,
+     GL_FRAMEBUFFER_SRGB_CAPABLE
+
+   :const:`GL_CONTEXT_PROFILE_MASK`
+
+     Sets the OpenGL profile to one of these values:
+
+     ::
+
+       GL_CONTEXT_PROFILE_CORE             disable deprecated features
+       GL_CONTEXT_PROFILE_COMPATIBILITY    allow deprecated features
+       GL_CONTEXT_PROFILE_ES               allow only the ES feature subset of OpenGL
+
+   :const:`GL_ACCELERATED_VISUAL`
+
+     Set to 1 to require hardware acceleration, or 0 to force software render.
+     By default, both are allowed.
 
    .. ## pygame.display.gl_set_attribute ##
 

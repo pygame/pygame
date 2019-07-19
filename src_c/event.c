@@ -325,10 +325,12 @@ _pg_name_from_eventtype(int type)
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
 #if IS_SDLv2
+#ifndef NO_SDL_AUDIODEVICE
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
+#endif
 #endif
         case SDL_KEYDOWN:
             return "KeyDown";
@@ -545,10 +547,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "gain", PyInt_FromLong(gain));
             _pg_insobj(dict, "state", PyInt_FromLong(state));
             break;
+#ifndef NO_SDL_AUDIODEVICE
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
             _pg_insobj(dict, "which", PyInt_FromLong(&event->adevice.which));
             _pg_insobj(dict, "iscapture", PyInt_FromLong(&event->adevice.iscapture));
+#endif
             break;
         case SDL_KEYDOWN:
             _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
@@ -639,7 +643,11 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEWHEEL:
             /* https://wiki.libsdl.org/SDL_MouseWheelEvent */
+#ifndef NO_SDL_MOUSEWHEEL_FLIPPED
             _pg_insobj(dict, "flipped", PyBool_FromLong(event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED));
+#else
+            _pg_insobj(dict, "flipped", PyBool_FromLong(0));
+#endif
             _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
             _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
             _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));
@@ -1747,6 +1755,19 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
     return PyInt_FromLong(isblocked);
 }
 
+
+int _custom_event = SDL_USEREVENT + 1;
+static PyObject *
+pg_event_custom_type(PyObject *self, PyObject *args)
+{
+    int result = _custom_event + 1;
+    if (result > SDL_NUMEVENTS) {
+        return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
+    }
+    _custom_event++;
+    return PyInt_FromLong(result);
+}
+
 static PyMethodDef _event_methods[] = {
 #if IS_SDLv2
     {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
@@ -1771,6 +1792,8 @@ static PyMethodDef _event_methods[] = {
     {"set_allowed", pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},
     {"set_blocked", pg_event_set_blocked, METH_VARARGS, DOC_PYGAMEEVENTSETBLOCKED},
     {"get_blocked", pg_event_get_blocked, METH_VARARGS, DOC_PYGAMEEVENTGETBLOCKED},
+    {"custom_type", pg_event_custom_type, METH_NOARGS, DOC_PYGAMEEVENTCUSTOMTYPE},
+
 
     {NULL, NULL, 0, NULL}};
 

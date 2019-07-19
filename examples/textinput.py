@@ -138,8 +138,8 @@ def main():
         #Editing texts should be underlined
         rect_textM = Font.render_to(Screen, start_pos, ime_textM, TEXTCOLOR, None, pygame.freetype.STYLE_UNDERLINE)
         start_pos.x += rect_textM.width
-        rect_textr = Font.render_to(Screen, start_pos, ime_textR, TEXTCOLOR)
-        
+        Font.render_to(Screen, start_pos, ime_textR, TEXTCOLOR)
+
         pygame.display.update()
         
         FPSClock.tick(FPS)

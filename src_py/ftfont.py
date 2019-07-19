@@ -8,7 +8,7 @@ from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 from pygame import encode_file_path
 from pygame.compat import bytes_, unicode_, as_unicode, as_bytes
-from pygame import Surface as _Surface, Color as _Color, SRCALPHA as _SRCALPHA
+
 
 class Font(_Font):
     """Font(filename, size) -> Font

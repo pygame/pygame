@@ -116,7 +116,7 @@ def benchmark_workers(a_bench_func = None, the_data = None):
 
     best = time.time() + 100000000
     best_number = 0
-    last_best = -1
+    #last_best = -1
 
     for num_workers in range(0, MAX_WORKERS_TO_TEST):
 
@@ -124,7 +124,7 @@ def benchmark_workers(a_bench_func = None, the_data = None):
         t1 = time.time()
         for xx in range(20):
             print ("active count:%s" % threading.activeCount())
-            results = tmap(doit, thedata, worker_queue = wq)
+            tmap(doit, thedata, worker_queue = wq)
         t2 = time.time()
 
         wq.stop()
@@ -134,7 +134,7 @@ def benchmark_workers(a_bench_func = None, the_data = None):
         print ("total time num_workers:%s: time:%s:" % (num_workers, total_time))
 
         if total_time < best:
-            last_best = best_number
+            #last_best = best_number
             best_number =num_workers 
             best = total_time
 

@@ -9,7 +9,7 @@ font management."""
 
 import pygame
 from pygame.locals import *
-from pygame.compat import unichr_, unicode_
+from pygame.compat import unicode_
 import sys
 import locale
 

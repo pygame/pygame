@@ -113,6 +113,62 @@ typedef uint8_t Uint8;
 #define SDL_WINDOW_POPUP_MENU 0
 #endif
 
+
+#ifndef SDL_WINDOW_INPUT_GRABBED
+#define SDL_WINDOW_INPUT_GRABBED 0
+#endif
+
+#ifndef SDL_WINDOW_INPUT_FOCUS
+#define SDL_WINDOW_INPUT_FOCUS 0
+#endif
+
+#ifndef SDL_WINDOW_MOUSE_FOCUS
+#define SDL_WINDOW_MOUSE_FOCUS 0
+#endif
+
+#ifndef SDL_WINDOW_FOREIGN
+#define SDL_WINDOW_FOREIGN 0
+#endif
+
+#ifndef SDL_WINDOW_ALLOW_HIGHDPI
+#define SDL_WINDOW_ALLOW_HIGHDPI 0
+#endif
+
+#ifndef SDL_WINDOW_MOUSE_CAPTURE
+#define SDL_WINDOW_MOUSE_CAPTURE 0
+#endif
+
+#ifndef SDL_WINDOW_ALWAYS_ON_TOP
+#define SDL_WINDOW_ALWAYS_ON_TOP 0
+#endif
+
+#ifndef SDL_WINDOW_SKIP_TASKBAR
+#define SDL_WINDOW_SKIP_TASKBAR 0
+#endif
+
+#ifndef SDL_WINDOW_UTILITY
+#define SDL_WINDOW_UTILITY 0
+#endif
+
+#ifndef SDL_WINDOW_TOOLTIP
+#define SDL_WINDOW_TOOLTIP 0
+#endif
+
+#ifndef SDL_WINDOW_POPUP_MENU
+#define SDL_WINDOW_POPUP_MENU 0
+#endif
+
+
+#ifndef SDL_AUDIODEVICEREMOVED
+#define NO_SDL_AUDIODEVICE
+#endif
+
+#ifndef SDL_MOUSEWHEEL_FLIPPED
+#define NO_SDL_MOUSEWHEEL_FLIPPED
+#endif
+
+
+
 #endif
 
 

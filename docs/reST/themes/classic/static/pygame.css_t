@@ -245,10 +245,36 @@ div.document {
     background-color: {{ theme_bgcolor }};
 }
 
-div.documentwrapper {
-    float: left;
-    width: 100%;
+/* on wide screens center text, and max width for readable area.  */
+@media only screen and (min-width: 680px) {
+    div.documentwrapper {
+        float: initial;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
 }
+
+/* Make tables be responsive-ish. */
+@media only screen and (max-width: 680px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+}
+
+
+/* */
+.toc td {
+    display:block;
+    width: 200%;
+}
+.toc td:last-child {
+    padding-bottom: 20px;
+}
+table.toc td:nth-child(2) {
+    display: none;
+}
+
 
 div.bodywrapper {
     margin: 0 0 0 230px;
@@ -703,6 +729,13 @@ div.body .inset {
 /* Code line reference text style */
 div.body span.codelineref {
     text-decoration: underline;
+}
+
+/* Highlight Code types and functions. */
+.py-class .pre,
+.reference.internal em {
+    font-weight: bold;
+    background-color: lightgreen;
 }
 
 /* Examples section: contains one or more example subsections */
