@@ -210,8 +210,8 @@ time_set_timer(PyObject *self, PyObject *arg)
 
     /*stop original timer*/
     if (event_timers[index]) {
-        SDL_RemoveTimer(event_timers[event]);
-        event_timers[event] = 0;
+        SDL_RemoveTimer(event_timers[index]);
+        event_timers[index] = 0;
     }
 
     if (ticks <= 0)
