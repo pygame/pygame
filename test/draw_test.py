@@ -4242,7 +4242,7 @@ class DrawCircleMixin(object):
                        {'surface' : surface,
                         'color'   : color,
                         'center'  : center,
-                        'radius'  : 1.1,  # Invalid radius.
+                        'radius'  : "1",  # Invalid radius.
                         'width'   : width},
 
                        {'surface' : surface,

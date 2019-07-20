@@ -149,8 +149,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       e.g. ``(x, y)``
    :type center: tuple(int or float, int or float) or
       list(int or float, int or float) or Vector2(int or float, int or float)
-   :param int radius: radius of the circle, measured from the ``center``
+   :param radius: radius of the circle, measured from the ``center``
       parameter, a radius of 0 will only draw the ``center`` pixel
+   :type radius: int or float 
    :param int width: (optional) used for line thickness or to indicate that
       the circle is to be filled
 
