@@ -676,8 +676,6 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         return 0;
     }
 
-
-
     surf = pgSurface_AsSurface(surfobj);
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
