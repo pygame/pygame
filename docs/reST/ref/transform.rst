@@ -95,6 +95,17 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.scale2x ##
 
+.. function:: scale2xraw
+
+   | :sl:`nearest-neighbour image doubler`
+   | :sg:`scale2xraw(Surface, DestSurface = None) -> Surface`
+
+   This will return a new image that is double the size of the original. It
+   does nothing fancy, it just scales up the image. This is an optimised
+   special case of transform.scale with the same signature as transform.scale2x.
+
+   .. ## pygame.transform.scale2xraw ##
+
 .. function:: smoothscale
 
    | :sl:`scale a surface to an arbitrary size smoothly`

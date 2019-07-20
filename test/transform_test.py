@@ -912,6 +912,20 @@ class TransformModuleTest( unittest.TestCase ):
         s2 = pygame.transform.scale2x(s)
         self.assertEqual(s2.get_rect().size, (64, 64))
 
+    def test_scale2xraw(self):
+        w, h = 32, 32
+        s = pygame.Surface((w, h), pygame.SRCALPHA, 32)
+        s.fill((0,0,0))
+        pygame.draw.circle(s, (255,0 , 0), (w//2, h//2), (w//3))
+
+        s2 = pygame.transform.scale2xraw(s)
+        s3 = pygame.transform.scale(s, (w*2, h*2))
+        
+        self.assertEqual(s2.get_rect().size, (64, 64))
+
+        for pt in test_utils.rect_area_pts(s2.get_rect()):
+            self.assertEqual(s2.get_at(pt), s3.get_at(pt))
+
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
         self.assertTrue(filter_type in ['GENERIC', 'MMX', 'SSE'])
