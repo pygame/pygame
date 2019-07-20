@@ -666,13 +666,13 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!pg_TwoIntsFromObj(posobj, &posx, &posy)) {
         PyErr_SetString(PyExc_TypeError,
-                        "expected a pair of numbers");
+                        "center argument must be a pair of numbers");
         return 0;
     }
 
     if (!pg_IntFromObj (radiusobj, &radius)) {
         PyErr_SetString(PyExc_TypeError,
-                        "expected a number");
+                        "radius argument must be a number");
         return 0;
     }
 

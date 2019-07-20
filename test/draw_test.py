@@ -4125,6 +4125,13 @@ class DrawCircleMixin(object):
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
 
+    def test_circle__args_float(self):
+        """Ensures draw circle accepts floats for center coordinates and radius."""
+        bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       (1.3, 1.3), 1.2,1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)    
+
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
         with and without a width arg.
