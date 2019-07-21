@@ -2,9 +2,6 @@
 
 import re
 import sys
-if sys.version_info.major < 3:
-    # find vcvarsall.bat
-    from setuptools import msvc
 from distutils.msvccompiler import MSVCCompiler, get_build_architecture
 import subprocess
 import os

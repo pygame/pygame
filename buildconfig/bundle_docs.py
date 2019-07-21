@@ -25,9 +25,8 @@ def add_directory(bundle, root, alias):
         files[:] = [f for f in files if reject_files_reversed.match(f[-1::-1]) is None]
         sub_alias = os.path.join(alias, sub_root[len(root)+1:])
         add_files(bundle, sub_root, sub_alias, files)
-        
+
 def main():
-    bundle_name_elements = ['pygame', 'docs']
     setup = open('setup.py', 'r')
     try:
         match = re.search(r'"version":[ \t]+"([0-9]+\.[0-9]+)\.[^"]+"', setup.read())

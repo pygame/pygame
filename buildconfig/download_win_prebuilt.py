@@ -24,7 +24,6 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
     filename = os.path.split(url)[-1]
     save_to = os.path.join(save_to_directory, filename)
 
-    download_file = True
     # skip download?
     skip_download = os.path.exists(save_to)
     if skip_download:
@@ -32,7 +31,6 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
             data = the_file.read()
             cont_checksum = hashlib.sha1(data).hexdigest()
             if cont_checksum == checksum:
-                download_file = False
                 print("Skipping download url:%s: save_to:%s:" % (url, save_to))
     else:
         print("Downloading...", url, checksum)
@@ -308,7 +306,6 @@ def ask(x86=True, x64=True, sdl2=True):
     return download_prebuilt
 
 def cached(x86=True, x64=True, sdl2=True):
-    move_to_dir = "."
     if not os.path.isdir(download_dir):
         return False
     for url, check in get_urls(x86=x86, x64=x64, sdl2=sdl2):

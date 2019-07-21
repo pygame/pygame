@@ -5,7 +5,7 @@
 
 try:
     from setup_win_common import get_definitions
-except:
+except ImportError:
     from buildconfig.setup_win_common import get_definitions
 
 import os, sys
@@ -201,7 +201,7 @@ class DependencyPython(object):
         if self.found and self.header:
             fullpath = os.path.join(get_python_inc(0), self.header)
             if not os.path.isfile(fullpath):
-                found = 0
+                self.found = False
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
@@ -240,7 +240,6 @@ class DependencyDLL(Dependency):
                 print ('Too bad that is a requirement! Hand-fix the "Setup"')
 
     def check_roots(self):
-        parent = os.path.abspath('..')
         for p in self.huntpaths:
             if self.hunt_dll(self.lib_hunt, p):
                 return True
@@ -510,9 +509,9 @@ def setup_prebuilt_sdl2(prebuilt_dir):
 
 def setup_prebuilt_sdl1(prebuilt_dir):
     setup_ = open('Setup', 'w')
-    is_pypy = '__pypy__' in sys.builtin_module_names
-    import platform
-    is_python3 = platform.python_version().startswith('3')
+    #is_pypy = '__pypy__' in sys.builtin_module_names
+    #import platform
+    #is_python3 = platform.python_version().startswith('3')
 
     try:
         try:
