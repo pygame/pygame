@@ -4196,7 +4196,7 @@ class DrawCircleMixin(object):
         bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
                                        (1, 1), 1)
 
-        self.assertIsInstance(bounds_rect, pygame.Rect)
+        self.assertIsInstance(bounds_rect, pygame.Rect) 
 
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
@@ -4315,7 +4315,7 @@ class DrawCircleMixin(object):
                        {'surface' : surface,
                         'color'   : color,
                         'center'  : center,
-                        'radius'  : 1.1,  # Invalid radius.
+                        'radius'  : "1",  # Invalid radius.
                         'width'   : width},
 
                        {'surface' : surface,
@@ -4510,7 +4510,7 @@ class DrawCircleMixin(object):
             surface=pygame.Surface((4, 4)),
             color=(255, 255, 127),
             center=(1.5, 1.5),
-            radius=1,
+            radius=1.3,
             width=0,
         )
 
@@ -4518,9 +4518,11 @@ class DrawCircleMixin(object):
             surface=pygame.Surface((4, 4)),
             color=(255, 255, 127),
             center=Vector2(1.5, 1.5),
-            radius=1,
+            radius=1.3,
             width=0,
         )
+
+        draw.circle(pygame.Surface((2, 2)), (0, 0, 0, 50), (1.3, 1.3), 1.2)
 
     # This decorator can be removed when issue #1122 is resolved.
     @unittest.expectedFailure
