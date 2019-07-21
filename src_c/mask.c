@@ -1934,7 +1934,14 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
     if (Py_None == surfobj) {
         surfobj =
             PyObject_CallFunction((PyObject *)&pgSurface_Type, "(ii)ii",
-                                  bitmask->w, bitmask->h, PGS_SRCALPHA, 32);
+                                  bitmask->w, bitmask->h,
+#if IS_SDLv1
+                                  SDL_SRCALPHA,
+#else
+                                  PGS_SRCALPHA,
+#endif
+                                  32);
+
         if (NULL == surfobj) {
             if (!PyErr_Occurred()) {
                 return RAISE(PyExc_RuntimeError, "unable to create surface");
