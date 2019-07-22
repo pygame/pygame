@@ -695,7 +695,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (width < 0) {
-        return RAISE(PyExc_ValueError, "negative width");
+        return pgRect_New4(posx - radius, posy - radius, 0, 0);
     }
 
     if (width > radius) {

@@ -4206,6 +4206,14 @@ class DrawCircleMixin(object):
 
         self.assertIsInstance(bounds_rect, pygame.Rect) 
 
+    def test_circle__args_with_negative_width(self):
+        """Ensures draw circle accepts the args with negative width."""
+        bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       (1, 1), 1, -1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect) 
+        self.assertEqual(bounds_rect, pygame.Rect(0, 0, 0, 0))
+
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
         with and without a width arg.
