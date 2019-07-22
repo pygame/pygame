@@ -192,6 +192,14 @@ class DrawEllipseMixin(object):
                                         pygame.Rect((1, 1), (1, 1)))
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
+    
+    def test_ellipse__args_with_negative_width(self):
+        """Ensures draw ellipse accepts the args with negative width."""
+        bounds_rect = self.draw_ellipse(pygame.Surface((3, 3)),
+            (0, 10, 0, 50), pygame.Rect((2, 3), (3, 2)), -1)
+        
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+        self.assertEqual(bounds_rect, pygame.Rect(2, 3, 0, 0))
 
     def test_ellipse__kwargs(self):
         """Ensures draw ellipse accepts the correct kwargs

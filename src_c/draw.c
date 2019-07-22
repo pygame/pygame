@@ -613,7 +613,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0) {
-        return RAISE(PyExc_ValueError, "negative width");
+        return pgRect_New4(rect->x, rect->y, 0, 0);
     }
 
     if (width > rect->w / 2 || width > rect->h / 2) {
