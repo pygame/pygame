@@ -4212,7 +4212,7 @@ class DrawCircleMixin(object):
                                        (1, 1), 1, -1)
 
         self.assertIsInstance(bounds_rect, pygame.Rect) 
-        self.assertEqual(bounds_rect, pygame.Rect(0, 0, 0, 0))
+        self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
 
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
