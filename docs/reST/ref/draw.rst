@@ -253,8 +253,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
          | if ``width == 0``, nothing will be drawn
          | if ``width > 0``, (default is 1) used for line thickness
-         | if ``width < 0``, raises a ``ValueError``
-         |
+         | if ``width < 0``, same as ``width == 0``
 
          .. note::
             When using ``width`` values ``> 1``, the edge lines will only grow
@@ -265,7 +264,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       parameter and its width and height will be 0
    :rtype: Rect
 
-   :raises ValueError: if ``width < 0`` or ``width > rect.w / 2`` or
+   :raises ValueError: if ``width > rect.w / 2`` or
       ``width > rect.h / 2``
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
