@@ -1459,6 +1459,46 @@ mixer_unpause(PyObject *self)
     Py_RETURN_NONE;
 }
 
+/* Function to get the SDL mixer version data (linked or compiled).
+ *
+ * Ref: https://www.libsdl.org/projects/SDL_mixer/docs/SDL_mixer_8.html#SEC8
+ */
+static PyObject *
+mixer_get_sdl_mixer_version(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *linkedobj = NULL;
+    int linked = 1; /* Default is linked version. */
+
+    static char *keywords[] = {"linked", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
+                                     &linkedobj)) {
+        return NULL; /* Exception already set. */
+    }
+
+    if (NULL != linkedobj) {
+        linked = PyObject_IsTrue(linkedobj);
+
+        if (-1 == linked) {
+            return RAISE(PyExc_TypeError, "linked argument must be a boolean");
+        }
+    }
+
+    /* MIXER_INIT_CHECK() is not required for these methods. */
+
+    if (linked) {
+        /* linked version */
+        const SDL_version *v = Mix_Linked_Version();
+        return Py_BuildValue("iii", v->major, v->minor, v->patch);
+    }
+    else {
+        /* compiled version */
+        SDL_version v;
+        SDL_MIXER_VERSION(&v);
+        return Py_BuildValue("iii", v.major, v.minor, v.patch);
+    }
+}
+
 static int
 _chunk_from_buf(const void *buf, Py_ssize_t len, Mix_Chunk **chunk,
                 Uint8 **mem)
@@ -1864,6 +1904,8 @@ static PyMethodDef _mixer_methods[] = {
     {"pause", (PyCFunction)mixer_pause, METH_NOARGS, DOC_PYGAMEMIXERPAUSE},
     {"unpause", (PyCFunction)mixer_unpause, METH_NOARGS,
      DOC_PYGAMEMIXERUNPAUSE},
+    {"get_sdl_mixer_version", (PyCFunction)mixer_get_sdl_mixer_version,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERGETSDLMIXERVERSION},
     /*  { "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
     {NULL, NULL, 0, NULL}};
