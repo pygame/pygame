@@ -262,6 +262,8 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    .. note::
       The linked and compile version numbers should be the same.
 
+   .. versionadded:: 2.0.0
+
    .. ## pygame.mixer.get_sdl_mixer_version ##
 
 .. class:: Sound
