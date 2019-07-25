@@ -97,22 +97,34 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(tmppath)
 
-    def todo_test_queue(self):
+    def test_queue(self):
+        """Ensures queue() can be called with different file types.
 
-        # __doc__ (as of 2008-08-02) for pygame.mixer_music.queue:
+        This also tests that queue() can be called multiple times.
+        """
+        mp3_file = example_path(os.path.join('data', 'house_lo.mp3'))
+        ogg_file = example_path(os.path.join('data', 'house_lo.ogg'))
+        wav_file = example_path(os.path.join('data', 'house_lo.wav'))
 
-          # This will load a music file and queue it. A queued music file will
-          # begin as soon as the current music naturally ends. If the current
-          # music is ever stopped or changed, the queued song will be lost.
-          #
-          # The following example will play music by Bach six times, then play
-          # music by Mozart once:
-          #
-          #     pygame.mixer.music.load('bach.ogg')
-          #     pygame.mixer.music.play(5)        # Plays six times, not five!
-          #     pygame.mixer.music.queue('mozart.ogg')
+        for filename in (mp3_file, ogg_file, wav_file):
+            pygame.mixer.music.queue(filename)
 
-        self.fail()
+    def test_queue__no_file(self):
+        """Ensures queue() correctly handles missing the file argument."""
+        with self.assertRaises(TypeError):
+            pygame.mixer.music.queue()
+
+    def test_queue__invalid_sound_type(self):
+        """Ensures queue() correctly handles invalid file types."""
+        not_a_sound_file = example_path(os.path.join('data', 'city.png'))
+
+        with self.assertRaises(pygame.error):
+            pygame.mixer.music.queue(not_a_sound_file)
+
+    def test_queue__invalid_filename(self):
+        """Ensures queue() correctly handles invalid filenames."""
+        with self.assertRaises(pygame.error):
+            pygame.mixer.music.queue('')
 
     def todo_test_stop(self):
 

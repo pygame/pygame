@@ -131,11 +131,14 @@ music_fadeout(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS
-    Mix_FadeOutMusic(_time);
+    /* To prevent the queue_music from playing, free it before fading. */
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
     }
+
+    Mix_FadeOutMusic(_time);
+
     Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
@@ -146,11 +149,14 @@ music_stop(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS
-    Mix_HaltMusic();
+    /* To prevent the queue_music from playing, free it before stopping. */
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
     }
+
+    Mix_HaltMusic();
+
     Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
@@ -353,7 +359,7 @@ music_queue(PyObject *self, PyObject *args)
 {
     PyObject *obj;
     PyObject *oencoded;
-    Mix_Music *queue_music = NULL;
+    Mix_Music *local_queue_music = NULL;
     const char *name;
     SDL_RWops *rw;
 
@@ -372,35 +378,41 @@ music_queue(PyObject *self, PyObject *args)
         if (rw == NULL) {
             return NULL;
         }
+
         Py_BEGIN_ALLOW_THREADS
 #if IS_SDLv1
-            queue_music = Mix_LoadMUS_RW(rw);
+        local_queue_music = Mix_LoadMUS_RW(rw);
 #else  /* IS_SDLv2 */
-            queue_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
+        local_queue_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
 #endif /* IS_SDLv2 */
         Py_END_ALLOW_THREADS
     }
     else if (oencoded != NULL) {
         name = Bytes_AS_STRING(oencoded);
-        Py_BEGIN_ALLOW_THREADS queue_music = Mix_LoadMUS(name);
-        Py_END_ALLOW_THREADS Py_DECREF(oencoded);
+
+        Py_BEGIN_ALLOW_THREADS
+        local_queue_music = Mix_LoadMUS(name);
+        Py_END_ALLOW_THREADS
+
+        Py_DECREF(oencoded);
     }
     else {
         return NULL;
     }
 
-    if (queue_music == NULL) {
+    if (local_queue_music == NULL) {
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    Py_BEGIN_ALLOW_THREADS if (queue_music == NULL)
-    {
+    Py_BEGIN_ALLOW_THREADS
+    /* Free any existing queued music. */
+    if (queue_music != NULL) {
         Mix_FreeMusic(queue_music);
-        queue_music = NULL;
     }
     Py_END_ALLOW_THREADS
 
-        queue_music = queue_music;
+    queue_music = local_queue_music;
+
     Py_RETURN_NONE;
 }
 
