@@ -97,17 +97,39 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(tmppath)
 
-    def test_queue(self):
-        """Ensures queue() can be called with different file types.
+    @unittest.skipIf('Darwin' in platform.system(),
+                     'SDL2_mixer issue with mp3 files on Travis CI')
+    def test_queue_mp3(self):
+        """Ensures queue() accepts mp3 files.
 
-        This also tests that queue() can be called multiple times.
+        |tags:music|
         """
-        mp3_file = example_path(os.path.join('data', 'house_lo.mp3'))
+        filename = example_path(os.path.join('data', 'house_lo.mp3'))
+        pygame.mixer.music.queue(filename)
+
+    def test_queue_ogg(self):
+        """Ensures queue() accepts ogg files.
+
+        |tags:music|
+        """
+        filename = example_path(os.path.join('data', 'house_lo.ogg'))
+        pygame.mixer.music.queue(filename)
+
+    def test_queue_wav(self):
+        """Ensures queue() accepts wav files.
+
+        |tags:music|
+        """
+        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        pygame.mixer.music.queue(filename)
+
+    def test_queue__multiple_calls(self):
+        """Ensures queue() can be called multiple times."""
         ogg_file = example_path(os.path.join('data', 'house_lo.ogg'))
         wav_file = example_path(os.path.join('data', 'house_lo.wav'))
 
-        for filename in (mp3_file, ogg_file, wav_file):
-            pygame.mixer.music.queue(filename)
+        pygame.mixer.music.queue(ogg_file)
+        pygame.mixer.music.queue(wav_file)
 
     def test_queue__no_file(self):
         """Ensures queue() correctly handles missing the file argument."""
