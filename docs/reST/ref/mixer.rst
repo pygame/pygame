@@ -245,6 +245,27 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 
    .. ## pygame.mixer.get_busy ##
 
+.. function:: get_sdl_mixer_version
+
+   | :sl:`get the mixer's SDL version`
+   | :sg:`get_sdl_mixer_version() -> (major, minor, patch)`
+   | :sg:`get_sdl_mixer_version(linked=True) -> (major, minor, patch)`
+
+   :param bool linked: if ``True`` (default) the linked version number is
+      returned, otherwise the compiled version number is returned
+
+   :returns: the mixer's SDL library version number (linked or compiled
+      depending on the ``linked`` parameter) as a tuple of 3 integers
+      ``(major, minor, patch)``
+   :rtype: tuple
+
+   .. note::
+      The linked and compile version numbers should be the same.
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mixer.get_sdl_mixer_version ##
+
 .. class:: Sound
 
    | :sl:`Create a new Sound object from a file or buffer object`
