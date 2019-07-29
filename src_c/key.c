@@ -176,6 +176,7 @@ key_get_pressed(PyObject *self, PyObject *args)
     Uint8 *key_state;
 #else
     const Uint8 *key_state;
+    PyObject *ret_obj = NULL;
 #endif
     PyObject *key_tuple;
     int i;
@@ -207,8 +208,10 @@ key_get_pressed(PyObject *self, PyObject *args)
 #if IS_SDLv1
     return key_tuple;
 #else
-    return PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
-                                        key_tuple, NULL);
+    ret_obj = PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
+                                           key_tuple, NULL);
+    Py_DECREF(key_tuple);
+    return ret_obj;
 #endif
 }
 
