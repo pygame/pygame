@@ -61,7 +61,9 @@ and wonder about the values.
 """
 
 # Try to import the necessary modules.
-import pygame._numpysurfarray as numpysf
+# import pygame._numpysurfarray as numpysf
+numpysf = None
+
 
 from pygame.pixelcopy import array_to_surface, make_surface as pc_make_surface
 
@@ -78,6 +80,9 @@ def blit_array (surface, array):
     This function will temporarily lock the Surface as the new values are
     copied.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.blit_array (surface, array)
 
 def array2d (surface):
@@ -93,13 +98,16 @@ def array2d (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.array2d (surface)
 
 def pixels2d (surface):
     """pygame.surfarray.pixels2d (Surface): return array
 
     Reference pixels into a 2d array.
-    
+
     Create a new 2D array that directly references the pixel values in a
     Surface. Any changes to the array will affect the pixels in the
     Surface. This is a fast operation since no data is copied.
@@ -111,6 +119,9 @@ def pixels2d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.pixels2d (surface)
 
 def array3d (surface):
@@ -126,6 +137,9 @@ def array3d (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.array3d (surface)
 
 def pixels3d (surface):
@@ -144,6 +158,9 @@ def pixels3d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.pixels3d (surface)
 
 def array_alpha (surface):
@@ -160,6 +177,9 @@ def array_alpha (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.array_alpha (surface)
 
 def pixels_alpha (surface):
@@ -177,6 +197,9 @@ def pixels_alpha (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.pixels_alpha (surface)
 
 def pixels_red (surface):
@@ -193,6 +216,9 @@ def pixels_red (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.pixels_red (surface)
 
 def pixels_green (surface):
@@ -209,6 +235,9 @@ def pixels_green (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.pixels_green (surface)
 
 def pixels_blue (surface):
@@ -225,6 +254,9 @@ def pixels_blue (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.pixels_blue (surface)
 
 def array_colorkey (surface):
@@ -242,6 +274,9 @@ def array_colorkey (surface):
     This function will temporarily lock the Surface as pixels are
     copied.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.array_colorkey (surface)
 
 def make_surface(array):
@@ -252,6 +287,9 @@ def make_surface(array):
     Create a new Surface that best resembles the data and format on the
     array. The array can be 2D or 3D with any sized integer values.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.make_surface (array)
 
 def map_array (surface, array):
@@ -263,6 +301,9 @@ def map_array (surface, array):
     format to control the conversion. Palette surface formats are not
     supported.
     """
+    global numpysf
+    if numpysf is None:
+        import pygame._numpysurfarray as numpysf
     return numpysf.map_array (surface, array)
 
 def use_arraytype (arraytype):

@@ -44,7 +44,8 @@ Sounds with 16-bit data will be treated as unsigned integers,
 if the sound sample type requests this.
 """
 
-import pygame._numpysndarray as numpysnd
+# import pygame._numpysndarray as numpysnd
+numpysnd = None
 
 def array (sound):
     """pygame.sndarray.array(Sound): return array
@@ -55,6 +56,9 @@ def array (sound):
     array will always be in the format returned from
     pygame.mixer.get_init().
     """
+    global numpysnd
+    if numpysnd is None:
+        import pygame._numpysndarray as numpysnd
     return numpysnd.array (sound)
 
 def samples (sound):
@@ -66,17 +70,23 @@ def samples (sound):
     object. Modifying the array will change the Sound. The array will
     always be in the format returned from pygame.mixer.get_init().
     """
+    global numpysnd
+    if numpysnd is None:
+        import pygame._numpysndarray as numpysnd
     return numpysnd.samples (sound)
 
 def make_sound (array):
     """pygame.sndarray.make_sound(array): return Sound
 
     Convert an array into a Sound object.
-    
+
     Create a new playable Sound object from an array. The mixer module
     must be initialized and the array format must be similar to the mixer
     audio format.
     """
+    global numpysnd
+    if numpysnd is None:
+        import pygame._numpysndarray as numpysnd
     return numpysnd.make_sound (array)
 
 def use_arraytype (arraytype):
