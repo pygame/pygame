@@ -13,7 +13,7 @@
 #define DOC_PYGAMEMIXERMUSICGETBUSY "get_busy() -> bool\ncheck if the music stream is playing"
 #define DOC_PYGAMEMIXERMUSICSETPOS "set_pos(pos) -> None\nset position to play from"
 #define DOC_PYGAMEMIXERMUSICGETPOS "get_pos() -> time\nget the music play time"
-#define DOC_PYGAMEMIXERMUSICQUEUE "queue(filename) -> None\nqueue a music file to follow the current"
+#define DOC_PYGAMEMIXERMUSICQUEUE "queue(filename) -> None\nqueue a sound file to follow the current"
 #define DOC_PYGAMEMIXERMUSICSETENDEVENT "set_endevent() -> None\nset_endevent(type) -> None\nhave the music send an event when playback stops"
 #define DOC_PYGAMEMIXERMUSICGETENDEVENT "get_endevent() -> type\nget the event a channel sends when playback stops"
 
@@ -80,7 +80,7 @@ get the music play time
 
 pygame.mixer.music.queue
  queue(filename) -> None
-queue a music file to follow the current
+queue a sound file to follow the current
 
 pygame.mixer.music.set_endevent
  set_endevent() -> None
