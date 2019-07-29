@@ -81,9 +81,12 @@ def blit_array (surface, array):
     copied.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.blit_array (surface, array)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.blit_array (surface, array)
+        return numpysf.blit_array (surface, array)
+
 
 def array2d (surface):
     """pygame.surfarray.array2d (Surface): return array
@@ -99,9 +102,12 @@ def array2d (surface):
     method).
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.array2d (surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.array2d (surface)
+        return numpysf.array2d (surface)
+
 
 def pixels2d (surface):
     """pygame.surfarray.pixels2d (Surface): return array
@@ -120,9 +126,12 @@ def pixels2d (surface):
     access method).
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.pixels2d(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.pixels2d (surface)
+        return numpysf.pixels2d(surface)
+
 
 def array3d (surface):
     """pygame.surfarray.array3d (Surface): return array
@@ -138,9 +147,12 @@ def array3d (surface):
     method).
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.array3d(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.array3d (surface)
+        return numpysf.array3d(surface)
+
 
 def pixels3d (surface):
     """pygame.surfarray.pixels3d (Surface): return array
@@ -159,9 +171,12 @@ def pixels3d (surface):
     access method).
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.pixels3d(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.pixels3d (surface)
+        return numpysf.pixels3d(surface)
+
 
 def array_alpha (surface):
     """pygame.surfarray.array_alpha (Surface): return array
@@ -178,9 +193,12 @@ def array_alpha (surface):
     method).
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.array_alpha(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.array_alpha (surface)
+        return numpysf.array_alpha(surface)
+
 
 def pixels_alpha (surface):
     """pygame.surfarray.pixels_alpha (Surface): return array
@@ -198,9 +216,12 @@ def pixels_alpha (surface):
     lifetime of the array.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.pixels_alpha(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.pixels_alpha (surface)
+        return numpysf.pixels_alpha(surface)
+
 
 def pixels_red (surface):
     """pygame.surfarray.pixels_red (Surface): return array
@@ -217,9 +238,12 @@ def pixels_red (surface):
     lifetime of the array.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.pixels_red(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.pixels_red (surface)
+        return numpysf.pixels_red(surface)
+
 
 def pixels_green (surface):
     """pygame.surfarray.pixels_green (Surface): return array
@@ -236,9 +260,12 @@ def pixels_green (surface):
     lifetime of the array.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.pixels_green(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.pixels_green (surface)
+        return numpysf.pixels_green(surface)
+
 
 def pixels_blue (surface):
     """pygame.surfarray.pixels_blue (Surface): return array
@@ -255,9 +282,12 @@ def pixels_blue (surface):
     lifetime of the array.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.pixels_blue(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.pixels_blue (surface)
+        return numpysf.pixels_blue(surface)
+
 
 def array_colorkey (surface):
     """pygame.surfarray.array_colorkey (Surface): return array
@@ -275,9 +305,12 @@ def array_colorkey (surface):
     copied.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.array_colorkey(surface)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.array_colorkey (surface)
+        return numpysf.array_colorkey(surface)
+
 
 def make_surface(array):
     """pygame.surfarray.make_surface (array): return Surface
@@ -288,9 +321,12 @@ def make_surface(array):
     array. The array can be 2D or 3D with any sized integer values.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.make_surface(array)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.make_surface (array)
+        return numpysf.make_surface(array)
+
 
 def map_array (surface, array):
     """pygame.surfarray.map_array (Surface, array3d): return array2d
@@ -302,9 +338,12 @@ def map_array (surface, array):
     supported.
     """
     global numpysf
-    if numpysf is None:
+    try:
+        return numpysf.map_array(surface, array)
+    except AttributeError:
         import pygame._numpysurfarray as numpysf
-    return numpysf.map_array (surface, array)
+        return numpysf.map_array(surface, array)
+
 
 def use_arraytype (arraytype):
     """pygame.surfarray.use_arraytype (arraytype): return None

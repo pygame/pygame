@@ -57,9 +57,12 @@ def array (sound):
     pygame.mixer.get_init().
     """
     global numpysnd
-    if numpysnd is None:
+    try:
+        return numpysnd.array (sound)
+    except AttributeError:
         import pygame._numpysndarray as numpysnd
-    return numpysnd.array (sound)
+        return numpysnd.array (sound)
+
 
 def samples (sound):
     """pygame.sndarray.samples(Sound): return array
@@ -71,9 +74,11 @@ def samples (sound):
     always be in the format returned from pygame.mixer.get_init().
     """
     global numpysnd
-    if numpysnd is None:
+    try:
+        return numpysnd.samples (sound)
+    except AttributeError:
         import pygame._numpysndarray as numpysnd
-    return numpysnd.samples (sound)
+        return numpysnd.samples (sound)
 
 def make_sound (array):
     """pygame.sndarray.make_sound(array): return Sound
@@ -85,9 +90,11 @@ def make_sound (array):
     audio format.
     """
     global numpysnd
-    if numpysnd is None:
+    try:
+        return numpysnd.make_sound (array)
+    except AttributeError:
         import pygame._numpysndarray as numpysnd
-    return numpysnd.make_sound (array)
+        return numpysnd.make_sound (array)
 
 def use_arraytype (arraytype):
     """pygame.sndarray.use_arraytype (arraytype): return None
