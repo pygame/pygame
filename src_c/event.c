@@ -95,7 +95,8 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
         pg_RegisterQuit(_pg_repeat_cleanup);
         _pg_event_is_init = 1;
     }
-    Py_RETURN_NONE;
+
+    return PyInt_FromLong(_pg_event_is_init);
 }
 
 static char _pg_last_unicode_char[32] = { 0 };

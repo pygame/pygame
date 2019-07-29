@@ -18,6 +18,11 @@ def __PYGAMEinit__(): #called automatically by pygame.init()
     global init_called
     init_called = init_called + 1
     pygame.register_quit(pygame_quit)
+
+    # Returning False indicates that the initialization has failed. It is
+    # purposely done here to test that failing modules are reported.
+    return False
+
 def pygame_quit():
     global quit_called
     quit_called = quit_called + 1
@@ -571,43 +576,22 @@ class BaseModuleTest(unittest.TestCase):
             self.assertEqual(encstr, pygame.get_error())
 
     def test_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.base.init:
-
-        # pygame.init(): return (numpass, numfail)
-        # initialize all imported pygame modules
-        #
-        # Initialize all imported Pygame modules. No exceptions will be raised
-        # if a module fails, but the total number if successful and failed
-        # inits will be returned as a tuple. You can always initialize
-        # individual modules manually, but pygame.init is a convenient way to
-        # get everything started. The init() functions for individual modules
-        # will raise exceptions when they fail.
-        #
-        # You may want to initalise the different modules seperately to speed
-        # up your program or to not use things your game does not.
-        #
-        # It is safe to call this init() more than once: repeated calls will
-        # have no effect. This is true even if you have pygame.quit() all the
-        # modules.
-        #
-
-
-
-        # Make sure everything is not init
+        """Ensures init() works properly."""
+        # Make sure nothing initialized.
         self.not_init_assertions()
 
-        # Initiate it
-        pygame.init()
+        # The exact number of modules can change, but it should never be < 0.
+        expected_min_passes = 0
 
-        # Check
+        # The __PYGAMEinit__ function in this module returns False, so this
+        # should give a fail count of 1. All other modules should pass.
+        expected_fails = 1
+
+        passes, fails = pygame.init()
+
         self.init_assertions()
-
-        # Quit
-        pygame.quit()
-
-        # All modules have quit
-        self.not_init_assertions()
+        self.assertGreaterEqual(passes, expected_min_passes)
+        self.assertEqual(fails, expected_fails)
 
     def test_get_init(self):
         # Test if get_init() gets the init state.
