@@ -192,6 +192,14 @@ class DrawEllipseMixin(object):
                                         pygame.Rect((1, 1), (1, 1)))
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
+    
+    def test_ellipse__args_with_negative_width(self):
+        """Ensures draw ellipse accepts the args with negative width."""
+        bounds_rect = self.draw_ellipse(pygame.Surface((3, 3)),
+            (0, 10, 0, 50), pygame.Rect((2, 3), (3, 2)), -1)
+        
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+        self.assertEqual(bounds_rect, pygame.Rect(2, 3, 0, 0))
 
     def test_ellipse__kwargs(self):
         """Ensures draw ellipse accepts the correct kwargs
@@ -4198,6 +4206,14 @@ class DrawCircleMixin(object):
 
         self.assertIsInstance(bounds_rect, pygame.Rect) 
 
+    def test_circle__args_with_negative_width(self):
+        """Ensures draw circle accepts the args with negative width."""
+        bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       (1, 1), 1, -1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect) 
+        self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
+
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
         with and without a width arg.
@@ -4672,6 +4688,14 @@ class DrawArcMixin(object):
                                     pygame.Rect((0, 0), (2, 2)), 1.1, 2.1)
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
+        
+    def test_arc__args_with_negative_width(self):
+        """Ensures draw arc accepts the args with negative width."""
+        bounds_rect = self.draw_arc(pygame.Surface((3, 3)),
+            (10, 10, 50, 50), (1, 1, 2, 2), 0, 1, -1)
+    
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+        self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
 
     def test_arc__kwargs(self):
         """Ensures draw arc accepts the correct kwargs
