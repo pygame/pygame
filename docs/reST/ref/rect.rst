@@ -272,12 +272,19 @@
 
       | :sl:`test if one rectangle in a dictionary intersects`
       | :sg:`collidedict(dict) -> (key, value)`
+      | :sg:`collidedict(dict) -> None`
+      | :sg:`collidedict(dict, use_values=0) -> (key, value)`
+      | :sg:`collidedict(dict, use_values=0) -> None`
 
-      Returns the key and value of the first dictionary value that collides
-      with the Rect. If no collisions are found, None is returned.
+      Returns the first key and value pair that intersects with the calling
+      Rect object. If no collisions are found, ``None`` is returned. If
+      ``use_values`` is 0 (default) then the dict's keys will be used in the
+      collision detection, otherwise the dict's values will be used.
 
-      Rect objects are not hashable and cannot be used as keys in a dictionary,
-      only as values.
+      .. note ::
+         Rect objects cannot be used as keys in a dictionary (they are not
+         hashable), so they must be converted to a tuple/list.
+         e.g. ``rect.collidedict({tuple(key_rect) : value})``
 
       .. ## Rect.collidedict ##
 
@@ -285,12 +292,17 @@
 
       | :sl:`test if all rectangles in a dictionary intersect`
       | :sg:`collidedictall(dict) -> [(key, value), ...]`
+      | :sg:`collidedictall(dict, use_values=0) -> [(key, value), ...]`
 
       Returns a list of all the key and value pairs that intersect with the
-      Rect. If no collisions are found an empty list is returned.
+      calling Rect object. If no collisions are found an empty list is returned.
+      If ``use_values`` is 0 (default) then the dict's keys will be used in the
+      collision detection, otherwise the dict's values will be used.
 
-      Rect objects are not hashable and cannot be used as keys in a dictionary,
-      only as values.
+      .. note ::
+         Rect objects cannot be used as keys in a dictionary (they are not
+         hashable), so they must be converted to a tuple/list.
+         e.g. ``rect.collidedictall({tuple(key_rect) : value})``
 
       .. ## Rect.collidedictall ##
 

@@ -1,7 +1,19 @@
+import sys
 import unittest
 from pygame import Rect
 
+
+PY3 = sys.version_info >= (3, 0, 0)
+
+
 class RectTypeTest(unittest.TestCase):
+    def _assertCountEqual(self, *args, **kwargs):
+        # Handle method name differences between Python versions.
+        if PY3:
+            self.assertCountEqual(*args, **kwargs)
+        else:
+            self.assertItemsEqual(*args, **kwargs)
+
     def testConstructionXYWidthHeight(self):
         r = Rect(1, 2, 3, 4)
         self.assertEqual(1, r.left)
@@ -523,73 +535,526 @@ class RectTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, rect_list.remove, r2)
 
     def test_collidedict(self):
+        """Ensures collidedict detects collisions."""
+        rect = Rect(1, 1, 10, 10)
 
-        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidedict:
+        collide_item1 = ('collide 1', rect.copy())
+        collide_item2 = ('collide 2', Rect(5, 5, 10, 10))
+        no_collide_item1 = ('no collide 1', Rect(60, 60, 10, 10))
+        no_collide_item2 = ('no collide 2', Rect(70, 70, 10, 10))
 
-          # Rect.collidedict(dict): return (key, value)
-          # test if one rectangle in a dictionary intersects
-          #
-          # Returns the key and value of the first dictionary value that
-          # collides with the Rect. If no collisions are found, None is
-          # returned.
-          #
-          # Rect objects are not hashable and cannot be used as keys in a
-          # dictionary, only as values.
+        # Dict to check collisions with values.
+        rect_values = dict((collide_item1, collide_item2, no_collide_item1,
+                           no_collide_item2))
+        value_collide_items = (collide_item1, collide_item2)
 
-        r = Rect(1, 1, 10, 10)
-        r1 = Rect(1, 1, 10, 10)
-        r2 = Rect(50, 50, 10, 10)
-        r3 = Rect(70, 70, 10, 10)
-        r4 = Rect(61, 61, 10, 10)
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        key_collide_items = tuple(
+            (tuple(v), k) for k, v in value_collide_items)
 
-        d = {1: r1, 2: r2, 3: r3}
+        for use_values in (True, False):
+            if use_values:
+                expected_items = value_collide_items
+                d = rect_values
+            else:
+                expected_items = key_collide_items
+                d = rect_keys
 
-        rects_values = 1
-        val = r.collidedict(d, rects_values)
-        self.assertTrue(val)
-        self.assertEqual(len(val), 2)
-        self.assertEqual(val[0], 1)
-        self.assertEqual(val[1], r1)
+            collide_item = rect.collidedict(d, use_values)
 
-        none_d = {2: r2, 3: r3}
-        none_val = r.collidedict(none_d, rects_values)
-        self.assertFalse(none_val)
+            # The detected collision could be any of the possible items.
+            self.assertIn(collide_item, expected_items)
 
-        barely_d = {1: r1, 2: r2, 3: r3}
-        k3, v3 = r4.collidedict(barely_d, rects_values)
-        self.assertEqual(k3, 3)
-        self.assertEqual(v3, r3)
+    def test_collidedict__no_collision(self):
+        """Ensures collidedict returns None when no collisions."""
+        rect = Rect(1, 1, 10, 10)
 
+        no_collide_item1 = ('no collide 1', Rect(50, 50, 10, 10))
+        no_collide_item2 = ('no collide 2', Rect(60, 60, 10, 10))
+        no_collide_item3 = ('no collide 3', Rect(70, 70, 10, 10))
+
+        # Dict to check collisions with values.
+        rect_values = dict((no_collide_item1, no_collide_item2,
+                           no_collide_item3))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        for use_values in (True, False):
+            d = rect_values if use_values else rect_keys
+
+            collide_item = rect.collidedict(d, use_values)
+
+            self.assertIsNone(collide_item)
+
+    def test_collidedict__barely_touching(self):
+        """Ensures collidedict works correctly for rects that barely touch."""
+        rect = Rect(1, 1, 10, 10)
+        # Small rect to test barely touching collisions.
+        collide_rect = Rect(0, 0, 1, 1)
+
+        collide_item1 = ('collide 1', collide_rect)
+        no_collide_item1 = ('no collide 1', Rect(50, 50, 10, 10))
+        no_collide_item2 = ('no collide 2', Rect(60, 60, 10, 10))
+        no_collide_item3 = ('no collide 3', Rect(70, 70, 10, 10))
+
+        # Dict to check collisions with values.
+        no_collide_rect_values = dict((no_collide_item1, no_collide_item2,
+                                      no_collide_item3))
+
+        # Dict to check collisions with keys.
+        no_collide_rect_keys = {
+            tuple(v) : k for k, v in no_collide_rect_values.items()}
+
+        # Tests the collide_rect on each of the rect's corners.
+        for attr in ('topleft', 'topright', 'bottomright', 'bottomleft'):
+            setattr(collide_rect, attr, getattr(rect, attr))
+
+            for use_values in (True, False):
+                if use_values:
+                    expected_item = collide_item1
+                    d = dict(no_collide_rect_values)
+                else:
+                    expected_item = (tuple(collide_item1[1]), collide_item1[0])
+                    d = dict(no_collide_rect_keys)
+
+                d.update((expected_item,)) # Add in the expected item.
+
+                collide_item = rect.collidedict(d, use_values)
+
+                self.assertTupleEqual(collide_item, expected_item)
+
+    # This decorator can be removed when issue #1197 is resolved.
+    @unittest.expectedFailure
+    def test_collidedict__zero_sized_rects(self):
+        """Ensures collidedict works correctly with zero sized rects.
+
+        There should be no collisions with zero sized rects.
+        """
+        zero_rect1 = Rect(1, 1, 0, 0)
+        zero_rect2 = Rect(1, 1, 1, 0)
+        zero_rect3 = Rect(1, 1, 0, 1)
+        zero_rect4 = Rect(1, 1, -1, 0)
+        zero_rect5 = Rect(1, 1, 0, -1)
+
+        no_collide_item1 = ('no collide 1', zero_rect1.copy())
+        no_collide_item2 = ('no collide 2', zero_rect2.copy())
+        no_collide_item3 = ('no collide 3', zero_rect3.copy())
+        no_collide_item4 = ('no collide 4', zero_rect4.copy())
+        no_collide_item5 = ('no collide 5', zero_rect5.copy())
+        no_collide_item6 = ('no collide 6', Rect(0, 0, 10, 10))
+        no_collide_item7 = ('no collide 7', Rect(0, 0, 2, 2))
+
+        # Dict to check collisions with values.
+        rect_values = dict((no_collide_item1, no_collide_item2,
+            no_collide_item3, no_collide_item4, no_collide_item5,
+            no_collide_item6, no_collide_item7))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        for use_values in (True, False):
+            d = rect_values if use_values else rect_keys
+
+            for zero_rect in (zero_rect1, zero_rect2, zero_rect3, zero_rect4,
+                              zero_rect5):
+                collide_item = zero_rect.collidedict(d, use_values)
+
+                self.assertIsNone(collide_item)
+
+    # This decorator can be removed when issue #1197 is resolved.
+    @unittest.expectedFailure
+    def test_collidedict__zero_sized_rects_as_args(self):
+        """Ensures collidedict works correctly with zero sized rects as args.
+
+        There should be no collisions with zero sized rects.
+        """
+        rect = Rect(0, 0, 10, 10)
+
+        no_collide_item1 = ('no collide 1', Rect(1, 1, 0, 0))
+        no_collide_item2 = ('no collide 2', Rect(1, 1, 1, 0))
+        no_collide_item3 = ('no collide 3', Rect(1, 1, 0, 1))
+
+        # Dict to check collisions with values.
+        rect_values = dict((no_collide_item1, no_collide_item2,
+                           no_collide_item3))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        for use_values in (True, False):
+            d = rect_values if use_values else rect_keys
+
+            collide_item = rect.collidedict(d, use_values)
+
+            self.assertIsNone(collide_item)
+
+    # This decorator can be removed when issue #1198 is resolved.
+    @unittest.expectedFailure
+    def test_collidedict__negative_sized_rects(self):
+        """Ensures collidedict works correctly with negative sized rects."""
+        neg_rect = Rect(1, 1, -1, -1)
+
+        collide_item1 = ('collide 1', neg_rect.copy())
+        collide_item2 = ('collide 2', Rect(0, 0, 10, 10))
+        no_collide_item1 = ('no collide 1', Rect(1, 1, 10, 10))
+
+        # Dict to check collisions with values.
+        rect_values = dict((collide_item1, collide_item2, no_collide_item1))
+        value_collide_items = (collide_item1, collide_item2)
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        key_collide_items = tuple(
+            (tuple(v), k) for k, v in value_collide_items)
+
+        for use_values in (True, False):
+            if use_values:
+                collide_items = value_collide_items
+                d = rect_values
+            else:
+                collide_items = key_collide_items
+                d = rect_keys
+
+            collide_item = neg_rect.collidedict(d, use_values)
+
+            # The detected collision could be any of the possible items.
+            self.assertIn(collide_item, collide_items)
+
+    # This decorator can be removed when issue #1198 is resolved.
+    @unittest.expectedFailure
+    def test_collidedict__negative_sized_rects_as_args(self):
+        """Ensures collidedict works correctly with negative sized rect args.
+        """
+        rect = Rect(0, 0, 10, 10)
+
+        collide_item1 = ('collide 1', Rect(1, 1, -1, -1))
+        no_collide_item1 = ('no collide 1', Rect(1, 1, -1, 0))
+        no_collide_item2 = ('no collide 2', Rect(1, 1, 0, -1))
+
+        # Dict to check collisions with values.
+        rect_values = dict((collide_item1, no_collide_item1, no_collide_item2))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        for use_values in (True, False):
+            if use_values:
+                expected_item = collide_item1
+                d = rect_values
+            else:
+                expected_item = (tuple(collide_item1[1]), collide_item1[0])
+                d = rect_keys
+
+            collide_item = rect.collidedict(d, use_values)
+
+            self.assertTupleEqual(collide_item, expected_item)
+
+    def test_collidedict__invalid_dict_format(self):
+        """Ensures collidedict correctly handles invalid dict parameters."""
+        rect = Rect(0, 0, 10, 10)
+
+        invalid_value_dict = ('collide', rect.copy())
+        invalid_key_dict = tuple(invalid_value_dict[1]), invalid_value_dict[0]
+
+        for use_values in (True, False):
+            d = invalid_value_dict if use_values else invalid_key_dict
+
+            with self.assertRaises(TypeError):
+                collide_item = rect.collidedict(d, use_values)
+
+    def test_collidedict__invalid_dict_value_format(self):
+        """Ensures collidedict correctly handles dicts with invalid values."""
+        rect = Rect(0, 0, 10, 10)
+        rect_keys = {tuple(rect) : 'collide'}
+
+        with self.assertRaises(TypeError):
+            collide_item = rect.collidedict(rect_keys, 1)
+
+    def test_collidedict__invalid_dict_key_format(self):
+        """Ensures collidedict correctly handles dicts with invalid keys."""
+        rect = Rect(0, 0, 10, 10)
+        rect_values = {'collide' : rect.copy()}
+
+        with self.assertRaises(TypeError):
+            collide_item = rect.collidedict(rect_values)
+
+    def test_collidedict__invalid_use_values_format(self):
+        """Ensures collidedict correctly handles invalid use_values parameters.
+        """
+        rect = Rect(0, 0, 1, 1)
+        d = {}
+
+        for invalid_param in (None, d, 1.1):
+            with self.assertRaises(TypeError):
+                collide_item = rect.collidedict(d, invalid_param)
 
     def test_collidedictall(self):
+        """Ensures collidedictall detects collisions."""
+        rect = Rect(1, 1, 10, 10)
 
-        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidedictall:
+        collide_item1 = ('collide 1', rect.copy())
+        collide_item2 = ('collide 2', Rect(5, 5, 10, 10))
+        no_collide_item1 = ('no collide 1', Rect(60, 60, 20, 20))
+        no_collide_item2 = ('no collide 2', Rect(70, 70, 20, 20))
 
-          # Rect.collidedictall(dict): return [(key, value), ...]
-          # test if all rectangles in a dictionary intersect
-          #
-          # Returns a list of all the key and value pairs that intersect with
-          # the Rect. If no collisions are found an empty dictionary is
-          # returned.
-          #
-          # Rect objects are not hashable and cannot be used as keys in a
-          # dictionary, only as values.
+        # Dict to check collisions with values.
+        rect_values = dict((collide_item1, collide_item2, no_collide_item1,
+                           no_collide_item2))
+        value_collide_items = [collide_item1, collide_item2]
 
-        r = Rect(1, 1, 10, 10)
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
 
-        r2 = Rect(1, 1, 10, 10)
-        r3 = Rect(5, 5, 10, 10)
-        r4 = Rect(10, 10, 10, 10)
-        r5 = Rect(50, 50, 10, 10)
+        for use_values in (True, False):
+            if use_values:
+                expected_items = value_collide_items
+                d = rect_values
+            else:
+                expected_items = key_collide_items
+                d = rect_keys
 
-        rects_values = 1
-        d = {2: r2}
-        l = r.collidedictall(d, rects_values)
-        self.assertEqual(l, [(2, r2)])
+            collide_items = rect.collidedictall(d, use_values)
 
-        d2 = {2: r2, 3: r3, 4: r4, 5: r5}
-        l2 = r.collidedictall(d2, rects_values)
-        self.assertEqual(l2, [(2, r2), (3, r3), (4, r4)])
+            self._assertCountEqual(collide_items, expected_items)
+
+    def test_collidedictall__no_collision(self):
+        """Ensures collidedictall returns an empty list when no collisions."""
+        rect = Rect(1, 1, 10, 10)
+
+        no_collide_item1 = ('no collide 1', Rect(50, 50, 20, 20))
+        no_collide_item2 = ('no collide 2', Rect(60, 60, 20, 20))
+        no_collide_item3 = ('no collide 3', Rect(70, 70, 20, 20))
+
+        # Dict to check collisions with values.
+        rect_values = dict((no_collide_item1, no_collide_item2,
+                           no_collide_item3))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        expected_items = []
+
+        for use_values in (True, False):
+            d = rect_values if use_values else rect_keys
+
+            collide_items = rect.collidedictall(d, use_values)
+
+            self._assertCountEqual(collide_items, expected_items)
+
+    def test_collidedictall__barely_touching(self):
+        """Ensures collidedictall works correctly for rects that barely touch.
+        """
+        rect = Rect(1, 1, 10, 10)
+        # Small rect to test barely touching collisions.
+        collide_rect = Rect(0, 0, 1, 1)
+
+        collide_item1 = ('collide 1', collide_rect)
+        no_collide_item1 = ('no collide 1', Rect(50, 50, 20, 20))
+        no_collide_item2 = ('no collide 2', Rect(60, 60, 20, 20))
+        no_collide_item3 = ('no collide 3', Rect(70, 70, 20, 20))
+
+        # Dict to check collisions with values.
+        no_collide_rect_values = dict((no_collide_item1, no_collide_item2,
+                                      no_collide_item3))
+
+        # Dict to check collisions with keys.
+        no_collide_rect_keys = {
+            tuple(v) : k for k, v in no_collide_rect_values.items()}
+
+        # Tests the collide_rect on each of the rect's corners.
+        for attr in ('topleft', 'topright', 'bottomright', 'bottomleft'):
+            setattr(collide_rect, attr, getattr(rect, attr))
+
+            for use_values in (True, False):
+                if use_values:
+                    expected_items = [collide_item1]
+                    d = dict(no_collide_rect_values)
+                else:
+                    expected_items = [
+                        (tuple(collide_item1[1]), collide_item1[0])]
+                    d = dict(no_collide_rect_keys)
+
+                d.update(expected_items) # Add in the expected items.
+
+                collide_items = rect.collidedictall(d, use_values)
+
+                self._assertCountEqual(collide_items, expected_items)
+
+    # This decorator can be removed when issue #1197 is resolved.
+    @unittest.expectedFailure
+    def test_collidedictall__zero_sized_rects(self):
+        """Ensures collidedictall works correctly with zero sized rects.
+
+        There should be no collisions with zero sized rects.
+        """
+        zero_rect1 = Rect(2, 2, 0, 0)
+        zero_rect2 = Rect(2, 2, 2, 0)
+        zero_rect3 = Rect(2, 2, 0, 2)
+        zero_rect4 = Rect(2, 2, -2, 0)
+        zero_rect5 = Rect(2, 2, 0, -2)
+
+        no_collide_item1 = ('no collide 1', zero_rect1.copy())
+        no_collide_item2 = ('no collide 2', zero_rect2.copy())
+        no_collide_item3 = ('no collide 3', zero_rect3.copy())
+        no_collide_item4 = ('no collide 4', zero_rect4.copy())
+        no_collide_item5 = ('no collide 5', zero_rect5.copy())
+        no_collide_item6 = ('no collide 6', Rect(0, 0, 10, 10))
+        no_collide_item7 = ('no collide 7', Rect(0, 0, 2, 2))
+
+        # Dict to check collisions with values.
+        rect_values = dict((no_collide_item1, no_collide_item2,
+            no_collide_item3, no_collide_item4, no_collide_item5,
+            no_collide_item6, no_collide_item7))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        expected_items = []
+
+        for use_values in (True, False):
+            d = rect_values if use_values else rect_keys
+
+            for zero_rect in (zero_rect1, zero_rect2, zero_rect3, zero_rect4,
+                              zero_rect5):
+                collide_items = zero_rect.collidedictall(d, use_values)
+
+                self._assertCountEqual(collide_items, expected_items)
+
+    # This decorator can be removed when issue #1197 is resolved.
+    @unittest.expectedFailure
+    def test_collidedictall__zero_sized_rects_as_args(self):
+        """Ensures collidedictall works correctly with zero sized rects
+        as args.
+
+        There should be no collisions with zero sized rects.
+        """
+        rect = Rect(0, 0, 20, 20)
+
+        no_collide_item1 = ('no collide 1', Rect(2, 2, 0, 0))
+        no_collide_item2 = ('no collide 2', Rect(2, 2, 2, 0))
+        no_collide_item3 = ('no collide 3', Rect(2, 2, 0, 2))
+
+        # Dict to check collisions with values.
+        rect_values = dict((no_collide_item1, no_collide_item2,
+                           no_collide_item3))
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+
+        expected_items = []
+
+        for use_values in (True, False):
+            d = rect_values if use_values else rect_keys
+
+            collide_items = rect.collidedictall(d, use_values)
+
+            self._assertCountEqual(collide_items, expected_items)
+
+    # This decorator can be removed when issue #1198 is resolved.
+    @unittest.expectedFailure
+    def test_collidedictall__negative_sized_rects(self):
+        """Ensures collidedictall works correctly with negative sized rects."""
+        neg_rect = Rect(2, 2, -2, -2)
+
+        collide_item1 = ('collide 1', neg_rect.copy())
+        collide_item2 = ('collide 2', Rect(0, 0, 20, 20))
+        no_collide_item1 = ('no collide 1', Rect(1, 1, 20, 20))
+
+        # Dict to check collisions with values.
+        rect_values = dict((collide_item1, collide_item2, no_collide_item1))
+        value_collide_items = [collide_item1, collide_item2]
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
+
+        for use_values in (True, False):
+            if use_values:
+                expected_items = value_collide_items
+                d = rect_values
+            else:
+                expected_items = key_collide_items
+                d = rect_keys
+
+            collide_items = neg_rect.collidedictall(d, use_values)
+
+            self._assertCountEqual(collide_items, expected_items)
+
+    # This decorator can be removed when issue #1198 is resolved.
+    @unittest.expectedFailure
+    def test_collidedictall__negative_sized_rects_as_args(self):
+        """Ensures collidedictall works correctly with negative sized rect
+        args.
+        """
+        rect = Rect(0, 0, 10, 10)
+
+        collide_item1 = ('collide 1', Rect(1, 1, -1, -1))
+        no_collide_item1 = ('no collide 1', Rect(1, 1, -1, 0))
+        no_collide_item2 = ('no collide 2', Rect(1, 1, 0, -1))
+
+        # Dict to check collisions with values.
+        rect_values = dict((collide_item1, no_collide_item1, no_collide_item2))
+        value_collide_items = [collide_item1]
+
+        # Dict to check collisions with keys.
+        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
+
+        for use_values in (True, False):
+            if use_values:
+                expected_items = value_collide_items
+                d = rect_values
+            else:
+                expected_items = key_collide_items
+                d = rect_keys
+
+            collide_items = rect.collidedictall(d, use_values)
+
+            self._assertCountEqual(collide_items, expected_items)
+
+    def test_collidedictall__invalid_dict_format(self):
+        """Ensures collidedictall correctly handles invalid dict parameters."""
+        rect = Rect(0, 0, 10, 10)
+
+        invalid_value_dict = ('collide', rect.copy())
+        invalid_key_dict = tuple(invalid_value_dict[1]), invalid_value_dict[0]
+
+        for use_values in (True, False):
+            d = invalid_value_dict if use_values else invalid_key_dict
+
+            with self.assertRaises(TypeError):
+                collide_item = rect.collidedictall(d, use_values)
+
+    def test_collidedictall__invalid_dict_value_format(self):
+        """Ensures collidedictall correctly handles dicts with invalid values.
+        """
+        rect = Rect(0, 0, 10, 10)
+        rect_keys = {tuple(rect) : 'collide'}
+
+        with self.assertRaises(TypeError):
+            collide_items = rect.collidedictall(rect_keys, 1)
+
+    def test_collidedictall__invalid_dict_key_format(self):
+        """Ensures collidedictall correctly handles dicts with invalid keys."""
+        rect = Rect(0, 0, 10, 10)
+        rect_values = {'collide' : rect.copy()}
+
+        with self.assertRaises(TypeError):
+            collide_items = rect.collidedictall(rect_values)
+
+    def test_collidedictall__invalid_use_values_format(self):
+        """Ensures collidedictall correctly handles invalid use_values
+        parameters.
+        """
+        rect = Rect(0, 0, 1, 1)
+        d = {}
+
+        for invalid_param in (None, d, 1.1):
+            with self.assertRaises(TypeError):
+                collide_items = rect.collidedictall(d, invalid_param)
 
     def test_collidelist(self):
 
