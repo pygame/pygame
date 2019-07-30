@@ -1251,6 +1251,7 @@ pg_rect_setwidth(pgRectObject *self, PyObject *value, void *closure)
     int val1;
 
     if (!pg_IntFromObj(value, &val1)) {
+        RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.w = val1;
