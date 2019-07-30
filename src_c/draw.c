@@ -699,7 +699,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (width > radius) {
-        return RAISE(PyExc_ValueError, "width greater than radius");
+        width = radius;
     }
 
     if (!pgSurface_Lock(surfobj)) {

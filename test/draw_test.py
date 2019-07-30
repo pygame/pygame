@@ -4214,6 +4214,14 @@ class DrawCircleMixin(object):
         self.assertIsInstance(bounds_rect, pygame.Rect) 
         self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
 
+    def test_circle__args_with_width_gt_radius(self):
+        """Ensures draw circle accepts the args with width > radius."""
+        bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       (1, 1), 2, 3)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect) 
+        self.assertEqual(bounds_rect, pygame.Rect(0, 0, 2, 2))
+
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
         with and without a width arg.
@@ -4399,9 +4407,6 @@ class DrawCircleMixin(object):
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
 
-    # This decorator can be removed when the circle portion of issues #975
-    # and #976 are resolved.
-    @unittest.expectedFailure
     def test_circle__valid_width_values(self):
         """Ensures draw circle accepts different width values."""
         center = (2, 2)

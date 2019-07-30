@@ -169,7 +169,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       values will be truncated) and its width and height will be 0
    :rtype: Rect
 
-   :raises ValueError: if ``radius < 0`` or ``width > radius``
+   :raises ValueError: if ``radius < 0``
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
