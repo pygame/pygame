@@ -558,31 +558,28 @@ pg_rect_collidedict(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     Py_ssize_t loop = 0;
-    Py_ssize_t values = 0;
+    Py_ssize_t values = 0; /* Defaults to expecting keys as rects. */
     PyObject *dict, *key, *val;
     PyObject *ret = NULL;
 
     if (!PyArg_ParseTuple(args, "O|i", &dict, &values)) {
         return NULL;
     }
+
     if (!PyDict_Check(dict)) {
-        return RAISE(PyExc_TypeError,
-                     "Argument must be a dict with rectstyle keys.");
+        return RAISE(PyExc_TypeError, "first argument must be a dict");
     }
 
     while (PyDict_Next(dict, &loop, &key, &val)) {
         if (values) {
             if (!(argrect = pgRect_FromObject(val, &temp))) {
-                RAISE(PyExc_TypeError,
-                      "Argument must be a dict with rectstyle values.");
-                break;
+                return RAISE(PyExc_TypeError,
+                             "dict must have rectstyle values");
             }
         }
         else {
             if (!(argrect = pgRect_FromObject(key, &temp))) {
-                RAISE(PyExc_TypeError,
-                      "Argument must be a dict with rectstyle keys.");
-                break;
+                return RAISE(PyExc_TypeError, "dict must have rectstyle keys");
             }
         }
 
@@ -603,18 +600,16 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     Py_ssize_t loop = 0;
-    /* should we use values or keys? */
-    Py_ssize_t values = 0;
-
+    Py_ssize_t values = 0; /* Defaults to expecting keys as rects. */
     PyObject *dict, *key, *val;
     PyObject *ret = NULL;
 
     if (!PyArg_ParseTuple(args, "O|i", &dict, &values)) {
         return NULL;
     }
+
     if (!PyDict_Check(dict)) {
-        return RAISE(PyExc_TypeError,
-                     "Argument must be a dict with rectstyle keys.");
+        return RAISE(PyExc_TypeError, "first argument must be a dict");
     }
 
     ret = PyList_New(0);
@@ -626,14 +621,13 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args)
             if (!(argrect = pgRect_FromObject(val, &temp))) {
                 Py_DECREF(ret);
                 return RAISE(PyExc_TypeError,
-                             "Argument must be a dict with rectstyle values.");
+                             "dict must have rectstyle values");
             }
         }
         else {
             if (!(argrect = pgRect_FromObject(key, &temp))) {
                 Py_DECREF(ret);
-                return RAISE(PyExc_TypeError,
-                             "Argument must be a dict with rectstyle keys.");
+                return RAISE(PyExc_TypeError, "dict must have rectstyle keys");
             }
         }
 
