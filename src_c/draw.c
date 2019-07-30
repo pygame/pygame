@@ -547,7 +547,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (width > rect->w / 2 || width > rect->h / 2) {
-        return RAISE(PyExc_ValueError, "width greater than arc radius");
+        width = MAX(rect->w / 2, rect->h / 2);
     }
 
     if (angle_stop < angle_start) {
@@ -617,7 +617,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (width > rect->w / 2 || width > rect->h / 2) {
-        return RAISE(PyExc_ValueError, "width greater than ellipse radius");
+        width = MAX(rect->w / 2, rect->h / 2);
     }
 
     if (!pgSurface_Lock(surfobj)) {
@@ -699,7 +699,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (width > radius) {
-        return RAISE(PyExc_ValueError, "width greater than radius");
+        width = radius;
     }
 
     if (!pgSurface_Lock(surfobj)) {

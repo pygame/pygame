@@ -169,7 +169,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       values will be truncated) and its width and height will be 0
    :rtype: Rect
 
-   :raises ValueError: if ``radius < 0`` or ``width > radius``
+   :raises ValueError: if ``radius < 0``
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
@@ -207,8 +207,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       bounding rect's position will be the position of the given ``rect``
       parameter and its width and height will be 0
    :rtype: Rect
-
-   :raises ValueError: if ``width > rect.w / 2`` or ``width > rect.h / 2``
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
 
@@ -262,9 +260,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       bounding rect's position will be the position of the given ``rect``
       parameter and its width and height will be 0
    :rtype: Rect
-
-   :raises ValueError: if ``width > rect.w / 2`` or
-      ``width > rect.h / 2``
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
 

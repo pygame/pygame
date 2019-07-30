@@ -201,6 +201,21 @@ class DrawEllipseMixin(object):
         self.assertIsInstance(bounds_rect, pygame.Rect)
         self.assertEqual(bounds_rect, pygame.Rect(2, 3, 0, 0))
 
+    def test_ellipse__args_with_width_gt_radius(self):
+        """Ensures draw ellipse accepts the args with 
+        width > rect.w // 2 and width > rect.h // 2.
+        """
+        rect = pygame.Rect((0, 0), (4, 4))
+        bounds_rect = self.draw_ellipse(pygame.Surface((3, 3)),
+            (0, 10, 0, 50), rect, rect.w // 2 + 1)
+        
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+        bounds_rect = self.draw_ellipse(pygame.Surface((3, 3)),
+            (0, 10, 0, 50), rect, rect.h // 2 + 1)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
     def test_ellipse__kwargs(self):
         """Ensures draw ellipse accepts the correct kwargs
         with and without a width arg.
@@ -352,9 +367,6 @@ class DrawEllipseMixin(object):
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
 
-    # This decorator can be removed when the ellipse portion of issues #975
-    # and #976 are resolved.
-    @unittest.expectedFailure
     def test_ellipse__valid_width_values(self):
         """Ensures draw ellipse accepts different width values."""
         pos = (1, 1)
@@ -363,7 +375,7 @@ class DrawEllipseMixin(object):
         color = (10, 20, 30, 255)
         kwargs = {'surface' : surface,
                   'color'   : color,
-                  'rect'    : pygame.Rect(pos, (3, 1)),
+                  'rect'    : pygame.Rect(pos, (3, 2)),
                   'width'   : None}
 
         for width in (-1000, -10, -1, 0, 1, 10, 1000):
@@ -4214,6 +4226,14 @@ class DrawCircleMixin(object):
         self.assertIsInstance(bounds_rect, pygame.Rect) 
         self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
 
+    def test_circle__args_with_width_gt_radius(self):
+        """Ensures draw circle accepts the args with width > radius."""
+        bounds_rect = self.draw_circle(pygame.Surface((2, 2)), (0, 0, 0, 50),
+                                       (1, 1), 2, 3)
+
+        self.assertIsInstance(bounds_rect, pygame.Rect) 
+        self.assertEqual(bounds_rect, pygame.Rect(0, 0, 2, 2))
+
     def test_circle__kwargs(self):
         """Ensures draw circle accepts the correct kwargs
         with and without a width arg.
@@ -4399,9 +4419,6 @@ class DrawCircleMixin(object):
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
 
-    # This decorator can be removed when the circle portion of issues #975
-    # and #976 are resolved.
-    @unittest.expectedFailure
     def test_circle__valid_width_values(self):
         """Ensures draw circle accepts different width values."""
         center = (2, 2)
@@ -4697,6 +4714,22 @@ class DrawArcMixin(object):
         self.assertIsInstance(bounds_rect, pygame.Rect)
         self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
 
+    def test_arc__args_with_width_gt_radius(self):
+        """Ensures draw arc accepts the args with 
+        width > rect.w // 2 and width > rect.h // 2.
+        """
+        rect = pygame.Rect((0, 0), (4, 4))
+        bounds_rect = self.draw_arc(pygame.Surface((3, 3)),
+            (10, 10, 50, 50), rect, 0, 45, rect.w // 2 + 1)
+    
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+        bounds_rect = self.draw_arc(pygame.Surface((3, 3)),
+            (10, 10, 50, 50), rect, 0, 45, rect.h // 2 + 1)
+    
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+
     def test_arc__kwargs(self):
         """Ensures draw arc accepts the correct kwargs
         with and without a width arg.
@@ -4913,9 +4946,6 @@ class DrawArcMixin(object):
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
 
-    # This decorator can be removed when the arc portion of issues #975
-    # and #976 are resolved.
-    @unittest.expectedFailure
     def test_arc__valid_width_values(self):
         """Ensures draw arc accepts different width values."""
         arc_color = pygame.Color('yellow')
