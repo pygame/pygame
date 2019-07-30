@@ -617,7 +617,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (width > rect->w / 2 || width > rect->h / 2) {
-        return RAISE(PyExc_ValueError, "width greater than ellipse radius");
+        width = MAX(rect->w / 2, rect->h / 2);
     }
 
     if (!pgSurface_Lock(surfobj)) {
