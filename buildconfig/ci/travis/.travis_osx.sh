@@ -6,7 +6,6 @@
 	# .travis_osx_install.sh
 	# .travis_osx_after_success.sh
 	# .travis_osx_rename_whl.py
-	# .travis_osx_upload_whl.py --no-config
 
 set -e
 

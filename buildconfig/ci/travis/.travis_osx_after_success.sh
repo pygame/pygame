@@ -13,4 +13,8 @@ delocate-wheel -v dist/*.whl
 
 $PYTHON_EXE buildconfig/ci/travis/.travis_osx_rename_whl.py
 
-$PYTHON_EXE buildconfig/ci/travis/.travis_osx_upload_whl.py --no-config
+
+# if a tag is pushed we upload wheels. TWINE_USERNAME TWINE_PASSWORD need to be set.
+if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ -n "${TRAVIS_TAG}" ]; then
+  $PYTHON_EXE -m twine upload dist/*.whl
+fi

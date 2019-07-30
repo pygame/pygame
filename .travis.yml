@@ -35,6 +35,18 @@ matrix:
       python: 3.7
       dist: xenial
 
+    - os: linux
+      sudo: required
+      python: 3.7
+      dist: xenial
+      env:
+        - MANYLINUX_WHL=yes
+        - UPLOAD_WHL_PYPI=yes
+        - PYTHON_EXE=python3
+      services:
+        - docker
+
+
     # pypy build is broken. The pypy on travis is really old.
     # - os: linux
     #   sudo: required
@@ -50,6 +62,7 @@ matrix:
         - PY_VERSION_=3.7
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
     - os: osx
       osx_image: xcode7.3
       language: generic
@@ -57,6 +70,7 @@ matrix:
         - PY_VERSION=2
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
     - os: osx
       osx_image: xcode7.3
       language: generic
@@ -65,6 +79,7 @@ matrix:
         - PY_VERSION_=3.6
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
     # - os: osx
     #   osx_image: xcode7.3
     #   language: generic
@@ -100,7 +115,6 @@ before_install:
         libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
     fi
 install:
-  - "python buildconfig/ci/travis/.travis_osx_upload_whl.py --write-config"
   - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_EXE=python PIP_CMD=pip; fi
@@ -108,7 +122,9 @@ install:
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders -auto; fi
+  - if [[ "$MANYLINUX_WHL" == "yes" ]]; then source buildconfig/ci/travis/.travis_linux_build_wheels.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_install.sh; fi
+
 env:
   global:
     - SDL_VIDEODRIVER=dummy
@@ -121,6 +137,8 @@ script:
 
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_after_success.sh; fi
+  - if [["${UPLOAD_WHL_PYPI}" = "yes" ]] && [["${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then   $PYTHON_EXE -m twine upload dist/*.whl; fi
+
 
 after_script:
   - rm -f .travis_tmp
@@ -143,3 +161,13 @@ deploy:
       tags: true
       repo: pygame/pygame
       condition: $GITHUB_UPLOAD = yes
+
+  - provider: pypi
+    user: pygameci
+    distributions: sdist
+    on:
+      tags: true
+    password:
+      secure: "o2abs6mREyAoBzThGYiUvgnFF0y/ADtpQt/Zbdu3d79cLynuNH6X++xW+qoxumLsR5Lci/xQRCKIiRLnVYUgb+p+i79Z1K6lSMf/ElEeDCpE3ooW16fDC/mNmcf2oxTNg8exnoGilgzA5MPgLoDldTiQXUuRPDwM5LYTJ8T1ypJrqP+U2GD2GynX6AJ00KkqMGsdlh8Ii3XW853YlBo1cbUc8f1LJWj8wdIrrGViG0zSNVAPnoVKehxjnu1s7N4yQmq4TFxB0+vL/cGovCazzcpJqOfhpRzJKMUqN8cuFxPj3YuFZAS3J1aqy+T8bnahmt50u5HBFfN1nlfyWpYEyGfiqUpmKSFCKYWaQupC7KIOUWqMR1QGkeKZfbmX7lJOAz1m51mc900lsKEhvBtnyJqNgFljtk4MtygwmyW4ykno4oR95+7plco4yucWSo+cm+iYOKcdLhwQujveQwbv35Jgh1E1aw0dXjP8iVIr9Hnzz3r039ifqUkRb0SP6eViJBdXABRnJgpceuGpYkliSLDK2nvspcE9bdfgbfSrVbZ9O5I5sNtyosMRFnPEKky6UOQjAFL0HrAaqhGyXMK3WHgp8Pwunk9ZHL2/hcVyv9EWVkoj87rQZwOTSqcXHCxiDb5ulyWQU1MHR6PoRf7UXXtTgcyDKGs/0jDRDkK1gNo="
+    skip_cleanup: true
+    skip_existing: true
