@@ -4714,6 +4714,21 @@ class DrawArcMixin(object):
         self.assertIsInstance(bounds_rect, pygame.Rect)
         self.assertEqual(bounds_rect, pygame.Rect(1, 1, 0, 0))
 
+    def test_arc__args_with_width_gt_radius(self):
+        """Ensures draw arc accepts the args with 
+        width > rect.w // 2 and width > rect.h // 2."""
+        rect = pygame.Rect((0, 0), (4, 4))
+        bounds_rect = self.draw_arc(pygame.Surface((3, 3)),
+            (10, 10, 50, 50), rect, 0, 45, rect.w // 2 + 1)
+    
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+        bounds_rect = self.draw_arc(pygame.Surface((3, 3)),
+            (10, 10, 50, 50), rect, 0, 45, rect.h // 2 + 1)
+    
+        self.assertIsInstance(bounds_rect, pygame.Rect)
+
+
     def test_arc__kwargs(self):
         """Ensures draw arc accepts the correct kwargs
         with and without a width arg.
@@ -4930,9 +4945,6 @@ class DrawArcMixin(object):
 
             self.assertIsInstance(bounds_rect, pygame.Rect)
 
-    # This decorator can be removed when the arc portion of issues #975
-    # and #976 are resolved.
-    @unittest.expectedFailure
     def test_arc__valid_width_values(self):
         """Ensures draw arc accepts different width values."""
         arc_color = pygame.Color('yellow')
