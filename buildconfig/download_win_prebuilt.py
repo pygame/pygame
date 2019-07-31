@@ -61,12 +61,12 @@ def get_urls(x86=True, x64=True, sdl2=True):
     if sdl2:
         url_sha1.extend([
             [
-            'https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip',
-            '0b4d2a9bd0c66847d669ae664c5b9e2ae5cc8f00',
+            'https://www.libsdl.org/release/SDL2-devel-2.0.10-VC.zip',
+            '0bbac0106358dc99b8ba2401ae6a1c10d3927ca9',
             ],
             [
-            'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-VC.zip',
-            'f5199c52b3af2e059ec0268d4fe1854311045959',
+            'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
+            '137f86474691f4e12e76e07d58d5920c8d844d5b',
             ],
             [
             'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip',
@@ -80,38 +80,6 @@ def get_urls(x86=True, x64=True, sdl2=True):
             'https://www.ijg.org/files/jpegsr9c.zip',
             '9ca086c960ffc4bff821ba194c8d0a15f69eae09',
             ],
-            # [
-            #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x86.zip',
-            #  '04a48d0b429ac65f0d9b33bd1b75d77526c0cccf'
-            # ],
-            # [
-            #  'https://www.libsdl.org/release/SDL2-2.0.9-win32-x64.zip',
-            #  '7a156a8c81d2442901dea90ff0f71026475e89c6'
-            # ],
-            # [
-            #  'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14-win32-x86.zip',
-            #  '0c89aa4097745ac68516783b7fd67abd019b7701'
-            # ],
-            # [
-            #  'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14-win32-x64.zip',
-            #  '47446c907d006804e12ecd827a45dcc89abd2264'
-            # ],
-            # [
-            #  'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4-win32-x86.zip',
-            #  'e9b8b84edfe618bec73f91111324e37c37dd6f27'
-            # ],
-            # [
-            #  'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4-win32-x64.zip',
-            #  '956750cb442264abd8cd398c57aa493249cf04d4'
-            # ],
-            # [
-            #  'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4-win32-x86.zip',
-            #  '0bfc276a3d50613ae54831ff196721ad24de1432'
-            # ],
-            # [
-            #  'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4-win32-x64.zip',
-            #  'afa34e9c11fd8a6f5d084862c38fcf0abdc77514'
-            # ],
         ])
     if x86:
         url_sha1.append([
@@ -240,12 +208,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_image-devel-2.0.4-VC/SDL2_image-2.0.4'
+                'SDL2_image-devel-2.0.5-VC/SDL2_image-2.0.5'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_image-2.0.4'
+                'SDL2_image-2.0.5'
             )
         )
         copy(
@@ -273,12 +241,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2-devel-2.0.9-VC/SDL2-2.0.9'
+                'SDL2-devel-2.0.10-VC/SDL2-2.0.10'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2-2.0.9'
+                'SDL2-2.0.10'
             )
         )
 
