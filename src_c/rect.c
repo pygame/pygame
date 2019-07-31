@@ -371,10 +371,9 @@ pg_rect_unionall(pgRectObject *self, PyObject *args)
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
-            RAISE(PyExc_TypeError,
+            Py_XDECREF(obj);            
+            return RAISE(PyExc_TypeError,
                   "Argument must be a sequence of rectstyle objects.");
-            Py_XDECREF(obj);
-            break;
         }
         l = MIN(l, argrect->x);
         t = MIN(t, argrect->y);
@@ -419,10 +418,9 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
-            RAISE(PyExc_TypeError,
-                  "Argument must be a sequence of rectstyle objects.");
             Py_XDECREF(obj);
-            break;
+            return RAISE(PyExc_TypeError,
+                  "Argument must be a sequence of rectstyle objects.");
         }
         l = MIN(l, argrect->x);
         t = MIN(t, argrect->y);
