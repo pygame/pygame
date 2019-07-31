@@ -433,6 +433,26 @@ class RectTypeTest(unittest.TestCase):
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
 
+    def test_move__kwargs(self):
+        """Ensures move accepts kwargs."""
+        r = Rect(1, 2, 3, 4)
+        
+        self.assertEqual(r.move(x=1, y=2), Rect(2, 4, 3, 4))
+
+    def test_move__kwargs_missing(self):
+        """Ensures move accepts missing optional kwargs."""
+        r = Rect(1, 2, 3, 4)
+        
+        self.assertEqual(r.move(x=1), Rect(2, 2, 3, 4))
+        self.assertEqual(r.move(y=1), Rect(1, 3, 3, 4))
+
+    def test_move__kwargs_order_independent(self):
+        """Ensures move kwargs are not order dependent."""
+        r1 = Rect(1, 2, 3, 4)
+        r2 = Rect(1, 2, 3, 4)
+        
+        self.assertEqual(r1.move(x=0, y=1), r2.move(y=1, x=0))
+
     def test_move_ip(self):
         r = Rect(1, 2, 3, 4)
         r2 = Rect(r)

@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMERECT "Rect(left, top, width, height) -> Rect\nRect((left, top), (width, height)) -> Rect\nRect(object) -> Rect\npygame object for storing rectangular coordinates"
 #define DOC_RECTCOPY "copy() -> Rect\ncopy the rectangle"
-#define DOC_RECTMOVE "move(x, y) -> Rect\nmoves the rectangle"
+#define DOC_RECTMOVE "move(x=0, y=0) -> Rect\nmoves the rectangle"
 #define DOC_RECTMOVEIP "move_ip(x, y) -> None\nmoves the rectangle, in place"
 #define DOC_RECTINFLATE "inflate(x, y) -> Rect\ngrow or shrink the rectangle size"
 #define DOC_RECTINFLATEIP "inflate_ip(x, y) -> None\ngrow or shrink the rectangle size, in place"
@@ -38,7 +38,7 @@ pygame.Rect.copy
 copy the rectangle
 
 pygame.Rect.move
- move(x, y) -> Rect
+ move(x=0, y=0) -> Rect
 moves the rectangle
 
 pygame.Rect.move_ip

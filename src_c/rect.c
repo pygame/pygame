@@ -247,13 +247,18 @@ pg_rect_normalize(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_rect_move(pgRectObject *self, PyObject *args)
+pg_rect_move(pgRectObject *self, PyObject *args, PyObject *kwargs)
 {
-    int x, y;
+    int x = 0;
+    int y = 0;
+    static char *keywords[] = {"x", "y", NULL};
 
-    if (!pg_TwoIntsFromObj(args, &x, &y)) {
-        return RAISE(PyExc_TypeError, "argument must contain two numbers");
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|ii", keywords,
+                                     &x, &y)) {
+        return NULL; /* Exception already set. */
     }
+
+
 
     return _pg_rect_subtype_new4(Py_TYPE(self), self->r.x + x, self->r.y + y,
                                  self->r.w, self->r.h);
@@ -829,7 +834,8 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
     {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
     {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
-    {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
+    {"move", (PyCFunction)pg_rect_move, METH_VARARGS | METH_KEYWORDS, 
+     DOC_RECTMOVE},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
     {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
