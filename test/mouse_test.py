@@ -1,7 +1,18 @@
 import unittest
 
+import pygame
+
 
 class MouseModuleTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # The display needs to be initialized for mouse functions.
+        pygame.display.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.display.quit()
+
     def todo_test_get_cursor(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mouse.get_cursor:
@@ -143,6 +154,16 @@ class MouseModuleTest(unittest.TestCase):
           #
 
         self.fail()
+
+    def test_get_visible(self):
+        """Ensures get_visible works correctly."""
+        for expected_value in (False, True):
+            pygame.mouse.set_visible(expected_value)
+
+            visible = pygame.mouse.get_visible()
+
+            self.assertEqual(visible, expected_value)
+
 
 ################################################################################
 
