@@ -465,6 +465,16 @@ class RectTypeTest(unittest.TestCase):
         r4 = r1.unionall([r2, r3])
         self.assertEqual(Rect(-2, -2, 5, 5), r4)
 
+    def test_unionall__invalid_rect_format(self):
+        """Ensures unionall correctly handles invalid rect parameters."""
+        numbers = [0, 1.2, 2, 3.3]
+        strs = ["a", "b", "c"]
+        nones = [None, None]
+
+        for invalid_rects in (numbers, strs, nones):
+            with self.assertRaises(TypeError):
+                Rect(0, 0, 1, 1).unionall(invalid_rects)
+
     def test_unionall_ip(self):
         r1 = Rect(0, 0, 1, 1)
         r2 = Rect(-2, -2, 1, 1)
@@ -475,6 +485,16 @@ class RectTypeTest(unittest.TestCase):
 
         # Bug for an empty list. Would return a Rect instead of None.
         self.assertTrue(r1.unionall_ip([]) is None)
+
+    def test_unionall__invalid_rect_format(self):
+        """Ensures unionall_ip correctly handles invalid rect parameters."""
+        numbers = [0, 1.2, 2, 3.3]
+        strs = ["a", "b", "c"]
+        nones = [None, None]
+
+        for invalid_rects in (numbers, strs, nones):
+            with self.assertRaises(TypeError):
+                Rect(0, 0, 1, 1).unionall_ip(invalid_rects)
 
     def test_colliderect(self):
         r1 = Rect(1, 2, 3, 4)
