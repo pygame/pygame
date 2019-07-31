@@ -101,6 +101,21 @@ configured.
 
    .. ## pygame.mouse.set_visible ##
 
+.. function:: get_visible
+
+   | :sl:`get the current visibility state of the mouse cursor`
+   | :sg:`get_visible() -> bool`
+
+   Get the current visibility state of the mouse cursor.
+
+   :returns: ``True`` if the mouse cursor is currently visible and ``False`` if
+      the mouse cursor is not visible
+   :rtype: bool
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mouse.get_visible ##
+
 .. function:: get_focused
 
    | :sl:`check if the display is receiving mouse input`

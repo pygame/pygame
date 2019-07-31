@@ -166,6 +166,22 @@ mouse_set_visible(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+mouse_get_visible(PyObject *self, PyObject *args)
+{
+    int result;
+
+    VIDEO_INIT_CHECK();
+
+    result = SDL_ShowCursor(SDL_QUERY);
+
+    if (0 > result) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return PyBool_FromLong(result);
+}
+
+static PyObject *
 mouse_get_focused(PyObject *self)
 {
     VIDEO_INIT_CHECK();
@@ -288,6 +304,7 @@ static PyMethodDef _mouse_methods[] = {
      DOC_PYGAMEMOUSEGETPRESSED},
     {"set_visible", mouse_set_visible, METH_VARARGS,
      DOC_PYGAMEMOUSESETVISIBLE},
+    {"get_visible", mouse_get_visible, METH_NOARGS, DOC_PYGAMEMOUSEGETVISIBLE},
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},
