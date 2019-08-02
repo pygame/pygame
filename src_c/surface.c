@@ -4026,7 +4026,8 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
 #endif /* IS_SDLv2 */
     else {
         /* Py_BEGIN_ALLOW_THREADS */
-        result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+        pygame_Blit(src, srcrect, dst, dstrect, 0);
+        //result = SDL_BlitSurface(src, srcrect, dst, dstrect);
         /* Py_END_ALLOW_THREADS */
     }
 
