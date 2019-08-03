@@ -28,7 +28,7 @@ events = (
 )
 
 
-names_and_events = (
+NAMES_AND_EVENTS = (
     ('NoEvent', pygame.NOEVENT),
     ('ActiveEvent', pygame.ACTIVEEVENT),
     ('KeyDown', pygame.KEYDOWN),
@@ -55,41 +55,41 @@ names_and_events = (
 
 # Add in any SDL 2 specific events.
 if pygame.get_sdl_version()[0] >= 2:
-        names_and_events += (
-            ('FingerMotion', pygame.FINGERMOTION),
-            ('FingerDown', pygame.FINGERDOWN),
-            ('FingerUp', pygame.FINGERUP),
-            ('MultiGesture', pygame.MULTIGESTURE),
+    NAMES_AND_EVENTS += (
+        ('FingerMotion', pygame.FINGERMOTION),
+        ('FingerDown', pygame.FINGERDOWN),
+        ('FingerUp', pygame.FINGERUP),
+        ('MultiGesture', pygame.MULTIGESTURE),
 
-            # These can be corrected when issue #1221 is resolved.
-            # Should be: 'AudioDeviceAdded'
-            ('Unknown', pygame.AUDIODEVICEADDED),
-            # Should be: 'AudioDeviceRemoved'
-            ('Unknown', pygame.AUDIODEVICEREMOVED),
+        # These can be corrected when issue #1221 is resolved.
+        # Should be: 'AudioDeviceAdded'
+        ('Unknown', pygame.AUDIODEVICEADDED),
+        # Should be: 'AudioDeviceRemoved'
+        ('Unknown', pygame.AUDIODEVICEREMOVED),
 
-            ('MouseWheel', pygame.MOUSEWHEEL),
-            ('TextInput', pygame.TEXTINPUT),
-            ('TextEditing', pygame.TEXTEDITING),
-            ('WindowEvent', pygame.WINDOWEVENT),
+        ('MouseWheel', pygame.MOUSEWHEEL),
+        ('TextInput', pygame.TEXTINPUT),
+        ('TextEditing', pygame.TEXTEDITING),
+        ('WindowEvent', pygame.WINDOWEVENT),
 
-            ('ControllerAxisMotion', pygame.CONTROLLERAXISMOTION),
-            ('ControllerButtonDown', pygame.CONTROLLERBUTTONDOWN),
-            ('ControllerButtonUp', pygame.CONTROLLERBUTTONUP),
-            ('ControllerDeviceAdded', pygame.CONTROLLERDEVICEADDED),
-            ('ControllerDeviceRemoved', pygame.CONTROLLERDEVICEREMOVED),
-            ('ControllerDeviceMapped', pygame.CONTROLLERDEVICEREMAPPED),
+        ('ControllerAxisMotion', pygame.CONTROLLERAXISMOTION),
+        ('ControllerButtonDown', pygame.CONTROLLERBUTTONDOWN),
+        ('ControllerButtonUp', pygame.CONTROLLERBUTTONUP),
+        ('ControllerDeviceAdded', pygame.CONTROLLERDEVICEADDED),
+        ('ControllerDeviceRemoved', pygame.CONTROLLERDEVICEREMOVED),
+        ('ControllerDeviceMapped', pygame.CONTROLLERDEVICEREMAPPED),
 
-            ('DropFile', pygame.DROPFILE),
+        ('DropFile', pygame.DROPFILE),
+    )
+
+    # Add in any SDL 2.0.5 specific events.
+    if pygame.get_sdl_version() >= (2, 0, 5):
+        NAMES_AND_EVENTS += (
+            # These can be corrected when issue #1223 is resolved.
+            ('Unknown', pygame.DROPTEXT), # Should be: 'DropText'
+            ('Unknown', pygame.DROPBEGIN), # Should be: 'DropBegin'
+            ('Unknown', pygame.DROPCOMPLETE), # Should be: 'DropComplete'
         )
-
-        # Add in any SDL 2.0.5 specific events.
-        if pygame.get_sdl_version() >= (2, 0, 5):
-            names_and_events += (
-                # These can be corrected when issue #1223 is resolved.
-                ('Unknown', pygame.DROPTEXT), # Should be: 'DropText'
-                ('Unknown', pygame.DROPBEGIN), # Should be: 'DropBegin'
-                ('Unknown', pygame.DROPCOMPLETE), # Should be: 'DropComplete'
-            )
 
 
 class EventTypeTest(unittest.TestCase):
@@ -277,7 +277,7 @@ class EventModuleTest(unittest.TestCase):
 
     def test_event_name(self):
         """Ensure event_name() returns the correct event name."""
-        for expected_name, event in names_and_events:
+        for expected_name, event in NAMES_AND_EVENTS:
             self.assertEqual(pygame.event.event_name(event), expected_name,
                              '0x{:X}'.format(event))
 
