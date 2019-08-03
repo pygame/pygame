@@ -225,6 +225,11 @@ pgRect_New4(int x, int y, int w, int h)
 static int
 _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
 {
+    if (A->w == 0 || A->h == 0 || B->w == 0 || B->h == 0) {
+        // zero sized rects should not collide with anything #1197
+        return 0;
+    }
+
     // A.topleft < B.bottomright &&
     // A.bottomright > B.topleft
     return (A->x < B->x + B->w && A->y < B->y + B->h && A->x + A->w > B->x &&
