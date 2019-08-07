@@ -1248,6 +1248,12 @@ pg_rect_setwidth(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1267,6 +1273,12 @@ static int
 pg_rect_setheight(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1288,6 +1300,12 @@ pg_rect_settop(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1307,6 +1325,12 @@ static int
 pg_rect_setleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1328,6 +1352,12 @@ pg_rect_setright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1347,6 +1377,12 @@ static int
 pg_rect_setbottom(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1368,6 +1404,12 @@ pg_rect_setcenterx(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1388,6 +1430,12 @@ pg_rect_setcentery(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_IntFromObj(value, &val1)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1407,6 +1455,12 @@ static int
 pg_rect_settopleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1429,6 +1483,12 @@ pg_rect_settopright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1449,6 +1509,12 @@ static int
 pg_rect_setbottomleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1471,6 +1537,12 @@ pg_rect_setbottomright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1492,6 +1564,12 @@ pg_rect_setmidtop(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1512,6 +1590,12 @@ static int
 pg_rect_setmidleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1535,6 +1619,12 @@ pg_rect_setmidbottom(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1556,6 +1646,12 @@ static int
 pg_rect_setmidright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
@@ -1579,6 +1675,12 @@ pg_rect_setcenter(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
+
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
@@ -1599,6 +1701,12 @@ static int
 pg_rect_setsize(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
+
+    if (NULL == value) {
+        /* Attribute deletion not supported. */
+        PyErr_SetString(PyExc_AttributeError, "can't delete attribute");
+        return -1;
+    }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
         RAISE(PyExc_TypeError, "invalid rect assignment");

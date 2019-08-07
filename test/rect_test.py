@@ -59,6 +59,68 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual((abs(r.width), abs(r.height)), r2.size)
         self.assertEqual((-2, -4), r2.topleft)
 
+    def test_x(self):
+        """Ensures changing the x attribute moves the rect and does not change
+           the rect's size.
+        """
+        expected_x = 10
+        expected_y = 2
+        expected_size = (3, 4)
+        r = Rect((1, expected_y), expected_size)
+
+        r.x = expected_x
+
+        self.assertEqual(r.x, expected_x)
+        self.assertEqual(r.x, r.left)
+        self.assertEqual(r.y, expected_y)
+        self.assertEqual(r.size, expected_size)
+
+    def test_x__invalid_value(self):
+        """Ensures the x attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.x = value
+
+    def test_x__del(self):
+        """Ensures the x attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.x
+
+    def test_y(self):
+        """Ensures changing the y attribute moves the rect and does not change
+           the rect's size.
+        """
+        expected_x = 1
+        expected_y = 20
+        expected_size = (3, 4)
+        r = Rect((expected_x, 2), expected_size)
+
+        r.y = expected_y
+
+        self.assertEqual(r.y, expected_y)
+        self.assertEqual(r.y, r.top)
+        self.assertEqual(r.x, expected_x)
+        self.assertEqual(r.size, expected_size)
+
+    def test_y__invalid_value(self):
+        """Ensures the y attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.y = value
+
+    def test_y__del(self):
+        """Ensures the y attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.y
+
     def test_left(self):
         """Changing the left attribute moves the rect and does not change
            the rect's width
@@ -69,6 +131,21 @@ class RectTypeTest(unittest.TestCase):
         r.left = new_left
         self.assertEqual(new_left, r.left)
         self.assertEqual(Rect(new_left, 2, 3, 4), r)
+
+    def test_left__invalid_value(self):
+        """Ensures the left attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.left = value
+
+    def test_left__del(self):
+        """Ensures the left attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.left
 
     def test_right(self):
         """Changing the right attribute moves the rect and does not change
@@ -84,6 +161,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_left, r.left)
         self.assertEqual(old_width, r.width)
 
+    def test_right__invalid_value(self):
+        """Ensures the right attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.right = value
+
+    def test_right__del(self):
+        """Ensures the right attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.right
+
     def test_top(self):
         """Changing the top attribute moves the rect and does not change
            the rect's width
@@ -94,6 +186,21 @@ class RectTypeTest(unittest.TestCase):
         r.top = new_top
         self.assertEqual(Rect(1, new_top, 3, 4), r)
         self.assertEqual(new_top, r.top)
+
+    def test_top__invalid_value(self):
+        """Ensures the top attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.top = value
+
+    def test_top__del(self):
+        """Ensures the top attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.top
 
     def test_bottom(self):
         """Changing the bottom attribute moves the rect and does not change
@@ -109,6 +216,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_top, r.top)
         self.assertEqual(old_height, r.height)
 
+    def test_bottom__invalid_value(self):
+        """Ensures the bottom attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.bottom = value
+
+    def test_bottom__del(self):
+        """Ensures the bottom attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.bottom
+
     def test_centerx(self):
         """Changing the centerx attribute moves the rect and does not change
            the rect's width
@@ -123,8 +245,23 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_left, r.left)
         self.assertEqual(old_width, r.width)
 
+    def test_centerx__invalid_value(self):
+        """Ensures the centerx attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.centerx = value
+
+    def test_centerx__del(self):
+        """Ensures the centerx attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.centerx
+
     def test_centery(self):
-        """Changing the centerx attribute moves the rect and does not change
+        """Changing the centery attribute moves the rect and does not change
            the rect's width
         """
         r = Rect(1, 2, 3, 4)
@@ -137,6 +274,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_top, r.top)
         self.assertEqual(old_height, r.height)
 
+    def test_centery__invalid_value(self):
+        """Ensures the centery attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.centery = value
+
+    def test_centery__del(self):
+        """Ensures the centery attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.centery
+
     def test_topleft(self):
         """Changing the topleft attribute moves the rect and does not change
            the rect's size
@@ -148,6 +300,21 @@ class RectTypeTest(unittest.TestCase):
         r.topleft = new_topleft
         self.assertEqual(new_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
+
+    def test_topleft__invalid_value(self):
+        """Ensures the topleft attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.topleft = value
+
+    def test_topleft__del(self):
+        """Ensures the topleft attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.topleft
 
     def test_bottomleft(self):
         """Changing the bottomleft attribute moves the rect and does not change
@@ -163,8 +330,24 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
 
+    def test_bottomleft__invalid_value(self):
+        """Ensures the bottomleft attribute handles invalid values correctly.
+        """
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.bottomleft = value
+
+    def test_bottomleft__del(self):
+        """Ensures the bottomleft attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.bottomleft
+
     def test_topright(self):
-        """Changing the bottomleft attribute moves the rect and does not change
+        """Changing the topright attribute moves the rect and does not change
            the rect's size
         """
         r = Rect(1, 2, 3, 4)
@@ -176,6 +359,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(new_topright, r.topright)
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
+
+    def test_topright__invalid_value(self):
+        """Ensures the topright attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.topright = value
+
+    def test_topright__del(self):
+        """Ensures the topright attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.topright
 
     def test_bottomright(self):
         """Changing the bottomright attribute moves the rect and does not change
@@ -191,6 +389,22 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
 
+    def test_bottomright__invalid_value(self):
+        """Ensures the bottomright attribute handles invalid values correctly.
+        """
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.bottomright = value
+
+    def test_bottomright__del(self):
+        """Ensures the bottomright attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.bottomright
+
     def test_center(self):
         """Changing the center attribute moves the rect and does not change
            the rect's size
@@ -204,6 +418,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(new_center, r.center)
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
+
+    def test_center__invalid_value(self):
+        """Ensures the center attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.center = value
+
+    def test_center__del(self):
+        """Ensures the center attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.center
 
     def test_midleft(self):
         """Changing the midleft attribute moves the rect and does not change
@@ -219,6 +448,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
 
+    def test_midleft__invalid_value(self):
+        """Ensures the midleft attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.midleft = value
+
+    def test_midleft__del(self):
+        """Ensures the midleft attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.midleft
+
     def test_midright(self):
         """Changing the midright attribute moves the rect and does not change
            the rect's size
@@ -232,6 +476,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(new_midright, r.midright)
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
+
+    def test_midright__invalid_value(self):
+        """Ensures the midright attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.midright = value
+
+    def test_midright__del(self):
+        """Ensures the midright attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.midright
 
     def test_midtop(self):
         """Changing the midtop attribute moves the rect and does not change
@@ -247,6 +506,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
 
+    def test_midtop__invalid_value(self):
+        """Ensures the midtop attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.midtop = value
+
+    def test_midtop__del(self):
+        """Ensures the midtop attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.midtop
+
     def test_midbottom(self):
         """Changing the midbottom attribute moves the rect and does not change
            the rect's size
@@ -261,6 +535,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(expected_topleft, r.topleft)
         self.assertEqual(old_size, r.size)
 
+    def test_midbottom__invalid_value(self):
+        """Ensures the midbottom attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.midbottom = value
+
+    def test_midbottom__del(self):
+        """Ensures the midbottom attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.midbottom
+
     def test_width(self):
         """Changing the width resizes the rect from the top-left corner
         """
@@ -273,6 +562,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(new_width, r.width)
         self.assertEqual(old_height, r.height)
         self.assertEqual(old_topleft, r.topleft)
+
+    def test_width__invalid_value(self):
+        """Ensures the width attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.width = value
+
+    def test_width__del(self):
+        """Ensures the width attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.width
 
     def test_height(self):
         """Changing the height resizes the rect from the top-left corner
@@ -287,6 +591,21 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(old_width, r.width)
         self.assertEqual(old_topleft, r.topleft)
 
+    def test_height__invalid_value(self):
+        """Ensures the height attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.height = value
+
+    def test_height__del(self):
+        """Ensures the height attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.height
+
     def test_size(self):
         """Changing the size resizes the rect from the top-left corner
         """
@@ -297,6 +616,21 @@ class RectTypeTest(unittest.TestCase):
         r.size = new_size
         self.assertEqual(new_size, r.size)
         self.assertEqual(old_topleft, r.topleft)
+
+    def test_size__invalid_value(self):
+        """Ensures the size attribute handles invalid values correctly."""
+        r = Rect(0, 0, 1, 1)
+
+        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                r.size = value
+
+    def test_size__del(self):
+        """Ensures the size attribute can't be deleted."""
+        r = Rect(0, 0, 1, 1)
+
+        with self.assertRaises(AttributeError):
+            del r.size
 
     def test_contains(self):
         r = Rect(1, 2, 3, 4)
