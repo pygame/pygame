@@ -61,12 +61,6 @@ if pygame.get_sdl_version()[0] >= 2:
         ('FingerUp', pygame.FINGERUP),
         ('MultiGesture', pygame.MULTIGESTURE),
 
-        # These can be corrected when issue #1221 is resolved.
-        # Should be: 'AudioDeviceAdded'
-        ('Unknown', pygame.AUDIODEVICEADDED),
-        # Should be: 'AudioDeviceRemoved'
-        ('Unknown', pygame.AUDIODEVICEREMOVED),
-
         ('MouseWheel', pygame.MOUSEWHEEL),
         ('TextInput', pygame.TEXTINPUT),
         ('TextEditing', pygame.TEXTEDITING),
@@ -81,6 +75,16 @@ if pygame.get_sdl_version()[0] >= 2:
 
         ('DropFile', pygame.DROPFILE),
     )
+
+    # Add in any SDL 2.0.4 specific events.
+    if pygame.get_sdl_version() >= (2, 0, 4):
+        NAMES_AND_EVENTS += (
+            # These can be corrected when issue #1221 is resolved.
+            # Should be: 'AudioDeviceAdded'
+            ('Unknown', pygame.AUDIODEVICEADDED),
+            # Should be: 'AudioDeviceRemoved'
+            ('Unknown', pygame.AUDIODEVICEREMOVED),
+        )
 
     # Add in any SDL 2.0.5 specific events.
     if pygame.get_sdl_version() >= (2, 0, 5):
