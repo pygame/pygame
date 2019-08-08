@@ -77,6 +77,21 @@ def assertSurfaceFilled(testcase, surface, expected_color, area_rect=None):
         surface.unlock()
 
 
+def assertSurfaceFilledIgnoreArea(testcase, surface, expected_color,
+                                  ignore_rect):
+        """Checks if the surface is filled with the given color. The
+        ignore_rect area is not checked.
+        """
+        x_range = range(surface.get_width())
+        y_range = range(surface.get_height())
+
+        surface.lock()  # Lock for possible speed up.
+        for pos in ((x, y) for y in y_range for x in x_range):
+            if not ignore_rect.collidepoint(pos):
+                testcase.assertEqual(surface.get_at(pos), expected_color)
+        surface.unlock()
+
+
 def assertMaskEqual(testcase, m1, m2, msg=None):
     """Checks to see if the 2 given masks are equal."""
     m1_count = m1.count()
@@ -2067,6 +2082,18 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(to_surface.get_size(), size)
             assertSurfaceFilled(self, to_surface, expected_color)
 
+    def test_to_surface__setcolor_default(self):
+        """Ensures the default setcolor is correct."""
+        expected_color = pygame.Color('white')
+        size = (3, 7)
+        mask = pygame.mask.Mask(size, fill=True)
+
+        to_surface = mask.to_surface(surface=None, setsurface=None,
+                                     unsetsurface=None, unsetcolor=None)
+
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
+
     def test_to_surface__unsetcolor_param(self):
         """Ensures to_surface accepts a unsetcolor arg/kwarg."""
         expected_ref_count = 2
@@ -2091,6 +2118,71 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(to_surface.get_size(), size)
             assertSurfaceFilled(self, to_surface, expected_color)
 
+    def test_to_surface__unsetcolor_default(self):
+        """Ensures the default unsetcolor is correct."""
+        expected_color = pygame.Color('black')
+        size = (3, 7)
+        mask = pygame.mask.Mask(size)
+
+        to_surface = mask.to_surface(surface=None, setsurface=None,
+                                     unsetsurface=None, setcolor=None)
+
+        self.assertEqual(to_surface.get_size(), size)
+        assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__dest_param(self):
+        """Ensures to_surface accepts a dest arg/kwarg."""
+        expected_ref_count = 2
+        expected_flag = SRCALPHA
+        expected_depth = 32
+        default_surface_color = (0, 0, 0, 0)
+        default_unsetcolor = pygame.Color('black')
+        dest = (0, 0)
+        size = (5, 3)
+        mask = pygame.mask.Mask(size)
+        kwargs = {'dest' : dest}
+
+        for use_kwargs in (True, False):
+            if use_kwargs:
+                expected_color = default_unsetcolor
+
+                to_surface = mask.to_surface(**kwargs)
+            else:
+                expected_color = default_surface_color
+
+                to_surface = mask.to_surface(None, None, None, None, None,
+                                             kwargs['dest'])
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(sys.getrefcount(to_surface), expected_ref_count)
+            self.assertTrue(to_surface.get_flags() & expected_flag)
+            self.assertEqual(to_surface.get_bitsize(), expected_depth)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__dest_default(self):
+        """Ensures the default dest is correct."""
+        expected_color = pygame.Color('white')
+        surface_color = pygame.Color('red')
+
+        mask_size = (3, 2)
+        mask = pygame.mask.Mask(mask_size, fill=True)
+        mask_rect = mask.get_rect()
+
+        # Make the surface bigger than the mask.
+        surf_size = (mask_size[0] + 2, mask_size[1] + 1)
+        surface = pygame.Surface(surf_size, SRCALPHA, 32)
+        surface.fill(surface_color)
+
+        to_surface = mask.to_surface(surface, setsurface=None,
+                                     unsetsurface=None, unsetcolor=None)
+
+        self.assertIs(to_surface, surface)
+        self.assertEqual(to_surface.get_size(), surf_size)
+        assertSurfaceFilled(self, to_surface, expected_color, mask_rect)
+        assertSurfaceFilledIgnoreArea(self, to_surface, surface_color,
+                                      mask_rect)
+
     def test_to_surface__kwargs(self):
         """Ensures to_surface accepts the correct kwargs."""
         expected_color = pygame.Color('white')
@@ -2105,10 +2197,11 @@ class MaskTypeTest(unittest.TestCase):
                   'setsurface'   : setsurface,
                   'unsetsurface' : surface.copy(),
                   'setcolor'     : expected_color,
-                  'unsetcolor'   : pygame.Color('yellow')}
+                  'unsetcolor'   : pygame.Color('yellow'),
+                  'dest'         : (0, 0)}
 
-        for name in ('unsetcolor', 'setcolor', 'unsetsurface', 'setsurface',
-                     'surface'):
+        for name in ('dest', 'unsetcolor', 'setcolor', 'unsetsurface',
+                     'setsurface', 'surface'):
             surface.fill(surface_color)  # Clear for each test.
 
             to_surface = mask.to_surface(**kwargs)
@@ -2136,10 +2229,11 @@ class MaskTypeTest(unittest.TestCase):
                   'setsurface'   : setsurface,
                   'unsetsurface' : unsetsurface,
                   'setcolor'     : pygame.Color('yellow'),
-                  'unsetcolor'   : expected_color}
+                  'unsetcolor'   : expected_color,
+                  'dest'         : (0, 0)}
 
-        for name in ('unsetcolor', 'setcolor', 'unsetsurface', 'setsurface',
-                     'surface'):
+        for name in ('dest', 'unsetcolor', 'setcolor', 'unsetsurface',
+                     'setsurface', 'surface'):
             to_surface = mask.to_surface(**kwargs)
 
             self.assertIsInstance(to_surface, pygame.Surface)
@@ -2155,7 +2249,8 @@ class MaskTypeTest(unittest.TestCase):
         mask = pygame.mask.Mask(size, fill=True)
         surface = pygame.Surface(size)
 
-        to_surface = mask.to_surface(setcolor=expected_color,
+        to_surface = mask.to_surface(dest=(0, 0),
+                                     setcolor=expected_color,
                                      unsetcolor=None,
                                      surface=surface,
                                      unsetsurface=pygame.Surface(size),
@@ -2171,6 +2266,10 @@ class MaskTypeTest(unittest.TestCase):
         mask = pygame.mask.Mask(size, fill=True)
         invalid_surf = pygame.Color('green')
         invalid_color = pygame.Surface(size)
+
+        with self.assertRaises(TypeError):
+            # Invalid dest.
+            to_surface = mask.to_surface(None, None, None, None, None, (0, ))
 
         with self.assertRaises(TypeError):
             # Invalid unsetcolor.
@@ -2201,16 +2300,18 @@ class MaskTypeTest(unittest.TestCase):
                         'setsurface'   : pygame.Surface(size),
                         'unsetsurface' : pygame.Surface(size),
                         'setcolor'     : pygame.Color('green'),
-                        'unsetcolor'   : pygame.Color('green')}
+                        'unsetcolor'   : pygame.Color('green'),
+                        'dest'         : (0, 0)}
 
         invalid_kwargs = {'surface'      : (1, 2, 3, 4),
                           'setsurface'   : pygame.Color('green'),
                           'unsetsurface' : ((1, 2), (2, 1)),
                           'setcolor'     : (1, 2),
-                          'unsetcolor'   : pygame.Surface((2, 2))}
+                          'unsetcolor'   : pygame.Surface((2, 2)),
+                          'dest'         : (0, 0, 0)}
 
         for kwarg in ('surface', 'setsurface', 'unsetsurface', 'setcolor',
-                      'unsetcolor'):
+                      'unsetcolor', 'dest'):
             kwargs = dict(valid_kwargs)
             kwargs[kwarg] = invalid_kwargs[kwarg]
 
@@ -2228,6 +2329,7 @@ class MaskTypeTest(unittest.TestCase):
     def test_to_surface__args_and_kwargs(self):
         """Ensures to_surface accepts a combination of args/kwargs"""
         size = (5, 3)
+        dest = (0, 0)
 
         surface_color = pygame.Color('red')
         setsurface_color = pygame.Color('yellow')
@@ -2246,13 +2348,14 @@ class MaskTypeTest(unittest.TestCase):
                   'setsurface'   : setsurface,
                   'unsetsurface' : unsetsurface,
                   'setcolor'     : setcolor,
-                  'unsetcolor'   : unsetcolor}
+                  'unsetcolor'   : unsetcolor,
+                  'dest'         : dest}
 
         mask = pygame.mask.Mask(size, fill=True)
         expected_color = setsurface_color
 
         for name in ('surface', 'setsurface', 'unsetsurface', 'setcolor',
-                     'unsetcolor'):
+                     'unsetcolor', 'dest'):
             kwargs.pop(name)
 
             if 'surface' == name:
@@ -2270,7 +2373,8 @@ class MaskTypeTest(unittest.TestCase):
                                              setcolor, unsetcolor, **kwargs)
             else:
                 to_surface = mask.to_surface(surface, setsurface, unsetsurface,
-                                             setcolor, unsetcolor, **kwargs)
+                                             setcolor, unsetcolor, dest,
+                                             **kwargs)
 
             self.assertIs(to_surface, surface)
             assertSurfaceFilled(self, to_surface, expected_color)
@@ -2327,6 +2431,56 @@ class MaskTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 to_surface = mask.to_surface(unsetcolor=unsetcolor)
 
+    def test_to_surface__valid_dest_formats(self):
+        """Ensures to_surface handles valid dest formats correctly."""
+        expected_color = pygame.Color('white')
+        mask = pygame.mask.Mask((3, 5), fill=True)
+        dests = ((0, 0), [0, 0], Vector2(0, 0), (0, 0, 100, 100),
+                pygame.Rect((0, 0), (10, 10)))
+
+        for dest in dests:
+            to_surface = mask.to_surface(dest=dest)
+
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__invalid_dest_formats(self):
+        """Ensures to_surface handles invalid dest formats correctly."""
+        mask = pygame.mask.Mask((3, 5))
+        invalid_dests = ((0, ),       # Incorrect size.
+                         (0, 0, 0),   # Incorrect size.
+                         set([0, 1]), # Incorrect type.
+                         {0 : 1},     # Incorrect type.
+                         Rect)        # Incorrect type.
+
+        for dest in invalid_dests:
+            with self.assertRaises(TypeError):
+                to_surface = mask.to_surface(dest=dest)
+
+    def test_to_surface__negative_sized_dest_rect(self):
+        """Ensures to_surface correctly handles negative sized dest rects."""
+        expected_color = pygame.Color('white')
+        mask = pygame.mask.Mask((3, 5), fill=True)
+        dests = (pygame.Rect((0, 0), (10, -10)),
+                 pygame.Rect((0, 0), (-10, 10)),
+                 pygame.Rect((0, 0), (-10, -10)))
+
+        for dest in dests:
+            to_surface = mask.to_surface(dest=dest)
+
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__zero_sized_dest_rect(self):
+        """Ensures to_surface correctly handles zero sized dest rects."""
+        expected_color = pygame.Color('white')
+        mask = pygame.mask.Mask((3, 5), fill=True)
+        dests = (pygame.Rect((0, 0), (0, 10)), pygame.Rect((0, 0), (10, 0)),
+                 pygame.Rect((0, 0), (0, 0)))
+
+        for dest in dests:
+            to_surface = mask.to_surface(dest=dest)
+
+            assertSurfaceFilled(self, to_surface, expected_color)
+
     def test_to_surface__default_surface_with_param_combinations(self):
         """Ensures to_surface works with a default surface value
         and combinations of other parameters.
@@ -2338,6 +2492,7 @@ class MaskTypeTest(unittest.TestCase):
         expected_flag = SRCALPHA
         expected_depth = 32
         size = (5, 3)
+        dest = (0, 0)
 
         default_surface_color = (0, 0, 0, 0)
         setsurface_color = pygame.Color('yellow')
@@ -2354,7 +2509,8 @@ class MaskTypeTest(unittest.TestCase):
         kwargs = {'setsurface'   : None,
                   'unsetsurface' : None,
                   'setcolor'     : None,
-                  'unsetcolor'   : None}
+                  'unsetcolor'   : None,
+                  'dest'         : None}
 
         for fill in (True, False):
             mask = pygame.mask.Mask(size, fill=fill)
@@ -2372,33 +2528,40 @@ class MaskTypeTest(unittest.TestCase):
                         for unsetcolor_param in (unsetcolor, None):
                             kwargs['unsetcolor'] = unsetcolor_param
 
-                            if fill:
-                                if setsurface_param is not None:
-                                    expected_color = setsurface_color
-                                elif setcolor_param is not None:
-                                    expected_color = setcolor
+                            for dest_param in (dest, None):
+                                if dest_param is None:
+                                    kwargs.pop('dest', None)
                                 else:
-                                    expected_color = default_surface_color
-                            else:
-                                if unsetsurface_param is not None:
-                                    expected_color = unsetsurface_color
-                                elif unsetcolor_param is not None:
-                                    expected_color = unsetcolor
+                                    kwargs['dest'] = dest_param
+
+                                if fill:
+                                    if setsurface_param is not None:
+                                        expected_color = setsurface_color
+                                    elif setcolor_param is not None:
+                                        expected_color = setcolor
+                                    else:
+                                        expected_color = default_surface_color
                                 else:
-                                    expected_color = default_surface_color
+                                    if unsetsurface_param is not None:
+                                        expected_color = unsetsurface_color
+                                    elif unsetcolor_param is not None:
+                                        expected_color = unsetcolor
+                                    else:
+                                        expected_color = default_surface_color
 
-                            to_surface = mask.to_surface(**kwargs)
+                                to_surface = mask.to_surface(**kwargs)
 
-                            self.assertIsInstance(to_surface, pygame.Surface)
-                            self.assertEqual(sys.getrefcount(to_surface),
-                                             expected_ref_count)
-                            self.assertTrue(
-                                to_surface.get_flags() & expected_flag)
-                            self.assertEqual(to_surface.get_bitsize(),
-                                             expected_depth)
-                            self.assertEqual(to_surface.get_size(), size)
-                            assertSurfaceFilled(self, to_surface,
-                                                expected_color)
+                                self.assertIsInstance(to_surface,
+                                                      pygame.Surface)
+                                self.assertEqual(sys.getrefcount(to_surface),
+                                                 expected_ref_count)
+                                self.assertTrue(
+                                    to_surface.get_flags() & expected_flag)
+                                self.assertEqual(to_surface.get_bitsize(),
+                                                 expected_depth)
+                                self.assertEqual(to_surface.get_size(), size)
+                                assertSurfaceFilled(self, to_surface,
+                                                    expected_color)
 
     def test_to_surface__surface_with_param_combinations(self):
         """Ensures to_surface works with a surface value
@@ -2411,6 +2574,7 @@ class MaskTypeTest(unittest.TestCase):
         expected_flag = SRCALPHA
         expected_depth = 32
         size = (5, 3)
+        dest = (0, 0)
 
         surface_color = pygame.Color('red')
         setsurface_color = pygame.Color('yellow')
@@ -2429,7 +2593,8 @@ class MaskTypeTest(unittest.TestCase):
                   'setsurface'   : None,
                   'unsetsurface' : None,
                   'setcolor'     : None,
-                  'unsetcolor'   : None}
+                  'unsetcolor'   : None,
+                  'dest'         : None}
 
         for fill in (True, False):
             mask = pygame.mask.Mask(size, fill=fill)
@@ -2448,42 +2613,138 @@ class MaskTypeTest(unittest.TestCase):
                             kwargs['unsetcolor'] = unsetcolor_param
                             surface.fill(surface_color) # Clear for each test.
 
-                            if fill:
-                                if setsurface_param is not None:
-                                    expected_color = setsurface_color
-                                elif setcolor_param is not None:
-                                    expected_color = setcolor
+                            for dest_param in (dest, None):
+                                if dest_param is None:
+                                    kwargs.pop('dest', None)
                                 else:
-                                    expected_color = surface_color
-                            else:
-                                if unsetsurface_param is not None:
-                                    expected_color = unsetsurface_color
-                                elif unsetcolor_param is not None:
-                                    expected_color = unsetcolor
+                                    kwargs['dest'] = dest_param
+
+                                if fill:
+                                    if setsurface_param is not None:
+                                        expected_color = setsurface_color
+                                    elif setcolor_param is not None:
+                                        expected_color = setcolor
+                                    else:
+                                        expected_color = surface_color
                                 else:
-                                    expected_color = surface_color
+                                    if unsetsurface_param is not None:
+                                        expected_color = unsetsurface_color
+                                    elif unsetcolor_param is not None:
+                                        expected_color = unsetcolor
+                                    else:
+                                        expected_color = surface_color
 
-                            to_surface = mask.to_surface(**kwargs)
+                                to_surface = mask.to_surface(**kwargs)
 
-                            self.assertIs(to_surface, surface)
-                            self.assertEqual(sys.getrefcount(to_surface),
-                                             expected_ref_count)
-                            self.assertTrue(
-                                to_surface.get_flags() & expected_flag)
-                            self.assertEqual(to_surface.get_bitsize(),
-                                             expected_depth)
-                            self.assertEqual(to_surface.get_size(), size)
-                            assertSurfaceFilled(self, to_surface,
-                                                expected_color)
+                                self.assertIs(to_surface, surface)
+                                self.assertEqual(sys.getrefcount(to_surface),
+                                                 expected_ref_count)
+                                self.assertTrue(
+                                    to_surface.get_flags() & expected_flag)
+                                self.assertEqual(to_surface.get_bitsize(),
+                                                 expected_depth)
+                                self.assertEqual(to_surface.get_size(), size)
+                                assertSurfaceFilled(self, to_surface,
+                                                    expected_color)
 
-    def todo_test_to_surface__setcolor_default(self):
-        self.fail()
+    def test_to_surface__set_and_unset_bits(self):
+        """Ensures that to_surface works correctly with with set/unset bits
+        when using the defaults for setcolor and unsetcolor.
+        """
+        default_setcolor = pygame.Color('white')
+        default_unsetcolor = pygame.Color('black')
+        width, height = size = (10, 20)
+        mask = pygame.mask.Mask(size)
+        mask_rect = mask.get_rect()
 
-    def todo_test_to_surface__unsetcolor_default(self):
-        self.fail()
+        surface = pygame.Surface(size)
+        surface_color = pygame.Color('red')
 
-    def todo_test_to_surface__set_and_unset_bits(self):
-        self.fail()
+        # Create a checkerboard pattern of set/unset bits.
+        for pos in ((x, y) for x in range(width)
+                    for y in range(x & 1, height, 2)):
+            mask.set_at(pos)
+
+        # Test different dest values.
+        for dest in self.ORIGIN_OFFSETS:
+            mask_rect.topleft = dest
+            surface.fill(surface_color)
+
+            to_surface = mask.to_surface(surface, dest=dest)
+
+            to_surface.lock()  # Lock for possible speed up.
+            for pos in ((x, y) for x in range(width) for y in range(height)):
+                mask_pos = (pos[0] - dest[0], pos[1] - dest[1])
+                if not mask_rect.collidepoint(pos):
+                    expected_color = surface_color
+                elif mask.get_at(mask_pos):
+                    expected_color = default_setcolor
+                else:
+                    expected_color = default_unsetcolor
+
+                self.assertEqual(to_surface.get_at(pos), expected_color, (dest, pos))
+            to_surface.unlock()
+
+    def test_to_surface__set_and_unset_bits_with_setsurface_unsetsurface(self):
+        """Ensures that to_surface works correctly with with set/unset bits
+        when using setsurface and unsetsurface.
+        """
+        width, height = size = (10, 20)
+        mask = pygame.mask.Mask(size)
+        mask_rect = mask.get_rect()
+
+        surface = pygame.Surface(size)
+        surface_color = pygame.Color('red')
+
+        setsurface = surface.copy()
+        setsurface_color = pygame.Color('green')
+        setsurface.fill(setsurface_color)
+
+        unsetsurface = surface.copy()
+        unsetsurface_color = pygame.Color('blue')
+        unsetsurface.fill(unsetsurface_color)
+
+        # Create a checkerboard pattern of set/unset bits.
+        for pos in ((x, y) for x in range(width)
+                    for y in range(x & 1, height, 2)):
+            mask.set_at(pos)
+
+        # Test different dest values.
+        for dest in self.ORIGIN_OFFSETS:
+            mask_rect.topleft = dest
+
+            # Tests the color parameters set to None and also as their
+            # default values. Should have no effect as they are not being
+            # used, but this exercises different to_surface() code.
+            for disable_color_params in (True, False):
+                surface.fill(surface_color)  # Clear for each test.
+
+                if disable_color_params:
+                    to_surface = mask.to_surface(surface, dest=dest,
+                                                 setsurface=setsurface,
+                                                 unsetsurface=unsetsurface,
+                                                 setcolor=None,
+                                                 unsetcolor=None)
+                else:
+                    to_surface = mask.to_surface(surface, dest=dest,
+                                                 setsurface=setsurface,
+                                                 unsetsurface=unsetsurface)
+
+                to_surface.lock()  # Lock for possible speed up.
+
+                for pos in ((x, y) for x in range(width)
+                            for y in range(height)):
+                    mask_pos = (pos[0] - dest[0], pos[1] - dest[1])
+
+                    if not mask_rect.collidepoint(pos):
+                        expected_color = surface_color
+                    elif mask.get_at(mask_pos):
+                        expected_color = setsurface_color
+                    else:
+                        expected_color = unsetsurface_color
+
+                    self.assertEqual(to_surface.get_at(pos), expected_color)
+                to_surface.unlock()
 
     def test_to_surface__surface_narrower_than_mask(self):
         """Ensures that surfaces narrower than the mask work correctly.
@@ -2866,6 +3127,176 @@ class MaskTypeTest(unittest.TestCase):
         # Different bpp/bitsize/alpha format for
         # surface/setsurface/unsetsurface.
         self.fail()
+
+    def test_to_surface__dest_on_surface(self):
+        """Ensures dest parameters on the surface work correctly
+        when using the defaults for setcolor and unsetcolor.
+        """
+        default_setcolor = pygame.Color('white')
+        default_unsetcolor = pygame.Color('black')
+        width, height = size = (5, 9)
+        surface = pygame.Surface(size, SRCALPHA, 32)
+        surface_color = pygame.Color('red')
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            mask_rect = mask.get_rect()
+            expected_color = default_setcolor if fill else default_unsetcolor
+
+            # Test the dest parameter at different locations on the surface.
+            for dest in ((x, y) for y in range(height) for x in range(width)):
+                surface.fill(surface_color)  # Clear for each test.
+                mask_rect.topleft = dest
+
+                to_surface = mask.to_surface(surface, dest=dest)
+
+                self.assertIs(to_surface, surface)
+                self.assertEqual(to_surface.get_size(), size)
+                assertSurfaceFilled(self, to_surface, expected_color,
+                                    mask_rect)
+                assertSurfaceFilledIgnoreArea(self, to_surface, surface_color,
+                                              mask_rect)
+
+    def test_to_surface__dest_on_surface_with_setsurface_unsetsurface(self):
+        """Ensures dest parameters on the surface work correctly
+        when using setsurface and unsetsurface.
+        """
+        width, height = size = (5, 9)
+        surface = pygame.Surface(size, SRCALPHA, 32)
+        surface_color = pygame.Color('red')
+
+        setsurface = surface.copy()
+        setsurface_color = pygame.Color('green')
+        setsurface.fill(setsurface_color)
+
+        unsetsurface = surface.copy()
+        unsetsurface_color = pygame.Color('blue')
+        unsetsurface.fill(unsetsurface_color)
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            mask_rect = mask.get_rect()
+            expected_color = setsurface_color if fill else unsetsurface_color
+
+            # Test the dest parameter at different locations on the surface.
+            for dest in ((x, y) for y in range(height) for x in range(width)):
+                mask_rect.topleft = dest
+
+                # Tests the color parameters set to None and also as their
+                # default values. Should have no effect as they are not being
+                # used, but this exercises different to_surface() code.
+                for disable_color_params in (True, False):
+                    surface.fill(surface_color)  # Clear for each test.
+
+                    if disable_color_params:
+                        to_surface = mask.to_surface(surface, dest=dest,
+                                                     setsurface=setsurface,
+                                                     unsetsurface=unsetsurface,
+                                                     setcolor=None,
+                                                     unsetcolor=None)
+                    else:
+                        to_surface = mask.to_surface(surface, dest=dest,
+                                                     setsurface=setsurface,
+                                                     unsetsurface=unsetsurface)
+
+                    self.assertIs(to_surface, surface)
+                    self.assertEqual(to_surface.get_size(), size)
+                    assertSurfaceFilled(self, to_surface, expected_color,
+                                        mask_rect)
+                    assertSurfaceFilledIgnoreArea(self, to_surface,
+                                                  surface_color, mask_rect)
+
+    def test_to_surface__dest_off_surface(self):
+        """Ensures dest parameters off the surface work correctly
+        when using the defaults for setcolor and unsetcolor.
+        """
+        default_setcolor = pygame.Color('white')
+        default_unsetcolor = pygame.Color('black')
+        width, height = size = (5, 7)
+        surface = pygame.Surface(size, SRCALPHA, 32)
+        surface_color = pygame.Color('red')
+
+        # Test different dests off the surface.
+        dests = ((-1, -1), (-1, 0), (0, -1),
+                 (width + 1, 0), (width + 1, -1), (width, -1),
+                 (0, height + 1),  (-1, height + 1), (-1, height),
+                 (width + 1, height + 1), (width, height + 1),
+                 (width + 1, height),
+                 (-width, -height), (-width, 0), (0, -height))
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            mask_rect = mask.get_rect()
+            expected_color = default_setcolor if fill else default_unsetcolor
+
+            for dest in dests:
+                surface.fill(surface_color)  # Clear for each test.
+                mask_rect.topleft = dest
+
+                to_surface = mask.to_surface(surface, dest=dest)
+
+                self.assertIs(to_surface, surface)
+                self.assertEqual(to_surface.get_size(), size)
+                assertSurfaceFilled(self, to_surface, expected_color,
+                                    mask_rect)
+                assertSurfaceFilledIgnoreArea(self, to_surface, surface_color,
+                                              mask_rect)
+
+    def test_to_surface__dest_off_surface_with_setsurface_unsetsurface(self):
+        """Ensures dest parameters off the surface work correctly
+        when using setsurface and unsetsurface.
+        """
+        width, height = size = (5, 7)
+        surface = pygame.Surface(size, SRCALPHA, 32)
+        surface_color = pygame.Color('red')
+
+        setsurface = surface.copy()
+        setsurface_color = pygame.Color('green')
+        setsurface.fill(setsurface_color)
+
+        unsetsurface = surface.copy()
+        unsetsurface_color = pygame.Color('blue')
+        unsetsurface.fill(unsetsurface_color)
+
+        # Test different dests off the surface.
+        dests = ((-1, -1), (-1, 0), (0, -1),
+                 (width + 1, 0), (width + 1, -1), (width, -1),
+                 (0, height + 1),  (-1, height + 1), (-1, height),
+                 (width + 1, height + 1), (width, height + 1),
+                 (width + 1, height),
+                 (-width, -height), (-width, 0), (0, -height))
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            mask_rect = mask.get_rect()
+            expected_color = setsurface_color if fill else unsetsurface_color
+
+            for dest in dests:
+                mask_rect.topleft = dest
+
+                # Tests the color parameters set to None and also as their
+                # default values. Should have no effect as they are not being
+                # used, but this exercises different to_surface() code.
+                for disable_color_params in (True, False):
+                    surface.fill(surface_color)  # Clear for each test.
+
+                    if disable_color_params:
+                        to_surface = mask.to_surface(surface, dest=dest,
+                                                     setsurface=setsurface,
+                                                     unsetsurface=unsetsurface,
+                                                     setcolor=None,
+                                                     unsetcolor=None)
+                    else:
+                        to_surface = mask.to_surface(surface, dest=dest,
+                                                     setsurface=setsurface,
+                                                     unsetsurface=unsetsurface)
+
+                    self.assertIs(to_surface, surface)
+                    self.assertEqual(to_surface.get_size(), size)
+                    assertSurfaceFilled(self, to_surface, expected_color,
+                                        mask_rect)
+                    assertSurfaceFilledIgnoreArea(self, to_surface,
+                                                  surface_color, mask_rect)
 
     def test_to_surface__surface_with_zero_size(self):
         """Ensures zero sized surfaces are handled correctly."""
