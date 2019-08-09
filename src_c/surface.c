@@ -1933,6 +1933,7 @@ surf_convert_alpha(PyObject *self, PyObject *args)
      * support for alpha
      */
     newsurf = pg_DisplayFormatAlpha(surf);
+    SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND);
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
 #else /* IS_SDLv1 */
     pgSurface_Prep(self);
