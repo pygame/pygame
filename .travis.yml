@@ -20,7 +20,7 @@ matrix:
   include:
     - os: linux
       sudo: required
-      dist: xenial
+      dist: precise
       python: 2.7
     - os: linux
       sudo: required
