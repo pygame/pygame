@@ -1806,6 +1806,7 @@ surf_convert(PyObject *self, PyObject *args)
             newsurf = SDL_ConvertSurface(surf, &format, flags);
 #else /* IS_SDLv2 */
             newsurf = SDL_ConvertSurface(surf, &format, 0);
+            SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
 #endif /* IS_SDLv2 */
 
         }
@@ -1817,6 +1818,8 @@ surf_convert(PyObject *self, PyObject *args)
 #else  /* IS_SDLv2 */
     else {
         newsurf = pg_DisplayFormat(surf);
+        SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_NONE);
+
     }
 
     if (has_colorkey) {
@@ -1933,6 +1936,7 @@ surf_convert_alpha(PyObject *self, PyObject *args)
      * support for alpha
      */
     newsurf = pg_DisplayFormatAlpha(surf);
+    SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND);
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
 #else /* IS_SDLv1 */
     pgSurface_Prep(self);
