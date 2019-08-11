@@ -27,6 +27,7 @@
 #include "pygame.h"
 
 #include "pgcompat.h"
+#include "pgopengl.h"
 
 #include "doc/display_doc.h"
 
@@ -58,6 +59,8 @@ typedef struct _display_state_s {
     PyObject *icon;
     Uint16 *gamma_ramp;
     SDL_GLContext gl_context;
+    int toggle_windowed_w;
+    int toggle_windowed_h;
     Uint8 using_gl; /* using an OPENGL display without renderer */
 } _DisplayState;
 
@@ -782,6 +785,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     if (w < 0 || h < 0)
         return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
 
+    //TODO: handle zeroes better
+    // this can never be false in this IFDEF
     if (w == 0 || h == 0) {
         SDL_version versioninfo;
         SDL_VERSION(&versioninfo);
@@ -808,6 +813,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
 
     state->using_gl = (flags & PGS_OPENGL) != 0;
+    state->toggle_windowed_w=0;
+    state->toggle_windowed_h=0;
 
     if (pg_texture){
         SDL_DestroyTexture(pg_texture);
@@ -821,12 +828,28 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     {
         Uint32 sdl_flags = 0;
+        SDL_DisplayMode display_mode;
+
+        if (flags & PGS_SCALED || flags & PGS_FULLSCREEN){
+            if (SDL_GetDesktopDisplayMode(display, &display_mode) != 0) {
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            }
+        }
 
         if (flags & PGS_FULLSCREEN){
             if (flags & PGS_SCALED){
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-            } else if (w == 0 && h == 0) {
+
+            } else if ((w == 0 && h == 0)
+                /* We are free to choose a resolution in this case, so we can
+                   avoid changing the physical resolution. This used to default
+                   to the max supported by the monitor, but we can use current
+                   desktop resolution without breaking compatibility. */
+                   || (w == display_mode.w && h == display_mode.h)) {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+                w = display_mode.w;
+                h = display_mode.h;
+
             } else {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN;
             }
@@ -872,7 +895,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
             int w_1, h_1;
             int scale = 1;
-            SDL_DisplayMode dm;
 
             if(win){
                 if (SDL_GetWindowDisplayIndex(win) == display) {
@@ -885,23 +907,16 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
             }
 
-            if (SDL_GetDesktopDisplayMode(display, &dm) != 0) {
-                return RAISE(pgExc_SDLError, SDL_GetError());
-            }
-
             if (flags & PGS_SCALED){
                 if (!(flags & PGS_FULLSCREEN)) {
                     int xscale, yscale;
 
-                    xscale = dm.w / w;
-                    yscale = dm.h / h;
+                    xscale = display_mode.w / w;
+                    yscale = display_mode.h / h;
                     scale = xscale < yscale ? xscale : yscale;
                     if (scale < 1)
                         scale = 1;
                 }
-            } else if ((w == 0 && h == 0) && flags & PGS_FULLSCREEN) {
-                w = dm.w;
-                h = dm.h;
             }
 
             w_1 = w * scale;
@@ -1020,7 +1035,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         /*no errors; make the window available*/
         pg_SetDefaultWindow(win);
         pg_SetDefaultWindowSurface(surface);
-        if(state->using_gl || flags & PGS_SCALED)
+        if(state->using_gl)
             ((pgSurfaceObject*)surface)->owner = 1;
         Py_DECREF(surface);
     }
@@ -2013,30 +2028,51 @@ static PyObject *
 pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
-    int result;
-    int ww, wh;
-    SDL_DisplayMode dm;
+    int result, flags;
+    int window_w, window_h, w, h, window_display;
+    SDL_DisplayMode display_mode;
+    pgSurfaceObject *display_surface;
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
+    GL_glViewport_Func p_glViewport = NULL;
 
     VIDEO_INIT_CHECK();
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
-    SDL_GetWindowSize(win, &ww, &wh);
-    if (SDL_GetDesktopDisplayMode(
-            SDL_GetWindowDisplayIndex(win), &dm) != 0) {
+    flags = SDL_GetWindowFlags(win) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+    display_surface = pg_GetDefaultWindowSurface();
+
+    //could also take the size of the old display surface
+    SDL_GetWindowSize(win, &window_w, &window_h);
+    window_display=SDL_GetWindowDisplayIndex(win);
+    if (SDL_GetDesktopDisplayMode(window_display, &display_mode) != 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    if (SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP){
+    /*
+      if (pg_renderer != NULL) {
+        SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
+    }
+    */
+    if (state->using_gl){
+        p_glViewport =
+            (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
+        SDL_GL_GetDrawableSize(win, &w, &h);
+    } else {
+        w=display_surface->surf->w;
+        h=display_surface->surf->h;
+    }
+
+    if (flags & SDL_WINDOW_FULLSCREEN) {
+        /* TOGGLE FULLSCREEN OFF */
+
         if (pg_renderer != NULL) {
-            int w, h;
-            SDL_Rect rect;
             int scale = 1;
             int xscale, yscale;
 
-            SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
-            xscale = ww / w;
-            yscale = wh / h;
+            xscale = window_w / w;
+            yscale = window_h / h;
             scale = xscale < yscale ? xscale : yscale;
             if (scale < 1)
                 scale = 1;
@@ -2044,27 +2080,48 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             result = SDL_SetWindowFullscreen(win, 0);
             SDL_SetWindowSize(win, w * scale, h * scale);
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
-        } else {
-            PyObject *surface = pg_GetDefaultWindowSurface();
+        } else if (state -> using_gl) {
             result = SDL_SetWindowFullscreen(win, 0);
-            pgSurface_AsSurface(surface) = SDL_GetWindowSurface(win);
+            SDL_GL_MakeCurrent(win, state-> gl_context);
+            if (state->toggle_windowed_w>0
+                && state->toggle_windowed_h>0) {
+                p_glViewport(0, 0,
+                             state->toggle_windowed_w,
+                             state->toggle_windowed_h);
+                state->toggle_windowed_w=0;
+                state->toggle_windowed_h=0;
+            }
+        } else if (flags == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+            result = SDL_SetWindowFullscreen(win, 0);
+            display_surface->surf = SDL_GetWindowSurface(win);
+        } else {
+            SDL_DestroyWindow(win);
+            win = SDL_CreateWindow(state->title,
+                                   0, 0, w, h, 0);
+            display_surface->surf = SDL_GetWindowSurface(win);
+            pg_SetDefaultWindow(win);
         }
     } else {
+        /* TOGGLE FULLSCREEN ON */
+
         if (pg_renderer != NULL) {
-            int w, h;
-            SDL_Rect rect;
-            SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
             result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
+        } else if (state -> using_gl) {
+            state->toggle_windowed_w=w;
+            state->toggle_windowed_h=h;
+            result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            SDL_GL_MakeCurrent(win, state-> gl_context);
+            p_glViewport(0,0,display_mode.w,display_mode.h);
+        }  else if ( w == display_mode.w
+                  && h == display_mode.h ) {
+            result = SDL_SetWindowFullscreen(win,
+                                             SDL_WINDOW_FULLSCREEN_DESKTOP);
+            display_surface->surf = SDL_GetWindowSurface(win);
         } else {
-            if ( ww == dm.w && wh == dm.h ) {
-                PyObject *surface = pg_GetDefaultWindowSurface();
-                result = SDL_SetWindowFullscreen(win,
-                                                 SDL_WINDOW_FULLSCREEN_DESKTOP);
-                pgSurface_AsSurface(surface) = SDL_GetWindowSurface(win);
-            } else {
-                result = -1;
-            }
+            result = SDL_SetWindowFullscreen(win,
+                                             SDL_WINDOW_FULLSCREEN);
+            display_surface->surf = SDL_GetWindowSurface(win);
         }
     }
     return PyInt_FromLong(result != 0);
