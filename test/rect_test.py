@@ -645,8 +645,6 @@ class RectTypeTest(unittest.TestCase):
 
                 self.assertTupleEqual(collide_item, expected_item)
 
-    # This decorator can be removed when issue #1197 is resolved.
-    @unittest.expectedFailure
     def test_collidedict__zero_sized_rects(self):
         """Ensures collidedict works correctly with zero sized rects.
 
@@ -683,8 +681,6 @@ class RectTypeTest(unittest.TestCase):
 
                 self.assertIsNone(collide_item)
 
-    # This decorator can be removed when issue #1197 is resolved.
-    @unittest.expectedFailure
     def test_collidedict__zero_sized_rects_as_args(self):
         """Ensures collidedict works correctly with zero sized rects as args.
 
@@ -903,8 +899,6 @@ class RectTypeTest(unittest.TestCase):
 
                 self._assertCountEqual(collide_items, expected_items)
 
-    # This decorator can be removed when issue #1197 is resolved.
-    @unittest.expectedFailure
     def test_collidedictall__zero_sized_rects(self):
         """Ensures collidedictall works correctly with zero sized rects.
 
@@ -943,8 +937,6 @@ class RectTypeTest(unittest.TestCase):
 
                 self._assertCountEqual(collide_items, expected_items)
 
-    # This decorator can be removed when issue #1197 is resolved.
-    @unittest.expectedFailure
     def test_collidedictall__zero_sized_rects_as_args(self):
         """Ensures collidedictall works correctly with zero sized rects
         as args.
