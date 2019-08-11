@@ -364,6 +364,8 @@ _pg_name_from_eventtype(int type)
         case SDL_NOEVENT:
             return "NoEvent";
 #if IS_SDLv2
+        case SDL_WINDOWEVENT:
+            return "WindowEvent";
         case SDL_FINGERMOTION:
             return "FingerMotion";
         case SDL_FINGERDOWN:
