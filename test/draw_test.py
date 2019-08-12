@@ -4571,8 +4571,11 @@ class DrawCircleMixin(object):
         surface = pygame.Surface((30, 30), 0, 32)
         surf_rect = surface.get_rect()
         # Make a rect that is bigger than the surface to help test drawing
-        # circles off and partially off the surface.
-        big_rect = surf_rect.inflate(max_radius * 3, max_radius * 3)
+        # circles off and partially off the surface. Make this rect such that
+        # when centering the test circle on one of its corners, the circle is
+        # drawn fully off the test surface, but a rect bounding the circle
+        # would still overlap with the test surface.
+        big_rect = surf_rect.inflate(max_radius * 2 - 1, max_radius * 2 - 1)
 
         for pos in (rect_corners_mids_and_center(surf_rect) +
                     rect_corners_mids_and_center(big_rect)):
