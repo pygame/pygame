@@ -982,7 +982,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 if (pg_renderer==NULL){
                     SDL_RendererInfo info;
 
-                    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+                    SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
+                                            "nearest", SDL_HINT_DEFAULT);
                     pg_renderer = SDL_CreateRenderer(win, -1, 0);
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
 
