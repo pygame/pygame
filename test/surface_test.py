@@ -720,6 +720,21 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
+    def test_convert_alpha_SRCALPHA(self):
+        """ Ensure that the surface returned by surf.convert_alpha()
+            has alpha blending enabled"""
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((640,480))
+
+            s1=pygame.Surface((100,100), 0 ,32)
+            #s2=pygame.Surface((100,100), pygame.SRCALPHA, 32)
+            s1_alpha=s1.convert_alpha()
+            self.assertEqual(s1_alpha.get_flags() & SRCALPHA, SRCALPHA)
+            self.assertEqual(s1_alpha.get_alpha(), 255)
+        finally:
+            pygame.display.quit()
+
     def todo_test_convert(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:

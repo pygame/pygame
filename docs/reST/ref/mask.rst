@@ -572,7 +572,7 @@ to store which parts collide.
 
       | :sl:`Returns a surface with the mask drawn on it`
       | :sg:`to_surface() -> Surface`
-      | :sg:`to_surface(surface=None, setsurface=None, unsetsurface=None, setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 255)) -> Surface`
+      | :sg:`to_surface(surface=None, setsurface=None, unsetsurface=None, setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 255), dest=(0, 0)) -> Surface`
 
       Draws this mask on the given surface. Set bits (bits set to 1) and unset
       bits (bits set to 0) can be drawn onto a surface.
@@ -603,10 +603,25 @@ to store which parts collide.
          over this parameter
       :type unsetcolor: Color or int or tuple(int, int, int, [int]) or
          list(int, int, int, [int]) or None
+      :param dest: (optional) surface destination of where to position the
+         topleft corner of the mask being drawn (default is ``(0, 0)``), if a
+         Rect is used as the ``dest`` parameter, its ``x`` and ``y`` attributes
+         will be used as the destination, **NOTE1:** rects with a negative width
+         or height value will not be normalized before using their ``x`` and
+         ``y`` values, **NOTE2:** this destination value is only used to
+         position the mask on the surface, it does not offset the ``setsurface``
+         and ``unsetsurface`` from the mask, they are always aligned with the
+         mask (i.e. position ``(0, 0)`` on the mask always corresponds to
+         position ``(0, 0)`` on the ``setsurface`` and ``unsetsurface``)
+      :type dest: Rect or tuple(int, int) or list(int, int) or Vector2(int, int)
 
       :returns: the ``surface`` parameter (or a newly created surface if no
          ``surface`` parameter was provided) with this mask drawn on it
       :rtype: Surface
+
+      :raises ValueError: if the ``setsurface`` parameter or ``unsetsurface``
+         parameter does not have the same format (bytesize/bitsize/alpha) as
+         the ``surface`` parameter
 
       .. note ::
          To skip drawing the set bits, both ``setsurface`` and ``setcolor`` must
