@@ -4,7 +4,7 @@
 #define DOC_PYGAMEKEYGETPRESSED "get_pressed() -> bools\nget the state of all keyboard buttons"
 #define DOC_PYGAMEKEYGETMODS "get_mods() -> int\ndetermine which modifier keys are being held"
 #define DOC_PYGAMEKEYSETMODS "set_mods(int) -> None\ntemporarily set which modifier keys are pressed"
-#define DOC_PYGAMEKEYSETREPEAT "set_repeat() -> None\nset_repeat(delay, interval) -> None\ncontrol how held keys are repeated"
+#define DOC_PYGAMEKEYSETREPEAT "set_repeat() -> None\nset_repeat(delay) -> None\nset_repeat(delay, interval) -> None\ncontrol how held keys are repeated"
 #define DOC_PYGAMEKEYGETREPEAT "get_repeat() -> (delay, interval)\nsee how held keys are repeated"
 #define DOC_PYGAMEKEYNAME "name(key) -> string\nget the name of a key identifier"
 #define DOC_PYGAMEKEYSTARTTEXTINPUT "start_text_input() -> None\nstart handling IME compositions"
@@ -37,6 +37,7 @@ temporarily set which modifier keys are pressed
 
 pygame.key.set_repeat
  set_repeat() -> None
+ set_repeat(delay) -> None
  set_repeat(delay, interval) -> None
 control how held keys are repeated
 
