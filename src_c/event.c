@@ -1848,7 +1848,7 @@ MODINIT_DEFINE(event)
 
 #if IS_SDLv2
     if (!have_registered_events) {
-        int numevents = SDL_NUMEVENTS - SDL_USEREVENT;
+        int numevents = SDL_ACTIVEEVENT - SDL_USEREVENT;
         Uint32 user_event = SDL_RegisterEvents(numevents);
 
         if (user_event == (Uint32)-1) {
