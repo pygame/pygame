@@ -14,9 +14,10 @@ The :mod:`pygame.event` queue gets ``pygame.KEYDOWN`` and ``pygame.KEYUP``
 events when the keyboard buttons are pressed and released. Both events have
 ``key`` and ``mod`` attributes.
 
-   * ``key``: an integer ID representing every key on the keyboard
-   * ``mod``: a bitmask of all the modifier keys that were in a pressed state
-     when the event occurred
+   * ``key``: an :ref:`integer ID <key-constants-label>` representing every key
+     on the keyboard
+   * ``mod``: a bitmask of all the :ref:`modifier keys <key-modifiers-label>`
+     that were in a pressed state when the event occurred
 
 The ``pygame.KEYDOWN`` event has the additional attributes ``unicode`` and
 ``scancode``.
@@ -31,7 +32,11 @@ The ``pygame.KEYDOWN`` event has the additional attributes ``unicode`` and
     The ``pygame.TEXTINPUT`` event is preferred to the ``unicode`` attribute
     of ``pygame.KEYDOWN``. The attribute ``text`` contains the input.
 
-The following is a list of all the constants used to represent keyboard keys.
+
+.. _key-constants-label:
+
+The following is a list of all the constants (from :mod:`pygame.locals`) used to
+represent keyboard keys.
 
 ::
 
@@ -175,8 +180,8 @@ The following is a list of all the constants used to represent keyboard keys.
 
 .. _key-modifiers-label:
 
-The keyboard also has a list of modifier states that can be assembled by
-bitwise-ORing them together.
+The keyboard also has a list of modifier states (from :mod:`pygame.locals`) that
+can be assembled by bitwise-ORing them together.
 
 ::
 
