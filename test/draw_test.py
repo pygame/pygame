@@ -765,6 +765,44 @@ class DrawEllipseMixin(object):
             self._check_1_pixel_sized_ellipse(surface, rect, surface_color,
                                               ellipse_color)
 
+    # This decorator can be removed when issue #1241 is resolved.
+    @unittest.expectedFailure
+    def test_ellipse__bounding_rect(self):
+        """Ensures draw ellipse returns the correct bounding rect.
+
+        Tests ellipses on and off the surface and a range of width/thickness
+        values.
+        """
+        ellipse_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        min_width = min_height = 5
+        max_width = max_height = 7
+        surface = pygame.Surface((30, 30), 0, 32)
+        surf_rect = surface.get_rect()
+        # Make a rect that is bigger than the surface to help test drawing
+        # ellipses off and partially off the surface.
+        big_rect = surf_rect.inflate(max_width * 2 - 2, max_height * 2 - 2)
+
+        for pos in (rect_corners_mids_and_center(surf_rect) +
+                    rect_corners_mids_and_center(big_rect)):
+            # Test using different rect sizes and thickness values.
+            for width in range(min_width, max_width + 1):
+                for height in range(min_height, max_height + 1):
+                    ellipse_rect = pygame.Rect(pos, (width, height))
+
+                    for thickness in range(min(width, height) + 1):
+                        surface.fill(surf_color) # Clear for each test.
+
+                        bounding_rect = self.draw_ellipse(
+                            surface, ellipse_color, ellipse_rect, thickness)
+
+                        # Calculating the expected_rect after the ellipse is
+                        # drawn (it uses what is actually drawn).
+                        expected_rect = create_bounding_rect(surface, pos,
+                                                             surf_color)
+
+                        self.assertEqual(bounding_rect, expected_rect)
+
     def test_ellipse__surface_clip(self):
         """Ensures draw ellipse respects a surface's clip area.
 
@@ -4590,7 +4628,6 @@ class DrawCircleMixin(object):
                                                          surf_color)
 
                     self.assertEqual(bounding_rect, expected_rect)
-
 
     def test_circle__surface_clip(self):
         """Ensures draw circle respects a surface's clip area.
