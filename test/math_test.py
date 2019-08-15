@@ -2,7 +2,6 @@
 import sys
 import unittest
 import math
-from time import clock
 import platform
 
 import pygame.math
