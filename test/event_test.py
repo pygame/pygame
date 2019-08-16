@@ -48,7 +48,7 @@ NAMES_AND_EVENTS = (
 
     ('UserEvent', pygame.USEREVENT),
     ('UserEvent', pygame.USEREVENT + 1),
-    ('UserEvent', pygame.ACTIVEEVENT - 1),
+    ('UserEvent', pygame.USEREVENT - 1),
 
     ('Unknown', 0xFFFF),
 )

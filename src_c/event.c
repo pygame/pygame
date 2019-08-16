@@ -1627,11 +1627,12 @@ pg_event_post(PyObject *self, PyObject *args)
 static int
 _pg_check_event_in_range(int evt)
 {
-#if IS_SDLv1
+// #if IS_SDLv1
+//     return evt >= 0 && evt < SDL_NUMEVENTS;
+// #else /* IS_SDLv2 */
+//     return evt >= 0 && evt < PGE_EVENTEND; /* needed for extras */
+// #endif /* IS_S*DLv2 */
     return evt >= 0 && evt < SDL_NUMEVENTS;
-#else /* IS_SDLv2 */
-    return evt >= 0 && evt < PGE_EVENTEND; /* needed for extras */
-#endif /* IS_SDLv2 */
 }
 
 static PyObject *
@@ -1848,7 +1849,7 @@ MODINIT_DEFINE(event)
 
 #if IS_SDLv2
     if (!have_registered_events) {
-        int numevents = SDL_ACTIVEEVENT - SDL_USEREVENT;
+        int numevents = SDL_NUMEVENTS - SDL_USEREVENT;
         Uint32 user_event = SDL_RegisterEvents(numevents);
 
         if (user_event == (Uint32)-1) {
@@ -1863,7 +1864,7 @@ MODINIT_DEFINE(event)
             MODINIT_ERROR;
         }
 
-        if (SDL_RegisterEvents(PGE_NUMEVENTS) != PGE_EVENTBEGIN) {
+        if (SDL_RegisterEvents(PGE_NUMEVENTS) != SDL_NUMEVENTS) {
             PyErr_SetString(PyExc_ImportError,
                             "Unable to register pygame events");
             DECREF_MOD(module);

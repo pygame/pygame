@@ -29,7 +29,7 @@
 #define WORST_CLOCK_ACCURACY 12
 
 #if IS_SDLv2
-#define pgNUMEVENTS (16 + (SDL_NUMEVENTS - SDL_USEREVENT))
+#define pgNUMEVENTS (16 + (SDL_NUMEVENTS - PGE_USEREVENT))
 #else /* IS_SDLv1 */
 #define pgNUMEVENTS SDL_NUMEVENTS
 #endif /* IS_SDLv1 */
@@ -40,7 +40,7 @@ static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
 static size_t
 enumerate_event(Uint32 type)
 {
-    assert(pgNUMEVENTS == 1 + 15 + (SDL_NUMEVENTS - SDL_USEREVENT));
+    assert(pgNUMEVENTS == 1 + 15 + (SDL_NUMEVENTS - PGE_USEREVENT));
     switch (type) {
         case SDL_ACTIVEEVENT:
             return 1;
