@@ -73,8 +73,8 @@ enumerate_event(Uint32 type)
         case SDL_SYSWMEVENT:
             return 15;
     }
-    if (type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
-        return type - SDL_USEREVENT + 16;
+    if (type >= PGE_USEREVENT && type < SDL_NUMEVENTS)
+        return type - PGE_USEREVENT + 16;
     return 0;
 }
 #endif /* IS_SDLv2 */
