@@ -90,9 +90,9 @@ if pygame.get_sdl_version()[0] >= 2:
     if pygame.get_sdl_version() >= (2, 0, 5):
         NAMES_AND_EVENTS += (
             # These can be corrected when issue #1223 is resolved.
-            ('Unknown', pygame.DROPTEXT), # Should be: 'DropText'
-            ('Unknown', pygame.DROPBEGIN), # Should be: 'DropBegin'
-            ('Unknown', pygame.DROPCOMPLETE), # Should be: 'DropComplete'
+            ('DropText', pygame.DROPTEXT),
+            ('DropBegin', pygame.DROPBEGIN),
+            ('DropComplete', pygame.DROPCOMPLETE),
         )
 
 
