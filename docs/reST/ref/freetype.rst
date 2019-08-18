@@ -225,7 +225,7 @@ loaded. This module must be imported explicitly to be used. ::
       | :sg:`size -> (float, float)`
 
       Get or set the default size for text metrics and rendering. It can be
-      a single point size, given as an Python ``int`` or ``float``, or a
+      a single point size, given as a Python ``int`` or ``float``, or a
       font ppem (width, height) ``tuple``. Size values are non-negative.
       A zero size or width represents an undefined size. In this case
       the size must be given as a method argument, or an exception is
