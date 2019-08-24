@@ -795,12 +795,12 @@ def main(mode='output', device_id=None):
         print_device_info()
     else:
         raise ValueError("Unknown mode option '%s'" % mode)
-                
+
 if __name__ == '__main__':
 
     try:
         device_id = int( sys.argv[-1] )
-    except:
+    except ValueError:
         device_id = None
 
     if "--input" in sys.argv or "-i" in sys.argv:
