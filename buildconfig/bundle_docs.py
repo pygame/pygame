@@ -49,7 +49,7 @@ def main():
         version = '-%s' % match.group(1)
 
     bundle_name = 'pygame%s-docs-and-examples.tar.gz' % version
-    print("Creating bundle".format(bundle_name))
+    print("Creating bundle {}".format(bundle_name))
 
     with tarfile.open(bundle_name, 'w:gz') as bundle:
         root = os.path.abspath('.')
