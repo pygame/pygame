@@ -2039,6 +2039,8 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
     pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     GL_glViewport_Func p_glViewport = NULL;
+    SDL_SysWMinfo info;
+
 
     VIDEO_INIT_CHECK();
     if (!win)
@@ -2046,6 +2048,39 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 
     flags = SDL_GetWindowFlags(win) &
             (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+    SDL_VERSION(&info.version);
+    SDL_GetWindowWMInfo(win, &info);
+    switch(info.subsystem) {
+
+      // if we get this to work correctly with more systems, move them here
+      case SDL_SYSWM_X11:
+	break; 
+
+      case SDL_SYSWM_WINDOWS:
+#if SDL_VERSION_ATLEAST(2, 0, 3)
+      case SDL_SYSWM_WINRT:
+#endif
+      case SDL_SYSWM_DIRECTFB:
+      case SDL_SYSWM_COCOA:
+      case SDL_SYSWM_UIKIT:
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+      case SDL_SYSWM_WAYLAND:
+      case SDL_SYSWM_MIR:
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+      case SDL_SYSWM_ANDROID:
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+      case SDL_SYSWM_VIVANTE:
+#endif
+    // everything that doesn't work will fallthrough to here
+    // this includes windows and mac as of now.
+    // not raising an exception here is deliberate,
+    // for backwards compatibility
+    case SDL_SYSWM_UNKNOWN:
+	return PyInt_FromLong(-1);
+    }
 
     display_surface = pg_GetDefaultWindowSurface();
 
