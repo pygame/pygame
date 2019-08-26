@@ -51,13 +51,72 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual((r.right, r.centery), r.midright)
 
     def test_normalize(self):
-        r = Rect(1, 2, -3, -6)
-        r2 = Rect(r)
-        r2.normalize()
-        self.assertTrue(r2.width >= 0)
-        self.assertTrue(r2.height >= 0)
-        self.assertEqual((abs(r.width), abs(r.height)), r2.size)
-        self.assertEqual((-2, -4), r2.topleft)
+        """Ensures normalize works when width and height are both negative."""
+        test_rect = Rect((1, 2), (-3, -6))
+        expected_normalized_rect = (
+            (test_rect.x + test_rect.w, test_rect.y + test_rect.h),
+            (-test_rect.w, -test_rect.h))
+
+        test_rect.normalize()
+
+        self.assertEqual(test_rect, expected_normalized_rect)
+
+    def test_normalize__positive_height(self):
+        """Ensures normalize works with a negative width and a positive height.
+        """
+        test_rect = Rect((1, 2), (-3, 6))
+        expected_normalized_rect = ((test_rect.x + test_rect.w, test_rect.y),
+                                    (-test_rect.w, test_rect.h))
+
+        test_rect.normalize()
+
+        self.assertEqual(test_rect, expected_normalized_rect)
+
+    def test_normalize__positive_width(self):
+        """Ensures normalize works with a positive width and a negative height.
+        """
+        test_rect = Rect((1, 2), (3, -6))
+        expected_normalized_rect = ((test_rect.x, test_rect.y + test_rect.h),
+                                    (test_rect.w, -test_rect.h))
+
+        test_rect.normalize()
+
+        self.assertEqual(test_rect, expected_normalized_rect)
+
+    def test_normalize__zero_height(self):
+        """Ensures normalize works with a negative width and a zero height."""
+        test_rect = Rect((1, 2), (-3, 0))
+        expected_normalized_rect = ((test_rect.x + test_rect.w, test_rect.y),
+                                    (-test_rect.w, test_rect.h))
+
+        test_rect.normalize()
+
+        self.assertEqual(test_rect, expected_normalized_rect)
+
+    def test_normalize__zero_width(self):
+        """Ensures normalize works with a zero width and a negative height."""
+        test_rect = Rect((1, 2), (0, -6))
+        expected_normalized_rect = ((test_rect.x, test_rect.y + test_rect.h),
+                                    (test_rect.w, -test_rect.h))
+
+        test_rect.normalize()
+
+        self.assertEqual(test_rect, expected_normalized_rect)
+
+    def test_normalize__non_negative(self):
+        """Ensures normalize works when width and height are both non-negative.
+
+        Tests combinations of positive and zero values for width and height.
+        The normalize method has no impact when both width and height are
+        non-negative.
+        """
+        for size in ((3, 6), (3, 0), (0, 6), (0, 0)):
+            test_rect = Rect((1, 2), size)
+            expected_normalized_rect = Rect(test_rect)
+
+            test_rect.normalize()
+
+            self.assertEqual(test_rect, expected_normalized_rect)
 
     def test_x(self):
         """Ensures changing the x attribute moves the rect and does not change
