@@ -277,6 +277,10 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
 
     retval = Bytes_FromStringAndSize(scrap, count);
+#if defined(PYGAME_SCRAP_FREE_STRING)
+    free(scrap);
+#endif
+   
     return retval;
 }
 #endif

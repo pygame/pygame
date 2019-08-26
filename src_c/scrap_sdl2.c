@@ -1,12 +1,15 @@
 #include "SDL.h"
 #include "SDL_clipboard.h"
 
-char *plaintext_type = "text/plain;charset=utf-8";
+#define PYGAME_SCRAP_FREE_STRING 1
+
+char *pygame_scrap_plaintext_type = "text/plain;charset=utf-8";
+char **pygame_scrap_types;
 
 int
 pygame_scrap_contains(char *type)
 {
-    return (strcmp(type, plaintext_type) == 0) && SDL_HasClipboardText();
+    return (strcmp(type, pygame_scrap_plaintext_type) == 0) && SDL_HasClipboardText();
 }
 
 char *
@@ -20,7 +23,7 @@ pygame_scrap_get(char *type, unsigned long *count)
         return NULL;
     }
 
-    if (strcmp(type, plaintext_type) == 0) {
+    if (strcmp(type, pygame_scrap_plaintext_type) == 0) {
         clipboard = SDL_GetClipboardText();
         if (clipboard != NULL) {
             *count = strlen(clipboard);
@@ -35,21 +38,26 @@ pygame_scrap_get(char *type, unsigned long *count)
 char **
 pygame_scrap_get_types(void)
 {
-    char **types;
-    types = malloc(sizeof(char *) * 2);
-    if (!types)
+      if (!pygame_scrap_initialized()) {
+        PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return NULL;
+    }
 
-    types[0] = strdup(plaintext_type);
-    types[1] = NULL;
-
-    return types;
+    return pygame_scrap_types;
 }
 
 int
 pygame_scrap_init(void)
 {
     SDL_Init(SDL_INIT_VIDEO);
+
+    pygame_scrap_types = malloc(sizeof(char *) * 2);
+    if (!pygame_scrap_types)
+        return NULL;
+
+    pygame_scrap_types[0] = pygame_scrap_plaintext_type;
+    pygame_scrap_types[1] = NULL;
+
     _scrapinitialized = 1;
     return _scrapinitialized;
 }
@@ -67,7 +75,8 @@ pygame_scrap_put(char *type, int srclen, char *src)
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
-    if (strcmp(type, plaintext_type) == 0) {
+    
+    if (strcmp(type, pygame_scrap_plaintext_type) == 0) {
         if (SDL_SetClipboardText(src) == 0) {
             return 1;
         }
