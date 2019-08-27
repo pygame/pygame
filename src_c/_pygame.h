@@ -78,15 +78,21 @@ typedef enum {
 } PygameMouseFlags;
 
 typedef enum {
+    /* Any SDL_* events here are for backward compatibility. */
     SDL_NOEVENT = 0,
-    /* SDL 1.2 allowed for 8 user defined events. */
-    SDL_NUMEVENTS = SDL_USEREVENT + (32768/4),
-    SDL_ACTIVEEVENT = SDL_NUMEVENTS,
-    PGE_EVENTBEGIN = SDL_NUMEVENTS,
+
+    /* pygame events */
+    PGE_EVENTBEGIN = SDL_USEREVENT, /* Not an event. Indicates start of pygame events. */
+    SDL_ACTIVEEVENT = PGE_EVENTBEGIN,
     SDL_VIDEORESIZE,
     SDL_VIDEOEXPOSE,
     PGE_KEYREPEAT,
-    PGE_EVENTEND
+    PGE_EVENTEND, /* Not an event. Indicates end of pygame events. */
+
+    /* User event range. */
+    /* SDL 1.2 allowed for 8 user defined events. */
+    PGE_USEREVENT = PGE_EVENTEND,
+    SDL_NUMEVENTS = PGE_USEREVENT + 0x2000 /* Not an event. Indicates end of user events. */
 } PygameEventCode;
 
 #define PGE_NUMEVENTS (PGE_EVENTEND - PGE_EVENTBEGIN)
