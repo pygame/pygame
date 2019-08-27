@@ -382,14 +382,14 @@ _pg_name_from_eventtype(int type)
             return "TextEditing";
         case SDL_DROPFILE:
             return "DropFile";
-#ifdef SDL_DROPTEXT
+#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             return "DropText";
         case SDL_DROPBEGIN:
             return "DropBegin";
         case SDL_DROPCOMPLETE:
             return "DropComplete";
-#endif
+#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
         case SDL_CONTROLLERAXISMOTION:
             return "ControllerAxisMotion";
         case SDL_CONTROLLERBUTTONDOWN:
@@ -671,7 +671,7 @@ dict_from_event(SDL_Event *event)
             SDL_free(event->drop.file);
             break;
 
-#ifdef SDL_DROPTEXT
+#if SDL_VERSION_ATLEAST(2, 0, 5)
         case SDL_DROPTEXT:
             _pg_insobj(dict, "text", Text_FromUTF8(event->drop.file));
             SDL_free(event->drop.file);
@@ -679,7 +679,7 @@ dict_from_event(SDL_Event *event)
         case SDL_DROPBEGIN:
         case SDL_DROPCOMPLETE:
             break;
-#endif
+#endif /* SDL_VERSION_ATLEAST(2, 0, 5) */
 
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
