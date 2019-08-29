@@ -58,6 +58,15 @@ def zero_size_pairs(width, height):
     return ((a, b) for a in sizes for b in sizes if 0 in a or 0 in b)
 
 
+def corners(mask):
+    """Returns a tuple with the corner positions of the given mask.
+
+    Clockwise from the top left corner.
+    """
+    width, height = mask.get_size()
+    return ((0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1))
+
+
 def assertSurfaceFilled(testcase, surface, expected_color, area_rect=None):
         """Checks to see if the given surface is filled with the given color.
 
@@ -1405,9 +1414,14 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(count, expected_count)
         self.assertEqual(mask.get_size(), expected_size)
 
-    def todo_test_centroid(self):
-        """Ensure a mask's centroid is correctly calculated."""
-        self.fail()
+    def test_centroid(self):
+        """Ensure a filled mask's centroid is correctly calculated."""
+        mask = pygame.mask.Mask((5, 7), fill=True)
+        expected_centroid = mask.get_rect().center
+
+        centroid = mask.centroid()
+
+        self.assertEqual(centroid, expected_centroid)
 
     def test_centroid__empty_mask(self):
         """Ensure an empty mask's centroid is correctly calculated."""
@@ -1419,6 +1433,117 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertEqual(centroid, expected_centroid)
         self.assertEqual(mask.get_size(), expected_size)
+
+    def test_centroid__single_row(self):
+        """Ensure a mask's centroid is correctly calculated
+        when setting points along a single row."""
+        width, height = (5, 7)
+        mask = pygame.mask.Mask((width, height))
+
+        for y in range(height):
+            mask.clear()  # Clear for each row.
+
+            for x in range(width):
+                mask.set_at((x, y))
+                expected_centroid = (x // 2, y)
+
+                centroid = mask.centroid()
+
+                self.assertEqual(centroid, expected_centroid)
+
+    def test_centroid__two_rows(self):
+        """Ensure a mask's centroid is correctly calculated
+        when setting points along two rows."""
+        width, height = (5, 7)
+        mask = pygame.mask.Mask((width, height))
+
+        # The first row is tested with each of the other rows.
+        for y in range(1, height):
+            mask.clear()  # Clear for each set of rows.
+
+            for x in range(width):
+                mask.set_at((x, 0))
+                mask.set_at((x, y))
+                expected_centroid = (x // 2, y // 2)
+
+                centroid = mask.centroid()
+
+                self.assertEqual(centroid, expected_centroid)
+
+    def test_centroid__single_column(self):
+        """Ensure a mask's centroid is correctly calculated
+        when setting points along a single column."""
+        width, height = (5, 7)
+        mask = pygame.mask.Mask((width, height))
+
+        for x in range(width):
+            mask.clear()  # Clear for each column.
+
+            for y in range(height):
+                mask.set_at((x, y))
+                expected_centroid = (x, y // 2)
+
+                centroid = mask.centroid()
+
+                self.assertEqual(centroid, expected_centroid)
+
+    def test_centroid__two_columns(self):
+        """Ensure a mask's centroid is correctly calculated
+        when setting points along two columns."""
+        width, height = (5, 7)
+        mask = pygame.mask.Mask((width, height))
+
+        # The first column is tested with each of the other columns.
+        for x in range(1, width):
+            mask.clear()  # Clear for each set of columns.
+
+            for y in range(height):
+                mask.set_at((0, y))
+                mask.set_at((x, y))
+                expected_centroid = (x // 2, y // 2)
+
+                centroid = mask.centroid()
+
+                self.assertEqual(centroid, expected_centroid)
+
+    def test_centroid__all_corners(self):
+        """Ensure a mask's centroid is correctly calculated
+        when its corners are set."""
+        mask = pygame.mask.Mask((5, 7))
+        expected_centroid = mask.get_rect().center
+
+        for corner in corners(mask):
+            mask.set_at(corner)
+
+        centroid = mask.centroid()
+
+        self.assertEqual(centroid, expected_centroid)
+
+    def test_centroid__two_corners(self):
+        """Ensure a mask's centroid is correctly calculated
+        when only two corners are set."""
+        mask = pygame.mask.Mask((5, 7))
+        mask_rect = mask.get_rect()
+        mask_corners = corners(mask)
+
+        for i, corner1 in enumerate(mask_corners):
+            for corner2 in mask_corners[i + 1:]:
+                mask.clear()  # Clear for each pair of corners.
+                mask.set_at(corner1)
+                mask.set_at(corner2)
+
+                if corner1[0] == corner2[0]:
+                    expected_centroid = (corner1[0],
+                                         abs(corner1[1] - corner2[1]) // 2)
+                elif corner1[1] == corner2[1]:
+                    expected_centroid = (abs(corner1[0] - corner2[0]) // 2,
+                                         corner1[1])
+                else:
+                    expected_centroid = mask_rect.center
+
+                centroid = mask.centroid()
+
+                self.assertEqual(centroid, expected_centroid)
 
     def todo_test_angle(self):
         """Ensure a mask's orientation angle is correctly calculated."""
