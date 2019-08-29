@@ -1760,11 +1760,11 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 
-int _custom_event = PGE_USEREVENT + 1;
+int _custom_event = PGE_USEREVENT;
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *args)
 {
-    int result = _custom_event + 1;
+    int result = _custom_event;
     if (result > SDL_NUMEVENTS) {
         return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
     }
