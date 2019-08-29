@@ -1764,12 +1764,11 @@ int _custom_event = PGE_USEREVENT;
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *args)
 {
-    int result = _custom_event;
-    if (result > SDL_NUMEVENTS) {
+    if (_custom_event > SDL_NUMEVENTS) {
         return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
     }
     _custom_event++;
-    return PyInt_FromLong(result);
+    return PyInt_FromLong(_custom_event);
 }
 
 static PyMethodDef _event_methods[] = {
