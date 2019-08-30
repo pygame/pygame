@@ -83,7 +83,7 @@ class Player(pygame.sprite.Sprite):
             self.image = self.images[0]
         elif direction > 0:
             self.image = self.images[1]
-        self.rect.top = self.origtop - (self.rect.left/self.bounce%2)
+        self.rect.top = self.origtop - (self.rect.left//self.bounce%2)
 
     def gunpos(self):
         pos = self.facing*self.gun_offset + self.rect.centerx
@@ -110,7 +110,7 @@ class Alien(pygame.sprite.Sprite):
             self.rect.top = self.rect.bottom + 1
             self.rect = self.rect.clamp(SCREENRECT)
         self.frame = self.frame + 1
-        self.image = self.images[self.frame/self.animcycle%3]
+        self.image = self.images[self.frame//self.animcycle%3]
 
 
 class Explosion(pygame.sprite.Sprite):
@@ -126,7 +126,7 @@ class Explosion(pygame.sprite.Sprite):
 
     def update(self):
         self.life = self.life - 1
-        self.image = self.images[self.life/self.animcycle%2]
+        self.image = self.images[self.life//self.animcycle%2]
         if self.life <= 0: self.kill()
 
 
@@ -242,7 +242,6 @@ def main(winstyle = 0):
     #Create Some Starting Values
     global score
     alienreload = ALIEN_RELOAD
-    kills = 0
     clock = pygame.time.Clock()
 
     #initialize our starting sprites

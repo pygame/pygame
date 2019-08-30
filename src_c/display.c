@@ -848,8 +848,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         if (flags & PGS_SHOWN)
             sdl_flags |= SDL_WINDOW_SHOWN;
         if (flags & PGS_HIDDEN)
-            sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
-        if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
+            sdl_flags |= SDL_WINDOW_HIDDEN;
+        if (!(sdl_flags & SDL_WINDOW_HIDDEN))
             sdl_flags |= SDL_WINDOW_SHOWN;
         if (flags & PGS_OPENGL) {
             if (flags & PGS_DOUBLEBUF) {

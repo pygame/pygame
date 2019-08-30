@@ -49,11 +49,11 @@ if [ "$TRAVIS_PULL_REQUEST" = "false" ] && ([ -n "$TRAVIS_TAG" ] || [ "$TRAVIS_B
 	# brew uninstall --force --ignore-dependencies sdl_mixer
 	# brew uninstall --force --ignore-dependencies sdl_ttf
 	# brew uninstall --force --ignore-dependencies smpeg
-  brew uninstall --force --ignore-dependencies sdl2
-  brew uninstall --force --ignore-dependencies sdl2_image
-  brew uninstall --force --ignore-dependencies sdl2_mixer
-  brew uninstall --force --ignore-dependencies sdl2_ttf
-  brew uninstall --force --ignore-dependencies smpeg2
+	brew uninstall --force --ignore-dependencies sdl2
+	brew uninstall --force --ignore-dependencies sdl2_image
+	brew uninstall --force --ignore-dependencies sdl2_mixer
+	brew uninstall --force --ignore-dependencies sdl2_ttf
+	#brew uninstall --force --ignore-dependencies smpeg2
 
 	brew uninstall --force --ignore-dependencies jpeg
 	brew uninstall --force --ignore-dependencies libpng
@@ -103,6 +103,8 @@ fi
 
 set +e
 
+# TODO: tap-pin deprecated. Need `brew install pygame/portmidi/sdl2`
+#       https://github.com/pygame/pygame/issues/1272
 brew tap pygame/portmidi
 brew tap-pin pygame/portmidi
 
@@ -120,7 +122,7 @@ install_or_upgrade flac ${UNIVERSAL_FLAG}
 install_or_upgrade fluid-synth
 install_or_upgrade libmikmod ${UNIVERSAL_FLAG}
 # install_or_upgrade smpeg
-install_or_upgrade smpeg2
+# install_or_upgrade smpeg2
 
 
 # Because portmidi hates us... and installs python2, which messes homebrew up.

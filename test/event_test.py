@@ -48,7 +48,6 @@ NAMES_AND_EVENTS = (
 
     ('UserEvent', pygame.USEREVENT),
     ('UserEvent', pygame.USEREVENT + 1),
-    ('UserEvent', pygame.NUMEVENTS - 1),
 
     ('Unknown', 0xFFFF),
 )
@@ -89,10 +88,9 @@ if pygame.get_sdl_version()[0] >= 2:
     # Add in any SDL 2.0.5 specific events.
     if pygame.get_sdl_version() >= (2, 0, 5):
         NAMES_AND_EVENTS += (
-            # These can be corrected when issue #1223 is resolved.
-            ('Unknown', pygame.DROPTEXT), # Should be: 'DropText'
-            ('Unknown', pygame.DROPBEGIN), # Should be: 'DropBegin'
-            ('Unknown', pygame.DROPCOMPLETE), # Should be: 'DropComplete'
+            ('DropText', pygame.DROPTEXT),
+            ('DropBegin', pygame.DROPBEGIN),
+            ('DropComplete', pygame.DROPCOMPLETE),
         )
 
 
