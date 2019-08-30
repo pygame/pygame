@@ -29,9 +29,9 @@
 #define WORST_CLOCK_ACCURACY 12
 
 #if IS_SDLv2
-#define pgNUMEVENTS (16 + (SDL_NUMEVENTS - PGE_USEREVENT))
+#define pgNUMEVENTS (16 + (PG_NUMEVENTS - PGE_USEREVENT))
 #else /* IS_SDLv1 */
-#define pgNUMEVENTS SDL_NUMEVENTS
+#define pgNUMEVENTS PG_NUMEVENTS
 #endif /* IS_SDLv1 */
 
 static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
@@ -40,7 +40,7 @@ static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
 static size_t
 enumerate_event(Uint32 type)
 {
-    assert(pgNUMEVENTS == 1 + 15 + (SDL_NUMEVENTS - PGE_USEREVENT));
+    assert(pgNUMEVENTS == 1 + 15 + (PG_NUMEVENTS - PGE_USEREVENT));
     switch (type) {
         case SDL_ACTIVEEVENT:
             return 1;
@@ -73,7 +73,7 @@ enumerate_event(Uint32 type)
         case SDL_SYSWMEVENT:
             return 15;
     }
-    if (type >= PGE_USEREVENT && type < SDL_NUMEVENTS)
+    if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
         return type - PGE_USEREVENT + 16;
     return 0;
 }
@@ -245,7 +245,7 @@ time_set_timer(PyObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "ii|i", &event, &ticks, &once))
         return NULL;
 
-    if (event <= SDL_NOEVENT || event >= SDL_NUMEVENTS)
+    if (event <= SDL_NOEVENT || event >= PG_NUMEVENTS)
         return RAISE(PyExc_ValueError,
                      "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
 
