@@ -774,26 +774,41 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. function:: collide_mask
 
    | :sl:`Collision detection between two sprites, using masks.`
-   | :sg:`collide_mask(SpriteLeft, SpriteRight) -> point`
-
-   Returns first point on the mask where the masks collided, or None if 
-   there was no collision.
+   | :sg:`collide_mask(sprite1, sprite2) -> (int, int)`
+   | :sg:`collide_mask(sprite1, sprite2) -> None`
 
    Tests for collision between two sprites, by testing if their bitmasks
-   overlap. If the sprites have a "mask" attribute, that is used as the mask,
-   otherwise a mask is created from the sprite image. Intended to be passed as
-   a collided callback function to the \*collide functions. Sprites must have a
-   "rect" and an optional "mask" attribute.
+   overlap (uses :func:`pygame.mask.Mask.overlap`). If the sprites have a
+   ``mask`` attribute, it is used as the mask, otherwise a mask is created from
+   the sprite's ``image`` (uses :func:`pygame.mask.from_surface`). Sprites must
+   have a ``rect`` attribute; the ``mask`` attribute is optional.
 
-   You should consider creating a mask for your sprite at load time if you 
-   are going to check collisions many times.  This will increase the 
-   performance, otherwise this can be an expensive function because it 
-   will create the masks each time you check for collisions.
+   The first point of collision between the masks is returned. The collision
+   point is offset from ``sprite1``'s mask's topleft corner (which is always
+   (0, 0)). The collision point is a position within the mask and is not
+   related to the actual screen position of ``sprite1``.
+
+   This function is intended to be passed as a ``collided`` callback function
+   to the group collide functions (see :meth:`spritecollide`,
+   :meth:`groupcollide`, :meth:`spritecollideany`).
+
+   .. note::
+      To increase performance, create and set a ``mask`` attibute for all
+      sprites that will use this function to check for collisions. Otherwise,
+      each time this function is called it will create new masks.
+
+   .. note::
+      A new mask needs to be recreated each time a sprite's image is changed
+      (e.g. if a new image is used or the existing image is rotated).
 
    ::
 
+      # Example of mask creation for a sprite.
       sprite.mask = pygame.mask.from_surface(sprite.image)
 
+   :returns: first point of collision between the masks or ``None`` if no
+      collision
+   :rtype: tuple(int, int) or NoneType
 
    .. versionadded:: 1.8.0
 
