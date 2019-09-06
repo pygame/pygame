@@ -35,6 +35,18 @@ matrix:
       python: 3.7
       dist: xenial
 
+    - os: linux-ppc64le
+      compiler: gcc
+      sudo: required
+      python: 3.7
+      dist: xenial
+
+    - os: linux-ppc64be
+      compiler: gcc
+      sudo: required
+      python: 3.7
+      dist: xenial
+
     - os: linux
       sudo: required
       python: 3.7
