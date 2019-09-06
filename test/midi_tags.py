@@ -1,1 +1,0 @@
-__tags__ = ['interactive']

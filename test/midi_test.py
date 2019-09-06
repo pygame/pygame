@@ -10,6 +10,7 @@ from pygame.locals import *
 
 
 class MidiInputTest(unittest.TestCase):
+    __tags__ = ['interactive']
 
     def setUp(self):
         pygame.midi.init()
@@ -25,9 +26,6 @@ class MidiInputTest(unittest.TestCase):
         pygame.midi.quit()
 
     def test_Input(self):
-        """|tags: interactive|
-        """
-
         i = pygame.midi.get_default_input_id()
         if self.midi_input:
             self.assertEqual(self.midi_input.device_id, i)
@@ -79,6 +77,7 @@ class MidiInputTest(unittest.TestCase):
 
 
 class MidiOutputTest(unittest.TestCase):
+    __tags__ = ['interactive']
 
     def setUp(self):
         pygame.midi.init()
@@ -94,8 +93,6 @@ class MidiOutputTest(unittest.TestCase):
         pygame.midi.quit()
 
     def test_Output(self):
-        """|tags: interactive|
-        """
         i = pygame.midi.get_default_output_id()
         if self.midi_output:
             self.assertEqual(self.midi_output.device_id, i)
@@ -111,9 +108,6 @@ class MidiOutputTest(unittest.TestCase):
         self.assertRaises(OverflowError, pygame.midi.Output, pow(2,99))
 
     def test_note_off(self):
-        """|tags: interactive|
-        """
-
         if self.midi_output:
             out = self.midi_output
             out.note_on(5, 30, 0)
@@ -126,9 +120,6 @@ class MidiOutputTest(unittest.TestCase):
             self.assertEqual(str(cm.exception), "Channel not between 0 and 15.")
 
     def test_note_on(self):
-        """|tags: interactive|
-        """
-
         if self.midi_output:
             out = self.midi_output
             out.note_on(5, 30, 0)
@@ -193,8 +184,6 @@ class MidiOutputTest(unittest.TestCase):
         self.assertEqual(str(cm.exception), error_msg)
 
     def test_write_short(self):
-        """|tags: interactive|
-        """
         if not self.midi_output:
            self.skipTest('No midi device')
 
@@ -248,21 +237,17 @@ class MidiOutputTest(unittest.TestCase):
 
 
 class MidiModuleTest(unittest.TestCase):
+    """Midi module tests that require midi hardware or midi.init().
+
+    See MidiModuleNonInteractiveTest for non-interactive module tests.
+    """
+    __tags__ = ['interactive']
 
     def setUp(self):
         pygame.midi.init()
 
     def tearDown(self):
         pygame.midi.quit()
-
-    def test_MidiException(self):
-
-        def raiseit():
-            raise pygame.midi.MidiException('Hello Midi param')
-
-        with self.assertRaises(pygame.midi.MidiException) as cm:
-            raiseit()
-        self.assertEqual(cm.exception.parameter, 'Hello Midi param')
 
     def test_get_count(self):
         c = pygame.midi.get_count()
@@ -322,24 +307,6 @@ class MidiModuleTest(unittest.TestCase):
 
         self.assertTrue(pygame.midi.get_init())
 
-    def test_midis2events(self):
-
-        midi_data = ([[0xc0, 0, 1, 2], 20000],
-                     [[0x90, 60, 100, 'blablabla'], 20000]
-                    )
-        events = pygame.midi.midis2events(midi_data, 2)
-        self.assertEqual(len(events), 2)
-
-        for eve in events:
-            # pygame.event.Event is a function, but ...
-            self.assertEqual(eve.__class__.__name__, 'Event')
-            self.assertEqual(eve.vice_id, 2)
-            # FIXME I don't know what we want for the Event.timestamp
-            # For now it accepts  it accepts int as is:
-            self.assertIsInstance(eve.timestamp, int)
-            self.assertEqual(eve.timestamp, 20000)
-        self.assertEqual(events[1].data3, 'blablabla')
-
     def test_quit(self):
 
          # It is safe to call this more than once.
@@ -364,6 +331,41 @@ class MidiModuleTest(unittest.TestCase):
         # should be close to 2-3... since the timer is just init'd.
         self.assertTrue(0 <= mtime < 100)
 
+
+class MidiModuleNonInteractiveTest(unittest.TestCase):
+    """Midi module tests that do not require midi hardware or midi.init().
+
+    See MidiModuleTest for interactive module tests.
+    """
+
+    def test_MidiException(self):
+        """Ensures the MidiException is raised as expected."""
+        def raiseit():
+            raise pygame.midi.MidiException('Hello Midi param')
+
+        with self.assertRaises(pygame.midi.MidiException) as cm:
+            raiseit()
+
+        self.assertEqual(cm.exception.parameter, 'Hello Midi param')
+
+    def test_midis2events(self):
+        """Ensures midi events are properly converted to pygame events."""
+        midi_data = ([[0xc0, 0, 1, 2], 20000],
+                     [[0x90, 60, 100, 'blablabla'], 20000]
+                    )
+        events = pygame.midi.midis2events(midi_data, 2)
+        self.assertEqual(len(events), 2)
+
+        for eve in events:
+            # pygame.event.Event is a function, but ...
+            self.assertEqual(eve.__class__.__name__, 'Event')
+            self.assertEqual(eve.vice_id, 2)
+            # FIXME I don't know what we want for the Event.timestamp
+            # For now it accepts  it accepts int as is:
+            self.assertIsInstance(eve.timestamp, int)
+            self.assertEqual(eve.timestamp, 20000)
+
+        self.assertEqual(events[1].data3, 'blablabla')
 
     def test_conversions(self):
         """ of frequencies to midi note numbers and ansi note names.
