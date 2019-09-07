@@ -52,8 +52,9 @@ pygame_scrap_init(void)
     SDL_Init(SDL_INIT_VIDEO);
 
     pygame_scrap_types = malloc(sizeof(char *) * 2);
-    if (!pygame_scrap_types)
-        return NULL;
+    if (!pygame_scrap_types) {
+        return 0;
+    }
 
     pygame_scrap_types[0] = pygame_scrap_plaintext_type;
     pygame_scrap_types[1] = NULL;
