@@ -338,6 +338,30 @@ class MidiModuleNonInteractiveTest(unittest.TestCase):
     See MidiModuleTest for interactive module tests.
     """
 
+    def test_midiin(self):
+        """Ensures the MIDIIN event id exists in the midi module.
+
+        The MIDIIN event id can be accessed via the midi module for backward
+        compatibility.
+        """
+        self.assertEqual(pygame.midi.MIDIIN, pygame.MIDIIN)
+        self.assertEqual(pygame.midi.MIDIIN, pygame.locals.MIDIIN)
+
+        self.assertNotEqual(pygame.midi.MIDIIN, pygame.MIDIOUT)
+        self.assertNotEqual(pygame.midi.MIDIIN, pygame.locals.MIDIOUT)
+
+    def test_midiout(self):
+        """Ensures the MIDIOUT event id exists in the midi module.
+
+        The MIDIOUT event id can be accessed via the midi module for backward
+        compatibility.
+        """
+        self.assertEqual(pygame.midi.MIDIOUT, pygame.MIDIOUT)
+        self.assertEqual(pygame.midi.MIDIOUT, pygame.locals.MIDIOUT)
+
+        self.assertNotEqual(pygame.midi.MIDIOUT, pygame.MIDIIN)
+        self.assertNotEqual(pygame.midi.MIDIOUT, pygame.locals.MIDIIN)
+
     def test_MidiException(self):
         """Ensures the MidiException is raised as expected."""
         def raiseit():
@@ -350,22 +374,73 @@ class MidiModuleNonInteractiveTest(unittest.TestCase):
 
     def test_midis2events(self):
         """Ensures midi events are properly converted to pygame events."""
-        midi_data = ([[0xc0, 0, 1, 2], 20000],
-                     [[0x90, 60, 100, 'blablabla'], 20000]
-                    )
-        events = pygame.midi.midis2events(midi_data, 2)
-        self.assertEqual(len(events), 2)
+        # List/tuple indexes.
+        MIDI_DATA = 0
+        MD_STATUS = 0
+        MD_DATA1  = 1
+        MD_DATA2  = 2
+        MD_DATA3  = 3
 
-        for eve in events:
-            # pygame.event.Event is a function, but ...
-            self.assertEqual(eve.__class__.__name__, 'Event')
-            self.assertEqual(eve.vice_id, 2)
-            # FIXME I don't know what we want for the Event.timestamp
-            # For now it accepts  it accepts int as is:
-            self.assertIsInstance(eve.timestamp, int)
-            self.assertEqual(eve.timestamp, 20000)
+        TIMESTAMP = 1
 
-        self.assertEqual(events[1].data3, 'blablabla')
+        # Midi events take the form of:
+        # ((status, data1, data2, data3), timestamp)
+        midi_events = (((0xc0, 0, 1, 2), 20000),
+                       ((0x90, 60, 1000, 'string_data'), 20001),
+                       (('0', '1', '2', '3'), '4'))
+        expected_num_events = len(midi_events)
+
+        # Test different device ids.
+        for device_id in range(3):
+            pg_events = pygame.midi.midis2events(midi_events, device_id)
+
+            self.assertEqual(len(pg_events), expected_num_events)
+
+            for i, pg_event in enumerate(pg_events):
+                # Get the original midi data for comparison.
+                midi_event = midi_events[i]
+                midi_event_data = midi_event[MIDI_DATA]
+
+                # Can't directly check event instance as pygame.event.Event is
+                # a function.
+                #self.assertIsInstance(pg_event, pygame.event.Event)
+                self.assertEqual(pg_event.__class__.__name__, 'Event')
+                self.assertEqual(pg_event.type, pygame.MIDIIN)
+                self.assertEqual(pg_event.status, midi_event_data[MD_STATUS])
+                self.assertEqual(pg_event.data1, midi_event_data[MD_DATA1])
+                self.assertEqual(pg_event.data2, midi_event_data[MD_DATA2])
+                self.assertEqual(pg_event.data3, midi_event_data[MD_DATA3])
+                self.assertEqual(pg_event.timestamp, midi_event[TIMESTAMP])
+                self.assertEqual(pg_event.vice_id, device_id)
+
+    def test_midis2events__missing_event_data(self):
+        """Ensures midi events with missing values are handled properly."""
+        midi_event_missing_data = ((0xc0, 0, 1), 20000)
+        midi_event_missing_timestamp = ((0xc0, 0, 1, 2),)
+
+        for midi_event in (midi_event_missing_data,
+                           midi_event_missing_timestamp):
+            with self.assertRaises(ValueError):
+                events = pygame.midi.midis2events([midi_event], 0)
+
+    def test_midis2events__extra_event_data(self):
+        """Ensures midi events with extra values are handled properly."""
+        midi_event_extra_data = ((0xc0, 0, 1, 2, 'extra'), 20000)
+        midi_event_extra_timestamp = ((0xc0, 0, 1, 2), 20000, 'extra')
+
+        for midi_event in (midi_event_extra_data, midi_event_extra_timestamp):
+            with self.assertRaises(ValueError):
+                events = pygame.midi.midis2events([midi_event], 0)
+
+    def test_midis2events__extra_event_data_missing_timestamp(self):
+        """Ensures midi events with extra data and no timestamps are handled
+        properly.
+        """
+        midi_event_extra_data_no_timestamp = ((0xc0, 0, 1, 2, 'extra'),)
+
+        with self.assertRaises(ValueError):
+            events = pygame.midi.midis2events(
+                [midi_event_extra_data_no_timestamp], 0)
 
     def test_conversions(self):
         """ of frequencies to midi note numbers and ansi note names.

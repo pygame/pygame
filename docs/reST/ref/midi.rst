@@ -8,6 +8,8 @@
 
 | :sl:`pygame module for interacting with midi input and output.`
 
+.. versionadded:: 1.9.0
+
 The midi module can send output to midi devices and get input from midi
 devices. It can also list midi devices on the system.
 
@@ -19,7 +21,20 @@ supports (currently Windows, Mac OS X, and Linux).
 This uses pyportmidi for now, but may use its own bindings at some point in the
 future. The pyportmidi bindings are included with pygame.
 
-.. versionadded:: 1.9.0
+|
+
+.. versionadded:: 2.0.0
+
+These are pygame events (:mod:`pygame.event`) reserved for midi use. The
+``MIDIIN`` event is used by :func:`pygame.midi.midis2events` when converting
+midi events to pygame events.
+
+::
+
+   MIDIIN
+   MIDIOUT
+
+|
 
 .. function:: init
 
@@ -391,9 +406,16 @@ future. The pyportmidi bindings are included with pygame.
 .. function:: midis2events
 
    | :sl:`converts midi events to pygame events`
-   | :sg:`midis2events(midis, device_id) -> [Event, ...]`
+   | :sg:`midis2events(midi_events, device_id) -> [Event, ...]`
 
    Takes a sequence of midi events and returns list of pygame events.
+
+   The ``midi_events`` data is expected to be a sequence of
+   ``((status, data1, data2, data3), timestamp)`` midi events (all values
+   required).
+
+   :returns: a list of pygame events of event type ``MIDIIN``
+   :rtype: list
 
    .. ## pygame.midi.midis2events ##
 
