@@ -1252,12 +1252,12 @@ pg_flip_internal(_DisplayState *state)
             SDL_RenderPresent(pg_renderer);
         }
         else {
-            status = SDL_UpdateWindowSurface(win) == -1;
+            status = SDL_UpdateWindowSurface(win);
         }
     }
     Py_END_ALLOW_THREADS;
 
-    if (status == -1) {
+    if (status < 0) {
         RAISE(pgExc_SDLError, SDL_GetError());
         return -1;
     }
@@ -1485,10 +1485,10 @@ pg_flip(PyObject *self, PyObject *args)
     if (screen->flags & SDL_OPENGL)
         SDL_GL_SwapBuffers();
     else
-        status = SDL_Flip(screen) == -1;
+        status = SDL_Flip(screen);
     Py_END_ALLOW_THREADS;
 
-    if (status == -1)
+    if (status < 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
     Py_RETURN_NONE;
 }
