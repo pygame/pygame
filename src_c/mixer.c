@@ -1577,7 +1577,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
         return -1;
     }
     length = shape[0];
-    step1 = strides ? strides[0] : view_itemsize * channels;
+    step1 = strides ? strides[0] : (Py_ssize_t)view_itemsize * channels;
     length2 = ndim;
     if (ndim == 2) {
         step2 = strides ? strides[1] : view_itemsize;
@@ -1611,7 +1611,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     */
     /* Copy samples.
      */
-    if (step1 == itemsize * channels && step2 == itemsize) {
+    if (step1 == (Py_ssize_t)itemsize * channels && step2 == itemsize) {
         /*OPTIMIZATION: in these cases, we don't need to loop through
          *the samples individually, because the bytes are already layed
          *out correctly*/

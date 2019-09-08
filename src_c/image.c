@@ -361,7 +361,7 @@ image_tostring(PyObject *self, PyObject *arg)
             return RAISE(
                 PyExc_ValueError,
                 "Can only create \"P\" format data with 8bit Surfaces");
-        string = Bytes_FromStringAndSize(NULL, surf->w * surf->h);
+        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -374,7 +374,7 @@ image_tostring(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
     }
     else if (!strcmp(format, "RGB")) {
-        string = Bytes_FromStringAndSize(NULL, surf->w * surf->h * 3);
+        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 3);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -448,7 +448,7 @@ image_tostring(PyObject *self, PyObject *arg)
         if (strcmp(format, "RGBA"))
             hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -539,7 +539,7 @@ image_tostring(PyObject *self, PyObject *arg)
     else if (!strcmp(format, "ARGB")) {
         hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -635,7 +635,7 @@ image_tostring(PyObject *self, PyObject *arg)
 
         hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -727,7 +727,7 @@ image_tostring(PyObject *self, PyObject *arg)
 
         hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -842,7 +842,7 @@ image_fromstring(PyObject *self, PyObject *arg)
     Bytes_AsStringAndSize(string, &data, &len);
 
     if (!strcmp(format, "P")) {
-        if (len != w * h)
+        if (len != (Py_ssize_t)w * h)
             return RAISE(
                 PyExc_ValueError,
                 "String length does not equal format and resolution size");
@@ -857,7 +857,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         SDL_UnlockSurface(surf);
     }
     else if (!strcmp(format, "RGB")) {
-        if (len != w * h * 3)
+        if (len != (Py_ssize_t)w * h * 3)
             return RAISE(
                 PyExc_ValueError,
                 "String length does not equal format and resolution size");
@@ -887,7 +887,7 @@ image_fromstring(PyObject *self, PyObject *arg)
     }
     else if (!strcmp(format, "RGBA") || !strcmp(format, "RGBX")) {
         int alphamult = !strcmp(format, "RGBA");
-        if (len != w * h * 4)
+        if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
                 "String length does not equal format and resolution size");
@@ -913,7 +913,7 @@ image_fromstring(PyObject *self, PyObject *arg)
         SDL_UnlockSurface(surf);
     }
     else if (!strcmp(format, "ARGB")) {
-        if (len != w * h * 4)
+        if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
                 "String length does not equal format and resolution size");
@@ -965,7 +965,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
         return NULL;
 
     if (!strcmp(format, "P")) {
-        if (len != w * h)
+        if (len != (Py_ssize_t)w * h)
             return RAISE(
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
@@ -973,7 +973,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
         surf = SDL_CreateRGBSurfaceFrom(data, w, h, 8, w, 0, 0, 0, 0);
     }
     else if (!strcmp(format, "RGB")) {
-        if (len != w * h * 3)
+        if (len != (Py_ssize_t)w * h * 3)
             return RAISE(
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
@@ -989,7 +989,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
     }
     else if (!strcmp(format, "RGBA") || !strcmp(format, "RGBX")) {
         int alphamult = !strcmp(format, "RGBA");
-        if (len != w * h * 4)
+        if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
@@ -1005,7 +1005,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
             surf->flags |= SDL_SRCALPHA;
     }
     else if (!strcmp(format, "ARGB")) {
-        if (len != w * h * 4)
+        if (len != (Py_ssize_t)w * h * 4)
             return RAISE(
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
@@ -1099,7 +1099,7 @@ rle_line(Uint8 *src, Uint8 *dst, int w, int bpp)
             while (raw < x0) {
                 int n = MIN(TGA_RLE_MAX, x0 - raw);
                 dst[out++] = n - 1;
-                memcpy(dst + out, src + raw * bpp, n * bpp);
+                memcpy(dst + out, src + raw * bpp, (size_t)n * bpp);
                 out += n * bpp;
                 raw += n;
             }
