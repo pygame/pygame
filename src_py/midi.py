@@ -34,10 +34,10 @@ import pygame
 import pygame.locals
 
 
+# For backward compatibility.
+MIDIIN = pygame.locals.MIDIIN
+MIDIOUT = pygame.locals.MIDIOUT
 
-#
-MIDIIN = pygame.locals.USEREVENT + 10
-MIDIOUT = pygame.locals.USEREVENT + 11
 
 _init = False
 _pypm = None

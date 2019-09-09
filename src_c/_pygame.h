@@ -87,6 +87,8 @@ typedef enum {
     SDL_VIDEORESIZE,
     SDL_VIDEOEXPOSE,
     PGE_KEYREPEAT,
+    PGE_MIDIIN,
+    PGE_MIDIOUT,
     PGE_EVENTEND, /* Not an event. Indicates end of pygame events. */
 
     /* User event range. */

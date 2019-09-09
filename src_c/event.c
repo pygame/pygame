@@ -361,6 +361,10 @@ _pg_name_from_eventtype(int type)
             return "VideoResize";
         case SDL_VIDEOEXPOSE:
             return "VideoExpose";
+        case PGE_MIDIIN:
+            return "MidiIn";
+        case PGE_MIDIOUT:
+            return "MidiOut";
         case SDL_NOEVENT:
             return "NoEvent";
 #if IS_SDLv2

@@ -45,6 +45,8 @@ NAMES_AND_EVENTS = (
     ('VideoExpose', pygame.VIDEOEXPOSE),
     ('Quit', pygame.QUIT),
     ('SysWMEvent', pygame.SYSWMEVENT),
+    ('MidiIn', pygame.MIDIIN),
+    ('MidiOut', pygame.MIDIOUT),
     ('UserEvent', pygame.USEREVENT),
 
     ('Unknown', 0xFFFF),

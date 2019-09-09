@@ -131,6 +131,17 @@ on X11.
 
 |
 
+.. versionadded:: 2.0.0
+
+Events reserved for :mod:`pygame.midi` use.
+
+::
+
+   MIDIIN
+   MIDIOUT
+
+|
+
 
 .. function:: pump
 
