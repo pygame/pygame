@@ -3272,7 +3272,7 @@ _get_buffer_0D(PyObject *obj, Py_buffer *view_p, int flags)
     }
     view_p->buf = surface->pixels;
     view_p->itemsize = 1;
-    view_p->len = surface->pitch * surface->h;
+    view_p->len = (Py_ssize_t)surface->pitch * surface->h;
     view_p->readonly = 0;
     if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
         view_p->format = FormatUint8;
@@ -3333,10 +3333,10 @@ _get_buffer_1D(PyObject *obj, Py_buffer *view_p, int flags)
     view_p->buf = surface->pixels;
     view_p->itemsize = itemsize;
     view_p->readonly = 0;
-    view_p->len = surface->pitch * surface->h;
+    view_p->len = (Py_ssize_t)surface->pitch * surface->h;
     if (PyBUF_HAS_FLAG(flags, PyBUF_ND)) {
         view_p->ndim = 1;
-        view_p->shape[0] = surface->w * surface->h;
+        view_p->shape[0] = (Py_ssize_t)surface->w * surface->h;
         if (PyBUF_HAS_FLAG(flags, PyBUF_STRIDES)) {
             view_p->strides[0] = itemsize;
         }
@@ -3422,7 +3422,7 @@ _get_buffer_2D(PyObject *obj, Py_buffer *view_p, int flags)
     view_p->itemsize = itemsize;
     view_p->ndim = 2;
     view_p->readonly = 0;
-    view_p->len = surface->w * surface->h * itemsize;
+    view_p->len = (Py_ssize_t)surface->w * surface->h * itemsize;
     view_p->shape[0] = surface->w;
     view_p->shape[1] = surface->h;
     view_p->strides[0] = itemsize;
@@ -3463,7 +3463,7 @@ _get_buffer_3D(PyObject *obj, Py_buffer *view_p, int flags)
     view_p->itemsize = 1;
     view_p->ndim = 3;
     view_p->readonly = 0;
-    view_p->len = surface->w * surface->h * 3;
+    view_p->len = (Py_ssize_t)surface->w * surface->h * 3;
     view_p->shape[0] = surface->w;
     view_p->shape[1] = surface->h;
     view_p->shape[2] = 3;
@@ -3583,7 +3583,7 @@ _get_buffer_colorplane(PyObject *obj, Py_buffer *view_p, int flags, char *name,
     view_p->itemsize = 1;
     view_p->ndim = 2;
     view_p->readonly = 0;
-    view_p->len = surface->w * surface->h;
+    view_p->len = (Py_ssize_t)surface->w * surface->h;
     view_p->shape[0] = surface->w;
     view_p->shape[1] = surface->h;
     view_p->strides[0] = pixelsize;
