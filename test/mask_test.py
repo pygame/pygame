@@ -156,6 +156,26 @@ class MaskTypeTest(unittest.TestCase):
             self.assertEqual(mask.count(), expected_count, msg)
             self.assertEqual(mask.get_size(), expected_size, msg)
 
+    def test_mask__fill_kwarg_bit_boundaries(self):
+        """Ensures masks are created correctly using the fill keyword
+        over a range of sizes.
+
+        Tests masks of different sizes, specifically:
+           -masks 31 to 33 bits wide (32 bit boundaries)
+           -masks 63 to 65 bits wide (64 bit boundaries)
+        """
+        for height in range(1, 4):
+            for width in range(1, 66):
+                expected_count = width * height
+                expected_size = (width, height)
+                msg = 'size={}'.format(expected_size)
+
+                mask = pygame.mask.Mask(expected_size, fill=True)
+
+                self.assertIsInstance(mask, pygame.mask.Mask, msg)
+                self.assertEqual(mask.count(), expected_count, msg)
+                self.assertEqual(mask.get_size(), expected_size, msg)
+
     def test_mask__fill_arg(self):
         """Ensure masks are created correctly using a fill arg."""
         width, height = 59, 71
@@ -969,6 +989,24 @@ class MaskTypeTest(unittest.TestCase):
         self.assertEqual(mask.count(), expected_count)
         self.assertEqual(mask.get_size(), expected_size)
 
+    def test_fill__bit_boundaries(self):
+        """Ensures masks of different sizes are filled correctly.
+
+        Tests masks of different sizes, specifically:
+           -masks 31 to 33 bits wide (32 bit boundaries)
+           -masks 63 to 65 bits wide (64 bit boundaries)
+        """
+        for height in range(1, 4):
+            for width in range(1, 66):
+                msg = 'size=({}, {})'.format(width, height)
+                mask = pygame.mask.Mask((width, height))
+                expected_count = width * height
+
+                mask.fill()
+
+                self.assertEqual(mask.count(), expected_count,
+                                 'size=({}, {})'.format(width, height))
+
     def test_clear(self):
         """Ensure a mask can be cleared."""
         expected_count = 0
@@ -979,6 +1017,24 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertEqual(mask.count(), expected_count)
         self.assertEqual(mask.get_size(), expected_size)
+
+    def test_clear__bit_boundaries(self):
+        """Ensures masks of different sizes are cleared correctly.
+
+        Tests masks of different sizes, specifically:
+           -masks 31 to 33 bits wide (32 bit boundaries)
+           -masks 63 to 65 bits wide (64 bit boundaries)
+        """
+        expected_count = 0
+
+        for height in range(1, 4):
+            for width in range(1, 66):
+                mask = pygame.mask.Mask((width, height), fill=True)
+
+                mask.clear()
+
+                self.assertEqual(mask.count(), expected_count,
+                                 'size=({}, {})'.format(width, height))
 
     def test_invert(self):
         """Ensure a mask can be inverted."""
@@ -1390,6 +1446,35 @@ class MaskTypeTest(unittest.TestCase):
 
         self.assertEqual(count, expected_count)
         self.assertEqual(mask.get_size(), expected_size)
+
+    def test_count__bit_boundaries(self):
+        """Ensures the set bits of different sized masks are counted correctly.
+
+        Tests masks of different sizes, specifically:
+           -masks 31 to 33 bits wide (32 bit boundaries)
+           -masks 63 to 65 bits wide (64 bit boundaries)
+        """
+        for fill in (True, False):
+            for height in range(1, 4):
+                for width in range(1, 66):
+                    mask = pygame.mask.Mask((width, height), fill=fill)
+                    expected_count = width * height if fill else 0
+
+                    # Test toggling each bit.
+                    for pos in ((x, y) for y in range(height)
+                                       for x in range(width)):
+                        if fill:
+                            mask.set_at(pos, 0)
+                            expected_count -= 1
+                        else:
+                            mask.set_at(pos, 1)
+                            expected_count += 1
+
+                        count = mask.count()
+
+                        self.assertEqual(count, expected_count,
+                            'fill={}, size=({}, {}), pos={}'.format(
+                                fill, width, height, pos))
 
     def test_count__full_mask(self):
         """Ensure a full mask's set bits are correctly counted."""
