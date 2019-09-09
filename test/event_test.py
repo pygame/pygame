@@ -45,10 +45,9 @@ NAMES_AND_EVENTS = (
     ('VideoExpose', pygame.VIDEOEXPOSE),
     ('Quit', pygame.QUIT),
     ('SysWMEvent', pygame.SYSWMEVENT),
-
+    ('MidiIn', pygame.MIDIIN),
+    ('MidiOut', pygame.MIDIOUT),
     ('UserEvent', pygame.USEREVENT),
-    ('UserEvent', pygame.USEREVENT + 1),
-    ('UserEvent', pygame.NUMEVENTS - 1),
 
     ('Unknown', 0xFFFF),
 )
@@ -89,10 +88,9 @@ if pygame.get_sdl_version()[0] >= 2:
     # Add in any SDL 2.0.5 specific events.
     if pygame.get_sdl_version() >= (2, 0, 5):
         NAMES_AND_EVENTS += (
-            # These can be corrected when issue #1223 is resolved.
-            ('Unknown', pygame.DROPTEXT), # Should be: 'DropText'
-            ('Unknown', pygame.DROPBEGIN), # Should be: 'DropBegin'
-            ('Unknown', pygame.DROPCOMPLETE), # Should be: 'DropComplete'
+            ('DropText', pygame.DROPTEXT),
+            ('DropBegin', pygame.DROPBEGIN),
+            ('DropComplete', pygame.DROPCOMPLETE),
         )
 
 
@@ -199,6 +197,14 @@ class EventModuleTest(unittest.TestCase):
         pygame.event.clear()  # flush events
         pygame.display.quit()
 
+    def test_event_numevents(self):
+        """Ensures NUMEVENTS does not exceed the maximum SDL number of events.
+        """
+        # Ref: https://www.libsdl.org/tmp/SDL/include/SDL_events.h
+        MAX_SDL_EVENTS = 0xFFFF + 1  # SDL_LASTEVENT = 0xFFFF
+
+        self.assertLessEqual(pygame.NUMEVENTS, MAX_SDL_EVENTS)
+
     def test_event_attribute(self):
         e1 = pygame.event.Event(pygame.USEREVENT, attr1='attr1')
         self.assertEqual(e1.attr1, 'attr1')
@@ -285,6 +291,27 @@ class EventModuleTest(unittest.TestCase):
             self.assertEqual(pygame.event.event_name(event), expected_name,
                              '0x{:X}'.format(event))
 
+    def test_event_name__userevent_range(self):
+        """Ensures event_name() returns the correct name for user events.
+
+        Tests the full range of user events.
+        """
+        expected_name = 'UserEvent'
+
+        for event in range(pygame.USEREVENT, pygame.NUMEVENTS):
+            self.assertEqual(pygame.event.event_name(event), expected_name,
+                             '0x{:X}'.format(event))
+
+    def test_event_name__userevent_boundary(self):
+        """Ensures event_name() does not return 'UserEvent' for events
+        just outside the user event range.
+        """
+        unexpected_name = 'UserEvent'
+
+        for event in (pygame.USEREVENT - 1, pygame.NUMEVENTS):
+            self.assertNotEqual(pygame.event.event_name(event),
+                                unexpected_name, '0x{:X}'.format(event))
+
     def test_wait(self):
         """Ensure wait() waits for an event on the queue."""
         event = pygame.event.Event(events[0])
@@ -339,7 +366,11 @@ class EventModuleTest(unittest.TestCase):
     @unittest.skipIf(os.environ.get('SDL_VIDEODRIVER') == 'dummy',
                      'requires the SDL_VIDEODRIVER to be a non "dummy" value')
     def test_set_grab__and_get_symmetric(self):
-        """Ensure event grabbing can be enabled and disabled."""
+        """Ensure event grabbing can be enabled and disabled.
+
+        WARNING: Moving the mouse off the display during this test can cause it
+                 to fail.
+        """
         surf = pygame.display.set_mode((10,10))
         pygame.event.set_grab(True)
 

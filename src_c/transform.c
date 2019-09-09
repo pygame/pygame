@@ -1325,7 +1325,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
     /* convert to 32-bit if necessary */
     if (bpp == 3) {
         int newpitch = srcwidth * 4;
-        Uint8 *newsrc = (Uint8 *)malloc(newpitch * srcheight);
+        Uint8 *newsrc = (Uint8 *)malloc((size_t)newpitch * srcheight);
         if (!newsrc)
             return;
         convert_24_32(srcpix, srcpitch, newsrc, newpitch, srcwidth, srcheight);
@@ -1333,7 +1333,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
         srcpitch = newpitch;
         /* create a destination buffer for the 32-bit result */
         dstpitch = dstwidth << 2;
-        dst32 = (Uint8 *)malloc(dstpitch * dstheight);
+        dst32 = (Uint8 *)malloc((size_t)dstpitch * dstheight);
         if (dst32 == NULL) {
             free(srcpix);
             return;
@@ -1347,7 +1347,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
         tempwidth = dstwidth;
         temppitch = tempwidth << 2;
         tempheight = srcheight;
-        temppix = (Uint8 *)malloc(temppitch * tempheight);
+        temppix = (Uint8 *)malloc((size_t)temppitch * tempheight);
         if (temppix == NULL) {
             if (bpp == 3) {
                 free(srcpix);

@@ -64,6 +64,9 @@ typedef struct _display_state_s {
     Uint8 using_gl; /* using an OPENGL display without renderer */
 } _DisplayState;
 
+static int
+pg_flip_internal(_DisplayState *state);
+
 #if PY3
 #ifndef PYPY_VERSION
 static struct PyModuleDef _module;
@@ -770,6 +773,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int h = 0;
     int display = 0;
     char *title = state->title;
+    int init_flip = 0;
 
     char *keywords[] = {
         "size",
@@ -877,8 +881,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         if (flags & PGS_SHOWN)
             sdl_flags |= SDL_WINDOW_SHOWN;
         if (flags & PGS_HIDDEN)
-            sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
-        if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
+            sdl_flags |= SDL_WINDOW_HIDDEN;
+        if (!(sdl_flags & SDL_WINDOW_HIDDEN))
             sdl_flags |= SDL_WINDOW_SHOWN;
         if (flags & PGS_OPENGL) {
             if (flags & PGS_DOUBLEBUF) {
@@ -928,6 +932,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
                 if (!win)
                     return RAISE(pgExc_SDLError, SDL_GetError());
+                init_flip = 1;
             } else {
                 /*change existing window*/
                 SDL_SetWindowTitle(win, title);
@@ -1040,6 +1045,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         if (state->using_gl)
             ((pgSurfaceObject *)surface)->owner = 1;
         Py_DECREF(surface);
+
+        if (init_flip)
+            pg_flip_internal(state); /* ensure window is initially black */
     }
 
 #if !defined(darwin)
@@ -1249,17 +1257,18 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     return list;
 }
 
-static PyObject *
-pg_flip(PyObject *self, PyObject *args)
+static int
+pg_flip_internal(_DisplayState *state)
 {
     SDL_Window *win = pg_GetDefaultWindow();
-    _DisplayState *state = DISPLAY_MOD_STATE(self);
     int status = 0;
 
     VIDEO_INIT_CHECK();
 
-    if (!win)
-        return RAISE(pgExc_SDLError, "Display mode not set");
+    if (!win) {
+        RAISE(pgExc_SDLError, "Display mode not set");
+        return -1;
+    }
 
     Py_BEGIN_ALLOW_THREADS;
     if (state->using_gl) {
@@ -1275,13 +1284,25 @@ pg_flip(PyObject *self, PyObject *args)
             SDL_RenderPresent(pg_renderer);
         }
         else {
-            status = SDL_UpdateWindowSurface(win) == -1;
+            status = SDL_UpdateWindowSurface(win);
         }
     }
     Py_END_ALLOW_THREADS;
 
-    if (status == -1)
-        return RAISE(pgExc_SDLError, SDL_GetError());
+    if (status < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+
+    return 0;
+}
+
+static PyObject *
+pg_flip(PyObject *self, PyObject *args)
+{
+    if (pg_flip_internal(DISPLAY_MOD_STATE(self)) < 0) {
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -1497,10 +1518,10 @@ pg_flip(PyObject *self, PyObject *args)
     if (screen->flags & SDL_OPENGL)
         SDL_GL_SwapBuffers();
     else
-        status = SDL_Flip(screen) == -1;
+        status = SDL_Flip(screen);
     Py_END_ALLOW_THREADS;
 
-    if (status == -1)
+    if (status < 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
     Py_RETURN_NONE;
 }

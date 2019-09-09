@@ -20,13 +20,10 @@ os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 import pygame.transform
 
-
-if 1:
-    #some platforms need to init the display for some parts of pygame.
-    import pygame.display
-    pygame.display.init()
-    screen = pygame.display.set_mode((1,1))
-
+# Some platforms need to init the display for some parts of pygame.
+import pygame.display
+pygame.display.init()
+screen = pygame.display.set_mode((1, 1))
 
 
 def scaleit(fin, fout, w, h):

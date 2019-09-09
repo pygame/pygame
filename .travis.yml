@@ -37,6 +37,16 @@ matrix:
 
     - os: linux
       sudo: required
+      python: 3.8-dev
+      dist: xenial
+
+    - os: linux-ppc64le
+      python: 3.7
+      env:
+        - PPC=yes
+
+    - os: linux
+      sudo: required
       python: 3.7
       dist: xenial
       env:
@@ -101,6 +111,8 @@ matrix:
       env: PY_VERSION=pypy2
     - os: osx
       env: PY_VERSION=pypy3
+    - os: linux-ppc64le
+    - python: 3.8-dev
 
 before_install:
   - export PATH=/usr/lib/ccache:$PATH

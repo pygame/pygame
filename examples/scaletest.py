@@ -89,7 +89,7 @@ def SpeedTest(image):
     print("Average transform.smoothscale shrink time: %.4f ms." % (
           duration / 128 * 1000))
 
-    duration = 0
+    duration = 0.0
     for i in range(128):
         expandx = (imgsize[0] * (i + 129)) // 128
         expandy = (imgsize[1] * (i + 129)) // 128
@@ -113,7 +113,7 @@ def SpeedTest(image):
     print("Average transform.scale shrink time: %.4f ms." % (
           duration / 128 * 1000))
 
-    duration = 0
+    duration = 0.0
     for i in range(128):
         expandx = (imgsize[0] * (i + 129)) // 128
         expandy = (imgsize[1] * (i + 129)) // 128

@@ -63,11 +63,16 @@ static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args);
 
 /* Determine what type of clipboard we are using */
-#if defined(__unix__) && defined(SDL_VIDEO_DRIVER_X11)
+#if IS_SDLv2
+#define SDL2_SCRAP
+#include "scrap_sdl2.c"
+
+#elif defined(__unix__) && defined(SDL_VIDEO_DRIVER_X11)
 /*!defined(__QNXNTO__) &&*/
 #define X11_SCRAP
 #include <time.h> /* Needed for clipboard timeouts. */
 #include "scrap_x11.c"
+
 #elif defined(__WIN32__)
 #define WIN_SCRAP
 #include "scrap_win.c"
@@ -114,8 +119,10 @@ _scrap_init(PyObject *self, PyObject *args)
     /* In case we've got not video surface, we won't initialize
      * anything.
      */
+#if IS_SDLv1
     if (!SDL_GetVideoSurface())
         return RAISE(pgExc_SDLError, "No display mode is set");
+#endif
     if (!pygame_scrap_init())
         return RAISE(pgExc_SDLError, SDL_GetError());
 
@@ -270,6 +277,10 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
 
     retval = Bytes_FromStringAndSize(scrap, count);
+#if defined(PYGAME_SCRAP_FREE_STRING)
+    free(scrap);
+#endif
+   
     return retval;
 }
 #endif
@@ -369,7 +380,7 @@ static PyMethodDef scrap_builtins[] = {
  * Note, the macosx stuff is done in sdlosx_main.m
  */
 #if (defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) || \
-     defined(MAC_SCRAP))
+     defined(MAC_SCRAP) || defined(SDL2_SCRAP))
 
     {"init", _scrap_init, 1, DOC_PYGAMESCRAPINIT},
     {"get_init", _scrap_get_init, METH_NOARGS, DOC_PYGAMESCRAPGETINIT},

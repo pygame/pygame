@@ -54,7 +54,7 @@
 #define DOC_PYGAMESPRITECOLLIDERECTRATIO "collide_rect_ratio(ratio) -> collided_callable\nCollision detection between two sprites, using rects scaled to a ratio."
 #define DOC_PYGAMESPRITECOLLIDECIRCLE "collide_circle(left, right) -> bool\nCollision detection between two sprites, using circles."
 #define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "collide_circle_ratio(ratio) -> collided_callable\nCollision detection between two sprites, using circles scaled to a ratio."
-#define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(SpriteLeft, SpriteRight) -> point\nCollision detection between two sprites, using masks."
+#define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(sprite1, sprite2) -> (int, int)\ncollide_mask(sprite1, sprite2) -> None\nCollision detection between two sprites, using masks."
 #define DOC_PYGAMESPRITEGROUPCOLLIDE "groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict\nFind all sprites that collide between two groups."
 #define DOC_PYGAMESPRITESPRITECOLLIDEANY "spritecollideany(sprite, group, collided = None) -> Sprite\nspritecollideany(sprite, group, collided = None) -> None\nSimple test if a sprite intersects anything in a group."
 
@@ -281,7 +281,8 @@ pygame.sprite.collide_circle_ratio
 Collision detection between two sprites, using circles scaled to a ratio.
 
 pygame.sprite.collide_mask
- collide_mask(SpriteLeft, SpriteRight) -> point
+ collide_mask(sprite1, sprite2) -> (int, int)
+ collide_mask(sprite1, sprite2) -> None
 Collision detection between two sprites, using masks.
 
 pygame.sprite.groupcollide

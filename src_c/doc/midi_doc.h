@@ -21,7 +21,7 @@
 #define DOC_PYGAMEMIDIGETDEFAULTINPUTID "get_default_input_id() -> default_id\ngets default input device number"
 #define DOC_PYGAMEMIDIGETDEFAULTOUTPUTID "get_default_output_id() -> default_id\ngets default output device number"
 #define DOC_PYGAMEMIDIGETDEVICEINFO "get_device_info(an_id) -> (interf, name, input, output, opened)\nget_device_info(an_id) -> None\nreturns information about a midi device"
-#define DOC_PYGAMEMIDIMIDIS2EVENTS "midis2events(midis, device_id) -> [Event, ...]\nconverts midi events to pygame events"
+#define DOC_PYGAMEMIDIMIDIS2EVENTS "midis2events(midi_events, device_id) -> [Event, ...]\nconverts midi events to pygame events"
 #define DOC_PYGAMEMIDITIME "time() -> time\nreturns the current time in ms of the PortMidi timer"
 #define DOC_PYGAMEMIDIFREQUENCYTOMIDI "frequency_to_midi(midi_note) -> midi_note\nConverts a frequency into a MIDI note. Rounds to the closest midi note."
 #define DOC_PYGAMEMIDIMIDITOFREQUENCY "midi_to_frequency(midi_note) -> frequency\nConverts a midi note to a frequency."
@@ -127,7 +127,7 @@ pygame.midi.get_device_info
 returns information about a midi device
 
 pygame.midi.midis2events
- midis2events(midis, device_id) -> [Event, ...]
+ midis2events(midi_events, device_id) -> [Event, ...]
 converts midi events to pygame events
 
 pygame.midi.time
