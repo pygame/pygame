@@ -10,27 +10,39 @@
 
 This module contains functions for dealing with the keyboard.
 
-The event queue gets ``pygame.KEYDOWN`` and ``pygame.KEYUP`` events when the
-keyboard buttons are pressed and released. Both events have a key attribute
-that is a integer ID representing every key on the keyboard.
+The :mod:`pygame.event` queue gets ``pygame.KEYDOWN`` and ``pygame.KEYUP``
+events when the keyboard buttons are pressed and released. Both events have
+``key`` and ``mod`` attributes.
 
-The ``pygame.KEYDOWN`` event has additional attributes ``unicode`` and
-``scancode``. ``unicode`` represents a single character string that is the fully
-translated character entered. This takes into account the shift and composition
-keys. ``scancode`` represents the platform-specific key code. This could be
-different from keyboard to keyboard, but is useful for key selection of weird
-keys like the multimedia keys.
+   * ``key``: an :ref:`integer ID <key-constants-label>` representing every key
+     on the keyboard
+   * ``mod``: a bitmask of all the :ref:`modifier keys <key-modifiers-label>`
+     that were in a pressed state when the event occurred
 
-.. versionadded:: 2.0
+The ``pygame.KEYDOWN`` event has the additional attributes ``unicode`` and
+``scancode``.
+
+   * ``unicode``: a single character string that is the fully translated
+     character entered, this takes into account the shift and composition keys
+   * ``scancode``: the platform-specific key code, which could be different from
+     keyboard to keyboard, but is useful for key selection of weird keys like
+     the multimedia keys
+
+.. versionadded:: 2.0.0
     The ``pygame.TEXTINPUT`` event is preferred to the ``unicode`` attribute
     of ``pygame.KEYDOWN``. The attribute ``text`` contains the input.
 
-There are many keyboard constants, they are used to represent keys on the
-keyboard. The following is a list of all keyboard constants:
+
+.. _key-constants-label:
+
+The following is a list of all the constants (from :mod:`pygame.locals`) used to
+represent keyboard keys.
 
 ::
 
-      KeyASCII      ASCII   Common Name
+      pygame
+      Constant      ASCII   Description
+      ---------------------------------
       K_BACKSPACE   \b      backspace
       K_TAB         \t      tab
       K_CLEAR               clear
@@ -165,23 +177,69 @@ keyboard. The following is a list of all keyboard constants:
       K_POWER               power
       K_EURO                Euro
 
-The keyboard also has a list of modifier states that can be assembled by
-bitwise-ORing them together.
+
+.. _key-modifiers-label:
+
+The keyboard also has a list of modifier states (from :mod:`pygame.locals`) that
+can be assembled by bitwise-ORing them together.
 
 ::
 
-      KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,
-      KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,
-      KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, KMOD_MODE
+      pygame
+      Constant      Description
+      -------------------------
+      KMOD_NONE     no modifier keys pressed
+      KMOD_LSHIFT   left shift
+      KMOD_RSHIFT   right shift
+      KMOD_SHIFT    left shift or right shift or both
+      KMOD_LCTRL    left control
+      KMOD_RCTRL    right control
+      KMOD_CTRL     left control or right control or both
+      KMOD_LALT     left alt
+      KMOD_RALT     right alt
+      KMOD_ALT      left alt or right alt or both
+      KMOD_LMETA    left meta
+      KMOD_RMETA    right meta
+      KMOD_META     left meta or right meta or both
+      KMOD_CAPS     caps lock
+      KMOD_NUM      num lock
+      KMOD_MODE     mode
+
+
+The modifier information is contained in the ``mod`` attribute of the
+``pygame.KEYDOWN`` and ``pygame.KEYUP`` events. The ``mod`` attribute is a
+bitmask of all the modifier keys that were in a pressed state when the event
+occurred. The modifier information can be decoded using a bitwise AND (except
+for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
+
+::
+
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+            if event.mod == pygame.KMOD_NONE:
+                print('No modifier keys were in a pressed state when this '
+                      'event occurred.')
+            else:
+                if event.mod & pygame.KMOD_LSHIFT:
+                    print('Left shift was in a pressed state when this event '
+                          'occurred.')
+                if event.mod & pygame.KMOD_RSHIFT:
+                    print('Right shift was in a pressed state when this event '
+                          'occurred.')
+                if event.mod & pygame.KMOD_SHIFT:
+                    print('Left shift or right shift or both were in a '
+                          'pressed state when this event occurred.')
+
+
 
 .. function:: get_focused
 
    | :sl:`true if the display is receiving keyboard input from the system`
    | :sg:`get_focused() -> bool`
 
-   This is true when the display window has keyboard focus from the system. If
-   the display needs to ensure it does not lose keyboard focus, it can use
-   ``pygame.event.set_grab()`` to grab all input.
+   Returns ``True`` when the display window has keyboard focus from the
+   system. If the display needs to ensure it does not lose keyboard focus, it
+   can use :func:`pygame.event.set_grab()` to grab all input.
 
    .. ## pygame.key.get_focused ##
 
@@ -191,15 +249,17 @@ bitwise-ORing them together.
    | :sg:`get_pressed() -> bools`
 
    Returns a sequence of boolean values representing the state of every key on
-   the keyboard. Use the key constant values to index the array. A True value
-   means the that button is pressed.
+   the keyboard. Use the key constant values to index the array. A ``True``
+   value means the that button is pressed.
 
-   Getting the list of pushed buttons with this function is not the proper way
-   to handle text entry from the user. You have no way to know the order of
-   keys pressed, and rapidly pushed keys can be completely unnoticed between
-   two calls to ``pygame.key.get_pressed()``. There is also no way to translate
-   these pushed keys into a fully translated character value. See the
-   ``pygame.KEYDOWN`` events on the event queue for this functionality.
+   .. note::
+      Getting the list of pushed buttons with this function is not the proper
+      way to handle text entry from the user. There is no way to know the order
+      of keys pressed, and rapidly pushed keys can be completely unnoticed
+      between two calls to ``pygame.key.get_pressed()``. There is also no way to
+      translate these pushed keys into a fully translated character value. See
+      the ``pygame.KEYDOWN`` events on the :mod:`pygame.event` queue for this
+      functionality.
 
    .. ## pygame.key.get_pressed ##
 
@@ -209,8 +269,8 @@ bitwise-ORing them together.
    | :sg:`get_mods() -> int`
 
    Returns a single integer representing a bitmask of all the modifier keys
-   being held. Using bitwise operators you can test if specific shift keys are
-   pressed, the state of the capslock button, and more.
+   being held. Using bitwise operators you can test if specific
+   :ref:`modifier keys <key-modifiers-label>` are pressed.
 
    .. ## pygame.key.get_mods ##
 
@@ -219,8 +279,8 @@ bitwise-ORing them together.
    | :sl:`temporarily set which modifier keys are pressed`
    | :sg:`set_mods(int) -> None`
 
-   Create a bitmask of the modifier constants you want to impose on your
-   program.
+   Create a bitmask of the :ref:`modifier key constants <key-modifiers-label>`
+   you want to impose on your program.
 
    .. ## pygame.key.set_mods ##
 
@@ -228,15 +288,26 @@ bitwise-ORing them together.
 
    | :sl:`control how held keys are repeated`
    | :sg:`set_repeat() -> None`
+   | :sg:`set_repeat(delay) -> None`
    | :sg:`set_repeat(delay, interval) -> None`
 
    When the keyboard repeat is enabled, keys that are held down will generate
-   multiple ``pygame.KEYDOWN`` events. The delay is the number of milliseconds
-   before the first repeated ``pygame.KEYDOWN`` will be sent. After that
-   another ``pygame.KEYDOWN`` will be sent every interval milliseconds. If no
-   arguments are passed the key repeat is disabled.
+   multiple ``pygame.KEYDOWN`` events. The ``delay`` parameter is the number of
+   milliseconds before the first repeated ``pygame.KEYDOWN`` event will be sent.
+   After that, another ``pygame.KEYDOWN`` event will be sent every ``interval``
+   milliseconds. If a ``delay`` value is provided and an ``interval`` value is
+   not provided or is 0, then the ``interval`` will be set to the same value as
+   ``delay``.
+
+   To disable key repeat call this function with no arguments or with ``delay``
+   set to 0.
 
    When pygame is initialized the key repeat is disabled.
+
+   :raises ValueError: if ``delay`` or ``interval`` is < 0
+
+   .. versionchanged:: 2.0.0 A ``ValueError`` is now raised (instead of a
+      ``pygame.error``) if ``delay`` or ``interval`` is < 0.
 
    .. ## pygame.key.set_repeat ##
 
@@ -245,12 +316,8 @@ bitwise-ORing them together.
    | :sl:`see how held keys are repeated`
    | :sg:`get_repeat() -> (delay, interval)`
 
-   When the keyboard repeat is enabled, keys that are held down will generate
-   multiple ``pygame.KEYDOWN`` events. The delay is the number of milliseconds
-   before the first repeated ``pygame.KEYDOWN`` will be sent. After that
-   another ``pygame.KEYDOWN`` will be sent every interval milliseconds.
-
-   When pygame is initialized the key repeat is disabled.
+   Get the ``delay`` and ``interval`` keyboard repeat values. Refer to
+   :func:`pygame.key.set_repeat()` for a description of these values.
 
    .. versionadded:: 1.8
 
@@ -282,7 +349,7 @@ bitwise-ORing them together.
 
    Normal ``pygame.TEXTINPUT`` events are not dependent on this.
 
-   .. versionadded:: 2
+   .. versionadded:: 2.0.0
 
    .. ## pygame.key.start_text_input ##
 
@@ -296,7 +363,7 @@ bitwise-ORing them together.
 
    Normal ``pygame.TEXTINPUT`` events are not dependent on this.
 
-   .. versionadded:: 2
+   .. versionadded:: 2.0.0
 
    .. ## pygame.key.stop_text_input ##
 
@@ -310,7 +377,7 @@ bitwise-ORing them together.
 
    Normal ``pygame.TEXTINPUT`` events are not dependent on this.
 
-   .. versionadded:: 2
+   .. versionadded:: 2.0.0
 
    .. ## pygame.key.set_text_input_rect ##
 

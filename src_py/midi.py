@@ -24,18 +24,20 @@ New in pygame 1.9.0.
 #          once the input object is running.  Like joysticks.
 
 
-
-import atexit
+# In Python 2.7 pygame.math is imported instead of the built-in math module.
+# This import from future allows the built-in math module to be imported.
+from __future__ import absolute_import
 import math
+import atexit
 
 import pygame
 import pygame.locals
 
 
+# For backward compatibility.
+MIDIIN = pygame.locals.MIDIIN
+MIDIOUT = pygame.locals.MIDIOUT
 
-#
-MIDIIN = pygame.locals.USEREVENT + 10
-MIDIOUT = pygame.locals.USEREVENT + 11
 
 _init = False
 _pypm = None

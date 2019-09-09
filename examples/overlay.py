@@ -14,7 +14,7 @@ def vPlayer( fName ):
     f= open( fName, 'rb' )
     fmt= f.readline().strip()
     res= f.readline().strip()
-    col= f.readline().strip()
+    unused_col= f.readline().strip()
     if fmt!= "P5":
         print ('Unknown format( len %d ). Exiting...' % len( fmt ))
         return
@@ -25,7 +25,7 @@ def vPlayer( fName ):
     y= f.read( w*h )
     u= []
     v= []
-    for i in xrange_( 0, h/2 ):
+    for _ in xrange_( 0, h/2 ):
         u.append( f.read( w/2 ))
         v.append( f.read( w/2 ))
     

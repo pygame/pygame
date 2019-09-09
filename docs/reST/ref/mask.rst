@@ -41,6 +41,10 @@ to store which parts collide.
    :returns: a newly created :class:`Mask` object from the given surface
    :rtype: Mask
 
+   .. note::
+      This function is used to create the masks for
+      :func:`pygame.sprite.collide_mask`.
+
    .. ## pygame.mask.from_surface ##
 
 .. function:: from_threshold

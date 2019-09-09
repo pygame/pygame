@@ -1038,6 +1038,11 @@ _gfx_beziercolor(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    if (steps < 2) {
+        PyErr_SetString(PyExc_ValueError, "steps parameter must be greater than 1");
+        return NULL;
+    }
+
     vx = PyMem_New(Sint16, (size_t)count);
     vy = PyMem_New(Sint16, (size_t)count);
     if (!vx || !vy) {

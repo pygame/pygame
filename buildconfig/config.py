@@ -105,63 +105,66 @@ def prepdep(dep, basepath):
 def writesetupfile(deps, basepath, additional_lines, sdl2=False):
     """create a modified copy of Setup.SDLx.in"""
     if sdl2:
-        origsetup = open(os.path.join(BASE_PATH, 'buildconfig', 'Setup.SDL2.in'), 'r')
+        sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
+                                          'Setup.SDL2.in')
     else:
-        origsetup = open(os.path.join(BASE_PATH, 'buildconfig', 'Setup.SDL1.in'), 'r')
+        sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
+                                          'Setup.SDL1.in')
 
-    newsetup = open(os.path.join(BASE_PATH, 'Setup'), 'w')
-    line = ''
-    while line.find('#--StartConfig') == -1:
-        newsetup.write(line)
-        line = origsetup.readline()
-    while line.find('#--EndConfig') == -1:
-        line = origsetup.readline()
-
-    if basepath:
-        newsetup.write('BASE = ' + basepath + '\n')
-    for d in deps:
-        newsetup.write(d.line + '\n')
-
-    lines = origsetup.readlines()
-
-    # overwrite lines which already exist with new ones.
-    new_lines = []
-    for l in lines:
-        addit = 1
-        parts = l.split()
-        for al in additional_lines:
-            aparts = al.split()
-            if aparts and parts:
-                if aparts[0] == parts[0]:
-                    #print ('the same!' + repr(aparts) + repr(parts))
-                    #the same, we should not add the old one.
-                    #It will be overwritten by the new one.
-                    addit = 0
-        if addit:
-            new_lines.append(l)
-
-    new_lines.extend(additional_lines)
-    lines = new_lines
-    legalVars = set(d.varname for d in deps)
-    legalVars.add('$(DEBUG)')
-
-    for line in lines:
-        useit = 1
-        if not line.startswith('COPYLIB') and not (line and line[0]=='#'):
-            lineDeps = set(re.findall(r'\$\([a-z0-9\w]+\)', line, re.I))
-            if lineDeps.difference(legalVars):
-                newsetup.write('#'+line)
-                useit = 0
-            if useit:
-                for d in deps:
-                    if d.varname in lineDeps and not d.found:
-                        useit = 0
-                        newsetup.write('#'+line)
-                        break
-            if useit:
-                legalVars.add('$(%s)' % line.split('=')[0].strip())
-        if useit:
+    with open(sdl_setup_filename, 'r') as origsetup, \
+            open(os.path.join(BASE_PATH, 'Setup'), 'w') as newsetup:
+        line = ''
+        while line.find('#--StartConfig') == -1:
             newsetup.write(line)
+            line = origsetup.readline()
+        while line.find('#--EndConfig') == -1:
+            line = origsetup.readline()
+
+        if basepath:
+            newsetup.write('BASE = ' + basepath + '\n')
+        for d in deps:
+            newsetup.write(d.line + '\n')
+
+        lines = origsetup.readlines()
+
+        # overwrite lines which already exist with new ones.
+        new_lines = []
+        for l in lines:
+            addit = 1
+            parts = l.split()
+            for al in additional_lines:
+                aparts = al.split()
+                if aparts and parts:
+                    if aparts[0] == parts[0]:
+                        #print ('the same!' + repr(aparts) + repr(parts))
+                        #the same, we should not add the old one.
+                        #It will be overwritten by the new one.
+                        addit = 0
+            if addit:
+                new_lines.append(l)
+
+        new_lines.extend(additional_lines)
+        lines = new_lines
+        legalVars = set(d.varname for d in deps)
+        legalVars.add('$(DEBUG)')
+
+        for line in lines:
+            useit = 1
+            if not line.startswith('COPYLIB') and not (line and line[0]=='#'):
+                lineDeps = set(re.findall(r'\$\([a-z0-9\w]+\)', line, re.I))
+                if lineDeps.difference(legalVars):
+                    newsetup.write('#'+line)
+                    useit = 0
+                if useit:
+                    for d in deps:
+                        if d.varname in lineDeps and not d.found:
+                            useit = 0
+                            newsetup.write('#'+line)
+                            break
+                if useit:
+                    legalVars.add('$(%s)' % line.split('=')[0].strip())
+            if useit:
+                newsetup.write(line)
 
 def main(auto=False):
     additional_platform_setup = []

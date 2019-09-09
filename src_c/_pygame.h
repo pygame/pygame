@@ -78,18 +78,26 @@ typedef enum {
 } PygameMouseFlags;
 
 typedef enum {
+    /* Any SDL_* events here are for backward compatibility. */
     SDL_NOEVENT = 0,
-    /* SDL 1.2 allowed for 8 user defined events. */
-    SDL_NUMEVENTS = SDL_USEREVENT + (32768/4),
-    SDL_ACTIVEEVENT = SDL_NUMEVENTS,
-    PGE_EVENTBEGIN = SDL_NUMEVENTS,
+
+    /* pygame events */
+    PGE_EVENTBEGIN = SDL_USEREVENT, /* Not an event. Indicates start of pygame events. */
+    SDL_ACTIVEEVENT = PGE_EVENTBEGIN,
     SDL_VIDEORESIZE,
     SDL_VIDEOEXPOSE,
     PGE_KEYREPEAT,
-    PGE_EVENTEND
+    PGE_MIDIIN,
+    PGE_MIDIOUT,
+    PGE_EVENTEND, /* Not an event. Indicates end of pygame events. */
+
+    /* User event range. */
+    /* SDL 1.2 allowed for 8 user defined events. */
+    PGE_USEREVENT = PGE_EVENTEND,
+    PG_NUMEVENTS = PGE_USEREVENT + 0x2000 /* Not an event. Indicates end of user events. */
 } PygameEventCode;
 
-#define PGE_NUMEVENTS (PGE_EVENTEND - PGE_EVENTBEGIN)
+#define PGE_NUMRESERVED (PGE_EVENTEND - PGE_EVENTBEGIN)
 
 typedef enum {
     SDL_APPFOCUSMOUSE,
@@ -123,7 +131,9 @@ typedef enum {
     PGS_SRCALPHA = 0x00010000,
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
-#endif /* SDL_VERSION_ATLEAST(2, 0, 0) */
+#else /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
+#define PG_NUMEVENTS SDL_NUMEVENTS
+#endif /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
 
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
 

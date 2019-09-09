@@ -387,9 +387,9 @@ mask_angle(PyObject *self, PyObject *args)
         for (y = 0; y < mask->h; y++) {
             if (bitmask_getbit(mask, x, y)) {
                 m10 += x;
-                m20 += x * x;
-                m11 += x * y;
-                m02 += y * y;
+                m20 += (long)x * x;
+                m11 += (long)x * y;
+                m02 += (long)y * y;
                 m01 += y;
                 m00++;
             }
@@ -400,8 +400,8 @@ mask_angle(PyObject *self, PyObject *args)
         xc = m10 / m00;
         yc = m01 / m00;
         theta = -90.0 *
-                atan2(2 * (m11 / m00 - xc * yc),
-                      (m20 / m00 - xc * xc) - (m02 / m00 - yc * yc)) /
+                atan2(2 * (m11 / m00 - (long)xc * yc),
+                      (m20 / m00 - (long)xc * xc) - (m02 / m00 - (long)yc * yc)) /
                 M_PI;
         return PyFloat_FromDouble(theta);
     }
