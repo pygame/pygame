@@ -790,19 +790,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     if (w < 0 || h < 0)
         return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
 
-    // TODO: handle zeroes better
-    // this can never be false in this IFDEF
-    if (w == 0 || h == 0) {
-        SDL_version versioninfo;
-        SDL_VERSION(&versioninfo);
-        if (!(versioninfo.major != 1 ||
-              (versioninfo.major == 1 && versioninfo.minor > 2) ||
-              (versioninfo.major == 1 && versioninfo.minor == 2 &&
-               versioninfo.patch >= 10))) {
-            return RAISE(pgExc_SDLError, "Cannot set 0 sized display mode");
-        }
-    }
-
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /*note SDL works special like this too*/
         if (!pg_init(NULL, NULL))
@@ -818,6 +805,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
 
     state->using_gl = (flags & PGS_OPENGL) != 0;
+    
+    /* set these only in toggle_fullscreen, clear on set_mode */
     state->toggle_windowed_w = 0;
     state->toggle_windowed_h = 0;
 
@@ -835,26 +824,26 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         Uint32 sdl_flags = 0;
         SDL_DisplayMode display_mode;
 
-        if (flags & PGS_SCALED || flags & PGS_FULLSCREEN) {
-            if (SDL_GetDesktopDisplayMode(display, &display_mode) != 0) {
-                return RAISE(pgExc_SDLError, SDL_GetError());
-            }
+        if (SDL_GetDesktopDisplayMode(display, &display_mode) != 0) {
+               return RAISE(pgExc_SDLError, SDL_GetError());
         }
+
+	if (w == 0 && h == 0 && !(flags & PGS_SCALED)) {
+	     /* We are free to choose a resolution in this case, so we can
+		avoid changing the physical resolution. This used to default
+		to the max supported by the monitor, but we can use current
+		desktop resolution without breaking compatibility. */
+  	    w = display_mode.w;
+	    h = display_mode.h;
+	}
 
         if (flags & PGS_FULLSCREEN) {
             if (flags & PGS_SCALED) {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-
-            } else if ((w == 0 && h == 0)
-                /* We are free to choose a resolution in this case, so we can
-                   avoid changing the physical resolution. This used to default
-                   to the max supported by the monitor, but we can use current
-                   desktop resolution without breaking compatibility. */
-                   || (w == display_mode.w && h == display_mode.h)) {
+            } else if (w == display_mode.w && h == display_mode.h) {
+	      /* No need to change physical resolution.
+		 Borderless fullscreen is preferred when possible */
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-                w = display_mode.w;
-                h = display_mode.h;
-
             } else {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN;
             }
