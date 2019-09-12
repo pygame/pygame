@@ -132,7 +132,14 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 #else /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
+/* To maintain SDL 1.2 build support. */
+#define PGE_USEREVENT SDL_USEREVENT
 #define PG_NUMEVENTS SDL_NUMEVENTS
+/* These midi events were originally defined in midi.py.
+ * Note: They are outside the SDL_USEREVENT/SDL_NUMEVENTS event range for
+ * SDL 1.2. */
+#define PGE_MIDIIN PGE_USEREVENT + 10
+#define PGE_MIDIOUT PGE_USEREVENT + 11
 #endif /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
 
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
