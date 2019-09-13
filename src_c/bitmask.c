@@ -82,6 +82,23 @@ bitcount(BITMASK_W n)
     }
 }
 
+/* Positive modulo of the given dividend and BITMASK_W_LEN as the divisor
+ * (dividend % BITMASK_W_LEN).
+ *
+ * Params:
+ *     dividend: dividend of the modulo operation, can be positive or negative
+ *
+ * Returns:
+ *     the positive modulo of: dividend % BITMASK_W_LEN, where the result will
+ *         be: 0 <= result < BITMASK_W_LEN
+ */
+static INLINE int
+bitmask_positive_modulo(int dividend)
+{
+    int result = dividend % BITMASK_W_LEN;
+    return (0 <= result) ? result : result + BITMASK_W_LEN;
+}
+
 bitmask_t *
 bitmask_create(int w, int h)
 {
@@ -171,9 +188,10 @@ bitmask_fill(bitmask_t *m)
 
     len = m->h * ((m->w - 1) / BITMASK_W_LEN);
 
-    shift = BITMASK_W_LEN - (m->w % BITMASK_W_LEN);
+    shift = bitmask_positive_modulo(BITMASK_W_LEN - m->w);
     full = ~(BITMASK_W)0;
     cmask = (~(BITMASK_W)0) >> shift;
+
     /* fill all the pixels that aren't in the rightmost BITMASK_Ws */
     for (pixels = m->bits; pixels < (m->bits + len); pixels++) {
         *pixels = full;
@@ -197,8 +215,9 @@ bitmask_invert(bitmask_t *m)
 
     len = m->h * ((m->w - 1) / BITMASK_W_LEN);
 
-    shift = BITMASK_W_LEN - (m->w % BITMASK_W_LEN);
+    shift = bitmask_positive_modulo(BITMASK_W_LEN - m->w);
     cmask = (~(BITMASK_W)0) >> shift;
+
     /* flip all the pixels that aren't in the rightmost BITMASK_Ws */
     for (pixels = m->bits; pixels < (m->bits + len); pixels++) {
         *pixels = ~(*pixels);
@@ -706,9 +725,11 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
     if (xoffset + b->w > c->w) {
         BITMASK_W edgemask;
         int n = c->w / BITMASK_W_LEN;
-        shift = (n + 1) * BITMASK_W_LEN - c->w;
+
+        shift = bitmask_positive_modulo(BITMASK_W_LEN - c->w);
         edgemask = (~(BITMASK_W)0) >> shift;
         c_end = c->bits + n * c->h + MIN(c->h, b->h + yoffset);
+
         for (cp = c->bits + n * c->h + MAX(yoffset, 0); cp < c_end; cp++)
             *cp &= edgemask;
     }
@@ -852,9 +873,11 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
     if (xoffset + b->w > a->w) {
         BITMASK_W edgemask;
         int n = a->w / BITMASK_W_LEN;
-        shift = (n + 1) * BITMASK_W_LEN - a->w;
+
+        shift = bitmask_positive_modulo(BITMASK_W_LEN - a->w);
         edgemask = (~(BITMASK_W)0) >> shift;
         a_end = a->bits + n * a->h + MIN(a->h, b->h + yoffset);
+
         for (ap = a->bits + n * a->h + MAX(yoffset, 0); ap < a_end; ap++)
             *ap &= edgemask;
     }
