@@ -378,10 +378,18 @@ typedef struct {
     (*(PyObject * (*)(SDL_Surface *)) \
         PYGAMEAPI_GET_SLOT(surface, 1))
 
+#define pgSurface_SetSurface                \
+    (*(int (*)(PyObject *, SDL_Surface *))  \
+        PYGAMEAPI_GET_SLOT(surface, 3))
+
 #else /* PG_API_VERSION == 2 */
 #define pgSurface_New2                     \
     (*(PyObject * (*)(SDL_Surface *, int)) \
         PYGAMEAPI_GET_SLOT(surface, 1))
+
+#define pgSurface_SetSurface                     \
+    (*(int (*)(PyObject *, SDL_Surface *, int))  \
+        PYGAMEAPI_GET_SLOT(surface, 3))
 
 #endif /* PG_API_VERSION == 2 */
 #define pgSurface_Blit                                                  \
