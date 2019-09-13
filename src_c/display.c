@@ -763,6 +763,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     SDL_Window *win = pg_GetDefaultWindow();
     PyObject *surface = pg_GetDefaultWindowSurface();
     SDL_Surface *surf = NULL;
+    SDL_Surface *newownedsurf = NULL;
     int depth = 0;
     int flags = 0;
     int w = 0;
@@ -945,6 +946,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 */
                 surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0xff << 16,
                                             0xff << 8, 0xff, 0);
+                newownedsurf = surf;
             } else {
                 surf = pgSurface_AsSurface(surface);
             }
@@ -972,6 +974,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
                 surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff << 16,
                                             0xff << 8, 0xff, 0);
+                newownedsurf = surf;
             } else {
                 surf = SDL_GetWindowSurface(win);
             }
@@ -997,14 +1000,15 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             goto DESTROY_WINDOW;
         }
         if (!surface) {
-            surface = pgSurface_NewNoOwn(surf);
+            surface = pgSurface_New2(surf, newownedsurf != NULL);
         } else {
+            pgSurface_SetSurface(surface, surf,
+                                 newownedsurf != NULL);
             Py_INCREF(surface);
-            pgSurface_AsSurface(surface) = surf;
         }
         if (!surface) {
-            if (state->using_gl)
-                SDL_FreeSurface(surf);
+            if (newownedsurf)
+                SDL_FreeSurface(newownedsurf);
             _display_state_cleanup(state);
             goto DESTROY_WINDOW;
         }
@@ -1012,12 +1016,11 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         /*no errors; make the window available*/
         pg_SetDefaultWindow(win);
         pg_SetDefaultWindowSurface(surface);
-        if(state->using_gl || flags & PGS_SCALED)
-            ((pgSurfaceObject*)surface)->owner = 1;
         Py_DECREF(surface);
 
+        /* ensure window is initially black */
         if (init_flip)
-            pg_flip_internal(state); /* ensure window is initially black */
+            pg_flip_internal(state);
     }
 
 #if !defined(darwin)
