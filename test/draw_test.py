@@ -1942,8 +1942,6 @@ class LinesMixin(BaseLineMixin):
         """Ensures thick lines are drawn without any gaps."""
         self.fail()
 
-    # This decorator can be removed when issue #1117 is resolved.
-    @unittest.expectedFailure
     def test_lines__bounding_rect(self):
         """Ensures draw lines returns the correct bounding rect.
 
