@@ -784,6 +784,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     vsync_env=SDL_getenv("PYGAME_VSYNC");
     scale_env=SDL_getenv("PYGAME_FORCE_SCALE");
 
+    if(win!=NULL)
+        display = SDL_GetWindowDisplayIndex(win);
+
     char *keywords[] = {
         "size",
         "flags",
