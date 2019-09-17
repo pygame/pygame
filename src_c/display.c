@@ -775,6 +775,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     char *title = state->title;
     int init_flip = 0;
 
+    if(win!=NULL)
+        display = SDL_GetWindowDisplayIndex(win);
+
     char *keywords[] = {
         "size",
         "flags",
