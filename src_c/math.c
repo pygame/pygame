@@ -3256,7 +3256,8 @@ vector_elementwiseproxy_dealloc(vector_elementwiseproxy *it)
 static PyObject *
 vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
 {
-    Py_ssize_t i, dim, ret;
+    Py_ssize_t i, dim;
+    int ret = 1;
     double diff, value;
     double *other_coords;
     pgVector *vec;
@@ -3283,7 +3284,6 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
         other = (PyObject *)((vector_elementwiseproxy *)other)->vec;
     dim = vec->dim;
 
-    ret = 1;
     if (pgVectorCompatible_Check(other, dim)) {
         other_coords = PyMem_New(double, dim);
         if (other_coords == NULL) {
