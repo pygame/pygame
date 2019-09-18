@@ -775,6 +775,15 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     char *title = state->title;
     int init_flip = 0;
     char *display_env, *vsync_env, *scale_env, *soft_env;
+
+    char *keywords[] = {
+        "size",
+        "flags",
+        "depth",
+        "display",
+        NULL
+    };
+
     display_env=SDL_getenv("PYGAME_DISPLAY");
 
     if(display_env != NULL){
@@ -785,16 +794,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     scale_env=SDL_getenv("PYGAME_FORCE_SCALE");
     soft_env=SDL_getenv("PYGAME_SCALE_SOFTWARE");
 
-    if(win!=NULL)
+    if(win!=NULL) {
         display = SDL_GetWindowDisplayIndex(win);
-
-    char *keywords[] = {
-        "size",
-        "flags",
-        "depth",
-        "display",
-        NULL
-    };
+    }
 
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords,
                                      &w, &h, &flags, &depth, &display))
@@ -802,13 +804,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     if (scale_env!=NULL){
         flags |= PGS_SCALED;
-	if (strcmp (scale_env,"photo") == 0) {
-	    SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
+        if (strcmp (scale_env,"photo") == 0) {
+            SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
                                             "best", SDL_HINT_NORMAL);
-	}
-	  
+        }
     }
-	
+
     if (w < 0 || h < 0)
         return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
 
