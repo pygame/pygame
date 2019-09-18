@@ -12,7 +12,7 @@ About pygame
 
      We need your help to make pygame the best it can be! https://www.pygame.org/contribute.html
 
-|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|_
+|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|_ |LGTMAlerts|_ |LGTMGradePython|_ |LGTMGradeC|_
 
 Installation
 ============
@@ -193,3 +193,12 @@ License
 
 .. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/1.9.6.svg
 .. _GithubCommits: https://github.com/pygame/pygame/compare/1.9.6...master
+
+.. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
+.. _LGTMAlerts: https://lgtm.com/projects/g/pygame/pygame/alerts/
+
+.. |LGTMGradePython| image:: https://img.shields.io/lgtm/grade/python/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
+.. _LGTMGradePython: https://lgtm.com/projects/g/pygame/pygame/context:python
+
+.. |LGTMGradeC| image:: https://img.shields.io/lgtm/grade/cpp/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
+.. _LGTMGradeC: https://lgtm.com/projects/g/pygame/pygame/context:cpp
