@@ -1227,11 +1227,11 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
                    GAME_Rect **ret_rects)
 {
     unsigned int *image, *ufind, *largest, *buf;
-    int x, y, w, h, temp, label, relabel;
+    unsigned int x_uf, label = 0;
+    int x, y, w, h, temp, relabel;
     GAME_Rect *rects;
 
     rects = NULL;
-    label = 0;
 
     w = input->w;
     h = input->h;
@@ -1265,13 +1265,13 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
     /* flatten and relabel the union-find equivalence array.  Start at label 1
        because label 0 indicates an unset pixel.  For this reason, we also use
        <= label rather than < label. */
-    for (x = 1; x <= label; x++) {
-        if (ufind[x] < x) {             /* is it a union find root? */
-            ufind[x] = ufind[ufind[x]]; /* relabel it to its root */
+    for (x_uf = 1; x_uf <= label; ++x_uf) {
+        if (ufind[x_uf] < x_uf) {             /* is it a union find root? */
+            ufind[x_uf] = ufind[ufind[x_uf]]; /* relabel it to its root */
         }
         else { /* its a root */
             relabel++;
-            ufind[x] = relabel; /* assign the lowest label available */
+            ufind[x_uf] = relabel; /* assign the lowest label available */
         }
     }
 
@@ -1386,7 +1386,8 @@ mask_get_bounding_rects(PyObject *self, PyObject *args)
  *     mask - mask to search in for the connected components
  *     components - passes back an array of connected component masks with the
  *         first component at index 1, memory is allocated
- *     min - minimum number of pixels for a component to be considered
+ *     min - minimum number of pixels for a component to be considered,
+ *         defaults to 0 for negative values
  *
  * Returns:
  *     the number of connected components (>= 0)
@@ -1396,10 +1397,9 @@ static int
 get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 {
     unsigned int *image, *ufind, *largest, *buf;
-    int x, y, w, h, label, relabel;
+    unsigned int x_uf, min_cc, label = 0;
+    int x, y, w, h, relabel;
     bitmask_t **comps;
-
-    label = 0;
 
     w = mask->w;
     h = mask->h;
@@ -1432,27 +1432,29 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
     /* do the initial labelling */
     label = cc_label(mask, image, ufind, largest);
 
-    for (x = 1; x <= label; x++) {
-        if (ufind[x] < x) {
-            largest[ufind[x]] += largest[x];
+    for (x_uf = 1; x_uf <= label; ++x_uf) {
+        if (ufind[x_uf] < x_uf) {
+            largest[ufind[x_uf]] += largest[x_uf];
         }
     }
 
     relabel = 0;
+    min_cc = (0 < min) ? (unsigned int)min : 0;
+
     /* flatten and relabel the union-find equivalence array.  Start at label 1
        because label 0 indicates an unset pixel.  For this reason, we also use
        <= label rather than < label. */
-    for (x = 1; x <= label; x++) {
-        if (ufind[x] < x) {             /* is it a union find root? */
-            ufind[x] = ufind[ufind[x]]; /* relabel it to its root */
+    for (x_uf = 1; x_uf <= label; ++x_uf) {
+        if (ufind[x_uf] < x_uf) {             /* is it a union find root? */
+            ufind[x_uf] = ufind[ufind[x_uf]]; /* relabel it to its root */
         }
         else { /* its a root */
-            if (largest[x] >= min) {
+            if (largest[x_uf] >= min_cc) {
                 relabel++;
-                ufind[x] = relabel; /* assign the lowest label available */
+                ufind[x_uf] = relabel; /* assign the lowest label available */
             }
             else {
-                ufind[x] = 0;
+                ufind[x_uf] = 0;
             }
         }
     }
