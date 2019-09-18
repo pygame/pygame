@@ -774,7 +774,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int display = 0;
     char *title = state->title;
     int init_flip = 0;
-    char *display_env, *vsync_env, *scale_env;
+    char *display_env, *vsync_env, *scale_env, *soft_env;
     display_env=SDL_getenv("PYGAME_DISPLAY");
 
     if(display_env != NULL){
@@ -783,6 +783,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     vsync_env=SDL_getenv("PYGAME_VSYNC");
     scale_env=SDL_getenv("PYGAME_FORCE_SCALE");
+    soft_env=SDL_getenv("PYGAME_SCALE_SOFTWARE");
 
     if(win!=NULL)
         display = SDL_GetWindowDisplayIndex(win);
@@ -1000,12 +1001,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
                     SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
                                             "nearest", SDL_HINT_DEFAULT);
-		    if (vsync_env!=NULL) {
+                    if (soft_env!=NULL){
+                        pg_renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+                    } else if (vsync_env!=NULL) {
                         pg_renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_PRESENTVSYNC);
-		    } else {
-		        pg_renderer = SDL_CreateRenderer(win, -1, 0);
-		    }
-			
+                    } else {
+                        pg_renderer = SDL_CreateRenderer(win, -1, 0);
+                    }
+
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
 
                     SDL_GetRendererInfo(pg_renderer, &info);
@@ -2075,47 +2078,61 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
     pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     GL_glViewport_Func p_glViewport = NULL;
-    SDL_SysWMinfo info;
-
+    SDL_SysWMinfo wm_info;
+    SDL_RendererInfo r_info;
 
     VIDEO_INIT_CHECK();
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
-    flags = SDL_GetWindowFlags(win) &
-            (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+    flags = SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP;
+    /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
 
-    SDL_VERSION(&info.version);
-    SDL_GetWindowWMInfo(win, &info);
-    switch(info.subsystem) {
+    SDL_VERSION(&wm_info.version);
+    SDL_GetWindowWMInfo(win, &wm_info);
+    if (pg_renderer !=NULL)
+        SDL_GetRendererInfo(pg_renderer, &r_info);
+
+    switch(wm_info.subsystem) {
 
       // if we get this to work correctly with more systems, move them here
-      case SDL_SYSWM_X11:
-	break; 
-
       case SDL_SYSWM_WINDOWS:
-#if SDL_VERSION_ATLEAST(2, 0, 3)
-      case SDL_SYSWM_WINRT:
-#endif
-      case SDL_SYSWM_DIRECTFB:
-      case SDL_SYSWM_COCOA:
-      case SDL_SYSWM_UIKIT:
+      case SDL_SYSWM_X11:
 #if SDL_VERSION_ATLEAST(2, 0, 2)
       case SDL_SYSWM_WAYLAND:
-      case SDL_SYSWM_MIR:
 #endif
+	      break;
+
+      // These probably have fullscreen/windowed, but not tested yet.
+      // before merge, this section should be handled by moving items
+      // into the "supported" category, or returning early.
+      case SDL_SYSWM_COCOA: // we *need* to get this one to work
+
+#if SDL_VERSION_ATLEAST(2, 0, 3)
+      case SDL_SYSWM_WINRT: // currently not supported by pygame?
+#endif
+          break;
+
+      // On these platforms, everything is fullscreen at all times anyway
+      // So we silently fail
+      // In the future, add consoles like xbone/switch here
+      case SDL_SYSWM_DIRECTFB:
+      case SDL_SYSWM_UIKIT: // iOS currently not supported by pygame
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-      case SDL_SYSWM_ANDROID:
+      case SDL_SYSWM_ANDROID: // currently not supported by pygame
+#endif
+          return PyInt_FromLong(-1);
+
+      // Untested and unsupported platforms
+#if SDL_VERSION_ATLEAST(2, 0, 2)
+    case SDL_SYSWM_MIR: //nobody uses mir any more, wayland has won
 #endif
 #if SDL_VERSION_ATLEAST(2, 0, 5)
-      case SDL_SYSWM_VIVANTE:
+    case SDL_SYSWM_VIVANTE:
 #endif
-    // everything that doesn't work will fallthrough to here
-    // this includes windows and mac as of now.
-    // not raising an exception here is deliberate,
-    // for backwards compatibility
     case SDL_SYSWM_UNKNOWN:
-	return PyInt_FromLong(-1);
+    default:
+	   return RAISE(pgExc_SDLError, "Unsupported platform");
     }
 
     display_surface = pg_GetDefaultWindowSurface();
@@ -2130,7 +2147,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
     /*
       if (pg_renderer != NULL) {
         SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
-    }
+    } else
     */
     if (state->using_gl) {
         p_glViewport = (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
@@ -2150,13 +2167,26 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             xscale = window_w / w;
             yscale = window_h / h;
             scale = xscale < yscale ? xscale : yscale;
-            if (scale < 1)
+            if (scale < 1) {
                 scale = 1;
-
+            }
             result = SDL_SetWindowFullscreen(win, 0);
             SDL_SetWindowSize(win, w * scale, h * scale);
+
+            if (r_info.flags & SDL_RENDERER_SOFTWARE){
+                /* display surface lost? */
+                SDL_DestroyTexture(pg_texture);
+                SDL_DestroyRenderer(pg_renderer);
+                pg_renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+                pg_texture = SDL_CreateTexture(
+                        pg_renderer, SDL_PIXELFORMAT_ARGB8888,
+                        SDL_TEXTUREACCESS_STREAMING, w, h);
+            }
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
         } else if (state -> using_gl) {
+            /* this is literally the only place where state->toggle_windowed_w
+             * should ever be read. We only use it because with GL, there is no
+             * display surface we can query for dimensions. */
             result = SDL_SetWindowFullscreen(win, 0);
             SDL_GL_MakeCurrent(win, state-> gl_context);
             if (state->toggle_windowed_w>0
@@ -2164,43 +2194,104 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                 p_glViewport(0, 0,
                              state->toggle_windowed_w,
                              state->toggle_windowed_h);
-                state->toggle_windowed_w = 0;
-                state->toggle_windowed_h = 0;
             }
         } else if (flags == SDL_WINDOW_FULLSCREEN_DESKTOP) {
             result = SDL_SetWindowFullscreen(win, 0);
             display_surface->surf = SDL_GetWindowSurface(win);
-        } else {
-            SDL_DestroyWindow(win);
-            win = SDL_CreateWindow(state->title,
-                                   0, 0, w, h, 0);
+        } else if (wm_info.subsystem ==  SDL_SYSWM_X11) {
+            /* This is a HACK, specifically to work around faulty behaviour of
+             * SDL_SetWindowFullscreen on X11 when switching out of fullscreen
+             * would change the physical resolution of the display back to the
+             * desktop resolution in SDL 2.0.8 (unsure about other versions).
+             * The display surface gets messed up, so we re-create the window.
+             * This is only relevant in the non-GL case. */
+            int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+            int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+            win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
             display_surface->surf = SDL_GetWindowSurface(win);
             pg_SetDefaultWindow(win);
+        /* } else if (wm_info.subsystem ==  SDL_SYSWM_WAYLAND) { */
+        /*     /\* So SDL_SetWindowFullscreen changes the size of the display surf */
+        /*      * under Wayland, instead of the screen res! This is bad! */
+        /*      * And even worse, it used to work with pygame 1.9.6 *\/ */
+        /*     // redundant with code that bails if resolution changes? */
+
+        /*     int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display); */
+        /*     int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display); */
+        /*     win = SDL_CreateWindow(state->title, */
+        /*                            wx, */
+        /*                            wy, */
+        /*                            state->toggle_windowed_w, */
+        /*                            state->toggle_windowed_h, */
+        /*                            0); */
+        /*     display_surface->surf = SDL_GetWindowSurface(win); */
+        /*     pg_SetDefaultWindow(win); */
+        } else {
+            result = SDL_SetWindowFullscreen(win, 0);
+            display_surface->surf = SDL_GetWindowSurface(win);
         }
+        state->toggle_windowed_w = 0;
+        state->toggle_windowed_h = 0;
     } else {
         /* TOGGLE FULLSCREEN ON */
 
+        state->toggle_windowed_w = w;
+        state->toggle_windowed_h = h;
         if (pg_renderer != NULL) {
             result =
                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            if (r_info.flags & SDL_RENDERER_SOFTWARE){
+                /* display surface lost? only on x11? */
+                SDL_DestroyTexture(pg_texture);
+                SDL_DestroyRenderer(pg_renderer);
+                pg_renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+                pg_texture = SDL_CreateTexture(
+                        pg_renderer, SDL_PIXELFORMAT_ARGB8888,
+                        SDL_TEXTUREACCESS_STREAMING, w, h);
+            }
+
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
-        }
-        else if (state->using_gl) {
-            state->toggle_windowed_w = w;
-            state->toggle_windowed_h = h;
+        } else if (state->using_gl) {
             result =
                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
             SDL_GL_MakeCurrent(win, state->gl_context);
             p_glViewport(0, 0, display_mode.w, display_mode.h);
-        }
-        else if (w == display_mode.w && h == display_mode.h) {
+        } else if (w == display_mode.w && h == display_mode.h) {
             result =
                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
             display_surface->surf = SDL_GetWindowSurface(win);
-        }
-        else {
+        } else if (wm_info.subsystem ==  SDL_SYSWM_WAYLAND) {
+            return PyInt_FromLong(-1);
+        } else {
+            /* int display_mode_count = SDL_GetNumDisplayModes(window_display); */
+            /* SDL_DisplayMode current, target, closest; */
+            /* if (display_mode_count < 1) { */
+            /*     return PyInt_FromLong(-1); */
+            /* } */
+            /* SDL_GetCurrentDisplayMode(window_display, &current); */
+            /* target.w=w; */
+            /* target.h=h; */
+            /* target.format = 0;  // don't care */
+            /* target.refresh_rate = 0; // don't care */
+            /* target.driverdata   = 0; // initialize to 0 */
+            /* if (SDL_GetClosestDisplayMode(window_display, &target, &closest)){ */
+            /*     // switching the physical resolution is the last resort. */
+            /*     // make sure the display actually supports the resolution */
+            /*     result = SDL_SetWindowDisplayMode(win, &closest); */
+            /* } else { */
+            /*     result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN); */
+            /* } */
             result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
             display_surface->surf = SDL_GetWindowSurface(win);
+            if(w != display_surface->surf->w
+               || h != display_surface->surf->h){
+                int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+                int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+                win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+                display_surface->surf = SDL_GetWindowSurface(win);
+                pg_SetDefaultWindow(win);
+                return PyInt_FromLong(-1);
+            }
         }
     }
     return PyInt_FromLong(result != 0);
