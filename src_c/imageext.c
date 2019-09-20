@@ -549,8 +549,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     struct jpeg_error_mgr jerr;
     SDL_RWops *outfile;
     JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
-    int num_lines_to_write;
-    int i;
+    JDIMENSION i, num_lines_to_write;
 
     num_lines_to_write = NUM_LINES_TO_WRITE;
 
