@@ -2259,6 +2259,97 @@ class MaskTypeTest(unittest.TestCase):
         for mask in comps:
             self.assertIsInstance(mask, pygame.mask.Mask)
 
+    def test_connected_components__negative_min_with_empty_mask(self):
+        """Ensures connected_components() properly handles negative min values
+        when the mask is empty.
+
+        Negative and zero values for the min parameter (minimum number of bits
+        per connected component) equate to setting it to one.
+        """
+        expected_comps = []
+        mask_count = 0
+        mask_size = (65, 13)
+        mask = pygame.mask.Mask(mask_size)
+
+        connected_comps = mask.connected_components(-1)
+
+        self.assertListEqual(connected_comps, expected_comps)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(mask.count(), mask_count)
+        self.assertEqual(mask.get_size(), mask_size)
+
+    def test_connected_components__negative_min_with_full_mask(self):
+        """Ensures connected_components() properly handles negative min values
+        when the mask is full.
+
+        Negative and zero values for the min parameter (minimum number of bits
+        per connected component) equate to setting it to one.
+        """
+        mask_size = (64, 11)
+        mask = pygame.mask.Mask(mask_size, fill=True)
+        mask_count = mask.count()
+        expected_len = 1
+
+        connected_comps = mask.connected_components(-2)
+
+        self.assertEqual(len(connected_comps), expected_len)
+        assertMaskEqual(self, connected_comps[0], mask)
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(mask.count(), mask_count)
+        self.assertEqual(mask.get_size(), mask_size)
+
+    def test_connected_components__negative_min_with_some_bits_set(self):
+        """Ensures connected_components() properly handles negative min values
+        when the mask has some bits set.
+
+        Negative and zero values for the min parameter (minimum number of bits
+        per connected component) equate to setting it to one.
+        """
+        mask_size = (64, 12)
+        mask = pygame.mask.Mask(mask_size)
+        expected_comps = {}
+
+        # Set the corners and the center positions. A new expected component
+        # mask is created for each point.
+        for corner in corners(mask):
+            mask.set_at(corner)
+
+            new_mask = pygame.mask.Mask(mask_size)
+            new_mask.set_at(corner)
+            expected_comps[corner] = new_mask
+
+        center = (mask_size[0] // 2, mask_size[1] // 2)
+        mask.set_at(center)
+
+        new_mask = pygame.mask.Mask(mask_size)
+        new_mask.set_at(center)
+        expected_comps[center] = new_mask
+        mask_count = mask.count()
+
+        connected_comps = mask.connected_components(-3)
+
+        self.assertEqual(len(connected_comps), len(expected_comps))
+
+        for comp in connected_comps:
+            # Since the masks in the connected component list can be in any
+            # order, loop the expected components to find its match.
+            found = False
+
+            for pt in tuple(expected_comps.keys()):
+                if comp.get_at(pt):
+                    found = True
+                    assertMaskEqual(self, comp, expected_comps[pt])
+                    del expected_comps[pt] # Entry removed so it isn't reused.
+                    break
+
+            self.assertTrue(found, 'missing component for pt={}'.format(pt))
+
+        # Ensure the original mask is unchanged.
+        self.assertEqual(mask.count(), mask_count)
+        self.assertEqual(mask.get_size(), mask_size)
+
     def test_get_bounding_rects(self):
         """Ensures get_bounding_rects works correctly."""
         # Create masks with different set point groups. Each group of
