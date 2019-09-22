@@ -223,7 +223,8 @@ static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
     if (delay < 0 || interval < 0) {
-        RAISE(PyExc_ValueError, "delay and interval must equal at least 0");
+        PyErr_SetString(PyExc_ValueError,
+                        "delay and interval must equal at least 0");
         return -1;
     }
     pg_key_repeat_delay = delay;
@@ -425,6 +426,8 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
     }
 }
 
+#if IS_SDLv1
+
 #if defined(Py_USING_UNICODE)
 
 static PyObject *
@@ -478,6 +481,8 @@ _pg_our_empty_ustr(void)
 }
 
 #endif /* Py_USING_UNICODE */
+
+#endif /* IS_SDLv1 */
 
 static PyObject *
 dict_from_event(SDL_Event *event)
@@ -1259,7 +1264,8 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type = NULL;
     int dopump = 1;
     int val;
@@ -1396,7 +1402,8 @@ static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type = NULL, *list;
     int dopump = 1;
     int val;
@@ -1535,8 +1542,9 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
+    Py_ssize_t num;
     int result;
-    int loop, num;
+    int loop;
     PyObject *type = NULL;
     int val;
     int dopump = 1;
@@ -1642,7 +1650,8 @@ _pg_check_event_in_range(int evt)
 static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *args)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type;
     int val;
 
@@ -1686,7 +1695,8 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
 static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *args)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type;
     int val;
 
@@ -1730,7 +1740,8 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
 static PyObject *
 pg_event_get_blocked(PyObject *self, PyObject *args)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type;
     int val;
     int isblocked = 0;
