@@ -289,7 +289,7 @@ parse_dest(PyObject *dest, int *x, int *y)
     int i, j;
 
     if (!PySequence_Check(dest) || /* conditional and */
-        !PySequence_Size(dest) > 1) {
+        !(PySequence_Size(dest) > 1)) {
         PyErr_Format(PyExc_TypeError,
                      "Expected length 2 sequence for dest argument:"
                      " got type %.1024s",
