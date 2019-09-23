@@ -23,7 +23,7 @@
 #include <Python.h>
 #include "pgplatform.h"
 
-typedef struct TTF_Font;
+struct TTF_Font;
 
 typedef struct {
   PyObject_HEAD
