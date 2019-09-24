@@ -1177,6 +1177,8 @@ filter_expand_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
             free(xmult0);
         if (xmult1)
             free(xmult1);
+
+        return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */
@@ -1834,6 +1836,11 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     surf = pgSurface_AsSurface(surf_obj);
+
+    if (NULL == surf) {
+        return RAISE(PyExc_TypeError, "invalid surf argument");
+    }
+
     if (search_surf_obj && pgSurface_Check(search_surf_obj))
         search_surf = pgSurface_AsSurface(search_surf_obj);
 
@@ -1862,11 +1869,11 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
             return RAISE(PyExc_TypeError, "invalid set_color argument");
     }
 
-    if (dest_surf && surf &&
-        (surf->h != dest_surf->h || surf->w != dest_surf->w)) {
+    if (dest_surf && (surf->h != dest_surf->h || surf->w != dest_surf->w)) {
         return RAISE(PyExc_TypeError, "surf and dest_surf not the same size");
     }
-    if (search_surf && surf &&
+
+    if (search_surf &&
         (surf->h != search_surf->h || surf->w != search_surf->w)) {
         return RAISE(PyExc_TypeError,
                      "surf and search_surf not the same size");

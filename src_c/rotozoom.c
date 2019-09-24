@@ -288,7 +288,6 @@ transformSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int cx, int cy,
                         c11 = *sp;
                     }
                     else if ((dx == -1) && (dy == sh)) {
-                        sp = (tColorRGBA *)(src->pixels);
                         sp = (tColorRGBA *)((Uint8 *)src->pixels +
                                             src->pitch * dy);
                         c00 = *sp;

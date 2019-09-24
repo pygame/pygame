@@ -401,6 +401,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         free(xidx0);
         if (xmult0) free(xmult0);
         if (xmult1) free(xmult1);
+        return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */
@@ -476,6 +477,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         free(xidx0);
         if (xmult0) free(xmult0);
         if (xmult1) free(xmult1);
+        return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */

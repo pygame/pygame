@@ -3660,8 +3660,8 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj,
 {
     Py_ssize_t i, dim;
     double *tmp;
-    PyObject *bases[VECTOR_MAX_SIZE];
-    PyObject *expos[VECTOR_MAX_SIZE];
+    PyObject *bases[VECTOR_MAX_SIZE] = {NULL};
+    PyObject *expos[VECTOR_MAX_SIZE] = {NULL};
     PyObject *ret, *result;
     if (mod != Py_None) {
         PyErr_SetString(PyExc_TypeError,

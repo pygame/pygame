@@ -1089,7 +1089,7 @@ _color_set_hsva(pgColorObject *color, PyObject *value, void *closure)
         item = PySequence_GetItem(value, 3);
         if (!item || !_get_double(item, &(hsva[3])) || hsva[3] < 0 ||
             hsva[3] > 100) {
-            Py_DECREF(item);
+            Py_XDECREF(item);
             PyErr_SetString(PyExc_ValueError, "invalid HSVA value");
             return -1;
         }
@@ -1252,7 +1252,7 @@ _color_set_hsla(pgColorObject *color, PyObject *value, void *closure)
         item = PySequence_GetItem(value, 3);
         if (!item || !_get_double(item, &(hsla[3])) || hsla[3] < 0 ||
             hsla[3] > 100) {
-            Py_DECREF(item);
+            Py_XDECREF(item);
             PyErr_SetString(PyExc_ValueError, "invalid HSLA value");
             return -1;
         }
