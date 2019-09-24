@@ -613,9 +613,11 @@ set_pixel_color(Uint8 *pixel, Uint8 bpp, Uint32 color)
     switch (bpp) {
         case 1:
             *pixel = color;
+            break;
 
         case 2:
             *(Uint16 *)pixel = color;
+            break;
 
         case 3:
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -626,9 +628,11 @@ set_pixel_color(Uint8 *pixel, Uint8 bpp, Uint32 color)
             pixel[1] = color >> 8;
             pixel[0] = color >> 16;
 #endif /* SDL_LIL_ENDIAN */
+            break;
 
         default: /* case 4: */
             *(Uint32 *)pixel = color;
+            break;
     }
 }
 
@@ -1250,11 +1254,14 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
     /* the union-find array. see wikipedia for info on union find */
     ufind = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
     if (!ufind) {
+        free(image);
         return -2;
     }
 
     largest = (unsigned int *)malloc(sizeof(int) * (w / 2 + 1) * (h / 2 + 1));
     if (!largest) {
+        free(image);
+        free(ufind);
         return -2;
     }
 
@@ -1289,6 +1296,9 @@ get_bounding_rects(bitmask_t *input, int *num_bounding_boxes,
     /* the bounding rects, need enough space for the number of labels */
     rects = (GAME_Rect *)malloc(sizeof(GAME_Rect) * (relabel + 1));
     if (!rects) {
+        free(image);
+        free(ufind);
+        free(largest);
         return -2;
     }
 
@@ -1360,8 +1370,10 @@ mask_get_bounding_rects(PyObject *self, PyObject *args)
     }
 
     ret = PyList_New(0);
-    if (!ret)
+    if (!ret) {
+        free(regions);
         return NULL;
+    }
 
     /* build a list of rects to return.  Starts at 1 because we never use 0. */
     for (i = 1; i <= num_bounding_boxes; i++) {
@@ -1525,25 +1537,38 @@ mask_connected_components(PyObject *self, PyObject *args)
 
     mask_list = PyList_New(0);
     if (!mask_list) {
+        /* Components were allocated starting at index 1. */
+        for (i = 1; i <= num_components; ++i) {
+            bitmask_free(components[i]);
+        }
+
+        free(components);
         return NULL; /* Exception already set. */
     }
 
+    /* Components were allocated starting at index 1. */
     for (i = 1; i <= num_components; ++i) {
         maskobj = create_mask_using_bitmask(components[i]);
 
         if (NULL == maskobj) {
+            /* Starting freeing with the current index. */
             for (m = i; m <= num_components; ++m) {
                 bitmask_free(components[m]);
             }
+
+            free(components);
             Py_DECREF(mask_list);
             return NULL; /* Exception already set. */
         }
 
         if (0 != PyList_Append(mask_list, (PyObject *)maskobj)) {
-            /* Can't append to the list. */
+            /* Can't append to the list. Starting freeing with the next index
+             * as maskobj contains the component from the current index. */
             for (m = i + 1; m <= num_components; ++m) {
                 bitmask_free(components[m]);
             }
+
+            free(components);
             Py_DECREF((PyObject *)maskobj);
             Py_DECREF(mask_list);
             return NULL; /* Exception already set. */
