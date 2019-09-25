@@ -536,7 +536,7 @@ mask_convolve(PyObject *aobj, PyObject *args)
 {
     PyObject *bobj = NULL;
     PyObject *oobj = Py_None;
-    bitmask_t *a = NULL, *b = NULL, *output = NULL;
+    bitmask_t *a = NULL, *b = NULL;
     int xoffset = 0, yoffset = 0;
 
     if (!PyArg_ParseTuple(args, "O!|O(ii)", &pgMask_Type, &bobj, &oobj,
@@ -935,7 +935,6 @@ mask_from_threshold(PyObject *self, PyObject *args)
     PyObject *surfobj, *surfobj2 = NULL;
     pgMaskObject *maskobj = NULL;
     SDL_Surface *surf = NULL, *surf2 = NULL;
-    int bpp;
     PyObject *rgba_obj_color, *rgba_obj_threshold = NULL;
     Uint8 rgba_color[4];
     Uint8 rgba_threshold[4] = {0, 0, 0, 255};
@@ -986,7 +985,6 @@ mask_from_threshold(PyObject *self, PyObject *args)
                         rgba_threshold[2], rgba_threshold[3]);
     }
 
-    bpp = surf->format->BytesPerPixel;
     maskobj = CREATE_MASK_OBJ(surf->w, surf->h, 0);
 
     if (NULL == maskobj) {
