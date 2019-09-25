@@ -816,8 +816,8 @@ static PyObject *
 surf_get_at(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = surf->format;
-    Uint8 *pixels = (Uint8 *)surf->pixels;
+    SDL_PixelFormat *format = NULL;
+    Uint8 *pixels = NULL;
     int x, y;
     Uint32 color;
     Uint8 *pix;
@@ -839,6 +839,8 @@ surf_get_at(PyObject *self, PyObject *args)
 
     if (x < 0 || x >= surf->w || y < 0 || y >= surf->h)
         return RAISE(PyExc_IndexError, "pixel index out of range");
+
+    format = surf->format;
 
     if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
@@ -905,7 +907,7 @@ static PyObject *
 surf_set_at(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = surf->format;
+    SDL_PixelFormat *format = NULL;
     Uint8 *pixels;
     int x, y;
     Uint32 color;
@@ -922,6 +924,8 @@ surf_set_at(PyObject *self, PyObject *args)
     if (surf->flags & SDL_OPENGL)
         return RAISE(pgExc_SDLError, "Cannot call on OPENGL Surfaces");
 #endif /* IS_SDLv1 */
+
+    format = surf->format;
 
     if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
@@ -984,8 +988,8 @@ static PyObject *
 surf_get_at_mapped(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = surf->format;
-    Uint8 *pixels = (Uint8 *)surf->pixels;
+    SDL_PixelFormat *format = NULL;
+    Uint8 *pixels = NULL;
     int x, y;
     Sint32 color;
     Uint8 *pix;
@@ -1002,6 +1006,8 @@ surf_get_at_mapped(PyObject *self, PyObject *args)
 
     if (x < 0 || x >= surf->w || y < 0 || y >= surf->h)
         return RAISE(PyExc_IndexError, "pixel index out of range");
+
+    format = surf->format;
 
     if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
@@ -1140,7 +1146,7 @@ static PyObject *
 surf_get_palette(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_Palette *pal = surf->format->palette;
+    SDL_Palette *pal = NULL;
     PyObject *list;
     int i;
     PyObject *color;
@@ -1149,6 +1155,8 @@ surf_get_palette(PyObject *self, PyObject *args)
 
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
+
+    pal = surf->format->palette;
 
     if (!pal)
         return RAISE(pgExc_SDLError, "Surface has no palette to get\n");
@@ -1178,7 +1186,7 @@ static PyObject *
 surf_get_palette_at(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_Palette *pal = surf->format->palette;
+    SDL_Palette *pal = NULL;
     SDL_Color *c;
     int _index;
     Uint8 rgba[4];
@@ -1187,6 +1195,8 @@ surf_get_palette_at(PyObject *self, PyObject *args)
         return NULL;
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
+
+    pal = surf->format->palette;
 
     if (!pal)
         return RAISE(pgExc_SDLError, "Surface has no palette to set\n");
@@ -1212,15 +1222,13 @@ surf_set_palette(PyObject *self, PyObject *args)
      * part of the palette is replaced. For the SDL 1.2 Pygame version,
      * the actual colors array is replaced, making it shorter.
      */
-    SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_Palette *pal = surf->format->palette;
     const SDL_Color *old_colors;
     SDL_Color colors[256];
 #else  /* IS_SDLv1 */
-    SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_Palette *pal = surf->format->palette;
     SDL_Color *colors;
 #endif /* IS_SDLv1 */
+    SDL_Surface *surf = pgSurface_AsSurface(self);
+    SDL_Palette *pal = NULL;
     PyObject *list, *item;
     int i, len;
     Uint8 rgba[4];
@@ -1232,6 +1240,8 @@ surf_set_palette(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "display Surface quit");
     if (!PySequence_Check(list))
         return RAISE(PyExc_ValueError, "Argument must be a sequence type");
+
+    pal = surf->format->palette;
 
 #if IS_SDLv2
     if (!SDL_ISPIXELFORMAT_INDEXED(surf->format->format))
@@ -1304,7 +1314,7 @@ static PyObject *
 surf_set_palette_at(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_Palette *pal = surf->format->palette;
+    SDL_Palette *pal = NULL;
     SDL_Color color;
     int _index;
     PyObject *color_obj;
@@ -1324,6 +1334,8 @@ surf_set_palette_at(PyObject *self, PyObject *args)
     if (!SDL_ISPIXELFORMAT_INDEXED(surf->format->format))
         return RAISE(pgExc_SDLError, "Surface colors are not indexed\n");
 #endif /* IS_SDLv2 */
+
+    pal = surf->format->palette;
 
     if (!pal) {
         PyErr_SetString(pgExc_SDLError, "Surface is not palettized\n");
@@ -2367,9 +2379,11 @@ bliterror:
         case BLITS_ERR_SEQUENCE_SURF:
             return RAISE(PyExc_TypeError,
                          "First element of blit_list needs to be Surface.");
+#if IS_SDLv1
         case BLITS_ERR_NO_OPENGL_SURF:
             return RAISE(pgExc_SDLError,
                          "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
+#endif /* IS_SDLv1 */
         case BLITS_ERR_INVALID_DESTINATION:
             return RAISE(PyExc_TypeError,
                          "invalid destination position for blit");
@@ -2900,8 +2914,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 #endif
     PyObject *rect;
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    SDL_PixelFormat *format = surf->format;
-    Uint8 *pixels = (Uint8 *)surf->pixels;
+    SDL_PixelFormat *format = NULL;
+    Uint8 *pixels = NULL;
     Uint8 *pixel;
     int x, y;
     int min_x, min_y, max_x, max_y;
@@ -2926,6 +2940,8 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!pgSurface_Lock(self))
         return RAISE(pgExc_SDLError, "could not lock surface");
+
+    format = surf->format;
 
 #if IS_SDLv1
     if (surf->flags & SDL_SRCCOLORKEY) {
