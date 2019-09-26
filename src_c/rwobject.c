@@ -122,7 +122,7 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
         }
     }
     if (!helper->read && !helper->write) {
-        RAISE(PyExc_TypeError, "not a file object");
+        PyErr_SetString(PyExc_TypeError, "not a file object");
         return -1;
     }
     if (PyObject_HasAttrString(obj, "seek")) {
@@ -475,7 +475,7 @@ pgRWops_ReleaseObject(SDL_RWops *context)
         else {
             int ret;
             if ((ret = SDL_RWclose(context)) < 0) {
-                RAISE(PyExc_IOError, SDL_GetError());
+                PyErr_SetString(PyExc_IOError, SDL_GetError());
                 Py_DECREF(fileobj);
                 return ret;
             }
@@ -488,7 +488,7 @@ pgRWops_ReleaseObject(SDL_RWops *context)
     else {
         int ret;
         if ((ret = SDL_RWclose(context)) < 0) {
-            RAISE(PyExc_IOError, SDL_GetError());
+            PyErr_SetString(PyExc_IOError, SDL_GetError());
             return ret;
         }
     }
@@ -588,7 +588,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
-    size_t retval;
+    ssize_t retval;
 #endif /* IS_SDLv2 */
 #ifdef WITH_THREAD
     PyGILState_STATE state;
@@ -657,11 +657,12 @@ _rwops_from_pystr(PyObject *obj)
 #if PY3
             if (PyUnicode_Check(obj)) {
                 SDL_ClearError();
-                RAISE(PyExc_FileNotFoundError, "No such file or directory.");
+                PyErr_SetString(PyExc_FileNotFoundError,
+                                "No such file or directory.");
 #else
             if (PyUnicode_Check(obj) || PyString_Check(obj)) {
                 SDL_ClearError();
-                RAISE(PyExc_IOError, "No such file or directory.");
+                PyErr_SetString(PyExc_IOError, "No such file or directory.");
 #endif
                 return NULL;
             }
@@ -700,7 +701,7 @@ pg_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     if (obj == NULL) {
-        RAISE(PyExc_SyntaxError, "Forwarded exception");
+        PyErr_SetString(PyExc_SyntaxError, "Forwarded exception");
     }
     return pg_EncodeString(obj, encoding, errors, eclass);
 }
@@ -718,7 +719,7 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     if (obj == NULL) {
-        RAISE(PyExc_SyntaxError, "Forwarded exception");
+        PyErr_SetString(PyExc_SyntaxError, "Forwarded exception");
     }
     return pg_EncodeFilePath(obj, eclass);
 }

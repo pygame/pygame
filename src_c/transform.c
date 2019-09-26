@@ -749,7 +749,7 @@ surf_flip(PyObject *self, PyObject *arg)
     SDL_Surface *surf, *newsurf;
     int xaxis, yaxis;
     int loopx, loopy;
-    int pixsize, srcpitch, dstpitch;
+    int srcpitch, dstpitch;
     Uint8 *srcpix, *dstpix;
 
     /*get all the arguments*/
@@ -762,7 +762,6 @@ surf_flip(PyObject *self, PyObject *arg)
     if (!newsurf)
         return NULL;
 
-    pixsize = surf->format->BytesPerPixel;
     srcpitch = surf->pitch;
     dstpitch = newsurf->pitch;
 
@@ -1629,7 +1628,7 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
 {
     int x, y, similar;
     Uint8 *pixels, *destpixels = NULL, *pixels2 = NULL;
-    SDL_PixelFormat *format, *destformat = NULL;
+    SDL_PixelFormat *format;
     Uint32 the_color, the_color2, dest_set_color;
     Uint8 search_color_r, search_color_g, search_color_b;
     Uint8 surf_r, surf_g, surf_b;
@@ -1644,7 +1643,6 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
 
     if (set_behavior) {
         destpixels = (Uint8 *)dest_surf->pixels;
-        destformat = dest_surf->format;
     }
     if (search_surf) {
         pixels2 = (Uint8 *)search_surf->pixels;

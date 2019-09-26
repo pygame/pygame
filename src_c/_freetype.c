@@ -1471,9 +1471,9 @@ _ftfont_getsizedascender(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typefont");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typefont");
             return 0;
         }
 
@@ -1498,9 +1498,9 @@ _ftfont_getsizeddescender(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typefont");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typefont");
             return 0;
         }
 
@@ -1526,9 +1526,9 @@ _ftfont_getsizedheight(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typeface");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typeface");
             return 0;
         }
 
@@ -1553,9 +1553,9 @@ _ftfont_getsizedglyphheight(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typeface");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typeface");
             return 0;
         }
 
