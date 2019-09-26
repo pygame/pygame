@@ -455,7 +455,22 @@ mask_outline(PyObject *self, PyObject *args)
                 firstx = x;
                 firsty = y;
                 value = Py_BuildValue("(ii)", x - 1, y - 1);
-                PyList_Append(plist, value);
+
+                if (NULL == value) {
+                    Py_DECREF(plist);
+                    bitmask_free(m);
+
+                    return NULL; /* Exception already set. */
+                }
+
+                if (0 != PyList_Append(plist, value)) {
+                    Py_DECREF(value);
+                    Py_DECREF(plist);
+                    bitmask_free(m);
+
+                    return NULL; /* Exception already set. */
+                }
+
                 Py_DECREF(value);
                 break;
             }
@@ -481,7 +496,22 @@ mask_outline(PyObject *self, PyObject *args)
             if (!e) {
                 e = every;
                 value = Py_BuildValue("(ii)", secx - 1, secy - 1);
-                PyList_Append(plist, value);
+
+                if (NULL == value) {
+                    Py_DECREF(plist);
+                    bitmask_free(m);
+
+                    return NULL; /* Exception already set. */
+                }
+
+                if (0 != PyList_Append(plist, value)) {
+                    Py_DECREF(value);
+                    Py_DECREF(plist);
+                    bitmask_free(m);
+
+                    return NULL; /* Exception already set. */
+                }
+
                 Py_DECREF(value);
             }
             break;
@@ -508,8 +538,24 @@ mask_outline(PyObject *self, PyObject *args)
                         (secx == nextx && secy == nexty)) {
                         break;
                     }
+
                     value = Py_BuildValue("(ii)", nextx - 1, nexty - 1);
-                    PyList_Append(plist, value);
+
+                    if (NULL == value) {
+                        Py_DECREF(plist);
+                        bitmask_free(m);
+
+                        return NULL; /* Exception already set. */
+                    }
+
+                    if (0 != PyList_Append(plist, value)) {
+                        Py_DECREF(value);
+                        Py_DECREF(plist);
+                        bitmask_free(m);
+
+                        return NULL; /* Exception already set. */
+                    }
+
                     Py_DECREF(value);
                 }
                 break;
@@ -1216,11 +1262,13 @@ cc_label(bitmask_t *input, unsigned int *image, unsigned int *ufind,
  *
  * Allocates memory for rects.
  *
+ * NOTE: Caller is responsible for freeing the "ret_rects" memory.
+ *
  * Params:
  *     input - mask to search in for the connected components to bound
  *     num_bounding_boxes - passes back the number of bounding rects found
- *     rects - passes back the bounding rects that are found, memory is
- *         allocated
+ *     ret_rects - passes back the bounding rects that are found with the first
+ *         rect at index 1, memory is allocated
  *
  * Returns:
  *     0 on success
@@ -1346,12 +1394,12 @@ mask_get_bounding_rects(PyObject *self, PyObject *args)
     GAME_Rect *regions;
     GAME_Rect *aregion;
     int num_bounding_boxes, i, r;
-    PyObject *ret;
+    PyObject *rect_list;
     PyObject *rect;
 
     bitmask_t *mask = pgMask_AsBitmap(self);
 
-    ret = NULL;
+    rect_list = NULL;
     regions = NULL;
     aregion = NULL;
 
@@ -1369,23 +1417,41 @@ mask_get_bounding_rects(PyObject *self, PyObject *args)
                      "Not enough memory to get bounding rects. \n");
     }
 
-    ret = PyList_New(0);
-    if (!ret) {
+    rect_list = PyList_New(0);
+
+    if (!rect_list) {
         free(regions);
-        return NULL;
+
+        return NULL; /* Exception already set. */
     }
 
     /* build a list of rects to return.  Starts at 1 because we never use 0. */
     for (i = 1; i <= num_bounding_boxes; i++) {
         aregion = regions + i;
         rect = pgRect_New4(aregion->x, aregion->y, aregion->w, aregion->h);
-        PyList_Append(ret, rect);
+
+        if (NULL == rect) {
+            Py_DECREF(rect_list);
+            free(regions);
+
+            return RAISE(PyExc_MemoryError,
+                         "cannot allocate memory for bounding rects");
+        }
+
+        if (0 != PyList_Append(rect_list, rect)) {
+            Py_DECREF(rect);
+            Py_DECREF(rect_list);
+            free(regions);
+
+            return NULL; /* Exception already set. */
+        }
+
         Py_DECREF(rect);
     }
 
     free(regions);
 
-    return ret;
+    return rect_list;
 }
 
 /* Finds all the connected components in a given mask.
