@@ -297,8 +297,11 @@ Events reserved for :mod:`pygame.midi` use.
 
    | :sl:`test if a type of event is blocked from the queue`
    | :sg:`get_blocked(type) -> bool`
+   | :sg:`get_blocked(typelist) -> bool`
 
-   Returns ``True`` if the given event type is blocked from the queue.
+   Returns ``True`` if the given event type is blocked from the queue. If a
+   sequence of event types is passed, this will return ``True`` if any of those
+   event types are blocked.
 
    .. ## pygame.event.get_blocked ##
 
