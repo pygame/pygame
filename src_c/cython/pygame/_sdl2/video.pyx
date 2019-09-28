@@ -17,6 +17,12 @@ cdef extern from "SDL.h" nogil:
     SDL_bool SDL_IntersectRect(const SDL_Rect* A,
                                const SDL_Rect* B,
                                SDL_Rect*       result)
+    void SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
+    int SDL_GetWindowOpacity(SDL_Window *window, float *opacity)
+    int SDL_SetWindowOpacity(SDL_Window *window, float opacity)
+    int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window)
+    int SDL_SetWindowInputFocus(SDL_Window *window)
+    SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth, Uint32 format)
 
 
 cdef extern from "pygame.h" nogil:
@@ -35,6 +41,10 @@ cdef extern from "pygame.h" nogil:
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
     void import_pygame_color()
     object pgSurface_New2(SDL_Surface *info, int owner)
+
+cdef extern from "pgcompat.h" nogil:
+    pass
+
 
 
 import_pygame_color()
