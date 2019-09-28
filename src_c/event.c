@@ -159,8 +159,11 @@ pg_event_filter(void *_, SDL_Event *event)
                                    SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
                     ev = &inputEvent[1];
             }
+
+            /* Only copy size - 1. This will always leave the string
+             * terminated with a 0. */
             strncpy(_pg_last_unicode_char, ev->text.text,
-                    sizeof(_pg_last_unicode_char));
+                    sizeof(_pg_last_unicode_char) - 1);
         }
         else {
             _pg_last_unicode_char[0] = 0;
@@ -1092,7 +1095,10 @@ pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
         PyObject *key, *value;
         Py_ssize_t pos = 0;
         while (PyDict_Next(keywords, &pos, &key, &value)) {
-            PyDict_SetItem(dict, key, value);
+            if (PyDict_SetItem(dict, key, value) < 0) {
+                Py_DECREF(dict);
+                return NULL; /* Exception already set. */
+            }
         }
     }
 

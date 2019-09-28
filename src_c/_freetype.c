@@ -2235,7 +2235,11 @@ MODINIT_DEFINE(_freetype)
         MODINIT_ERROR;
     }
 
-#define DEC_CONST(x) PyModule_AddIntConstant(module, #x, (int)FT_##x)
+#define DEC_CONST(x)                                        \
+    if (PyModule_AddIntConstant(module, #x, (int)FT_##x)) { \
+        DECREF_MOD(module);                                 \
+        MODINIT_ERROR;                                      \
+    }
 
     DEC_CONST(STYLE_NORMAL);
     DEC_CONST(STYLE_STRONG);
