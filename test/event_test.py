@@ -1,12 +1,17 @@
 import os
+import sys
 import unittest
 
 import pygame
 from pygame.compat import as_unicode
 
+
+PY3 = sys.version_info >= (3, 0, 0)
+
+
 ################################################################################
 
-events = (
+EVENT_TYPES = (
 #   pygame.NOEVENT,
 #   pygame.ACTIVEEVENT,
     pygame.KEYDOWN,
@@ -134,7 +139,7 @@ class EventTypeTest(unittest.TestCase):
         # For Python 3.x str(event) to raises an UnicodeEncodeError when
         # an event attribute is a string with a non-ascii character.
         try:
-            str(pygame.event.Event(events[0], a=as_unicode(r"\xed")))
+            str(pygame.event.Event(EVENT_TYPES[0], a=as_unicode(r"\xed")))
         except UnicodeEncodeError:
             self.fail("Event object raised exception for non-ascii character")
         # Passed.
@@ -162,6 +167,7 @@ class EventModuleArgsTest(unittest.TestCase):
         pygame.event.get(pump=False)
         pygame.event.get(pump=True)
         pygame.event.get(eventtype=None)
+        pygame.event.get(eventtype=[pygame.KEYUP, pygame.KEYDOWN])
         pygame.event.get(eventtype=pygame.USEREVENT,
                          pump=False)
 
@@ -173,6 +179,7 @@ class EventModuleArgsTest(unittest.TestCase):
         pygame.event.clear(pump=False)
         pygame.event.clear(pump=True)
         pygame.event.clear(eventtype=None)
+        pygame.event.clear(eventtype=[pygame.KEYUP, pygame.KEYDOWN])
         pygame.event.clear(eventtype=pygame.USEREVENT,
                            pump=False)
 
@@ -184,11 +191,19 @@ class EventModuleArgsTest(unittest.TestCase):
         pygame.event.peek(pump=False)
         pygame.event.peek(pump=True)
         pygame.event.peek(eventtype=None)
+        pygame.event.peek(eventtype=[pygame.KEYUP, pygame.KEYDOWN])
         pygame.event.peek(eventtype=pygame.USEREVENT,
                           pump=False)
 
 
 class EventModuleTest(unittest.TestCase):
+    def _assertCountEqual(self, *args, **kwargs):
+        # Handle method name differences between Python versions.
+        if PY3:
+            self.assertCountEqual(*args, **kwargs)
+        else:
+            self.assertItemsEqual(*args, **kwargs)
+
     def setUp(self):
         pygame.display.init()
         pygame.event.clear()  # flush events
@@ -211,7 +226,7 @@ class EventModuleTest(unittest.TestCase):
 
     def test_set_blocked(self):
         """Ensure events can be blocked from the queue."""
-        event = events[0]
+        event = EVENT_TYPES[0]
         pygame.event.set_blocked(event)
 
         self.assertTrue(pygame.event.get_blocked(event))
@@ -222,11 +237,21 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertEqual(should_be_blocked, [])
 
+    def test_set_blocked__event_sequence(self):
+        """Ensure a sequence of event types can be blocked."""
+        event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION,
+                       pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP]
+
+        pygame.event.set_blocked(event_types)
+
+        for etype in event_types:
+            self.assertTrue(pygame.event.get_blocked(etype))
+
     def test_set_blocked_all(self):
         """Ensure all events can be unblocked at once."""
         pygame.event.set_blocked(None)
 
-        for e in events:
+        for e in EVENT_TYPES:
             self.assertTrue(pygame.event.get_blocked(e))
 
     def test_post__and_poll(self):
@@ -240,9 +265,9 @@ class EventModuleTest(unittest.TestCase):
 
         # fuzzing event types
         for i in range(1, 11):
-            pygame.event.post(pygame.event.Event(events[i]))
+            pygame.event.post(pygame.event.Event(EVENT_TYPES[i]))
 
-            self.assertEqual(pygame.event.poll().type, events[i],
+            self.assertEqual(pygame.event.poll().type, EVENT_TYPES[i],
                              race_condition_notification)
 
     def test_post_large_user_event(self):
@@ -270,9 +295,72 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(len(queue), 1)
         self.assertEqual(queue[0].type, pygame.USEREVENT)
 
+    def test_get__empty_queue(self):
+        """Ensure get() works correctly on an empty queue."""
+        expected_events = []
+        pygame.event.clear()
+
+        # Ensure all events can be checked.
+        retrieved_events = pygame.event.get()
+
+        self.assertListEqual(retrieved_events, expected_events)
+
+        # Ensure events can be checked individually.
+        for event_type in EVENT_TYPES:
+            retrieved_events = pygame.event.get(event_type)
+
+            self.assertListEqual(retrieved_events, expected_events)
+
+        # Ensure events can be checked as a sequence.
+        retrieved_events = pygame.event.get(EVENT_TYPES)
+
+        self.assertListEqual(retrieved_events, expected_events)
+
+    def test_get__event_sequence(self):
+        """Ensure get() can handle a sequence of event types."""
+        event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION]
+        other_event_type = pygame.MOUSEBUTTONUP
+
+        # Test when no events in the queue.
+        expected_events = []
+        pygame.event.clear()
+        retrieved_events = pygame.event.get(event_types)
+
+        self._assertCountEqual(retrieved_events, expected_events)
+
+        # Test when an event type not in the list is in the queue.
+        expected_events = []
+        pygame.event.clear()
+        pygame.event.post(pygame.event.Event(other_event_type))
+
+        retrieved_events = pygame.event.get(event_types)
+
+        self._assertCountEqual(retrieved_events, expected_events)
+
+        # Test when 1 event type in the list is in the queue.
+        expected_events = [pygame.event.Event(event_types[0])]
+        pygame.event.clear()
+        pygame.event.post(expected_events[0])
+
+        retrieved_events = pygame.event.get(event_types)
+
+        self._assertCountEqual(retrieved_events, expected_events)
+
+        # Test all events in the list are in the queue.
+        pygame.event.clear()
+        expected_events = []
+
+        for etype in event_types:
+            expected_events.append(pygame.event.Event(etype))
+            pygame.event.post(expected_events[-1])
+
+        retrieved_events = pygame.event.get(event_types)
+
+        self._assertCountEqual(retrieved_events, expected_events)
+
     def test_clear(self):
         """Ensure clear() removes all the events on the queue."""
-        for e in events:
+        for e in EVENT_TYPES:
             pygame.event.post(pygame.event.Event(e))
 
         poll_event = pygame.event.poll()
@@ -284,6 +372,40 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertEqual(poll_event.type, pygame.NOEVENT,
                          race_condition_notification)
+
+    def test_clear__empty_queue(self):
+        """Ensure clear() works correctly on an empty queue."""
+        expected_events = []
+        pygame.event.clear()
+
+        # Test calling clear() on an already empty queue.
+        pygame.event.clear()
+
+        retrieved_events = pygame.event.get()
+
+        self.assertListEqual(retrieved_events, expected_events)
+
+    def test_clear__event_sequence(self):
+        """Ensure a sequence of event types can be cleared from the queue."""
+        cleared_event_types = EVENT_TYPES[:5]
+        expected_event_types = EVENT_TYPES[5:10]
+        expected_events = []
+
+        # Add the events to the queue.
+        for etype in cleared_event_types:
+            pygame.event.post(pygame.event.Event(etype))
+
+        for etype in expected_events:
+            expected_events.append(pygame.event.Event(etype))
+            pygame.event.post(expected_events[-1])
+
+        # Clear the cleared_events from the queue.
+        pygame.event.clear(cleared_event_types)
+
+        # Check the rest of the events in the queue.
+        remaining_events = pygame.event.get()
+
+        self._assertCountEqual(remaining_events, expected_events)
 
     def test_event_name(self):
         """Ensure event_name() returns the correct event name."""
@@ -314,7 +436,7 @@ class EventModuleTest(unittest.TestCase):
 
     def test_wait(self):
         """Ensure wait() waits for an event on the queue."""
-        event = pygame.event.Event(events[0])
+        event = pygame.event.Event(EVENT_TYPES[0])
         pygame.event.post(event)
         wait_event = pygame.event.wait()
 
@@ -327,18 +449,71 @@ class EventModuleTest(unittest.TestCase):
         for event_type in event_types:
             pygame.event.post(pygame.event.Event(event_type))
 
+        # Ensure events can be checked individually.
         for event_type in event_types:
             self.assertTrue(pygame.event.peek(event_type))
 
+        # Ensure events can be checked as a sequence.
         self.assertTrue(pygame.event.peek(event_types))
 
-    def test_peek_empty(self):
+    def test_peek__event_sequence(self):
+        """Ensure peek() can handle a sequence of event types."""
+        event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION]
+        other_event_type = pygame.MOUSEBUTTONUP
+
+        # Test when no events in the queue.
         pygame.event.clear()
-        self.assertFalse(pygame.event.peek())
+        peeked = pygame.event.peek(event_types)
+
+        self.assertFalse(peeked)
+
+        # Test when an event type not in the list is in the queue.
+        pygame.event.clear()
+        pygame.event.post(pygame.event.Event(other_event_type))
+
+        peeked = pygame.event.peek(event_types)
+
+        self.assertFalse(peeked)
+
+        # Test when 1 event type in the list is in the queue.
+        pygame.event.clear()
+        pygame.event.post(pygame.event.Event(event_types[0]))
+
+        peeked = pygame.event.peek(event_types)
+
+        self.assertTrue(peeked)
+
+        # Test all events in the list are in the queue.
+        pygame.event.clear()
+        for etype in event_types:
+            pygame.event.post(pygame.event.Event(etype))
+
+        peeked = pygame.event.peek(event_types)
+
+        self.assertTrue(peeked)
+
+    def test_peek__empty_queue(self):
+        """Ensure peek() works correctly on an empty queue."""
+        pygame.event.clear()
+
+        # Ensure all events can be checked.
+        peeked = pygame.event.peek()
+
+        self.assertFalse(peeked)
+
+        # Ensure events can be checked individually.
+        for event_type in EVENT_TYPES:
+            peeked = pygame.event.peek(event_type)
+            self.assertFalse(peeked)
+
+        # Ensure events can be checked as a sequence.
+        peeked = pygame.event.peek(EVENT_TYPES)
+
+        self.assertFalse(peeked)
 
     def test_set_allowed(self):
         """Ensure a blocked event type can be unblocked/allowed."""
-        event = events[0]
+        event = EVENT_TYPES[0]
         pygame.event.set_blocked(event)
 
         self.assertTrue(pygame.event.get_blocked(event))
@@ -347,16 +522,28 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertFalse(pygame.event.get_blocked(event))
 
+    def test_set_allowed__event_sequence(self):
+        """Ensure a sequence of blocked event types can be unblocked/allowed.
+        """
+        event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION,
+                       pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP]
+        pygame.event.set_blocked(event_types)
+
+        pygame.event.set_allowed(event_types)
+
+        for etype in event_types:
+            self.assertFalse(pygame.event.get_blocked(etype))
+
     def test_set_allowed_all(self):
         """Ensure all events can be unblocked/allowed at once."""
         pygame.event.set_blocked(None)
 
-        for e in events:
+        for e in EVENT_TYPES:
             self.assertTrue(pygame.event.get_blocked(e))
 
         pygame.event.set_allowed(None)
 
-        for e in events:
+        for e in EVENT_TYPES:
             self.assertFalse(pygame.event.get_blocked(e))
 
     def test_pump(self):
@@ -381,10 +568,10 @@ class EventModuleTest(unittest.TestCase):
         self.assertFalse(pygame.event.get_grab())
 
     def test_event_equality(self):
-        a = pygame.event.Event(events[0], a=1)
-        b = pygame.event.Event(events[0], a=1)
-        c = pygame.event.Event(events[1], a=1)
-        d = pygame.event.Event(events[0], a=2)
+        a = pygame.event.Event(EVENT_TYPES[0], a=1)
+        b = pygame.event.Event(EVENT_TYPES[0], a=1)
+        c = pygame.event.Event(EVENT_TYPES[1], a=1)
+        d = pygame.event.Event(EVENT_TYPES[0], a=2)
 
         self.assertTrue(a == a)
         self.assertFalse(a != a)
@@ -407,16 +594,47 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(len(queue), 1)
         self.assertEqual(queue[0].type, atype)
 
-    def todo_test_get_blocked(self):
+    def test_get_blocked(self):
+        """Ensure an event's blocked state can be retrieved."""
+        # Test each event is not blocked.
+        pygame.event.set_allowed(None)
 
-        # __doc__ (as of 2008-08-02) for pygame.event.get_blocked:
+        for etype in EVENT_TYPES:
+            blocked = pygame.event.get_blocked(etype)
 
-          # pygame.event.get_blocked(type): return bool
-          # test if a type of event is blocked from the queue
-          #
-          # Returns true if the given event type is blocked from the queue.
+            self.assertFalse(blocked)
 
-        self.fail()
+        # Test each event type is blocked.
+        pygame.event.set_blocked(None)
+
+        for etype in EVENT_TYPES:
+            blocked = pygame.event.get_blocked(etype)
+
+            self.assertTrue(blocked)
+
+    def test_get_blocked__event_sequence(self):
+        """Ensure get_blocked() can handle a sequence of event types."""
+        event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION,
+                       pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP]
+
+        # Test no event types in the list are blocked.
+        blocked = pygame.event.get_blocked(event_types)
+
+        self.assertFalse(blocked)
+
+        # Test when 1 event type in the list is blocked.
+        pygame.event.set_blocked(event_types[2])
+
+        blocked = pygame.event.get_blocked(event_types)
+
+        self.assertTrue(blocked)
+
+        # Test all event types in the list are blocked.
+        pygame.event.set_blocked(event_types)
+
+        blocked = pygame.event.get_blocked(event_types)
+
+        self.assertTrue(blocked)
 
     def todo_test_get_grab(self):
 

@@ -1406,7 +1406,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
     int loop;
     PyObject *type = NULL, *list;
     int dopump = 1;
-    int val;
+    int val, ret;
 
     static char *kwids[] = {
         "eventtype",
@@ -1450,21 +1450,32 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
                     PyExc_TypeError,
                     "type sequence must contain valid event types");
             }
-            if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val) < 0) {
+
+            ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
+
+            if (ret < 0) {
                 Py_DECREF(list);
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
-            if(!_pg_event_append_to_list(list, &event))
-                return NULL;
+            else if (ret > 0) {
+                if (!_pg_event_append_to_list(list, &event)) {
+                    return NULL;
+                }
+            }
         }
     }
     else if (pg_IntFromObj(type, &val)) {
-        if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val) < 0) {
+        ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
+
+        if (ret < 0) {
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
-        if(!_pg_event_append_to_list(list, &event))
-            return NULL;
+        else if (ret > 0) {
+            if (!_pg_event_append_to_list(list, &event)) {
+                return NULL;
+            }
+        }
     }
     else {
         Py_DECREF(list);
@@ -1591,6 +1602,8 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                 return PyInt_FromLong(1);
             }
         }
+
+        return PyInt_FromLong(0); /* No event type match. */
     }
     else if (pg_IntFromObj(type, &val)) {
         result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, val, val);
