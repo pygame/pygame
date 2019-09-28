@@ -455,13 +455,13 @@ pg_GetVideoInfo(pg_VideoInfo *info)
             formatenum = SDL_PIXELFORMAT_UNKNOWN;
         }
 
-        if (tempformat = SDL_AllocFormat(formatenum)) {
+        if ((tempformat = SDL_AllocFormat(formatenum))) {
             info->vfmt_data = *tempformat;
             info->vfmt = &info->vfmt_data;
             SDL_FreeFormat(tempformat);
         }
         else {
-            return NULL;
+            return RAISE(pgExc_SDLError, SDL_GetError());
         }
     }
 
@@ -986,7 +986,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 _display_state_cleanup(state);
 
                 /* Recover error, then destroy the window */
-                RAISE(pgExc_SDLError, SDL_GetError());
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
                 goto DESTROY_WINDOW;
             }
         }
@@ -1082,7 +1082,7 @@ _pg_get_default_display_masks(int bpp,
         *Bmask = 0xFF;
         break;
     default:
-        RAISE(PyExc_ValueError, "nonstandard bit depth given");
+        PyErr_SetString(PyExc_ValueError, "nonstandard bit depth given");
         return -1;
     }
     return 0;
@@ -1232,10 +1232,15 @@ pg_flip_internal(_DisplayState *state)
     SDL_Window *win = pg_GetDefaultWindow();
     int status = 0;
 
-    VIDEO_INIT_CHECK();
+    /* Same check as VIDEO_INIT_CHECK() but returns -1 instead of NULL on
+     * fail. */
+    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+        PyErr_SetString(pgExc_SDLError, "video system not initialized");
+        return -1;
+    }
 
     if (!win) {
-        RAISE(pgExc_SDLError, "Display mode not set");
+        PyErr_SetString(pgExc_SDLError, "Display mode not set");
         return -1;
     }
 
@@ -1258,7 +1263,7 @@ pg_flip_internal(_DisplayState *state)
     Py_END_ALLOW_THREADS;
 
     if (status < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
 
@@ -1872,22 +1877,24 @@ pg_convert_to_uint16(PyObject *python_array, Uint16 *c_uint16_array)
     PyObject *item;
 
     if (!c_uint16_array) {
-        RAISE(PyExc_RuntimeError, "Memory not allocated for c_uint16_array.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Memory not allocated for c_uint16_array.");
         return 0;
     }
     if (!PySequence_Check(python_array)) {
-        RAISE(PyExc_TypeError, "Array must be sequence type");
+        PyErr_SetString(PyExc_TypeError, "Array must be sequence type");
         return 0;
     }
     if (PySequence_Size(python_array) != 256) {
-        RAISE(PyExc_ValueError, "gamma ramp must be 256 elements long");
+        PyErr_SetString(PyExc_ValueError,
+                        "gamma ramp must be 256 elements long");
         return 0;
     }
     for (i = 0; i < 256; i++) {
         item = PySequence_GetItem(python_array, i);
         if (!PyInt_Check(item)) {
-            RAISE(PyExc_ValueError,
-                  "gamma ramp must contain integer elements");
+            PyErr_SetString(PyExc_ValueError,
+                            "gamma ramp must contain integer elements");
             return 0;
         }
         c_uint16_array[i] = (Uint16)PyInt_AsLong(item);
