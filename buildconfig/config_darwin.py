@@ -1,13 +1,12 @@
 """Config on Darwin w/ frameworks"""
 
-import os, sys, string
-from glob import glob
+import os
 from distutils.sysconfig import get_python_inc
 
 
 try:
     from config_unix import DependencyProg
-except:
+except ImportError:
     from buildconfig.config_unix import DependencyProg
 
 
