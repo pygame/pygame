@@ -137,8 +137,8 @@ def messagebox(title, message,
 
     cdef SDL_MessageBoxButtonData button
     if not buttons:
-        button.flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
-                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+        button.flags = _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
+                       _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
         button.buttonid = 0
         button.text = "OK"
         data.buttons = &button
