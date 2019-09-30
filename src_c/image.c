@@ -319,16 +319,16 @@ image_tostring(PyObject *self, PyObject *arg)
     PyObject *surfobj, *string = NULL;
     char *format, *data, *pixels;
     SDL_Surface *surf;
-    int w, h, color, flipped = 0;
+    int w, h, flipped = 0;
     Py_ssize_t len;
     Uint32 Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
         Gloss, Bloss, Aloss;
     int hascolorkey;
 #if IS_SDLv1
     SDL_Surface *temp = NULL;
-    int colorkey;
+    int color, colorkey;
 #else  /* IS_SDLv2 */
-    Uint32 colorkey;
+    Uint32 color, colorkey;
 #endif /* IS_SDLv2 */
     Uint32 alpha;
 
@@ -1242,7 +1242,7 @@ SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle)
 #if IS_SDLv1
             entry[3] = (i == ckey) ? 0 : 0xff;
 #else  /* IS_SDLv2 */
-            entry[3] = (i == surf_colorkey) ? 0 : 0xff;
+            entry[3] = ((unsigned)i == surf_colorkey) ? 0 : 0xff;
 #endif /* IS_SDLv2 */
             if (!SDL_RWwrite(out, entry, h.cmap_bits >> 3, 1))
                 return -1;
