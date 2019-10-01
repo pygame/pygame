@@ -1587,7 +1587,7 @@ _ftfont_getsizes(pgFontObject *self)
     size_list = PyList_New(nsizes);
     if (!size_list)
         goto error;
-    for (i = 0; i < nsizes; ++i) {
+    for (i = 0; i < (unsigned)nsizes; ++i) {
         rc = _PGFT_Font_GetAvailableSize(self->freetype, self, i, &size,
                                          &height, &width, &x_ppem, &y_ppem);
         if (rc < 0)

@@ -2366,7 +2366,7 @@ average_surfaces(SDL_Surface **surfaces, int num_surfaces,
         */
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
-                the_color = (*(the_idx)*div_inv + .5f);
+                the_color = (Uint32)(*(the_idx)*div_inv + .5f);
                 SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat,
                             byte_buf);
                 the_idx++;

@@ -96,7 +96,12 @@ static INLINE int
 bitmask_positive_modulo(int dividend)
 {
     int result = dividend % BITMASK_W_LEN;
-    return (0 <= result) ? result : result + BITMASK_W_LEN;
+
+    if (0 > result) {
+        result += BITMASK_W_LEN;
+    }
+
+    return result;
 }
 
 bitmask_t *
