@@ -152,8 +152,12 @@ timerCallback(Uint32 interval, void *param)
 int
 FE_Init()
 {
-    if (0 == (SDL_INIT_TIMER & SDL_WasInit(SDL_INIT_TIMER)))
-        SDL_InitSubSystem(SDL_INIT_TIMER);
+    if (0 == (SDL_INIT_TIMER & SDL_WasInit(SDL_INIT_TIMER))) {
+        if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0) {
+            setError("FE: unable to initialize required timer subsystem");
+            return -1;
+        }
+    }
 
     eventLock = SDL_CreateMutex();
     if (NULL == eventLock) {

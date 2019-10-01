@@ -1881,17 +1881,13 @@ _vector2_set(pgVector *self, PyObject *xOrSequence, PyObject *y)
         }
     }
 
-    if (y) {
-        if (RealNumber_Check(y)) {
-            self->coords[1] = PyFloat_AsDouble(y);
-        }
-        else {
-            goto error;
-        }
+    if (RealNumber_Check(y)) {
+        self->coords[1] = PyFloat_AsDouble(y);
     }
     else {
         goto error;
     }
+
     /* success initialization */
     return 0;
 error:
