@@ -859,9 +859,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (flags & PGS_OPENGL)
                 return RAISE(pgExc_SDLError,
                              "Cannot use OPENGL with SCALED mode");
-            if (flags & PGS_RESIZABLE)
+            /*if (flags & PGS_RESIZABLE)
                 return RAISE(pgExc_SDLError,
-                             "Cannot use RESIZABLE with SCALED mode");
+                "Cannot use RESIZABLE with SCALED mode");*/
         }
 
         if (flags & PGS_OPENGL)
@@ -984,6 +984,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                                             "nearest", SDL_HINT_DEFAULT);
                     pg_renderer = SDL_CreateRenderer(win, -1, 0);
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
+                    SDL_SetWindowMinimumSize(win, w, h);
 
                     SDL_GetRendererInfo(pg_renderer, &info);
 
@@ -2103,6 +2104,56 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
     return PyInt_FromLong(result != 0);
 }
 
+static PyObject *
+pg_display_resize_event(PyObject *self, PyObject *event)
+{
+    /* Call this from your game if you want to use RESIZABLE with SCALED
+     * TODO: Document, handle bad args, finalise API
+     */
+    int wnew= PyLong_AsLong(PyObject_GetAttrString(event, "w"));
+    int hnew= PyLong_AsLong(PyObject_GetAttrString(event, "h"));
+    SDL_Window *win = pg_GetDefaultWindow();
+    int flags;
+    int window_w, window_h, w, h, window_display;
+    SDL_DisplayMode display_mode;
+    pgSurfaceObject *display_surface;
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
+    GL_glViewport_Func p_glViewport = NULL;
+    SDL_SysWMinfo info;
+
+    VIDEO_INIT_CHECK();
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    flags = SDL_GetWindowFlags(win) &
+            (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+    if(flags){
+        return PyInt_FromLong(-1);
+
+    }
+
+    SDL_VERSION(&info.version);
+    SDL_GetWindowWMInfo(win, &info);
+
+    display_surface = pg_GetDefaultWindowSurface();
+
+    // could also take the size of the old display surface
+    SDL_GetWindowSize(win, &window_w, &window_h);
+    window_display = SDL_GetWindowDisplayIndex(win);
+    if (SDL_GetDesktopDisplayMode(window_display, &display_mode) != 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if (pg_renderer != NULL) {
+        SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
+        SDL_SetWindowSize(win, wnew, hnew);
+        SDL_RenderSetLogicalSize(pg_renderer, w, h);
+    }
+    return PyInt_FromLong(0);
+}
+
+
 #else  /* IS_SDLv1 */
 static PyObject *
 pg_set_gamma_ramp(PyObject *self, PyObject *arg)
@@ -2254,6 +2305,10 @@ static PyMethodDef _pg_display_methods[] = {
     {"iconify", pg_iconify, METH_NOARGS, DOC_PYGAMEDISPLAYICONIFY},
     {"toggle_fullscreen", pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
+
+#if IS_SDLv2
+    {"resize_event", (PyCFunction)pg_display_resize_event, METH_O, ""},
+#endif
 
     {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS,
      DOC_PYGAMEDISPLAYGLSETATTRIBUTE},
