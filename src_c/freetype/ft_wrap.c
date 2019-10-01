@@ -252,13 +252,13 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, pgFontObject *fontobj,
     unsigned width;
     unsigned height;
     FT_Vector offset;
-    FT_Pos underline_size;
     FT_Pos underline_top;
+    FT_Fixed underline_size;
 
     font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
     if (!font_text) goto error;
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
-                           &underline_size, &underline_top);
+                           &underline_top, &underline_size);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
     r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
     r->w = (Uint16)width;
