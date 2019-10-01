@@ -749,7 +749,7 @@ surf_flip(PyObject *self, PyObject *arg)
     SDL_Surface *surf, *newsurf;
     int xaxis, yaxis;
     int loopx, loopy;
-    int pixsize, srcpitch, dstpitch;
+    int srcpitch, dstpitch;
     Uint8 *srcpix, *dstpix;
 
     /*get all the arguments*/
@@ -762,7 +762,6 @@ surf_flip(PyObject *self, PyObject *arg)
     if (!newsurf)
         return NULL;
 
-    pixsize = surf->format->BytesPerPixel;
     srcpitch = surf->pitch;
     dstpitch = newsurf->pitch;
 
@@ -1177,6 +1176,8 @@ filter_expand_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
             free(xmult0);
         if (xmult1)
             free(xmult1);
+
+        return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */
@@ -1627,7 +1628,7 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
 {
     int x, y, similar;
     Uint8 *pixels, *destpixels = NULL, *pixels2 = NULL;
-    SDL_PixelFormat *format, *destformat = NULL;
+    SDL_PixelFormat *format;
     Uint32 the_color, the_color2, dest_set_color;
     Uint8 search_color_r, search_color_g, search_color_b;
     Uint8 surf_r, surf_g, surf_b;
@@ -1642,7 +1643,6 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
 
     if (set_behavior) {
         destpixels = (Uint8 *)dest_surf->pixels;
-        destformat = dest_surf->format;
     }
     if (search_surf) {
         pixels2 = (Uint8 *)search_surf->pixels;
@@ -1834,6 +1834,11 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     surf = pgSurface_AsSurface(surf_obj);
+
+    if (NULL == surf) {
+        return RAISE(PyExc_TypeError, "invalid surf argument");
+    }
+
     if (search_surf_obj && pgSurface_Check(search_surf_obj))
         search_surf = pgSurface_AsSurface(search_surf_obj);
 
@@ -1862,11 +1867,11 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
             return RAISE(PyExc_TypeError, "invalid set_color argument");
     }
 
-    if (dest_surf && surf &&
-        (surf->h != dest_surf->h || surf->w != dest_surf->w)) {
+    if (dest_surf && (surf->h != dest_surf->h || surf->w != dest_surf->w)) {
         return RAISE(PyExc_TypeError, "surf and dest_surf not the same size");
     }
-    if (search_surf && surf &&
+
+    if (search_surf &&
         (surf->h != search_surf->h || surf->w != search_surf->w)) {
         return RAISE(PyExc_TypeError,
                      "surf and search_surf not the same size");
@@ -2361,7 +2366,7 @@ average_surfaces(SDL_Surface **surfaces, int num_surfaces,
         */
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
-                the_color = (*(the_idx)*div_inv + .5f);
+                the_color = (Uint32)(*(the_idx)*div_inv + .5f);
                 SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat,
                             byte_buf);
                 the_idx++;

@@ -216,23 +216,23 @@ MODINIT_DEFINE(constants)
 #if SDL_VERSION_ATLEAST(1, 2, 5)
     DEC_CONST(GL_STEREO);
 #else
-    PyModule_AddIntConstant(module, "GL_STEREO", -1);
+    DEC_CONSTS(GL_STEREO, -1);
 #endif
 
 #if SDL_VERSION_ATLEAST(1, 2, 6)
     DEC_CONST(GL_MULTISAMPLEBUFFERS);
     DEC_CONST(GL_MULTISAMPLESAMPLES);
 #else
-    PyModule_AddIntConstant(module, "GL_MULTISAMPLEBUFFERS", -1);
-    PyModule_AddIntConstant(module, "GL_MULTISAMPLESAMPLES", -1);
+    DEC_CONSTS(GL_MULTISAMPLEBUFFERS, -1);
+    DEC_CONSTS(GL_MULTISAMPLESAMPLES, -1);
 #endif
 
 #if SDL_VERSION_ATLEAST(1, 2, 10)
     DEC_CONST(GL_SWAP_CONTROL);
     DEC_CONST(GL_ACCELERATED_VISUAL);
 #else
-    PyModule_AddIntConstant(module, "GL_SWAP_CONTROL", -1);
-    PyModule_AddIntConstant(module, "GL_ACCELERATED_VISUAL", -1);
+    DEC_CONSTS(GL_SWAP_CONTROL, -1);
+    DEC_CONSTS(GL_ACCELERATED_VISUAL, -1);
 #endif
 
     DEC_CONSTN(TIMER_RESOLUTION);
@@ -257,8 +257,8 @@ MODINIT_DEFINE(constants)
     ADD_STRING_CONST(SCRAP_BMP);
     ADD_STRING_CONST(SCRAP_PPM);
     ADD_STRING_CONST(SCRAP_PBM);
-    PyModule_AddIntConstant(module, "SCRAP_CLIPBOARD", 0);
-    PyModule_AddIntConstant(module, "SCRAP_SELECTION", 1);
+    DEC_CONSTS(SCRAP_CLIPBOARD, 0);
+    DEC_CONSTS(SCRAP_SELECTION, 1);
 
 /* BLEND_ADD is an alias for BLEND_RGB_ADD
  */
@@ -463,8 +463,8 @@ MODINIT_DEFINE(constants)
     DEC_CONST(BUTTON_X1);
     DEC_CONST(BUTTON_X2);
 #else
-    PyModule_AddIntConstant(module, "BUTTON_X1", -1);
-    PyModule_AddIntConstant(module, "BUTTON_X2", -1);
+    DEC_CONSTS(BUTTON_X1, -1);
+    DEC_CONSTS(BUTTON_X2, -1);
 #endif
 #endif
 

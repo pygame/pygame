@@ -218,7 +218,10 @@ _PGFT_Cache_Cleanup(FontCache *cache)
                     cache->_debug_delete_count++;
 #endif
 
-                    prev->next = 0;
+                    if (prev) {
+                        prev->next = 0;
+                    }
+
                     free_node(cache, node);
                     break;
                 }

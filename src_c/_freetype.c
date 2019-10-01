@@ -289,7 +289,7 @@ parse_dest(PyObject *dest, int *x, int *y)
     int i, j;
 
     if (!PySequence_Check(dest) || /* conditional and */
-        !PySequence_Size(dest) > 1) {
+        !(PySequence_Size(dest) > 1)) {
         PyErr_Format(PyExc_TypeError,
                      "Expected length 2 sequence for dest argument:"
                      " got type %.1024s",
@@ -1471,9 +1471,9 @@ _ftfont_getsizedascender(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typefont");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typefont");
             return 0;
         }
 
@@ -1498,9 +1498,9 @@ _ftfont_getsizeddescender(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typefont");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typefont");
             return 0;
         }
 
@@ -1526,9 +1526,9 @@ _ftfont_getsizedheight(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typeface");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typeface");
             return 0;
         }
 
@@ -1553,9 +1553,9 @@ _ftfont_getsizedglyphheight(pgFontObject *self, PyObject *args)
 
     if (face_size.x == 0) {
         if (self->face_size.x == 0) {
-            RAISE(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typeface");
+            PyErr_SetString(PyExc_ValueError,
+                            "No font point size specified"
+                            " and no default font size in typeface");
             return 0;
         }
 
@@ -1587,7 +1587,7 @@ _ftfont_getsizes(pgFontObject *self)
     size_list = PyList_New(nsizes);
     if (!size_list)
         goto error;
-    for (i = 0; i < nsizes; ++i) {
+    for (i = 0; i < (unsigned)nsizes; ++i) {
         rc = _PGFT_Font_GetAvailableSize(self->freetype, self, i, &size,
                                          &height, &width, &x_ppem, &y_ppem);
         if (rc < 0)
@@ -2235,7 +2235,11 @@ MODINIT_DEFINE(_freetype)
         MODINIT_ERROR;
     }
 
-#define DEC_CONST(x) PyModule_AddIntConstant(module, #x, (int)FT_##x)
+#define DEC_CONST(x)                                        \
+    if (PyModule_AddIntConstant(module, #x, (int)FT_##x)) { \
+        DECREF_MOD(module);                                 \
+        MODINIT_ERROR;                                      \
+    }
 
     DEC_CONST(STYLE_NORMAL);
     DEC_CONST(STYLE_STRONG);

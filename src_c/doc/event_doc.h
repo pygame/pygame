@@ -9,7 +9,7 @@
 #define DOC_PYGAMEEVENTEVENTNAME "event_name(type) -> string\nget the string name from an event id"
 #define DOC_PYGAMEEVENTSETBLOCKED "set_blocked(type) -> None\nset_blocked(typelist) -> None\nset_blocked(None) -> None\ncontrol which events are allowed on the queue"
 #define DOC_PYGAMEEVENTSETALLOWED "set_allowed(type) -> None\nset_allowed(typelist) -> None\nset_allowed(None) -> None\ncontrol which events are allowed on the queue"
-#define DOC_PYGAMEEVENTGETBLOCKED "get_blocked(type) -> bool\ntest if a type of event is blocked from the queue"
+#define DOC_PYGAMEEVENTGETBLOCKED "get_blocked(type) -> bool\nget_blocked(typelist) -> bool\ntest if a type of event is blocked from the queue"
 #define DOC_PYGAMEEVENTSETGRAB "set_grab(bool) -> None\ncontrol the sharing of input devices with other applications"
 #define DOC_PYGAMEEVENTGETGRAB "get_grab() -> bool\ntest if the program is sharing input devices"
 #define DOC_PYGAMEEVENTPOST "post(Event) -> None\nplace a new event on the queue"
@@ -72,6 +72,7 @@ control which events are allowed on the queue
 
 pygame.event.get_blocked
  get_blocked(type) -> bool
+ get_blocked(typelist) -> bool
 test if a type of event is blocked from the queue
 
 pygame.event.set_grab

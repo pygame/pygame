@@ -472,7 +472,8 @@ static PyObject *
 pg_rect_collidelist(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
-    int loop, size;
+    Py_ssize_t size;
+    int loop;
     PyObject *list, *obj;
     PyObject *ret = NULL;
 
@@ -489,8 +490,9 @@ pg_rect_collidelist(pgRectObject *self, PyObject *args)
     for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
-            RAISE(PyExc_TypeError,
-                  "Argument must be a sequence of rectstyle objects.");
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Argument must be a sequence of rectstyle objects.");
             Py_XDECREF(obj);
             break;
         }
@@ -512,7 +514,8 @@ static PyObject *
 pg_rect_collidelistall(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
-    int loop, size;
+    Py_ssize_t size;
+    int loop;
     PyObject *list, *obj;
     PyObject *ret = NULL;
 
@@ -898,12 +901,12 @@ pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
             i += 4;
         }
         else {
-            RAISE(PyExc_IndexError, "Invalid rect Index");
+            PyErr_SetString(PyExc_IndexError, "Invalid rect Index");
             return -1;
         }
     }
     if (!pg_IntFromObj(v, &val)) {
-        RAISE(PyExc_TypeError, "Must assign numeric values");
+        PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
         return -1;
     }
     data[i] = val;
@@ -973,8 +976,7 @@ pg_rect_subscript(pgRectObject *self, PyObject *op)
         return slice;
     }
 
-    RAISE(PyExc_TypeError, "Invalid Rect slice");
-    return NULL;
+    return RAISE(PyExc_TypeError, "Invalid Rect slice");
 }
 
 static int
@@ -1015,7 +1017,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
             Py_ssize_t i;
 
             if (PySequence_Size(value) != 4) {
-                RAISE(PyExc_TypeError, "Expect a length 4 sequence");
+                PyErr_SetString(PyExc_TypeError, "Expect a length 4 sequence");
                 return -1;
             }
             for (i = 0; i < 4; ++i) {
@@ -1032,7 +1034,8 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
             self->r.h = values[3];
         }
         else {
-            RAISE(PyExc_TypeError, "Expected an integer or sequence");
+            PyErr_SetString(PyExc_TypeError,
+                            "Expected an integer or sequence");
             return -1;
         }
     }
@@ -1084,12 +1087,13 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
             }
         }
         else {
-            RAISE(PyExc_TypeError, "Expected an integer or sequence");
+            PyErr_SetString(PyExc_TypeError,
+                            "Expected an integer or sequence");
             return -1;
         }
     }
     else {
-        RAISE(PyExc_TypeError, "Invalid Rect slice");
+        PyErr_SetString(PyExc_TypeError, "Invalid Rect slice");
         return -1;
     }
     return 0;
@@ -1260,7 +1264,7 @@ pg_rect_setwidth(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.w = val1;
@@ -1286,7 +1290,7 @@ pg_rect_setheight(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.h = val1;
@@ -1312,7 +1316,7 @@ pg_rect_settop(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.y = val1;
@@ -1338,7 +1342,7 @@ pg_rect_setleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1364,7 +1368,7 @@ pg_rect_setright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1390,7 +1394,7 @@ pg_rect_setbottom(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.y = val1 - self->r.h;
@@ -1416,7 +1420,7 @@ pg_rect_setcenterx(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - (self->r.w >> 1);
@@ -1442,7 +1446,7 @@ pg_rect_setcentery(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_IntFromObj(value, &val1)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.y = val1 - (self->r.h >> 1);
@@ -1468,7 +1472,7 @@ pg_rect_settopleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1495,7 +1499,7 @@ pg_rect_settopright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1522,7 +1526,7 @@ pg_rect_setbottomleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1549,7 +1553,7 @@ pg_rect_setbottomright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1576,7 +1580,7 @@ pg_rect_setmidtop(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x += val1 - (self->r.x + (self->r.w >> 1));
@@ -1603,7 +1607,7 @@ pg_rect_setmidleft(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1;
@@ -1631,7 +1635,7 @@ pg_rect_setmidbottom(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x += val1 - (self->r.x + (self->r.w >> 1));
@@ -1659,7 +1663,7 @@ pg_rect_setmidright(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x = val1 - self->r.w;
@@ -1687,7 +1691,7 @@ pg_rect_setcenter(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.x += val1 - (self->r.x + (self->r.w >> 1));
@@ -1714,7 +1718,7 @@ pg_rect_setsize(pgRectObject *self, PyObject *value, void *closure)
     }
 
     if (!pg_TwoIntsFromObj(value, &val1, &val2)) {
-        RAISE(PyExc_TypeError, "invalid rect assignment");
+        PyErr_SetString(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
     self->r.w = val1;
@@ -1817,7 +1821,7 @@ pg_rect_init(pgRectObject *self, PyObject *args, PyObject *kwds)
     GAME_Rect *argrect = pgRect_FromObject(args, &temp);
 
     if (argrect == NULL) {
-        RAISE(PyExc_TypeError, "Argument must be rect style object");
+        PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
         return -1;
     }
     self->r.x = argrect->x;

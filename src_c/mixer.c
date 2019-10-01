@@ -153,7 +153,7 @@ _format_view_to_audio(Py_buffer *view)
     }
     fstr_len = strlen(view->format);
     if (fstr_len < 1 || fstr_len > 2) {
-        RAISE(PyExc_ValueError, "Array has unsupported item format");
+        PyErr_SetString(PyExc_ValueError, "Array has unsupported item format");
         return 0;
     }
     if (fstr_len == 1) {
@@ -181,7 +181,8 @@ _format_view_to_audio(Py_buffer *view)
                 break;
 
             default:
-                RAISE(PyExc_ValueError, "Array has unsupported item format");
+                PyErr_SetString(PyExc_ValueError,
+                                "Array has unsupported item format");
                 return 0;
         }
         ++index;
@@ -1539,7 +1540,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     Py_ssize_t loop1, loop2, step1, step2, length, length2 = 0;
 
     if (!Mix_QuerySpec(&freq, &format, &channels)) {
-        RAISE(pgExc_SDLError, "mixer not initialized");
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
         return -1;
     }
 
@@ -1547,20 +1548,20 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
      */
     if (channels == 1) {
         if (ndim != 1) {
-            RAISE(PyExc_ValueError,
-                  "Array must be 1-dimensional for mono mixer");
+            PyErr_SetString(PyExc_ValueError,
+                            "Array must be 1-dimensional for mono mixer");
             return -1;
         }
     }
     else {
         if (ndim != 2) {
-            RAISE(PyExc_ValueError,
-                  "Array must be 2-dimensional for stereo mixer");
+            PyErr_SetString(PyExc_ValueError,
+                            "Array must be 2-dimensional for stereo mixer");
             return -1;
         }
         if (shape[1] != channels) {
-            RAISE(PyExc_ValueError,
-                  "Array depth must match number of mixer channels");
+            PyErr_SetString(PyExc_ValueError,
+                            "Array depth must match number of mixer channels");
             return -1;
         }
     }
@@ -1691,7 +1692,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
     /* Similar to MIXER_INIT_CHECK(), but different return value. */
     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
-        RAISE(pgExc_SDLError, "mixer not initialized");
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
         return -1;
     }
 
@@ -1701,7 +1702,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     if (arg != NULL && PyTuple_GET_SIZE(arg)) {
         if ((kwarg != NULL && PyDict_Size(kwarg)) || /* conditional and */
             PyTuple_GET_SIZE(arg) != 1) {
-            RAISE(PyExc_TypeError, arg_cnt_err_msg);
+            PyErr_SetString(PyExc_TypeError, arg_cnt_err_msg);
             return -1;
         }
         obj = PyTuple_GET_ITEM(arg, 0);
@@ -1717,7 +1718,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
     else if (kwarg != NULL) {
         if (PyDict_Size(kwarg) != 1) {
-            RAISE(PyExc_TypeError, arg_cnt_err_msg);
+            PyErr_SetString(PyExc_TypeError, arg_cnt_err_msg);
             return -1;
         }
         if ((file = PyDict_GetItemString(kwarg, "file")) == NULL &&
@@ -1740,13 +1741,13 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             return -1;
         }
         if (buffer != NULL && PyUnicode_Check(buffer)) { /* conditional and */
-            RAISE(PyExc_TypeError,
-                  "Unicode object not allowed as buffer object");
+            PyErr_SetString(PyExc_TypeError,
+                            "Unicode object not allowed as buffer object");
             return -1;
         }
     }
     else {
-        RAISE(PyExc_TypeError, arg_cnt_err_msg);
+        PyErr_SetString(PyExc_TypeError, arg_cnt_err_msg);
         return -1;
     }
 
@@ -1770,13 +1771,13 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         Py_END_ALLOW_THREADS;
         if (chunk == NULL) {
             if (obj) {
-                RAISE(pgExc_SDLError, SDL_GetError());
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
                 return -1;
             }
 
             obj = pg_EncodeString(file, NULL, NULL, NULL);
             if (obj == Py_None) {
-                RAISE(pgExc_SDLError, SDL_GetError());
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
             }
             else {
                 PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
