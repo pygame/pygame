@@ -196,11 +196,15 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     if (mode->render_flags & FT_RFLAG_KERNING) {
         font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
+
+        if (!font) {
             PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
             return -1;
-            if (!FT_HAS_KERNING(font)) {
-                mode->render_flags &= ~FT_RFLAG_KERNING;
-            }
+        }
+
+        if (!FT_HAS_KERNING(font)) {
+            mode->render_flags &= ~FT_RFLAG_KERNING;
+        }
     }
     return 0;
 }
