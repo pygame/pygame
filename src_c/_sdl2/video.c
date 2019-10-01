@@ -6,7 +6,7 @@
         "depends": [],
         "name": "pygame._sdl2.video",
         "sources": [
-            "src_c/cython/pygame/_sdl2/video.pyx"
+            "src_c\\cython\\pygame\\_sdl2\\video.pyx"
         ]
     },
     "module_name": "pygame._sdl2.video"
@@ -816,9 +816,9 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src_c/cython/pygame/_sdl2/video.pyx",
+  "src_c\\cython\\pygame\\_sdl2\\video.pyx",
   "stringsource",
-  "src_c/cython/pygame/_sdl2/video.pxd",
+  "src_c\\cython\\pygame\\_sdl2\\video.pxd",
   "type.pxd",
   "bool.pxd",
   "complex.pxd",
@@ -2064,7 +2064,7 @@ static const char __pyx_k_srcrect_must_be_a_rect_or_None[] = "srcrect must be a 
 static const char __pyx_k_dstrect_must_be_a_position_rect[] = "dstrect must be a position, rect, or None";
 static const char __pyx_k_only_one_of_static_streaming_or[] = "only one of static, streaming, or target can be true";
 static const char __pyx_k_s_name_s_flags_0x_02x_num_textu[] = "<%s(name: %s, flags: 0x%02x, num_texture_formats: %d, max_texture_width: %d, max_texture_height: %d)>";
-static const char __pyx_k_src_c_cython_pygame__sdl2_video[] = "src_c/cython/pygame/_sdl2/video.pyx";
+static const char __pyx_k_src_c_cython_pygame__sdl2_video[] = "src_c\\cython\\pygame\\_sdl2\\video.pyx";
 static const char __pyx_k_surface_must_be_a_surface_or_No[] = "'surface' must be a surface or None";
 static const char __pyx_k_the_argument_is_not_a_rectangle[] = "the argument is not a rectangle or None";
 static const char __pyx_k_area_must_be_a_rectangle_or_None[] = "area must be a rectangle or None";
@@ -3487,8 +3487,8 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5messagebox(CYTHON_UNUSED PyObje
  * 
  *     cdef SDL_MessageBoxButtonData button
  *     if not buttons:             # <<<<<<<<<<<<<<
- *         button.flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
- *                         _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+ *         button.flags = _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
+ *                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
  */
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_buttons); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 139, __pyx_L1_error)
   __pyx_t_2 = ((!__pyx_t_1) != 0);
@@ -3497,15 +3497,15 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5messagebox(CYTHON_UNUSED PyObje
     /* "pygame/_sdl2/video.pyx":140
  *     cdef SDL_MessageBoxButtonData button
  *     if not buttons:
- *         button.flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\             # <<<<<<<<<<<<<<
- *                         _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+ *         button.flags = _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\             # <<<<<<<<<<<<<<
+ *                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
  *         button.buttonid = 0
  */
-    __pyx_v_button.flags = (__pyx_v_button.flags | (SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT | SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT));
+    __pyx_v_button.flags = (SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT | SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT);
 
     /* "pygame/_sdl2/video.pyx":142
- *         button.flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
- *                         _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+ *         button.flags = _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
+ *                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
  *         button.buttonid = 0             # <<<<<<<<<<<<<<
  *         button.text = "OK"
  *         data.buttons = &button
@@ -3513,7 +3513,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5messagebox(CYTHON_UNUSED PyObje
     __pyx_v_button.buttonid = 0;
 
     /* "pygame/_sdl2/video.pyx":143
- *                         _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+ *                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
  *         button.buttonid = 0
  *         button.text = "OK"             # <<<<<<<<<<<<<<
  *         data.buttons = &button
@@ -3543,8 +3543,8 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5messagebox(CYTHON_UNUSED PyObje
  * 
  *     cdef SDL_MessageBoxButtonData button
  *     if not buttons:             # <<<<<<<<<<<<<<
- *         button.flags |= _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
- *                         _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+ *         button.flags = _SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT |\
+ *                        _SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
  */
     goto __pyx_L8;
   }
