@@ -159,8 +159,11 @@ pg_event_filter(void *_, SDL_Event *event)
                                    SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
                     ev = &inputEvent[1];
             }
+
+            /* Only copy size - 1. This will always leave the string
+             * terminated with a 0. */
             strncpy(_pg_last_unicode_char, ev->text.text,
-                    sizeof(_pg_last_unicode_char));
+                    sizeof(_pg_last_unicode_char) - 1);
         }
         else {
             _pg_last_unicode_char[0] = 0;
@@ -223,7 +226,8 @@ static int
 pg_EnableKeyRepeat(int delay, int interval)
 {
     if (delay < 0 || interval < 0) {
-        RAISE(PyExc_ValueError, "delay and interval must equal at least 0");
+        PyErr_SetString(PyExc_ValueError,
+                        "delay and interval must equal at least 0");
         return -1;
     }
     pg_key_repeat_delay = delay;
@@ -425,6 +429,8 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
     }
 }
 
+#if IS_SDLv1
+
 #if defined(Py_USING_UNICODE)
 
 static PyObject *
@@ -478,6 +484,8 @@ _pg_our_empty_ustr(void)
 }
 
 #endif /* Py_USING_UNICODE */
+
+#endif /* IS_SDLv1 */
 
 static PyObject *
 dict_from_event(SDL_Event *event)
@@ -1087,7 +1095,10 @@ pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
         PyObject *key, *value;
         Py_ssize_t pos = 0;
         while (PyDict_Next(keywords, &pos, &key, &value)) {
-            PyDict_SetItem(dict, key, value);
+            if (PyDict_SetItem(dict, key, value) < 0) {
+                Py_DECREF(dict);
+                return NULL; /* Exception already set. */
+            }
         }
     }
 
@@ -1259,7 +1270,8 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type = NULL;
     int dopump = 1;
     int val;
@@ -1396,10 +1408,11 @@ static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type = NULL, *list;
     int dopump = 1;
-    int val;
+    int val, ret;
 
     static char *kwids[] = {
         "eventtype",
@@ -1443,21 +1456,32 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
                     PyExc_TypeError,
                     "type sequence must contain valid event types");
             }
-            if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val) < 0) {
+
+            ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
+
+            if (ret < 0) {
                 Py_DECREF(list);
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
-            if(!_pg_event_append_to_list(list, &event))
-                return NULL;
+            else if (ret > 0) {
+                if (!_pg_event_append_to_list(list, &event)) {
+                    return NULL;
+                }
+            }
         }
     }
     else if (pg_IntFromObj(type, &val)) {
-        if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val) < 0) {
+        ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
+
+        if (ret < 0) {
             Py_DECREF(list);
             return RAISE(pgExc_SDLError, SDL_GetError());
         }
-        if(!_pg_event_append_to_list(list, &event))
-            return NULL;
+        else if (ret > 0) {
+            if (!_pg_event_append_to_list(list, &event)) {
+                return NULL;
+            }
+        }
     }
     else {
         Py_DECREF(list);
@@ -1535,8 +1559,9 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
+    Py_ssize_t num;
     int result;
-    int loop, num;
+    int loop;
     PyObject *type = NULL;
     int val;
     int dopump = 1;
@@ -1583,6 +1608,8 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                 return PyInt_FromLong(1);
             }
         }
+
+        return PyInt_FromLong(0); /* No event type match. */
     }
     else if (pg_IntFromObj(type, &val)) {
         result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, val, val);
@@ -1642,7 +1669,8 @@ _pg_check_event_in_range(int evt)
 static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *args)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type;
     int val;
 
@@ -1686,7 +1714,8 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
 static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *args)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type;
     int val;
 
@@ -1730,7 +1759,8 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
 static PyObject *
 pg_event_get_blocked(PyObject *self, PyObject *args)
 {
-    int loop, num;
+    Py_ssize_t num;
+    int loop;
     PyObject *type;
     int val;
     int isblocked = 0;

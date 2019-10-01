@@ -627,7 +627,7 @@ class FreeTypeFontTest(unittest.TestCase):
         for dest in [None, 0, 'a', 'ab',
                      (), (1,), ('a', 2), (1, 'a'), (1+2j, 2), (1, 1+2j),
                      (1, int), (int, 1)]:
-            self.assertRaises(TypeError, font.render,
+            self.assertRaises(TypeError, font.render_to,
                               surf, dest, 'foobar', color, size=24)
 
         # misc parameter test
@@ -980,6 +980,16 @@ class FreeTypeFontTest(unittest.TestCase):
                 self.assertEqual(rrect, srect)
         finally:
             font.antialiased = True
+
+        # Invalid dest parameter test.
+        srect = font.get_rect(text, size=24)
+        surf_buf = pygame.Surface(srect.size, 0, 32).get_view('2')
+
+        for dest in [0, 'a', 'ab',
+                     (), (1,), ('a', 2), (1, 'a'), (1 + 2j, 2), (1, 1 + 2j),
+                     (1, int), (int, 1)]:
+            self.assertRaises(TypeError, font.render_raw_to, surf_buf, text,
+                              dest, size=24)
 
     def test_freetype_Font_text_is_None(self):
         f = ft.Font(self._sans_path, 36)

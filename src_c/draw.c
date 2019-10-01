@@ -460,16 +460,15 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 
         xlist[loop] = x;
         ylist[loop] = y;
-        left = MIN(x, left);
-        top = MIN(y, top);
-        right = MAX(x, right);
-        bottom = MAX(y, bottom);
     }
+
+    x = xlist[0];
+    y = ylist[0];
 
     if (width < 1) {
         PyMem_Del(xlist);
         PyMem_Del(ylist);
-        return pgRect_New4(left, top, 0, 0);
+        return pgRect_New4(x, y, 0, 0);
     }
 
     if (!pgSurface_Lock(surfobj)) {
@@ -483,7 +482,16 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
         pts[1] = ylist[loop - 1];
         pts[2] = xlist[loop];
         pts[3] = ylist[loop];
-        clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
+
+        if (clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
+                                     pts)) {
+            /* The pts array was updated with the top left and bottom right
+             * corners of the bounding box: {left, top, right, bottom}. */
+            left = MIN(pts[0], left);
+            top = MIN(pts[1], top);
+            right = MAX(pts[2], right);
+            bottom = MAX(pts[3], bottom);
+        }
     }
 
     if (closed && length > 2) {
@@ -491,7 +499,14 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
         pts[1] = ylist[length - 1];
         pts[2] = xlist[0];
         pts[3] = ylist[0];
-        clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
+
+        if (clip_and_draw_line_width(surf, &surf->clip_rect, color, width,
+                                     pts)) {
+            left = MIN(pts[0], left);
+            top = MIN(pts[1], top);
+            right = MAX(pts[2], right);
+            bottom = MAX(pts[3], bottom);
+        }
     }
 
     PyMem_Del(xlist);
@@ -499,6 +514,11 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    if (INT_MAX == left) {
+        /* Nothing was drawn. */
+        return pgRect_New4(x, y, 0, 0);
     }
 
     /* Compute return rect. */

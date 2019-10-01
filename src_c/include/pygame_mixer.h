@@ -28,7 +28,7 @@
 
 #include "pgcompat.h"
 
-typedef struct Mix_Chunk;
+struct Mix_Chunk;
 
 typedef struct {
   PyObject_HEAD

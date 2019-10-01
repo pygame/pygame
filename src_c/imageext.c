@@ -549,8 +549,7 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     struct jpeg_error_mgr jerr;
     SDL_RWops *outfile;
     JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
-    int num_lines_to_write;
-    int i;
+    JDIMENSION i, num_lines_to_write;
 
     num_lines_to_write = NUM_LINES_TO_WRITE;
 
@@ -618,6 +617,10 @@ SaveJPEG(SDL_Surface *surface, const char *file)
     int pixel_bits = 32;
     int free_ss_surface = 1;
 
+    if (!surface) {
+        return -1;
+    }
+
     ss_rows = 0;
     ss_size = 0;
     ss_surface = NULL;
@@ -626,10 +629,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
     ss_h = surface->h;
 
     pixel_bits = 24;
-
-    if (!surface) {
-        return -1;
-    }
 
     /* See if the Surface is suitable for using directly.
        So no conversion is needed.  24bit, RGB
@@ -791,8 +790,10 @@ image_save_ext(PyObject *self, PyObject *arg)
     PyObject *obj;
     PyObject *oencoded = NULL;
     SDL_Surface *surf;
-    SDL_Surface *temp = NULL;
     int result = 1;
+#if IS_SDLv1
+    SDL_Surface *temp = NULL;
+#endif /* IS_SDLv1 */
 
     if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
         return NULL;
@@ -865,12 +866,16 @@ image_save_ext(PyObject *self, PyObject *arg)
         result = -2;
     }
 
+#if IS_SDLv1
     if (temp != NULL) {
         SDL_FreeSurface(temp);
     }
     else {
         pgSurface_Unprep(surfobj);
     }
+#else  /* IS_SDLv2 */
+    pgSurface_Unprep(surfobj);
+#endif /* IS_SDLv2 */
 
     Py_XDECREF(oencoded);
     if (result == -2) {
