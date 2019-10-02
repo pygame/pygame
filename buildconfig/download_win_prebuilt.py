@@ -1,4 +1,6 @@
 import os
+import stat
+
 
 try:
     raw_input
@@ -142,7 +144,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
                 st = os.lstat(s)
                 mode = stat.S_IMODE(st.st_mode)
                 os.lchmod(d, mode)
-            except:
+            except OSError:
                 pass # lchmod not available
         elif os.path.isdir(s):
             copytree(s, d, symlinks, ignore)
