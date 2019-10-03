@@ -411,6 +411,7 @@ pgSurface_New(SDL_Surface *s)
 {
     return surf_subtype_new(&pgSurface_Type, s);
 }
+
 #else  /* IS_SDLv2 */
 
 static PyObject *
@@ -418,7 +419,35 @@ pgSurface_New(SDL_Surface *s, int owner)
 {
     return surf_subtype_new(&pgSurface_Type, s, owner);
 }
+
 #endif /* IS_SDLv2 */
+
+#if IS_SDLv1
+static int
+pgSurface_SetSurface(pgSurfaceObject *self, SDL_Surface *s)
+#else /* IS_SDLv2 */
+static int
+pgSurface_SetSurface(pgSurfaceObject *self, SDL_Surface *s, int owner)
+#endif /* IS_SDLv2 */
+{
+    if (!s) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    if (s == self->surf) {
+#if IS_SDLv2
+        self->owner = owner;
+#endif
+        return 0;
+    }
+
+    surface_cleanup(self);
+    self->surf = s;
+#if IS_SDLv2
+    self->owner = owner;
+#endif
+    return 0;
+}
 
 #if IS_SDLv1
 
@@ -437,12 +466,13 @@ surf_subtype_new(PyTypeObject *type, SDL_Surface *s, int owner)
 
     self = (pgSurfaceObject *)pgSurface_Type.tp_new(type, NULL, NULL);
 
-    if (self)
-        self->surf = s;
 #if IS_SDLv2
-    if (owner)
-        self->owner = 1;
-#endif /* IS_SDLv2 */
+    if (pgSurface_SetSurface(self, s, owner))
+        return NULL;
+#else /* IS_SDLv1 */
+    if (pgSurface_SetSurface(self, s))
+        return NULL;
+#endif /* IS_SDLv1 */
 
     return (PyObject *)self;
 }
@@ -4142,6 +4172,7 @@ MODINIT_DEFINE(surface)
     c_api[0] = &pgSurface_Type;
     c_api[1] = pgSurface_New;
     c_api[2] = pgSurface_Blit;
+    c_api[3] = pgSurface_SetSurface;
     apiobj = encapsulate_api(c_api, "surface");
     if (apiobj == NULL) {
         DECREF_MOD(module);

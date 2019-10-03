@@ -1929,9 +1929,7 @@ pg_SetDefaultWindowSurface(PyObject *screen)
         return;
     }
     Py_XINCREF(screen);
-    if (pg_default_screen) {
-        Py_DECREF(pg_default_screen);
-    }
+    Py_XDECREF(pg_default_screen);
     pg_default_screen = screen;
 }
 #endif /* IS_SDLv2 */
