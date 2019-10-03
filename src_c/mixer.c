@@ -1872,8 +1872,13 @@ LOAD_BUFFER:
     }
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_TypeError, "Unrecognized argument (type %s)",
-                     Py_TYPE(obj)->tp_name);
+        if (obj == NULL) {
+            PyErr_SetString(PyExc_TypeError, "Unrecognized argument");
+        }
+        else {
+            PyErr_Format(PyExc_TypeError, "Unrecognized argument (type %s)",
+                         Py_TYPE(obj)->tp_name);
+        }
         return -1;
     }
 

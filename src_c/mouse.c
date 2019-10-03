@@ -224,6 +224,12 @@ mouse_set_cursor(PyObject *self, PyObject *args)
     xordata = (Uint8 *)malloc(xorsize);
     anddata = (Uint8 *)malloc(andsize);
 
+    if ((NULL == xordata) || (NULL == anddata)) {
+        free(xordata);
+        free(anddata);
+        return PyErr_NoMemory();
+    }
+
     for (loop = 0; loop < xorsize; ++loop) {
         if (!pg_IntFromObjIndex(xormask, loop, &val))
             goto interror;
