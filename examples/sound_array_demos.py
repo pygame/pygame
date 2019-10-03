@@ -31,14 +31,13 @@ from numpy import zeros, int32, int16
 import time
 
 
-#mixer.init(44100, -16, 0)
+# mixer.init(44100, -16, 0)
 mixer.init()
-#mixer.init(11025, -16, 0)
-#mixer.init(11025)
+# mixer.init(11025, -16, 0)
+# mixer.init(11025)
 
 
-
-def make_echo(sound, samples_per_second,  mydebug = True):
+def make_echo(sound, samples_per_second, mydebug=True):
     """ returns a sound which is echoed of the last one.
     """
 
@@ -46,50 +45,46 @@ def make_echo(sound, samples_per_second,  mydebug = True):
 
     a1 = sndarray.array(sound)
     if mydebug:
-        print ('SHAPE1: %s' % (a1.shape,))
+        print("SHAPE1: %s" % (a1.shape,))
 
     length = a1.shape[0]
 
-    #myarr = zeros(length+12000)
+    # myarr = zeros(length+12000)
     myarr = zeros(a1.shape, int32)
 
     if len(a1.shape) > 1:
-        #mult = a1.shape[1]
+        # mult = a1.shape[1]
         size = (a1.shape[0] + int(echo_length * a1.shape[0]), a1.shape[1])
-        #size = (a1.shape[0] + int(a1.shape[0] + (echo_length * 3000)), a1.shape[1])
+        # size = (a1.shape[0] + int(a1.shape[0] + (echo_length * 3000)), a1.shape[1])
     else:
-        #mult = 1
+        # mult = 1
         size = (a1.shape[0] + int(echo_length * a1.shape[0]),)
-        #size = (a1.shape[0] + int(a1.shape[0] + (echo_length * 3000)),)
+        # size = (a1.shape[0] + int(a1.shape[0] + (echo_length * 3000)),)
 
     if mydebug:
-        print (int(echo_length * a1.shape[0]))
+        print(int(echo_length * a1.shape[0]))
     myarr = zeros(size, int32)
 
-
-
     if mydebug:
-        print ("size %s" % (size,))
-        print (myarr.shape)
+        print("size %s" % (size,))
+        print(myarr.shape)
     myarr[:length] = a1
-    #print (myarr[3000:length+3000])
-    #print (a1 >> 1)
-    #print ("a1.shape %s" % (a1.shape,))
-    #c = myarr[3000:length+(3000*mult)]
-    #print ("c.shape %s" % (c.shape,))
+    # print (myarr[3000:length+3000])
+    # print (a1 >> 1)
+    # print ("a1.shape %s" % (a1.shape,))
+    # c = myarr[3000:length+(3000*mult)]
+    # print ("c.shape %s" % (c.shape,))
 
     incr = int(samples_per_second / echo_length)
     gap = length
 
-
-    myarr[incr:gap+incr] += a1>>1
-    myarr[incr*2:gap+(incr*2)] += a1>>2
-    myarr[incr*3:gap+(incr*3)] += a1>>3
-    myarr[incr*4:gap+(incr*4)] += a1>>4
+    myarr[incr : gap + incr] += a1 >> 1
+    myarr[incr * 2 : gap + (incr * 2)] += a1 >> 2
+    myarr[incr * 3 : gap + (incr * 3)] += a1 >> 3
+    myarr[incr * 4 : gap + (incr * 4)] += a1 >> 4
 
     if mydebug:
-        print ('SHAPE2: %s' % (myarr.shape,))
-
+        print("SHAPE2: %s" % (myarr.shape,))
 
     sound2 = sndarray.make_sound(myarr.astype(int16))
 
@@ -102,26 +97,24 @@ def slow_down_sound(sound, rate):
     """
 
     raise NotImplementedError()
-    #grow_rate = 1 / rate
+    # grow_rate = 1 / rate
     # make it 1/rate times longer.
-    #a1 = sndarray.array(sound)
-    #surf = pygame.surfarray.make_surface(a1)
-    #print (a1.shape[0] * grow_rate)
-    #scaled_surf = pygame.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
-    #print (scaled_surf)
-    #print (surf)
+    # a1 = sndarray.array(sound)
+    # surf = pygame.surfarray.make_surface(a1)
+    # print (a1.shape[0] * grow_rate)
+    # scaled_surf = pygame.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
+    # print (scaled_surf)
+    # print (surf)
 
-    #a2 = a1 * rate
-    #print (a1.shape)
-    #print (a2.shape)
-    #print (a2)
-    #sound2 = sndarray.make_sound(a2.astype(int16))
-    #return sound2
-
-
+    # a2 = a1 * rate
+    # print (a1.shape)
+    # print (a2.shape)
+    # print (a2)
+    # sound2 = sndarray.make_sound(a2.astype(int16))
+    # return sound2
 
 
-def sound_from_pos(sound, start_pos, samples_per_second = None, inplace = 1):
+def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
     """  returns a sound which begins at the start_pos.
          start_pos - in seconds from the begining.
          samples_per_second - 
@@ -148,8 +141,6 @@ def sound_from_pos(sound, start_pos, samples_per_second = None, inplace = 1):
     sound2 = pygame.sndarray.make_sound(a2)
 
     return sound2
-    
-
 
 
 def main(arraytype=None):
@@ -163,46 +154,43 @@ def main(arraytype=None):
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
 
-    if arraytype not in ('numpy', None):
-        raise ValueError('Array type not supported: %r' % arraytype)
+    if arraytype not in ("numpy", None):
+        raise ValueError("Array type not supported: %r" % arraytype)
 
-    print ("Using %s array package" % sndarray.get_arraytype())
-    print ("mixer.get_init %s" % (mixer.get_init(),))
+    print("Using %s array package" % sndarray.get_arraytype())
+    print("mixer.get_init %s" % (mixer.get_init(),))
 
     samples_per_second = pygame.mixer.get_init()[0]
 
-    print (("-" * 30) + "\n")
-    print ("loading sound")
-    sound = mixer.Sound(os.path.join(main_dir, 'data', 'car_door.wav'))
+    print(("-" * 30) + "\n")
+    print("loading sound")
+    sound = mixer.Sound(os.path.join(main_dir, "data", "car_door.wav"))
 
-
-
-    print ("-" * 30)
-    print ("start positions")
-    print ("-" * 30)
+    print("-" * 30)
+    print("start positions")
+    print("-" * 30)
 
     start_pos = 0.1
     sound2 = sound_from_pos(sound, start_pos, samples_per_second)
 
-    print ("sound.get_length %s" % (sound.get_length(),))
-    print ("sound2.get_length %s" % (sound2.get_length(),))
+    print("sound.get_length %s" % (sound.get_length(),))
+    print("sound2.get_length %s" % (sound2.get_length(),))
     sound2.play()
     while mixer.get_busy():
         pygame.time.wait(200)
 
-    print ("waiting 2 seconds")
+    print("waiting 2 seconds")
     pygame.time.wait(2000)
-    print ("playing original sound")
+    print("playing original sound")
 
     sound.play()
     while mixer.get_busy():
         pygame.time.wait(200)
 
-    print ("waiting 2 seconds")
+    print("waiting 2 seconds")
     pygame.time.wait(2000)
 
-
-    #if 0:
+    # if 0:
     #    #TODO: this is broken.
     #    print (("-" * 30) + "\n")
     #    print ("Slow down the original sound.")
@@ -212,43 +200,40 @@ def main(arraytype=None):
     #    while mixer.get_busy():
     #        pygame.time.wait(200)
 
-
-    print ("-" * 30)
-    print ("echoing")
-    print ("-" * 30)
+    print("-" * 30)
+    print("echoing")
+    print("-" * 30)
 
     t1 = time.time()
     sound2 = make_echo(sound, samples_per_second)
-    print ("time to make echo %i" % (time.time() - t1,))
+    print("time to make echo %i" % (time.time() - t1,))
 
-
-    print ("original sound")
+    print("original sound")
     sound.play()
     while mixer.get_busy():
         pygame.time.wait(200)
 
-    print ("echoed sound")
+    print("echoed sound")
     sound2.play()
     while mixer.get_busy():
         pygame.time.wait(200)
 
-
-    sound = mixer.Sound(os.path.join(main_dir, 'data', 'secosmic_lo.wav'))
+    sound = mixer.Sound(os.path.join(main_dir, "data", "secosmic_lo.wav"))
 
     t1 = time.time()
     sound3 = make_echo(sound, samples_per_second)
-    print ("time to make echo %i" % (time.time() - t1,))
+    print("time to make echo %i" % (time.time() - t1,))
 
-    print ("original sound")
+    print("original sound")
     sound.play()
     while mixer.get_busy():
         pygame.time.wait(200)
 
-
-    print ("echoed sound")
+    print("echoed sound")
     sound3.play()
     while mixer.get_busy():
         pygame.time.wait(200)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

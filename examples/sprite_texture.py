@@ -6,28 +6,26 @@ Experimental! Uses APIs which may disapear in the next release (_sdl2 is private
 import pygame
 
 if pygame.get_sdl_version()[0] < 2:
-    raise SystemExit('This example requires pygame 2 and SDL2.')
+    raise SystemExit("This example requires pygame 2 and SDL2.")
 
 import os
-data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0],
-                        'data')
 
-from pygame._sdl2 import (
-    Window,
-    Texture,
-    Image,
-    Renderer
-)
+data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
+
+from pygame._sdl2 import Window, Texture, Image, Renderer
+
 
 def load_img(file):
     return pygame.image.load(os.path.join(data_dir, file))
 
+
 pygame.display.init()
 pygame.key.set_repeat(10, 10)
 
-win = Window('asdf', resizable=True)
+win = Window("asdf", resizable=True)
 renderer = Renderer(win)
-tex = Texture.from_surface(renderer, load_img('alien1.gif'))
+tex = Texture.from_surface(renderer, load_img("alien1.gif"))
+
 
 class Something(pygame.sprite.Sprite):
     def __init__(self, img):
@@ -41,11 +39,12 @@ class Something(pygame.sprite.Sprite):
 
         img.origin = self.rect.w / 2, self.rect.h / 2
 
-sprite = Something(Image(tex, (0, 0, tex.width/2, tex.height/2)))
+
+sprite = Something(Image(tex, (0, 0, tex.width / 2, tex.height / 2)))
 sprite.rect.x = 250
 sprite.rect.y = 50
 
-#sprite2 = Something(Image(sprite.image))
+# sprite2 = Something(Image(sprite.image))
 sprite2 = Something(Image(tex))
 sprite2.rect.x = 250
 sprite2.rect.y = 250
@@ -57,6 +56,7 @@ group.add(sprite2)
 group.add(sprite)
 
 import math
+
 t = 0
 running = True
 clock = pygame.time.Clock()
@@ -85,13 +85,13 @@ while running:
     img.angle += 1
     img.flipX = t % 50 < 25
     img.flipY = t % 100 < 50
-    img.color[0] = int(255.0 * (.5 + math.sin(.5 * t + 10.0) / 2.0))
-    img.alpha = int(255.0 * (.5 + math.sin(.1 * t) / 2.0))
-    #img.draw(dstrect=(x, y, 5 * img.srcrect['w'], 5 * img.srcrect['h']))
+    img.color[0] = int(255.0 * (0.5 + math.sin(0.5 * t + 10.0) / 2.0))
+    img.alpha = int(255.0 * (0.5 + math.sin(0.1 * t) / 2.0))
+    # img.draw(dstrect=(x, y, 5 * img.srcrect['w'], 5 * img.srcrect['h']))
 
     group.draw(renderer)
 
     renderer.present()
 
     clock.tick(60)
-    win.title = str('FPS: {}'.format(clock.get_fps()))
+    win.title = str("FPS: {}".format(clock.get_fps()))

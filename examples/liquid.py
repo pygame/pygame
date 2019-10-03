@@ -18,27 +18,28 @@ import time
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
-def main():
-    #initialize and setup screen
-    pygame.init()
-    screen = pygame.display.set_mode((640, 480), HWSURFACE|DOUBLEBUF)
 
-    #load image and quadruple
-    imagename = os.path.join(main_dir, 'data', 'liquid.bmp')
+def main():
+    # initialize and setup screen
+    pygame.init()
+    screen = pygame.display.set_mode((640, 480), HWSURFACE | DOUBLEBUF)
+
+    # load image and quadruple
+    imagename = os.path.join(main_dir, "data", "liquid.bmp")
     bitmap = pygame.image.load(imagename)
     bitmap = pygame.transform.scale2x(bitmap)
     bitmap = pygame.transform.scale2x(bitmap)
 
-    #get the image and screen in the same format
+    # get the image and screen in the same format
     if screen.get_bitsize() == 8:
         screen.set_palette(bitmap.get_palette())
     else:
         bitmap = bitmap.convert()
 
-    #prep some variables
+    # prep some variables
     anim = 0.0
 
-    #mainloop
+    # mainloop
     xblocks = range(0, 640, 20)
     yblocks = range(0, 480, 20)
     stopevents = QUIT, KEYDOWN, MOUSEBUTTONDOWN
@@ -49,17 +50,17 @@ def main():
 
         anim = anim + 0.02
         for x in xblocks:
-            xpos = (x + (sin(anim + x * .01) * 15)) + 20
+            xpos = (x + (sin(anim + x * 0.01) * 15)) + 20
             for y in yblocks:
-                ypos = (y + (sin(anim + y * .01) * 15)) + 20
+                ypos = (y + (sin(anim + y * 0.01) * 15)) + 20
                 screen.blit(bitmap, (x, y), (xpos, ypos, 20, 20))
 
         pygame.display.flip()
         time.sleep(0.01)
 
 
-if __name__ == '__main__': main()
-
+if __name__ == "__main__":
+    main()
 
 
 """BTW, here is the code from the BlitzBasic example this was derived

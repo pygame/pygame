@@ -29,16 +29,14 @@ slow_tick = 0
 NUM_EVENTS_TO_POST = 200000
 
 
-
 if use_fast_events:
     event_module = fastevent
 else:
     event_module = event
 
 
-
-
 from threading import Thread
+
 
 class post_them(Thread):
     def __init__(self):
@@ -68,8 +66,8 @@ class post_them(Thread):
         self.done.append(1)
 
 
-
 import time as pytime
+
 
 def main():
     init()
@@ -89,42 +87,40 @@ def main():
 
     going = True
     while going:
-#        for e in event.get():
-        #for x in range(200):
+        #        for e in event.get():
+        # for x in range(200):
         #    ee = event.Event(USEREVENT)
         #    r = event_module.post(ee)
         #    print (r)
 
-        #for e in event_module.get():
+        # for e in event_module.get():
         event_list = []
         event_list = event_module.get()
 
         for e in event_list:
             if e.type == QUIT:
-                print (c.get_fps())
+                print(c.get_fps())
                 poster.stop.append(1)
                 going = False
             if e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
-                    print (c.get_fps())
+                    print(c.get_fps())
                     poster.stop.append(1)
                     going = False
         if poster.done:
-            print (c.get_fps())
-            print (c)
+            print(c.get_fps())
+            print(c)
             t2 = pytime.time()
-            print ("total time:%s" % (t2 - t1))
-            print ("events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1)))
+            print("total time:%s" % (t2 - t1))
+            print("events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1)))
             going = False
         if with_display:
             display.flip()
         if slow_tick:
             c.tick(40)
 
-
     pygame.quit()
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

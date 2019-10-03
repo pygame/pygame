@@ -16,41 +16,63 @@ try:
     from OpenGL.GL import *
     from OpenGL.GLU import *
 except ImportError:
-    print ('The GLCUBE example requires PyOpenGL')
+    print("The GLCUBE example requires PyOpenGL")
     raise SystemExit
 
 
-
-#some simple data for a colored cube
-#here we have the 3D point position and color
-#for each corner. then we have a list of indices
-#that describe each face, and a list of indieces
-#that describes each edge
+# some simple data for a colored cube
+# here we have the 3D point position and color
+# for each corner. then we have a list of indices
+# that describe each face, and a list of indieces
+# that describes each edge
 
 
 CUBE_POINTS = (
-    (0.5, -0.5, -0.5),  (0.5, 0.5, -0.5),
-    (-0.5, 0.5, -0.5),  (-0.5, -0.5, -0.5),
-    (0.5, -0.5, 0.5),   (0.5, 0.5, 0.5),
-    (-0.5, -0.5, 0.5),  (-0.5, 0.5, 0.5)
+    (0.5, -0.5, -0.5),
+    (0.5, 0.5, -0.5),
+    (-0.5, 0.5, -0.5),
+    (-0.5, -0.5, -0.5),
+    (0.5, -0.5, 0.5),
+    (0.5, 0.5, 0.5),
+    (-0.5, -0.5, 0.5),
+    (-0.5, 0.5, 0.5),
 )
 
-#colors are 0-1 floating values
+# colors are 0-1 floating values
 CUBE_COLORS = (
-    (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, 0),
-    (1, 0, 1), (1, 1, 1), (0, 0, 1), (0, 1, 1)
+    (1, 0, 0),
+    (1, 1, 0),
+    (0, 1, 0),
+    (0, 0, 0),
+    (1, 0, 1),
+    (1, 1, 1),
+    (0, 0, 1),
+    (0, 1, 1),
 )
 
 CUBE_QUAD_VERTS = (
-    (0, 1, 2, 3), (3, 2, 7, 6), (6, 7, 5, 4),
-    (4, 5, 1, 0), (1, 5, 7, 2), (4, 0, 3, 6)
+    (0, 1, 2, 3),
+    (3, 2, 7, 6),
+    (6, 7, 5, 4),
+    (4, 5, 1, 0),
+    (1, 5, 7, 2),
+    (4, 0, 3, 6),
 )
 
 CUBE_EDGES = (
-    (0,1), (0,3), (0,4), (2,1), (2,3), (2,7),
-    (6,3), (6,4), (6,7), (5,1), (5,4), (5,7),
+    (0, 1),
+    (0, 3),
+    (0, 4),
+    (2, 1),
+    (2, 3),
+    (2, 7),
+    (6, 3),
+    (6, 4),
+    (6, 7),
+    (5, 1),
+    (5, 4),
+    (5, 7),
 )
-
 
 
 def drawcube():
@@ -74,30 +96,32 @@ def drawcube():
 
     glEnd()
 
+
 def init_gl_stuff():
 
-    glEnable(GL_DEPTH_TEST)        #use our zbuffer
+    glEnable(GL_DEPTH_TEST)  # use our zbuffer
 
-    #setup the camera
+    # setup the camera
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(45.0,640/480.0,0.1,100.0)    #setup lens
-    glTranslatef(0.0, 0.0, -3.0)                #move back
-    glRotatef(25, 1, 0, 0)                       #orbit higher
+    gluPerspective(45.0, 640 / 480.0, 0.1, 100.0)  # setup lens
+    glTranslatef(0.0, 0.0, -3.0)  # move back
+    glRotatef(25, 1, 0, 0)  # orbit higher
+
 
 def main():
     "run the demo"
-    #initialize pygame and setup an opengl display
+    # initialize pygame and setup an opengl display
     pygame.init()
 
     fullscreen = True
-    pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF|FULLSCREEN)
+    pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF | FULLSCREEN)
 
     init_gl_stuff()
 
     going = True
     while going:
-        #check for quit'n events
+        # check for quit'n events
         events = pygame.event.get()
         for event in events:
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -107,18 +131,19 @@ def main():
                 if event.key == pygame.K_f:
                     if not fullscreen:
                         print("Changing to FULLSCREEN")
-                        pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF | FULLSCREEN)
+                        pygame.display.set_mode(
+                            (640, 480), OPENGL | DOUBLEBUF | FULLSCREEN
+                        )
                     else:
                         print("Changing to windowed mode")
                         pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF)
                     fullscreen = not fullscreen
                     init_gl_stuff()
 
+        # clear screen and move camera
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        #clear screen and move camera
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-
-        #orbit camera around by 1 degree
+        # orbit camera around by 1 degree
         glRotatef(1, 0, 1, 0)
 
         drawcube()
@@ -126,4 +151,5 @@ def main():
         pygame.time.wait(10)
 
 
-if __name__ == '__main__': main()
+if __name__ == "__main__":
+    main()
