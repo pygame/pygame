@@ -461,7 +461,8 @@ pg_GetVideoInfo(pg_VideoInfo *info)
             SDL_FreeFormat(tempformat);
         }
         else {
-            return RAISE(pgExc_SDLError, SDL_GetError());
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            return (pg_VideoInfo *)NULL;
         }
     }
 
