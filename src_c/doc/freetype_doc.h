@@ -1,6 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEFREETYPE "Enhanced pygame module for loading and rendering computer fonts"
-#define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nReturn the latest FreeType error"
+#define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nget_error() -> None\nReturn the latest FreeType error"
 #define DOC_PYGAMEFREETYPEGETVERSION "get_version() -> (int, int, int)\nReturn the FreeType version"
 #define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72)\nInitialize the underlying FreeType library."
 #define DOC_PYGAMEFREETYPEQUIT "quit()\nShut down the underlying FreeType library."
@@ -60,6 +60,7 @@ Enhanced pygame module for loading and rendering computer fonts
 
 pygame.freetype.get_error
  get_error() -> str
+ get_error() -> None
 Return the latest FreeType error
 
 pygame.freetype.get_version

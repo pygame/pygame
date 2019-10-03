@@ -66,9 +66,10 @@ loaded. This module must be imported explicitly to be used. ::
 
    | :sl:`Return the latest FreeType error`
    | :sg:`get_error() -> str`
+   | :sg:`get_error() -> None`
 
    Return a description of the last error which occurred in the FreeType2
-   library, or None if no errors have occurred.
+   library, or ``None`` if no errors have occurred.
 
 .. function:: get_version
 

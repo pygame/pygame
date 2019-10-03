@@ -1612,6 +1612,12 @@ class FreeTypeTest(unittest.TestCase):
         ft.init(cache_size=new_cache_size)
         self.assertEqual(ft.get_cache_size(), new_cache_size)
 
+    def test_get_error(self):
+        """Ensures get_error() is initially empty (None)."""
+        error_msg = ft.get_error()
+
+        self.assertIsNone(error_msg)
+
 
 if __name__ == '__main__':
     unittest.main()

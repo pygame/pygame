@@ -576,6 +576,8 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
         goto error_cleanup;
     }
 
+    _PGFT_SetError(inst, "", 0); /* Initialize error data. */
+
     *_instance = inst;
     return 0;
 
