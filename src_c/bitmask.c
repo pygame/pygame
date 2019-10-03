@@ -570,7 +570,8 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
 
     /* Return if no overlap or one mask has a width/height of 0. */
     if ((xoffset >= a->w) || (yoffset >= a->h) || (yoffset <= -b->h) ||
-        (xoffset <= -b->w) || (!a->h) || (!a->w) || (!b->h) || (!b->w)) {
+        (xoffset <= -b->w) || (!a->h) || (!a->w) || (!b->h) || (!b->w) ||
+        (!c->h) || (!c->w)) {
         return;
     }
 
@@ -729,7 +730,7 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
      is a chance we were drawing there. */
     if (xoffset + b->w > c->w) {
         BITMASK_W edgemask;
-        int n = c->w / BITMASK_W_LEN;
+        int n = (c->w - 1) / BITMASK_W_LEN;
 
         shift = bitmask_positive_modulo(BITMASK_W_LEN - c->w);
         edgemask = (~(BITMASK_W)0) >> shift;
@@ -877,7 +878,7 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
      is a chance we were drawing there. */
     if (xoffset + b->w > a->w) {
         BITMASK_W edgemask;
-        int n = a->w / BITMASK_W_LEN;
+        int n = (a->w - 1) / BITMASK_W_LEN;
 
         shift = bitmask_positive_modulo(BITMASK_W_LEN - a->w);
         edgemask = (~(BITMASK_W)0) >> shift;
