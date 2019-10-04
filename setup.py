@@ -24,6 +24,7 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
+import re
 import sys
 import os
 
@@ -269,7 +270,7 @@ try:
     if sin_mtime > s_mtime:
         print ('\n\nWARNING, "buildconfig/Setup.SDL1.in" newer than "Setup",'
                'you might need to modify "Setup".')
-except:
+except OSError:
     pass
 
 # get compile info for all extensions
@@ -398,14 +399,12 @@ add_datafiles(data_files, 'pygame/docs',
 
 #generate the version module
 def parse_version(ver):
-    from re import findall
-    return ', '.join(s for s in findall(r'\d+', ver)[0:3])
+    return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
 
 def parse_source_version():
     pgh_major = -1
     pgh_minor = -1
     pgh_patch = -1
-    import re
     major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
     minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
     patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
@@ -781,7 +780,7 @@ def remove_old_files():
             print("trying to remove old file :%s: ..." %f)
             os.remove(f)
             print("Successfully removed :%s:." % f)
-        except:
+        except OSError:
             print("FAILED to remove old file :%s:" % f)
 
 
