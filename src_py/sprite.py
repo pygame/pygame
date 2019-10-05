@@ -165,7 +165,7 @@ class Sprite(object):
     def remove_internal(self, group):
         del self.__g[group]
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """method to control sprite behavior
 
         Sprite.update(*args):
@@ -450,7 +450,7 @@ class AbstractGroup(object):
 
         return return_value
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """call the update method of every member sprite
 
         Group.update(*args): return None
@@ -460,7 +460,7 @@ class AbstractGroup(object):
 
         """
         for s in self.sprites():
-            s.update(*args)
+            s.update(*args, **kwargs)
 
     def draw(self, surface):
         """draw all sprites onto the surface
