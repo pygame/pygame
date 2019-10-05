@@ -3,6 +3,7 @@
 import sys, time
 import pygame
 
+
 def main(imagefile, convert_alpha=False, run_speed_test=False):
     """show an interactive image scaler
 
@@ -41,40 +42,51 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
     bLeft = False
     bRight = False
     cursize = [background.get_width(), background.get_height()]
-    while(bRunning):
+    while bRunning:
         image = pygame.transform.smoothscale(background, cursize)
         imgpos = image.get_rect(centerx=512, centery=384)
-        screen.fill((255,255,255))
+        screen.fill((255, 255, 255))
         screen.blit(image, imgpos)
         pygame.display.flip()
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            if event.type == pygame.QUIT or (
+                event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+            ):
                 bRunning = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:    bUp = True
-                if event.key == pygame.K_DOWN:  bDown = True
-                if event.key == pygame.K_LEFT:  bLeft = True
-                if event.key == pygame.K_RIGHT: bRight = True
+                if event.key == pygame.K_UP:
+                    bUp = True
+                if event.key == pygame.K_DOWN:
+                    bDown = True
+                if event.key == pygame.K_LEFT:
+                    bLeft = True
+                if event.key == pygame.K_RIGHT:
+                    bRight = True
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP:    bUp = False
-                if event.key == pygame.K_DOWN:  bDown = False
-                if event.key == pygame.K_LEFT:  bLeft = False
-                if event.key == pygame.K_RIGHT: bRight = False
+                if event.key == pygame.K_UP:
+                    bUp = False
+                if event.key == pygame.K_DOWN:
+                    bDown = False
+                if event.key == pygame.K_LEFT:
+                    bLeft = False
+                if event.key == pygame.K_RIGHT:
+                    bRight = False
         if bUp:
             cursize[1] -= 2
-            if cursize[1] < 1: cursize[1] = 1
+            if cursize[1] < 1:
+                cursize[1] = 1
         if bDown:
             cursize[1] += 2
         if bLeft:
             cursize[0] -= 2
-            if cursize[0] < 1: cursize[0] = 1
+            if cursize[0] < 1:
+                cursize[0] = 1
         if bRight:
             cursize[0] += 2
 
 
 def SpeedTest(image):
-    print("\nImage Scaling Speed Test - Image Size %s\n" % str(
-          image.get_size()))
+    print("\nImage Scaling Speed Test - Image Size %s\n" % str(image.get_size()))
 
     imgsize = [image.get_width(), image.get_height()]
     duration = 0.0
@@ -83,11 +95,12 @@ def SpeedTest(image):
         shrinky = (imgsize[1] * i) // 128
         start = time.time()
         tempimg = pygame.transform.smoothscale(image, (shrinkx, shrinky))
-        duration += (time.time() - start)
+        duration += time.time() - start
         del tempimg
 
-    print("Average transform.smoothscale shrink time: %.4f ms." % (
-          duration / 128 * 1000))
+    print(
+        "Average transform.smoothscale shrink time: %.4f ms." % (duration / 128 * 1000)
+    )
 
     duration = 0.0
     for i in range(128):
@@ -95,11 +108,12 @@ def SpeedTest(image):
         expandy = (imgsize[1] * (i + 129)) // 128
         start = time.time()
         tempimg = pygame.transform.smoothscale(image, (expandx, expandy))
-        duration += (time.time() - start)
+        duration += time.time() - start
         del tempimg
 
-    print("Average transform.smoothscale expand time: %.4f ms." % (
-          duration / 128 * 1000))
+    print(
+        "Average transform.smoothscale expand time: %.4f ms." % (duration / 128 * 1000)
+    )
 
     duration = 0.0
     for i in range(128):
@@ -107,11 +121,10 @@ def SpeedTest(image):
         shrinky = (imgsize[1] * i) // 128
         start = time.time()
         tempimg = pygame.transform.scale(image, (shrinkx, shrinky))
-        duration += (time.time() - start)
+        duration += time.time() - start
         del tempimg
 
-    print("Average transform.scale shrink time: %.4f ms." % (
-          duration / 128 * 1000))
+    print("Average transform.scale shrink time: %.4f ms." % (duration / 128 * 1000))
 
     duration = 0.0
     for i in range(128):
@@ -119,22 +132,22 @@ def SpeedTest(image):
         expandy = (imgsize[1] * (i + 129)) // 128
         start = time.time()
         tempimg = pygame.transform.scale(image, (expandx, expandy))
-        duration += (time.time() - start)
+        duration += time.time() - start
         del tempimg
 
-    print("Average transform.scale expand time: %.4f ms." % (
-          duration / 128 * 1000))
+    print("Average transform.scale expand time: %.4f ms." % (duration / 128 * 1000))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # check input parameters
     if len(sys.argv) < 2:
         print("\nUsage: %s imagefile [-t] [-convert_alpha]" % sys.argv[0])
         print("    imagefile       image filename (required)")
         print("    -t              run speed test")
-        print("    -convert_alpha  use convert_alpha() on the image's "
-              "surface\n")
+        print("    -convert_alpha  use convert_alpha() on the image's " "surface\n")
     else:
-        main(sys.argv[1],
-             convert_alpha = '-convert_alpha' in sys.argv,
-             run_speed_test = '-t' in sys.argv)
+        main(
+            sys.argv[1],
+            convert_alpha="-convert_alpha" in sys.argv,
+            run_speed_test="-t" in sys.argv,
+        )

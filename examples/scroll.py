@@ -31,25 +31,24 @@ DIR_RIGHT = 4
 
 zoom_factor = 8
 
+
 def draw_arrow(surf, color, posn, direction):
     x, y = posn
     if direction == DIR_UP:
-        pointlist = ((x - 29, y + 30), (x + 30, y + 30),
-                     (x + 1, y - 29), (x, y - 29))
+        pointlist = ((x - 29, y + 30), (x + 30, y + 30), (x + 1, y - 29), (x, y - 29))
     elif direction == DIR_DOWN:
-        pointlist = ((x - 29, y - 29), (x + 30, y - 29),
-                     (x + 1, y + 30), (x, y + 30))
+        pointlist = ((x - 29, y - 29), (x + 30, y - 29), (x + 1, y + 30), (x, y + 30))
     elif direction == DIR_LEFT:
-        pointlist = ((x + 30, y - 29), (x + 30, y + 30),
-                     (x - 29, y + 1), (x - 29, y))
+        pointlist = ((x + 30, y - 29), (x + 30, y + 30), (x - 29, y + 1), (x - 29, y))
     else:
-        pointlist = ((x - 29, y - 29), (x - 29, y + 30),
-                     (x + 30, y + 1), (x + 30, y))
+        pointlist = ((x - 29, y - 29), (x - 29, y + 30), (x + 30, y + 1), (x + 30, y))
     pygame.draw.polygon(surf, color, pointlist)
 
+
 def add_arrow_button(screen, regions, posn, direction):
-    draw_arrow(screen, Color('black'), posn, direction)
+    draw_arrow(screen, Color("black"), posn, direction)
     draw_arrow(regions, (direction, 0, 0), posn, direction)
+
 
 def scroll_view(screen, image, direction, view_rect):
     src_rect = None
@@ -92,27 +91,24 @@ def scroll_view(screen, image, direction, view_rect):
             dst_rect.w = zoom_factor
             dst_rect.right = zoom_view_rect.right
     if src_rect is not None:
-        scale(image.subsurface(src_rect),
-              dst_rect.size,
-              screen.subsurface(dst_rect))
+        scale(image.subsurface(src_rect), dst_rect.size, screen.subsurface(dst_rect))
         pygame.display.update(zoom_view_rect)
+
 
 def main(image_file=None):
     if image_file is None:
-        image_file = os.path.join(main_dir, 'data', 'arraydemo.bmp')
+        image_file = os.path.join(main_dir, "data", "arraydemo.bmp")
     margin = 80
     view_size = (30, 20)
-    zoom_view_size = (view_size[0] * zoom_factor,
-                      view_size[1] * zoom_factor)
-    win_size = (zoom_view_size[0] + 2 * margin,
-                zoom_view_size[1] + 2 * margin)
-    background_color = Color('beige')
+    zoom_view_size = (view_size[0] * zoom_factor, view_size[1] * zoom_factor)
+    win_size = (zoom_view_size[0] + 2 * margin, zoom_view_size[1] + 2 * margin)
+    background_color = Color("beige")
 
     pygame.init()
 
     # set up key repeating so we can hold down the key to scroll.
-    old_k_delay, old_k_interval = pygame.key.get_repeat ()
-    pygame.key.set_repeat (500, 30)
+    old_k_delay, old_k_interval = pygame.key.get_repeat()
+    pygame.key.set_repeat(500, 30)
 
     try:
         screen = pygame.display.set_mode(win_size)
@@ -123,29 +119,31 @@ def main(image_file=None):
         image_w, image_h = image.get_size()
 
         if image_w < view_size[0] or image_h < view_size[1]:
-            print ("The source image is too small for this example.")
-            print ("A %i by %i or larger image is required." % zoom_view_size)
+            print("The source image is too small for this example.")
+            print("A %i by %i or larger image is required." % zoom_view_size)
             return
 
         regions = pygame.Surface(win_size, 0, 24)
-        add_arrow_button(screen, regions,
-                         (40, win_size[1] // 2), DIR_LEFT)
-        add_arrow_button(screen, regions,
-                         (win_size[0] - 40, win_size[1] // 2), DIR_RIGHT)
-        add_arrow_button(screen, regions,
-                         (win_size[0] // 2, 40), DIR_UP)
-        add_arrow_button(screen, regions,
-                         (win_size[0] // 2, win_size[1] - 40), DIR_DOWN)
+        add_arrow_button(screen, regions, (40, win_size[1] // 2), DIR_LEFT)
+        add_arrow_button(
+            screen, regions, (win_size[0] - 40, win_size[1] // 2), DIR_RIGHT
+        )
+        add_arrow_button(screen, regions, (win_size[0] // 2, 40), DIR_UP)
+        add_arrow_button(
+            screen, regions, (win_size[0] // 2, win_size[1] - 40), DIR_DOWN
+        )
         pygame.display.flip()
 
         screen.set_clip((margin, margin, zoom_view_size[0], zoom_view_size[1]))
 
         view_rect = Rect(0, 0, view_size[0], view_size[1])
 
-        scale(image.subsurface(view_rect), zoom_view_size,
-              screen.subsurface(screen.get_clip()))
+        scale(
+            image.subsurface(view_rect),
+            zoom_view_size,
+            screen.subsurface(screen.get_clip()),
+        )
         pygame.display.flip()
-
 
         # the direction we will scroll in.
         direction = None
@@ -156,7 +154,7 @@ def main(image_file=None):
         going = True
         while going:
             # wait for events before doing anything.
-            #events = [pygame.event.wait()] + pygame.event.get()
+            # events = [pygame.event.wait()] + pygame.event.get()
             events = pygame.event.get()
 
             for e in events:
@@ -183,10 +181,11 @@ def main(image_file=None):
             clock.tick(30)
 
     finally:
-        pygame.key.set_repeat (old_k_delay, old_k_interval)
+        pygame.key.set_repeat(old_k_delay, old_k_interval)
         pygame.quit()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) > 1:
         image_file = sys.argv[1]
     else:

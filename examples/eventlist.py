@@ -16,6 +16,7 @@ ImgOnOff = []
 Font = None
 LastKey = None
 
+
 def showtext(win, pos, text, color, bgcolor):
     textimg = Font.render(text, 1, color, bgcolor)
     win.blit(textimg, pos)
@@ -25,31 +26,31 @@ def showtext(win, pos, text, color, bgcolor):
 def drawstatus(win):
     bgcolor = 50, 50, 50
     win.fill(bgcolor, (0, 0, 640, 120))
-    win.blit(Font.render('Status Area', 1, (155, 155, 155), bgcolor), (2, 2))
+    win.blit(Font.render("Status Area", 1, (155, 155, 155), bgcolor), (2, 2))
 
-    pos = showtext(win, (10, 30), 'Mouse Focus', (255, 255, 255), bgcolor)
+    pos = showtext(win, (10, 30), "Mouse Focus", (255, 255, 255), bgcolor)
     win.blit(ImgOnOff[mouse.get_focused()], pos)
 
-    pos = showtext(win, (330, 30), 'Keyboard Focus', (255, 255, 255), bgcolor)
+    pos = showtext(win, (330, 30), "Keyboard Focus", (255, 255, 255), bgcolor)
     win.blit(ImgOnOff[key.get_focused()], pos)
 
-    pos = showtext(win, (10, 60), 'Mouse Position', (255, 255, 255), bgcolor)
-    p = '%s, %s' % mouse.get_pos()
+    pos = showtext(win, (10, 60), "Mouse Position", (255, 255, 255), bgcolor)
+    p = "%s, %s" % mouse.get_pos()
     showtext(win, pos, p, bgcolor, (255, 255, 55))
 
-    pos = showtext(win, (330, 60), 'Last Keypress', (255, 255, 255), bgcolor)
+    pos = showtext(win, (330, 60), "Last Keypress", (255, 255, 255), bgcolor)
     if LastKey:
-        p = '%d, %s' % (LastKey, key.name(LastKey))
+        p = "%d, %s" % (LastKey, key.name(LastKey))
     else:
-        p = 'None'
+        p = "None"
     showtext(win, pos, p, bgcolor, (255, 255, 55))
 
-    pos = showtext(win, (10, 90), 'Input Grabbed', (255, 255, 255), bgcolor)
+    pos = showtext(win, (10, 90), "Input Grabbed", (255, 255, 255), bgcolor)
     win.blit(ImgOnOff[event.get_grab()], pos)
 
 
 def drawhistory(win, history):
-    win.blit(Font.render('Event History Area', 1, (155, 155, 155), (0,0,0)), (2, 132))
+    win.blit(Font.render("Event History Area", 1, (155, 155, 155), (0, 0, 0)), (2, 132))
     ypos = 450
     h = list(history)
     h.reverse()
@@ -74,15 +75,15 @@ def main():
 
     history = []
 
-    #let's turn on the joysticks just so we can play with em
+    # let's turn on the joysticks just so we can play with em
     for x in range(joystick.get_count()):
         j = joystick.Joystick(x)
         j.init()
-        txt = 'Enabled joystick: ' + j.get_name()
+        txt = "Enabled joystick: " + j.get_name()
         img = Font.render(txt, 1, (50, 200, 50), (0, 0, 0))
         history.append(img)
     if not joystick.get_count():
-        img = Font.render('No Joysticks to Initialize', 1, (50, 200, 50), (0, 0, 0))
+        img = Font.render("No Joysticks to Initialize", 1, (50, 200, 50), (0, 0, 0))
         history.append(img)
 
     going = True
@@ -104,11 +105,10 @@ def main():
                 win = display.set_mode(e.size, RESIZABLE)
 
             if e.type != MOUSEMOTION:
-                txt = '%s: %s' % (event.event_name(e.type), e.dict)
+                txt = "%s: %s" % (event.event_name(e.type), e.dict)
                 img = Font.render(txt, 1, (50, 200, 50), (0, 0, 0))
                 history.append(img)
                 history = history[-13:]
-
 
         drawstatus(win)
         drawhistory(win, history)
@@ -119,5 +119,5 @@ def main():
     quit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

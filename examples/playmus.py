@@ -13,6 +13,7 @@ import pygame.freetype
 from pygame.locals import *
 import sys
 
+
 class Window(object):
     """The application's Pygame window
 
@@ -36,7 +37,7 @@ class Window(object):
 
     def __init__(self, title):
         pygame.display.set_caption(title)
-        self.screen.fill(Color('white'))
+        self.screen.fill(Color("white"))
         pygame.display.flip()
 
         pygame.freetype.init()
@@ -46,10 +47,13 @@ class Window(object):
         self.descender = int(self.font.get_sized_descender() * 1.5)
         self.line_height = self.ascender - self.descender
 
-        self.write_lines("'q', ESCAPE or close this window to quit\n"
-                         "SPACE to play/pause\n"
-                         "'r' to rewind\n"
-                         "'f' to faid out over 5 seconds\n", 0)
+        self.write_lines(
+            "'q', ESCAPE or close this window to quit\n"
+            "SPACE to play/pause\n"
+            "'r' to rewind\n"
+            "'f' to faid out over 5 seconds\n",
+            0,
+        )
 
     def __enter__(self):
         return self
@@ -68,14 +72,13 @@ class Window(object):
         nlines = h // line_height
         if line < 0:
             line = nlines + line
-        for i, text_line in enumerate(text.split('\n'), line):
+        for i, text_line in enumerate(text.split("\n"), line):
             y = i * line_height + self.ascender
             # Clear the line first.
-            self.screen.fill(Color('white'),
-                             (0, i * line_height, w, line_height))
+            self.screen.fill(Color("white"), (0, i * line_height, w, line_height))
 
             # Write new text.
-            self.font.render_to(self.screen, (15, y), text_line, Color('blue'))
+            self.font.render_to(self.screen, (15, y), text_line, Color("blue"))
         pygame.display.flip()
 
 
@@ -83,11 +86,12 @@ def show_usage_message():
     print("Usage: python playmus.py <file>")
     print("       python -m pygame.examples.playmus <file>")
 
+
 def main(file_path):
     """Play an audio file with pygame.mixer.music"""
 
     with Window(file_path) as win:
-        win.write_lines('Loading ...', -1)
+        win.write_lines("Loading ...", -1)
         pygame.mixer.init(frequency=44100)
         try:
             paused = False
@@ -130,10 +134,10 @@ def main(file_path):
         finally:
             pygame.mixer.quit()
 
-if __name__ == '__main__':
-# Check the only command line argument, a file path
+
+if __name__ == "__main__":
+    # Check the only command line argument, a file path
     if len(sys.argv) != 2:
         show_usage_message()
     else:
         main(sys.argv[1])
-

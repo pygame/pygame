@@ -2,14 +2,14 @@ import pygame as pg
 import time
 
 if pg.get_sdl_version()[0] < 2:
-    raise SystemExit('This example requires pygame 2 and SDL2.')
+    raise SystemExit("This example requires pygame 2 and SDL2.")
 
 from pygame._sdl2 import (
     get_audio_device_name,
     get_num_audio_devices,
     AudioDevice,
     AUDIO_F32,
-    AUDIO_ALLOW_FORMAT_CHANGE
+    AUDIO_ALLOW_FORMAT_CHANGE,
 )
 from pygame._sdl2.mixer import set_post_mix
 
@@ -24,6 +24,7 @@ print(names)
 iscapture = 1
 sounds = []
 sound_chunks = []
+
 
 def callback(audiodevice, audiomemoryview):
     """ This is called in the sound thread.
@@ -43,6 +44,7 @@ def postmix_callback(postmix, audiomemoryview):
     print(type(audiomemoryview), len(audiomemoryview))
     print(postmix)
 
+
 set_post_mix(postmix_callback)
 
 audio = AudioDevice(
@@ -58,13 +60,13 @@ audio = AudioDevice(
 # start recording.
 audio.pause(0)
 
-print('recording with :%s:' % names[0])
+print("recording with :%s:" % names[0])
 time.sleep(5)
 
 
-print('Turning data into a pygame.mixer.Sound')
-sound = pg.mixer.Sound(buffer=b''.join(sound_chunks))
+print("Turning data into a pygame.mixer.Sound")
+sound = pg.mixer.Sound(buffer=b"".join(sound_chunks))
 
-print('playing back recorded sound')
+print("playing back recorded sound")
 sound.play()
 time.sleep(5)

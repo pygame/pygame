@@ -33,23 +33,23 @@ try:
     from numpy import *
     from numpy.random import *
 except ImportError:
-    raise SystemExit('This example requires numpy and the pygame surfarray module')
+    raise SystemExit("This example requires numpy and the pygame surfarray module")
 
-pygame.surfarray.use_arraytype('numpy')
+pygame.surfarray.use_arraytype("numpy")
 
 timer = 0
-def stopwatch(message = None):
+
+
+def stopwatch(message=None):
     "simple routine to time python code"
     global timer
     if not message:
         timer = pygame.time.get_ticks()
         return
     now = pygame.time.get_ticks()
-    runtime = (now - timer)/1000.0 + .001
-    print ("%s %s %s" %
-           (message, runtime, ('seconds\t(%.2ffps)'%(1.0/runtime))))
+    runtime = (now - timer) / 1000.0 + 0.001
+    print("%s %s %s" % (message, runtime, ("seconds\t(%.2ffps)" % (1.0 / runtime))))
     timer = now
-
 
 
 def VertGradientColumn(surf, topcolor, bottomcolor):
@@ -59,15 +59,14 @@ def VertGradientColumn(surf, topcolor, bottomcolor):
     diff = bottomcolor - topcolor
     width, height = surf.get_size()
     # create array from 0.0 to 1.0 triplets
-    column = arange(height, dtype='float')/height
+    column = arange(height, dtype="float") / height
     column = repeat(column[:, newaxis], [3], 1)
     # create a single column of gradient
-    column = topcolor + (diff * column).astype('int')
+    column = topcolor + (diff * column).astype("int")
     # make the column a 3d image column by adding X
-    column = column.astype('uint8')[newaxis,:,:]
-    #3d array into 2d array
+    column = column.astype("uint8")[newaxis, :, :]
+    # 3d array into 2d array
     return pygame.surfarray.map_array(surf, column)
-
 
 
 def DisplayGradient(surf):
@@ -77,18 +76,17 @@ def DisplayGradient(surf):
     column = VertGradientColumn(surf, colors[0], colors[1])
     pygame.surfarray.blit_array(surf, column)
     pygame.display.flip()
-    stopwatch('Gradient:')
-
+    stopwatch("Gradient:")
 
 
 def main():
     pygame.init()
-    pygame.mixer.quit() # remove ALSA underflow messages for Debian squeeze
+    pygame.mixer.quit()  # remove ALSA underflow messages for Debian squeeze
     size = 600, 400
-    os.environ['SDL_VIDEO_CENTERED'] = '1'
+    os.environ["SDL_VIDEO_CENTERED"] = "1"
     screen = pygame.display.set_mode(size, NOFRAME, 0)
 
-    pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
+    pygame.event.set_blocked(MOUSEMOTION)  # keep our queue cleaner
     pygame.time.set_timer(USEREVENT, 500)
 
     while 1:
@@ -99,5 +97,5 @@ def main():
             DisplayGradient(screen)
 
 
-
-if __name__ == '__main__': main()
+if __name__ == "__main__":
+    main()
