@@ -476,13 +476,16 @@ loaded. This module must be imported explicitly to be used. ::
    .. method:: render_raw_to
 
       | :sl:`Render text into an array of ints`
-      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)`
+      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> Rect`
 
       Render to an array object exposing an array struct interface. The array
       must be two dimensional with integer items. The default *dest* value,
       ``None``, is equivalent to position (0, 0). See :meth:`render_to`.
       As with the other render methods, *text* can be ``None`` to
       render a text string passed previously to another method.
+
+      The return value is a :func:`pygame.Rect` giving the size and position of
+      the rendered text.
 
    .. attribute:: style
 

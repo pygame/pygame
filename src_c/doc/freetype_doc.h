@@ -28,7 +28,7 @@
 #define DOC_FONTRENDER "render(text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)\nReturn rendered text as a surface"
 #define DOC_FONTRENDERTO "render_to(surf, dest, text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect\nRender text onto an existing surface"
 #define DOC_FONTRENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (bytes, (int, int))\nReturn rendered text as a string of bytes"
-#define DOC_FONTRENDERRAWTO "render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)\nRender text into an array of ints"
+#define DOC_FONTRENDERRAWTO "render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> Rect\nRender text into an array of ints"
 #define DOC_FONTSTYLE "style -> int\nThe font's style flags"
 #define DOC_FONTUNDERLINE "underline -> bool\nThe state of the font's underline style flag"
 #define DOC_FONTSTRONG "strong -> bool\nThe state of the font's strong style flag"
@@ -174,7 +174,7 @@ pygame.freetype.Font.render_raw
 Return rendered text as a string of bytes
 
 pygame.freetype.Font.render_raw_to
- render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)
+ render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> Rect
 Render text into an array of ints
 
 pygame.freetype.Font.style
