@@ -68,6 +68,11 @@ static int
 _pg_rw_close(SDL_RWops *);
 #endif /* IS_SDLv2 */
 
+/* Converter function used by PyArg_ParseTupleAndKeywords with the "O&" format.
+ *
+ * Returns: 1 on success
+ *          0 on fail (with exception set)
+ */
 static int
 _pg_is_exception_class(PyObject *obj, void **optr)
 {
@@ -81,14 +86,20 @@ _pg_is_exception_class(PyObject *obj, void **optr)
         !PyObject_IsSubclass(obj, PyExc_BaseException)) {
         oname = PyObject_Str(obj);
         if (oname == NULL) {
+            PyErr_SetString(PyExc_TypeError,
+                            "invalid exception class argument");
             return 0;
         }
 #if PY3
         tmp = PyUnicode_AsEncodedString(oname, "ascii", "replace");
-        Py_DECREF(tmp);
+        Py_DECREF(oname);
+
         if (tmp == NULL) {
+            PyErr_SetString(PyExc_TypeError,
+                            "invalid exception class argument");
             return 0;
         }
+
         oname = tmp;
 #endif
         PyErr_Format(PyExc_TypeError,
