@@ -736,7 +736,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             pygame.display.quit()
 
 
-    @unittest.expectedFailure
+    @unittest.skip('causes failures in other tests if run, so skip')
     def test_src_alpha_issue_1289(self):
         """ blit should be white.
         """
