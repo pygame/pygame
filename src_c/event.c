@@ -100,6 +100,8 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
 }
 
 static char _pg_last_unicode_char[32] = { 0 };
+static SDL_Event *_pg_last_keydown_event = NULL;
+
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
@@ -147,26 +149,16 @@ pg_event_filter(void *_, SDL_Event *event)
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
                                             NULL);
         }
-#pragma PG_WARN(PumpEvents is not thread-safe)
-        SDL_PumpEvents();
-        if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
-                           SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
-        {
-            SDL_Event *ev = inputEvent;
-            SDL_PumpEvents();
-            if (_pg_last_unicode_char[0] == 0) {
-                if (SDL_PeepEvents(inputEvent, 2, SDL_PEEKEVENT,
-                                   SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
-                    ev = &inputEvent[1];
-            }
 
-            /* Only copy size - 1. This will always leave the string
-             * terminated with a 0. */
-            strncpy(_pg_last_unicode_char, ev->text.text,
-                    sizeof(_pg_last_unicode_char) - 1);
-        }
-        else {
-            _pg_last_unicode_char[0] = 0;
+        _pg_last_unicode_char[0] = 0;
+        /* store the keydown event for later in the SDL_TEXTINPUT */
+        _pg_last_keydown_event = event;
+    }
+    else if (type == SDL_TEXTINPUT) {
+        if (_pg_last_keydown_event != NULL) {
+            strncpy(_pg_last_unicode_char, event->text.text,
+                    sizeof(_pg_last_unicode_char) -1);
+            _pg_last_keydown_event = NULL;
         }
     }
     else if (type == SDL_KEYUP) {
