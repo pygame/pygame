@@ -131,7 +131,7 @@ shutdown.
 
 It is time to update our position for the ball.
 :clr:`Lines 17` moves the ballrect variable by the current speed.
-:clr: Lines 18 thru 21' reverse the speed if the ball has moved outside the screen.
+:clr:`Lines 18 thru 21` reverse the speed if the ball has moved outside the screen.
 Not exactly Newtonian physics, but it is all we need.
 
 On :clr:`line 23` we erase
