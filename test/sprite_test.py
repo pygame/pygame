@@ -583,6 +583,23 @@ class AbstractGroupTypeTest( unittest.TestCase ):
 
         self.assertEqual(test_sprite.sink, [1, 2, 3])
 
+    def test_update_with_kwargs(self):
+
+        class test_sprite(pygame.sprite.Sprite):
+            sink = []
+            sink_kwargs = {}
+            def __init__(self, *groups):
+                pygame.sprite.Sprite.__init__(self, *groups)
+            def update(self, *args, **kwargs):
+                self.sink += args
+                self.sink_kwargs.update(kwargs)
+
+        s = test_sprite(self.ag)
+        self.ag.update(1, 2, 3, foo=4, bar=5)
+
+        self.assertEqual(test_sprite.sink, [1, 2, 3])
+        self.assertEqual(test_sprite.sink_kwargs, {'foo': 4, 'bar': 5})
+
 
 ################################################################################
 
@@ -1141,6 +1158,23 @@ class SpriteBase:
         s.update(1, 2, 3)
 
         self.assertEqual(test_sprite.sink, [1, 2, 3])
+
+    def test_update_with_kwargs(self):
+
+        class test_sprite(pygame.sprite.Sprite):
+            sink = []
+            sink_dict = {}
+            def __init__(self, *groups):
+                pygame.sprite.Sprite.__init__(self, *groups)
+            def update(self, *args, **kwargs):
+                self.sink += args
+                self.sink_dict.update(kwargs)
+
+        s = test_sprite()
+        s.update(1, 2, 3, foo=4, bar=5)
+
+        self.assertEqual(test_sprite.sink, [1, 2, 3])
+        self.assertEqual(test_sprite.sink_dict, {'foo': 4, 'bar': 5})
 
     def test___init____added_to_groups_passed(self):
         expected_groups = sorted(self.groups, key=id)
