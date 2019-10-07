@@ -120,7 +120,7 @@ while not done:
         # get_axis(). Position is a tuple of int values (x, y).
         for i in range(hats):
             hat = joystick.get_hat(i)
-            textPrint.display(screen, "Hat {} value: {}".format(i, str(hat)))
+            textPrint.tprint(screen, "Hat {} value: {}".format(i, str(hat)))
         textPrint.unindent()
 
         textPrint.unindent()
