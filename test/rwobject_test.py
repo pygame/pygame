@@ -57,6 +57,12 @@ class RWopsEncodeStringTest(unittest.TestCase):
         self.assertRaises(SyntaxError, encode_string,
                           u, 'ascii', 'strict', SyntaxError)
 
+    def test_etype__invalid(self):
+        """Ensures invalid etypes are properly handled."""
+
+        for etype in ("SyntaxError", self):
+            self.assertRaises(TypeError, encode_string, "test", etype=etype)
+
     def test_string_with_null_bytes(self):
         b = as_bytes("a\x00b\x00c")
         encoded_string = encode_string(b, etype=SyntaxError)
@@ -112,6 +118,13 @@ class RWopsEncodeFilePathTest(unittest.TestCase):
     def test_etype(self):
         b = as_bytes("a\x00b\x00c")
         self.assertRaises(TypeError, encode_file_path, b, TypeError)
+
+    def test_etype__invalid(self):
+        """Ensures invalid etypes are properly handled."""
+
+        for etype in ("SyntaxError", self):
+            self.assertRaises(TypeError, encode_file_path, "test", etype)
+
 
 if __name__ == '__main__':
     unittest.main()
