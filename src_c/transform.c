@@ -77,6 +77,8 @@ static struct _module_state _state = {
 
 void
 scale2x(SDL_Surface *src, SDL_Surface *dst);
+void
+scale2xraw(SDL_Surface *src, SDL_Surface *dst);
 extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
@@ -569,7 +571,11 @@ surf_scale(PyObject *self, PyObject *arg)
         pgSurface_Lock(surfobj);
 
         Py_BEGIN_ALLOW_THREADS;
-        stretch(surf, newsurf);
+        if (width==2*surf->w && height==2*surf->h){
+            scale2xraw(surf, newsurf);
+        } else {
+            stretch(surf, newsurf);
+        }
         Py_END_ALLOW_THREADS;
 
         pgSurface_Unlock(surfobj);
