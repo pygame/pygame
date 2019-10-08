@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMESPRITE "pygame module with basic game object classes"
 #define DOC_PYGAMESPRITESPRITE "Sprite(*groups) -> Sprite\nSimple base class for visible game objects."
-#define DOC_SPRITEUPDATE "update(*args) -> None\nmethod to control sprite behavior"
+#define DOC_SPRITEUPDATE "update(*args, **kwargs) -> None\nmethod to control sprite behavior"
 #define DOC_SPRITEADD "add(*groups) -> None\nadd the sprite to groups"
 #define DOC_SPRITEREMOVE "remove(*groups) -> None\nremove the sprite from groups"
 #define DOC_SPRITEKILL "kill() -> None\nremove the Sprite from all Groups"
@@ -14,7 +14,7 @@
 #define DOC_GROUPADD "add(*sprites) -> None\nadd Sprites to this Group"
 #define DOC_GROUPREMOVE "remove(*sprites) -> None\nremove Sprites from the Group"
 #define DOC_GROUPHAS "has(*sprites) -> None\ntest if a Group contains Sprites"
-#define DOC_GROUPUPDATE "update(*args) -> None\ncall the update method on contained Sprites"
+#define DOC_GROUPUPDATE "update(*args, **kwargs) -> None\ncall the update method on contained Sprites"
 #define DOC_GROUPDRAW "draw(Surface) -> None\nblit the Sprite images"
 #define DOC_GROUPCLEAR "clear(Surface_dest, background) -> None\ndraw a background over the Sprites"
 #define DOC_GROUPEMPTY "empty() -> None\nremove all Sprites"
@@ -71,7 +71,7 @@ pygame.sprite.Sprite
 Simple base class for visible game objects.
 
 pygame.sprite.Sprite.update
- update(*args) -> None
+ update(*args, **kwargs) -> None
 method to control sprite behavior
 
 pygame.sprite.Sprite.add
@@ -123,7 +123,7 @@ pygame.sprite.Group.has
 test if a Group contains Sprites
 
 pygame.sprite.Group.update
- update(*args) -> None
+ update(*args, **kwargs) -> None
 call the update method on contained Sprites
 
 pygame.sprite.Group.draw
