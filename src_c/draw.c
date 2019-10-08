@@ -1769,7 +1769,7 @@ draw_circle_pixel(SDL_Surface *dst, int x0, int y0, int x1, int y1, Uint32 color
     else if (quadrant == 3) {
         set_at(dst, x1, y1, color);
     }
-    else (quadrant == 4) {
+    else {
         set_at(dst, x1 - 1, y1, color);
     }
 }
