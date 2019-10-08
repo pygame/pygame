@@ -1754,6 +1754,27 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
 }
 
 
+static void
+draw_circle_pixel(SDL_Surface *dst, int x0, int y0, int x1, int y1, Uint32 color)
+{
+    int x_leading_bit = ((x1-x0) > 0) - ((x1-x0) < 0) == 1 ? 0 : 1;
+    int y_leading_bit = ((y1-y0) > 0) - ((y1-y0) < 0) == 1 ? 0 : 1;
+    int quadrant = (x_leading_bit != y_leading_bit) + y_leading_bit + y_leading_bit + 1;
+    if (quadrant == 1) {
+        set_at(dst, x1 - 1, y1 - 1, color);
+    }
+    if (quadrant == 2) {
+        set_at(dst, x1, y1 - 1, color);
+    }
+    if (quadrant == 3) {
+        set_at(dst, x1, y1, color);
+    }
+    if (quadrant == 4) {
+        set_at(dst, x1 - 1, y1, color);
+    }
+}
+
+
 /* Bresenham Circle Algorithm
  * adapted from: https://de.wikipedia.org/wiki/Bresenham-Algorithmus
  * with additional line width parameter
@@ -1777,10 +1798,10 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
      * instead of concentric circles in outer loop */
     for (i=0; i<thickness; i++){
         radius1=radius - i;
-        set_at(dst, x0, y0 + radius1, color);
-        set_at(dst, x0, y0 - radius1, color);
-        set_at(dst, x0 + radius1, y0, color);
-        set_at(dst, x0 - radius1, y0, color);
+        draw_circle_pixel(dst, x0, y0, x0, y0 + radius1, color);
+        draw_circle_pixel(dst, x0, y0, x0, y0 - radius1, color);
+        draw_circle_pixel(dst, x0, y0, x0 + radius1, y0, color);
+        draw_circle_pixel(dst, x0, y0, x0 - radius1, y0, color);
     }
 
     while(x < y)
@@ -1813,14 +1834,14 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
       for (i=0; i<thickness; i++){
           y1=y-i;
 
-          set_at(dst, x0 + x, y0 + y1, color);
-          set_at(dst, x0 - x, y0 + y1, color);
-          set_at(dst, x0 + x, y0 - y1 , color);
-          set_at(dst, x0 - x, y0 - y1, color);
-          set_at(dst, x0 + y1 , y0 + x, color);
-          set_at(dst, x0 - y1, y0 + x, color);
-          set_at(dst, x0 + y1, y0 - x, color);
-          set_at(dst, x0 - y1, y0 - x, color);
+          draw_circle_pixel(dst, x0, y0, x0 + x, y0 + y1, color);
+          draw_circle_pixel(dst, x0, y0, x0 - x, y0 + y1, color);
+          draw_circle_pixel(dst, x0, y0, x0 + x, y0 - y1, color);
+          draw_circle_pixel(dst, x0, y0, x0 - x, y0 - y1, color);
+          draw_circle_pixel(dst, x0, y0, x0 + y1, y0 + x, color);
+          draw_circle_pixel(dst, x0, y0, x0 - y1, y0 + x, color);
+          draw_circle_pixel(dst, x0, y0, x0 + y1, y0 - x, color);
+          draw_circle_pixel(dst, x0, y0, x0 - y1, y0 - x, color);
       }
     }
 }
@@ -1836,10 +1857,10 @@ draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color)
     int y1;
 
     for (y1=y0 - y; y1 <= y0 + y; y1++){
-        set_at(dst, x0, y1, color);
+	draw_circle_pixel(dst, x0, y0, x0, y1, color);
     }
-    set_at(dst, x0 + radius, y0, color);
-    set_at(dst, x0 - radius, y0, color);
+    draw_circle_pixel(dst, x0, y0, x0 + radius, y0, color);
+    draw_circle_pixel(dst, x0, y0, x0 - radius, y0, color);
 
     while(x < y)
     {
@@ -1854,12 +1875,12 @@ draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color)
       f += ddF_x + 1;
 
       for (y1=y0 - y; y1 <= y0 + y; y1++){
-        set_at(dst, x0+x, y1, color);
-        set_at(dst, x0-x, y1, color);
+        draw_circle_pixel(dst, x0, y0, x0+x, y1, color);
+        draw_circle_pixel(dst, x0, y0, x0-x, y1, color);
       }
       for (y1=y0 - x; y1 <= y0 + x; y1++){
-        set_at(dst, x0+y, y1, color);
-        set_at(dst, x0-y, y1, color);
+        draw_circle_pixel(dst, x0, y0, x0+y, y1, color);
+        draw_circle_pixel(dst, x0, y0, x0-y, y1, color);
       }
     }
 }
