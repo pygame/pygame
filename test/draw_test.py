@@ -4731,6 +4731,18 @@ class DrawCircleMixin(object):
 
                     self.assertEqual(bounding_rect, expected_rect)
 
+    @unittest.expectedFailure
+    def test_circle__diameter(self):
+        """Ensures draw circle is twice size of radius high and wide."""
+        surf = pygame.Surface((100, 100))
+        color = (0, 0, 0, 50)
+        center = surf.get_height() // 2, surf.get_height() // 2
+        width = 1
+        radius = 6
+        bounding_rect = self.draw_circle(surf, color, center, radius, width)
+        self.assertEqual(bounding_rect.width, radius * 2)
+        self.assertEqual(bounding_rect.height, radius * 2)
+
     def test_circle__surface_clip(self):
         """Ensures draw circle respects a surface's clip area.
 
