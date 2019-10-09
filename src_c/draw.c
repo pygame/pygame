@@ -1753,24 +1753,31 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
     }
 }
 
-
+/* This function is used just for circle drawing because Bresenham Circle Algorithm
+ * draws the circle with the odd diameter and in the original pygame it had even diameter
+ * It does scaling by that one pixel (direction based on relative quadrant to the center
+ * to keep symmetry). In any other drawing function use normal set_at function
+ */
 static void
 draw_circle_pixel(SDL_Surface *dst, int x0, int y0, int x1, int y1, Uint32 color)
 {
+    // (x0, y0) -> center of the circle, (x1, y1) -> pixel to bve drawn
+    // leading_bit -> used for fast quadrant calculation, 1 for negative and 0 for positive
+    // number (number is "vector" from center to the pixel)
     int x_leading_bit = ((x1-x0) > 0) - ((x1-x0) < 0) == 1 ? 0 : 1;
     int y_leading_bit = ((y1-y0) > 0) - ((y1-y0) < 0) == 1 ? 0 : 1;
     int quadrant = (x_leading_bit != y_leading_bit) + y_leading_bit + y_leading_bit + 1;
     if (quadrant == 1) {
-        set_at(dst, x1 - 1, y1 - 1, color);
+        set_at(dst, x1 - 1, y1 - 1, color);  // Move one to the left and up
     }
     else if (quadrant == 2) {
-        set_at(dst, x1, y1 - 1, color);
+        set_at(dst, x1, y1 - 1, color);      // Move one to the up
     }
     else if (quadrant == 3) {
         set_at(dst, x1, y1, color);
     }
     else {
-        set_at(dst, x1 - 1, y1, color);
+        set_at(dst, x1 - 1, y1, color);      // Move one to the left
     }
 }
 
@@ -1856,8 +1863,8 @@ draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color)
     int y = radius;
     int y1;
 
-    for (y1=y0 - y; y1 <= y0 + y; y1++){
-	draw_circle_pixel(dst, x0, y0, x0, y1, color);
+    for (y1=y0 - y; y1 <= y0 + y; y1++) {
+	    draw_circle_pixel(dst, x0, y0, x0, y1, color);
     }
     draw_circle_pixel(dst, x0, y0, x0 + radius, y0, color);
     draw_circle_pixel(dst, x0, y0, x0 - radius, y0, color);

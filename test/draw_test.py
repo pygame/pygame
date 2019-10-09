@@ -4804,6 +4804,17 @@ class DrawCircleMixin(object):
             if sqr_distance <(radius-width-1)**2 or sqr_distance > (radius+1)**2:
                 self.assertEqual(surface.get_at(pt), surface_color)
 
+    def test_circle__diameter(self):
+        """Ensures draw circle is twice size of radius high and wide."""
+        surf = pygame.Surface((100, 100))
+        color = (0, 0, 0, 50)
+        center = surf.get_height() // 2, surf.get_height() // 2
+        width = 1
+        radius = 6
+        bounding_rect = self.draw_circle(surf, color, center, radius, width)
+        self.assertEqual(bounding_rect.width, radius * 2)
+        self.assertEqual(bounding_rect.height, radius * 2)
+
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """Test draw module function circle.
 
