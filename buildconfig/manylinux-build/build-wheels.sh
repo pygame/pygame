@@ -11,7 +11,7 @@ ls -la /io
 for PYVER in $SUPPORTED_PYTHONS; do
     rm -rf /io/Setup /io/build/
     PYBIN="/opt/python/${PYVER}/bin"
-    ${PYBIN}/pip wheel /io/ -w wheelhouse/
+    ${PYBIN}/pip wheel -vvv /io/ -w wheelhouse/
 done
 
 # Bundle external shared libraries into the wheels
