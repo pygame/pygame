@@ -741,8 +741,8 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     l = MAX(posx - radius, surf->clip_rect.x);
     t = MAX(posy - radius, surf->clip_rect.y);
-    r = MIN(posx + radius + 1, surf->clip_rect.x + surf->clip_rect.w);
-    b = MIN(posy + radius + 1, surf->clip_rect.y + surf->clip_rect.h);
+    r = MIN(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
+    b = MIN(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
     return pgRect_New4(l, t, MAX(r - l, 0), MAX(b - t, 0));
 }
 
