@@ -2469,7 +2469,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_4add(struct __pyx_obj_6pygame
 static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_6remove(struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_groups); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_8add_internal(struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_10remove_internal(struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, PyObject *__pyx_v_group); /* proto */
-static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args); /* proto */
+static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args, CYTHON_UNUSED PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_14kill(struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_16groups(struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_18alive(struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self); /* proto */
@@ -2502,7 +2502,7 @@ static int __pyx_pf_6pygame_7_sprite_13AbstractGroup_14__contains__(struct __pyx
 static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_16add(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_18remove(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_20has(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_sprites); /* proto */
-static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args); /* proto */
+static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_24draw(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_26clear(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_surface, PyObject *__pyx_v_bgd); /* proto */
 static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_28empty(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self); /* proto */
@@ -3510,7 +3510,7 @@ static void __pyx_f_6pygame_7_sprite_6Sprite_remove_internal(struct __pyx_obj_6p
  *     cpdef void remove_internal(self, group):
  *         del self.__g[group]             # <<<<<<<<<<<<<<
  * 
- *     def update(self, *args):
+ *     def update(self, *args, **kwargs):
  */
   if (unlikely(__pyx_v_self->__g == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
@@ -3577,31 +3577,33 @@ static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_10remove_internal(struct __py
 /* "pygame/_sprite.pyx":196
  *         del self.__g[group]
  * 
- *     def update(self, *args):             # <<<<<<<<<<<<<<
+ *     def update(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *         """method to control sprite behavior
  * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6pygame_7_sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygame_7_sprite_6Sprite_12update[] = "method to control sprite behavior\n\n        Sprite.update(*args):\n\n        The default implementation of this method does nothing; it's just a\n        convenient \"hook\" that you can override. This method is called by\n        Group.update() with whatever arguments you give it.\n\n        There is no need to use this method if not using the convenience\n        method by the same name in the Group class.\n\n        ";
+static char __pyx_doc_6pygame_7_sprite_6Sprite_12update[] = "method to control sprite behavior\n\n        Sprite.update(*args, **kwargs):\n\n        The default implementation of this method does nothing; it's just a\n        convenient \"hook\" that you can override. This method is called by\n        Group.update() with whatever arguments you give it.\n\n        There is no need to use this method if not using the convenience\n        method by the same name in the Group class.\n\n        ";
 static PyObject *__pyx_pw_6pygame_7_sprite_6Sprite_13update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_args = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_kwargs = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("update (wrapper)", 0);
-  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "update", 0))) return NULL;
+  if (unlikely(__pyx_kwds) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "update", 1))) return NULL;
   __Pyx_INCREF(__pyx_args);
   __pyx_v_args = __pyx_args;
-  __pyx_r = __pyx_pf_6pygame_7_sprite_6Sprite_12update(((struct __pyx_obj_6pygame_7_sprite_Sprite *)__pyx_v_self), __pyx_v_args);
+  __pyx_r = __pyx_pf_6pygame_7_sprite_6Sprite_12update(((struct __pyx_obj_6pygame_7_sprite_Sprite *)__pyx_v_self), __pyx_v_args, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_args);
+  __Pyx_XDECREF(__pyx_v_kwargs);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args) {
+static PyObject *__pyx_pf_6pygame_7_sprite_6Sprite_12update(CYTHON_UNUSED struct __pyx_obj_6pygame_7_sprite_Sprite *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args, CYTHON_UNUSED PyObject *__pyx_v_kwargs) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("update", 0);
@@ -7413,7 +7415,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_20has(struct __pyx_ob
  * 
  *         return return_value             # <<<<<<<<<<<<<<
  * 
- *     def update(self, *args):
+ *     def update(self, *args, **kwargs):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_return_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 482, __pyx_L1_error)
@@ -7452,31 +7454,39 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_20has(struct __pyx_ob
 /* "pygame/_sprite.pyx":484
  *         return return_value
  * 
- *     def update(self, *args):             # <<<<<<<<<<<<<<
+ *     def update(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *         """call the update method of every member sprite
  * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6pygame_7_sprite_13AbstractGroup_23update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pygame_7_sprite_13AbstractGroup_22update[] = "call the update method of every member sprite\n\n        Group.update(*args): return None\n\n        Calls the update method of every member sprite. All arguments that\n        were passed to this method are passed to the Sprite update function.\n\n        ";
+static char __pyx_doc_6pygame_7_sprite_13AbstractGroup_22update[] = "call the update method of every member sprite\n\n        Group.update(*args, **kwargs): return None\n\n        Calls the update method of every member sprite. All arguments that\n        were passed to this method are passed to the Sprite update function.\n\n        ";
 static PyObject *__pyx_pw_6pygame_7_sprite_13AbstractGroup_23update(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_args = 0;
+  PyObject *__pyx_v_kwargs = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("update (wrapper)", 0);
-  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "update", 0))) return NULL;
+  if (unlikely(__pyx_kwds) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "update", 1))) return NULL;
+  if (unlikely(__pyx_kwds)) {
+    __pyx_v_kwargs = PyDict_Copy(__pyx_kwds); if (unlikely(!__pyx_v_kwargs)) return NULL;
+    __Pyx_GOTREF(__pyx_v_kwargs);
+  } else {
+    __pyx_v_kwargs = NULL;
+  }
   __Pyx_INCREF(__pyx_args);
   __pyx_v_args = __pyx_args;
-  __pyx_r = __pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(((struct __pyx_obj_6pygame_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_args);
+  __pyx_r = __pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(((struct __pyx_obj_6pygame_7_sprite_AbstractGroup *)__pyx_v_self), __pyx_v_args, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_args);
+  __Pyx_XDECREF(__pyx_v_kwargs);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args) {
+static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx_obj_6pygame_7_sprite_AbstractGroup *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
   PyObject *__pyx_v_s = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -7490,7 +7500,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx
  * 
  *         """
  *         for s in self.sprites():             # <<<<<<<<<<<<<<
- *             s.update(*args)
+ *             s.update(*args, **kwargs)
  * 
  */
   __pyx_t_1 = ((struct __pyx_vtabstruct_6pygame_7_sprite_AbstractGroup *)__pyx_v_self->__pyx_vtab)->sprites(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 493, __pyx_L1_error)
@@ -7515,13 +7525,13 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx
     /* "pygame/_sprite.pyx":494
  *         """
  *         for s in self.sprites():
- *             s.update(*args)             # <<<<<<<<<<<<<<
+ *             s.update(*args, **kwargs)             # <<<<<<<<<<<<<<
  * 
  *     def draw(self, surface):
  */
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_s, __pyx_n_s_update); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_v_args, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 494, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_v_args, __pyx_v_kwargs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 494, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -7530,7 +7540,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx
  * 
  *         """
  *         for s in self.sprites():             # <<<<<<<<<<<<<<
- *             s.update(*args)
+ *             s.update(*args, **kwargs)
  * 
  */
   }
@@ -7539,7 +7549,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx
   /* "pygame/_sprite.pyx":484
  *         return return_value
  * 
- *     def update(self, *args):             # <<<<<<<<<<<<<<
+ *     def update(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *         """call the update method of every member sprite
  * 
  */
@@ -7561,7 +7571,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_22update(struct __pyx
 }
 
 /* "pygame/_sprite.pyx":496
- *             s.update(*args)
+ *             s.update(*args, **kwargs)
  * 
  *     def draw(self, surface):             # <<<<<<<<<<<<<<
  *         """draw all sprites onto the surface
@@ -7817,7 +7827,7 @@ static PyObject *__pyx_pf_6pygame_7_sprite_13AbstractGroup_24draw(struct __pyx_o
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pygame/_sprite.pyx":496
- *             s.update(*args)
+ *             s.update(*args, **kwargs)
  * 
  *     def draw(self, surface):             # <<<<<<<<<<<<<<
  *         """draw all sprites onto the surface
