@@ -82,26 +82,21 @@ bitcount(BITMASK_W n)
     }
 }
 
-/* Positive modulo of the given dividend and BITMASK_W_LEN as the divisor
- * (dividend % BITMASK_W_LEN).
+/* Positive modulo of the given dividend and divisor (dividend % divisor).
  *
  * Params:
  *     dividend: dividend of the modulo operation, can be positive or negative
+ *     divisor: divisor of the modulo operation, can be positive or negative
  *
  * Returns:
- *     the positive modulo of: dividend % BITMASK_W_LEN, where the result will
- *         be: 0 <= result < BITMASK_W_LEN
+ *     positive modulo of dividend % divisor:
+ *         the result will be 0 <= result < divisor
  */
 static INLINE int
-bitmask_positive_modulo(int dividend)
+positive_modulo(int dividend, int divisor)
 {
-    int result = dividend % BITMASK_W_LEN;
-
-    if (0 > result) {
-        result += BITMASK_W_LEN;
-    }
-
-    return result;
+    int result = dividend % divisor;
+    return (result >= 0) ? result : result + divisor;
 }
 
 bitmask_t *
@@ -193,7 +188,7 @@ bitmask_fill(bitmask_t *m)
 
     len = m->h * ((m->w - 1) / BITMASK_W_LEN);
 
-    shift = bitmask_positive_modulo(BITMASK_W_LEN - m->w);
+    shift = positive_modulo(BITMASK_W_LEN - m->w, (int)BITMASK_W_LEN);
     full = ~(BITMASK_W)0;
     cmask = (~(BITMASK_W)0) >> shift;
 
@@ -220,7 +215,7 @@ bitmask_invert(bitmask_t *m)
 
     len = m->h * ((m->w - 1) / BITMASK_W_LEN);
 
-    shift = bitmask_positive_modulo(BITMASK_W_LEN - m->w);
+    shift = positive_modulo(BITMASK_W_LEN - m->w, (int)BITMASK_W_LEN);
     cmask = (~(BITMASK_W)0) >> shift;
 
     /* flip all the pixels that aren't in the rightmost BITMASK_Ws */
@@ -732,7 +727,7 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
         BITMASK_W edgemask;
         int n = (c->w - 1) / BITMASK_W_LEN;
 
-        shift = bitmask_positive_modulo(BITMASK_W_LEN - c->w);
+        shift = positive_modulo(BITMASK_W_LEN - c->w, (int)BITMASK_W_LEN);
         edgemask = (~(BITMASK_W)0) >> shift;
         c_end = c->bits + n * c->h + MIN(c->h, b->h + yoffset);
 
@@ -880,7 +875,7 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
         BITMASK_W edgemask;
         int n = (a->w - 1) / BITMASK_W_LEN;
 
-        shift = bitmask_positive_modulo(BITMASK_W_LEN - a->w);
+        shift = positive_modulo(BITMASK_W_LEN - a->w, (int)BITMASK_W_LEN);
         edgemask = (~(BITMASK_W)0) >> shift;
         a_end = a->bits + n * a->h + MIN(a->h, b->h + yoffset);
 
