@@ -4694,6 +4694,30 @@ class DrawCircleMixin(object):
 
         draw.circle(pygame.Surface((2, 2)), (0, 0, 0, 50), (1.3, 1.3), 1.2)
 
+
+    # def test_circle_clip(self):
+    #     """ maybe useful to help work out circle clip algorithm."""
+    #     MAX = max
+    #     MIN = min
+    #     posx=30
+    #     posy=15
+    #     radius=1
+    #     l=29
+    #     t=14
+    #     r=30
+    #     b=16
+    #     clip_rect_x=0
+    #     clip_rect_y=0
+    #     clip_rect_w=30
+    #     clip_rect_h=30
+
+    #     l = MAX(posx - radius, clip_rect_x)
+    #     t = MAX(posy - radius, clip_rect_y)
+    #     r = MIN(posx + radius, clip_rect_x + clip_rect_w)
+    #     b = MIN(posy + radius, clip_rect_y + clip_rect_h)
+
+    #     l, t, MAX(r - l, 0), MAX(b - t, 0)
+
     # This decorator can be removed when issue #1122 is resolved.
     @unittest.expectedFailure
     def test_circle__bounding_rect(self):
@@ -4728,8 +4752,35 @@ class DrawCircleMixin(object):
                     # drawn (it uses what is actually drawn).
                     expected_rect = create_bounding_rect(surface, surf_color,
                                                          pos)
-
+                    # print("pos:%s:, radius:%s:, thickness:%s:" % (pos, radius, thickness))
                     self.assertEqual(bounding_rect, expected_rect)
+
+    def test_circle_negative_radius(self):
+        """ Ensures negative radius circles return zero sized bounding rect.
+        """
+        surf = pygame.Surface((200, 200))
+        color = (0, 0, 0, 50)
+        center = surf.get_height() // 2, surf.get_height() // 2
+
+        bounding_rect = self.draw_circle(surf, color, center, radius=-1, width=1)
+        self.assertEqual(bounding_rect.size, (0, 0))
+
+    def test_circle_zero_radius(self):
+        """ Ensures zero radius circles does not draw a center pixel.
+
+        NOTE: This is backwards incompatible behaviour with 1.9.x.
+        """
+        surf = pygame.Surface((200, 200))
+        circle_color = pygame.Color('red')
+        surf_color = pygame.Color('black')
+        center = (100, 100)
+        radius = 0
+        width = 1
+
+        bounding_rect = self.draw_circle(surf, circle_color, center, radius, width)
+        expected_rect = create_bounding_rect(surf, surf_color, center)
+        self.assertEqual(bounding_rect, expected_rect)
+        self.assertEqual(bounding_rect, pygame.Rect(100, 100, 0, 0))
 
     def test_circle__surface_clip(self):
         """Ensures draw circle respects a surface's clip area.
@@ -4805,15 +4856,16 @@ class DrawCircleMixin(object):
                 self.assertEqual(surface.get_at(pt), surface_color)
 
     def test_circle__diameter(self):
-        """Ensures draw circle is twice size of radius high and wide."""
-        surf = pygame.Surface((100, 100))
+        """ Ensures draw circle is twice size of radius high and wide."""
+        surf = pygame.Surface((200, 200))
         color = (0, 0, 0, 50)
         center = surf.get_height() // 2, surf.get_height() // 2
         width = 1
         radius = 6
-        bounding_rect = self.draw_circle(surf, color, center, radius, width)
-        self.assertEqual(bounding_rect.width, radius * 2)
-        self.assertEqual(bounding_rect.height, radius * 2)
+        for radius in range(1, 65):
+            bounding_rect = self.draw_circle(surf, color, center, radius, width)
+            self.assertEqual(bounding_rect.width, radius * 2)
+            self.assertEqual(bounding_rect.height, radius * 2)
 
 class DrawCircleTest(DrawCircleMixin, DrawTestCase):
     """Test draw module function circle.
