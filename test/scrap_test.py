@@ -1,7 +1,8 @@
 import os
 import sys
-if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
-    __tags__ = ('ignore', 'subprocess_ignore')
+
+if os.environ.get("SDL_VIDEODRIVER") == "dummy":
+    __tags__ = ("ignore", "subprocess_ignore")
 import unittest
 from pygame.tests.test_utils import trunk_relative_path
 
@@ -9,8 +10,8 @@ import pygame
 from pygame import scrap
 from pygame.compat import as_bytes
 
-class ScrapModuleTest(unittest.TestCase):
 
+class ScrapModuleTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pygame.display.init()
@@ -32,7 +33,7 @@ class ScrapModuleTest(unittest.TestCase):
     def test_init__reinit(self):
         """Ensures reinitializing the scrap module doesn't clear its data."""
         data_type = pygame.SCRAP_TEXT
-        expected_data = as_bytes('test_init__reinit')
+        expected_data = as_bytes("test_init__reinit")
         scrap.put(data_type, expected_data)
 
         scrap.init()
@@ -57,15 +58,14 @@ class ScrapModuleTest(unittest.TestCase):
         """
         # Use a unique data type identifier to ensure there is no preexisting
         # data.
-        DATA_TYPE = 'test_get__owned_empty_type'
+        DATA_TYPE = "test_get__owned_empty_type"
 
         if scrap.lost():
             # Try to acquire the clipboard.
-            scrap.put(pygame.SCRAP_TEXT, b'text to clipboard')
+            scrap.put(pygame.SCRAP_TEXT, b"text to clipboard")
 
             if scrap.lost():
-                self.skipTest('requires the pygame application to own the '
-                              'clipboard')
+                self.skipTest("requires the pygame application to own the " "clipboard")
 
         data = scrap.get(DATA_TYPE)
 
@@ -94,15 +94,12 @@ class ScrapModuleTest(unittest.TestCase):
 
         scrap.put(pygame.SCRAP_TEXT, as_bytes("Another String"))
 
-        self.assertEqual(scrap.get(pygame.SCRAP_TEXT),
-                         as_bytes("Another String"))
+        self.assertEqual(scrap.get(pygame.SCRAP_TEXT), as_bytes("Another String"))
 
-    @unittest.skipIf('pygame.image' not in sys.modules,
-                     'requires pygame.image module')
+    @unittest.skipIf("pygame.image" not in sys.modules, "requires pygame.image module")
     def test_put__bmp_image(self):
         """Ensures put can place a BMP image into the clipboard."""
-        sf = pygame.image.load(trunk_relative_path(
-            "examples/data/asprite.bmp"))
+        sf = pygame.image.load(trunk_relative_path("examples/data/asprite.bmp"))
         expected_string = pygame.image.tostring(sf, "RGBA")
         scrap.put(pygame.SCRAP_BMP, expected_string)
 
@@ -112,12 +109,12 @@ class ScrapModuleTest(unittest.TestCase):
         """Ensures put can place data into the clipboard
         when using a user defined type identifier.
         """
-        DATA_TYPE = 'arbitrary buffer'
+        DATA_TYPE = "arbitrary buffer"
 
-        scrap.put(DATA_TYPE, as_bytes('buf'))
+        scrap.put(DATA_TYPE, as_bytes("buf"))
         r = scrap.get(DATA_TYPE)
 
-        self.assertEqual(r, as_bytes('buf'))
+        self.assertEqual(r, as_bytes("buf"))
 
 
 class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
@@ -127,6 +124,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
     A separate class is used to prevent tests that acquire the clipboard from
     interfering with these tests.
     """
+
     @classmethod
     def setUpClass(cls):
         pygame.display.init()
@@ -143,8 +141,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
         # Skip test if the pygame application owns the clipboard. Currently,
         # there is no way to give up ownership.
         if not scrap.lost():
-            self.skipTest('requires the pygame application to not own the '
-                          'clipboard')
+            self.skipTest("requires the pygame application to not own the " "clipboard")
 
     def test_get__not_owned(self):
         """Ensures get works when there is no data of the requested type
@@ -155,7 +152,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
 
         # Use a unique data type identifier to ensure there is no preexisting
         # data.
-        DATA_TYPE = 'test_get__not_owned'
+        DATA_TYPE = "test_get__not_owned"
 
         data = scrap.get(DATA_TYPE)
 
@@ -179,7 +176,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
 
         # Use a unique data type identifier to ensure there is no preexisting
         # data.
-        DATA_TYPE = 'test_contains__not_owned'
+        DATA_TYPE = "test_contains__not_owned"
 
         contains = scrap.contains(DATA_TYPE)
 
@@ -197,14 +194,14 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
 
 
 class X11InteractiveTest(unittest.TestCase):
-    __tags__ = ['ignore', 'subprocess_ignore']
+    __tags__ = ["ignore", "subprocess_ignore"]
     try:
         pygame.display.init()
     except Exception:
         pass
     else:
-        if pygame.display.get_driver() == 'x11':
-            __tags__ = ['interactive']
+        if pygame.display.get_driver() == "x11":
+            __tags__ = ["interactive"]
         pygame.display.quit()
 
     def test_issue_208(self):
@@ -225,27 +222,30 @@ class X11InteractiveTest(unittest.TestCase):
         display.init()
         display.set_caption("Interactive X11 Paste Test")
         screen = display.set_mode((600, 200))
-        screen.fill(pygame.Color('white'))
+        screen.fill(pygame.Color("white"))
         text = "Scrap put() succeeded."
-        msg = ('Some text has been placed into the X11 clipboard.'
-               ' Please click the center mouse button in an open'
-               ' text window to retrieve it.'
-               '\n\nDid you get "{}"? (y/n)').format(text)
+        msg = (
+            "Some text has been placed into the X11 clipboard."
+            " Please click the center mouse button in an open"
+            " text window to retrieve it."
+            '\n\nDid you get "{}"? (y/n)'
+        ).format(text)
         word_wrap(screen, msg, font, 6)
         display.flip()
         event.pump()
         scrap.init()
         scrap.set_mode(SCRAP_SELECTION)
-        scrap.put(SCRAP_TEXT, text.encode('UTF-8'))
+        scrap.put(SCRAP_TEXT, text.encode("UTF-8"))
         while True:
             e = event.wait()
             if e.type == QUIT:
                 break
             if e.type == KEYDOWN:
-                success = (e.key == K_y)
+                success = e.key == K_y
                 break
         pygame.display.quit()
         self.assertTrue(success)
+
 
 def word_wrap(surf, text, font, margin=0, color=(0, 0, 0)):
     font.origin = True
@@ -254,9 +254,9 @@ def word_wrap(surf, text, font, margin=0, color=(0, 0, 0)):
     height = surf_height - 2 * margin
     line_spacing = int(1.25 * font.get_sized_height())
     x, y = margin, margin + line_spacing
-    space = font.get_rect(' ')
+    space = font.get_rect(" ")
     for word in iwords(text):
-        if word == '\n':
+        if word == "\n":
             x, y = margin, y + line_spacing
         else:
             bounds = font.get_rect(word)
@@ -270,6 +270,7 @@ def word_wrap(surf, text, font, margin=0, color=(0, 0, 0)):
             x += bounds.width + space.width
     return x, y
 
+
 def iwords(text):
     #  r"\n|[^ ]+"
     #
@@ -277,24 +278,25 @@ def iwords(text):
     tail = head
     end = len(text)
     while head < end:
-        if text[head] == ' ':
+        if text[head] == " ":
             head += 1
             tail = head + 1
-        elif text[head] == '\n':
+        elif text[head] == "\n":
             head += 1
-            yield '\n'
+            yield "\n"
             tail = head + 1
         elif tail == end:
             yield text[head:]
             head = end
-        elif text[tail] == '\n':
+        elif text[tail] == "\n":
             yield text[head:tail]
             head = tail
-        elif text[tail] == ' ':
+        elif text[tail] == " ":
             yield text[head:tail]
             head = tail
         else:
             tail += 1
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

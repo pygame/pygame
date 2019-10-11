@@ -55,7 +55,8 @@ class RectTypeTest(unittest.TestCase):
         test_rect = Rect((1, 2), (-3, -6))
         expected_normalized_rect = (
             (test_rect.x + test_rect.w, test_rect.y + test_rect.h),
-            (-test_rect.w, -test_rect.h))
+            (-test_rect.w, -test_rect.h),
+        )
 
         test_rect.normalize()
 
@@ -65,8 +66,10 @@ class RectTypeTest(unittest.TestCase):
         """Ensures normalize works with a negative width and a positive height.
         """
         test_rect = Rect((1, 2), (-3, 6))
-        expected_normalized_rect = ((test_rect.x + test_rect.w, test_rect.y),
-                                    (-test_rect.w, test_rect.h))
+        expected_normalized_rect = (
+            (test_rect.x + test_rect.w, test_rect.y),
+            (-test_rect.w, test_rect.h),
+        )
 
         test_rect.normalize()
 
@@ -76,8 +79,10 @@ class RectTypeTest(unittest.TestCase):
         """Ensures normalize works with a positive width and a negative height.
         """
         test_rect = Rect((1, 2), (3, -6))
-        expected_normalized_rect = ((test_rect.x, test_rect.y + test_rect.h),
-                                    (test_rect.w, -test_rect.h))
+        expected_normalized_rect = (
+            (test_rect.x, test_rect.y + test_rect.h),
+            (test_rect.w, -test_rect.h),
+        )
 
         test_rect.normalize()
 
@@ -86,8 +91,10 @@ class RectTypeTest(unittest.TestCase):
     def test_normalize__zero_height(self):
         """Ensures normalize works with a negative width and a zero height."""
         test_rect = Rect((1, 2), (-3, 0))
-        expected_normalized_rect = ((test_rect.x + test_rect.w, test_rect.y),
-                                    (-test_rect.w, test_rect.h))
+        expected_normalized_rect = (
+            (test_rect.x + test_rect.w, test_rect.y),
+            (-test_rect.w, test_rect.h),
+        )
 
         test_rect.normalize()
 
@@ -96,8 +103,10 @@ class RectTypeTest(unittest.TestCase):
     def test_normalize__zero_width(self):
         """Ensures normalize works with a zero width and a negative height."""
         test_rect = Rect((1, 2), (0, -6))
-        expected_normalized_rect = ((test_rect.x, test_rect.y + test_rect.h),
-                                    (test_rect.w, -test_rect.h))
+        expected_normalized_rect = (
+            (test_rect.x, test_rect.y + test_rect.h),
+            (test_rect.w, -test_rect.h),
+        )
 
         test_rect.normalize()
 
@@ -138,7 +147,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the x attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.x = value
 
@@ -169,7 +178,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the y attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.y = value
 
@@ -195,7 +204,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the left attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.left = value
 
@@ -224,7 +233,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the right attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.right = value
 
@@ -250,7 +259,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the top attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.top = value
 
@@ -279,7 +288,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the bottom attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.bottom = value
 
@@ -308,7 +317,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the centerx attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.centerx = value
 
@@ -337,7 +346,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the centery attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.centery = value
 
@@ -364,7 +373,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the topleft attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.topleft = value
 
@@ -394,7 +403,7 @@ class RectTypeTest(unittest.TestCase):
         """
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.bottomleft = value
 
@@ -423,7 +432,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the topright attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.topright = value
 
@@ -453,7 +462,7 @@ class RectTypeTest(unittest.TestCase):
         """
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.bottomright = value
 
@@ -482,7 +491,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the center attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.center = value
 
@@ -511,7 +520,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the midleft attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.midleft = value
 
@@ -527,7 +536,7 @@ class RectTypeTest(unittest.TestCase):
            the rect's size
         """
         r = Rect(1, 2, 3, 4)
-        new_midright= (r.right + 20, r.centery + 30)
+        new_midright = (r.right + 20, r.centery + 30)
         expected_topleft = (r.left + 20, r.top + 30)
         old_size = r.size
 
@@ -540,7 +549,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the midright attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.midright = value
 
@@ -556,7 +565,7 @@ class RectTypeTest(unittest.TestCase):
            the rect's size
         """
         r = Rect(1, 2, 3, 4)
-        new_midtop= (r.centerx + 20, r.top + 30)
+        new_midtop = (r.centerx + 20, r.top + 30)
         expected_topleft = (r.left + 20, r.top + 30)
         old_size = r.size
 
@@ -569,7 +578,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the midtop attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.midtop = value
 
@@ -598,7 +607,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the midbottom attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.midbottom = value
 
@@ -626,7 +635,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the width attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.width = value
 
@@ -654,7 +663,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the height attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.height = value
 
@@ -680,7 +689,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures the size attribute handles invalid values correctly."""
         r = Rect(0, 0, 1, 1)
 
-        for value in (None, [], '1', 1, (1,), [1, 2, 3]):
+        for value in (None, [], "1", 1, (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 r.size = value
 
@@ -694,39 +703,52 @@ class RectTypeTest(unittest.TestCase):
     def test_contains(self):
         r = Rect(1, 2, 3, 4)
 
-        self.assertTrue(r.contains(Rect(2, 3, 1, 1)),
-                        "r does not contain Rect(2, 3, 1, 1)")
-        self.assertTrue(r.contains(Rect(r)),
-                        "r does not contain the same rect as itself")
-        self.assertTrue(r.contains(Rect(2, 3, 0, 0)),
-                        "r does not contain an empty rect within its bounds")
-        self.assertFalse(r.contains(Rect(0, 0, 1, 2)),
-                         "r contains Rect(0, 0, 1, 2)")
-        self.assertFalse(r.contains(Rect(4, 6, 1, 1)),
-                         "r contains Rect(4, 6, 1, 1)")
-        self.assertFalse(r.contains(Rect(4, 6, 0, 0)),
-                         "r contains Rect(4, 6, 0, 0)")
+        self.assertTrue(
+            r.contains(Rect(2, 3, 1, 1)), "r does not contain Rect(2, 3, 1, 1)"
+        )
+        self.assertTrue(
+            r.contains(Rect(r)), "r does not contain the same rect as itself"
+        )
+        self.assertTrue(
+            r.contains(Rect(2, 3, 0, 0)),
+            "r does not contain an empty rect within its bounds",
+        )
+        self.assertFalse(r.contains(Rect(0, 0, 1, 2)), "r contains Rect(0, 0, 1, 2)")
+        self.assertFalse(r.contains(Rect(4, 6, 1, 1)), "r contains Rect(4, 6, 1, 1)")
+        self.assertFalse(r.contains(Rect(4, 6, 0, 0)), "r contains Rect(4, 6, 0, 0)")
 
     def test_collidepoint(self):
         r = Rect(1, 2, 3, 4)
 
-        self.assertTrue(r.collidepoint(r.left, r.top),
-                        "r does not collide with point (left, top)")
-        self.assertFalse(r.collidepoint(r.left - 1, r.top),
-                         "r collides with point (left - 1, top)")
-        self.assertFalse(r.collidepoint(r.left, r.top - 1),
-                         "r collides with point (left, top - 1)")
-        self.assertFalse(r.collidepoint(r.left - 1, r.top - 1),
-                         "r collides with point (left - 1, top - 1)")
+        self.assertTrue(
+            r.collidepoint(r.left, r.top), "r does not collide with point (left, top)"
+        )
+        self.assertFalse(
+            r.collidepoint(r.left - 1, r.top), "r collides with point (left - 1, top)"
+        )
+        self.assertFalse(
+            r.collidepoint(r.left, r.top - 1), "r collides with point (left, top - 1)"
+        )
+        self.assertFalse(
+            r.collidepoint(r.left - 1, r.top - 1),
+            "r collides with point (left - 1, top - 1)",
+        )
 
-        self.assertTrue(r.collidepoint(r.right - 1, r.bottom - 1),
-                        "r does not collide with point (right - 1, bottom - 1)")
-        self.assertFalse(r.collidepoint(r.right, r.bottom),
-                         "r collides with point (right, bottom)")
-        self.assertFalse(r.collidepoint(r.right - 1, r.bottom),
-                         "r collides with point (right - 1, bottom)")
-        self.assertFalse(r.collidepoint(r.right, r.bottom - 1),
-                         "r collides with point (right, bottom - 1)")
+        self.assertTrue(
+            r.collidepoint(r.right - 1, r.bottom - 1),
+            "r does not collide with point (right - 1, bottom - 1)",
+        )
+        self.assertFalse(
+            r.collidepoint(r.right, r.bottom), "r collides with point (right, bottom)"
+        )
+        self.assertFalse(
+            r.collidepoint(r.right - 1, r.bottom),
+            "r collides with point (right - 1, bottom)",
+        )
+        self.assertFalse(
+            r.collidepoint(r.right, r.bottom - 1),
+            "r collides with point (right, bottom - 1)",
+        )
 
     def test_inflate__larger(self):
         """The inflate method inflates around the center of the rectangle
@@ -811,12 +833,13 @@ class RectTypeTest(unittest.TestCase):
 
     def test_clip(self):
         r1 = Rect(1, 2, 3, 4)
-        self.assertEqual(Rect(1, 2, 2, 2), r1.clip( Rect(0, 0, 3, 4)))
-        self.assertEqual(Rect(2, 2, 2, 4), r1.clip( Rect(2, 2, 10, 20)))
+        self.assertEqual(Rect(1, 2, 2, 2), r1.clip(Rect(0, 0, 3, 4)))
+        self.assertEqual(Rect(2, 2, 2, 4), r1.clip(Rect(2, 2, 10, 20)))
         self.assertEqual(Rect(2, 3, 1, 2), r1.clip(Rect(2, 3, 1, 2)))
         self.assertEqual((0, 0), r1.clip(20, 30, 5, 6).size)
-        self.assertEqual(r1, r1.clip(Rect(r1)),
-                         "r1 does not clip an identical rect to itself")
+        self.assertEqual(
+            r1, r1.clip(Rect(r1)), "r1 does not clip an identical rect to itself"
+        )
 
     def test_move(self):
         r = Rect(1, 2, 3, 4)
@@ -891,26 +914,38 @@ class RectTypeTest(unittest.TestCase):
 
     def test_colliderect(self):
         r1 = Rect(1, 2, 3, 4)
-        self.assertTrue(r1.colliderect(Rect(0, 0, 2, 3)),
-                        "r1 does not collide with Rect(0, 0, 2, 3)")
-        self.assertFalse(r1.colliderect(Rect(0, 0, 1, 2)),
-                         "r1 collides with Rect(0, 0, 1, 2)")
-        self.assertFalse(r1.colliderect(Rect(r1.right, r1.bottom, 2, 2)),
-                         "r1 collides with Rect(r1.right, r1.bottom, 2, 2)")
-        self.assertTrue(r1.colliderect(Rect(r1.left + 1, r1.top + 1,
-                                            r1.width - 2, r1.height - 2)),
-                        "r1 does not collide with Rect(r1.left + 1, r1.top + 1, "+
-                        "r1.width - 2, r1.height - 2)")
-        self.assertTrue(r1.colliderect(Rect(r1.left - 1, r1.top - 1,
-                                            r1.width + 2, r1.height + 2)),
-                        "r1 does not collide with Rect(r1.left - 1, r1.top - 1, "+
-                        "r1.width + 2, r1.height + 2)")
-        self.assertTrue(r1.colliderect(Rect(r1)),
-                        "r1 does not collide with an identical rect")
-        self.assertFalse(r1.colliderect(Rect(r1.right, r1.bottom, 0, 0)),
-                         "r1 collides with Rect(r1.right, r1.bottom, 0, 0)")
-        self.assertFalse(r1.colliderect(Rect(r1.right, r1.bottom, 1, 1)),
-                         "r1 collides with Rect(r1.right, r1.bottom, 1, 1)")
+        self.assertTrue(
+            r1.colliderect(Rect(0, 0, 2, 3)),
+            "r1 does not collide with Rect(0, 0, 2, 3)",
+        )
+        self.assertFalse(
+            r1.colliderect(Rect(0, 0, 1, 2)), "r1 collides with Rect(0, 0, 1, 2)"
+        )
+        self.assertFalse(
+            r1.colliderect(Rect(r1.right, r1.bottom, 2, 2)),
+            "r1 collides with Rect(r1.right, r1.bottom, 2, 2)",
+        )
+        self.assertTrue(
+            r1.colliderect(Rect(r1.left + 1, r1.top + 1, r1.width - 2, r1.height - 2)),
+            "r1 does not collide with Rect(r1.left + 1, r1.top + 1, "
+            + "r1.width - 2, r1.height - 2)",
+        )
+        self.assertTrue(
+            r1.colliderect(Rect(r1.left - 1, r1.top - 1, r1.width + 2, r1.height + 2)),
+            "r1 does not collide with Rect(r1.left - 1, r1.top - 1, "
+            + "r1.width + 2, r1.height + 2)",
+        )
+        self.assertTrue(
+            r1.colliderect(Rect(r1)), "r1 does not collide with an identical rect"
+        )
+        self.assertFalse(
+            r1.colliderect(Rect(r1.right, r1.bottom, 0, 0)),
+            "r1 collides with Rect(r1.right, r1.bottom, 0, 0)",
+        )
+        self.assertFalse(
+            r1.colliderect(Rect(r1.right, r1.bottom, 1, 1)),
+            "r1 collides with Rect(r1.right, r1.bottom, 1, 1)",
+        )
 
     def testEquals(self):
         """ check to see how the rect uses __eq__
@@ -920,13 +955,14 @@ class RectTypeTest(unittest.TestCase):
         r3 = (10, 20, 30, 40)
         r4 = Rect(10, 20, 30, 40)
 
-        class foo (Rect):
+        class foo(Rect):
             def __eq__(self, other):
                 return id(self) == id(other)
+
             def __ne__(self, other):
                 return id(self) != id(other)
 
-        class foo2 (Rect):
+        class foo2(Rect):
             pass
 
         r5 = foo(10, 20, 30, 40)
@@ -936,7 +972,6 @@ class RectTypeTest(unittest.TestCase):
 
         # because we define equality differently for this subclass.
         self.assertEqual(r6, r2)
-
 
         rect_list = [r1, r2, r3, r4, r6]
 
@@ -951,20 +986,20 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedict detects collisions."""
         rect = Rect(1, 1, 10, 10)
 
-        collide_item1 = ('collide 1', rect.copy())
-        collide_item2 = ('collide 2', Rect(5, 5, 10, 10))
-        no_collide_item1 = ('no collide 1', Rect(60, 60, 10, 10))
-        no_collide_item2 = ('no collide 2', Rect(70, 70, 10, 10))
+        collide_item1 = ("collide 1", rect.copy())
+        collide_item2 = ("collide 2", Rect(5, 5, 10, 10))
+        no_collide_item1 = ("no collide 1", Rect(60, 60, 10, 10))
+        no_collide_item2 = ("no collide 2", Rect(70, 70, 10, 10))
 
         # Dict to check collisions with values.
-        rect_values = dict((collide_item1, collide_item2, no_collide_item1,
-                           no_collide_item2))
+        rect_values = dict(
+            (collide_item1, collide_item2, no_collide_item1, no_collide_item2)
+        )
         value_collide_items = (collide_item1, collide_item2)
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
-        key_collide_items = tuple(
-            (tuple(v), k) for k, v in value_collide_items)
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
+        key_collide_items = tuple((tuple(v), k) for k, v in value_collide_items)
 
         for use_values in (True, False):
             if use_values:
@@ -983,16 +1018,15 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedict returns None when no collisions."""
         rect = Rect(1, 1, 10, 10)
 
-        no_collide_item1 = ('no collide 1', Rect(50, 50, 10, 10))
-        no_collide_item2 = ('no collide 2', Rect(60, 60, 10, 10))
-        no_collide_item3 = ('no collide 3', Rect(70, 70, 10, 10))
+        no_collide_item1 = ("no collide 1", Rect(50, 50, 10, 10))
+        no_collide_item2 = ("no collide 2", Rect(60, 60, 10, 10))
+        no_collide_item3 = ("no collide 3", Rect(70, 70, 10, 10))
 
         # Dict to check collisions with values.
-        rect_values = dict((no_collide_item1, no_collide_item2,
-                           no_collide_item3))
+        rect_values = dict((no_collide_item1, no_collide_item2, no_collide_item3))
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         for use_values in (True, False):
             d = rect_values if use_values else rect_keys
@@ -1007,21 +1041,21 @@ class RectTypeTest(unittest.TestCase):
         # Small rect to test barely touching collisions.
         collide_rect = Rect(0, 0, 1, 1)
 
-        collide_item1 = ('collide 1', collide_rect)
-        no_collide_item1 = ('no collide 1', Rect(50, 50, 10, 10))
-        no_collide_item2 = ('no collide 2', Rect(60, 60, 10, 10))
-        no_collide_item3 = ('no collide 3', Rect(70, 70, 10, 10))
+        collide_item1 = ("collide 1", collide_rect)
+        no_collide_item1 = ("no collide 1", Rect(50, 50, 10, 10))
+        no_collide_item2 = ("no collide 2", Rect(60, 60, 10, 10))
+        no_collide_item3 = ("no collide 3", Rect(70, 70, 10, 10))
 
         # Dict to check collisions with values.
-        no_collide_rect_values = dict((no_collide_item1, no_collide_item2,
-                                      no_collide_item3))
+        no_collide_rect_values = dict(
+            (no_collide_item1, no_collide_item2, no_collide_item3)
+        )
 
         # Dict to check collisions with keys.
-        no_collide_rect_keys = {
-            tuple(v) : k for k, v in no_collide_rect_values.items()}
+        no_collide_rect_keys = {tuple(v): k for k, v in no_collide_rect_values.items()}
 
         # Tests the collide_rect on each of the rect's corners.
-        for attr in ('topleft', 'topright', 'bottomright', 'bottomleft'):
+        for attr in ("topleft", "topright", "bottomright", "bottomleft"):
             setattr(collide_rect, attr, getattr(rect, attr))
 
             for use_values in (True, False):
@@ -1032,7 +1066,7 @@ class RectTypeTest(unittest.TestCase):
                     expected_item = (tuple(collide_item1[1]), collide_item1[0])
                     d = dict(no_collide_rect_keys)
 
-                d.update((expected_item,)) # Add in the expected item.
+                d.update((expected_item,))  # Add in the expected item.
 
                 collide_item = rect.collidedict(d, use_values)
 
@@ -1049,27 +1083,40 @@ class RectTypeTest(unittest.TestCase):
         zero_rect4 = Rect(1, 1, -1, 0)
         zero_rect5 = Rect(1, 1, 0, -1)
 
-        no_collide_item1 = ('no collide 1', zero_rect1.copy())
-        no_collide_item2 = ('no collide 2', zero_rect2.copy())
-        no_collide_item3 = ('no collide 3', zero_rect3.copy())
-        no_collide_item4 = ('no collide 4', zero_rect4.copy())
-        no_collide_item5 = ('no collide 5', zero_rect5.copy())
-        no_collide_item6 = ('no collide 6', Rect(0, 0, 10, 10))
-        no_collide_item7 = ('no collide 7', Rect(0, 0, 2, 2))
+        no_collide_item1 = ("no collide 1", zero_rect1.copy())
+        no_collide_item2 = ("no collide 2", zero_rect2.copy())
+        no_collide_item3 = ("no collide 3", zero_rect3.copy())
+        no_collide_item4 = ("no collide 4", zero_rect4.copy())
+        no_collide_item5 = ("no collide 5", zero_rect5.copy())
+        no_collide_item6 = ("no collide 6", Rect(0, 0, 10, 10))
+        no_collide_item7 = ("no collide 7", Rect(0, 0, 2, 2))
 
         # Dict to check collisions with values.
-        rect_values = dict((no_collide_item1, no_collide_item2,
-            no_collide_item3, no_collide_item4, no_collide_item5,
-            no_collide_item6, no_collide_item7))
+        rect_values = dict(
+            (
+                no_collide_item1,
+                no_collide_item2,
+                no_collide_item3,
+                no_collide_item4,
+                no_collide_item5,
+                no_collide_item6,
+                no_collide_item7,
+            )
+        )
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         for use_values in (True, False):
             d = rect_values if use_values else rect_keys
 
-            for zero_rect in (zero_rect1, zero_rect2, zero_rect3, zero_rect4,
-                              zero_rect5):
+            for zero_rect in (
+                zero_rect1,
+                zero_rect2,
+                zero_rect3,
+                zero_rect4,
+                zero_rect5,
+            ):
                 collide_item = zero_rect.collidedict(d, use_values)
 
                 self.assertIsNone(collide_item)
@@ -1081,16 +1128,15 @@ class RectTypeTest(unittest.TestCase):
         """
         rect = Rect(0, 0, 10, 10)
 
-        no_collide_item1 = ('no collide 1', Rect(1, 1, 0, 0))
-        no_collide_item2 = ('no collide 2', Rect(1, 1, 1, 0))
-        no_collide_item3 = ('no collide 3', Rect(1, 1, 0, 1))
+        no_collide_item1 = ("no collide 1", Rect(1, 1, 0, 0))
+        no_collide_item2 = ("no collide 2", Rect(1, 1, 1, 0))
+        no_collide_item3 = ("no collide 3", Rect(1, 1, 0, 1))
 
         # Dict to check collisions with values.
-        rect_values = dict((no_collide_item1, no_collide_item2,
-                           no_collide_item3))
+        rect_values = dict((no_collide_item1, no_collide_item2, no_collide_item3))
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         for use_values in (True, False):
             d = rect_values if use_values else rect_keys
@@ -1105,18 +1151,17 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedict works correctly with negative sized rects."""
         neg_rect = Rect(1, 1, -1, -1)
 
-        collide_item1 = ('collide 1', neg_rect.copy())
-        collide_item2 = ('collide 2', Rect(0, 0, 10, 10))
-        no_collide_item1 = ('no collide 1', Rect(1, 1, 10, 10))
+        collide_item1 = ("collide 1", neg_rect.copy())
+        collide_item2 = ("collide 2", Rect(0, 0, 10, 10))
+        no_collide_item1 = ("no collide 1", Rect(1, 1, 10, 10))
 
         # Dict to check collisions with values.
         rect_values = dict((collide_item1, collide_item2, no_collide_item1))
         value_collide_items = (collide_item1, collide_item2)
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
-        key_collide_items = tuple(
-            (tuple(v), k) for k, v in value_collide_items)
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
+        key_collide_items = tuple((tuple(v), k) for k, v in value_collide_items)
 
         for use_values in (True, False):
             if use_values:
@@ -1138,15 +1183,15 @@ class RectTypeTest(unittest.TestCase):
         """
         rect = Rect(0, 0, 10, 10)
 
-        collide_item1 = ('collide 1', Rect(1, 1, -1, -1))
-        no_collide_item1 = ('no collide 1', Rect(1, 1, -1, 0))
-        no_collide_item2 = ('no collide 2', Rect(1, 1, 0, -1))
+        collide_item1 = ("collide 1", Rect(1, 1, -1, -1))
+        no_collide_item1 = ("no collide 1", Rect(1, 1, -1, 0))
+        no_collide_item2 = ("no collide 2", Rect(1, 1, 0, -1))
 
         # Dict to check collisions with values.
         rect_values = dict((collide_item1, no_collide_item1, no_collide_item2))
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         for use_values in (True, False):
             if use_values:
@@ -1164,7 +1209,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedict correctly handles invalid dict parameters."""
         rect = Rect(0, 0, 10, 10)
 
-        invalid_value_dict = ('collide', rect.copy())
+        invalid_value_dict = ("collide", rect.copy())
         invalid_key_dict = tuple(invalid_value_dict[1]), invalid_value_dict[0]
 
         for use_values in (True, False):
@@ -1176,7 +1221,7 @@ class RectTypeTest(unittest.TestCase):
     def test_collidedict__invalid_dict_value_format(self):
         """Ensures collidedict correctly handles dicts with invalid values."""
         rect = Rect(0, 0, 10, 10)
-        rect_keys = {tuple(rect) : 'collide'}
+        rect_keys = {tuple(rect): "collide"}
 
         with self.assertRaises(TypeError):
             collide_item = rect.collidedict(rect_keys, 1)
@@ -1184,7 +1229,7 @@ class RectTypeTest(unittest.TestCase):
     def test_collidedict__invalid_dict_key_format(self):
         """Ensures collidedict correctly handles dicts with invalid keys."""
         rect = Rect(0, 0, 10, 10)
-        rect_values = {'collide' : rect.copy()}
+        rect_values = {"collide": rect.copy()}
 
         with self.assertRaises(TypeError):
             collide_item = rect.collidedict(rect_values)
@@ -1203,18 +1248,19 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedictall detects collisions."""
         rect = Rect(1, 1, 10, 10)
 
-        collide_item1 = ('collide 1', rect.copy())
-        collide_item2 = ('collide 2', Rect(5, 5, 10, 10))
-        no_collide_item1 = ('no collide 1', Rect(60, 60, 20, 20))
-        no_collide_item2 = ('no collide 2', Rect(70, 70, 20, 20))
+        collide_item1 = ("collide 1", rect.copy())
+        collide_item2 = ("collide 2", Rect(5, 5, 10, 10))
+        no_collide_item1 = ("no collide 1", Rect(60, 60, 20, 20))
+        no_collide_item2 = ("no collide 2", Rect(70, 70, 20, 20))
 
         # Dict to check collisions with values.
-        rect_values = dict((collide_item1, collide_item2, no_collide_item1,
-                           no_collide_item2))
+        rect_values = dict(
+            (collide_item1, collide_item2, no_collide_item1, no_collide_item2)
+        )
         value_collide_items = [collide_item1, collide_item2]
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
         key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
 
         for use_values in (True, False):
@@ -1233,16 +1279,15 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedictall returns an empty list when no collisions."""
         rect = Rect(1, 1, 10, 10)
 
-        no_collide_item1 = ('no collide 1', Rect(50, 50, 20, 20))
-        no_collide_item2 = ('no collide 2', Rect(60, 60, 20, 20))
-        no_collide_item3 = ('no collide 3', Rect(70, 70, 20, 20))
+        no_collide_item1 = ("no collide 1", Rect(50, 50, 20, 20))
+        no_collide_item2 = ("no collide 2", Rect(60, 60, 20, 20))
+        no_collide_item3 = ("no collide 3", Rect(70, 70, 20, 20))
 
         # Dict to check collisions with values.
-        rect_values = dict((no_collide_item1, no_collide_item2,
-                           no_collide_item3))
+        rect_values = dict((no_collide_item1, no_collide_item2, no_collide_item3))
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         expected_items = []
 
@@ -1260,21 +1305,21 @@ class RectTypeTest(unittest.TestCase):
         # Small rect to test barely touching collisions.
         collide_rect = Rect(0, 0, 1, 1)
 
-        collide_item1 = ('collide 1', collide_rect)
-        no_collide_item1 = ('no collide 1', Rect(50, 50, 20, 20))
-        no_collide_item2 = ('no collide 2', Rect(60, 60, 20, 20))
-        no_collide_item3 = ('no collide 3', Rect(70, 70, 20, 20))
+        collide_item1 = ("collide 1", collide_rect)
+        no_collide_item1 = ("no collide 1", Rect(50, 50, 20, 20))
+        no_collide_item2 = ("no collide 2", Rect(60, 60, 20, 20))
+        no_collide_item3 = ("no collide 3", Rect(70, 70, 20, 20))
 
         # Dict to check collisions with values.
-        no_collide_rect_values = dict((no_collide_item1, no_collide_item2,
-                                      no_collide_item3))
+        no_collide_rect_values = dict(
+            (no_collide_item1, no_collide_item2, no_collide_item3)
+        )
 
         # Dict to check collisions with keys.
-        no_collide_rect_keys = {
-            tuple(v) : k for k, v in no_collide_rect_values.items()}
+        no_collide_rect_keys = {tuple(v): k for k, v in no_collide_rect_values.items()}
 
         # Tests the collide_rect on each of the rect's corners.
-        for attr in ('topleft', 'topright', 'bottomright', 'bottomleft'):
+        for attr in ("topleft", "topright", "bottomright", "bottomleft"):
             setattr(collide_rect, attr, getattr(rect, attr))
 
             for use_values in (True, False):
@@ -1282,11 +1327,10 @@ class RectTypeTest(unittest.TestCase):
                     expected_items = [collide_item1]
                     d = dict(no_collide_rect_values)
                 else:
-                    expected_items = [
-                        (tuple(collide_item1[1]), collide_item1[0])]
+                    expected_items = [(tuple(collide_item1[1]), collide_item1[0])]
                     d = dict(no_collide_rect_keys)
 
-                d.update(expected_items) # Add in the expected items.
+                d.update(expected_items)  # Add in the expected items.
 
                 collide_items = rect.collidedictall(d, use_values)
 
@@ -1303,29 +1347,42 @@ class RectTypeTest(unittest.TestCase):
         zero_rect4 = Rect(2, 2, -2, 0)
         zero_rect5 = Rect(2, 2, 0, -2)
 
-        no_collide_item1 = ('no collide 1', zero_rect1.copy())
-        no_collide_item2 = ('no collide 2', zero_rect2.copy())
-        no_collide_item3 = ('no collide 3', zero_rect3.copy())
-        no_collide_item4 = ('no collide 4', zero_rect4.copy())
-        no_collide_item5 = ('no collide 5', zero_rect5.copy())
-        no_collide_item6 = ('no collide 6', Rect(0, 0, 10, 10))
-        no_collide_item7 = ('no collide 7', Rect(0, 0, 2, 2))
+        no_collide_item1 = ("no collide 1", zero_rect1.copy())
+        no_collide_item2 = ("no collide 2", zero_rect2.copy())
+        no_collide_item3 = ("no collide 3", zero_rect3.copy())
+        no_collide_item4 = ("no collide 4", zero_rect4.copy())
+        no_collide_item5 = ("no collide 5", zero_rect5.copy())
+        no_collide_item6 = ("no collide 6", Rect(0, 0, 10, 10))
+        no_collide_item7 = ("no collide 7", Rect(0, 0, 2, 2))
 
         # Dict to check collisions with values.
-        rect_values = dict((no_collide_item1, no_collide_item2,
-            no_collide_item3, no_collide_item4, no_collide_item5,
-            no_collide_item6, no_collide_item7))
+        rect_values = dict(
+            (
+                no_collide_item1,
+                no_collide_item2,
+                no_collide_item3,
+                no_collide_item4,
+                no_collide_item5,
+                no_collide_item6,
+                no_collide_item7,
+            )
+        )
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         expected_items = []
 
         for use_values in (True, False):
             d = rect_values if use_values else rect_keys
 
-            for zero_rect in (zero_rect1, zero_rect2, zero_rect3, zero_rect4,
-                              zero_rect5):
+            for zero_rect in (
+                zero_rect1,
+                zero_rect2,
+                zero_rect3,
+                zero_rect4,
+                zero_rect5,
+            ):
                 collide_items = zero_rect.collidedictall(d, use_values)
 
                 self._assertCountEqual(collide_items, expected_items)
@@ -1338,16 +1395,15 @@ class RectTypeTest(unittest.TestCase):
         """
         rect = Rect(0, 0, 20, 20)
 
-        no_collide_item1 = ('no collide 1', Rect(2, 2, 0, 0))
-        no_collide_item2 = ('no collide 2', Rect(2, 2, 2, 0))
-        no_collide_item3 = ('no collide 3', Rect(2, 2, 0, 2))
+        no_collide_item1 = ("no collide 1", Rect(2, 2, 0, 0))
+        no_collide_item2 = ("no collide 2", Rect(2, 2, 2, 0))
+        no_collide_item3 = ("no collide 3", Rect(2, 2, 0, 2))
 
         # Dict to check collisions with values.
-        rect_values = dict((no_collide_item1, no_collide_item2,
-                           no_collide_item3))
+        rect_values = dict((no_collide_item1, no_collide_item2, no_collide_item3))
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
 
         expected_items = []
 
@@ -1364,16 +1420,16 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedictall works correctly with negative sized rects."""
         neg_rect = Rect(2, 2, -2, -2)
 
-        collide_item1 = ('collide 1', neg_rect.copy())
-        collide_item2 = ('collide 2', Rect(0, 0, 20, 20))
-        no_collide_item1 = ('no collide 1', Rect(1, 1, 20, 20))
+        collide_item1 = ("collide 1", neg_rect.copy())
+        collide_item2 = ("collide 2", Rect(0, 0, 20, 20))
+        no_collide_item1 = ("no collide 1", Rect(1, 1, 20, 20))
 
         # Dict to check collisions with values.
         rect_values = dict((collide_item1, collide_item2, no_collide_item1))
         value_collide_items = [collide_item1, collide_item2]
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
         key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
 
         for use_values in (True, False):
@@ -1396,16 +1452,16 @@ class RectTypeTest(unittest.TestCase):
         """
         rect = Rect(0, 0, 10, 10)
 
-        collide_item1 = ('collide 1', Rect(1, 1, -1, -1))
-        no_collide_item1 = ('no collide 1', Rect(1, 1, -1, 0))
-        no_collide_item2 = ('no collide 2', Rect(1, 1, 0, -1))
+        collide_item1 = ("collide 1", Rect(1, 1, -1, -1))
+        no_collide_item1 = ("no collide 1", Rect(1, 1, -1, 0))
+        no_collide_item2 = ("no collide 2", Rect(1, 1, 0, -1))
 
         # Dict to check collisions with values.
         rect_values = dict((collide_item1, no_collide_item1, no_collide_item2))
         value_collide_items = [collide_item1]
 
         # Dict to check collisions with keys.
-        rect_keys = {tuple(v) : k for k, v in rect_values.items()}
+        rect_keys = {tuple(v): k for k, v in rect_values.items()}
         key_collide_items = [(tuple(v), k) for k, v in value_collide_items]
 
         for use_values in (True, False):
@@ -1424,7 +1480,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedictall correctly handles invalid dict parameters."""
         rect = Rect(0, 0, 10, 10)
 
-        invalid_value_dict = ('collide', rect.copy())
+        invalid_value_dict = ("collide", rect.copy())
         invalid_key_dict = tuple(invalid_value_dict[1]), invalid_value_dict[0]
 
         for use_values in (True, False):
@@ -1437,7 +1493,7 @@ class RectTypeTest(unittest.TestCase):
         """Ensures collidedictall correctly handles dicts with invalid values.
         """
         rect = Rect(0, 0, 10, 10)
-        rect_keys = {tuple(rect) : 'collide'}
+        rect_keys = {tuple(rect): "collide"}
 
         with self.assertRaises(TypeError):
             collide_items = rect.collidedictall(rect_keys, 1)
@@ -1445,7 +1501,7 @@ class RectTypeTest(unittest.TestCase):
     def test_collidedictall__invalid_dict_key_format(self):
         """Ensures collidedictall correctly handles dicts with invalid keys."""
         rect = Rect(0, 0, 10, 10)
-        rect_values = {'collide' : rect.copy()}
+        rect_values = {"collide": rect.copy()}
 
         with self.assertRaises(TypeError):
             collide_items = rect.collidedictall(rect_values)
@@ -1465,12 +1521,12 @@ class RectTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
 
-          # Rect.collidelist(list): return index
-          # test if one rectangle in a list intersects
-          #
-          # Test whether the rectangle collides with any in a sequence of
-          # rectangles. The index of the first collision found is returned. If
-          # no collisions are found an index of -1 is returned.
+        # Rect.collidelist(list): return index
+        # test if one rectangle in a list intersects
+        #
+        # Test whether the rectangle collides with any in a sequence of
+        # rectangles. The index of the first collision found is returned. If
+        # no collisions are found an index of -1 is returned.
 
         r = Rect(1, 1, 10, 10)
         l = [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(15, 15, 1, 1)]
@@ -1480,17 +1536,16 @@ class RectTypeTest(unittest.TestCase):
         f = [Rect(50, 50, 1, 1), (100, 100, 4, 4)]
         self.assertEqual(r.collidelist(f), -1)
 
-
     def test_collidelistall(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
 
-          # Rect.collidelistall(list): return indices
-          # test if all rectangles in a list intersect
-          #
-          # Returns a list of all the indices that contain rectangles that
-          # collide with the Rect. If no intersecting rectangles are found, an
-          # empty list is returned.
+        # Rect.collidelistall(list): return indices
+        # test if all rectangles in a list intersect
+        #
+        # Returns a list of all the indices that contain rectangles that
+        # collide with the Rect. If no intersecting rectangles are found, an
+        # empty list is returned.
 
         r = Rect(1, 1, 10, 10)
 
@@ -1505,17 +1560,16 @@ class RectTypeTest(unittest.TestCase):
         f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
         self.assertFalse(r.collidelistall(f))
 
-
     def test_fit(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.fit:
 
-          # Rect.fit(Rect): return Rect
-          # resize and move a rectangle with aspect ratio
-          #
-          # Returns a new rectangle that is moved and resized to fit another.
-          # The aspect ratio of the original Rect is preserved, so the new
-          # rectangle may be smaller than the target in either width or height.
+        # Rect.fit(Rect): return Rect
+        # resize and move a rectangle with aspect ratio
+        #
+        # Returns a new rectangle that is moved and resized to fit another.
+        # The aspect ratio of the original Rect is preserved, so the new
+        # rectangle may be smaller than the target in either width or height.
 
         r = Rect(10, 10, 30, 30)
 
@@ -1527,13 +1581,10 @@ class RectTypeTest(unittest.TestCase):
         f2 = r2.fit(r)
         self.assertTrue(r.contains(f2))
 
-
-
     def test_copy(self):
         r = Rect(1, 2, 10, 20)
         c = r.copy()
         self.assertEqual(c, r)
-
 
     def test_subscript(self):
         r = Rect(1, 2, 3, 4)
@@ -1562,7 +1613,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(r, [1, 2, 3, 4])
         self.assertRaises(TypeError, r.__setitem__, None, 0)
         self.assertEqual(r, [1, 2, 3, 4])
-        self.assertRaises(TypeError, r.__setitem__, 0, '')
+        self.assertRaises(TypeError, r.__setitem__, 0, "")
         self.assertEqual(r, [1, 2, 3, 4])
         self.assertRaises(IndexError, r.__setitem__, 4, 0)
         self.assertEqual(r, [1, 2, 3, 4])
@@ -1650,5 +1701,6 @@ class SubclassTest(unittest.TestCase):
         self.assertTrue(isinstance(mr2, self.MyRect))
         self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -4,7 +4,8 @@ import sys
 import unittest
 
 import platform
-IS_PYPY = 'PyPy' == platform.python_implementation()
+
+IS_PYPY = "PyPy" == platform.python_implementation()
 
 try:
     from pygame.tests.test_utils import arrinter
@@ -14,7 +15,9 @@ import pygame
 
 
 init_called = quit_called = 0
-def __PYGAMEinit__(): #called automatically by pygame.init()
+
+
+def __PYGAMEinit__():  # called automatically by pygame.init()
     global init_called
     init_called = init_called + 1
     pygame.register_quit(pygame_quit)
@@ -23,19 +26,21 @@ def __PYGAMEinit__(): #called automatically by pygame.init()
     # purposely done here to test that failing modules are reported.
     return False
 
+
 def pygame_quit():
     global quit_called
     quit_called = quit_called + 1
 
 
 quit_hook_ran = 0
+
+
 def quit_hook():
     global quit_hook_ran
     quit_hook_ran = 1
 
 
 class BaseModuleTest(unittest.TestCase):
-
     def tearDown(self):
         # Clean up after each test method.
         pygame.quit()
@@ -76,49 +81,52 @@ class BaseModuleTest(unittest.TestCase):
             self.strides = tuple(strides)
             self.data = ctypes.addressof(self.parent), False
             if self.itemsize == 1:
-                byteorder = '|'
-            elif sys.byteorder == 'big':
-                byteorder = '>'
+                byteorder = "|"
+            elif sys.byteorder == "big":
+                byteorder = ">"
             else:
-                byteorder = '<'
+                byteorder = "<"
             self.typestr = byteorder + typechar + str(self.itemsize)
 
     def assertSame(self, proxy, obj):
         self.assertEqual(proxy.length, obj.size)
         iface = proxy.__array_interface__
-        self.assertEqual(iface['typestr'], obj.typestr)
-        self.assertEqual(iface['shape'], obj.shape)
-        self.assertEqual(iface['strides'], obj.strides)
-        self.assertEqual(iface['data'], obj.data)
+        self.assertEqual(iface["typestr"], obj.typestr)
+        self.assertEqual(iface["shape"], obj.shape)
+        self.assertEqual(iface["strides"], obj.strides)
+        self.assertEqual(iface["data"], obj.data)
 
     def test_PgObject_GetBuffer_array_interface(self):
         from pygame.bufferproxy import BufferProxy
 
         class Exporter(self.ExporterBase):
             def get__array_interface__(self):
-                return {'version': 3,
-                        'typestr': self.typestr,
-                        'shape': self.shape,
-                        'strides': self.strides,
-                        'data': self.data}
+                return {
+                    "version": 3,
+                    "typestr": self.typestr,
+                    "shape": self.shape,
+                    "strides": self.strides,
+                    "data": self.data,
+                }
+
             __array_interface__ = property(get__array_interface__)
             # Should be ignored by PgObject_GetBuffer
             __array_struct__ = property(lambda self: None)
 
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
-            o = Exporter(_shape[0:ndim], 'i', 2)
+            o = Exporter(_shape[0:ndim], "i", 2)
             v = BufferProxy(o)
             self.assertSame(v, o)
         ndim = 2
         shape = _shape[0:ndim]
-        for typechar in ('i', 'u'):
+        for typechar in ("i", "u"):
             for itemsize in (1, 2, 4, 8):
                 o = Exporter(shape, typechar, itemsize)
                 v = BufferProxy(o)
                 self.assertSame(v, o)
         for itemsize in (4, 8):
-            o = Exporter(shape, 'f', itemsize)
+            o = Exporter(shape, "f", itemsize)
             v = BufferProxy(o)
             self.assertSame(v, o)
 
@@ -140,6 +148,7 @@ class BaseModuleTest(unittest.TestCase):
 
         class WRDict(dict):
             """Weak referenceable dict"""
+
             pass
 
         class Exporter2(Exporter):
@@ -147,16 +156,19 @@ class BaseModuleTest(unittest.TestCase):
                 self.d = WRDict(Exporter.get__array_interface__(self))
                 self.dict_ref = weakref.ref(self.d)
                 return self.d
+
             __array_interface__ = property(get__array_interface__2)
+
             def free_dict(self):
                 self.d = None
+
             def is_dict_alive(self):
                 try:
                     return self.dict_ref() is not None
                 except AttributeError:
                     raise NoDictError("__array_interface__ is unread")
 
-        o = Exporter2((2, 4), 'u', 4)
+        o = Exporter2((2, 4), "u", 4)
         v = BufferProxy(o)
         self.assertRaises(NoDictError, o.is_dict_alive)
         length = v.length
@@ -175,24 +187,25 @@ class BaseModuleTest(unittest.TestCase):
 
             def get__array_struct__(self):
                 return self.view.__array_struct__
+
             __array_struct__ = property(get__array_struct__)
             # Should not cause PgObject_GetBuffer to fail
             __array_interface__ = property(lambda self: None)
 
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
-            o = Exporter(_shape[0:ndim], 'i', 2)
+            o = Exporter(_shape[0:ndim], "i", 2)
             v = BufferProxy(o)
             self.assertSame(v, o)
         ndim = 2
         shape = _shape[0:ndim]
-        for typechar in ('i', 'u'):
+        for typechar in ("i", "u"):
             for itemsize in (1, 2, 4, 8):
                 o = Exporter(shape, typechar, itemsize)
                 v = BufferProxy(o)
                 self.assertSame(v, o)
         for itemsize in (4, 8):
-            o = Exporter(shape, 'f', itemsize)
+            o = Exporter(shape, "f", itemsize)
             v = BufferProxy(o)
             self.assertSame(v, o)
 
@@ -222,26 +235,47 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(imp.strides, exp.strides)
         self.assertTrue(imp.suboffsets is None)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
         Exporter = self.buftools.Exporter
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
-            o = Exporter(_shape[0:ndim], '=h')
+            o = Exporter(_shape[0:ndim], "=h")
             v = BufferProxy(o)
             self.NEWBUF_assertSame(v, o)
         ndim = 2
         shape = _shape[0:ndim]
-        for format in ['b', 'B', '=h', '=H', '=i', '=I', '=q', '=Q', 'f', 'd',
-                       '1h', '=1h', 'x', '1x', '2x', '3x', '4x', '5x', '6x',
-                       '7x', '8x', '9x']:
+        for format in [
+            "b",
+            "B",
+            "=h",
+            "=H",
+            "=i",
+            "=I",
+            "=q",
+            "=Q",
+            "f",
+            "d",
+            "1h",
+            "=1h",
+            "x",
+            "1x",
+            "2x",
+            "3x",
+            "4x",
+            "5x",
+            "6x",
+            "7x",
+            "8x",
+            "9x",
+        ]:
             o = Exporter(shape, format)
             v = BufferProxy(o)
             self.NEWBUF_assertSame(v, o)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def test_bad_format(self):
         from pygame.bufferproxy import BufferProxy
         from pygame.newbuffer import BufferMixin
@@ -252,23 +286,36 @@ class BaseModuleTest(unittest.TestCase):
         Importer = buftools.Importer
         PyBUF_FORMAT = buftools.PyBUF_FORMAT
 
-        for format in ['', '=', '1', ' ', '2h', '=2h',
-                       '0x', '11x', '=!', 'h ', ' h', 'hh', '?']:
+        for format in [
+            "",
+            "=",
+            "1",
+            " ",
+            "2h",
+            "=2h",
+            "0x",
+            "11x",
+            "=!",
+            "h ",
+            " h",
+            "hh",
+            "?",
+        ]:
             exp = Exporter((1,), format, itemsize=2)
             b = BufferProxy(exp)
             self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def test_PgDict_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
 
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
-        fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
+        fsys, frev = ("<", ">") if is_lil_endian else (">", "<")
         buftools = self.buftools
         Importer = buftools.Importer
-        a = BufferProxy({'typestr': '|u4',
-                         'shape': (10, 2),
-                         'data': (9, False)}) # 9? No data accesses.
+        a = BufferProxy(
+            {"typestr": "|u4", "shape": (10, 2), "data": (9, False)}
+        )  # 9? No data accesses.
         b = Importer(a, buftools.PyBUF_SIMPLE)
         self.assertEqual(b.ndim, 0)
         self.assertTrue(b.format is None)
@@ -299,10 +346,14 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 9)
-        a = BufferProxy({'typestr': fsys + 'i2',
-                         'shape': (5, 10),
-                         'strides': (24, 2),
-                         'data': (42, False)}) # 42? No data accesses.
+        a = BufferProxy(
+            {
+                "typestr": fsys + "i2",
+                "shape": (5, 10),
+                "strides": (24, 2),
+                "data": (42, False),
+            }
+        )  # 42? No data accesses.
         b = Importer(a, buftools.PyBUF_STRIDES)
         self.assertEqual(b.ndim, 2)
         self.assertTrue(b.format is None)
@@ -315,7 +366,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(b.buf, 42)
         b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, 2)
-        self.assertEqual(b.format, '=h')
+        self.assertEqual(b.format, "=h")
         self.assertEqual(b.len, 100)
         self.assertEqual(b.itemsize, 2)
         self.assertEqual(b.shape, (5, 10))
@@ -325,29 +376,27 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(b.buf, 42)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ANY_CONTIGUOUS)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ANY_CONTIGUOUS)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
-        a = BufferProxy({'typestr': frev + 'i2',
-                         'shape': (3, 5, 10),
-                         'strides': (120, 24, 2),
-                         'data': (1000000, True)}) # 1000000? No data accesses.
+        a = BufferProxy(
+            {
+                "typestr": frev + "i2",
+                "shape": (3, 5, 10),
+                "strides": (120, 24, 2),
+                "data": (1000000, True),
+            }
+        )  # 1000000? No data accesses.
         b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, 3)
-        self.assertEqual(b.format, frev + 'h')
+        self.assertEqual(b.format, frev + "h")
         self.assertEqual(b.len, 300)
         self.assertEqual(b.itemsize, 2)
         self.assertEqual(b.shape, (3, 5, 10))
@@ -357,17 +406,18 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(b.buf, 1000000)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_FULL)
 
-    @unittest.skipIf(IS_PYPY or (not pygame.HAVE_NEWBUF), 'newbuf with ctypes')
+    @unittest.skipIf(IS_PYPY or (not pygame.HAVE_NEWBUF), "newbuf with ctypes")
     def test_PgObject_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
         import ctypes
 
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
-        fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
+        fsys, frev = ("<", ">") if is_lil_endian else (">", "<")
         buftools = self.buftools
         Importer = buftools.Importer
-        e = arrinter.Exporter((10, 2), typekind='f',
-                              itemsize=ctypes.sizeof(ctypes.c_double))
+        e = arrinter.Exporter(
+            (10, 2), typekind="f", itemsize=ctypes.sizeof(ctypes.c_double)
+        )
         a = BufferProxy(e)
         b = Importer(a, buftools.PyBUF_SIMPLE)
         self.assertEqual(b.ndim, 0)
@@ -399,8 +449,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, e.data)
-        e = arrinter.Exporter((5, 10), typekind='i', itemsize=2,
-                              strides=(24, 2))
+        e = arrinter.Exporter((5, 10), typekind="i", itemsize=2, strides=(24, 2))
         a = BufferProxy(e)
         b = Importer(a, buftools.PyBUF_STRIDES)
         self.assertEqual(b.ndim, e.nd)
@@ -414,7 +463,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(b.buf, e.data)
         b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, e.nd)
-        self.assertEqual(b.format, '=h')
+        self.assertEqual(b.format, "=h")
         self.assertEqual(b.len, e.len)
         self.assertEqual(b.itemsize, e.itemsize)
         self.assertEqual(b.shape, e.shape)
@@ -423,34 +472,30 @@ class BaseModuleTest(unittest.TestCase):
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, e.data)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_WRITABLE)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_WRITABLE)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_WRITABLE)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_WRITABLE)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ANY_CONTIGUOUS)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, Importer, a,
-                          buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ANY_CONTIGUOUS)
         self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
-        e = arrinter.Exporter((3, 5, 10), typekind='i', itemsize=2,
-                              strides=(120, 24, 2),
-                              flags=arrinter.PAI_ALIGNED)
+        e = arrinter.Exporter(
+            (3, 5, 10),
+            typekind="i",
+            itemsize=2,
+            strides=(120, 24, 2),
+            flags=arrinter.PAI_ALIGNED,
+        )
         a = BufferProxy(e)
         b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, e.nd)
-        self.assertEqual(b.format, frev + 'h')
+        self.assertEqual(b.format, frev + "h")
         self.assertEqual(b.len, e.len)
         self.assertEqual(b.itemsize, e.itemsize)
         self.assertEqual(b.shape, e.shape)
@@ -465,24 +510,22 @@ class BaseModuleTest(unittest.TestCase):
         from pygame.bufferproxy import BufferProxy
 
         bp = BufferProxy(1)
-        self.assertRaises(ValueError, getattr, bp, 'length')
+        self.assertRaises(ValueError, getattr, bp, "length")
 
     def not_init_assertions(self):
         self.assertFalse(pygame.get_init(), "pygame shouldn't be initialized")
-        self.assertFalse(pygame.display.get_init(),
-                         "display shouldn't be initialized")
+        self.assertFalse(pygame.display.get_init(), "display shouldn't be initialized")
 
-        if 'pygame.mixer' in sys.modules:
-            self.assertFalse(pygame.mixer.get_init(),
-                             "mixer shouldn't be initialized")
+        if "pygame.mixer" in sys.modules:
+            self.assertFalse(pygame.mixer.get_init(), "mixer shouldn't be initialized")
 
-        if 'pygame.font' in sys.modules:
-            self.assertFalse(pygame.font.get_init(),
-                             "init shouldn't be initialized")
+        if "pygame.font" in sys.modules:
+            self.assertFalse(pygame.font.get_init(), "init shouldn't be initialized")
 
         ## !!! TODO : Remove when scrap works for OS X
         import platform
-        if platform.system().startswith('Darwin'):
+
+        if platform.system().startswith("Darwin"):
             return
 
         try:
@@ -498,17 +541,17 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(pygame.get_init())
         self.assertTrue(pygame.display.get_init())
 
-        if 'pygame.mixer' in sys.modules:
+        if "pygame.mixer" in sys.modules:
             self.assertTrue(pygame.mixer.get_init())
 
-        if 'pygame.font' in sys.modules:
+        if "pygame.font" in sys.modules:
             self.assertTrue(pygame.font.get_init())
 
     def test_quit__and_init(self):
         # __doc__ (as of 2008-06-25) for pygame.base.quit:
 
-          # pygame.quit(): return None
-          # uninitialize all pygame modules
+        # pygame.quit(): return None
+        # uninitialize all pygame modules
 
         # Make sure everything is not init
         self.not_init_assertions()
@@ -539,13 +582,13 @@ class BaseModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.base.get_error:
 
-          # pygame.get_error(): return errorstr
-          # get the current error message
-          #
-          # SDL maintains an internal error message. This message will usually
-          # be given to you when pygame.error is raised. You will rarely need to
-          # call this function.
-          #
+        # pygame.get_error(): return errorstr
+        # get the current error message
+        #
+        # SDL maintains an internal error message. This message will usually
+        # be given to you when pygame.error is raised. You will rarely need to
+        # call this function.
+        #
 
         # The first error could be all sorts of nonsense or empty.
         e = pygame.get_error()
@@ -553,8 +596,6 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(pygame.get_error(), "hi")
         pygame.set_error("")
         self.assertEqual(pygame.get_error(), "")
-
-
 
     def test_set_error(self):
 
@@ -567,12 +608,12 @@ class BaseModuleTest(unittest.TestCase):
 
     def test_unicode_error(self):
         if sys.version_info.major > 2:
-            pygame.set_error(u'你好')
-            self.assertEqual(u'你好', pygame.get_error())
+            pygame.set_error(u"你好")
+            self.assertEqual(u"你好", pygame.get_error())
         else:
             # no unicode objects for now
-            pygame.set_error(u'你好')
-            encstr = u'你好'.encode('utf8')
+            pygame.set_error(u"你好")
+            encstr = u"你好".encode("utf8")
             self.assertEqual(encstr, pygame.get_error())
 
     def test_init(self):
@@ -614,9 +655,10 @@ class BaseModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.base.segfault:
 
-          # crash
+        # crash
 
         self.fail()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

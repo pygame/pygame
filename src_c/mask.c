@@ -61,7 +61,16 @@ create_mask_using_bitmask(bitmask_t *bitmask);
 static PG_INLINE pgMaskObject *
 create_mask_using_bitmask_and_type(bitmask_t *bitmask, PyTypeObject *ob_type);
 
-/* mask object methods */
+/********** mask helper functions **********/
+
+/* Calculate the absolute difference between 2 Uint32s. */
+static PG_INLINE Uint32
+abs_diff_uint32(Uint32 a, Uint32 b)
+{
+    return (a > b) ? a - b : b - a;
+}
+
+/********** mask object methods **********/
 
 /* Copies the given mask. */
 static PyObject *
@@ -939,19 +948,22 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                        value. This is useful for 8bit images that aren't
                        actually using the palette.
                     */
-                    if ((abs((the_color2) - (the_color)) < tr)) {
+                    if (abs_diff_uint32(the_color2, the_color) < tr) {
                         /* this pixel is within the threshold of othersurface.
                          */
                         bitmask_setbit(m, x, y);
                     }
                 }
-                else if ((abs((((the_color2 & rmask2) >> rshift2) << rloss2) -
+                else if ((abs_diff_uint32(
+                              (((the_color2 & rmask2) >> rshift2) << rloss2),
                               (((the_color & rmask) >> rshift) << rloss)) <
-                          tr) &
-                         (abs((((the_color2 & gmask2) >> gshift2) << gloss2) -
+                          tr) &&
+                         (abs_diff_uint32(
+                              (((the_color2 & gmask2) >> gshift2) << gloss2),
                               (((the_color & gmask) >> gshift) << gloss)) <
-                          tg) &
-                         (abs((((the_color2 & bmask2) >> bshift2) << bloss2) -
+                          tg) &&
+                         (abs_diff_uint32(
+                              (((the_color2 & bmask2) >> bshift2) << bloss2),
                               (((the_color & bmask) >> bshift) << bloss)) <
                           tb)) {
                     /* this pixel is within the threshold of othersurface. */
@@ -962,11 +974,14 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                    TODO: will need to handle the case where palette_colors == 0
                 */
             }
-            else if ((abs((((the_color & rmask) >> rshift) << rloss) - r) <
-                      tr) &
-                     (abs((((the_color & gmask) >> gshift) << gloss) - g) <
-                      tg) &
-                     (abs((((the_color & bmask) >> bshift) << bloss) - b) <
+            else if ((abs_diff_uint32(
+                          (((the_color & rmask) >> rshift) << rloss), r) <
+                      tr) &&
+                     (abs_diff_uint32(
+                          (((the_color & gmask) >> gshift) << gloss), g) <
+                      tg) &&
+                     (abs_diff_uint32(
+                          (((the_color & bmask) >> bshift) << bloss), b) <
                       tb)) {
                 /* this pixel is within the threshold of the color. */
                 bitmask_setbit(m, x, y);

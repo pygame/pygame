@@ -822,7 +822,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
 
     if (!state->title) {
-        state->title = malloc((strlen(DefaultTitle) + 1) * sizeof(char *));
+        state->title = malloc((strlen(DefaultTitle) + 1) * sizeof(char));
         if (!state->title)
             return PyErr_NoMemory();
         strcpy(state->title, DefaultTitle);
@@ -2008,7 +2008,7 @@ pg_set_caption(PyObject *self, PyObject *arg)
 
     if (state->title)
         free(state->title);
-    state->title = (char *)malloc((strlen(title) + 1) * sizeof(char *));
+    state->title = (char *)malloc((strlen(title) + 1) * sizeof(char));
     if (!state->title) {
         PyErr_NoMemory();
         goto error;

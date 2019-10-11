@@ -86,7 +86,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: update
 
       | :sl:`method to control sprite behavior`
-      | :sg:`update(*args) -> None`
+      | :sg:`update(*args, **kwargs) -> None`
 
       The default implementation of this method does nothing; it's just a
       convenient "hook" that you can override. This method is called by
@@ -279,7 +279,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: update
 
       | :sl:`call the update method on contained Sprites`
-      | :sg:`update(*args) -> None`
+      | :sg:`update(*args, **kwargs) -> None`
 
       Calls the ``update()`` method on all Sprites in the Group. The base
       Sprite class has an update method that takes any number of arguments and

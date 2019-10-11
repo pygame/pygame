@@ -12,42 +12,45 @@ from pygame import mixer
 from pygame.compat import unicode_, as_bytes, bytes_
 
 
-IS_PYPY = 'PyPy' == platform.python_implementation()
+IS_PYPY = "PyPy" == platform.python_implementation()
 
 ################################### CONSTANTS ##################################
 
 FREQUENCIES = [11025, 22050, 44100, 48000]
-SIZES       = [-16, -8, 8, 16]
+SIZES = [-16, -8, 8, 16]
 if pygame.get_sdl_version()[0] >= 2:
     SIZES.append(32)
 
-CHANNELS    = [1, 2]
-BUFFERS     = [3024]
+CHANNELS = [1, 2]
+BUFFERS = [3024]
 
-CONFIGS = [{'frequency' : f, 'size' : s, 'channels': c}
-           for f in FREQUENCIES
-           for s in SIZES
-           for c in CHANNELS]
+CONFIGS = [
+    {"frequency": f, "size": s, "channels": c}
+    for f in FREQUENCIES
+    for s in SIZES
+    for c in CHANNELS
+]
 # Using all CONFIGS fails on a Mac; probably older SDL_mixer; we could do:
 # if platform.system() == 'Darwin':
 # But using all CONFIGS is very slow (> 10 sec for example)
 # And probably, we don't need to be so exhaustive, hence:
 
-CONFIG = {'frequency' : 22050, 'size' : -16, 'channels' : 2} # base config
+CONFIG = {"frequency": 22050, "size": -16, "channels": 2}  # base config
 if pygame.get_sdl_version()[0] >= 2:
-    CONFIG = {'frequency' : 44100, 'size' : 32, 'channels' : 2} # base config
+    CONFIG = {"frequency": 44100, "size": 32, "channels": 2}  # base config
 
 
 class InvalidBool(object):
     """To help test invalid bool values."""
+
     __nonzero__ = None
     __bool__ = None
 
 
 ############################## MODULE LEVEL TESTS ##############################
 
-class MixerModuleTest(unittest.TestCase):
 
+class MixerModuleTest(unittest.TestCase):
     def tearDown(self):
         mixer.quit()
         mixer.pre_init(0, 0, 0, 0)
@@ -57,10 +60,10 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init(**CONFIG)
         mixer_conf = mixer.get_init()
 
-        self.assertEqual(mixer_conf[0], CONFIG['frequency'])
+        self.assertEqual(mixer_conf[0], CONFIG["frequency"])
         # Not all "sizes" are supported on all systems,  hence "abs".
-        self.assertEqual(abs(mixer_conf[1]), abs(CONFIG['size']))
-        self.assertEqual(mixer_conf[2], CONFIG['channels'])
+        self.assertEqual(abs(mixer_conf[1]), abs(CONFIG["size"]))
+        self.assertEqual(mixer_conf[2], CONFIG["channels"])
 
     def test_pre_init__keyword_args(self):
         # note: this test used to loop over all CONFIGS, but it's very slow..
@@ -69,16 +72,16 @@ class MixerModuleTest(unittest.TestCase):
 
         mixer_conf = mixer.get_init()
 
-        self.assertEqual(mixer_conf[0], CONFIG['frequency'])
+        self.assertEqual(mixer_conf[0], CONFIG["frequency"])
         # Not all "sizes" are supported on all systems,  hence "abs".
-        self.assertEqual(abs(mixer_conf[1]), abs(CONFIG['size']))
-        self.assertEqual(mixer_conf[2], CONFIG['channels'])
+        self.assertEqual(abs(mixer_conf[1]), abs(CONFIG["size"]))
+        self.assertEqual(mixer_conf[2], CONFIG["channels"])
 
     def test_pre_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
         # default values. No way to check buffer size though.
         mixer.pre_init(22050, -8, 1)  # Non default values
-        mixer.pre_init(0, 0, 0)       # Should reset to default values
+        mixer.pre_init(0, 0, 0)  # Should reset to default values
         mixer.init()
         self.assertEqual(mixer.get_init(), (44100, -16, 2))
 
@@ -89,7 +92,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init(0, 0, 0)
         self.assertEqual(mixer.get_init(), (44100, 8, 1))
 
-    @unittest.skip('SDL_mixer bug')
+    @unittest.skip("SDL_mixer bug")
     def test_get_init__returns_exact_values_used_for_init(self):
         # fix in 1.9 - I think it's a SDL_mixer bug.
 
@@ -135,10 +138,11 @@ class MixerModuleTest(unittest.TestCase):
     def test_sound_args(self):
         def get_bytes(snd):
             return snd.get_raw()
+
         mixer.init()
 
-        sample = as_bytes('\x00\xff') * 24
-        wave_path = example_path(os.path.join('data', 'house_lo.wav'))
+        sample = as_bytes("\x00\xff") * 24
+        wave_path = example_path(os.path.join("data", "house_lo.wav"))
         uwave_path = unicode_(wave_path)
         bwave_path = uwave_path.encode(sys.getfilesystemencoding())
         snd = mixer.Sound(file=wave_path)
@@ -150,7 +154,7 @@ class MixerModuleTest(unittest.TestCase):
 
         self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
         self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
-        arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
+        arg_emsg = "Sound takes either 1 positional or 1 keyword argument"
 
         with self.assertRaises(TypeError) as cm:
             mixer.Sound()
@@ -167,30 +171,28 @@ class MixerModuleTest(unittest.TestCase):
 
         with self.assertRaises(TypeError) as cm:
             mixer.Sound(foobar=sample)
-        self.assertEqual(str(cm.exception),
-                         "Unrecognized keyword argument 'foobar'")
+        self.assertEqual(str(cm.exception), "Unrecognized keyword argument 'foobar'")
 
         snd = mixer.Sound(wave_path, **{})
         self.assertEqual(get_bytes(snd), snd_bytes)
-        snd = mixer.Sound(*[], **{'file': wave_path})
+        snd = mixer.Sound(*[], **{"file": wave_path})
 
         with self.assertRaises(TypeError) as cm:
             mixer.Sound([])
-        self.assertEqual(str(cm.exception),
-                         'Unrecognized argument (type list)')
+        self.assertEqual(str(cm.exception), "Unrecognized argument (type list)")
 
         with self.assertRaises(TypeError) as cm:
             snd = mixer.Sound(buffer=[])
-        emsg = 'Expected object with buffer interface: got a list'
+        emsg = "Expected object with buffer interface: got a list"
         self.assertEqual(str(cm.exception), emsg)
 
-        ufake_path = unicode_('12345678')
+        ufake_path = unicode_("12345678")
         self.assertRaises(IOError, mixer.Sound, ufake_path)
-        self.assertRaises(IOError, mixer.Sound, '12345678')
+        self.assertRaises(IOError, mixer.Sound, "12345678")
 
         with self.assertRaises(TypeError) as cm:
-            mixer.Sound(buffer=unicode_('something'))
-        emsg = 'Unicode object not allowed as buffer object'
+            mixer.Sound(buffer=unicode_("something"))
+        emsg = "Unicode object not allowed as buffer object"
         self.assertEqual(str(cm.exception), emsg)
         self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
         if type(sample) != str:
@@ -214,15 +216,16 @@ class MixerModuleTest(unittest.TestCase):
         """test non-ASCII unicode path"""
         mixer.init()
         import shutil
-        ep = unicode_(example_path('data'))
-        temp_file = os.path.join(ep, u'你好.wav')
-        org_file = os.path.join(ep, u'house_lo.wav')
+
+        ep = unicode_(example_path("data"))
+        temp_file = os.path.join(ep, u"你好.wav")
+        org_file = os.path.join(ep, u"house_lo.wav")
         shutil.copy(org_file, temp_file)
         try:
-            with open(temp_file, 'rb') as f:
+            with open(temp_file, "rb") as f:
                 pass
         except IOError:
-            raise unittest.SkipTest('the path cannot be opened')
+            raise unittest.SkipTest("the path cannot be opened")
 
         try:
             sound = mixer.Sound(temp_file)
@@ -230,16 +233,25 @@ class MixerModuleTest(unittest.TestCase):
         finally:
             os.remove(temp_file)
 
-    @unittest.skipIf(os.environ.get('SDL_AUDIODRIVER') == 'disk',
-                    'this test fails without real sound card')
+    @unittest.skipIf(
+        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        "this test fails without real sound card",
+    )
     def test_array_keyword(self):
         try:
-            from numpy import (array, arange, zeros,
-                               int8, uint8,
-                               int16, uint16,
-                               int32, uint32)
+            from numpy import (
+                array,
+                arange,
+                zeros,
+                int8,
+                uint8,
+                int16,
+                uint16,
+                int32,
+                uint32,
+            )
         except ImportError:
-            self.skipTest('requires numpy')
+            self.skipTest("requires numpy")
 
         freq = 22050
         format_list = [-8, 8, -16, 16]
@@ -261,22 +273,20 @@ class MixerModuleTest(unittest.TestCase):
             if format < 0:
                 a_lists[format].extend(as_list_mono)
         a32u_stereo = zeros([a32u_mono.shape[0], 2], uint32)
-        a32u_stereo[:,0] = a32u_mono
-        a32u_stereo[:,1] = 255 - a32u_mono
+        a32u_stereo[:, 0] = a32u_mono
+        a32u_stereo[:, 1] = 255 - a32u_mono
         a16u_stereo = a32u_stereo.astype(uint16)
         a8u_stereo = a32u_stereo.astype(uint8)
-        au_list_stereo = [(2, a)
-                          for a in [a8u_stereo, a16u_stereo, a32u_stereo]]
+        au_list_stereo = [(2, a) for a in [a8u_stereo, a16u_stereo, a32u_stereo]]
         for format in format_list:
             if format > 0:
                 a_lists[format].extend(au_list_stereo)
         a32s_stereo = zeros([a32s_mono.shape[0], 2], int32)
-        a32s_stereo[:,0] = a32s_mono
-        a32s_stereo[:,1] = -1 - a32s_mono
+        a32s_stereo[:, 0] = a32s_mono
+        a32s_stereo[:, 1] = -1 - a32s_mono
         a16s_stereo = a32s_stereo.astype(int16)
         a8s_stereo = a32s_stereo.astype(int8)
-        as_list_stereo = [(2, a)
-                          for a in [a8s_stereo, a16s_stereo, a32s_stereo]]
+        as_list_stereo = [(2, a) for a in [a8s_stereo, a16s_stereo, a32s_stereo]]
         for format in format_list:
             if format < 0:
                 a_lists[format].extend(as_list_stereo)
@@ -306,43 +316,42 @@ class MixerModuleTest(unittest.TestCase):
         except ValueError:
             if not test_pass:
                 return
-            self.fail("Raised ValueError: Format %i, dtype %s" %
-                      (format, a.dtype))
+            self.fail("Raised ValueError: Format %i, dtype %s" % (format, a.dtype))
         if not test_pass:
-            self.fail("Did not raise ValueError: Format %i, dtype %s" %
-                      (format, a.dtype))
+            self.fail(
+                "Did not raise ValueError: Format %i, dtype %s" % (format, a.dtype)
+            )
         a2 = array(snd)
         a3 = a.astype(a2.dtype)
         lshift = abs(format) - 8 * a.itemsize
         if lshift >= 0:
             # This is asymmetric with respect to downcasting.
             a3 <<= lshift
-        self.assertTrue(all_(a2 == a3),
-                     "Format %i, dtype %s" % (format, a.dtype))
+        self.assertTrue(all_(a2 == a3), "Format %i, dtype %s" % (format, a.dtype))
 
     def _test_array_interface_fail(self, a):
         self.assertRaises(ValueError, mixer.Sound, array=a)
 
     def test_array_interface(self):
         mixer.init(22050, -16, 1, allowedchanges=0)
-        snd = mixer.Sound(buffer=as_bytes('\x00\x7f') * 20)
+        snd = mixer.Sound(buffer=as_bytes("\x00\x7f") * 20)
         d = snd.__array_interface__
         self.assertTrue(isinstance(d, dict))
         if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
-            typestr = '<i2'
+            typestr = "<i2"
         else:
-            typestr = '>i2'
-        self.assertEqual(d['typestr'], typestr)
-        self.assertEqual(d['shape'], (20,))
-        self.assertEqual(d['strides'], (2,))
-        self.assertEqual(d['data'], (snd._samples_address, False))
+            typestr = ">i2"
+        self.assertEqual(d["typestr"], typestr)
+        self.assertEqual(d["shape"], (20,))
+        self.assertEqual(d["strides"], (2,))
+        self.assertEqual(d["data"], (snd._samples_address, False))
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def test_newbuf__one_channel(self):
         mixer.init(22050, -16, 1)
         self._NEWBUF_export_check()
 
-    @unittest.skipIf(not pygame.HAVE_NEWBUF, 'newbuf not implemented')
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
     def test_newbuf__twho_channel(self):
         mixer.init(22050, -16, 2)
         self._NEWBUF_export_check()
@@ -351,19 +360,26 @@ class MixerModuleTest(unittest.TestCase):
         freq, fmt, channels = mixer.get_init()
         ndim = 1 if (channels == 1) else 2
         itemsize = abs(fmt) // 8
-        formats = {8: 'B', -8: 'b',
-                   16: '=H', -16: '=h',
-                   32: '=I', -32: '=i',  # 32 and 64 for future consideration
-                   64: '=Q', -64: '=q'}
+        formats = {
+            8: "B",
+            -8: "b",
+            16: "=H",
+            -16: "=h",
+            32: "=I",
+            -32: "=i",  # 32 and 64 for future consideration
+            64: "=Q",
+            -64: "=q",
+        }
         format = formats[fmt]
         from pygame.tests.test_utils import buftools
+
         Exporter = buftools.Exporter
         Importer = buftools.Importer
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
-        fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
+        fsys, frev = ("<", ">") if is_lil_endian else (">", "<")
         shape = (10, channels)[:ndim]
-        strides = (channels * itemsize, itemsize)[2 - ndim:]
-        exp = Exporter(shape, format=frev + 'i')
+        strides = (channels * itemsize, itemsize)[2 - ndim :]
+        exp = Exporter(shape, format=frev + "i")
         snd = mixer.Sound(array=exp)
         buflen = len(exp) * itemsize * channels
         imp = Importer(snd, buftools.PyBUF_SIMPLE)
@@ -450,20 +466,19 @@ class MixerModuleTest(unittest.TestCase):
             self.assertTrue(imp.format is None)
             self.assertEqual(imp.strides, strides)
         else:
-            self.assertRaises(BufferError, Importer, snd,
-                              buftools.PyBUF_F_CONTIGUOUS)
+            self.assertRaises(BufferError, Importer, snd, buftools.PyBUF_F_CONTIGUOUS)
 
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:
 
-          # pygame.mixer.fadeout(time): return None
-          # fade out the volume on all sounds before stopping
-          #
-          # This will fade out the volume on all active channels over the time
-          # argument in milliseconds. After the sound is muted the playback will
-          # stop.
-          #
+        # pygame.mixer.fadeout(time): return None
+        # fade out the volume on all sounds before stopping
+        #
+        # This will fade out the volume on all active channels over the time
+        # argument in milliseconds. After the sound is muted the playback will
+        # stop.
+        #
 
         self.fail()
 
@@ -471,17 +486,17 @@ class MixerModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.find_channel:
 
-          # pygame.mixer.find_channel(force=False): return Channel
-          # find an unused channel
-          #
-          # This will find and return an inactive Channel object. If there are
-          # no inactive Channels this function will return None. If there are no
-          # inactive channels and the force argument is True, this will find the
-          # Channel with the longest running Sound and return it.
-          #
-          # If the mixer has reserved channels from pygame.mixer.set_reserved()
-          # then those channels will not be returned here.
-          #
+        # pygame.mixer.find_channel(force=False): return Channel
+        # find an unused channel
+        #
+        # This will find and return an inactive Channel object. If there are
+        # no inactive Channels this function will return None. If there are no
+        # inactive channels and the force argument is True, this will find the
+        # Channel with the longest running Sound and return it.
+        #
+        # If the mixer has reserved channels from pygame.mixer.set_reserved()
+        # then those channels will not be returned here.
+        #
 
         self.fail()
 
@@ -489,12 +504,12 @@ class MixerModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.get_busy:
 
-          # pygame.mixer.get_busy(): return bool
-          # test if any sound is being mixed
-          #
-          # Returns True if the mixer is busy mixing any channels. If the mixer
-          # is idle then this return False.
-          #
+        # pygame.mixer.get_busy(): return bool
+        # test if any sound is being mixed
+        #
+        # Returns True if the mixer is busy mixing any channels. If the mixer
+        # is idle then this return False.
+        #
 
         self.fail()
 
@@ -502,13 +517,13 @@ class MixerModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.pause:
 
-          # pygame.mixer.pause(): return None
-          # temporarily stop playback of all sound channels
-          #
-          # This will temporarily stop all playback on the active mixer
-          # channels. The playback can later be resumed with
-          # pygame.mixer.unpause()
-          #
+        # pygame.mixer.pause(): return None
+        # temporarily stop playback of all sound channels
+        #
+        # This will temporarily stop all playback on the active mixer
+        # channels. The playback can later be resumed with
+        # pygame.mixer.unpause()
+        #
 
         self.fail()
 
@@ -516,17 +531,17 @@ class MixerModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.set_reserved:
 
-          # pygame.mixer.set_reserved(count): return None
-          # reserve channels from being automatically used
-          #
-          # The mixer can reserve any number of channels that will not be
-          # automatically selected for playback by Sounds. If sounds are
-          # currently playing on the reserved channels they will not be stopped.
-          #
-          # This allows the application to reserve a specific number of channels
-          # for important sounds that must not be dropped or have a guaranteed
-          # channel to play on.
-          #
+        # pygame.mixer.set_reserved(count): return None
+        # reserve channels from being automatically used
+        #
+        # The mixer can reserve any number of channels that will not be
+        # automatically selected for playback by Sounds. If sounds are
+        # currently playing on the reserved channels they will not be stopped.
+        #
+        # This allows the application to reserve a specific number of channels
+        # for important sounds that must not be dropped or have a guaranteed
+        # channel to play on.
+        #
 
         self.fail()
 
@@ -534,10 +549,10 @@ class MixerModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.stop:
 
-          # pygame.mixer.stop(): return None
-          # stop playback of all sound channels
-          #
-          # This will stop all playback of all active mixer channels.
+        # pygame.mixer.stop(): return None
+        # stop playback of all sound channels
+        #
+        # This will stop all playback of all active mixer channels.
 
         self.fail()
 
@@ -545,10 +560,10 @@ class MixerModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.unpause:
 
-          # pygame.mixer.unpause(): return None
-          # resume paused playback of sound channels
-          #
-          # This will resume all active sound channels after they have been paused.
+        # pygame.mixer.unpause(): return None
+        # resume paused playback of sound channels
+        #
+        # This will resume all active sound channels after they have been paused.
 
         self.fail()
 
@@ -617,6 +632,7 @@ class MixerModuleTest(unittest.TestCase):
 
 ############################## CHANNEL CLASS TESTS #############################
 
+
 class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -638,7 +654,7 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         channel = mixer.Channel(0)
 
         self.assertIsInstance(channel, mixer.ChannelType)
-        self.assertEqual(channel.__class__.__name__, 'Channel')
+        self.assertEqual(channel.__class__.__name__, "Channel")
 
     def test_channel__without_arg(self):
         """Ensure exception for Channel() creation with no argument."""
@@ -654,19 +670,19 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         """Ensure exception for Channel() creation with non-init mixer."""
         mixer.quit()
 
-        with self.assertRaisesRegex(pygame.error, 'mixer not initialized'):
+        with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
             mixer.Channel(0)
 
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.fadeout:
 
-          # Channel.fadeout(time): return None
-          # stop playback after fading channel out
-          #
-          # Stop playback of a channel after fading out the sound over the given
-          # time argument in milliseconds.
-          #
+        # Channel.fadeout(time): return None
+        # stop playback after fading channel out
+        #
+        # Stop playback of a channel after fading out the sound over the given
+        # time argument in milliseconds.
+        #
 
         self.fail()
 
@@ -687,13 +703,13 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_endevent:
 
-          # Channel.get_endevent(): return type
-          # get the event a channel sends when playback stops
-          #
-          # Returns the event type to be sent every time the Channel finishes
-          # playback of a Sound. If there is no endevent the function returns
-          # pygame.NOEVENT.
-          #
+        # Channel.get_endevent(): return type
+        # get the event a channel sends when playback stops
+        #
+        # Returns the event type to be sent every time the Channel finishes
+        # playback of a Sound. If there is no endevent the function returns
+        # pygame.NOEVENT.
+        #
 
         self.fail()
 
@@ -701,13 +717,13 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_queue:
 
-          # Channel.get_queue(): return Sound
-          # return any Sound that is queued
-          #
-          # If a Sound is already queued on this channel it will be returned.
-          # Once the queued sound begins playback it will no longer be on the
-          # queue.
-          #
+        # Channel.get_queue(): return Sound
+        # return any Sound that is queued
+        #
+        # If a Sound is already queued on this channel it will be returned.
+        # Once the queued sound begins playback it will no longer be on the
+        # queue.
+        #
 
         self.fail()
 
@@ -715,12 +731,12 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.get_sound:
 
-          # Channel.get_sound(): return Sound
-          # get the currently playing Sound
-          #
-          # Return the actual Sound object currently playing on this channel. If
-          # the channel is idle None is returned.
-          #
+        # Channel.get_sound(): return Sound
+        # get the currently playing Sound
+        #
+        # Return the actual Sound object currently playing on this channel. If
+        # the channel is idle None is returned.
+        #
 
         self.fail()
 
@@ -741,12 +757,12 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.pause:
 
-          # Channel.pause(): return None
-          # temporarily stop playback of a channel
-          #
-          # Temporarily stop the playback of sound on a channel. It can be
-          # resumed at a later time with Channel.unpause()
-          #
+        # Channel.pause(): return None
+        # temporarily stop playback of a channel
+        #
+        # Temporarily stop the playback of sound on a channel. It can be
+        # resumed at a later time with Channel.unpause()
+        #
 
         self.fail()
 
@@ -754,21 +770,21 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.play:
 
-          # Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None
-          # play a Sound on a specific Channel
-          #
-          # This will begin playback of a Sound on a specific Channel. If the
-          # Channel is currently playing any other Sound it will be stopped.
-          #
-          # The loops argument has the same meaning as in Sound.play(): it is
-          # the number of times to repeat the sound after the first time. If it
-          # is 3, the sound will be played 4 times (the first time, then three
-          # more). If loops is -1 then the playback will repeat indefinitely.
-          #
-          # As in Sound.play(), the maxtime argument can be used to stop
-          # playback of the Sound after a given number of milliseconds.
-          #
-          # As in Sound.play(), the fade_ms argument can be used fade in the sound.
+        # Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None
+        # play a Sound on a specific Channel
+        #
+        # This will begin playback of a Sound on a specific Channel. If the
+        # Channel is currently playing any other Sound it will be stopped.
+        #
+        # The loops argument has the same meaning as in Sound.play(): it is
+        # the number of times to repeat the sound after the first time. If it
+        # is 3, the sound will be played 4 times (the first time, then three
+        # more). If loops is -1 then the playback will repeat indefinitely.
+        #
+        # As in Sound.play(), the maxtime argument can be used to stop
+        # playback of the Sound after a given number of milliseconds.
+        #
+        # As in Sound.play(), the fade_ms argument can be used fade in the sound.
 
         self.fail()
 
@@ -776,18 +792,18 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.queue:
 
-          # Channel.queue(Sound): return None
-          # queue a Sound object to follow the current
-          #
-          # When a Sound is queued on a Channel, it will begin playing
-          # immediately after the current Sound is finished. Each channel can
-          # only have a single Sound queued at a time. The queued Sound will
-          # only play if the current playback finished automatically. It is
-          # cleared on any other call to Channel.stop() or Channel.play().
-          #
-          # If there is no sound actively playing on the Channel then the Sound
-          # will begin playing immediately.
-          #
+        # Channel.queue(Sound): return None
+        # queue a Sound object to follow the current
+        #
+        # When a Sound is queued on a Channel, it will begin playing
+        # immediately after the current Sound is finished. Each channel can
+        # only have a single Sound queued at a time. The queued Sound will
+        # only play if the current playback finished automatically. It is
+        # cleared on any other call to Channel.stop() or Channel.play().
+        #
+        # If there is no sound actively playing on the Channel then the Sound
+        # will begin playing immediately.
+        #
 
         self.fail()
 
@@ -795,27 +811,27 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_endevent:
 
-          # Channel.set_endevent(): return None
-          # Channel.set_endevent(type): return None
-          # have the channel send an event when playback stops
-          #
-          # When an endevent is set for a channel, it will send an event to the
-          # pygame queue every time a sound finishes playing on that channel
-          # (not just the first time). Use pygame.event.get() to retrieve the
-          # endevent once it's sent.
-          #
-          # Note that if you called Sound.play(n) or Channel.play(sound,n), the
-          # end event is sent only once: after the sound has been played "n+1"
-          # times (see the documentation of Sound.play).
-          #
-          # If Channel.stop() or Channel.play() is called while the sound was
-          # still playing, the event will be posted immediately.
-          #
-          # The type argument will be the event id sent to the queue. This can
-          # be any valid event type, but a good choice would be a value between
-          # pygame.locals.USEREVENT and pygame.locals.NUMEVENTS. If no type
-          # argument is given then the Channel will stop sending endevents.
-          #
+        # Channel.set_endevent(): return None
+        # Channel.set_endevent(type): return None
+        # have the channel send an event when playback stops
+        #
+        # When an endevent is set for a channel, it will send an event to the
+        # pygame queue every time a sound finishes playing on that channel
+        # (not just the first time). Use pygame.event.get() to retrieve the
+        # endevent once it's sent.
+        #
+        # Note that if you called Sound.play(n) or Channel.play(sound,n), the
+        # end event is sent only once: after the sound has been played "n+1"
+        # times (see the documentation of Sound.play).
+        #
+        # If Channel.stop() or Channel.play() is called while the sound was
+        # still playing, the event will be posted immediately.
+        #
+        # The type argument will be the event id sent to the queue. This can
+        # be any valid event type, but a good choice would be a value between
+        # pygame.locals.USEREVENT and pygame.locals.NUMEVENTS. If no type
+        # argument is given then the Channel will stop sending endevents.
+        #
 
         self.fail()
 
@@ -823,28 +839,28 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.set_volume:
 
-          # Channel.set_volume(value): return None
-          # Channel.set_volume(left, right): return None
-          # set the volume of a playing channel
-          #
-          # Set the volume (loudness) of a playing sound. When a channel starts
-          # to play its volume value is reset. This only affects the current
-          # sound. The value argument is between 0.0 and 1.0.
-          #
-          # If one argument is passed, it will be the volume of both speakers.
-          # If two arguments are passed and the mixer is in stereo mode, the
-          # first argument will be the volume of the left speaker and the second
-          # will be the volume of the right speaker. (If the second argument is
-          # None, the first argument will be the volume of both speakers.)
-          #
-          # If the channel is playing a Sound on which set_volume() has also
-          # been called, both calls are taken into account. For example:
-          #
-          #     sound = pygame.mixer.Sound("s.wav")
-          #     channel = s.play()      # Sound plays at full volume by default
-          #     sound.set_volume(0.9)   # Now plays at 90% of full volume.
-          #     sound.set_volume(0.6)   # Now plays at 60% (previous value replaced).
-          #     channel.set_volume(0.5) # Now plays at 30% (0.6 * 0.5).
+        # Channel.set_volume(value): return None
+        # Channel.set_volume(left, right): return None
+        # set the volume of a playing channel
+        #
+        # Set the volume (loudness) of a playing sound. When a channel starts
+        # to play its volume value is reset. This only affects the current
+        # sound. The value argument is between 0.0 and 1.0.
+        #
+        # If one argument is passed, it will be the volume of both speakers.
+        # If two arguments are passed and the mixer is in stereo mode, the
+        # first argument will be the volume of the left speaker and the second
+        # will be the volume of the right speaker. (If the second argument is
+        # None, the first argument will be the volume of both speakers.)
+        #
+        # If the channel is playing a Sound on which set_volume() has also
+        # been called, both calls are taken into account. For example:
+        #
+        #     sound = pygame.mixer.Sound("s.wav")
+        #     channel = s.play()      # Sound plays at full volume by default
+        #     sound.set_volume(0.9)   # Now plays at 90% of full volume.
+        #     sound.set_volume(0.6)   # Now plays at 60% (previous value replaced).
+        #     channel.set_volume(0.5) # Now plays at 30% (0.6 * 0.5).
 
         self.fail()
 
@@ -852,12 +868,12 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.stop:
 
-          # Channel.stop(): return None
-          # stop playback on a Channel
-          #
-          # Stop sound playback on a channel. After playback is stopped the
-          # channel becomes available for new Sounds to play on it.
-          #
+        # Channel.stop(): return None
+        # stop playback on a Channel
+        #
+        # Stop sound playback on a channel. After playback is stopped the
+        # channel becomes available for new Sounds to play on it.
+        #
 
         self.fail()
 
@@ -865,14 +881,16 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Channel.unpause:
 
-          # Channel.unpause(): return None
-          # resume pause playback of a channel
-          #
-          # Resume the playback on a paused channel.
+        # Channel.unpause(): return None
+        # resume pause playback of a channel
+        #
+        # Resume the playback on a paused channel.
 
         self.fail()
 
+
 ############################### SOUND CLASS TESTS ##############################
+
 
 class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     @classmethod
@@ -894,7 +912,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     # and test_array_keyword() for additional testing of Sound() creation.
     def test_sound(self):
         """Ensure Sound() creation with a filename works."""
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         sound1 = mixer.Sound(filename)
         sound2 = mixer.Sound(file=filename)
 
@@ -903,7 +921,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_sound__from_file_object(self):
         """Ensure Sound() creation with a file object works."""
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
 
         # Using 'with' ensures the file is closed even if test fails.
         with open(filename, "rb") as file_obj:
@@ -913,7 +931,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_sound__from_sound_object(self):
         """Ensure Sound() creation with a Sound() object works."""
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         sound_obj = mixer.Sound(file=filename)
 
         sound = mixer.Sound(sound_obj)
@@ -936,12 +954,12 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_sound__before_init(self):
         """Ensure exception raised for Sound() creation with non-init mixer."""
         mixer.quit()
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
 
-        with self.assertRaisesRegex(pygame.error, 'mixer not initialized'):
+        with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
             mixer.Sound(file=filename)
 
-    @unittest.skipIf(IS_PYPY, 'pypy skip')
+    @unittest.skipIf(IS_PYPY, "pypy skip")
     def test_samples_address(self):
         """Test the _samples_address getter."""
         from ctypes import pythonapi, c_void_p, py_object
@@ -953,7 +971,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         Bytes_FromString.restype = c_void_p
         Bytes_FromString.argtypes = [py_object]
-        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+        samples = as_bytes("abcdefgh")  # keep byte size a multiple of 4
         sample_bytes = Bytes_FromString(samples)
 
         snd = mixer.Sound(buffer=samples)
@@ -964,13 +982,13 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.fadeout:
 
-          # Sound.fadeout(time): return None
-          # stop sound playback after fading out
-          #
-          # This will stop playback of the sound after fading it out over the
-          # time argument in milliseconds. The Sound will fade and stop on all
-          # actively playing channels.
-          #
+        # Sound.fadeout(time): return None
+        # stop sound playback after fading out
+        #
+        # This will stop playback of the sound after fading it out over the
+        # time argument in milliseconds. The Sound will fade and stop on all
+        # actively playing channels.
+        #
 
         self.fail()
 
@@ -978,17 +996,17 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.get_length:
 
-          # Sound.get_length(): return seconds
-          # get the length of the Sound
-          #
-          # Return the length of this Sound in seconds.
+        # Sound.get_length(): return seconds
+        # get the length of the Sound
+        #
+        # Return the length of this Sound in seconds.
 
         self.fail()
 
     def test_get_num_channels(self):
         """Ensure correct number of channels."""
         expected_channels = 0
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         sound = mixer.Sound(file=filename)
 
         num_channels = sound.get_num_channels()
@@ -1002,7 +1020,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_get_volume(self):
         """Ensure a sound's volume can be retrieved."""
         expected_volume = 1.0  # default
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         sound = mixer.Sound(file=filename)
 
         volume = sound.get_volume()
@@ -1017,56 +1035,59 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.play:
 
-          # Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel
-          # begin sound playback
-          #
-          # Begin playback of the Sound (i.e., on the computer's speakers) on an
-          # available Channel. This will forcibly select a Channel, so playback
-          # may cut off a currently playing sound if necessary.
-          #
-          # The loops argument controls how many times the sample will be
-          # repeated after being played the first time. A value of 5 means that
-          # the sound will be played once, then repeated five times, and so is
-          # played a total of six times. The default value (zero) means the
-          # Sound is not repeated, and so is only played once. If loops is set
-          # to -1 the Sound will loop indefinitely (though you can still call
-          # stop() to stop it).
-          #
-          # The maxtime argument can be used to stop playback after a given
-          # number of milliseconds.
-          #
-          # The fade_ms argument will make the sound start playing at 0 volume
-          # and fade up to full volume over the time given. The sample may end
-          # before the fade-in is complete.
-          #
-          # This returns the Channel object for the channel that was selected.
+        # Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel
+        # begin sound playback
+        #
+        # Begin playback of the Sound (i.e., on the computer's speakers) on an
+        # available Channel. This will forcibly select a Channel, so playback
+        # may cut off a currently playing sound if necessary.
+        #
+        # The loops argument controls how many times the sample will be
+        # repeated after being played the first time. A value of 5 means that
+        # the sound will be played once, then repeated five times, and so is
+        # played a total of six times. The default value (zero) means the
+        # Sound is not repeated, and so is only played once. If loops is set
+        # to -1 the Sound will loop indefinitely (though you can still call
+        # stop() to stop it).
+        #
+        # The maxtime argument can be used to stop playback after a given
+        # number of milliseconds.
+        #
+        # The fade_ms argument will make the sound start playing at 0 volume
+        # and fade up to full volume over the time given. The sample may end
+        # before the fade-in is complete.
+        #
+        # This returns the Channel object for the channel that was selected.
 
         self.fail()
 
     def test_set_volume(self):
         """Ensure a sound's volume can be set."""
         float_delta = 1.0 / 128  # SDL volume range is 0 to 128
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         sound = mixer.Sound(file=filename)
         current_volume = sound.get_volume()
 
         # (volume_set_value : expected_volume)
-        volumes = ((-1,   current_volume),  # value < 0 won't change volume
-                   (0,    0.0),
-                   (0.01, 0.01),
-                   (0.1,  0.1),
-                   (0.5,  0.5),
-                   (0.9,  0.9),
-                   (0.99, 0.99),
-                   (1,    1.0),
-                   (1.1,  1.0),
-                   (2.0,  1.0))
+        volumes = (
+            (-1, current_volume),  # value < 0 won't change volume
+            (0, 0.0),
+            (0.01, 0.01),
+            (0.1, 0.1),
+            (0.5, 0.5),
+            (0.9, 0.9),
+            (0.99, 0.99),
+            (1, 1.0),
+            (1.1, 1.0),
+            (2.0, 1.0),
+        )
 
         for volume_set_value, expected_volume in volumes:
             sound.set_volume(volume_set_value)
 
-            self.assertAlmostEqual(sound.get_volume(), expected_volume,
-                                   delta=float_delta)
+            self.assertAlmostEqual(
+                sound.get_volume(), expected_volume, delta=float_delta
+            )
 
     def todo_test_set_volume__while_playing(self):
         """Ensure a sound's volume can be set while playing."""
@@ -1075,7 +1096,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_stop(self):
         """Ensure stop can be called while not playing a sound."""
         expected_channels = 0
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         sound = mixer.Sound(file=filename)
 
         sound.stop()
@@ -1088,7 +1109,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_get_raw(self):
         """Ensure get_raw returns the correct bytestring."""
-        samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+        samples = as_bytes("abcdefgh")  # keep byte size a multiple of 4
         snd = mixer.Sound(buffer=samples)
 
         raw = snd.get_raw()
@@ -1099,5 +1120,5 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
 ##################################### MAIN #####################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -21,27 +21,28 @@ class CDROMModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD:
 
-          # pygame.cdrom.CD(id): return CD
-          # class to manage a cdrom drive
-          #
-          # You can create a CD object for each cdrom on the system. Use
-          # pygame.cdrom.get_count() to determine how many drives actually
-          # exist. The id argument is an integer of the drive, starting at zero.
-          #
-          # The CD object is not initialized, you can only call CD.get_id() and
-          # CD.get_name() on an uninitialized drive.
-          #
-          # It is safe to create multiple CD objects for the same drive, they
-          # will all cooperate normally.
-          #
+        # pygame.cdrom.CD(id): return CD
+        # class to manage a cdrom drive
+        #
+        # You can create a CD object for each cdrom on the system. Use
+        # pygame.cdrom.get_count() to determine how many drives actually
+        # exist. The id argument is an integer of the drive, starting at zero.
+        #
+        # The CD object is not initialized, you can only call CD.get_id() and
+        # CD.get_name() on an uninitialized drive.
+        #
+        # It is safe to create multiple CD objects for the same drive, they
+        # will all cooperate normally.
+        #
 
         self.fail()
 
     def test_get_count(self):
         """Ensure the correct number of CD drives can be detected."""
         count = pygame.cdrom.get_count()
-        response = question('Is the correct number of CD drives on this '
-                            'system [{}]?'.format(count))
+        response = question(
+            "Is the correct number of CD drives on this " "system [{}]?".format(count)
+        )
 
         self.assertTrue(response)
 
@@ -92,7 +93,7 @@ class CDTypeTest(unittest.TestCase):
     def test_eject(self):
         """Ensure CD drive opens/ejects."""
         self._cd.eject()
-        response = question('Did the CD eject?')
+        response = question("Did the CD eject?")
 
         self.assertTrue(response)
 
@@ -101,8 +102,9 @@ class CDTypeTest(unittest.TestCase):
     def test_get_name(self):
         """Ensure correct name for CD drive."""
         cd_name = self._cd.get_name()
-        response = question('Is the correct name for the CD drive [{}]?'
-                            ''.format(cd_name))
+        response = question(
+            "Is the correct name for the CD drive [{}]?" "".format(cd_name)
+        )
 
         self.assertTrue(response)
 
@@ -110,15 +112,15 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_all:
 
-          # CD.get_all(): return [(audio, start, end, lenth), ...]
-          # get all track information
-          #
-          # Return a list with information for every track on the cdrom. The
-          # information consists of a tuple with four values. The audio value is
-          # True if the track contains audio data. The start, end, and length
-          # values are floating point numbers in seconds. Start and end
-          # represent absolute times on the entire disc.
-          #
+        # CD.get_all(): return [(audio, start, end, lenth), ...]
+        # get all track information
+        #
+        # Return a list with information for every track on the cdrom. The
+        # information consists of a tuple with four values. The audio value is
+        # True if the track contains audio data. The start, end, and length
+        # values are floating point numbers in seconds. Start and end
+        # represent absolute times on the entire disc.
+        #
 
         self.fail()
 
@@ -126,10 +128,10 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_busy:
 
-          # CD.get_busy(): return bool
-          # true if the drive is playing audio
-          #
-          # Returns True if the drive busy playing back audio.
+        # CD.get_busy(): return bool
+        # true if the drive is playing audio
+        #
+        # Returns True if the drive busy playing back audio.
 
         self.fail()
 
@@ -137,13 +139,13 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_current:
 
-          # CD.get_current(): return track, seconds
-          # the current audio playback position
-          #
-          # Returns both the current track and time of that track. This method
-          # works when the drive is either playing or paused.
-          #
-          # Note, track 0 is the first track on the CD.  Track numbers start at zero.
+        # CD.get_current(): return track, seconds
+        # the current audio playback position
+        #
+        # Returns both the current track and time of that track. This method
+        # works when the drive is either playing or paused.
+        #
+        # Note, track 0 is the first track on the CD.  Track numbers start at zero.
 
         self.fail()
 
@@ -151,7 +153,7 @@ class CDTypeTest(unittest.TestCase):
         """Ensure correct name for CD drive."""
         prompt("Please ensure the CD drive is closed")
         is_empty = self._cd.get_empty()
-        response = question('Is the CD drive empty?')
+        response = question("Is the CD drive empty?")
 
         self.assertEqual(is_empty, response)
 
@@ -169,12 +171,12 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_numtracks:
 
-          # CD.get_numtracks(): return count
-          # the number of tracks on the cdrom
-          #
-          # Return the number of tracks on the cdrom in the drive. This will
-          # return zero of the drive is empty or has no tracks.
-          #
+        # CD.get_numtracks(): return count
+        # the number of tracks on the cdrom
+        #
+        # Return the number of tracks on the cdrom in the drive. This will
+        # return zero of the drive is empty or has no tracks.
+        #
 
         self.fail()
 
@@ -182,10 +184,10 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_paused:
 
-          # CD.get_paused(): return bool
-          # true if the drive is paused
-          #
-          # Returns True if the drive is currently paused.
+        # CD.get_paused(): return bool
+        # true if the drive is paused
+        #
+        # Returns True if the drive is currently paused.
 
         self.fail()
 
@@ -193,14 +195,14 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_track_audio:
 
-          # CD.get_track_audio(track): return bool
-          # true if the cdrom track has audio data
-          #
-          # Determine if a track on a cdrom contains audio data. You can also
-          # call CD.num_tracks() and CD.get_all() to determine more information
-          # about the cdrom.
-          #
-          # Note, track 0 is the first track on the CD.  Track numbers start at zero.
+        # CD.get_track_audio(track): return bool
+        # true if the cdrom track has audio data
+        #
+        # Determine if a track on a cdrom contains audio data. You can also
+        # call CD.num_tracks() and CD.get_all() to determine more information
+        # about the cdrom.
+        #
+        # Note, track 0 is the first track on the CD.  Track numbers start at zero.
 
         self.fail()
 
@@ -208,11 +210,11 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_track_length:
 
-          # CD.get_track_length(track): return seconds
-          # length of a cdrom track
-          #
-          # Return a floating point value in seconds of the length of the cdrom track.
-          # Note, track 0 is the first track on the CD.  Track numbers start at zero.
+        # CD.get_track_length(track): return seconds
+        # length of a cdrom track
+        #
+        # Return a floating point value in seconds of the length of the cdrom track.
+        # Note, track 0 is the first track on the CD.  Track numbers start at zero.
 
         self.fail()
 
@@ -220,11 +222,11 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.get_track_start:
 
-          # CD.get_track_start(track): return seconds
-          # start time of a cdrom track
-          #
-          # Return the absolute time in seconds where at start of the cdrom track.
-          # Note, track 0 is the first track on the CD.  Track numbers start at zero.
+        # CD.get_track_start(track): return seconds
+        # start time of a cdrom track
+        #
+        # Return the absolute time in seconds where at start of the cdrom track.
+        # Note, track 0 is the first track on the CD.  Track numbers start at zero.
 
         self.fail()
 
@@ -239,14 +241,14 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.pause:
 
-          # CD.pause(): return None
-          # temporarily stop audio playback
-          #
-          # Temporarily stop audio playback on the CD. The playback can be
-          # resumed at the same point with the CD.resume() method. If the CD is
-          # not playing this method does nothing.
-          #
-          # Note, track 0 is the first track on the CD.  Track numbers start at zero.
+        # CD.pause(): return None
+        # temporarily stop audio playback
+        #
+        # Temporarily stop audio playback on the CD. The playback can be
+        # resumed at the same point with the CD.resume() method. If the CD is
+        # not playing this method does nothing.
+        #
+        # Note, track 0 is the first track on the CD.  Track numbers start at zero.
 
         self.fail()
 
@@ -254,20 +256,20 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.play:
 
-          # CD.init(): return None
-          # initialize a cdrom drive for use
-          #
-          # Playback audio from an audio cdrom in the drive. Besides the track
-          # number argument, you can also pass a starting and ending time for
-          # playback. The start and end time are in seconds, and can limit the
-          # section of an audio track played.
-          #
-          # If you pass a start time but no end, the audio will play to the end
-          # of the track. If you pass a start time and 'None' for the end time,
-          # the audio will play to the end of the entire disc.
-          #
-          # See the CD.get_numtracks() and CD.get_track_audio() to find tracks to playback.
-          # Note, track 0 is the first track on the CD.  Track numbers start at zero.
+        # CD.init(): return None
+        # initialize a cdrom drive for use
+        #
+        # Playback audio from an audio cdrom in the drive. Besides the track
+        # number argument, you can also pass a starting and ending time for
+        # playback. The start and end time are in seconds, and can limit the
+        # section of an audio track played.
+        #
+        # If you pass a start time but no end, the audio will play to the end
+        # of the track. If you pass a start time and 'None' for the end time,
+        # the audio will play to the end of the entire disc.
+        #
+        # See the CD.get_numtracks() and CD.get_track_audio() to find tracks to playback.
+        # Note, track 0 is the first track on the CD.  Track numbers start at zero.
 
         self.fail()
 
@@ -289,12 +291,12 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.resume:
 
-          # CD.resume(): return None
-          # unpause audio playback
-          #
-          # Unpause a paused CD. If the CD is not paused or already playing,
-          # this method does nothing.
-          #
+        # CD.resume(): return None
+        # unpause audio playback
+        #
+        # Unpause a paused CD. If the CD is not paused or already playing,
+        # this method does nothing.
+        #
 
         self.fail()
 
@@ -302,17 +304,18 @@ class CDTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.cdrom.CD.stop:
 
-          # CD.stop(): return None
-          # stop audio playback
-          #
-          # Stops playback of audio from the cdrom. This will also lose the
-          # current playback position. This method does nothing if the drive
-          # isn't already playing audio.
-          #
+        # CD.stop(): return None
+        # stop audio playback
+        #
+        # Stops playback of audio from the cdrom. This will also lose the
+        # current playback position. This method does nothing if the drive
+        # isn't already playing audio.
+        #
 
         self.fail()
 
+
 ################################################################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

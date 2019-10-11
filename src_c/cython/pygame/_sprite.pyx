@@ -193,10 +193,10 @@ cdef class Sprite:
     cpdef void remove_internal(self, group):
         del self.__g[group]
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """method to control sprite behavior
 
-        Sprite.update(*args):
+        Sprite.update(*args, **kwargs):
 
         The default implementation of this method does nothing; it's just a
         convenient "hook" that you can override. This method is called by
@@ -481,17 +481,17 @@ cdef class AbstractGroup:
 
         return return_value
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """call the update method of every member sprite
 
-        Group.update(*args): return None
+        Group.update(*args, **kwargs): return None
 
         Calls the update method of every member sprite. All arguments that
         were passed to this method are passed to the Sprite update function.
 
         """
         for s in self.sprites():
-            s.update(*args)
+            s.update(*args, **kwargs)
 
     def draw(self, surface):
         """draw all sprites onto the surface

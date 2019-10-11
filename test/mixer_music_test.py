@@ -26,25 +26,27 @@ class MixerMusicModuleTest(unittest.TestCase):
         if pygame.mixer.get_init() is None:
             pygame.mixer.init()
 
-    @unittest.skipIf('Darwin' in platform.system(), 'SDL2_mixer not loading mp3 on travisci')
+    @unittest.skipIf(
+        "Darwin" in platform.system(), "SDL2_mixer not loading mp3 on travisci"
+    )
     def test_load_mp3(self):
         "|tags:music|"
-        self.music_load('mp3')
+        self.music_load("mp3")
 
     def test_load_ogg(self):
         "|tags:music|"
-        self.music_load('ogg')
+        self.music_load("ogg")
 
     def test_load_wav(self):
         "|tags:music|"
-        self.music_load('wav')
+        self.music_load("wav")
 
     def music_load(self, format):
-        data_fname = example_path('data')
+        data_fname = example_path("data")
 
-        path = os.path.join(data_fname, 'house_lo.%s' % format)
-        if os.sep == '\\':
-            path = path.replace('\\', '\\\\')
+        path = os.path.join(data_fname, "house_lo.%s" % format)
+        if os.sep == "\\":
+            path = path.replace("\\", "\\\\")
         umusfn = as_unicode(path)
         bmusfn = filesystem_encode(umusfn)
 
@@ -53,42 +55,44 @@ class MixerMusicModuleTest(unittest.TestCase):
 
     def test_load_object(self):
         """test loading music from file-like objects."""
-        formats = ['ogg', 'wav']
-        data_fname = example_path('data')
+        formats = ["ogg", "wav"]
+        data_fname = example_path("data")
         for f in formats:
-            path = os.path.join(data_fname, 'house_lo.%s' % f)
-            if os.sep == '\\':
-                path = path.replace('\\', '\\\\')
+            path = os.path.join(data_fname, "house_lo.%s" % f)
+            if os.sep == "\\":
+                path = path.replace("\\", "\\\\")
             bmusfn = filesystem_encode(path)
 
-            with open(bmusfn, 'rb') as musf:
+            with open(bmusfn, "rb") as musf:
                 pygame.mixer.music.load(musf)
 
     def test_load_unicode(self):
         """test non-ASCII unicode path"""
         import shutil
-        ep = unicode_(example_path('data'))
-        temp_file = os.path.join(ep, u'你好.wav')
-        org_file = os.path.join(ep, u'house_lo.wav')
+
+        ep = unicode_(example_path("data"))
+        temp_file = os.path.join(ep, u"你好.wav")
+        org_file = os.path.join(ep, u"house_lo.wav")
         try:
-            with open(temp_file, 'w') as f:
+            with open(temp_file, "w") as f:
                 pass
             os.remove(temp_file)
         except IOError:
-            raise unittest.SkipTest('the path cannot be opened')
+            raise unittest.SkipTest("the path cannot be opened")
         shutil.copy(org_file, temp_file)
         try:
             pygame.mixer.music.load(temp_file)
-            pygame.mixer.music.load(org_file) # unload
+            pygame.mixer.music.load(org_file)  # unload
         finally:
             os.remove(temp_file)
 
     def test_unload(self):
         import shutil
         import tempfile
-        ep = unicode_(example_path('data'))
-        org_file = os.path.join(ep, u'house_lo.wav')
-        tmpfd, tmppath = tempfile.mkstemp('.wav')
+
+        ep = unicode_(example_path("data"))
+        org_file = os.path.join(ep, u"house_lo.wav")
+        tmpfd, tmppath = tempfile.mkstemp(".wav")
         os.close(tmpfd)
         shutil.copy(org_file, tmppath)
         try:
@@ -97,14 +101,15 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(tmppath)
 
-    @unittest.skipIf('Darwin' in platform.system(),
-                     'SDL2_mixer issue with mp3 files on Travis CI')
+    @unittest.skipIf(
+        "Darwin" in platform.system(), "SDL2_mixer issue with mp3 files on Travis CI"
+    )
     def test_queue_mp3(self):
         """Ensures queue() accepts mp3 files.
 
         |tags:music|
         """
-        filename = example_path(os.path.join('data', 'house_lo.mp3'))
+        filename = example_path(os.path.join("data", "house_lo.mp3"))
         pygame.mixer.music.queue(filename)
 
     def test_queue_ogg(self):
@@ -112,7 +117,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         |tags:music|
         """
-        filename = example_path(os.path.join('data', 'house_lo.ogg'))
+        filename = example_path(os.path.join("data", "house_lo.ogg"))
         pygame.mixer.music.queue(filename)
 
     def test_queue_wav(self):
@@ -120,13 +125,13 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         |tags:music|
         """
-        filename = example_path(os.path.join('data', 'house_lo.wav'))
+        filename = example_path(os.path.join("data", "house_lo.wav"))
         pygame.mixer.music.queue(filename)
 
     def test_queue__multiple_calls(self):
         """Ensures queue() can be called multiple times."""
-        ogg_file = example_path(os.path.join('data', 'house_lo.ogg'))
-        wav_file = example_path(os.path.join('data', 'house_lo.wav'))
+        ogg_file = example_path(os.path.join("data", "house_lo.ogg"))
+        wav_file = example_path(os.path.join("data", "house_lo.wav"))
 
         pygame.mixer.music.queue(ogg_file)
         pygame.mixer.music.queue(wav_file)
@@ -138,7 +143,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
     def test_queue__invalid_sound_type(self):
         """Ensures queue() correctly handles invalid file types."""
-        not_a_sound_file = example_path(os.path.join('data', 'city.png'))
+        not_a_sound_file = example_path(os.path.join("data", "city.png"))
 
         with self.assertRaises(pygame.error):
             pygame.mixer.music.queue(not_a_sound_file)
@@ -146,13 +151,13 @@ class MixerMusicModuleTest(unittest.TestCase):
     def test_queue__invalid_filename(self):
         """Ensures queue() correctly handles invalid filenames."""
         with self.assertRaises(pygame.error):
-            pygame.mixer.music.queue('')
+            pygame.mixer.music.queue("")
 
     def todo_test_stop(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:
 
-          # Stops the music playback if it is currently playing.
+        # Stops the music playback if it is currently playing.
 
         self.fail()
 
@@ -160,7 +165,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.rewind:
 
-          # Resets playback of the current music to the beginning.
+        # Resets playback of the current music to the beginning.
 
         self.fail()
 
@@ -168,11 +173,11 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_pos:
 
-          # This gets the number of milliseconds that the music has been playing
-          # for. The returned time only represents how long the music has been
-          # playing; it does not take into account any starting position
-          # offsets.
-          #
+        # This gets the number of milliseconds that the music has been playing
+        # for. The returned time only represents how long the music has been
+        # playing; it does not take into account any starting position
+        # offsets.
+        #
 
         self.fail()
 
@@ -180,10 +185,10 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.fadeout:
 
-          # This will stop the music playback after it has been faded out over
-          # the specified time (measured in milliseconds).
-          #
-          # Note, that this function blocks until the music has faded out.
+        # This will stop the music playback after it has been faded out over
+        # the specified time (measured in milliseconds).
+        #
+        # Note, that this function blocks until the music has faded out.
 
         self.fail()
 
@@ -191,20 +196,20 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.play:
 
-          # This will play the loaded music stream. If the music is already
-          # playing it will be restarted.
-          #
-          # The loops argument controls the number of repeats a music will play.
-          # play(5) will cause the music to played once, then repeated five
-          # times, for a total of six. If the loops is -1 then the music will
-          # repeat indefinitely.
-          #
-          # The starting position argument controls where in the music the song
-          # starts playing. The starting position is dependent on the format of
-          # music playing. MP3 and OGG use the position as time (in seconds).
-          # MOD music it is the pattern order number. Passing a startpos will
-          # raise a NotImplementedError if it cannot set the start position
-          #
+        # This will play the loaded music stream. If the music is already
+        # playing it will be restarted.
+        #
+        # The loops argument controls the number of repeats a music will play.
+        # play(5) will cause the music to played once, then repeated five
+        # times, for a total of six. If the loops is -1 then the music will
+        # repeat indefinitely.
+        #
+        # The starting position argument controls where in the music the song
+        # starts playing. The starting position is dependent on the format of
+        # music playing. MP3 and OGG use the position as time (in seconds).
+        # MOD music it is the pattern order number. Passing a startpos will
+        # raise a NotImplementedError if it cannot set the start position
+        #
 
         self.fail()
 
@@ -212,13 +217,13 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.load:
 
-          # This will load a music file and prepare it for playback. If a music
-          # stream is already playing it will be stopped. This does not start
-          # the music playing.
-          #
-          # Music can only be loaded from filenames, not python file objects
-          # like the other pygame loading functions.
-          #
+        # This will load a music file and prepare it for playback. If a music
+        # stream is already playing it will be stopped. This does not start
+        # the music playing.
+        #
+        # Music can only be loaded from filenames, not python file objects
+        # like the other pygame loading functions.
+        #
 
         self.fail()
 
@@ -226,9 +231,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_volume:
 
-          # Returns the current volume for the mixer. The value will be between
-          # 0.0 and 1.0.
-          #
+        # Returns the current volume for the mixer. The value will be between
+        # 0.0 and 1.0.
+        #
 
         self.fail()
 
@@ -236,14 +241,14 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
 
-          # This causes Pygame to signal (by means of the event queue) when the
-          # music is done playing. The argument determines the type of event
-          # that will be queued.
-          #
-          # The event will be queued every time the music finishes, not just the
-          # first time. To stop the event from being queued, call this method
-          # with no argument.
-          #
+        # This causes Pygame to signal (by means of the event queue) when the
+        # music is done playing. The argument determines the type of event
+        # that will be queued.
+        #
+        # The event will be queued every time the music finishes, not just the
+        # first time. To stop the event from being queued, call this method
+        # with no argument.
+        #
 
         self.fail()
 
@@ -251,9 +256,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.pause:
 
-          # Temporarily stop playback of the music stream. It can be resumed
-          # with the pygame.mixer.music.unpause() function.
-          #
+        # Temporarily stop playback of the music stream. It can be resumed
+        # with the pygame.mixer.music.unpause() function.
+        #
 
         self.fail()
 
@@ -261,9 +266,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_busy:
 
-          # Returns True when the music stream is actively playing. When the
-          # music is idle this returns False.
-          #
+        # Returns True when the music stream is actively playing. When the
+        # music is idle this returns False.
+        #
 
         self.fail()
 
@@ -271,10 +276,10 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
 
-          # Returns the event type to be sent every time the music finishes
-          # playback. If there is no endevent the function returns
-          # pygame.NOEVENT.
-          #
+        # Returns the event type to be sent every time the music finishes
+        # playback. If there is no endevent the function returns
+        # pygame.NOEVENT.
+        #
 
         self.fail()
 
@@ -282,7 +287,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.unpause:
 
-          # This will resume the playback of a music stream after it has been paused.
+        # This will resume the playback of a music stream after it has been paused.
 
         self.fail()
 
@@ -290,9 +295,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_volume:
 
-          # Set the volume of the music playback. The value argument is between
-          # 0.0 and 1.0. When new music is loaded the volume is reset.
-          #
+        # Set the volume of the music playback. The value argument is between
+        # 0.0 and 1.0. When new music is loaded the volume is reset.
+        #
 
         self.fail()
 
@@ -300,12 +305,12 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # __doc__ (as of 2010-24-05) for pygame.mixer_music.set_pos:
 
-          #This sets the position in the music file where playback will start. The
-          # meaning of "pos", a float (or a number that can be converted to a float),
-          # depends on the music format. Newer versions of SDL_mixer have better
-          # positioning support than earlier. An SDLError is raised if a particular
-          # format does not support positioning.
-          #
+        # This sets the position in the music file where playback will start. The
+        # meaning of "pos", a float (or a number that can be converted to a float),
+        # depends on the music format. Newer versions of SDL_mixer have better
+        # positioning support than earlier. An SDLError is raised if a particular
+        # format does not support positioning.
+        #
 
         self.fail()
 
@@ -313,8 +318,9 @@ class MixerMusicModuleTest(unittest.TestCase):
         """issue #955. unload music whenever mixer.quit() is called"""
         import tempfile
         import shutil
-        testfile = example_path(os.path.join('data', 'house_lo.wav'))
-        tempcopy = os.path.join(tempfile.gettempdir(), 'tempfile.wav')
+
+        testfile = example_path(os.path.join("data", "house_lo.wav"))
+        tempcopy = os.path.join(tempfile.gettempdir(), "tempfile.wav")
 
         for i in range(10):
             pygame.mixer.init()
@@ -325,5 +331,6 @@ class MixerMusicModuleTest(unittest.TestCase):
             finally:
                 os.remove(tempcopy)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
