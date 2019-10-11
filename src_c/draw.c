@@ -74,20 +74,20 @@ clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
 static int
 clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                          int width, int *pts);
-static int
-clipline(int *pts, int left, int top, int right, int bottom);
+//static int
+//clipline(int *pts, int left, int top, int right, int bottom);
 static int
 clip_aaline(float *pts, int left, int top, int right, int bottom);
-static void
-drawline(SDL_Surface *surf, Uint32 color, int startx, int starty, int endx,
+static int
+drawline(SDL_Surface *surf, int* points, Uint32 color, int startx, int starty, int endx,
          int endy);
 static void
 draw_aaline(SDL_Surface *surf, Uint32 color, float startx, float starty,
            float endx, float endy, int blend);
-static void
+static int
 drawhorzline(SDL_Surface *surf, Uint32 color, int startx, int starty,
              int endx);
-static void
+static int
 drawvertline(SDL_Surface *surf, Uint32 color, int x1, int y1, int y2);
 static void
 draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
@@ -710,7 +710,11 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     CHECK_LOAD_COLOR(colorobj)
 
-    if (radius < 1 || width < 0) {
+    if (radius < 0) {
+        return RAISE(PyExc_ValueError, "negative radius");
+    }
+
+    if (width < 0) {
         return pgRect_New4(posx, posy, 0, 0);
     }
 
@@ -739,13 +743,6 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     t = MAX(posy - radius, surf->clip_rect.y);
     r = MIN(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
     b = MIN(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
-
-    /*
-    printf("posx=%i, posy=%i, radius=%i, l=%i, t=%i, r=%i, b=%i, clip_rect_x=%i, \
-            clip_rect_y=%i, clip_rect_w=%i, clip_rect_h=%i\n", posx, posy, \
-            radius, l, t, r, b,surf->clip_rect.x, surf->clip_rect.y, \
-            surf->clip_rect.w, surf->clip_rect.h);
-    */
     return pgRect_New4(l, t, MAX(r - l, 0), MAX(b - t, 0));
 }
 
@@ -907,16 +904,32 @@ clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
 static int
 clip_and_draw_line(SDL_Surface *surf, SDL_Rect *rect, Uint32 color, int *pts)
 {
-    if (!clipline(pts, rect->x, rect->y, rect->x + rect->w - 1,
-                  rect->y + rect->h - 1))
+    if (pts[1] == pts[3] && drawhorzline(surf, color, pts[0], pts[1], pts[2])) {
+        int old_pts_zero = pts[0];
+        *(pts) = MAX(0, MIN(pts[0], pts[2]));
+        if ((pts[2] >= surf->clip_rect.w)||(old_pts_zero >= surf->clip_rect.w))
+            *(pts+2) = surf->clip_rect.w - 1;
+        else {
+            *(pts+2) = MIN(surf->clip_rect.w, MAX(old_pts_zero, pts[2]));
+        }
+        return 1;
+    }    
+    else if (pts[0] == pts[2] && drawvertline(surf, color, pts[0], pts[1], pts[3])) {
+        int old_pts_one = pts[1];
+        *(pts+1) = MAX(0, MIN(pts[1], pts[3]));
+        if ((pts[3] >= surf->clip_rect.h)||(old_pts_one >= surf->clip_rect.h))
+            *(pts+3) = surf->clip_rect.h - 1;
+        else {
+            *(pts+3) = MIN(surf->clip_rect.h, MAX(old_pts_one, pts[3]));
+        }
+        return 1;
+    }
+    else if (drawline(surf, pts, color, pts[0], pts[1], pts[2], pts[3])) {
+        return 1;
+    }
+    else {
         return 0;
-    if (pts[1] == pts[3])
-        drawhorzline(surf, color, pts[0], pts[1], pts[2]);
-    else if (pts[0] == pts[2])
-        drawvertline(surf, color, pts[0], pts[1], pts[3]);
-    else
-        drawline(surf, color, pts[0], pts[1], pts[2], pts[3]);
-    return 1;
+    }
 }
 
 /* This is an internal helper function.
@@ -946,12 +959,15 @@ static int
 clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                          int width, int *pts)
 {
-    int loop;
     int xinc = 0, yinc = 0;
-    int newpts[4];
-    int range[4]; /* {xmin, ymin, xmax, ymax} */
+    int bounding_rect[4];
+    bounding_rect[0] = INT_MAX;
+    bounding_rect[1] = INT_MAX;
+    bounding_rect[2] = 0;
+    bounding_rect[3] = 0;
+    int original_values[4];
+    memcpy(original_values, pts, sizeof(int) * 4);
     int anydrawn = 0;
-
     /* Decide which direction to grow (width/thickness). */
     if (abs(pts[0] - pts[2]) > abs(pts[1] - pts[3])) {
         /* The line's thickness will be in the y direction. The left/right
@@ -963,72 +979,56 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
          * ends of the line will be flat. */
         xinc = 1;
     }
-
-    memcpy(newpts, pts, sizeof(int) * 4);
-
-    /* Draw the line or center line if width > 1. */
-    if (clip_and_draw_line(surf, rect, color, newpts)) {
+    if (clip_and_draw_line(surf, rect, color, pts)) {
         anydrawn = 1;
-
-        if (newpts[0] > newpts[2]) {
-            range[0] = newpts[2]; /* xmin */
-            range[2] = newpts[0]; /* xmax */
+        if (pts[0] > pts[2]) {
+            bounding_rect[0] = pts[2]; 
+            bounding_rect[2] = pts[0]; 
         }
         else {
-            range[0] = newpts[0]; /* xmin */
-            range[2] = newpts[2]; /* xmax */
+            bounding_rect[0] = pts[0]; 
+            bounding_rect[2] = pts[2]; 
         }
 
-        if (newpts[1] > newpts[3]) {
-            range[1] = newpts[3]; /* ymin */
-            range[3] = newpts[1]; /* ymax */
+        if (pts[1] > pts[3]) {
+            bounding_rect[1] = pts[3];
+            bounding_rect[3] = pts[1]; 
         }
         else {
-            range[1] = newpts[1]; /* ymin */
-            range[3] = newpts[3]; /* ymax */
+            bounding_rect[1] = pts[1]; 
+            bounding_rect[3] = pts[3];
         }
     }
-    else {
-        range[0] = range[1] = INT_MAX; /* Default to big values for min. */
-        range[2] = range[3] = INT_MIN; /* Default to small values for max. */
-    }
 
-    for (loop = 1; loop < width; loop += 2) {
-        newpts[0] = pts[0] + xinc * (loop / 2 + 1);
-        newpts[1] = pts[1] + yinc * (loop / 2 + 1);
-        newpts[2] = pts[2] + xinc * (loop / 2 + 1);
-        newpts[3] = pts[3] + yinc * (loop / 2 + 1);
-
-        /* Draw to the right and/or under the center line. */
-        if (clip_and_draw_line(surf, rect, color, newpts)) {
-            anydrawn = 1;
-            range[0] = MIN(range[0], MIN(newpts[0], newpts[2]));
-            range[1] = MIN(range[1], MIN(newpts[1], newpts[3]));
-            range[2] = MAX(range[2], MAX(newpts[0], newpts[2]));
-            range[3] = MAX(range[3], MAX(newpts[1], newpts[3]));
-        }
-
-        if (loop + 1 < width) {
-            newpts[0] = pts[0] - xinc * (loop / 2 + 1);
-            newpts[1] = pts[1] - yinc * (loop / 2 + 1);
-            newpts[2] = pts[2] - xinc * (loop / 2 + 1);
-            newpts[3] = pts[3] - yinc * (loop / 2 + 1);
-
-            /* Draw to the left and/or above the center line. */
-            if (clip_and_draw_line(surf, rect, color, newpts)) {
+    if (width != 1) {
+        for (int loop = 1; loop < width; loop += 2) {
+            pts[0] = original_values[0] + xinc * (loop / 2 + 1);
+            pts[1] = original_values[1] + yinc * (loop / 2 + 1);
+            pts[2] = original_values[2] + xinc * (loop / 2 + 1);
+            pts[3] = original_values[3] + yinc * (loop / 2 + 1);
+            if (clip_and_draw_line(surf, rect, color, pts)) {
                 anydrawn = 1;
-                range[0] = MIN(range[0], MIN(newpts[0], newpts[2]));
-                range[1] = MIN(range[1], MIN(newpts[1], newpts[3]));
-                range[2] = MAX(range[2], MAX(newpts[0], newpts[2]));
-                range[3] = MAX(range[3], MAX(newpts[1], newpts[3]));
+                bounding_rect[0] = MIN(bounding_rect[0], MIN(pts[0], pts[2]));
+                bounding_rect[1] = MIN(bounding_rect[1], MIN(pts[1], pts[3]));
+                bounding_rect[2] = MAX(bounding_rect[2], MAX(pts[0], pts[2]));
+                bounding_rect[3] = MAX(bounding_rect[3], MAX(pts[1], pts[3]));
+            }
+            if (loop + 1 < width) {
+                pts[0] = original_values[0] - xinc * (loop / 2 + 1);
+                pts[1] = original_values[1] - yinc * (loop / 2 + 1);
+                pts[2] = original_values[2] - xinc * (loop / 2 + 1);
+                pts[3] = original_values[3] - yinc * (loop / 2 + 1);
+                if (clip_and_draw_line(surf, rect, color, pts)) {
+                    anydrawn = 1;
+                    bounding_rect[0] = MIN(bounding_rect[0], MIN(pts[0], pts[2]));
+                    bounding_rect[1] = MIN(bounding_rect[1], MIN(pts[1], pts[3]));
+                    bounding_rect[2] = MAX(bounding_rect[2], MAX(pts[0], pts[2]));
+                    bounding_rect[3] = MAX(bounding_rect[3], MAX(pts[1], pts[3]));
+                }
             }
         }
+        memcpy(pts, bounding_rect, sizeof(int) * 4);
     }
-
-    if (anydrawn) {
-        memcpy(pts, range, sizeof(int) * 4);
-    }
-
     return anydrawn;
 }
 
@@ -1144,20 +1144,16 @@ clip_aaline(float *segment, int left, int top, int right, int bottom)
     }
 }
 
-static int
+/*static int
 clipline(int *segment, int left, int top, int right, int bottom)
 {
-    /*
-     * Algorithm to calculate the clipped line.
-     * It's like clip_aaline, but for integer coordinate endpoints.
-     */
     int x1 = segment[0];
     int y1 = segment[1];
     int x2 = segment[2];
     int y2 = segment[3];
     int code1, code2;
     int swaptmp;
-    float m; /*slope*/
+    float m; 
 
     while (1) {
         code1 = encode(x1, y1, left, top, right, bottom);
@@ -1201,7 +1197,7 @@ clipline(int *segment, int left, int top, int right, int bottom)
             }
         }
     }
-}
+}*/
 
 static int
 set_at(SDL_Surface *surf, int x, int y, Uint32 color)
@@ -1490,224 +1486,98 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
 }
 
 /*here's my sdl'ized version of bresenham*/
-static void
-drawline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2)
+static int
+drawline(SDL_Surface *surf, int* pts, Uint32 color, int x1, int y1, int x2, int y2)
 {
-    int deltax, deltay, signx, signy;
-    int pixx, pixy;
-    int x = 0, y = 0;
-    int swaptmp;
-    Uint8 *pixel;
-    Uint8 *colorptr;
-
-    deltax = x2 - x1;
-    deltay = y2 - y1;
-    signx = (deltax < 0) ? -1 : 1;
-    signy = (deltay < 0) ? -1 : 1;
-    deltax = signx * deltax + 1;
-    deltay = signy * deltay + 1;
-
-    pixx = surf->format->BytesPerPixel;
-    pixy = surf->pitch;
-    pixel = ((Uint8 *)surf->pixels) + pixx * x1 + pixy * y1;
-
-    pixx *= signx;
-    pixy *= signy;
-    if (deltax < deltay) /*swap axis if rise > run*/
-    {
-        SWAP(deltax, deltay, swaptmp)
-        SWAP(pixx, pixy, swaptmp)
+    int lowest_x = INT_MAX;
+    int lowest_y = INT_MAX;
+    int highest_x = 0;
+    int highest_y = 0;
+    int anydraw = 0;
+    int x = x1;
+    int y = y1;
+    int w = x2 - x;
+    int h = y2 - y;
+    int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+    if (w<0) dx1 = -1; else if (w>0) dx1 = 1;
+    if (h<0) dy1 = -1; else if (h>0) dy1 = 1;
+    if (w<0) dx2 = -1; else if (w>0) dx2 = 1;
+    int longest = abs(w);
+    int shortest = abs(h);
+    if (!(longest>shortest)) {
+        longest = abs(h);
+        shortest = abs(w);
+        if (h<0) dy2 = -1; else if (h>0) dy2 = 1;
+        dx2 = 0;            
     }
-
-    switch (surf->format->BytesPerPixel) {
-        case 1:
-            for (; x < deltax; x++, pixel += pixx) {
-                *pixel = (Uint8)color;
-                y += deltay;
-                if (y >= deltax) {
-                    y -= deltax;
-                    pixel += pixy;
-                }
+    int numerator = longest >> 1;
+    for (int i=0;i<=longest;i++) {
+        if (set_at(surf, x, y, color)) {
+            anydraw = 1;
+            if (x < lowest_x) {
+                lowest_x = x;
             }
-            break;
-        case 2:
-            for (; x < deltax; x++, pixel += pixx) {
-                *(Uint16 *)pixel = (Uint16)color;
-                y += deltay;
-                if (y >= deltax) {
-                    y -= deltax;
-                    pixel += pixy;
-                }
+            if (y < lowest_y) {
+                lowest_y = y;
             }
-            break;
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                color <<= 8;
-            colorptr = (Uint8 *)&color;
-            for (; x < deltax; x++, pixel += pixx) {
-                pixel[0] = colorptr[0];
-                pixel[1] = colorptr[1];
-                pixel[2] = colorptr[2];
-                y += deltay;
-                if (y >= deltax) {
-                    y -= deltax;
-                    pixel += pixy;
-                }
+            if (x > highest_x) {
+                highest_x = x;
             }
-            break;
-        default: /*case 4*/
-            for (; x < deltax; x++, pixel += pixx) {
-                *(Uint32 *)pixel = (Uint32)color;
-                y += deltay;
-                if (y >= deltax) {
-                    y -= deltax;
-                    pixel += pixy;
-                }
+            if (y > highest_y) {
+                highest_y = y;
             }
-            break;
+        }
+        numerator += shortest;
+        if (!(numerator<longest)) {
+            numerator -= longest;
+            x += dx1;
+            y += dy1;
+        } else {
+            x += dx2;
+            y += dy2;
+        }
     }
+    *(pts) = lowest_x;
+    *(pts+1) = lowest_y;
+    *(pts+2) = highest_x;
+    *(pts+3) = highest_y;
+    return anydraw;
 }
 
-static void
+static int
 drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
 {
-    Uint8 *pixel, *end;
-    Uint8 *colorptr;
-
-    if (x1 == x2) {
-        set_at(surf, x1, y1, color);
-        return;
-    }
-
-    pixel = ((Uint8 *)surf->pixels) + surf->pitch * y1;
-    if (x1 < x2) {
-        end = pixel + x2 * surf->format->BytesPerPixel;
-        pixel += x1 * surf->format->BytesPerPixel;
+    int anydraw = 0;
+    if (x1 == x2 && set_at(surf, x1, y1, color)) {
+        return 1;
     }
     else {
-        end = pixel + x1 * surf->format->BytesPerPixel;
-        pixel += x2 * surf->format->BytesPerPixel;
+        int direction = (x1 < x2) ? 1 : -1;
+        for (int i = 0; i <= abs(x1 - x2); i++) {
+            if (set_at(surf, x1 + direction * i, y1, color)) {
+                anydraw = 1;
+            }
+        }
     }
-    switch (surf->format->BytesPerPixel) {
-        case 1:
-            for (; pixel <= end; ++pixel) {
-                *pixel = (Uint8)color;
-            }
-            break;
-        case 2:
-            for (; pixel <= end; pixel += 2) {
-                *(Uint16 *)pixel = (Uint16)color;
-            }
-            break;
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                color <<= 8;
-            colorptr = (Uint8 *)&color;
-            for (; pixel <= end; pixel += 3) {
-                pixel[0] = colorptr[0];
-                pixel[1] = colorptr[1];
-                pixel[2] = colorptr[2];
-            }
-            break;
-        default: /*case 4*/
-            for (; pixel <= end; pixel += 4) {
-                *(Uint32 *)pixel = color;
-            }
-            break;
-    }
+    return anydraw;
 }
 
-static void
-drawhorzlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
-{
-    if (y1 < surf->clip_rect.y || y1 >= surf->clip_rect.y + surf->clip_rect.h)
-        return;
-
-    if (x2 < x1) {
-        int temp = x1;
-        x1 = x2;
-        x2 = temp;
-    }
-
-    x1 = MAX(x1, surf->clip_rect.x);
-    x2 = MIN(x2, surf->clip_rect.x + surf->clip_rect.w - 1);
-
-    if (x2 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
-        return;
-
-    drawhorzline(surf, color, x1, y1, x2);
-}
-
-static void
+static int
 drawvertline(SDL_Surface *surf, Uint32 color, int x1, int y1, int y2)
 {
-    Uint8 *pixel, *end;
-    Uint8 *colorptr;
-    Uint32 pitch = surf->pitch;
-
-    if (y1 == y2) {
-        set_at(surf, x1, y1, color);
-        return;
-    }
-
-    pixel = ((Uint8 *)surf->pixels) + x1 * surf->format->BytesPerPixel;
-    if (y1 < y2) {
-        end = pixel + surf->pitch * y2;
-        pixel += surf->pitch * y1;
+    int anydraw = 0;
+    if (y1 == y2 && set_at(surf, x1, y1, color)) {
+        return 1;
     }
     else {
-        end = pixel + surf->pitch * y1;
-        pixel += surf->pitch * y2;
+        int direction = (y1 < y2) ? 1 : -1;
+        for (int i = 0; i <= abs(y1 - y2); i++) {
+            if (set_at(surf, x1, y1 + direction * i, color)) {
+                anydraw = 1;
+            }
+        }
     }
-
-    switch (surf->format->BytesPerPixel) {
-        case 1:
-            for (; pixel <= end; pixel += pitch) {
-                *pixel = (Uint8)color;
-            }
-            break;
-        case 2:
-            for (; pixel <= end; pixel += pitch) {
-                *(Uint16 *)pixel = (Uint16)color;
-            }
-            break;
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-                color <<= 8;
-            colorptr = (Uint8 *)&color;
-            for (; pixel <= end; pixel += pitch) {
-                pixel[0] = colorptr[0];
-                pixel[1] = colorptr[1];
-                pixel[2] = colorptr[2];
-            }
-            break;
-        default: /*case 4*/
-            for (; pixel <= end; pixel += pitch) {
-                *(Uint32 *)pixel = color;
-            }
-            break;
-    }
-}
-
-static void
-drawvertlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int y2)
-{
-    if (x1 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
-        return;
-
-    if (y2 < y1) {
-        int temp = y1;
-        y1 = y2;
-        y2 = temp;
-    }
-
-    y1 = MAX(y1, surf->clip_rect.y);
-    y2 = MIN(y2, surf->clip_rect.y + surf->clip_rect.h - 1);
-
-    if (y2 < surf->clip_rect.y || y1 >= surf->clip_rect.y + surf->clip_rect.h)
-        return;
-
-    drawvertline(surf, color, x1, y1, y2);
+    return anydraw;
 }
 
 static void
@@ -1914,14 +1784,14 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
 
     /* Special case: draw a vertical line */
     if (rx == 0) {
-        drawvertlineclip(dst, color, x, (Sint16)(y - ry),
+        drawvertline(dst, color, x, (Sint16)(y - ry),
                          (Sint16)(y + ry + (height & 1)));
         return;
     }
 
     /* Special case: draw a horizontal line */
     if (ry == 0) {
-        drawhorzlineclip(dst, color, (Sint16)(x - rx), y,
+        drawhorzline(dst, color, (Sint16)(x - rx), y,
                          (Sint16)(x + rx + (width & 1)));
         return;
     }
@@ -1944,9 +1814,9 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
             k = (i * ry) / rx;
             if (((ok != k) && (oj != k) && (k < ry)) || !solid) {
                 if (solid) {
-                    drawhorzlineclip(dst, color, x - h, y - k - yoff,
+                    drawhorzline(dst, color, x - h, y - k - yoff,
                                      x + h - xoff);
-                    drawhorzlineclip(dst, color, x - h, y + k, x + h - xoff);
+                    drawhorzline(dst, color, x - h, y + k, x + h - xoff);
                 }
                 else {
                     set_at(dst, x - h, y - k - yoff, color);
@@ -1958,8 +1828,8 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
             }
             if (((oj != j) && (ok != j) && (k != j)) || !solid) {
                 if (solid) {
-                    drawhorzlineclip(dst, color, x - i, y + j, x + i - xoff);
-                    drawhorzlineclip(dst, color, x - i, y - j - yoff,
+                    drawhorzline(dst, color, x - i, y + j, x + i - xoff);
+                    drawhorzline(dst, color, x - i, y - j - yoff,
                                      x + i - xoff);
                 }
                 else {
@@ -1987,8 +1857,8 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
 
             if (((oi != i) && (oh != i) && (i < ry)) || !solid) {
                 if (solid) {
-                    drawhorzlineclip(dst, color, x - j, y + i, x + j - xoff);
-                    drawhorzlineclip(dst, color, x - j, y - i - yoff,
+                    drawhorzline(dst, color, x - j, y + i, x + j - xoff);
+                    drawhorzline(dst, color, x - j, y - i - yoff,
                                      x + j - xoff);
                 }
                 else {
@@ -2001,8 +1871,8 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
             }
             if (((oh != h) && (oi != h) && (i != h)) || !solid) {
                 if (solid) {
-                    drawhorzlineclip(dst, color, x - k, y + h, x + k - xoff);
-                    drawhorzlineclip(dst, color, x - k, y - h - yoff,
+                    drawhorzline(dst, color, x - k, y + h, x + k - xoff);
+                    drawhorzline(dst, color, x - k, y - h - yoff,
                                      x + k - xoff);
                 }
                 else {
@@ -2065,7 +1935,7 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y,
             minx = MIN(minx, point_x[i]);
             maxx = MAX(maxx, point_x[i]);
         }
-        drawhorzlineclip(dst, color, minx, miny, maxx);
+        drawhorzline(dst, color, minx, miny, maxx);
         PyMem_Free(x_intersect);
         return;
     }
@@ -2078,7 +1948,7 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y,
      * 1. search intersections with the border lines
      * 2. sort intersections (x_intersect)
      * 3. each two x-coordinates in x_intersect are then inside the polygon
-     *    (drawhorzlineclip for a pair of two such points)
+     *    (drawhorzline for a pair of two such points)
      */
     for (y = miny; (y <= maxy); y++) {
         // n_intersections is the number of intersections with the polygon
@@ -2111,7 +1981,7 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y,
         qsort(x_intersect, n_intersections, sizeof(int), compare_int);
 
         for (i = 0; (i < n_intersections); i += 2) {
-            drawhorzlineclip(dst, color, x_intersect[i], y,
+            drawhorzline(dst, color, x_intersect[i], y,
                              x_intersect[i + 1]);
         }
     }
@@ -2130,7 +2000,7 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y,
         y = point_y[i];
 
         if ((miny < y) && (point_y[i_previous] == y) && (y < maxy)) {
-            drawhorzlineclip(dst, color, point_x[i], y, point_x[i_previous]);
+            drawhorzline(dst, color, point_x[i], y, point_x[i_previous]);
         }
     }
     PyMem_Free(x_intersect);
