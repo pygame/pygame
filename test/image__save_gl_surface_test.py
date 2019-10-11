@@ -6,8 +6,10 @@ import pygame
 from pygame.locals import *
 
 
-@unittest.skipIf(os.environ.get('SDL_VIDEODRIVER') == 'dummy',
-                 'OpenGL requires a non-"dummy" SDL_VIDEODRIVER')
+@unittest.skipIf(
+    os.environ.get("SDL_VIDEODRIVER") == "dummy",
+    'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+)
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
         """
@@ -15,7 +17,7 @@ class GL_ImageSave(unittest.TestCase):
         """
 
         pygame.display.init()
-        screen = pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
+        screen = pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF)
         pygame.display.flip()
 
         tmp_dir = test_utils.get_tmp_dir()
@@ -40,5 +42,5 @@ class GL_ImageSave(unittest.TestCase):
         pygame.display.quit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

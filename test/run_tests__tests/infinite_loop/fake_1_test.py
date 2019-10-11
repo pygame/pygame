@@ -1,19 +1,19 @@
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     import os
-    pkg_dir = (os.path.split(
-                   os.path.split(
-                       os.path.split(
-                           os.path.abspath(__file__))[0])[0])[0])
+
+    pkg_dir = os.path.split(
+        os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+    )[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
+    is_pygame_pkg = pkg_name == "tests" and os.path.split(parent_dir)[1] == "pygame"
     if not is_pygame_pkg:
         sys.path.insert(0, parent_dir)
 else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
+    is_pygame_pkg = __name__.startswith("pygame.tests.")
 
 import unittest
+
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
@@ -36,5 +36,5 @@ class KeyModuleTest(unittest.TestCase):
         self.assertTrue(True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

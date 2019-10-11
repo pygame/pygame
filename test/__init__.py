@@ -20,15 +20,15 @@ directly.
 
 """
 
-if __name__ == 'pygame.tests':
+if __name__ == "pygame.tests":
     from pygame.tests.test_utils.run_tests import run
-elif __name__ == '__main__':
+elif __name__ == "__main__":
     import os
     import sys
+
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
+    is_pygame_pkg = pkg_name == "tests" and os.path.split(parent_dir)[1] == "pygame"
     if not is_pygame_pkg:
         sys.path.insert(0, parent_dir)
 

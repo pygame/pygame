@@ -2,12 +2,14 @@ import sys
 
 import unittest
 from pygame import compat
-encode_file_path = sys.modules['pygame.rwobject'].encode_file_path
+
+encode_file_path = sys.modules["pygame.rwobject"].encode_file_path
+
 
 class CompatModuleTest(unittest.TestCase):
     def test_as_unicode(self):
-        r = r'Bo\u00F6tes'
-        ords = [ord('B'), ord('o'), 0xF6, ord('t'), ord('e'), ord('s')]
+        r = r"Bo\u00F6tes"
+        ords = [ord("B"), ord("o"), 0xF6, ord("t"), ord("e"), ord("s")]
         self.assertEqual(len(r), 11)
         u = compat.as_unicode(r)
         self.assertIsInstance(u, compat.unicode_)
@@ -15,7 +17,7 @@ class CompatModuleTest(unittest.TestCase):
 
     def test_as_bytes(self):
         ords = [0, 1, 0x7F, 0x80, 0xC3, 0x20, 0xC3, 0xB6, 0xFF]
-        s = ''.join([chr(i) for i in ords])
+        s = "".join([chr(i) for i in ords])
         self.assertEqual(len(s), len(ords))
         b = compat.as_bytes(s)
         self.assertIsInstance(b, compat.bytes_)
@@ -26,17 +28,17 @@ class CompatModuleTest(unittest.TestCase):
 
     def test_bytes_(self):
         self.assertFalse(compat.bytes_ is compat.unicode_)
-        self.assertTrue(hasattr(compat.bytes_, 'capitalize'))
-        self.assertFalse(hasattr(compat.bytes_, 'isdecimal'))
+        self.assertTrue(hasattr(compat.bytes_, "capitalize"))
+        self.assertFalse(hasattr(compat.bytes_, "isdecimal"))
 
     def test_unicode_(self):
-        self.assertTrue(hasattr(compat.unicode_(), 'isdecimal'))
+        self.assertTrue(hasattr(compat.unicode_(), "isdecimal"))
 
     def test_long_(self):
-        self.assertIsInstance(int('99999999999999999999'), compat.long_)
+        self.assertIsInstance(int("99999999999999999999"), compat.long_)
 
     def test_geterror(self):
-        msg = 'Success'
+        msg = "Success"
         try:
             raise TypeError(msg)
         except TypeError:
@@ -69,9 +71,9 @@ class CompatModuleTest(unittest.TestCase):
 
     def test_raw_input_(self):
         StringIO = compat.get_StringIO()
-        msg = 'success'
+        msg = "success"
         tmp = sys.stdin
-        sys.stdin = StringIO(msg + '\n')
+        sys.stdin = StringIO(msg + "\n")
         try:
             s = compat.raw_input_()
             self.assertEqual(s, msg)
@@ -80,8 +82,8 @@ class CompatModuleTest(unittest.TestCase):
 
     def test_filesystem_encode(self):
         upath = compat.as_unicode(r"ab\u212Acd")
-        self.assertEqual(compat.filesystem_encode(upath),
-                         encode_file_path(upath))
+        self.assertEqual(compat.filesystem_encode(upath), encode_file_path(upath))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
