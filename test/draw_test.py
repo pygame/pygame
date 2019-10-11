@@ -1652,7 +1652,6 @@ class DrawLineTest(LineMixin, DrawTestCase):
 
             self.assertEqual(rec, (rx, ry, w, h), msg)
 
-    @unittest.expectedFailure
     def test_line_for_gaps(self):
         """ |tags: ignore|
         """
