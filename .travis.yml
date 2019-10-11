@@ -1,4 +1,4 @@
-language: python
+language: c
 
 cache:
   directories:
@@ -44,6 +44,11 @@ matrix:
       python: 3.7
       env:
         - PPC=yes
+
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      dist: xenial
 
     - os: linux
       sudo: required
