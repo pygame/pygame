@@ -19,20 +19,20 @@ class KeyModuleTest(unittest.TestCase):
             pygame.init()
 
     def test_import(self):
-        'does it import'
+        "does it import"
         import pygame.key
 
     def todo_test_get_focused(self):
 
         # __doc__ (as of 2008-08-02) for pygame.key.get_focused:
 
-          # pygame.key.get_focused(): return bool
-          # true if the display is receiving keyboard input from the system
-          #
-          # This is true when the display window has keyboard focus from the
-          # system. If the display needs to ensure it does not lose keyboard
-          # focus, it can use pygame.event.set_grab() to grab all input.
-          #
+        # pygame.key.get_focused(): return bool
+        # true if the display is receiving keyboard input from the system
+        #
+        # This is true when the display window has keyboard focus from the
+        # system. If the display needs to ensure it does not lose keyboard
+        # focus, it can use pygame.event.set_grab() to grab all input.
+        #
 
         self.fail()
 
@@ -64,5 +64,5 @@ class KeyModuleTest(unittest.TestCase):
         self.assertEqual(pygame.key.get_repeat(), (0, 0))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

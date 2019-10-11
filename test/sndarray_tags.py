@@ -1,4 +1,4 @@
-__tags__ = ['array']
+__tags__ = ["array"]
 
 exclude = False
 
@@ -9,4 +9,4 @@ except ImportError:
     exclude = True
 
 if exclude:
-    __tags__.extend(('ignore', 'subprocess_ignore'))
+    __tags__.extend(("ignore", "subprocess_ignore"))

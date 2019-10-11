@@ -51,7 +51,7 @@ class MouseModuleTest(unittest.TestCase):
 
     def test_set_pos__invalid_pos(self):
         """Ensures set_pos handles invalid positions correctly."""
-        for invalid_pos in ((1,), [1, 2, 3], 1, '1', (1, '1'), []):
+        for invalid_pos in ((1,), [1, 2, 3], 1, "1", (1, "1"), []):
 
             with self.assertRaises(TypeError):
                 pygame.mouse.set_pos(invalid_pos)
@@ -92,12 +92,12 @@ class MouseModuleTest(unittest.TestCase):
 
     def test_set_visible__invalid_value(self):
         """Ensures set_visible handles invalid positions correctly."""
-        for invalid_value in ((1,), [1, 2, 3], 1.1, '1', (1, '1'), []):
+        for invalid_value in ((1,), [1, 2, 3], 1.1, "1", (1, "1"), []):
             with self.assertRaises(TypeError):
                 prev_visible = pygame.mouse.set_visible(invalid_value)
 
 
 ################################################################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

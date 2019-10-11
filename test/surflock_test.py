@@ -4,11 +4,11 @@ import platform
 
 import pygame
 
-IS_PYPY = 'PyPy' == platform.python_implementation()
+IS_PYPY = "PyPy" == platform.python_implementation()
 
-@unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
+
+@unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
 class SurfaceLockTest(unittest.TestCase):
-
     def test_lock(self):
         sf = pygame.Surface((5, 5))
 
@@ -39,7 +39,7 @@ class SurfaceLockTest(unittest.TestCase):
 
         # Test blitting on self:
         self.assertRaises(pygame.error, sf.blit, subsf, (0, 0))
-        #self.assertRaises(pygame.error, subsf.blit, sf, (0, 0))
+        # self.assertRaises(pygame.error, subsf.blit, sf, (0, 0))
         # ^ Fails although it should not in my opinion. If I cannot
         # blit the subsurface to the surface, it should not be allowed
         # the other way around as well.
@@ -139,5 +139,6 @@ class SurfaceLockTest(unittest.TestCase):
         self.assertEqual(sf.get_locked(), False)
         self.assertEqual(sf.get_locks(), ())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

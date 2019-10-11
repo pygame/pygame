@@ -10,9 +10,11 @@ except ImportError:
 
 from . import import_submodule
 
+
 class PygameTestLoader(unittest.TestLoader):
-    def __init__(self, randomize_tests=False, include_incomplete=False,
-                 exclude=('interactive',)):
+    def __init__(
+        self, randomize_tests=False, include_incomplete=False, exclude=("interactive",)
+    ):
         super(PygameTestLoader, self).__init__()
         self.randomize_tests = randomize_tests
 
@@ -22,7 +24,7 @@ class PygameTestLoader(unittest.TestLoader):
             self.exclude = set(exclude)
 
         if include_incomplete:
-            self.testMethodPrefix = ('test', 'todo_')
+            self.testMethodPrefix = ("test", "todo_")
 
     def getTestCaseNames(self, testCaseClass):
         res = []
@@ -41,6 +43,7 @@ class PygameTestLoader(unittest.TestLoader):
 
 TAGS_RE = re.compile(r"\|[tT]ags:(-?[ a-zA-Z,0-9_\n]+)\|", re.M)
 
+
 class TestTags:
     def __init__(self):
         self.memoized = {}
@@ -56,25 +59,31 @@ class TestTags:
         if key not in self.memoized:
             parent_module = self.get_parent_module(parent_class)
 
-            module_tags = getattr(parent_module, '__tags__', [])
-            class_tags  = getattr(parent_class,  '__tags__', [])
+            module_tags = getattr(parent_module, "__tags__", [])
+            class_tags = getattr(parent_class, "__tags__", [])
 
-            tags = TAGS_RE.search(inspect.getdoc(meth) or '')
-            if tags: test_tags = [t.strip() for t in tags.group(1).split(',')]
-            else:    test_tags = []
+            tags = TAGS_RE.search(inspect.getdoc(meth) or "")
+            if tags:
+                test_tags = [t.strip() for t in tags.group(1).split(",")]
+            else:
+                test_tags = []
 
             combined = set()
             for tags in (module_tags, class_tags, test_tags):
-                if not tags: continue
+                if not tags:
+                    continue
 
-                add    = set([t for t in tags if not t.startswith('-')])
+                add = set([t for t in tags if not t.startswith("-")])
                 remove = set([t[1:] for t in tags if t not in add])
 
-                if add:     combined.update(add)
-                if remove:  combined.difference_update(remove)
+                if add:
+                    combined.update(add)
+                if remove:
+                    combined.difference_update(remove)
 
             self.memoized[key] = combined
 
         return self.memoized[key]
+
 
 get_tags = TestTags()
