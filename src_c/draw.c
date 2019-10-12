@@ -74,8 +74,6 @@ clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
 static int
 clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
                          int width, int *pts);
-//static int
-//clipline(int *pts, int left, int top, int right, int bottom);
 static int
 clip_aaline(float *pts, int left, int top, int right, int bottom);
 static int
@@ -958,13 +956,13 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
 {
     int xinc = 0, yinc = 0;
     int bounding_rect[4];
+    int original_values[4];
+    int anydrawn = 0;
+    int loop;
     bounding_rect[0] = INT_MAX;
     bounding_rect[1] = INT_MAX;
     bounding_rect[2] = 0;
     bounding_rect[3] = 0;
-    int original_values[4];
-    memcpy(original_values, pts, sizeof(int) * 4);
-    int anydrawn = 0;
     /* Decide which direction to grow (width/thickness). */
     if (abs(pts[0] - pts[2]) > abs(pts[1] - pts[3])) {
         /* The line's thickness will be in the y direction. The left/right
@@ -996,9 +994,9 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
             bounding_rect[3] = pts[3];
         }
     }
-
     if (width != 1) {
-        for (int loop = 1; loop < width; loop += 2) {
+        memcpy(original_values, pts, sizeof(int) * 4);
+        for (loop = 1; loop < width; loop += 2) {
             pts[0] = original_values[0] + xinc * (loop / 2 + 1);
             pts[1] = original_values[1] + yinc * (loop / 2 + 1);
             pts[2] = original_values[2] + xinc * (loop / 2 + 1);
