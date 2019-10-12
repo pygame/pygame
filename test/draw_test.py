@@ -1652,7 +1652,6 @@ class DrawLineTest(LineMixin, DrawTestCase):
 
             self.assertEqual(rec, (rx, ry, w, h), msg)
 
-    @unittest.expectedFailure
     def test_line_for_gaps(self):
         """ |tags: ignore|
         """
@@ -4996,8 +4995,6 @@ class DrawCircleMixin(object):
             self.assertEqual(surface.get_at(pos), expected_color)
             self.assertIsInstance(bounds_rect, pygame.Rect)
 
-    # This decorator can be removed when issue #983 is resolved.
-    @unittest.expectedFailure
     def test_circle__valid_radius_values(self):
         """Ensures draw circle accepts different radius values."""
         pos = center = (2, 2)
