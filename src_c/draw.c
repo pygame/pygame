@@ -963,6 +963,7 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
     bounding_rect[1] = INT_MAX;
     bounding_rect[2] = 0;
     bounding_rect[3] = 0;
+    memcpy(original_values, pts, sizeof(int) * 4);
     /* Decide which direction to grow (width/thickness). */
     if (abs(pts[0] - pts[2]) > abs(pts[1] - pts[3])) {
         /* The line's thickness will be in the y direction. The left/right
@@ -995,7 +996,6 @@ clip_and_draw_line_width(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
         }
     }
     if (width != 1) {
-        memcpy(original_values, pts, sizeof(int) * 4);
         for (loop = 1; loop < width; loop += 2) {
             pts[0] = original_values[0] + xinc * (loop / 2 + 1);
             pts[1] = original_values[1] + yinc * (loop / 2 + 1);
