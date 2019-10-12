@@ -1484,6 +1484,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
 static int
 drawline(SDL_Surface *surf, int* pts, Uint32 color, int x1, int y1, int x2, int y2)
 {
+    int i, numerator;
     int lowest_x = INT_MAX;
     int lowest_y = INT_MAX;
     int highest_x = 0;
@@ -1494,19 +1495,19 @@ drawline(SDL_Surface *surf, int* pts, Uint32 color, int x1, int y1, int x2, int 
     int w = x2 - x;
     int h = y2 - y;
     int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+    int longest = abs(w);
+    int shortest = abs(h);
     if (w<0) dx1 = -1; else if (w>0) dx1 = 1;
     if (h<0) dy1 = -1; else if (h>0) dy1 = 1;
     if (w<0) dx2 = -1; else if (w>0) dx2 = 1;
-    int longest = abs(w);
-    int shortest = abs(h);
     if (!(longest>shortest)) {
         longest = abs(h);
         shortest = abs(w);
         if (h<0) dy2 = -1; else if (h>0) dy2 = 1;
         dx2 = 0;            
     }
-    int numerator = longest >> 1;
-    for (int i=0;i<=longest;i++) {
+    numerator = longest >> 1;
+    for (i=0;i<=longest;i++) {
         if (set_at(surf, x, y, color)) {
             anydraw = 1;
             if (x < lowest_x) {
@@ -1542,13 +1543,14 @@ drawline(SDL_Surface *surf, int* pts, Uint32 color, int x1, int y1, int x2, int 
 static int
 drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
 {
+    int i, direction;
     int anydraw = 0;
     if (x1 == x2 && set_at(surf, x1, y1, color)) {
         return 1;
     }
     else {
-        int direction = (x1 < x2) ? 1 : -1;
-        for (int i = 0; i <= abs(x1 - x2); i++) {
+        direction = (x1 < x2) ? 1 : -1;
+        for (i = 0; i <= abs(x1 - x2); i++) {
             if (set_at(surf, x1 + direction * i, y1, color)) {
                 anydraw = 1;
             }
@@ -1560,13 +1562,14 @@ drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
 static int
 drawvertline(SDL_Surface *surf, Uint32 color, int x1, int y1, int y2)
 {
+    int i, direction;
     int anydraw = 0;
     if (y1 == y2 && set_at(surf, x1, y1, color)) {
         return 1;
     }
     else {
-        int direction = (y1 < y2) ? 1 : -1;
-        for (int i = 0; i <= abs(y1 - y2); i++) {
+        direction = (y1 < y2) ? 1 : -1;
+        for (i = 0; i <= abs(y1 - y2); i++) {
             if (set_at(surf, x1, y1 + direction * i, color)) {
                 anydraw = 1;
             }
