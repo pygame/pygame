@@ -740,12 +740,6 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     r = MIN(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
     b = MIN(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
 
-    /*
-    printf("posx=%i, posy=%i, radius=%i, l=%i, t=%i, r=%i, b=%i, clip_rect_x=%i, \
-            clip_rect_y=%i, clip_rect_w=%i, clip_rect_h=%i\n", posx, posy, \
-            radius, l, t, r, b,surf->clip_rect.x, surf->clip_rect.y, \
-            surf->clip_rect.w, surf->clip_rect.h);
-    */
     return pgRect_New4(l, t, MAX(r - l, 0), MAX(b - t, 0));
 }
 
