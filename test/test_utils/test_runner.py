@@ -74,10 +74,27 @@ opt_parser.add_option(
 )
 
 opt_parser.add_option(
-    "-v",
+    "-u",
     "--unbuffered",
     action="store_true",
     help="Show stdout/stderr as tests run, rather than storing it and showing on failures",
+)
+
+opt_parser.add_option(
+    '-v',
+    '--verbose',
+    dest='verbosity',
+    action='store_const',
+    const=2,
+    help='Verbose output'
+)
+opt_parser.add_option(
+    '-q',
+    '--quiet',
+    dest='verbosity',
+    action='store_const',
+    const=0,
+    help='Quiet output'
 )
 
 opt_parser.add_option(
@@ -200,12 +217,16 @@ def run_test(
     randomize=False,
     exclude=("interactive",),
     buffer=True,
+    unbuffered=None,
+    verbosity=1,
 ):
     """Run a unit test module
     """
     suite = unittest.TestSuite()
 
     print("loading %s" % module)
+    if verbosity is None:
+        verbosity = 1
 
     loader = PygameTestLoader(
         randomize_tests=randomize, include_incomplete=incomplete, exclude=exclude
@@ -213,8 +234,18 @@ def run_test(
     suite.addTest(loader.loadTestsFromName(module))
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream=output, buffer=buffer)
+    runner = unittest.TextTestRunner(
+        stream=output,
+        buffer=buffer,
+        verbosity=verbosity,
+    )
     results = runner.run(suite)
+
+    #TODO: unbuffered is maybe 'buffer' arg?
+    if unbuffered is not None:
+        output.seek(0)
+        print(output.read())
+        output.seek(0)
 
     results = {
         module: {
