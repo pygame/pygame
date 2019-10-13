@@ -5,7 +5,6 @@
 #define DOC_PYGAMETRANSFORMROTATE "rotate(Surface, angle) -> Surface\nrotate an image"
 #define DOC_PYGAMETRANSFORMROTOZOOM "rotozoom(Surface, angle, scale) -> Surface\nfiltered scale and rotation"
 #define DOC_PYGAMETRANSFORMSCALE2X "scale2x(Surface, DestSurface = None) -> Surface\nspecialized image doubler"
-#define DOC_PYGAMETRANSFORMSCALE2XRAW "scale2xraw(Surface, DestSurface = None) -> Surface\nnearest-neighbour image doubler"
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "smoothscale(Surface, (width, height), DestSurface = None) -> Surface\nscale a surface to an arbitrary size smoothly"
 #define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "get_smoothscale_backend() -> String\nreturn smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'"
 #define DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND "set_smoothscale_backend(type) -> None\nset smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'"
@@ -42,10 +41,6 @@ filtered scale and rotation
 pygame.transform.scale2x
  scale2x(Surface, DestSurface = None) -> Surface
 specialized image doubler
-
-pygame.transform.scale2xraw
- scale2xraw(Surface, DestSurface = None) -> Surface
-nearest-neighbour image doubler
 
 pygame.transform.smoothscale
  smoothscale(Surface, (width, height), DestSurface = None) -> Surface
