@@ -81,20 +81,20 @@ opt_parser.add_option(
 )
 
 opt_parser.add_option(
-    '-v',
-    '--verbose',
-    dest='verbosity',
-    action='store_const',
+    "-v",
+    "--verbose",
+    dest="verbosity",
+    action="store_const",
     const=2,
-    help='Verbose output'
+    help="Verbose output",
 )
 opt_parser.add_option(
-    '-q',
-    '--quiet',
-    dest='verbosity',
-    action='store_const',
+    "-q",
+    "--quiet",
+    dest="verbosity",
+    action="store_const",
     const=0,
-    help='Quiet output'
+    help="Quiet output",
 )
 
 opt_parser.add_option(
@@ -134,6 +134,7 @@ RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
 DOTS = re.compile("^([FE.sux]*)$", re.MULTILINE)
 
+
 def extract_tracebacks(output):
     """ from test runner output return the tracebacks.
     """
@@ -158,15 +159,15 @@ def output_into_dots(output):
     if verbose_mode:
         # a map from the verbose output to the dots output.
         reasons = {
-            "... ERROR": 'E',
-            "... unexpected success": 'u',
+            "... ERROR": "E",
+            "... unexpected success": "u",
             "... skipped": "s",
-            "... expected failure": 'x',
+            "... expected failure": "x",
             "... ok": ".",
             "... FAIL": "F",
         }
         results = output.split("\n\n==")[0]
-        lines = [l for l in results.split("\n") if l and '...' in l]
+        lines = [l for l in results.split("\n") if l and "..." in l]
         dotlist = []
         for l in lines:
             found = False
@@ -176,12 +177,11 @@ def output_into_dots(output):
                     found = True
                     break
             if not found:
-                raise ValueError('Not sure what this is. Add to reasons. :%s' % l)
+                raise ValueError("Not sure what this is. Add to reasons. :%s" % l)
 
         return "".join(dotlist)
     dots = DOTS.search(output).group(1)
     return dots
-
 
 
 def combine_results(all_results, t):
@@ -218,7 +218,6 @@ def combine_results(all_results, t):
         tracebacks = extract_tracebacks(output)
         if tracebacks:
             failures.append(tracebacks)
-
 
     total_fails, total_errors = map(all_dots.count, "FE")
     total_tests = len(all_dots)
@@ -284,14 +283,10 @@ def run_test(
     suite.addTest(loader.loadTestsFromName(module))
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(
-        stream=output,
-        buffer=buffer,
-        verbosity=verbosity,
-    )
+    runner = unittest.TextTestRunner(stream=output, buffer=buffer, verbosity=verbosity)
     results = runner.run(suite)
 
-    #TODO: unbuffered is maybe 'buffer' arg?
+    # TODO: unbuffered is maybe 'buffer' arg?
     if unbuffered is not None:
         output.seek(0)
         print(output.read())
