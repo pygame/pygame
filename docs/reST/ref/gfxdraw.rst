@@ -599,7 +599,7 @@ For example:
 
 .. function:: bezier
 
-   | :sl:`draw a Bézier curve`
+   | :sl:`draw a Bezier curve`
    | :sg:`bezier(surface, points, steps, color) -> None`
 
    Draws a Bézier curve on the given surface.
