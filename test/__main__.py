@@ -107,7 +107,6 @@ opt_parser.add_option("-S", "--seed", type="int", help="Randomisation seed")
 # args will be the test module list, passed as positional argumemts.
 
 options, args = opt_parser.parse_args()
-
 kwds = {}
 if options.incomplete:
     kwds["incomplete"] = True
@@ -137,6 +136,8 @@ if options.python:
     kwds["python"] = options.python
 if options.interactive:
     kwds["interactive"] = True
+kwds["verbosity"] = options.verbosity if options.verbosity is not None else 1
+
 
 ###########################################################################
 # Run the test suite.

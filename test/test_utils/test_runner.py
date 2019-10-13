@@ -74,10 +74,27 @@ opt_parser.add_option(
 )
 
 opt_parser.add_option(
-    "-v",
+    "-u",
     "--unbuffered",
     action="store_true",
     help="Show stdout/stderr as tests run, rather than storing it and showing on failures",
+)
+
+opt_parser.add_option(
+    "-v",
+    "--verbose",
+    dest="verbosity",
+    action="store_const",
+    const=2,
+    help="Verbose output",
+)
+opt_parser.add_option(
+    "-q",
+    "--quiet",
+    dest="verbosity",
+    action="store_const",
+    const=0,
+    help="Quiet output",
 )
 
 opt_parser.add_option(
@@ -118,6 +135,55 @@ RAN_TESTS_DIV = (70 * "-") + "\nRan"
 DOTS = re.compile("^([FE.sux]*)$", re.MULTILINE)
 
 
+def extract_tracebacks(output):
+    """ from test runner output return the tracebacks.
+    """
+    verbose_mode = " ..." in output
+
+    if verbose_mode:
+        if "ERROR" in output or "FAILURE" in output:
+            return "\n\n==".join(output.split("\n\n==")[1:])
+    else:
+        dots = DOTS.search(output).group(1)
+        if "E" in dots or "F" in dots:
+            return output[len(dots) + 1 :].split(RAN_TESTS_DIV)[0]
+    return ""
+
+
+def output_into_dots(output):
+    """ convert the test runner output into dots.
+    """
+    # verbose_mode = ") ..." in output
+    verbose_mode = " ..." in output
+
+    if verbose_mode:
+        # a map from the verbose output to the dots output.
+        reasons = {
+            "... ERROR": "E",
+            "... unexpected success": "u",
+            "... skipped": "s",
+            "... expected failure": "x",
+            "... ok": ".",
+            "... FAIL": "F",
+        }
+        results = output.split("\n\n==")[0]
+        lines = [l for l in results.split("\n") if l and "..." in l]
+        dotlist = []
+        for l in lines:
+            found = False
+            for reason in reasons:
+                if reason in l:
+                    dotlist.append(reasons[reason])
+                    found = True
+                    break
+            if not found:
+                raise ValueError("Not sure what this is. Add to reasons. :%s" % l)
+
+        return "".join(dotlist)
+    dots = DOTS.search(output).group(1)
+    return dots
+
+
 def combine_results(all_results, t):
     """
 
@@ -147,11 +213,11 @@ def combine_results(all_results, t):
             all_dots += "E"
             continue
 
-        dots = DOTS.search(output).group(1)
+        dots = output_into_dots(output)
         all_dots += dots
-
-        if "E" in dots or "F" in dots:
-            failures.append(output[len(dots) + 1 :].split(RAN_TESTS_DIV)[0])
+        tracebacks = extract_tracebacks(output)
+        if tracebacks:
+            failures.append(tracebacks)
 
     total_fails, total_errors = map(all_dots.count, "FE")
     total_tests = len(all_dots)
@@ -200,12 +266,18 @@ def run_test(
     randomize=False,
     exclude=("interactive",),
     buffer=True,
+    unbuffered=None,
+    verbosity=1,
 ):
     """Run a unit test module
     """
     suite = unittest.TestSuite()
 
-    print("loading %s" % module)
+    if verbosity is None:
+        verbosity = 1
+
+    if verbosity:
+        print("loading %s" % module)
 
     loader = PygameTestLoader(
         randomize_tests=randomize, include_incomplete=incomplete, exclude=exclude
@@ -213,8 +285,13 @@ def run_test(
     suite.addTest(loader.loadTestsFromName(module))
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream=output, buffer=buffer)
+    runner = unittest.TextTestRunner(stream=output, buffer=buffer, verbosity=verbosity)
     results = runner.run(suite)
+
+    if verbosity == 2:
+        output.seek(0)
+        print(output.read())
+        output.seek(0)
 
     results = {
         module: {
