@@ -273,9 +273,11 @@ def run_test(
     """
     suite = unittest.TestSuite()
 
-    print("loading %s" % module)
     if verbosity is None:
         verbosity = 1
+
+    if verbosity:
+        print("loading %s" % module)
 
     loader = PygameTestLoader(
         randomize_tests=randomize, include_incomplete=incomplete, exclude=exclude
@@ -286,8 +288,7 @@ def run_test(
     runner = unittest.TextTestRunner(stream=output, buffer=buffer, verbosity=verbosity)
     results = runner.run(suite)
 
-    # TODO: unbuffered is maybe 'buffer' arg?
-    if unbuffered is not None:
+    if verbosity == 2:
         output.seek(0)
         print(output.read())
         output.seek(0)
