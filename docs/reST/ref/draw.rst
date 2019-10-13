@@ -149,9 +149,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       e.g. ``(x, y)``
    :type center: tuple(int or float, int or float) or
       list(int or float, int or float) or Vector2(int or float, int or float)
-   :param radius: radius of the circle, measured from the ``center``
-      parameter, a radius of 0 will only draw the ``center`` pixel
-   :type radius: int or float 
+   :param radius: radius of the circle, measured from the ``center`` parameter,
+      nothing will be drawn if the ``radius`` is less than 1
+   :type radius: int or float
    :param int width: (optional) used for line thickness or to indicate that
       the circle is to be filled
 
@@ -169,9 +169,12 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       values will be truncated) and its width and height will be 0
    :rtype: Rect
 
-   :raises ValueError: if ``radius < 0``
+   :raises TypeError: if ``center`` is not a sequence of two numbers
+   :raises TypeError: if ``radius`` is not a number
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
+   .. versionchanged:: 2.0.0 Nothing is drawn when the radius is 0 (a pixel at
+      the ``center`` coordinates used to be drawn when the radius equaled 0).
 
    .. ## pygame.draw.circle ##
 
