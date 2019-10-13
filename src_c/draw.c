@@ -895,7 +895,7 @@ clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
     return 1;
 }
 
-/* This function is used to draw a line that has the width of 1. First it checks 
+/* This function is used to draw a line that has the width of 1. First it checks
  * is the line horizontal or vertical and draws it (because the algorithm for drawing
  * straight line is faster). This function also draws line from any 2 points on the surface
  * Parameters are surface where line will be drawn. pts it the array of 4 ints that contains
@@ -917,7 +917,7 @@ clip_and_draw_line(SDL_Surface *surf, Uint32 color, int *pts)
             *(pts+2) = MIN(surf->clip_rect.w, MAX(old_pts_zero, pts[2]));
         }
         return 1;
-    }    
+    }
     else if (pts[0] == pts[2] && drawvertline(surf, color, pts[0], pts[1], pts[3])) {
         int old_pts_one = pts[1];
         *(pts+1) = MAX(0, MIN(pts[1], pts[3]));
@@ -988,20 +988,20 @@ clip_and_draw_line_width(SDL_Surface *surf, Uint32 color,
     if (clip_and_draw_line(surf, color, pts)) {
         anydrawn = 1;
         if (pts[0] > pts[2]) {
-            bounding_rect[0] = pts[2]; 
-            bounding_rect[2] = pts[0]; 
+            bounding_rect[0] = pts[2];
+            bounding_rect[2] = pts[0];
         }
         else {
-            bounding_rect[0] = pts[0]; 
-            bounding_rect[2] = pts[2]; 
+            bounding_rect[0] = pts[0];
+            bounding_rect[2] = pts[2];
         }
 
         if (pts[1] > pts[3]) {
             bounding_rect[1] = pts[3];
-            bounding_rect[3] = pts[1]; 
+            bounding_rect[3] = pts[1];
         }
         else {
-            bounding_rect[1] = pts[1]; 
+            bounding_rect[1] = pts[1];
             bounding_rect[3] = pts[3];
         }
     }
@@ -1056,20 +1056,6 @@ http://www.ncsa.uiuc.edu/Vis/Graphics/src/clipCohSuth.c */
 #define REJECT(a, b) (a & b)
 #define ACCEPT(a, b) (!(a | b))
 
-static int
-encode(int x, int y, int left, int top, int right, int bottom)
-{
-    int code = 0;
-    if (x < left)
-        code |= LEFT_EDGE;
-    if (x > right)
-        code |= RIGHT_EDGE;
-    if (y < top)
-        code |= TOP_EDGE;
-    if (y > bottom)
-        code |= BOTTOM_EDGE;
-    return code;
-}
 
 static int
 encodeFloat(float x, float y, int left, int top, int right, int bottom)
@@ -1464,7 +1450,7 @@ drawline(SDL_Surface *surf, int* pts, Uint32 color)
         longest = abs(h);
         shortest = abs(w);
         if (h<0) dy2 = -1; else if (h>0) dy2 = 1;
-        dx2 = 0;            
+        dx2 = 0;
     }
     numerator = longest >> 1;
     for (i=0;i<=longest;i++) {
