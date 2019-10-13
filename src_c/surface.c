@@ -431,7 +431,7 @@ pgSurface_SetSurface(pgSurfaceObject *self, SDL_Surface *s, int owner)
 #endif /* IS_SDLv2 */
 {
     if (!s) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     if (s == self->surf) {
