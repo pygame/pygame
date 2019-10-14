@@ -1653,8 +1653,6 @@ class DrawLineTest(LineMixin, DrawTestCase):
             self.assertEqual(rec, (rx, ry, w, h), msg)
 
     def test_line_for_gaps(self):
-        """ |tags: ignore|
-        """
         # This checks bug Thick Line Bug #448
 
         width = 200
