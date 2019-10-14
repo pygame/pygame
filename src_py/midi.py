@@ -98,8 +98,7 @@ def quit():
         # TODO: find all Input and Output classes and close them first?
         _pypm.Terminate()
         _init = False
-        del _pypm
-        #del pygame._pypm
+        _pypm = None
 
 
 def get_init():
