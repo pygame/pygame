@@ -49,20 +49,24 @@ class VideoCapturePlayer(object):
         # if you don't want to tie the framerate to the camera, you can check and
         # see if the camera has an image ready.  note that while this works
         # on most cameras, some will never return true.
-        if 0 and self.camera.query_image():
-            # capture an image
 
-            self.snapshot = self.camera.get_image(self.snapshot)
+        self.snapshot = self.camera.get_image(self.display)
 
-        if 0:
-            self.snapshot = self.camera.get_image(self.snapshot)
-            # self.snapshot = self.camera.get_image()
+        # if 0 and self.camera.query_image():
+        #     # capture an image
 
-            # blit it to the display surface.  simple!
-            self.display.blit(self.snapshot, (0, 0))
-        else:
-            self.snapshot = self.camera.get_image(self.display)
-            # self.display.blit(self.snapshot, (0,0))
+        #     self.snapshot = self.camera.get_image(self.snapshot)
+
+        # if 0:
+        #     self.snapshot = self.camera.get_image(self.snapshot)
+        #     # self.snapshot = self.camera.get_image()
+
+        #     # blit it to the display surface.  simple!
+        #     self.display.blit(self.snapshot, (0, 0))
+        # else:
+
+        #     self.snapshot = self.camera.get_image(self.display)
+        #     # self.display.blit(self.snapshot, (0,0))
 
         pygame.display.flip()
 
