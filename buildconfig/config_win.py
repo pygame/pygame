@@ -13,10 +13,6 @@ import re
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
-try:
-    raw_input
-except NameError:
-    raw_input = input
 
 def get_ptr_size():
     return 64 if sys.maxsize > 2**32 else 32
@@ -95,15 +91,10 @@ class Dependency(object):
             if print_result:
                 print ("Path for %s: %s" % (self.name, self.path))
         else:
-            print ("Select path for %s:" % self.name)
-            for i in range(len(self.paths)):
-                print ("  %i=%s" % (i + 1, self.paths[i]))
-            print ("  %i = <Nothing>" % 0)
-            choice = raw_input("Select 0-%i (1=default):" % len(self.paths))
-            if not choice: choice = 1
-            else: choice = int(choice)
-            if(choice):
-                self.path = self.paths[choice-1]
+            logging.warning("Multiple paths to choose from:%s", self.paths)
+            self.path = self.paths[0]
+            if print_result:
+                print ("Path for %s: %s" % (self.name, self.path))
         return True
 
     def matchfile(self, path, match):
@@ -582,8 +573,8 @@ def main(sdl2=False):
             if 'PYGAME_USE_PREBUILT' in os.environ:
                 use_prebuilt = os.environ['PYGAME_USE_PREBUILT'] == '1'
             else:
-                reply = raw_input('\nUse the SDL libraries in "%s"? [Y/n]' % prebuilt_dir)
-                use_prebuilt = (not reply) or reply[0].lower() != 'n'
+                logging.warning('Using the SDL libraries in "%s".' % prebuilt_dir)
+                use_prebuilt = True
 
         if use_prebuilt:
             if sdl2:

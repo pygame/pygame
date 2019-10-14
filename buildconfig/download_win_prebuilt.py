@@ -1,11 +1,6 @@
 import os
 import stat
-
-
-try:
-    raw_input
-except NameError:
-    raw_input = input
+import logging
 
 download_dir = "prebuilt_downloads"
 
@@ -267,9 +262,8 @@ def ask(x86=True, x64=True, sdl2=True):
         if dest_str:
             dest_str = "%s and " % dest_str
         dest_str = "%s\"%s/prebuilt-x86\"" % (dest_str, move_to_dir)
-    reply = raw_input(
-            '\nDownload prebuilts to "%s" and copy to %s? [Y/n]' % (download_dir, dest_str))
-    download_prebuilt = (not reply) or reply[0].lower() != 'n'
+    logging.info('Downloading prebuilts to "%s" and copying to %s.', (download_dir, dest_str))
+    download_prebuilt = True
 
     if download_prebuilt:
         update(x86=x86, x64=x64, sdl2=sdl2)

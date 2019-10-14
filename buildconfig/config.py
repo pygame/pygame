@@ -20,9 +20,8 @@ try:
     import msysio
 except ImportError:
     import buildconfig.msysio as msysio
-import sys, os, shutil
+import sys, os, shutil, logging
 import re
-
 
 BASE_PATH = '.'
 
@@ -33,16 +32,6 @@ def print_(*args, **kwds):
     # Python 3.0. Also, this function can be overridden for testing.
     msysio.print_(*args, **kwds)
 
-def confirm(message, default=None):
-    """ask a yes/no question, return result"""
-    if not sys.stdout.isatty():
-        if default is None:
-            raise RuntimeError("Non interactive, tried to ask: %s" % message)
-        return default
-    reply = msysio.raw_input_("\n%s [Y/n]:" % message)
-    if reply and reply[0].lower() == 'n':
-        return False
-    return True
 
 def is_msys_mingw():
     """Return true if this in an MinGW/MSYS build
@@ -212,12 +201,9 @@ def main(auto=False):
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
 
     if os.path.isfile('Setup'):
-        if auto or confirm('Backup existing "Setup" file', False):
+        if auto:
+            logging.info('Backing up existing "Setup" file into Setup.bak')
             shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
-
-    if not auto and os.path.isdir(os.path.join(BASE_PATH, 'build')):
-        if confirm('Remove old build directory (force recompile)', False):
-            shutil.rmtree(os.path.join(BASE_PATH, 'build'), 0)
 
     deps = CFG.main(**kwds)
     if deps:
