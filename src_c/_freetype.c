@@ -977,15 +977,15 @@ _ftfont_repr(pgFontObject *self)
 static PyObject *
 _ftfont_getstyle_flag(pgFontObject *self, void *closure)
 {
-    const int style_flag = (int)closure;
+    const long style_flag = (long)closure;
 
-    return PyBool_FromLong(self->style & style_flag);
+    return PyBool_FromLong(self->style & (FT_UInt16)style_flag);
 }
 
 static int
 _ftfont_setstyle_flag(pgFontObject *self, PyObject *value, void *closure)
 {
-    const int style_flag = (int)closure;
+    const long style_flag = (long)closure;
 
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");
@@ -1216,15 +1216,15 @@ _ftfont_getfixedsizes(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getrender_flag(pgFontObject *self, void *closure)
 {
-    const int render_flag = (int)closure;
+    const long render_flag = (long)closure;
 
-    return PyBool_FromLong(self->render_flags & render_flag);
+    return PyBool_FromLong(self->render_flags & (FT_UInt16)render_flag);
 }
 
 static int
 _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
 {
-    const int render_flag = (int)closure;
+    const long render_flag = (long)closure;
 
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");
