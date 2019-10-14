@@ -3,13 +3,8 @@
 import os, sys
 from glob import glob
 import platform
+import logging
 from distutils.sysconfig import get_python_inc
-
-# Python 2.x/3.x compatibility
-try:
-    raw_input
-except NameError:
-    raw_input = input
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
@@ -19,15 +14,6 @@ if os.environ.get('PYGAME_EXTRA_BASE', ''):
 else:
     extrabases = []
 
-
-def confirm(message):
-    "ask a yes/no question, return result"
-    if not sys.stdout.isatty():
-        return False
-    reply = raw_input('\n' + message + ' [Y/n]:')
-    if reply and (reply[0].lower()) == 'n':
-        return False
-    return True
 
 class DependencyProg:
     def __init__(self, name, envname, exename, minver, defaultlibs, version_flag="--version"):
@@ -259,10 +245,13 @@ def main(sdl2=False):
 
     for d in DEPS[1:]:
         if not d.found:
-            if "-auto" not in sys.argv and not confirm("""
-Warning, some of the pygame dependencies were not found. Pygame can still
-compile and install, but games that depend on those missing dependencies
-will not run. Would you like to continue the configuration?"""):
+            if "-auto" not in sys.argv:
+                logging.warning(
+                    "Some pygame dependencies were not found. "
+                    "Pygame can still compile and install, but games that "
+                    "depend on those missing dependencies will not run. "
+                    "Use -auto to continue building without all dependencies. "
+                )
                 raise SystemExit("Missing dependencies")
             break
 
