@@ -389,7 +389,7 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
                 for (i = 0; i < astripes; i++) {
                     for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
                         if (*ap & (*bp << shift)) {
-                            *y = ap - a_entry + yoffset;
+                            *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp << shift));
                             return 1;
@@ -398,7 +398,7 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
                     a_end += a->h;
                     for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
                         if (*ap & (*bp >> rshift)) {
-                            *y = ap - a_entry + yoffset;
+                            *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i + 1) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp >> rshift));
                             return 1;
@@ -407,7 +407,7 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
                 }
                 for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
                     if (*ap & (*bp << shift)) {
-                        *y = ap - a_entry + yoffset;
+                        *y = (int)(ap - a_entry) + yoffset;
                         *x = (xbase + astripes) * BITMASK_W_LEN +
                              firstsetbit(*ap & (*bp << shift));
                         return 1;
@@ -419,7 +419,7 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
                 for (i = 0; i < bstripes; i++) {
                     for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
                         if (*ap & (*bp << shift)) {
-                            *y = ap - a_entry + yoffset;
+                            *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp << shift));
                             return 1;
@@ -428,7 +428,7 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
                     a_end += a->h;
                     for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++)
                         if (*ap & (*bp >> rshift)) {
-                            *y = ap - a_entry + yoffset;
+                            *y = (int)(ap - a_entry) + yoffset;
                             *x = (xbase + i + 1) * BITMASK_W_LEN +
                                  firstsetbit(*ap & (*bp >> rshift));
                             return 1;
@@ -446,7 +446,7 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
             for (i = 0; i < astripes; i++) {
                 for (ap = a_entry, bp = b_entry; ap < a_end; ap++, bp++) {
                     if (*ap & *bp) {
-                        *y = ap - a_entry + yoffset;
+                        *y = (int)(ap - a_entry) + yoffset;
                         *x = (xbase + i) * BITMASK_W_LEN +
                              firstsetbit(*ap & *bp);
                         return 1;
