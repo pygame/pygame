@@ -334,10 +334,6 @@ v4l2_process_image(pgCameraObject *self, const void *image,
 }
 
 /* query each buffer to see if it contains a frame ready to take */
-/* FIXME: There needs to be a better way to implement non-blocking frame
-   grabbing than only doing a get_image if query_image returns true. Many
-   cameras will always return false, and will only respond to blocking calls.
- */
 int
 v4l2_query_buffer(pgCameraObject *self)
 {
