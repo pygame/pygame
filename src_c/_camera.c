@@ -1258,8 +1258,6 @@ uyvy_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-/* FIXME: Seems to be grayscale and kind of dark on the OLPC XO
-          Maybe the result of a different Bayer color order on the screen? */
 /* TODO: Certainly not the most efficient way of doing this conversion. */
 void
 sbggr8_to_rgb(const void *src, void *dst, int width, int height,
