@@ -34,7 +34,7 @@ def init():
 
 def quit():
     global vidcap
-    del vidcap
+    vidcap = None
 
 
 class Camera:

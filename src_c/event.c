@@ -38,8 +38,8 @@
 static int have_registered_events = 0;
 #endif /* IS_SDLv2 */
 
-// FIXME: The system message code is only tested on windows, so only
-//          include it there for now.
+// The system message code is only tested on windows, so only
+//   include it there for now.
 #include <SDL_syswm.h>
 
 /*this user event object is for safely passing

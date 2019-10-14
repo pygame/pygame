@@ -508,43 +508,35 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     return list(DEPS)
 
 def setup_prebuilt_sdl1(prebuilt_dir):
-    setup_ = open('Setup', 'w')
-    #is_pypy = '__pypy__' in sys.builtin_module_names
-    #import platform
-    #is_python3 = platform.python_version().startswith('3')
-
-    try:
+    with open('Setup', 'w') as setup_:
         try:
-            setup_win_in = open(os.path.join(prebuilt_dir, 'Setup_Win.in'))
-        except IOError:
-            raise IOError("%s missing required Setup_Win.in" % prebuilt_dir)
+            try:
+                setup_win_in = open(os.path.join(prebuilt_dir, 'Setup_Win.in'))
+            except IOError:
+                raise IOError("%s missing required Setup_Win.in" % prebuilt_dir)
 
-        # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
-        # block with prebuilt\Setup_Win.in .
-        setup_in = open(os.path.join('buildconfig', 'Setup.SDL1.in'))
-        try:
-            do_copy = True
-            for line in setup_in:
-                if line.startswith('#--StartConfig'):
-                    do_copy = False
-                    setup_.write(setup_win_in.read())
-                    try:
-                        setup_win_common_in = open(os.path.join('buildconfig', 'Setup_Win_Common.in'))
-                    except:
-                        pass
-                    else:
-                        try:
-                            setup_.write(setup_win_common_in.read())
-                        finally:
-                            setup_win_common_in.close()
-                elif line.startswith('#--EndConfig'):
+            # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
+            # block with prebuilt\Setup_Win.in .
+            with open(os.path.join('buildconfig', 'Setup.SDL1.in')) as setup_in:
+                try:
                     do_copy = True
-                elif do_copy:
-                    setup_.write(line)
-        finally:
-            setup_in.close()
-    finally:
-        setup_.close()
+                    for line in setup_in:
+                        if line.startswith('#--StartConfig'):
+                            do_copy = False
+                            setup_.write(setup_win_in.read())
+                            try:
+                                with open(os.path.join('buildconfig', 'Setup_Win_Common.in')) as setup_win_common_in:
+                                    setup_.write(setup_win_common_in.read())
+                            except OSError:
+                                pass
+                        elif line.startswith('#--EndConfig'):
+                            do_copy = True
+                        elif do_copy:
+                            setup_.write(line)
+                except OSError:
+                    pass
+        except OSError:
+            pass
 
     print("Wrote to \"Setup\".")
 

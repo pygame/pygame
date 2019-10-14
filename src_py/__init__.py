@@ -29,50 +29,9 @@ import os
 
 # Choose Windows display driver
 if os.name == 'nt':
-
     #pypy does not find the dlls, so we add package folder to PATH.
     pygame_dir = os.path.split(__file__)[0]
     os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
-    # Respect existing SDL_VIDEODRIVER setting if it has been set
-    if 'SDL_VIDEODRIVER' not in os.environ:
-
-        # If the Windows version is 95/98/ME and DirectX 5 or greater is
-        # installed, then use the directx driver rather than the default
-        # windib driver.
-
-        # http://docs.python.org/lib/module-sys.html
-        # 0 (VER_PLATFORM_WIN32s)          Win32s on Windows 3.1
-        # 1 (VER_PLATFORM_WIN32_WINDOWS)   Windows 95/98/ME
-        # 2 (VER_PLATFORM_WIN32_NT)        Windows NT/2000/XP
-        # 3 (VER_PLATFORM_WIN32_CE)        Windows CE
-        if sys.getwindowsversion()[0] == 1:
-
-            import _winreg
-
-            try:
-
-                # Get DirectX version from registry
-                key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                                      'SOFTWARE\\Microsoft\\DirectX')
-                dx_version_string = _winreg.QueryValueEx(key, 'Version')
-                key.Close()
-
-                # Set video driver to directx if DirectX 5 or better is
-                # installed.
-                # To interpret DirectX version numbers, see this page:
-                # http://en.wikipedia.org/wiki/DirectX#Releases
-                minor_dx_version = int(dx_version_string.split('.')[1])
-                if minor_dx_version >= 5:
-                    os.environ['SDL_VIDEODRIVER'] = 'directx'
-
-                # Clean up namespace
-                del key, dx_version_string, minor_dx_version
-
-            except:
-                pass
-
-            # Clean up namespace
-            del _winreg
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.

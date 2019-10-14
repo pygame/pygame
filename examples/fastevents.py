@@ -17,7 +17,8 @@ from pygame import *
 # the config to try different settings out with the event queues.
 
 # use the fastevent module or not.
-use_fast_events = 1
+event_module = fastevent
+# event_module = event
 
 # use pygame.display.flip().
 #    otherwise we test raw event processing throughput.
@@ -27,12 +28,6 @@ with_display = 1
 slow_tick = 0
 
 NUM_EVENTS_TO_POST = 200000
-
-
-if use_fast_events:
-    event_module = fastevent
-else:
-    event_module = event
 
 
 from threading import Thread
