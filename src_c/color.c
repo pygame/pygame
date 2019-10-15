@@ -1634,9 +1634,11 @@ _color_int(pgColorObject *color)
     Uint32 tmp = (color->data[0] << 24) + (color->data[1] << 16) +
                  (color->data[2] << 8) + color->data[3];
 #if !PY3
+#if LONG_MAX == 2147483647
     if (tmp < LONG_MAX) {
         return PyInt_FromLong((long)tmp);
     }
+#endif
 #endif
     return PyLong_FromUnsignedLong(tmp);
 }
@@ -1673,13 +1675,18 @@ _color_oct(pgColorObject *color)
     char buf[100];
     Uint32 tmp = ((color->data[0] << 24) + (color->data[1] << 16) +
                   (color->data[2] << 8) + color->data[3]);
-
+#if !PY3
+#if LONG_MAX == 2147483647
     if (tmp < LONG_MAX) {
         PyOS_snprintf(buf, sizeof(buf), "0%lo", (unsigned long)tmp);
-    }
-    else {
+    } else {
         PyOS_snprintf(buf, sizeof(buf), "0%loL", (unsigned long)tmp);
     }
+    return PyString_FromString(buf);
+#endif
+#endif
+    PyOS_snprintf(buf, sizeof(buf), "0%lo", (unsigned long)tmp);
+
     return PyString_FromString(buf);
 }
 
@@ -1692,12 +1699,17 @@ _color_hex(pgColorObject *color)
     char buf[100];
     Uint32 tmp = ((color->data[0] << 24) + (color->data[1] << 16) +
                   (color->data[2] << 8) + color->data[3]);
+#if !PY3
+#if LONG_MAX == 2147483647
     if (tmp < LONG_MAX) {
         PyOS_snprintf(buf, sizeof(buf), "0x%lx", (unsigned long)tmp);
-    }
-    else {
+    } else {
         PyOS_snprintf(buf, sizeof(buf), "0x%lxL", (unsigned long)tmp);
     }
+    return Text_FromUTF8(buf);
+#endif
+#endif
+    PyOS_snprintf(buf, sizeof(buf), "0x%lx", (unsigned long)tmp);
     return Text_FromUTF8(buf);
 }
 #endif
