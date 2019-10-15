@@ -39,7 +39,9 @@
 
 /* stdint.h is missing from some versions of MSVC. */
 #ifdef _MSC_VER
+#ifndef UINT32_MAX
 #define UINT32_MAX 0xFFFFFFFF
+#endif
 #else
 #include <stdint.h>
 #endif /* _MSC_VER */
