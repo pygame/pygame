@@ -1,10 +1,32 @@
 #!/usr/bin/env python
+""" pygame.examples.aliens
+
+Shows a mini game where you have to defend against aliens.
+
+What does it show you about pygame?
+
+* pygame.sprite, the difference between Sprite and Group.
+* dirty rectangle optimization for processing for speed.
+* music with pygame.mixer.music, including fadeout
+* sound effects with pygame.Sound
+* event processing, keyboard handling, QUIT handling.
+* a main loop frame limited with a game clock from pygame.time.Clock
+* fullscreen switching.
+
+
+Controls
+--------
+
+* Left and right arrows to move.
+* Space bar to shoot
+* f key to toggle between fullscreen.
+
+"""
 
 import random, os.path
 
 # import basic pygame modules
 import pygame
-from pygame.locals import *
 
 # see if we can load more than standard BMP
 if not pygame.image.get_extended():
@@ -16,7 +38,7 @@ MAX_SHOTS = 2  # most player bullets onscreen
 ALIEN_ODDS = 22  # chances a new alien appears
 BOMB_ODDS = 60  # chances a new bomb will drop
 ALIEN_RELOAD = 12  # frames between new aliens
-SCREENRECT = Rect(0, 0, 640, 480)
+SCREENRECT = pygame.Rect(0, 0, 640, 480)
 SCORE = 0
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -32,19 +54,14 @@ def load_image(file):
     return surface.convert()
 
 
-def load_images(*files):
-    imgs = []
-    for file in files:
-        imgs.append(load_image(file))
-    return imgs
-
-
 class dummysound:
     def play(self):
         pass
 
 
 def load_sound(file):
+    """ because pygame can be be compiled without mixer.
+    """
     if not pygame.mixer:
         return dummysound()
     file = os.path.join(main_dir, "data", file)
@@ -56,13 +73,12 @@ def load_sound(file):
     return dummysound()
 
 
-# each type of game object gets an init and an
-# update function. the update function is called
-# once per frame, and it is when each object should
-# change it's current position and state. the Player
-# object actually gets a "move" function instead of
-# update, since it is passed extra information about
-# the keyboard
+# Each type of game object gets an init and an update function.
+# The update function is called once per frame, and it is when each object should
+# change it's current position and state.
+#
+# The Player object actually gets a "move" function instead of update,
+# since it is passed extra information about the keyboard.
 
 
 class Player(pygame.sprite.Sprite):
@@ -173,7 +189,7 @@ class Score(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.Font(None, 20)
         self.font.set_italic(1)
-        self.color = Color("white")
+        self.color = pygame.Color("white")
         self.lastscore = -1
         self.update()
         self.rect = self.image.get_rect().move(10, 450)
@@ -206,7 +222,7 @@ def main(winstyle=0):
     Player.images = [img, pygame.transform.flip(img, 1, 0)]
     img = load_image("explosion1.gif")
     Explosion.images = [img, pygame.transform.flip(img, 1, 1)]
-    Alien.images = load_images("alien1.gif", "alien2.gif", "alien3.gif")
+    Alien.images = [load_image(im) for im in ("alien1.gif", "alien2.gif", "alien3.gif")]
     Bomb.images = [load_image("bomb.gif")]
     Shot.images = [load_image("shot.gif")]
 
@@ -259,13 +275,16 @@ def main(winstyle=0):
     if pygame.font:
         all.add(Score())
 
+    # Run our main loop whilst the player is alive.
     while player.alive():
 
         # get input
         for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            if event.type == pygame.QUIT:
                 return
-            elif event.type == KEYDOWN:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
                     if not fullscreen:
                         print("Changing to FULLSCREEN")
@@ -281,7 +300,6 @@ def main(winstyle=0):
                             SCREENRECT.size, winstyle, bestdepth
                         )
                         screen.blit(screen_backup, (0, 0))
-                    # screen.fill((255, 0, 0))
                     pygame.display.flip()
                     fullscreen = not fullscreen
 
@@ -294,9 +312,9 @@ def main(winstyle=0):
         all.update()
 
         # handle player input
-        direction = keystate[K_RIGHT] - keystate[K_LEFT]
+        direction = keystate[pygame.K_RIGHT] - keystate[pygame.K_LEFT]
         player.move(direction)
-        firing = keystate[K_SPACE]
+        firing = keystate[pygame.K_SPACE]
         if not player.reloading and firing and len(shots) < MAX_SHOTS:
             Shot(player.gunpos())
             shoot_sound.play()
@@ -313,7 +331,7 @@ def main(winstyle=0):
         if lastalien and not int(random.random() * BOMB_ODDS):
             Bomb(lastalien.sprite)
 
-        # Detect collisions
+        # Detect collisions between aliens and players.
         for alien in pygame.sprite.spritecollide(player, aliens, 1):
             boom_sound.play()
             Explosion(alien)
@@ -321,11 +339,13 @@ def main(winstyle=0):
             SCORE = SCORE + 1
             player.kill()
 
+        # See if shots hit the aliens.
         for alien in pygame.sprite.groupcollide(shots, aliens, 1, 1).keys():
             boom_sound.play()
             Explosion(alien)
             SCORE = SCORE + 1
 
+        # See if alien boms hit the player.
         for bomb in pygame.sprite.spritecollide(player, bombs, 1):
             boom_sound.play()
             Explosion(player)
@@ -336,7 +356,7 @@ def main(winstyle=0):
         dirty = all.draw(screen)
         pygame.display.update(dirty)
 
-        # cap the framerate
+        # cap the framerate at 40fps. Also called 40HZ or 40 times per second.
         clock.tick(40)
 
     if pygame.mixer:
