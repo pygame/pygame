@@ -10,6 +10,7 @@ except ImportError:
 
 import os, sys
 import re
+import logging
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
