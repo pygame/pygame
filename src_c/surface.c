@@ -37,6 +37,15 @@
 
 #include "pgbufferproxy.h"
 
+/* stdint.h is missing from some versions of MSVC. */
+#ifdef _MSC_VER
+#ifndef UINT32_MAX
+#define UINT32_MAX 0xFFFFFFFF
+#endif
+#else
+#include <stdint.h>
+#endif /* _MSC_VER */
+
 typedef enum {
     VIEWKIND_0D = 0,
     VIEWKIND_1D = 1,
@@ -1684,7 +1693,7 @@ surf_convert(PyObject *self, PyObject *args)
     PyObject *argobject = NULL;
     SDL_Surface *src;
     SDL_Surface *newsurf;
-    Uint32 flags = -1;
+    Uint32 flags = UINT32_MAX;
 
 #if IS_SDLv2
     Uint32 colorkey;
@@ -1738,9 +1747,9 @@ surf_convert(PyObject *self, PyObject *args)
                 Uint32 Rmask, Gmask, Bmask, Amask;
 
 #if IS_SDLv1
-                if (flags != -1 && flags & SDL_SRCALPHA) {
+                if (flags != UINT32_MAX && flags & SDL_SRCALPHA) {
 #else  /* IS_SDLv2 */
-                if (flags != -1 && flags & PGS_SRCALPHA) {
+                if (flags != UINT32_MAX && flags & PGS_SRCALPHA) {
 #endif /* IS_SDLv2 */
                     switch (bpp) {
                         case 16:
@@ -1841,7 +1850,7 @@ surf_convert(PyObject *self, PyObject *args)
                  */
                 format.palette = NULL;
 #if IS_SDLv1
-            if (flags == -1)
+            if (flags == UINT32_MAX)
                 flags = surf->flags;
             if (format.Amask)
                 flags |= SDL_SRCALPHA;

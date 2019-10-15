@@ -432,7 +432,7 @@ font_render(PyObject *self, PyObject *args)
             return NULL;
         }
         astring = Bytes_AsString(bytes);
-        if (strlen(astring) != Bytes_GET_SIZE(bytes)) {
+        if (strlen(astring) != (size_t)Bytes_GET_SIZE(bytes)) {
             Py_DECREF(bytes);
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
@@ -459,7 +459,7 @@ font_render(PyObject *self, PyObject *args)
     else if (Bytes_Check(text)) {
         const char *astring = Bytes_AsString(text);
 
-        if (strlen(astring) != Bytes_GET_SIZE(text)) {
+        if (strlen(astring) != (size_t)Bytes_GET_SIZE(text)) {
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
@@ -581,7 +581,7 @@ font_metrics(PyObject *self, PyObject *args)
         Py_DECREF(obj);
         return NULL;
     }
-    buffer = Bytes_AS_STRING(obj);
+    buffer = (Uint16 *)Bytes_AS_STRING(obj);
     length = Bytes_GET_SIZE(obj) / sizeof(Uint16);
     for (i = 1 /* skip BOM */; i < length; i++) {
         ch = buffer[i];
