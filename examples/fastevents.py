@@ -67,7 +67,7 @@ import time as pytime
 def main():
     init()
 
-    if use_fast_events:
+    if event_module == fastevent:
         fastevent.init()
 
     c = time.Clock()
