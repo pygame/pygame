@@ -101,7 +101,7 @@ class Dependency(object):
     def matchfile(self, path, match):
         try:
             entries = os.listdir(path)
-        except:
+        except OSError:
             pass
         else:
             for e in entries:
@@ -242,7 +242,7 @@ class DependencyDLL(Dependency):
             path = os.path.join(root, dir)
             try:
                 entries = os.listdir(path)
-            except:
+            except OSError:
                 pass
             else:
                 for e in entries:
