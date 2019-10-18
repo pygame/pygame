@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""
+""" pygame.examples.chimp
+
 This simple example is used for the line-by-line tutorial
 that comes with pygame. It is based on a 'popular' web banner.
 Note there are comments here, but for the full explanation,
@@ -9,7 +10,6 @@ follow along in the tutorial.
 
 # Import Modules
 import os, pygame
-from pygame.locals import *
 from pygame.compat import geterror
 
 if not pygame.font:
@@ -33,7 +33,7 @@ def load_image(name, colorkey=None):
     if colorkey is not None:
         if colorkey == -1:
             colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey, RLEACCEL)
+        image.set_colorkey(colorkey, pygame.RLEACCEL)
     return image, image.get_rect()
 
 
@@ -171,17 +171,17 @@ def main():
 
         # Handle Input Events
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 going = False
-            elif event.type == KEYDOWN and event.key == K_ESCAPE:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 going = False
-            elif event.type == MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 if fist.punch(chimp):
                     punch_sound.play()  # punch
                     chimp.punched()
                 else:
                     whiff_sound.play()  # miss
-            elif event.type == MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 fist.unpunch()
 
         allsprites.update()

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
+""" pygame.examples.midi
 
-"""Contains an example of midi input, and a separate example of midi output.
+midi input, and a separate example of midi output.
 
 By default it runs the output example.
-python midi.py --output
-python midi.py --input
 
+python -m pygame.examples.midi --output
+python -m pygame.examples.midi --input
+python -m pygame.examples.midi --input
 """
 
 import sys
@@ -13,7 +15,6 @@ import os
 
 import pygame
 import pygame.midi
-from pygame.locals import *
 
 
 def print_device_info():
@@ -63,9 +64,9 @@ def input_main(device_id=None):
     while going:
         events = event_get()
         for e in events:
-            if e.type in [QUIT]:
+            if e.type in [pygame.QUIT]:
                 going = False
-            if e.type in [KEYDOWN]:
+            if e.type in [pygame.KEYDOWN]:
                 going = False
             if e.type in [pygame.midi.MIDIIN]:
                 print(e)
@@ -98,7 +99,7 @@ def output_main(device_id=None):
 
     Default Midi output, no device_id given, is to the default output device
     for the computer.
-    
+
     """
 
     # A note to new pygamers:
@@ -136,30 +137,30 @@ def output_main(device_id=None):
 
     key_mapping = make_key_mapping(
         [
-            K_TAB,
-            K_1,
-            K_q,
-            K_2,
-            K_w,
-            K_3,
-            K_e,
-            K_r,
-            K_5,
-            K_t,
-            K_6,
-            K_y,
-            K_u,
-            K_8,
-            K_i,
-            K_9,
-            K_o,
-            K_0,
-            K_p,
-            K_LEFTBRACKET,
-            K_EQUALS,
-            K_RIGHTBRACKET,
-            K_BACKSPACE,
-            K_BACKSLASH,
+            pygame.K_TAB,
+            pygame.K_1,
+            pygame.K_q,
+            pygame.K_2,
+            pygame.K_w,
+            pygame.K_3,
+            pygame.K_e,
+            pygame.K_r,
+            pygame.K_5,
+            pygame.K_t,
+            pygame.K_6,
+            pygame.K_y,
+            pygame.K_u,
+            pygame.K_8,
+            pygame.K_i,
+            pygame.K_9,
+            pygame.K_o,
+            pygame.K_0,
+            pygame.K_p,
+            pygame.K_LEFTBRACKET,
+            pygame.K_EQUALS,
+            pygame.K_RIGHTBRACKET,
+            pygame.K_BACKSPACE,
+            pygame.K_BACKSLASH,
         ],
         start_note,
     )
@@ -194,7 +195,7 @@ def output_main(device_id=None):
         regions = pygame.Surface(screen.get_size())  # initial color (0,0,0)
         keyboard.map_regions(regions)
 
-        pygame.event.set_blocked(MOUSEMOTION)
+        pygame.event.set_blocked(pygame.MOUSEMOTION)
         mouse_note = 0
         on_notes = set()
         while 1:
@@ -454,7 +455,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             """
             if key_left is None:
                 key_left = null_key
-            rect = Rect(posn[0], posn[1], c_width, c_height)
+            rect = pygame.Rect(posn[0], posn[1], c_width, c_height)
             self.rect = rect
             self._state = c_down_state_initial
             self._source_rect = c_down_state_rect_initial
@@ -463,7 +464,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             self._notify_down = getattr(key_left, c_notify_down_method)
             self._notify_up = getattr(key_left, c_notify_up_method)
             self._key_left = key_left
-            self._background_rect = Rect(rect.left, rect.bottom - 10, c_width, 10)
+            self._background_rect = pygame.Rect(rect.left, rect.bottom - 10, c_width, 10)
             c_updates.add(self)
 
         def down(self):
@@ -613,11 +614,11 @@ def key_images():
     ]
     rects = {}
     for i in range(2):
-        rects[names[i]] = Rect(
+        rects[names[i]] = pygame.Rect(
             i * white_key_width, 0, black_key_width, black_key_height
         )
     for i in range(2, len(names)):
-        rects[names[i]] = Rect(
+        rects[names[i]] = pygame.Rect(
             i * white_key_width, 0, white_key_width, white_key_height
         )
     return strip, rects
@@ -701,7 +702,7 @@ class Keyboard(object):
         """Populate the keyboard with key instances
 
         Set the _keys and rect attributes.
-        
+
         """
 
         # Keys are entered in a list, where index is Midi note. Since there are
@@ -745,7 +746,7 @@ class Keyboard(object):
 
         kb_width = key_map[self._end_note].rect.right
         kb_height = self.white_key_height
-        self.rect = Rect(0, 0, kb_width, kb_height)
+        self.rect = pygame.Rect(0, 0, kb_width, kb_height)
 
     def map_regions(self, regions):
         """Draw the key regions onto surface regions.

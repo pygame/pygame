@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+""" pygame.examples.scroll
 
-"""An zoomed image viewer that demonstrates Surface.scroll
+An zoomed image viewer that demonstrates Surface.scroll
 
 This example shows a scrollable image that has a zoom factor of eight.
 It uses the Surface.scroll function to shift the image on the display
@@ -12,7 +13,6 @@ is provided a default image file is used.
 When running click on a black triangle to move one pixel in the direction
 the triangle points. Or use the arrow keys. Close the window or press ESC
 to quit.
-
 """
 
 import sys

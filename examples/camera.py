@@ -1,10 +1,20 @@
 #!/usr/bin/env python
+""" pygame.examples.camera
 
-# 1. Basic image capturing and displaying using the camera module
+Basic image capturing and displaying using pygame.camera
+
+Keyboard controls
+-----------------
+
+- 0, start camera 0.
+- 1, start camera 1.
+- 9, start camera 9.
+- 10, start camera... wait a minute! There's not 10 key!
+"""
+
 
 import pygame
 import pygame.camera
-from pygame.locals import *
 
 
 class VideoCapturePlayer(object):
@@ -75,11 +85,11 @@ class VideoCapturePlayer(object):
         while going:
             events = pygame.event.get()
             for e in events:
-                if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
+                if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
                     going = False
                 if e.type == KEYDOWN:
-                    if e.key in range(K_0, K_0 + 10):
-                        self.init_cams(e.key - K_0)
+                    if e.key in range(pygame.K_0, pygame.K_0 + 10):
+                        self.init_cams(e.key - pygame.K_0)
 
             self.get_and_flip()
             self.clock.tick()

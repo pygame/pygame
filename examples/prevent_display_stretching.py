@@ -1,5 +1,7 @@
-# coding: ascii
-"""Prevent display stretching
+#!/usr/bin/env python
+""" pygame.examples.prevent_display_stretching
+
+Prevent display stretching on Windows.
 
 On some computers, the display environment can be configured to stretch
 all windows so that they will not appear too small on the screen for
@@ -10,24 +12,18 @@ this stretching and distortion.
 
 Limitations:
 This script makes an API call that is only available on Windows (versions
-Vista and newer). ctypes must be installed.
+Vista and newer).
 
 """
 
 # Ensure that the computer is running Windows Vista or newer
-import os, sys
+import os
+import sys
 
 if os.name != "nt" or sys.getwindowsversion()[0] < 6:
     raise NotImplementedError("this script requires Windows Vista or newer")
 
-# Ensure that ctypes is installed. It is included with Python 2.5 and newer,
-# but Python 2.4 users must install ctypes manually.
-try:
-    import ctypes
-except ImportError:
-    print("install ctypes from http://sourceforge.net/projects/ctypes/files/ctypes")
-    raise
-
+import ctypes
 import pygame
 
 # Determine whether or not the user would like to prevent stretching

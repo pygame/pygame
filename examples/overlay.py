@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+""" pygame.examples.overlay
 
+The overlay module is deprecated now.
+It is an olden days way to draw video quickly.
+"""
 import sys
 import pygame
 from pygame.compat import xrange_

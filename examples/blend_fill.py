@@ -1,7 +1,18 @@
 #!/usr/bin/env python
+""" pygame.examples.blend_fill
+
+Blending colors in different
+
+Keyboard Controls:
+
+* Press R, G, B to increase the color channel values,
+* 1-9 to set the step range for the increment,
+* A - ADD, S- SUB, M- MULT, - MIN, + MAX to change the blend modes
+
+"""
 import os
 import pygame
-from pygame.locals import *
+from pygame import K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9
 
 
 def usage():
@@ -37,46 +48,46 @@ def main():
     going = True
     while going:
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 going = False
 
-            if event.type == KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 usage()
 
-                if event.key == K_ESCAPE:
+                if event.key == pygame.K_ESCAPE:
                     going = False
 
-                if event.key == K_r:
+                if event.key == pygame.K_r:
                     color[0] += step
                     if color[0] > 255:
                         color[0] = 0
                     changed = True
 
-                elif event.key == K_g:
+                elif event.key == pygame.K_g:
                     color[1] += step
                     if color[1] > 255:
                         color[1] = 0
                     changed = True
 
-                elif event.key == K_b:
+                elif event.key == pygame.K_b:
                     color[2] += step
                     if color[2] > 255:
                         color[2] = 0
                     changed = True
 
-                elif event.key == K_a:
+                elif event.key == pygame.K_a:
                     blendtype = BLEND_ADD
                     changed = True
-                elif event.key == K_s:
+                elif event.key == pygame.K_s:
                     blendtype = BLEND_SUB
                     changed = True
-                elif event.key == K_m:
+                elif event.key == pygame.K_m:
                     blendtype = BLEND_MULT
                     changed = True
-                elif event.key == K_PLUS:
+                elif event.key == pygame.K_PLUS:
                     blendtype = BLEND_MAX
                     changed = True
-                elif event.key == K_MINUS:
+                elif event.key == pygame.K_MINUS:
                     blendtype = BLEND_MIN
                     changed = True
 

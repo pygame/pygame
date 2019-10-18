@@ -23,7 +23,8 @@ Controls
 
 """
 
-import random, os.path
+import random
+import os
 
 # import basic pygame modules
 import pygame
@@ -45,7 +46,8 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 
 def load_image(file):
-    "loads an image, prepares it for play"
+    """ loads an image, prepares it for play
+    """
     file = os.path.join(main_dir, "data", file)
     try:
         surface = pygame.image.load(file)
@@ -54,23 +56,18 @@ def load_image(file):
     return surface.convert()
 
 
-class dummysound:
-    def play(self):
-        pass
-
-
 def load_sound(file):
     """ because pygame can be be compiled without mixer.
     """
     if not pygame.mixer:
-        return dummysound()
+        return None
     file = os.path.join(main_dir, "data", file)
     try:
         sound = pygame.mixer.Sound(file)
         return sound
     except pygame.error:
         print("Warning, unable to load, %s" % file)
-    return dummysound()
+    return None
 
 
 # Each type of game object gets an init and an update function.
@@ -82,6 +79,8 @@ def load_sound(file):
 
 
 class Player(pygame.sprite.Sprite):
+    """ Representing the player as a moon buggy type car.
+    """
     speed = 10
     bounce = 24
     gun_offset = -11
@@ -112,6 +111,8 @@ class Player(pygame.sprite.Sprite):
 
 
 class Alien(pygame.sprite.Sprite):
+    """ An alien space ship. That slowly moves down the screen.
+    """
     speed = 13
     animcycle = 12
     images = []
@@ -136,6 +137,8 @@ class Alien(pygame.sprite.Sprite):
 
 
 class Explosion(pygame.sprite.Sprite):
+    """ An explosion. Hopefully the Alien and not the player!
+    """
     defaultlife = 12
     animcycle = 3
     images = []
@@ -147,6 +150,13 @@ class Explosion(pygame.sprite.Sprite):
         self.life = self.defaultlife
 
     def update(self):
+        """ called every time around the game loop.
+
+        Show the explosion surface for 'defaultlife'.
+        Every game tick(update), we decrease the 'life'.
+
+        Also we animate the explosion.
+        """
         self.life = self.life - 1
         self.image = self.images[self.life // self.animcycle % 2]
         if self.life <= 0:
@@ -154,6 +164,8 @@ class Explosion(pygame.sprite.Sprite):
 
 
 class Shot(pygame.sprite.Sprite):
+    """ a bullet the Player sprite fires.
+    """
     speed = -11
     images = []
 
@@ -163,12 +175,18 @@ class Shot(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=pos)
 
     def update(self):
+        """ called every time around the game loop.
+
+        Every tick we move the shot upwards.
+        """
         self.rect.move_ip(0, self.speed)
         if self.rect.top <= 0:
             self.kill()
 
 
 class Bomb(pygame.sprite.Sprite):
+    """ A bomb the aliens drop.
+    """
     speed = 9
     images = []
 
@@ -178,6 +196,14 @@ class Bomb(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=alien.rect.move(0, 5).midbottom)
 
     def update(self):
+        """ called every time around the game loop.
+
+        Every frame we move the sprite 'rect' down.
+        When it reaches the bottom we:
+
+        - make an explosion.
+        - remove the Bomb.
+        """
         self.rect.move_ip(0, self.speed)
         if self.rect.bottom >= 470:
             Explosion(self)
@@ -185,6 +211,8 @@ class Bomb(pygame.sprite.Sprite):
 
 
 class Score(pygame.sprite.Sprite):
+    """ to keep track of the score.
+    """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.Font(None, 20)
@@ -195,6 +223,8 @@ class Score(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(10, 450)
 
     def update(self):
+        """ We only update the score in update() when it has changed.
+        """
         if SCORE != self.lastscore:
             self.lastscore = SCORE
             msg = "Score: %d" % SCORE
@@ -209,6 +239,7 @@ def main(winstyle=0):
     if pygame.mixer and not pygame.mixer.get_init():
         print("Warning, no sound")
         pygame.mixer = None
+    pygame.mixer = None
 
     fullscreen = False
     # Set the display mode
@@ -290,7 +321,7 @@ def main(winstyle=0):
                         print("Changing to FULLSCREEN")
                         screen_backup = screen.copy()
                         screen = pygame.display.set_mode(
-                            SCREENRECT.size, winstyle | FULLSCREEN, bestdepth
+                            SCREENRECT.size, winstyle | pygame.FULLSCREEN, bestdepth
                         )
                         screen.blit(screen_backup, (0, 0))
                     else:
@@ -317,7 +348,8 @@ def main(winstyle=0):
         firing = keystate[pygame.K_SPACE]
         if not player.reloading and firing and len(shots) < MAX_SHOTS:
             Shot(player.gunpos())
-            shoot_sound.play()
+            if pygame.mixer:
+                shoot_sound.play()
         player.reloading = firing
 
         # Create new alien
@@ -333,7 +365,8 @@ def main(winstyle=0):
 
         # Detect collisions between aliens and players.
         for alien in pygame.sprite.spritecollide(player, aliens, 1):
-            boom_sound.play()
+            if pygame.mixer:
+                boom_sound.play()
             Explosion(alien)
             Explosion(player)
             SCORE = SCORE + 1
@@ -341,13 +374,15 @@ def main(winstyle=0):
 
         # See if shots hit the aliens.
         for alien in pygame.sprite.groupcollide(shots, aliens, 1, 1).keys():
-            boom_sound.play()
+            if pygame.mixer:
+                boom_sound.play()
             Explosion(alien)
             SCORE = SCORE + 1
 
         # See if alien boms hit the player.
         for bomb in pygame.sprite.spritecollide(player, bombs, 1):
-            boom_sound.play()
+            if pygame.mixer:
+                boom_sound.play()
             Explosion(player)
             Explosion(bomb)
             player.kill()

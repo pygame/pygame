@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-"""
+""" pygame.examples.scrap_clipboard
+
 Demonstrates the clipboard capabilities of pygame.
+
+Copy/paste!
 """
 import os
 

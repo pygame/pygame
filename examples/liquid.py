@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+""" pygame.examples.liquid
 
-"""This examples demonstrates a simplish water effect of an
+This example demonstrates a simplish water effect of an
 image. It attempts to create a hardware display surface that
 can use pageflipping for faster updates. Note that the colormap
 from the loaded GIF image is copied to the colormap for the
@@ -9,10 +10,10 @@ display surface.
 This is based on the demo named F2KWarp by Brad Graham of Freedom2000
 done in BlitzBasic. I was just translating the BlitzBasic code to
 pygame to compare the results. I didn't bother porting the text and
-sound stuff, that's an easy enough challenge for the reader :]"""
+sound stuff, that's an easy enough challenge for the reader :]
+"""
 
 import pygame, os
-from pygame.locals import *
 from math import sin
 import time
 
@@ -22,7 +23,7 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 def main():
     # initialize and setup screen
     pygame.init()
-    screen = pygame.display.set_mode((640, 480), HWSURFACE | DOUBLEBUF)
+    screen = pygame.display.set_mode((640, 480), pygame.HWSURFACE | pygame.DOUBLEBUF)
 
     # load image and quadruple
     imagename = os.path.join(main_dir, "data", "liquid.bmp")
@@ -42,7 +43,7 @@ def main():
     # mainloop
     xblocks = range(0, 640, 20)
     yblocks = range(0, 480, 20)
-    stopevents = QUIT, KEYDOWN, MOUSEBUTTONDOWN
+    stopevents = pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN
     while 1:
         for e in pygame.event.get():
             if e.type in stopevents:

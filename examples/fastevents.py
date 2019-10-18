@@ -1,23 +1,19 @@
 #!/usr/bin/env python
-"""  This is a stress test for the fastevents module.
+""" pygame.examples.fastevents
 
-*Fast events does not appear faster!*
+This is a stress test for the fastevents module.
 
-So far it looks like normal pygame.event is faster by up to two times.
-So maybe fastevent isn't fast at all.
-
-Tested on windowsXP sp2 athlon, and freebsd.
-
-However... on my debian duron 850 machine fastevents is faster.
+If you are using threads, then fastevents is useful.
 """
+import time as pytime
+from threading import Thread
 
 import pygame
-from pygame import *
 
 # the config to try different settings out with the event queues.
 
 # use the fastevent module or not.
-event_module = fastevent
+event_module = pygame.fastevent
 # event_module = event
 
 # use pygame.display.flip().
@@ -30,10 +26,9 @@ slow_tick = 0
 NUM_EVENTS_TO_POST = 200000
 
 
-from threading import Thread
 
 
-class post_them(Thread):
+class PostThem(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.done = []
@@ -43,7 +38,7 @@ class post_them(Thread):
         self.done = []
         self.stop = []
         for x in range(NUM_EVENTS_TO_POST):
-            ee = event.Event(USEREVENT)
+            ee = pygame.event.Event(pygame.USEREVENT)
             try_post = 1
 
             # the pygame.event.post raises an exception if the event
@@ -61,44 +56,33 @@ class post_them(Thread):
         self.done.append(1)
 
 
-import time as pytime
 
 
 def main():
-    init()
+    pygame.init()
 
-    if use_fast_events:
-        fastevent.init()
+    if hasattr(event_module, "init"):
+        event_module.init()
 
-    c = time.Clock()
+    c = pygame.time.Clock()
 
-    display.set_mode((640, 480), RESIZABLE)
-    display.set_caption("fastevent Workout")
+    pygame.display.set_mode((640, 480), pygame.RESIZABLE)
+    pygame.display.set_caption("fastevent Workout")
 
-    poster = post_them()
+    poster = PostThem()
 
     t1 = pytime.time()
     poster.start()
 
     going = True
     while going:
-        #        for e in event.get():
-        # for x in range(200):
-        #    ee = event.Event(USEREVENT)
-        #    r = event_module.post(ee)
-        #    print (r)
-
-        # for e in event_module.get():
-        event_list = []
-        event_list = event_module.get()
-
-        for e in event_list:
-            if e.type == QUIT:
+        for e in event_module.get():
+            if e.type == pygame.QUIT:
                 print(c.get_fps())
                 poster.stop.append(1)
                 going = False
-            if e.type == KEYDOWN:
-                if e.key == K_ESCAPE:
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
                     print(c.get_fps())
                     poster.stop.append(1)
                     going = False
@@ -110,7 +94,7 @@ def main():
             print("events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1)))
             going = False
         if with_display:
-            display.flip()
+            pygame.display.flip()
         if slow_tick:
             c.tick(40)
 

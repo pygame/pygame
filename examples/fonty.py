@@ -1,28 +1,26 @@
 #!/usr/bin/env python
+""" pygame.examples.fonty
 
-"""Here we load a .TTF font file, and display it in
-a basic pygame window. It demonstrates several of the
-Font object attributes. Nothing exciting in here, but
-it makes a great example for basic window, event, and
-font management."""
+Here we load a .TTF True Type font file, and display it in
+a basic pygame window.
+
+Demonstrating several Font object attributes.
+
+- basic window, event, and font management.
+"""
 
 
 import pygame
-from pygame.locals import *
 from pygame.compat import unicode_
 import sys
 import locale
 
 
 if sys.version_info >= (3,):
-
     def print_unicode(s):
         e = locale.getpreferredencoding()
         print(s.encode(e, "backslashreplace").decode())
-
-
 else:
-
     def print_unicode(s):
         e = locale.getpreferredencoding()
         print(s.encode(e, "backslashreplace"))
@@ -89,7 +87,7 @@ def main():
     pygame.display.flip()
     while 1:
         # use event.wait to keep from polling 100% cpu
-        if pygame.event.wait().type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
+        if pygame.event.wait().type in (pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
             break
 
 

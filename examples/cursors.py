@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+""" pygame.examples.cursors
 
+Click a mouse button (if you have one!) and the cursor changes.
+
+"""
 import pygame
 
 

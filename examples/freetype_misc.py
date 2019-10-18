@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+""" pygame.examples.freetype_misc
+
+"""
+
 import sys, os
 import pygame
-from pygame.locals import *
 
 try:
     import pygame.freetype as freetype
@@ -144,7 +148,7 @@ def run():
     pygame.display.flip()
 
     while 1:
-        if pygame.event.wait().type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
+        if pygame.event.wait().type in (pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
             break
 
     pygame.quit()

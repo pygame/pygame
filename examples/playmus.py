@@ -1,16 +1,23 @@
 #!/usr/bin/env python
+""" pygame.examples.playmus
 
-"""A simple music player.
+A simple music player.
 
-   Use pygame.mixer.music to play an audio file. A window is
-   created to handle keyboard events for playback commands.
+   Use pygame.mixer.music to play an audio file.
+
+A window is created to handle keyboard events for playback commands.
+
+
+Controls
+--------
+
+
 
 """
 
 from __future__ import print_function
 import pygame
 import pygame.freetype
-from pygame.locals import *
 import sys
 
 
@@ -107,7 +114,7 @@ def main(file_path):
                 e = pygame.event.wait()
                 if e.type == pygame.KEYDOWN:
                     key = e.key
-                    if key == K_SPACE:
+                    if key == pygame.K_SPACE:
                         if paused:
                             pygame.mixer.music.unpause()
                             paused = False
@@ -116,18 +123,18 @@ def main(file_path):
                             pygame.mixer.music.pause()
                             paused = True
                             win.write_lines("Paused ...\n", -1)
-                    elif key == K_r:
+                    elif key == pygame.K_r:
                         pygame.mixer.music.rewind()
                         if paused:
                             win.write_lines("Rewound.", -1)
-                    elif key == K_f:
+                    elif key == pygame.K_f:
                         win.write_lines("Faiding out ...\n", -1)
                         pygame.mixer.music.fadeout(5000)
                         # when finished get_busy() will return 0.
-                    elif key in [K_q, K_ESCAPE]:
+                    elif key in [pygame.K_q, pygame.K_ESCAPE]:
                         pygame.mixer.music.stop()
                         # get_busy() will now return 0.
-                elif e.type == QUIT:
+                elif e.type == pygame.QUIT:
                     pygame.mixer.music.stop()
                     # get_busy() will now return 0.
             pygame.time.set_timer(USEREVENT, 0)

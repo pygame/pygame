@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+""" pygame.examples.moveit
 
-"""
 This is the full and final example from the Pygame Tutorial,
 "How Do I Make It Move". It creates 10 objects and animates
 them on the screen.
@@ -9,11 +9,8 @@ Note it's a bit scant on error checking, but it's easy to read. :]
 Fortunately, this is python, and we needn't wrestle with a pile of
 error codes.
 """
-
-
-# import everything
-import os, pygame
-from pygame.locals import *
+import os
+import pygame
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -58,7 +55,7 @@ def main():
 
     while 1:
         for event in pygame.event.get():
-            if event.type in (QUIT, KEYDOWN):
+            if event.type in (pygame.QUIT, pygame.KEYDOWN):
                 return
 
         for o in objects:

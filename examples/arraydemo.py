@@ -1,10 +1,24 @@
 #!/usr/bin/env python
+""" pygame.examples.arraydemo
+
+Welcome to the arraydemo!
+
+Use the numpy array package to manipulate pixels.
+
+This demo will show you a few things:
+
+* scale up, scale down, flip,
+* cross fade
+* soften
+* put stripes on it!
+
+"""
+
 
 import os
 
 import pygame
 from pygame import surfarray
-from pygame.locals import *
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -17,9 +31,9 @@ def surfdemo_show(array_img, name):
     pygame.display.set_caption(name)
     while 1:
         e = pygame.event.wait()
-        if e.type == MOUSEBUTTONDOWN:
+        if e.type == pygame.MOUSEBUTTONDOWN:
             break
-        elif e.type == KEYDOWN and e.key == K_s:
+        elif e.type == pygame.KEYDOWN and e.key == pygame.K_s:
             # pygame.image.save(screen, name+'.bmp')
             # s = pygame.Surface(screen.get_size(), 0, 32)
             # s = s.convert_alpha()
@@ -31,7 +45,7 @@ def surfdemo_show(array_img, name):
             # pygame.image.save(screen, name+'_screen.png')
             # pygame.image.save(s, name+'.tga')
             pygame.image.save(screen, name + ".png")
-        elif e.type == QUIT:
+        elif e.type == pygame.QUIT:
             raise SystemExit()
 
 

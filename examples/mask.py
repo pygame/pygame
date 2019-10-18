@@ -1,43 +1,44 @@
 #!/usr/bin/env python
-"""A pgyame.mask collition detection example
+""" pygame.examples.mask
 
-exports main()
+A pygame.mask collision detection production.
+
+
+
+
+Brought
+
+       to
+             you
+                     by
+
+    the
+
+pixels
+               0000000000000
+      and
+         111111
+
+
 
 This module can also be run as a stand-alone program, excepting
 one or more image file names as command line arguments.
-
 """
 
-import sys, random
-import pygame, pygame.image, pygame.surface, pygame.time, pygame.display
+import sys
+import os
+import random
+import pygame
 
 
 def maskFromSurface(surface, threshold=127):
-    # return pygame.mask.from_surface(surface, threshold)
-
-    mask = pygame.mask.Mask(surface.get_size())
-    key = surface.get_colorkey()
-    if key:
-        for y in range(surface.get_height()):
-            for x in range(surface.get_width()):
-                if surface.get_at((x, y)) != key:
-                    mask.set_at((x, y), 1)
-    else:
-        for y in range(surface.get_height()):
-            for x in range(surface.get_width()):
-                if surface.get_at((x, y))[3] > threshold:
-                    mask.set_at((x, y), 1)
-    return mask
+    return pygame.mask.from_surface(surface, threshold)
 
 
 def vadd(x, y):
     return [x[0] + y[0], x[1] + y[1]]
-
-
 def vsub(x, y):
     return [x[0] - y[0], x[1] - y[1]]
-
-
 def vdot(x, y):
     return x[0] * y[0] + x[1] * y[1]
 
@@ -111,13 +112,14 @@ def main(*args):
 
     This pygame.masks demo will display multiple moving sprites bouncing
     off each other. More than one sprite image can be provided.
-
     """
 
     if len(args) == 0:
         raise ValueError("Require at least one image file name: non given")
     print("Press any key to quit")
     screen = pygame.display.set_mode((640, 480))
+    if any("fist.bmp" in x for x in args):
+        pygame.display.set_caption("Punch Nazis")
     images = []
     masks = []
     for impath in args:
@@ -159,7 +161,8 @@ def main(*args):
         if event.type == pygame.QUIT:
             return
         elif event.type == pygame.USEREVENT:
-            """Do both mechanics and screen update"""
+
+            # Do both mechanics and screen update
             screen.fill((240, 220, 100))
             for i in range(len(sprites)):
                 for j in range(i + 1, len(sprites)):
@@ -185,5 +188,8 @@ if __name__ == "__main__":
         print("Usage: mask.py <IMAGE> [<IMAGE> ...]")
         print("Let many copies of IMAGE(s) bounce against each other")
         print("Press any key to quit")
+        main_dir = os.path.split(os.path.abspath(__file__))[0]
+        imagename = os.path.join(main_dir, "data", "fist.bmp")
+        main(imagename)
     else:
         main(*sys.argv[1:])

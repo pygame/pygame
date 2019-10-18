@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+""" pygame.examples.pixelarray
+
+PixelArray does array processing of pixels.
+Sort of like numpy. But for pixels.
+
+    Flip it,
+            stripe it,
+                      rotate it.
+
+Controls
+--------
+
+To see different effects - press a key or click a mouse.
+"""
 import os, pygame
 from pygame.compat import xrange_
 
@@ -15,7 +29,7 @@ def show(image):
         event = pygame.event.wait()
         if event.type == pygame.QUIT:
             raise SystemExit
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type in [pygame.MOUSEBUTTONDOWN, pygame.KEYDOWN]:
             break
 
 
