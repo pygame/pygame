@@ -290,6 +290,7 @@ endsound_callback(int channel)
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = NULL;
             PyGILState_Release(gstate);
+            Mix_GroupChannel(channel, -1);
         }
     }
 }
