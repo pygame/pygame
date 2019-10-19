@@ -5,7 +5,7 @@ The overlay module is deprecated now.
 It is an olden days way to draw video quickly.
 """
 import sys
-import pygame
+import pygame as pg
 from pygame.compat import xrange_
 
 SR = (800, 600)
@@ -37,25 +37,25 @@ def vPlayer(fName):
     v = "".join(v)
 
     # Open overlay with the resolution specified
-    ovl = pygame.Overlay(pygame.YV12_OVERLAY, (w, h))
+    ovl = pg.Overlay(pg.YV12_OVERLAY, (w, h))
     ovl.set_location(0, 0, w, h)
 
     ovl.display((y, u, v))
     while 1:
-        pygame.time.wait(10)
-        for ev in pygame.event.get():
-            if ev.type in (pygame.KEYDOWN, pygame.QUIT):
+        pg.time.wait(10)
+        for ev in pg.event.get():
+            if ev.type in (pg.KEYDOWN, pg.QUIT):
                 return
 
 
 def main(fname):
     """play video file fname"""
-    pygame.init()
+    pg.init()
     try:
-        pygame.display.set_mode(SR)
+        pg.display.set_mode(SR)
         vPlayer(fname)
     finally:
-        pygame.quit()
+        pg.quit()
 
 
 # Test all modules

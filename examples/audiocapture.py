@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" pygame.examples.audiocapture
+""" pg.examples.audiocapture
 
 A pygame 2 experiment.
 
@@ -72,7 +72,7 @@ print("recording with :%s:" % names[0])
 time.sleep(5)
 
 
-print("Turning data into a pygame.mixer.Sound")
+print("Turning data into a pg.mixer.Sound")
 sound = pg.mixer.Sound(buffer=b"".join(sound_chunks))
 
 print("playing back recorded sound")

@@ -20,6 +20,17 @@ pixels
          111111
 
 
+This is 32 bits:
+    11111111111111111111111111111111
+
+There are 32 or 64 bits in a computer 'word'.
+Rather than using one word for a pixel,
+the mask module represents 32 or 64 pixels in one word.
+As you can imagine, this makes things fast, and saves memory.
+
+Compute intensive things like collision detection,
+and computer vision benefit greatly from this.
+
 
 This module can also be run as a stand-alone program, excepting
 one or more image file names as command line arguments.
@@ -28,11 +39,12 @@ one or more image file names as command line arguments.
 import sys
 import os
 import random
-import pygame
+
+import pygame as pg
 
 
 def maskFromSurface(surface, threshold=127):
-    return pygame.mask.from_surface(surface, threshold)
+    return pg.mask.from_surface(surface, threshold)
 
 
 def vadd(x, y):
@@ -110,20 +122,20 @@ def main(*args):
     Positional arguments:
       one or more image file names.
 
-    This pygame.masks demo will display multiple moving sprites bouncing
+    This pg.masks demo will display multiple moving sprites bouncing
     off each other. More than one sprite image can be provided.
     """
 
     if len(args) == 0:
         raise ValueError("Require at least one image file name: non given")
     print("Press any key to quit")
-    screen = pygame.display.set_mode((640, 480))
+    screen = pg.display.set_mode((640, 480))
     if any("fist.bmp" in x for x in args):
-        pygame.display.set_caption("Punch Nazis")
+        pg.display.set_caption("Punch Nazis")
     images = []
     masks = []
     for impath in args:
-        images.append(pygame.image.load(impath).convert_alpha())
+        images.append(pg.image.load(impath).convert_alpha())
         masks.append(maskFromSurface(images[-1]))
 
     numtimes = 10
@@ -138,10 +150,10 @@ def main(*args):
 
     t1 = time.time()
     for x in range(numtimes):
-        unused_mask = pygame.mask.from_surface(images[-1])
+        unused_mask = pg.mask.from_surface(images[-1])
     t2 = time.time()
 
-    print("C pygame.mask.from_surface :%s" % (t2 - t1))
+    print("C pg.mask.from_surface :%s" % (t2 - t1))
 
     sprites = []
     for i in range(20):
@@ -155,12 +167,12 @@ def main(*args):
         )
         s.setVelocity((random.uniform(-5, 5), random.uniform(-5, 5)))
         sprites.append(s)
-    pygame.time.set_timer(pygame.USEREVENT, 33)
+    pg.time.set_timer(pg.USEREVENT, 33)
     while 1:
-        event = pygame.event.wait()
-        if event.type == pygame.QUIT:
+        event = pg.event.wait()
+        if event.type == pg.QUIT:
             return
-        elif event.type == pygame.USEREVENT:
+        elif event.type == pg.USEREVENT:
 
             # Do both mechanics and screen update
             screen.fill((240, 220, 100))
@@ -178,8 +190,8 @@ def main(*args):
                 elif s.pos[1] > screen.get_height() + 3:
                     s.pos[1] = -s.surface.get_height()
                 screen.blit(s.surface, s.pos)
-            pygame.display.update()
-        elif event.type == pygame.KEYDOWN:
+            pg.display.update()
+        elif event.type == pg.KEYDOWN:
             return
 
 

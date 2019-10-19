@@ -13,7 +13,8 @@ pygame to compare the results. I didn't bother porting the text and
 sound stuff, that's an easy enough challenge for the reader :]
 """
 
-import pygame, os
+import pygame as pg
+import os
 from math import sin
 import time
 
@@ -22,14 +23,14 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 def main():
     # initialize and setup screen
-    pygame.init()
-    screen = pygame.display.set_mode((640, 480), pygame.HWSURFACE | pygame.DOUBLEBUF)
+    pg.init()
+    screen = pg.display.set_mode((640, 480), pg.HWSURFACE | pg.DOUBLEBUF)
 
     # load image and quadruple
     imagename = os.path.join(main_dir, "data", "liquid.bmp")
-    bitmap = pygame.image.load(imagename)
-    bitmap = pygame.transform.scale2x(bitmap)
-    bitmap = pygame.transform.scale2x(bitmap)
+    bitmap = pg.image.load(imagename)
+    bitmap = pg.transform.scale2x(bitmap)
+    bitmap = pg.transform.scale2x(bitmap)
 
     # get the image and screen in the same format
     if screen.get_bitsize() == 8:
@@ -43,9 +44,9 @@ def main():
     # mainloop
     xblocks = range(0, 640, 20)
     yblocks = range(0, 480, 20)
-    stopevents = pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN
+    stopevents = pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN
     while 1:
-        for e in pygame.event.get():
+        for e in pg.event.get():
             if e.type in stopevents:
                 return
 
@@ -56,7 +57,7 @@ def main():
                 ypos = (y + (sin(anim + y * 0.01) * 15)) + 20
                 screen.blit(bitmap, (x, y), (xpos, ypos, 20, 20))
 
-        pygame.display.flip()
+        pg.display.flip()
         time.sleep(0.01)
 
 

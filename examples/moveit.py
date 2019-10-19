@@ -10,7 +10,7 @@ Fortunately, this is python, and we needn't wrestle with a pile of
 error codes.
 """
 import os
-import pygame
+import pygame as pg
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -30,21 +30,21 @@ class GameObject:
 # quick function to load an image
 def load_image(name):
     path = os.path.join(main_dir, "data", name)
-    return pygame.image.load(path).convert()
+    return pg.image.load(path).convert()
 
 
 # here's the full code
 def main():
-    pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    pg.init()
+    screen = pg.display.set_mode((640, 480))
 
     player = load_image("player1.gif")
     background = load_image("liquid.bmp")
 
     # scale the background image so that it fills the window and
     #   successfully overwrites the old sprite position.
-    background = pygame.transform.scale2x(background)
-    background = pygame.transform.scale2x(background)
+    background = pg.transform.scale2x(background)
+    background = pg.transform.scale2x(background)
 
     screen.blit(background, (0, 0))
 
@@ -54,8 +54,8 @@ def main():
         objects.append(o)
 
     while 1:
-        for event in pygame.event.get():
-            if event.type in (pygame.QUIT, pygame.KEYDOWN):
+        for event in pg.event.get():
+            if event.type in (pg.QUIT, pg.KEYDOWN):
                 return
 
         for o in objects:
@@ -64,7 +64,7 @@ def main():
             o.move()
             screen.blit(o.image, o.pos)
 
-        pygame.display.update()
+        pg.display.update()
 
 
 if __name__ == "__main__":

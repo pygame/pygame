@@ -8,15 +8,15 @@ If you are using threads, then fastevents is useful.
 import time as pytime
 from threading import Thread
 
-import pygame
+import pygame as pg
 
 # the config to try different settings out with the event queues.
 
 # use the fastevent module or not.
-event_module = pygame.fastevent
+event_module = pg.fastevent
 # event_module = event
 
-# use pygame.display.flip().
+# use pg.display.flip().
 #    otherwise we test raw event processing throughput.
 with_display = 1
 
@@ -38,16 +38,16 @@ class PostThem(Thread):
         self.done = []
         self.stop = []
         for x in range(NUM_EVENTS_TO_POST):
-            ee = pygame.event.Event(pygame.USEREVENT)
+            ee = pg.event.Event(pg.USEREVENT)
             try_post = 1
 
-            # the pygame.event.post raises an exception if the event
+            # the pg.event.post raises an exception if the event
             #   queue is full.  so wait a little bit, and try again.
             while try_post:
                 try:
                     event_module.post(ee)
                     try_post = 0
-                except pygame.error:
+                except pg.error:
                     pytime.sleep(0.001)
                     try_post = 1
 
@@ -59,15 +59,15 @@ class PostThem(Thread):
 
 
 def main():
-    pygame.init()
+    pg.init()
 
     if hasattr(event_module, "init"):
         event_module.init()
 
-    c = pygame.time.Clock()
+    c = pg.time.Clock()
 
-    pygame.display.set_mode((640, 480), pygame.RESIZABLE)
-    pygame.display.set_caption("fastevent Workout")
+    pg.display.set_mode((640, 480), pg.RESIZABLE)
+    pg.display.set_caption("fastevent Workout")
 
     poster = PostThem()
 
@@ -77,12 +77,12 @@ def main():
     going = True
     while going:
         for e in event_module.get():
-            if e.type == pygame.QUIT:
+            if e.type == pg.QUIT:
                 print(c.get_fps())
                 poster.stop.append(1)
                 going = False
-            if e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
                     print(c.get_fps())
                     poster.stop.append(1)
                     going = False
@@ -94,11 +94,11 @@ def main():
             print("events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1)))
             going = False
         if with_display:
-            pygame.display.flip()
+            pg.display.flip()
         if slow_tick:
             c.tick(40)
 
-    pygame.quit()
+    pg.quit()
 
 
 if __name__ == "__main__":

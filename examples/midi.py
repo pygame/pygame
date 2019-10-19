@@ -13,19 +13,19 @@ python -m pygame.examples.midi --input
 import sys
 import os
 
-import pygame
+import pygame as pg
 import pygame.midi
 
 
 def print_device_info():
-    pygame.midi.init()
+    pg.midi.init()
     _print_device_info()
-    pygame.midi.quit()
+    pg.midi.quit()
 
 
 def _print_device_info():
-    for i in range(pygame.midi.get_count()):
-        r = pygame.midi.get_device_info(i)
+    for i in range(pg.midi.get_count()):
+        r = pg.midi.get_device_info(i)
         (interf, name, input, output, opened) = r
 
         in_out = ""
@@ -41,46 +41,46 @@ def _print_device_info():
 
 
 def input_main(device_id=None):
-    pygame.init()
-    pygame.fastevent.init()
-    event_get = pygame.fastevent.get
-    event_post = pygame.fastevent.post
+    pg.init()
+    pg.fastevent.init()
+    event_get = pg.fastevent.get
+    event_post = pg.fastevent.post
 
-    pygame.midi.init()
+    pg.midi.init()
 
     _print_device_info()
 
     if device_id is None:
-        input_id = pygame.midi.get_default_input_id()
+        input_id = pg.midi.get_default_input_id()
     else:
         input_id = device_id
 
     print("using input_id :%s:" % input_id)
-    i = pygame.midi.Input(input_id)
+    i = pg.midi.Input(input_id)
 
-    pygame.display.set_mode((1, 1))
+    pg.display.set_mode((1, 1))
 
     going = True
     while going:
         events = event_get()
         for e in events:
-            if e.type in [pygame.QUIT]:
+            if e.type in [pg.QUIT]:
                 going = False
-            if e.type in [pygame.KEYDOWN]:
+            if e.type in [pg.KEYDOWN]:
                 going = False
-            if e.type in [pygame.midi.MIDIIN]:
+            if e.type in [pg.midi.MIDIIN]:
                 print(e)
 
         if i.poll():
             midi_events = i.read(10)
             # convert them into pygame events.
-            midi_evs = pygame.midi.midis2events(midi_events, i.device_id)
+            midi_evs = pg.midi.midis2events(midi_events, i.device_id)
 
             for m_e in midi_evs:
                 event_post(m_e)
 
     del i
-    pygame.midi.quit()
+    pg.midi.quit()
 
 
 def output_main(device_id=None):
@@ -112,15 +112,15 @@ def output_main(device_id=None):
     # notes to musical keyboard keys. A regions surface maps window position
     # to (Midi note, velocity) pairs. A key_mapping dictionary does the same
     # for computer keyboard keys. Midi sound is controlled with direct method
-    # calls to a pygame.midi.Output instance.
+    # calls to a pg.midi.Output instance.
     #
-    # Things to consider when using pygame.midi:
+    # Things to consider when using pg.midi:
     #
-    # 1) Initialize the midi module with a to pygame.midi.init().
+    # 1) Initialize the midi module with a to pg.midi.init().
     # 2) Create a midi.Output instance for the desired output device port.
     # 3) Select instruments with set_instrument() method calls.
     # 4) Play notes with note_on() and note_off() method calls.
-    # 5) Call pygame.midi.Quit() when finished. Though the midi module tries
+    # 5) Call pg.midi.Quit() when finished. Though the midi module tries
     #    to ensure that midi is properly shut down, it is best to do it
     #    explicitly. A try/finally statement is the safest way to do this.
     #
@@ -137,70 +137,70 @@ def output_main(device_id=None):
 
     key_mapping = make_key_mapping(
         [
-            pygame.K_TAB,
-            pygame.K_1,
-            pygame.K_q,
-            pygame.K_2,
-            pygame.K_w,
-            pygame.K_3,
-            pygame.K_e,
-            pygame.K_r,
-            pygame.K_5,
-            pygame.K_t,
-            pygame.K_6,
-            pygame.K_y,
-            pygame.K_u,
-            pygame.K_8,
-            pygame.K_i,
-            pygame.K_9,
-            pygame.K_o,
-            pygame.K_0,
-            pygame.K_p,
-            pygame.K_LEFTBRACKET,
-            pygame.K_EQUALS,
-            pygame.K_RIGHTBRACKET,
-            pygame.K_BACKSPACE,
-            pygame.K_BACKSLASH,
+            pg.K_TAB,
+            pg.K_1,
+            pg.K_q,
+            pg.K_2,
+            pg.K_w,
+            pg.K_3,
+            pg.K_e,
+            pg.K_r,
+            pg.K_5,
+            pg.K_t,
+            pg.K_6,
+            pg.K_y,
+            pg.K_u,
+            pg.K_8,
+            pg.K_i,
+            pg.K_9,
+            pg.K_o,
+            pg.K_0,
+            pg.K_p,
+            pg.K_LEFTBRACKET,
+            pg.K_EQUALS,
+            pg.K_RIGHTBRACKET,
+            pg.K_BACKSPACE,
+            pg.K_BACKSLASH,
         ],
         start_note,
     )
 
-    pygame.init()
-    pygame.midi.init()
+    pg.init()
+    pg.midi.init()
 
     _print_device_info()
 
     if device_id is None:
-        port = pygame.midi.get_default_output_id()
+        port = pg.midi.get_default_output_id()
     else:
         port = device_id
 
     print("using output_id :%s:" % port)
 
-    midi_out = pygame.midi.Output(port, 0)
+    midi_out = pg.midi.Output(port, 0)
     try:
         midi_out.set_instrument(instrument)
         keyboard = Keyboard(start_note, n_notes)
 
-        screen = pygame.display.set_mode(keyboard.rect.size)
+        screen = pg.display.set_mode(keyboard.rect.size)
         screen.fill(bg_color)
-        pygame.display.flip()
+        pg.display.flip()
 
-        background = pygame.Surface(screen.get_size())
+        background = pg.Surface(screen.get_size())
         background.fill(bg_color)
         dirty_rects = []
         keyboard.draw(screen, background, dirty_rects)
-        pygame.display.update(dirty_rects)
+        pg.display.update(dirty_rects)
 
-        regions = pygame.Surface(screen.get_size())  # initial color (0,0,0)
+        regions = pg.Surface(screen.get_size())  # initial color (0,0,0)
         keyboard.map_regions(regions)
 
-        pygame.event.set_blocked(pygame.MOUSEMOTION)
+        pg.event.set_blocked(pg.MOUSEMOTION)
         mouse_note = 0
         on_notes = set()
         while 1:
-            e = pygame.event.wait()
-            if e.type == pygame.MOUSEBUTTONDOWN:
+            e = pg.event.wait()
+            if e.type == pg.MOUSEBUTTONDOWN:
                 mouse_note, velocity, __, __ = regions.get_at(e.pos)
                 if mouse_note and mouse_note not in on_notes:
                     keyboard.key_down(mouse_note)
@@ -208,16 +208,16 @@ def output_main(device_id=None):
                     on_notes.add(mouse_note)
                 else:
                     mouse_note = 0
-            elif e.type == pygame.MOUSEBUTTONUP:
+            elif e.type == pg.MOUSEBUTTONUP:
                 if mouse_note:
                     midi_out.note_off(mouse_note)
                     keyboard.key_up(mouse_note)
                     on_notes.remove(mouse_note)
                     mouse_note = 0
-            elif e.type == pygame.QUIT:
+            elif e.type == pg.QUIT:
                 break
-            elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
+            elif e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
                     break
                 try:
                     note, velocity = key_mapping[e.key]
@@ -228,7 +228,7 @@ def output_main(device_id=None):
                         keyboard.key_down(note)
                         midi_out.note_on(note, velocity)
                         on_notes.add(note)
-            elif e.type == pygame.KEYUP:
+            elif e.type == pg.KEYUP:
                 try:
                     note, __ = key_mapping[e.key]
                 except KeyError:
@@ -241,10 +241,10 @@ def output_main(device_id=None):
 
             dirty_rects = []
             keyboard.draw(screen, background, dirty_rects)
-            pygame.display.update(dirty_rects)
+            pg.display.update(dirty_rects)
     finally:
         del midi_out
-        pygame.midi.quit()
+        pg.midi.quit()
 
 
 def make_key_mapping(key_list, start_note):
@@ -455,7 +455,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             """
             if key_left is None:
                 key_left = null_key
-            rect = pygame.Rect(posn[0], posn[1], c_width, c_height)
+            rect = pg.Rect(posn[0], posn[1], c_width, c_height)
             self.rect = rect
             self._state = c_down_state_initial
             self._source_rect = c_down_state_rect_initial
@@ -464,7 +464,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             self._notify_down = getattr(key_left, c_notify_down_method)
             self._notify_up = getattr(key_left, c_notify_up_method)
             self._key_left = key_left
-            self._background_rect = pygame.Rect(rect.left, rect.bottom - 10, c_width, 10)
+            self._background_rect = pg.Rect(rect.left, rect.bottom - 10, c_width, 10)
             c_updates.add(self)
 
         def down(self):
@@ -589,7 +589,7 @@ def key_images():
     white_key_height = 160
     black_key_width = 22
     black_key_height = 94
-    strip = pygame.image.load(strip_file)
+    strip = pg.image.load(strip_file)
     names = [
         "black none",
         "black self",
@@ -614,11 +614,11 @@ def key_images():
     ]
     rects = {}
     for i in range(2):
-        rects[names[i]] = pygame.Rect(
+        rects[names[i]] = pg.Rect(
             i * white_key_width, 0, black_key_width, black_key_height
         )
     for i in range(2, len(names)):
-        rects[names[i]] = pygame.Rect(
+        rects[names[i]] = pg.Rect(
             i * white_key_width, 0, white_key_width, white_key_height
         )
     return strip, rects
@@ -746,7 +746,7 @@ class Keyboard(object):
 
         kb_width = key_map[self._end_note].rect.right
         kb_height = self.white_key_height
-        self.rect = pygame.Rect(0, 0, kb_width, kb_height)
+        self.rect = pg.Rect(0, 0, kb_width, kb_height)
 
     def map_regions(self, regions):
         """Draw the key regions onto surface regions.

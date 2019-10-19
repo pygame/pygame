@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 """ pygame.examples.sound_array_demos
 
-Creates an echo effect an any Sound object.
+Creates an echo effect on any Sound object.
 
 Uses sndarray and numpy to create offset faded copies of the
 original sound. Currently it just uses hardcoded values for the
 number of echos and the delay. Easy for you to recreate as
-needed. The array packaged used can be specified by an optional
---numpy or --numeric command line option.
+needed.
 
 version 2. changes:
 - Should work with different sample rates now.
@@ -132,13 +131,8 @@ def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
     return sound2
 
 
-def main(arraytype=None):
+def main():
     """play various sndarray effects
-
-    If arraytype is provided then use that array package. Valid
-    values are 'numeric' or 'numpy'. Otherwise default to NumPy,
-    or fall back on Numeric if NumPy is not installed.
-
     """
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
