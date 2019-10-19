@@ -81,6 +81,7 @@ def load_sound(file):
 class Player(pg.sprite.Sprite):
     """ Representing the player as a moon buggy type car.
     """
+
     speed = 10
     bounce = 24
     gun_offset = -11
@@ -113,6 +114,7 @@ class Player(pg.sprite.Sprite):
 class Alien(pg.sprite.Sprite):
     """ An alien space ship. That slowly moves down the screen.
     """
+
     speed = 13
     animcycle = 12
     images = []
@@ -139,6 +141,7 @@ class Alien(pg.sprite.Sprite):
 class Explosion(pg.sprite.Sprite):
     """ An explosion. Hopefully the Alien and not the player!
     """
+
     defaultlife = 12
     animcycle = 3
     images = []
@@ -166,6 +169,7 @@ class Explosion(pg.sprite.Sprite):
 class Shot(pg.sprite.Sprite):
     """ a bullet the Player sprite fires.
     """
+
     speed = -11
     images = []
 
@@ -187,6 +191,7 @@ class Shot(pg.sprite.Sprite):
 class Bomb(pg.sprite.Sprite):
     """ A bomb the aliens drop.
     """
+
     speed = 9
     images = []
 
@@ -213,6 +218,7 @@ class Bomb(pg.sprite.Sprite):
 class Score(pg.sprite.Sprite):
     """ to keep track of the score.
     """
+
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
         self.font = pg.font.Font(None, 20)

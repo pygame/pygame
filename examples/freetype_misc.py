@@ -111,9 +111,7 @@ def run():
     font.origin = False
 
     utext = pg.compat.as_unicode(r"I \u2665 Unicode")
-    font.render_to(
-        screen, (298, 320), utext, pg.Color(0, 0xCC, 0xDD), None, size=64
-    )
+    font.render_to(screen, (298, 320), utext, pg.Color(0, 0xCC, 0xDD), None, size=64)
 
     utext = pg.compat.as_unicode(r"\u2665")
     font.render_to(

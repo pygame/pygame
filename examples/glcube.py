@@ -126,9 +126,7 @@ def main():
     pg.init()
 
     fullscreen = True
-    pg.display.set_mode(
-       (640, 480), pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN
-    )
+    pg.display.set_mode((640, 480), pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN)
 
     init_gl_stuff()
 
@@ -147,14 +145,11 @@ def main():
                     if not fullscreen:
                         print("Changing to FULLSCREEN")
                         pg.display.set_mode(
-                            (640, 480),
-                            pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN,
+                            (640, 480), pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN
                         )
                     else:
                         print("Changing to windowed mode")
-                        pg.display.set_mode(
-                            (640, 480), pg.OPENGL | pg.DOUBLEBUF
-                        )
+                        pg.display.set_mode((640, 480), pg.OPENGL | pg.DOUBLEBUF)
                     fullscreen = not fullscreen
                     init_gl_stuff()
 

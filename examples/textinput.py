@@ -160,12 +160,7 @@ def main():
 
         # Editing texts should be underlined
         rect_textM = Font.render_to(
-            Screen,
-            start_pos,
-            ime_textM,
-            TEXTCOLOR,
-            None,
-            pg.freetype.STYLE_UNDERLINE,
+            Screen, start_pos, ime_textM, TEXTCOLOR, None, pg.freetype.STYLE_UNDERLINE
         )
         start_pos.x += rect_textM.width
         Font.render_to(Screen, start_pos, ime_textR, TEXTCOLOR)

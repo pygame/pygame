@@ -15,10 +15,14 @@ import locale
 
 
 if sys.version_info >= (3,):
+
     def print_unicode(s):
         e = locale.getpreferredencoding()
         print(s.encode(e, "backslashreplace").decode())
+
+
 else:
+
     def print_unicode(s):
         e = locale.getpreferredencoding()
         print(s.encode(e, "backslashreplace"))

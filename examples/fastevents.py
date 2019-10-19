@@ -26,8 +26,6 @@ slow_tick = 0
 NUM_EVENTS_TO_POST = 200000
 
 
-
-
 class PostThem(Thread):
     def __init__(self):
         Thread.__init__(self)
@@ -54,8 +52,6 @@ class PostThem(Thread):
             if self.stop:
                 return
         self.done.append(1)
-
-
 
 
 def main():

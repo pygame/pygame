@@ -19,7 +19,6 @@ import pygame as pg
 from pygame.compat import xrange_
 
 
-
 if "-psyco" in sys.argv:
     try:
         import psyco

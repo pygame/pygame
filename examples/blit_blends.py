@@ -157,11 +157,7 @@ def main():
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])
                 print("time to do:%s:" % (t2 - t1))
 
-            elif event.type == pg.KEYDOWN and event.key in [
-                pg.K_r,
-                pg.K_g,
-                pg.K_b,
-            ]:
+            elif event.type == pg.KEYDOWN and event.key in [pg.K_r, pg.K_g, pg.K_b]:
                 # this adds one to each pixel.
                 colmap = {}
                 colmap[pg.K_r] = 0x10000

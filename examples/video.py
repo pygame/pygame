@@ -11,18 +11,18 @@ Experimental!
 """
 import os
 import pygame as pg
+
 if pg.get_sdl_version()[0] < 2:
     raise SystemExit(
         "This example requires pygame 2 and SDL2. _sdl2 is experimental and will change."
     )
 from pygame._sdl2 import Window, Texture, Image, Renderer, get_drivers, messagebox
+
 data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
 
 
 def load_img(file):
     return pg.image.load(os.path.join(data_dir, file))
-
-
 
 
 pg.display.init()
@@ -73,7 +73,6 @@ del tex2
 full = 0
 
 tex = Image(tex)
-
 
 
 surf = pg.Surface((64, 64))

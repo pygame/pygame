@@ -56,9 +56,7 @@ screen = pg.display.set_mode(RESOLUTION)
 pg.font.init()
 font = pg.font.Font(None, 36)
 msg_surf = font.render(msg, 1, pg.Color("green"))
-res_surf = font.render(
-    "Intended resolution: %ix%i" % RESOLUTION, 1, pg.Color("green")
-)
+res_surf = font.render("Intended resolution: %ix%i" % RESOLUTION, 1, pg.Color("green"))
 
 # Control loop
 running = True
@@ -74,12 +72,8 @@ while running:
 
     # Draw lines which will be blurry if the window is stretched
     # or clear if the window is not stretched.
-    pg.draw.line(
-        screen, pg.Color("white"), (0, counter), (RESOLUTION[0] - 1, counter)
-    )
-    pg.draw.line(
-        screen, pg.Color("white"), (counter, 0), (counter, RESOLUTION[1] - 1)
-    )
+    pg.draw.line(screen, pg.Color("white"), (0, counter), (RESOLUTION[0] - 1, counter))
+    pg.draw.line(screen, pg.Color("white"), (counter, 0), (counter, RESOLUTION[1] - 1))
 
     # Blit message onto screen surface
     msg_blit_rect = screen.blit(msg_surf, (0, 0))

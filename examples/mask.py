@@ -49,8 +49,12 @@ def maskFromSurface(surface, threshold=127):
 
 def vadd(x, y):
     return [x[0] + y[0], x[1] + y[1]]
+
+
 def vsub(x, y):
     return [x[0] - y[0], x[1] - y[1]]
+
+
 def vdot(x, y):
     return x[0] * y[0] + x[1] * y[1]
 

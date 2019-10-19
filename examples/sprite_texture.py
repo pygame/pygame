@@ -11,13 +11,14 @@ pygame.sprite groups.
 """
 import os
 import pygame as pg
+
 if pg.get_sdl_version()[0] < 2:
     raise SystemExit("This example requires pygame 2 and SDL2.")
 from pygame._sdl2 import Window, Texture, Image, Renderer
 
 
-
 data_dir = os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
+
 
 def load_img(file):
     return pg.image.load(os.path.join(data_dir, file))
