@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" pg.examples.audiocapture
+""" pygame.examples.audiocapture
 
 A pygame 2 experiment.
 

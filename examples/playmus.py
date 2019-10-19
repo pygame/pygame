@@ -49,8 +49,8 @@ class Window(object):
         self.screen.fill(Color("white"))
         pg.display.flip()
 
-        pg.freetype.init()
-        self.font = pg.freetype.Font(None, 20)
+        pygame.freetype.init()
+        self.font = pygame.freetype.Font(None, 20)
         self.font.origin = True
         self.ascender = int(self.font.get_sized_ascender() * 1.5)
         self.descender = int(self.font.get_sized_descender() * 1.5)

@@ -27,7 +27,7 @@ import random
 import os
 
 # import basic pygame modules
-import pygame
+import pygame as pg
 
 # see if we can load more than standard BMP
 if not pg.image.get_extended():

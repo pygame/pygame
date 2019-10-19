@@ -21,18 +21,16 @@ Keyboard Controls
 """
 import os
 import pygame as pg
+import time
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, "data")
 
 try:
     import pygame.surfarray
     import numpy
 except ImportError:
     print("no surfarray for you!  install numpy")
-
-import time
-
-main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, "data")
 
 
 def main():
@@ -132,8 +130,8 @@ def main():
                 # im1.set_alpha(255)
                 t1 = time.time()
 
-                im1p = pg.surfarray.pixels2d(im1)
-                im2p = pg.surfarray.pixels2d(im2)
+                im1p = pygame.surfarray.pixels2d(im1)
+                im2p = pygame.surfarray.pixels2d(im2)
                 im1p += im2p
                 del im1p
                 del im2p
@@ -143,13 +141,13 @@ def main():
 
             elif event.type == pg.KEYDOWN and event.key in [pg.K_z]:
                 t1 = time.time()
-                im1p = pg.surfarray.pixels3d(im1)
-                im2p = pg.surfarray.pixels3d(im2)
+                im1p = pygame.surfarray.pixels3d(im1)
+                im2p = pygame.surfarray.pixels3d(im2)
                 im1p16 = im1p.astype(numpy.uint16)
                 im2p16 = im1p.astype(numpy.uint16)
                 im1p16 += im2p16
                 im1p16 = numpy.minimum(im1p16, 255)
-                pg.surfarray.blit_array(im1, im1p16)
+                pygame.surfarray.blit_array(im1, im1p16)
 
                 del im1p
                 del im2p
@@ -163,7 +161,7 @@ def main():
                 colmap[pg.K_r] = 0x10000
                 colmap[pg.K_g] = 0x00100
                 colmap[pg.K_b] = 0x00001
-                im1p = pg.surfarray.pixels2d(im1)
+                im1p = pygame.surfarray.pixels2d(im1)
                 im1p += colmap[event.key]
                 del im1p
                 print("one pixel is:%s:" % [im1.get_at((0, 0))])

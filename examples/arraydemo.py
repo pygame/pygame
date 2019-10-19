@@ -17,7 +17,7 @@ This demo will show you a few things:
 
 import os
 
-import pygame
+import pygame as pg
 from pygame import surfarray
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -49,17 +49,9 @@ def surfdemo_show(array_img, name):
             raise SystemExit()
 
 
-def main(arraytype=None):
+def main():
     """show various surfarray effects
-
-    If arraytype is provided then use that array package. Valid
-    values are 'numeric' or 'numpy'. Otherwise default to NumPy,
-    or fall back on Numeric if NumPy is not installed.
-
     """
-    if arraytype not in ("numpy", None):
-        raise ValueError("Array type not supported: %r" % arraytype)
-
     import numpy as N
     from numpy import int32, uint8, uint
 
@@ -73,7 +65,7 @@ def main(arraytype=None):
     surfdemo_show(allblack, "allblack")
 
     # striped
-    # the element type is required for N.zeros in  NumPy else
+    # the element type is required for N.zeros in numpy else
     # an array of float is returned.
     striped = N.zeros((128, 128, 3), int32)
     striped[:] = (255, 0, 0)
@@ -95,7 +87,7 @@ def main(arraytype=None):
     surfdemo_show(scaledown, "scaledown")
 
     # scaleup
-    # the element type is required for N.zeros in NumPy else
+    # the element type is required for N.zeros in numpy else
     # an #array of floats is returned.
     shape = rgbarray.shape
     scaleup = N.zeros((shape[0] * 2, shape[1] * 2, shape[2]), int32)

@@ -11,8 +11,6 @@ Keyboard controls
 - 9, start camera 9.
 - 10, start camera... wait a minute! There's not 10 key!
 """
-
-
 import pygame as pg
 import pygame.camera
 
@@ -32,7 +30,7 @@ class VideoCapturePlayer(object):
     def init_cams(self, which_cam_idx):
 
         # gets a list of available cameras.
-        self.clist = pg.camera.list_cameras()
+        self.clist = pygame.camera.list_cameras()
         print(self.clist)
 
         if not self.clist:
@@ -44,7 +42,7 @@ class VideoCapturePlayer(object):
             cam_id = self.clist[0]
 
         # creates the camera of the specified size and in RGB colorspace
-        self.camera = pg.camera.Camera(cam_id, self.size, "RGB")
+        self.camera = pygame.camera.Camera(cam_id, self.size, "RGB")
 
         # starts the camera
         self.camera.start()
@@ -98,7 +96,7 @@ class VideoCapturePlayer(object):
 
 def main():
     pg.init()
-    pg.camera.init()
+    pygame.camera.init()
     VideoCapturePlayer().main()
     pg.quit()
 

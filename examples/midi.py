@@ -18,14 +18,14 @@ import pygame.midi
 
 
 def print_device_info():
-    pg.midi.init()
+    pygame.midi.init()
     _print_device_info()
-    pg.midi.quit()
+    pygame.midi.quit()
 
 
 def _print_device_info():
-    for i in range(pg.midi.get_count()):
-        r = pg.midi.get_device_info(i)
+    for i in range(pygame.midi.get_count()):
+        r = pygame.midi.get_device_info(i)
         (interf, name, input, output, opened) = r
 
         in_out = ""
@@ -46,17 +46,17 @@ def input_main(device_id=None):
     event_get = pg.fastevent.get
     event_post = pg.fastevent.post
 
-    pg.midi.init()
+    pygame.midi.init()
 
     _print_device_info()
 
     if device_id is None:
-        input_id = pg.midi.get_default_input_id()
+        input_id = pygame.midi.get_default_input_id()
     else:
         input_id = device_id
 
     print("using input_id :%s:" % input_id)
-    i = pg.midi.Input(input_id)
+    i = pygame.midi.Input(input_id)
 
     pg.display.set_mode((1, 1))
 
@@ -68,19 +68,19 @@ def input_main(device_id=None):
                 going = False
             if e.type in [pg.KEYDOWN]:
                 going = False
-            if e.type in [pg.midi.MIDIIN]:
+            if e.type in [pygame.midi.MIDIIN]:
                 print(e)
 
         if i.poll():
             midi_events = i.read(10)
             # convert them into pygame events.
-            midi_evs = pg.midi.midis2events(midi_events, i.device_id)
+            midi_evs = pygame.midi.midis2events(midi_events, i.device_id)
 
             for m_e in midi_evs:
                 event_post(m_e)
 
     del i
-    pg.midi.quit()
+    pygame.midi.quit()
 
 
 def output_main(device_id=None):
@@ -112,15 +112,15 @@ def output_main(device_id=None):
     # notes to musical keyboard keys. A regions surface maps window position
     # to (Midi note, velocity) pairs. A key_mapping dictionary does the same
     # for computer keyboard keys. Midi sound is controlled with direct method
-    # calls to a pg.midi.Output instance.
+    # calls to a pygame.midi.Output instance.
     #
-    # Things to consider when using pg.midi:
+    # Things to consider when using pygame.midi:
     #
-    # 1) Initialize the midi module with a to pg.midi.init().
+    # 1) Initialize the midi module with a to pygame.midi.init().
     # 2) Create a midi.Output instance for the desired output device port.
     # 3) Select instruments with set_instrument() method calls.
     # 4) Play notes with note_on() and note_off() method calls.
-    # 5) Call pg.midi.Quit() when finished. Though the midi module tries
+    # 5) Call pygame.midi.Quit() when finished. Though the midi module tries
     #    to ensure that midi is properly shut down, it is best to do it
     #    explicitly. A try/finally statement is the safest way to do this.
     #
@@ -166,18 +166,18 @@ def output_main(device_id=None):
     )
 
     pg.init()
-    pg.midi.init()
+    pygame.midi.init()
 
     _print_device_info()
 
     if device_id is None:
-        port = pg.midi.get_default_output_id()
+        port = pygame.midi.get_default_output_id()
     else:
         port = device_id
 
     print("using output_id :%s:" % port)
 
-    midi_out = pg.midi.Output(port, 0)
+    midi_out = pygame.midi.Output(port, 0)
     try:
         midi_out.set_instrument(instrument)
         keyboard = Keyboard(start_note, n_notes)
@@ -244,7 +244,7 @@ def output_main(device_id=None):
             pg.display.update(dirty_rects)
     finally:
         del midi_out
-        pg.midi.quit()
+        pygame.midi.quit()
 
 
 def make_key_mapping(key_list, start_note):

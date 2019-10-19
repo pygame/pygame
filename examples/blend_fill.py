@@ -11,7 +11,7 @@ Keyboard Controls:
 
 """
 import os
-import pygame
+import pygame as pg
 from pygame import K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9
 
 
@@ -76,19 +76,19 @@ def main():
                     changed = True
 
                 elif event.key == pg.K_a:
-                    blendtype = BLEND_ADD
+                    blendtype = pg.BLEND_ADD
                     changed = True
                 elif event.key == pg.K_s:
-                    blendtype = BLEND_SUB
+                    blendtype = pg.BLEND_SUB
                     changed = True
                 elif event.key == pg.K_m:
-                    blendtype = BLEND_MULT
+                    blendtype = pg.BLEND_MULT
                     changed = True
                 elif event.key == pg.K_PLUS:
-                    blendtype = BLEND_MAX
+                    blendtype = pg.BLEND_MAX
                     changed = True
                 elif event.key == pg.K_MINUS:
-                    blendtype = BLEND_MIN
+                    blendtype = pg.BLEND_MIN
                     changed = True
 
                 elif event.key in (K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9):
