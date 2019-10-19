@@ -7,7 +7,7 @@ Shows how to use the TEXTEDITING and TEXTINPUT events.
 """
 import sys
 import pygame as pg
-import pygame.freetype
+import pygame.freetype as freetype
 
 # Version check
 if pg.get_sdl_version() < (2, 0, 0):
@@ -50,8 +50,8 @@ FPSClock = pg.time.Clock()
 # Freetype
 # "The font name can be a comma separated list of font names to search for."
 FONTNAMES = ",".join(str(x) for x in FONTNAMES)
-Font = pg.freetype.SysFont(FONTNAMES, 24)
-FontSmall = pg.freetype.SysFont(FONTNAMES, 16)
+Font = freetype.SysFont(FONTNAMES, 24)
+FontSmall = freetype.SysFont(FONTNAMES, 16)
 print("Using font: " + Font.name)
 
 # Main loop process
@@ -160,7 +160,7 @@ def main():
 
         # Editing texts should be underlined
         rect_textM = Font.render_to(
-            Screen, start_pos, ime_textM, TEXTCOLOR, None, pg.freetype.STYLE_UNDERLINE
+            Screen, start_pos, ime_textM, TEXTCOLOR, None, freetype.STYLE_UNDERLINE
         )
         start_pos.x += rect_textM.width
         Font.render_to(Screen, start_pos, ime_textR, TEXTCOLOR)
