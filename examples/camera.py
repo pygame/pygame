@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ pygame.examples.camera
 
-Basic image capturing and displaying using pygame.camera
+Basic image capturing and display using pygame.camera
 
 Keyboard controls
 -----------------

@@ -13,7 +13,6 @@ g - get and print types in clipboard. If, image blit to screen.
 p - place some text into clipboard
 a - print types available in the clipboard
 i - put image into the clipboard
-
 """
 import os
 

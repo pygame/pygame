@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ pygame.examples.blend_fill
 
-Blending colors in different
+BLEND_ing colors in different ways with Surface.fill().
 
 Keyboard Controls:
 
