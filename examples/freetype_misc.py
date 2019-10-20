@@ -29,12 +29,7 @@ Enjoy!
 import sys
 import os
 import pygame as pg
-
-try:
-    import pg.freetype as freetype
-except ImportError:
-    print("No FreeType support compiled")
-    sys.exit()
+import pygame.freetype as freetype
 
 colors = {
     "grey_light": pg.Color(200, 200, 200),

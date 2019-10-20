@@ -31,7 +31,7 @@ import ctypes
 if os.path.basename(sys.executable) == "pythonw.exe":
     selection = "y"
 else:
-    from pg.compat import raw_input_
+    from pygame.compat import raw_input_
 
     selection = None
     while selection not in ("y", "n"):
