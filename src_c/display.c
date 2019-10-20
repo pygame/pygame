@@ -900,9 +900,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (w == 0 || h == 0)
                 return RAISE(pgExc_SDLError,
                              "Cannot set 0 sized SCALED display mode");
-            /*if (flags & PGS_OPENGL)
-                return RAISE(pgExc_SDLError,
-                "Cannot use OPENGL with SCALED mode");*/
         }
 
         if (flags & PGS_OPENGL)
