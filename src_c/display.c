@@ -2198,9 +2198,19 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
     /* SDL_WINDOW_FULLSCREEN_DESKTOP includes SDL_WINDOW_FULLSCREEN */
 
     SDL_VERSION(&wm_info.version);
-    SDL_GetWindowWMInfo(win, &wm_info);
-    if (pg_renderer !=NULL)
-        SDL_GetRendererInfo(pg_renderer, &r_info);
+    if (!SDL_GetWindowWMInfo(win, &wm_info)){
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    if(state->using_gl && pg_renderer != NULL){
+        return RAISE(pgExc_SDLError, "OPENGL and SDL_Renderer active at the same time");
+    }
+
+    if (pg_renderer !=NULL){
+        if (SDL_GetRendererInfo(pg_renderer, &r_info) != 0){
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        }
+    }
 
     switch(wm_info.subsystem) {
 
@@ -2443,7 +2453,7 @@ pg_display_resize_event(PyObject *self, PyObject *event)
     pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     GL_glViewport_Func p_glViewport = NULL;
-    SDL_SysWMinfo info;
+    //SDL_SysWMinfo info;
 
     VIDEO_INIT_CHECK();
     if (!win)
@@ -2457,10 +2467,10 @@ pg_display_resize_event(PyObject *self, PyObject *event)
 
     }
 
-    SDL_VERSION(&info.version);
-    SDL_GetWindowWMInfo(win, &info);
+    //SDL_VERSION(&info.version);
+    //SDL_GetWindowWMInfo(win, &info);
 
-    display_surface = pg_GetDefaultWindowSurface();
+    //display_surface = pg_GetDefaultWindowSurface();
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);
