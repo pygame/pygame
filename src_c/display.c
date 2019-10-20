@@ -790,11 +790,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     };
 
     display_env=SDL_getenv("PYGAME_DISPLAY");
-
-    if(display_env != NULL){
-        display=SDL_atoi(display_env);
-    }
-
     vsync_env=SDL_getenv("PYGAME_VSYNC");
     scale_env=SDL_getenv("PYGAME_FORCE_SCALE");
     soft_env=SDL_getenv("PYGAME_SCALE_SOFTWARE");
@@ -885,12 +880,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             if (w == 0 || h == 0)
                 return RAISE(pgExc_SDLError,
                              "Cannot set 0 sized SCALED display mode");
-            if (flags & PGS_OPENGL)
+            /*if (flags & PGS_OPENGL)
                 return RAISE(pgExc_SDLError,
-                             "Cannot use OPENGL with SCALED mode");
-            /*if (flags & PGS_RESIZABLE)
-                return RAISE(pgExc_SDLError,
-                "Cannot use RESIZABLE with SCALED mode");*/
+                "Cannot use OPENGL with SCALED mode");*/
         }
 
         if (flags & PGS_OPENGL)
@@ -2259,9 +2251,24 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             SDL_GL_MakeCurrent(win, state-> gl_context);
             if (state->toggle_windowed_w>0
                 && state->toggle_windowed_h>0) {
-                p_glViewport(0, 0,
-                             state->toggle_windowed_w,
-                             state->toggle_windowed_h);
+                if (state->scaled_gl) {
+                    float saved_aspect_ratio=((float)state->toggle_windowed_w)/(float)state->toggle_windowed_h;
+                    float window_aspect_ratio=((float)display_mode.w)/(float)display_mode.h;
+
+                    if (window_aspect_ratio>saved_aspect_ratio){
+                        int width = (int)(state->toggle_windowed_h * saved_aspect_ratio);
+                        p_glViewport((state->toggle_windowed_w-width)/2, 0,
+                                     width, state->toggle_windowed_h);
+                    } else {
+                        p_glViewport(0, 0,
+                                 state->toggle_windowed_w,
+                                 (int)(state->toggle_windowed_w /saved_aspect_ratio));
+                    }
+                } else {
+                    p_glViewport(0, 0,
+                                 state->toggle_windowed_w,
+                                 state->toggle_windowed_h);
+                }
             }
         } else if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
             result = SDL_SetWindowFullscreen(win, 0);
@@ -2319,7 +2326,20 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
             SDL_GL_MakeCurrent(win, state->gl_context);
-            p_glViewport(0, 0, display_mode.w, display_mode.h);
+            if (state->scaled_gl){
+                float saved_aspect_ratio=((float)state->scaled_gl_w)/(float)state->scaled_gl_h;
+                float window_aspect_ratio=((float)display_mode.w)/(float)display_mode.h;
+
+                if (window_aspect_ratio>saved_aspect_ratio){
+                    int width = (int)(display_mode.h * saved_aspect_ratio);
+                    p_glViewport((display_mode.w-width)/2, 0,
+                                 width, display_mode.h);
+                } else {
+                    p_glViewport(0, 0, display_mode.w, (int)(display_mode.w / saved_aspect_ratio));
+                }
+            } else {
+                p_glViewport(0, 0, display_mode.w, display_mode.h);
+            }
         } else if (w == display_mode.w && h == display_mode.h) {
             result =
                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -2394,10 +2414,31 @@ pg_display_resize_event(PyObject *self, PyObject *event)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    if (pg_renderer != NULL) {
+    if (state->using_gl) {
+        p_glViewport = (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
+        SDL_SetWindowSize(win, wnew, hnew);
+        SDL_GL_MakeCurrent(win, state-> gl_context);
+        if (state->scaled_gl) {
+            float saved_aspect_ratio=((float)state->scaled_gl_w)/(float)state->scaled_gl_h;
+            float window_aspect_ratio=((float)wnew)/(float)hnew;
+
+            if (window_aspect_ratio>saved_aspect_ratio){
+                int width = (int)(hnew * saved_aspect_ratio);
+                p_glViewport((wnew-width)/2, 0,
+                             width, hnew);
+            } else {
+                p_glViewport(0, 0, wnew, (int)(wnew / saved_aspect_ratio));
+            }
+        } else {
+            p_glViewport(0, 0, wnew, hnew);
+        }
+    } else if (pg_renderer != NULL) {
         SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
         SDL_SetWindowSize(win, wnew, hnew);
         SDL_RenderSetLogicalSize(pg_renderer, w, h);
+    } else {
+        /* do not do anything that would invalidate a display surface! */
+        return PyInt_FromLong(-1);
     }
     return PyInt_FromLong(0);
 }
