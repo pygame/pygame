@@ -22,11 +22,13 @@ Herein lies a *BOLD* demo consisting of a mixture of various things.
         Not only is it a *BOLD* demo, it's an
         italics demo,
         a rotated demo,
-        and is sized to go nicely with a cup of tea.
+        it's a blend,
+        and is sized to go nicely with a cup of tea*.
+
+        * also goes well with coffee.
 
 Enjoy!
 """
-import sys
 import os
 import pygame as pg
 import pygame.freetype as freetype
