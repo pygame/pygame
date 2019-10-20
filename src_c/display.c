@@ -799,6 +799,26 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
            parameter is given. By default, put the new window on the same screen
            as the old one */
         display = SDL_GetWindowDisplayIndex(win);
+    } else if(display_env != NULL){
+        display=SDL_atoi(display_env);
+    } else {
+        int num_displays, i;
+        SDL_Rect display_bounds;
+        SDL_Point mouse_position;
+        SDL_GetGlobalMouseState(
+            &mouse_position.x,
+            &mouse_position.y
+        );
+        num_displays=SDL_GetNumVideoDisplays();
+
+        for(i=0; i<num_displays; i++){
+            if (SDL_GetDisplayBounds(i, &display_bounds) == 0) {
+                if(SDL_PointInRect(&mouse_position, &display_bounds)){
+                    display=i;
+                    break;
+                }
+            }
+        }
     }
 
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords,
@@ -929,8 +949,19 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 if (!(flags & PGS_FULLSCREEN)) {
                     int xscale, yscale;
 
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
+                    SDL_Rect display_bounds;
+                    if (0 !=
+                        SDL_GetDisplayUsableBounds(display,
+                                                   &display_bounds)){
+                        return RAISE(pgExc_SDLError, SDL_GetError());
+                    }
+                    xscale = display_bounds.w / w;
+                    yscale = display_bounds.h / h;
+#else
                     xscale = display_mode.w / w;
                     yscale = display_mode.h / h;
+#endif
                     scale = xscale < yscale ? xscale : yscale;
                     if (scale < 1)
                         scale = 1;
@@ -2123,6 +2154,33 @@ pg_get_scaled_renderer_info(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_get_desktop_screen_sizes(PyObject *self, PyObject *args)
+{
+    int display_count, i;
+    SDL_DisplayMode dm;
+    PyObject* result;
+
+    VIDEO_INIT_CHECK();
+
+    display_count=SDL_GetNumVideoDisplays();
+
+    result = PyList_New(display_count);
+    if(result==NULL){
+        Py_RETURN_NONE;
+    }
+    for(i=0; i<display_count; i++){
+        if(SDL_GetDesktopDisplayMode(i, &dm)!=0){
+            Py_RETURN_NONE;
+        }
+        if(PyList_SetItem(result, i,  PyTuple_Pack(2, PyLong_FromLong(dm.w), PyLong_FromLong(dm.h)))!=0){
+            Py_RETURN_NONE;
+        }
+    }
+    return result;
+}
+
+
+static PyObject *
 pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
@@ -2599,6 +2657,7 @@ static PyMethodDef _pg_display_methods[] = {
 #if IS_SDLv2
     {"resize_event", (PyCFunction)pg_display_resize_event, METH_O, "provisional API, subject to change"},
     {"get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info, METH_NOARGS, "provisional API, subject to change"},
+    {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes, METH_NOARGS, "provisional API, subject to change"},
 #endif
 
     {"gl_set_attribute", pg_gl_set_attribute, METH_VARARGS,

@@ -7,6 +7,8 @@ RES = (160, 120)
 FPS = 30
 clock = pygame.time.Clock()
 
+print ("desktops", pygame.display.get_desktop_sizes())
+
 screen = pygame.display.set_mode(RES, SCALED | RESIZABLE)
 
 # MAIN LOOP
@@ -16,7 +18,11 @@ done = False
 i = 0
 j = 0
 
-print ("renderer", pygame.display.get_renderer_info())
+r_name, r_flags = pygame.display.get_renderer_info()
+print("renderer:", r_name, "flags:", bin(r_flags))
+for flag, name in [(1, "software"), (2, "accelerated"), (4, "VSync"), (8, "render to texture")]:
+    if (flag & r_flags):
+        print(name)
 
 while not done:
     for event in pygame.event.get():
