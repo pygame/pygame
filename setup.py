@@ -4,7 +4,7 @@
 # Full instructions are in https://www.pygame.org/wiki/GettingStarted
 #
 # To configure, compile, install, just run this script.
-#     python setup.py install
+#   python setup.py install
 
 DESCRIPTION = """Pygame is a Python wrapper module for the
 SDL multimedia library. It contains python functions and classes
