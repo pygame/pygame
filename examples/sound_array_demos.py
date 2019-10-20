@@ -136,11 +136,6 @@ def main():
     """
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
-
-    if arraytype not in ("numpy", None):
-        raise ValueError("Array type not supported: %r" % arraytype)
-
-    print("Using %s array package" % pg.sndarray.get_arraytype())
     print("mixer.get_init %s" % (pg.mixer.get_init(),))
 
     samples_per_second = pg.mixer.get_init()[0]
