@@ -1,40 +1,28 @@
 #!/usr/bin/env python
-"""
-Creates an echo effect an any Sound object.
+""" pygame.examples.sound_array_demos
 
-Uses sndarray and MumPy ( or Numeric) to create offset faded copies of the
+Creates an echo effect on any Sound object.
+
+Uses sndarray and numpy to create offset faded copies of the
 original sound. Currently it just uses hardcoded values for the
-number of echos and the delay. Easy for you to recreate as 
-needed. The array packaged used can be specified by an optional
---numpy or --numeric command line option.
+number of echos and the delay. Easy for you to recreate as
+needed.
 
 version 2. changes:
 - Should work with different sample rates now.
 - put into a function.
-- Uses NumPy by default, but falls back on Numeric.
-
+- Uses numpy by default, but falls back on Numeric.
 """
-
-__author__ = "Pete 'ShredWheat' Shinners, Rene Dudfield"
-__copyright__ = "Copyright (C) 2004 Pete Shinners, Copyright (C) 2005 Rene Dudfield"
-__license__ = "Public Domain"
-__version__ = "2.0"
-
-
-import os.path
-import pygame.mixer, pygame.time, pygame.sndarray, pygame
-import pygame.surfarray, pygame.transform
-from pygame import sndarray, mixer
-
+import os
+import pygame as pg
 from numpy import zeros, int32, int16
-
 import time
 
 
-# mixer.init(44100, -16, 0)
-mixer.init()
-# mixer.init(11025, -16, 0)
-# mixer.init(11025)
+# pg.mixer.init(44100, -16, 0)
+pg.mixer.init()
+# pg.mixer.init(11025, -16, 0)
+# pg.mixer.init(11025)
 
 
 def make_echo(sound, samples_per_second, mydebug=True):
@@ -43,7 +31,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
 
     echo_length = 3.5
 
-    a1 = sndarray.array(sound)
+    a1 = pg.sndarray.array(sound)
     if mydebug:
         print("SHAPE1: %s" % (a1.shape,))
 
@@ -86,7 +74,7 @@ def make_echo(sound, samples_per_second, mydebug=True):
     if mydebug:
         print("SHAPE2: %s" % (myarr.shape,))
 
-    sound2 = sndarray.make_sound(myarr.astype(int16))
+    sound2 = pg.sndarray.make_sound(myarr.astype(int16))
 
     return sound2
 
@@ -99,10 +87,10 @@ def slow_down_sound(sound, rate):
     raise NotImplementedError()
     # grow_rate = 1 / rate
     # make it 1/rate times longer.
-    # a1 = sndarray.array(sound)
-    # surf = pygame.surfarray.make_surface(a1)
+    # a1 = pg.sndarray.array(sound)
+    # surf = pg.surfarray.make_surface(a1)
     # print (a1.shape[0] * grow_rate)
-    # scaled_surf = pygame.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
+    # scaled_surf = pg.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
     # print (scaled_surf)
     # print (surf)
 
@@ -110,26 +98,26 @@ def slow_down_sound(sound, rate):
     # print (a1.shape)
     # print (a2.shape)
     # print (a2)
-    # sound2 = sndarray.make_sound(a2.astype(int16))
+    # sound2 = pg.sndarray.make_sound(a2.astype(int16))
     # return sound2
 
 
 def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
     """  returns a sound which begins at the start_pos.
          start_pos - in seconds from the begining.
-         samples_per_second - 
+         samples_per_second -
     """
 
     # see if we want to reuse the sound data or not.
     if inplace:
-        a1 = pygame.sndarray.samples(sound)
+        a1 = pg.sndarray.samples(sound)
     else:
-        a1 = pygame.sndarray.array(sound)
+        a1 = pg.sndarray.array(sound)
 
-    # see if samples per second has been given.  If not, query the mixer.
+    # see if samples per second has been given.  If not, query the pg.mixer.
     #   eg. it might be set to 22050
     if samples_per_second is None:
-        samples_per_second = pygame.mixer.get_init()[0]
+        samples_per_second = pg.mixer.get_init()[0]
 
     # figure out the start position in terms of samples.
     start_pos_in_samples = int(start_pos * samples_per_second)
@@ -138,33 +126,23 @@ def sound_from_pos(sound, start_pos, samples_per_second=None, inplace=1):
     a2 = a1[start_pos_in_samples:]
 
     # make the Sound instance from the array.
-    sound2 = pygame.sndarray.make_sound(a2)
+    sound2 = pg.sndarray.make_sound(a2)
 
     return sound2
 
 
-def main(arraytype=None):
+def main():
     """play various sndarray effects
-
-    If arraytype is provided then use that array package. Valid
-    values are 'numeric' or 'numpy'. Otherwise default to NumPy,
-    or fall back on Numeric if NumPy is not installed.
-
     """
 
     main_dir = os.path.split(os.path.abspath(__file__))[0]
+    print("mixer.get_init %s" % (pg.mixer.get_init(),))
 
-    if arraytype not in ("numpy", None):
-        raise ValueError("Array type not supported: %r" % arraytype)
-
-    print("Using %s array package" % sndarray.get_arraytype())
-    print("mixer.get_init %s" % (mixer.get_init(),))
-
-    samples_per_second = pygame.mixer.get_init()[0]
+    samples_per_second = pg.mixer.get_init()[0]
 
     print(("-" * 30) + "\n")
     print("loading sound")
-    sound = mixer.Sound(os.path.join(main_dir, "data", "car_door.wav"))
+    sound = pg.mixer.Sound(os.path.join(main_dir, "data", "car_door.wav"))
 
     print("-" * 30)
     print("start positions")
@@ -176,19 +154,19 @@ def main(arraytype=None):
     print("sound.get_length %s" % (sound.get_length(),))
     print("sound2.get_length %s" % (sound2.get_length(),))
     sound2.play()
-    while mixer.get_busy():
-        pygame.time.wait(200)
+    while pg.mixer.get_busy():
+        pg.time.wait(200)
 
     print("waiting 2 seconds")
-    pygame.time.wait(2000)
+    pg.time.wait(2000)
     print("playing original sound")
 
     sound.play()
-    while mixer.get_busy():
-        pygame.time.wait(200)
+    while pg.mixer.get_busy():
+        pg.time.wait(200)
 
     print("waiting 2 seconds")
-    pygame.time.wait(2000)
+    pg.time.wait(2000)
 
     # if 0:
     #    #TODO: this is broken.
@@ -197,8 +175,8 @@ def main(arraytype=None):
     #    rate = 0.2
     #    slowed_sound = slow_down_sound(sound, rate)
     #    slowed_sound.play()
-    #    while mixer.get_busy():
-    #        pygame.time.wait(200)
+    #    while pg.mixer.get_busy():
+    #        pg.time.wait(200)
 
     print("-" * 30)
     print("echoing")
@@ -210,15 +188,15 @@ def main(arraytype=None):
 
     print("original sound")
     sound.play()
-    while mixer.get_busy():
-        pygame.time.wait(200)
+    while pg.mixer.get_busy():
+        pg.time.wait(200)
 
     print("echoed sound")
     sound2.play()
-    while mixer.get_busy():
-        pygame.time.wait(200)
+    while pg.mixer.get_busy():
+        pg.time.wait(200)
 
-    sound = mixer.Sound(os.path.join(main_dir, "data", "secosmic_lo.wav"))
+    sound = pg.mixer.Sound(os.path.join(main_dir, "data", "secosmic_lo.wav"))
 
     t1 = time.time()
     sound3 = make_echo(sound, samples_per_second)
@@ -226,13 +204,13 @@ def main(arraytype=None):
 
     print("original sound")
     sound.play()
-    while mixer.get_busy():
-        pygame.time.wait(200)
+    while pg.mixer.get_busy():
+        pg.time.wait(200)
 
     print("echoed sound")
     sound3.play()
-    while mixer.get_busy():
-        pygame.time.wait(200)
+    while pg.mixer.get_busy():
+        pg.time.wait(200)
 
 
 if __name__ == "__main__":

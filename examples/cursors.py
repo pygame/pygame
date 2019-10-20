@@ -1,6 +1,10 @@
 #!/usr/bin/env python
+""" pygame.examples.cursors
 
-import pygame
+Click a mouse button (if you have one!) and the cursor changes.
+
+"""
+import pygame as pg
 
 
 arrow = (
@@ -73,28 +77,28 @@ def TestCursor(arrow):
     s2 = []
     for line in arrow:
         s2.append(line.replace("x", "X").replace(",", ".").replace("O", "o"))
-    cursor, mask = pygame.cursors.compile(s2, "X", ".", "o")
+    cursor, mask = pg.cursors.compile(s2, "X", ".", "o")
     size = len(arrow[0]), len(arrow)
-    pygame.mouse.set_cursor(size, hotspot, cursor, mask)
+    pg.mouse.set_cursor(size, hotspot, cursor, mask)
 
 
 def main():
-    pygame.init()
-    pygame.font.init()
-    font = pygame.font.Font(None, 24)
-    bg = pygame.display.set_mode((800, 600), 0, 24)
+    pg.init()
+    pg.font.init()
+    font = pg.font.Font(None, 24)
+    bg = pg.display.set_mode((800, 600), 0, 24)
     bg.fill((255, 255, 255))
     bg.blit(font.render("Click to advance", 1, (0, 0, 0)), (0, 0))
-    pygame.display.update()
+    pg.display.update()
     for cursor in [no, arrow]:
         TestCursor(cursor)
         going = True
         while going:
-            pygame.event.pump()
-            for e in pygame.event.get():
-                if e.type == pygame.MOUSEBUTTONDOWN:
+            pg.event.pump()
+            for e in pg.event.get():
+                if e.type == pg.MOUSEBUTTONDOWN:
                     going = False
-    pygame.quit()
+    pg.quit()
 
 
 if __name__ == "__main__":
