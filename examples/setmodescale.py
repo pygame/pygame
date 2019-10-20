@@ -16,6 +16,8 @@ done = False
 i = 0
 j = 0
 
+print ("renderer", pygame.display.get_renderer_info())
+
 while not done:
     for event in pygame.event.get():
         if event.type == KEYDOWN and event.key == K_q:
