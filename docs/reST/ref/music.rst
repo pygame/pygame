@@ -45,7 +45,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 .. function:: play
 
    | :sl:`Start the playback of the music stream`
-   | :sg:`play(loops=0, start=0.0) -> None`
+   | :sg:`play(loops=0, start=0.0, fade_ms = 0) -> None`
 
    This will play the loaded music stream. If the music is already playing it
    will be restarted.
@@ -60,6 +60,10 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    ``MP3`` and ``OGG`` use the position as time (in seconds). ``MOD`` music it
    is the pattern order number. Passing a startpos will raise a
    NotImplementedError if it cannot set the start position
+
+   The fade_ms argument will make the music start playing at 0 volume and
+   fade up to full volume over the time given. The sample may end before the
+   fade-in is complete.
 
    .. ## pygame.mixer.music.play ##
 
