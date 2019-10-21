@@ -173,8 +173,10 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
    :raises TypeError: if ``radius`` is not a number
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
-   .. versionchanged:: 2.0.0 Nothing is drawn when the radius is 0 (a pixel at
-      the ``center`` coordinates used to be drawn when the radius equaled 0).
+      Nothing is drawn when the radius is 0 (a pixel at the ``center`` coordinates
+      used to be drawn when the radius equaled 0).
+      Floats, and Vector2 are accepted for the ``center`` param.
+      The drawing algorithm was improved to look more like a circle.
 
    .. ## pygame.draw.circle ##
 
