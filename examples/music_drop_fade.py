@@ -58,9 +58,7 @@ def play_file(filename):
         try:  # we must do this in case the file is not a valid audio file
             pg.mixer.music.load(file_list[-1])
         except pg.error as e:
-            print(
-                e
-            )  # this will print a description such as 'Not an Ogg Vorbis audio stream'
+            print(e)  # print a description such as 'Not an Ogg Vorbis audio stream'
             if filename in file_list:
                 file_list.remove(filename)
                 print("{} removed from file list".format(filename))
