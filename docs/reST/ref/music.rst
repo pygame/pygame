@@ -63,7 +63,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    The fade_ms argument will make the music start playing at 0 volume and
    fade up to full volume over the time given. The sample may end before the
-   fade-in is complete.
+   fade-in is complete. Added in pygame 2.0
 
    .. ## pygame.mixer.music.play ##
 
