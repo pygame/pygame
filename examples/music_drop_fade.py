@@ -10,6 +10,7 @@ Polls the clipboard and plays music files if it finds one there
 Keyboard Controls:
 * Press space or enter to pause music playback
 * Press up or down to change the music volume
+* Press left or right to seek 5 seconds into the track
 * Press escape to quit
 * Press any other button to skip to the next music file in the list
 """
@@ -17,7 +18,7 @@ Keyboard Controls:
 import pygame as pg
 import os, sys
 
-VOLUME_CHANGE_AMOUNT = 0.01  # how fast should up and down arrows change the volume?
+VOLUME_CHANGE_AMOUNT = 0.02  # how fast should up and down arrows change the volume?
 
 
 def add_file(filename):
@@ -29,16 +30,16 @@ def add_file(filename):
 
     It looks in the file directory and its data subdirectory
     """
-    if filename.rpartition(".")[2] not in file_types:
+    if filename.rpartition(".")[2].lower() not in music_file_types:
         print("{} not added to file list".format(filename))
-        print("only these files types are allowed: ", file_types)
+        print("only these files types are allowed: ", music_file_types)
         return False
     elif os.path.exists(filename):
-        file_list.append(filename)
+        music_file_list.append(filename)
     elif os.path.exists(os.path.join(main_dir, filename)):
-        file_list.append(os.path.join(main_dir, filename))
+        music_file_list.append(os.path.join(main_dir, filename))
     elif os.path.exists(os.path.join(data_dir, filename)):
-        file_list.append(os.path.join(data_dir, filename))
+        music_file_list.append(os.path.join(data_dir, filename))
     else:
         print("file not found")
         return False
@@ -49,35 +50,43 @@ def add_file(filename):
 def play_file(filename):
     """
     This function will call add_file and play it if successful
-    The music will fade in over the first 4 seconds
+    The music will fade in during the first 4 seconds
     set_endevent is used to post a MUSIC_DONE event when the song finishes
     The main loop will call play_next() when the MUSIC_DONE event is received
-
     """
+    global starting_pos
+
     if add_file(filename):
         try:  # we must do this in case the file is not a valid audio file
-            pg.mixer.music.load(file_list[-1])
+            pg.mixer.music.load(music_file_list[-1])
         except pg.error as e:
-            print(
-                e
-            )  # this will print a description such as 'Not an Ogg Vorbis audio stream'
-            if filename in file_list:
-                file_list.remove(filename)
+            print(e)  # print description such as 'Not an Ogg Vorbis audio stream'
+            if filename in music_file_list:
+                music_file_list.remove(filename)
                 print("{} removed from file list".format(filename))
             return
         pg.mixer.music.play(fade_ms=4000)
         pg.mixer.music.set_volume(volume)
+
+        if filename.rpartition(".")[2].lower() in music_can_seek:
+            print("file supports seeking")
+            starting_pos = 0
+        else:
+            print("file does not support seeking")
+            starting_pos = -1
         pg.mixer.music.set_endevent(MUSIC_DONE)
 
 
 def play_next():
     """
-    This function is will play the next song in file_list
+    This function will play the next song in music_file_list
     It uses pop(0) to get the next song and then appends it to the end of the list
-    The song will fade in over the first 4 seconds
+    The song will fade in during the first 4 seconds
     """
-    if len(file_list) > 1:
-        nxt = file_list.pop(0)
+
+    global starting_pos
+    if len(music_file_list) > 1:
+        nxt = music_file_list.pop(0)
 
         try:
             pg.mixer.music.load(nxt)
@@ -85,17 +94,21 @@ def play_next():
             print(e)
             print("{} removed from file list".format(nxt))
 
-        #    print('{} is not a valid music file'.format(nxt))
-        #    return
-
-        file_list.append(nxt)
+        music_file_list.append(nxt)
         print("starting next song: ", nxt)
+    else:
+        nxt = music_file_list[0]
     pg.mixer.music.play(fade_ms=4000)
     pg.mixer.music.set_volume(volume)
     pg.mixer.music.set_endevent(MUSIC_DONE)
 
+    if nxt.rpartition(".")[2].lower() in music_can_seek:
+        starting_pos = 0
+    else:
+        starting_pos = -1
 
-def draw_line(text, y=0):
+
+def draw_text_line(text, y=0):
     """
     Draws a line of text onto the display surface
     The text will be centered horizontally at the given y postition
@@ -109,18 +122,38 @@ def draw_line(text, y=0):
     return y
 
 
+def change_music_postion(amount):
+    """
+    Changes current playback postition by amount seconds.
+    This only works with OGG and MP3 files.
+    music.get_pos() returns how many milliseconds the song has played, not
+    the current postion in the file. We must track the starting postion
+    ourselves. music.set_pos() will set the position in seconds. 
+    """
+    global starting_pos
+
+    if starting_pos >= 0:  # will be -1 unless play_file() was OGG or MP3
+        played_for = pg.mixer.music.get_pos() / 1000.0
+        old_pos = starting_pos + played_for
+        starting_pos = old_pos + amount
+        pg.mixer.music.play(start=starting_pos)
+        print("jumped from {} to {}".format(old_pos, starting_pos))
+
+
 MUSIC_DONE = pg.event.custom_type()  # event to be set as mixer.music.set_endevent()
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
 
+starting_pos = 0  # needed to fast forward and rewind
 volume = 0.75
-file_list = []
-file_types = ("mp3", "ogg", "mid", "mod", "it", "xm")
+music_file_list = []
+music_file_types = ("mp3", "ogg", "mid", "mod", "it", "xm", "wav")
+music_can_seek = ("mp3", "ogg", "mod", "it", "xm")
 
 
 def main():
-    global font  # this will be used by the draw_line function
-    global volume
+    global font  # this will be used by the draw_text_line function
+    global volume, starting_pos
     running = True
     paused = False
 
@@ -133,22 +166,25 @@ def main():
     pg.display.set_mode((640, 480))
     font = pg.font.SysFont("Arial", 24)
     clock = pg.time.Clock()
+
     pg.scrap.init()
     pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when scrap module is fixed
-    clipped = pg.scrap.get(pg.SCRAP_TEXT)  # store the current text from the clipboard
+    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode(
+        "UTF-8")  # store the current text from the clipboard TODO remove decode
 
-    # add the command line arguments to the file_list
+    # add the command line arguments to the  music_file_list
     for arg in sys.argv[1:]:
         add_file(arg)
     play_file("house_lo.ogg")  # play default music included with pygame
 
     # draw instructions on screen
-    y = draw_line("Drop music files or path names onto this window", 20)
-    y = draw_line("Copy file names into the clipboard", y)
-    y = draw_line("Or feed them from the command line", y)
-    y = draw_line("If it's music it will play!", y)
-    y = draw_line("SPACE to pause or UP/DOWN to change volume", y)
-    draw_line("other keys will skip the playing track", y)
+    y = draw_text_line("Drop music files or path names onto this window", 20)
+    y = draw_text_line("Copy file names into the clipboard", y)
+    y = draw_text_line("Or feed them from the command line", y)
+    y = draw_text_line("If it's music it will play!", y)
+    y = draw_text_line("SPACE to pause or UP/DOWN to change volume", y)
+    y = draw_text_line("LEFT and RIGHT will skip around the track", y)
+    draw_text_line("Other keys will start the next track", y)
 
     """
     This is the main loop
@@ -159,10 +195,8 @@ def main():
             if ev.type == pg.QUIT:
                 running = False
             elif ev.type == pg.DROPTEXT:
-                print(ev)
                 play_file(ev.text)
             elif ev.type == pg.DROPFILE:
-                print(ev)
                 play_file(ev.file)
             elif ev.type == MUSIC_DONE:
                 play_next()
@@ -180,8 +214,14 @@ def main():
                     change_volume = VOLUME_CHANGE_AMOUNT
                 elif ev.key == pg.K_DOWN:
                     change_volume = -VOLUME_CHANGE_AMOUNT
+                elif ev.key == pg.K_RIGHT:
+                    change_music_postion(+5)
+                elif ev.key == pg.K_LEFT:
+                    change_music_postion(-5)
+
                 else:
                     play_next()
+
             elif ev.type == pg.KEYUP:
                 if ev.key in (pg.K_UP, pg.K_DOWN):
                     change_volume = 0
@@ -191,7 +231,7 @@ def main():
             volume += change_volume
             volume = min(max(0, volume), 1)  # volume should be between 0 and 1
             pg.mixer.music.set_volume(volume)
-            print(volume)
+            print("volume:", volume)
 
         # TODO remove decode when SDL2 scrap is fixed
         new_text = pg.scrap.get(pg.SCRAP_TEXT).decode("UTF-8")
