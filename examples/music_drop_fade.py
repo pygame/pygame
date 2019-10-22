@@ -58,12 +58,14 @@ def play_file(filename):
         try:  # we must do this in case the file is not a valid audio file
             pg.mixer.music.load(file_list[-1])
         except pg.error as e:
-            print(e)  # print a description such as 'Not an Ogg Vorbis audio stream'
+            print(
+                e
+            )  # this will print a description such as 'Not an Ogg Vorbis audio stream'
             if filename in file_list:
                 file_list.remove(filename)
                 print("{} removed from file list".format(filename))
             return
-        pg.mixer.music.play()  # fade_ms=4000)
+        pg.mixer.music.play(fade_ms=4000)
         pg.mixer.music.set_volume(volume)
         pg.mixer.music.set_endevent(MUSIC_DONE)
 
@@ -88,7 +90,7 @@ def play_next():
 
         file_list.append(nxt)
         print("starting next song: ", nxt)
-    pg.mixer.music.play()  # fade_ms=4000)
+    pg.mixer.music.play(fade_ms=4000)
     pg.mixer.music.set_volume(volume)
     pg.mixer.music.set_endevent(MUSIC_DONE)
 
@@ -107,7 +109,7 @@ def draw_line(text, y=0):
     return y
 
 
-MUSIC_DONE = pg.USEREVENT + 1  # create a user event called MUSIC_DOWN in the first slot
+MUSIC_DONE = pg.event.custom_type()  # event to be set as mixer.music.set_endevent()
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
 
@@ -132,20 +134,21 @@ def main():
     font = pg.font.SysFont("Arial", 24)
     clock = pg.time.Clock()
     pg.scrap.init()
-    pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when  scrap module is fixed
-    clipped = pg.scrap.get(pg.SCRAP_TEXT)  # store the current text in the clipboard
+    pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when scrap module is fixed
+    clipped = pg.scrap.get(pg.SCRAP_TEXT)  # store the current text from the clipboard
 
     # add the command line arguments to the file_list
     for arg in sys.argv[1:]:
         add_file(arg)
     play_file("house_lo.ogg")  # play default music included with pygame
-    play_file("crap.ogg")  # TODO remove this test
 
     # draw instructions on screen
     y = draw_line("Drop music files or path names onto this window", 20)
     y = draw_line("Copy file names into the clipboard", y)
     y = draw_line("Or feed them from the command line", y)
-    draw_line("If it's music it will play!", y)
+    y = draw_line("If it's music it will play!", y)
+    y = draw_line("SPACE to pause or UP/DOWN to change volume", y)
+    draw_line("other keys will skip the playing track", y)
 
     """
     This is the main loop
