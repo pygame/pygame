@@ -161,7 +161,21 @@ mouse_set_visible(PyObject *self, PyObject *args)
         return NULL;
     VIDEO_INIT_CHECK();
 
+    #if IS_SDLv2
+        int mode;
+        SDL_Window *win = NULL;
+        win = pg_GetDefaultWindow();
+        if (win)
+            mode = SDL_GetWindowGrab(win);
+            if (mode == SDL_ENABLE & !toggle) {
+                SDL_SetRelativeMouseMode(1);
+            } else {
+                SDL_SetRelativeMouseMode(0);
+            }
+    #endif
+
     toggle = SDL_ShowCursor(toggle);
+
     return PyInt_FromLong(toggle);
 }
 

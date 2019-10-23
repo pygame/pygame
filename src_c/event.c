@@ -137,10 +137,7 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
-#ifdef WIN32
         SDL_Event inputEvent[2];
-#endif /* WIN32 */
-
         if (event->key.repeat) {
             return 0;
         }
@@ -1157,10 +1154,16 @@ set_grab(PyObject *self, PyObject *arg)
 #else  /* IS_SDLv2 */
     win = pg_GetDefaultWindow();
     if (win) {
-        if (doit)
+        if (doit) {
             SDL_SetWindowGrab(win, SDL_TRUE);
-        else
+            if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE)
+                SDL_SetRelativeMouseMode(1);
+            else SDL_SetRelativeMouseMode(0);
+            }
+        else {
             SDL_SetWindowGrab(win, SDL_FALSE);
+            SDL_SetRelativeMouseMode(0);
+            }
     }
 #endif /* IS_SDLv2 */
 
