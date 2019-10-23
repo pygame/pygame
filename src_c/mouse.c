@@ -156,22 +156,25 @@ static PyObject *
 mouse_set_visible(PyObject *self, PyObject *args)
 {
     int toggle;
+    #if IS_SDLv2
+        int mode;
+        SDL_Window *win = NULL;
+    #endif
 
     if (!PyArg_ParseTuple(args, "i", &toggle))
         return NULL;
     VIDEO_INIT_CHECK();
 
     #if IS_SDLv2
-        int mode;
-        SDL_Window *win = NULL;
         win = pg_GetDefaultWindow();
-        if (win)
+        if (win) {
             mode = SDL_GetWindowGrab(win);
             if (mode == SDL_ENABLE & !toggle) {
                 SDL_SetRelativeMouseMode(1);
             } else {
                 SDL_SetRelativeMouseMode(0);
             }
+        }
     #endif
 
     toggle = SDL_ShowCursor(toggle);
