@@ -80,11 +80,11 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
 {
     int loops = 0;
     float startpos = 0.0;
-    int val, volume = 0;
+    int val, volume = 0, fade_ms=0;
 
-    static char *kwids[] = {"loops", "start", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|if", kwids, &loops,
-                                     &startpos))
+    static char *kwids[] = {"loops", "start", "fade_ms", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ifi", kwids, &loops,
+                                     &startpos, &fade_ms))
         return NULL;
 
     MIXER_INIT_CHECK();
@@ -99,7 +99,7 @@ music_play(PyObject *self, PyObject *args, PyObject *keywds)
     music_pos_time = SDL_GetTicks();
 
     volume = Mix_VolumeMusic(-1);
-    val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
+    val = Mix_FadeInMusicPos(current_music, loops, fade_ms, startpos);
     Mix_VolumeMusic(volume);
     Py_END_ALLOW_THREADS
         if (val == -1) return RAISE(pgExc_SDLError, SDL_GetError());
