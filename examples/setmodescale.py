@@ -1,15 +1,24 @@
-import pygame
-from pygame.locals import *
+#!/usr/bin/env python
+""" pygame.examples.setmodescale
 
-pygame.init()
+On high resolution displays(4k, 1080p) and tiny graphics games (640x480)
+show up very small so that they are unplayable. SCALED scales up the window
+for you. The game thinks it's a 640x480 window, but really it can be bigger.
+Mouse events are scaled for you, so your game doesn't need to do it.
+
+Passing SCALED to pygame.display.set_mode means the resolution depends
+on desktop size and the graphics are scaled.
+"""
+import pygame as pg
+
+pg.init()
 
 RES = (160, 120)
 FPS = 30
-clock = pygame.time.Clock()
+clock = pg.time.Clock()
 
-print ("desktops", pygame.display.get_desktop_sizes())
-
-screen = pygame.display.set_mode(RES, SCALED | RESIZABLE)
+print ("desktops", pg.display.get_desktop_sizes())
+screen = pg.display.set_mode(RES, SCALED | RESIZABLE)
 
 # MAIN LOOP
 
@@ -25,15 +34,15 @@ for flag, name in [(1, "software"), (2, "accelerated"), (4, "VSync"), (8, "rende
         print(name)
 
 while not done:
-    for event in pygame.event.get():
+    for event in pg.event.get():
         if event.type == KEYDOWN and event.key == K_q:
             done = True
         if event.type == QUIT:
             done = True
         if event.type == KEYDOWN and event.key == K_f:
-            pygame.display.toggle_fullscreen()
+            pg.display.toggle_fullscreen()
         if event.type == VIDEORESIZE:
-            pygame.display.resize_event(event)
+            pg.display.resize_event(event)
 
     i += 1
     i = i % screen.get_width()
@@ -41,11 +50,11 @@ while not done:
     j = j % screen.get_height()
 
     screen.fill((255, 0, 255))
-    pygame.draw.circle(screen, (0, 0, 0), (100, 100), 20)
-    pygame.draw.circle(screen, (0, 0, 200), (0, 0), 10)
-    pygame.draw.circle(screen, (200, 0, 0), (160, 120), 30)
-    pygame.draw.line(screen, (250, 250, 0), (0, 120), (160, 0))
-    pygame.draw.circle(screen, (255, 255, 255), (i, j), 5)
+    pg.draw.circle(screen, (0, 0, 0), (100, 100), 20)
+    pg.draw.circle(screen, (0, 0, 200), (0, 0), 10)
+    pg.draw.circle(screen, (200, 0, 0), (160, 120), 30)
+    pg.draw.line(screen, (250, 250, 0), (0, 120), (160, 0))
+    pg.draw.circle(screen, (255, 255, 255), (i, j), 5)
 
-    pygame.display.flip()
+    pg.display.flip()
     clock.tick(FPS)

@@ -86,6 +86,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         free(xidx0);
         if (xmult0) free(xmult0);
         if (xmult1) free(xmult1);
+        return;
     }
 
     filter_expand_X_MMX_gcc(srcpix, dstpix, xidx0, xmult0, xmult1, height, srcpitch, dstpitch, srcwidth, dstwidth);
@@ -112,6 +113,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         free(xidx0);
         if (xmult0) free(xmult0);
         if (xmult1) free(xmult1);
+        return;
     }
 
     filter_expand_X_SSE_gcc(srcpix, dstpix, xidx0, xmult0, xmult1, height, srcpitch, dstpitch, srcwidth, dstwidth);

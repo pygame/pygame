@@ -1,13 +1,18 @@
 #!/usr/bin/env python
+""" pg.examples.stars
 
-"""A simple starfield example. Note you can move the 'center' of
+    We are all in the gutter,
+    but some of us are looking at the stars.
+                                            -- Oscar Wilde
+
+A simple starfield example. Note you can move the 'center' of
 the starfield by leftclicking in the window. This example show
 the basics of creating a window, simple pixel plotting, and input
-event management"""
-
-
-import random, math, pygame
-from pygame.locals import *
+event management.
+"""
+import random
+import math
+import pygame as pg
 
 # constants
 WINSIZE = [640, 480]
@@ -63,11 +68,11 @@ def main():
     # create our starfield
     random.seed()
     stars = initialize_stars()
-    clock = pygame.time.Clock()
+    clock = pg.time.Clock()
     # initialize and prepare screen
-    pygame.init()
-    screen = pygame.display.set_mode(WINSIZE)
-    pygame.display.set_caption("pygame Stars Example")
+    pg.init()
+    screen = pg.display.set_mode(WINSIZE)
+    pg.display.set_caption("pygame Stars Example")
     white = 255, 240, 200
     black = 20, 20, 40
     screen.fill(black)
@@ -78,12 +83,12 @@ def main():
         draw_stars(screen, stars, black)
         move_stars(stars)
         draw_stars(screen, stars, white)
-        pygame.display.update()
-        for e in pygame.event.get():
-            if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
+        pg.display.update()
+        for e in pg.event.get():
+            if e.type == pg.QUIT or (e.type == pg.KEYUP and e.key == pg.K_ESCAPE):
                 done = 1
                 break
-            elif e.type == MOUSEBUTTONDOWN and e.button == 1:
+            elif e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
                 WINCENTER[:] = list(e.pos)
         clock.tick(50)
 
@@ -91,3 +96,7 @@ def main():
 # if python says run, then we should run
 if __name__ == "__main__":
     main()
+
+    # I prefer the time of insects to the time of stars.
+    #
+    #                              -- Wisława Szymborska
