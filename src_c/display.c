@@ -2254,7 +2254,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 	   return RAISE(pgExc_SDLError, "Unsupported platform");
     }
 
-    display_surface = pg_GetDefaultWindowSurface();
+    display_surface = (pgSurfaceObject*)pg_GetDefaultWindowSurface();
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);
@@ -2351,6 +2351,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+            if (win == NULL) {
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            } else {
+                result = 0;
+            }
             display_surface->surf = SDL_GetWindowSurface(win);
             pg_SetDefaultWindow(win);
         } else {
@@ -2425,6 +2430,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                 int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
+                if (win == NULL) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
                 display_surface->surf = SDL_GetWindowSurface(win);
                 pg_SetDefaultWindow(win);
                 return PyInt_FromLong(-1);
@@ -2450,10 +2458,8 @@ pg_display_resize_event(PyObject *self, PyObject *event)
     int flags;
     int window_w, window_h, w, h, window_display;
     SDL_DisplayMode display_mode;
-    pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     GL_glViewport_Func p_glViewport = NULL;
-    //SDL_SysWMinfo info;
 
     VIDEO_INIT_CHECK();
     if (!win)
@@ -2466,11 +2472,6 @@ pg_display_resize_event(PyObject *self, PyObject *event)
         return PyInt_FromLong(-1);
 
     }
-
-    //SDL_VERSION(&info.version);
-    //SDL_GetWindowWMInfo(win, &info);
-
-    //display_surface = pg_GetDefaultWindowSurface();
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);
