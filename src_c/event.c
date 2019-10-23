@@ -46,8 +46,8 @@ static int have_registered_events = 0;
  *objects through the event queue.
  */
 
-#define USEROBJECT_CHECK1 0xDEADBEEF
-#define USEROBJECT_CHECK2 0xFEEDF00D
+#define USEROBJECT_CHECK1 (Sint32)0xDEADBEEF
+#define USEROBJECT_CHECK2 (Sint32)0xFEEDF00D
 
 typedef struct UserEventObject {
     struct UserEventObject *next;
