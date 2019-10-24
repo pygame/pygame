@@ -21,6 +21,7 @@ def draw_text_line(text, y=0):
     display.blit(surf, (x, y))
     return y
 
+clock = pg.time.Clock()
 Running = True
 virtualx = 0
 virtualy = 0
@@ -62,4 +63,5 @@ while Running:
     if grabbed and not visible:
     	draw_text_line('Virtual Mouse Mode Enabled!', y + 50)
 
+    clock.tick(30)
     pg.display.flip()
