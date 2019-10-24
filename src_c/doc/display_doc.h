@@ -25,6 +25,17 @@
 #define DOC_PYGAMEDISPLAYSETPALETTE "set_palette(palette=None) -> None\nSet the display color palette for indexed displays"
 #define DOC_PYGAMEDISPLAYGETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays"
 #define DOC_PYGAMEDISPLAYGETWINDOWSIZE "get_window_size() -> tuple\nReturn the size of the window or screen"
+#define DOC_PYGAMEDISPLAYSETWINDOWSIZE "set_window_size((width, height)) -> bool\nChange the current window size"
+#define DOC_PYGAMEDISPLAYSETSCALE "set_scale((x, y)) -> bool\nChange the current render scale"
+#define DOC_PYGAMEDISPLAYGETSCALE "get_scale() -> (x, y)\nGet the current render scale"
+#define DOC_PYGAMEDISPLAYSETVIEWPORT "set_viewport(Rect) -> bool\nChange the current render viewport"
+#define DOC_PYGAMEDISPLAYGETVIEWPORT "get_viewport() -> Rect\nGet the current render viewport"
+#define DOC_PYGAMEDISPLAYSETHINT "set_hint(hint, value) -> bool\nChange a hint towards SDL. Both hint and value must be strings."
+#define DOC_PYGAMEDISPLAYGETHINT "get_hint(hint) -> str\nGet the value of a specific hint."
+#define DOC_PYGAMEDISPLAYSETINTEGERSCALE "set_integer_scale(bool) -> None\nChange whether integer scaling should be applied or not"
+#define DOC_PYGAMEDISPLAYGETINTEGERSCALE "get_integer_scale() -> bool\nGet whether integer scaling is enabled"
+#define DOC_PYGAMEDISPLAYGETLOGICALSIZE "get_logical_size() -> (w, h)\nGet the current render logical size"
+#define DOC_PYGAMEDISPLAYSETLOGICALSIZE "set_logical_size((w, h)) -> bool\nChange the current render logical size"
 
 
 /* Docs in a comment... slightly easier to read. */
