@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-import sys
-import os
 import pygame as pg
 from pygame.constants import *
 
@@ -81,7 +79,6 @@ class fontviewer:
 				min( self.surface.get_height(), screen.get_height()) )
 		print(rect)
 		x = int( (screen.get_width() - self.surface.get_width()) / 2)
-		clr = pg.rect.Rect(x, 0, self.surface.get_width(), screen.get_height())
 
 		while True:
 			if not self.HandleEvents():
