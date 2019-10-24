@@ -40,7 +40,7 @@ void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
     const FT_Byte *src_cpy;
 
     FT_Byte src_byte;
-    int j, i;
+    unsigned int j, i;
 
 #ifndef NDEBUG
     const FT_Byte *src_end = src + (bitmap->rows * bitmap->pitch);
@@ -133,7 +133,7 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
     const FT_Byte *src = bitmap->buffer;
     const FT_Byte *src_cpy;
 
-    int j, i;
+    unsigned int j, i;
 
     /*
      * Assumption, target buffer was filled with the background color before
@@ -231,7 +231,7 @@ void __render_glyph_INT(int x, int y, FontSurface *surface,
     FT_Byte dst_byte;
     FT_Byte mask = ~fg_color->a;
 
-    int j, i;
+    unsigned int j, i;
     int b, int_offset;
 
     /*

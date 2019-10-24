@@ -39,7 +39,7 @@
 static INLINE unsigned int
 bitcount(BITMASK_W n)
 {
-    if (BITMASK_W_LEN == 32) {
+    if (BITMASK_W_LEN == (32)) {
 #ifdef GILLIES
         /* (C) Donald W. Gillies, 1992.  All rights reserved.  You may reuse
            this bitcount() function anywhere you please as long as you retain
@@ -61,7 +61,7 @@ bitcount(BITMASK_W n)
         return n & 0xff;
 #endif
     }
-    else if (BITMASK_W_LEN == 64) {
+    else if (BITMASK_W_LEN == (64)) {
         n = ((n >> 1) & 0x5555555555555555) + (n & 0x5555555555555555);
         n = ((n >> 2) & 0x3333333333333333) + (n & 0x3333333333333333);
         n = ((n >> 4) + n) & 0x0f0f0f0f0f0f0f0f;
