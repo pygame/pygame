@@ -6,6 +6,9 @@ Learn about pygame events and input.
 At the top of the screen are the state of several device values,
 and a scrolling list of events are displayed on the bottom.
 
+"""
+
+usage = """
 Mouse Controls
 ==============
 
@@ -26,7 +29,6 @@ Joystick
 ========
 
 - you can see joystick events if any are plugged in.
-
 """
 
 import pygame as pg
@@ -104,6 +106,7 @@ def drawhistory(win, history):
 
 def main():
     pg.init()
+    print(usage)
 
     win = pg.display.set_mode((640, 480), pg.RESIZABLE)
     pg.display.set_caption("Mouse Focus Workout")
