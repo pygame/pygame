@@ -34,8 +34,11 @@ def drawstatus(win):
     pos = showtext(win, (330, 30), "Keyboard Focus", (255, 255, 255), bgcolor)
     win.blit(img_on_off[pg.key.get_focused()], pos)
 
-    pos = showtext(win, (10, 60), "Mouse Position", (255, 255, 255), bgcolor)
-    p = "%s, %s" % pg.mouse.get_pos()
+    pos = showtext(
+        win, (10, 60), "Mouse Position(rel)", (255, 255, 255), bgcolor
+    )
+    pos_rel = list(pg.mouse.get_pos()) + list(pg.mouse.get_rel())
+    p = "%s, %s (%s, %s)" % tuple(pos_rel)
     showtext(win, pos, p, bgcolor, (255, 255, 55))
 
     pos = showtext(win, (330, 60), "Last Keypress", (255, 255, 255), bgcolor)
