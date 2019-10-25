@@ -169,7 +169,7 @@ mouse_set_visible(PyObject *self, PyObject *args)
         win = pg_GetDefaultWindow();
         if (win) {
             mode = SDL_GetWindowGrab(win);
-            if (mode == SDL_ENABLE & !toggle) {
+            if ((mode == SDL_ENABLE) & !toggle) {
                 SDL_SetRelativeMouseMode(1);
             } else {
                 SDL_SetRelativeMouseMode(0);
