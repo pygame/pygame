@@ -151,7 +151,7 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
     }
     else {
         PyErr_Format(PyExc_TypeError,
-                     "sequence argument takes 2 or 4 items (%d given)",
+                     "sequence argument takes 2 or 4 items (%ld given)",
                      length);
         return 0;
     }
