@@ -6,6 +6,26 @@ Learn about pygame events and input.
 At the top of the screen are the state of several device values,
 and a scrolling list of events are displayed on the bottom.
 
+Mouse Controls
+==============
+
+- 1st button on mouse (left click) to toggle events 'grabed'.
+- 3rd button on mouse (right click) to toggle mouse visible.
+- The window can be resized.
+- Mouse the mouse around to see mouse events.
+- If events are grabbed,
+  and mouse is invisible we show virtual mouse coords.
+
+
+Keyboard Controls
+=================
+
+- press keys up an down to see events.
+
+Joystick
+========
+
+- you can see joystick events if any are plugged in.
 
 """
 
@@ -16,6 +36,10 @@ img_on_off = []
 font = None
 last_key = None
 
+# these are a running counter of mouse.get_rel() calls.
+virtual_x = 0
+virtual_y = 0
+
 
 def showtext(win, pos, text, color, bgcolor):
     textimg = font.render(text, 1, color, bgcolor)
@@ -24,6 +48,7 @@ def showtext(win, pos, text, color, bgcolor):
 
 
 def drawstatus(win):
+    global virtual_x, virtual_y
     bgcolor = 50, 50, 50
     win.fill(bgcolor, (0, 0, 640, 120))
     win.blit(font.render("Status Area", 1, (155, 155, 155), bgcolor), (2, 2))
@@ -31,17 +56,21 @@ def drawstatus(win):
     pos = showtext(win, (10, 30), "Mouse Focus", (255, 255, 255), bgcolor)
     win.blit(img_on_off[pg.mouse.get_focused()], pos)
 
-    pos = showtext(win, (pos[0] + 50, pos[1]), "Mouse visible", (255, 255, 255), bgcolor)
+    pos = showtext(
+        win, (pos[0] + 50, pos[1]), "Mouse visible", (255, 255, 255), bgcolor
+    )
     win.blit(img_on_off[pg.mouse.get_visible()], pos)
 
     pos = showtext(win, (330, 30), "Keyboard Focus", (255, 255, 255), bgcolor)
     win.blit(img_on_off[pg.key.get_focused()], pos)
 
-    pos = showtext(
-        win, (10, 60), "Mouse Position(rel)", (255, 255, 255), bgcolor
-    )
-    pos_rel = list(pg.mouse.get_pos()) + list(pg.mouse.get_rel())
-    p = "%s, %s (%s, %s)" % tuple(pos_rel)
+    pos = showtext(win, (10, 60), "Mouse Position(rel)", (255, 255, 255), bgcolor)
+    rel = pg.mouse.get_rel()
+    virtual_x += rel[0]
+    virtual_y += rel[1]
+
+    mouse_data = tuple(list(pg.mouse.get_pos()) + list(rel))
+    p = "%s, %s (%s, %s)" % mouse_data
     showtext(win, pos, p, bgcolor, (255, 255, 55))
 
     pos = showtext(win, (330, 60), "Last Keypress", (255, 255, 255), bgcolor)
@@ -53,6 +82,13 @@ def drawstatus(win):
 
     pos = showtext(win, (10, 90), "Input Grabbed", (255, 255, 255), bgcolor)
     win.blit(img_on_off[pg.event.get_grab()], pos)
+
+    is_virtual_mouse = pg.event.get_grab() and not pg.mouse.get_visible()
+    pos = showtext(win, (330, 90), "Virtual Mouse", (255, 255, 255), bgcolor)
+    win.blit(img_on_off[is_virtual_mouse], pos)
+    if is_virtual_mouse:
+        p = "%s, %s" % (virtual_x, virtual_y)
+        showtext(win, (pos[0] + 50, pos[1]), p, bgcolor, (255, 255, 55))
 
 
 def drawhistory(win, history):
@@ -103,10 +139,12 @@ def main():
                     global last_key
                     last_key = e.key
 
-            if e.type == pg.MOUSEBUTTONDOWN:
-                pg.event.set_grab(1)
-            elif e.type == pg.MOUSEBUTTONUP:
-                pg.event.set_grab(0)
+            if e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
+                pg.event.set_grab(not pg.event.get_grab())
+
+            if e.type == pg.MOUSEBUTTONDOWN and e.button == 3:
+                pg.mouse.set_visible(not pg.mouse.get_visible())
+
             if e.type != pg.MOUSEMOTION:
                 txt = "%s: %s" % (pg.event.event_name(e.type), e.dict)
                 img = font.render(txt, 1, (50, 200, 50), (0, 0, 0))
