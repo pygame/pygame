@@ -31,6 +31,9 @@ def drawstatus(win):
     pos = showtext(win, (10, 30), "Mouse Focus", (255, 255, 255), bgcolor)
     win.blit(img_on_off[pg.mouse.get_focused()], pos)
 
+    pos = showtext(win, (pos[0] + 50, pos[1]), "Mouse visible", (255, 255, 255), bgcolor)
+    win.blit(img_on_off[pg.mouse.get_visible()], pos)
+
     pos = showtext(win, (330, 30), "Keyboard Focus", (255, 255, 255), bgcolor)
     win.blit(img_on_off[pg.key.get_focused()], pos)
 
