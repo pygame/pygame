@@ -16,18 +16,13 @@ Mouse Controls
 - 3rd button on mouse (right click) to toggle mouse visible.
 - The window can be resized.
 - Mouse the mouse around to see mouse events.
-- If events are grabbed,
-  and mouse is invisible we show virtual mouse coords.
+- If events grabbed and mouse invisible show virtual mouse coords.
 
 
-Keyboard Controls
-=================
+Keyboard Joystick Controls
+==========================
 
 - press keys up an down to see events.
-
-Joystick
-========
-
 - you can see joystick events if any are plugged in.
 """
 
@@ -94,7 +89,8 @@ def drawstatus(win):
 
 
 def drawhistory(win, history):
-    win.blit(font.render("Event History Area", 1, (155, 155, 155), (0, 0, 0)), (2, 132))
+    img = font.render("Event History Area", 1, (155, 155, 155), (0, 0, 0))
+    win.blit(img, (2, 132))
     ypos = 450
     h = list(history)
     h.reverse()
@@ -104,12 +100,21 @@ def drawhistory(win, history):
         ypos -= font.get_height()
 
 
+def draw_usage_in_history(history, text):
+    lines = text.split("\n")
+    for line in lines:
+        if line == "" or "===" in line:
+            continue
+        img = font.render(line, 1, (50, 200, 50), (0, 0, 0))
+        history.append(img)
+
+
 def main():
     pg.init()
     print(usage)
 
     win = pg.display.set_mode((640, 480), pg.RESIZABLE)
-    pg.display.set_caption("Mouse Focus Workout")
+    pg.display.set_caption("Mouse Focus Workout. h key for help")
 
     global font
     font = pg.font.Font(None, 26)
@@ -120,6 +125,7 @@ def main():
 
     # stores surfaces of text representing what has gone through the event queue
     history = []
+
 
     # let's turn on the joysticks just so we can play with em
     for x in range(pg.joystick.get_count()):
@@ -141,6 +147,8 @@ def main():
                 else:
                     global last_key
                     last_key = e.key
+                if e.key == pg.K_h:
+                    draw_usage_in_history(history, usage)
 
             if e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
                 pg.event.set_grab(not pg.event.get_grab())
