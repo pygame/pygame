@@ -761,6 +761,46 @@ pg_gl_get_attribute(PyObject *self, PyObject *arg)
 }
 
 #if IS_SDLv2
+
+/*
+** Looks at the SDL1 environment variables:
+**    - SDL_VIDEO_WINDOW_POS
+*         "x,y"
+*         "center"
+**    - SDL_VIDEO_CENTERED
+*         if set the window should be centered.
+*
+*  Returns:
+*      0 if we do not want to position the window.
+*      1 if we set the x and y.
+*          x, and y are set to the x and y.
+*          center_window is set to 0.
+*      2 if we want the window centered.
+*          center_window is set to 1.
+*/
+int _get_video_window_pos(int *x, int *y, int *center_window)
+{
+    const char *sdl_video_window_pos = SDL_getenv("SDL_VIDEO_WINDOW_POS");
+    const char *sdl_video_centered = SDL_getenv("SDL_VIDEO_CENTERED");
+    int xx, yy;
+    if ( sdl_video_window_pos ) {
+        if ( SDL_sscanf(sdl_video_window_pos, "%d,%d", &xx, &yy) == 2 ) {
+            *x = xx;
+            *y = yy;
+            *center_window = 0;
+            return 1;
+        }
+        if ( SDL_strcmp(sdl_video_window_pos, "center") == 0 ) {
+            sdl_video_centered = sdl_video_window_pos;
+        }
+    }
+    if ( sdl_video_centered ) {
+        *center_window = 1;
+        return 2;
+    }
+    return 0;
+}
+
 static PyObject *
 pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 {
@@ -787,6 +827,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     scale_env = SDL_getenv("PYGAME_FORCE_SCALE");
     soft_env = SDL_getenv("PYGAME_SCALE_SOFTWARE");
 
+
+    /* TODO START: this block goes into a _get_display() functions. */
     if (win != NULL) {
         /* will get overwritten by ParseTupleAndKeywords only if display
            parameter is given. By default, put the new window on the same
@@ -812,6 +854,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             }
         }
     }
+    /* TODO END */
 
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords, &w, &h,
                                      &flags, &depth, &display))
@@ -920,10 +963,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 #pragma PG_WARN(Not setting bpp ?)
 #pragma PG_WARN(Add mode stuff.)
         {
-            int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-            int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
             int w_1, h_1;
             int scale = 1;
+            int center_window = 0;
+            int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+            int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
+
+            _get_video_window_pos(&x, &y, &center_window);
+            if(center_window) {
+                x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+                y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+            }
 
             if (win) {
                 if (SDL_GetWindowDisplayIndex(win) == display) {
