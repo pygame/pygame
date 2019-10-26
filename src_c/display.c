@@ -779,7 +779,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     int display = 0;
     char *title = state->title;
     int init_flip = 0;
-    char *display_env, *vsync_env, *scale_env, *soft_env;
+    char *display_env, *scale_env;
 
     char *keywords[] = {
         "size",
@@ -790,9 +790,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     };
 
     display_env=SDL_getenv("PYGAME_DISPLAY");
-    vsync_env=SDL_getenv("PYGAME_VSYNC");
     scale_env=SDL_getenv("PYGAME_FORCE_SCALE");
-    soft_env=SDL_getenv("PYGAME_SCALE_SOFTWARE");
 
     if(win!=NULL) {
         /* will get overwritten by ParseTupleAndKeywords only if display
@@ -875,14 +873,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                return RAISE(pgExc_SDLError, SDL_GetError());
         }
 
-	if (w == 0 && h == 0 && !(flags & PGS_SCALED)) {
-	     /* We are free to choose a resolution in this case, so we can
-		avoid changing the physical resolution. This used to default
-		to the max supported by the monitor, but we can use current
-		desktop resolution without breaking compatibility. */
-  	    w = display_mode.w;
-	    h = display_mode.h;
-	}
+        if (w == 0 && h == 0 && !(flags & PGS_SCALED)) {
+            /* We are free to choose a resolution in this case, so we can
+               avoid changing the physical resolution. This used to default
+               to the max supported by the monitor, but we can use current
+               desktop resolution without breaking compatibility. */
+            w = display_mode.w;
+            h = display_mode.h;
+        }
 
         if (flags & PGS_FULLSCREEN) {
             if (flags & PGS_SCALED) {
@@ -1040,13 +1038,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
                     SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
                                             "nearest", SDL_HINT_DEFAULT);
-                    if (soft_env!=NULL){
-                        pg_renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
-                    } else if (vsync_env!=NULL) {
-                        pg_renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_PRESENTVSYNC);
-                    } else {
-                        pg_renderer = SDL_CreateRenderer(win, -1, 0);
-                    }
+                    pg_renderer = SDL_CreateRenderer(win, -1, 0);
 
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
                     SDL_SetWindowMinimumSize(win, w, h);
@@ -2263,11 +2255,6 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    /*
-      if (pg_renderer != NULL) {
-        SDL_RenderGetLogicalSize(pg_renderer, &w, &h);
-    } else
-    */
     if (state->using_gl) {
         p_glViewport = (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
         SDL_GL_GetDrawableSize(win, &w, &h);
@@ -2453,7 +2440,6 @@ pg_display_resize_event(PyObject *self, PyObject *event)
     pgSurfaceObject *display_surface;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     GL_glViewport_Func p_glViewport = NULL;
-    //SDL_SysWMinfo info;
 
     VIDEO_INIT_CHECK();
     if (!win)
@@ -2466,11 +2452,6 @@ pg_display_resize_event(PyObject *self, PyObject *event)
         return PyInt_FromLong(-1);
 
     }
-
-    //SDL_VERSION(&info.version);
-    //SDL_GetWindowWMInfo(win, &info);
-
-    //display_surface = pg_GetDefaultWindowSurface();
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);
@@ -2663,7 +2644,7 @@ static PyMethodDef _pg_display_methods[] = {
 
 #if IS_SDLv2
     {"resize_event", (PyCFunction)pg_display_resize_event, METH_O, "provisional API, subject to change"},
-    {"get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info, METH_NOARGS, "provisional API, subject to change"},
+    {"_get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info, METH_NOARGS, "provisional API, subject to change"},
     {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes, METH_NOARGS, "provisional API, subject to change"},
 #endif
 

@@ -18,7 +18,7 @@ FPS = 30
 clock = pg.time.Clock()
 
 print ("desktops", pg.display.get_desktop_sizes())
-screen = pg.display.set_mode(RES, SCALED | RESIZABLE)
+screen = pg.display.set_mode(RES, pg.SCALED | pg.RESIZABLE)
 
 # MAIN LOOP
 
@@ -27,7 +27,7 @@ done = False
 i = 0
 j = 0
 
-r_name, r_flags = pygame.display.get_renderer_info()
+r_name, r_flags = pg.display._get_renderer_info()
 print("renderer:", r_name, "flags:", bin(r_flags))
 for flag, name in [(1, "software"), (2, "accelerated"), (4, "VSync"), (8, "render to texture")]:
     if (flag & r_flags):
@@ -35,13 +35,13 @@ for flag, name in [(1, "software"), (2, "accelerated"), (4, "VSync"), (8, "rende
 
 while not done:
     for event in pg.event.get():
-        if event.type == KEYDOWN and event.key == K_q:
+        if event.type == pg.KEYDOWN and event.key == pg.K_q:
             done = True
-        if event.type == QUIT:
+        if event.type == pg.QUIT:
             done = True
-        if event.type == KEYDOWN and event.key == K_f:
+        if event.type == pg.KEYDOWN and event.key == pg.K_f:
             pg.display.toggle_fullscreen()
-        if event.type == VIDEORESIZE:
+        if event.type == pg.VIDEORESIZE:
             pg.display.resize_event(event)
 
     i += 1
