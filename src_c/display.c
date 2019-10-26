@@ -926,7 +926,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         {
             int x = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
             int y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(display);
-            int w_1, h_1;
+            int w_1 = w, h_1 = h;
             int scale = 1;
 
             if (win) {
@@ -960,11 +960,25 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     scale = xscale < yscale ? xscale : yscale;
                     if (scale < 1)
                         scale = 1;
+
+                    if (state->scaled_gl && display_bounds.w -5 > w &&
+                        display_bounds.h -30 > h ){
+
+                        float aspect_ratio=((float)w)/(float)h;
+
+                        w_1 = display_bounds.w -5;
+                        h_1 = display_bounds.h -30;
+                        if (((float)w_1)/(float)h_1 > aspect_ratio){
+                            w_1=h_1*aspect_ratio;
+                        } else {
+                            h_1=w_1/aspect_ratio;
+                        }
+                    } else {
+                        w_1 = w * scale;
+                        h_1 = h * scale;
+                    }
                 }
             }
-
-            w_1 = w * scale;
-            h_1 = h * scale;
 
             if (!win) {
                 /*open window*/
