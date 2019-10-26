@@ -8,6 +8,7 @@
 #define DOC_RECTCLAMP "clamp(Rect) -> Rect\nmoves the rectangle inside another"
 #define DOC_RECTCLAMPIP "clamp_ip(Rect) -> None\nmoves the rectangle inside another, in place"
 #define DOC_RECTCLIP "clip(Rect) -> Rect\ncrops a rectangle inside another"
+#define DOC_RECTCLIPLINE "clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))\nclipline(x1, y1, x2, y2) -> ()\nclipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))\nclipline((x1, y1), (x2, y2)) -> ()\nclipline((x1, y1, x2, y2)) -> ((cx1, cy1), (cx2, cy2))\nclipline((x1, y1, x2, y2)) -> ()\nclipline(((x1, y1), (x2, y2))) -> ((cx1, cy1), (cx2, cy2))\nclipline(((x1, y1), (x2, y2))) -> ()\ncrops a line inside a rectangle"
 #define DOC_RECTUNION "union(Rect) -> Rect\njoins two rectangles into one"
 #define DOC_RECTUNIONIP "union_ip(Rect) -> None\njoins two rectangles into one, in place"
 #define DOC_RECTUNIONALL "unionall(Rect_sequence) -> Rect\nthe union of many rectangles"
@@ -64,6 +65,17 @@ moves the rectangle inside another, in place
 pygame.Rect.clip
  clip(Rect) -> Rect
 crops a rectangle inside another
+
+pygame.Rect.clipline
+ clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))
+ clipline(x1, y1, x2, y2) -> ()
+ clipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))
+ clipline((x1, y1), (x2, y2)) -> ()
+ clipline((x1, y1, x2, y2)) -> ((cx1, cy1), (cx2, cy2))
+ clipline((x1, y1, x2, y2)) -> ()
+ clipline(((x1, y1), (x2, y2))) -> ((cx1, cy1), (cx2, cy2))
+ clipline(((x1, y1), (x2, y2))) -> ()
+crops a line inside a rectangle
 
 pygame.Rect.union
  union(Rect) -> Rect

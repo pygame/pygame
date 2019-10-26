@@ -156,6 +156,65 @@
 
       .. ## Rect.clip ##
 
+   .. method:: clipline
+
+      | :sl:`crops a line inside a rectangle`
+      | :sg:`clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline(x1, y1, x2, y2) -> ()`
+      | :sg:`clipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline((x1, y1), (x2, y2)) -> ()`
+      | :sg:`clipline((x1, y1, x2, y2)) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline((x1, y1, x2, y2)) -> ()`
+      | :sg:`clipline(((x1, y1), (x2, y2))) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline(((x1, y1), (x2, y2))) -> ()`
+
+      Returns the coordinates of a line that is cropped to be completely inside
+      the rectangle. If the line does not overlap the rectangle, then an empty
+      tuple is returned.
+
+      The line to crop can be any of the following formats (floats can be used
+      in place of ints, but they will be truncated):
+
+         - four ints
+         - 2 lists/tuples/Vector2s of 2 ints
+         - a list/tuple of four ints
+         - a list/tuple of 2 lists/tuples/Vector2s of 2 ints
+
+      :returns: a tuple with the coordinates of the given line cropped to be
+         completely inside the rectangle is returned, if the given line does
+         not overlap the rectangle, an empty tuple is returned
+      :rtype: tuple(tuple(int, int), tuple(int, int)) or ()
+
+      :raises TypeError: if the line coordinates are not given as one of the
+         above described line formats
+
+      .. note ::
+         This method can be used for collision detection between a rect and a
+         line. See example code below.
+
+      .. note ::
+         The ``rect.bottom`` and ``rect.right`` attributes of a
+         :mod:`pygame.Rect` always lie one pixel outside of its actual border.
+
+      ::
+
+         # Example using clipline().
+         clipped_line = rect.clipline(line)
+
+         if clipped_line:
+             # If clipped_line is not an empty tuple then the line
+             # collides/overlaps with the rect. The returned value contains
+             # the endpoints of the clipped line.
+             start, end = clipped_line
+             x1, y1 = start
+             x2, y2 = end
+         else:
+             print("No clipping. The line is fully outside the rect.")
+
+      .. versionadded:: 2.0.0
+
+      .. ## Rect.clipline ##
+
    .. method:: union
 
       | :sl:`joins two rectangles into one`
@@ -234,6 +293,10 @@
       Returns true if the given point is inside the rectangle. A point along
       the right or bottom edge is not considered to be inside the rectangle.
 
+      .. note ::
+         For collision detection between a rect and a line the :meth:`clipline`
+         method can be used.
+
       .. ## Rect.collidepoint ##
 
    .. method:: colliderect
@@ -243,6 +306,10 @@
 
       Returns true if any portion of either rectangle overlap (except the
       top+bottom or left+right edges).
+
+      .. note ::
+         For collision detection between a rect and a line the :meth:`clipline`
+         method can be used.
 
       .. ## Rect.colliderect ##
 
