@@ -23,10 +23,30 @@ METADATA = {
     "description":      "Python Game Development",
     "long_description": DESCRIPTION,
 }
+revision = ''
 
 import re
 import sys
 import os
+import os.path, glob, stat, shutil
+import distutils.sysconfig
+from distutils.core import setup, Command
+from distutils.extension import read_setup_file
+from distutils.command.install_data import install_data
+from distutils.command.sdist import sdist
+from setuptools import setup
+
+# NOTE: the bdist_mpkg_support is for darwin.
+try:
+    import bdist_mpkg_support
+except ImportError:
+    pass
+else:
+    EXTRAS.update({
+        'options': bdist_mpkg_support.options,
+        'setup_requires': ['bdist_mpkg>=0.4.2']
+    })
+
 
 def compilation_help():
     """ On failure point people to a web page for help.
@@ -63,134 +83,59 @@ def compilation_help():
     print ('    https://www.pygame.org/contribute.html')
     print ('---\n')
 
-
-
 if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
     compilation_help()
     raise SystemExit("Pygame requires Python version 2.7 or above.")
 
-#get us to the correct directory
-path = os.path.split(os.path.abspath(sys.argv[0]))[0]
-os.chdir(path)
-#os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
-#                       "-Wcast-align -Wconversion -Wstrict-prototypes " + \
-#                       "-Wmissing-prototypes -Wmissing-declarations " + \
-#                       "-Wnested-externs -Wshadow -Wredundant-decls"
-if "-warnings" in sys.argv:
-    os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
-                       "-Wimplicit-function-declaration " + \
-                       "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
-                       "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
-                       "-Wuninitialized -Wparentheses " +\
-                       "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
-                       "-Wconversion -Wstrict-prototypes " + \
-                       "-Wmissing-prototypes -Wmissing-declarations " + \
-                       "-Wnested-externs -Wshadow -Wredundant-decls"
-    sys.argv.remove ("-warnings")
-
-if 'cython' in sys.argv:
-    # compile .pyx files
-    # So you can `setup.py cython` or `setup.py cython install`
-    try:
-        from Cython.Build.Dependencies import cythonize_one
-    except ImportError:
-        print("You need cython. https://cython.org/, pip install cython --user")
-        sys.exit(1)
-
-    from Cython.Build.Dependencies import create_extension_list
-    from Cython.Build.Dependencies import create_dependency_tree
-
-    try:
-        from Cython.Compiler.Main import Context
-        from Cython.Compiler.Options import CompilationOptions, default_options
-
-        c_options = CompilationOptions(default_options)
-        ctx = Context.from_options(c_options)
-    except ImportError:
-        from Cython.Compiler.Main import Context, CompilationOptions, default_options
-
-        c_options = CompilationOptions(default_options)
-        ctx = c_options.create_context()
-
-    import glob
-    pyx_files = glob.glob(os.path.join('src_c', 'cython', 'pygame', '*.pyx')) + \
-                glob.glob(os.path.join('src_c', 'cython', 'pygame', '**', '*.pyx'))
-
-    pyx_files, pyx_meta = create_extension_list(pyx_files, ctx=ctx)
-    deps = create_dependency_tree(ctx)
-
-    queue = []
-
-    for ext in pyx_files:
-        pyx_file = ext.sources[0] # TODO: check all sources, extension
-
-        c_file = os.path.splitext(pyx_file)[0].split(os.path.sep)
-        del c_file[1:3] # output in src_c/
-        c_file = os.path.sep.join(c_file) + '.c'
-
-        # update outdated .c files
-        if os.path.isfile(c_file):
-            c_timestamp = os.path.getmtime(c_file)
-            if c_timestamp < deps.timestamp(pyx_file):
-                dep_timestamp, dep = deps.timestamp(pyx_file), pyx_file
-                priority = 0
-            else:
-                dep_timestamp, dep = deps.newest_dependency(pyx_file)
-                priority = 2 - (dep in deps.immediate_dependencies(pyx_file))
-            if dep_timestamp > c_timestamp:
-                outdated = True
-            else:
-                outdated = False
-        else:
-            outdated = True
-            priority = 0
-        if outdated:
-            print('Compiling {} because it changed.'.format(pyx_file))
-            queue.append((priority, dict( pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
-                                          options=c_options, full_module_name=ext.name,
-                                          embedded_metadata=pyx_meta.get(ext.name) )))
-
-    # compile in right order
-    queue.sort(key=lambda a: a[0])
-    queue = [pair[1] for pair in queue]
-
-    count = len(queue)
-    for i, kwargs in enumerate(queue):
-        kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
-        cythonize_one(**kwargs)
-
-    sys.argv.remove('cython')
-
-AUTO_CONFIG = False
-if '-auto' in sys.argv:
-    AUTO_CONFIG = True
-    sys.argv.remove('-auto')
+if sys.version_info >= (3,0) and sys.version_info < (3,4):
+    compilation_help()
+    raise SystemExit("Pygame requires Python3 version 3.4 or above.")
 
 
-import os.path, glob, stat, shutil
-import distutils.sysconfig
-from distutils.core import setup, Command
-from distutils.extension import read_setup_file
-from distutils.command.install_data import install_data
-from distutils.command.sdist import sdist
+#generate the version module
+def parse_version(ver):
+    return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
 
+def parse_source_version():
+    pgh_major = -1
+    pgh_minor = -1
+    pgh_patch = -1
+    major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
+    minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
+    patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
+    pg_header = os.path.join('src_c', 'include', '_pygame.h')
+    with open(pg_header) as f:
+        for line in f:
+            if pgh_major == -1:
+                m = major_exp_search(line)
+                if m: pgh_major = int(m.group(1))
+            if pgh_minor == -1:
+                m = minor_exp_search(line)
+                if m: pgh_minor = int(m.group(1))
+            if pgh_patch == -1:
+                m = patch_exp_search(line)
+                if m: pgh_patch = int(m.group(1))
+    if pgh_major == -1:
+        raise SystemExit("_pygame.h: cannot find PG_MAJOR_VERSION")
+    if pgh_minor == -1:
+        raise SystemExit("_pygame.h: cannot find PG_MINOR_VERSION")
+    if pgh_patch == -1:
+        raise SystemExit("_pygame.h: cannot find PG_PATCH_VERSION")
+    return (pgh_major, pgh_minor, pgh_patch)
 
-revision = ''
-
-# Python 3.0 patch
-if sys.version_info[0:2] == (3, 0):
-    import distutils.version
-    def _cmp(x, y):
-        try:
-            if x < y:
-                return -1
-            elif x == y:
-                return 0
-            return 1
-        except TypeError:
-            return NotImplemented
-    distutils.version.cmp = _cmp
-    del _cmp
+def write_version_module(pygame_version, revision):
+    vernum = parse_version(pygame_version)
+    src_vernum = parse_source_version()
+    if vernum != ', '.join(str(e) for e in src_vernum):
+        raise SystemExit("_pygame.h version differs from 'METADATA' version"
+                         ": %s vs %s" % (vernum, src_vernum))
+    with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
+        header = header_file.read()
+    with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
+        version_file.write(header)
+        version_file.write('ver = "' + pygame_version + '"\n')
+        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
+        version_file.write('rev = "' + revision + '"\n')
 
 def add_datafiles(data_files, dest_dir, pattern):
     """Add directory structures to data files according to a pattern"""
@@ -209,59 +154,135 @@ def add_datafiles(data_files, dest_dir, pattern):
             data_files.append((root_dest_path, files))
     do_directory(dest_dir, src_dir, elements)
 
-# allow optionally using setuptools for bdist_egg.
-if "-setuptools" in sys.argv:
-    from setuptools import setup
-    sys.argv.remove ("-setuptools")
-from setuptools import setup
+if __name__=="__main__":
+    #get us to the correct directory
+
+    path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+    os.chdir(path)
+    if "-warnings" in sys.argv:
+        os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
+                       "-Wimplicit-function-declaration " + \
+                       "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
+                       "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
+                       "-Wuninitialized -Wparentheses " +\
+                       "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
+                       "-Wconversion -Wstrict-prototypes " + \
+                       "-Wmissing-prototypes -Wmissing-declarations " + \
+                       "-Wnested-externs -Wshadow -Wredundant-decls"
+        sys.argv.remove ("-warnings")
+
+    if 'cython' in sys.argv:
+        # compile .pyx files
+        # So you can `setup.py cython` or `setup.py cython install`
+        try:
+            from Cython.Build.Dependencies import cythonize_one
+        except ImportError:
+            print("You need cython. https://cython.org/, pip install cython --user")
+            sys.exit(1)
+
+        from Cython.Build.Dependencies import create_extension_list
+        from Cython.Build.Dependencies import create_dependency_tree
+
+        try:
+            from Cython.Compiler.Main import Context
+            from Cython.Compiler.Options import CompilationOptions, default_options
+
+            c_options = CompilationOptions(default_options)
+            ctx = Context.from_options(c_options)
+        except ImportError:
+            from Cython.Compiler.Main import Context, CompilationOptions, default_options
+
+            c_options = CompilationOptions(default_options)
+            ctx = c_options.create_context()
 
 
-# NOTE: the bdist_mpkg_support is for darwin.
-try:
-    import bdist_mpkg_support
-    from setuptools import setup
-except ImportError:
-    pass
-else:
-    EXTRAS.update({
-        'options': bdist_mpkg_support.options,
-        'setup_requires': ['bdist_mpkg>=0.4.2'],
-        #'install_requires': ['pyobjc'],
-        #'dependency_links': ['http://rene.f0o.com/~rene/stuff/macosx/']
-    })
+        pyx_files = glob.glob(os.path.join('src_c', 'cython', 'pygame', '*.pyx')) + \
+                    glob.glob(os.path.join('src_c', 'cython', 'pygame', '**', '*.pyx'))
 
-#headers to install
-headers = glob.glob(os.path.join('src_c', '*.h'))
-headers.remove(os.path.join('src_c', 'scale.h'))
+        pyx_files, pyx_meta = create_extension_list(pyx_files, ctx=ctx)
+        deps = create_dependency_tree(ctx)
 
-# option for not installing the headers.
-if "-noheaders" in sys.argv:
-    headers = []
-    sys.argv.remove ("-noheaders")
+        queue = []
 
+        for ext in pyx_files:
+            pyx_file = ext.sources[0] # TODO: check all sources, extension
 
-#sanity check for any arguments
-if len(sys.argv) == 1 and sys.stdout.isatty():
-    if sys.version_info[0] >= 3:
-        reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
-    else:
-        reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
-    if not reply or reply[0].lower() != 'n':
-        sys.argv.append('install')
+            c_file = os.path.splitext(pyx_file)[0].split(os.path.sep)
+            del c_file[1:3] # output in src_c/
+            c_file = os.path.sep.join(c_file) + '.c'
 
+            # update outdated .c files
+            if os.path.isfile(c_file):
+                c_timestamp = os.path.getmtime(c_file)
+                if c_timestamp < deps.timestamp(pyx_file):
+                    dep_timestamp, dep = deps.timestamp(pyx_file), pyx_file
+                    priority = 0
+                else:
+                    dep_timestamp, dep = deps.newest_dependency(pyx_file)
+                    priority = 2 - (dep in deps.immediate_dependencies(pyx_file))
+                if dep_timestamp > c_timestamp:
+                    outdated = True
+                else:
+                    outdated = False
+            else:
+                outdated = True
+                priority = 0
+            if outdated:
+                print('Compiling {} because it changed.'.format(pyx_file))
+                queue.append((priority, dict( pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
+                                              options=c_options, full_module_name=ext.name,
+                                              embedded_metadata=pyx_meta.get(ext.name) )))
 
-#make sure there is a Setup file
-if AUTO_CONFIG or not os.path.isfile('Setup'):
-    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
-    import buildconfig.config
-    try:
-        buildconfig.config.main(AUTO_CONFIG)
-    except:
-        compilation_help()
-        raise
-    if '-config' in sys.argv:
-        sys.exit(0)
-    print ('\nContinuing With "setup.py"')
+        # compile in right order
+        queue.sort(key=lambda a: a[0])
+        queue = [pair[1] for pair in queue]
+
+        count = len(queue)
+        for i, kwargs in enumerate(queue):
+            kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
+            cythonize_one(**kwargs)
+
+        sys.argv.remove('cython')
+
+    # allow optionally using setuptools for bdist_egg.
+    if "-setuptools" in sys.argv:
+        sys.argv.remove ("-setuptools")
+
+    #headers to install
+    headers = glob.glob(os.path.join('src_c', '*.h'))
+    headers.remove(os.path.join('src_c', 'scale.h'))
+
+    # option for not installing the headers.
+    if "-noheaders" in sys.argv:
+        headers = []
+        sys.argv.remove ("-noheaders")
+
+    #sanity check for any arguments
+    if len(sys.argv) == 1 and sys.stdout.isatty():
+        if sys.version_info[0] >= 3:
+            reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+        else:
+            reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+        if not reply or reply[0].lower() != 'n':
+            sys.argv.append('install')
+
+    AUTO_CONFIG = False
+    if '-auto' in sys.argv:
+        AUTO_CONFIG = True
+        sys.argv.remove('-auto')
+
+    #make sure there is a Setup file
+    if AUTO_CONFIG or not os.path.isfile('Setup'):
+        print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
+        import buildconfig.config
+        try:
+            buildconfig.config.main(AUTO_CONFIG)
+        except:
+            compilation_help()
+            raise
+        if '-config' in sys.argv:
+            sys.exit(0)
+        print ('\nContinuing With "setup.py"')
 
 
 try:
@@ -282,14 +303,8 @@ perhaps make a clean copy from "Setup.in".""")
     compilation_help()
     raise
 
-
 #decide whether or not to enable new buffer protocol support
-enable_newbuf = False
-if sys.version_info >= (2, 6, 0):
-    try:
-        sys.pypy_version_info
-    except AttributeError:
-        enable_newbuf = True
+enable_newbuf = not hasattr(sys, "pypy_version_info")
 
 if enable_newbuf:
     enable_newbuf_value = '1'
@@ -325,16 +340,6 @@ if not have_font and have_freetype:
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
-
-#add files in distribution directory
-# pygame_data_files.append('LGPL')
-# pygame_data_files.append('readme.html')
-# pygame_data_files.append('install.html')
-
-# add *.pyi files into distribution directory
-# type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
-# for type_file in type_files:
-#     pygame_data_files.append(type_file)
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
@@ -397,55 +402,16 @@ add_datafiles(data_files, 'pygame/docs',
                          ['ref',
                             ['*.txt']]]]]])
 
-#generate the version module
-def parse_version(ver):
-    return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
-
-def parse_source_version():
-    pgh_major = -1
-    pgh_minor = -1
-    pgh_patch = -1
-    major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
-    minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
-    patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
-    pg_header = os.path.join('src_c', 'include', '_pygame.h')
-    with open(pg_header) as f:
-        for line in f:
-            if pgh_major == -1:
-                m = major_exp_search(line)
-                if m: pgh_major = int(m.group(1))
-            if pgh_minor == -1:
-                m = minor_exp_search(line)
-                if m: pgh_minor = int(m.group(1))
-            if pgh_patch == -1:
-                m = patch_exp_search(line)
-                if m: pgh_patch = int(m.group(1))
-    if pgh_major == -1:
-        raise SystemExit("_pygame.h: cannot find PG_MAJOR_VERSION")
-    if pgh_minor == -1:
-        raise SystemExit("_pygame.h: cannot find PG_MINOR_VERSION")
-    if pgh_patch == -1:
-        raise SystemExit("_pygame.h: cannot find PG_PATCH_VERSION")
-    return (pgh_major, pgh_minor, pgh_patch)
-
-def write_version_module(pygame_version, revision):
-    vernum = parse_version(pygame_version)
-    src_vernum = parse_source_version()
-    if vernum != ', '.join(str(e) for e in src_vernum):
-        raise SystemExit("_pygame.h version differs from 'METADATA' version"
-                         ": %s vs %s" % (vernum, src_vernum))
-    with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
-        header = header_file.read()
-    with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
-        version_file.write(header)
-        version_file.write('ver = "' + pygame_version + '"\n')
-        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
-        version_file.write('rev = "' + revision + '"\n')
-
 write_version_module(METADATA['version'], revision)
 
 #required. This will be filled if doing a Windows build.
 cmdclass = {}
+
+def command(name):
+    def inner(klass):
+        cmdclass[name]=klass
+        return klass
+    return inner
 
 #try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
@@ -496,6 +462,7 @@ if sys.platform == 'win32':
         else:
             pygame_data_files.append(f)
 
+    @command("build_ext")
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
 
@@ -506,8 +473,6 @@ if sys.platform == 'win32':
             if e.name == 'base':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
-
-    cmdclass['build_ext'] = WinBuildExt
 
     # Add the precompiled smooth scale MMX functions to transform.
     def replace_scale_mmx():
@@ -537,6 +502,7 @@ for e in extensions[:]:
 #data installer with improved intelligence over distutils
 #data files are copied into the project directory instead
 #of willy-nilly
+@command('install_data')
 class smart_install_data(install_data):
     def run(self):
         #need to change self.install_dir to the actual library dir
@@ -544,16 +510,13 @@ class smart_install_data(install_data):
         self.install_dir = getattr(install_cmd, 'install_lib')
         return install_data.run(self)
 
-cmdclass['install_data'] = smart_install_data
 
-
+@command('sdist')
 class OurSdist(sdist):
     def initialize_options(self):
         sdist.initialize_options(self)
         # we do not want MANIFEST.in to appear in the root cluttering up things.
         self.template = os.path.join('buildconfig', 'MANIFEST.in')
-
-cmdclass['sdist'] = OurSdist
 
 
 if "bdist_msi" in sys.argv:
@@ -562,6 +525,7 @@ if "bdist_msi" in sys.argv:
     from distutils.command import bdist_msi
     import msilib
 
+    @command('bdist_msi')
     class bdist_msi_overwrite_on_install(bdist_msi.bdist_msi):
         def run(self):
             bdist_msi.bdist_msi.run(self)
@@ -591,16 +555,9 @@ if "bdist_msi" in sys.argv:
                 fullname += '-hg_' + revision
             return bdist_msi.bdist_msi.get_installer_filename(self, fullname)
 
-    cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
-
-
-
-
-
-
 
 # test command.  For doing 'python setup.py test'
-
+@command('test')
 class TestCommand(Command):
     user_options = [ ]
 
@@ -617,9 +574,7 @@ class TestCommand(Command):
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
 
-cmdclass['test'] = TestCommand
-
-
+@command('docs')
 class DocsCommand(Command):
     """ For building the pygame documentation with `python setup.py docs`.
 
@@ -652,17 +607,8 @@ class DocsCommand(Command):
             print(docs_help)
             raise
 
-cmdclass['docs'] = DocsCommand
-
-
-
 # Prune empty file lists.
 date_files = [(path, files) for path, files in data_files if files]
-
-
-
-
-
 
 
 
