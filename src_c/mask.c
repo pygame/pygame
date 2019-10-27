@@ -1812,7 +1812,7 @@ extract_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
     else if (PyInt_Check(color_obj)) {
         long intval = PyInt_AsLong(color_obj);
 
-        if ((-1 == intval && PyErr_Occurred()) || intval > 0xFFFFFFFF) {
+        if ((-1 == intval && PyErr_Occurred()) || intval > (long)0xFFFFFFFF) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
