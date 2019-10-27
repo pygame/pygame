@@ -90,6 +90,17 @@ matrix:
         - MAKEFLAGS=-j8
         - GITHUB_UPLOAD=yes
         - UPLOAD_WHL_PYPI=yes
+    - os: osx
+      osx_image: xcode7.3
+      language: generic
+      env:
+        - PY_VERSION=3
+        - PY_VERSION_=3.8
+        - MAKEFLAGS=-j8
+        - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
+
+
     # - os: osx
     #   osx_image: xcode7.3
     #   language: generic

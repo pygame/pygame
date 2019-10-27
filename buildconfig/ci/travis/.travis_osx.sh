@@ -47,6 +47,11 @@ elif [[ "$PY_VERSION_" == "3.7" ]]; then
 	retry install_or_upgrade python
 	export PYTHON_EXE=python3.7
 	export PIP_CMD="python3.7 -m pip"
+elif [[ "$PY_VERSION_" == "3.8" ]]; then
+	brew uninstall python --force --ignore-dependencies
+	brew install "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python38/python.rb"
+	export PYTHON_EXE=python3.8
+	export PIP_CMD="python3.8 -m pip"
 else
 	brew uninstall --force --ignore-dependencies python@2
 	install_or_upgrade_deps "python@2"
@@ -54,6 +59,11 @@ else
 fi
 
 
-
-
 fi
+
+
+
+echo "$PYTHON_EXE --version"
+$PYTHON_EXE --version
+echo "ls -la /usr/local/bin/"
+ls -la /usr/local/bin/
