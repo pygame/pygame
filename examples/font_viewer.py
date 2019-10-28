@@ -19,21 +19,24 @@ Mouse Controls:
   will enter virtual mouse mode until you click again.
 
 Keyboard Controls:
-* Press up or down to scroll 
+* Press up or down to scroll
 * Press escape to exit
 """
+import sys
+import os
+
 import pygame as pg
-import sys, os
 
 use_big_surface = False  # draw into large buffer and save png file
 
 
-class fontviewer:
+class FontViewer:
     """
     This example is encapsulated by the fontviewer class
     It initializes the pygame window, handles input, and draws itself
     to the screen.
     """
+
     KEY_SCROLL_SPEED = 10
 
     def __init__(self, **dparams):
@@ -100,7 +103,8 @@ class fontviewer:
             "The mouse will be grabbed and hidden until you click again",
             "Foreign fonts might render incorrectly",
             "Here are your {} fonts".format(len(fonts)),
-            ""  )
+            "",
+        )
         for line in lines:
             surf = font.render(line, 1, color, self.back_color)
             font_surfaces.append((surf, total_height))
@@ -109,12 +113,15 @@ class fontviewer:
 
         # render all the fonts and store them with the total height
         for name in sorted(fonts):
-            font = load_font(path + name, font_size)
+            try:
+                font = load_font(path + name, font_size)
+            except IOError:
+                continue
             line = text.replace("&N", name)
             print(name, line, surf.get_height())
             try:
                 surf = font.render(line, 1, color, self.back_color)
-            except pygame.error as e:
+            except pg.error as e:
                 print(e)
                 break
 
@@ -162,16 +169,19 @@ class fontviewer:
         """
 
         large_surface = pg.surface.Surface(
-            (self.max_width, self.total_height)).convert()
+            (self.max_width, self.total_height)
+        ).convert()
         large_surface.fill(self.back_color)
         print("scrolling surface created")
 
         # display the surface size and memory usage
         byte_size = large_surface.get_bytesize()
         total_size = byte_size * (self.max_width * self.total_height)
-        print("Surface Size = {}x{} @ {}bpp: {:,.3f}mb".format(
-                self.max_width, self.total_height,
-                byte_size, total_size / 1000000.0))
+        print(
+            "Surface Size = {}x{} @ {}bpp: {:,.3f}mb".format(
+                self.max_width, self.total_height, byte_size, total_size / 1000000.0
+            )
+        )
 
         y = 0
         center = int(self.max_width / 2)
@@ -180,8 +190,7 @@ class fontviewer:
             x = center - int(w / 2)
             large_surface.blit(surface, (x, y))
             y += surface.get_height()
-        self.max_y = (large_surface.get_height() - 
-                pg.display.get_surface().get_height() )
+        self.max_y = large_surface.get_height() - pg.display.get_surface().get_height()
         self.surface = large_surface
 
     def display_surface(self, time=10):
@@ -192,19 +201,21 @@ class fontviewer:
         """
         screen = pg.display.get_surface()
 
-        # Create a rect equal to the size of the screen. Then we can just change
-        # its top attribute to draw the desired part of the rendered font surface
+        # Create a Rect equal to size of screen. Then we can just change its
+        # top attribute to draw the desired part of the rendered font surface
         # to the display surface
         rect = pg.rect.Rect(
             0,
             0,
             self.surface.get_width(),
-            min(self.surface.get_height(), screen.get_height()) )
-        x = int((screen.get_width() - self.surface.get_width()) / 2)
+            min(self.surface.get_height(), screen.get_height()),
+        )
 
-        while True:
+        x = int((screen.get_width() - self.surface.get_width()) / 2)
+        going = True
+        while going:
             if not self.handle_events():
-                break
+                going = False
             screen.fill(self.back_color)
             rect.top = self.y_offset
             screen.blit(self.surface, (x, 0), rect)
@@ -240,10 +251,10 @@ class fontviewer:
         keys = pg.key.get_pressed()
         if keys[pg.K_UP]:
             self.key_held += 1
-            self.y_offset -= self.KEY_SCROLL_SPEED * (self.key_held / 10)
+            self.y_offset -= int(self.KEY_SCROLL_SPEED * (self.key_held // 10))
         elif keys[pg.K_DOWN]:
             self.key_held += 1
-            self.y_offset += self.KEY_SCROLL_SPEED * (self.key_held / 10)
+            self.y_offset += int(self.KEY_SCROLL_SPEED * (self.key_held // 10))
         else:
             self.key_held = 20
 
@@ -255,4 +266,4 @@ class fontviewer:
         return True
 
 
-viewer = fontviewer()
+viewer = FontViewer()
