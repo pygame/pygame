@@ -36,6 +36,7 @@ class FontViewer:
     It initializes the pygame window, handles input, and draws itself
     to the screen.
     """
+
     KEY_SCROLL_SPEED = 10
 
     def __init__(self, **dparams):
@@ -102,7 +103,7 @@ class FontViewer:
             "The mouse will be grabbed and hidden until you click again",
             "Foreign fonts might render incorrectly",
             "Here are your {} fonts".format(len(fonts)),
-            ""
+            "",
         )
         for line in lines:
             surf = font.render(line, 1, color, self.back_color)
@@ -168,19 +169,19 @@ class FontViewer:
         """
 
         large_surface = pg.surface.Surface(
-            (self.max_width, self.total_height)).convert()
+            (self.max_width, self.total_height)
+        ).convert()
         large_surface.fill(self.back_color)
         print("scrolling surface created")
 
         # display the surface size and memory usage
         byte_size = large_surface.get_bytesize()
         total_size = byte_size * (self.max_width * self.total_height)
-        print("Surface Size = {}x{} @ {}bpp: {:,.3f}mb".format(
-            self.max_width,
-            self.total_height,
-            byte_size,
-            total_size / 1000000.0
-        ))
+        print(
+            "Surface Size = {}x{} @ {}bpp: {:,.3f}mb".format(
+                self.max_width, self.total_height, byte_size, total_size / 1000000.0
+            )
+        )
 
         y = 0
         center = int(self.max_width / 2)
@@ -189,10 +190,7 @@ class FontViewer:
             x = center - int(w / 2)
             large_surface.blit(surface, (x, y))
             y += surface.get_height()
-        self.max_y = (
-            large_surface.get_height() -
-            pg.display.get_surface().get_height()
-        )
+        self.max_y = large_surface.get_height() - pg.display.get_surface().get_height()
         self.surface = large_surface
 
     def display_surface(self, time=10):
@@ -210,7 +208,7 @@ class FontViewer:
             0,
             0,
             self.surface.get_width(),
-            min(self.surface.get_height(), screen.get_height())
+            min(self.surface.get_height(), screen.get_height()),
         )
 
         x = int((screen.get_width() - self.surface.get_width()) / 2)
