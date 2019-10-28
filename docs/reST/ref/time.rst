@@ -82,7 +82,6 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
 
       | :sl:`update the clock`
       | :sg:`tick(framerate=0) -> milliseconds`
-      | :sg:` -> `
 
       This method should be called once per frame. It will compute how many
       milliseconds have passed since the previous call.
@@ -103,7 +102,6 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
 
       | :sl:`update the clock`
       | :sg:`tick_busy_loop(framerate=0) -> milliseconds`
-      | :sg:` -> `
 
       This method should be called once per frame. It will compute how many
       milliseconds have passed since the previous call.

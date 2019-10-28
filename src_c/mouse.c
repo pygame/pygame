@@ -54,11 +54,11 @@ mouse_set_pos(PyObject *self, PyObject *args)
             SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
             SDL_RenderGetViewport(sdlRenderer, &vprect);
 
-            x+=vprect.x;
-            y+=vprect.y;
+            x += vprect.x;
+            y += vprect.y;
 
-            x*=scalex;
-            y*=scaley;
+            x = (int)(x * scalex);
+            y = (int)(y * scaley);
         }
     }
 
@@ -86,8 +86,8 @@ mouse_get_pos(PyObject *self)
             SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
             SDL_RenderGetViewport(sdlRenderer, &vprect);
 
-            x/=scalex;
-            y/=scaley;
+            x = (int)(x / scalex);
+            y = (int)(y / scaley);
 
             x-=vprect.x;
             y-=vprect.y;
@@ -156,10 +156,26 @@ static PyObject *
 mouse_set_visible(PyObject *self, PyObject *args)
 {
     int toggle;
+    #if IS_SDLv2
+        int mode;
+        SDL_Window *win = NULL;
+    #endif
 
     if (!PyArg_ParseTuple(args, "i", &toggle))
         return NULL;
     VIDEO_INIT_CHECK();
+
+    #if IS_SDLv2
+        win = pg_GetDefaultWindow();
+        if (win) {
+            mode = SDL_GetWindowGrab(win);
+            if ((mode == SDL_ENABLE) & !toggle) {
+                SDL_SetRelativeMouseMode(1);
+            } else {
+                SDL_SetRelativeMouseMode(0);
+            }
+        }
+    #endif
 
     toggle = SDL_ShowCursor(toggle);
     return PyInt_FromLong(toggle);

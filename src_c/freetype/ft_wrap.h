@@ -276,7 +276,7 @@ long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, pgFontObject *,
                                     Scale_t);
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, pgFontObject *);
 int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, pgFontObject *);
-int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, pgFontObject *, unsigned,
+int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, pgFontObject *, long,
                                 long *, long *, long *, double *, double *);
 const char *_PGFT_Font_GetName(FreeTypeInstance *, pgFontObject *);
 int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,

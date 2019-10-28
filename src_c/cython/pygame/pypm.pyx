@@ -266,6 +266,7 @@ cdef class Output:
         cdef PmError err
         #cdef PtTimestamp (*PmPtr) ()
         cdef PmTimeProcPtr PmPtr
+        cdef const char * errmsg
 
         self.device = output_device
         self.debug = 0

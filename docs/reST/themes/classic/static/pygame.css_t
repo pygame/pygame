@@ -623,7 +623,7 @@ pre {
     border-left: none;
     border-right: none;
     color: #333333;
-    display: inline-block;
+    display: block;
     font-family: monospace;
     line-height: 120%;
     margin-bottom: 1em;
@@ -831,6 +831,5 @@ pre.commentContent {
     max-width; 800px;
     margin-left:0px;
     border: 0;
+    white-space: pre-wrap;
 }
-
-

@@ -827,8 +827,9 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     } else {
         PyObject *str = 0;
         PyObject *path = 0;
-        if (!PG_CHECK_THREADS())
-            goto end;
+#ifndef WITH_THREAD
+        goto end;
+#endif
         source = pgRWops_FromFileObject(original_file);
         if (!source) {
             goto end;
@@ -1573,7 +1574,7 @@ static PyObject *
 _ftfont_getsizes(pgFontObject *self)
 {
     int nsizes;
-    unsigned i;
+    int i;
     int rc;
     long size = 0;
     long height = 0, width = 0;
@@ -1587,7 +1588,7 @@ _ftfont_getsizes(pgFontObject *self)
     size_list = PyList_New(nsizes);
     if (!size_list)
         goto error;
-    for (i = 0; i < (unsigned)nsizes; ++i) {
+    for (i = 0; i < nsizes; ++i) {
         rc = _PGFT_Font_GetAvailableSize(self->freetype, self, i, &size,
                                          &height, &width, &x_ppem, &y_ppem);
         if (rc < 0)
