@@ -36,6 +36,8 @@ eventlist.py - Learn about pygame events and input.
 
 fastevents.py - Posting events from other threads? Check this out.
 
+font_viewer.py - Display all available fonts in a scrolling window.
+
 fonty.py - Super quick, super simple application demonstrating
     the different ways to render fonts with the font module
 
