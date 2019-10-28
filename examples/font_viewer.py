@@ -112,7 +112,10 @@ class FontViewer:
 
         # render all the fonts and store them with the total height
         for name in sorted(fonts):
-            font = load_font(path + name, font_size)
+            try:
+                font = load_font(path + name, font_size)
+            except IOError:
+                continue
             line = text.replace("&N", name)
             print(name, line, surf.get_height())
             try:
