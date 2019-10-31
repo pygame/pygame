@@ -5685,7 +5685,7 @@ static SDL_Surface *gfxPrimitivesFont[256];
 /*!
 \brief Global cache of the color used for the font surfaces created at runtime.
 */
-static Uint32 gfxPrimitivesFontColor[256];
+// static Uint32 gfxPrimitivesFontColor[256];
 
 /*!
 \brief Pointer to the current font data. Default is a 8x8 pixel internal font. 
@@ -6429,7 +6429,8 @@ void _murphyIteration(SDL_gfxMurphyIterator *m, Uint8 miter,
 	int ftmp1, ftmp2;
 	Uint16 m1x, m1y, m2x, m2y;	
 	Uint16 fix, fiy, lax, lay, curx, cury;
-	Uint16 px[4], py[4];
+	Sint32 px[4], py[4];
+
 	SDL_gfxBresenhamIterator b;
 
 	if (miter > 1) {
@@ -6522,7 +6523,7 @@ void _murphyIteration(SDL_gfxMurphyIterator *m, Uint8 miter,
 			py[1] = m2y;
 			py[2] = ml1by;
 			py[3] = ml2by;			
-			polygonColor(m->dst, px, py, 4, m->color);						
+			polygonColor(m->dst, (Sint16 *)px, (Sint16 *)py, 4, m->color);
 		}
 	}
 

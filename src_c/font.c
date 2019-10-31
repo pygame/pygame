@@ -609,6 +609,7 @@ font_metrics(PyObject *self, PyObject *args)
                 i++;
         }
         PyList_Append(list, listitem);
+        Py_DECREF(listitem);
     }
     Py_DECREF(obj);
     return list;

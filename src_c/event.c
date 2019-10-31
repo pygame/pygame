@@ -46,8 +46,8 @@ static int have_registered_events = 0;
  *objects through the event queue.
  */
 
-#define USEROBJECT_CHECK1 0xDEADBEEF
-#define USEROBJECT_CHECK2 0xFEEDF00D
+#define USEROBJECT_CHECK1 (Sint32)0xDEADBEEF
+#define USEROBJECT_CHECK2 (Sint32)0xFEEDF00D
 
 typedef struct UserEventObject {
     struct UserEventObject *next;
@@ -1157,10 +1157,16 @@ set_grab(PyObject *self, PyObject *arg)
 #else  /* IS_SDLv2 */
     win = pg_GetDefaultWindow();
     if (win) {
-        if (doit)
+        if (doit) {
             SDL_SetWindowGrab(win, SDL_TRUE);
-        else
+            if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE)
+                SDL_SetRelativeMouseMode(1);
+            else SDL_SetRelativeMouseMode(0);
+            }
+        else {
             SDL_SetWindowGrab(win, SDL_FALSE);
+            SDL_SetRelativeMouseMode(0);
+            }
     }
 #endif /* IS_SDLv2 */
 

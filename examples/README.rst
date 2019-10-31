@@ -36,6 +36,8 @@ eventlist.py - Learn about pygame events and input.
 
 fastevents.py - Posting events from other threads? Check this out.
 
+font_viewer.py - Display all available fonts in a scrolling window.
+
 fonty.py - Super quick, super simple application demonstrating
     the different ways to render fonts with the font module
 
@@ -56,6 +58,10 @@ mask.py - single bit pixel manipulation. Fast for collision detection,
 midi.py - for connecting pygame to musical equipment.
 
 moveit.py - a very simple example of moving stuff.
+
+music_drop_fade.py - Fade in and play music from a list while observing
+    several events. Uses fade_ms added in pygame2, as well as set_endevent,
+    set_volume, drag and drop events, and the scrap module.
 
 overlay.py - an old way of displaying video content.
 
