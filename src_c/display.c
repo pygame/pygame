@@ -801,42 +801,19 @@ int _get_video_window_pos(int *x, int *y, int *center_window)
     return 0;
 }
 
-static PyObject *
-pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
+int _get_display(SDL_Window *win)
 {
-    static const char *const DefaultTitle = "pygame window";
-
-    _DisplayState *state = DISPLAY_MOD_STATE(self);
-    SDL_Window *win = pg_GetDefaultWindow();
-    PyObject *surface = pg_GetDefaultWindowSurface();
-    SDL_Surface *surf = NULL;
-    SDL_Surface *newownedsurf = NULL;
-    int depth = 0;
-    int flags = 0;
-    int w = 0;
-    int h = 0;
+    char *display_env = SDL_getenv("PYGAME_DISPLAY");
     int display = 0;
-    char *title = state->title;
-    int init_flip = 0;
-    char *display_env, *scale_env;
 
-    char *keywords[] = {"size", "flags", "depth", "display", NULL};
-
-    display_env=SDL_getenv("PYGAME_DISPLAY");
-    scale_env=SDL_getenv("PYGAME_FORCE_SCALE");
-
-
-    /* TODO START: this block goes into a _get_display() functions. */
     if (win != NULL) {
-        /* will get overwritten by ParseTupleAndKeywords only if display
-           parameter is given. By default, put the new window on the same
-           screen as the old one */
         display = SDL_GetWindowDisplayIndex(win);
     }
     else if (display_env != NULL) {
         display = SDL_atoi(display_env);
     }
     else {
+        /* get currently "active" desktop, containing mouse ptr */
         int num_displays, i;
         SDL_Rect display_bounds;
         SDL_Point mouse_position;
@@ -852,7 +829,34 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             }
         }
     }
-    /* TODO END */
+    return display;
+}
+
+static PyObject *
+pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
+{
+    static const char *const DefaultTitle = "pygame window";
+
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
+    SDL_Window *win = pg_GetDefaultWindow();
+    PyObject *surface = pg_GetDefaultWindowSurface();
+    SDL_Surface *surf = NULL;
+    SDL_Surface *newownedsurf = NULL;
+    int depth = 0;
+    int flags = 0;
+    int w = 0;
+    int h = 0;
+
+     /* display will get overwritten by ParseTupleAndKeywords only if display
+        parameter is given. By default, put the new window on the same
+        screen as the old one */
+    int display = _get_display(win);
+    char *title = state->title;
+    int init_flip = 0;
+    char *scale_env = SDL_getenv("PYGAME_FORCE_SCALE");
+
+
+    char *keywords[] = {"size", "flags", "depth", "display", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords, &w, &h,
                                      &flags, &depth, &display))
