@@ -22,6 +22,8 @@ cdef extern from "SDL.h" nogil:
     int SDL_SetWindowOpacity(SDL_Window *window, float opacity)
     int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window)
     int SDL_SetWindowInputFocus(SDL_Window *window)
+    SDL_Renderer* SDL_GetRenderer(SDL_Window* window)
+    SDL_Window* SDL_GetWindowFromID(Uint32 id)
     SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth, Uint32 format)
 
 
@@ -192,6 +194,19 @@ cdef class Window:
         'tooltip': _SDL_WINDOW_TOOLTIP,
         'popup_menu': _SDL_WINDOW_POPUP_MENU,
     }
+
+    @classmethod
+    def get_window_from_ID(cls, windowid):
+        self = cls.__new__(cls)
+        self._set_window_from_ID(windowid)
+        return self
+
+    def _set_window_from_ID(self, windowid):
+        self._win = SDL_GetWindowFromID(windowid)
+        if not self._win:
+            raise error()
+        SDL_SetWindowData(SDL_GetWindowFromID(windowid), "pg_window", <PyObject*>self)
+
 
     def __init__(self, title='pygame',
                  size=DEFAULT_SIZE,
@@ -842,6 +857,26 @@ cdef class Image:
 
 
 cdef class Renderer:
+
+    @classmethod
+    def get_window_renderer(cls, Window window):
+        self = cls.__new__(cls)
+        self._extract_window_renderer(window)
+        return self
+
+    def _extract_window_renderer(self, Window window):
+        self._win = window
+        if not self._win:
+            raise error()
+
+        self._renderer =  SDL_GetRenderer(self._win._win)
+        if not self._renderer:
+            raise error()
+
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
+        self._draw_color = pgColor_NewLength(defaultColor, 4)
+        self._target = None
+
     def __init__(self, Window window, int index=-1,
                  int accelerated=-1, bint vsync=False,
                  bint target_texture=False):
