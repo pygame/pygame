@@ -24,7 +24,8 @@ import os
 import sys
 from pygame.compat import xrange_, PY_MAJOR_VERSION
 from os.path import basename, dirname, exists, join, splitext
-import xml.etree.ElementTree as ET
+if sys.platform == 'darwin':
+    import xml.etree.ElementTree as ET
 
 
 OpenType_extensions = frozenset(('.ttf', '.ttc', '.otf'))
