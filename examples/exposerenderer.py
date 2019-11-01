@@ -21,12 +21,15 @@ done = False
 i = 0
 j = 0
 
-screen = pg.display.set_mode(RES, pg.SCALED | pg.RESIZABLE)
-win = Window.get_window_from_ID(pg.display.get_window_ID())
-renderer = Renderer.get_window_renderer(win)
+win = Window.from_display_module()
+#win = Window.from_ID(pg.display._get_window_ID())
+renderer = Renderer.from_window(win)
 
 win.size=800,600
 renderer.set_viewport((0,0,80,60))
+
+print (renderer.scale)
+print (renderer.logical_size)
 
 while not done:
     for event in pg.event.get():

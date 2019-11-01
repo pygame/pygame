@@ -2728,7 +2728,7 @@ static PyMethodDef _pg_display_methods[] = {
      METH_NOARGS, "provisional API, subject to change"},
     {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes,
      METH_NOARGS, "provisional API, subject to change"},
-    {"get_window_ID", (PyCFunction)pg_get_window_ID,
+    {"_get_window_ID", (PyCFunction)pg_get_window_ID,
      METH_NOARGS, "provisional API, subject to change"},
 #endif
 

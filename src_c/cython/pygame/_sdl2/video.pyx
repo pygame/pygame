@@ -32,12 +32,16 @@ cdef extern from "pygame.h" nogil:
     SDL_Surface* pgSurface_AsSurface(object surf)
     void import_pygame_surface()
 
+    SDL_Window* pg_GetDefaultWindow()
+    void import_pygame_base()
+
     int pgRect_Check(object rect)
     SDL_Rect *pgRect_FromObject(object obj, SDL_Rect *temp)
     object pgRect_New(SDL_Rect *r)
     object pgRect_New4(int x, int y, int w, int h)
     SDL_Rect pgRect_AsRect(object rect)
     void import_pygame_rect()
+
 
     object pgColor_New(Uint8 rgba[])
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
@@ -47,8 +51,7 @@ cdef extern from "pygame.h" nogil:
 cdef extern from "pgcompat.h" nogil:
     pass
 
-
-
+import_pygame_base()
 import_pygame_color()
 import_pygame_surface()
 import_pygame_rect()
@@ -196,17 +199,24 @@ cdef class Window:
     }
 
     @classmethod
-    def get_window_from_ID(cls, windowid):
-        self = cls.__new__(cls)
-        self._set_window_from_ID(windowid)
+    def from_display_module(cls):
+        cdef Window self = cls.__new__(cls)
+        cdef SDL_Window* window = pg_GetDefaultWindow()
+        if not window:
+            raise error()
+        self._win=window
+        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
         return self
 
-    def _set_window_from_ID(self, windowid):
-        self._win = SDL_GetWindowFromID(windowid)
-        if not self._win:
+    @classmethod
+    def from_ID(cls, windowid):
+        cdef Window self = cls.__new__(cls)
+        cdef SDL_Window* window = SDL_GetWindowFromID(windowid)
+        if not window:
             raise error()
-        SDL_SetWindowData(SDL_GetWindowFromID(windowid), "pg_window", <PyObject*>self)
-
+        self._win=window
+        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
+        return self
 
     def __init__(self, title='pygame',
                  size=DEFAULT_SIZE,
@@ -859,12 +869,8 @@ cdef class Image:
 cdef class Renderer:
 
     @classmethod
-    def get_window_renderer(cls, Window window):
-        self = cls.__new__(cls)
-        self._extract_window_renderer(window)
-        return self
-
-    def _extract_window_renderer(self, Window window):
+    def from_window(cls, Window window):
+        cdef Renderer self = cls.__new__(cls)
         self._win = window
         if not self._win:
             raise error()
@@ -876,6 +882,7 @@ cdef class Renderer:
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._draw_color = pgColor_NewLength(defaultColor, 4)
         self._target = None
+        return self
 
     def __init__(self, Window window, int index=-1,
                  int accelerated=-1, bint vsync=False,
@@ -959,6 +966,37 @@ cdef class Renderer:
         cdef SDL_Rect rect
         SDL_RenderGetViewport(self._renderer, &rect)
         return pgRect_New(&rect)
+
+    @property
+    def logical_size(self):
+        cdef int w
+        cdef int h
+        SDL_RenderGetLogicalSize(self._renderer, &w, &h)
+        return (w, h)
+
+    @logical_size.setter
+    def logical_size(self, size):
+        cdef int w = size[0]
+        cdef int h = size[1]
+        if (SDL_RenderSetLogicalSize(self._renderer, w, h) != 0):
+            raise error()
+
+    @property
+    def scale(self):
+        cdef float x
+        cdef float y
+        SDL_RenderGetScale(self._renderer, &x, &y);
+        return (x, y)
+
+    @scale.setter
+    def scale(self, scale):
+        cdef float x = scale[0]
+        cdef float y = scale[1]
+        if (SDL_RenderSetScale(self._renderer, x, y) != 0):
+            raise error()
+
+    def is_integer_scale(self):
+        return SDL_RenderGetIntegerScale(self._renderer)
 
     def set_viewport(self, area):
         """ Set the drawing area on the target.

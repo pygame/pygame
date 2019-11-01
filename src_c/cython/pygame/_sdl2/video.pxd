@@ -341,6 +341,25 @@ cdef extern from "SDL.h" nogil:
     int SDL_RenderFillRect(SDL_Renderer*   renderer,
                            const SDL_Rect* rect)
 
+    # https://wiki.libsdl.org/SDL_RenderSetScale
+    # https://wiki.libsdl.org/SDL_RenderGetScale
+    # https://wiki.libsdl.org/SDL_RenderSetLogicalSize
+    # https://wiki.libsdl.org/SDL_RenderGetLogicalSize
+    # https://wiki.libsdl.org/SDL_RenderGetIntegerScale
+    int SDL_RenderSetScale(SDL_Renderer* renderer,
+                           float         scaleX,
+                           float         scaleY) 
+    void SDL_RenderGetScale(SDL_Renderer* renderer,
+                            float*        scaleX,
+                            float*        scaleY)
+    int SDL_RenderSetLogicalSize(SDL_Renderer* renderer,
+                                 int           w,
+                                 int           h)
+    void SDL_RenderGetLogicalSize(SDL_Renderer* renderer,
+                                  int*          w,
+                                  int*          h)
+    int SDL_RenderGetIntegerScale(SDL_Renderer* renderer)
+
 
 cdef extern from "pygame.h" nogil:
     ctypedef class pygame.Color [object pgColorObject]:
