@@ -208,16 +208,6 @@ cdef class Window:
         SDL_SetWindowData(window, "pg_window", <PyObject*>self)
         return self
 
-    @classmethod
-    def from_ID(cls, windowid):
-        cdef Window self = cls.__new__(cls)
-        cdef SDL_Window* window = SDL_GetWindowFromID(windowid)
-        if not window:
-            raise error()
-        self._win=window
-        SDL_SetWindowData(window, "pg_window", <PyObject*>self)
-        return self
-
     def __init__(self, title='pygame',
                  size=DEFAULT_SIZE,
                  position=WINDOWPOS_UNDEFINED,

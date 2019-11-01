@@ -2198,19 +2198,6 @@ pg_get_desktop_screen_sizes(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_get_window_ID(PyObject *self, PyObject *args)
-{
-    PyObject *result;
-    SDL_Window *win = pg_GetDefaultWindow();
-    VIDEO_INIT_CHECK();
-    if (!win)
-        return RAISE(pgExc_SDLError, "No open window");
-
-    return PyLong_FromLong(SDL_GetWindowID(win));
-}
-
-
-static PyObject *
 pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
@@ -2727,8 +2714,6 @@ static PyMethodDef _pg_display_methods[] = {
     {"get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info,
      METH_NOARGS, "provisional API, subject to change"},
     {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes,
-     METH_NOARGS, "provisional API, subject to change"},
-    {"_get_window_ID", (PyCFunction)pg_get_window_ID,
      METH_NOARGS, "provisional API, subject to change"},
 #endif
 
