@@ -25,6 +25,6 @@ Then to use the pg_RGBAFromObj in other files,
 1) include the "pygame.h" file,
 2) they have to make sure base is imported with:
 
-	pygame_import_base();
+	import_pygame_base();
 
 Examples that use pg_RGBAFromObj are: _freetype.c, color.c, gfxdraw.c, and surface.c.
