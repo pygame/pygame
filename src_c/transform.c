@@ -912,8 +912,8 @@ surf_rotozoom(PyObject *self, PyObject *arg)
                           &scale))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
-    if (scale == 0.0) {
-        newsurf = newsurf_fromsurf(surf, surf->w, surf->h);
+    if (scale == 0.0 || surf->w == 0 || surf->h ==0) {
+        newsurf = newsurf_fromsurf(surf, 0, 0);
         return pgSurface_New(newsurf);
     }
 
