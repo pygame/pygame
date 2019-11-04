@@ -205,6 +205,7 @@ cdef class Window:
         if not window:
             raise error()
         self._win=window
+        self._is_borrowed=1
         SDL_SetWindowData(window, "pg_window", <PyObject*>self)
         return self
 
@@ -267,6 +268,7 @@ cdef class Window:
 
         self._win = SDL_CreateWindow(title.encode('utf8'), x, y,
                                      size[0], size[1], flags)
+        self._is_borrowed=0
         if not self._win:
             raise error()
         SDL_SetWindowData(self._win, "pg_window", <PyObject*>self)
@@ -502,6 +504,8 @@ cdef class Window:
             raise error()
 
     def __dealloc__(self):
+        if self._is_borrowed:
+            return
         self.destroy()
 
 cdef Uint32 format_from_depth(int depth):
@@ -862,6 +866,10 @@ cdef class Renderer:
     def from_window(cls, Window window):
         cdef Renderer self = cls.__new__(cls)
         self._win = window
+        if window._is_borrowed:
+            self._is_borrowed=1
+        else:
+            raise error()
         if not self._win:
             raise error()
 
@@ -906,8 +914,11 @@ cdef class Renderer:
         self._draw_color = pgColor_NewLength(defaultColor, 4)
         self._target = None
         self._win = window
+        self._is_borrowed=0
 
     def __dealloc__(self):
+        if self._is_borrowed:
+            return
         if self._renderer:
             SDL_DestroyRenderer(self._renderer)
 
@@ -985,8 +996,9 @@ cdef class Renderer:
         if (SDL_RenderSetScale(self._renderer, x, y) != 0):
             raise error()
 
-    def is_integer_scale(self):
-        return SDL_RenderGetIntegerScale(self._renderer)
+    # TODO ifdef
+    # def is_integer_scale(self):
+    #     return SDL_RenderGetIntegerScale(self._renderer)
 
     def set_viewport(self, area):
         """ Set the drawing area on the target.

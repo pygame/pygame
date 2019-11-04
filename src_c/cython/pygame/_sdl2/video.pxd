@@ -373,12 +373,14 @@ cdef extern from "pygame.h" nogil:
 
 cdef class Window:
     cdef SDL_Window* _win
+    cdef int _is_borrowed
 
 cdef class Renderer:
     cdef SDL_Renderer* _renderer
     cdef Color _draw_color
     cdef Texture _target
     cdef Window _win
+    cdef int _is_borrowed
 
     cpdef object get_viewport(self)
     cpdef object blit(self, object source, Rect dest=*, Rect area=*, int special_flags=*)
