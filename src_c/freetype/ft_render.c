@@ -462,7 +462,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
                                &underline_top, &underline_size);
     }
     else {
-        width = 1;
+        width = 0;
         height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         offset.x = -font_text->min_x;
         offset.y = -font_text->min_y;
