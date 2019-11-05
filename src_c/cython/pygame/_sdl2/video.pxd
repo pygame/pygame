@@ -341,6 +341,25 @@ cdef extern from "SDL.h" nogil:
     int SDL_RenderFillRect(SDL_Renderer*   renderer,
                            const SDL_Rect* rect)
 
+    # https://wiki.libsdl.org/SDL_RenderSetScale
+    # https://wiki.libsdl.org/SDL_RenderGetScale
+    # https://wiki.libsdl.org/SDL_RenderSetLogicalSize
+    # https://wiki.libsdl.org/SDL_RenderGetLogicalSize
+    # https://wiki.libsdl.org/SDL_RenderGetIntegerScale
+    int SDL_RenderSetScale(SDL_Renderer* renderer,
+                           float         scaleX,
+                           float         scaleY) 
+    void SDL_RenderGetScale(SDL_Renderer* renderer,
+                            float*        scaleX,
+                            float*        scaleY)
+    int SDL_RenderSetLogicalSize(SDL_Renderer* renderer,
+                                 int           w,
+                                 int           h)
+    void SDL_RenderGetLogicalSize(SDL_Renderer* renderer,
+                                  int*          w,
+                                  int*          h)
+    int SDL_RenderGetIntegerScale(SDL_Renderer* renderer)
+
 
 cdef extern from "pygame.h" nogil:
     ctypedef class pygame.Color [object pgColorObject]:
@@ -354,12 +373,14 @@ cdef extern from "pygame.h" nogil:
 
 cdef class Window:
     cdef SDL_Window* _win
+    cdef int _is_borrowed
 
 cdef class Renderer:
     cdef SDL_Renderer* _renderer
     cdef Color _draw_color
     cdef Texture _target
     cdef Window _win
+    cdef int _is_borrowed
 
     cpdef object get_viewport(self)
     cpdef object blit(self, object source, Rect dest=*, Rect area=*, int special_flags=*)
