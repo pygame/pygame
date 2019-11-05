@@ -1714,7 +1714,7 @@ PyMethodDef cameraobj_builtins[] = {
     {"stop", (PyCFunction)camera_stop, METH_NOARGS, DOC_CAMERASTOP},
     {"get_controls", (PyCFunction)camera_get_controls, METH_NOARGS,
      DOC_CAMERAGETCONTROLS},
-    {"set_controls", (PyCFunction)camera_set_controls, METH_KEYWORDS,
+    {"set_controls", (PyCFunction)camera_set_controls, METH_VARARGS | METH_KEYWORDS,
      DOC_CAMERASETCONTROLS},
     {"get_size", (PyCFunction)camera_get_size, METH_NOARGS, DOC_CAMERAGETSIZE},
     {"query_image", (PyCFunction)camera_query_image, METH_NOARGS,
