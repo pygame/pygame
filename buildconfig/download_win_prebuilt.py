@@ -16,7 +16,7 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
     """
     try:
         import urllib.request as urllib
-    except ModuleNotFoundError:
+    except ImportError:
         import urllib2 as urllib
     import hashlib
     import zipfile
