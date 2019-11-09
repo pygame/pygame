@@ -706,6 +706,10 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         return 0;
     }
 
+    if (quadrant < 0 || quadrant > 4) {
+        RAISE(PyExc_ValueError, "quadrant argument must be number between 0 and 4");
+    }
+
     surf = pgSurface_AsSurface(surfobj);
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
@@ -856,63 +860,27 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     return pgRect_New4(left, top, right - left + 1, bottom - top + 1);
 }
 
+
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
     PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
     GAME_Rect *rect = NULL, temp;
-    int t, l, b, r;
-    int width = 0; /* Default width. */
-    static char *keywords[] = {"surface", "color", "rect", "width", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OO|i", keywords,
+    SDL_Surface *surf = NULL;
+    Uint8 rgba[4];
+    Uint32 color;
+    int t, l, b, r, width = 0, radius = 0; /* Default values. */
+    int drawn_area[4];  /* Right now this exist only for drawing circles at the edge */
+    static char *keywords[] = {"surface", "color", "rect",
+                               "width",  "border_radius", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OO|ii", keywords,
                                      &pgSurface_Type, &surfobj, &colorobj,
-                                     &rectobj, &width)) {
+                                     &rectobj, &width, &radius)) {
         return NULL; /* Exception already set. */
     }
 
     if (!(rect = pgRect_FromObject(rectobj, &temp))) {
-        return RAISE(PyExc_TypeError, "rect argument is invalid");
-    }
-
-    l = rect->x;
-    r = rect->x + rect->w - 1;
-    t = rect->y;
-    b = rect->y + rect->h - 1;
-
-    points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
-    poly_args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
-    if (NULL == poly_args) {
-        return NULL; /* Exception already set. */
-    }
-
-    ret = polygon(NULL, poly_args, NULL);
-    Py_DECREF(poly_args);
-    return ret;
-}
-
-static PyObject *
-round_rect(PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
-    GAME_Rect *rect = NULL, temp;
-    SDL_Surface *surf = NULL;
-    Uint8 rgba[4];
-    Uint32 color;
-    //int posx, posy, radius, t, l, b, r;
-    int radius, t, l, b, r, width = 0; /* Default width. */
-    int drawn_area[4];  /* Right now this exist only for drawing circles at the edge */
-    static char *keywords[] = {"surface", "color", "rect",
-                               "radius",  "width", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OOi|i", keywords,
-                                     &pgSurface_Type, &surfobj, &colorobj,
-                                     &rectobj, &radius, &width)) {
-        return NULL; /* Exception already set. */
-    }
-
-    rect = pgRect_FromObject(rectobj, &temp);
-    if (!rect) {
         return RAISE(PyExc_TypeError, "rect argument is invalid");
     }
 
@@ -935,9 +903,24 @@ round_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!pgSurface_Lock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
+    if (!radius) {
+        l = rect->x;
+        r = rect->x + rect->w - 1;
+        t = rect->y;
+        b = rect->y + rect->h - 1;
+        points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
+        poly_args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
+        if (NULL == poly_args) {
+            return NULL; /* Exception already set. */
+        }
 
-    draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1,
-                    radius, width, color, drawn_area);
+        ret = polygon(NULL, poly_args, NULL);
+        Py_DECREF(poly_args);
+        return ret;
+    }
+    else
+        draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1,
+                        radius, width, color, drawn_area);
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
@@ -2160,23 +2143,23 @@ draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
     }
     else {
         pts[0] = x1 + radius;
-        pts[1] = y1;
+        pts[1] = y1 + (int) (width / 2) - 1;
         pts[2] = x2 - radius;
-        pts[3] = y1;
+        pts[3] = y1 + (int) (width / 2) - 1;
         clip_and_draw_line_width(dst, color, width, pts); /* Top line */
-        pts[0] = x1;
+        pts[0] = x1 + (int) (width / 2) - 1;
         pts[1] = y1 + radius;
-        pts[2] = x1;
+        pts[2] = x1 + (int) (width / 2) - 1;
         pts[3] = y2 - radius;
         clip_and_draw_line_width(dst, color, width, pts); /* Left line */
         pts[0] = x1 + radius;
-        pts[1] = y2;
+        pts[1] = y2 - (int) (width / 2);
         pts[2] = x2 - radius;
-        pts[3] = y2;
+        pts[3] = y2 - (int) (width / 2);
         clip_and_draw_line_width(dst, color, width, pts); /* Bottom line */
-        pts[0] = x2;
+        pts[0] = x2 - (int) (width / 2);
         pts[1] = y1 + radius;
-        pts[2] = x2;
+        pts[2] = x2 - (int) (width / 2);
         pts[3] = y2 - radius;
         clip_and_draw_line_width(dst, color, width, pts); /* Right line */
 
@@ -2202,8 +2185,6 @@ static PyMethodDef _draw_methods[] = {
     {"circle", (PyCFunction)circle, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWCIRCLE},
     {"polygon", (PyCFunction)polygon, METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEDRAWPOLYGON},
-    {"round_rect", (PyCFunction)round_rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWPOLYGON},
     {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWRECT},
