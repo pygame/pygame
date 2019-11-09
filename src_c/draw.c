@@ -708,6 +708,7 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (quadrant < 0 || quadrant > 4) {
         RAISE(PyExc_ValueError, "quadrant argument must be number between 0 and 4");
+        return 0;
     }
 
     surf = pgSurface_AsSurface(surfobj);
@@ -903,7 +904,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!pgSurface_Lock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
-    if (!radius) {
+    if (radius <= 0) {
         l = rect->x;
         r = rect->x + rect->w - 1;
         t = rect->y;
@@ -918,9 +919,12 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_DECREF(poly_args);
         return ret;
     }
-    else
+    else {
+        radius = min(min(rect->w, rect->h) / 2, radius);
         draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1,
                         radius, width, color, drawn_area);
+    }
+
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
