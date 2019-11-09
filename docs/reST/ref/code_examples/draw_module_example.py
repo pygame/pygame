@@ -55,7 +55,11 @@ while not done:
      
     # Draw a solid rectangle
     pygame.draw.rect(screen, BLACK, [150, 10, 50, 20])
-     
+
+    # Draw a rectangle with rounded corners
+    pygame.draw.rect(screen, RED, [115, 210, 70, 40], 0, 10)
+    pygame.draw.rect(screen, GREEN, [135, 260, 50, 30], 5, 10)
+
     # Draw an ellipse outline, using a rectangle as the outside boundaries
     pygame.draw.ellipse(screen, RED, [225, 10, 50, 20], 2) 
 
@@ -74,7 +78,13 @@ while not done:
     
     # Draw a circle
     pygame.draw.circle(screen, BLUE, [60, 250], 40)
-    
+
+    # Draw only one circle quadrant
+    pygame.draw.circle(screen, BLUE, [250, 250], 40, 0, 1)
+    pygame.draw.circle(screen, RED, [250, 250], 40, 30, 2)
+    pygame.draw.circle(screen, GREEN, [250, 250], 40, 20, 3)
+    pygame.draw.circle(screen, BLACK, [250, 250], 40, 10, 4)
+
     # Go ahead and update the screen with what we've drawn.
     # This MUST happen after all the other drawing commands.
     pygame.display.flip()

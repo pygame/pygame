@@ -20,7 +20,7 @@ pygame module for drawing shapes
 
 pygame.draw.rect
  rect(surface, color, rect) -> Rect
- rect(surface, color, rect, width=0, border-radius=0) -> Rect
+ rect(surface, color, rect, width=0, border_radius=0) -> Rect
 draw a rectangle
 
 pygame.draw.polygon

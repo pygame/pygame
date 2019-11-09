@@ -47,7 +47,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a rectangle`
    | :sg:`rect(surface, color, rect) -> Rect`
-   | :sg:`rect(surface, color, rect, width=0) -> Rect`
+   | :sg:`rect(surface, color, rect, width=0, border_radius=0) -> Rect`
 
    Draws a rectangle on the given surface.
 
@@ -70,6 +70,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             outside the original boundary of the rect. For more details on
             how the thickness for edge lines grow, refer to the ``width`` notes
             of the :func:`pygame.draw.line` function.
+   :param int border_radius: (optional) used for drawing rectangle with rounded
+      corners. Value will be in the interval [0, min(height, width) / 2]. Part of
+      the circle drawn on the corners will have this radius.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the given ``rect``
@@ -137,7 +140,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a circle`
    | :sg:`circle(surface, color, center, radius) -> Rect`
-   | :sg:`circle(surface, color, center, radius, width=0) -> Rect`
+   | :sg:`circle(surface, color, center, radius, width=0, quadrant=0) -> Rect`
 
    Draws a circle on the given surface.
 
@@ -163,6 +166,9 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          .. note::
             When using ``width`` values ``> 1``, the edge lines will only grow
             inward.
+   :param int quadrant: (optional) used for drawing only one quadrant of the circle
+      Has to be in the interval [0, 4]. If ``quadrant == 0`` entire circle will be 
+      drawn
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the ``center`` parameter value (float
@@ -171,6 +177,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    :raises TypeError: if ``center`` is not a sequence of two numbers
    :raises TypeError: if ``radius`` is not a number
+   :raises ValueError: if ``quadrant < 0`` or ``quadrant > 4``
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
       Nothing is drawn when the radius is 0 (a pixel at the ``center`` coordinates
