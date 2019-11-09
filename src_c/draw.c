@@ -733,8 +733,8 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
-    if (!quadrant) {
-        if (!width) {
+    if (!quadrant || radius == 1) {
+        if (!width || width == radius) {
             draw_circle_filled(surf, posx, posy,
                               radius, color, drawn_area);
         } else {
@@ -1688,37 +1688,29 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
         for (i=0; i<thickness; i++){
             y1=y-i;
             if ((y0 + y1 - 1) >= (y0 + x - 1) &&
-                set_at(dst, x0 + x - 1, y0 + y1 - 1, color) &&  /* 7 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 + x - 1, y0 + y1 - 1, drawn_area);
-            if ((y0 + y1 - 1) > (y0 + x - 1) &&
-                set_at(dst, x0 - x, y0 + y1 - 1, color) &&      /* 6 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 - x, y0 + y1 - 1, drawn_area);
-            if ((y0 - y1) < (y0 - x) &&
-                set_at(dst, x0 + x - 1, y0 - y1, color) &&      /* 2 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 + x - 1, y0 - y1, drawn_area);
+                set_at(dst, x0 + x - 1, y0 + y1 - 1, color))  /* 7 */
+                    add_pixel_to_drawn_list(x0 + x - 1, y0 + y1 - 1, drawn_area);
+            if ((y0 + y1 - 1) >= (y0 + x - 1) &&
+                set_at(dst, x0 - x, y0 + y1 - 1, color))      /* 6 */
+                    add_pixel_to_drawn_list(x0 - x, y0 + y1 - 1, drawn_area);
             if ((y0 - y1) <= (y0 - x) &&
-                set_at(dst, x0 - x, y0 - y1, color) &&          /* 3 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 - x, y0 - y1, drawn_area);
-            if ((x0 + y1 - 1) > (x0 + x - 1) &&
-                set_at(dst, x0 + y1 - 1, y0 + x - 1, color) &&  /* 8 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 + y1 - 1, y0 + x - 1, drawn_area);
-            if ((x0 - y1) <= (x0 - x) &&
-                set_at(dst, x0 - y1, y0 + x - 1, color) &&      /* 5 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 - y1, y0 + x - 1, drawn_area);
+                set_at(dst, x0 + x - 1, y0 - y1, color))      /* 2 */
+                    add_pixel_to_drawn_list(x0 + x - 1, y0 - y1, drawn_area);
+            if ((y0 - y1) <= (y0 - x) &&
+                set_at(dst, x0 - x, y0 - y1, color))          /* 3 */
+                    add_pixel_to_drawn_list(x0 - x, y0 - y1, drawn_area);
             if ((x0 + y1 - 1) >= (x0 + x - 1) &&
-                set_at(dst, x0 + y1 - 1, y0 - x, color) &&      /* 1 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 + y1 - 1, y0 - x, drawn_area);
-            if ((x0 - y1) < (x0 - x) &&
-                set_at(dst, x0 - y1, y0 - x, color) &&          /* 4 */
-                (i == 0 || i == thickness - 1))
-                add_pixel_to_drawn_list(x0 - y1, y0 - x, drawn_area);
+                set_at(dst, x0 + y1 - 1, y0 + x - 1, color))  /* 8 */
+                    add_pixel_to_drawn_list(x0 + y1 - 1, y0 + x - 1, drawn_area);
+            if ((x0 - y1) <= (x0 - x) &&
+                set_at(dst, x0 - y1, y0 + x - 1, color))      /* 5 */
+                    add_pixel_to_drawn_list(x0 - y1, y0 + x - 1, drawn_area);
+            if ((x0 + y1 - 1) >= (x0 + x - 1) &&
+                set_at(dst, x0 + y1 - 1, y0 - x, color))      /* 1 */
+                    add_pixel_to_drawn_list(x0 + y1 - 1, y0 - x, drawn_area);
+            if ((x0 - y1) <= (x0 - x) &&
+                set_at(dst, x0 - y1, y0 - x, color))          /* 4 */
+                    add_pixel_to_drawn_list(x0 - y1, y0 - x, drawn_area);
         }
     }
 }

@@ -2,7 +2,7 @@
 #define DOC_PYGAMEDRAW "pygame module for drawing shapes"
 #define DOC_PYGAMEDRAWRECT "rect(surface, color, rect) -> Rect\nrect(surface, color, rect, width=0, border_radius=0) -> Rect\ndraw a rectangle"
 #define DOC_PYGAMEDRAWPOLYGON "polygon(surface, color, points) -> Rect\npolygon(surface, color, points, width=0) -> Rect\ndraw a polygon"
-#define DOC_PYGAMEDRAWCIRCLE "circle(surface, color, center, radius) -> Rect\ncircle(surface, color, center, radius, width=0) -> Rect\ndraw a circle"
+#define DOC_PYGAMEDRAWCIRCLE "circle(surface, color, center, radius) -> Rect\ncircle(surface, color, center, radius, width=0, quadrant=0) -> Rect\ndraw a circle"
 #define DOC_PYGAMEDRAWELLIPSE "ellipse(surface, color, rect) -> Rect\nellipse(surface, color, rect, width=0) -> Rect\ndraw an ellipse"
 #define DOC_PYGAMEDRAWARC "arc(surface, color, rect, start_angle, stop_angle) -> Rect\narc(surface, color, rect, start_angle, stop_angle, width=1) -> Rect\ndraw an elliptical arc"
 #define DOC_PYGAMEDRAWLINE "line(surface, color, start_pos, end_pos, width) -> Rect\nline(surface, color, start_pos, end_pos, width=1) -> Rect\ndraw a straight line"
@@ -30,7 +30,7 @@ draw a polygon
 
 pygame.draw.circle
  circle(surface, color, center, radius) -> Rect
- circle(surface, color, center, radius, width=0) -> Rect
+ circle(surface, color, center, radius, width=0, quadrant=0) -> Rect
 draw a circle
 
 pygame.draw.ellipse
