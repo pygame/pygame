@@ -5141,7 +5141,6 @@ class DrawCircleMixin(object):
     #     l, t, MAX(r - l, 0), MAX(b - t, 0)
 
     # This decorator can be removed when issue #1122 is resolved.
-    @unittest.expectedFailure
     def test_circle__bounding_rect(self):
         """Ensures draw circle returns the correct bounding rect.
 

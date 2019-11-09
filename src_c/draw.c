@@ -90,14 +90,22 @@ static void
 draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
          double angle_start, double angle_stop, Uint32 color);
 static void
-draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thickness, Uint32 color);
+draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius,
+                      int thickness, Uint32 color, int *drawn_area);
 static void
-draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color);
+draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius,
+                   Uint32 color, int *drawn_area);
+static void
+draw_circle_quadrant(SDL_Surface *dst, int x0, int y0, int radius,
+                     int quadrant, int thickness, Uint32 color, int *drawn_area);
 static void
 draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
              Uint32 color);
 static void
 draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, Py_ssize_t n, Uint32 color);
+static void
+draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
+                int width, Uint32 color, int* drawn_area);
 
 // validation of a draw color
 #define CHECK_LOAD_COLOR(colorobj)                                         \
@@ -673,16 +681,17 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     Uint8 rgba[4];
     Uint32 color;
     PyObject *posobj, *radiusobj;
-    int posx, posy, radius, t, l, b, r;
-    int width = 0; /* Default width. */
+    int posx, posy, radius;
+    int width = 0, quadrant = 0; /* Default values. */
+    int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN, INT_MIN}; /* Used to store bounding box values */
     static char *keywords[] = {"surface", "color", "center",
-                               "radius",  "width", NULL};
+                               "radius",  "width", "quadrant", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OOO|i", keywords,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OOO|ii", keywords,
                           &pgSurface_Type, &surfobj,
                           &colorobj,
                           &posobj,
-                          &radiusobj, &width))
+                          &radiusobj, &width, &quadrant))
         return NULL; /* Exception already set. */
 
     if (!pg_TwoIntsFromObj(posobj, &posx, &posy)) {
@@ -719,25 +728,27 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
 
-    if (!width) {
-        //draw_ellipse(surf, posx, posy, radius * 2, radius * 2, 1, color);
-        draw_circle_filled(surf, posx, posy,
-                              radius, color);
-    } else {
-        draw_circle_bresenham(surf, posx, posy,
-                              radius, width, color);
+    if (!quadrant) {
+        if (!width) {
+            draw_circle_filled(surf, posx, posy,
+                              radius, color, drawn_area);
+        } else {
+            draw_circle_bresenham(surf, posx, posy,
+                              radius, width, color, drawn_area);
+        }
+    }
+    else {
+        draw_circle_quadrant(surf, posx, posy, radius, quadrant, width, color, drawn_area);
     }
 
     if (!pgSurface_Unlock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
     }
-
-    l = MAX(posx - radius, surf->clip_rect.x);
-    t = MAX(posy - radius, surf->clip_rect.y);
-    r = MIN(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
-    b = MIN(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
-
-    return pgRect_New4(l, t, MAX(r - l, 0), MAX(b - t, 0));
+    if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX && drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
+        return pgRect_New4(drawn_area[0], drawn_area[1], drawn_area[2] - drawn_area[0] + 1,
+                        drawn_area[3] - drawn_area[1] + 1);
+    else
+        return pgRect_New4(posx, posy, 0, 0);
 }
 
 static PyObject *
@@ -881,7 +892,81 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     return ret;
 }
 
+static PyObject *
+round_rect(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
+    GAME_Rect *rect = NULL, temp;
+    SDL_Surface *surf = NULL;
+    Uint8 rgba[4];
+    Uint32 color;
+    //int posx, posy, radius, t, l, b, r;
+    int radius, t, l, b, r, width = 0; /* Default width. */
+    int drawn_area[4];  /* Right now this exist only for drawing circles at the edge */
+    static char *keywords[] = {"surface", "color", "rect",
+                               "radius",  "width", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!OOi|i", keywords,
+                                     &pgSurface_Type, &surfobj, &colorobj,
+                                     &rectobj, &radius, &width)) {
+        return NULL; /* Exception already set. */
+    }
+
+    rect = pgRect_FromObject(rectobj, &temp);
+    if (!rect) {
+        return RAISE(PyExc_TypeError, "rect argument is invalid");
+    }
+
+    surf = pgSurface_AsSurface(surfobj);
+    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
+        return PyErr_Format(PyExc_ValueError,
+                            "unsupported surface bit depth (%d) for drawing",
+                            surf->format->BytesPerPixel);
+    }
+
+    CHECK_LOAD_COLOR(colorobj)
+
+    if (width < 0) {
+        return pgRect_New4(rect->x, rect->y, 0, 0);
+    }
+    if (width > rect->w / 2 || width > rect->h / 2) {
+        width = MAX(rect->w / 2, rect->h / 2);
+    }
+
+    if (!pgSurface_Lock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error locking surface");
+    }
+
+    draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1,
+                    radius, width, color, drawn_area);
+
+    if (!pgSurface_Unlock(surfobj)) {
+        return RAISE(PyExc_RuntimeError, "error unlocking surface");
+    }
+
+    l = MAX(rect->x, surf->clip_rect.x);
+    t = MAX(rect->y, surf->clip_rect.y);
+    r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
+    b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
+    return pgRect_New4(l, t, MAX(r - l, 0), MAX(b - t, 0));
+}
+
 /*internal drawing tools*/
+
+static void
+add_pixel_to_drawn_list(int x, int y, int* pts) {
+    if (x < pts[0]) {
+        pts[0] = x;
+    }
+    if (y < pts[1]) {
+        pts[1] = y;
+    }
+    if (x > pts[2]) {
+        pts[2] = x;
+    }
+    if (y > pts[3]) {
+        pts[3] = y;
+    }
+}
 
 static int
 clip_and_draw_aaline(SDL_Surface *surf, SDL_Rect *rect, Uint32 color,
@@ -1570,108 +1655,206 @@ draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
     }
 }
 
-/* This function is used just for circle drawing because Bresenham Circle Algorithm
- * draws the circle with the odd diameter and in the original pygame it had even diameter
- * It does scaling by that one pixel (direction based on relative quadrant to the center
- * to keep symmetry). In any other drawing function use normal set_at function
- */
-static void
-draw_circle_pixel(SDL_Surface *dst, int x0, int y0, int x1, int y1, Uint32 color)
-{
-    // (x0, y0) -> center of the circle, (x1, y1) -> pixel to bve drawn
-    // leading_bit -> used for fast quadrant calculation, 1 for negative and 0 for positive
-    // number (number is "vector" from center to the pixel)
-    int x_leading_bit = ((x1-x0) > 0) - ((x1-x0) < 0) == 1 ? 0 : 1;
-    int y_leading_bit = ((y1-y0) > 0) - ((y1-y0) < 0) == 1 ? 0 : 1;
-    int quadrant = (x_leading_bit != y_leading_bit) + y_leading_bit + y_leading_bit + 1;
-    if (quadrant == 1) {
-        set_at(dst, x1 - 1, y1 - 1, color);  // Move one to the left and up
-    }
-    else if (quadrant == 2) {
-        set_at(dst, x1, y1 - 1, color);      // Move one to the up
-    }
-    else if (quadrant == 3) {
-        set_at(dst, x1, y1, color);
-    }
-    else {
-        set_at(dst, x1 - 1, y1, color);      // Move one to the left
-    }
-}
-
-
 /* Bresenham Circle Algorithm
  * adapted from: https://de.wikipedia.org/wiki/Bresenham-Algorithmus
  * with additional line width parameter
  */
 static void
-draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thickness, Uint32 color)
+draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thickness, Uint32 color, int *drawn_area)
 {
     int f = 1 - radius;
     int ddF_x = 0;
     int ddF_y = -2 * radius;
     int x = 0;
     int y = radius;
-    int radius1, y1;
+    int y1;
     int i_y = radius-thickness;
     int i_f = 1 - i_y;
     int i_ddF_x = 0;
     int i_ddF_y = -2 * i_y;
     int i;
 
-    /* to avoid holes/moire, draw thick line in inner loop,
-     * instead of concentric circles in outer loop */
-    for (i=0; i<thickness; i++){
-        radius1=radius - i;
-        draw_circle_pixel(dst, x0, y0, x0, y0 + radius1, color);
-        draw_circle_pixel(dst, x0, y0, x0, y0 - radius1, color);
-        draw_circle_pixel(dst, x0, y0, x0 + radius1, y0, color);
-        draw_circle_pixel(dst, x0, y0, x0 - radius1, y0, color);
-    }
+    while(x < y) {
+        if(f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        if(i_f >= 0)
+        {
+            i_y--;
+            i_ddF_y += 2;
+            i_f += i_ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x + 1;
 
-    while(x < y)
-    {
-      if(f >= 0)
-      {
-        y--;
-        ddF_y += 2;
-        f += ddF_y;
-      }
-      if(i_f >= 0)
-      {
-        i_y--;
-        i_ddF_y += 2;
-        i_f += i_ddF_y;
-      }
-      x++;
-      ddF_x += 2;
-      f += ddF_x + 1;
+        i_ddF_x += 2;
+        i_f += i_ddF_x + 1;
 
-      i_ddF_x += 2;
-      i_f += i_ddF_x + 1;
+        if(thickness>1)
+            thickness=y-i_y;
 
-      if(thickness>1)
-          thickness=y-i_y;
-
-      /* as above:
-       * to avoid holes/moire, draw thick line in inner loop,
-       * instead of concentric circles in outer loop */
-      for (i=0; i<thickness; i++){
-          y1=y-i;
-
-          draw_circle_pixel(dst, x0, y0, x0 + x, y0 + y1, color);
-          draw_circle_pixel(dst, x0, y0, x0 - x, y0 + y1, color);
-          draw_circle_pixel(dst, x0, y0, x0 + x, y0 - y1, color);
-          draw_circle_pixel(dst, x0, y0, x0 - x, y0 - y1, color);
-          draw_circle_pixel(dst, x0, y0, x0 + y1, y0 + x, color);
-          draw_circle_pixel(dst, x0, y0, x0 - y1, y0 + x, color);
-          draw_circle_pixel(dst, x0, y0, x0 + y1, y0 - x, color);
-          draw_circle_pixel(dst, x0, y0, x0 - y1, y0 - x, color);
-      }
+        /* Numbers represent parts of circle function draw in radians
+           interval: [number - 1 * pi / 4, number * pi / 4] */
+        for (i=0; i<thickness; i++){
+            y1=y-i;
+            if (set_at(dst, x0 + x - 1, y0 + y1 - 1, color) && (i == 0 || i == thickness - 1))  /* 7 */
+                add_pixel_to_drawn_list(x0 + x - 1, y0 + y1 - 1, drawn_area);
+            if (set_at(dst, x0 - x, y0 + y1 - 1, color) && (i == 0 || i == thickness - 1))      /* 6 */
+                add_pixel_to_drawn_list(x0 - x, y0 + y1 - 1, drawn_area);
+            if (set_at(dst, x0 + x - 1, y0 - y1, color) && (i == 0 || i == thickness - 1))      /* 2 */
+                add_pixel_to_drawn_list(x0 + x - 1, y0 - y1, drawn_area);
+            if (set_at(dst, x0 - x, y0 - y1, color) && (i == 0 || i == thickness - 1))          /* 3 */
+                add_pixel_to_drawn_list(x0 - x, y0 - y1, drawn_area);
+            if (set_at(dst, x0 + y1 - 1, y0 + x - 1, color) && (i == 0 || i == thickness - 1))  /* 8 */
+                add_pixel_to_drawn_list(x0 + y1 - 1, y0 + x - 1, drawn_area);
+            if (set_at(dst, x0 - y1, y0 + x - 1, color) && (i == 0 || i == thickness - 1))      /* 5 */
+                add_pixel_to_drawn_list(x0 - y1, y0 + x - 1, drawn_area);
+            if (set_at(dst, x0 + y1 - 1, y0 - x, color) && (i == 0 || i == thickness - 1))      /* 1 */
+                add_pixel_to_drawn_list(x0 + y1 - 1, y0 - x, drawn_area);
+            if (set_at(dst, x0 - y1, y0 - x, color) && (i == 0 || i == thickness - 1))          /* 4 */
+                add_pixel_to_drawn_list(x0 - y1, y0 - x, drawn_area);
+        }
     }
 }
 
 static void
-draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color)
+draw_circle_quadrant(SDL_Surface *dst, int x0, int y0, int radius, int quadrant,
+                     int thickness, Uint32 color, int *drawn_area)
+{
+    int f = 1 - radius;
+    int ddF_x = 0;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+    int y1;
+    int i_y = radius-thickness;
+    int i_f = 1 - i_y;
+    int i_ddF_x = 0;
+    int i_ddF_y = -2 * i_y;
+    int i;
+
+    if (thickness != 0) {
+        while(x < y) {
+            if(f >= 0) {
+                y--;
+                ddF_y += 2;
+                f += ddF_y;
+            }
+            if(i_f >= 0)
+            {
+                i_y--;
+                i_ddF_y += 2;
+                i_f += i_ddF_y;
+            }
+            x++;
+            ddF_x += 2;
+            f += ddF_x + 1;
+
+            i_ddF_x += 2;
+            i_f += i_ddF_x + 1;
+
+            if(thickness>1)
+                thickness=y-i_y;
+
+            /* Numbers represent parts of circle function draw in radians
+            interval: [number - 1 * pi / 4, number * pi / 4] */
+            if (quadrant == 1) {
+                for (i=0; i<thickness; i++) {
+                    y1=y-i;
+                    if (set_at(dst, x0 + x - 1, y0 - y1, color))  /* 2 */
+                        add_pixel_to_drawn_list(x0 + x - 1, y0 - y1, drawn_area);
+                    if (set_at(dst, x0 + y1 - 1, y0 - x, color))  /* 1 */
+                        add_pixel_to_drawn_list(x0 + y1 - 1, y0 - x, drawn_area);
+                }
+            }
+            if (quadrant == 2) {
+                for (i=0; i<thickness; i++) {
+                    y1=y-i;
+                    if (set_at(dst, x0 - x, y0 - y1, color))          /* 3 */
+                        add_pixel_to_drawn_list(x0 - x, y0 - y1, drawn_area);
+                    if (set_at(dst, x0 - y1, y0 - x, color))          /* 4 */
+                        add_pixel_to_drawn_list(x0 - y1, y0 - x, drawn_area);
+                }
+            }
+            if (quadrant == 3) {
+                for (i=0; i<thickness; i++) {
+                    y1=y-i;
+                    if (set_at(dst, x0 - y1, y0 + x - 1, color))      /* 5 */
+                        add_pixel_to_drawn_list(x0 - y1, y0 + x - 1, drawn_area);
+                    if (set_at(dst, x0 - x, y0 + y1 - 1, color))      /* 6 */
+                        add_pixel_to_drawn_list(x0 - x, y0 + y1 - 1, drawn_area);
+                }
+            }
+            if (quadrant == 4) {
+                for (i=0; i<thickness; i++) {
+                    y1=y-i;
+                    if (set_at(dst, x0 + x - 1, y0 + y1 - 1, color))  /* 7 */
+                        add_pixel_to_drawn_list(x0 + x - 1, y0 + y1 - 1, drawn_area);
+                    if (set_at(dst, x0 + y1 - 1, y0 + x - 1, color))  /* 8 */
+                        add_pixel_to_drawn_list(x0 + y1 - 1, y0 + x - 1, drawn_area);
+                }
+            }
+        }
+    }
+    else {
+        while(x < y) {
+        if(f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x + 1;
+        if (quadrant == 1) {
+            for (y1 = y0 - x; y1 <= y0; y1++) {
+                if (set_at(dst, x0 + y - 1, y1, color))  /* 1 */
+                    add_pixel_to_drawn_list(x0 + y - 1, y1, drawn_area);
+            }
+            for (y1 = y0 - y; y1 <= y0; y1++) {
+                if (set_at(dst, x0 + x - 1, y1, color))  /* 2 */
+                    add_pixel_to_drawn_list(x0 + x - 1, y1, drawn_area);
+            }
+        }
+        if (quadrant == 2) {
+            for (y1 = y0 - x; y1 <= y0; y1++) {
+                if (set_at(dst, x0 - y, y1, color))      /* 4 */
+                    add_pixel_to_drawn_list(x0 - y, y1, drawn_area);
+            }
+            for (y1 = y0 - y; y1 <= y0; y1++) {
+                if (set_at(dst, x0 - x, y1, color))     /* 3 */
+                    add_pixel_to_drawn_list(x0 - x, y1, drawn_area);
+            }
+        }
+        if (quadrant == 3) {
+            for (y1 = y0; y1 < y0 + x; y1++) {
+                if (set_at(dst, x0 - y, y1, color))      /* 4 */
+                    add_pixel_to_drawn_list(x0 - y, y1, drawn_area);
+            }
+            for (y1 = y0; y1 < y0 + y; y1++) {
+                if (set_at(dst, x0 - x, y1, color))     /* 3 */
+                    add_pixel_to_drawn_list(x0 - x, y1, drawn_area);
+            }
+        }
+        if (quadrant == 4) {
+            for (y1 = y0; y1 < y0 + x; y1++) {
+                if (set_at(dst, x0 + y - 1, y1, color))  /* 1 */
+                    add_pixel_to_drawn_list(x0 + y - 1, y1, drawn_area);
+            }
+            for (y1 = y0; y1 < y0 + y; y1++) {
+                if (set_at(dst, x0 + x - 1, y1, color))  /* 2 */
+                    add_pixel_to_drawn_list(x0 + x - 1, y1, drawn_area);
+            }
+        }
+    }
+    }
+}
+
+static void
+draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color, int *drawn_area)
 {
     int f = 1 - radius;
     int ddF_x = 0;
@@ -1680,32 +1863,28 @@ draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color)
     int y = radius;
     int y1;
 
-    for (y1=y0 - y; y1 <= y0 + y; y1++) {
-	    draw_circle_pixel(dst, x0, y0, x0, y1, color);
-    }
-    draw_circle_pixel(dst, x0, y0, x0 + radius, y0, color);
-    draw_circle_pixel(dst, x0, y0, x0 - radius, y0, color);
+    while(x < y) {
+        if(f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x + 1;
 
-    while(x < y)
-    {
-      if(f >= 0)
-      {
-        y--;
-        ddF_y += 2;
-        f += ddF_y;
-      }
-      x++;
-      ddF_x += 2;
-      f += ddF_x + 1;
-
-      for (y1=y0 - y; y1 <= y0 + y; y1++){
-        draw_circle_pixel(dst, x0, y0, x0+x, y1, color);
-        draw_circle_pixel(dst, x0, y0, x0-x, y1, color);
-      }
-      for (y1=y0 - x; y1 <= y0 + x; y1++){
-        draw_circle_pixel(dst, x0, y0, x0+y, y1, color);
-        draw_circle_pixel(dst, x0, y0, x0-y, y1, color);
-      }
+        for (y1 = y0 - x; y1 < y0 + x; y1++) {
+            if (set_at(dst, x0 + y - 1, y1, color))  /* 1 to 8 */
+                add_pixel_to_drawn_list(x0 + y - 1, y1, drawn_area);
+            if (set_at(dst, x0 - y, y1, color))  /* 4 to 5 */
+                add_pixel_to_drawn_list(x0 - y, y1, drawn_area);
+        }
+        for (y1 = y0 - y; y1 < y0 + y; y1++) {
+            if (set_at(dst, x0 + x - 1, y1, color))  /* 2 to 7 */
+                add_pixel_to_drawn_list(x0 + x - 1, y1, drawn_area);
+            if (set_at(dst, x0 - x, y1, color ))  /* 3 to 6 */
+                add_pixel_to_drawn_list(x0 - x, y1, drawn_area);
+        }
     }
 }
 static void
@@ -1950,6 +2129,64 @@ draw_fillpoly(SDL_Surface *dst, int *point_x, int *point_y,
     PyMem_Free(x_intersect);
 }
 
+static void
+draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
+                int width, Uint32 color, int* drawn_area)
+{
+    int pts[8];
+    if (width == 0) {  /* Filled rect */
+        pts[0] = x1;
+        pts[1] = x1;
+        pts[2] = x2;
+        pts[3] = x2;
+        pts[4] = y1 + radius;
+        pts[5] = y2 - radius;
+        pts[6] = y2 - radius;
+        pts[7] = y1 + radius;
+        draw_fillpoly(dst, pts, pts+4, 4, color);
+        pts[0] = x1 + radius;
+        pts[1] = x1 + radius;
+        pts[2] = x2 - radius;
+        pts[3] = x2 - radius;
+        pts[4] = y1;
+        pts[5] = y2;
+        pts[6] = y2;
+        pts[7] = y1;
+        draw_fillpoly(dst, pts, pts+4, 4, color);
+        draw_circle_quadrant(dst, x1 + radius, y1 + radius, radius, 2, 0, color, drawn_area);
+        draw_circle_quadrant(dst, x2 - radius + 1, y1 + radius, radius, 1, 0, color, drawn_area);
+        draw_circle_quadrant(dst, x1 + radius, y2 - radius + 1, radius, 3, 0, color, drawn_area);
+        draw_circle_quadrant(dst, x2 - radius + 1, y2 - radius + 1, radius, 4, 0, color, drawn_area);
+    }
+    else {
+        pts[0] = x1 + radius;
+        pts[1] = y1;
+        pts[2] = x2 - radius;
+        pts[3] = y1;
+        clip_and_draw_line_width(dst, color, width, pts); /* Top line */
+        pts[0] = x1;
+        pts[1] = y1 + radius;
+        pts[2] = x1;
+        pts[3] = y2 - radius;
+        clip_and_draw_line_width(dst, color, width, pts); /* Left line */
+        pts[0] = x1 + radius;
+        pts[1] = y2;
+        pts[2] = x2 - radius;
+        pts[3] = y2;
+        clip_and_draw_line_width(dst, color, width, pts); /* Bottom line */
+        pts[0] = x2;
+        pts[1] = y1 + radius;
+        pts[2] = x2;
+        pts[3] = y2 - radius;
+        clip_and_draw_line_width(dst, color, width, pts); /* Right line */
+
+        draw_circle_quadrant(dst, x1 + radius, y1 + radius, radius, 2, width, color, drawn_area);
+        draw_circle_quadrant(dst, x2 - radius + 1, y1 + radius, radius, 1, width, color, drawn_area);
+        draw_circle_quadrant(dst, x1 + radius, y2 - radius + 1, radius, 3, width, color, drawn_area);
+        draw_circle_quadrant(dst, x2 - radius + 1, y2 - radius + 1, radius, 4, width, color, drawn_area);
+    }
+}
+
 static PyMethodDef _draw_methods[] = {
     {"aaline", (PyCFunction)aaline, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWAALINE},
@@ -1965,6 +2202,8 @@ static PyMethodDef _draw_methods[] = {
     {"circle", (PyCFunction)circle, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWCIRCLE},
     {"polygon", (PyCFunction)polygon, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDRAWPOLYGON},
+    {"round_rect", (PyCFunction)round_rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWPOLYGON},
     {"rect", (PyCFunction)rect, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDRAWRECT},
