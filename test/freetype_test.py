@@ -763,7 +763,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(rend[0].get_rect().size, rend[1].size)
 
         s, r = font.render("", pygame.Color(0, 0, 0), None, size=24)
-        self.assertEqual(r.width, 1)
+        self.assertEqual(r.width, 0)
         self.assertEqual(r.height, font.get_sized_height(24))
         self.assertEqual(s.get_size(), r.size)
         self.assertEqual(s.get_bitsize(), 32)
