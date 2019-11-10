@@ -1012,11 +1012,15 @@ cdef class Renderer:
             if SDL_RenderSetViewport(self._renderer, NULL) < 0:
                 raise error()
             return
-        cdef SDL_Rect rect
-        if pgRect_FromObject(area, &rect) == NULL:
-            raise TypeError("the argument is not a rectangle or None")
-        if SDL_RenderSetViewport(self._renderer, &rect) < 0:
+
+        cdef SDL_Rect tmprect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+
+        if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
             raise error()
+
 
     @property
     def target(self):
