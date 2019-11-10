@@ -560,7 +560,7 @@ get_init(PyObject *self)
 
     // create a signed or unsigned number of bits per sample
     // XXX: When mixer is init'd with a format of -8, this returns +8
-    realform = format & ~0xff ? -(format & 0xff) : format & 0xff;
+    realform = (format & ~0xff) ? -(format & 0xff) : format & 0xff;
     return Py_BuildValue("(iii)", freq, realform, channels);
 }
 

@@ -968,8 +968,8 @@ _pg_typekind_as_str(PyArrayInterface *inter_p)
     return Text_FromFormat(
         "%c%c%i",
         inter_p->itemsize > 1
-            ? (inter_p->flags & PAI_NOTSWAPPED ? PAI_MY_ENDIAN
-                                               : PAI_OTHER_ENDIAN)
+            ? ((inter_p->flags & PAI_NOTSWAPPED) ? PAI_MY_ENDIAN
+                                                 : PAI_OTHER_ENDIAN)
             : '|',
         inter_p->typekind, inter_p->itemsize);
 }
@@ -1239,7 +1239,7 @@ _pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
     pgViewInternals *internal_p;
     Py_ssize_t sz =
         (sizeof(pgViewInternals) + (2 * inter_p->nd - 1) * sizeof(Py_ssize_t));
-    int readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
+    int readonly = (inter_p->flags & PAI_WRITEABLE) ? 0 : 1;
     Py_ssize_t i;
 
     view_p->obj = 0;
@@ -1336,8 +1336,8 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
     assert(max_format_len >= 4);
     switch (inter_p->typekind) {
         case 'i':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
-                                                        : BUF_OTHER_ENDIAN);
+            *fchar_p = ((inter_p->flags & PAI_NOTSWAPPED) ? BUF_MY_ENDIAN
+                                                          : BUF_OTHER_ENDIAN);
             ++fchar_p;
             switch (inter_p->itemsize) {
                 case 1:
@@ -1360,8 +1360,8 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
             }
             break;
         case 'u':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
-                                                        : BUF_OTHER_ENDIAN);
+            *fchar_p = ((inter_p->flags & PAI_NOTSWAPPED) ? BUF_MY_ENDIAN
+                                                          : BUF_OTHER_ENDIAN);
             ++fchar_p;
             switch (inter_p->itemsize) {
                 case 1:
@@ -1384,8 +1384,8 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
             }
             break;
         case 'f':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
-                                                        : BUF_OTHER_ENDIAN);
+            *fchar_p = ((inter_p->flags & PAI_NOTSWAPPED) ? BUF_MY_ENDIAN
+                                                          : BUF_OTHER_ENDIAN);
             ++fchar_p;
             switch (inter_p->itemsize) {
                 case 4:
