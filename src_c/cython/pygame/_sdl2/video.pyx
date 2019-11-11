@@ -787,6 +787,7 @@ cdef class Image:
 
     def __init__(self, textureOrImage, srcrect=None):
         cdef SDL_Rect temp
+        cdef SDL_Rect *rectptr
 
         if isinstance(textureOrImage, Image):
             self.texture = textureOrImage.texture
@@ -796,8 +797,14 @@ cdef class Image:
             self.srcrect = textureOrImage.get_rect()
 
         if srcrect is not None:
-            if pgRect_FromObject(srcrect, &temp) == NULL:
+            rectptr = pgRect_FromObject(srcrect, &temp)
+            if rectptr == NULL:
                 raise TypeError('srcrect must be None or a rectangle')
+            temp.x = rectptr.x
+            temp.y = rectptr.y
+            temp.w = rectptr.w
+            temp.h = rectptr.h
+
             if temp.x < 0 or temp.y < 0 or \
                 temp.w < 0 or temp.h < 0 or \
                 temp.x + temp.w > self.srcrect.w or \
@@ -825,6 +832,7 @@ cdef class Image:
         cdef SDL_Rect *csrcrect = NULL
         cdef SDL_Rect *cdstrect = NULL
         cdef SDL_Point origin
+        cdef SDL_Rect *rectptr
 
         if srcrect is None:
             csrcrect = &self.srcrect.r
@@ -832,8 +840,15 @@ cdef class Image:
             if pgRect_Check(srcrect):
                 src = (<Rect>srcrect).r
             else:
-                if pgRect_FromObject(srcrect, &src) == NULL:
+
+                rectptr = pgRect_FromObject(srcrect, &src)
+                if rectptr == NULL:
                     raise TypeError('srcrect must be a rect or None')
+                src.x = rectptr.x
+                src.y = rectptr.y
+                src.w = rectptr.w
+                src.h = rectptr.h
+
             src.x += self.srcrect.x
             src.y += self.srcrect.y
             csrcrect = &src
@@ -1012,11 +1027,15 @@ cdef class Renderer:
             if SDL_RenderSetViewport(self._renderer, NULL) < 0:
                 raise error()
             return
-        cdef SDL_Rect rect
-        if pgRect_FromObject(area, &rect) == NULL:
-            raise TypeError("the argument is not a rectangle or None")
-        if SDL_RenderSetViewport(self._renderer, &rect) < 0:
+
+        cdef SDL_Rect tmprect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+
+        if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
             raise error()
+
 
     @property
     def target(self):
@@ -1118,17 +1137,24 @@ cdef class Renderer:
         cdef SDL_Rect tempviewport
         cdef SDL_Rect *areaparam
         cdef SDL_Surface *surf
+        cdef SDL_Rect *rectptr
 
         # obtain area to use
         if area is not None:
-            if pgRect_FromObject(area, &rarea) == NULL:
+
+            rectptr = pgRect_FromObject(area, &rarea)
+            if rectptr == NULL:
                 raise TypeError('area must be None or a rect')
 
             # clip area
             SDL_RenderGetViewport(self._renderer, &tempviewport)
-            SDL_IntersectRect(&rarea, &tempviewport, &rarea)
+            SDL_IntersectRect(rectptr, &tempviewport, rectptr)
 
-            areaparam = &rarea
+            areaparam = rectptr
+            rarea.x = rectptr.x
+            rarea.y = rectptr.y
+            rarea.w = rectptr.w
+            rarea.h = rectptr.h
         else:
             SDL_RenderGetViewport(self._renderer, &rarea)
             areaparam = NULL
