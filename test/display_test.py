@@ -373,6 +373,20 @@ class DisplayModuleTest(unittest.TestCase):
             winsize[0] / surf.get_size()[0], winsize[1] / surf.get_size()[1]
         )
 
+    def test_window_position(self):
+        """Move the window to two different positions and verify the actual position"""
+        pygame.display.set_mode(
+            size=(128, 128), depth=0, display=0
+        )
+        pos = (11, 23)
+        pygame.display.set_window_position(*pos)
+        self.assertEqual(pygame.display.get_window_position(), pos)
+
+        pos = (223, 110)
+        pygame.display.set_window_position(*pos)
+        self.assertEqual(pygame.display.get_window_position(), pos)
+
+
     def todo_test_set_palette(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.set_palette:
