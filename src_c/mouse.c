@@ -303,7 +303,7 @@ mouse_get_cursor(PyObject *self)
         return NULL;
     anddata = PyTuple_New(size);
     if (!anddata) {
-        Py_DECREF(anddata);
+        Py_DECREF(xordata);
         return NULL;
     }
 

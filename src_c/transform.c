@@ -121,7 +121,7 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
     int result;
 #endif /* IS_SDLv1 */
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+    if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError, "unsupport Surface bit depth for transform"));
 
@@ -664,7 +664,7 @@ surf_rotate(PyObject *self, PyObject *arg)
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+    if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError,
                      "unsupport Surface bit depth for transform");
 
@@ -1327,7 +1327,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
     int bpp = src->format->BytesPerPixel;
 
     Uint8 *temppix = NULL;
-    int tempwidth = 0, temppitch = 0, tempheight = 0;
+    int tempwidth = 0, temppitch = 0;
 
     /* convert to 32-bit if necessary */
     if (bpp == 3) {
@@ -1353,8 +1353,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
     if (srcwidth != dstwidth && srcheight != dstheight) {
         tempwidth = dstwidth;
         temppitch = tempwidth << 2;
-        tempheight = srcheight;
-        temppix = (Uint8 *)malloc((size_t)temppitch * tempheight);
+        temppix = (Uint8 *)malloc((size_t)temppitch * srcheight);
         if (temppix == NULL) {
             if (bpp == 3) {
                 free(srcpix);
@@ -1644,7 +1643,6 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
     int within_threshold;
 
     similar = 0;
-    pixels = (Uint8 *)surf->pixels;
     format = surf->format;
 
     if (set_behavior) {
