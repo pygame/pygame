@@ -1246,6 +1246,32 @@ pg_window_size(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_get_window_position(PyObject *self, PyObject *args)
+{
+    SDL_Window *win = pg_GetDefaultWindow();
+    int x, y;
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+    SDL_GetWindowPosition(win, &x, &y);
+    return Py_BuildValue("(ii)", x, y);
+}
+
+static PyObject *
+pg_set_window_position(PyObject *self, PyObject *args)
+{
+    SDL_Window *win = pg_GetDefaultWindow();
+    int x, y;
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    if (!PyArg_ParseTuple(args, "ii", &x, &y))
+        return NULL;
+
+    SDL_SetWindowPosition(win, x, y);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
 {
     SDL_DisplayMode desired, closest;
@@ -2682,6 +2708,10 @@ static PyMethodDef _pg_display_methods[] = {
     {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
     {"get_window_size", pg_window_size, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETWINDOWSIZE},
+    {"get_window_position", pg_get_window_position, METH_NOARGS,
+     DOC_PYGAMEDISPLAYGETWINDOWPOSITION},
+    {"set_window_position", pg_set_window_position, METH_VARARGS,
+     DOC_PYGAMEDISPLAYSETWINDOWPOSITION},
 
     {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYSETMODE},

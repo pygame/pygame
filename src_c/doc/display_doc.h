@@ -25,6 +25,8 @@
 #define DOC_PYGAMEDISPLAYSETPALETTE "set_palette(palette=None) -> None\nSet the display color palette for indexed displays"
 #define DOC_PYGAMEDISPLAYGETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays"
 #define DOC_PYGAMEDISPLAYGETWINDOWSIZE "get_window_size() -> tuple\nReturn the size of the window or screen"
+#define DOC_PYGAMEDISPLAYGETWINDOWPOSITION "get_window_position() -> tuple\nReturn the current position of the window"
+#define DOC_PYGAMEDISPLAYSETWINDOWPOSITION "set_window_position(x, y) -> None\nSet the position of the window"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -134,5 +136,13 @@ Return the number of displays
 pygame.display.get_window_size
  get_window_size() -> tuple
 Return the size of the window or screen
+
+pygame.display.get_window_position
+ get_window_position() -> tuple
+Return the current position of the window
+
+pygame.display.set_window_position
+ set_window_position(x, y) -> None
+Set the position of the window
 
 */

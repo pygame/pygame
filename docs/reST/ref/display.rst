@@ -554,4 +554,29 @@ required).
 
    .. ## pygame.display.get_window_size ##
 
+.. function:: get_window_position
+
+   | :sl:`Return the current position of the window`
+   | :sg:`get_window_position() -> tuple`
+
+   Returns the current position of the window.
+   The window coordinate origin is the upper left of the display.
+   The window can also be moved with :func:`pygame.set_window_position()`.
+
+   .. versionadded:: 2.0
+
+   .. ## pygame.display.get_window_position ##
+
+.. function:: set_window_position
+
+   | :sl:`Set the position of the window`
+   | :sg:`set_window_position(x, y) -> None`
+
+   Set the position of the window.
+   The window coordinate origin is the upper left of the display.
+
+   .. versionadded:: 2.0
+
+   .. ## pygame.display.set_window_position ##
+
 .. ## pygame.display ##
