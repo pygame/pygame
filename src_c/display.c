@@ -1260,13 +1260,13 @@ static PyObject *
 pg_set_window_position(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
-    int x = SDL_WINDOWPOS_CENTERED;
-    int y = SDL_WINDOWPOS_CENTERED;
+    int x, y = SDL_WINDOWPOS_CENTERED;
+    Py_ssize_t num_args;
 
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
-    int num_args = (int)PyTuple_GET_SIZE(args);
+    num_args = PyTuple_GET_SIZE(args);
 
     if (num_args >= 1)
         x = (int)PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
