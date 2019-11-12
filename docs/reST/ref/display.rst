@@ -575,6 +575,23 @@ required).
    Set the position of the window.
    The window coordinate origin is the upper left of the display.
 
+   Omitted arguments will default to ``pygame.CENTERED``, so
+   calling this method without arguments will center the window.
+
+   Examples::
+
+      # Position the window at 100, 100
+      pygame.display.set_window_position(100, 100)
+
+      # Center the window
+      pygame.display.set_window_position()
+
+      # Center only on x
+      pygame.display.set_window_position(pygame.CENTERED, 100)
+
+      # Center only on y
+      pygame.display.set_window_position(300)
+
    .. versionadded:: 2.0
 
    .. ## pygame.display.set_window_position ##

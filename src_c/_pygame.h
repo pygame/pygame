@@ -123,6 +123,7 @@ typedef enum {
     PGS_NOFRAME = 0x00000020,
     PGS_SHOWN = 0x00000040,  /* Added from SDL 2 */
     PGS_HIDDEN = 0x00000080, /* Added from SDL 2 */
+    PGS_CENTERED = 0x2FFF0000, /* Added from SDL 2. WINDOWPOS_CENTERED */
 
     PGS_HWACCEL = 0x00000100,
     PGS_SRCCOLORKEY = 0x00001000,
