@@ -1266,7 +1266,8 @@ pg_set_window_position(PyObject *self, PyObject *args)
     if (!win)
         return RAISE(pgExc_SDLError, "No open window");
 
-    Py_ssize_t num_args = PyTuple_GET_SIZE(args);
+    int num_args = (int)PyTuple_GET_SIZE(args);
+
     if (num_args >= 1)
         x = (int)PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
     if (num_args >= 2)
