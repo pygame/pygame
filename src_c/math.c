@@ -749,9 +749,10 @@ vector_inplace_floor_div(pgVector *o1, PyObject *o2)
 static PyObject *
 vector_neg(pgVector *self)
 {
-    Py_ssize_t i;
     pgVector *ret = (pgVector *)pgVector_NEW(self->dim);
     if (ret != NULL) {
+        Py_ssize_t i;
+
         for (i = 0; i < self->dim; i++) {
             ret->coords[i] = -self->coords[i];
         }
@@ -1010,9 +1011,8 @@ vector_subscript(pgVector *self, PyObject *key)
 static int
 vector_ass_subscript(pgVector *self, PyObject *key, PyObject *value)
 {
-    Py_ssize_t i;
     if (PyIndex_Check(key)) {
-        i = PyNumber_AsSsize_t(key, PyExc_IndexError);
+        Py_ssize_t i = PyNumber_AsSsize_t(key, PyExc_IndexError);
         if (i == -1 && PyErr_Occurred())
             return -1;
         if (i < 0)
@@ -2382,7 +2382,6 @@ static int
 _vector3_rotate_helper(double *dst_coords, const double *src_coords,
                        const double *axis_coords, double angle, double epsilon)
 {
-    double sinValue, cosValue, cosComplement;
     double normalizationFactor;
     double axisLength2 = 0;
     double axis[3];
@@ -2467,9 +2466,9 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
         }
     }
     else {
-        sinValue = sin(angle);
-        cosValue = cos(angle);
-        cosComplement = 1 - cosValue;
+        double sinValue = sin(angle);
+        double cosValue = cos(angle);
+        double cosComplement = 1 - cosValue;
 
         dst_coords[0] =
             (src_coords[0] * (cosValue + axis[0] * axis[0] * cosComplement) +
@@ -3255,7 +3254,6 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
     Py_ssize_t i, dim;
     int ret = 1;
     double diff, value;
-    double *other_coords;
     pgVector *vec;
     PyObject *other;
 
@@ -3281,7 +3279,8 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
     dim = vec->dim;
 
     if (pgVectorCompatible_Check(other, dim)) {
-        other_coords = PyMem_New(double, dim);
+        double *other_coords = PyMem_New(double, dim);
+
         if (other_coords == NULL) {
             return NULL;
         }
@@ -3753,9 +3752,10 @@ clean_up:
 static PyObject *
 vector_elementwiseproxy_abs(vector_elementwiseproxy *self)
 {
-    Py_ssize_t i;
     pgVector *ret = (pgVector *)pgVector_NEW(self->vec->dim);
     if (ret != NULL) {
+        Py_ssize_t i;
+
         for (i = 0; i < self->vec->dim; i++) {
             ret->coords[i] = fabs(self->vec->coords[i]);
         }

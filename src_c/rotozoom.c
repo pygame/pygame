@@ -508,8 +508,7 @@ rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
     SDL_Surface *rz_src;
     SDL_Surface *rz_dst;
     double zoominv;
-    double sanglezoom, canglezoom, sanglezoominv, canglezoominv;
-    int dstwidthhalf, dstwidth, dstheighthalf, dstheight;
+    int dstwidth, dstheight;
     int is32bit;
     int src_converted;
 
@@ -559,6 +558,8 @@ rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
         /*
          * -----------------------
          */
+        int dstwidthhalf, dstheighthalf;
+        double sanglezoom, canglezoom, sanglezoominv, canglezoominv;
 
         /* Determine target size */
         rotozoomSurfaceSizeTrig(rz_src->w, rz_src->h, angle, zoom, &dstwidth,

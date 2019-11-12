@@ -283,7 +283,6 @@ music_load(PyObject *self, PyObject *args)
     PyObject *oencoded;
     Mix_Music *new_music = NULL;
     const char *name;
-    SDL_RWops *rw;
 
     if (!PyArg_ParseTuple(args, "O", &obj)) {
         return NULL;
@@ -293,6 +292,8 @@ music_load(PyObject *self, PyObject *args)
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
+        SDL_RWops *rw;
+
         Py_DECREF(oencoded);
         if (!PG_CHECK_THREADS())
             return NULL;
@@ -361,7 +362,6 @@ music_queue(PyObject *self, PyObject *args)
     PyObject *oencoded;
     Mix_Music *local_queue_music = NULL;
     const char *name;
-    SDL_RWops *rw;
 
     if (!PyArg_ParseTuple(args, "O", &obj)) {
         return NULL;
@@ -371,6 +371,8 @@ music_queue(PyObject *self, PyObject *args)
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
+        SDL_RWops *rw;
+
         Py_DECREF(oencoded);
         if (!PG_CHECK_THREADS())
             return NULL;

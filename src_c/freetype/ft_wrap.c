@@ -284,10 +284,11 @@ _PGFT_GetFontSized(FreeTypeInstance *ft,
     FTC_ScalerRec scale;
     FT_Size _fts;
     FT_Face font;
-    FT_Int i;
-    FT_Pos size;
 
     if (!fontobj->is_scalable && !face_size.y) {
+        FT_Int i;
+        FT_Pos size;
+
         font = _PGFT_GetFont(ft, fontobj);
         if (!font) {
             return 0;

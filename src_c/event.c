@@ -1694,8 +1694,6 @@ _pg_check_event_in_range(int evt)
 static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *args)
 {
-    Py_ssize_t num;
-    int loop;
     PyObject *type;
     int val;
 
@@ -1706,7 +1704,9 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
 
     type = PyTuple_GET_ITEM(args, 0);
     if (PySequence_Check(type)) {
-        num = PySequence_Length(type);
+        Py_ssize_t num = PySequence_Length(type);
+        int loop;
+
         for (loop = 0; loop < num; ++loop) {
             if (!pg_IntFromObjIndex(type, loop, &val))
                 return RAISE(PyExc_TypeError,
@@ -1739,8 +1739,6 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
 static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *args)
 {
-    Py_ssize_t num;
-    int loop;
     PyObject *type;
     int val;
 
@@ -1751,7 +1749,9 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
 
     type = PyTuple_GET_ITEM(args, 0);
     if (PySequence_Check(type)) {
-        num = PySequence_Length(type);
+        Py_ssize_t num = PySequence_Length(type);
+        int loop;
+
         for (loop = 0; loop < num; ++loop) {
             if (!pg_IntFromObjIndex(type, loop, &val))
                 return RAISE(PyExc_TypeError,
