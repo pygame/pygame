@@ -1036,18 +1036,9 @@ class TransformModuleTest(unittest.TestCase):
 
         s = pygame.Surface((10, 0))
         pygame.transform.scale(s, (10, 2))
-        pygame.transform.rotozoom(s, 30, 1)
+        s1=pygame.transform.rotozoom(s, 30, 1)
 
-        s1 = pygame.Surface((20, 20), 0, 24) 
-        s1.fill((0,0,0))
-        pygame.draw.line(s1, (255,0,0), (0,0), (10,20), 5)
-        s2=s1.copy()
-        
-        for i in range(4):
-            s2=pygame.transform.rotozoom(s2, 90, 1)
-        self.assertEqual(s1.get_rect(), s2.get_rect())
-        for pt in test_utils.rect_area_pts(s2.get_rect()):
-            self.assertEqual(s2.get_at(pt), s1.get_at(pt))
+        self.assertEqual(s1.get_rect(), pygame.Rect(0,0,0,0))
 
     def todo_test_smoothscale(self):
         # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:
