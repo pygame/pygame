@@ -1272,6 +1272,9 @@ pg_set_window_position(PyObject *self, PyObject *args)
     if (num_args >= 2)
         y = (int)PyLong_AsLong(PyTuple_GET_ITEM(args, 1));
 
+    if (num_args > 2)
+        return RAISE(pgExc_SDLError, "max numer of arguments is 2");
+
 	if (PyErr_Occurred()) {
 		return NULL;
 	}

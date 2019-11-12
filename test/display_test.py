@@ -374,10 +374,11 @@ class DisplayModuleTest(unittest.TestCase):
         )
 
     def test_window_position(self):
-        """Move the window to two different positions and verify the actual position"""
         pygame.display.set_mode(
             size=(128, 128), depth=0, display=0
         )
+
+        # Move the window to two different positions and verify the actual position
         pos = (11, 23)
         pygame.display.set_window_position(*pos)
         self.assertEqual(pygame.display.get_window_position(), pos)
@@ -386,6 +387,14 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_window_position(*pos)
         self.assertEqual(pygame.display.get_window_position(), pos)
 
+        # center on each axis
+        pygame.display.set_window_position()
+        pygame.display.set_window_position(100)
+        pygame.display.set_window_position(pygame.CENTERED, 100)
+
+        # Too many arguments
+        with self.assertRaises(pygame.error):
+            pygame.display.set_window_position(1, 2, 3)
 
     def todo_test_set_palette(self):
 
