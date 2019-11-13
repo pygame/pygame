@@ -815,8 +815,6 @@ class DrawEllipseMixin(object):
                 surface, rect, surface_color, ellipse_color
             )
 
-    # This decorator can be removed when issue #1241 is resolved.
-    @unittest.expectedFailure
     def test_ellipse__bounding_rect(self):
         """Ensures draw ellipse returns the correct bounding rect.
 
@@ -2673,8 +2671,6 @@ class AALineMixin(BaseLineMixin):
                     surface.get_at(pos), expected_color, "pos={}".format(pos)
                 )
 
-    # This decorator can be removed when issue #895 is resolved.
-    @unittest.expectedFailure
     def test_aaline__bounding_rect(self):
         """Ensures draw aaline returns the correct bounding rect.
 
@@ -2682,7 +2678,7 @@ class AALineMixin(BaseLineMixin):
         enabled and disabled.
         """
         line_color = pygame.Color("red")
-        surf_color = pygame.Color("black")
+        surf_color = pygame.Color("blue")
         width = height = 30
         # Using a rect to help manage where the lines are drawn.
         helper_rect = pygame.Rect((0, 0), (width, height))
@@ -3485,8 +3481,6 @@ class AALinesMixin(BaseLineMixin):
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, "pos={}".format(pos))
 
-    # This decorator can be removed when issue #1153 is resolved.
-    @unittest.expectedFailure
     def test_aalines__bounding_rect(self):
         """Ensures draw aalines returns the correct bounding rect.
 
@@ -3494,7 +3488,7 @@ class AALinesMixin(BaseLineMixin):
         enabled and disabled.
         """
         line_color = pygame.Color("red")
-        surf_color = pygame.Color("black")
+        surf_color = pygame.Color("blue")
         width = height = 30
         # Using a rect to help manage where the lines are drawn.
         pos_rect = pygame.Rect((0, 0), (width, height))
@@ -4097,8 +4091,6 @@ class DrawPolygonMixin(object):
             ),
         )
 
-    # This decorator can be removed when issue #1306 is resolved.
-    @unittest.expectedFailure
     def test_polygon__bounding_rect(self):
         """Ensures draw polygon returns the correct bounding rect.
 
@@ -4726,8 +4718,6 @@ class DrawRectMixin(object):
 
             self.assertNotEqual(color_at_pt, self.color)
 
-    # This decorator can be removed when issue #1305 is resolved.
-    @unittest.expectedFailure
     def test_rect__bounding_rect(self):
         """Ensures draw rect returns the correct bounding rect.
 
@@ -6054,8 +6044,6 @@ class DrawArcMixin(object):
         """Ensure draw arc works correctly."""
         self.fail()
 
-    # This decorator can be removed when issue #1212 is resolved.
-    @unittest.expectedFailure
     def test_arc__bounding_rect(self):
         """Ensures draw arc returns the correct bounding rect.
 
