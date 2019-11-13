@@ -1061,7 +1061,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
                 So we make a fake surface.
                 */
-                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32,
+                surf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
                                             0xff << 16, 0xff << 8, 0xff, 0);
                 newownedsurf = surf;
             }

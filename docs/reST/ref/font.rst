@@ -161,7 +161,7 @@ loaded instead.
 
       The Surface returned will be of the dimensions required to hold the text.
       (the same as those returned by Font.size()). If an empty string is passed
-      for the text, a blank surface will be returned that is one pixel wide and
+      for the text, a blank surface will be returned that is zero pixel wide and
       the height of the font.
 
       Depending on the type of background and antialiasing used, this returns

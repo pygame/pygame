@@ -508,7 +508,7 @@ array_to_surface(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError, "must be a valid 2d or 3d array\n");
     }
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+    if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for surface");
 
     stridex = view_p->strides[0];

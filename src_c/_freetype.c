@@ -746,7 +746,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *file, *original_file;
     long font_index = 0;
     Scale_t face_size = self->face_size;
-    int ucs4 = self->render_flags & FT_RFLAG_UCS4 ? 1 : 0;
+    int ucs4 = (self->render_flags & FT_RFLAG_UCS4) ? 1 : 0;
     unsigned resolution = 0;
     long size = 0;
     long height = 0;

@@ -127,8 +127,6 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                       pgFontObject *fontobj, FontRenderMode *mode,
                       Scale_t face_size, int style, Angle_t rotation)
 {
-    FT_Face font = 0;
-
     if (face_size.x == 0) {
         if (fontobj->face_size.x == 0) {
             PyErr_SetString(PyExc_ValueError,
@@ -195,7 +193,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     }
 
     if (mode->render_flags & FT_RFLAG_KERNING) {
-        font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
+        FT_Face font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
 
         if (!font) {
             PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
@@ -462,7 +460,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
                                &underline_top, &underline_size);
     }
     else {
-        width = 1;
+        width = 0;
         height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         offset.x = -font_text->min_x;
         offset.y = -font_text->min_y;

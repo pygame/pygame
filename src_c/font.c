@@ -411,7 +411,7 @@ font_render(PyObject *self, PyObject *args)
             PyErr_Clear();
             return RAISE_TEXT_TYPE_ERROR();
         }
-        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32, 0xff << 16,
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, height, 32, 0xff << 16,
                                     0xff << 8, 0xff, 0);
         if (surf == NULL) {
             return RAISE(pgExc_SDLError, SDL_GetError());
