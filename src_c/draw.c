@@ -1396,7 +1396,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y, float t
     if (dx == 0 && dy == 0) {
         /* Single point. Due to the nature of the aaline clipping, this
          * is less exact than the normal line. */
-        set_at(surf, (int)truncf(from_x), (int)truncf(from_y), color, drawn_area)
+        set_at(surf, (int)truncf(from_x), (int)truncf(from_y), color, drawn_area);
         return;
     }
 
@@ -1746,21 +1746,21 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
         for (i=0; i<thickness; i++){
             y1=y-i;
             if ((y0 + y1 - 1) >= (y0 + x - 1))
-                set_at(dst, x0 + x - 1, y0 + y1 - 1, color, drawn_area));  /* 7 */
+                set_at(dst, x0 + x - 1, y0 + y1 - 1, color, drawn_area);  /* 7 */
             if ((y0 + y1 - 1) >= (y0 + x - 1))
-                set_at(dst, x0 - x, y0 + y1 - 1, color, drawn_area);       /* 6 */
+                set_at(dst, x0 - x, y0 + y1 - 1, color, drawn_area);      /* 6 */
             if ((y0 - y1) <= (y0 - x))
-                set_at(dst, x0 + x - 1, y0 - y1, color, drawn_area);       /* 2 */
+                set_at(dst, x0 + x - 1, y0 - y1, color, drawn_area);      /* 2 */
             if ((y0 - y1) <= (y0 - x))
-                set_at(dst, x0 - x, y0 - y1, color, drawn_area);           /* 3 */
+                set_at(dst, x0 - x, y0 - y1, color, drawn_area);          /* 3 */
             if ((x0 + y1 - 1) >= (x0 + x - 1))
-                set_at(dst, x0 + y1 - 1, y0 + x - 1, color, drawn_area);   /* 8 */
+                set_at(dst, x0 + y1 - 1, y0 + x - 1, color, drawn_area);  /* 8 */
             if ((x0 - y1) <= (x0 - x))
-                set_at(dst, x0 - y1, y0 + x - 1, color, drawn_area);       /* 5 */
+                set_at(dst, x0 - y1, y0 + x - 1, color, drawn_area);      /* 5 */
             if ((x0 + y1 - 1) >= (x0 + x - 1))
-                set_at(dst, x0 + y1 - 1, y0 - x, color);                   /* 1 */
+                set_at(dst, x0 + y1 - 1, y0 - x, color, drawn_area);      /* 1 */
             if ((x0 - y1) <= (x0 - x))
-                set_at(dst, x0 - y1, y0 - x, color);                       /* 4 */
+                set_at(dst, x0 - y1, y0 - x, color, drawn_area);          /* 4 */
         }
     }
 }
@@ -1782,14 +1782,14 @@ draw_circle_quadrant(SDL_Surface *dst, int x0, int y0, int radius,
     int i_ddF_y = -2 * i_y;
     int i;
     if (radius == 1) {
-        if (top_right > 0 && set_at(dst, x0, y0 - 1, color))
-            add_pixel_to_drawn_list(x0, y0 - 1, drawn_area);
-        if (top_left > 0 && set_at(dst, x0 - 1, y0 - 1, color))
-            add_pixel_to_drawn_list(x0 - 1, y0 - 1, drawn_area);
-        if (bottom_left > 0 && set_at(dst, x0 - 1, y0, color))
-            add_pixel_to_drawn_list(x0 - 1, y0, drawn_area);
-        if (bottom_right > 0 && set_at(dst, x0, y0, color))
-            add_pixel_to_drawn_list(x0, y0, drawn_area);
+        if (top_right > 0)
+            set_at(dst, x0, y0 - 1, color, drawn_area);
+        if (top_left > 0)
+            set_at(dst, x0 - 1, y0 - 1, color, drawn_area);
+        if (bottom_left > 0)
+            set_at(dst, x0 - 1, y0, color, drawn_area);
+        if (bottom_right > 0)
+            set_at(dst, x0, y0, color, drawn_area);
         return;
     }
 
@@ -1821,45 +1821,37 @@ draw_circle_quadrant(SDL_Surface *dst, int x0, int y0, int radius,
             if (top_right > 0) {
                 for (i=0; i<thickness; i++) {
                     y1=y-i;
-                    if ((y0 - y1) < (y0 - x) &&
-                        set_at(dst, x0 + x - 1, y0 - y1, color))      /* 2 */
-                        add_pixel_to_drawn_list(x0 + x - 1, y0 - y1, drawn_area);
-                    if ((x0 + y1 - 1) >= (x0 + x - 1) &&
-                        set_at(dst, x0 + y1 - 1, y0 - x, color))      /* 1 */
-                        add_pixel_to_drawn_list(x0 + y1 - 1, y0 - x, drawn_area);
+                    if ((y0 - y1) < (y0 - x))
+                        set_at(dst, x0 + x - 1, y0 - y1, color, drawn_area);      /* 2 */
+                    if ((x0 + y1 - 1) >= (x0 + x - 1))
+                        set_at(dst, x0 + y1 - 1, y0 - x, color, drawn_area);      /* 1 */
                 }
             }
             if (top_left > 0) {
                 for (i=0; i<thickness; i++) {
                     y1=y-i;
-                    if ((y0 - y1) <= (y0 - x) &&
-                        set_at(dst, x0 - x, y0 - y1, color))          /* 3 */
-                        add_pixel_to_drawn_list(x0 - x, y0 - y1, drawn_area);
-                    if ((x0 - y1) < (x0 - x) &&
-                        set_at(dst, x0 - y1, y0 - x, color))          /* 4 */
-                        add_pixel_to_drawn_list(x0 - y1, y0 - x, drawn_area);
+                    if ((y0 - y1) <= (y0 - x))
+                        set_at(dst, x0 - x, y0 - y1, color, drawn_area);          /* 3 */
+                    if ((x0 - y1) < (x0 - x))
+                        set_at(dst, x0 - y1, y0 - x, color, drawn_area);          /* 4 */
                 }
             }
             if (bottom_left > 0) {
                 for (i=0; i<thickness; i++) {
                     y1=y-i;
-                    if ((x0 - y1) <= (x0 - x) &&
-                        set_at(dst, x0 - y1, y0 + x - 1, color))      /* 5 */
-                        add_pixel_to_drawn_list(x0 - y1, y0 + x - 1, drawn_area);
-                    if ((y0 + y1 - 1) > (y0 + x - 1) &&
-                        set_at(dst, x0 - x, y0 + y1 - 1, color))      /* 6 */
-                        add_pixel_to_drawn_list(x0 - x, y0 + y1 - 1, drawn_area);
+                    if ((x0 - y1) <= (x0 - x))
+                        set_at(dst, x0 - y1, y0 + x - 1, color, drawn_area);      /* 5 */
+                    if ((y0 + y1 - 1) > (y0 + x - 1))
+                        set_at(dst, x0 - x, y0 + y1 - 1, color, drawn_area);      /* 6 */
                 }
             }
             if (bottom_right > 0) {
                 for (i=0; i<thickness; i++) {
                     y1=y-i;
-                    if ((y0 + y1 - 1) >= (y0 + x - 1) &&
-                        set_at(dst, x0 + x - 1, y0 + y1 - 1, color))  /* 7 */
-                        add_pixel_to_drawn_list(x0 + x - 1, y0 + y1 - 1, drawn_area);
-                    if ((x0 + y1 - 1) > (x0 + x - 1) &&
-                        set_at(dst, x0 + y1 - 1, y0 + x - 1, color))  /* 8 */
-                        add_pixel_to_drawn_list(x0 + y1 - 1, y0 + x - 1, drawn_area);
+                    if ((y0 + y1 - 1) >= (y0 + x - 1))
+                        set_at(dst, x0 + x - 1, y0 + y1 - 1, color, drawn_area);  /* 7 */
+                    if ((x0 + y1 - 1) > (x0 + x - 1))
+                        set_at(dst, x0 + y1 - 1, y0 + x - 1, color, drawn_area);  /* 8 */
                 }
             }
         }
@@ -1876,42 +1868,34 @@ draw_circle_quadrant(SDL_Surface *dst, int x0, int y0, int radius,
             f += ddF_x + 1;
             if (top_right > 0) {
                 for (y1 = y0 - x; y1 <= y0; y1++) {
-                    if (set_at(dst, x0 + y - 1, y1, color))  /* 1 */
-                        add_pixel_to_drawn_list(x0 + y - 1, y1, drawn_area);
+                    set_at(dst, x0 + y - 1, y1, color, drawn_area);  /* 1 */
                 }
                 for (y1 = y0 - y; y1 <= y0; y1++) {
-                    if (set_at(dst, x0 + x - 1, y1, color))  /* 2 */
-                        add_pixel_to_drawn_list(x0 + x - 1, y1, drawn_area);
+                    set_at(dst, x0 + x - 1, y1, color, drawn_area);  /* 2 */
                 }
             }
             if (top_left > 0) {
                 for (y1 = y0 - x; y1 <= y0; y1++) {
-                    if (set_at(dst, x0 - y, y1, color))      /* 4 */
-                        add_pixel_to_drawn_list(x0 - y, y1, drawn_area);
+                    set_at(dst, x0 - y, y1, color, drawn_area);      /* 4 */
                 }
                 for (y1 = y0 - y; y1 <= y0; y1++) {
-                    if (set_at(dst, x0 - x, y1, color))     /* 3 */
-                        add_pixel_to_drawn_list(x0 - x, y1, drawn_area);
+                    set_at(dst, x0 - x, y1, color, drawn_area);      /* 3 */
                 }
             }
             if (bottom_left > 0) {
                 for (y1 = y0; y1 < y0 + x; y1++) {
-                    if (set_at(dst, x0 - y, y1, color))      /* 4 */
-                        add_pixel_to_drawn_list(x0 - y, y1, drawn_area);
+                    set_at(dst, x0 - y, y1, color, drawn_area);      /* 4 */
                 }
                 for (y1 = y0; y1 < y0 + y; y1++) {
-                    if (set_at(dst, x0 - x, y1, color))     /* 3 */
-                        add_pixel_to_drawn_list(x0 - x, y1, drawn_area);
+                    set_at(dst, x0 - x, y1, color, drawn_area);      /* 3 */
                 }
             }
             if (bottom_right > 0) {
                 for (y1 = y0; y1 < y0 + x; y1++) {
-                    if (set_at(dst, x0 + y - 1, y1, color))  /* 1 */
-                        add_pixel_to_drawn_list(x0 + y - 1, y1, drawn_area);
+                    set_at(dst, x0 + y - 1, y1, color, drawn_area);  /* 1 */
                 }
                 for (y1 = y0; y1 < y0 + y; y1++) {
-                    if (set_at(dst, x0 + x - 1, y1, color))  /* 2 */
-                        add_pixel_to_drawn_list(x0 + x - 1, y1, drawn_area);
+                    set_at(dst, x0 + x - 1, y1, color, drawn_area);  /* 2 */
                 }
             }
         }
@@ -1939,16 +1923,12 @@ draw_circle_filled(SDL_Surface *dst, int x0, int y0, int radius, Uint32 color, i
         f += ddF_x + 1;
 
         for (y1 = y0 - x; y1 < y0 + x; y1++) {
-            if (set_at(dst, x0 + y - 1, y1, color))  /* 1 to 8 */
-                add_pixel_to_drawn_list(x0 + y - 1, y1, drawn_area);
-            if (set_at(dst, x0 - y, y1, color))  /* 4 to 5 */
-                add_pixel_to_drawn_list(x0 - y, y1, drawn_area);
+            set_at(dst, x0 + y - 1, y1, color, drawn_area);  /* 1 to 8 */
+            set_at(dst, x0 - y, y1, color, drawn_area);  /* 4 to 5 */
         }
         for (y1 = y0 - y; y1 < y0 + y; y1++) {
-            if (set_at(dst, x0 + x - 1, y1, color))  /* 2 to 7 */
-                add_pixel_to_drawn_list(x0 + x - 1, y1, drawn_area);
-            if (set_at(dst, x0 - x, y1, color ))  /* 3 to 6 */
-                add_pixel_to_drawn_list(x0 - x, y1, drawn_area);
+            set_at(dst, x0 + x - 1, y1, color, drawn_area);  /* 2 to 7 */
+            set_at(dst, x0 - x, y1, color, drawn_area);  /* 3 to 6 */
         }
     }
 }
@@ -1967,8 +1947,7 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
 
     /* Special case: draw a single pixel */
     if (rx == 0 && ry == 0) {
-        if (set_at(dst, x, y, color))
-            add_pixel_to_drawn_list(x, y, drawn_area);
+        set_at(dst, x, y, color, drawn_area);
         return;
     }
 
@@ -2009,14 +1988,10 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
                     drawhorzline(dst, color, x - h, y + k, x + h - xoff, drawn_area);
                 }
                 else {
-                    if (set_at(dst, x - h, y - k - yoff, color))
-                        add_pixel_to_drawn_list(x - h, y - k - yoff, drawn_area);
-                    if (set_at(dst, x + h - xoff, y - k - yoff, color))
-                        add_pixel_to_drawn_list(x + h - xoff, y - k - yoff, drawn_area);
-                    if (set_at(dst, x - h, y + k, color))
-                        add_pixel_to_drawn_list(x - h, y + k, drawn_area);
-                    if (set_at(dst, x + h - xoff, y + k, color))
-                        add_pixel_to_drawn_list(x + h - xoff, y + k, drawn_area);
+                    set_at(dst, x - h, y - k - yoff, color, drawn_area);
+                    set_at(dst, x + h - xoff, y - k - yoff, color, drawn_area);
+                    set_at(dst, x - h, y + k, color, drawn_area);
+                    set_at(dst, x + h - xoff, y + k, color, drawn_area);
                 }
                 ok = k;
             }
@@ -2027,14 +2002,10 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
                                      x + i - xoff, drawn_area);
                 }
                 else {
-                    if (set_at(dst, x - i, y + j, color))
-                        add_pixel_to_drawn_list(x - i, y + j, drawn_area);
-                    if (set_at(dst, x + i - xoff, y + j, color))
-                        add_pixel_to_drawn_list(x + i - xoff, y + j, drawn_area);
-                    if (set_at(dst, x - i, y - j - yoff, color))
-                        add_pixel_to_drawn_list(x - i, y - j - yoff, drawn_area);
-                    if (set_at(dst, x + i - xoff, y - j - yoff, color))
-                        add_pixel_to_drawn_list(x + i - xoff, y - j - yoff, drawn_area);
+                    set_at(dst, x - i, y + j, color, drawn_area);
+                    set_at(dst, x + i - xoff, y + j, color, drawn_area);
+                    set_at(dst, x - i, y - j - yoff, color, drawn_area);
+                    set_at(dst, x + i - xoff, y - j - yoff, color, drawn_area);
                 }
                 oj = j;
             }
@@ -2060,14 +2031,10 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
                                      x + j - xoff, drawn_area);
                 }
                 else {
-                    if (set_at(dst, x - j, y + i, color))
-                        add_pixel_to_drawn_list(x - j, y + i, drawn_area);
-                    if (set_at(dst, x + j - xoff, y + i, color))
-                        add_pixel_to_drawn_list(x + j - xoff, y + i, drawn_area);
-                    if (set_at(dst, x - j, y - i - yoff, color))
-                        add_pixel_to_drawn_list(x - j, y - i - yoff, drawn_area);
-                    if (set_at(dst, x + j - xoff, y - i - yoff, color))
-                        add_pixel_to_drawn_list(x + j - xoff, y - i - yoff, drawn_area);
+                    set_at(dst, x - j, y + i, color, drawn_area);
+                    set_at(dst, x + j - xoff, y + i, color, drawn_area);
+                    set_at(dst, x - j, y - i - yoff, color, drawn_area);
+                    set_at(dst, x + j - xoff, y - i - yoff, color, drawn_area);
                 }
                 oi = i;
             }
@@ -2078,14 +2045,10 @@ draw_ellipse(SDL_Surface *dst, int x, int y, int width, int height, int solid,
                                      x + k - xoff, drawn_area);
                 }
                 else {
-                    if (set_at(dst, x - k, y + h, color))
-                        add_pixel_to_drawn_list(x - k, y + h, drawn_area);
-                    if (set_at(dst, x + k - xoff, y + h, color))
-                        add_pixel_to_drawn_list(x + k - xoff, y + h, drawn_area);
-                    if (set_at(dst, x - k, y - h - yoff, color))
-                        add_pixel_to_drawn_list(x - k, y - h - yoff, drawn_area);
-                    if (set_at(dst, x + k - xoff, y - h - yoff, color))
-                        add_pixel_to_drawn_list(x + k - xoff, y - h - yoff, drawn_area);
+                    set_at(dst, x - k, y + h, color, drawn_area);
+                    set_at(dst, x + k - xoff, y + h, color, drawn_area);
+                    set_at(dst, x - k, y - h - yoff, color, drawn_area);
+                    set_at(dst, x + k - xoff, y - h - yoff, color, drawn_area);
                 }
                 oh = h;
             }
@@ -2265,8 +2228,7 @@ draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
         pts[3] = y1 + (int) (width / 2) - 1 + width % 2;
         if (pts[2] == pts[0]) {
             for (i = 0; i < width; i++) {
-                if (set_at(dst, pts[0], y1 + i, color))  /* Fill gap if reduced radius */
-                    add_pixel_to_drawn_list(pts[0], y1 + i, drawn_area);
+                set_at(dst, pts[0], y1 + i, color, drawn_area);  /* Fill gap if reduced radius */
             }
         }
         else clip_and_draw_line_width(dst, color, width, pts, drawn_area); /* Top line */
@@ -2276,8 +2238,7 @@ draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
         pts[3] = y2 - bottom_left;
         if (pts[3] == pts[1]) {
             for (i = 0; i < width; i++) {
-                if (set_at(dst, x1 + i, pts[1], color))  /* Fill gap if reduced radius */
-                    add_pixel_to_drawn_list(x1 + i, pts[1], drawn_area);
+                set_at(dst, x1 + i, pts[1], color, drawn_area);  /* Fill gap if reduced radius */
             }
         }
         else clip_and_draw_line_width(dst, color, width, pts, drawn_area); /* Left line */
@@ -2287,8 +2248,7 @@ draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
         pts[3] = y2 - (int) (width / 2);
         if (pts[2] == pts[0]) {
             for (i = 0; i < width; i++) {
-                if (set_at(dst, pts[0], y2 - i, color))  /* Fill gap if reduced radius */
-                    add_pixel_to_drawn_list(pts[0], y2 - i, drawn_area);
+                set_at(dst, pts[0], y2 - i, color, drawn_area);  /* Fill gap if reduced radius */
             }
         }
         else clip_and_draw_line_width(dst, color, width, pts, drawn_area); /* Bottom line */
@@ -2298,8 +2258,7 @@ draw_round_rect(SDL_Surface *dst, int x1, int y1, int x2, int y2, int radius,
         pts[3] = y2 - bottom_right;
         if (pts[3] == pts[1]) {
             for (i = 0; i < width; i++) {
-                if (set_at(dst, x2 - i, pts[1], color))  /* Fill gap if reduced radius */
-                    add_pixel_to_drawn_list(x2 - i, pts[1], drawn_area);
+                set_at(dst, x2 - i, pts[1], color, drawn_area);  /* Fill gap if reduced radius */
             }
         }
         else clip_and_draw_line_width(dst, color, width, pts, drawn_area); /* Right line */
