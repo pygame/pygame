@@ -6078,7 +6078,7 @@ class DrawArcMixin(object):
                         setattr(arc_rect, attr, pos)
 
                         for thickness in range(min(width, height) + 1):
-                            for stop_angle in range(max_stop_angle + 1):
+                            for stop_angle in range(int(max_stop_angle) + 1):
                                 surface.fill(surf_color)  # Clear for each test.
 
                                 bounding_rect = self.draw_arc(
