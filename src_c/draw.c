@@ -1745,22 +1745,22 @@ draw_circle_bresenham(SDL_Surface *dst, int x0, int y0, int radius, int thicknes
            interval: [number - 1 * pi / 4, number * pi / 4] */
         for (i=0; i<thickness; i++){
             y1=y-i;
-            if ((y0 + y1 - 1) >= (y0 + x - 1))
+            if ((y0 + y1 - 1) >= (y0 + x - 1)) {
                 set_at(dst, x0 + x - 1, y0 + y1 - 1, color, drawn_area);  /* 7 */
-            if ((y0 + y1 - 1) >= (y0 + x - 1))
                 set_at(dst, x0 - x, y0 + y1 - 1, color, drawn_area);      /* 6 */
-            if ((y0 - y1) <= (y0 - x))
+            }
+            if ((y0 - y1) <= (y0 - x)) {
                 set_at(dst, x0 + x - 1, y0 - y1, color, drawn_area);      /* 2 */
-            if ((y0 - y1) <= (y0 - x))
                 set_at(dst, x0 - x, y0 - y1, color, drawn_area);          /* 3 */
-            if ((x0 + y1 - 1) >= (x0 + x - 1))
+            }
+            if ((x0 + y1 - 1) >= (x0 + x - 1)) {
                 set_at(dst, x0 + y1 - 1, y0 + x - 1, color, drawn_area);  /* 8 */
-            if ((x0 - y1) <= (x0 - x))
-                set_at(dst, x0 - y1, y0 + x - 1, color, drawn_area);      /* 5 */
-            if ((x0 + y1 - 1) >= (x0 + x - 1))
                 set_at(dst, x0 + y1 - 1, y0 - x, color, drawn_area);      /* 1 */
-            if ((x0 - y1) <= (x0 - x))
+            }
+            if ((x0 - y1) <= (x0 - x)) {
+                set_at(dst, x0 - y1, y0 + x - 1, color, drawn_area);      /* 5 */
                 set_at(dst, x0 - y1, y0 - x, color, drawn_area);          /* 4 */
+            }
         }
     }
 }
