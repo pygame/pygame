@@ -636,7 +636,6 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     t = MAX(rect->y, surf->clip_rect.y);
     r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
     b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
-    // return pgRect_New4(l, t, MAX(r - l, 0), MAX(b - t, 0));
     /* Compute return rect. */
     if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
         drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
