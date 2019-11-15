@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev5",
+    "version":          "2.0.0.dev7",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -154,6 +154,10 @@ def add_datafiles(data_files, dest_dir, pattern):
             data_files.append((root_dest_path, files))
     do_directory(dest_dir, src_dir, elements)
 
+STRIPPED=False
+if "PYGAME_ANDROID" in os.environ:
+    STRIPPED=True
+
 if __name__=="__main__":
     #get us to the correct directory
 
@@ -247,6 +251,10 @@ if __name__=="__main__":
     # allow optionally using setuptools for bdist_egg.
     if "-setuptools" in sys.argv:
         sys.argv.remove ("-setuptools")
+
+    if "-stripped" in sys.argv:
+        sys.argv.remove ("-stripped")
+        STRIPPED=True
 
     #headers to install
     headers = glob.glob(os.path.join('src_c', '*.h'))
@@ -346,8 +354,9 @@ for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         pygame_data_files.append(f)
 
-#tests/fixtures
-add_datafiles(data_files, 'pygame/tests',
+if not STRIPPED:
+  #tests/fixtures
+  add_datafiles(data_files, 'pygame/tests',
               ['test',
                   [['fixtures',
                       [['xbm_cursors',
@@ -355,8 +364,8 @@ add_datafiles(data_files, 'pygame/tests',
                        ['fonts',
                           ['*.ttf', '*.otf', '*.bdf', '*.png']]]]]])
 
-#examples
-add_datafiles(data_files, 'pygame/examples',
+  #examples
+  add_datafiles(data_files, 'pygame/examples',
               ['examples',
                   ['readme.rst',
                    ['data',
@@ -371,8 +380,8 @@ add_datafiles(data_files, 'pygame/examples',
                                   ['MainMenu.nib',
                                       ['*']]]]]]]]]])
 
-#docs
-add_datafiles(data_files, 'pygame/docs',
+  #docs
+  add_datafiles(data_files, 'pygame/docs',
               ['docs',
                   ['*.html',             # Navigation and help pages
                    '*.gif',              # pygame logos
