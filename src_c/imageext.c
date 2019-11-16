@@ -125,22 +125,40 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
     if (oencoded != Py_None) {
+        FILE *fp;
         name = Bytes_AS_STRING(oencoded);
+        ext = find_extension(name);
+
+        fp = fopen(Bytes_AS_STRING(oencoded), "rb");
+        if (fp == NULL) {
+            Py_DECREF(oencoded);
+            return NULL;
+        }
+        rw = SDL_RWFromFP(fp, 1);
+        if (rw == NULL) {
+            Py_DECREF(oencoded);
+            return NULL;
+        }
+
 #ifdef WITH_THREAD
         namelen = Bytes_GET_SIZE(oencoded);
         Py_BEGIN_ALLOW_THREADS;
         if (namelen > 4 && !strcasecmp(name + namelen - 4, ".gif")) {
             /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
             SDL_LockMutex(_pg_img_mutex);
-            surf = IMG_Load(name);
+            //surf = IMG_Load(name);
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
+
             SDL_UnlockMutex(_pg_img_mutex);
         }
         else {
-            surf = IMG_Load(name);
+            //surf = IMG_Load(name);
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
         }
         Py_END_ALLOW_THREADS;
 #else /* ~WITH_THREAD */
-        surf = IMG_Load(name);
+        //surf = IMG_Load(name);
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
 #endif /* WITH_THREAD */
         Py_DECREF(oencoded);
     }

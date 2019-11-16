@@ -77,10 +77,18 @@ image_load_basic(PyObject *self, PyObject *arg)
         return NULL;
     }
     if (oencoded != Py_None) {
-        Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_LoadBMP(Bytes_AS_STRING(oencoded));
-        Py_END_ALLOW_THREADS;
+        FILE *fp = fopen(Bytes_AS_STRING(oencoded), "rb");
         Py_DECREF(oencoded);
+        if (fp == NULL) {
+            return NULL;
+        }
+        rw = SDL_RWFromFP(fp, 1);
+        if (rw == NULL) {
+            return NULL;
+        }
+        Py_BEGIN_ALLOW_THREADS;
+        surf = SDL_LoadBMP_RW(rw, 1);
+        Py_END_ALLOW_THREADS;
     }
     else {
         Py_DECREF(oencoded);
