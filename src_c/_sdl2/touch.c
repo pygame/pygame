@@ -1,6 +1,6 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2019 David Lönnhager
+  Copyright (C) 2019 David LÃ¶nnhager
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public

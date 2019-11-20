@@ -1,5 +1,17 @@
-import pygame, sys
-import pygame.freetype
+#!/usr/bin/env python
+""" pg.examples.textinput
+
+A little "console" where you can write in text.
+
+Shows how to use the TEXTEDITING and TEXTINPUT events.
+"""
+import sys
+import pygame as pg
+import pygame.freetype as freetype
+
+# Version check
+if pg.get_sdl_version() < (2, 0, 0):
+    raise Exception("This example requires pygame 2.")
 
 ###CONSTS
 # Set to true or add 'showevent' in argv to see IME and KEYDOWN events
@@ -11,8 +23,8 @@ WINDOWWIDTH, WINDOWHEIGHT = 640, 480
 BGCOLOR = (0, 0, 0)
 
 # position of chatlist and chatbox
-CHATLIST_POS = pygame.Rect(0, 20, WINDOWWIDTH, 400)
-CHATBOX_POS = pygame.Rect(0, 440, WINDOWWIDTH, 40)
+CHATLIST_POS = pg.Rect(0, 20, WINDOWWIDTH, 400)
+CHATBOX_POS = pg.Rect(0, 440, WINDOWWIDTH, 40)
 CHATLIST_MAXSIZE = 20
 
 TEXTCOLOR = (0, 255, 0)
@@ -29,21 +41,17 @@ FONTNAMES = [
     "Arial",
 ]
 
-# Version check
-if pygame.get_sdl_version() < (2, 0, 0):
-    raise Exception("This example requires SDL2.")
-
 # Initalize
-pygame.init()
-Screen = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-pygame.display.set_caption("TextInput example")
-FPSClock = pygame.time.Clock()
+pg.init()
+Screen = pg.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+pg.display.set_caption("TextInput example")
+FPSClock = pg.time.Clock()
 
 # Freetype
 # "The font name can be a comma separated list of font names to search for."
 FONTNAMES = ",".join(str(x) for x in FONTNAMES)
-Font = pygame.freetype.SysFont(FONTNAMES, 24)
-FontSmall = pygame.freetype.SysFont(FONTNAMES, 16)
+Font = freetype.SysFont(FONTNAMES, 24)
+FontSmall = freetype.SysFont(FONTNAMES, 16)
 print("Using font: " + Font.name)
 
 # Main loop process
@@ -56,9 +64,9 @@ def main():
     https://wiki.libsdl.org/Tutorials/TextInput
     Candidate list not showing due to SDL2 problem ;w;
     """
-    pygame.key.start_text_input()
-    input_rect = pygame.Rect(80, 80, 320, 40)
-    pygame.key.set_text_input_rect(input_rect)
+    pg.key.start_text_input()
+    input_rect = pg.Rect(80, 80, 320, 40)
+    pg.key.set_text_input_rect(input_rect)
 
     _IMEEditing = False
     _IMEText = ""
@@ -68,12 +76,12 @@ def main():
     ChatList = []
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
                 return
 
-            elif event.type == pygame.KEYDOWN:
+            elif event.type == pg.KEYDOWN:
                 if PRINT_EVENT:
                     print(event)
 
@@ -82,22 +90,22 @@ def main():
                         _IMEEditing = False
                     continue
 
-                if event.key == pygame.K_BACKSPACE:
+                if event.key == pg.K_BACKSPACE:
                     if len(_IMEText) > 0 and _IMETextPos > 0:
                         _IMEText = (
                             _IMEText[0 : _IMETextPos - 1] + _IMEText[_IMETextPos:]
                         )
                         _IMETextPos = max(0, _IMETextPos - 1)
 
-                elif event.key == pygame.K_DELETE:
+                elif event.key == pg.K_DELETE:
                     _IMEText = _IMEText[0:_IMETextPos] + _IMEText[_IMETextPos + 1 :]
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pg.K_LEFT:
                     _IMETextPos = max(0, _IMETextPos - 1)
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pg.K_RIGHT:
                     _IMETextPos = min(len(_IMEText), _IMETextPos + 1)
 
                 elif (
-                    event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]
+                    event.key in [pg.K_RETURN, pg.K_KP_ENTER]
                     and len(event.unicode) == 0
                 ):
                     # Block if we have no text to append
@@ -111,14 +119,14 @@ def main():
                     _IMEText = ""
                     _IMETextPos = 0
 
-            elif event.type == pygame.TEXTEDITING:
+            elif event.type == pg.TEXTEDITING:
                 if PRINT_EVENT:
                     print(event)
                 _IMEEditing = True
                 _IMEEditingText = event.text
                 _IMEEditingPos = event.start
 
-            elif event.type == pygame.TEXTINPUT:
+            elif event.type == pg.TEXTINPUT:
                 if PRINT_EVENT:
                     print(event)
                 _IMEEditing = False
@@ -152,17 +160,12 @@ def main():
 
         # Editing texts should be underlined
         rect_textM = Font.render_to(
-            Screen,
-            start_pos,
-            ime_textM,
-            TEXTCOLOR,
-            None,
-            pygame.freetype.STYLE_UNDERLINE,
+            Screen, start_pos, ime_textM, TEXTCOLOR, None, freetype.STYLE_UNDERLINE
         )
         start_pos.x += rect_textM.width
         Font.render_to(Screen, start_pos, ime_textR, TEXTCOLOR)
 
-        pygame.display.update()
+        pg.display.update()
 
         FPSClock.tick(FPS)
 

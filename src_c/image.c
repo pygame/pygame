@@ -389,7 +389,8 @@ image_tostring(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
     }
     else if (!strcmp(format, "RGB")) {
-        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 3);
+        string =
+            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 3);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -473,7 +474,8 @@ image_tostring(PyObject *self, PyObject *arg)
         if (strcmp(format, "RGBA"))
             hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+        string =
+            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -564,7 +566,8 @@ image_tostring(PyObject *self, PyObject *arg)
     else if (!strcmp(format, "ARGB")) {
         hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+        string =
+            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -650,7 +653,8 @@ image_tostring(PyObject *self, PyObject *arg)
 
         hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+        string =
+            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -742,7 +746,8 @@ image_tostring(PyObject *self, PyObject *arg)
 
         hascolorkey = 0;
 
-        string = Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
+        string =
+            Bytes_FromStringAndSize(NULL, (Py_ssize_t)surf->w * surf->h * 4);
         if (!string)
             return NULL;
         Bytes_AsStringAndSize(string, &data, &len);
@@ -963,6 +968,33 @@ image_fromstring(PyObject *self, PyObject *arg)
     return pgSurface_New(surf);
 }
 
+static int
+_as_read_buffer(PyObject *obj, const void **buffer, Py_ssize_t *buffer_len)
+{
+    Py_buffer view;
+
+    if (obj == NULL || buffer == NULL || buffer_len == NULL) {
+        return -1;
+    }
+    if (PyObject_GetBuffer(obj, &view, PyBUF_SIMPLE) != 0)
+        return -1;
+
+    *buffer = view.buf;
+    *buffer_len = view.len;
+    PyBuffer_Release(&view);
+    return 0;
+}
+/*
+pgObject_AsCharBuffer is backwards compatible for PyObject_AsCharBuffer.
+Because PyObject_AsCharBuffer is deprecated.
+*/
+int
+pgObject_AsCharBuffer(PyObject *obj, const char **buffer,
+                      Py_ssize_t *buffer_len)
+{
+    return _as_read_buffer(obj, (const void **)buffer, buffer_len);
+}
+
 PyObject *
 image_frombuffer(PyObject *self, PyObject *arg)
 {
@@ -980,7 +1012,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError, "Resolution must be positive values");
 
     /* breaking constness here, we should really not change this string */
-    if (PyObject_AsCharBuffer(buffer, (const char **)&data, &len) == -1)
+    if (pgObject_AsCharBuffer(buffer, (const char **)&data, &len) == -1)
         return NULL;
 
     if (!strcmp(format, "P")) {
@@ -1465,7 +1497,7 @@ MODINIT_DEFINE(image)
         }
 
         Py_INCREF(Py_None);
-        if (PyModule_AddObject(module, "save_extended", Py_None)){
+        if (PyModule_AddObject(module, "save_extended", Py_None)) {
             Py_DECREF(Py_None);
             Py_DECREF(basicload);
             DECREF_MOD(module);

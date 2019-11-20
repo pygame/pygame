@@ -1,6 +1,9 @@
+import math
 import sys
 import unittest
-from pygame import Rect
+
+from pygame import Rect, Vector2
+from pygame.tests import test_utils
 
 
 PY3 = sys.version_info >= (3, 0, 0)
@@ -840,6 +843,415 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(
             r1, r1.clip(Rect(r1)), "r1 does not clip an identical rect to itself"
         )
+
+    def test_clipline(self):
+        """Ensures clipline handles four int parameters.
+
+        Tests the clipline(x1, y1, x2, y2) format.
+        """
+        rect = Rect((1, 2), (35, 40))
+        x1 = 5
+        y1 = 6
+        x2 = 11
+        y2 = 19
+        expected_line = ((x1, y1), (x2, y2))
+
+        clipped_line = rect.clipline(x1, y1, x2, y2)
+
+        self.assertIsInstance(clipped_line, tuple)
+        self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__two_sequences(self):
+        """Ensures clipline handles a sequence of two sequences.
+
+        Tests the clipline((x1, y1), (x2, y2)) format.
+        Tests the sequences as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        pt1 = (5, 6)
+        pt2 = (11, 19)
+
+        INNER_SEQUENCES = (list, tuple, Vector2)
+        expected_line = (pt1, pt2)
+
+        for inner_seq1 in INNER_SEQUENCES:
+            endpt1 = inner_seq1(pt1)
+
+            for inner_seq2 in INNER_SEQUENCES:
+                clipped_line = rect.clipline((endpt1, inner_seq2(pt2)))
+
+                self.assertIsInstance(clipped_line, tuple)
+                self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__sequence_of_four_ints(self):
+        """Ensures clipline handles a sequence of four ints.
+
+        Tests the clipline((x1, y1, x2, y2)) format.
+        Tests the sequence as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        line = (5, 6, 11, 19)
+        expected_line = ((line[0], line[1]), (line[2], line[3]))
+
+        for outer_seq in (list, tuple):
+            clipped_line = rect.clipline(outer_seq(line))
+
+            self.assertIsInstance(clipped_line, tuple)
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__sequence_of_two_sequences(self):
+        """Ensures clipline handles a sequence of two sequences.
+
+        Tests the clipline(((x1, y1), (x2, y2))) format.
+        Tests the sequences as different types.
+        """
+        rect = Rect((1, 2), (35, 40))
+        pt1 = (5, 6)
+        pt2 = (11, 19)
+
+        INNER_SEQUENCES = (list, tuple, Vector2)
+        expected_line = (pt1, pt2)
+
+        for inner_seq1 in INNER_SEQUENCES:
+            endpt1 = inner_seq1(pt1)
+
+            for inner_seq2 in INNER_SEQUENCES:
+                endpt2 = inner_seq2(pt2)
+
+                for outer_seq in (list, tuple):
+                    clipped_line = rect.clipline(outer_seq((endpt1, endpt2)))
+
+                    self.assertIsInstance(clipped_line, tuple)
+                    self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__floats(self):
+        """Ensures clipline handles float parameters."""
+        rect = Rect((1, 2), (35, 40))
+        x1 = 5.9
+        y1 = 6.9
+        x2 = 11.9
+        y2 = 19.9
+
+        # Floats are truncated.
+        expected_line = (
+            (math.floor(x1), math.floor(y1)),
+            (math.floor(x2), math.floor(y2)),
+        )
+
+        clipped_line = rect.clipline(x1, y1, x2, y2)
+
+        self.assertIsInstance(clipped_line, tuple)
+        self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__no_overlap(self):
+        """Ensures lines that do not overlap the rect are not clipped."""
+        rect = Rect((10, 25), (15, 20))
+        # Use a bigger rect to help create test lines.
+        big_rect = rect.inflate(2, 2)
+        lines = (
+            (big_rect.bottomleft, big_rect.topleft),  # Left edge.
+            (big_rect.topleft, big_rect.topright),  # Top edge.
+            (big_rect.topright, big_rect.bottomright),  # Right edge.
+            (big_rect.bottomright, big_rect.bottomleft),
+        )  # Bottom edge.
+        expected_line = ()
+
+        # Test lines outside rect.
+        for line in lines:
+            clipped_line = rect.clipline(line)
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__both_endpoints_outside(self):
+        """Ensures lines that overlap the rect are clipped.
+
+        Testing lines with both endpoints outside the rect.
+        """
+        rect = Rect((0, 0), (20, 20))
+        # Use a bigger rect to help create test lines.
+        big_rect = rect.inflate(2, 2)
+
+        # Create a dict of lines and expected results.
+        line_dict = {
+            (big_rect.midleft, big_rect.midright): (
+                rect.midleft,
+                (rect.midright[0] - 1, rect.midright[1]),
+            ),
+            (big_rect.midtop, big_rect.midbottom): (
+                rect.midtop,
+                (rect.midbottom[0], rect.midbottom[1] - 1),
+            ),
+            # Diagonals.
+            (big_rect.topleft, big_rect.bottomright): (
+                rect.topleft,
+                (rect.bottomright[0] - 1, rect.bottomright[1] - 1),
+            ),
+            # This line needs a small adjustment to make sure it intersects
+            # the rect correctly.
+            (
+                (big_rect.topright[0] - 1, big_rect.topright[1]),
+                (big_rect.bottomleft[0], big_rect.bottomleft[1] - 1),
+            ): (
+                (rect.topright[0] - 1, rect.topright[1]),
+                (rect.bottomleft[0], rect.bottomleft[1] - 1),
+            ),
+        }
+
+        for line, expected_line in line_dict.items():
+            clipped_line = rect.clipline(line)
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+            # Swap endpoints to test for symmetry.
+            expected_line = (expected_line[1], expected_line[0])
+
+            clipped_line = rect.clipline((line[1], line[0]))
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__both_endpoints_inside(self):
+        """Ensures lines that overlap the rect are clipped.
+
+        Testing lines with both endpoints inside the rect.
+        """
+        rect = Rect((-10, -5), (20, 20))
+        # Use a smaller rect to help create test lines.
+        small_rect = rect.inflate(-2, -2)
+
+        lines = (
+            (small_rect.midleft, small_rect.midright),
+            (small_rect.midtop, small_rect.midbottom),
+            # Diagonals.
+            (small_rect.topleft, small_rect.bottomright),
+            (small_rect.topright, small_rect.bottomleft),
+        )
+
+        for line in lines:
+            expected_line = line
+
+            clipped_line = rect.clipline(line)
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+            # Swap endpoints to test for symmetry.
+            expected_line = (expected_line[1], expected_line[0])
+
+            clipped_line = rect.clipline((line[1], line[0]))
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__endpoints_inside_and_outside(self):
+        """Ensures lines that overlap the rect are clipped.
+
+        Testing lines with one endpoint outside the rect and the other is
+        inside the rect.
+        """
+        rect = Rect((0, 0), (21, 21))
+        # Use a bigger rect to help create test lines.
+        big_rect = rect.inflate(2, 2)
+
+        # Create a dict of lines and expected results.
+        line_dict = {
+            (big_rect.midleft, rect.center): (rect.midleft, rect.center),
+            (big_rect.midtop, rect.center): (rect.midtop, rect.center),
+            (big_rect.midright, rect.center): (
+                (rect.midright[0] - 1, rect.midright[1]),
+                rect.center,
+            ),
+            (big_rect.midbottom, rect.center): (
+                (rect.midbottom[0], rect.midbottom[1] - 1),
+                rect.center,
+            ),
+            # Diagonals.
+            (big_rect.topleft, rect.center): (rect.topleft, rect.center),
+            (big_rect.topright, rect.center): (
+                (rect.topright[0] - 1, rect.topright[1]),
+                rect.center,
+            ),
+            (big_rect.bottomright, rect.center): (
+                (rect.bottomright[0] - 1, rect.bottomright[1] - 1),
+                rect.center,
+            ),
+            # This line needs a small adjustment to make sure it intersects
+            # the rect correctly.
+            ((big_rect.bottomleft[0], big_rect.bottomleft[1] - 1), rect.center): (
+                (rect.bottomleft[0], rect.bottomleft[1] - 1),
+                rect.center,
+            ),
+        }
+
+        for line, expected_line in line_dict.items():
+            clipped_line = rect.clipline(line)
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+            # Swap endpoints to test for symmetry.
+            expected_line = (expected_line[1], expected_line[0])
+
+            clipped_line = rect.clipline((line[1], line[0]))
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__edges(self):
+        """Ensures clipline properly clips line that are along the rect edges.
+        """
+        rect = Rect((10, 25), (15, 20))
+
+        # Create a dict of edges and expected results.
+        edge_dict = {
+            # Left edge.
+            (rect.bottomleft, rect.topleft): (
+                (rect.bottomleft[0], rect.bottomleft[1] - 1),
+                rect.topleft,
+            ),
+            # Top edge.
+            (rect.topleft, rect.topright): (
+                rect.topleft,
+                (rect.topright[0] - 1, rect.topright[1]),
+            ),
+            # Right edge.
+            (rect.topright, rect.bottomright): (),
+            # Bottom edge.
+            (rect.bottomright, rect.bottomleft): (),
+        }
+
+        for edge, expected_line in edge_dict.items():
+            clipped_line = rect.clipline(edge)
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+            # Swap endpoints to test for symmetry.
+            if expected_line:
+                expected_line = (expected_line[1], expected_line[0])
+
+            clipped_line = rect.clipline((edge[1], edge[0]))
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__equal_endpoints_with_overlap(self):
+        """Ensures clipline handles lines with both endpoints the same.
+
+        Testing lines that overlap the rect.
+        """
+        rect = Rect((10, 25), (15, 20))
+
+        # Test all the points in and on a rect.
+        pts = (
+            (x, y)
+            for x in range(rect.left, rect.right)
+            for y in range(rect.top, rect.bottom)
+        )
+
+        for pt in pts:
+            expected_line = (pt, pt)
+
+            clipped_line = rect.clipline((pt, pt))
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__equal_endpoints_no_overlap(self):
+        """Ensures clipline handles lines with both endpoints the same.
+
+        Testing lines that do not overlap the rect.
+        """
+        expected_line = ()
+        rect = Rect((10, 25), (15, 20))
+
+        # Test points outside rect.
+        for pt in test_utils.rect_perimeter_pts(rect.inflate(2, 2)):
+            clipped_line = rect.clipline((pt, pt))
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__zero_size_rect(self):
+        """Ensures clipline handles zero sized rects correctly."""
+        expected_line = ()
+
+        for size in ((0, 15), (15, 0), (0, 0)):
+            rect = Rect((10, 25), size)
+
+            clipped_line = rect.clipline(rect.topleft, rect.topleft)
+
+            self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__negative_size_rect(self):
+        """Ensures clipline handles negative sized rects correctly."""
+        expected_line = ()
+
+        for size in ((-15, 20), (15, -20), (-15, -20)):
+            rect = Rect((10, 25), size)
+            norm_rect = rect.copy()
+            norm_rect.normalize()
+            # Use a bigger rect to help create test lines.
+            big_rect = norm_rect.inflate(2, 2)
+
+            # Create a dict of lines and expected results. Some line have both
+            # endpoints outside the rect and some have one inside and one
+            # outside.
+            line_dict = {
+                (big_rect.midleft, big_rect.midright): (
+                    norm_rect.midleft,
+                    (norm_rect.midright[0] - 1, norm_rect.midright[1]),
+                ),
+                (big_rect.midtop, big_rect.midbottom): (
+                    norm_rect.midtop,
+                    (norm_rect.midbottom[0], norm_rect.midbottom[1] - 1),
+                ),
+                (big_rect.midleft, norm_rect.center): (
+                    norm_rect.midleft,
+                    norm_rect.center,
+                ),
+                (big_rect.midtop, norm_rect.center): (
+                    norm_rect.midtop,
+                    norm_rect.center,
+                ),
+                (big_rect.midright, norm_rect.center): (
+                    (norm_rect.midright[0] - 1, norm_rect.midright[1]),
+                    norm_rect.center,
+                ),
+                (big_rect.midbottom, norm_rect.center): (
+                    (norm_rect.midbottom[0], norm_rect.midbottom[1] - 1),
+                    norm_rect.center,
+                ),
+            }
+
+            for line, expected_line in line_dict.items():
+                clipped_line = rect.clipline(line)
+
+                # Make sure rect wasn't normalized.
+                self.assertNotEqual(rect, norm_rect)
+                self.assertTupleEqual(clipped_line, expected_line)
+
+                # Swap endpoints to test for symmetry.
+                expected_line = (expected_line[1], expected_line[0])
+
+                clipped_line = rect.clipline((line[1], line[0]))
+
+                self.assertTupleEqual(clipped_line, expected_line)
+
+    def test_clipline__invalid_line(self):
+        """Ensures clipline handles invalid lines correctly."""
+        rect = Rect((0, 0), (10, 20))
+        invalid_lines = (
+            (),
+            (1,),
+            (1, 2),
+            (1, 2, 3),
+            (1, 2, 3, 4, 5),
+            ((1, 2),),
+            ((1, 2), (3,)),
+            ((1, 2), 3),
+            ((1, 2, 5), (3, 4)),
+            ((1, 2), (3, 4, 5)),
+            ((1, 2), (3, 4), (5, 6)),
+        )
+
+        for line in invalid_lines:
+            with self.assertRaises(TypeError):
+                clipped_line = rect.clipline(line)
+
+            with self.assertRaises(TypeError):
+                clipped_line = rect.clipline(*line)
 
     def test_move(self):
         r = Rect(1, 2, 3, 4)

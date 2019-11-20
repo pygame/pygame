@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+""" pygame.examples.dropfile
+
+Drag and drop an image on here.
+
+Uses these events:
+
+* DROPBEGIN
+* DROPCOMPLETE
+* DROPTEXT
+* DROPFILE
+"""
 import pygame as pg
 
 if pg.get_sdl_version() < (2, 0, 0):

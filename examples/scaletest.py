@@ -1,7 +1,12 @@
 #!/usr/bin/env python
+""" pygame.examples.scaletest
 
-import sys, time
-import pygame
+Shows an interactive image scaler.
+
+"""
+import sys
+import time
+import pygame as pg
 
 
 def main(imagefile, convert_alpha=False, run_speed_test=False):
@@ -11,30 +16,29 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
         imagefile - name of source image (required)
         convert_alpha - use convert_alpha() on the surf (default False)
         run_speed_test - (default False)
-
     """
 
     # initialize display
-    pygame.display.init()
+    pg.display.init()
     # load background image
-    background = pygame.image.load(imagefile)
+    background = pg.image.load(imagefile)
 
     if run_speed_test:
         if convert_alpha:
             # convert_alpha() requires the display mode to be set
-            pygame.display.set_mode((1, 1))
+            pg.display.set_mode((1, 1))
             background = background.convert_alpha()
 
         SpeedTest(background)
         return
 
     # start fullscreen mode
-    screen = pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
+    screen = pg.display.set_mode((1024, 768), pg.FULLSCREEN)
     if convert_alpha:
         background = background.convert_alpha()
 
     # turn off the mouse pointer
-    pygame.mouse.set_visible(0)
+    pg.mouse.set_visible(0)
     # main loop
     bRunning = True
     bUp = False
@@ -43,33 +47,33 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
     bRight = False
     cursize = [background.get_width(), background.get_height()]
     while bRunning:
-        image = pygame.transform.smoothscale(background, cursize)
+        image = pg.transform.smoothscale(background, cursize)
         imgpos = image.get_rect(centerx=512, centery=384)
         screen.fill((255, 255, 255))
         screen.blit(image, imgpos)
-        pygame.display.flip()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (
-                event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+        pg.display.flip()
+        for event in pg.event.get():
+            if event.type == pg.QUIT or (
+                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
             ):
                 bRunning = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
                     bUp = True
-                if event.key == pygame.K_DOWN:
+                if event.key == pg.K_DOWN:
                     bDown = True
-                if event.key == pygame.K_LEFT:
+                if event.key == pg.K_LEFT:
                     bLeft = True
-                if event.key == pygame.K_RIGHT:
+                if event.key == pg.K_RIGHT:
                     bRight = True
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP:
+            if event.type == pg.KEYUP:
+                if event.key == pg.K_UP:
                     bUp = False
-                if event.key == pygame.K_DOWN:
+                if event.key == pg.K_DOWN:
                     bDown = False
-                if event.key == pygame.K_LEFT:
+                if event.key == pg.K_LEFT:
                     bLeft = False
-                if event.key == pygame.K_RIGHT:
+                if event.key == pg.K_RIGHT:
                     bRight = False
         if bUp:
             cursize[1] -= 2
@@ -94,7 +98,7 @@ def SpeedTest(image):
         shrinkx = (imgsize[0] * i) // 128
         shrinky = (imgsize[1] * i) // 128
         start = time.time()
-        tempimg = pygame.transform.smoothscale(image, (shrinkx, shrinky))
+        tempimg = pg.transform.smoothscale(image, (shrinkx, shrinky))
         duration += time.time() - start
         del tempimg
 
@@ -107,7 +111,7 @@ def SpeedTest(image):
         expandx = (imgsize[0] * (i + 129)) // 128
         expandy = (imgsize[1] * (i + 129)) // 128
         start = time.time()
-        tempimg = pygame.transform.smoothscale(image, (expandx, expandy))
+        tempimg = pg.transform.smoothscale(image, (expandx, expandy))
         duration += time.time() - start
         del tempimg
 
@@ -120,7 +124,7 @@ def SpeedTest(image):
         shrinkx = (imgsize[0] * i) // 128
         shrinky = (imgsize[1] * i) // 128
         start = time.time()
-        tempimg = pygame.transform.scale(image, (shrinkx, shrinky))
+        tempimg = pg.transform.scale(image, (shrinkx, shrinky))
         duration += time.time() - start
         del tempimg
 
@@ -131,7 +135,7 @@ def SpeedTest(image):
         expandx = (imgsize[0] * (i + 129)) // 128
         expandy = (imgsize[1] * (i + 129)) // 128
         start = time.time()
-        tempimg = pygame.transform.scale(image, (expandx, expandy))
+        tempimg = pg.transform.scale(image, (expandx, expandy))
         duration += time.time() - start
         del tempimg
 

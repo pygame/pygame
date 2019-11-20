@@ -847,7 +847,6 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     Uint8 tr, tg, tb, ta;
     int bpp1, bpp2;
 
-    pixels = (Uint8 *)surf->pixels;
     format = surf->format;
     rmask = format->Rmask;
     gmask = format->Gmask;
@@ -1812,7 +1811,7 @@ extract_color(SDL_Surface *surf, PyObject *color_obj, Uint8 rgba_color[],
     else if (PyInt_Check(color_obj)) {
         long intval = PyInt_AsLong(color_obj);
 
-        if ((-1 == intval && PyErr_Occurred()) || intval > 0xFFFFFFFF) {
+        if ((-1 == intval && PyErr_Occurred()) || intval > (long)0xFFFFFFFF) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
@@ -1945,7 +1944,7 @@ draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int x_dest, int y_dest,
     else {
         /* Draw using surfaces and color values. */
         Uint8 *setpixel = NULL, *unsetpixel = NULL;
-        int use_setsurf = 0, use_unsetsurf = 0;
+        int use_setsurf, use_unsetsurf;
 
         /* Looping over each bit in the mask and deciding whether to use a
          * color from setsurf/unsetsurf or from setcolor/unsetcolor. */

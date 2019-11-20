@@ -515,7 +515,7 @@ _PGFT_LoadGlyph(FontGlyph *glyph, GlyphIndex_t id,
 {
     static FT_Vector delta = {0, 0};
 
-    FT_Render_Mode rmode = (mode->render_flags & FT_RFLAG_ANTIALIAS ?
+    FT_Render_Mode rmode = ((mode->render_flags & FT_RFLAG_ANTIALIAS) ?
                             FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
     FT_Vector strong_delta = {0, 0};
     FT_Glyph image = 0;

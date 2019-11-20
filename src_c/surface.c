@@ -796,8 +796,8 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
             format->Bmask != Bmask || format->Amask != Amask ||
             (format->BytesPerPixel >= 3 &&
              (format->Rloss || format->Gloss || format->Bloss ||
-              (surface->flags & SDL_SRCALPHA ? format->Aloss
-                                             : format->Aloss != 8)))) {
+              ((surface->flags & SDL_SRCALPHA) ? format->Aloss
+                                               : format->Aloss != 8)))) {
             SDL_FreeSurface(surface);
             PyErr_SetString(PyExc_ValueError, "Invalid mask values");
             return -1;
@@ -3851,7 +3851,7 @@ surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     if (maxw < w) {
         w = maxw;
     }
-    srcy = srcrect->y;
+
     if (srcy < 0) {
         h += srcy;
         dsty -= srcy;

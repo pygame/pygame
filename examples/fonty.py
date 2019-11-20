@@ -1,14 +1,14 @@
 #!/usr/bin/env python
+""" pygame.examples.fonty
 
-"""Here we load a .TTF font file, and display it in
-a basic pygame window. It demonstrates several of the
-Font object attributes. Nothing exciting in here, but
-it makes a great example for basic window, event, and
-font management."""
+Here we load a .TTF True Type font file, and display it in
+a basic pygame window.
 
+Demonstrating several Font object attributes.
 
-import pygame
-from pygame.locals import *
+- basic window, event, and font management.
+"""
+import pygame as pg
 from pygame.compat import unicode_
 import sys
 import locale
@@ -30,11 +30,11 @@ else:
 
 def main():
     # initialize
-    pygame.init()
+    pg.init()
     resolution = 400, 200
-    screen = pygame.display.set_mode(resolution)
+    screen = pg.display.set_mode(resolution)
 
-    ##    pygame.mouse.set_cursor(*pygame.cursors.diamond)
+    ##    pg.mouse.set_cursor(*pg.cursors.diamond)
 
     fg = 250, 240, 230
     bg = 5, 5, 5
@@ -44,7 +44,7 @@ def main():
     screen.fill(wincolor)
 
     # load font, prepare values
-    font = pygame.font.Font(None, 80)
+    font = pg.font.Font(None, 80)
     text = "Fonty"
     size = font.size(text)
 
@@ -58,7 +58,7 @@ def main():
     screen.blit(ren, (10, 40 + size[1]))
     font.set_underline(0)
 
-    a_sys_font = pygame.font.SysFont("Arial", 60)
+    a_sys_font = pg.font.SysFont("Arial", 60)
 
     # AA, no transparancy, bold
     a_sys_font.set_bold(1)
@@ -86,10 +86,10 @@ def main():
     ##screen.blit(ren, (30 + size[0], 40 + size[1]))
 
     # show the surface and await user quit
-    pygame.display.flip()
+    pg.display.flip()
     while 1:
         # use event.wait to keep from polling 100% cpu
-        if pygame.event.wait().type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
+        if pg.event.wait().type in (pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN):
             break
 
 

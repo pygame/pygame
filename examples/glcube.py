@@ -1,16 +1,29 @@
 #!/usr/bin/env python
+""" pygame.examples.glcube
 
-"""Draw a cube on the screen. every frame we orbit
-the camera around by a small amount and it appears
-the object is spinning. note i've setup some simple
-data structures here to represent a multicolored cube,
-we then go through a semi-unoptimized loop to draw
-the cube points onto the screen. opengl does all the
-hard work for us. :]
+Draw a cube on the screen.
+
+
+
+Amazing.
+
+Every frame we orbit the camera around a small amount
+creating the illusion of a spinning object.
+
+First we setup some points of a multicolored cube. Then we then go through
+a semi-unoptimized loop to draw the cube points onto the screen.
+
+OpenGL does all the hard work for us. :]
+
+
+Keyboard Controls
+-----------------
+
+* ESCAPE key to quit
+* f key to toggle fullscreen.
+
 """
-
-import pygame
-from pygame.locals import *
+import pygame as pg
 
 try:
     from OpenGL.GL import *
@@ -20,11 +33,9 @@ except ImportError:
     raise SystemExit
 
 
-# some simple data for a colored cube
-# here we have the 3D point position and color
-# for each corner. then we have a list of indices
-# that describe each face, and a list of indieces
-# that describes each edge
+# Some simple data for a colored cube here we have the 3D point position and color
+# for each corner. A list of indices describes each face, and a list of
+# indicies describes each edge.
 
 
 CUBE_POINTS = (
@@ -112,31 +123,33 @@ def init_gl_stuff():
 def main():
     "run the demo"
     # initialize pygame and setup an opengl display
-    pygame.init()
+    pg.init()
 
     fullscreen = True
-    pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF | FULLSCREEN)
+    pg.display.set_mode((640, 480), pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN)
 
     init_gl_stuff()
 
     going = True
     while going:
         # check for quit'n events
-        events = pygame.event.get()
+        events = pg.event.get()
         for event in events:
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            if event.type == pg.QUIT or (
+                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
+            ):
                 going = False
 
-            elif event.type == KEYDOWN:
-                if event.key == pygame.K_f:
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_f:
                     if not fullscreen:
                         print("Changing to FULLSCREEN")
-                        pygame.display.set_mode(
-                            (640, 480), OPENGL | DOUBLEBUF | FULLSCREEN
+                        pg.display.set_mode(
+                            (640, 480), pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN
                         )
                     else:
                         print("Changing to windowed mode")
-                        pygame.display.set_mode((640, 480), OPENGL | DOUBLEBUF)
+                        pg.display.set_mode((640, 480), pg.OPENGL | pg.DOUBLEBUF)
                     fullscreen = not fullscreen
                     init_gl_stuff()
 
@@ -147,8 +160,8 @@ def main():
         glRotatef(1, 0, 1, 0)
 
         drawcube()
-        pygame.display.flip()
-        pygame.time.wait(10)
+        pg.display.flip()
+        pg.time.wait(10)
 
 
 if __name__ == "__main__":

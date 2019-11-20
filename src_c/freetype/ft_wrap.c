@@ -111,7 +111,7 @@ _PGFT_Font_NumFixedSizes(FreeTypeInstance *ft, pgFontObject *fontobj)
 
 int
 _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, pgFontObject *fontobj,
-                            unsigned n, long *size_p,
+                            long n, long *size_p,
                             long *height_p, long *width_p,
                             double *x_ppem_p, double *y_ppem_p)
 {

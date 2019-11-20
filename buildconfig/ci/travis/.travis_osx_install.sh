@@ -14,4 +14,5 @@ mv Setup.new Setup
 
 
 # Makes for i386 and x86_64. With older 'core2' cpus.
-HOMEBREW_BUILD_BOTTLE=1 HOMEBREW_BOTTLE_ARCH=core2 CXXFLAGS="-arch i386 -arch x86_64 -march=core2" CFLAGS="-arch i386 -arch x86_64 -march=core2" LDFLAGS="-arch i386 -arch x86_64" $PYTHON_EXE setup.py install -noheaders
+# -Werror -Wno-error=unknown-pragmas is for making warnings into errors.
+HOMEBREW_BUILD_BOTTLE=1 HOMEBREW_BOTTLE_ARCH=core2 CXXFLAGS="-arch i386 -arch x86_64 -march=core2" CFLAGS="-arch i386 -arch x86_64 -march=core2 -Werror -Wno-error=unknown-pragmas" LDFLAGS="-arch i386 -arch x86_64" $PYTHON_EXE setup.py install -noheaders

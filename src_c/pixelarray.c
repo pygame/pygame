@@ -868,7 +868,6 @@ _pxarray_subscript_internal(pgPixelArrayObject *array, Py_ssize_t xstart,
 
     if (!array->shape[1]) {
         ystart = 0;
-        ystop = 1;
         ystep = 0;
     }
     if (!(xstep || ystep)) {
