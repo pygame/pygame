@@ -233,8 +233,6 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
 void
 pg_RegisterQuit(void (*func)(void))
 {
-    PyObject *obj;
-
     if (!pg_quit_functions) {
         pg_quit_functions = PyList_New(0);
         if (!pg_quit_functions) {
@@ -242,7 +240,7 @@ pg_RegisterQuit(void (*func)(void))
         }
     }
     if (func) {
-        obj = PyCapsule_New(func, "quit", NULL);
+        PyObject *obj = PyCapsule_New(func, "quit", NULL);
         PyList_Append(pg_quit_functions, obj);
         Py_DECREF(obj);
     }
@@ -497,9 +495,9 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 static int
 pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
-    PyObject *longobj;
-
     if (PyNumber_Check(obj)) {
+        PyObject *longobj;
+
         if (!(longobj = PyNumber_Long(obj))) {
             return 0;
         }
@@ -1026,7 +1024,6 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     PyObject *cobj = 0;
     PyObject *dict = 0;
     PyArrayInterface *inter_p = 0;
-    char *fchar_p;
     int success = 0;
 
     pg_view_p->release_buffer = _pg_release_buffer_generic;
@@ -1041,6 +1038,8 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
 #if PG_ENABLE_NEWBUF
 
     if (PyObject_CheckBuffer(obj)) {
+        char *fchar_p;
+
         if (PyObject_GetBuffer(obj, view_p, flags)) {
             return -1;
         }
@@ -2081,7 +2080,7 @@ MODINIT_DEFINE(base)
 {
     static int is_loaded = 0;
     PyObject *module, *dict, *apiobj;
-    PyObject *atexit, *atexit_register = NULL, *quit, *rval;
+    PyObject *atexit_register = NULL;
     PyObject *pgExc_SDLError;
     int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
@@ -2102,7 +2101,8 @@ MODINIT_DEFINE(base)
         /* import need modules. Do this first so if there is an error
            the module is not loaded.
         */
-        atexit = PyImport_ImportModule("atexit");
+        PyObject *atexit = PyImport_ImportModule("atexit");
+
         if (!atexit) {
             MODINIT_ERROR;
         }
@@ -2219,7 +2219,9 @@ MODINIT_DEFINE(base)
 
     if (!is_loaded) {
         /*some intialization*/
-        quit = PyObject_GetAttrString(module, "quit");
+        PyObject *quit = PyObject_GetAttrString(module, "quit");
+        PyObject *rval;
+
         if (quit == NULL) { /* assertion */
             Py_DECREF(atexit_register);
             Py_DECREF(pgExc_BufferError);

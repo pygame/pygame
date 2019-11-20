@@ -47,7 +47,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a rectangle`
    | :sg:`rect(surface, color, rect) -> Rect`
-   | :sg:`rect(surface, color, rect, width=0) -> Rect`
+   | :sg:`rect(surface, color, rect, width=0, border_radius=0, border_radius=-1, border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1) -> Rect`
 
    Draws a rectangle on the given surface.
 
@@ -70,6 +70,22 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             outside the original boundary of the rect. For more details on
             how the thickness for edge lines grow, refer to the ``width`` notes
             of the :func:`pygame.draw.line` function.
+   :param int border_radius: (optional) used for drawing rectangle with rounded corners.
+      The supported range is [0, min(height, width) / 2], with 0 representing a rectangle
+      without rounded corners.
+   :param int border_top_left_radius: (optional) used for setting the value of top left
+      border. If you don't set this value, it will use the border_radius value.
+   :param int border_top_right_radius: (optional) used for setting the value of top right
+      border. If you don't set this value, it will use the border_radius value.
+   :param int border_bottom_left_radius: (optional) used for setting the value of bottom left
+      border. If you don't set this value, it will use the border_radius value.
+   :param int border_bottom_right_radius: (optional) used for setting the value of bottom right
+      border. If you don't set this value, it will use the border_radius value.
+
+         | if ``border_radius < 1`` it will draw rectangle without rounded corners
+         | if any of border radii has the value ``< 0`` it will use value of the border_radius
+         | If sum of radii on the same side of the rectangle is greater than the rect size the radii
+         | will get scaled
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the position of the given ``rect``
@@ -137,7 +153,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a circle`
    | :sg:`circle(surface, color, center, radius) -> Rect`
-   | :sg:`circle(surface, color, center, radius, width=0) -> Rect`
+   | :sg:`circle(surface, color, center, radius, width=0, draw_top_right=None, draw_top_left=None, draw_bottom_left=None, draw_bottom_right=None) -> Rect`
 
    Draws a circle on the given surface.
 
@@ -163,6 +179,17 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          .. note::
             When using ``width`` values ``> 1``, the edge lines will only grow
             inward.
+   :param bool draw_top_right: (optional) if this is set to True it than the top right corner
+      of the circle will be drawn
+   :param bool draw_top_left: (optional) if this is set to True it than the top left corner
+      of the circle will be drawn
+   :param bool draw_bottom_left: (optional) if this is set to True it than the bottom left corner
+      of the circle will be drawn
+   :param bool draw_bottom_right: (optional) if this is set to True it than the bottom right corner
+      of the circle will be drawn
+
+         | if any of the draw_circle_part is True than it will draw all circle parts that have the True
+         | value, otherwise it will draw the entire circle.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the
       bounding rect's position will be the ``center`` parameter value (float
