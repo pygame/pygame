@@ -114,7 +114,7 @@ image_load_ext(PyObject *self, PyObject *arg)
     const char *cext;
     char *ext = NULL;
     SDL_Surface *surf;
-    SDL_RWops *rw;
+    SDL_RWops *rw = NULL;
 
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
@@ -124,11 +124,10 @@ image_load_ext(PyObject *self, PyObject *arg)
     if (oencoded == NULL) {
         return NULL;
     }
+#if defined(__ANDROID__)
     if (oencoded != Py_None) {
         FILE *fp;
         name = Bytes_AS_STRING(oencoded);
-        ext = find_extension(name);
-
         fp = fopen(Bytes_AS_STRING(oencoded), "rb");
         if (fp == NULL) {
             Py_DECREF(oencoded);
@@ -140,25 +139,30 @@ image_load_ext(PyObject *self, PyObject *arg)
             return NULL;
         }
 
+        Py_DECREF(oencoded);
+        oencoded = Py_None;
+    }
+#endif
+
+    if (oencoded != Py_None) {
+        name = Bytes_AS_STRING(oencoded);
+
 #ifdef WITH_THREAD
         namelen = Bytes_GET_SIZE(oencoded);
         Py_BEGIN_ALLOW_THREADS;
         if (namelen > 4 && !strcasecmp(name + namelen - 4, ".gif")) {
             /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
             SDL_LockMutex(_pg_img_mutex);
-            //surf = IMG_Load(name);
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
+            surf = IMG_Load(name);
 
             SDL_UnlockMutex(_pg_img_mutex);
         }
         else {
-            //surf = IMG_Load(name);
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
+            surf = IMG_Load(name);
         }
         Py_END_ALLOW_THREADS;
 #else /* ~WITH_THREAD */
-        //surf = IMG_Load(name);
-        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        surf = IMG_Load(name);
 #endif /* WITH_THREAD */
         Py_DECREF(oencoded);
     }
@@ -195,7 +199,13 @@ image_load_ext(PyObject *self, PyObject *arg)
                 PyErr_Clear();
             }
         }
+#if defined(__ANDROID__)
+        if (rw == NULL) {
+            rw = pgRWops_FromFileObject(obj);
+        }
+#else
         rw = pgRWops_FromFileObject(obj);
+#endif
         if (rw == NULL) {
             Py_XDECREF(oencoded);
             return NULL;

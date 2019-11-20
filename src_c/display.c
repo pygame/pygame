@@ -52,6 +52,7 @@ static PyObject *
 pgVidInfo_New(const pg_VideoInfo *info);
 
 static SDL_Renderer *pg_renderer = NULL;
+static SDL_Rect pg_renderer_viewport;
 static SDL_Texture *pg_texture = NULL;
 
 typedef struct _display_state_s {
@@ -1013,6 +1014,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     }
 
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
+                    SDL_RenderGetViewport(pg_renderer, &pg_renderer_viewport)
+
                     SDL_SetWindowMinimumSize(win, w, h);
 
                     SDL_GetRendererInfo(pg_renderer, &info);
