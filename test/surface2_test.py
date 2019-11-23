@@ -28,7 +28,7 @@ dstA = srcA + (dstA * (1-srcA))
 class BlitIssueTest(unittest.TestCase):
 
     # @unittest.skip("causes failures in other tests if run, so skip")
-    def test_src_alpha_issue_1289(self):
+    def test_src_alpha_issue_1289_255(self):
         """ blit should be white.
         """
         surf1 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)

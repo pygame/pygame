@@ -4099,6 +4099,18 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
         SDL_GetSurfaceBlendMode(dst, &mode);
         printf("dst mode:%i\n", (long)mode);
 
+
+        Uint8 alpha, r, g, b;
+        SDL_GetSurfaceAlphaMod(src, &alpha);
+        SDL_GetSurfaceColorMod(src, &r, &g, &b);
+        printf("src r, g, b mod:(%i, %i, %i)\n", r, g, b);
+        printf("src alpha mod:%i\n", alpha);
+
+        SDL_GetSurfaceColorMod(dst, &r, &g, &b);
+        SDL_GetSurfaceAlphaMod(dst, &alpha);
+        printf("dst r, g, b mod:(%i, %i, %i)\n", r, g, b);
+        printf("dst alpha mod:%i\n", alpha);
+
         // SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE);
 
 
