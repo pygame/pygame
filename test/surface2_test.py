@@ -28,7 +28,7 @@ dstA = srcA + (dstA * (1-srcA))
 class BlitIssueTest(unittest.TestCase):
 
     # @unittest.skip("causes failures in other tests if run, so skip")
-    def test_src_alpha_issue_1289_255(self):
+    def test_src_alpha_issue_1289_0(self):
         """ blit should be white.
         """
         surf1 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
@@ -46,6 +46,28 @@ class BlitIssueTest(unittest.TestCase):
         # (255, 255, 255, 100)   (0, 0, 0, 0)
         # SDL1:  -> (255, 255, 255, 100)
         # SDL2:  -> ( 99,  99,  99,  99)
+
+
+    def test_src_alpha_issue_1289_1(self):
+        """ blit should be white.
+        """
+        surf1 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
+        surf1.fill((255, 255, 255, 100))
+
+        surf2 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
+        surf2.fill((0, 0, 0, 1))
+        self.assertEqual(surf2.get_at((0, 0)), (0, 0, 0, 1))
+        surf2.blit(surf1, (0, 0))
+
+        self.assertEqual(surf1.get_at((0, 0)), (255, 255, 255, 100))
+        self.assertEqual(surf2.get_at((0, 0)), (100, 100, 100, 101))
+        # SDL2 result:                         ( 99,  99,  99,  99)
+
+        # (255, 255, 255, 100)   (0, 0, 0, 1)
+        # SDL1:  -> (255, 255, 255, 100)
+        # SDL2:  -> ( 99,  99,  99,  99)
+
+
 
 
 
@@ -158,6 +180,21 @@ class BlitIssueTest(unittest.TestCase):
         print("SDL1:  -> (100, 100, 100, 107)")
         print("SDL2: -> ( 99,  99,  99, 105)")
         print("")
+
+
+        print("")
+        src = (0, 0, 0, 1)
+        dst = (255, 255, 255, 100)
+
+        print("SRC:", src)
+        print("DST:", dst)
+        print(blend(src, dst))
+        print("SDL1:  -> (100, 100, 100, 101)")
+        print("SDL2:  -> ( 99,  99,  99,  99)")
+        print("")
+
+
+
 
 
 if __name__ == "__main__":
