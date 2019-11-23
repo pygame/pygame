@@ -3929,7 +3929,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
     Uint8 alpha;
     Uint32 key;
 #endif /* IS_SDLv2 */
-
+    printf("pgSurface_Blit\n");
     /* passthrough blits to the real surface */
     if (((pgSurfaceObject *)dstobj)->subsurface) {
         PyObject *owner;
@@ -4030,6 +4030,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
         /* Py_END_ALLOW_THREADS */
     }
 #else  /* IS_SDLv2 */
+    printf("meeeeeow1\n");
     if (the_args != 0 ||
              ((SDL_GetColorKey(src, &key) == 0 ||
                _PgSurface_SrcAlpha(src) == 1) &&
@@ -4041,6 +4042,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
               dst->pixels == src->pixels &&
               surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
+        printf("pygame_Blit\n");
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
@@ -4048,11 +4050,14 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
     else if (dst->format->BytesPerPixel == 1 &&
              (SDL_ISPIXELFORMAT_ALPHA(src->format->format) ||
               ((SDL_GetSurfaceAlphaMod(src, &alpha) == 0 && alpha != 255)))) {
+        printf("woooooof\n");
         /* Py_BEGIN_ALLOW_THREADS */
         if (src->format->BytesPerPixel == 1) {
+            printf("src->format->BytesPerPixel == 1\n");
             result = pygame_Blit(src, srcrect, dst, dstrect, 0);
         }
         else {
+            printf("else... src->format->BytesPerPixel != 1\n");
             SDL_PixelFormat *fmt = src->format;
             SDL_PixelFormat newfmt;
 
@@ -4071,6 +4076,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
             newfmt.Rloss = fmt->Rloss;
             newfmt.Gloss = fmt->Gloss;
             newfmt.Bloss = fmt->Bloss;
+            printf("SDL_ConvertSurface\n");
             src = SDL_ConvertSurface(src, &newfmt, 0);
             if (src) {
                 result = SDL_BlitSurface(src, srcrect, dst, dstrect);
@@ -4084,8 +4090,21 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
     }
 #endif /* IS_SDLv2 */
     else {
+        printf("lalalalala\n");
+
+        SDL_BlendMode mode;
+        SDL_GetSurfaceBlendMode(src, &mode);
+        printf("src mode:%i\n", (long)mode);
+
+        SDL_GetSurfaceBlendMode(dst, &mode);
+        printf("dst mode:%i\n", (long)mode);
+
+        // SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE);
+
+
         /* Py_BEGIN_ALLOW_THREADS */
         result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+        printf("SDL_BlitSurface, result:%i:", result);
         /* Py_END_ALLOW_THREADS */
     }
 
@@ -4098,6 +4117,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
         pgSurface_Unprep(dstobj);
     pgSurface_Unprep(srcobj);
 
+    printf("oooooooook\n");
     if (result == -1)
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
     if (result == -2)

@@ -46,6 +46,7 @@ static void
 pgSurface_Prep(PyObject *surfobj)
 {
     struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
+    printf("pgSurface_Prep\n");
     if (data != NULL) {
         SDL_Surface *surf = pgSurface_AsSurface(surfobj);
         SDL_Surface *owner = pgSurface_AsSurface(data->owner);

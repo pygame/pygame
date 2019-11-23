@@ -18,6 +18,9 @@ class BlitTest(unittest.TestCase):
         s.blit(d, (0, 0))
         self.assertEqual(s.get_at((0, 0)), d.get_at((0, 0)))
 
+    def test_SRCALPHA2(self):
+        """
+        """
         # blend(s, 255, d) = s
         s = pygame.Surface((1, 1), SRCALPHA, 32)
         s.fill((123, 0, 0, 255))
