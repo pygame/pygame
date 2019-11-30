@@ -11,11 +11,14 @@ def Video_AutoInit():
     if 'Darwin' in platform.platform():
         if not sdlmain_osx.RunningFromBundleWithNSApplication():
             try:
-                default_icon_data = getResource('pygame_icon.tiff').read()
+                file_resource = getResource('pygame_icon.tiff')
+                default_icon_data = file_resource.read()
             except IOError:
                 default_icon_data = None
             except NotImplementedError:
                 default_icon_data = None
+            finally:
+                file_resource.close()
             sdlmain_osx.InstallNSApplication(default_icon_data)
         if (os.getcwd() == '/') and len(sys.argv) > 1:
             os.chdir(os.path.dirname(sys.argv[0]))
