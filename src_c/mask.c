@@ -386,9 +386,8 @@ static PyObject *
 mask_angle(PyObject *self, PyObject *args)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
-    int x, y, xc, yc;
+    int x, y;
     long int m10, m01, m00, m20, m02, m11;
-    double theta;
 
     m10 = m01 = m00 = m20 = m02 = m11 = 0;
 
@@ -406,9 +405,9 @@ mask_angle(PyObject *self, PyObject *args)
     }
 
     if (m00) {
-        xc = m10 / m00;
-        yc = m01 / m00;
-        theta = -90.0 *
+        int xc = m10 / m00;
+        int yc = m01 / m00;
+        double theta = -90.0 *
                 atan2(2 * (m11 / m00 - (long)xc * yc),
                       (m20 / m00 - (long)xc * xc) - (m02 / m00 - (long)yc * yc)) /
                 M_PI;
@@ -847,7 +846,6 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     Uint8 tr, tg, tb, ta;
     int bpp1, bpp2;
 
-    pixels = (Uint8 *)surf->pixels;
     format = surf->format;
     rmask = format->Rmask;
     gmask = format->Gmask;
@@ -1945,7 +1943,7 @@ draw_to_surface(SDL_Surface *surf, bitmask_t *bitmask, int x_dest, int y_dest,
     else {
         /* Draw using surfaces and color values. */
         Uint8 *setpixel = NULL, *unsetpixel = NULL;
-        int use_setsurf = 0, use_unsetsurf = 0;
+        int use_setsurf, use_unsetsurf;
 
         /* Looping over each bit in the mask and deciding whether to use a
          * color from setsurf/unsetsurf or from setcolor/unsetcolor. */

@@ -124,10 +124,10 @@ static PyMethodDef _gfxdraw_methods[] = {
 static int
 Sint16FromObj(PyObject *item, Sint16 *val)
 {
-    PyObject *intobj;
-    long tmp;
-
     if (PyNumber_Check(item)) {
+        PyObject *intobj;
+        long tmp;
+
         if (!(intobj = PyNumber_Int(item)))
             return 0;
         tmp = PyInt_AsLong(intobj);

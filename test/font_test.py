@@ -292,12 +292,12 @@ class FontTypeTest(unittest.TestCase):
         s = f.render("xxx", False, [0, 0, 0])
         s = f.render("   ", False, [0, 0, 0])
         s = f.render("   ", False, [0, 0, 0], [255, 255, 255])
-        # null text should be 1 pixel wide.
+        # null text should be 0 pixel wide.
         s = f.render("", False, [0, 0, 0], [255, 255, 255])
-        self.assertEqual(s.get_size()[0], 1)
-        # None text should be 1 pixel wide.
+        self.assertEqual(s.get_size()[0], 0)
+        # None text should be 0 pixel wide.
         s = f.render(None, False, [0, 0, 0], [255, 255, 255])
-        self.assertEqual(s.get_size()[0], 1)
+        self.assertEqual(s.get_size()[0], 0)
         # Non-text should raise a TypeError.
         self.assertRaises(TypeError, f.render, [], False, [0, 0, 0], [255, 255, 255])
         self.assertRaises(TypeError, f.render, 1, False, [0, 0, 0], [255, 255, 255])

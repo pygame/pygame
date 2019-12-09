@@ -117,11 +117,9 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
     Uint32 colorkey;
     Uint8 alpha;
     int isalpha;
-#else /* IS_SDLv1 */
-    int result;
-#endif /* IS_SDLv1 */
+#endif /* IS_SDLv2 */
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+    if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError, "unsupport Surface bit depth for transform"));
 
@@ -143,7 +141,7 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
                         surf->format->colorkey);
 
     if (surf->flags & SDL_SRCALPHA) {
-        result = SDL_SetAlpha(newsurf, surf->flags, surf->format->alpha);
+        int result = SDL_SetAlpha(newsurf, surf->flags, surf->format->alpha);
         if (result == -1)
             return (SDL_Surface *)(RAISE(pgExc_SDLError, SDL_GetError()));
     }
@@ -596,7 +594,6 @@ surf_scale2x(PyObject *self, PyObject *arg)
     PyObject *surfobj, *surfobj2;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
-    int width, height;
     surfobj2 = NULL;
 
     /*get all the arguments*/
@@ -609,8 +606,8 @@ surf_scale2x(PyObject *self, PyObject *arg)
     /* if the second surface is not there, then make a new one. */
 
     if (!surfobj2) {
-        width = surf->w * 2;
-        height = surf->h * 2;
+        int width = surf->w * 2;
+        int height = surf->h * 2;
 
         newsurf = newsurf_fromsurf(surf, width, height);
 
@@ -664,7 +661,7 @@ surf_rotate(PyObject *self, PyObject *arg)
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+    if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError,
                      "unsupport Surface bit depth for transform");
 
@@ -912,8 +909,8 @@ surf_rotozoom(PyObject *self, PyObject *arg)
                           &scale))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
-    if (scale == 0.0) {
-        newsurf = newsurf_fromsurf(surf, surf->w, surf->h);
+    if (scale == 0.0 || surf->w == 0 || surf->h ==0) {
+        newsurf = newsurf_fromsurf(surf, 0, 0);
         return pgSurface_New(newsurf);
     }
 
@@ -1327,7 +1324,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
     int bpp = src->format->BytesPerPixel;
 
     Uint8 *temppix = NULL;
-    int tempwidth = 0, temppitch = 0, tempheight = 0;
+    int tempwidth = 0, temppitch = 0;
 
     /* convert to 32-bit if necessary */
     if (bpp == 3) {
@@ -1353,8 +1350,7 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
     if (srcwidth != dstwidth && srcheight != dstheight) {
         tempwidth = dstwidth;
         temppitch = tempwidth << 2;
-        tempheight = srcheight;
-        temppix = (Uint8 *)malloc((size_t)temppitch * tempheight);
+        temppix = (Uint8 *)malloc((size_t)temppitch * srcheight);
         if (temppix == NULL) {
             if (bpp == 3) {
                 free(srcpix);
@@ -1644,7 +1640,6 @@ get_threshold(SDL_Surface *dest_surf, SDL_Surface *surf,
     int within_threshold;
 
     similar = 0;
-    pixels = (Uint8 *)surf->pixels;
     format = surf->format;
 
     if (set_behavior) {
@@ -1719,8 +1714,9 @@ int
 _color_from_obj(PyObject *color_obj, SDL_PixelFormat *format,
                 Uint8 rgba_default[4], Uint32 *color)
 {
-    Uint8 rgba_color[4];
     if (color_obj) {
+        Uint8 rgba_color[4];
+
         if (PyInt_Check(color_obj))
             *color = (Uint32)PyInt_AsLong(color_obj);
         else if (PyLong_Check(color_obj))
@@ -2192,7 +2188,6 @@ surf_laplacian(PyObject *self, PyObject *arg)
     PyObject *surfobj, *surfobj2;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
-    int width, height;
     surfobj2 = NULL;
 
     /*get all the arguments*/
@@ -2205,8 +2200,8 @@ surf_laplacian(PyObject *self, PyObject *arg)
     /* if the second surface is not there, then make a new one. */
 
     if (!surfobj2) {
-        width = surf->w;
-        height = surf->h;
+        int width = surf->w;
+        int height = surf->h;
 
         newsurf = newsurf_fromsurf(surf, width, height);
 

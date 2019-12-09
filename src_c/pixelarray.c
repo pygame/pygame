@@ -868,7 +868,6 @@ _pxarray_subscript_internal(pgPixelArrayObject *array, Py_ssize_t xstart,
 
     if (!array->shape[1]) {
         ystart = 0;
-        ystop = 1;
         ystep = 0;
     }
     if (!(xstep || ystep)) {
@@ -1347,8 +1346,6 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = array->strides[0];
     Py_ssize_t stride1 = array->strides[1];
-    pgPixelArrayObject *tmparray = 0;
-    int retval;
 
     bpp = surf->format->BytesPerPixel;
 
@@ -1362,6 +1359,9 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
                                        (pgPixelArrayObject *)value);
         }
         else if (PySequence_Check(value)) {
+            pgPixelArrayObject *tmparray = 0;
+            int retval;
+
             PyErr_Clear(); /* _get_color_from_object */
             tmparray = (pgPixelArrayObject *)_pxarray_subscript_internal(
                 array, index, 0, 0, 0, array->shape[1], 1);

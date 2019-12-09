@@ -127,8 +127,6 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                       pgFontObject *fontobj, FontRenderMode *mode,
                       Scale_t face_size, int style, Angle_t rotation)
 {
-    FT_Face font = 0;
-
     if (face_size.x == 0) {
         if (fontobj->face_size.x == 0) {
             PyErr_SetString(PyExc_ValueError,
@@ -195,7 +193,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     }
 
     if (mode->render_flags & FT_RFLAG_KERNING) {
-        font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
+        FT_Face font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
 
         if (!font) {
             PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
@@ -433,7 +431,6 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     FT_UInt32 amask = 0;
 #endif /* IS_SDLv2 */
     int locked = 0;
-    FT_UInt32 fillcolor;
     SDL_Surface *surface = 0;
     int bits_per_pixel =
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
@@ -462,7 +459,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
                                &underline_top, &underline_size);
     }
     else {
-        width = 1;
+        width = 0;
         height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         offset.x = -font_text->min_x;
         offset.y = -font_text->min_y;
@@ -509,6 +506,8 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     font_surf.pitch = surface->pitch;
     font_surf.format = surface->format;
     if (bits_per_pixel == 32) {
+        FT_UInt32 fillcolor;
+
         font_surf.render_gray = __render_glyph_RGB4;
         font_surf.render_mono = __render_glyph_MONO4;
         font_surf.fill = __fill_glyph_RGB4;

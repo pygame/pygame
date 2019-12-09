@@ -233,8 +233,6 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
 void
 pg_RegisterQuit(void (*func)(void))
 {
-    PyObject *obj;
-
     if (!pg_quit_functions) {
         pg_quit_functions = PyList_New(0);
         if (!pg_quit_functions) {
@@ -242,7 +240,7 @@ pg_RegisterQuit(void (*func)(void))
         }
     }
     if (func) {
-        obj = PyCapsule_New(func, "quit", NULL);
+        PyObject *obj = PyCapsule_New(func, "quit", NULL);
         PyList_Append(pg_quit_functions, obj);
         Py_DECREF(obj);
     }
@@ -497,9 +495,9 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 static int
 pg_UintFromObj(PyObject *obj, Uint32 *val)
 {
-    PyObject *longobj;
-
     if (PyNumber_Check(obj)) {
+        PyObject *longobj;
+
         if (!(longobj = PyNumber_Long(obj))) {
             return 0;
         }
@@ -968,8 +966,8 @@ _pg_typekind_as_str(PyArrayInterface *inter_p)
     return Text_FromFormat(
         "%c%c%i",
         inter_p->itemsize > 1
-            ? (inter_p->flags & PAI_NOTSWAPPED ? PAI_MY_ENDIAN
-                                               : PAI_OTHER_ENDIAN)
+            ? ((inter_p->flags & PAI_NOTSWAPPED) ? PAI_MY_ENDIAN
+                                                 : PAI_OTHER_ENDIAN)
             : '|',
         inter_p->typekind, inter_p->itemsize);
 }
@@ -1026,7 +1024,6 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     PyObject *cobj = 0;
     PyObject *dict = 0;
     PyArrayInterface *inter_p = 0;
-    char *fchar_p;
     int success = 0;
 
     pg_view_p->release_buffer = _pg_release_buffer_generic;
@@ -1041,6 +1038,8 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
 #if PG_ENABLE_NEWBUF
 
     if (PyObject_CheckBuffer(obj)) {
+        char *fchar_p;
+
         if (PyObject_GetBuffer(obj, view_p, flags)) {
             return -1;
         }
@@ -1239,7 +1238,7 @@ _pg_arraystruct_as_buffer(Py_buffer *view_p, PyObject *cobj,
     pgViewInternals *internal_p;
     Py_ssize_t sz =
         (sizeof(pgViewInternals) + (2 * inter_p->nd - 1) * sizeof(Py_ssize_t));
-    int readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
+    int readonly = (inter_p->flags & PAI_WRITEABLE) ? 0 : 1;
     Py_ssize_t i;
 
     view_p->obj = 0;
@@ -1336,8 +1335,8 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
     assert(max_format_len >= 4);
     switch (inter_p->typekind) {
         case 'i':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
-                                                        : BUF_OTHER_ENDIAN);
+            *fchar_p = ((inter_p->flags & PAI_NOTSWAPPED) ? BUF_MY_ENDIAN
+                                                          : BUF_OTHER_ENDIAN);
             ++fchar_p;
             switch (inter_p->itemsize) {
                 case 1:
@@ -1360,8 +1359,8 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
             }
             break;
         case 'u':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
-                                                        : BUF_OTHER_ENDIAN);
+            *fchar_p = ((inter_p->flags & PAI_NOTSWAPPED) ? BUF_MY_ENDIAN
+                                                          : BUF_OTHER_ENDIAN);
             ++fchar_p;
             switch (inter_p->itemsize) {
                 case 1:
@@ -1384,8 +1383,8 @@ _pg_arraystruct_to_format(char *format, PyArrayInterface *inter_p,
             }
             break;
         case 'f':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ? BUF_MY_ENDIAN
-                                                        : BUF_OTHER_ENDIAN);
+            *fchar_p = ((inter_p->flags & PAI_NOTSWAPPED) ? BUF_MY_ENDIAN
+                                                          : BUF_OTHER_ENDIAN);
             ++fchar_p;
             switch (inter_p->itemsize) {
                 case 4:
@@ -2081,7 +2080,7 @@ MODINIT_DEFINE(base)
 {
     static int is_loaded = 0;
     PyObject *module, *dict, *apiobj;
-    PyObject *atexit, *atexit_register = NULL, *quit, *rval;
+    PyObject *atexit_register = NULL;
     PyObject *pgExc_SDLError;
     int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
@@ -2102,7 +2101,8 @@ MODINIT_DEFINE(base)
         /* import need modules. Do this first so if there is an error
            the module is not loaded.
         */
-        atexit = PyImport_ImportModule("atexit");
+        PyObject *atexit = PyImport_ImportModule("atexit");
+
         if (!atexit) {
             MODINIT_ERROR;
         }
@@ -2219,7 +2219,9 @@ MODINIT_DEFINE(base)
 
     if (!is_loaded) {
         /*some intialization*/
-        quit = PyObject_GetAttrString(module, "quit");
+        PyObject *quit = PyObject_GetAttrString(module, "quit");
+        PyObject *rval;
+
         if (quit == NULL) { /* assertion */
             Py_DECREF(atexit_register);
             Py_DECREF(pgExc_BufferError);

@@ -198,6 +198,7 @@ class Bomb(pg.sprite.Sprite):
     def __init__(self, alien):
         pg.sprite.Sprite.__init__(self, self.containers)
         self.image = self.images[0]
+        self.image.set_colorkey(self.image.get_at((0,0)))
         self.rect = self.image.get_rect(midbottom=alien.rect.move(0, 5).midbottom)
 
     def update(self):

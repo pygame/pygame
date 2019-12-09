@@ -1020,7 +1020,7 @@ class TransformModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_rotozoom(self):
+    def test_rotozoom(self):
 
         # __doc__ (as of 2008-08-02) for pygame.transform.rotozoom:
 
@@ -1034,7 +1034,11 @@ class TransformModuleTest(unittest.TestCase):
         # represents the counterclockwise degrees to rotate. A negative
         # rotation angle will rotate clockwise.
 
-        self.fail()
+        s = pygame.Surface((10, 0))
+        pygame.transform.scale(s, (10, 2))
+        s1=pygame.transform.rotozoom(s, 30, 1)
+
+        self.assertEqual(s1.get_rect(), pygame.Rect(0,0,0,0))
 
     def todo_test_smoothscale(self):
         # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:

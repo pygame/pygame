@@ -746,7 +746,7 @@ _ftfont_init(pgFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *file, *original_file;
     long font_index = 0;
     Scale_t face_size = self->face_size;
-    int ucs4 = self->render_flags & FT_RFLAG_UCS4 ? 1 : 0;
+    int ucs4 = (self->render_flags & FT_RFLAG_UCS4) ? 1 : 0;
     unsigned resolution = 0;
     long size = 0;
     long height = 0;
@@ -1163,10 +1163,8 @@ _ftfont_getfontmetric(pgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getname(pgFontObject *self, void *closure)
 {
-    const char *name;
-
     if (pgFont_IS_ALIVE(self)) {
-        name = _PGFT_Font_GetName(self->freetype, self);
+        const char *name = _PGFT_Font_GetName(self->freetype, self);
         return name ? Text_FromUTF8(name) : 0;
     }
     return PyObject_Repr((PyObject *)self);
@@ -2050,7 +2048,6 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"cache_size", "resolution", 0};
 
-    PyObject *result;
     unsigned cache_size = 0;
     unsigned resolution = 0;
     _FreeTypeState *state = FREETYPE_MOD_STATE(self);
@@ -2061,6 +2058,8 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (!state->freetype) {
+        PyObject *result;
+
         state->cache_size = cache_size;
         state->resolution =
             (resolution ? (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);

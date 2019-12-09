@@ -172,7 +172,6 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
 void
 _PGFT_Cache_Destroy(FontCache *cache)
 {
-    FT_UInt i;
     CacheNode *node, *next;
 
     if (!cache) {
@@ -184,6 +183,8 @@ _PGFT_Cache_Destroy(FontCache *cache)
      */
 
     if (cache->nodes) {
+        FT_UInt i;
+
         for (i = 0; i <= cache->size_mask; ++i) {
             node = cache->nodes[i];
 
