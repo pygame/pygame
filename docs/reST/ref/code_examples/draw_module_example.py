@@ -38,16 +38,16 @@ while not done:
     # Clear the screen and set the screen background
     screen.fill(WHITE)
  
-    # Draw on the screen a GREEN line from (0,0) to (50.75) 
+    # Draw on the screen a GREEN line from (0, 0) to (50, 30) 
     # 5 pixels wide.
     pygame.draw.line(screen, GREEN, [0, 0], [50,30], 5)
  
-    # Draw on the screen a GREEN line from (0,0) to (50.75) 
-    # 5 pixels wide.
+    # Draw on the screen 3 BLACK lines, each 5 pixels wide.
+    # The 'False' means the first and last points are not connected.
     pygame.draw.lines(screen, BLACK, False, [[0, 80], [50, 90], [200, 80], [220, 30]], 5)
     
-    # Draw on the screen a GREEN line from (0,0) to (50.75) 
-    # 5 pixels wide.
+    # Draw on the screen a GREEN line from (0, 50) to (50, 80) 
+    # Because it is an antialiased line, it is 1 pixel wide.
     pygame.draw.aaline(screen, GREEN, [0, 50],[50, 80], True)
 
     # Draw a rectangle outline
