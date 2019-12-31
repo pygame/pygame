@@ -66,7 +66,7 @@ time src_c/time.c $(SDL) $(DEBUG)
 joystick src_c/joystick.c $(SDL) $(DEBUG)
 draw src_c/draw.c $(SDL) $(DEBUG)
 image src_c/image.c $(SDL) $(DEBUG)
-transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
+transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG)
 mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
 bufferproxy src_c/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)
