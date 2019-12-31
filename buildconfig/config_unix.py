@@ -211,7 +211,8 @@ def main(sdl2=False):
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ])
     is_freebsd = 'FreeBSD' in platform.system()
-    if not is_freebsd:
+    is_hurd = platform.system() == 'GNU'
+    if not is_freebsd and not is_hurd:
         porttime_dep = get_porttime_dep()
         DEPS.append(
             Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi'])
