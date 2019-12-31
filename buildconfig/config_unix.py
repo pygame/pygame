@@ -210,7 +210,7 @@ def main(sdl2=False):
         Dependency('SCRAP', '', 'libX11', ['X11']),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ])
-    is_freebsd = platform.system() == 'FreeBSD'
+    is_freebsd = 'FreeBSD' in platform.system()
     if not is_freebsd:
         porttime_dep = get_porttime_dep()
         DEPS.append(
