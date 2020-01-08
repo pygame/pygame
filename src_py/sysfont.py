@@ -312,7 +312,7 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
        font you ask for is not available, a reasonable alternative
        may be used.
 
-       if optional contructor is provided, it must be a function with
+       if optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.font.Font object is created.
     """

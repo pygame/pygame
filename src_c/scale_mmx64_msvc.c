@@ -28,8 +28,8 @@
  */
 
 #include <stdint.h>
-typedef uint8_t Uint8;    /* SDL convension */
-typedef uint16_t Uint16;  /* SDL convension */
+typedef uint8_t Uint8;    /* SDL convention */
+typedef uint16_t Uint16;  /* SDL convention */
 #include <stdlib.h>
 #include <memory.h>
 #include "scale.h"

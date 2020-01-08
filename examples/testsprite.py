@@ -157,7 +157,7 @@ def main(
     use_layered_dirty - Use the FastRenderGroup sprite group (default False)
     screen_dims - Pygame window dimensions (default [640, 480])
     use_alpha - use alpha blending (default False)
-    flags - additional display mode flags (default no addiontal flags)
+    flags - additional display mode flags (default no additional flags)
 
     """
 
