@@ -65,8 +65,6 @@ and wonder about the values.
 numpysf = None
 
 
-from pygame.pixelcopy import array_to_surface, make_surface as pc_make_surface
-
 def blit_array (surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
 
