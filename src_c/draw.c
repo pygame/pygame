@@ -194,6 +194,7 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (width < 1) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "negative line width", 1);
         return pgRect_New4(startx, starty, 0, 0);
     }
 
@@ -527,6 +528,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "negative line width", 1);
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
 
@@ -601,6 +603,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "negative line width", 1);
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
 
@@ -693,10 +696,14 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
     CHECK_LOAD_COLOR(colorobj)
 
     if (radius < 1 || width < 0) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "drawing empty circle", 1);
+
         return pgRect_New4(posx, posy, 0, 0);
     }
 
     if (width > radius) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "line width exceeds circle radius", 1);
+
         width = radius;
     }
 
@@ -889,9 +896,11 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     CHECK_LOAD_COLOR(colorobj)
 
     if (width < 0) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "negative line width", 1);
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
     if (width > rect->w / 2 || width > rect->h / 2) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "line width exceeds rect size", 1);
         width = MAX(rect->w / 2, rect->h / 2);
     }
 

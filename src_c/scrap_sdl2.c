@@ -51,6 +51,8 @@ pygame_scrap_init(void)
 {
     SDL_Init(SDL_INIT_VIDEO);
 
+    PyErr_WarnEx(PyExc_ImportWarning, "No platform-specific scrap module found. Only unicode text can be stored in scrap", 1);
+
     pygame_scrap_types = malloc(sizeof(char *) * 2);
     if (!pygame_scrap_types) {
         return 0;

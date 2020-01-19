@@ -4049,6 +4049,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
               dst->pixels == src->pixels &&
               surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
+        PyErr_WarnEx(PyExc_RuntimeWarning, "slow blit", 1);
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
@@ -4058,6 +4059,7 @@ pgSurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect,
               ((SDL_GetSurfaceAlphaMod(src, &alpha) == 0 && alpha != 255)))) {
         /* Py_BEGIN_ALLOW_THREADS */
         if (src->format->BytesPerPixel == 1) {
+            PyErr_WarnEx(PyExc_RuntimeWarning, "slow alpha blit", 1);
             result = pygame_Blit(src, srcrect, dst, dstrect, 0);
         }
         else {

@@ -867,6 +867,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                                      &flags, &depth, &display))
         return NULL;
 
+    if (depth !=0) {
+        PyErr_WarnEx(PyExc_RuntimeWarning, "ignoring given display bit depth", 1);
+    }
+
     if (scale_env != NULL) {
         flags |= PGS_SCALED;
         if (strcmp(scale_env, "photo") == 0) {
