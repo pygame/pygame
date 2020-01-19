@@ -727,5 +727,5 @@ def midi_to_ansi_note(midi_note):
     notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
     num_notes = 12
     note_name = notes[int(((midi_note - 21) % num_notes))]
-    note_number = int(round(((midi_note - 21) / 11.0)))
+    note_number = (midi_note - 12) // num_notes
     return '%s%s' % (note_name, note_number)
