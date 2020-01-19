@@ -482,7 +482,7 @@ font_render(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, TTF_GetError());
     }
     if (!aa && (bg_rgba_obj != NULL) && !just_return) {
-        /* turn off transparancy */
+        /* turn off transparency */
         SDL_SetColorKey(surf, 0, 0);
         surf->format->palette->colors[0].r = backg.r;
         surf->format->palette->colors[0].g = backg.g;

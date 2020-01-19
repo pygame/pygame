@@ -2541,10 +2541,10 @@ class SurfaceFillTest(unittest.TestCase):
         screen.fill((0, 0, 255), (0, 240, 320, 240))
 
         # Now apply a clip rect, such that only the left side of the
-        # screen should be effected by blit opperations.
+        # screen should be effected by blit operations.
         screen.set_clip((0, 0, 320, 480))
 
-        # Test fills with each special flag, and additionaly without any.
+        # Test fills with each special flag, and additionally without any.
         screen.fill((255, 0, 0, 127), (160, 0, 320, 30), 0)
         screen.fill((255, 0, 0, 127), (160, 30, 320, 30), pygame.BLEND_ADD)
         screen.fill((0, 127, 127, 127), (160, 60, 320, 30), pygame.BLEND_SUB)

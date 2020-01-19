@@ -357,7 +357,7 @@ class Vector2TypeTest(unittest.TestCase):
         # v1 is unchanged
         self.assertEqual(self.v1.x, self.l1[0])
         self.assertEqual(self.v1.y, self.l1[1])
-        # v2 is paralell to v1
+        # v2 is parallel to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.0)
         self.assertRaises(ValueError, lambda: self.zeroVec.normalize())
 
@@ -369,7 +369,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.normalize_ip(), None)
         # length is 1
         self.assertAlmostEqual(v.x * v.x + v.y * v.y, 1.0)
-        # v2 is paralell to v1
+        # v2 is parallel to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.0)
         self.assertRaises(ValueError, lambda: self.zeroVec.normalize_ip())
 
@@ -1512,7 +1512,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.x, self.l1[0])
         self.assertEqual(self.v1.y, self.l1[1])
         self.assertEqual(self.v1.z, self.l1[2])
-        # v2 is paralell to v1 (tested via cross product)
+        # v2 is parallel to v1 (tested via cross product)
         cross = (
             (self.v1.y * v.z - self.v1.z * v.y) ** 2
             + (self.v1.z * v.x - self.v1.x * v.z) ** 2
@@ -1529,7 +1529,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.normalize_ip(), None)
         # length is 1
         self.assertAlmostEqual(v.x * v.x + v.y * v.y + v.z * v.z, 1.0)
-        # v2 is paralell to v1 (tested via cross product)
+        # v2 is parallel to v1 (tested via cross product)
         cross = (
             (self.v1.y * v.z - self.v1.z * v.y) ** 2
             + (self.v1.z * v.x - self.v1.x * v.z) ** 2

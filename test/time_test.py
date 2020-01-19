@@ -127,7 +127,7 @@ class ClockTypeTest(unittest.TestCase):
         # more than 40 frames per second.
         #
         # Note that this function uses pygame.time.delay, which uses lots of
-        # cpu in a busy loop to make sure that timing is more acurate.
+        # cpu in a busy loop to make sure that timing is more accurate.
         #
         # New in pygame 1.8.0.
 
@@ -157,7 +157,7 @@ class TimeModuleTest(unittest.TestCase):
         # pygame.time.get_ticks(): return milliseconds
         # get the time in milliseconds
         #
-        # Return the number of millisconds since pygame.init() was called.
+        # Return the number of milliseconds since pygame.init() was called.
         # Before pygame is initialized this will always be 0.
         #
 

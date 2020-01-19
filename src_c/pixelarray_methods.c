@@ -18,7 +18,7 @@
 
 */
 
-/* Simple weighted euclidian distance, which tries to get near to the
+/* Simple weighted Euclidean distance, which tries to get near to the
  * human eye reception using the weights.
  * It receives RGB values in the range 0-255 and returns a distance
  * value between 0.0 and 1.0.
