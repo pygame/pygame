@@ -610,7 +610,7 @@ For example:
       tuple/list/:class:`pygame.math.Vector2` of 2 ints/floats (float values
       will be truncated)
    :type points: tuple(coordinate) or list(coordinate)
-   :parms int steps: number of steps for the interpolation, the minimum is 2
+   :param int steps: number of steps for the interpolation, the minimum is 2
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
    :type color: Color or tuple(int, int, int, [int])
