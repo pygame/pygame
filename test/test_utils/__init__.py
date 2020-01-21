@@ -179,7 +179,7 @@ def rect_outer_bounds(rect):
    O      O
 
     """
-    return (rect.left is not 0 and [(rect.left - 1, rect.top)] or []) + [
+    return (rect.left != 0 and [(rect.left - 1, rect.top)] or []) + [
         rect.topright,
         rect.bottomleft,
         rect.bottomright,
