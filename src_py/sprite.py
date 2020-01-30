@@ -55,7 +55,7 @@ in the game.
 Sprites and Groups manage their relationships with the add() and remove()
 methods. These methods can accept a single or multiple group arguments for
 membership.  The default initializers for these classes also take a
-single group or list of groups as argments for initial membership. It is safe
+single group or list of groups as arguments for initial membership. It is safe
 to repeatedly add and remove the same Sprite from a Group.
 
 While it is possible to design sprite and group classes that don't derive
@@ -965,7 +965,7 @@ class LayeredDirty(LayeredUpdates):
         _use_update: True/False   (default is False)
         _default_layer: default layer where the sprites without a layer are
             added
-        _time_threshold: treshold time for switching between dirty rect mode
+        _time_threshold: threshold time for switching between dirty rect mode
             and fullscreen mode; defaults to updating at 80 frames per second,
             which is equal to 1000.0 / 80.0
 
@@ -982,7 +982,7 @@ class LayeredDirty(LayeredUpdates):
             _use_update: True/False   (default is False)
             _default_layer: default layer where the sprites without a layer are
                 added
-            _time_threshold: treshold time for switching between dirty rect
+            _time_threshold: threshold time for switching between dirty rect
                 mode and fullscreen mode; defaults to updating at 80 frames per
                 second, which is equal to 1000.0 / 80.0
 
@@ -1217,7 +1217,7 @@ class LayeredDirty(LayeredUpdates):
             sprite.dirty = 1
 
     def set_timing_treshold(self, time_ms):
-        """set the treshold in milliseconds
+        """set the threshold in milliseconds
 
         set_timing_treshold(time_ms): return None
 

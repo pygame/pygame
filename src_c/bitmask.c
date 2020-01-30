@@ -357,9 +357,6 @@ int
 bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
                     int yoffset, int *x, int *y)
 {
-    const BITMASK_W *a_entry, *a_end, *b_entry, *ap, *bp;
-    unsigned int shift, rshift, i, astripes, bstripes, xbase;
-
     /* Return if no overlap or one mask has a width/height of 0. */
     if ((xoffset >= a->w) || (yoffset >= a->h) || (yoffset <= -b->h) ||
         (xoffset <= -b->w) || (!a->h) || (!a->w) || (!b->h) || (!b->w)) {
@@ -367,7 +364,11 @@ bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset,
     }
 
     if (xoffset >= 0) {
+        const BITMASK_W *a_entry, *a_end, *b_entry, *ap, *bp;
+        unsigned int shift, rshift, i, astripes, bstripes, xbase;
+
         xbase = xoffset / BITMASK_W_LEN; /* first stripe from mask a */
+
         if (yoffset >= 0) {
             a_entry = a->bits + a->h * xbase + yoffset;
             a_end = a_entry + MIN(b->h, a->h - yoffset);
@@ -558,9 +559,9 @@ void
 bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
                      int xoffset, int yoffset)
 {
-    const BITMASK_W *a_entry, *a_end, *ap;
-    const BITMASK_W *b_entry, *b_end, *bp;
-    BITMASK_W *c_entry, *c_end, *cp;
+    const BITMASK_W *a_entry, *ap;
+    const BITMASK_W *b_entry, *bp;
+    BITMASK_W *c_entry, *cp;
     int shift, rshift, i, astripes, bstripes;
 
     /* Return if no overlap or one mask has a width/height of 0. */
@@ -571,6 +572,8 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
     }
 
     if (xoffset >= 0) {
+        const BITMASK_W *a_end;
+
         if (yoffset >= 0) {
             a_entry = a->bits + a->h * (xoffset / BITMASK_W_LEN) + yoffset;
             c_entry = c->bits + c->h * (xoffset / BITMASK_W_LEN) + yoffset;
@@ -649,6 +652,8 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
         }
     }
     else {
+        const BITMASK_W *b_end;
+
         xoffset *= -1;
         yoffset *= -1;
 
@@ -724,7 +729,7 @@ bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c,
     /* Zero out bits outside the mask rectangle (to the right), if there
      is a chance we were drawing there. */
     if (xoffset + b->w > c->w) {
-        BITMASK_W edgemask;
+        BITMASK_W *c_end, edgemask;
         int n = (c->w - 1) / BITMASK_W_LEN;
 
         shift = positive_modulo(BITMASK_W_LEN - c->w, (int)BITMASK_W_LEN);
@@ -741,7 +746,7 @@ void
 bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
 {
     BITMASK_W *a_entry, *a_end, *ap;
-    const BITMASK_W *b_entry, *b_end, *bp;
+    const BITMASK_W *b_entry, *bp;
     int shift, rshift, i, astripes, bstripes;
 
     /* Return if no overlap or one mask has a width/height of 0. */
@@ -751,6 +756,7 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
     }
 
     if (xoffset >= 0) {
+
         if (yoffset >= 0) {
             a_entry = a->bits + a->h * (xoffset / BITMASK_W_LEN) + yoffset;
             a_end = a_entry + MIN(b->h, a->h - yoffset);
@@ -808,6 +814,8 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
         }
     }
     else {
+        const BITMASK_W *b_end;
+
         xoffset *= -1;
         yoffset *= -1;
 
@@ -888,8 +896,8 @@ bitmask_draw(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
 void
 bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
 {
-    BITMASK_W *a_entry, *a_end, *ap;
-    const BITMASK_W *b_entry, *b_end, *bp;
+    BITMASK_W *a_entry, *ap;
+    const BITMASK_W *b_entry, *bp;
     int shift, rshift, i, astripes, bstripes;
 
     /* Return if no overlap or one mask has a width/height of 0. */
@@ -899,6 +907,8 @@ bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
     }
 
     if (xoffset >= 0) {
+        const BITMASK_W *a_end;
+
         if (yoffset >= 0) {
             a_entry = a->bits + a->h * (xoffset / BITMASK_W_LEN) + yoffset;
             a_end = a_entry + MIN(b->h, a->h - yoffset);
@@ -956,6 +966,8 @@ bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
         }
     }
     else {
+        const BITMASK_W *b_end;
+
         xoffset *= -1;
         yoffset *= -1;
 

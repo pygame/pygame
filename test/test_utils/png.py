@@ -429,7 +429,7 @@ class Writer:
         ``zlib`` module is used (which is generally acceptable).
 
         If `interlace` is true then an interlaced image is created
-        (using PNG's so far only interace method, *Adam7*).  This does not
+        (using PNG's so far only interlace method, *Adam7*).  This does not
         affect how the pixels should be presented to the encoder, rather
         it changes how they are arranged into the PNG file.  On slow
         connexions interlaced images can be partially decoded by the
@@ -524,7 +524,8 @@ class Writer:
             bitdepth = int(8 * bytes_per_sample)
         del bytes_per_sample
         if not isinteger(bitdepth) or bitdepth < 1 or 16 < bitdepth:
-            raise ValueError("bitdepth (%r) must be a postive integer <= 16" % bitdepth)
+            raise ValueError("bitdepth (%r) must be a positive integer <= 16"
+                             % bitdepth)
 
         self.rescale = None
         if palette:
@@ -1208,7 +1209,7 @@ def from_array(a, mode=None, info={}):
             if dimension in info:
                 if info[dimension] != info["size"][axis]:
                     raise Error(
-                        "info[%r] shhould match info['size'][%r]." % (dimension, axis)
+                        "info[%r] should match info['size'][%r]." % (dimension, axis)
                     )
         info["width"], info["height"] = info["size"]
     if "height" not in info:
@@ -1922,7 +1923,7 @@ class Reader:
             be an iterator that yields the ``IDAT`` chunk data.
             """
 
-            # Currently, with no max_length paramter to decompress, this
+            # Currently, with no max_length parameter to decompress, this
             # routine will do one yield per IDAT chunk.  So not very
             # incremental.
             d = zlib.decompressobj()

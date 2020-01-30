@@ -219,7 +219,7 @@ zoomSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int smooth)
 
  32bit Rotozoomer with optional anti-aliasing by bilinear interpolation.
 
- Rotates and zoomes 32bit RGBA/ABGR 'src' surface to 'dst' surface.
+ Rotates and zooms 32bit RGBA/ABGR 'src' surface to 'dst' surface.
 
 */
 
@@ -403,7 +403,7 @@ transformSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int cx, int cy,
 
  rotozoomSurface()
 
- Rotates and zoomes a 32bit or 8bit 'src' surface to newly created 'dst'
+ Rotates and zooms a 32bit or 8bit 'src' surface to newly created 'dst'
  surface. 'angle' is the rotation in degrees. 'zoom' a scaling factor. If
  'smooth' is 1 then the destination 32bit surface is anti-aliased. If the
  surface is not 8bit or 32bit RGBA/ABGR it will be converted into a 32bit RGBA
@@ -450,7 +450,7 @@ rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoom,
     *dstheight = 2 * dstheighthalf;
 }
 
-/* Publically available rotozoom-size function */
+/* Publicly available rotozoom-size function */
 
 void
 rotozoomSurfaceSize(int width, int height, double angle, double zoom,
@@ -500,7 +500,7 @@ zoomSurfaceSize(int width, int height, double zoomx, double zoomy,
     }
 }
 
-/* Publically available rotozoom function */
+/* Publicly available rotozoom function */
 
 SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
@@ -508,8 +508,7 @@ rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
     SDL_Surface *rz_src;
     SDL_Surface *rz_dst;
     double zoominv;
-    double sanglezoom, canglezoom, sanglezoominv, canglezoominv;
-    int dstwidthhalf, dstwidth, dstheighthalf, dstheight;
+    int dstwidth, dstheight;
     int is32bit;
     int src_converted;
 
@@ -559,6 +558,8 @@ rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth)
         /*
          * -----------------------
          */
+        int dstwidthhalf, dstheighthalf;
+        double sanglezoom, canglezoom, sanglezoominv, canglezoominv;
 
         /* Determine target size */
         rotozoomSurfaceSizeTrig(rz_src->w, rz_src->h, angle, zoom, &dstwidth,

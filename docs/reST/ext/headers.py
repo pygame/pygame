@@ -42,7 +42,7 @@ def writer(app, pagename, templatename, context, doctree):
     filename = '%s%s.h' % (os.path.basename(pagename), filename_suffix)
     filepath = os.path.join(dirpath, filename)
     template = app.config['headers_template']
-    header = open(filepath, 'w')
+    header = open(filepath, 'w', encoding='utf-8')
     context['hdr_items'] = items
     try:
         header.write(templates.render(template, context))

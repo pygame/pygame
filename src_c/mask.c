@@ -386,9 +386,8 @@ static PyObject *
 mask_angle(PyObject *self, PyObject *args)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
-    int x, y, xc, yc;
+    int x, y;
     long int m10, m01, m00, m20, m02, m11;
-    double theta;
 
     m10 = m01 = m00 = m20 = m02 = m11 = 0;
 
@@ -406,9 +405,9 @@ mask_angle(PyObject *self, PyObject *args)
     }
 
     if (m00) {
-        xc = m10 / m00;
-        yc = m01 / m00;
-        theta = -90.0 *
+        int xc = m10 / m00;
+        int yc = m01 / m00;
+        double theta = -90.0 *
                 atan2(2 * (m11 / m00 - (long)xc * yc),
                       (m20 / m00 - (long)xc * xc) - (m02 / m00 - (long)yc * yc)) /
                 M_PI;

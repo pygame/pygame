@@ -44,10 +44,10 @@
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
-#define DOC_VECTOR3ROTATE "rotate(Vector3, angle) -> Vector3\nrotates a vector by a given angle in degrees."
-#define DOC_VECTOR3ROTATERAD "rotate_rad(Vector3, angle) -> Vector3\nrotates a vector by a given angle in radians."
-#define DOC_VECTOR3ROTATEIP "rotate_ip(Vector3, angle) -> None\nrotates the vector by a given angle in degrees in place."
-#define DOC_VECTOR3ROTATEIPRAD "rotate_ip_rad(Vector3, angle) -> None\nrotates the vector by a given angle in radians in place."
+#define DOC_VECTOR3ROTATE "rotate(angle, Vector3) -> Vector3\nrotates a vector by a given angle in degrees."
+#define DOC_VECTOR3ROTATERAD "rotate_rad(angle, Vector3) -> Vector3\nrotates a vector by a given angle in radians."
+#define DOC_VECTOR3ROTATEIP "rotate_ip(angle, Vector3) -> None\nrotates the vector by a given angle in degrees in place."
+#define DOC_VECTOR3ROTATEIPRAD "rotate_ip_rad(angle, Vector3) -> None\nrotates the vector by a given angle in radians in place."
 #define DOC_VECTOR3ROTATEX "rotate_x(angle) -> Vector3\nrotates a vector around the x-axis by the angle in degrees."
 #define DOC_VECTOR3ROTATEXRAD "rotate_x_rad(angle) -> Vector3\nrotates a vector around the x-axis by the angle in radians."
 #define DOC_VECTOR3ROTATEXIP "rotate_x_ip(angle) -> None\nrotates the vector around the x-axis by the angle in degrees in place."
@@ -267,19 +267,19 @@ pygame.math.Vector3.elementwise
 The next operation will be performed elementwise.
 
 pygame.math.Vector3.rotate
- rotate(Vector3, angle) -> Vector3
+ rotate(angle, Vector3) -> Vector3
 rotates a vector by a given angle in degrees.
 
 pygame.math.Vector3.rotate_rad
- rotate_rad(Vector3, angle) -> Vector3
+ rotate_rad(angle, Vector3) -> Vector3
 rotates a vector by a given angle in radians.
 
 pygame.math.Vector3.rotate_ip
- rotate_ip(Vector3, angle) -> None
+ rotate_ip(angle, Vector3) -> None
 rotates the vector by a given angle in degrees in place.
 
 pygame.math.Vector3.rotate_ip_rad
- rotate_ip_rad(Vector3, angle) -> None
+ rotate_ip_rad(angle, Vector3) -> None
 rotates the vector by a given angle in radians in place.
 
 pygame.math.Vector3.rotate_x

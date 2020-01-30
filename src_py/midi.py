@@ -175,6 +175,7 @@ def get_default_input_id():
     Note: in the current release, the default is simply the first device
     (the input or output device with the lowest PmDeviceID).
     """
+    _check_init()
     return _pypm.GetDefaultInputDeviceID()
 
 
@@ -632,6 +633,7 @@ def time():
 
     The time is reset to 0, when the module is inited.
     """
+    _check_init()
     return _pypm.Time()
 
 

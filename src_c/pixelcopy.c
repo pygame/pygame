@@ -972,7 +972,7 @@ map_array(PyObject *self, PyObject *args)
             src_strides[dim] - shape[dim + 1] * src_strides[dim + 1];
     }
 
-    /* Determine souce and destination pixel formats
+    /* Determine source and destination pixel formats
      */
     format = pgSurface_AsSurface(format_surf)->format;
     pix_bytesize = format->BytesPerPixel;

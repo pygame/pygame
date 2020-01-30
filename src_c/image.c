@@ -66,7 +66,6 @@ image_load_basic(PyObject *self, PyObject *arg)
     PyObject *oencoded;
     const char *name = NULL;
     SDL_Surface *surf;
-    SDL_RWops *rw;
 
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
@@ -91,6 +90,8 @@ image_load_basic(PyObject *self, PyObject *arg)
         Py_END_ALLOW_THREADS;
     }
     else {
+        SDL_RWops *rw;
+
         Py_DECREF(oencoded);
         rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
@@ -252,11 +253,11 @@ image_save(PyObject *self, PyObject *arg)
                 if (imgext != NULL) {
                     PyObject *extsave =
                         PyObject_GetAttrString(imgext, "save_extended");
-                    PyObject *data;
 
                     Py_DECREF(imgext);
                     if (extsave != NULL) {
-                        data = PyObject_CallObject(extsave, arg);
+                        PyObject *data = PyObject_CallObject(extsave, arg);
+
                         Py_DECREF(extsave);
                         if (data == NULL) {
                             result = -2;

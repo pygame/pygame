@@ -498,7 +498,7 @@ Multiple coordinates can be set using slices or swizzling::
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
-      | :sg:`rotate(Vector3, angle) -> Vector3`
+      | :sg:`rotate(angle, Vector3) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees around the given axis.
@@ -508,7 +508,7 @@ Multiple coordinates can be set using slices or swizzling::
    .. method:: rotate_rad
 
       | :sl:`rotates a vector by a given angle in radians.`
-      | :sg:`rotate_rad(Vector3, angle) -> Vector3`
+      | :sg:`rotate_rad(angle, Vector3) -> Vector3`
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in radians around the given axis.
@@ -520,7 +520,7 @@ Multiple coordinates can be set using slices or swizzling::
    .. method:: rotate_ip
 
       | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(Vector3, angle) -> None`
+      | :sg:`rotate_ip(angle, Vector3) -> None`
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in degrees. The length of the vector is not changed.
@@ -530,7 +530,7 @@ Multiple coordinates can be set using slices or swizzling::
    .. method:: rotate_ip_rad
 
       | :sl:`rotates the vector by a given angle in radians in place.`
-      | :sg:`rotate_ip_rad(Vector3, angle) -> None`
+      | :sg:`rotate_ip_rad(angle, Vector3) -> None`
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in radians. The length of the vector is not changed.

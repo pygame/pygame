@@ -110,7 +110,7 @@ class Font(_Font):
 
     def metrics(self, text):
         """metrics(text) -> list
-           Gets the metrics for each character in the pased string."""
+           Gets the metrics for each character in the passed string."""
 
         return self.get_metrics(text)
 
@@ -170,7 +170,7 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
        font you ask for is not available, a reasonable alternative
        may be used.
 
-       if optional contructor is provided, it must be a function with
+       if optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.ftfont.Font object is created.
     """
