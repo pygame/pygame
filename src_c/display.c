@@ -1099,7 +1099,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     }
 
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
-                    SDL_RenderGetViewport(pg_renderer, &pg_renderer_viewport)
+                    SDL_RenderGetViewport(pg_renderer, &pg_renderer_viewport);
 
                     SDL_SetWindowMinimumSize(win, w, h);
 
