@@ -1512,8 +1512,7 @@ surf_get_colorkey(PyObject *self, PyObject *args)
     SDL_GetRGBA(surf->format->colorkey, surf->format, &r, &g, &b, &a);
 #else  /* IS_SDLv2 */
     if (SDL_GetColorKey(surf, &mapped_color) != 0) {
-        SDL_ClearError();
-        Py_RETURN_NONE;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
