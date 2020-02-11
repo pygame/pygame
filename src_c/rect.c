@@ -349,15 +349,19 @@ pgRect_Normalize(GAME_Rect *rect)
 static int
 _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
 {
-    if (A->w == 0 || A->h == 0 || B->w == 0 || B->h == 0) {
+    if ((A->w == 0 && A->h == 0) || (B->w == 0 && B->h == 0)) {
         // zero sized rects should not collide with anything #1197
         return 0;
     }
 
-    // A.topleft < B.bottomright &&
-    // A.bottomright > B.topleft
-    return (A->x < B->x + B->w && A->y < B->y + B->h && A->x + A->w > B->x &&
-            A->y + A->h > B->y);
+    // A.left < B.right &&
+    // A.top < A.bottom &&
+    // A.right > B.left &&
+    // A.bottom > b.top
+    return (min(A->x, A->x + A->w) < max(B->x, B->x + B->w) &&
+            min(A->y, A->y + A->h) < max(B->y, B->y + B->h) &&
+            max(A->x, A->x + A->w) > min(B->x, B->x + B->w) &&
+            max(A->y, A->y + A->h) > min(B->y, B->y + B->h));
 }
 
 
