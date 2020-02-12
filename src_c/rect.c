@@ -349,7 +349,7 @@ pgRect_Normalize(GAME_Rect *rect)
 static int
 _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
 {
-    if ((A->w == 0 && A->h == 0) || (B->w == 0 && B->h == 0)) {
+    if (A->w == 0 || A->h == 0 || B->w == 0 || B->h == 0) {
         // zero sized rects should not collide with anything #1197
         return 0;
     }
