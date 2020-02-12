@@ -358,10 +358,10 @@ _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
     // A.top < A.bottom &&
     // A.right > B.left &&
     // A.bottom > b.top
-    return (min(A->x, A->x + A->w) < max(B->x, B->x + B->w) &&
-            min(A->y, A->y + A->h) < max(B->y, B->y + B->h) &&
-            max(A->x, A->x + A->w) > min(B->x, B->x + B->w) &&
-            max(A->y, A->y + A->h) > min(B->y, B->y + B->h));
+    return (MIN(A->x, A->x + A->w) < MAX(B->x, B->x + B->w) &&
+            MIN(A->y, A->y + A->h) < MAX(B->y, B->y + B->h) &&
+            MAX(A->x, A->x + A->w) > MIN(B->x, B->x + B->w) &&
+            MAX(A->y, A->y + A->h) > MIN(B->y, B->y + B->h));
 }
 
 
