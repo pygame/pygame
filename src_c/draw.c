@@ -565,7 +565,7 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int loop, t, l, b, r;
+    int t, l, b, r;
     int width = 0; /* Default width. */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
@@ -597,10 +597,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
 
-    if (width > rect->w / 2 || width > rect->h / 2) {
-        width = MAX(rect->w / 2, rect->h / 2);
-    }
-
     if (!pgSurface_Lock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
@@ -611,10 +607,17 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
                      rect->w, rect->h, 1, color, drawn_area);
     }
     else {
-        width = MIN(width, MIN(rect->w, rect->h) / 2);
-        for (loop = 0; loop < width; ++loop) {
-            draw_ellipse(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
-                         rect->w - loop, rect->h - loop, 0, color, drawn_area);
+        int loop;
+        int w = rect->w;
+        int h = rect->h;
+        int x = rect->x + w / 2;
+        int y = rect->y + h / 2;
+
+        /* Using +1 to round up. */
+        width = MIN(width, (MIN(w, h) + 1) / 2);
+
+        for (loop = 0; loop < width; ++loop, w -= 2, h -= 2) {
+            draw_ellipse(surf, x, y, w, h, 0, color, drawn_area);
         }
     }
 
