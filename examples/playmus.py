@@ -46,7 +46,7 @@ class Window(object):
 
     def __init__(self, title):
         pg.display.set_caption(title)
-        self.screen.fill(Color("white"))
+        self.screen.fill(pg.Color("white"))
         pg.display.flip()
 
         pygame.freetype.init()
@@ -84,16 +84,16 @@ class Window(object):
         for i, text_line in enumerate(text.split("\n"), line):
             y = i * line_height + self.ascender
             # Clear the line first.
-            self.screen.fill(Color("white"), (0, i * line_height, w, line_height))
+            self.screen.fill(pg.Color("white"), (0, i * line_height, w, line_height))
 
             # Write new text.
-            self.font.render_to(self.screen, (15, y), text_line, Color("blue"))
+            self.font.render_to(self.screen, (15, y), text_line, pg.Color("blue"))
         pg.display.flip()
 
 
 def show_usage_message():
     print("Usage: python playmus.py <file>")
-    print("       python -m pg.examples.playmus <file>")
+    print("       python -m pygame.examples.playmus <file>")
 
 
 def main(file_path):
@@ -107,7 +107,7 @@ def main(file_path):
             pg.mixer.music.load(file_path)
 
             # Make sure the event loop ticks over at least every 0.5 seconds.
-            pg.time.set_timer(USEREVENT, 500)
+            pg.time.set_timer(pg.USEREVENT, 500)
 
             pg.mixer.music.play()
             win.write_lines("Playing ...\n", -1)
@@ -139,7 +139,7 @@ def main(file_path):
                 elif e.type == pg.QUIT:
                     pg.mixer.music.stop()
                     # get_busy() will now return 0.
-            pg.time.set_timer(USEREVENT, 0)
+            pg.time.set_timer(pg.USEREVENT, 0)
         finally:
             pg.mixer.quit()
 
