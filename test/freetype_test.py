@@ -1290,7 +1290,7 @@ class FreeTypeFontTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             font.style = 112
 
-        # make assure no assignements happened
+        # make assure no assignments happened
         self.assertEqual(ft.STYLE_NORMAL, font.style)
 
         # test assignement

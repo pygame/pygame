@@ -164,7 +164,7 @@ int mac_init_device(pgCameraObject* self) {
     theErr = SGSetChannelBounds(self->channel, &self->boundsRect);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError,
-        "Cannot specifie a channel's display boundary rectangle");
+        "Cannot specify a channel's display boundary rectangle");
         return 0;
     }
 	
@@ -180,7 +180,7 @@ int mac_init_device(pgCameraObject* self) {
     theErr = SGSetChannelUsage(self->channel, seqGrabPreview);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError,
-        "Cannot specifie how a channel is to be used by the sequence grabber componen");
+        "Cannot specify how a channel is to be used by the sequence grabber componen");
         return 0;
     }
     
@@ -334,7 +334,7 @@ int mac_read_frame(pgCameraObject* self, SDL_Surface* surf) {
     }
 }
 
-// TODO sometimes it is posible to directly grab the image in the desired pixel format,
+// TODO sometimes it is possible to directly grab the image in the desired pixel format,
 // but this format needs to be known at the beginning of the initiation of the camera.
 int mac_process_image(pgCameraObject* self, const void *image, unsigned int buffer_size, SDL_Surface* surf) {
     if (!surf)

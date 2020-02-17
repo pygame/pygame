@@ -121,7 +121,7 @@ class Sprite:
 
 
 def main(*args):
-    """Display multiple images bounce off each other using collition detection
+    """Display multiple images bounce off each other using collision detection
 
     Positional arguments:
       one or more image file names.
