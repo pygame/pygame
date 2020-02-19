@@ -1746,9 +1746,18 @@ pg_event_post(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    if (pgEvent_FillUserEvent(e, &event))
-        return NULL;
+    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
+        event.type =  e->type;
+        event.key.keysym.sym = PyLong_AsLong(PyDict_GetItemString(e->dict, "key"));
+        if (PyDict_GetItemString(e->dict, "scancode") != NULL)
+            event.key.keysym.scancode = PyLong_AsLong(PyDict_GetItemString(e->dict, "scancode"));
+        if (PyDict_GetItemString(e->dict, "mod") != NULL)
+            event.key.keysym.mod = PyLong_AsLong(PyDict_GetItemString(e->dict, "mod"));
 
+    } else {
+        if (pgEvent_FillUserEvent(e, &event))
+            return NULL;
+    }
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
 #else  /* IS_SDLv2 */
