@@ -942,7 +942,7 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
                     GET_PIXELVALS(r1, g1, b1, a1,
                                   (Uint32)*pixel_p, format, ppa);
                     GET_PIXELVALS(r2, g2, b2, a2,
-                                  (Uint32)*pixel_p, other_format, other_ppa);
+                                  (Uint32)*other_pixel_p, other_format, other_ppa);
                     if (COLOR_DIFF_RGB(wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance) {
                         *pixel_p = (Uint16)white;
@@ -1046,7 +1046,7 @@ _compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
                 if (distance != 0.0) {
                     GET_PIXELVALS(r1, g1, b1, a1, *pixel_p, format, ppa);
                     GET_PIXELVALS(r2, g2, b2, a2,
-                                  *pixel_p, other_format, other_ppa);
+                                  *other_pixel_p, other_format, other_ppa);
                     if (COLOR_DIFF_RGB(wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance) {
                         *pixel_p = white;
