@@ -11,11 +11,14 @@
 # Sphinx generated files: makeref.py
 /docs/\.buildinfo
 /docs/objects.inv
+/docs/c_api/
 /docs/doctrees/
 /docs/_sources/
 /docs/_static/
 /docs/_images/
+/docs/c_api.html
 /docs/genindex.html
+/docs/py-modindex.html
 /docs/search.html
 /docs/searchindex.js
 /docs/tut/
@@ -28,6 +31,15 @@
 
 # VIM temporary files
 *.swp
+
+# Visual Studio cache/config directory
+.vs/
+
+# Visual Studio Code cache/config directory
+.vscode/
+
+# mypy
+.mypy_cache/
 
 # Other
 envdev*
