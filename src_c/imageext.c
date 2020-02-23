@@ -114,7 +114,7 @@ image_load_ext(PyObject *self, PyObject *arg)
     const char *cext;
     char *ext = NULL;
     SDL_Surface *surf;
-    SDL_RWops *rw = NULL;
+    SDL_RWops *rw;
 
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
@@ -124,10 +124,8 @@ image_load_ext(PyObject *self, PyObject *arg)
     if (oencoded == NULL) {
         return NULL;
     }
-
     if (oencoded != Py_None) {
         name = Bytes_AS_STRING(oencoded);
-
 #ifdef WITH_THREAD
         namelen = Bytes_GET_SIZE(oencoded);
         Py_BEGIN_ALLOW_THREADS;
@@ -135,7 +133,6 @@ image_load_ext(PyObject *self, PyObject *arg)
             /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
             SDL_LockMutex(_pg_img_mutex);
             surf = IMG_Load(name);
-
             SDL_UnlockMutex(_pg_img_mutex);
         }
         else {
@@ -180,13 +177,7 @@ image_load_ext(PyObject *self, PyObject *arg)
                 PyErr_Clear();
             }
         }
-#if defined(__ANDROID__)
-        if (rw == NULL) {
-            rw = pgRWops_FromFileObject(obj);
-        }
-#else
         rw = pgRWops_FromFileObject(obj);
-#endif
         if (rw == NULL) {
             Py_XDECREF(oencoded);
             return NULL;

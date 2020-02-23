@@ -921,16 +921,9 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         }
 
 #if defined(__ANDROID__)
-        if (flags & PGS_OPENGL){
-            if (!(flags & PGS_FULLSCREEN)){
-                return RAISE(pgExc_SDLError,
-                             "Flag FULLSCREEN required on Android");
-            }
-        }
-        else if (flags & PGS_FULLSCREEN|PGS_SCALED !=
-                         PGS_FULLSCREEN|PGS_SCALED) {
+        if (!(flags & PGS_FULLSCREEN)){
             return RAISE(pgExc_SDLError,
-                             "Flags FULLSCREEN|SCALED required on Android");
+                         "Flag FULLSCREEN required on Android");
         }
 #endif
 
