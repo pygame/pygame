@@ -1747,13 +1747,43 @@ pg_event_post(PyObject *self, PyObject *args)
     }
 
     if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
+        PyObject *event_key      = PyDict_GetItemString(e->dict, "key");
+        PyObject *event_scancode = PyDict_GetItemString(e->dict, "scancode");
+        PyObject *event_mod      = PyDict_GetItemString(e->dict, "mod");
+        PyObject *event_window_ID= PyDict_GetItemString(e->dict, "window");
         event.type =  e->type;
-        event.key.keysym.sym = PyLong_AsLong(PyDict_GetItemString(e->dict, "key"));
-        if (PyDict_GetItemString(e->dict, "scancode") != NULL)
-            event.key.keysym.scancode = PyLong_AsLong(PyDict_GetItemString(e->dict, "scancode"));
-        if (PyDict_GetItemString(e->dict, "mod") != NULL)
-            event.key.keysym.mod = PyLong_AsLong(PyDict_GetItemString(e->dict, "mod"));
 
+        if (event_key == NULL){
+            return RAISE(pgExc_SDLError, "key event posted without keycode");
+        }
+        if (!PyInt_Check(event_key)){
+            return RAISE(pgExc_SDLError, "posted event keycode must be int");
+        }
+        event.key.keysym.sym = PyLong_AsLong(event_key);
+
+        if (event_scancode != NULL){
+            if (!PyInt_Check(event_scancode)){
+                return RAISE(pgExc_SDLError, "posted event scancode must be int");
+            }
+            event.key.keysym.scancode = PyLong_AsLong(event_scancode);
+        }
+
+        if (event_mod != NULL && event_mod != Py_None){
+            if (!PyInt_Check(event_scancode)){
+                return RAISE(pgExc_SDLError, "posted event modifiers must be int");
+            }
+            if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
+                return RAISE(pgExc_SDLError, "mods must be 16-bit int");
+            }
+            event.key.keysym.mod = (Uint16) PyLong_AsLong(event_mod);
+        }
+
+        if (event_window_ID != NULL && event_window_ID != Py_None){
+            if (!PyInt_Check(event_window_ID)){
+                return RAISE(pgExc_SDLError, "posted event window id must be int");
+            }
+            event.key.windowID = PyLong_AsLong(event_window_ID);
+        }
     } else {
         if (pgEvent_FillUserEvent(e, &event))
             return NULL;
