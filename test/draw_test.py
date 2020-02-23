@@ -825,7 +825,8 @@ class DrawEllipseMixin(object):
         surf_color = pygame.Color("black")
         min_width = min_height = 5
         max_width = max_height = 7
-        surface = pygame.Surface((30, 30), 0, 32)
+        sizes = ((min_width, min_height), (max_width, max_height))
+        surface = pygame.Surface((20, 20), 0, 32)
         surf_rect = surface.get_rect()
         # Make a rect that is bigger than the surface to help test drawing
         # ellipses off and partially off the surface.
@@ -838,25 +839,24 @@ class DrawEllipseMixin(object):
             # the pos value.
             for attr in RECT_POSITION_ATTRIBUTES:
                 # Test using different rect sizes and thickness values.
-                for width in range(min_width, max_width + 1):
-                    for height in range(min_height, max_height + 1):
-                        ellipse_rect = pygame.Rect((0, 0), (width, height))
-                        setattr(ellipse_rect, attr, pos)
+                for width, height in sizes:
+                    ellipse_rect = pygame.Rect((0, 0), (width, height))
+                    setattr(ellipse_rect, attr, pos)
 
-                        for thickness in range(min(width, height) + 1):
-                            surface.fill(surf_color)  # Clear for each test.
+                    for thickness in (0, 1, 2, 3, min(width, height)):
+                        surface.fill(surf_color)  # Clear for each test.
 
-                            bounding_rect = self.draw_ellipse(
-                                surface, ellipse_color, ellipse_rect, thickness
-                            )
+                        bounding_rect = self.draw_ellipse(
+                            surface, ellipse_color, ellipse_rect, thickness
+                        )
 
-                            # Calculating the expected_rect after the ellipse
-                            # is drawn (it uses what is actually drawn).
-                            expected_rect = create_bounding_rect(
-                                surface, surf_color, ellipse_rect.topleft
-                            )
+                        # Calculating the expected_rect after the ellipse
+                        # is drawn (it uses what is actually drawn).
+                        expected_rect = create_bounding_rect(
+                            surface, surf_color, ellipse_rect.topleft
+                        )
 
-                            self.assertEqual(bounding_rect, expected_rect)
+                        self.assertEqual(bounding_rect, expected_rect)
 
     def test_ellipse__surface_clip(self):
         """Ensures draw ellipse respects a surface's clip area.
@@ -4101,7 +4101,8 @@ class DrawPolygonMixin(object):
         surf_color = pygame.Color("black")
         min_width = min_height = 5
         max_width = max_height = 7
-        surface = pygame.Surface((30, 30), 0, 32)
+        sizes = ((min_width, min_height), (max_width, max_height))
+        surface = pygame.Surface((20, 20), 0, 32)
         surf_rect = surface.get_rect()
         # Make a rect that is bigger than the surface to help test drawing
         # polygons off and partially off the surface.
@@ -4115,36 +4116,35 @@ class DrawPolygonMixin(object):
             # the pos value.
             for attr in RECT_POSITION_ATTRIBUTES:
                 # Test using different rect sizes and thickness values.
-                for width in range(min_width, max_width + 1):
-                    for height in range(min_height, max_height + 1):
-                        pos_rect = pygame.Rect((0, 0), (width, height))
-                        setattr(pos_rect, attr, pos)
-                        # Points form a triangle with no fully
-                        # horizontal/vertical lines.
-                        vertices = (
-                            pos_rect.midleft,
-                            pos_rect.midtop,
-                            pos_rect.bottomright,
+                for width, height in sizes:
+                    pos_rect = pygame.Rect((0, 0), (width, height))
+                    setattr(pos_rect, attr, pos)
+                    # Points form a triangle with no fully
+                    # horizontal/vertical lines.
+                    vertices = (
+                        pos_rect.midleft,
+                        pos_rect.midtop,
+                        pos_rect.bottomright,
+                    )
+
+                    for thickness in range(4):
+                        surface.fill(surf_color)  # Clear for each test.
+
+                        bounding_rect = self.draw_polygon(
+                            surface, polygon_color, vertices, thickness
                         )
 
-                        for thickness in range(5):
-                            surface.fill(surf_color)  # Clear for each test.
+                        # Calculating the expected_rect after the polygon
+                        # is drawn (it uses what is actually drawn).
+                        expected_rect = create_bounding_rect(
+                            surface, surf_color, vertices[0]
+                        )
 
-                            bounding_rect = self.draw_polygon(
-                                surface, polygon_color, vertices, thickness
-                            )
-
-                            # Calculating the expected_rect after the polygon
-                            # is drawn (it uses what is actually drawn).
-                            expected_rect = create_bounding_rect(
-                                surface, surf_color, vertices[0]
-                            )
-
-                            self.assertEqual(
-                                bounding_rect,
-                                expected_rect,
-                                "thickness={}".format(thickness),
-                            )
+                        self.assertEqual(
+                            bounding_rect,
+                            expected_rect,
+                            "thickness={}".format(thickness),
+                        )
 
     def test_polygon__surface_clip(self):
         """Ensures draw polygon respects a surface's clip area.
@@ -4728,7 +4728,8 @@ class DrawRectMixin(object):
         surf_color = pygame.Color("black")
         min_width = min_height = 5
         max_width = max_height = 7
-        surface = pygame.Surface((30, 30), 0, 32)
+        sizes = ((min_width, min_height), (max_width, max_height))
+        surface = pygame.Surface((20, 20), 0, 32)
         surf_rect = surface.get_rect()
         # Make a rect that is bigger than the surface to help test drawing
         # rects off and partially off the surface.
@@ -4741,29 +4742,28 @@ class DrawRectMixin(object):
             # value.
             for attr in RECT_POSITION_ATTRIBUTES:
                 # Test using different rect sizes and thickness values.
-                for width in range(min_width, max_width + 1):
-                    for height in range(min_height, max_height + 1):
-                        rect = pygame.Rect((0, 0), (width, height))
-                        setattr(rect, attr, pos)
+                for width, height in sizes:
+                    rect = pygame.Rect((0, 0), (width, height))
+                    setattr(rect, attr, pos)
 
-                        for thickness in range(5):
-                            surface.fill(surf_color)  # Clear for each test.
+                    for thickness in range(4):
+                        surface.fill(surf_color)  # Clear for each test.
 
-                            bounding_rect = self.draw_rect(
-                                surface, rect_color, rect, thickness
-                            )
+                        bounding_rect = self.draw_rect(
+                            surface, rect_color, rect, thickness
+                        )
 
-                            # Calculating the expected_rect after the rect is
-                            # drawn (it uses what is actually drawn).
-                            expected_rect = create_bounding_rect(
-                                surface, surf_color, rect.topleft
-                            )
+                        # Calculating the expected_rect after the rect is
+                        # drawn (it uses what is actually drawn).
+                        expected_rect = create_bounding_rect(
+                            surface, surf_color, rect.topleft
+                        )
 
-                            self.assertEqual(
-                                bounding_rect,
-                                expected_rect,
-                                "thickness={}".format(thickness),
-                            )
+                        self.assertEqual(
+                            bounding_rect,
+                            expected_rect,
+                            "thickness={}".format(thickness),
+                        )
 
     def test_rect__surface_clip(self):
         """Ensures draw rect respects a surface's clip area.
@@ -6054,15 +6054,16 @@ class DrawArcMixin(object):
         surf_color = pygame.Color("black")
         min_width = min_height = 5
         max_width = max_height = 7
-        surface = pygame.Surface((30, 30), 0, 32)
+        sizes = ((min_width, min_height), (max_width, max_height))
+        surface = pygame.Surface((20, 20), 0, 32)
         surf_rect = surface.get_rect()
         # Make a rect that is bigger than the surface to help test drawing
         # arcs off and partially off the surface.
         big_rect = surf_rect.inflate(min_width * 2 + 1, min_height * 2 + 1)
 
         # Max angle allows for a full circle to be drawn.
-        max_stop_angle = math.ceil(2 * math.pi)
         start_angle = 0
+        stop_angles = (0, 2, 3, 5, math.ceil(2 * math.pi))
 
         for pos in rect_corners_mids_and_center(
             surf_rect
@@ -6072,35 +6073,34 @@ class DrawArcMixin(object):
             for attr in RECT_POSITION_ATTRIBUTES:
                 # Test using different rect sizes, thickness values and stop
                 # angles.
-                for width in range(min_width, max_width + 1):
-                    for height in range(min_height, max_height + 1):
-                        arc_rect = pygame.Rect((0, 0), (width, height))
-                        setattr(arc_rect, attr, pos)
+                for width, height in sizes:
+                    arc_rect = pygame.Rect((0, 0), (width, height))
+                    setattr(arc_rect, attr, pos)
 
-                        for thickness in range(min(width, height) + 1):
-                            for stop_angle in range(int(max_stop_angle) + 1):
-                                surface.fill(surf_color)  # Clear for each test.
+                    for thickness in (0, 1, 2, 3, min(width, height)):
+                        for stop_angle in stop_angles:
+                            surface.fill(surf_color)  # Clear for each test.
 
-                                bounding_rect = self.draw_arc(
-                                    surface,
-                                    arc_color,
-                                    arc_rect,
-                                    start_angle,
-                                    stop_angle,
-                                    thickness,
-                                )
+                            bounding_rect = self.draw_arc(
+                                surface,
+                                arc_color,
+                                arc_rect,
+                                start_angle,
+                                stop_angle,
+                                thickness,
+                            )
 
-                                # Calculating the expected_rect after the arc
-                                # is drawn (it uses what is actually drawn).
-                                expected_rect = create_bounding_rect(
-                                    surface, surf_color, arc_rect.topleft
-                                )
+                            # Calculating the expected_rect after the arc
+                            # is drawn (it uses what is actually drawn).
+                            expected_rect = create_bounding_rect(
+                                surface, surf_color, arc_rect.topleft
+                            )
 
-                                self.assertEqual(
-                                    bounding_rect,
-                                    expected_rect,
-                                    "thickness={}".format(thickness),
-                                )
+                            self.assertEqual(
+                                bounding_rect,
+                                expected_rect,
+                                "thickness={}".format(thickness),
+                            )
 
     def test_arc__surface_clip(self):
         """Ensures draw arc respects a surface's clip area."""

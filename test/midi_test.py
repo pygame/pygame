@@ -454,6 +454,13 @@ class MidiModuleNonInteractiveTest(unittest.TestCase):
         self.assertEqual(midi_to_frequency(26), 36.7)
         self.assertEqual(midi_to_frequency(108), 4186.0)
         self.assertEqual(midi_to_ansi_note(21), "A0")
+        self.assertEqual(midi_to_ansi_note(71), "B4")
+        self.assertEqual(midi_to_ansi_note(82), "A#5")
+        self.assertEqual(midi_to_ansi_note(83), "B5")
+        self.assertEqual(midi_to_ansi_note(93), "A6")
+        self.assertEqual(midi_to_ansi_note(94), "A#6")
+        self.assertEqual(midi_to_ansi_note(95), "B6")
+        self.assertEqual(midi_to_ansi_note(96), "C7")
         self.assertEqual(midi_to_ansi_note(102), "F#7")
         self.assertEqual(midi_to_ansi_note(108), "C8")
 
