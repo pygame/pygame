@@ -920,6 +920,20 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             h = display_mode.h;
         }
 
+#if defined(__ANDROID__)
+        if (flags & PGS_OPENGL){
+            if (!(flags & PGS_FULLSCREEN)){
+                return RAISE(pgExc_SDLError,
+                             "Flag FULLSCREEN required on Android");
+            }
+        }
+        else if (flags & PGS_FULLSCREEN|PGS_SCALED !=
+                         PGS_FULLSCREEN|PGS_SCALED) {
+            return RAISE(pgExc_SDLError,
+                             "Flags FULLSCREEN|SCALED required on Android");
+        }
+#endif
+
         if (flags & PGS_FULLSCREEN) {
             if (flags & PGS_SCALED) {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;

@@ -124,25 +124,6 @@ image_load_ext(PyObject *self, PyObject *arg)
     if (oencoded == NULL) {
         return NULL;
     }
-#if defined(__ANDROID__)
-    if (oencoded != Py_None) {
-        FILE *fp;
-        name = Bytes_AS_STRING(oencoded);
-        fp = fopen(Bytes_AS_STRING(oencoded), "rb");
-        if (fp == NULL) {
-            Py_DECREF(oencoded);
-            return NULL;
-        }
-        rw = SDL_RWFromFP(fp, 1);
-        if (rw == NULL) {
-            Py_DECREF(oencoded);
-            return NULL;
-        }
-
-        Py_DECREF(oencoded);
-        oencoded = Py_None;
-    }
-#endif
 
     if (oencoded != Py_None) {
         name = Bytes_AS_STRING(oencoded);
