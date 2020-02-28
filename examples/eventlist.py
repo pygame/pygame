@@ -1,123 +1,182 @@
 #!/usr/bin/env python
+""" pygame.examples.eventlist
 
-"""Eventlist is a sloppy style of pygame, but is a handy
-tool for learning about pygame events and input. At the
-top of the screen are the state of several device values,
+Learn about pygame events and input.
+
+At the top of the screen are the state of several device values,
 and a scrolling list of events are displayed on the bottom.
 
-This is not quality 'ui' code at all, but you can see how
-to implement very non-interactive status displays, or even
-a crude text output control.
 """
 
-from pygame import *
+usage = """
+Mouse Controls
+==============
 
-ImgOnOff = []
-Font = None
-LastKey = None
+- 1st button on mouse (left click) to toggle events 'grabed'.
+- 3rd button on mouse (right click) to toggle mouse visible.
+- The window can be resized.
+- Mouse the mouse around to see mouse events.
+- If events grabbed and mouse invisible show virtual mouse coords.
+
+
+Keyboard Joystick Controls
+==========================
+
+- press keys up an down to see events.
+- you can see joystick events if any are plugged in.
+"""
+
+import pygame as pg
+
+
+img_on_off = []
+font = None
+last_key = None
+
+# these are a running counter of mouse.get_rel() calls.
+virtual_x = 0
+virtual_y = 0
+
 
 def showtext(win, pos, text, color, bgcolor):
-    textimg = Font.render(text, 1, color, bgcolor)
+    textimg = font.render(text, 1, color, bgcolor)
     win.blit(textimg, pos)
     return pos[0] + textimg.get_width() + 5, pos[1]
 
 
 def drawstatus(win):
+    global virtual_x, virtual_y
     bgcolor = 50, 50, 50
     win.fill(bgcolor, (0, 0, 640, 120))
-    win.blit(Font.render('Status Area', 1, (155, 155, 155), bgcolor), (2, 2))
+    win.blit(font.render("Status Area", 1, (155, 155, 155), bgcolor), (2, 2))
 
-    pos = showtext(win, (10, 30), 'Mouse Focus', (255, 255, 255), bgcolor)
-    win.blit(ImgOnOff[mouse.get_focused()], pos)
+    pos = showtext(win, (10, 30), "Mouse Focus", (255, 255, 255), bgcolor)
+    win.blit(img_on_off[pg.mouse.get_focused()], pos)
 
-    pos = showtext(win, (330, 30), 'Keyboard Focus', (255, 255, 255), bgcolor)
-    win.blit(ImgOnOff[key.get_focused()], pos)
+    pos = showtext(
+        win, (pos[0] + 50, pos[1]), "Mouse visible", (255, 255, 255), bgcolor
+    )
+    win.blit(img_on_off[pg.mouse.get_visible()], pos)
 
-    pos = showtext(win, (10, 60), 'Mouse Position', (255, 255, 255), bgcolor)
-    p = '%s, %s' % mouse.get_pos()
-    pos = showtext(win, pos, p, bgcolor, (255, 255, 55))
+    pos = showtext(win, (330, 30), "Keyboard Focus", (255, 255, 255), bgcolor)
+    win.blit(img_on_off[pg.key.get_focused()], pos)
 
-    pos = showtext(win, (330, 60), 'Last Keypress', (255, 255, 255), bgcolor)
-    if LastKey:
-        p = '%d, %s' % (LastKey, key.name(LastKey))
+    pos = showtext(win, (10, 60), "Mouse Position(rel)", (255, 255, 255), bgcolor)
+    rel = pg.mouse.get_rel()
+    virtual_x += rel[0]
+    virtual_y += rel[1]
+
+    mouse_data = tuple(list(pg.mouse.get_pos()) + list(rel))
+    p = "%s, %s (%s, %s)" % mouse_data
+    showtext(win, pos, p, bgcolor, (255, 255, 55))
+
+    pos = showtext(win, (330, 60), "Last Keypress", (255, 255, 255), bgcolor)
+    if last_key:
+        p = "%d, %s" % (last_key, pg.key.name(last_key))
     else:
-        p = 'None'
-    pos = showtext(win, pos, p, bgcolor, (255, 255, 55))
+        p = "None"
+    showtext(win, pos, p, bgcolor, (255, 255, 55))
 
-    pos = showtext(win, (10, 90), 'Input Grabbed', (255, 255, 255), bgcolor)
-    win.blit(ImgOnOff[event.get_grab()], pos)
+    pos = showtext(win, (10, 90), "Input Grabbed", (255, 255, 255), bgcolor)
+    win.blit(img_on_off[pg.event.get_grab()], pos)
+
+    is_virtual_mouse = pg.event.get_grab() and not pg.mouse.get_visible()
+    pos = showtext(win, (330, 90), "Virtual Mouse", (255, 255, 255), bgcolor)
+    win.blit(img_on_off[is_virtual_mouse], pos)
+    if is_virtual_mouse:
+        p = "%s, %s" % (virtual_x, virtual_y)
+        showtext(win, (pos[0] + 50, pos[1]), p, bgcolor, (255, 255, 55))
 
 
 def drawhistory(win, history):
-    win.blit(Font.render('Event History Area', 1, (155, 155, 155), (0,0,0)), (2, 132))
+    img = font.render("Event History Area", 1, (155, 155, 155), (0, 0, 0))
+    win.blit(img, (2, 132))
     ypos = 450
     h = list(history)
     h.reverse()
     for line in h:
         r = win.blit(line, (10, ypos))
         win.fill(0, (r.right, r.top, 620, r.height))
-        ypos -= Font.get_height()
+        ypos -= font.get_height()
+
+
+def draw_usage_in_history(history, text):
+    lines = text.split("\n")
+    for line in lines:
+        if line == "" or "===" in line:
+            continue
+        img = font.render(line, 1, (50, 200, 50), (0, 0, 0))
+        history.append(img)
 
 
 def main():
-    init()
+    pg.init()
+    print(usage)
 
-    win = display.set_mode((640, 480), RESIZABLE)
-    display.set_caption("Mouse Focus Workout")
+    win = pg.display.set_mode((640, 480), pg.RESIZABLE)
+    pg.display.set_caption("Mouse Focus Workout. h key for help")
 
-    global Font
-    Font = font.Font(None, 26)
+    global font
+    font = pg.font.Font(None, 26)
 
-    global ImgOnOff
-    ImgOnOff.append(Font.render("Off", 1, (0, 0, 0), (255, 50, 50)))
-    ImgOnOff.append(Font.render("On", 1, (0, 0, 0), (50, 255, 50)))
+    global img_on_off
+    img_on_off.append(font.render("Off", 1, (0, 0, 0), (255, 50, 50)))
+    img_on_off.append(font.render("On", 1, (0, 0, 0), (50, 255, 50)))
 
+    # stores surfaces of text representing what has gone through the event queue
     history = []
 
-    #let's turn on the joysticks just so we can play with em
-    for x in range(joystick.get_count()):
-        j = joystick.Joystick(x)
+
+    # let's turn on the joysticks just so we can play with em
+    for x in range(pg.joystick.get_count()):
+        j = pg.joystick.Joystick(x)
         j.init()
-        txt = 'Enabled joystick: ' + j.get_name()
-        img = Font.render(txt, 1, (50, 200, 50), (0, 0, 0))
+        txt = "Enabled joystick: " + j.get_name()
+        img = font.render(txt, 1, (50, 200, 50), (0, 0, 0))
         history.append(img)
-    if not joystick.get_count():
-        img = Font.render('No Joysticks to Initialize', 1, (50, 200, 50), (0, 0, 0))
+    if not pg.joystick.get_count():
+        img = font.render("No Joysticks to Initialize", 1, (50, 200, 50), (0, 0, 0))
         history.append(img)
 
     going = True
     while going:
-        for e in event.get():
-            if e.type == QUIT:
-                going = False
-            if e.type == KEYDOWN:
-                if e.key == K_ESCAPE:
+        for e in pg.event.get():
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
                     going = False
                 else:
-                    global LastKey
-                    LastKey = e.key
-            if e.type == MOUSEBUTTONDOWN:
-                event.set_grab(1)
-            elif e.type == MOUSEBUTTONUP:
-                event.set_grab(0)
-            if e.type == VIDEORESIZE:
-                win = display.set_mode(e.size, RESIZABLE)
+                    global last_key
+                    last_key = e.key
+                if e.key == pg.K_h:
+                    draw_usage_in_history(history, usage)
 
-            if e.type != MOUSEMOTION:
-                txt = '%s: %s' % (event.event_name(e.type), e.dict)
-                img = Font.render(txt, 1, (50, 200, 50), (0, 0, 0))
+            if e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
+                pg.event.set_grab(not pg.event.get_grab())
+
+            if e.type == pg.MOUSEBUTTONDOWN and e.button == 3:
+                pg.mouse.set_visible(not pg.mouse.get_visible())
+
+            if e.type != pg.MOUSEMOTION:
+                txt = "%s: %s" % (pg.event.event_name(e.type), e.dict)
+                img = font.render(txt, 1, (50, 200, 50), (0, 0, 0))
                 history.append(img)
                 history = history[-13:]
 
+            if e.type == pg.VIDEORESIZE:
+                win = pg.display.set_mode(e.size, pg.RESIZABLE)
+
+            if e.type == pg.QUIT:
+                going = False
 
         drawstatus(win)
         drawhistory(win, history)
 
-        display.flip()
-        time.wait(10)
+        pg.display.flip()
+        pg.time.wait(10)
 
-    quit()
+    pg.quit()
+    raise SystemExit
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

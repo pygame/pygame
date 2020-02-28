@@ -40,7 +40,7 @@ void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
     const FT_Byte *src_cpy;
 
     FT_Byte src_byte;
-    int j, i;
+    unsigned int j, i;
 
 #ifndef NDEBUG
     const FT_Byte *src_end = src + (bitmap->rows * bitmap->pitch);
@@ -133,7 +133,7 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
     const FT_Byte *src = bitmap->buffer;
     const FT_Byte *src_cpy;
 
-    int j, i;
+    unsigned int j, i;
 
     /*
      * Assumption, target buffer was filled with the background color before
@@ -228,11 +228,9 @@ void __render_glyph_INT(int x, int y, FontSurface *surface,
     const FT_Byte *src = bitmap->buffer;
     const FT_Byte *src_cpy;
     FT_Byte src_byte;
-    FT_Byte dst_byte;
     FT_Byte mask = ~fg_color->a;
 
-    int j, i;
-    int b, int_offset;
+    unsigned int j, i;
 
     /*
      * Assumption, target buffer was filled with the background color before
@@ -259,7 +257,8 @@ void __render_glyph_INT(int x, int y, FontSurface *surface,
         }
     }
     else {
-        int_offset = surface->format->Ashift / 8;
+        FT_Byte dst_byte;
+        int b, int_offset = surface->format->Ashift / 8;
 
         for (j = 0; j < bitmap->rows; ++j) {
             src_cpy = src;
@@ -300,7 +299,6 @@ void __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
     const int ry = MAX(0, y);
 
     int i, j, shift;
-    int b, int_offset;
     int item_stride = surface->item_stride;
     int item_size = surface->format->BytesPerPixel;
     unsigned char *src;
@@ -346,7 +344,7 @@ void __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
     }
     else {
         /* Generic copy for arbitrary target int size */
-        int_offset = surface->format->Ashift / 8;
+        int b, int_offset = surface->format->Ashift / 8;
 
         for (j = ry; j < max_y; ++j) {
             src_cpy = src;
@@ -378,7 +376,7 @@ void __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
 void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                       FontSurface *surface, const FontColor *color)
 {
-    int b, i, j;
+    int i, j;
     FT_Byte *dst;
     int itemsize = surface->format->BytesPerPixel;
     int item_stride = surface->item_stride;
@@ -437,6 +435,8 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         }
     }
     else {
+        int b;
+
         if (y < FX6_CEIL(y)) {
             dst_cpy = dst - surface->pitch;
             edge_shade = FX6_TRUNC(FX6_ROUND(shade * (FX6_CEIL(y) - y)));

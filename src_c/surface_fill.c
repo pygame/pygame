@@ -92,7 +92,12 @@ surface_fill_blend_add(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
+#endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     pixels = (Uint8 *)surface->pixels + surface->offset +
@@ -181,7 +186,12 @@ surface_fill_blend_sub(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
+#endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     pixels = (Uint8 *)surface->pixels + surface->offset +
@@ -269,7 +279,12 @@ surface_fill_blend_mult(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
+#endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     pixels = (Uint8 *)surface->pixels + surface->offset +
@@ -357,7 +372,12 @@ surface_fill_blend_min(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
+#endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     pixels = (Uint8 *)surface->pixels + surface->offset +
@@ -445,7 +465,12 @@ surface_fill_blend_max(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
+#endif /* IS_SDLv2 */
 
 #if IS_SDLv1
     pixels = (Uint8 *)surface->pixels + surface->offset +
@@ -536,8 +561,11 @@ surface_fill_blend_rgba_add(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#else  /* IS_SDLv2 */
-    int ppa = SDL_ISPIXELFORMAT_ALPHA(fmt->format);
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
 #endif /* IS_SDLv2 */
 
     if (!ppa) {
@@ -610,8 +638,11 @@ surface_fill_blend_rgba_sub(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#else  /* IS_SDLv2 */
-    int ppa = SDL_ISPIXELFORMAT_ALPHA(fmt->format);
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
 #endif /* IS_SDLv2 */
 
     if (!ppa) {
@@ -684,8 +715,11 @@ surface_fill_blend_rgba_mult(SDL_Surface *surface, SDL_Rect *rect,
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#else  /* IS_SDLv2 */
-    int ppa = SDL_ISPIXELFORMAT_ALPHA(fmt->format);
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
 #endif /* IS_SDLv2 */
 
     if (!ppa) {
@@ -757,8 +791,11 @@ surface_fill_blend_rgba_min(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#else  /* IS_SDLv2 */
-    int ppa = SDL_ISPIXELFORMAT_ALPHA(fmt->format);
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
 #endif /* IS_SDLv2 */
 
     if (!ppa) {
@@ -830,8 +867,11 @@ surface_fill_blend_rgba_max(SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     int result = -1;
 #if IS_SDLv1
     int ppa = (surface->flags & SDL_SRCALPHA && fmt->Amask);
-#else  /* IS_SDLv2 */
-    int ppa = SDL_ISPIXELFORMAT_ALPHA(fmt->format);
+#else /* IS_SDLv2 */
+    int ppa;
+    SDL_BlendMode mode;
+    SDL_GetSurfaceBlendMode(surface, &mode);
+    ppa = (fmt->Amask && mode != SDL_BLENDMODE_NONE);
 #endif /* IS_SDLv2 */
 
     if (!ppa) {

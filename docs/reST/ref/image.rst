@@ -51,7 +51,7 @@ following formats.
 
    * ``JPEG``
 
-``PNG``, ``JPEG`` saving new in pygame 1.8.
+.. versionadded:: 1.8 Saving PNG and JPEG files.
 
 .. function:: load
 
@@ -98,7 +98,7 @@ following formats.
    ``JPEG`` image. If the filename extension is unrecognized it will default to
    ``TGA``. Both ``TGA``, and ``BMP`` file formats create uncompressed files.
 
-   ``PNG``, ``JPEG`` saving new in pygame 1.8.
+   .. versionadded:: 1.8 Saving PNG and JPEG files.
 
    .. ## pygame.image.save ##
 

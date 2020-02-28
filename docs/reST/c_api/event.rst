@@ -11,7 +11,7 @@ src_c/event.c
 
 The extsion module :py:mod:`pygame.event`.
 
-Header file: src_c/pygame.h
+Header file: src_c/include/pygame.h
 
 
 .. c:type:: pgEventObject

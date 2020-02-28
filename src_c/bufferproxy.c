@@ -86,7 +86,6 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags)
     pg_buffer *pg_dict_view_p;
     Py_buffer *dict_view_p;
     PyObject *py_callback;
-    PyObject *py_rval;
 
     assert(dict && PyDict_Check(dict));
     assert(view_p);
@@ -108,7 +107,10 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags)
     }
     Py_INCREF(obj);
     py_callback = PyDict_GetItemString(dict, "before");
+
     if (py_callback) {
+        PyObject *py_rval;
+
         Py_INCREF(py_callback);
         py_rval = PyObject_CallFunctionObjArgs(py_callback, obj, NULL);
         Py_DECREF(py_callback);
@@ -144,7 +146,6 @@ _release_buffer_from_dict(Py_buffer *view_p)
     PyObject *dict;
     PyObject *obj;
     PyObject *py_callback;
-    PyObject *py_rval;
 
     assert(view_p && view_p->internal);
     obj = view_p->obj;
@@ -152,7 +153,10 @@ _release_buffer_from_dict(Py_buffer *view_p)
     dict = dict_view_p->obj;
     assert(dict && PyDict_Check(dict));
     py_callback = PyDict_GetItemString(dict, "after");
+
     if (py_callback) {
+        PyObject *py_rval;
+
         Py_INCREF(py_callback);
         py_rval = PyObject_CallFunctionObjArgs(py_callback, obj, NULL);
         if (py_rval) {

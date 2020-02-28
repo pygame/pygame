@@ -55,10 +55,8 @@
 /* For filtering out UCS-4 and larger characters when Python is
  * built with Py_UNICODE_WIDE.
  */
-#if defined(Py_UNICODE_WIDE)
-#define IS_UCS_2(c) ((c) < 0x10000L)
-#else
-#define IS_UCS_2(c) 1
+#if PY2 && !defined(Py_UNICODE_IS_SURROGATE) || defined(PYPY_VERSION)
+#define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) && (ch) <= 0xDFFF)
 #endif
 
 static PyTypeObject PyFont_Type;
@@ -85,6 +83,24 @@ utf_8_needs_UCS_4(const char *str)
         ++str;
     }
     return 0;
+}
+
+static PyObject *
+pg_open_obj(PyObject *obj, const char *mode)
+{
+    PyObject *result;
+    PyObject *open;
+    PyObject *bltins = PyImport_ImportModule(BUILTINS_MODULE);
+    if (!bltins)
+        return NULL;
+    open = PyObject_GetAttrString(bltins, "open");
+    Py_DECREF(bltins);
+    if (!open)
+        return NULL;
+
+    result = PyObject_CallFunction(open, "Os", obj, mode);
+    Py_DECREF(open);
+    return result;
 }
 
 /* Return an encoded file path, a file-like object or a NULL pointer.
@@ -118,6 +134,13 @@ font_resource(const char *filename)
 #if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp != NULL) {
+        PyObject *closeret;
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            return NULL;
+        }
+        Py_DECREF(closeret);
         Py_DECREF(result);
         result = tmp;
     }
@@ -126,14 +149,24 @@ font_resource(const char *filename)
     }
 #else
     if (PyFile_Check(result)) {
+        PyObject *closeret;
+
         tmp = PyFile_Name(result);
         Py_INCREF(tmp);
+
+        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
+            Py_DECREF(result);
+            Py_DECREF(tmp);
+            return NULL;
+        }
+        Py_DECREF(closeret);
+
         Py_DECREF(result);
         result = tmp;
     }
 #endif
 
-    tmp = pgRWopsEncodeFilePath(result, NULL);
+    tmp = pg_EncodeString(result, "UTF-8", NULL, NULL);
     if (tmp == NULL) {
         Py_DECREF(result);
         return NULL;
@@ -202,35 +235,35 @@ get_init(PyObject *self)
 
 /* font object methods */
 static PyObject *
-font_get_height(PyObject *self)
+font_get_height(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontHeight(font));
 }
 
 static PyObject *
-font_get_descent(PyObject *self)
+font_get_descent(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontDescent(font));
 }
 
 static PyObject *
-font_get_ascent(PyObject *self)
+font_get_ascent(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontAscent(font));
 }
 
 static PyObject *
-font_get_linesize(PyObject *self)
+font_get_linesize(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong(TTF_FontLineSkip(font));
 }
 
 static PyObject *
-font_get_bold(PyObject *self)
+font_get_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_BOLD) != 0);
@@ -256,7 +289,7 @@ font_set_bold(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_get_italic(PyObject *self)
+font_get_italic(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_ITALIC) != 0);
@@ -282,7 +315,7 @@ font_set_italic(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_get_underline(PyObject *self)
+font_get_underline(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_UNDERLINE) != 0);
@@ -378,7 +411,7 @@ font_render(PyObject *self, PyObject *args)
             PyErr_Clear();
             return RAISE_TEXT_TYPE_ERROR();
         }
-        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32, 0xff << 16,
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, height, 32, 0xff << 16,
                                     0xff << 8, 0xff, 0);
         if (surf == NULL) {
             return RAISE(pgExc_SDLError, SDL_GetError());
@@ -399,7 +432,7 @@ font_render(PyObject *self, PyObject *args)
             return NULL;
         }
         astring = Bytes_AsString(bytes);
-        if (strlen(astring) != Bytes_GET_SIZE(bytes)) {
+        if (strlen(astring) != (size_t)Bytes_GET_SIZE(bytes)) {
             Py_DECREF(bytes);
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
@@ -426,7 +459,7 @@ font_render(PyObject *self, PyObject *args)
     else if (Bytes_Check(text)) {
         const char *astring = Bytes_AsString(text);
 
-        if (strlen(astring) != Bytes_GET_SIZE(text)) {
+        if (strlen(astring) != (size_t)Bytes_GET_SIZE(text)) {
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
@@ -449,7 +482,7 @@ font_render(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, TTF_GetError());
     }
     if (!aa && (bg_rgba_obj != NULL) && !just_return) {
-        /* turn off transparancy */
+        /* turn off transparency */
         SDL_SetColorKey(surf, 0, 0);
         surf->format->palette->colors[0].r = backg.r;
         surf->format->palette->colors[0].g = backg.g;
@@ -513,50 +546,58 @@ font_metrics(PyObject *self, PyObject *args)
     int miny;
     int maxy;
     int advance;
-    PyObject *unicodeobj;
+    PyObject *obj;
     PyObject *listitem;
-    Py_UNICODE *buffer;
-    Py_UNICODE ch;
+    Uint16* buffer;
+    Uint16 ch;
+    PyObject *temp;
+    int surrogate;
 
     if (!PyArg_ParseTuple(args, "O", &textobj)) {
         return NULL;
     }
 
     if (PyUnicode_Check(textobj)) {
-        unicodeobj = textobj;
-        Py_INCREF(unicodeobj);
+        obj = textobj;
+        Py_INCREF(obj);
     }
     else if (Bytes_Check(textobj)) {
-        unicodeobj = PyUnicode_FromEncodedObject(textobj, "latin-1", NULL);
-        if (!unicodeobj) {
+        obj = PyUnicode_FromEncodedObject(textobj, "UTF-8", NULL);
+        if (!obj) {
             return NULL;
         }
     }
     else {
         return RAISE_TEXT_TYPE_ERROR();
     }
+    temp = PyUnicode_AsUTF16String(obj);
+    Py_DECREF(obj);
+    if (!temp)
+        return NULL;
+    obj = temp;
 
-    length = PyUnicode_GET_SIZE(unicodeobj);
-    list = PyList_New(length);
+    list = PyList_New(0);
     if (!list) {
-        Py_DECREF(unicodeobj);
+        Py_DECREF(obj);
         return NULL;
     }
-    buffer = PyUnicode_AS_UNICODE(unicodeobj);
-    for (i = 0; i != length; ++i) {
+    buffer = (Uint16 *)Bytes_AS_STRING(obj);
+    length = Bytes_GET_SIZE(obj) / sizeof(Uint16);
+    for (i = 1 /* skip BOM */; i < length; i++) {
         ch = buffer[i];
+        surrogate = Py_UNICODE_IS_SURROGATE(ch);
         /* TODO:
          * TTF_GlyphMetrics() seems to return a value for any character,
          * using the default invalid character, if the char is not found.
          */
-        if (IS_UCS_2(ch) && /* conditional and */
+        if (!surrogate && /* conditional and */
             !TTF_GlyphMetrics(font, (Uint16)ch, &minx, &maxx, &miny, &maxy,
                               &advance)) {
             listitem =
                 Py_BuildValue("(iiiii)", minx, maxx, miny, maxy, advance);
             if (!listitem) {
                 Py_DECREF(list);
-                Py_DECREF(unicodeobj);
+                Py_DECREF(obj);
                 return NULL;
             }
         }
@@ -564,29 +605,32 @@ font_metrics(PyObject *self, PyObject *args)
             /* Not UCS-2 or no matching metrics. */
             Py_INCREF(Py_None);
             listitem = Py_None;
+            if (surrogate)
+                i++;
         }
-        PyList_SET_ITEM(list, i, listitem);
+        PyList_Append(list, listitem);
+        Py_DECREF(listitem);
     }
-    Py_DECREF(unicodeobj);
+    Py_DECREF(obj);
     return list;
 }
 
 static PyMethodDef font_methods[] = {
-    {"get_height", (PyCFunction)font_get_height, METH_NOARGS,
+    {"get_height", font_get_height, METH_NOARGS,
      DOC_FONTGETHEIGHT},
-    {"get_descent", (PyCFunction)font_get_descent, METH_NOARGS,
+    {"get_descent", font_get_descent, METH_NOARGS,
      DOC_FONTGETDESCENT},
-    {"get_ascent", (PyCFunction)font_get_ascent, METH_NOARGS,
+    {"get_ascent", font_get_ascent, METH_NOARGS,
      DOC_FONTGETASCENT},
-    {"get_linesize", (PyCFunction)font_get_linesize, METH_NOARGS,
+    {"get_linesize", font_get_linesize, METH_NOARGS,
      DOC_FONTGETLINESIZE},
 
-    {"get_bold", (PyCFunction)font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
+    {"get_bold", font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
     {"set_bold", font_set_bold, METH_VARARGS, DOC_FONTSETBOLD},
-    {"get_italic", (PyCFunction)font_get_italic, METH_NOARGS,
+    {"get_italic", font_get_italic, METH_NOARGS,
      DOC_FONTGETITALIC},
     {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
-    {"get_underline", (PyCFunction)font_get_underline, METH_NOARGS,
+    {"get_underline", font_get_underline, METH_NOARGS,
      DOC_FONTGETUNDERLINE},
     {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
 
@@ -616,7 +660,9 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     int fontsize;
     TTF_Font *font = NULL;
     PyObject *obj;
-    PyObject *oencoded;
+    PyObject *test;
+    PyObject *oencoded = NULL;
+    const char *filename;
 
     self->font = NULL;
     if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
@@ -624,7 +670,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (!font_initialized) {
-        RAISE(pgExc_SDLError, "font not initialized");
+        PyErr_SetString(pgExc_SDLError, "font not initialized");
         return -1;
     }
 
@@ -649,36 +695,31 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         if (fontsize <= 1) {
             fontsize = 1;
         }
-    }
-    else {
-        oencoded = pgRWopsEncodeFilePath(obj, NULL);
-        if (oencoded == NULL) {
-            goto error;
-        }
-        if (oencoded == Py_None) {
-            Py_DECREF(oencoded);
-        }
-        else {
-            Py_DECREF(obj);
-            obj = oencoded;
-        }
-    }
-    if (Bytes_Check(obj)) {
-        const char *filename = Bytes_AS_STRING(obj);
-        FILE *test;
 
-        /*check if it is a valid file, else SDL_ttf segfaults*/
-        test = fopen(filename, "rb");
-        if (test == NULL) {
-            PyObject *tmp = NULL;
+        oencoded = obj;
+        Py_INCREF(oencoded);
+        filename = Bytes_AS_STRING(oencoded);
+    } else {
+        /* SDL accepts UTF8 */
+        oencoded = pg_EncodeString(obj, "UTF8", NULL, NULL);
+        if (!oencoded || oencoded == Py_None) {
+            Py_XDECREF(oencoded);
+            oencoded = NULL;
+            PyErr_Clear();
+            goto fileobject;
+        }
+        filename = Bytes_AS_STRING(oencoded);
+    }
 
-            if (strcmp(filename, font_defaultname) == 0) {
-                /* filename is the default font; get it's resource
-                 */
-                tmp = font_resource(font_defaultname);
-            }
+    /*check if it is a valid file, else SDL_ttf segfaults*/
+    test = pg_open_obj(obj, "rb");
+    if (test == NULL) {
+        if (strcmp(filename, font_defaultname) == 0) {
+            PyObject *tmp;
+            PyErr_Clear();
+            tmp = font_resource(font_defaultname);
             if (tmp == NULL) {
-                if (PyErr_Occurred() == NULL) {
+                if (!PyErr_Occurred()) {
                     PyErr_Format(PyExc_IOError,
                                  "unable to read font file '%.1024s'",
                                  filename);
@@ -687,58 +728,63 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             }
             Py_DECREF(obj);
             obj = tmp;
-            if (Bytes_Check(obj)) {
-                filename = Bytes_AS_STRING(obj);
-                test = fopen(filename, "rb");
-                if (test == NULL) {
-                    PyErr_Format(PyExc_IOError,
-                                 "unable to read font file '%.1024s'",
-                                 filename);
-                    goto error;
-                }
-            }
+            filename = Bytes_AS_STRING(obj);
+            test = pg_open_obj(obj, "rb");
         }
-        if (Bytes_Check(obj)) {
-            fclose(test);
-            Py_BEGIN_ALLOW_THREADS;
-            font = TTF_OpenFont(filename, fontsize);
-            Py_END_ALLOW_THREADS;
+        if (test == NULL) {
+            if (!PyErr_Occurred()) {
+                PyErr_Format(PyExc_IOError,
+                             "unable to read font file '%.1024s'",
+                             filename);
+            }
+            goto error;
         }
     }
+    {
+        PyObject *tmp;
+        if (!(tmp = PyObject_CallMethod(test, "close", NULL))) {
+            Py_DECREF(test);
+            goto error;
+        }
+        Py_DECREF(tmp);
+    }
+    Py_DECREF(test);
+    Py_BEGIN_ALLOW_THREADS;
+    font = TTF_OpenFont(filename, fontsize);
+    Py_END_ALLOW_THREADS;
+
+fileobject:
     if (font == NULL) {
 #if FONT_HAVE_RWOPS
-        SDL_RWops *rw = pgRWopsFromFileObject(obj);
+        SDL_RWops *rw = pgRWops_FromFileObject(obj);
 
         if (rw == NULL) {
             goto error;
         }
 
-        if (pgRWopsCheckObject(rw)) {
-            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-            Py_END_ALLOW_THREADS;
-        }
+        Py_BEGIN_ALLOW_THREADS;
+        font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+        Py_END_ALLOW_THREADS;
 #else
-        RAISE(PyExc_NotImplementedError,
-              "nonstring fonts require SDL_ttf-2.0.6");
+        PyErr_SetString(PyExc_NotImplementedError,
+                        "nonstring fonts require SDL_ttf-2.0.6");
         goto error;
 #endif
     }
 
     if (font == NULL) {
-        RAISE(PyExc_RuntimeError, SDL_GetError());
+        PyErr_SetString(PyExc_RuntimeError, SDL_GetError());
         goto error;
     }
 
+    Py_XDECREF(oencoded);
     Py_DECREF(obj);
     self->font = font;
     return 0;
 
 error:
-    Py_DECREF(obj);
+    Py_XDECREF(oencoded);
+    Py_XDECREF(obj);
     return -1;
 }
 

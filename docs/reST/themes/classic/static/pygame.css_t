@@ -245,10 +245,36 @@ div.document {
     background-color: {{ theme_bgcolor }};
 }
 
-div.documentwrapper {
-    float: left;
-    width: 100%;
+/* on wide screens center text, and max width for readable area.  */
+@media only screen and (min-width: 680px) {
+    div.documentwrapper {
+        float: initial;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
 }
+
+/* Make tables be responsive-ish. */
+@media only screen and (max-width: 680px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+}
+
+
+/* */
+.toc td {
+    display:block;
+    width: 200%;
+}
+.toc td:last-child {
+    padding-bottom: 20px;
+}
+table.toc td:nth-child(2) {
+    display: none;
+}
+
 
 div.bodywrapper {
     margin: 0 0 0 230px;
@@ -409,6 +435,10 @@ dl.definition {
     padding-bottom: 0.7em;
 }
 
+dt.title {
+    font-family: monospace;
+}
+
 dd {
     margin-left: 30px;
 }
@@ -443,6 +473,10 @@ span.summaryline {
 span.signature {
     font-family: {{ theme_sigfont }};
     margin-bottom: 0.5em;
+}
+
+span.pre {
+    font-family: monospace;
 }
 
 table.docutils td.toc {
@@ -534,6 +568,19 @@ div.admonition ul, div.admonition ol {
     margin-bottom: 5px;
 }
 
+dl.definition div.note, dl.definition div.seealso {
+    background: none;
+    border: none;
+}
+
+dl.definition div.admonition {
+    margin-bottom: 0.5em;
+}
+
+dl.definition .admonition-title {
+    font-weight: bold;
+}
+
 div.note {
     background-color: #eee;
     border: 1px solid #ccc;
@@ -546,6 +593,11 @@ div.seealso {
 
 div.topic {
     background-color: #eee;
+}
+
+div.caution {
+    background-color: #eeffcc;
+    border: 1px solid #aabb88;
 }
 
 div.warning {
@@ -571,7 +623,7 @@ pre {
     border-left: none;
     border-right: none;
     color: #333333;
-    display: inline-block;
+    display: block;
     font-family: monospace;
     line-height: 120%;
     margin-bottom: 1em;
@@ -601,6 +653,10 @@ ul.simple {
     list-style-type: circle;
     list-style-position: inside;
     margin-bottom: 1em;
+}
+
+.versionmodified {
+    font-style: italic;
 }
 
 /* Top level section title format */
@@ -673,6 +729,13 @@ div.body .inset {
 /* Code line reference text style */
 div.body span.codelineref {
     text-decoration: underline;
+}
+
+/* Highlight Code types and functions. */
+.py-class .pre,
+.reference.internal em {
+    font-weight: bold;
+    background-color: lightgreen;
 }
 
 /* Examples section: contains one or more example subsections */
@@ -768,6 +831,5 @@ pre.commentContent {
     max-width; 800px;
     margin-left:0px;
     border: 0;
+    white-space: pre-wrap;
 }
-
-

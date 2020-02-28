@@ -208,7 +208,8 @@ pygame.mouse.set_cursor().
    size = len(strings[0]), len(strings)
    if size[0] % 8 or size[1] % 8:
        raise ValueError("cursor string sizes must be divisible by 8 %s" %
-                        size)
+                        (size,))
+
    for s in strings[1:]:
        if len(s) != size[0]:
            raise ValueError("Cursor strings are inconsistent lengths")
@@ -255,10 +256,19 @@ should work with typical XBM files.
             b = num&(1<<x) != 0
             val = val<<1 | b
         return val
-    if type(curs) is type(''): curs = open(curs)
-    if type(mask) is type(''): mask = open(mask)
-    curs = curs.readlines()
-    mask = mask.readlines()
+
+    if type(curs) is type(''):
+        with open(curs) as cursor_f:
+            curs = cursor_f.readlines()
+    else:
+        curs = curs.readlines()
+
+    if type(mask) is type(''):
+        with open(mask) as mask_f:
+            mask = mask_f.readlines()
+    else:
+        mask = mask.readlines()
+
     #avoid comments
     for line in range(len(curs)):
         if curs[line].startswith("#define"):

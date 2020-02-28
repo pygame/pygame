@@ -42,7 +42,26 @@ mouse_set_pos(PyObject *self, PyObject *args)
 
 #if IS_SDLv1
     SDL_WarpMouse((Uint16)x, (Uint16)y);
+
 #else  /* IS_SDLv2 */
+    {
+        SDL_Window *sdlWindow = pg_GetDefaultWindow();
+        SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+        if (sdlRenderer!=NULL){
+            SDL_Rect vprect;
+            float scalex, scaley;
+
+            SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+            SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+            x += vprect.x;
+            y += vprect.y;
+
+            x = (int)(x * scalex);
+            y = (int)(y * scaley);
+        }
+    }
+
     SDL_WarpMouseInWindow(NULL, (Uint16)x, (Uint16)y);
 #endif /* IS_SDLv2 */
     Py_RETURN_NONE;
@@ -55,6 +74,36 @@ mouse_get_pos(PyObject *self)
 
     VIDEO_INIT_CHECK();
     SDL_GetMouseState(&x, &y);
+
+#if IS_SDLv2
+    {
+        SDL_Window *sdlWindow = pg_GetDefaultWindow();
+        SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+        if (sdlRenderer!=NULL){
+            SDL_Rect vprect;
+            float scalex, scaley;
+
+            SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+            SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+            x = (int)(x / scalex);
+            y = (int)(y / scaley);
+
+            x-=vprect.x;
+            y-=vprect.y;
+
+            if (x<0)
+                x=0;
+            if (x>=vprect.w)
+                x=vprect.w-1;
+            if (y<0)
+                y=0;
+            if (y>=vprect.h)
+                y=vprect.h-1;
+        }
+    }
+#endif
+
     return Py_BuildValue("(ii)", x, y);
 }
 
@@ -66,6 +115,21 @@ mouse_get_rel(PyObject *self)
     VIDEO_INIT_CHECK();
 
     SDL_GetRelativeMouseState(&x, &y);
+
+/*
+#if IS_SDLv2
+    SDL_Window *sdlWindow = pg_GetDefaultWindow();
+    SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+    if (sdlRenderer!=NULL){
+        float scalex, scaley;
+
+        SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+
+        x/=scalex;
+        y/=scaley;
+    }
+#endif
+*/
     return Py_BuildValue("(ii)", x, y);
 }
 
@@ -92,13 +156,45 @@ static PyObject *
 mouse_set_visible(PyObject *self, PyObject *args)
 {
     int toggle;
+    #if IS_SDLv2
+        int mode;
+        SDL_Window *win = NULL;
+    #endif
 
     if (!PyArg_ParseTuple(args, "i", &toggle))
         return NULL;
     VIDEO_INIT_CHECK();
 
+    #if IS_SDLv2
+        win = pg_GetDefaultWindow();
+        if (win) {
+            mode = SDL_GetWindowGrab(win);
+            if ((mode == SDL_ENABLE) & !toggle) {
+                SDL_SetRelativeMouseMode(1);
+            } else {
+                SDL_SetRelativeMouseMode(0);
+            }
+        }
+    #endif
+
     toggle = SDL_ShowCursor(toggle);
     return PyInt_FromLong(toggle);
+}
+
+static PyObject *
+mouse_get_visible(PyObject *self, PyObject *args)
+{
+    int result;
+
+    VIDEO_INIT_CHECK();
+
+    result = SDL_ShowCursor(SDL_QUERY);
+
+    if (0 > result) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    return PyBool_FromLong(result);
 }
 
 static PyObject *
@@ -143,6 +239,12 @@ mouse_set_cursor(PyObject *self, PyObject *args)
 
     xordata = (Uint8 *)malloc(xorsize);
     anddata = (Uint8 *)malloc(andsize);
+
+    if ((NULL == xordata) || (NULL == anddata)) {
+        free(xordata);
+        free(anddata);
+        return PyErr_NoMemory();
+    }
 
     for (loop = 0; loop < xorsize; ++loop) {
         if (!pg_IntFromObjIndex(xormask, loop, &val))
@@ -201,7 +303,7 @@ mouse_get_cursor(PyObject *self)
         return NULL;
     anddata = PyTuple_New(size);
     if (!anddata) {
-        Py_DECREF(anddata);
+        Py_DECREF(xordata);
         return NULL;
     }
 
@@ -224,6 +326,7 @@ static PyMethodDef _mouse_methods[] = {
      DOC_PYGAMEMOUSEGETPRESSED},
     {"set_visible", mouse_set_visible, METH_VARARGS,
      DOC_PYGAMEMOUSESETVISIBLE},
+    {"get_visible", mouse_get_visible, METH_NOARGS, DOC_PYGAMEMOUSEGETVISIBLE},
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},

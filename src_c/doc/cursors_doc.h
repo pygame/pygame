@@ -1,10 +1,7 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMECURSORS "pygame module for cursor resources"
-
 #define DOC_PYGAMECURSORSCOMPILE "compile(strings, black='X', white='.', xor='o') -> data, mask\ncreate binary cursor data from simple strings"
-
 #define DOC_PYGAMECURSORSLOADXBM "load_xbm(cursorfile) -> cursor_args\nload_xbm(cursorfile, maskfile) -> cursor_args\nload cursor data from an XBM file"
-
 
 
 /* Docs in a comment... slightly easier to read. */

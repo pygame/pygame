@@ -1,10 +1,9 @@
-# Two unit tests fail! Disable to allow automated builds to continue.
-__tags__ = ('ignore', 'subprocess_ignore')
-
 import unittest
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
+from pygame.tests.test_utils import SurfaceSubclass
+
 
 def intensity(c, i):
     """Return color c changed by intensity i
@@ -21,12 +20,14 @@ def intensity(c, i):
         # Darken
         return ((r * i) // 127, (g * i) // 127, (b * i) // 127)
     # Lighten
-    return (r + ((255 - r) * (255 - i)) // 127,
-            g + ((255 - g) * (255 - i)) // 127,
-            b + ((255 - b) * (255 - i)) // 127)
+    return (
+        r + ((255 - r) * (255 - i)) // 127,
+        g + ((255 - g) * (255 - i)) // 127,
+        b + ((255 - b) * (255 - i)) // 127,
+    )
 
 
-class GfxdrawDefaultTest( unittest.TestCase ):
+class GfxdrawDefaultTest(unittest.TestCase):
 
     is_started = False
 
@@ -45,47 +46,96 @@ class GfxdrawDefaultTest( unittest.TestCase ):
 
     def check_at(self, surf, posn, color):
         sc = surf.get_at(posn)
-        fail_msg = ("%s != %s at %s, bitsize: %i, flags: %i, masks: %s" %
-                    (sc, color, posn, surf.get_bitsize(), surf.get_flags(),
-                     surf.get_masks()))
+        fail_msg = "%s != %s at %s, bitsize: %i, flags: %i, masks: %s" % (
+            sc,
+            color,
+            posn,
+            surf.get_bitsize(),
+            surf.get_flags(),
+            surf.get_masks(),
+        )
         self.assertEqual(sc, color, fail_msg)
 
     def check_not_at(self, surf, posn, color):
         sc = surf.get_at(posn)
-        fail_msg = ("%s != %s at %s, bitsize: %i, flags: %i, masks: %s" %
-                    (sc, color, posn, surf.get_bitsize(), surf.get_flags(),
-                     surf.get_masks()))
+        fail_msg = "%s != %s at %s, bitsize: %i, flags: %i, masks: %s" % (
+            sc,
+            color,
+            posn,
+            surf.get_bitsize(),
+            surf.get_flags(),
+            surf.get_masks(),
+        )
         self.assertNotEqual(sc, color, fail_msg)
 
+    @classmethod
+    def setUpClass(cls):
+        # Necessary for Surface.set_palette.
+        pygame.init()
+        pygame.display.set_mode((1, 1))
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.quit()
+
     def setUp(self):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
+
         Surface = pygame.Surface
         size = self.default_size
         palette = self.default_palette
         if not self.is_started:
-            # Necessary for Surface.set_palette.
-            pygame.init()
-            pygame.display.set_mode((1, 1))
             # Create test surfaces
-            self.surfaces = [Surface(size, 0, 8),
-                             Surface(size, 0, 16),
-                             Surface(size, 0, 24),
-                             Surface(size, 0, 32),
-                             Surface(size, SRCALPHA, 16),
-                             Surface(size, SRCALPHA, 32)]
+            self.surfaces = [
+                Surface(size, 0, 8),
+                Surface(size, SRCALPHA, 16),
+                Surface(size, SRCALPHA, 32),
+            ]
             self.surfaces[0].set_palette(palette)
-            # Special pixel formats
-            for i in range(1, 6):
-                s = self.surfaces[i]
-                flags = s.get_flags()
-                bitsize = s.get_bitsize()
-                masks = s.get_masks()
-                if flags:
-                    masks = (masks[1], masks[2], masks[3], masks[0])
-                else:
-                    masks = (masks[1], masks[2], masks[0], masks[3])
-                self.surfaces.append(Surface(size, flags, bitsize, masks))
+            nonpalette_fmts = (
+                # (8, (0xe0, 0x1c, 0x3, 0x0)),
+                (12, (0xF00, 0xF0, 0xF, 0x0)),
+                (15, (0x7C00, 0x3E0, 0x1F, 0x0)),
+                (15, (0x1F, 0x3E0, 0x7C00, 0x0)),
+                (16, (0xF00, 0xF0, 0xF, 0xF000)),
+                (16, (0xF000, 0xF00, 0xF0, 0xF)),
+                (16, (0xF, 0xF0, 0xF00, 0xF000)),
+                (16, (0xF0, 0xF00, 0xF000, 0xF)),
+                (16, (0x7C00, 0x3E0, 0x1F, 0x8000)),
+                (16, (0xF800, 0x7C0, 0x3E, 0x1)),
+                (16, (0x1F, 0x3E0, 0x7C00, 0x8000)),
+                (16, (0x3E, 0x7C0, 0xF800, 0x1)),
+                (16, (0xF800, 0x7E0, 0x1F, 0x0)),
+                (16, (0x1F, 0x7E0, 0xF800, 0x0)),
+                (24, (0xFF, 0xFF00, 0xFF0000, 0x0)),
+                (24, (0xFF0000, 0xFF00, 0xFF, 0x0)),
+                (32, (0xFF0000, 0xFF00, 0xFF, 0x0)),
+                (32, (0xFF000000, 0xFF0000, 0xFF00, 0x0)),
+                (32, (0xFF, 0xFF00, 0xFF0000, 0x0)),
+                (32, (0xFF00, 0xFF0000, 0xFF000000, 0x0)),
+                (32, (0xFF0000, 0xFF00, 0xFF, 0xFF000000)),
+                (32, (0xFF000000, 0xFF0000, 0xFF00, 0xFF)),
+                (32, (0xFF, 0xFF00, 0xFF0000, 0xFF000000)),
+                (32, (0xFF00, 0xFF0000, 0xFF000000, 0xFF)),
+            )
+            for bitsize, masks in nonpalette_fmts:
+                self.surfaces.append(Surface(size, 0, bitsize, masks))
         for surf in self.surfaces:
             surf.fill(self.background_color)
+
+    def test_gfxdraw__subclassed_surface(self):
+        """Ensure pygame.gfxdraw works on subclassed surfaces."""
+        surface = SurfaceSubclass((11, 13), SRCALPHA, 32)
+        surface.fill(pygame.Color("blue"))
+        expected_color = pygame.Color("red")
+        x, y = 1, 2
+
+        pygame.gfxdraw.pixel(surface, x, y, expected_color)
+
+        self.assertEqual(surface.get_at((x, y)), expected_color)
 
     def test_pixel(self):
         """pixel(surface, x, y, color): return None"""
@@ -110,9 +160,14 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         stopx = 80
         y = 50
         fg_test_points = [(startx, y), (stopx, y), ((stopx - startx) // 2, y)]
-        bg_test_points = [(startx - 1, y), (stopx + 1, y),
-                          (startx, y - 1), (startx, y + 1),
-                          (stopx, y - 1), (stopx, y + 1)]
+        bg_test_points = [
+            (startx - 1, y),
+            (stopx + 1, y),
+            (startx, y - 1),
+            (startx, y + 1),
+            (stopx, y - 1),
+            (stopx, y + 1),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -130,9 +185,14 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         starty = 10
         stopy = 80
         fg_test_points = [(x, starty), (x, stopy), (x, (stopy - starty) // 2)]
-        bg_test_points = [(x, starty - 1), (x, stopy + 1),
-                          (x - 1, starty), (x + 1, starty),
-                          (x - 1, stopy), (x + 1, stopy)]
+        bg_test_points = [
+            (x, starty - 1),
+            (x, stopy + 1),
+            (x - 1, starty),
+            (x + 1, starty),
+            (x - 1, stopy),
+            (x + 1, stopy),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -148,18 +208,22 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         bg = self.background_color
         rect = pygame.Rect(10, 15, 55, 62)
         rect_tuple = tuple(rect)
-        fg_test_points = [rect.topleft,
-                          (rect.right - 1, rect.top),
-                          (rect.left, rect.bottom - 1),
-                          (rect.right - 1, rect.bottom - 1)]
-        bg_test_points = [(rect.left - 1, rect.top - 1),
-                          (rect.left + 1, rect.top + 1),
-                          (rect.right, rect.top - 1),
-                          (rect.right - 2, rect.top + 1),
-                          (rect.left - 1, rect.bottom),
-                          (rect.left + 1, rect.bottom - 2),
-                          (rect.right, rect.bottom),
-                          (rect.right - 2, rect.bottom - 2)]
+        fg_test_points = [
+            rect.topleft,
+            (rect.right - 1, rect.top),
+            (rect.left, rect.bottom - 1),
+            (rect.right - 1, rect.bottom - 1),
+        ]
+        bg_test_points = [
+            (rect.left - 1, rect.top - 1),
+            (rect.left + 1, rect.top + 1),
+            (rect.right, rect.top - 1),
+            (rect.right - 2, rect.top + 1),
+            (rect.left - 1, rect.bottom),
+            (rect.left + 1, rect.bottom - 2),
+            (rect.right, rect.bottom),
+            (rect.right - 2, rect.bottom - 2),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -181,18 +245,22 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         bg = self.background_color
         rect = pygame.Rect(10, 15, 55, 62)
         rect_tuple = tuple(rect)
-        fg_test_points = [rect.topleft,
-                          (rect.left + 1, rect.top + 1),
-                          (rect.right - 1, rect.top),
-                          (rect.right - 2, rect.top + 1),
-                          (rect.left, rect.bottom - 1),
-                          (rect.left + 1, rect.bottom - 2),
-                          (rect.right - 1, rect.bottom - 1),
-                          (rect.right - 2, rect.bottom - 2)]
-        bg_test_points = [(rect.left - 1, rect.top - 1),
-                          (rect.right, rect.top - 1),
-                          (rect.left - 1, rect.bottom),
-                          (rect.right, rect.bottom)]
+        fg_test_points = [
+            rect.topleft,
+            (rect.left + 1, rect.top + 1),
+            (rect.right - 1, rect.top),
+            (rect.right - 2, rect.top + 1),
+            (rect.left, rect.bottom - 1),
+            (rect.left + 1, rect.bottom - 2),
+            (rect.right - 1, rect.bottom - 1),
+            (rect.right - 2, rect.bottom - 2),
+        ]
+        bg_test_points = [
+            (rect.left - 1, rect.top - 1),
+            (rect.right, rect.top - 1),
+            (rect.left - 1, rect.bottom),
+            (rect.right, rect.bottom),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -217,8 +285,14 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         x2 = 92
         y2 = 77
         fg_test_points = [(x1, y1), (x2, y2)]
-        bg_test_points = [(x1 - 1, y1), (x1, y1 - 1), (x1 - 1, y1 - 1),
-                          (x2 + 1, y2), (x2, y2 + 1), (x2 + 1, y2 + 1)]
+        bg_test_points = [
+            (x1 - 1, y1),
+            (x1, y1 - 1),
+            (x1 - 1, y1 - 1),
+            (x2 + 1, y2),
+            (x2, y2 + 1),
+            (x2 + 1, y2 + 1),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -235,19 +309,18 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         x = 45
         y = 40
         r = 30
-        fg_test_points = [(x, y - r),
-                          (x, y + r),
-                          (x - r, y),
-                          (x + r, y)]
-        bg_test_points = [(x, y),
-                          (x, y - r + 1),
-                          (x, y - r - 1),
-                          (x, y + r + 1),
-                          (x, y + r - 1),
-                          (x - r - 1, y),
-                          (x - r + 1, y),
-                          (x + r + 1, y),
-                          (x + r - 1, y)]
+        fg_test_points = [(x, y - r), (x, y + r), (x - r, y), (x + r, y)]
+        bg_test_points = [
+            (x, y),
+            (x, y - r + 1),
+            (x, y - r - 1),
+            (x, y + r + 1),
+            (x, y + r - 1),
+            (x - r - 1, y),
+            (x - r + 1, y),
+            (x + r + 1, y),
+            (x + r - 1, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -265,17 +338,19 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         y = 40
         r = 30
         start = 0  # +x direction, but not (x + r, y) (?)
-        end = 90   # -y direction, including (x, y + r)
+        end = 90  # -y direction, including (x, y + r)
         fg_test_points = [(x, y + r), (x + r, y + 1)]
-        bg_test_points = [(x, y),
-                          (x, y - r),
-                          (x - r, y),
-                          (x, y + r + 1),
-                          (x, y + r - 1),
-                          (x - 1, y + r),
-                          (x + r + 1, y),
-                          (x + r - 1, y),
-                          (x + r, y)]
+        bg_test_points = [
+            (x, y),
+            (x, y - r),
+            (x - r, y),
+            (x, y + r + 1),
+            (x, y + r - 1),
+            (x - 1, y + r),
+            (x + r + 1, y),
+            (x + r - 1, y),
+            (x + r, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -292,19 +367,18 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         x = 45
         y = 40
         r = 30
-        fg_test_points = [(x, y - r),
-                          (x, y + r),
-                          (x - r, y),
-                          (x + r, y)]
-        bg_test_points = [(x, y),
-                          (x, y - r + 1),
-                          (x, y - r - 1),
-                          (x, y + r + 1),
-                          (x, y + r - 1),
-                          (x - r - 1, y),
-                          (x - r + 1, y),
-                          (x + r + 1, y),
-                          (x + r - 1, y)]
+        fg_test_points = [(x, y - r), (x, y + r), (x - r, y), (x + r, y)]
+        bg_test_points = [
+            (x, y),
+            (x, y - r + 1),
+            (x, y - r - 1),
+            (x, y + r + 1),
+            (x, y + r - 1),
+            (x - r - 1, y),
+            (x - r + 1, y),
+            (x + r + 1, y),
+            (x + r - 1, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -321,19 +395,23 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         x = 45
         y = 40
         r = 30
-        fg_test_points = [(x, y - r),
-                          (x, y - r + 1),
-                          (x, y + r),
-                          (x, y + r - 1),
-                          (x - r, y),
-                          (x - r + 1, y),
-                          (x + r, y),
-                          (x + r - 1, y),
-                          (x, y)]
-        bg_test_points = [(x, y - r - 1),
-                          (x, y + r + 1),
-                          (x - r - 1, y),
-                          (x + r + 1, y)]
+        fg_test_points = [
+            (x, y - r),
+            (x, y - r + 1),
+            (x, y + r),
+            (x, y + r - 1),
+            (x - r, y),
+            (x - r + 1, y),
+            (x + r, y),
+            (x + r - 1, y),
+            (x, y),
+        ]
+        bg_test_points = [
+            (x, y - r - 1),
+            (x, y + r + 1),
+            (x - r - 1, y),
+            (x + r + 1, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -351,19 +429,18 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         y = 40
         rx = 30
         ry = 35
-        fg_test_points = [(x, y - ry),
-                          (x, y + ry),
-                          (x - rx, y),
-                          (x + rx, y)]
-        bg_test_points = [(x, y),
-                          (x, y - ry + 1),
-                          (x, y - ry - 1),
-                          (x, y + ry + 1),
-                          (x, y + ry - 1),
-                          (x - rx - 1, y),
-                          (x - rx + 1, y),
-                          (x + rx + 1, y),
-                          (x + rx - 1, y)]
+        fg_test_points = [(x, y - ry), (x, y + ry), (x - rx, y), (x + rx, y)]
+        bg_test_points = [
+            (x, y),
+            (x, y - ry + 1),
+            (x, y - ry - 1),
+            (x, y + ry + 1),
+            (x, y + ry - 1),
+            (x - rx - 1, y),
+            (x - rx + 1, y),
+            (x + rx + 1, y),
+            (x + rx - 1, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -381,19 +458,18 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         y = 40
         rx = 30
         ry = 35
-        fg_test_points = [(x, y - ry),
-                          (x, y + ry),
-                          (x - rx, y),
-                          (x + rx, y)]
-        bg_test_points = [(x, y),
-                          (x, y - ry + 1),
-                          (x, y - ry - 1),
-                          (x, y + ry + 1),
-                          (x, y + ry - 1),
-                          (x - rx - 1, y),
-                          (x - rx + 1, y),
-                          (x + rx + 1, y),
-                          (x + rx - 1, y)]
+        fg_test_points = [(x, y - ry), (x, y + ry), (x - rx, y), (x + rx, y)]
+        bg_test_points = [
+            (x, y),
+            (x, y - ry + 1),
+            (x, y - ry - 1),
+            (x, y + ry + 1),
+            (x, y + ry - 1),
+            (x - rx - 1, y),
+            (x - rx + 1, y),
+            (x + rx + 1, y),
+            (x + rx - 1, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -411,19 +487,23 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         y = 40
         rx = 30
         ry = 35
-        fg_test_points = [(x, y - ry),
-                          (x, y - ry + 1),
-                          (x, y + ry),
-                          (x, y + ry - 1),
-                          (x - rx, y),
-                          (x - rx + 1, y),
-                          (x + rx, y),
-                          (x + rx - 1, y),
-                          (x, y)]
-        bg_test_points = [(x, y - ry - 1),
-                          (x, y + ry + 1),
-                          (x - rx - 1, y),
-                          (x + rx + 1, y)]
+        fg_test_points = [
+            (x, y - ry),
+            (x, y - ry + 1),
+            (x, y + ry),
+            (x, y + ry - 1),
+            (x - rx, y),
+            (x - rx + 1, y),
+            (x + rx, y),
+            (x + rx - 1, y),
+            (x, y),
+        ]
+        bg_test_points = [
+            (x, y - ry - 1),
+            (x, y + ry + 1),
+            (x - rx - 1, y),
+            (x + rx + 1, y),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -441,18 +521,17 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         y = 40
         r = 30
         start = 0  # +x direction, including (x + r, y)
-        end = 90   # -y direction, but not (x, y + r) (?)
-        fg_test_points = [(x, y),
-                          (x + 1, y),
-                          (x, y + 1),
-                          (x + r, y)]
-        bg_test_points = [(x - 1, y),
-                          (x, y - 1),
-                          (x - 1, y - 1),
-                          (x + 1, y + 1),
-                          (x + r + 1, y),
-                          (x + r, y - 1),
-                          (x, y + r)]
+        end = 90  # -y direction, but not (x, y + r) (?)
+        fg_test_points = [(x, y), (x + 1, y), (x, y + 1), (x + r, y)]
+        bg_test_points = [
+            (x - 1, y),
+            (x, y - 1),
+            (x - 1, y - 1),
+            (x + 1, y + 1),
+            (x + r + 1, y),
+            (x + r, y - 1),
+            (x, y + r + 1),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -473,10 +552,12 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         x3 = 20
         y3 = 60
         fg_test_points = [(x1, y1), (x2, y2), (x3, y3)]
-        bg_test_points = [(x1 - 1, y1 - 1),
-                          (x2 + 1, y2 + 1),
-                          (x3 - 1, y3 + 1),
-                          (x1 + 10, y1 + 30)]
+        bg_test_points = [
+            (x1 - 1, y1 - 1),
+            (x2 + 1, y2 + 1),
+            (x3 - 1, y3 + 1),
+            (x1 + 10, y1 + 30),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -497,10 +578,12 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         x3 = 20
         y3 = 60
         fg_test_points = [(x1, y1), (x2, y2), (x3, y3)]
-        bg_test_points = [(x1 - 1, y1 - 1),
-                          (x2 + 1, y2 + 1),
-                          (x3 - 1, y3 + 1),
-                          (x1 + 10, y1 + 30)]
+        bg_test_points = [
+            (x1 - 1, y1 - 1),
+            (x2 + 1, y2 + 1),
+            (x3 - 1, y3 + 1),
+            (x1 + 10, y1 + 30),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -509,6 +592,50 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                 self.check_not_at(surf, posn, bg_adjusted)
             for posn in bg_test_points:
                 self.check_at(surf, posn, bg_adjusted)
+
+    @unittest.expectedFailure
+    def test_aatrigon__with_horizontal_edge(self):
+        """Ensure aatrigon draws horizontal edges correctly.
+
+        This test creates 2 surfaces and draws an aatrigon on each. The pixels
+        on each surface are compared to ensure they are the same. The only
+        difference between the 2 aatrigons is the order the points are drawn.
+        The order of the points should have no impact on the final drawing.
+
+        Related to issue #622.
+        """
+        bg_color = pygame.Color("white")
+        line_color = pygame.Color("black")
+        width, height = 11, 10
+        expected_surface = pygame.Surface((width, height), 0, 32)
+        expected_surface.fill(bg_color)
+        surface = pygame.Surface((width, height), 0, 32)
+        surface.fill(bg_color)
+
+        x1, y1 = width - 1, 0
+        x2, y2 = (width - 1) // 2, height - 1
+        x3, y3 = 0, 0
+
+        # The points in this order draw as expected.
+        pygame.gfxdraw.aatrigon(expected_surface, x1, y1, x2, y2, x3, y3, line_color)
+
+        # The points in reverse order fail to draw the horizontal edge along
+        # the top.
+        pygame.gfxdraw.aatrigon(surface, x3, y3, x2, y2, x1, y1, line_color)
+
+        # The surfaces are locked for a possible speed up of pixel access.
+        expected_surface.lock()
+        surface.lock()
+        for x in range(width):
+            for y in range(height):
+                self.assertEqual(
+                    expected_surface.get_at((x, y)),
+                    surface.get_at((x, y)),
+                    "pos=({}, {})".format(x, y),
+                )
+
+        surface.unlock()
+        expected_surface.unlock()
 
     def test_filled_trigon(self):
         """filled_trigon(surface, x1, y1, x2, y2, x3, y3, color): return None"""
@@ -520,11 +647,8 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         y2 = 77
         x3 = 20
         y3 = 60
-        fg_test_points = [(x1, y1), (x2, y2), (x3, y3),
-                          (x1 + 10, y1 + 30)]
-        bg_test_points = [(x1 - 1, y1 - 1),
-                          (x2 + 1, y2 + 1),
-                          (x3 - 1, y3 + 1)]
+        fg_test_points = [(x1, y1), (x2, y2), (x3, y3), (x1 + 10, y1 + 30)]
+        bg_test_points = [(x1 - 1, y1 - 1), (x2 + 1, y2 + 1), (x3 - 1, y3 + 1)]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -539,25 +663,28 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         fg = self.foreground_color
         bg = self.background_color
         points = [(10, 80), (10, 15), (92, 25), (92, 80)]
-        fg_test_points = (points +
-                          [(points[0][0], points[0][1] - 1),
-                           (points[0][0] + 1, points[0][1]),
-                           (points[3][0] - 1, points[3][1]),
-                           (points[3][0], points[3][1] - 1),
-                           (points[2][0], points[2][1] + 1)])
-        bg_test_points = [(points[0][0] - 1, points[0][1]),
-                          (points[0][0], points[0][1] + 1),
-                          (points[0][0] - 1, points[0][1] + 1),
-                          (points[0][0] + 1, points[0][1] - 1),
-                          (points[3][0] + 1, points[3][1]),
-                          (points[3][0], points[3][1] + 1),
-                          (points[3][0] + 1, points[3][1] + 1),
-                          (points[3][0] - 1, points[3][1] - 1),
-                          (points[2][0] + 1, points[2][1]),
-                          (points[2][0] - 1, points[2][1] + 1),
-                          (points[1][0] - 1, points[1][1]),
-                          (points[1][0], points[1][1] - 1),
-                          (points[1][0] - 1, points[1][1] - 1)]
+        fg_test_points = points + [
+            (points[0][0], points[0][1] - 1),
+            (points[0][0] + 1, points[0][1]),
+            (points[3][0] - 1, points[3][1]),
+            (points[3][0], points[3][1] - 1),
+            (points[2][0], points[2][1] + 1),
+        ]
+        bg_test_points = [
+            (points[0][0] - 1, points[0][1]),
+            (points[0][0], points[0][1] + 1),
+            (points[0][0] - 1, points[0][1] + 1),
+            (points[0][0] + 1, points[0][1] - 1),
+            (points[3][0] + 1, points[3][1]),
+            (points[3][0], points[3][1] + 1),
+            (points[3][0] + 1, points[3][1] + 1),
+            (points[3][0] - 1, points[3][1] - 1),
+            (points[2][0] + 1, points[2][1]),
+            (points[2][0] - 1, points[2][1] + 1),
+            (points[1][0] - 1, points[1][1]),
+            (points[1][0], points[1][1] - 1),
+            (points[1][0] - 1, points[1][1] - 1),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -572,58 +699,105 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         fg = self.foreground_color
         bg = self.background_color
         points = [(10, 80), (10, 15), (92, 25), (92, 80)]
-        fg_test_points = (points +
-                          [(points[0][0], points[0][1] - 1),
-                           (points[0][0] + 1, points[0][1]),
-                           (points[3][0] - 1, points[3][1]),
-                           (points[3][0], points[3][1] - 1),
-                           (points[2][0], points[2][1] + 1)])
-        bg_test_points = [(points[0][0] - 1, points[0][1]),
-                          (points[0][0], points[0][1] + 1),
-                          (points[0][0] - 1, points[0][1] + 1),
-                          (points[0][0] + 1, points[0][1] - 1),
-                          (points[3][0] + 1, points[3][1]),
-                          (points[3][0], points[3][1] + 1),
-                          (points[3][0] + 1, points[3][1] + 1),
-                          (points[3][0] - 1, points[3][1] - 1),
-                          (points[2][0] + 1, points[2][1]),
-                          (points[2][0] - 1, points[2][1] + 1),
-                          (points[1][0] - 1, points[1][1]),
-                          (points[1][0], points[1][1] - 1),
-                          (points[1][0] - 1, points[1][1] - 1)]
+        fg_test_points = points
+        bg_test_points = [
+            (points[0][0] - 1, points[0][1]),
+            (points[0][0], points[0][1] + 1),
+            (points[0][0] - 1, points[0][1] + 1),
+            (points[0][0] + 1, points[0][1] - 1),
+            (points[3][0] + 1, points[3][1]),
+            (points[3][0], points[3][1] + 1),
+            (points[3][0] + 1, points[3][1] + 1),
+            (points[3][0] - 1, points[3][1] - 1),
+            (points[2][0] + 1, points[2][1]),
+            (points[2][0] - 1, points[2][1] + 1),
+            (points[1][0] - 1, points[1][1]),
+            (points[1][0], points[1][1] - 1),
+            (points[1][0] - 1, points[1][1] - 1),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
             pygame.gfxdraw.aapolygon(surf, points, fg)
             for posn in fg_test_points:
-                self.check_not_at(surf, posn, bg_adjusted)
+                self.check_at(surf, posn, fg_adjusted)
+            for posn in bg_test_points:
+                self.check_not_at(surf, posn, fg_adjusted)
             for posn in bg_test_points:
                 self.check_at(surf, posn, bg_adjusted)
+
+    @unittest.expectedFailure
+    def test_aapolygon__with_horizontal_edge(self):
+        """Ensure aapolygon draws horizontal edges correctly.
+
+        This test creates 2 surfaces and draws a polygon on each. The pixels
+        on each surface are compared to ensure they are the same. The only
+        difference between the 2 polygons is that one is drawn using
+        aapolygon() and the other using multiple line() calls. They should
+        produce the same final drawing.
+
+        Related to issue #622.
+        """
+        bg_color = pygame.Color("white")
+        line_color = pygame.Color("black")
+        width, height = 11, 10
+        expected_surface = pygame.Surface((width, height), 0, 32)
+        expected_surface.fill(bg_color)
+        surface = pygame.Surface((width, height), 0, 32)
+        surface.fill(bg_color)
+
+        points = ((0, 0), (0, height - 1), (width - 1, height - 1), (width - 1, 0))
+
+        # The points are used to draw the expected aapolygon using the line()
+        # function.
+        for (x1, y1), (x2, y2) in zip(points, points[1:] + points[:1]):
+            pygame.gfxdraw.line(expected_surface, x1, y1, x2, y2, line_color)
+
+        # The points in this order fail to draw the horizontal edge along
+        # the top.
+        pygame.gfxdraw.aapolygon(surface, points, line_color)
+
+        # The surfaces are locked for a possible speed up of pixel access.
+        expected_surface.lock()
+        surface.lock()
+        for x in range(width):
+            for y in range(height):
+                self.assertEqual(
+                    expected_surface.get_at((x, y)),
+                    surface.get_at((x, y)),
+                    "pos=({}, {})".format(x, y),
+                )
+
+        surface.unlock()
+        expected_surface.unlock()
 
     def test_filled_polygon(self):
         """filled_polygon(surface, points, color): return None"""
         fg = self.foreground_color
         bg = self.background_color
         points = [(10, 80), (10, 15), (92, 25), (92, 80)]
-        fg_test_points = (points +
-                          [(points[0][0], points[0][1] - 1),
-                           (points[0][0] + 1, points[0][1]),
-                           (points[0][0] + 1, points[0][1] - 1),
-                           (points[3][0] - 1, points[3][1]),
-                           (points[3][0], points[3][1] - 1),
-                           (points[3][0] - 1, points[3][1] - 1),
-                           (points[2][0], points[2][1] + 1),
-                           (points[2][0] - 1, points[2][1] + 1)])
-        bg_test_points = [(points[0][0] - 1, points[0][1]),
-                          (points[0][0], points[0][1] + 1),
-                          (points[0][0] - 1, points[0][1] + 1),
-                          (points[3][0] + 1, points[3][1]),
-                          (points[3][0], points[3][1] + 1),
-                          (points[3][0] + 1, points[3][1] + 1),
-                          (points[2][0] + 1, points[2][1]),
-                          (points[1][0] - 1, points[1][1]),
-                          (points[1][0], points[1][1] - 1),
-                          (points[1][0] - 1, points[1][1] - 1)]
+        fg_test_points = points + [
+            (points[0][0], points[0][1] - 1),
+            (points[0][0] + 1, points[0][1]),
+            (points[0][0] + 1, points[0][1] - 1),
+            (points[3][0] - 1, points[3][1]),
+            (points[3][0], points[3][1] - 1),
+            (points[3][0] - 1, points[3][1] - 1),
+            (points[2][0], points[2][1] + 1),
+            (points[2][0] - 1, points[2][1] + 1),
+        ]
+        bg_test_points = [
+            (points[0][0] - 1, points[0][1]),
+            (points[0][0], points[0][1] + 1),
+            (points[0][0] - 1, points[0][1] + 1),
+            (points[3][0] + 1, points[3][1]),
+            (points[3][0], points[3][1] + 1),
+            (points[3][0] + 1, points[3][1] + 1),
+            (points[2][0] + 1, points[2][1]),
+            (points[1][0] - 1, points[1][1]),
+            (points[1][0], points[1][1] - 1),
+            (points[1][0] - 1, points[1][1] - 1),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -646,16 +820,18 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         # Don't know how to really check this as boarder points may
         # or may not be included in the textured polygon.
         fg_test_points = [(points[1][0] + 30, points[1][1] + 40)]
-        bg_test_points = [(points[0][0] - 1, points[0][1]),
-                          (points[0][0], points[0][1] + 1),
-                          (points[0][0] - 1, points[0][1] + 1),
-                          (points[3][0] + 1, points[3][1]),
-                          (points[3][0], points[3][1] + 1),
-                          (points[3][0] + 1, points[3][1] + 1),
-                          (points[2][0] + 1, points[2][1]),
-                          (points[1][0] - 1, points[1][1]),
-                          (points[1][0], points[1][1] - 1),
-                          (points[1][0] - 1, points[1][1] - 1)]
+        bg_test_points = [
+            (points[0][0] - 1, points[0][1]),
+            (points[0][0], points[0][1] + 1),
+            (points[0][0] - 1, points[0][1] + 1),
+            (points[3][0] + 1, points[3][1]),
+            (points[3][0], points[3][1] + 1),
+            (points[3][0] + 1, points[3][1] + 1),
+            (points[2][0] + 1, points[2][1]),
+            (points[1][0] - 1, points[1][1]),
+            (points[1][0], points[1][1] - 1),
+            (points[1][0] - 1, points[1][1] - 1),
+        ]
         for surf in self.surfaces[1:]:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -667,11 +843,15 @@ class GfxdrawDefaultTest( unittest.TestCase ):
 
         # Alpha blit to 8 bits-per-pixel surface forbidden.
         texture = pygame.Surface(self.default_size, SRCALPHA, 32)
-        self.assertRaises(ValueError,
-                          pygame.gfxdraw.textured_polygon,
-                          self.surfaces[0],
-                          points,
-                          texture, 0, 0)
+        self.assertRaises(
+            ValueError,
+            pygame.gfxdraw.textured_polygon,
+            self.surfaces[0],
+            points,
+            texture,
+            0,
+            0,
+        )
 
     def test_bezier(self):
         """bezier(surface, points, steps, color): return None"""
@@ -679,10 +859,12 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         bg = self.background_color
         points = [(10, 50), (25, 15), (60, 80), (92, 30)]
         fg_test_points = [points[0], points[3]]
-        bg_test_points = [(points[0][0] - 1, points[0][1]),
-                          (points[3][0] + 1, points[3][1]),
-                          (points[1][0], points[1][1] + 3),
-                          (points[2][0], points[2][1] - 3)]
+        bg_test_points = [
+            (points[0][0] - 1, points[0][1]),
+            (points[3][0] + 1, points[3][1]),
+            (points[1][0], points[1][1] + 3),
+            (points[2][0], points[2][1] - 3),
+        ]
         for surf in self.surfaces:
             fg_adjusted = surf.unmap_rgb(surf.map_rgb(fg))
             bg_adjusted = surf.unmap_rgb(surf.map_rgb(bg))
@@ -693,6 +875,5 @@ class GfxdrawDefaultTest( unittest.TestCase ):
                 self.check_at(surf, posn, bg_adjusted)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

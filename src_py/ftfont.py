@@ -3,12 +3,12 @@
 __all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont']
 
 from pygame._freetype import init, Font as _Font, get_default_resolution
-from pygame._freetype import quit, get_default_font, was_init as _was_init
+from pygame._freetype import quit, get_default_font, get_init as _get_init
 from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 from pygame import encode_file_path
 from pygame.compat import bytes_, unicode_, as_unicode, as_bytes
-from pygame import Surface as _Surface, Color as _Color, SRCALPHA as _SRCALPHA
+
 
 class Font(_Font):
     """Font(filename, size) -> Font
@@ -31,10 +31,12 @@ class Font(_Font):
             size = 1
         if isinstance(file, unicode_):
             try:
-                file = self.__encode_file_path(file, ValueError)
+                bfile = self.__encode_file_path(file, ValueError)
             except ValueError:
-                pass
-        if isinstance(file, bytes_) and file == self.__default_font:
+                bfile = ''
+        else:
+            bfile = file
+        if isinstance(bfile, bytes_) and bfile == self.__default_font:
             file = None
         if file is None:
             resolution = int(self.__get_default_resolution() * 0.6875)
@@ -108,7 +110,7 @@ class Font(_Font):
 
     def metrics(self, text):
         """metrics(text) -> list
-           Gets the metrics for each character in the pased string."""
+           Gets the metrics for each character in the passed string."""
 
         return self.get_metrics(text)
 
@@ -148,7 +150,7 @@ def get_init():
    """get_init() -> bool
       true if the font module is initialized"""
 
-   return _was_init()
+   return _get_init()
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
@@ -168,7 +170,7 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
        font you ask for is not available, a reasonable alternative
        may be used.
 
-       if optional contructor is provided, it must be a function with
+       if optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.ftfont.Font object is created.
     """

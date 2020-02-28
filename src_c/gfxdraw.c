@@ -124,10 +124,10 @@ static PyMethodDef _gfxdraw_methods[] = {
 static int
 Sint16FromObj(PyObject *item, Sint16 *val)
 {
-    PyObject *intobj;
-    long tmp;
-
     if (PyNumber_Check(item)) {
+        PyObject *intobj;
+        long tmp;
+
         if (!(intobj = PyNumber_Int(item)))
             return 0;
         tmp = PyInt_AsLong(intobj);
@@ -1035,6 +1035,11 @@ _gfx_beziercolor(PyObject *self, PyObject *args)
     if (count < 3) {
         PyErr_SetString(PyExc_ValueError,
                         "points must contain more than 2 points");
+        return NULL;
+    }
+
+    if (steps < 2) {
+        PyErr_SetString(PyExc_ValueError, "steps parameter must be greater than 1");
         return NULL;
     }
 

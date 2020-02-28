@@ -55,7 +55,7 @@ fastevent_cleanup(void)
     /* DOC */ "initialize pygame.fastevent.\n"
     /* DOC */;
 static PyObject *
-fastevent_init(PyObject *self)
+fastevent_init(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
@@ -73,6 +73,17 @@ fastevent_init(PyObject *self)
 
     Py_RETURN_NONE;
 #endif /* WITH_THREAD */
+}
+
+/* DOC */ static char doc_get_init[] =
+    /* DOC */
+    "pygame.fastevent.get_init() -> bool\n"
+    /* DOC */ "returns True if the fastevent module is currently initialized\n"
+    /* DOC */;
+static PyObject *
+fastevent_get_init(PyObject *self, PyObject *args)
+{
+    return PyBool_FromLong(FE_WasInit);
 }
 
 /* DOC */ static char doc_pump[] =
@@ -106,7 +117,7 @@ fastevent_init(PyObject *self)
     "queue for too long, the system may decide your program has locked up.\n"
     /* DOC */;
 static PyObject *
-fastevent_pump(PyObject *self)
+fastevent_pump(PyObject *self, PyObject *args)
 {
     FE_INIT_CHECK();
     FE_PumpEvents();
@@ -131,7 +142,7 @@ fastevent_pump(PyObject *self)
     /* DOC */ "when the user isn't doing anything with it.\n"
     /* DOC */;
 static PyObject *
-fastevent_wait(PyObject *self)
+fastevent_wait(PyObject *self, PyObject *args)
 {
     SDL_Event event;
     int status;
@@ -161,7 +172,7 @@ fastevent_wait(PyObject *self)
     /* DOC */ "queue, this will return an event with type NOEVENT.\n"
     /* DOC */;
 static PyObject *
-fastevent_poll(PyObject *self)
+fastevent_poll(PyObject *self, PyObject *args)
 {
     SDL_Event event;
     int status;
@@ -183,7 +194,7 @@ fastevent_poll(PyObject *self)
     /* DOC */ "get all events from the queue\n"
     /* DOC */;
 static PyObject *
-fastevent_get(PyObject *self)
+fastevent_get(PyObject *self, PyObject *args)
 {
     SDL_Event event;
     PyObject *list, *e;
@@ -273,11 +284,12 @@ fastevent_post(PyObject *self, PyObject *arg)
 }
 
 static PyMethodDef _fastevent_methods[] = {
-    {"init", (PyCFunction)fastevent_init, METH_NOARGS, doc_init},
-    {"get", (PyCFunction)fastevent_get, METH_NOARGS, doc_get},
-    {"pump", (PyCFunction)fastevent_pump, METH_NOARGS, doc_pump},
-    {"wait", (PyCFunction)fastevent_wait, METH_NOARGS, doc_wait},
-    {"poll", (PyCFunction)fastevent_poll, METH_NOARGS, doc_poll},
+    {"init", fastevent_init, METH_NOARGS, doc_init},
+    {"get_init", fastevent_get_init, METH_NOARGS, doc_get_init},
+    {"get", fastevent_get, METH_NOARGS, doc_get},
+    {"pump", fastevent_pump, METH_NOARGS, doc_pump},
+    {"wait", fastevent_wait, METH_NOARGS, doc_wait},
+    {"poll", fastevent_poll, METH_NOARGS, doc_poll},
     {"post", fastevent_post, METH_O, doc_post},
 
     {NULL, NULL, 0, NULL}};

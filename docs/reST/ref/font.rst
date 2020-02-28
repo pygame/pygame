@@ -161,7 +161,7 @@ loaded instead.
 
       The Surface returned will be of the dimensions required to hold the text.
       (the same as those returned by Font.size()). If an empty string is passed
-      for the text, a blank surface will be returned that is one pixel wide and
+      for the text, a blank surface will be returned that is zero pixel wide and
       the height of the font.
 
       Depending on the type of background and antialiasing used, this returns
@@ -178,8 +178,8 @@ loaded instead.
       cause the resulting image to maintain transparency information by
       colorkey rather than (much less efficient) alpha values.
 
-      If you render '\n' a unknown char will be rendered. Usually a rectangle.
-      Instead you need to handle new lines yourself.
+      If you render '\\n' an unknown char will be rendered. Usually a
+      rectangle. Instead you need to handle new lines yourself.
 
       Font rendering is not thread safe: only a single thread can render text
       at any time.
@@ -257,7 +257,7 @@ loaded instead.
 
    .. method:: metrics
 
-      | :sl:`Gets the metrics for each character in the passed string.`
+      | :sl:`gets the metrics for each character in the passed string`
       | :sg:`metrics(text) -> list`
 
       The list contains tuples for each character, which contain the minimum

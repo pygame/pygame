@@ -24,6 +24,8 @@ import os
 import sys
 from pygame.compat import xrange_, PY_MAJOR_VERSION
 from os.path import basename, dirname, exists, join, splitext
+if sys.platform == 'darwin':
+    import xml.etree.ElementTree as ET
 
 
 OpenType_extensions = frozenset(('.ttf', '.ttc', '.otf'))
@@ -138,118 +140,59 @@ def initsysfonts_win32():
     return fonts
 
 
-def initsysfonts_darwin():
-    """read the fonts on OS X. X11 is required for this to work."""
-    # if the X11 binary exists... try and use that.
-    #  Not likely to be there on pre 10.4.x ...
-    if exists("/usr/X11/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11/bin/fc-list")
-    # This fc-list path will work with the X11 from the OS X 10.3 installation
-    # disc
-    elif exists("/usr/X11R6/bin/fc-list"):
-        fonts = initsysfonts_unix("/usr/X11R6/bin/fc-list")
-    elif exists("/usr/sbin/system_profiler"):
-        fonts = initsysfonts_macos("/usr/sbin/system_profiler")
-    else:
-        fonts = {}
+def _add_font_paths(sub_elements, fonts):
+    """ Gets each element, checks its tag content,
+        if wanted fetches the next value in the iterable
+    """
+    font_name = font_path = None
+    for tag in sub_elements:
+        if tag.text == "_name":
+            font_name = next(sub_elements).text
+            if splitext(font_name)[1] not in OpenType_extensions:
+                break
+            bold = "bold" in font_name
+            italic = "italic" in font_name
+        if tag.text == "path" and font_name is not None:
+            font_path = next(sub_elements).text
+            _addfont(_simplename(font_name),bold,italic,font_path,fonts)
+            break
+
+
+def _system_profiler_darwin():
+    fonts = {}
+    flout, flerr = subprocess.Popen(
+        ' '.join(['system_profiler', '-xml','SPFontsDataType']),
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        close_fds=True
+    ).communicate()
+
+    for font_node in ET.fromstring(flout).iterfind('./array/dict/array/dict'):
+        _add_font_paths(font_node.iter("*"), fonts)
 
     return fonts
 
 
-def _add_sys_font_inner(current_font, fonts):
 
-    font_style = current_font['style'].lower()
-
-    bold = 'bold' in font_style
-    italic = 'italic' in font_style
-    oblique = 'oblique' in font_style
-
-    _addfont(
-        _simplename(current_font['full name']), bold, italic or oblique, current_font['path'],
-        fonts)
-
-
-def _add_sys_font(current_font, multiple_fonts, fonts):
-
-    for font_item in multiple_fonts:
-        _add_sys_font_inner(font_item, fonts)
-
-    if current_font:
-        _add_sys_font_inner(current_font, fonts)
-
-
-# read the fonts using system_profiler on macOS
-def initsysfonts_macos(path="/usr/sbin/system_profiler"):
-    """use system_profiler get a list of fonts"""
-    fonts = {}
-
-    arguments = "SPFontsDataType | grep -i -e 'location' -e 'family' -e 'style' -e 'name'"
-
-    try:
-        flout, flerr = subprocess.Popen('%s : %s' % (path, arguments), shell=True,
-                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        close_fds=True).communicate()
-    except Exception:
-        return fonts
-
-    entries = toascii(flout)
-
-    parsing_font = False
-    current_font = {}
-
-    multiple_fonts = []
-
-    lines = entries.split('\n')
-                
-    try:
-        for line in lines:
-
-            try:
-                key, value = line.split(':', 1)
-
-                key = key.strip().lower()
-                value = value.strip().replace(':', "")
-
-                if not value:
-                    continue
-
-                if parsing_font and (os.path.exists(value)):
-
-                    _add_sys_font(current_font, multiple_fonts, fonts)
-
-                    current_font.clear()
-                    multiple_fonts = []
-                    parsing_font = False
-
-                if not parsing_font and os.path.exists(value):
-                    
-                    if splitext(value)[1].lower() in OpenType_extensions:
-
-                        parsing_font = True
-                        current_font['path'] = value
-
-                        continue
-
-                if key.lower() in current_font:
-
-                    font_path = current_font['path']
-
-                    multiple_fonts.append(current_font.copy())
-                    current_font.clear()
-                    current_font['path'] = font_path
-                    current_font[key] = value
-
-                else:
-                    current_font[key] = value
-
-            except Exception:
-                # try the next one.
-                pass
-
-    except Exception:
-        pass
-
-    _add_sys_font(current_font, multiple_fonts, fonts)
+def initsysfonts_darwin():
+    """ Read the fonts on MacOS, and OS X.
+    """
+    # if the X11 binary exists... try and use that.
+    #  Not likely to be there on pre 10.4.x ... or MacOS 10.10+
+    if exists('/usr/X11/bin/fc-list'):
+        fonts = initsysfonts_unix('/usr/X11/bin/fc-list')
+    # This fc-list path will work with the X11 from the OS X 10.3 installation
+    # disc
+    elif exists('/usr/X11R6/bin/fc-list'):
+        fonts = initsysfonts_unix('/usr/X11R6/bin/fc-list')
+    elif exists('/usr/sbin/system_profiler'):
+        try:
+            fonts = _system_profiler_darwin()
+        except:
+            fonts = {}
+    else:
+        fonts = {}
 
     return fonts
 
@@ -369,7 +312,7 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
        font you ask for is not available, a reasonable alternative
        may be used.
 
-       if optional contructor is provided, it must be a function with
+       if optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.font.Font object is created.
     """

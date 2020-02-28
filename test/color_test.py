@@ -1,21 +1,25 @@
 import unittest
 import math
 import operator
+import platform
 
 import pygame
 from pygame.compat import long_
+from pygame.colordict import THECOLORS
 
 
+IS_PYPY = "PyPy" == platform.python_implementation()
 ################################### CONSTANTS ##################################
 
 rgba_vals = [0, 1, 62, 63, 126, 127, 255]
 
-rgba_combinations =  [
-    (r,g,b,a) for r in rgba_vals
-              for g in rgba_vals
-              for b in rgba_vals
-              for a in rgba_vals
-    ]
+rgba_combinations = [
+    (r, g, b, a)
+    for r in rgba_vals
+    for g in rgba_vals
+    for b in rgba_vals
+    for a in rgba_vals
+]
 
 ################################################################################
 
@@ -37,6 +41,7 @@ def gamma_correct(rgba_0_255, gamma):
 # correct_gamma()  -- test against statically defined verified correct values
 # coerce ()        --  ??
 
+
 def _assignr(x, y):
     x.r = y
 
@@ -57,7 +62,7 @@ def _assign_item(x, p, y):
     x[p] = y
 
 
-class ColorTypeTest (unittest.TestCase):
+class ColorTypeTest(unittest.TestCase):
     def test_new(self):
         c = pygame.Color.__new__(pygame.Color)
         self.assertEqual(c, pygame.Color(0, 0, 0, 255))
@@ -76,46 +81,46 @@ class ColorTypeTest (unittest.TestCase):
         # This was a problem with the way 2 digit hex numbers were
         # calculated. The test_hex_digits test is related to the fix.
         Color = pygame.color.Color
-        self.assertRaises(ValueError, lambda: Color('# f000000'))
-        self.assertRaises(ValueError, lambda: Color('#f 000000'))
-        self.assertRaises(ValueError, lambda: Color('#-f000000'))
+        self.assertRaises(ValueError, lambda: Color("# f000000"))
+        self.assertRaises(ValueError, lambda: Color("#f 000000"))
+        self.assertRaises(ValueError, lambda: Color("#-f000000"))
 
     def test_hex_digits(self):
         # This is an implementation specific test.
         # Two digit hex numbers are calculated using table lookups
         # for the upper and lower digits.
         Color = pygame.color.Color
-        self.assertEqual(Color('#00000000').r, 0x00)
-        self.assertEqual(Color('#10000000').r, 0x10)
-        self.assertEqual(Color('#20000000').r, 0x20)
-        self.assertEqual(Color('#30000000').r, 0x30)
-        self.assertEqual(Color('#40000000').r, 0x40)
-        self.assertEqual(Color('#50000000').r, 0x50)
-        self.assertEqual(Color('#60000000').r, 0x60)
-        self.assertEqual(Color('#70000000').r, 0x70)
-        self.assertEqual(Color('#80000000').r, 0x80)
-        self.assertEqual(Color('#90000000').r, 0x90)
-        self.assertEqual(Color('#A0000000').r, 0xA0)
-        self.assertEqual(Color('#B0000000').r, 0xB0)
-        self.assertEqual(Color('#C0000000').r, 0xC0)
-        self.assertEqual(Color('#D0000000').r, 0xD0)
-        self.assertEqual(Color('#E0000000').r, 0xE0)
-        self.assertEqual(Color('#F0000000').r, 0xF0)
-        self.assertEqual(Color('#01000000').r, 0x01)
-        self.assertEqual(Color('#02000000').r, 0x02)
-        self.assertEqual(Color('#03000000').r, 0x03)
-        self.assertEqual(Color('#04000000').r, 0x04)
-        self.assertEqual(Color('#05000000').r, 0x05)
-        self.assertEqual(Color('#06000000').r, 0x06)
-        self.assertEqual(Color('#07000000').r, 0x07)
-        self.assertEqual(Color('#08000000').r, 0x08)
-        self.assertEqual(Color('#09000000').r, 0x09)
-        self.assertEqual(Color('#0A000000').r, 0x0A)
-        self.assertEqual(Color('#0B000000').r, 0x0B)
-        self.assertEqual(Color('#0C000000').r, 0x0C)
-        self.assertEqual(Color('#0D000000').r, 0x0D)
-        self.assertEqual(Color('#0E000000').r, 0x0E)
-        self.assertEqual(Color('#0F000000').r, 0x0F)
+        self.assertEqual(Color("#00000000").r, 0x00)
+        self.assertEqual(Color("#10000000").r, 0x10)
+        self.assertEqual(Color("#20000000").r, 0x20)
+        self.assertEqual(Color("#30000000").r, 0x30)
+        self.assertEqual(Color("#40000000").r, 0x40)
+        self.assertEqual(Color("#50000000").r, 0x50)
+        self.assertEqual(Color("#60000000").r, 0x60)
+        self.assertEqual(Color("#70000000").r, 0x70)
+        self.assertEqual(Color("#80000000").r, 0x80)
+        self.assertEqual(Color("#90000000").r, 0x90)
+        self.assertEqual(Color("#A0000000").r, 0xA0)
+        self.assertEqual(Color("#B0000000").r, 0xB0)
+        self.assertEqual(Color("#C0000000").r, 0xC0)
+        self.assertEqual(Color("#D0000000").r, 0xD0)
+        self.assertEqual(Color("#E0000000").r, 0xE0)
+        self.assertEqual(Color("#F0000000").r, 0xF0)
+        self.assertEqual(Color("#01000000").r, 0x01)
+        self.assertEqual(Color("#02000000").r, 0x02)
+        self.assertEqual(Color("#03000000").r, 0x03)
+        self.assertEqual(Color("#04000000").r, 0x04)
+        self.assertEqual(Color("#05000000").r, 0x05)
+        self.assertEqual(Color("#06000000").r, 0x06)
+        self.assertEqual(Color("#07000000").r, 0x07)
+        self.assertEqual(Color("#08000000").r, 0x08)
+        self.assertEqual(Color("#09000000").r, 0x09)
+        self.assertEqual(Color("#0A000000").r, 0x0A)
+        self.assertEqual(Color("#0B000000").r, 0x0B)
+        self.assertEqual(Color("#0C000000").r, 0x0C)
+        self.assertEqual(Color("#0D000000").r, 0x0D)
+        self.assertEqual(Color("#0E000000").r, 0x0E)
+        self.assertEqual(Color("#0F000000").r, 0x0F)
 
     def test_comparison(self):
         Color = pygame.color.Color
@@ -174,6 +179,7 @@ class ColorTypeTest (unittest.TestCase):
 
         class TupleSubclass(tuple):
             pass
+
         self.assertTrue(Color(255, 0, 0, 0) == TupleSubclass((255, 0, 0, 0)))
         self.assertTrue(TupleSubclass((255, 0, 0, 0)) == Color(255, 0, 0, 0))
         self.assertFalse(Color(255, 0, 0, 0) != TupleSubclass((255, 0, 0, 0)))
@@ -186,16 +192,16 @@ class ColorTypeTest (unittest.TestCase):
         self.assertFalse("#ff000000" == Color(255, 0, 0, 0))
         self.assertTrue("#ff000000" != Color(255, 0, 0, 0))
 
-        self.assertFalse(Color(255, 0, 0, 0) == 0xff000000)
-        self.assertTrue(Color(255, 0, 0, 0) != 0xff000000)
+        self.assertFalse(Color(255, 0, 0, 0) == 0xFF000000)
+        self.assertTrue(Color(255, 0, 0, 0) != 0xFF000000)
 
-        self.assertFalse(0xff000000 == Color(255, 0, 0, 0))
-        self.assertTrue(0xff000000 != Color(255, 0, 0, 0))
+        self.assertFalse(0xFF000000 == Color(255, 0, 0, 0))
+        self.assertTrue(0xFF000000 != Color(255, 0, 0, 0))
 
         self.assertFalse(Color(255, 0, 0, 0) == [255, 0, 0, 0])
         self.assertTrue(Color(255, 0, 0, 0) != [255, 0, 0, 0])
 
-        self.assertFalse([255, 0, 0, 0] == Color(255, 0, 0 ,0))
+        self.assertFalse([255, 0, 0, 0] == Color(255, 0, 0, 0))
         self.assertTrue([255, 0, 0, 0] != Color(255, 0, 0, 0))
 
         # Comparison is not implemented for invalid color values.
@@ -214,8 +220,8 @@ class ColorTypeTest (unittest.TestCase):
                 return -2
 
         t = Test()
-        t_tuple = TestTuple(('a', 0, 0, 0))
-        black = Color('black')
+        t_tuple = TestTuple(("a", 0, 0, 0))
+        black = Color("black")
         self.assertEqual(black == t, -1)
         self.assertEqual(t == black, -1)
         self.assertEqual(black != t, -2)
@@ -226,49 +232,46 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(t_tuple != black, -2)
 
     def test_ignore_whitespace(self):
-        self.assertEqual(pygame.color.Color('red'), pygame.color.Color(' r e d '))
+        self.assertEqual(pygame.color.Color("red"), pygame.color.Color(" r e d "))
 
     def test_slice(self):
-        #"""|tags: python3_ignore|"""
+        # """|tags: python3_ignore|"""
 
         # slicing a color gives you back a tuple.
         # do all sorts of slice combinations.
-        c = pygame.Color(1,2,3,4)
+        c = pygame.Color(1, 2, 3, 4)
 
-        self.assertEqual((1,2,3,4), c[:])
-        self.assertEqual((1,2,3), c[:-1])
+        self.assertEqual((1, 2, 3, 4), c[:])
+        self.assertEqual((1, 2, 3), c[:-1])
 
         self.assertEqual((), c[:-5])
 
-        self.assertEqual((1,2,3,4), c[:4])
-        self.assertEqual((1,2,3,4), c[:5])
-        self.assertEqual((1,2), c[:2])
+        self.assertEqual((1, 2, 3, 4), c[:4])
+        self.assertEqual((1, 2, 3, 4), c[:5])
+        self.assertEqual((1, 2), c[:2])
         self.assertEqual((1,), c[:1])
         self.assertEqual((), c[:0])
-
 
         self.assertEqual((2,), c[1:-2])
         self.assertEqual((3, 4), c[-2:])
         self.assertEqual((4,), c[-1:])
 
-
         # NOTE: assigning to a slice is currently unsupported.
-
 
     def test_unpack(self):
         # should be able to unpack to r,g,b,a and r,g,b
-        c = pygame.Color(1,2,3,4)
-        r,g,b,a = c
-        self.assertEqual((1,2,3,4), (r,g,b,a))
-        self.assertEqual(c, (r,g,b,a))
+        c = pygame.Color(1, 2, 3, 4)
+        r, g, b, a = c
+        self.assertEqual((1, 2, 3, 4), (r, g, b, a))
+        self.assertEqual(c, (r, g, b, a))
 
         c.set_length(3)
-        r,g,b = c
-        self.assertEqual((1,2,3), (r,g,b))
+        r, g, b = c
+        self.assertEqual((1, 2, 3), (r, g, b))
 
     def test_length(self):
         # should be able to unpack to r,g,b,a and r,g,b
-        c = pygame.Color(1,2,3,4)
+        c = pygame.Color(1, 2, 3, 4)
         self.assertEqual(len(c), 4)
 
         c.set_length(3)
@@ -278,7 +281,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(c.a, 4)
 
         # however you can't get the alpha in this way:
-        self.assertRaises(IndexError, lambda x:c[x], 4)
+        self.assertRaises(IndexError, lambda x: c[x], 4)
 
         c.set_length(4)
         self.assertEqual(len(c), 4)
@@ -290,31 +293,171 @@ class ColorTypeTest (unittest.TestCase):
         self.assertRaises(ValueError, c.set_length, pow(2, long_(33)))
 
     def test_case_insensitivity_of_string_args(self):
-        self.assertEqual(pygame.color.Color('red'), pygame.color.Color('Red'))
+        self.assertEqual(pygame.color.Color("red"), pygame.color.Color("Red"))
 
     def test_color(self):
-        c = pygame.Color(10, 20, 30, 40)
-        self.assertEqual(c.r, 10)
-        self.assertEqual(c.g, 20)
-        self.assertEqual(c.b, 30)
-        self.assertEqual(c.a, 40)
+        """Ensures Color objects can be created."""
+        color = pygame.Color(0, 0, 0, 0)
 
-        c = pygame.Color("indianred3")
-        self.assertEqual(c.r, 205)
-        self.assertEqual(c.g, 85)
-        self.assertEqual(c.b, 85)
-        self.assertEqual(c.a, 255)
+        self.assertIsInstance(color, pygame.Color)
 
-        c = pygame.Color(0xAABBCCDD)
-        self.assertEqual(c.r, 0xAA)
-        self.assertEqual(c.g, 0xBB)
-        self.assertEqual(c.b, 0xCC)
-        self.assertEqual(c.a, 0xDD)
+    def test_color__rgba_int_args(self):
+        """Ensures Color objects can be created using ints."""
+        color = pygame.Color(10, 20, 30, 40)
 
+        self.assertEqual(color.r, 10)
+        self.assertEqual(color.g, 20)
+        self.assertEqual(color.b, 30)
+        self.assertEqual(color.a, 40)
+
+    def test_color__rgba_int_args_without_alpha(self):
+        """Ensures Color objects can be created without providing alpha."""
+        color = pygame.Color(10, 20, 30)
+
+        self.assertEqual(color.r, 10)
+        self.assertEqual(color.g, 20)
+        self.assertEqual(color.b, 30)
+        self.assertEqual(color.a, 255)
+
+    def test_color__rgba_int_args_invalid_value(self):
+        """Ensures invalid values are detected when creating Color objects."""
         self.assertRaises(ValueError, pygame.Color, 257, 10, 105, 44)
         self.assertRaises(ValueError, pygame.Color, 10, 257, 105, 44)
         self.assertRaises(ValueError, pygame.Color, 10, 105, 257, 44)
         self.assertRaises(ValueError, pygame.Color, 10, 105, 44, 257)
+
+    def test_color__rgba_int_args_invalid_value_without_alpha(self):
+        """Ensures invalid values are detected when creating Color objects
+        without providing an alpha.
+        """
+        self.assertRaises(ValueError, pygame.Color, 256, 10, 105)
+        self.assertRaises(ValueError, pygame.Color, 10, 256, 105)
+        self.assertRaises(ValueError, pygame.Color, 10, 105, 256)
+
+    def test_color__color_object_arg(self):
+        """Ensures Color objects can be created using Color objects."""
+        color_args = (10, 20, 30, 40)
+        color_obj = pygame.Color(*color_args)
+
+        new_color_obj = pygame.Color(color_obj)
+
+        self.assertIsInstance(new_color_obj, pygame.Color)
+        self.assertEqual(new_color_obj, color_obj)
+        self.assertEqual(new_color_obj.r, color_args[0])
+        self.assertEqual(new_color_obj.g, color_args[1])
+        self.assertEqual(new_color_obj.b, color_args[2])
+        self.assertEqual(new_color_obj.a, color_args[3])
+
+    def test_color__name_str_arg(self):
+        """Ensures Color objects can be created using str names."""
+        for name in ("aquamarine3", "AQUAMARINE3", "AqUAmArIne3"):
+            color = pygame.Color(name)
+
+            self.assertEqual(color.r, 102)
+            self.assertEqual(color.g, 205)
+            self.assertEqual(color.b, 170)
+            self.assertEqual(color.a, 255)
+
+    def test_color__name_str_arg_from_colordict(self):
+        """Ensures Color objects can be created using str names
+        from the THECOLORS dict."""
+        for name, values in THECOLORS.items():
+            color = pygame.Color(name)
+
+            self.assertEqual(color.r, values[0])
+            self.assertEqual(color.g, values[1])
+            self.assertEqual(color.b, values[2])
+            self.assertEqual(color.a, values[3])
+
+    def test_color__html_str_arg(self):
+        """Ensures Color objects can be created using html strings."""
+        # See test_webstyle() for related tests.
+        color = pygame.Color("#a1B2c3D4")
+
+        self.assertEqual(color.r, 0xA1)
+        self.assertEqual(color.g, 0xB2)
+        self.assertEqual(color.b, 0xC3)
+        self.assertEqual(color.a, 0xD4)
+
+    def test_color__hex_str_arg(self):
+        """Ensures Color objects can be created using hex strings."""
+        # See test_webstyle() for related tests.
+        color = pygame.Color("0x1a2B3c4D")
+
+        self.assertEqual(color.r, 0x1A)
+        self.assertEqual(color.g, 0x2B)
+        self.assertEqual(color.b, 0x3C)
+        self.assertEqual(color.a, 0x4D)
+
+    def test_color__int_arg(self):
+        """Ensures Color objects can be created using one int value."""
+        for value in (0x0, 0xFFFFFFFF, 0xAABBCCDD):
+            color = pygame.Color(value)
+
+            self.assertEqual(color.r, (value >> 24) & 0xFF)
+            self.assertEqual(color.g, (value >> 16) & 0xFF)
+            self.assertEqual(color.b, (value >> 8) & 0xFF)
+            self.assertEqual(color.a, value & 0xFF)
+
+    def test_color__int_arg_invalid(self):
+        """Ensures invalid int values are detected when creating Color objects.
+        """
+        with self.assertRaises(ValueError):
+            color = pygame.Color(0x1FFFFFFFF)
+
+    def test_color__sequence_arg(self):
+        """Ensures Color objects can be created using tuples/lists."""
+        color_values = (33, 44, 55, 66)
+        for seq_type in (tuple, list):
+            color = pygame.Color(seq_type(color_values))
+
+            self.assertEqual(color.r, color_values[0])
+            self.assertEqual(color.g, color_values[1])
+            self.assertEqual(color.b, color_values[2])
+            self.assertEqual(color.a, color_values[3])
+
+    def test_color__sequence_arg_without_alpha(self):
+        """Ensures Color objects can be created using tuples/lists
+        without providing an alpha value.
+        """
+        color_values = (33, 44, 55)
+        for seq_type in (tuple, list):
+            color = pygame.Color(seq_type(color_values))
+
+            self.assertEqual(color.r, color_values[0])
+            self.assertEqual(color.g, color_values[1])
+            self.assertEqual(color.b, color_values[2])
+            self.assertEqual(color.a, 255)
+
+    def test_color__sequence_arg_invalid_value(self):
+        """Ensures invalid sequences are detected when creating Color objects.
+        """
+        cls = pygame.Color
+        for seq_type in (tuple, list):
+            self.assertRaises(ValueError, cls, seq_type((256, 90, 80, 70)))
+            self.assertRaises(ValueError, cls, seq_type((100, 256, 80, 70)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 256, 70)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 80, 256)))
+
+    def test_color__sequence_arg_invalid_value_without_alpha(self):
+        """Ensures invalid sequences are detected when creating Color objects
+        without providing an alpha.
+        """
+        cls = pygame.Color
+        for seq_type in (tuple, list):
+            self.assertRaises(ValueError, cls, seq_type((256, 90, 80)))
+            self.assertRaises(ValueError, cls, seq_type((100, 256, 80)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 256)))
+
+    def test_color__sequence_arg_invalid_format(self):
+        """Ensures invalid sequences are detected when creating Color objects
+        with the wrong number of values.
+        """
+        cls = pygame.Color
+        for seq_type in (tuple, list):
+            self.assertRaises(ValueError, cls, seq_type((100,)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90)))
+            self.assertRaises(ValueError, cls, seq_type((100, 90, 80, 70, 60)))
 
     def test_rgba(self):
         c = pygame.Color(0)
@@ -559,7 +702,6 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(c.a, 146)
         self.assertEqual(hex(c), hex(0x33727592))
 
-
     def test_webstyle(self):
         c = pygame.Color("#CC00CC11")
         self.assertEqual(c.r, 204)
@@ -619,7 +761,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(c.g, 0)
         self.assertEqual(c.b, 204)
         self.assertEqual(c.a, 0)
-        self.assertEqual(long_ (c), long_ (0xCC00CC00))
+        self.assertEqual(long_(c), long_(0xCC00CC00))
 
         # This will be an int
         c = pygame.Color(0x33727592)
@@ -627,7 +769,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(c.g, 114)
         self.assertEqual(c.b, 117)
         self.assertEqual(c.a, 146)
-        self.assertEqual(long_ (c), long_ (0x33727592))
+        self.assertEqual(long_(c), long_(0x33727592))
 
     def test_normalize(self):
         c = pygame.Color(204, 38, 194, 55)
@@ -638,10 +780,10 @@ class ColorTypeTest (unittest.TestCase):
 
         t = c.normalize()
 
-        self.assertAlmostEquals(t[0], 0.800000, 5)
-        self.assertAlmostEquals(t[1], 0.149016, 5)
-        self.assertAlmostEquals(t[2], 0.760784, 5)
-        self.assertAlmostEquals(t[3], 0.215686, 5)
+        self.assertAlmostEqual(t[0], 0.800000, 5)
+        self.assertAlmostEqual(t[1], 0.149016, 5)
+        self.assertAlmostEqual(t[2], 0.760784, 5)
+        self.assertAlmostEqual(t[3], 0.215686, 5)
 
     def test_len(self):
         c = pygame.Color(204, 38, 194, 55)
@@ -691,7 +833,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertTrue(get_b == c.b)
         self.assertTrue(get_a == c.a)
 
-########## HSLA, HSVA, CMY, I1I2I3 ALL ELEMENTS WITHIN SPECIFIED RANGE #########
+    ########## HSLA, HSVA, CMY, I1I2I3 ALL ELEMENTS WITHIN SPECIFIED RANGE #########
 
     def test_hsla__all_elements_within_limits(self):
         for c in rgba_combos_Color_generator():
@@ -719,7 +861,7 @@ class ColorTypeTest (unittest.TestCase):
     def test_i1i2i3__all_elements_within_limits(self):
         for c in rgba_combos_Color_generator():
             i1, i2, i3 = c.i1i2i3
-            self.assertTrue( 0   <= i1 <= 1)
+            self.assertTrue(0 <= i1 <= 1)
             self.assertTrue(-0.5 <= i2 <= 0.5)
             self.assertTrue(-0.5 <= i3 <= 0.5)
 
@@ -744,7 +886,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(c.hsva, (0, 100, 100, 100))
         self.assertEqual(c, (255, 0, 0, 255))
 
-####################### COLORSPACE PROPERTY SANITY TESTS #######################
+    ####################### COLORSPACE PROPERTY SANITY TESTS #######################
 
     def colorspaces_converted_should_not_raise(self, prop):
         fails = 0
@@ -757,7 +899,7 @@ class ColorTypeTest (unittest.TestCase):
 
             try:
                 setattr(other, prop, getattr(c, prop))
-                #eg other.hsla = c.hsla
+                # eg other.hsla = c.hsla
 
             except ValueError:
                 fails += 1
@@ -766,18 +908,18 @@ class ColorTypeTest (unittest.TestCase):
         self.assertTrue((fails, x) == (0, x))
 
     def test_hsla__sanity_testing_converted_should_not_raise(self):
-        self.colorspaces_converted_should_not_raise('hsla')
+        self.colorspaces_converted_should_not_raise("hsla")
 
     def test_hsva__sanity_testing_converted_should_not_raise(self):
-        self.colorspaces_converted_should_not_raise('hsva')
+        self.colorspaces_converted_should_not_raise("hsva")
 
     def test_cmy__sanity_testing_converted_should_not_raise(self):
-        self.colorspaces_converted_should_not_raise('cmy')
+        self.colorspaces_converted_should_not_raise("cmy")
 
     def test_i1i2i3__sanity_testing_converted_should_not_raise(self):
-        self.colorspaces_converted_should_not_raise('i1i2i3')
+        self.colorspaces_converted_should_not_raise("i1i2i3")
 
-################################################################################
+    ################################################################################
 
     def colorspaces_converted_should_equate_bar_rounding(self, prop):
         for c in rgba_combos_Color_generator():
@@ -785,7 +927,7 @@ class ColorTypeTest (unittest.TestCase):
 
             try:
                 setattr(other, prop, getattr(c, prop))
-                #eg other.hsla = c.hsla
+                # eg other.hsla = c.hsla
 
                 self.assertTrue(abs(other.r - c.r) <= 1)
                 self.assertTrue(abs(other.b - c.b) <= 1)
@@ -795,21 +937,21 @@ class ColorTypeTest (unittest.TestCase):
                     self.assertTrue(abs(other.a - c.a) <= 1)
 
             except ValueError:
-                pass        # other tests will notify, this tests equation
+                pass  # other tests will notify, this tests equation
 
     def test_hsla__sanity_testing_converted_should_equate_bar_rounding(self):
-        self.colorspaces_converted_should_equate_bar_rounding('hsla')
+        self.colorspaces_converted_should_equate_bar_rounding("hsla")
 
     def test_hsva__sanity_testing_converted_should_equate_bar_rounding(self):
-        self.colorspaces_converted_should_equate_bar_rounding('hsva')
+        self.colorspaces_converted_should_equate_bar_rounding("hsva")
 
     def test_cmy__sanity_testing_converted_should_equate_bar_rounding(self):
-        self.colorspaces_converted_should_equate_bar_rounding('cmy')
+        self.colorspaces_converted_should_equate_bar_rounding("cmy")
 
     def test_i1i2i3__sanity_testing_converted_should_equate_bar_rounding(self):
-        self.colorspaces_converted_should_equate_bar_rounding('i1i2i3')
+        self.colorspaces_converted_should_equate_bar_rounding("i1i2i3")
 
-################################################################################
+    ################################################################################
 
     def test_correct_gamma__verified_against_python_implementation(self):
         "|tags:slow|"
@@ -821,8 +963,7 @@ class ColorTypeTest (unittest.TestCase):
         for i, c in enumerate(rgba_combos_Color_generator()):
             gamma = gammas[i % gammas_len]
 
-            corrected = pygame.Color(*[gamma_correct(x, gamma)
-                                         for x in tuple(c)])
+            corrected = pygame.Color(*[gamma_correct(x, gamma) for x in tuple(c)])
             lib_corrected = c.correct_gamma(gamma)
 
             self.assertTrue(corrected.r == lib_corrected.r)
@@ -833,37 +974,33 @@ class ColorTypeTest (unittest.TestCase):
         # TODO: test against statically defined verified _correct_ values
         # assert corrected.r == 125 etc.
 
-
     def test_pickle(self):
         import pickle
-        c1 = pygame.Color(1,2,3,4)
-        #c2 = pygame.Color(255,254,253,252)
+
+        c1 = pygame.Color(1, 2, 3, 4)
+        # c2 = pygame.Color(255,254,253,252)
         pickle_string = pickle.dumps(c1)
         c1_frompickle = pickle.loads(pickle_string)
-        self.assertEqual(c1,c1_frompickle)
+        self.assertEqual(c1, c1_frompickle)
 
-################################################################################
-# only available if ctypes module is also available
+    ################################################################################
+    # only available if ctypes module is also available
 
+    @unittest.skipIf(IS_PYPY, "PyPy has no ctypes")
     def test_arraystruct(self):
-        import platform
-        IS_PYPY = 'PyPy' == platform.python_implementation()
-        if IS_PYPY:
-            return
 
         import pygame.tests.test_utils.arrinter as ai
         import ctypes as ct
 
         c_byte_p = ct.POINTER(ct.c_byte)
         c = pygame.Color(5, 7, 13, 23)
-        flags = (ai.PAI_CONTIGUOUS | ai.PAI_FORTRAN |
-                 ai.PAI_ALIGNED | ai.PAI_NOTSWAPPED)
+        flags = ai.PAI_CONTIGUOUS | ai.PAI_FORTRAN | ai.PAI_ALIGNED | ai.PAI_NOTSWAPPED
         for i in range(1, 5):
             c.set_length(i)
             inter = ai.ArrayInterface(c)
             self.assertEqual(inter.two, 2)
             self.assertEqual(inter.nd, 1)
-            self.assertEqual(inter.typekind, 'u')
+            self.assertEqual(inter.typekind, "u")
             self.assertEqual(inter.itemsize, 1)
             self.assertEqual(inter.flags, flags)
             self.assertEqual(inter.shape[0], i)
@@ -872,14 +1009,10 @@ class ColorTypeTest (unittest.TestCase):
             for j in range(i):
                 self.assertEqual(data[j], c[j])
 
-    if pygame.HAVE_NEWBUF:
-        def test_newbuf(self):
-            self.NEWBUF_test_newbuf()
+    @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    def test_newbuf(self):
         from pygame.tests.test_utils import buftools
-
-    def NEWBUF_test_newbuf(self):
         from ctypes import cast, POINTER, c_uint8
-        buftools = self.buftools
 
         class ColorImporter(buftools.Importer):
             def __init__(self, color, flags):
@@ -889,14 +1022,18 @@ class ColorTypeTest (unittest.TestCase):
             def __getitem__(self, index):
                 if 0 <= index < 4:
                     return self.items[index]
-                raise IndexError("valid index values are between 0 and 3: "
-                                 "got {}".format(index))
+                raise IndexError(
+                    "valid index values are between 0 and 3: " "got {}".format(index)
+                )
+
             def __setitem__(self, index, value):
                 if 0 <= index < 4:
                     self.items[index] = value
                 else:
-                    raise IndexError("valid index values are between 0 and 3: "
-                                     "got {}".format(index))
+                    raise IndexError(
+                        "valid index values are between 0 and 3: "
+                        "got {}".format(index)
+                    )
 
         c = pygame.Color(50, 100, 150, 200)
         imp = ColorImporter(c, buftools.PyBUF_SIMPLE)
@@ -923,7 +1060,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEqual(imp.ndim, 0)
         self.assertEqual(imp.itemsize, 1)
         self.assertEqual(imp.len, 4)
-        self.assertEqual(imp.format, 'B')
+        self.assertEqual(imp.format, "B")
         self.assertEqual(imp.ndim, 0)
         self.assertEqual(imp.itemsize, 1)
         self.assertEqual(imp.len, 4)
@@ -951,19 +1088,49 @@ class ColorTypeTest (unittest.TestCase):
             self.assertEqual(imp.ndim, 1)
             self.assertEqual(imp.len, i)
             self.assertEqual(imp.shape, (i,))
-        self.assertRaises(BufferError, ColorImporter,
-                          c, buftools.PyBUF_WRITABLE)
+        self.assertRaises(BufferError, ColorImporter, c, buftools.PyBUF_WRITABLE)
 
-    try:
-        import ctypes
-    except ImportError:
-        del test_arraystruct
+    def test_lerp(self):
+        # setup
+        Color = pygame.color.Color
+
+        color0 = Color(0, 0, 0, 0)
+        color128 = Color(128, 128, 128, 128)
+        color255 = Color(255, 255, 255, 255)
+        color100 = Color(100, 100, 100, 100)
+
+        # type checking
+        self.assertTrue(isinstance(color0.lerp(color128, 0.5), Color))
+
+        # common value testing
+        self.assertEqual(color0.lerp(color128, 0.5), Color(64, 64, 64, 64))
+        self.assertEqual(color0.lerp(color128, 0.5), Color(64, 64, 64, 64))
+        self.assertEqual(color128.lerp(color255, 0.5), Color(192, 192, 192, 192))
+        self.assertEqual(color0.lerp(color255, 0.5), Color(128, 128, 128, 128))
+
+        # testing extremes
+        self.assertEqual(color0.lerp(color100, 0), color0)
+        self.assertEqual(color0.lerp(color100, 0.01), Color(1, 1, 1, 1))
+        self.assertEqual(color0.lerp(color100, 0.99), Color(99, 99, 99, 99))
+        self.assertEqual(color0.lerp(color100, 1), color100)
+
+        # kwarg testing
+        self.assertEqual(color0.lerp(color=color100, amount=0.5), Color(50, 50, 50, 50))
+        self.assertEqual(color0.lerp(amount=0.5, color=color100), Color(50, 50, 50, 50))
+
+        # invalid input testing
+        self.assertRaises(ValueError, lambda: color0.lerp(color128, 2.5))
+        self.assertRaises(ValueError, lambda: color0.lerp(color128, -0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((256, 0, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((0, 256, 0, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 256, 0), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 0, 256), 0.5))
 
 
 class SubclassTest(unittest.TestCase):
     class MyColor(pygame.Color):
-        def __init__ (self, *args, **kwds):
-            super(SubclassTest.MyColor, self).__init__ (*args, **kwds)
+        def __init__(self, *args, **kwds):
+            super(SubclassTest.MyColor, self).__init__(*args, **kwds)
             self.an_attribute = True
 
     def test_add(self):
@@ -972,7 +1139,7 @@ class SubclassTest(unittest.TestCase):
         c2 = pygame.Color(64, 64, 64, 255)
         mc2 = mc1 + c2
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
         c3 = c2 + mc1
         self.assertTrue(type(c3) is pygame.Color)
 
@@ -982,7 +1149,7 @@ class SubclassTest(unittest.TestCase):
         c2 = pygame.Color(64, 64, 64, 255)
         mc2 = mc1 - c2
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
         c3 = c2 - mc1
         self.assertTrue(type(c3) is pygame.Color)
 
@@ -992,7 +1159,7 @@ class SubclassTest(unittest.TestCase):
         c2 = pygame.Color(64, 64, 64, 255)
         mc2 = mc1 * c2
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
         c3 = c2 * mc1
         self.assertTrue(type(c3) is pygame.Color)
 
@@ -1002,7 +1169,7 @@ class SubclassTest(unittest.TestCase):
         c2 = pygame.Color(64, 64, 64, 255)
         mc2 = mc1 // c2
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
         c3 = c2 // mc1
         self.assertTrue(type(c3) is pygame.Color)
 
@@ -1012,7 +1179,7 @@ class SubclassTest(unittest.TestCase):
         c2 = pygame.Color(64, 64, 64, 255)
         mc2 = mc1 % c2
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
         c3 = c2 % mc1
         self.assertTrue(type(c3) is pygame.Color)
 
@@ -1021,17 +1188,17 @@ class SubclassTest(unittest.TestCase):
         self.assertTrue(mc1.an_attribute)
         mc2 = ~mc1
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
 
     def test_correct_gamma(self):
         mc1 = self.MyColor(64, 70, 75, 255)
         self.assertTrue(mc1.an_attribute)
-        mc2 = mc1.correct_gamma(.03)
+        mc2 = mc1.correct_gamma(0.03)
         self.assertTrue(isinstance(mc2, self.MyColor))
-        self.assertRaises(AttributeError, getattr, mc2, 'an_attribute')
+        self.assertRaises(AttributeError, getattr, mc2, "an_attribute")
 
 
 ################################################################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

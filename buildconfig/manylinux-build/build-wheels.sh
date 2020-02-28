@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-SUPPORTED_PYTHONS="cp27-cp27mu cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m"
+SUPPORTED_PYTHONS="cp27-cp27mu cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38"
 
 export PORTMIDI_INC_PORTTIME=1
 
@@ -11,7 +11,7 @@ ls -la /io
 for PYVER in $SUPPORTED_PYTHONS; do
     rm -rf /io/Setup /io/build/
     PYBIN="/opt/python/${PYVER}/bin"
-    ${PYBIN}/pip wheel /io/ -w wheelhouse/
+    ${PYBIN}/pip wheel -vvv /io/ -w wheelhouse/
 done
 
 # Bundle external shared libraries into the wheels

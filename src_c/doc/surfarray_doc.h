@@ -1,38 +1,21 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMESURFARRAY "pygame module for accessing surface pixel data using array interfaces"
-
 #define DOC_PYGAMESURFARRAYARRAY2D "array2d(Surface) -> array\nCopy pixels into a 2d array"
-
 #define DOC_PYGAMESURFARRAYPIXELS2D "pixels2d(Surface) -> array\nReference pixels into a 2d array"
-
 #define DOC_PYGAMESURFARRAYARRAY3D "array3d(Surface) -> array\nCopy pixels into a 3d array"
-
 #define DOC_PYGAMESURFARRAYPIXELS3D "pixels3d(Surface) -> array\nReference pixels into a 3d array"
-
 #define DOC_PYGAMESURFARRAYARRAYALPHA "array_alpha(Surface) -> array\nCopy pixel alphas into a 2d array"
-
 #define DOC_PYGAMESURFARRAYPIXELSALPHA "pixels_alpha(Surface) -> array\nReference pixel alphas into a 2d array"
-
 #define DOC_PYGAMESURFARRAYPIXELSRED "pixels_red (Surface) -> array\nReference pixel red into a 2d array."
-
 #define DOC_PYGAMESURFARRAYPIXELSGREEN "pixels_green (Surface) -> array\nReference pixel green into a 2d array."
-
 #define DOC_PYGAMESURFARRAYPIXELSBLUE "pixels_blue (Surface) -> array\nReference pixel blue into a 2d array."
-
 #define DOC_PYGAMESURFARRAYARRAYCOLORKEY "array_colorkey(Surface) -> array\nCopy the colorkey values into a 2d array"
-
 #define DOC_PYGAMESURFARRAYMAKESURFACE "make_surface(array) -> Surface\nCopy an array to a new surface"
-
 #define DOC_PYGAMESURFARRAYBLITARRAY "blit_array(Surface, array) -> None\nBlit directly from a array values"
-
 #define DOC_PYGAMESURFARRAYMAPARRAY "map_array(Surface, array3d) -> array2d\nMap a 3d array into a 2d array"
-
 #define DOC_PYGAMESURFARRAYUSEARRAYTYPE "use_arraytype (arraytype) -> None\nSets the array system to be used for surface arrays"
-
 #define DOC_PYGAMESURFARRAYGETARRAYTYPE "get_arraytype () -> str\nGets the currently active array type."
-
 #define DOC_PYGAMESURFARRAYGETARRAYTYPES "get_arraytypes () -> tuple\nGets the array system types currently supported."
-
 
 
 /* Docs in a comment... slightly easier to read. */

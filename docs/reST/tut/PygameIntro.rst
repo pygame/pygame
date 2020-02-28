@@ -130,13 +130,12 @@ simply exit the program, pygame will ensure everything is cleanly
 shutdown.
 
 It is time to update our position for the ball.
-:clr:`Lines 17 to 21` move the ballrect variable by the current speed.
-If the ball has moved outside the screen,
-we reverse the speed in that direction.
+:clr:`Lines 17` moves the ballrect variable by the current speed.
+:clr:`Lines 18 thru 21` reverse the speed if the ball has moved outside the screen.
 Not exactly Newtonian physics, but it is all we need.
 
 On :clr:`line 23` we erase
-the the screen by filling it with a black RGB color. If you have never
+the screen by filling it with a black RGB color. If you have never
 worked with animations this may seem strange. You may be asking "Why do
 we need to erase anything, why don't we just move the ball on the
 screen?" That is not quite the way computer animation works. Animation

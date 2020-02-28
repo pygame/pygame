@@ -32,8 +32,8 @@
 #endif
 
 #include <stdint.h>
-typedef uint8_t Uint8;    /* SDL convension */
-typedef uint16_t Uint16;  /* SDL convension */
+typedef uint8_t Uint8;    /* SDL convention */
+typedef uint16_t Uint16;  /* SDL convention */
 #include <stdlib.h>
 #include <memory.h>
 #include "scale.h"
@@ -395,6 +395,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         free(xidx0);
         if (xmult0) free(xmult0);
         if (xmult1) free(xmult1);
+        return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */
@@ -471,6 +472,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         free(xidx0);
         if (xmult0) free(xmult0);
         if (xmult1) free(xmult1);
+        return;
     }
 
     /* Create multiplier factors and starting indices and put them in arrays */

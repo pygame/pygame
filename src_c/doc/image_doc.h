@@ -1,18 +1,11 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEIMAGE "pygame module for image transfer"
-
 #define DOC_PYGAMEIMAGELOAD "load(filename) -> Surface\nload(fileobj, namehint="") -> Surface\nload new image from a file"
-
 #define DOC_PYGAMEIMAGESAVE "save(Surface, filename) -> None\nsave an image to disk"
-
 #define DOC_PYGAMEIMAGEGETEXTENDED "get_extended() -> bool\ntest if extended image formats can be loaded"
-
 #define DOC_PYGAMEIMAGETOSTRING "tostring(Surface, format, flipped=False) -> string\ntransfer image to string buffer"
-
 #define DOC_PYGAMEIMAGEFROMSTRING "fromstring(string, size, format, flipped=False) -> Surface\ncreate new Surface from a string buffer"
-
 #define DOC_PYGAMEIMAGEFROMBUFFER "frombuffer(string, size, format) -> Surface\ncreate a new Surface that shares data inside a string buffer"
-
 
 
 /* Docs in a comment... slightly easier to read. */

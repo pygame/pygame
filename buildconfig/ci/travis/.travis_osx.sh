@@ -6,7 +6,6 @@
 	# .travis_osx_install.sh
 	# .travis_osx_after_success.sh
 	# .travis_osx_rename_whl.py
-	# .travis_osx_upload_whl.py --no-config
 
 set -e
 
@@ -20,33 +19,42 @@ if [[ "$PY_VERSION" == "pypy2" ]] || [[ "$PY_VERSION" == "pypy3" ]]; then
 	export PIP_CMD="$PY_VERSION -m pip"
 else
 
-
-git clone https://github.com/illume/terryfy.git
-# git clone https://github.com/MacPython/terryfy.git
-cd terryfy
-# Work with a specific commit
-#git checkout 703737bd7be3a5d388146d5a95241ec2a17a4b2c
-cd ..
-source terryfy/travis_tools.sh
+export HOMEBREW_NO_AUTO_UPDATE=1
+source "buildconfig/ci/travis/.travis_osx_utils.sh"
 
 # Ensure that 'python' is on $PATH
 if [[ "$PY_VERSION" == "2" ]]; then
     export PATH="/usr/local/opt/python/libexec/bin:$PATH"
 fi
 
-get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
-
-
-# try and install an old python3.6 formula
 if [[ "$PY_VERSION_" == "3.6" ]]; then
 	brew uninstall python --force --ignore-dependencies
-	brew tap pygame/portmidi
-	brew install pygame/portmidi/python
+	retry brew install "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python36/python.rb"
 	export PYTHON_EXE=python3.6
 	export PIP_CMD="python3.6 -m pip"
+elif [[ "$PY_VERSION_" == "3.7" ]]; then
+	brew uninstall python --force --ignore-dependencies
+	retry brew install "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python37/python.rb"
+	export PYTHON_EXE=python3.7
+	export PIP_CMD="python3.7 -m pip"
+elif [[ "$PY_VERSION_" == "3.8" ]]; then
+	brew uninstall python --force --ignore-dependencies
+	retry brew install "https://raw.githubusercontent.com/pygame/homebrew-portmidi/master/Formula/python38/python.rb"
+	export PYTHON_EXE=python3.8
+	export PIP_CMD="python3.8 -m pip"
+else
+	brew uninstall --force --ignore-dependencies python@2
+	retry brew install "pygame/portmidi/python@2"
+	export PYTHON_EXE=python2.7
+	export PIP_CMD="python2.7 -m pip"
+fi
+
+
 fi
 
 
 
-
-fi
+echo "$PYTHON_EXE --version"
+$PYTHON_EXE --version
+echo "ls -la /usr/local/bin/"
+ls -la /usr/local/bin/

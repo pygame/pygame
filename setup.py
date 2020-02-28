@@ -15,15 +15,16 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.5.dev0",
+    "version":          "2.0.0.dev7",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
-    "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
-    "author_email":     "pygame@seul.org",
+    "author":           "A community project.",
+    "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
     "long_description": DESCRIPTION,
 }
 
+import re
 import sys
 import os
 
@@ -35,9 +36,9 @@ def compilation_help():
     if the_system == 'Linux':
         if hasattr(platform, 'linux_distribution'):
             distro = platform.linux_distribution()
-            if distro[0] == 'Ubuntu':
+            if distro[0].lower() == 'ubuntu':
                 the_system = 'Ubuntu'
-            elif distro[0] == 'Debian':
+            elif distro[0].lower() == 'debian':
                 the_system = 'Debian'
 
     help_urls = {
@@ -49,18 +50,18 @@ def compilation_help():
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
-    url = help_urls.get(platform.system(), default)
+    url = help_urls.get(the_system, default)
 
     is_pypy = '__pypy__' in sys.builtin_module_names
     if is_pypy:
         url += '\n    https://www.pygame.org/wiki/CompilePyPy'
 
-    print ('---')
+    print ('\n---')
     print ('For help with compilation see:')
     print ('    %s' % url)
     print ('To contribute to pygame development see:')
     print ('    https://www.pygame.org/contribute.html')
-    print ('---')
+    print ('---\n')
 
 
 
@@ -87,6 +88,79 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+if 'cython' in sys.argv:
+    # compile .pyx files
+    # So you can `setup.py cython` or `setup.py cython install`
+    try:
+        from Cython.Build.Dependencies import cythonize_one
+    except ImportError:
+        print("You need cython. https://cython.org/, pip install cython --user")
+        sys.exit(1)
+
+    from Cython.Build.Dependencies import create_extension_list
+    from Cython.Build.Dependencies import create_dependency_tree
+
+    try:
+        from Cython.Compiler.Main import Context
+        from Cython.Compiler.Options import CompilationOptions, default_options
+
+        c_options = CompilationOptions(default_options)
+        ctx = Context.from_options(c_options)
+    except ImportError:
+        from Cython.Compiler.Main import Context, CompilationOptions, default_options
+
+        c_options = CompilationOptions(default_options)
+        ctx = c_options.create_context()
+
+    import glob
+    pyx_files = glob.glob(os.path.join('src_c', 'cython', 'pygame', '*.pyx')) + \
+                glob.glob(os.path.join('src_c', 'cython', 'pygame', '**', '*.pyx'))
+
+    pyx_files, pyx_meta = create_extension_list(pyx_files, ctx=ctx)
+    deps = create_dependency_tree(ctx)
+
+    queue = []
+
+    for ext in pyx_files:
+        pyx_file = ext.sources[0] # TODO: check all sources, extension
+
+        c_file = os.path.splitext(pyx_file)[0].split(os.path.sep)
+        del c_file[1:3] # output in src_c/
+        c_file = os.path.sep.join(c_file) + '.c'
+
+        # update outdated .c files
+        if os.path.isfile(c_file):
+            c_timestamp = os.path.getmtime(c_file)
+            if c_timestamp < deps.timestamp(pyx_file):
+                dep_timestamp, dep = deps.timestamp(pyx_file), pyx_file
+                priority = 0
+            else:
+                dep_timestamp, dep = deps.newest_dependency(pyx_file)
+                priority = 2 - (dep in deps.immediate_dependencies(pyx_file))
+            if dep_timestamp > c_timestamp:
+                outdated = True
+            else:
+                outdated = False
+        else:
+            outdated = True
+            priority = 0
+        if outdated:
+            print('Compiling {} because it changed.'.format(pyx_file))
+            queue.append((priority, dict( pyx_file=pyx_file, c_file=c_file, fingerprint=None, quiet=False,
+                                          options=c_options, full_module_name=ext.name,
+                                          embedded_metadata=pyx_meta.get(ext.name) )))
+
+    # compile in right order
+    queue.sort(key=lambda a: a[0])
+    queue = [pair[1] for pair in queue]
+
+    count = len(queue)
+    for i, kwargs in enumerate(queue):
+        kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
+        cythonize_one(**kwargs)
+
+    sys.argv.remove('cython')
+
 AUTO_CONFIG = False
 if '-auto' in sys.argv:
     AUTO_CONFIG = True
@@ -95,7 +169,7 @@ if '-auto' in sys.argv:
 
 import os.path, glob, stat, shutil
 import distutils.sysconfig
-from distutils.core import setup, Extension, Command
+from distutils.core import setup, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 from distutils.command.sdist import sdist
@@ -137,15 +211,15 @@ def add_datafiles(data_files, dest_dir, pattern):
 
 # allow optionally using setuptools for bdist_egg.
 if "-setuptools" in sys.argv:
-    from setuptools import setup, find_packages
+    from setuptools import setup
     sys.argv.remove ("-setuptools")
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 # NOTE: the bdist_mpkg_support is for darwin.
 try:
     import bdist_mpkg_support
-    from setuptools import setup, Extension
+    from setuptools import setup
 except ImportError:
     pass
 else:
@@ -178,9 +252,13 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 
 #make sure there is a Setup file
 if AUTO_CONFIG or not os.path.isfile('Setup'):
-    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconifg/config.py"')
+    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
-    buildconfig.config.main(AUTO_CONFIG)
+    try:
+        buildconfig.config.main(AUTO_CONFIG)
+    except:
+        compilation_help()
+        raise
     if '-config' in sys.argv:
         sys.exit(0)
     print ('\nContinuing With "setup.py"')
@@ -192,7 +270,7 @@ try:
     if sin_mtime > s_mtime:
         print ('\n\nWARNING, "buildconfig/Setup.SDL1.in" newer than "Setup",'
                'you might need to modify "Setup".')
-except:
+except OSError:
     pass
 
 # get compile info for all extensions
@@ -252,6 +330,11 @@ data_files = [('pygame', pygame_data_files)]
 # pygame_data_files.append('LGPL')
 # pygame_data_files.append('readme.html')
 # pygame_data_files.append('install.html')
+
+# add *.pyi files into distribution directory
+# type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
+# for type_file in type_files:
+#     pygame_data_files.append(type_file)
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
@@ -316,17 +399,47 @@ add_datafiles(data_files, 'pygame/docs',
 
 #generate the version module
 def parse_version(ver):
-    from re import findall
-    return ', '.join(s for s in findall('\d+', ver)[0:3])
+    return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
+
+def parse_source_version():
+    pgh_major = -1
+    pgh_minor = -1
+    pgh_patch = -1
+    major_exp_search = re.compile(r'define\s+PG_MAJOR_VERSION\s+([0-9]+)').search
+    minor_exp_search = re.compile(r'define\s+PG_MINOR_VERSION\s+([0-9]+)').search
+    patch_exp_search = re.compile(r'define\s+PG_PATCH_VERSION\s+([0-9]+)').search
+    pg_header = os.path.join('src_c', 'include', '_pygame.h')
+    with open(pg_header) as f:
+        for line in f:
+            if pgh_major == -1:
+                m = major_exp_search(line)
+                if m: pgh_major = int(m.group(1))
+            if pgh_minor == -1:
+                m = minor_exp_search(line)
+                if m: pgh_minor = int(m.group(1))
+            if pgh_patch == -1:
+                m = patch_exp_search(line)
+                if m: pgh_patch = int(m.group(1))
+    if pgh_major == -1:
+        raise SystemExit("_pygame.h: cannot find PG_MAJOR_VERSION")
+    if pgh_minor == -1:
+        raise SystemExit("_pygame.h: cannot find PG_MINOR_VERSION")
+    if pgh_patch == -1:
+        raise SystemExit("_pygame.h: cannot find PG_PATCH_VERSION")
+    return (pgh_major, pgh_minor, pgh_patch)
 
 def write_version_module(pygame_version, revision):
     vernum = parse_version(pygame_version)
+    src_vernum = parse_source_version()
+    if vernum != ', '.join(str(e) for e in src_vernum):
+        raise SystemExit("_pygame.h version differs from 'METADATA' version"
+                         ": %s vs %s" % (vernum, src_vernum))
     with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
         header = header_file.read()
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"\n')
-        version_file.write('vernum = ' + vernum + '\n')
+        version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
 
 write_version_module(METADATA['version'], revision)
@@ -508,6 +621,10 @@ cmdclass['test'] = TestCommand
 
 
 class DocsCommand(Command):
+    """ For building the pygame documentation with `python setup.py docs`.
+
+    This generates html, and documentation .h header files.
+    """
     user_options = [ ]
 
     def initialize_options(self):
@@ -520,8 +637,20 @@ class DocsCommand(Command):
         '''
         runs the tests with default options.
         '''
+        docs_help = (
+            "Building docs requires Python version 3.6 or above, and sphinx."
+        )
+        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
+            raise SystemExit(docs_help)
+
         import subprocess
-        return subprocess.call([sys.executable, os.path.join('buildconfig', 'makeref.py')])
+        try:
+            return subprocess.call([
+                sys.executable, os.path.join('buildconfig', 'makeref.py')]
+            )
+        except:
+            print(docs_help)
+            raise
 
 cmdclass['docs'] = DocsCommand
 
@@ -543,7 +672,9 @@ date_files = [(path, files) for path, files in data_files if files]
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads',
+       "packages":    ['pygame',
+                       'pygame.threads',
+                       'pygame._sdl2',
                        'pygame.tests',
                        'pygame.tests.test_utils',
                        'pygame.tests.run_tests__tests',
@@ -560,8 +691,8 @@ PACKAGEDATA = {
                        'pygame.docs',
                        'pygame.examples'],
        "package_dir": {'pygame': 'src_py',
+                       'pygame._sdl2': 'src_py/_sdl2',
                        'pygame.threads': 'src_py/threads',
-                       'pygame.gp2x': 'src_py/gp2x',
                        'pygame.tests': 'test',
                        'pygame.docs': 'docs',
                        'pygame.examples': 'examples'},
@@ -573,93 +704,8 @@ PACKAGEDATA = {
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
 
-
 try:
     setup(**PACKAGEDATA)
 except:
     compilation_help()
     raise
-
-
-def remove_old_files():
-
-    # try and figure out where we are installed.
-
-    #pygame could be installed in a weird location because of
-    #  setuptools or something else.  The only sane way seems to be by trying
-    #  first to import it, and see where the imported one is.
-    #
-    # Otherwise we might delete some files from another installation.
-    try:
-        import pygame.base
-        use_pygame = 1
-    except:
-        use_pygame = 0
-
-    if use_pygame:
-        install_path= os.path.split(pygame.base.__file__)[0]
-        extension_ext = os.path.splitext(pygame.base.__file__)[1]
-    else:
-        if not os.path.exists(data_path):
-            return
-
-        install_path = data_path
-
-        base_file = glob.glob(os.path.join(data_path, "base*"))
-        if not base_file:
-            return
-
-        extension_ext = os.path.splitext(base_file[0])[1]
-
-
-
-    # here are the .so/.pyd files we need to ask to remove.
-    ext_to_remove = ["camera"]
-
-    # here are the .py/.pyo/.pyc files we need to ask to remove.
-    py_to_remove = ["color"]
-
-    os.path.join(data_path, 'color.py')
-    if os.name == "e32": # Don't warn on Symbian. The color.py is used as a wrapper.
-        py_to_remove = []
-
-
-
-    # See if any of the files are there.
-    extension_files = ["%s%s" % (x, extension_ext) for x in ext_to_remove]
-
-    py_files = ["%s%s" % (x, py_ext)
-                for py_ext in [".py", ".pyc", ".pyo"]
-                for x in py_to_remove]
-
-    files = py_files + extension_files
-
-    unwanted_files = []
-    for f in files:
-        unwanted_files.append( os.path.join( install_path, f ) )
-
-
-
-    ask_remove = []
-    for f in unwanted_files:
-        if os.path.exists(f):
-            ask_remove.append(f)
-
-    for f in ask_remove:
-        try:
-            print("trying to remove old file :%s: ..." %f)
-            os.remove(f)
-            print("Successfully removed :%s:." % f)
-        except:
-            print("FAILED to remove old file :%s:" % f)
-
-
-
-if "install" in sys.argv:
-    # remove some old files.
-    # only call after a successful install.  Should only reach here if there is
-    #   a successful install... otherwise setup() raises an error.
-    try:
-        remove_old_files()
-    except:
-        pass

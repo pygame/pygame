@@ -55,7 +55,7 @@ in the game.
 Sprites and Groups manage their relationships with the add() and remove()
 methods. These methods can accept a single or multiple group arguments for
 membership.  The default initializers for these classes also take a
-single group or list of groups as argments for initial membership. It is safe
+single group or list of groups as arguments for initial membership. It is safe
 to repeatedly add and remove the same Sprite from a Group.
 
 While it is possible to design sprite and group classes that don't derive
@@ -99,7 +99,7 @@ if 'callable' not in dir(__builtins__):
 # Don't depend on pygame.mask if it's not there...
 try:
     from pygame.mask import from_surface
-except:
+except ImportError:
     pass
 
 
@@ -165,10 +165,10 @@ class Sprite(object):
     def remove_internal(self, group):
         del self.__g[group]
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """method to control sprite behavior
 
-        Sprite.update(*args):
+        Sprite.update(*args, **kwargs):
 
         The default implementation of this method does nothing; it's just a
         convenient "hook" that you can override. This method is called by
@@ -245,8 +245,8 @@ class DirtySprite(Sprite):
         the screen.)
 
     _layer = 0
-        A READ ONLY value, it is read when adding it to the LayeredUpdates
-        group. For details see documentation of sprite.LayeredUpdates.
+        0 is the default value but this is able to be set differently
+        when subclassing.
 
     """
 
@@ -256,7 +256,8 @@ class DirtySprite(Sprite):
         self.blendmode = 0  # pygame 1.8, referred to as special_flags in
                             # the documentation of Surface.blit
         self._visible = 1
-        self._layer = 0     # READ ONLY by LayeredUpdates or LayeredDirty
+        self._layer = getattr(self, '_layer', 0)    # Default 0 unless
+                                                    # initialized differently.
         self.source_rect = None
         Sprite.__init__(self, *groups)
 
@@ -449,17 +450,17 @@ class AbstractGroup(object):
 
         return return_value
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """call the update method of every member sprite
 
-        Group.update(*args): return None
+        Group.update(*args, **kwargs): return None
 
         Calls the update method of every member sprite. All arguments that
         were passed to this method are passed to the Sprite update function.
 
         """
         for s in self.sprites():
-            s.update(*args)
+            s.update(*args, **kwargs)
 
     def draw(self, surface):
         """draw all sprites onto the surface
@@ -964,7 +965,7 @@ class LayeredDirty(LayeredUpdates):
         _use_update: True/False   (default is False)
         _default_layer: default layer where the sprites without a layer are
             added
-        _time_threshold: treshold time for switching between dirty rect mode
+        _time_threshold: threshold time for switching between dirty rect mode
             and fullscreen mode; defaults to updating at 80 frames per second,
             which is equal to 1000.0 / 80.0
 
@@ -981,7 +982,7 @@ class LayeredDirty(LayeredUpdates):
             _use_update: True/False   (default is False)
             _default_layer: default layer where the sprites without a layer are
                 added
-            _time_threshold: treshold time for switching between dirty rect
+            _time_threshold: threshold time for switching between dirty rect
                 mode and fullscreen mode; defaults to updating at 80 frames per
                 second, which is equal to 1000.0 / 80.0
 
@@ -1097,18 +1098,27 @@ class LayeredDirty(LayeredUpdates):
                 if 1 > spr.dirty:
                     if spr._visible:
                         # sprite not dirty; blit only the intersecting part
-                        _spr_rect = spr.rect
                         if spr.source_rect is not None:
-                            _spr_rect = Rect(spr.rect.topleft,
-                                             spr.source_rect.size)
+                            # For possible future speed up, source_rect's data
+                            # can be prefetched outside of this loop.
+                            _spr_rect = _rect(spr.rect.topleft,
+                                              spr.source_rect.size)
+                            rect_offset_x = spr.source_rect[0] - _spr_rect[0]
+                            rect_offset_y = spr.source_rect[1] - _spr_rect[1]
+                        else:
+                            _spr_rect = spr.rect
+                            rect_offset_x = -_spr_rect[0]
+                            rect_offset_y = -_spr_rect[1]
+
                         _spr_rect_clip = _spr_rect.clip
+
                         for idx in _spr_rect.collidelistall(_update):
                             # clip
                             clip = _spr_rect_clip(_update[idx])
                             _surf_blit(spr.image,
                                        clip,
-                                       (clip[0] - _spr_rect[0],
-                                        clip[1] - _spr_rect[1],
+                                       (clip[0] + rect_offset_x,
+                                        clip[1] + rect_offset_y,
                                         clip[2],
                                         clip[3]),
                                        spr.blendmode)
@@ -1207,7 +1217,7 @@ class LayeredDirty(LayeredUpdates):
             sprite.dirty = 1
 
     def set_timing_treshold(self, time_ms):
-        """set the treshold in milliseconds
+        """set the threshold in milliseconds
 
         set_timing_treshold(time_ms): return None
 
@@ -1367,17 +1377,17 @@ def collide_circle(left, right):
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
     distancesquared = xdistance ** 2 + ydistance ** 2
-    
+
     if hasattr(left, 'radius'):
         leftradius = left.radius
     else:
         leftrect = left.rect
-        # approximating the radius of a square by using half of the diagonal, 
+        # approximating the radius of a square by using half of the diagonal,
         # might give false positives (especially if its a long small rect)
         leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
         # store the radius on the sprite for next time
         setattr(left, 'radius', leftradius)
-        
+
     if hasattr(right, 'radius'):
         rightradius = right.radius
     else:
@@ -1406,7 +1416,7 @@ class collide_circle_ratio(object):
 
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
-        
+
         When the ratio is ratio=1.0, then it behaves exactly like the 
         collide_circle method.
 
@@ -1575,6 +1585,7 @@ def spritecollideany(sprite, group, collided=None):
     indicating if they are colliding. If collided is not passed, then all
     sprites must have a "rect" value, which is a rectangle of the sprite area,
     which will be used to calculate the collision.
+
 
     """
     if collided:

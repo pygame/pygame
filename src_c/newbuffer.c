@@ -339,7 +339,7 @@ buffer_get_buffer(BufferObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-buffer_release_buffer(BufferObject *self)
+buffer_release_buffer(BufferObject *self, PyObject *args)
 {
     int flags = self->flags;
     Py_buffer *view_p = self->view_p;
@@ -836,13 +836,15 @@ static int
 mixin_getbuffer(PyObject *self, Py_buffer *view_p, int flags)
 {
     PyObject *py_view = Buffer_New(view_p, 0, 1);
-    PyObject *py_rval = 0;
     int rval = -1;
 
     if (py_view) {
+        PyObject *py_rval = NULL;
+
         view_p->obj = 0;
         py_rval =
             PyObject_CallMethod(self, "_get_buffer", "(Oi)", py_view, flags);
+
         Buffer_Reset((BufferObject *)py_view);
         Py_DECREF(py_view);
         if (py_rval == Py_None) {
@@ -862,10 +864,11 @@ static void
 mixin_releasebuffer(PyObject *self, Py_buffer *view_p)
 {
     PyObject *py_view = Buffer_New(view_p, 1, 1);
-    PyObject *py_rval = 0;
 
     if (py_view) {
-        py_rval = PyObject_CallMethod(self, "_release_buffer", "(O)", py_view);
+         PyObject *py_rval =
+             PyObject_CallMethod(self, "_release_buffer", "(O)", py_view);
+
         if (py_rval) {
             Py_DECREF(py_rval);
         }

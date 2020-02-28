@@ -30,24 +30,40 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    .. ## pygame.mixer.music.load ##
 
+.. function:: unload
+
+   | :sl:`Unload the currently loaded music to free up resources`
+   | :sg:`unload() -> None`
+
+   This closes resources like files for any music that may be loaded.
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mixer.music.load ##
+
+
 .. function:: play
 
    | :sl:`Start the playback of the music stream`
-   | :sg:`play(loops=0, start=0.0) -> None`
+   | :sg:`play(loops=0, start=0.0, fade_ms = 0) -> None`
 
    This will play the loaded music stream. If the music is already playing it
    will be restarted.
 
-   The loops argument controls the number of repeats a music will play.
-   ``play(5)`` will cause the music to played once, then repeated five times,
-   for a total of six. If the loops is -1 then the music will repeat
-   indefinitely.
+   :param int loops: (optional) How many times to repeat the music after it
+       plays once. Setting it to 5 will play the music once, then repeat it 
+       5 more times, for a total of six times. Set to -1 to make the music
+       repeat indefinately.
 
-   The starting position argument controls where in the music the song starts
-   playing. The starting position is dependent on the format of music playing.
-   ``MP3`` and ``OGG`` use the position as time (in seconds). ``MOD`` music it
-   is the pattern order number. Passing a startpos will raise a
-   NotImplementedError if it cannot set the start position
+   :param float start: (optional) The position where the music starts playing
+       from. The starting position depends on the format of the music played.
+       ``MP3`` and ``OGG`` use the position as time in seconds. For ``MOD``
+       music it is the pattern order number. Passing a start position will
+       raise a NotImplementedError if the start position cannot be set.
+
+   :param int fade_ms: (optional) Make the music start playing at 0 volume and
+      fade up to full volume over the given time. The sample may end before
+      the fade-in is complete. Added in pygame 2.0.
 
    .. ## pygame.mixer.music.play ##
 
@@ -93,20 +109,26 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sl:`stop music playback after fading out`
    | :sg:`fadeout(time) -> None`
 
-   This will stop the music playback after it has been faded out over the
-   specified time (measured in milliseconds).
+   Fade out and stop the currently playing music.
 
-   Note, that this function blocks until the music has faded out.
+   :param int time: Time in milliseconds during which the music volume will
+      fade out before it stops.
+
+   Note, that this function blocks until the music has faded out. Calls to :func:`fadeout` and 
+      :func:`set_volume` will have no effect during this time. If an event was set using
+      :func:`set_endevent` it will be called after the music has faded.
 
    .. ## pygame.mixer.music.fadeout ##
 
 .. function:: set_volume
 
    | :sl:`set the music volume`
-   | :sg:`set_volume(value) -> None`
+   | :sg:`set_volume(volume) -> None`
 
-   Set the volume of the music playback. The value argument is between 0.0 and
-   1.0. When new music is loaded the volume is reset.
+   Set the volume of the music playback.
+   
+   :param float volume: The value argument should be between 0.0 and 1.0. When new
+       music is loaded the volume is reset to full volume.
 
    .. ## pygame.mixer.music.set_volume ##
 
@@ -126,7 +148,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sg:`get_busy() -> bool`
 
    Returns True when the music stream is actively playing. When the music is
-   idle this returns False.
+   idle this returns False. It returns True even if the music is paused.
 
    .. ## pygame.mixer.music.get_busy ##
 
@@ -137,19 +159,22 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    This sets the position in the music file where playback will start.
    The meaning of "pos", a float (or a number that can be converted to a float),
-   depends on the music format. For ``MOD`` files, it is the integer pattern
-   number in the module. For ``OGG`` it the absolute position, in seconds, from
+   depends on the music format.
+   
+   For ``MOD`` files, pos is the integer pattern number in the module.
+   For ``OGG`` it is the absolute position, in seconds, from
    the beginning of the sound. For ``MP3`` files, it is the relative position,
    in seconds, from the current position. For absolute positioning in an ``MP3``
    file, first call :func:`rewind`.
+
    Other file formats are unsupported. Newer versions of SDL_mixer have
-   better positioning support than earlier. An SDLError is raised if a
+   better positioning support than earlier ones. An SDLError is raised if a
    particular format does not support positioning.
 
    Function :func:`set_pos` calls underlining SDL_mixer function
    ``Mix_SetMusicPosition``.
 
-   New in pygame 1.9.2
+   .. versionadded:: 1.9.2
 
    .. ## pygame.mixer.music.set_pos ##
 
@@ -166,12 +191,14 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
 .. function:: queue
 
-   | :sl:`queue a music file to follow the current`
+   | :sl:`queue a sound file to follow the current`
    | :sg:`queue(filename) -> None`
 
-   This will load a music file and queue it. A queued music file will begin as
-   soon as the current music naturally ends. If the current music is ever
-   stopped or changed, the queued song will be lost.
+   This will load a sound file and queue it. A queued sound file will begin as
+   soon as the current sound naturally ends. Only one sound can be queued at a
+   time. Queuing a new sound while another sound is queued will result in the
+   new sound becoming the queued sound. Also, if the current sound is ever
+   stopped or changed, the queued sound will be lost.
 
    The following example will play music by Bach six times, then play music by
    Mozart once:

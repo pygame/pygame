@@ -3,13 +3,8 @@
 import os, sys
 from glob import glob
 import platform
+import logging
 from distutils.sysconfig import get_python_inc
-
-# Python 2.x/3.x compatibility
-try:
-    raw_input
-except NameError:
-    raw_input = input
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
@@ -19,15 +14,6 @@ if os.environ.get('PYGAME_EXTRA_BASE', ''):
 else:
     extrabases = []
 
-
-def confirm(message):
-    "ask a yes/no question, return result"
-    if not sys.stdout.isatty():
-        return False
-    reply = raw_input('\n' + message + ' [Y/n]:')
-    if reply and (reply[0].lower()) == 'n':
-        return False
-    return True
 
 class DependencyProg:
     def __init__(self, name, envname, exename, minver, defaultlibs, version_flag="--version"):
@@ -101,7 +87,7 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
-                if filter(os.path.isfile, glob(path+'*')):
+                if any(map(os.path.isfile, glob(path+'*'))):
                     self.lib_dir = dir
 
         if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
@@ -109,6 +95,7 @@ class Dependency:
             self.found = 1
         else:
             print (self.name + '        '[len(self.name):] + ': not found')
+            print(self.name, self.checkhead, self.checklib, incdirs, libdirs)
 
 
 class DependencyPython:
@@ -150,10 +137,12 @@ def main(sdl2=False):
     if sdl2:
         origincdirs = ['/include', '/include/SDL2']
         origlibdirs = ['/lib','/lib64','/X11R6/lib',
-                       '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu']
+                       '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu',
+                       '/lib/arm-linux-gnueabihf/']
+
     else:
         origincdirs = ['/include', '/include/SDL', '/include/SDL']
-        origlibdirs = ['/lib','/lib64','/X11R6/lib']
+        origlibdirs = ['/lib','/lib64','/X11R6/lib', '/lib/arm-linux-gnueabihf/']
     if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
         origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
 
@@ -221,8 +210,9 @@ def main(sdl2=False):
         Dependency('SCRAP', '', 'libX11', ['X11']),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ])
-    is_freebsd = platform.system() == 'FreeBSD'
-    if not is_freebsd:
+    is_freebsd = 'FreeBSD' in platform.system()
+    is_hurd = platform.system() == 'GNU'
+    if not is_freebsd and not is_hurd:
         porttime_dep = get_porttime_dep()
         DEPS.append(
             Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi'])
@@ -231,7 +221,7 @@ def main(sdl2=False):
     DEPS.append(find_freetype())
 
     if not DEPS[0].found:
-        sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
+        raise RuntimeError('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
 
     incdirs = []
     libdirs = []
@@ -256,10 +246,13 @@ def main(sdl2=False):
 
     for d in DEPS[1:]:
         if not d.found:
-            if "-auto" not in sys.argv and not confirm("""
-Warning, some of the pygame dependencies were not found. Pygame can still
-compile and install, but games that depend on those missing dependencies
-will not run. Would you like to continue the configuration?"""):
+            if "-auto" not in sys.argv:
+                logging.warning(
+                    "Some pygame dependencies were not found. "
+                    "Pygame can still compile and install, but games that "
+                    "depend on those missing dependencies will not run. "
+                    "Use -auto to continue building without all dependencies. "
+                )
                 raise SystemExit("Missing dependencies")
             break
 

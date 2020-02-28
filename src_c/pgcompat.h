@@ -1,8 +1,9 @@
-/* Python 2.x/3.x compitibility tools
+/* Python 2.x/3.x compatibility tools (internal)
  */
+#ifndef PGCOMPAT_INTERNAL_H
+#define PGCOMPAT_INTERNAL_H
 
-#if !defined(PGCOMPAT_H)
-#define PGCOMPAT_H
+#include "include/pgcompat.h"
 
 #if PY_MAJOR_VERSION >= 3
 
@@ -36,6 +37,14 @@
 /* Text interface. Use unicode strings. */
 #define Text_Type PyUnicode_Type
 #define Text_Check PyUnicode_Check
+
+#ifndef PYPY_VERSION
+#define Text_FromLocale(s) PyUnicode_DecodeLocale((s), "strict")
+#else /* PYPY_VERSION */
+/* workaround: missing function for pypy */
+#define Text_FromLocale PyUnicode_FromString
+#endif /* PYPY_VERSION */
+
 #define Text_FromUTF8 PyUnicode_FromString
 #define Text_FromUTF8AndSize PyUnicode_FromStringAndSize
 #define Text_FromFormat PyUnicode_FromFormat
@@ -88,6 +97,7 @@
 /* Text interface. Use ascii strings. */
 #define Text_Type PyString_Type
 #define Text_Check PyString_Check
+#define Text_FromLocale PyString_FromString
 #define Text_FromUTF8 PyString_FromString
 #define Text_FromUTF8AndSize PyString_FromStringAndSize
 #define Text_FromFormat PyString_FromFormat
@@ -181,6 +191,24 @@
 #else
 #define PG_ENABLE_NEWBUF 0
 #endif
-#endif
+#endif /* !defined(PG_ENABLE_NEWBUF) */
 
-#endif /* #if !defined(PGCOMPAT_H) */
+
+#if defined(SDL_VERSION_ATLEAST)
+#if !(SDL_VERSION_ATLEAST(2, 0, 5))
+/* These functions require SDL 2.0.5 or greater.
+
+  https://wiki.libsdl.org/SDL_SetWindowResizable
+*/
+void SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable);
+int SDL_GetWindowOpacity(SDL_Window *window, float *opacity);
+int SDL_SetWindowOpacity(SDL_Window *window, float opacity);
+int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window);
+int SDL_SetWindowInputFocus(SDL_Window *window);
+SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
+                               Uint32 format);
+#endif
+#endif /* defined(SDL_VERSION_ATLEAST) */
+
+
+#endif /* ~PGCOMPAT_INTERNAL_H */

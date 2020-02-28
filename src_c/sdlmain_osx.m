@@ -130,7 +130,7 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 //#############################################################################
 // Defining the NSApplication class we will use
 //#############################################################################
-@interface SDLApplication : NSApplication
+@interface PYGSDLApplication : NSApplication
 @end
 
 /* For some reaon, Apple removed setAppleMenu from the headers in 10.4,
@@ -140,31 +140,13 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 - (void)setAppleMenu:(NSMenu *)menu;
 @end
 
-@implementation SDLApplication
+@implementation PYGSDLApplication
 /* Invoked from the Quit menu item */
 - (void)terminate:(id)sender
 {
     SDL_Event event;
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
-}
-@end
-
-@interface SDLApplicationDelegate : NSObject
-@end
-@implementation SDLApplicationDelegate
-- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
-{
-    int posted;
-
-    /* Post the event, if desired */
-    posted = 0;
-    SDL_Event event;
-    event.type = SDL_USEREVENT;
-    event.user.code = 0x1000;
-    event.user.data1 = SDL_strdup([filename UTF8String]);
-    posted = (SDL_PushEvent(&event) > 0);
-    return (BOOL)(posted);
 }
 @end
 
@@ -188,7 +170,13 @@ static void setApplicationMenu(void)
     [appleMenu addItemWithTitle:title action:@selector(hide:) keyEquivalent:@"h"];
 
     menuItem = (NSMenuItem *)[appleMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 101200
     [menuItem setKeyEquivalentModifierMask:(NSAlternateKeyMask|NSCommandKeyMask)];
+#else
+    [menuItem setKeyEquivalentModifierMask:(NSEventModifierFlagOption|NSEventModifierFlagCommand)];
+#endif
+
 
     [appleMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
 
@@ -235,11 +223,9 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 {
     char* icon_data = NULL;
     int data_len = 0;
-    SDLApplicationDelegate *sdlApplicationDelegate = NULL;
-
     NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
 
-    [SDLApplication sharedApplication];
+    [PYGSDLApplication sharedApplication];
 
     [NSApp setMainMenu:[[NSMenu alloc] init]];
     setApplicationMenu();
@@ -251,10 +237,6 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 
     HasInstalledApplication = 1;
 
-    /* Create SDLApplicationDelegate and make it the app delegate */
-    sdlApplicationDelegate = [[SDLApplicationDelegate alloc] init];
-    [NSApp setDelegate:sdlApplicationDelegate];
-
     _WMEnable(NULL);
 
     if (PyArg_ParseTuple (arg, "|z#", &icon_data, &data_len))
@@ -265,7 +247,12 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
         {
             [NSApp setApplicationIconImage:icon_img];
         }
+    } else {
+        [pool release];
+        return NULL;
     }
+
+    [pool release];
 
 	Py_RETURN_TRUE;
 }
@@ -277,23 +264,30 @@ _ScrapInit(PyObject* self) {
 
 static PyObject*
 _ScrapGet(PyObject *self, PyObject *args) {
-	PyObject *ret = Py_None;
 	char *scrap_type;
 #if defined (PYGAME_MAC_SCRAP_OLD)
-	return Py_None;
+    Py_RETURN_NONE;
 #else
-	if (!PyArg_ParseTuple (args, "s", &scrap_type))
-		return Py_None;
+	if (!PyArg_ParseTuple (args, "s", &scrap_type)) {
+		return NULL;
+    }
 
 	// anything else than text is not implemented
-	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
-		return Py_None;
+	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT)) {
+        Py_RETURN_NONE;
+    }
 
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSStringPboardType];
-	if (info != nil)
+    PyObject *ret = NULL;
+
+	if (info != nil) {
 		ret = PyUnicode_FromString([info UTF8String]);
+    }
 	[pool release];
+    if (!ret) {
+        Py_RETURN_NONE;
+    }
 	return ret;
 #endif
 }
@@ -301,7 +295,7 @@ _ScrapGet(PyObject *self, PyObject *args) {
 static PyObject*
 _ScrapGetTypes(PyObject *self) {
 #if defined (PYGAME_MAC_SCRAP_OLD)
-	return Py_None;
+    Py_RETURN_NONE;
 #else
 	PyObject *l = PyList_New(0);
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
@@ -316,19 +310,21 @@ _ScrapGetTypes(PyObject *self) {
 
 static PyObject*
 _ScrapPut(PyObject *self, PyObject *args) {
-#if defined (PYGAME_MAC_SCRAP_OLD)
-	return Py_None;
-#else
-	PyObject *ret = NULL;
 	char *scrap_type;
 	char *data;
 
-	if (!PyArg_ParseTuple (args, "ss", &scrap_type, &data))
-		return Py_None;
+#if defined (PYGAME_MAC_SCRAP_OLD)
+    Py_RETURN_NONE;
+#else
+
+	if (!PyArg_ParseTuple (args, "ss", &scrap_type, &data)) {
+        return NULL;
+    }
 
 	// anything else than text is not implemented
-	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
-		return Py_None;
+	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT)) {
+        Py_RETURN_NONE;
+    }
 
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSPasteboard *pb = [NSPasteboard generalPasteboard];
@@ -336,31 +332,34 @@ _ScrapPut(PyObject *self, PyObject *args) {
 	[pb declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner: pb];
 	[pb setString:ndata forType: NSStringPboardType];
 	[pool release];
-	return Py_None;
+    Py_RETURN_NONE;
 #endif
 }
 
 static PyObject*
 _ScrapSetMode(PyObject *self, PyObject *args) {
 #if defined (PYGAME_MAC_SCRAP_OLD)
-	return Py_None;
+    Py_RETURN_NONE;
 #else
 	char *mode;
-	if (!PyArg_ParseTuple (args, "s", &mode))
-		return Py_None;
-	return Py_None;
+	if (!PyArg_ParseTuple (args, "s", &mode)) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
 #endif
 }
 
 static PyObject*
 _ScrapContains(PyObject *self, PyObject *args) {
 #if defined (PYGAME_MAC_SCRAP_OLD)
-	return Py_None;
+    Py_RETURN_NONE;
 #else
 	char *mode;
 	int found = 0;
-	if (!PyArg_ParseTuple (args, "s", &mode))
-		return Py_None;
+	if (!PyArg_ParseTuple (args, "s", &mode)) {
+        return NULL;
+    }
 
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSPasteboard *pb = [NSPasteboard generalPasteboard];
@@ -377,7 +376,7 @@ _ScrapContains(PyObject *self, PyObject *args) {
 static PyObject*
 _ScrapLost(PyObject *self) {
 #if defined (PYGAME_MAC_SCRAP_OLD)
-	return Py_None;
+    Py_RETURN_NONE;
 #else
 	int found = 0;
 	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];

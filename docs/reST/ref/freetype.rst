@@ -59,16 +59,17 @@ loaded. This module must be imported explicitly to be used. ::
    import pygame
    import pygame.freetype
 
-The ``freetype`` module is new in pygame 1.9.2
+.. versionadded:: 1.9.2 :mod:`freetype`
 
 
 .. function:: get_error
 
    | :sl:`Return the latest FreeType error`
    | :sg:`get_error() -> str`
+   | :sg:`get_error() -> None`
 
    Return a description of the last error which occurred in the FreeType2
-   library, or None if no errors have occurred.
+   library, or ``None`` if no errors have occurred.
 
 .. function:: get_version
 
@@ -111,12 +112,22 @@ The ``freetype`` module is new in pygame 1.9.2
    results. It is safe to call this function even if the module hasn't been
    initialized yet.
 
+.. function:: get_init
+
+   | :sl:`Returns True if the FreeType module is currently initialized.`
+   | :sg:`get_init() -> bool`
+
+   Returns ``True`` if the ``pygame.freetype`` module is currently initialized.
+
+   .. versionadded:: 1.9.5
+
 .. function:: was_init
 
-   | :sl:`Return whether the the FreeType library is initialized.`
+   | :sl:`DEPRECATED: Use get_init() instead.`
    | :sg:`was_init() -> bool`
 
-   Returns whether the the FreeType library is initialized.
+   DEPRECATED: Returns ``True`` if the ``pygame.freetype`` module is currently
+   initialized. Use ``get_init()`` instead.
 
 .. function:: get_cache_size
 
@@ -215,7 +226,7 @@ The ``freetype`` module is new in pygame 1.9.2
       | :sg:`size -> (float, float)`
 
       Get or set the default size for text metrics and rendering. It can be
-      a single point size, given as an Python ``int`` or ``float``, or a
+      a single point size, given as a Python ``int`` or ``float``, or a
       font ppem (width, height) ``tuple``. Size values are non-negative.
       A zero size or width represents an undefined size. In this case
       the size must be given as a method argument, or an exception is
@@ -465,13 +476,16 @@ The ``freetype`` module is new in pygame 1.9.2
    .. method:: render_raw_to
 
       | :sl:`Render text into an array of ints`
-      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)`
+      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> Rect`
 
       Render to an array object exposing an array struct interface. The array
       must be two dimensional with integer items. The default *dest* value,
       ``None``, is equivalent to position (0, 0). See :meth:`render_to`.
       As with the other render methods, *text* can be ``None`` to
       render a text string passed previously to another method.
+
+      The return value is a :func:`pygame.Rect` giving the size and position of
+      the rendered text.
 
    .. attribute:: style
 

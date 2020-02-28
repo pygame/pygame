@@ -20,6 +20,8 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
+#include "../pygame.h"
+
 #include "ft_wrap.h"
 #include FT_MODULE_H
 
@@ -89,7 +91,7 @@ _PGFT_Font_IsFixedWidth(FreeTypeInstance *ft, pgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return -1;
     }
     return FT_IS_FIXED_WIDTH(font) ? 1 : 0;
@@ -101,7 +103,7 @@ _PGFT_Font_NumFixedSizes(FreeTypeInstance *ft, pgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return -1;
     }
     return FT_HAS_FIXED_SIZES(font) ? font->num_fixed_sizes : 0;
@@ -109,7 +111,7 @@ _PGFT_Font_NumFixedSizes(FreeTypeInstance *ft, pgFontObject *fontobj)
 
 int
 _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, pgFontObject *fontobj,
-                            unsigned n, long *size_p,
+                            long n, long *size_p,
                             long *height_p, long *width_p,
                             double *x_ppem_p, double *y_ppem_p)
 {
@@ -117,7 +119,7 @@ _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Bitmap_Size *bitmap_size_p;
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return -1;
     }
     if (!FT_HAS_FIXED_SIZES(font) || n > font->num_fixed_sizes) /* cond. or */ {
@@ -139,7 +141,7 @@ _PGFT_Font_GetName(FreeTypeInstance *ft, pgFontObject *fontobj)
     font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return font->family_name ? font->family_name : "";
@@ -154,7 +156,7 @@ _PGFT_Font_GetHeight(FreeTypeInstance *ft, pgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)font->height;
@@ -167,7 +169,7 @@ _PGFT_Font_GetHeightSized(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)FX6_TRUNC(FX6_CEIL(font->size->metrics.height));
@@ -179,7 +181,7 @@ _PGFT_Font_GetAscender(FreeTypeInstance *ft, pgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)font->ascender;
@@ -192,7 +194,7 @@ _PGFT_Font_GetAscenderSized(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)FX6_TRUNC(FX6_CEIL(font->size->metrics.ascender));
@@ -204,7 +206,7 @@ _PGFT_Font_GetDescender(FreeTypeInstance *ft, pgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)font->descender;
@@ -217,7 +219,7 @@ _PGFT_Font_GetDescenderSized(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)FX6_TRUNC(FX6_FLOOR(font->size->metrics.descender));
@@ -234,7 +236,7 @@ _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *ft, pgFontObject *fontobj,
     FT_Size_Metrics *metrics;
 
     if (!font) {
-        RAISE(pgExc_SDLError, _PGFT_GetError(ft));
+        PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     metrics = &font->size->metrics;
@@ -250,13 +252,13 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, pgFontObject *fontobj,
     unsigned width;
     unsigned height;
     FT_Vector offset;
-    FT_Pos underline_size;
     FT_Pos underline_top;
+    FT_Fixed underline_size;
 
     font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
     if (!font_text) goto error;
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
-                           &underline_size, &underline_top);
+                           &underline_top, &underline_size);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
     r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
     r->w = (Uint16)width;
@@ -282,10 +284,11 @@ _PGFT_GetFontSized(FreeTypeInstance *ft,
     FTC_ScalerRec scale;
     FT_Size _fts;
     FT_Face font;
-    FT_Int i;
-    FT_Pos size;
 
     if (!fontobj->is_scalable && !face_size.y) {
+        FT_Int i;
+        FT_Pos size;
+
         font = _PGFT_GetFont(ft, fontobj);
         if (!font) {
             return 0;
@@ -385,7 +388,7 @@ static int init(FreeTypeInstance *ft, pgFontObject *fontobj)
 
     font = _PGFT_GetFont(ft, fontobj);
     if (!font) {
-        RAISE(PyExc_IOError, _PGFT_GetError(ft));
+        PyErr_SetString(PyExc_IOError, _PGFT_GetError(ft));
         return -1;
     }
     fontobj->is_scalable = FT_IS_SCALABLE(font) ? ~0 : 0;
@@ -467,7 +470,7 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
 
     position = SDL_RWtell(src);
     if (position < 0) {
-        RAISE(pgExc_SDLError, "Failed to seek in font stream");
+        PyErr_SetString(pgExc_SDLError, "Failed to seek in font stream");
         return -1;
     }
 
@@ -494,6 +497,14 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, pgFontObject *fontobj,
 
     return init(ft, fontobj);
 }
+
+SDL_RWops*
+_PGFT_GetRWops(pgFontObject *fontobj)
+{
+    if (fontobj->id.open_args.flags == FT_OPEN_STREAM)
+        return fontobj->id.open_args.stream->descriptor.pointer;
+    return NULL;
+}
 #endif
 
 void
@@ -507,11 +518,11 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, pgFontObject *fontobj)
         quit(fontobj);
     }
 
-    if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
+    if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {
         _PGFT_free(fontobj->id.open_args.pathname);
     fontobj->id.open_args.pathname = 0;
     }
-    else if (fontobj->id.open_args.flags == FT_OPEN_PATHNAME) {
+    else if (fontobj->id.open_args.flags == FT_OPEN_STREAM) {
         _PGFT_free(fontobj->id.open_args.stream);
     }
     fontobj->id.open_args.flags = 0;
@@ -543,25 +554,30 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
 
     error = FT_Init_FreeType(&inst->library);
     if (error) {
-        RAISE(PyExc_RuntimeError,
-              "pygame (_PGFT_Init): failed to initialize FreeType library");
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "pygame (_PGFT_Init): failed to initialize FreeType library");
         goto error_cleanup;
     }
 
     if (FTC_Manager_New(inst->library, 0, 0, 0,
             &_PGFT_font_request, 0,
             &inst->cache_manager) != 0) {
-        RAISE(PyExc_RuntimeError,
-              "pygame (_PGFT_Init): failed to create new FreeType manager");
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "pygame (_PGFT_Init): failed to create new FreeType manager");
         goto error_cleanup;
     }
 
     if (FTC_CMapCache_New(inst->cache_manager,
             &inst->cache_charmap) != 0) {
-        RAISE(PyExc_RuntimeError,
-              "pygame (_PGFT_Init): failed to create new FreeType cache");
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "pygame (_PGFT_Init): failed to create new FreeType cache");
         goto error_cleanup;
     }
+
+    _PGFT_SetError(inst, "", 0); /* Initialize error data. */
 
     *_instance = inst;
     return 0;

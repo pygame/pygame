@@ -40,6 +40,8 @@ gfxdraw src_c/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
 #or the configuration script will choke!)
 _freetype src_c/freetype/ft_cache.c src_c/freetype/ft_wrap.c src_c/freetype/ft_render.c  src_c/freetype/ft_render_cb.c src_c/freetype/ft_layout.c src_c/freetype/ft_unicode.c src_c/_freetype.c $(SDL) $(FREETYPE) $(DEBUG)
 
+_sprite src_c/_sprite.c $(DEBUG)
+
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
 
@@ -61,7 +63,7 @@ joystick src_c/joystick.c $(SDL) $(DEBUG)
 draw src_c/draw.c $(SDL) $(DEBUG)
 image src_c/image.c $(SDL) $(DEBUG)
 overlay src_c/overlay.c $(SDL) $(DEBUG)
-transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
+transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG)
 mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
 bufferproxy src_c/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)

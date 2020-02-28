@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+""" pygame.examples.scroll
 
-"""An zoomed image viewer that demonstrates Surface.scroll
+An zoomed image viewer that demonstrates Surface.scroll
 
 This example shows a scrollable image that has a zoom factor of eight.
 It uses the Surface.scroll function to shift the image on the display
@@ -12,15 +13,12 @@ is provided a default image file is used.
 When running click on a black triangle to move one pixel in the direction
 the triangle points. Or use the arrow keys. Close the window or press ESC
 to quit.
-
 """
-
 import sys
 import os
 
-import pygame
+import pygame as pg
 from pygame.transform import scale
-from pygame.locals import *
 
 main_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -31,28 +29,26 @@ DIR_RIGHT = 4
 
 zoom_factor = 8
 
+
 def draw_arrow(surf, color, posn, direction):
     x, y = posn
     if direction == DIR_UP:
-        pointlist = ((x - 29, y + 30), (x + 30, y + 30),
-                     (x + 1, y - 29), (x, y - 29))
+        pointlist = ((x - 29, y + 30), (x + 30, y + 30), (x + 1, y - 29), (x, y - 29))
     elif direction == DIR_DOWN:
-        pointlist = ((x - 29, y - 29), (x + 30, y - 29),
-                     (x + 1, y + 30), (x, y + 30))
+        pointlist = ((x - 29, y - 29), (x + 30, y - 29), (x + 1, y + 30), (x, y + 30))
     elif direction == DIR_LEFT:
-        pointlist = ((x + 30, y - 29), (x + 30, y + 30),
-                     (x - 29, y + 1), (x - 29, y))
+        pointlist = ((x + 30, y - 29), (x + 30, y + 30), (x - 29, y + 1), (x - 29, y))
     else:
-        pointlist = ((x - 29, y - 29), (x - 29, y + 30),
-                     (x + 30, y + 1), (x + 30, y))
-    pygame.draw.polygon(surf, color, pointlist)
+        pointlist = ((x - 29, y - 29), (x - 29, y + 30), (x + 30, y + 1), (x + 30, y))
+    pg.draw.polygon(surf, color, pointlist)
+
 
 def add_arrow_button(screen, regions, posn, direction):
-    draw_arrow(screen, Color('black'), posn, direction)
+    draw_arrow(screen, pg.Color("black"), posn, direction)
     draw_arrow(regions, (direction, 0, 0), posn, direction)
 
+
 def scroll_view(screen, image, direction, view_rect):
-    dx = dy = 0
     src_rect = None
     zoom_view_rect = screen.get_clip()
     image_w, image_h = image.get_size()
@@ -93,90 +89,89 @@ def scroll_view(screen, image, direction, view_rect):
             dst_rect.w = zoom_factor
             dst_rect.right = zoom_view_rect.right
     if src_rect is not None:
-        scale(image.subsurface(src_rect),
-              dst_rect.size,
-              screen.subsurface(dst_rect))
-        pygame.display.update(zoom_view_rect)
+        scale(image.subsurface(src_rect), dst_rect.size, screen.subsurface(dst_rect))
+        pg.display.update(zoom_view_rect)
+
 
 def main(image_file=None):
     if image_file is None:
-        image_file = os.path.join(main_dir, 'data', 'arraydemo.bmp')
+        image_file = os.path.join(main_dir, "data", "arraydemo.bmp")
     margin = 80
     view_size = (30, 20)
-    zoom_view_size = (view_size[0] * zoom_factor,
-                      view_size[1] * zoom_factor)
-    win_size = (zoom_view_size[0] + 2 * margin,
-                zoom_view_size[1] + 2 * margin)
-    background_color = Color('beige')
+    zoom_view_size = (view_size[0] * zoom_factor, view_size[1] * zoom_factor)
+    win_size = (zoom_view_size[0] + 2 * margin, zoom_view_size[1] + 2 * margin)
+    background_color = pg.Color("beige")
 
-    pygame.init()
+    pg.init()
 
     # set up key repeating so we can hold down the key to scroll.
-    old_k_delay, old_k_interval = pygame.key.get_repeat ()
-    pygame.key.set_repeat (500, 30)
+    old_k_delay, old_k_interval = pg.key.get_repeat()
+    pg.key.set_repeat(500, 30)
 
     try:
-        screen = pygame.display.set_mode(win_size)
+        screen = pg.display.set_mode(win_size)
         screen.fill(background_color)
-        pygame.display.flip()
+        pg.display.flip()
 
-        image = pygame.image.load(image_file).convert()
+        image = pg.image.load(image_file).convert()
         image_w, image_h = image.get_size()
 
         if image_w < view_size[0] or image_h < view_size[1]:
-            print ("The source image is too small for this example.")
-            print ("A %i by %i or larger image is required." % zoom_view_size)
+            print("The source image is too small for this example.")
+            print("A %i by %i or larger image is required." % zoom_view_size)
             return
 
-        regions = pygame.Surface(win_size, 0, 24)
-        add_arrow_button(screen, regions,
-                         (40, win_size[1] // 2), DIR_LEFT)
-        add_arrow_button(screen, regions,
-                         (win_size[0] - 40, win_size[1] // 2), DIR_RIGHT)
-        add_arrow_button(screen, regions,
-                         (win_size[0] // 2, 40), DIR_UP)
-        add_arrow_button(screen, regions,
-                         (win_size[0] // 2, win_size[1] - 40), DIR_DOWN)
-        pygame.display.flip()
+        regions = pg.Surface(win_size, 0, 24)
+        add_arrow_button(screen, regions, (40, win_size[1] // 2), DIR_LEFT)
+        add_arrow_button(
+            screen, regions, (win_size[0] - 40, win_size[1] // 2), DIR_RIGHT
+        )
+        add_arrow_button(screen, regions, (win_size[0] // 2, 40), DIR_UP)
+        add_arrow_button(
+            screen, regions, (win_size[0] // 2, win_size[1] - 40), DIR_DOWN
+        )
+        pg.display.flip()
 
         screen.set_clip((margin, margin, zoom_view_size[0], zoom_view_size[1]))
 
-        view_rect = Rect(0, 0, view_size[0], view_size[1])
+        view_rect = pg.Rect(0, 0, view_size[0], view_size[1])
 
-        scale(image.subsurface(view_rect), zoom_view_size,
-              screen.subsurface(screen.get_clip()))
-        pygame.display.flip()
-
+        scale(
+            image.subsurface(view_rect),
+            zoom_view_size,
+            screen.subsurface(screen.get_clip()),
+        )
+        pg.display.flip()
 
         # the direction we will scroll in.
         direction = None
 
-        clock = pygame.time.Clock()
+        clock = pg.time.Clock()
         clock.tick()
 
         going = True
         while going:
             # wait for events before doing anything.
-            #events = [pygame.event.wait()] + pygame.event.get()
-            events = pygame.event.get()
+            # events = [pg.event.wait()] + pg.event.get()
+            events = pg.event.get()
 
             for e in events:
-                if e.type == KEYDOWN:
-                    if e.key == K_ESCAPE:
+                if e.type == pg.KEYDOWN:
+                    if e.key == pg.K_ESCAPE:
                         going = False
-                    elif e.key == K_DOWN:
+                    elif e.key == pg.K_DOWN:
                         scroll_view(screen, image, DIR_DOWN, view_rect)
-                    elif e.key == K_UP:
+                    elif e.key == pg.K_UP:
                         scroll_view(screen, image, DIR_UP, view_rect)
-                    elif e.key == K_LEFT:
+                    elif e.key == pg.K_LEFT:
                         scroll_view(screen, image, DIR_LEFT, view_rect)
-                    elif e.key == K_RIGHT:
+                    elif e.key == pg.K_RIGHT:
                         scroll_view(screen, image, DIR_RIGHT, view_rect)
-                elif e.type == QUIT:
+                elif e.type == pg.QUIT:
                     going = False
-                elif e.type == MOUSEBUTTONDOWN:
+                elif e.type == pg.MOUSEBUTTONDOWN:
                     direction = regions.get_at(e.pos)[0]
-                elif e.type == MOUSEBUTTONUP:
+                elif e.type == pg.MOUSEBUTTONUP:
                     direction = None
 
             if direction:
@@ -184,10 +179,11 @@ def main(image_file=None):
             clock.tick(30)
 
     finally:
-        pygame.key.set_repeat (old_k_delay, old_k_interval)
-        pygame.quit()
+        pg.key.set_repeat(old_k_delay, old_k_interval)
+        pg.quit()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) > 1:
         image_file = sys.argv[1]
     else:

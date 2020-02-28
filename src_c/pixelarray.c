@@ -868,7 +868,6 @@ _pxarray_subscript_internal(pgPixelArrayObject *array, Py_ssize_t xstart,
 
     if (!array->shape[1]) {
         ystart = 0;
-        ystop = 1;
         ystep = 0;
     }
     if (!(xstep || ystep)) {
@@ -1026,8 +1025,8 @@ _array_assign_array(pgPixelArrayObject *array, Py_ssize_t low, Py_ssize_t high,
      * first. */
     if (SURFACE_EQUALS(array, val)) {
         /* We assign a different view or so. Copy the source buffer. */
-        size_t size = val_surf->h * val_surf->pitch;
-        int val_offset = val_pixels - (Uint8 *)val_surf->pixels;
+        size_t size = (size_t)val_surf->h * val_surf->pitch;
+        intptr_t val_offset = val_pixels - (Uint8 *)val_surf->pixels;
 
         copied_pixels = (Uint8 *)malloc(size);
         if (!copied_pixels) {
@@ -1347,8 +1346,6 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = array->strides[0];
     Py_ssize_t stride1 = array->strides[1];
-    pgPixelArrayObject *tmparray = 0;
-    int retval;
 
     bpp = surf->format->BytesPerPixel;
 
@@ -1362,6 +1359,9 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
                                        (pgPixelArrayObject *)value);
         }
         else if (PySequence_Check(value)) {
+            pgPixelArrayObject *tmparray = 0;
+            int retval;
+
             PyErr_Clear(); /* _get_color_from_object */
             tmparray = (pgPixelArrayObject *)_pxarray_subscript_internal(
                 array, index, 0, 0, 0, array->shape[1], 1);
@@ -1921,7 +1921,7 @@ pgPixelArray_New(PyObject *surfobj)
     Uint8 *pixels;
 
     if (!pgSurface_Check(surfobj)) {
-        return RAISE(PyExc_TypeError, "argument is no a Surface");
+        return RAISE(PyExc_TypeError, "argument is not a Surface");
     }
 
     surf = pgSurface_AsSurface(surfobj);

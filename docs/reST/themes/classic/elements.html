@@ -1,7 +1,7 @@
 {%- extends "!layout.html" %}
 
 {%- if not theme_relbar %}
-{%-   block relbar1 %}{# Do not want bar accross the top #}{% endblock %}
+{%-   block relbar1 %}{# Do not want bar across the top #}{% endblock %}
 {%- endif %}
 
 {#- Classic header with Snakey on the left, page links on the right.
@@ -86,7 +86,6 @@ We render three sets of items based on how useful to most apps.
 	  </p>
 
 
-
 {%-   endif  %}
 	</td>
       </tr>
@@ -96,6 +95,10 @@ We render three sets of items based on how useful to most apps.
 
 {%- block body %}
 {%-   block section %}{% endblock %}
+
+<br /><br />
+<hr />
+<a href="{{ edit_on_github_url }}" rel="nofollow">{{ _('Edit on GitHub') }}</a>
 {%- endblock %}
 
 

@@ -1,3 +1,5 @@
+#ifndef CAMERA_H
+#define CAMERA_H
 /*
   pygame - Python Game Library
 
@@ -103,7 +105,7 @@ typedef struct pgCameraObject {
 #elif defined(PYGAME_MAC_CAMERA_OLD)
 typedef struct pgCameraObject {
     PyObject_HEAD
-    char* device_name;              /* unieke name of the device */
+    char* device_name;              /* unique name of the device */
     OSType pixelformat;
     unsigned int color_out;
     SeqGrabComponent component;     /* A type used by the Sequence Grabber API */
@@ -115,7 +117,7 @@ typedef struct pgCameraObject {
     int vflip;
     short depth;
     struct buffer pixels;
-    //struct buffer tmp_pixels        /* place where the flipped image in temporarly stored if hflip or vflip is true.*/
+    //struct buffer tmp_pixels        /* place where the flipped image in temporarily stored if hflip or vflip is true.*/
 } pgCameraObject;
 
 #else
@@ -199,3 +201,5 @@ void flip_image(const void* image, void* flipped_image, int width, int height,
                 short depth, int hflip, int vflip);
 
 #endif
+
+#endif /* !CAMERA_H */

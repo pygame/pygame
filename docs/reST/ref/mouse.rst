@@ -62,7 +62,7 @@ configured.
    | :sg:`get_pos() -> (x, y)`
 
    Returns the ``X`` and ``Y`` position of the mouse cursor. The position is
-   relative the the top-left corner of the display. The cursor position can be
+   relative to the top-left corner of the display. The cursor position can be
    located outside of the display window, but is always constrained to the
    screen.
 
@@ -100,6 +100,21 @@ configured.
    return the previous visible state of the cursor.
 
    .. ## pygame.mouse.set_visible ##
+
+.. function:: get_visible
+
+   | :sl:`get the current visibility state of the mouse cursor`
+   | :sg:`get_visible() -> bool`
+
+   Get the current visibility state of the mouse cursor.
+
+   :returns: ``True`` if the mouse cursor is currently visible and ``False`` if
+      the mouse cursor is not visible
+   :rtype: bool
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mouse.get_visible ##
 
 .. function:: get_focused
 

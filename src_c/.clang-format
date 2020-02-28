@@ -7,6 +7,7 @@ AlignAfterOpenBracket: Align
 BreakBeforeBraces: Stroustrup
 ColumnLimit: 79
 DerivePointerAlignment: false
+# These settings are mirrored in .editorconfig.  Keep them in sync.
 IndentWidth: 4
 Language: Cpp
 PointerAlignment: Right

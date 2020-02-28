@@ -4,59 +4,48 @@ import pygame.key
 
 
 class KeyModuleTest(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         pygame.init()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pygame.quit()
 
+    def setUp(cls):
+        # This makes sure pygame is always initialized before each test (in
+        # case a test calls pygame.quit()).
+        if not pygame.get_init():
+            pygame.init()
+
     def test_import(self):
-        'does it import'
+        "does it import"
         import pygame.key
 
     def todo_test_get_focused(self):
 
         # __doc__ (as of 2008-08-02) for pygame.key.get_focused:
 
-          # pygame.key.get_focused(): return bool
-          # true if the display is receiving keyboard input from the system
-          #
-          # This is true when the display window has keyboard focus from the
-          # system. If the display needs to ensure it does not lose keyboard
-          # focus, it can use pygame.event.set_grab() to grab all input.
-          #
+        # pygame.key.get_focused(): return bool
+        # true if the display is receiving keyboard input from the system
+        #
+        # This is true when the display window has keyboard focus from the
+        # system. If the display needs to ensure it does not lose keyboard
+        # focus, it can use pygame.event.set_grab() to grab all input.
+        #
 
         self.fail()
 
-    def todo_test_get_pressed(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.key.get_pressed:
-
-          # pygame.key.get_pressed(): return bools
-          # get the state of all keyboard buttons
-          #
-          # Returns a sequence of boolean values representing the state of every
-          # key on the keyboard. Use the key constant values to index the array.
-          # A True value means the that button is pressed.
-          #
-          # Getting the list of pushed buttons with this function is not the
-          # proper way to handle text entry from the user. You have no way to
-          # know the order of keys pressed, and rapidly pushed keys can be
-          # completely unnoticed between two calls to pygame.key.get_pressed().
-          # There is also no way to translate these pushed keys into a fully
-          # translated character value. See the pygame.KEYDOWN events on the
-          # event queue for this functionality.
-          #
-
-        self.fail()
+    def test_get_pressed(self):
+        states = pygame.key.get_pressed()
+        self.assertEqual(states[pygame.K_RIGHT], 0)
 
     def test_name(self):
         self.assertEqual(pygame.key.name(pygame.K_RETURN), "return")
         self.assertEqual(pygame.key.name(pygame.K_0), "0")
+        self.assertEqual(pygame.key.name(pygame.K_SPACE), "space")
 
     def test_set_and_get_mods(self):
-        self.assertEqual(pygame.key.get_mods(), pygame.KMOD_NONE)
-
         pygame.key.set_mods(pygame.KMOD_CTRL)
         self.assertEqual(pygame.key.get_mods(), pygame.KMOD_CTRL)
 
@@ -75,5 +64,5 @@ class KeyModuleTest(unittest.TestCase):
         self.assertEqual(pygame.key.get_repeat(), (0, 0))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

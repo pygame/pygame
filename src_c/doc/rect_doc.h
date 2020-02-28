@@ -1,48 +1,27 @@
-/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
+/* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMERECT "Rect(left, top, width, height) -> Rect\nRect((left, top), (width, height)) -> Rect\nRect(object) -> Rect\npygame object for storing rectangular coordinates"
-
 #define DOC_RECTCOPY "copy() -> Rect\ncopy the rectangle"
-
 #define DOC_RECTMOVE "move(x, y) -> Rect\nmoves the rectangle"
-
 #define DOC_RECTMOVEIP "move_ip(x, y) -> None\nmoves the rectangle, in place"
-
 #define DOC_RECTINFLATE "inflate(x, y) -> Rect\ngrow or shrink the rectangle size"
-
 #define DOC_RECTINFLATEIP "inflate_ip(x, y) -> None\ngrow or shrink the rectangle size, in place"
-
 #define DOC_RECTCLAMP "clamp(Rect) -> Rect\nmoves the rectangle inside another"
-
 #define DOC_RECTCLAMPIP "clamp_ip(Rect) -> None\nmoves the rectangle inside another, in place"
-
 #define DOC_RECTCLIP "clip(Rect) -> Rect\ncrops a rectangle inside another"
-
+#define DOC_RECTCLIPLINE "clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))\nclipline(x1, y1, x2, y2) -> ()\nclipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))\nclipline((x1, y1), (x2, y2)) -> ()\nclipline((x1, y1, x2, y2)) -> ((cx1, cy1), (cx2, cy2))\nclipline((x1, y1, x2, y2)) -> ()\nclipline(((x1, y1), (x2, y2))) -> ((cx1, cy1), (cx2, cy2))\nclipline(((x1, y1), (x2, y2))) -> ()\ncrops a line inside a rectangle"
 #define DOC_RECTUNION "union(Rect) -> Rect\njoins two rectangles into one"
-
 #define DOC_RECTUNIONIP "union_ip(Rect) -> None\njoins two rectangles into one, in place"
-
 #define DOC_RECTUNIONALL "unionall(Rect_sequence) -> Rect\nthe union of many rectangles"
-
 #define DOC_RECTUNIONALLIP "unionall_ip(Rect_sequence) -> None\nthe union of many rectangles, in place"
-
 #define DOC_RECTFIT "fit(Rect) -> Rect\nresize and move a rectangle with aspect ratio"
-
 #define DOC_RECTNORMALIZE "normalize() -> None\ncorrect negative sizes"
-
 #define DOC_RECTCONTAINS "contains(Rect) -> bool\ntest if one rectangle is inside another"
-
 #define DOC_RECTCOLLIDEPOINT "collidepoint(x, y) -> bool\ncollidepoint((x,y)) -> bool\ntest if a point is inside a rectangle"
-
 #define DOC_RECTCOLLIDERECT "colliderect(Rect) -> bool\ntest if two rectangles overlap"
-
 #define DOC_RECTCOLLIDELIST "collidelist(list) -> index\ntest if one rectangle in a list intersects"
-
 #define DOC_RECTCOLLIDELISTALL "collidelistall(list) -> indices\ntest if all rectangles in a list intersect"
-
-#define DOC_RECTCOLLIDEDICT "collidedict(dict) -> (key, value)\ntest if one rectangle in a dictionary intersects"
-
-#define DOC_RECTCOLLIDEDICTALL "collidedictall(dict) -> [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
-
+#define DOC_RECTCOLLIDEDICT "collidedict(dict) -> (key, value)\ncollidedict(dict) -> None\ncollidedict(dict, use_values=0) -> (key, value)\ncollidedict(dict, use_values=0) -> None\ntest if one rectangle in a dictionary intersects"
+#define DOC_RECTCOLLIDEDICTALL "collidedictall(dict) -> [(key, value), ...]\ncollidedictall(dict, use_values=0) -> [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -86,6 +65,17 @@ moves the rectangle inside another, in place
 pygame.Rect.clip
  clip(Rect) -> Rect
 crops a rectangle inside another
+
+pygame.Rect.clipline
+ clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))
+ clipline(x1, y1, x2, y2) -> ()
+ clipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))
+ clipline((x1, y1), (x2, y2)) -> ()
+ clipline((x1, y1, x2, y2)) -> ((cx1, cy1), (cx2, cy2))
+ clipline((x1, y1, x2, y2)) -> ()
+ clipline(((x1, y1), (x2, y2))) -> ((cx1, cy1), (cx2, cy2))
+ clipline(((x1, y1), (x2, y2))) -> ()
+crops a line inside a rectangle
 
 pygame.Rect.union
  union(Rect) -> Rect
@@ -134,10 +124,14 @@ test if all rectangles in a list intersect
 
 pygame.Rect.collidedict
  collidedict(dict) -> (key, value)
+ collidedict(dict) -> None
+ collidedict(dict, use_values=0) -> (key, value)
+ collidedict(dict, use_values=0) -> None
 test if one rectangle in a dictionary intersects
 
 pygame.Rect.collidedictall
  collidedictall(dict) -> [(key, value), ...]
+ collidedictall(dict, use_values=0) -> [(key, value), ...]
 test if all rectangles in a dictionary intersect
 
 */

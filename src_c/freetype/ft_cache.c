@@ -63,7 +63,7 @@ set_node_key(NodeKey *key, GlyphIndex_t id, const FontRenderMode *mode)
     KeyFields *fields = &key->fields;
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
     const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
-    unsigned short rot = (unsigned short)FX6_TRUNC(mode->rotation_angle);
+    unsigned short rot = (unsigned short)(((unsigned int)(mode->rotation_angle))>>16);
 
     memset(key, 0, sizeof(*key));
     fields->id = id;
@@ -77,7 +77,7 @@ set_node_key(NodeKey *key, GlyphIndex_t id, const FontRenderMode *mode)
 static int
 equal_node_keys(const NodeKey *a, const NodeKey *b)
 {
-    int i;
+    size_t i;
 
     for (i = 0; i < sizeof(a->dwords) / sizeof(a->dwords[0]); ++i) {
         if (a->dwords[i] != b->dwords[i]) {
@@ -172,7 +172,6 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
 void
 _PGFT_Cache_Destroy(FontCache *cache)
 {
-    FT_UInt i;
     CacheNode *node, *next;
 
     if (!cache) {
@@ -184,6 +183,8 @@ _PGFT_Cache_Destroy(FontCache *cache)
      */
 
     if (cache->nodes) {
+        FT_UInt i;
+
         for (i = 0; i <= cache->size_mask; ++i) {
             node = cache->nodes[i];
 
@@ -218,7 +219,10 @@ _PGFT_Cache_Cleanup(FontCache *cache)
                     cache->_debug_delete_count++;
 #endif
 
-                    prev->next = 0;
+                    if (prev) {
+                        prev->next = 0;
+                    }
+
                     free_node(cache, node);
                     break;
                 }

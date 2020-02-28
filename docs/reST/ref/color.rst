@@ -8,35 +8,28 @@
 .. class:: Color
 
    | :sl:`pygame object for color representations`
-   | :sg:`Color(name) -> Color`
-   | :sg:`Color(r, g, b, a) -> Color`
-   | :sg:`Color(rgbvalue) -> Color`
+   | :sg:`Color(r, g, b) -> Color`
+   | :sg:`Color(r, g, b, a=255) -> Color`
+   | :sg:`Color(color_value) -> Color`
 
-   The Color class represents ``RGBA`` color values using a value range of
-   0-255. It allows basic arithmetic operations — binary operations ``+``,
-   ``-``, ``*``, ``//``, ``%``, and unary operation ``~`` — to create
-   new colors, supports conversions to other color spaces such as ``HSV``
+   The ``Color`` class represents ``RGBA`` color values using a value range of
+   0 to 255 inclusive. It allows basic arithmetic operations — binary
+   operations ``+``, ``-``, ``*``, ``//``, ``%``, and unary operation ``~`` — to
+   create new colors, supports conversions to other color spaces such as ``HSV``
    or ``HSL`` and lets you adjust single color channels.
-   Alpha defaults to 255 when not given.
+   Alpha defaults to 255 (fully opaque) when not given.
    The arithmetic operations and ``correct_gamma()`` method preserve subclasses.
    For the binary operators, the class of the returned color is that of the
    left hand color object of the operator.
 
-   'rgbvalue' can be either a color name, an ``HTML`` color format string, a
-   hex number string, or an integer pixel value. The ``HTML`` format is
-   '#rrggbbaa', where rr, gg, bb, and aa are 2-character hex numbers. The alpha aa
-   is optional. A hex number string has the form '0xrrggbbaa', where aa is
-   optional.
-
    Color objects support equality comparison with other color objects and 3 or
-   4 element tuples of integers (New in 1.9.0). There was a bug in pygame 1.8.1
+   4 element tuples of integers. There was a bug in pygame 1.8.1
    where the default alpha was 0, not 255 like previously.
 
    Color objects export the C level array interface. The interface exports a
    read-only one dimensional unsigned byte array of the same assigned length
    as the color. For CPython 2.6 and later, the new buffer interface is also
-   exported, with the same characteristics as the array interface. New in
-   pygame 1.9.2.
+   exported, with the same characteristics as the array interface.
 
    The floor division, ``//``, and modulus, ``%``, operators do not raise
    an exception for division by zero. Instead, if a color, or alpha, channel
@@ -46,7 +39,49 @@
        Color(255, 255, 255, 255) // Color(0, 64, 64, 64) == Color(0, 3, 3, 3)
        Color(255, 255, 255, 255) % Color(64, 64, 64, 0) == Color(63, 63, 63, 0)
 
-   New implementation of Color was done in pygame 1.8.1.
+   :param int r: red value in the range of 0 to 255 inclusive
+   :param int g: green value in the range of 0 to 255 inclusive
+   :param int b: blue value in the range of 0 to 255 inclusive
+   :param int a: (optional) alpha value in the range of 0 to 255 inclusive,
+      default is 255
+   :param color_value: color value (see note below for the supported formats)
+
+      .. note::
+         Supported ``color_value`` formats:
+            | - **Color object:** clones the given :class:`Color` object
+            | - **color name str:** name of the color to use, e.g. ``'red'``
+              (all the supported name strings can be found in the
+              `colordict module <https://github.com/pygame/pygame/blob/master/src_py/colordict.py>`_)
+            | - **HTML color format str:** ``'#rrggbbaa'`` or ``'#rrggbb'``,
+              where rr, gg, bb, and aa are 2-digit hex numbers in the range
+              of 0 to 0xFF inclusive, the aa (alpha) value defaults to 0xFF
+              if not provided
+            | - **hex number str:** ``'0xrrggbbaa'`` or ``'0xrrggbb'``, where
+              rr, gg, bb, and aa are 2-digit hex numbers in the range of 0x00
+              to 0xFF inclusive, the aa (alpha) value defaults to 0xFF if not
+              provided
+            | - **int:** int value of the color to use, using hex numbers can
+              make this parameter more readable, e.g. ``0xrrggbbaa``, where rr,
+              gg, bb, and aa are 2-digit hex numbers in the range of 0x00 to
+              0xFF inclusive, note that the aa (alpha) value is not optional for
+              the int format and must be provided
+            | - **tuple/list of int color values:** ``(R, G, B, A)`` or
+              ``(R, G, B)``, where R, G, B, and A are int values in the range of
+              0 to 255 inclusive, the A (alpha) value defaults to 255 if not
+              provided
+
+   :type color_value: Color or str or int or tuple(int, int, int, [int]) or
+      list(int, int, int, [int])
+
+   :returns: a newly created :class:`Color` object
+   :rtype: Color
+
+   .. versionchanged:: 2.0.0
+      Support for tuples, lists, and :class:`Color` objects when creating
+      :class:`Color` objects.
+   .. versionchanged:: 1.9.2 Color objects export the C level array interface.
+   .. versionchanged:: 1.9.0 Color objects support 4-element tuples of integers.
+   .. versionchanged:: 1.8.1 New implementation of the class.
 
    .. attribute:: r
 
@@ -170,8 +205,23 @@
       is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to
       get the length of a Color do ``len(acolor)``.
 
-      New in pygame 1.9.0.
+      .. versionadded:: 1.9.0
 
       .. ## Color.set_length ##
+
+   .. method:: lerp
+
+      | :sl:`returns a linear interpolation to the given Color.`
+      | :sg:`lerp(Color, float) -> Color`
+
+      Returns a Color which is a linear interpolation between self and the
+      given Color in RGBA space. The second parameter determines how far
+      between self and other the result is going to be.
+      It must be a value between 0 and 1 where 0 means self and 1 means
+      other will be returned.
+
+      .. versionadded:: 2.0.1
+
+      .. ## Color.lerp ##
 
    .. ## pygame.Color ##

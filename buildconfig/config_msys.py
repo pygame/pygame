@@ -10,6 +10,7 @@ import dll
 from setup_win_common import get_definitions
 import msys
 import os, sys, string
+import logging
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
@@ -32,15 +33,6 @@ path_split = os.path.split
 
 def print_(*args, **kwds):
     return msys.msys_print(*args, **kwds)
-
-def confirm(message):
-    "ask a yes/no question, return result"
-    if not sys.stdout.isatty():
-        return False
-    reply = msys.msys_raw_input("\n%s [Y/n]:" % message)
-    if reply and string.lower(reply[0]) == 'n':
-        return False
-    return True
 
 class DependencyProg:
     needs_dll = True
@@ -103,11 +95,11 @@ class Dependency:
         self.checklib = checklib
         self.checkhead = checkhead
         self.cflags = ''
-    
+
     def configure(self, incdirs, libdirs):
         self.find_inc_dir(incdirs)
         self.find_lib_dir(libdirs)
-        
+
         if self.lib_dir and self.inc_dir:
             print_(self.name + '        '[len(self.name):] + ': found')
             self.found = 1
@@ -126,11 +118,11 @@ class Dependency:
         libname = self.checklib
         for dir in libdirs:
             path = path_join(dir, libname)
-            if filter(os.path.isfile, glob(path+'*')):
+            if any(map(os.path.isfile, glob(path+'*'))):
                 self.lib_dir = dir
                 return
 
-        
+
 class DependencyPython:
     needs_dll = False
     def __init__(self, name, module, header):
@@ -143,7 +135,7 @@ class DependencyPython:
         self.ver = '0'
         self.module = module
         self.header = header
- 
+
     def configure(self, incdirs, libdirs):
         self.found = 1
         if self.module:
@@ -219,7 +211,7 @@ class DependencyWin:
         self.libs = []
         self.found = 1
         self.cflags = cflags
-        
+
     def configure(self, incdirs, libdirs):
         pass
 
@@ -281,13 +273,16 @@ def main():
                 print_("DLL for %-12s: not found" % d.lib_name)
             else:
                 print_("DLL for %-12s: %s" % (d.lib_name, d.lib_dir))
-    
+
     for d in DEPS[1:]:
         if not d.found:
-            if "-auto" not in sys.argv and not confirm("""
-Warning, some of the pygame dependencies were not found. Pygame can still
-compile and install, but games that depend on those missing dependencies
-will not run. Would you like to continue the configuration?"""):
+            if "-auto" not in sys.argv:
+                logging.warning(
+                    "Some pygame dependencies were not found. "
+                    "Pygame can still compile and install, but games that "
+                    "depend on those missing dependencies will not run. "
+                    "Use -auto to continue building without all dependencies. "
+                )
                 raise SystemExit("Missing dependencies")
             break
 

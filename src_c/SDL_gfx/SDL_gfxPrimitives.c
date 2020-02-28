@@ -13,7 +13,9 @@ LGPL (c) A. Schiffler
 
 #include "SDL_gfxPrimitives.h"
 //#include "SDL_rotozoom.h"
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 #include "SDL_gfxPrimitives_font.h"
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /* -===================- */
 
@@ -22,6 +24,7 @@ LGPL (c) A. Schiffler
 
 /* ---- Structures */
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 /*!
 \brief The structure passed to the internal Bresenham iterator.
 */
@@ -43,6 +46,7 @@ typedef struct {
 	int quad4;
 	Sint16 last1x, last1y, last2x, last2y, first1x, first1y, first2x, first2y, tempx, tempy;
 } SDL_gfxMurphyIterator;
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /* ----- Defines for pixel clipping tests */
 
@@ -105,6 +109,7 @@ int fastPixelColorNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 	return (0);
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 /*!
 \brief Internal pixel drawing - fast, no blending, no locking, no clipping.
 
@@ -153,6 +158,7 @@ int fastPixelColorNolockNoclip(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 col
 
 	return (0);
 }
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /*!
 \brief Internal pixel drawing - fast, no blending, locking, clipping.
@@ -189,6 +195,7 @@ int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 	return (result);
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 /*!
 \brief Internal pixel drawing - fast, no blending, locking, RGB input.
 
@@ -244,6 +251,7 @@ int fastPixelRGBANolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g,
 	*/
 	return (fastPixelColorNolock(dst, x, y, color));
 }
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /*!
 \brief Internal pixel drawing function with alpha blending where input color in in destination format.
@@ -1598,6 +1606,7 @@ int rectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
 		(dst, x1, y1, x2, y2, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 /*!
 \brief Draw rounded-corner rectangle with blending.
 
@@ -1905,6 +1914,7 @@ int roundedBoxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
 	return (roundedBoxColor
 		(dst, x1, y1, x2, y2, rad, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 }
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /* --------- Clipping routines for line */
 
@@ -2502,7 +2512,7 @@ This implementation of the Wu antialiasing code is based on Mike Abrash's
 DDJ article which was reprinted as Chapter 42 of his Graphics Programming
 Black Book, but has been optimized to work with SDL and utilizes 32-bit
 fixed-point arithmetic by A. Schiffler. The endpoint control allows the
-supression to draw the last pixel useful for rendering continous aa-lines
+supression to draw the last pixel useful for rendering continuous aa-lines
 with alpha<255.
 
 \param dst The surface to draw on.
@@ -2742,6 +2752,7 @@ int _aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, 
 	return (result);
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 /*!
 \brief Ddraw anti-aliased line with alpha blending.
 
@@ -2779,6 +2790,7 @@ int aalineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Ui
 	return (_aalineColor
 		(dst, x1, y1, x2, y2, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a, 1));
 }
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 
 /* ----- Circle */
@@ -4659,6 +4671,7 @@ int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 /*!
 \brief Draw filled pie with alpha blending.
 
@@ -4699,6 +4712,7 @@ int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 	return (_pieColor(dst, x, y, rad, start, end,
 		((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a, 1));
 }
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /* ------ Trigon */
 
@@ -5674,6 +5688,7 @@ int texturedPolygon(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int
 	return (texturedPolygonMT(dst, vx, vy, n, texture, texture_dx, texture_dy, NULL, NULL));
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /* ---- Character */
 
@@ -5685,7 +5700,7 @@ static SDL_Surface *gfxPrimitivesFont[256];
 /*!
 \brief Global cache of the color used for the font surfaces created at runtime.
 */
-static Uint32 gfxPrimitivesFontColor[256];
+// static Uint32 gfxPrimitivesFontColor[256];
 
 /*!
 \brief Pointer to the current font data. Default is a 8x8 pixel internal font. 
@@ -5817,6 +5832,8 @@ void gfxPrimitivesSetFontRotation(Uint32 rotation)
 		}
 	}
 }
+
+
 
 /*!
 \brief Draw a character of the currently set font.
@@ -6014,7 +6031,7 @@ int characterRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, char c, Uint8 r, Uint8 
 /*!
 \brief Draw a string in the currently set font.
 
-The spacing between consequtive characters in the string is the fixed number of pixels 
+The spacing between consecutive characters in the string is the fixed number of pixels
 of the character width of the current global font.
 
 \param dst The surface to draw on.
@@ -6076,6 +6093,8 @@ int stringRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, const char *s, Uint8 r, Ui
 	*/
 	return (stringColor(dst, x, y, s, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 }
+
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /* ---- Bezier curve */
 
@@ -6230,6 +6249,7 @@ int bezierRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, i
 	return (bezierColor(dst, vx, vy, n, s, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 }
 
+#if 0  /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/
 
 /*!
 \brief Internal function to initialize the Bresenham line iterator.
@@ -6424,7 +6444,8 @@ void _murphyIteration(SDL_gfxMurphyIterator *m, Uint8 miter,
 	int ftmp1, ftmp2;
 	Uint16 m1x, m1y, m2x, m2y;	
 	Uint16 fix, fiy, lax, lay, curx, cury;
-	Uint16 px[4], py[4];
+	Sint32 px[4], py[4];
+
 	SDL_gfxBresenhamIterator b;
 
 	if (miter > 1) {
@@ -6517,7 +6538,7 @@ void _murphyIteration(SDL_gfxMurphyIterator *m, Uint8 miter,
 			py[1] = m2y;
 			py[2] = ml1by;
 			py[3] = ml2by;			
-			polygonColor(m->dst, px, py, 4, m->color);						
+			polygonColor(m->dst, (Sint16 *)px, (Sint16 *)py, 4, m->color);
 		}
 	}
 
@@ -6771,3 +6792,4 @@ int thickLineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
 	return (thickLineColor(dst, x1, y1, x2, y2, width, 
 		((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 }
+#endif /********** CURRENTLY NOT USED BY pygame.gfxdraw **********/

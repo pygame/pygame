@@ -261,7 +261,9 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
     int pixelsize = surf->format->BytesPerPixel;
 #if IS_SDLv1
     Uint32 flags = surf->flags;
-#endif /* IS_SDLv1 */
+#else /* IS_SDLv2 */
+    SDL_BlendMode mode;
+#endif /* IS_SDLv2 */
     int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
     char *dst = (char *)view_p->buf;
@@ -291,6 +293,12 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
                      intsize);
         return -1;
     }
+#if IS_SDLv2
+    if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+#endif
     /* Select appropriate color plane element within the pixel */
     switch (view_kind) {
         case VIEWKIND_RED:
@@ -346,8 +354,7 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
              (view_kind != VIEWKIND_ALPHA || flags & SDL_SRCALPHA)) {
 #else  /* IS_SDLv2 */
     else if ((view_kind != VIEWKIND_COLORKEY) &&
-             (view_kind != VIEWKIND_ALPHA ||
-              SDL_ISPIXELFORMAT_ALPHA(format->format))) {
+             (view_kind != VIEWKIND_ALPHA || mode != SDL_BLENDMODE_NONE)) {
 #endif /* IS_SDLv2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
@@ -501,7 +508,7 @@ array_to_surface(PyObject *self, PyObject *arg)
         return RAISE(PyExc_ValueError, "must be a valid 2d or 3d array\n");
     }
 
-    if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+    if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for surface");
 
     stridex = view_p->strides[0];
@@ -928,7 +935,7 @@ map_array(PyObject *self, PyObject *args)
     }
     if (src_view_p->shape[src_ndim - 1] != 3) {
         PyErr_Format(PyExc_ValueError,
-                     "Expected a (..., 3) source array: got (..., %d)",
+                     "Expected a (..., 3) source array: got (..., %zd)",
                      src_view_p->shape[src_ndim - 1]);
         goto fail;
     }
@@ -965,7 +972,7 @@ map_array(PyObject *self, PyObject *args)
             src_strides[dim] - shape[dim + 1] * src_strides[dim + 1];
     }
 
-    /* Determine souce and destination pixel formats
+    /* Determine source and destination pixel formats
      */
     format = pgSurface_AsSurface(format_surf)->format;
     pix_bytesize = format->BytesPerPixel;

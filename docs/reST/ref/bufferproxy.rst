@@ -69,7 +69,8 @@
    The BufferProxy class supports subclassing, instance variables, and weak
    references.
 
-   New in pygame 1.8.0, extended in pygame 1.9.2
+   .. versionadded:: 1.8.0
+   .. versionextended:: 1.9.2
 
    .. attribute:: parent
 

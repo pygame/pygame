@@ -24,36 +24,44 @@ New in pygame 1.9.0.
 #          once the input object is running.  Like joysticks.
 
 
-
+# In Python 2.7 pygame.math is imported instead of the built-in math module.
+# This import from future allows the built-in math module to be imported.
+from __future__ import absolute_import
+import math
+import atexit
 
 import pygame
 import pygame.locals
 
-import atexit
 
+# For backward compatibility.
+MIDIIN = pygame.locals.MIDIIN
+MIDIOUT = pygame.locals.MIDIOUT
 
-#
-MIDIIN = pygame.locals.USEREVENT + 10
-MIDIOUT = pygame.locals.USEREVENT + 11
 
 _init = False
 _pypm = None
 
 
-__all__ = [ "Input",
-            "MIDIIN",
-            "MIDIOUT",
-            "MidiException",
-            "Output",
-            "get_count",
-            "get_default_input_id",
-            "get_default_output_id",
-            "get_device_info",
-            "init",
-            "midis2events",
-            "quit",
-            "time",
-           ]
+__all__ = [
+    "Input",
+    "MIDIIN",
+    "MIDIOUT",
+    "MidiException",
+    "Output",
+    "get_count",
+    "get_default_input_id",
+    "get_default_output_id",
+    "get_device_info",
+    "init",
+    "midis2events",
+    "quit",
+    "get_init",
+    "time",
+    "frequency_to_midi",
+    "midi_to_frequency",
+    "midi_to_ansi_note",
+]
 
 __theclasses__ = ["Input", "Output"]
 
@@ -90,8 +98,19 @@ def quit():
         # TODO: find all Input and Output classes and close them first?
         _pypm.Terminate()
         _init = False
-        del _pypm
-        #del pygame._pypm
+        _pypm = None
+
+
+def get_init():
+    """returns True if the midi module is currently initialized
+    pygame.midi.get_init(): return bool
+
+    Returns True if the pygame.midi module is currently initialized.
+
+    New in pygame 1.9.5.
+    """
+    return _init
+
 
 def _check_init():
     if not _init:
@@ -156,6 +175,7 @@ def get_default_input_id():
     Note: in the current release, the default is simply the first device
     (the input or output device with the lowest PmDeviceID).
     """
+    _check_init()
     return _pypm.GetDefaultInputDeviceID()
 
 
@@ -613,6 +633,7 @@ def time():
 
     The time is reset to 0, when the module is inited.
     """
+    _check_init()
     return _pypm.Time()
 
 
@@ -655,3 +676,56 @@ class MidiException(Exception):
 
 
 
+def frequency_to_midi(freqency):
+    """ converts a frequency into a MIDI note.
+
+    Rounds to the closest midi note.
+
+    ::Examples::
+
+    >>> frequency_to_midi(27.5)
+    21
+    >>> frequency_to_midi(36.7)
+    26
+    >>> frequency_to_midi(4186.0)
+    108
+    """
+    return int(
+        round(
+            69 + (
+                12 * math.log(freqency / 440.0)
+            ) / math.log(2)
+        )
+    )
+
+def midi_to_frequency(midi_note):
+    """ Converts a midi note to a frequency.
+
+    ::Examples::
+
+    >>> midi_to_frequency(21)
+    27.5
+    >>> midi_to_frequency(26)
+    36.7
+    >>> midi_to_frequency(108)
+    4186.0
+    """
+    return round(440.0 * 2 ** ((midi_note - 69) * (1./12.)), 1)
+
+def midi_to_ansi_note(midi_note):
+    """ returns the Ansi Note name for a midi number.
+
+    ::Examples::
+
+    >>> midi_to_ansi_note(21)
+    'A0'
+    >>> midi_to_ansi_note(102)
+    'F#7'
+    >>> midi_to_ansi_note(108)
+    'C8'
+    """
+    notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+    num_notes = 12
+    note_name = notes[int(((midi_note - 21) % num_notes))]
+    note_number = (midi_note - 12) // num_notes
+    return '%s%s' % (note_name, note_number)

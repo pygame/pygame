@@ -61,10 +61,16 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
    rather than taken from SDL_mixer. It also means that the default
    size is defined in Pygame, rather than SDL AUDIO_xxx, terms.
  */
-#define PYGAME_MIXER_DEFAULT_FREQUENCY 22050
+#define PYGAME_MIXER_DEFAULT_FREQUENCY 44100
 #define PYGAME_MIXER_DEFAULT_SIZE -16
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
-#define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
+#define PYGAME_MIXER_DEFAULT_CHUNKSIZE 512
+#if IS_SDLv2
+#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | \
+                                            SDL_AUDIO_ALLOW_CHANNELS_CHANGE
+#else
+#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES -1
+#endif
 
 static PyTypeObject pgSound_Type;
 static PyTypeObject pgChannel_Type;
@@ -82,8 +88,10 @@ snd_releasebuffer(PyObject *, Py_buffer *);
 
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
-static int request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+static int request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
 static int request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+static int request_allowedchanges = PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES;
+static char *request_devicename = NULL;
 
 static int
 sound_init(PyObject *self, PyObject *arg, PyObject *kwarg);
@@ -103,7 +111,6 @@ static int
 _format_itemsize(Uint16 format)
 {
     int size = -1;
-
     switch (format) {
         case AUDIO_U8:
         case AUDIO_S8:
@@ -116,7 +123,14 @@ _format_itemsize(Uint16 format)
         case AUDIO_S16MSB:
             size = 2;
             break;
-
+#if IS_SDLv2
+        case AUDIO_S32LSB:
+        case AUDIO_S32MSB:
+        case AUDIO_F32LSB:
+        case AUDIO_F32MSB:
+            size = 4;
+            break;
+#endif
         default:
             PyErr_Format(PyExc_SystemError,
                          "Pygame bug (mixer.Sound): unknown mixer format %d",
@@ -128,7 +142,7 @@ _format_itemsize(Uint16 format)
 static PG_sample_format_t
 _format_view_to_audio(Py_buffer *view)
 {
-    int fstr_len;
+    size_t fstr_len;
     int native_size = 0;
     int index = 0;
     PG_sample_format_t format = 0;
@@ -139,7 +153,7 @@ _format_view_to_audio(Py_buffer *view)
     }
     fstr_len = strlen(view->format);
     if (fstr_len < 1 || fstr_len > 2) {
-        RAISE(PyExc_ValueError, "Array has unsupported item format");
+        PyErr_SetString(PyExc_ValueError, "Array has unsupported item format");
         return 0;
     }
     if (fstr_len == 1) {
@@ -167,7 +181,8 @@ _format_view_to_audio(Py_buffer *view)
                 break;
 
             default:
-                RAISE(PyExc_ValueError, "Array has unsupported item format");
+                PyErr_SetString(PyExc_ValueError,
+                                "Array has unsupported item format");
                 return 0;
         }
         ++index;
@@ -214,6 +229,14 @@ _format_view_to_audio(Py_buffer *view)
             format += native_size ? sizeof(unsigned long int) : 4;
             break;
 
+        case 'f':
+            format += native_size ? sizeof(float) : 4;
+            break;
+
+        case 'd':
+            format += native_size ? sizeof(double) : 8;
+            break;
+
         case 'q':
             format |= PG_SAMPLE_SIGNED;
             format += native_size ? sizeof(long long int) : 8;
@@ -246,23 +269,28 @@ endsound_callback(int channel)
             SDL_Event e;
             memset(&e, 0, sizeof(e));
             e.type = channeldata[channel].endevent;
-            if (e.type >= SDL_USEREVENT && e.type < SDL_NUMEVENTS)
+            if (e.type >= PGE_USEREVENT && e.type < PG_NUMEVENTS)
                 e.user.code = channel;
             SDL_PushEvent(&e);
         }
         if (channeldata[channel].queue) {
+            PyGILState_STATE gstate = PyGILState_Ensure();
             int channelnum;
             Mix_Chunk *sound = pgSound_AsChunk(channeldata[channel].queue);
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = channeldata[channel].queue;
             channeldata[channel].queue = NULL;
+            PyGILState_Release(gstate);
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
                 Mix_GroupChannel(channelnum, (intptr_t)sound);
         }
         else {
+            PyGILState_STATE gstate = PyGILState_Ensure();
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = NULL;
+            PyGILState_Release(gstate);
+            Mix_GroupChannel(channel, -1);
         }
     }
 }
@@ -272,7 +300,9 @@ pgMixer_AutoQuit(void)
 {
     int i;
     if (SDL_WasInit(SDL_INIT_AUDIO)) {
+        Py_BEGIN_ALLOW_THREADS;
         Mix_HaltMusic();
+        Py_END_ALLOW_THREADS;
 
         if (channeldata) {
             for (i = 0; i < numchanneldata; ++i) {
@@ -286,29 +316,47 @@ pgMixer_AutoQuit(void)
 
         if (current_music) {
             if (*current_music) {
+                Py_BEGIN_ALLOW_THREADS;
                 Mix_FreeMusic(*current_music);
+                Py_END_ALLOW_THREADS;
                 *current_music = NULL;
             }
             current_music = NULL;
         }
         if (queue_music) {
             if (*queue_music) {
+                Py_BEGIN_ALLOW_THREADS;
                 Mix_FreeMusic(*queue_music);
+                Py_END_ALLOW_THREADS;
                 *queue_music = NULL;
             }
             queue_music = NULL;
         }
 
+        Py_BEGIN_ALLOW_THREADS;
         Mix_CloseAudio();
+        Py_END_ALLOW_THREADS;
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 }
 
+static PyObject*
+import_music()
+{
+    PyObject *music = PyImport_ImportModule(IMPPREFIX "mixer_music");
+    if (music == NULL) {
+        PyErr_Clear();
+        music = PyImport_ImportModule(RELATIVE_MODULE("mixer_music"));
+    }
+    return music;
+}
+
 static PyObject *
-_init(int freq, int size, int stereo, int chunk)
+_init(int freq, int size, int channels, int chunk, char *devicename, int allowedchanges)
 {
     Uint16 fmt = 0;
     int i;
+    PyObject *music;
 
     if (!freq) {
         freq = request_frequency;
@@ -316,16 +364,47 @@ _init(int freq, int size, int stereo, int chunk)
     if (!size) {
         size = request_size;
     }
-    if (!stereo) {
-        stereo = request_stereo;
+
+    if (allowedchanges == -1) {
+        allowedchanges = request_allowedchanges;
     }
+
+    if (!channels) {
+        channels = request_channels;
+    }
+#if IS_SDLv1
+    channels = channels <= 1 ? 1 : 2;
+#else /* IS_SDLv2 */
+    if (allowedchanges & SDL_AUDIO_ALLOW_CHANNELS_CHANGE) {
+        if (channels <= 1)
+            channels = 1;
+        else if (channels <= 3)
+            channels = 2;
+        else if (channels <= 5)
+            channels = 4;
+        else
+            channels = 6;
+    } else {
+        switch (channels) {
+            case 1:
+            case 2:
+            case 4:
+            case 6:
+                break;
+            default:
+                PyErr_SetString(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
+                return NULL;
+        }
+    }
+#endif /* IS_SDLv2 */
+
     if (!chunk) {
         chunk = request_chunksize;
     }
-    if (stereo >= 2)
-        stereo = 2;
-    else
-        stereo = 1;
+
+    if (!devicename) {
+        devicename = request_devicename;
+    }
 
     /* printf("size:%d:\n", size); */
 
@@ -342,6 +421,11 @@ _init(int freq, int size, int stereo, int chunk)
         case -16:
             fmt = AUDIO_S16SYS;
             break;
+#if IS_SDLv2
+        case 32:
+            fmt = AUDIO_F32SYS;
+            break;
+#endif
         default:
             PyErr_Format(PyExc_ValueError, "unsupported size %i", size);
             return NULL;
@@ -372,46 +456,61 @@ _init(int freq, int size, int stereo, int chunk)
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong(0);
 
-        if (Mix_OpenAudio(freq, fmt, stereo, chunk) == -1) {
+#if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 0 && SDL_MIXER_PATCHLEVEL >= 2
+        if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
+                                allowedchanges) == -1) {
+            /* mixer.init swallows errors, tell user a reason via a log. */
+            if(devicename) {
+                SDL_Log("Failed to open devicename:%s: with error :%s:", devicename, SDL_GetError());
+            }
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return PyInt_FromLong(0);
         }
-#if MIX_MAJOR_VERSION >= 1 && MIX_MINOR_VERSION >= 2 && MIX_PATCHLEVEL >= 3
-        Mix_ChannelFinished(endsound_callback);
-#endif
-
-        /* A bug in sdl_mixer where the stereo is reversed for 8 bit.
-           So we use this CPU hogging effect to reverse it for us.
-           Hopefully this bug is fixed in SDL_mixer 1.2.9
-        printf("MIX_MAJOR_VERSION :%d: MIX_MINOR_VERSION :%d: MIX_PATCHLEVEL
-        :%d: \n", MIX_MAJOR_VERSION, MIX_MINOR_VERSION, MIX_PATCHLEVEL);
-        */
-
-#if MIX_MAJOR_VERSION >= 1 && MIX_MINOR_VERSION >= 2 && MIX_PATCHLEVEL <= 8
-        if (fmt == AUDIO_U8) {
-            if (!Mix_SetReverseStereo(MIX_CHANNEL_POST, 1)) {
-                /* We do nothing... because might as well just let it go ahead.
-                 */
-                /* return RAISE (pgExc_SDLError, Mix_GetError());
-                 */
-            }
+#else
+        if (Mix_OpenAudio(freq, fmt, channels, chunk) == -1) {
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            return PyInt_FromLong(0);
         }
 #endif
+        Mix_ChannelFinished(endsound_callback);
 
         Mix_VolumeMusic(127);
     }
+
+    music = import_music();
+    if (music != NULL) {
+        PyObject *ptr, *_dict;
+        _dict = PyModule_GetDict(music);
+        ptr = PyDict_GetItemString(_dict, "_MUSIC_POINTER");
+        current_music =
+            (Mix_Music **)PyCapsule_GetPointer(ptr,
+                                               "pygame.music_mixer."
+                                               "_MUSIC_POINTER");
+        ptr = PyDict_GetItemString(_dict, "_QUEUE_POINTER");
+        queue_music = (Mix_Music **)PyCapsule_GetPointer(ptr,
+                                                         "pygame.music_mixer."
+                                                         "_QUEUE_POINTER");
+        Py_DECREF(music);
+    }
+    else {
+        current_music = NULL;
+        queue_music = NULL;
+        PyErr_Clear();
+    }
+
     return PyInt_FromLong(1);
 }
 
 static PyObject *
 pgMixer_AutoInit(PyObject *self, PyObject *arg)
 {
-    int freq = 0, size = 0, stereo = 0, chunk = 0;
+    int freq = 0, size = 0, channels = 0, chunk = 0;
+    int allowedchanges = -1;
 
-    if (!PyArg_ParseTuple(arg, "|iiii", &freq, &size, &stereo, &chunk))
+    if (!PyArg_ParseTuple(arg, "|iiiii", &freq, &size, &channels, &chunk, &allowedchanges))
         return NULL;
 
-    return _init(freq, size, stereo, chunk);
+    return _init(freq, size, channels, chunk, NULL, allowedchanges);
 }
 
 static PyObject *
@@ -424,16 +523,19 @@ quit(PyObject *self)
 static PyObject *
 init(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    int freq = 0, size = 0, stereo = 0, chunk = 0;
+    int freq = 0, size = 0, channels = 0, chunk = 0, allowedchanges = -1;
+    char *devicename = NULL;
     PyObject *result;
     int value;
 
-    static char *kwids[] = {"frequency", "size", "channels", "buffer", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiii", kwids, &freq,
-                                     &size, &stereo, &chunk)) {
+    static char *kwids[] = {"frequency", "size",       "channels",
+                            "buffer",    "devicename", "allowedchanges", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiisi", kwids, &freq,
+                                     &size, &channels, &chunk, &devicename,
+                                     &allowedchanges)) {
         return NULL;
     }
-    result = _init(freq, size, stereo, chunk);
+    result = _init(freq, size, channels, chunk, devicename, allowedchanges);
     if (!result)
         return NULL;
     value = PyObject_IsTrue(result);
@@ -458,22 +560,27 @@ get_init(PyObject *self)
 
     // create a signed or unsigned number of bits per sample
     // XXX: When mixer is init'd with a format of -8, this returns +8
-    realform = format & ~0xff ? -(format & 0xff) : format & 0xff;
+    realform = (format & ~0xff) ? -(format & 0xff) : format & 0xff;
     return Py_BuildValue("(iii)", freq, realform, channels);
 }
 
 static PyObject *
 pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    static char *kwids[] = {"frequency", "size", "channels", "buffer", NULL};
+    static char *kwids[] = {"frequency", "size",       "channels",
+                            "buffer",    "devicename", "allowedchanges", NULL};
+    int dname_size = 0;
 
     request_frequency = 0;
     request_size = 0;
-    request_stereo = 0;
+    request_channels = 0;
     request_chunksize = 0;
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiii", kwids,
-                                     &request_frequency, &request_size,
-                                     &request_stereo, &request_chunksize))
+    request_devicename = NULL;
+    request_allowedchanges = -1;
+    if (!PyArg_ParseTupleAndKeywords(
+            args, keywds, "|iiiiz#i", kwids, &request_frequency, &request_size,
+            &request_channels, &request_chunksize, &request_devicename, &dname_size,
+            &request_allowedchanges))
         return NULL;
     if (!request_frequency) {
         request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
@@ -481,11 +588,14 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
     if (!request_size) {
         request_size = PYGAME_MIXER_DEFAULT_SIZE;
     }
-    if (!request_stereo) {
-        request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+    if (!request_channels) {
+        request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
     }
     if (!request_chunksize) {
         request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+    }
+    if (request_allowedchanges == -1) {
+        request_allowedchanges = PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES;
     }
     Py_RETURN_NONE;
 }
@@ -504,6 +614,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &playtime, &fade_ms))
         return NULL;
 
+    Py_BEGIN_ALLOW_THREADS;
     if (fade_ms > 0) {
         channelnum =
             Mix_FadeInChannelTimed(-1, chunk, loops, fade_ms, playtime);
@@ -511,6 +622,7 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     else {
         channelnum = Mix_PlayChannelTimed(-1, chunk, loops, playtime);
     }
+    Py_END_ALLOW_THREADS;
     if (channelnum == -1)
         Py_RETURN_NONE;
 
@@ -523,12 +635,15 @@ pgSound_Play(PyObject *self, PyObject *args, PyObject *kwargs)
     // make sure volume on this arbitrary channel is set to full
     Mix_Volume(channelnum, 128);
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Py_END_ALLOW_THREADS;
+
     return pgChannel_New(channelnum);
 }
 
 static PyObject *
-snd_get_num_channels(PyObject *self)
+snd_get_num_channels(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
@@ -545,16 +660,20 @@ snd_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_FadeOutGroup((intptr_t)chunk, _time);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
 static PyObject *
-snd_stop(PyObject *self)
+snd_stop(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     MIXER_INIT_CHECK();
+    Py_BEGIN_ALLOW_THREADS;
     Mix_HaltGroup((intptr_t)chunk);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -574,7 +693,7 @@ snd_set_volume(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-snd_get_volume(PyObject *self)
+snd_get_volume(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int volume;
@@ -585,7 +704,7 @@ snd_get_volume(PyObject *self)
 }
 
 static PyObject *
-snd_get_length(PyObject *self)
+snd_get_length(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
     int freq, channels, mixerbytes, numsamples;
@@ -595,6 +714,11 @@ snd_get_length(PyObject *self)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
+#if IS_SDLv2
+    else if (format == AUDIO_F32 || format == AUDIO_F32LSB || format == AUDIO_F32MSB){
+        mixerbytes = 4;
+    }
+#endif
     else
         mixerbytes = 2;
     numsamples = chunk->alen / mixerbytes / channels;
@@ -603,7 +727,7 @@ snd_get_length(PyObject *self)
 }
 
 static PyObject *
-snd_get_raw(PyObject *self)
+snd_get_raw(PyObject *self, PyObject *args)
 {
     Mix_Chunk *chunk = pgSound_AsChunk(self);
 
@@ -660,16 +784,16 @@ snd_get_samples_address(PyObject *self, PyObject *closure)
 PyMethodDef sound_methods[] = {
     {"play", (PyCFunction)pgSound_Play, METH_VARARGS | METH_KEYWORDS,
      DOC_SOUNDPLAY},
-    {"get_num_channels", (PyCFunction)snd_get_num_channels, METH_NOARGS,
+    {"get_num_channels", snd_get_num_channels, METH_NOARGS,
      DOC_SOUNDGETNUMCHANNELS},
     {"fadeout", snd_fadeout, METH_VARARGS, DOC_SOUNDFADEOUT},
-    {"stop", (PyCFunction)snd_stop, METH_NOARGS, DOC_SOUNDSTOP},
+    {"stop", snd_stop, METH_NOARGS, DOC_SOUNDSTOP},
     {"set_volume", snd_set_volume, METH_VARARGS, DOC_SOUNDSETVOLUME},
-    {"get_volume", (PyCFunction)snd_get_volume, METH_NOARGS,
+    {"get_volume", snd_get_volume, METH_NOARGS,
      DOC_SOUNDGETVOLUME},
-    {"get_length", (PyCFunction)snd_get_length, METH_NOARGS,
+    {"get_length", snd_get_length, METH_NOARGS,
      DOC_SOUNDGETLENGTH},
-    {"get_raw", (PyCFunction)snd_get_raw, METH_NOARGS, DOC_SOUNDGETRAW},
+    {"get_raw", snd_get_raw, METH_NOARGS, DOC_SOUNDGETRAW},
     {NULL, NULL, 0, NULL}};
 
 static PyGetSetDef sound_getset[] = {
@@ -681,6 +805,17 @@ static PyGetSetDef sound_getset[] = {
 
 /*buffer protocol*/
 
+/*
+snd_buffer_iteminfo converts between SDL and python format constants.
+
+https://wiki.libsdl.org/SDL_AudioSpec
+https://docs.python.org/3/library/struct.html#format-characters
+
+returns:
+    -1 on error, else 0.
+    format: buffer string showing the format.
+    itemsize: bytes for each item.
+*/
 static int
 snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 {
@@ -688,6 +823,14 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
     static char fmt_AUDIO_S8[] = "b";
     static char fmt_AUDIO_U16SYS[] = "=H";
     static char fmt_AUDIO_S16SYS[] = "=h";
+
+#if IS_SDLv2
+    static char fmt_AUDIO_S32LSB[] = "<i";
+    static char fmt_AUDIO_S32MSB[] = ">i";
+    static char fmt_AUDIO_F32LSB[] = "<f";
+    static char fmt_AUDIO_F32MSB[] = ">f";
+#endif
+
     int freq = 0;
     Uint16 mixer_format = 0;
 
@@ -713,6 +856,28 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
             *format = fmt_AUDIO_S16SYS;
             *itemsize = 2;
             return 0;
+
+#if IS_SDLv2
+        case AUDIO_S32LSB:
+            *format = fmt_AUDIO_S32LSB;
+            *itemsize = 4;
+            return 0;
+
+        case AUDIO_S32MSB:
+            *format = fmt_AUDIO_S32MSB;
+            *itemsize = 4;
+            return 0;
+
+        case AUDIO_F32LSB:
+            *format = fmt_AUDIO_F32LSB;
+            *itemsize = 4;
+            return 0;
+
+        case AUDIO_F32MSB:
+            *format = fmt_AUDIO_F32MSB;
+            *itemsize = 4;
+            return 0;
+#endif
     }
 
     PyErr_Format(PyExc_SystemError,
@@ -798,8 +963,11 @@ static void
 sound_dealloc(pgSoundObject *self)
 {
     Mix_Chunk *chunk = pgSound_AsChunk((PyObject *)self);
-    if (chunk)
+    if (chunk) {
+        Py_BEGIN_ALLOW_THREADS;
         Mix_FreeChunk(chunk);
+        Py_END_ALLOW_THREADS;
+    }
     if (self->mem)
         PyMem_Free(self->mem);
     if (self->weakreflist)
@@ -862,6 +1030,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     chunk = pgSound_AsChunk(sound);
 
+    Py_BEGIN_ALLOW_THREADS;
     if (fade_ms > 0) {
         channelnum = Mix_FadeInChannelTimed(channelnum, chunk, loops, fade_ms,
                                             playtime);
@@ -871,6 +1040,7 @@ chan_play(PyObject *self, PyObject *args, PyObject *kwargs)
     }
     if (channelnum != -1)
         Mix_GroupChannel(channelnum, (intptr_t)chunk);
+    Py_END_ALLOW_THREADS;
 
     Py_XDECREF(channeldata[channelnum].sound);
     Py_XDECREF(channeldata[channelnum].queue);
@@ -893,9 +1063,11 @@ chan_queue(PyObject *self, PyObject *args)
 
     if (!channeldata[channelnum].sound) /*nothing playing*/
     {
+        Py_BEGIN_ALLOW_THREADS;
         channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
         if (channelnum != -1)
             Mix_GroupChannel(channelnum, (intptr_t)chunk);
+        Py_END_ALLOW_THREADS;
 
         channeldata[channelnum].sound = sound;
         Py_INCREF(sound);
@@ -927,7 +1099,9 @@ chan_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_FadeOutChannel(channelnum, _time);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -937,7 +1111,9 @@ chan_stop(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_HaltChannel(channelnum);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -957,7 +1133,9 @@ chan_unpause(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_Resume(channelnum);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -970,12 +1148,12 @@ chan_set_volume(PyObject *self, PyObject *args)
     int result;
 #endif
     Uint8 left, right;
+    PyThreadState *_save;
 
     if (!PyArg_ParseTuple(args, "f|f", &volume, &stereovolume))
         return NULL;
 
     MIXER_INIT_CHECK();
-#if MIX_MAJOR_VERSION >= 1 && MIX_MINOR_VERSION >= 2 && MIX_PATCHLEVEL >= 1
     if ((stereovolume <= -1.10f) && (stereovolume >= -1.12f)) {
         /* The normal volume will be used.  No panning.  so panning is
          * set to full.  this is incase it was set previously to
@@ -985,9 +1163,12 @@ chan_set_volume(PyObject *self, PyObject *args)
         left = 255;
         right = 255;
 
+        _save = PyEval_SaveThread();
         if (!Mix_SetPanning(channelnum, left, right)) {
+            PyEval_RestoreThread(_save);
             return RAISE(pgExc_SDLError, Mix_GetError());
         }
+        PyEval_RestoreThread(_save);
     }
     else {
         /* NOTE: here the volume will be set to 1.0 and the panning will
@@ -998,16 +1179,15 @@ chan_set_volume(PyObject *self, PyObject *args)
         printf("left:%d:  right:%d:\n", left, right);
         */
 
+        _save = PyEval_SaveThread();
         if (!Mix_SetPanning(channelnum, left, right)) {
+            PyEval_RestoreThread(_save);
             return RAISE(pgExc_SDLError, Mix_GetError());
         }
+        PyEval_RestoreThread(_save);
 
         volume = 1.0f;
     }
-#else
-    if (!((stereovolume <= -1.10f) && (stereovolume >= -1.12f)))
-        volume = (volume + stereovolume) * 0.5f;
-#endif
 
 #ifdef Py_DEBUG
     result =
@@ -1178,7 +1358,9 @@ set_num_channels(PyObject *self, PyObject *args)
         numchanneldata = numchans;
     }
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_AllocateChannels(numchans);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -1242,7 +1424,9 @@ mixer_fadeout(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_FadeOutChannel(-1, _time);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -1251,7 +1435,9 @@ mixer_stop(PyObject *self)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_HaltChannel(-1);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -1269,8 +1455,50 @@ mixer_unpause(PyObject *self)
 {
     MIXER_INIT_CHECK();
 
+    Py_BEGIN_ALLOW_THREADS;
     Mix_Resume(-1);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
+}
+
+/* Function to get the SDL mixer version data (linked or compiled).
+ *
+ * Ref: https://www.libsdl.org/projects/SDL_mixer/docs/SDL_mixer_8.html#SEC8
+ */
+static PyObject *
+mixer_get_sdl_mixer_version(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *linkedobj = NULL;
+    int linked = 1; /* Default is linked version. */
+
+    static char *keywords[] = {"linked", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords,
+                                     &linkedobj)) {
+        return NULL; /* Exception already set. */
+    }
+
+    if (NULL != linkedobj) {
+        linked = PyObject_IsTrue(linkedobj);
+
+        if (-1 == linked) {
+            return RAISE(PyExc_TypeError, "linked argument must be a boolean");
+        }
+    }
+
+    /* MIXER_INIT_CHECK() is not required for these methods. */
+
+    if (linked) {
+        /* linked version */
+        const SDL_version *v = Mix_Linked_Version();
+        return Py_BuildValue("iii", v->major, v->minor, v->patch);
+    }
+    else {
+        /* compiled version */
+        SDL_version v;
+        SDL_MIXER_VERSION(&v);
+        return Py_BuildValue("iii", v.major, v.minor, v.patch);
+    }
 }
 
 static int
@@ -1313,7 +1541,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     Py_ssize_t loop1, loop2, step1, step2, length, length2 = 0;
 
     if (!Mix_QuerySpec(&freq, &format, &channels)) {
-        RAISE(pgExc_SDLError, "Mixer not initialized");
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
         return -1;
     }
 
@@ -1321,20 +1549,20 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
      */
     if (channels == 1) {
         if (ndim != 1) {
-            RAISE(PyExc_ValueError,
-                  "Array must be 1-dimensional for mono mixer");
+            PyErr_SetString(PyExc_ValueError,
+                            "Array must be 1-dimensional for mono mixer");
             return -1;
         }
     }
     else {
         if (ndim != 2) {
-            RAISE(PyExc_ValueError,
-                  "Array must be 2-dimensional for stereo mixer");
+            PyErr_SetString(PyExc_ValueError,
+                            "Array must be 2-dimensional for stereo mixer");
             return -1;
         }
         if (shape[1] != channels) {
-            RAISE(PyExc_ValueError,
-                  "Array depth must match number of mixer channels");
+            PyErr_SetString(PyExc_ValueError,
+                            "Array depth must match number of mixer channels");
             return -1;
         }
     }
@@ -1351,7 +1579,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
         return -1;
     }
     length = shape[0];
-    step1 = strides ? strides[0] : view_itemsize * channels;
+    step1 = strides ? strides[0] : (Py_ssize_t)view_itemsize * channels;
     length2 = ndim;
     if (ndim == 2) {
         step2 = strides ? strides[1] : view_itemsize;
@@ -1385,7 +1613,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     */
     /* Copy samples.
      */
-    if (step1 == itemsize * channels && step2 == itemsize) {
+    if (step1 == (Py_ssize_t)itemsize * channels && step2 == itemsize) {
         /*OPTIMIZATION: in these cases, we don't need to loop through
          *the samples individually, because the bytes are already layed
          *out correctly*/
@@ -1463,13 +1691,19 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     ((pgSoundObject *)self)->chunk = NULL;
     ((pgSoundObject *)self)->mem = NULL;
 
+    /* Similar to MIXER_INIT_CHECK(), but different return value. */
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        PyErr_SetString(pgExc_SDLError, "mixer not initialized");
+        return -1;
+    }
+
     /* Process arguments, returning cleaner error messages than
        PyArg_ParseTupleAndKeywords would.
     */
     if (arg != NULL && PyTuple_GET_SIZE(arg)) {
         if ((kwarg != NULL && PyDict_Size(kwarg)) || /* conditional and */
             PyTuple_GET_SIZE(arg) != 1) {
-            RAISE(PyExc_TypeError, arg_cnt_err_msg);
+            PyErr_SetString(PyExc_TypeError, arg_cnt_err_msg);
             return -1;
         }
         obj = PyTuple_GET_ITEM(arg, 0);
@@ -1485,7 +1719,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
     else if (kwarg != NULL) {
         if (PyDict_Size(kwarg) != 1) {
-            RAISE(PyExc_TypeError, arg_cnt_err_msg);
+            PyErr_SetString(PyExc_TypeError, arg_cnt_err_msg);
             return -1;
         }
         if ((file = PyDict_GetItemString(kwarg, "file")) == NULL &&
@@ -1495,8 +1729,8 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             if (keys == NULL) {
                 return -1;
             }
-            kencoded = pgRWopsEncodeString(PyList_GET_ITEM(keys, 0), NULL,
-                                           NULL, NULL);
+            kencoded = pg_EncodeString(PyList_GET_ITEM(keys, 0), NULL,
+                                       NULL, NULL);
             Py_DECREF(keys);
             if (kencoded == NULL) {
                 return -1;
@@ -1508,47 +1742,54 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             return -1;
         }
         if (buffer != NULL && PyUnicode_Check(buffer)) { /* conditional and */
-            RAISE(PyExc_TypeError,
-                  "Unicode object not allowed as buffer object");
+            PyErr_SetString(PyExc_TypeError,
+                            "Unicode object not allowed as buffer object");
             return -1;
         }
     }
     else {
-        RAISE(PyExc_TypeError, arg_cnt_err_msg);
+        PyErr_SetString(PyExc_TypeError, arg_cnt_err_msg);
         return -1;
     }
 
     if (file != NULL) {
-        rw = pgRWopsFromObject(file);
+        rw = pgRWops_FromObject(file);
+
         if (rw == NULL) {
-            /* pgRWopsFromObject only raises critical Python exceptions,
-               so automatically pass them on.
-            */
-            return -1;
-        }
-        if (pgRWopsCheckObject(rw)) {
-            chunk = Mix_LoadWAV_RW(rw, 1);
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            chunk = Mix_LoadWAV_RW(rw, 1);
-            Py_END_ALLOW_THREADS;
-        }
-        if (chunk == NULL && obj == NULL) {
-            obj = pgRWopsEncodeString(file, NULL, NULL, NULL);
-            if (obj != NULL) {
-                if (obj == Py_None) {
-                    RAISE(pgExc_SDLError, SDL_GetError());
-                }
-                else {
-                    PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
-                                 Bytes_AS_STRING(obj));
-                }
-                Py_XDECREF(obj);
+#if PY3
+            if (obj) {
+#else
+            if (obj && PyErr_ExceptionMatches(PyExc_TypeError)) {
+#endif
+                /* use 'buffer' as fallback for single arg */
+                PyErr_Clear();
+                goto LOAD_BUFFER;
             }
             return -1;
         }
+        Py_BEGIN_ALLOW_THREADS;
+        chunk = Mix_LoadWAV_RW(rw, 1);
+        Py_END_ALLOW_THREADS;
+        if (chunk == NULL) {
+            if (obj) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                return -1;
+            }
+
+            obj = pg_EncodeString(file, NULL, NULL, NULL);
+            if (obj == Py_None) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            }
+            else {
+                PyErr_Format(pgExc_SDLError, "Unable to open file '%s'",
+                             Bytes_AS_STRING(obj));
+            }
+            Py_XDECREF(obj);
+            return -1;
+        }
     }
+
+LOAD_BUFFER:
 
 #if PY2
     if (!chunk && buffer && /* conditional and */
@@ -1632,8 +1873,13 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 
     if (chunk == NULL) {
-        PyErr_Format(PyExc_TypeError, "Unrecognized argument (type %s)",
-                     Py_TYPE(obj)->tp_name);
+        if (obj == NULL) {
+            PyErr_SetString(PyExc_TypeError, "Unrecognized argument");
+        }
+        else {
+            PyErr_Format(PyExc_TypeError, "Unrecognized argument (type %s)",
+                         Py_TYPE(obj)->tp_name);
+        }
         return -1;
     }
 
@@ -1665,6 +1911,8 @@ static PyMethodDef _mixer_methods[] = {
     {"pause", (PyCFunction)mixer_pause, METH_NOARGS, DOC_PYGAMEMIXERPAUSE},
     {"unpause", (PyCFunction)mixer_unpause, METH_NOARGS,
      DOC_PYGAMEMIXERUNPAUSE},
+    {"get_sdl_mixer_version", (PyCFunction)mixer_get_sdl_mixer_version,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERGETSDLMIXERVERSION},
     /*  { "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
     {NULL, NULL, 0, NULL}};
@@ -1790,39 +2038,15 @@ MODINIT_DEFINE(mixer)
         MODINIT_ERROR;
     }
 
-    music = PyImport_ImportModule(IMPPREFIX "mixer_music");
-    if (music == NULL) {
-        PyErr_Clear();
-        /* try loading it under this name...
-         */
-        music = PyImport_ImportModule(RELATIVE_MODULE("mixer_music"));
-        /*printf("NOTE3: here in mixer.c...\n");
-         */
-    }
-
+    music = import_music();
     if (music != NULL) {
-        PyObject *ptr, *_dict;
-        /* printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
-         */
         if (PyModule_AddObject(module, "music", music) < 0) {
             DECREF_MOD(module);
             Py_DECREF(music);
             MODINIT_ERROR;
         }
-        _dict = PyModule_GetDict(music);
-        ptr = PyDict_GetItemString(_dict, "_MUSIC_POINTER");
-        current_music =
-            (Mix_Music **)PyCapsule_GetPointer(ptr,
-                                               "pygame.music_mixer."
-                                               "_MUSIC_POINTER");
-        ptr = PyDict_GetItemString(_dict, "_QUEUE_POINTER");
-        queue_music = (Mix_Music **)PyCapsule_GetPointer(ptr,
-                                                         "pygame.music_mixer."
-                                                         "_QUEUE_POINTER");
     }
-    else /*music module not compiled? cleanly ignore*/
-    {
-        current_music = NULL;
+    else {
         PyErr_Clear();
     }
     MODINIT_RETURN(module);

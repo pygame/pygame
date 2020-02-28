@@ -1,31 +1,34 @@
 #!/usr/bin/env python
-# like the testsprite.c that comes with sdl, this pygame version shows 
-#   lots of sprites moving around.
+""" pg.examples.testsprite
+
+Like the testsprite.c that comes with libsdl, this pygame version shows
+lots of sprites moving around.
+
+It is an abomination of ugly code, and mostly used for testing.
 
 
-import pygame, sys, os
-from pygame.locals import *
+See pg.examples.aliens for some prettyier code.
+"""
+import sys
+import os
+
 from random import randint
 from time import time
-import pygame.joystick
+
+import pygame as pg
 from pygame.compat import xrange_
 
-##import FastRenderGroup as FRG
-import pygame.sprite as FRG
 
 if "-psyco" in sys.argv:
     try:
         import psyco
+
         psyco.full()
     except Exception:
-        print ("No psyco for you!  psyco failed to import and run.")
+        print("No psyco for you!  psyco failed to import and run.")
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, 'data')
-
-
-
-
+data_dir = os.path.join(main_dir, "data")
 
 
 # use this to use update rects or not.
@@ -41,10 +44,10 @@ if "-static" in sys.argv:
     use_static = True
 
 
-use_FastRenderGroup = False
-if "-FastRenderGroup" in sys.argv:
+use_layered_dirty = False
+if "-layered_dirty" in sys.argv:
     update_rects = True
-    use_FastRenderGroup = True
+    use_layered_dirty = True
 
 
 flags = 0
@@ -63,29 +66,31 @@ if "-hw" in sys.argv:
     flags ^= HWSURFACE
     use_rle = False
 
+if "-scaled" in sys.argv:
+    flags ^= SCALED
 
 screen_dims = [640, 480]
 
 if "-height" in sys.argv:
     i = sys.argv.index("-height")
-    screen_dims[1] = int(sys.argv[i+1])
+    screen_dims[1] = int(sys.argv[i + 1])
 
 if "-width" in sys.argv:
     i = sys.argv.index("-width")
-    screen_dims[0] = int(sys.argv[i+1])
+    screen_dims[0] = int(sys.argv[i + 1])
 
 if "-alpha" in sys.argv:
     use_alpha = True
 else:
     use_alpha = False
 
-print (screen_dims)
+print(screen_dims)
 
 
-##class Thingy(pygame.sprite.Sprite):
+##class Thingy(pg.sprite.Sprite):
 ##    images = None
 ##    def __init__(self):
-##        pygame.sprite.Sprite.__init__(self)
+##        pg.sprite.Sprite.__init__(self)
 ##        self.image = Thingy.images[0]
 ##        self.rect = self.image.get_rect()
 ##        self.rect.x = randint(0, screen_dims[0])
@@ -101,16 +106,18 @@ print (screen_dims)
 ##                nv = self.rect[i] + self.vel[i]
 ##            self.rect[i] = nv
 
-class Thingy(FRG.DirtySprite):
+
+class Thingy(pg.sprite.DirtySprite):
     images = None
+
     def __init__(self):
-##        pygame.sprite.Sprite.__init__(self)
-        FRG.DirtySprite.__init__(self)
+        ##        pg.sprite.Sprite.__init__(self)
+        pg.sprite.DirtySprite.__init__(self)
         self.image = Thingy.images[0]
         self.rect = self.image.get_rect()
         self.rect.x = randint(0, screen_dims[0])
         self.rect.y = randint(0, screen_dims[1])
-        #self.vel = [randint(-10, 10), randint(-10, 10)]
+        # self.vel = [randint(-10, 10), randint(-10, 10)]
         self.vel = [randint(-1, 1), randint(-1, 1)]
         self.dirty = 2
 
@@ -122,69 +129,66 @@ class Thingy(FRG.DirtySprite):
                 nv = self.rect[i] + self.vel[i]
             self.rect[i] = nv
 
-class Static(FRG.DirtySprite):
+
+class Static(pg.sprite.DirtySprite):
     images = None
+
     def __init__(self):
-        FRG.DirtySprite.__init__(self)
+        pg.sprite.DirtySprite.__init__(self)
         self.image = Static.images[0]
         self.rect = self.image.get_rect()
-        self.rect.x = randint(0, 3*screen_dims[0]/4)
-        self.rect.y = randint(0, 3*screen_dims[1]/4)
+        self.rect.x = randint(0, 3 * screen_dims[0] / 4)
+        self.rect.y = randint(0, 3 * screen_dims[1] / 4)
 
 
-
-def main(update_rects = True, 
-        use_static = False,
-        use_FastRenderGroup = False,
-        screen_dims = [640, 480],
-        use_alpha = False,
-        flags = 0,
-        ):
+def main(
+    update_rects=True,
+    use_static=False,
+    use_layered_dirty=False,
+    screen_dims=[640, 480],
+    use_alpha=False,
+    flags=0,
+):
     """Show lots of sprites moving around
 
     Optional keyword arguments:
     update_rects - use the RenderUpdate sprite group class (default True)
     use_static - include non-moving images (default False)
-    use_FastRenderGroup - Use the FastRenderGroup sprite group (default False)
+    use_layered_dirty - Use the FastRenderGroup sprite group (default False)
     screen_dims - Pygame window dimensions (default [640, 480])
     use_alpha - use alpha blending (default False)
-    flags - additional display mode flags (default no addiontal flags)
+    flags - additional display mode flags (default no additional flags)
 
     """
 
-    if use_FastRenderGroup:
+    if use_layered_dirty:
         update_rects = True
 
+    # pg.init()
+    pg.display.init()
 
-    #pygame.init()
-    pygame.display.init()
+    # if "-fast" in sys.argv:
 
-
-
-    #if "-fast" in sys.argv:
-
-    screen = pygame.display.set_mode(screen_dims, flags)
-
+    screen = pg.display.set_mode(screen_dims, flags)
 
     # this is mainly for GP2X, so it can quit.
-    pygame.joystick.init()
-    num_joysticks = pygame.joystick.get_count()
+    pg.joystick.init()
+    num_joysticks = pg.joystick.get_count()
     if num_joysticks > 0:
-        stick = pygame.joystick.Joystick(0)
-        stick.init() # now we will receive events for the joystick
+        stick = pg.joystick.Joystick(0)
+        stick.init()  # now we will receive events for the joystick
 
-
-    screen.fill([0,0,0])
-    pygame.display.flip()
-    sprite_surface = pygame.image.load(os.path.join(data_dir, "asprite.bmp"))
-    sprite_surface2 = pygame.image.load(os.path.join(data_dir, "static.png"))
+    screen.fill([0, 0, 0])
+    pg.display.flip()
+    sprite_surface = pg.image.load(os.path.join(data_dir, "asprite.bmp"))
+    sprite_surface2 = pg.image.load(os.path.join(data_dir, "static.png"))
 
     if use_rle:
-        sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)
-        sprite_surface2.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)
+        sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], pg.SRCCOLORKEY | pg.RLEACCEL)
+        sprite_surface2.set_colorkey([0xFF, 0xFF, 0xFF], pg.SRCCOLORKEY | pg.RLEACCEL)
     else:
-        sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY)
-        sprite_surface2.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY)
+        sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], pg.SRCCOLORKEY)
+        sprite_surface2.set_colorkey([0xFF, 0xFF, 0xFF], pg.SRCCOLORKEY)
 
     if use_alpha:
         sprite_surface = sprite_surface.convert_alpha()
@@ -196,7 +200,7 @@ def main(update_rects = True,
     Thingy.images = [sprite_surface]
     if use_static:
         Static.images = [sprite_surface2]
-    
+
     if len(sys.argv) > 1:
         try:
             numsprites = int(sys.argv[-1])
@@ -205,35 +209,34 @@ def main(update_rects = True,
     else:
         numsprites = 100
     sprites = None
-    if use_FastRenderGroup:
-##        sprites = FRG.FastRenderGroup()
-        sprites = FRG.LayeredDirty()
+    if use_layered_dirty:
+        ##        sprites = pg.sprite.FastRenderGroup()
+        sprites = pg.sprite.LayeredDirty()
     else:
         if update_rects:
-            sprites = pygame.sprite.RenderUpdates()
+            sprites = pg.sprite.RenderUpdates()
         else:
-            sprites = pygame.sprite.Group()
+            sprites = pg.sprite.Group()
 
     for i in xrange_(0, numsprites):
-        if use_static and i%2==0:
+        if use_static and i % 2 == 0:
             sprites.add(Static())
         sprites.add(Thingy())
 
-    done = False
     frames = 0
     start = time()
 
-    background = pygame.Surface(screen.get_size())
+    background = pg.Surface(screen.get_size())
     background = background.convert()
-    background.fill([0,0,0])
+    background.fill([0, 0, 0])
 
-
-    while not done:
+    going = True
+    while going:
         if not update_rects:
-            screen.fill([0,0,0])
+            screen.fill([0, 0, 0])
 
-##        for sprite in sprites:
-##            sprite.move()
+        ##        for sprite in sprites:
+        ##            sprite.move()
 
         if update_rects:
             sprites.clear(screen, background)
@@ -241,27 +244,19 @@ def main(update_rects = True,
 
         rects = sprites.draw(screen)
         if update_rects:
-            pygame.display.update(rects)
+            pg.display.update(rects)
         else:
-            pygame.display.flip()
+            pg.display.flip()
 
-
-        for event in pygame.event.get():
-            if event.type in [KEYDOWN, QUIT, JOYBUTTONDOWN]:
-                done = True
-
+        for event in pg.event.get():
+            if event.type in [pg.QUIT, pg.KEYDOWN, pg.QUIT, pg.JOYBUTTONDOWN]:
+                going = False
 
         frames += 1
     end = time()
-    print ("FPS: %f" % (frames / ((end - start))))
-    pygame.quit()
-
+    print("FPS: %f" % (frames / ((end - start))))
+    pg.quit()
 
 
 if __name__ == "__main__":
-    main( update_rects,
-          use_static,
-          use_FastRenderGroup,
-          screen_dims,
-          use_alpha,
-          flags )
+    main(update_rects, use_static, use_layered_dirty, screen_dims, use_alpha, flags)

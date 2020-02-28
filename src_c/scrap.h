@@ -19,6 +19,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifndef SCRAP_H
+#define SCRAP_H
+
 /* This is unconditionally defined in Python.h */
 #if defined(_POSIX_C_SOURCE)
 #undef _POSIX_C_SOURCE
@@ -141,3 +144,5 @@ pygame_scrap_get_types (void);
  */
 extern int
 pygame_scrap_contains (char *type);
+
+#endif /* SCRAP_H */

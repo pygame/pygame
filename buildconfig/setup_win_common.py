@@ -15,14 +15,12 @@ class Definition(object):
         self.name = name
         self.value = value
 
+
 def read():
     """Return the contents of the Windows Common Setup as a string"""
-
-    setup_in = open(PATH)
-    try:
+    with open(PATH) as setup_in:
         return setup_in.read()
-    finally:
-        setup_in.close()
+
 
 def get_definitions():
     """Return a list of definitions in the Windows Common Setup
@@ -31,16 +29,17 @@ def get_definitions():
     """
     import re
 
-    setup_in = open(PATH)
-    try:
-        deps = []
-        match = re.compile(r'([a-zA-Z0-9_]+) += +(.+)$').match
+    deps = []
+    match = re.compile(r'([a-zA-Z0-9_]+) += +(.+)$').match
+
+    with open(PATH) as setup_in:
         for line in setup_in:
             m = match(line)
+
             if m is not None:
                 deps.append(Definition(m.group(1), m.group(2)))
-        return deps
-    finally:
-        setup_in.close()
 
-__all__= ['read', 'get_dependencies']
+    return deps
+
+
+__all__= ['read', 'get_definitions']

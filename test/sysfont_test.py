@@ -1,47 +1,34 @@
 import unittest
+import platform
+
 
 class SysfontModuleTest(unittest.TestCase):
     def todo_test_create_aliases(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sysfont.create_aliases:
-
-          #
-
         self.fail()
 
     def todo_test_initsysfonts(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sysfont.initsysfonts:
-
-          #
-
         self.fail()
 
-    def todo_test_initsysfonts_darwin(self):
+    @unittest.skipIf("Darwin" not in platform.platform(), "Not mac we skip.")
+    def test_initsysfonts_darwin(self):
+        import pygame.sysfont
 
-        # __doc__ (as of 2008-08-02) for pygame.sysfont.initsysfonts_darwin:
+        self.assertTrue(len(pygame.sysfont.get_fonts()) > 10)
 
-          #
+    def test_sysfont(self):
+        import pygame.font
 
-        self.fail()
+        pygame.font.init()
+        arial = pygame.font.SysFont("Arial", 40)
 
     def todo_test_initsysfonts_unix(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sysfont.initsysfonts_unix:
-
-          #
-
         self.fail()
 
     def todo_test_initsysfonts_win32(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sysfont.initsysfonts_win32:
-
-          #
-
         self.fail()
+
 
 ################################################################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

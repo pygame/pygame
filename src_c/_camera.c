@@ -51,21 +51,21 @@ surf_colorspace(PyObject *self, PyObject *arg);
 PyObject *
 list_cameras(PyObject *self, PyObject *arg);
 PyObject *
-camera_start(pgCameraObject *self);
+camera_start(pgCameraObject *self, PyObject *args);
 PyObject *
-camera_stop(pgCameraObject *self);
+camera_stop(pgCameraObject *self, PyObject *args);
 PyObject *
-camera_get_controls(pgCameraObject *self);
+camera_get_controls(pgCameraObject *self, PyObject *args);
 PyObject *
 camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds);
 PyObject *
-camera_get_size(pgCameraObject *self);
+camera_get_size(pgCameraObject *self, PyObject *args);
 PyObject *
-camera_query_image(pgCameraObject *self);
+camera_query_image(pgCameraObject *self, PyObject *args);
 PyObject *
 camera_get_image(pgCameraObject *self, PyObject *arg);
 PyObject *
-camera_get_raw(pgCameraObject *self);
+camera_get_raw(pgCameraObject *self, PyObject *args);
 
 /*
  * Functions available to pygame users.  The idea is to make these as simple as
@@ -180,7 +180,7 @@ list_cameras(PyObject *self, PyObject *arg)
 
 /* start() - opens, inits, and starts capturing on the camera */
 PyObject *
-camera_start(pgCameraObject *self)
+camera_start(pgCameraObject *self, PyObject *args)
 {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
@@ -210,7 +210,7 @@ camera_start(pgCameraObject *self)
 
 /* stop() - stops capturing, uninits, and closes the camera */
 PyObject *
-camera_stop(pgCameraObject *self)
+camera_stop(pgCameraObject *self, PyObject *args)
 {
 #if defined(__unix__)
     if (v4l2_stop_capturing(self) == 0)
@@ -231,7 +231,7 @@ camera_stop(pgCameraObject *self)
 /* get_controls() - gets current values of user controls */
 /* TODO: Support brightness, contrast, and other common controls */
 PyObject *
-camera_get_controls(pgCameraObject *self)
+camera_get_controls(pgCameraObject *self, PyObject *args)
 {
 #if defined(__unix__)
     int value;
@@ -262,7 +262,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
     int hflip = 0, vflip = 0, brightness = 0;
     char *kwids[] = {"hflip", "vflip", "brightness", NULL};
 
-    camera_get_controls(self);
+    camera_get_controls(self, NULL);
     hflip = self->hflip;
     vflip = self->vflip;
     brightness = self->brightness;
@@ -289,7 +289,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
     int hflip = 0, vflip = 0, brightness = 0;
     char *kwids[] = {"hflip", "vflip", "brightness", NULL};
 
-    camera_get_controls(self);
+    camera_get_controls(self, NULL);
     hflip = self->hflip;
     vflip = self->vflip;
     brightness = -1;
@@ -309,7 +309,7 @@ camera_set_controls(pgCameraObject *self, PyObject *arg, PyObject *kwds)
 
 /* get_size() - returns the dimensions of the images being recorded */
 PyObject *
-camera_get_size(pgCameraObject *self)
+camera_get_size(pgCameraObject *self, PyObject *args)
 {
 #if defined(__unix__)
     return Py_BuildValue("(ii)", self->width, self->height);
@@ -322,7 +322,7 @@ camera_get_size(pgCameraObject *self)
 
 /* query_image() - checks if a frame is ready */
 PyObject *
-camera_query_image(pgCameraObject *self)
+camera_query_image(pgCameraObject *self, PyObject *args)
 {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
@@ -419,7 +419,7 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 
 /* get_raw() - returns an unmodified image as a string from the buffer */
 PyObject *
-camera_get_raw(pgCameraObject *self)
+camera_get_raw(pgCameraObject *self, PyObject *args)
 {
 #if defined(__unix__)
     return v4l2_read_raw(self);
@@ -1258,8 +1258,6 @@ uyvy_to_yuv(const void *src, void *dst, int length, SDL_PixelFormat *format)
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-/* FIXME: Seems to be grayscale and kind of dark on the OLPC XO
-          Maybe the result of a different Bayer color order on the screen? */
 /* TODO: Certainly not the most efficient way of doing this conversion. */
 void
 sbggr8_to_rgb(const void *src, void *dst, int width, int height,
@@ -1716,7 +1714,7 @@ PyMethodDef cameraobj_builtins[] = {
     {"stop", (PyCFunction)camera_stop, METH_NOARGS, DOC_CAMERASTOP},
     {"get_controls", (PyCFunction)camera_get_controls, METH_NOARGS,
      DOC_CAMERAGETCONTROLS},
-    {"set_controls", (PyCFunction)camera_set_controls, METH_KEYWORDS,
+    {"set_controls", (PyCFunction)camera_set_controls, METH_VARARGS | METH_KEYWORDS,
      DOC_CAMERASETCONTROLS},
     {"get_size", (PyCFunction)camera_get_size, METH_NOARGS, DOC_CAMERAGETSIZE},
     {"query_image", (PyCFunction)camera_query_image, METH_NOARGS,

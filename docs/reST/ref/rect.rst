@@ -67,11 +67,12 @@
    rect1.bottom=rect2.top), the two meet exactly on the screen but do not
    overlap, and ``rect1.colliderect(rect2)`` returns false.
 
-   The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
-   will recognize this and return instances of the subclass.
-   However, the subclass's ``__init__()`` method is not called,
-   and ``__new__()`` is assumed to take no arguments. So these methods should be
-   overridden if any extra attributes need to be copied. New in pygame 1.9.2.
+   .. versionadded:: 1.9.2
+      The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
+      will recognize this and return instances of the subclass.
+      However, the subclass's ``__init__()`` method is not called,
+      and ``__new__()`` is assumed to take no arguments. So these methods should be
+      overridden if any extra attributes need to be copied.
 
    .. method:: copy
 
@@ -155,6 +156,65 @@
 
       .. ## Rect.clip ##
 
+   .. method:: clipline
+
+      | :sl:`crops a line inside a rectangle`
+      | :sg:`clipline(x1, y1, x2, y2) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline(x1, y1, x2, y2) -> ()`
+      | :sg:`clipline((x1, y1), (x2, y2)) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline((x1, y1), (x2, y2)) -> ()`
+      | :sg:`clipline((x1, y1, x2, y2)) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline((x1, y1, x2, y2)) -> ()`
+      | :sg:`clipline(((x1, y1), (x2, y2))) -> ((cx1, cy1), (cx2, cy2))`
+      | :sg:`clipline(((x1, y1), (x2, y2))) -> ()`
+
+      Returns the coordinates of a line that is cropped to be completely inside
+      the rectangle. If the line does not overlap the rectangle, then an empty
+      tuple is returned.
+
+      The line to crop can be any of the following formats (floats can be used
+      in place of ints, but they will be truncated):
+
+         - four ints
+         - 2 lists/tuples/Vector2s of 2 ints
+         - a list/tuple of four ints
+         - a list/tuple of 2 lists/tuples/Vector2s of 2 ints
+
+      :returns: a tuple with the coordinates of the given line cropped to be
+         completely inside the rectangle is returned, if the given line does
+         not overlap the rectangle, an empty tuple is returned
+      :rtype: tuple(tuple(int, int), tuple(int, int)) or ()
+
+      :raises TypeError: if the line coordinates are not given as one of the
+         above described line formats
+
+      .. note ::
+         This method can be used for collision detection between a rect and a
+         line. See example code below.
+
+      .. note ::
+         The ``rect.bottom`` and ``rect.right`` attributes of a
+         :mod:`pygame.Rect` always lie one pixel outside of its actual border.
+
+      ::
+
+         # Example using clipline().
+         clipped_line = rect.clipline(line)
+
+         if clipped_line:
+             # If clipped_line is not an empty tuple then the line
+             # collides/overlaps with the rect. The returned value contains
+             # the endpoints of the clipped line.
+             start, end = clipped_line
+             x1, y1 = start
+             x2, y2 = end
+         else:
+             print("No clipping. The line is fully outside the rect.")
+
+      .. versionadded:: 2.0.0
+
+      .. ## Rect.clipline ##
+
    .. method:: union
 
       | :sl:`joins two rectangles into one`
@@ -233,6 +293,10 @@
       Returns true if the given point is inside the rectangle. A point along
       the right or bottom edge is not considered to be inside the rectangle.
 
+      .. note ::
+         For collision detection between a rect and a line the :meth:`clipline`
+         method can be used.
+
       .. ## Rect.collidepoint ##
 
    .. method:: colliderect
@@ -242,6 +306,10 @@
 
       Returns true if any portion of either rectangle overlap (except the
       top+bottom or left+right edges).
+
+      .. note ::
+         For collision detection between a rect and a line the :meth:`clipline`
+         method can be used.
 
       .. ## Rect.colliderect ##
 
@@ -271,12 +339,19 @@
 
       | :sl:`test if one rectangle in a dictionary intersects`
       | :sg:`collidedict(dict) -> (key, value)`
+      | :sg:`collidedict(dict) -> None`
+      | :sg:`collidedict(dict, use_values=0) -> (key, value)`
+      | :sg:`collidedict(dict, use_values=0) -> None`
 
-      Returns the key and value of the first dictionary value that collides
-      with the Rect. If no collisions are found, None is returned.
+      Returns the first key and value pair that intersects with the calling
+      Rect object. If no collisions are found, ``None`` is returned. If
+      ``use_values`` is 0 (default) then the dict's keys will be used in the
+      collision detection, otherwise the dict's values will be used.
 
-      Rect objects are not hashable and cannot be used as keys in a dictionary,
-      only as values.
+      .. note ::
+         Rect objects cannot be used as keys in a dictionary (they are not
+         hashable), so they must be converted to a tuple/list.
+         e.g. ``rect.collidedict({tuple(key_rect) : value})``
 
       .. ## Rect.collidedict ##
 
@@ -284,12 +359,17 @@
 
       | :sl:`test if all rectangles in a dictionary intersect`
       | :sg:`collidedictall(dict) -> [(key, value), ...]`
+      | :sg:`collidedictall(dict, use_values=0) -> [(key, value), ...]`
 
       Returns a list of all the key and value pairs that intersect with the
-      Rect. If no collisions are found an empty list is returned.
+      calling Rect object. If no collisions are found an empty list is returned.
+      If ``use_values`` is 0 (default) then the dict's keys will be used in the
+      collision detection, otherwise the dict's values will be used.
 
-      Rect objects are not hashable and cannot be used as keys in a dictionary,
-      only as values.
+      .. note ::
+         Rect objects cannot be used as keys in a dictionary (they are not
+         hashable), so they must be converted to a tuple/list.
+         e.g. ``rect.collidedictall({tuple(key_rect) : value})``
 
       .. ## Rect.collidedictall ##
 

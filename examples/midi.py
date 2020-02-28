@@ -1,24 +1,20 @@
 #!/usr/bin/env python
+""" pygame.examples.midi
 
-"""Contains an example of midi input, and a separate example of midi output.
+midi input, and a separate example of midi output.
 
 By default it runs the output example.
-python midi.py --output
-python midi.py --input
 
+python -m pygame.examples.midi --output
+python -m pygame.examples.midi --input
+python -m pygame.examples.midi --input
 """
 
 import sys
 import os
 
-import pygame
+import pygame as pg
 import pygame.midi
-from pygame.locals import *
-
-try:  # Ensure set available for output example
-    set
-except NameError:
-    from sets import Set as set
 
 
 def print_device_info():
@@ -26,8 +22,9 @@ def print_device_info():
     _print_device_info()
     pygame.midi.quit()
 
+
 def _print_device_info():
-    for i in range( pygame.midi.get_count() ):
+    for i in range(pygame.midi.get_count()):
         r = pygame.midi.get_device_info(i)
         (interf, name, input, output, opened) = r
 
@@ -37,45 +34,42 @@ def _print_device_info():
         if output:
             in_out = "(output)"
 
-        print ("%2i: interface :%s:, name :%s:, opened :%s:  %s" %
-               (i, interf, name, opened, in_out))
-        
+        print(
+            "%2i: interface :%s:, name :%s:, opened :%s:  %s"
+            % (i, interf, name, opened, in_out)
+        )
 
 
-
-def input_main(device_id = None):
-    pygame.init()
-    pygame.fastevent.init()
-    event_get = pygame.fastevent.get
-    event_post = pygame.fastevent.post
+def input_main(device_id=None):
+    pg.init()
+    pg.fastevent.init()
+    event_get = pg.fastevent.get
+    event_post = pg.fastevent.post
 
     pygame.midi.init()
 
     _print_device_info()
-
 
     if device_id is None:
         input_id = pygame.midi.get_default_input_id()
     else:
         input_id = device_id
 
-    print ("using input_id :%s:" % input_id)
-    i = pygame.midi.Input( input_id )
+    print("using input_id :%s:" % input_id)
+    i = pygame.midi.Input(input_id)
 
-    pygame.display.set_mode((1,1))
-
-
+    pg.display.set_mode((1, 1))
 
     going = True
     while going:
         events = event_get()
         for e in events:
-            if e.type in [QUIT]:
+            if e.type in [pg.QUIT]:
                 going = False
-            if e.type in [KEYDOWN]:
+            if e.type in [pg.KEYDOWN]:
                 going = False
             if e.type in [pygame.midi.MIDIIN]:
-                print (e)
+                print(e)
 
         if i.poll():
             midi_events = i.read(10)
@@ -83,14 +77,13 @@ def input_main(device_id = None):
             midi_evs = pygame.midi.midis2events(midi_events, i.device_id)
 
             for m_e in midi_evs:
-                event_post( m_e )
+                event_post(m_e)
 
     del i
     pygame.midi.quit()
 
 
-
-def output_main(device_id = None):
+def output_main(device_id=None):
     """Execute a musical keyboard example for the Church Organ instrument
 
     This is a piano keyboard example, with a two octave keyboard, starting at
@@ -106,7 +99,7 @@ def output_main(device_id = None):
 
     Default Midi output, no device_id given, is to the default output device
     for the computer.
-    
+
     """
 
     # A note to new pygamers:
@@ -131,25 +124,48 @@ def output_main(device_id = None):
     #    to ensure that midi is properly shut down, it is best to do it
     #    explicitly. A try/finally statement is the safest way to do this.
     #
-    GRAND_PIANO = 0
+
+    # GRAND_PIANO = 0
     CHURCH_ORGAN = 19
 
     instrument = CHURCH_ORGAN
-    #instrument = GRAND_PIANO
+    # instrument = GRAND_PIANO
     start_note = 53  # F3 (white key note), start_note != 0
     n_notes = 24  # Two octaves (14 white keys)
-    
-    bg_color = Color('slategray')
 
-    key_mapping = make_key_mapping([K_TAB, K_1, K_q, K_2, K_w, K_3, K_e, K_r,
-                                    K_5, K_t, K_6, K_y, K_u, K_8, K_i, K_9,
-                                    K_o, K_0, K_p, K_LEFTBRACKET, K_EQUALS,
-                                    K_RIGHTBRACKET, K_BACKSPACE, K_BACKSLASH],
-                                   start_note)
-    
+    bg_color = Color("slategray")
 
+    key_mapping = make_key_mapping(
+        [
+            pg.K_TAB,
+            pg.K_1,
+            pg.K_q,
+            pg.K_2,
+            pg.K_w,
+            pg.K_3,
+            pg.K_e,
+            pg.K_r,
+            pg.K_5,
+            pg.K_t,
+            pg.K_6,
+            pg.K_y,
+            pg.K_u,
+            pg.K_8,
+            pg.K_i,
+            pg.K_9,
+            pg.K_o,
+            pg.K_0,
+            pg.K_p,
+            pg.K_LEFTBRACKET,
+            pg.K_EQUALS,
+            pg.K_RIGHTBRACKET,
+            pg.K_BACKSPACE,
+            pg.K_BACKSLASH,
+        ],
+        start_note,
+    )
 
-    pygame.init()
+    pg.init()
     pygame.midi.init()
 
     _print_device_info()
@@ -159,53 +175,49 @@ def output_main(device_id = None):
     else:
         port = device_id
 
-    print ("using output_id :%s:" % port)
-
-
+    print("using output_id :%s:" % port)
 
     midi_out = pygame.midi.Output(port, 0)
     try:
         midi_out.set_instrument(instrument)
         keyboard = Keyboard(start_note, n_notes)
 
-        screen = pygame.display.set_mode(keyboard.rect.size)
+        screen = pg.display.set_mode(keyboard.rect.size)
         screen.fill(bg_color)
-        pygame.display.flip()
+        pg.display.flip()
 
-        background = pygame.Surface(screen.get_size())
+        background = pg.Surface(screen.get_size())
         background.fill(bg_color)
         dirty_rects = []
         keyboard.draw(screen, background, dirty_rects)
-        pygame.display.update(dirty_rects)
+        pg.display.update(dirty_rects)
 
-        regions = pygame.Surface(screen.get_size())  # initial color (0,0,0)
+        regions = pg.Surface(screen.get_size())  # initial color (0,0,0)
         keyboard.map_regions(regions)
 
-        pygame.event.set_blocked(MOUSEMOTION)
-        repeat = 1
+        pg.event.set_blocked(pg.MOUSEMOTION)
         mouse_note = 0
         on_notes = set()
         while 1:
-            update_rects = None
-            e = pygame.event.wait()
-            if e.type == pygame.MOUSEBUTTONDOWN:
-                mouse_note, velocity, __, __  = regions.get_at(e.pos)
+            e = pg.event.wait()
+            if e.type == pg.MOUSEBUTTONDOWN:
+                mouse_note, velocity, __, __ = regions.get_at(e.pos)
                 if mouse_note and mouse_note not in on_notes:
                     keyboard.key_down(mouse_note)
                     midi_out.note_on(mouse_note, velocity)
                     on_notes.add(mouse_note)
                 else:
                     mouse_note = 0
-            elif e.type == pygame.MOUSEBUTTONUP:
+            elif e.type == pg.MOUSEBUTTONUP:
                 if mouse_note:
                     midi_out.note_off(mouse_note)
                     keyboard.key_up(mouse_note)
                     on_notes.remove(mouse_note)
                     mouse_note = 0
-            elif e.type == pygame.QUIT:
+            elif e.type == pg.QUIT:
                 break
-            elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
+            elif e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
                     break
                 try:
                     note, velocity = key_mapping[e.key]
@@ -216,7 +228,7 @@ def output_main(device_id = None):
                         keyboard.key_down(note)
                         midi_out.note_on(note, velocity)
                         on_notes.add(note)
-            elif e.type == pygame.KEYUP:
+            elif e.type == pg.KEYUP:
                 try:
                     note, __ = key_mapping[e.key]
                 except KeyError:
@@ -229,18 +241,20 @@ def output_main(device_id = None):
 
             dirty_rects = []
             keyboard.draw(screen, background, dirty_rects)
-            pygame.display.update(dirty_rects)
+            pg.display.update(dirty_rects)
     finally:
         del midi_out
         pygame.midi.quit()
 
+
 def make_key_mapping(key_list, start_note):
     """Return a dictionary of (note, velocity) by computer keyboard key code"""
-    
+
     mapping = {}
     for i in range(len(key_list)):
         mapping[key_list[i]] = (start_note + i, 127)
     return mapping
+
 
 class NullKey(object):
     """A dummy key that ignores events passed to it by other keys
@@ -249,7 +263,7 @@ class NullKey(object):
     for the left most keyboard key.
 
     """
-    
+
     def _right_white_down(self):
         pass
 
@@ -262,7 +276,9 @@ class NullKey(object):
     def _right_black_up(self):
         pass
 
+
 null_key = NullKey()
+
 
 def key_class(updates, image_strip, image_rects, is_white_key=True):
     """Return a keyboard key widget class
@@ -303,7 +319,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
     # There can be up to eight key states, representing all permutations
     # of the three fundamental states of self up/down, adjacent white
     # right up/down, adjacent black up/down.
-    # 
+    #
     down_state_none = 0
     down_state_self = 1
     down_state_white = down_state_self << 1
@@ -317,19 +333,18 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
     #
     c_down_state_initial = down_state_none
     c_down_state_rect_initial = image_rects[0]
-    c_down_state_self = down_state_self
     c_updates = updates
     c_image_strip = image_strip
     c_width, c_height = image_rects[0].size
 
     # A key propagates its up/down state change to the adjacent white key on
     # the left by calling the adjacent key's _right_black_down or
-    # _right_white_down method. 
+    # _right_white_down method.
     #
     if is_white_key:
-        key_color = 'white'
+        key_color = "white"
     else:
-        key_color = 'black'
+        key_color = "black"
     c_notify_down_method = "_right_%s_down" % key_color
     c_notify_up_method = "_right_%s_up" % key_color
 
@@ -349,64 +364,68 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
     # Each 'c_event' dictionary maps the current key state to a new key state,
     # along with corresponding image, for the related event. If no redrawing
     # is required for the state change then the image rect is simply None.
-    # 
+    #
     c_event_down = {down_state_none: (down_state_self, image_rects[1])}
     c_event_up = {down_state_self: (down_state_none, image_rects[0])}
     c_event_right_white_down = {
         down_state_none: (down_state_none, None),
-        down_state_self: (down_state_self, None)}
+        down_state_self: (down_state_self, None),
+    }
     c_event_right_white_up = c_event_right_white_down.copy()
     c_event_right_black_down = c_event_right_white_down.copy()
     c_event_right_black_up = c_event_right_white_down.copy()
     if len(image_rects) > 2:
-        c_event_down[down_state_white] = (
-            down_state_self_white, image_rects[2])
+        c_event_down[down_state_white] = (down_state_self_white, image_rects[2])
         c_event_up[down_state_self_white] = (down_state_white, image_rects[0])
         c_event_right_white_down[down_state_none] = (down_state_white, None)
         c_event_right_white_down[down_state_self] = (
-            down_state_self_white, image_rects[2])
+            down_state_self_white,
+            image_rects[2],
+        )
         c_event_right_white_up[down_state_white] = (down_state_none, None)
         c_event_right_white_up[down_state_self_white] = (
-            down_state_self, image_rects[1])
-        c_event_right_black_down[down_state_white] = (
-            down_state_white, None)
-        c_event_right_black_down[down_state_self_white] = (
-            down_state_self_white, None)
-        c_event_right_black_up[down_state_white] = (
-            down_state_white, None)
-        c_event_right_black_up[down_state_self_white] = (
-            down_state_self_white, None)
+            down_state_self,
+            image_rects[1],
+        )
+        c_event_right_black_down[down_state_white] = (down_state_white, None)
+        c_event_right_black_down[down_state_self_white] = (down_state_self_white, None)
+        c_event_right_black_up[down_state_white] = (down_state_white, None)
+        c_event_right_black_up[down_state_self_white] = (down_state_self_white, None)
     if len(image_rects) > 3:
-        c_event_down[down_state_black] = (
-            down_state_self_black, image_rects[4])
+        c_event_down[down_state_black] = (down_state_self_black, image_rects[4])
         c_event_down[down_state_white_black] = (down_state_all, image_rects[5])
         c_event_up[down_state_self_black] = (down_state_black, image_rects[3])
         c_event_up[down_state_all] = (down_state_white_black, image_rects[3])
-        c_event_right_white_down[down_state_black] = (
-            down_state_white_black, None)
+        c_event_right_white_down[down_state_black] = (down_state_white_black, None)
         c_event_right_white_down[down_state_self_black] = (
-            down_state_all, image_rects[5])
-        c_event_right_white_up[down_state_white_black] = (
-            down_state_black, None)
-        c_event_right_white_up[down_state_all] = (
-            down_state_self_black, image_rects[4])
-        c_event_right_black_down[down_state_none] = (
-            down_state_black, image_rects[3])
+            down_state_all,
+            image_rects[5],
+        )
+        c_event_right_white_up[down_state_white_black] = (down_state_black, None)
+        c_event_right_white_up[down_state_all] = (down_state_self_black, image_rects[4])
+        c_event_right_black_down[down_state_none] = (down_state_black, image_rects[3])
         c_event_right_black_down[down_state_self] = (
-            down_state_self_black, image_rects[4])
+            down_state_self_black,
+            image_rects[4],
+        )
         c_event_right_black_down[down_state_white] = (
-            down_state_white_black, image_rects[3])
+            down_state_white_black,
+            image_rects[3],
+        )
         c_event_right_black_down[down_state_self_white] = (
-            down_state_all, image_rects[5])
-        c_event_right_black_up[down_state_black] = (
-            down_state_none, image_rects[0])
+            down_state_all,
+            image_rects[5],
+        )
+        c_event_right_black_up[down_state_black] = (down_state_none, image_rects[0])
         c_event_right_black_up[down_state_self_black] = (
-            down_state_self, image_rects[1])
+            down_state_self,
+            image_rects[1],
+        )
         c_event_right_black_up[down_state_white_black] = (
-            down_state_white, image_rects[0])
-        c_event_right_black_up[down_state_all] = (
-            down_state_self_white, image_rects[2])
-
+            down_state_white,
+            image_rects[0],
+        )
+        c_event_right_black_up[down_state_all] = (down_state_self_white, image_rects[2])
 
     class Key(object):
         """A key widget, maintains key state and draws the key's image
@@ -427,7 +446,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
 
         is_white = is_white_key
 
-        def __init__(self, ident, posn, key_left = None):
+        def __init__(self, ident, posn, key_left=None):
             """Return a new Key instance
 
             The initial state is up, with all adjacent keys to the right also
@@ -436,7 +455,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             """
             if key_left is None:
                 key_left = null_key
-            rect = Rect(posn[0], posn[1], c_width, c_height)
+            rect = pg.Rect(posn[0], posn[1], c_width, c_height)
             self.rect = rect
             self._state = c_down_state_initial
             self._source_rect = c_down_state_rect_initial
@@ -445,13 +464,12 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             self._notify_down = getattr(key_left, c_notify_down_method)
             self._notify_up = getattr(key_left, c_notify_up_method)
             self._key_left = key_left
-            self._background_rect = Rect(rect.left, rect.bottom - 10,
-                                         c_width, 10)
+            self._background_rect = pg.Rect(rect.left, rect.bottom - 10, c_width, 10)
             c_updates.add(self)
 
         def down(self):
             """Signal that this key has been depressed (is down)"""
-            
+
             self._state, source_rect = c_event_down[self._state]
             if source_rect is not None:
                 self._source_rect = source_rect
@@ -460,7 +478,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
 
         def up(self):
             """Signal that this key has been released (is up)"""
-            
+
             self._state, source_rect = c_event_up[self._state]
             if source_rect is not None:
                 self._source_rect = source_rect
@@ -474,7 +492,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             key instances.
 
             """
-            
+
             self._state, source_rect = c_event_right_white_down[self._state]
             if source_rect is not None:
                 self._source_rect = source_rect
@@ -487,7 +505,7 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             key instances.
 
             """
-            
+
             self._state, source_rect = c_event_right_white_up[self._state]
             if source_rect is not None:
                 self._source_rect = source_rect
@@ -521,19 +539,18 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
 
         def __eq__(self, other):
             """True if same identifiers"""
-            
+
             return self._ident == other._ident
 
         def __hash__(self):
             """Return the immutable hash value"""
-            
+
             return self._hash
 
         def __str__(self):
             """Return the key's identifier and position as a string"""
-            
-            return ("<Key %s at (%d, %d)>" %
-                    (self._ident, self.rect.top, self.rect.left))
+
+            return "<Key %s at (%d, %d)>" % (self._ident, self.rect.top, self.rect.left)
 
         def draw(self, surf, background, dirty_rects):
             """Redraw the key on the surface surf
@@ -542,12 +559,13 @@ def key_class(updates, image_strip, image_rects, is_white_key=True):
             dirty_rects list.
 
             """
-            
+
             surf.blit(background, self._background_rect, self._background_rect)
             surf.blit(c_image_strip, self.rect, self._source_rect)
             dirty_rects.append(self.rect)
 
     return Key
+
 
 def key_images():
     """Return a keyboard keys image strip and a mapping of image locations
@@ -566,29 +584,45 @@ def key_images():
     """
 
     my_dir = os.path.split(os.path.abspath(__file__))[0]
-    strip_file = os.path.join(my_dir, 'data', 'midikeys.png')
+    strip_file = os.path.join(my_dir, "data", "midikeys.png")
     white_key_width = 42
     white_key_height = 160
     black_key_width = 22
     black_key_height = 94
-    strip = pygame.image.load(strip_file)
+    strip = pg.image.load(strip_file)
     names = [
-        'black none', 'black self',
-        'white none', 'white self', 'white self-white',
-        'white-left none', 'white-left self', 'white-left black',
-        'white-left self-black', 'white-left self-white', 'white-left all',
-        'white-center none', 'white-center self',
-        'white-center black', 'white-center self-black',
-        'white-center self-white', 'white-center all',
-        'white-right none', 'white-right self', 'white-right self-white']
+        "black none",
+        "black self",
+        "white none",
+        "white self",
+        "white self-white",
+        "white-left none",
+        "white-left self",
+        "white-left black",
+        "white-left self-black",
+        "white-left self-white",
+        "white-left all",
+        "white-center none",
+        "white-center self",
+        "white-center black",
+        "white-center self-black",
+        "white-center self-white",
+        "white-center all",
+        "white-right none",
+        "white-right self",
+        "white-right self-white",
+    ]
     rects = {}
     for i in range(2):
-        rects[names[i]] = Rect(i * white_key_width, 0,
-                               black_key_width, black_key_height)
+        rects[names[i]] = pg.Rect(
+            i * white_key_width, 0, black_key_width, black_key_height
+        )
     for i in range(2, len(names)):
-        rects[names[i]] = Rect(i * white_key_width, 0,
-                               white_key_width, white_key_height)
+        rects[names[i]] = pg.Rect(
+            i * white_key_width, 0, white_key_width, white_key_height
+        )
     return strip, rects
+
 
 class Keyboard(object):
     """Musical keyboard widget
@@ -605,8 +639,8 @@ class Keyboard(object):
 
     _image_strip, _rects = key_images()
 
-    white_key_width, white_key_height = _rects['white none'].size
-    black_key_width, black_key_height = _rects['black none'].size
+    white_key_width, white_key_height = _rects["white none"].size
+    black_key_width, black_key_height = _rects["black none"].size
 
     _updates = set()
 
@@ -615,36 +649,47 @@ class Keyboard(object):
     # of a black key (WhiteKeyLeft), white key between two black keys
     # (WhiteKeyCenter), and white key to the right of a black key
     # (WhiteKeyRight).
-    BlackKey = key_class(_updates,
-                         _image_strip,
-                         [_rects['black none'], _rects['black self']],
-                         False)
-    WhiteKey = key_class(_updates,
-                         _image_strip,
-                         [_rects['white none'],
-                          _rects['white self'],
-                          _rects['white self-white']])
-    WhiteKeyLeft = key_class(_updates,
-                             _image_strip,
-                             [_rects['white-left none'],
-                              _rects['white-left self'],
-                              _rects['white-left self-white'],
-                              _rects['white-left black'],
-                              _rects['white-left self-black'],
-                              _rects['white-left all']])
-    WhiteKeyCenter = key_class(_updates,
-                               _image_strip,
-                               [_rects['white-center none'],
-                                _rects['white-center self'],
-                                _rects['white-center self-white'],
-                                _rects['white-center black'],
-                                _rects['white-center self-black'],
-                                _rects['white-center all']])
-    WhiteKeyRight = key_class(_updates,
-                              _image_strip,
-                              [_rects['white-right none'],
-                               _rects['white-right self'],
-                               _rects['white-right self-white']])
+    BlackKey = key_class(
+        _updates, _image_strip, [_rects["black none"], _rects["black self"]], False
+    )
+    WhiteKey = key_class(
+        _updates,
+        _image_strip,
+        [_rects["white none"], _rects["white self"], _rects["white self-white"]],
+    )
+    WhiteKeyLeft = key_class(
+        _updates,
+        _image_strip,
+        [
+            _rects["white-left none"],
+            _rects["white-left self"],
+            _rects["white-left self-white"],
+            _rects["white-left black"],
+            _rects["white-left self-black"],
+            _rects["white-left all"],
+        ],
+    )
+    WhiteKeyCenter = key_class(
+        _updates,
+        _image_strip,
+        [
+            _rects["white-center none"],
+            _rects["white-center self"],
+            _rects["white-center self-white"],
+            _rects["white-center black"],
+            _rects["white-center self-black"],
+            _rects["white-center all"],
+        ],
+    )
+    WhiteKeyRight = key_class(
+        _updates,
+        _image_strip,
+        [
+            _rects["white-right none"],
+            _rects["white-right self"],
+            _rects["white-right self-white"],
+        ],
+    )
 
     def __init__(self, start_note, n_notes):
         """Return a new Keyboard instance with n_note keys"""
@@ -657,7 +702,7 @@ class Keyboard(object):
         """Populate the keyboard with key instances
 
         Set the _keys and rect attributes.
-        
+
         """
 
         # Keys are entered in a list, where index is Midi note. Since there are
@@ -689,23 +734,19 @@ class Keyboard(object):
                     if note == end_note or is_white_key(note + 1):
                         key = self.WhiteKeyRight(ident, (x, y), prev_white_key)
                     else:
-                        key = self.WhiteKeyCenter(ident,
-                                                  (x, y),
-                                                  prev_white_key)
+                        key = self.WhiteKeyCenter(ident, (x, y), prev_white_key)
                 is_prev_white = True
                 x += self.white_key_width
                 prev_white_key = key
             else:
-                key = self.BlackKey(ident,
-                                    (x - black_offset, y),
-                                    prev_white_key)
+                key = self.BlackKey(ident, (x - black_offset, y), prev_white_key)
                 is_prev_white = False
             key_map[note] = key
         self._keys = key_map
 
         kb_width = key_map[self._end_note].rect.right
         kb_height = self.white_key_height
-        self.rect = Rect(0, 0, kb_width, kb_height)
+        self.rect = pg.Rect(0, 0, kb_width, kb_height)
 
     def map_regions(self, regions):
         """Draw the key regions onto surface regions.
@@ -732,7 +773,7 @@ class Keyboard(object):
 
     def draw(self, surf, background, dirty_rects):
         """Redraw all altered keyboard keys"""
-        
+
         changed_keys = self._updates
         while changed_keys:
             changed_keys.pop().draw(surf, background, dirty_rects)
@@ -746,6 +787,7 @@ class Keyboard(object):
         """Signal a key up event for note"""
 
         self._keys[note].up()
+
 
 def fill_region(regions, note, rect, cutoff):
     """Fill the region defined by rect with a (note, velocity, 0) color
@@ -761,27 +803,40 @@ def fill_region(regions, note, rect, cutoff):
     if cutoff is None:
         cutoff = height
     delta_height = cutoff // 3
-    regions.fill((note, 42, 0),
-                 (x, y, width, delta_height))
-    regions.fill((note, 84, 0),
-                 (x, y + delta_height, width, delta_height))
-    regions.fill((note, 127, 0),
-                 (x, y + 2 * delta_height, width, height - 2 * delta_height))
-    
+    regions.fill((note, 42, 0), (x, y, width, delta_height))
+    regions.fill((note, 84, 0), (x, y + delta_height, width, delta_height))
+    regions.fill(
+        (note, 127, 0), (x, y + 2 * delta_height, width, height - 2 * delta_height)
+    )
+
+
 def is_white_key(note):
     """True if note is represented by a white key"""
-    
-    key_pattern = [True, False, True, True, False, True,
-                   False, True, True, False, True, False]
+
+    key_pattern = [
+        True,
+        False,
+        True,
+        True,
+        False,
+        True,
+        False,
+        True,
+        True,
+        False,
+        True,
+        False,
+    ]
     return key_pattern[(note - 21) % len(key_pattern)]
 
 
 def usage():
-    print ("--input [device_id] : Midi message logger")
-    print ("--output [device_id] : Midi piano keyboard")
-    print ("--list : list available midi devices")
+    print("--input [device_id] : Midi message logger")
+    print("--output [device_id] : Midi piano keyboard")
+    print("--list : list available midi devices")
 
-def main(mode='output', device_id=None):
+
+def main(mode="output", device_id=None):
     """Run a Midi example
 
     Arguments:
@@ -794,20 +849,21 @@ def main(mode='output', device_id=None):
 
     """
 
-    if mode == 'input':
+    if mode == "input":
         input_main(device_id)
-    elif mode == 'output':
+    elif mode == "output":
         output_main(device_id)
-    elif mode == 'list':
+    elif mode == "list":
         print_device_info()
     else:
         raise ValueError("Unknown mode option '%s'" % mode)
-                
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
 
     try:
-        device_id = int( sys.argv[-1] )
-    except:
+        device_id = int(sys.argv[-1])
+    except ValueError:
         device_id = None
 
     if "--input" in sys.argv or "-i" in sys.argv:
