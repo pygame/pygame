@@ -1828,7 +1828,7 @@ class RectTypeTest(unittest.TestCase):
 
         collide_item1 = ("collide 1", neg_rect.copy())
         collide_item2 = ("collide 2", Rect(0, 0, 20, 20))
-        no_collide_item1 = ("no collide 1", Rect(1, 1, 20, 20))
+        no_collide_item1 = ("no collide 1", Rect(2, 2, 20, 20))
 
         # Dict to check collisions with values.
         rect_values = dict((collide_item1, collide_item2, no_collide_item1))
