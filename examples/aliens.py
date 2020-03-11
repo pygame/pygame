@@ -244,7 +244,7 @@ def main(winstyle=0):
     pg.init()
     if pg.mixer and not pg.mixer.get_init():
         print("Warning, no sound")
-        pg.mixer = None
+        # pg.mixer = None
     pg.mixer = None
 
     fullscreen = False
