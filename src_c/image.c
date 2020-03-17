@@ -1056,9 +1056,9 @@ image_frombuffer(PyObject *self, PyObject *arg)
         surf =
             SDL_CreateRGBSurfaceFrom(data, w, h, 32, w * 4,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                     0xFF << 24, 0xFF, 0xFF << 8, 0xFF << 16);
+                                    0xFF << 8, 0xFF << 16, 0xFF << 24, 0xFF);
 #else
-                                     0xFF, 0xFF << 24, 0xFF << 16, 0xFF << 8);
+                                    0xFF << 16, 0xFF << 8, 0xFF, 0xFF << 24);
 #endif
         surf->flags |= SDL_SRCALPHA;
     }
