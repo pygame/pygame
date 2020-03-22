@@ -1348,8 +1348,14 @@ set_num_channels(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
     if (numchans > numchanneldata) {
+        struct ChannelData *cd_org = channeldata;
         channeldata = (struct ChannelData *)realloc(
             channeldata, sizeof(struct ChannelData) * numchans);
+        if (!channeldata) {
+            /* Restore the original to avoid leaking it */
+            channeldata = cd_org;
+            return PyErr_NoMemory();
+        }
         for (i = numchanneldata; i < numchans; ++i) {
             channeldata[i].sound = NULL;
             channeldata[i].queue = NULL;
