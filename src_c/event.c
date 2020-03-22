@@ -1410,7 +1410,11 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        PyList_Append(list, e);
+        if (0 != PyList_Append(list, e)) {
+            Py_DECREF(list);
+            Py_DECREF(e);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(e);
     }
     return list;
@@ -1422,9 +1426,13 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
     PyObject *e = pgEvent_New(event);
     if (!e) {
         Py_DECREF(list);
-        return 0;
+        return 0; /* Exception already set. */
     }
-    PyList_Append(list, e);
+    if (0 != PyList_Append(list, e)) {
+        Py_DECREF(e);
+        Py_DECREF(list);
+        return 0; /* Exception already set. */
+    }
     Py_DECREF(e);
     return 1;
 }

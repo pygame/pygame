@@ -95,7 +95,10 @@ pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
         Py_DECREF(ref);
         return 0;
     }
-    PyList_Append(surf->locklist, ref);
+    if (0 != PyList_Append(surf->locklist, ref)) {
+        Py_DECREF(ref);
+        return 0; /* Exception already set. */
+    }
     Py_DECREF(ref);
 
     if (surf->subsurface != NULL) {

@@ -1354,7 +1354,11 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(list);
             return NULL;
         }
-        PyList_Append(list, size);
+        if (0 != PyList_Append(list, size)) {
+            Py_DECREF(list);
+            Py_DECREF(size);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(size);
     }
     return list;
@@ -1586,7 +1590,11 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(list);
             return NULL;
         }
-        PyList_Append(list, size);
+        if (0 != PyList_Append(list, size)) {
+            Py_DECREF(list);
+            Py_DECREF(size);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(size);
     }
     return list;

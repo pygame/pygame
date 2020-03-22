@@ -241,7 +241,12 @@ pg_RegisterQuit(void (*func)(void))
     }
     if (func) {
         PyObject *obj = PyCapsule_New(func, "quit", NULL);
-        PyList_Append(pg_quit_functions, obj);
+        if (!obj) {
+            return;
+        }
+        /* There is no difference between success and error
+           for PyList_Append in this case */
+        (void)PyList_Append(pg_quit_functions, obj);
         Py_DECREF(obj);
     }
 }
@@ -255,7 +260,9 @@ pg_register_quit(PyObject *self, PyObject *value)
             return NULL;
         }
     }
-    PyList_Append(pg_quit_functions, value);
+    if (0 != PyList_Append(pg_quit_functions, value)) {
+        return NULL; /* Exception already set */
+    }
 
     Py_RETURN_NONE;
 }

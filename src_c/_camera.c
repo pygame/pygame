@@ -166,7 +166,16 @@ list_cameras(PyObject *self, PyObject *arg)
 
     for (i = 0; i < num_devices; i++) {
         string = Text_FromUTF8(devices[i]);
-        PyList_Append(ret_list, string);
+        if (0 != PyList_Append(ret_list, string)) {
+            /* Append failed; clean up and return */
+            Py_DECREF(ret_list);
+            Py_DECREF(string);
+            for (; i < num_devices ; i++) {
+                free(devices[i]);
+            }
+            free(devices);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(string);
         free(devices[i]);
     }
