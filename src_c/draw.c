@@ -284,6 +284,12 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     ylist = PyMem_New(float, length);
 
     if (NULL == xlist || NULL == ylist) {
+        if (xlist) {
+            PyMem_Del(xlist);
+        }
+        if (ylist) {
+            PyMem_Del(ylist);
+        }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw aalines");
     }
@@ -407,6 +413,12 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
     ylist = PyMem_New(int, length);
 
     if (NULL == xlist || NULL == ylist) {
+        if (xlist) {
+            PyMem_Del(xlist);
+        }
+        if (ylist) {
+            PyMem_Del(ylist);
+        }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw lines");
     }
@@ -786,6 +798,12 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     ylist = PyMem_New(int, length);
 
     if (NULL == xlist || NULL == ylist) {
+        if (xlist) {
+            PyMem_Del(xlist);
+        }
+        if (ylist) {
+            PyMem_Del(ylist);
+        }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw polygon");
     }
