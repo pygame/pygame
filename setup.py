@@ -656,6 +656,21 @@ PACKAGEDATA = {
        "data_files":  data_files,
        "zip_safe":  False,
 }
+if STRIPPED:
+    PACKAGEDATA = {
+       "cmdclass":    cmdclass,
+       "packages":    ['pygame',
+                       'pygame.threads',
+                       'pygame._sdl2'],
+       "package_dir": {'pygame': 'src_py',
+                       'pygame._sdl2': 'src_py/_sdl2',
+                       'pygame.threads': 'src_py/threads'},
+       "headers":     headers,
+       "ext_modules": extensions,
+       "data_files":  data_files,
+       "zip_safe":  False,
+    }
+    
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
 
