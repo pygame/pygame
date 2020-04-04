@@ -950,6 +950,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                              "Cannot set 0 sized SCALED display mode");
         }
 
+        if (flags & PGS_HWSURFACE)
+            PyErr_WarnEx(PyExc_DeprecationWarning, "Hardware surfaces are a thing of the past. Use _sdl2.Texture instead", 1);
         if (flags & PGS_OPENGL)
             sdl_flags |= SDL_WINDOW_OPENGL;
         if (flags & PGS_NOFRAME)
@@ -969,6 +971,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             }
             else
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+        }
+        else {
+            if (flags & PGS_DOUBLEBUF)
+                PyErr_WarnEx(PyExc_RuntimeWarning, "ignoring DOUBLEBUF flag", 1);
         }
 
 #pragma PG_WARN(Not setting bpp ?)
@@ -1321,6 +1327,8 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
 
     VIDEO_INIT_CHECK();
 
+    PyErr_WarnEx(PyExc_PendingDeprecationWarning, "pygame.display.list_modes is deprecated in favour of pygame.display.get_desktop_sizes()", 1);
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|bii", keywords, &bpp,
                                      &flags, &display_index)) {
         return NULL;
@@ -1338,6 +1346,10 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
         if (SDL_GetCurrentDisplayMode(display_index, &curmode))
             return RAISE(pgExc_SDLError, SDL_GetError());
         bpp = SDL_BITSPERPIXEL(curmode.format);
+    }
+
+    if (!(flags&PGS_FULLSCREEN)){
+        PyErr_WarnEx(PyExc_RuntimeWarning, "using list_modes for windowed mode", 1);
     }
 
     nummodes = SDL_GetNumDisplayModes(display_index);
@@ -2289,6 +2301,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 #if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
 #endif
+            PyErr_WarnEx(PyExc_RuntimeWarning, "cannot toggle fullscreen on this platform", 1);
             return PyInt_FromLong(-1);
 
             // Untested and unsupported platforms
@@ -2407,6 +2420,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
              * desktop resolution in SDL 2.0.8 (unsure about other versions).
              * The display surface gets messed up, so we re-create the window.
              * This is only relevant in the non-GL case. */
+            PyErr_WarnEx(PyExc_RuntimeWarning, "Destroying and re-creating X11 window", 1);
             int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
@@ -2489,6 +2503,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             display_surface->surf = SDL_GetWindowSurface(win);
         }
         else if (wm_info.subsystem == SDL_SYSWM_WAYLAND) {
+            PyErr_WarnEx(PyExc_RuntimeWarning, "Not even trying toggle fullscreen on Wayland", 1);
             return PyInt_FromLong(-1);
         }
         else {
@@ -2496,11 +2511,15 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             if (result != 0) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
+            PyErr_WarnEx(PyExc_RuntimeWarning, "Changing physical display resolution", 1);
+
             display_surface->surf = SDL_GetWindowSurface(win);
             if (w != display_surface->surf->w ||
                 h != display_surface->surf->h) {
                 int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+                PyErr_WarnEx(PyExc_RuntimeWarning, "Destroying and re-creating window", 1);
+
                 win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
                 if (win == NULL) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
