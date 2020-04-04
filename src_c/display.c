@@ -1130,6 +1130,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 if (pg_renderer == NULL) {
                     SDL_RendererInfo info;
 
+                    SDL_SetWindowMinimumSize(win, w, h);
                     SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY,
                                             "nearest", SDL_HINT_DEFAULT);
                     if (vsync){
@@ -1143,10 +1144,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         return RAISE(pgExc_SDLError, "failed to create renderer");
                     }
 
-
-
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
-                    SDL_SetWindowMinimumSize(win, w, h);
 
                     SDL_GetRendererInfo(pg_renderer, &info);
                     if (vsync && !(info.flags & SDL_RENDERER_PRESENTVSYNC)) {
@@ -1155,7 +1153,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                     if (!(info.flags & SDL_RENDERER_ACCELERATED)) {
                         PyErr_WarnEx(PyExc_Warning, "no fast renderer available" ,1);
                     }
-
 
                     pg_texture = SDL_CreateTexture(
                         pg_renderer, SDL_PIXELFORMAT_ARGB8888,
@@ -2253,6 +2250,26 @@ pg_get_desktop_screen_sizes(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_is_fullscreen(PyObject *self, PyObject *args)
+{
+    SDL_Window *win = pg_GetDefaultWindow();
+    PyObject *result;
+    int flags;
+
+    VIDEO_INIT_CHECK();
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    flags = SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+    if (flags & SDL_WINDOW_FULLSCREEN)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+
+}
+
+static PyObject *
 pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     SDL_Window *win = pg_GetDefaultWindow();
@@ -2367,7 +2384,8 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             }
             SDL_SetWindowSize(win, w * scale, h * scale);
 
-            if (r_info.flags & SDL_RENDERER_SOFTWARE) {
+            if (r_info.flags & SDL_RENDERER_SOFTWARE && wm_info.subsystem == SDL_SYSWM_X11) {
+                PyErr_WarnEx(PyExc_Warning, "recreating software renderer in toggle_fullscreen" ,1);
                 /* display surface lost? */
                 SDL_DestroyTexture(pg_texture);
                 SDL_DestroyRenderer(pg_renderer);
@@ -2426,10 +2444,10 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             /* This is a HACK, specifically to work around faulty behaviour of
              * SDL_SetWindowFullscreen on X11 when switching out of fullscreen
              * would change the physical resolution of the display back to the
-             * desktop resolution in SDL 2.0.8 (unsure about other versions).
+             * desktop resolution as of SDL 2.0.12.
              * The display surface gets messed up, so we re-create the window.
              * This is only relevant in the non-GL case.
-             * TODO: This behaviour will be changed/fixed in SDL 2.0.12,
+             * TODO: This behaviour might be changed/fixed in the future
              * we need to add conditionals **/
             int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
@@ -2466,9 +2484,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             if (result != 0) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
-            if (r_info.flags & SDL_RENDERER_SOFTWARE) {
+
+            if (r_info.flags & SDL_RENDERER_SOFTWARE && wm_info.subsystem == SDL_SYSWM_X11) {
+                PyErr_WarnEx(PyExc_Warning, "recreating software renderer in toggle_fullscreen" ,1);
+
                 /* display surface lost? only on x11? */
-                /* TODO: Investigate in SDL 2.0.12 */
                 SDL_DestroyTexture(pg_texture);
                 SDL_DestroyRenderer(pg_renderer);
                 pg_renderer =
@@ -2774,6 +2794,8 @@ static PyMethodDef _pg_display_methods[] = {
     {"_get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info,
      METH_NOARGS, "provisional API, subject to change"},
     {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes,
+     METH_NOARGS, "provisional API, subject to change"},
+    {"is_fullscreen", (PyCFunction)pg_is_fullscreen,
      METH_NOARGS, "provisional API, subject to change"},
 #endif
 
