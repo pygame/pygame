@@ -1784,8 +1784,13 @@ pg_event_post(PyObject *self, PyObject *args)
             }
             event.key.windowID = PyLong_AsLong(event_window_ID);
         }
-    } else {
+    }
+    else if (e->type >= PGE_USEREVENT && e->type < PG_NUMEVENTS) {
         if (pgEvent_FillUserEvent(e, &event))
+            return NULL;
+    }
+    else {
+         if (pgEvent_FillUserEvent(e, &event))
             return NULL;
     }
 #if IS_SDLv1
