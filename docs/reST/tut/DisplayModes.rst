@@ -114,7 +114,7 @@ or you can call
 to find a closest matching bit depth to what you need.
 
 When your display mode is windowed,
-you usually must math the same bit depth as the desktop.
+you usually must match the same bit depth as the desktop.
 When you are fullscreen, some platforms can switch to any bit depth that
 best suits your needs.
 You can find the depth of the current desktop if you get a VidInfo object
