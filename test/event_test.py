@@ -275,6 +275,17 @@ class EventModuleTest(unittest.TestCase):
                 pygame.event.poll().type, EVENT_TYPES[i], race_condition_notification
             )
 
+    def test_post_and_get_keydown(self):
+        """Ensure keydown events can be posted to the queue."""
+        surf = pygame.display.set_mode((10, 10))
+        pygame.event.get()
+        e1 = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a)
+        pygame.event.post(e1)
+        posted_event = pygame.event.poll()
+        self.assertEqual(e1.type, posted_event.type, race_condition_notification)
+        self.assertEqual(e1.type, pygame.KEYDOWN, race_condition_notification)
+        self.assertEqual(e1.key, posted_event.key, race_condition_notification)
+
     def test_post_large_user_event(self):
         pygame.event.post(pygame.event.Event(pygame.USEREVENT, {"a": "a" * 1024}))
         e = pygame.event.poll()
