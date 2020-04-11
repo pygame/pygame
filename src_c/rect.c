@@ -669,10 +669,16 @@ pg_rect_collidelistall(pgRectObject *self, PyObject *args)
         if (_pg_do_rects_intersect(&self->r, argrect)) {
             PyObject *num = PyInt_FromLong(loop);
             if (!num) {
+                Py_DECREF(ret);
                 Py_DECREF(obj);
                 return NULL;
             }
-            PyList_Append(ret, num);
+            if (0 != PyList_Append(ret, num)) {
+                Py_DECREF(ret);
+                Py_DECREF(num);
+                Py_DECREF(obj);
+                return NULL; /* Exception already set. */
+            }
             Py_DECREF(num);
         }
         Py_DECREF(obj);
@@ -761,9 +767,15 @@ pg_rect_collidedictall(pgRectObject *self, PyObject *args)
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
             PyObject *num = Py_BuildValue("(OO)", key, val);
-            if (!num)
+            if (!num) {
+                Py_DECREF(ret);
                 return NULL;
-            PyList_Append(ret, num);
+            }
+            if (0 != PyList_Append(ret, num)) {
+               Py_DECREF(ret);
+               Py_DECREF(num);
+               return NULL; /* Exception already set. */
+            }
             Py_DECREF(num);
         }
     }
