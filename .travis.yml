@@ -43,41 +43,43 @@ jobs:
 
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
-    - os: osx
-      osx_image: xcode7.3
-      language: generic
-      env:
-        - PY_VERSION=3
-        - PY_VERSION_=3.7
-        - MAKEFLAGS=-j8
-        - GITHUB_UPLOAD=yes
-        - UPLOAD_WHL_PYPI=yes
-    - os: osx
-      osx_image: xcode7.3
-      language: generic
-      env:
-        - PY_VERSION=2
-        - MAKEFLAGS=-j8
-        - GITHUB_UPLOAD=yes
-        - UPLOAD_WHL_PYPI=yes
-    - os: osx
-      osx_image: xcode7.3
-      language: generic
-      env:
-        - PY_VERSION=3
-        - PY_VERSION_=3.6
-        - MAKEFLAGS=-j8
-        - GITHUB_UPLOAD=yes
-        - UPLOAD_WHL_PYPI=yes
-    - os: osx
-      osx_image: xcode7.3
-      language: generic
-      env:
-        - PY_VERSION=3
-        - PY_VERSION_=3.8
-        - MAKEFLAGS=-j8
-        - GITHUB_UPLOAD=yes
-        - UPLOAD_WHL_PYPI=yes
+    # Note: None of these work at the moment (see #1606)
+
+    # - os: osx
+    #   osx_image: xcode7.3
+    #   language: generic
+    #   env:
+    #     - PY_VERSION=3
+    #     - PY_VERSION_=3.7
+    #     - MAKEFLAGS=-j8
+    #     - GITHUB_UPLOAD=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    # - os: osx
+    #   osx_image: xcode7.3
+    #   language: generic
+    #   env:
+    #     - PY_VERSION=2
+    #     - MAKEFLAGS=-j8
+    #     - GITHUB_UPLOAD=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    # - os: osx
+    #   osx_image: xcode7.3
+    #   language: generic
+    #   env:
+    #     - PY_VERSION=3
+    #     - PY_VERSION_=3.6
+    #     - MAKEFLAGS=-j8
+    #     - GITHUB_UPLOAD=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    # - os: osx
+    #   osx_image: xcode7.3
+    #   language: generic
+    #   env:
+    #     - PY_VERSION=3
+    #     - PY_VERSION_=3.8
+    #     - MAKEFLAGS=-j8
+    #     - GITHUB_UPLOAD=yes
+    #     - UPLOAD_WHL_PYPI=yes
 
     # - os: osx
     #   osx_image: xcode7.3
