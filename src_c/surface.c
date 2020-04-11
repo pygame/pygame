@@ -2289,16 +2289,18 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             goto bliterror;
         }
         bliterrornum = 0;
-        srcobject = NULL;
-        argpos = NULL;
         argrect = NULL;
         special_flags = NULL;
         the_args = 0;
-        if (itemlength >= 2) {
-            /* (Surface, dest) */
-            srcobject = PySequence_GetItem(item, 0);
-            argpos = PySequence_GetItem(item, 1);
-        }
+
+        /* We know that there will be at least two items due to the
+           conditional at the start of the loop */
+        assert(itemlength >= 2);
+
+        /* (Surface, dest) */
+        srcobject = PySequence_GetItem(item, 0);
+        argpos = PySequence_GetItem(item, 1);
+
         if (itemlength >= 3) {
             /* (Surface, dest, area) */
             argrect = PySequence_GetItem(item, 2);
