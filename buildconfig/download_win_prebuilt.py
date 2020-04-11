@@ -233,12 +233,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_ttf-devel-2.0.14-VC/SDL2_ttf-2.0.14'
+                'SDL2_ttf-devel-2.0.15-VC/SDL2_ttf-2.0.15'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_ttf-2.0.14'
+                'SDL2_ttf-2.0.15'
             )
         )
         copy(
