@@ -3379,7 +3379,7 @@ _get_buffer_1D(PyObject *obj, Py_buffer *view_p, int flags)
                 /* Should not be here */
                 PyErr_Format(PyExc_SystemError,
                              "Pygame bug caught at line %i in file %s: "
-                             "unknown pixel size %i. Please report",
+                             "unknown pixel size %zd. Please report",
                              (int)__LINE__, __FILE__, itemsize);
                 return -1;
 #endif
