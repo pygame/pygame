@@ -82,6 +82,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sg:`stop() -> None`
 
    Stops the music playback if it is currently playing.
+   It Won't Unload the music.
 
    .. ## pygame.mixer.music.stop ##
 
