@@ -2141,6 +2141,10 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w,
          * sdlrect.h); */
 
+        if (sdlrect.w <=0 || sdlrect.h <=0) {
+            return pgRect_New(&sdlrect);
+        }
+
         if (blendargs != 0) {
             /*
             printf ("Using blendargs: %d\n", blendargs);
