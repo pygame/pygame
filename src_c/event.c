@@ -348,14 +348,12 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
-#if IS_SDLv2
-#ifndef NO_SDL_AUDIODEVICE
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
-#endif
-#endif
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
@@ -581,12 +579,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "gain", PyInt_FromLong(gain));
             _pg_insobj(dict, "state", PyInt_FromLong(state));
             break;
-#ifndef NO_SDL_AUDIODEVICE
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(&event->adevice.which));
-            _pg_insobj(dict, "iscapture", PyInt_FromLong(&event->adevice.iscapture));
-#endif
+            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));
+            _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
             break;
         case SDL_KEYDOWN:
             _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
