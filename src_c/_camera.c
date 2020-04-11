@@ -1804,6 +1804,10 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (cameraobj) {
         cameraobj->device_name =
             (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
+        if (!cameraobj->device_name) {
+            Py_DECREF(cameraobj);
+            return PyErr_NoMemory();
+        }
         strcpy(cameraobj->device_name, dev_name);
         cameraobj->camera_type = 0;
         cameraobj->pixelformat = 0;
@@ -1851,6 +1855,10 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (cameraobj) {
         cameraobj->device_name =
             (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
+        if (!cameraobj->device_name) {
+            Py_DECREF(cameraobj);
+            return PyErr_NoMemory();
+        }
         strcpy(cameraobj->device_name, dev_name);
         if (color) {
             if (!strcmp(color, "YUV")) {

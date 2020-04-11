@@ -920,6 +920,10 @@ pg_event_str(PyObject *self)
     size = (11 + strlen(_pg_name_from_eventtype(e->type)) + strlen(s) +
             sizeof(e->type) * 3 + 1);
     str = (char *)PyMem_Malloc(size);
+    if (!str) {
+        Py_DECREF(strobj);
+        return PyErr_NoMemory();
+    }
     sprintf(str, "<Event(%d-%s %s)>", e->type, _pg_name_from_eventtype(e->type),
             s);
 
