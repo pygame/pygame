@@ -4304,18 +4304,263 @@ class MaskTypeTest(unittest.TestCase):
 
         to_surface.unlock()
 
-    def todo_test_to_surface__setcolor(self):
-        # Colors and alphas.
-        self.fail()
+    def test_to_surface__surface_color_alphas(self):
+        """Ensures the setsurface/unsetsurface color alpha values are respected.
+        """
+        size = (13, 17)
+        setsurface_color = pygame.Color("green")
+        setsurface_color.a = 53
+        unsetsurface_color = pygame.Color("blue")
+        unsetsurface_color.a = 109
 
-    def todo_test_to_surface__unsetcolor(self):
-        # Colors and alphas.
-        self.fail()
+        setsurface = pygame.Surface(size, flags=SRCALPHA, depth=32)
+        unsetsurface = pygame.Surface(size, flags=SRCALPHA, depth=32)
 
-    def todo_test_to_surface__surface_format(self):
-        # Different bpp/bitsize/alpha format for
-        # surface/setsurface/unsetsurface.
-        self.fail()
+        setsurface.fill(setsurface_color)
+        unsetsurface.fill(unsetsurface_color)
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            expected_color = setsurface_color if fill else unsetsurface_color
+
+            to_surface = mask.to_surface(
+                setsurface=setsurface, unsetsurface=unsetsurface
+            )
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__color_alphas(self):
+        """Ensures the setcolor/unsetcolor alpha values are respected."""
+        size = (13, 17)
+        setcolor = pygame.Color("green")
+        setcolor.a = 35
+        unsetcolor = pygame.Color("blue")
+        unsetcolor.a = 213
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            expected_color = setcolor if fill else unsetcolor
+
+            to_surface = mask.to_surface(setcolor=setcolor, unsetcolor=unsetcolor)
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__depths(self):
+        """Ensures to_surface works correctly with supported surface depths."""
+        size = (13, 17)
+        surface_color = pygame.Color("red")
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+
+        for depth in (8, 16, 24, 32):
+            surface = pygame.Surface(size, depth=depth)
+            setsurface = pygame.Surface(size, depth=depth)
+            unsetsurface = pygame.Surface(size, depth=depth)
+
+            surface.fill(surface_color)
+            setsurface.fill(setsurface_color)
+            unsetsurface.fill(unsetsurface_color)
+
+            for fill in (True, False):
+                mask = pygame.mask.Mask(size, fill=fill)
+
+                # For non-32 bit depths, the actual color can be different from
+                # what was filled.
+                expected_color = (
+                    setsurface.get_at((0, 0)) if fill else unsetsurface.get_at((0, 0))
+                )
+
+                to_surface = mask.to_surface(surface, setsurface, unsetsurface)
+
+                self.assertIsInstance(to_surface, pygame.Surface)
+                self.assertEqual(to_surface.get_size(), size)
+                assertSurfaceFilled(self, to_surface, expected_color)
+
+    def test_to_surface__different_depths(self):
+        """Ensures an exception is raised when surfaces have different depths.
+        """
+        size = (13, 17)
+        surface_color = pygame.Color("red")
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+        mask = pygame.mask.Mask(size)
+
+        # Test different combinations of depths.
+        test_depths = (
+            (8, 8, 16),  # surface/setsurface/unsetsurface
+            (8, 8, 24),
+            (8, 8, 32),
+            (16, 16, 24),
+            (16, 16, 32),
+            (24, 16, 8),
+            (32, 16, 16),
+            (32, 32, 16),
+            (32, 24, 32),
+        )
+
+        for depths in test_depths:
+            surface = pygame.Surface(size, depth=depths[0])
+            setsurface = pygame.Surface(size, depth=depths[1])
+            unsetsurface = pygame.Surface(size, depth=depths[2])
+
+            surface.fill(surface_color)
+            setsurface.fill(setsurface_color)
+            unsetsurface.fill(unsetsurface_color)
+
+            with self.assertRaises(ValueError):
+                to_surface = mask.to_surface(surface, setsurface, unsetsurface)
+
+    def test_to_surface__different_depths_with_created_surfaces(self):
+        """Ensures an exception is raised when surfaces have different depths
+        than the created surface.
+        """
+        size = (13, 17)
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+        mask = pygame.mask.Mask(size)
+
+        # Test different combinations of depths. The created surface always has
+        # a depth of 32.
+        test_depths = (
+            (8, 8),  # setsurface/unsetsurface
+            (16, 16),
+            (24, 24),
+            (24, 16),
+            (32, 8),
+            (32, 16),
+            (32, 24),
+            (16, 32),
+        )
+
+        for set_depth, unset_depth in test_depths:
+            setsurface = pygame.Surface(size, depth=set_depth)
+            unsetsurface = pygame.Surface(size, depth=unset_depth)
+
+            setsurface.fill(setsurface_color)
+            unsetsurface.fill(unsetsurface_color)
+
+            with self.assertRaises(ValueError):
+                to_surface = mask.to_surface(
+                    setsurface=setsurface, unsetsurface=unsetsurface
+                )
+
+    def test_to_surface__same_srcalphas(self):
+        """Ensures to_surface works correctly when the SRCALPHA flag is set or not.
+        """
+        size = (13, 17)
+        surface_color = pygame.Color("red")
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+
+        for depth in (16, 32):
+            for flags in (0, SRCALPHA):
+                surface = pygame.Surface(size, flags=flags, depth=depth)
+                setsurface = pygame.Surface(size, flags=flags, depth=depth)
+                unsetsurface = pygame.Surface(size, flags=flags, depth=depth)
+
+                surface.fill(surface_color)
+                setsurface.fill(setsurface_color)
+                unsetsurface.fill(unsetsurface_color)
+
+                for fill in (True, False):
+                    mask = pygame.mask.Mask(size, fill=fill)
+                    expected_color = setsurface_color if fill else unsetsurface_color
+
+                    to_surface = mask.to_surface(surface, setsurface, unsetsurface)
+
+                    self.assertIsInstance(to_surface, pygame.Surface)
+                    self.assertEqual(to_surface.get_size(), size)
+                    assertSurfaceFilled(self, to_surface, expected_color)
+                    if flags:
+                        self.assertTrue(to_surface.get_flags() & flags)
+
+    def test_to_surface__same_srcalphas_with_created_surfaces(self):
+        """Ensures to_surface works correctly when it creates a surface
+        and the SRCALPHA flag is set on both setsurface and unsetsurface.
+        """
+        size = (13, 17)
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+        # The created surface always has a depth of 32 and the SRCALPHA flag set.
+        expected_flags = SRCALPHA
+
+        setsurface = pygame.Surface(size, flags=expected_flags, depth=32)
+        unsetsurface = pygame.Surface(size, flags=expected_flags, depth=32)
+
+        setsurface.fill(setsurface_color)
+        unsetsurface.fill(unsetsurface_color)
+
+        for fill in (True, False):
+            mask = pygame.mask.Mask(size, fill=fill)
+            expected_color = setsurface_color if fill else unsetsurface_color
+
+            to_surface = mask.to_surface(
+                setsurface=setsurface, unsetsurface=unsetsurface
+            )
+
+            self.assertIsInstance(to_surface, pygame.Surface)
+            self.assertEqual(to_surface.get_size(), size)
+            assertSurfaceFilled(self, to_surface, expected_color)
+            self.assertTrue(to_surface.get_flags() & expected_flags)
+
+    def test_to_surface__different_srcalphas(self):
+        """Ensures an exception is raised when surfaces have different SRCALPHA
+        flag settings.
+        """
+        size = (13, 17)
+        surface_color = pygame.Color("red")
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+        mask = pygame.mask.Mask(size)
+
+        # Test different combinations of SRCALPHA flags.
+        test_flags = (
+            (SRCALPHA, 0, 0),  # surface/setsurface/unsetsurface
+            (SRCALPHA, SRCALPHA, 0),
+            (0, SRCALPHA, SRCALPHA),
+            (0, 0, SRCALPHA),
+        )
+
+        for depth in (16, 32):
+            for flags in test_flags:
+                surface = pygame.Surface(size, flags=flags[0], depth=depth)
+                setsurface = pygame.Surface(size, flags=flags[1], depth=depth)
+                unsetsurface = pygame.Surface(size, flags=flags[2], depth=depth)
+
+                surface.fill(surface_color)
+                setsurface.fill(setsurface_color)
+                unsetsurface.fill(unsetsurface_color)
+
+                with self.assertRaises(ValueError):
+                    to_surface = mask.to_surface(surface, setsurface, unsetsurface)
+
+    def test_to_surface__different_srcalphas_with_created_surfaces(self):
+        """Ensures an exception is raised when surfaces have different SRCALPHA
+        flag settings than the created surface.
+        """
+        size = (13, 17)
+        setsurface_color = pygame.Color("green")
+        unsetsurface_color = pygame.Color("blue")
+        mask = pygame.mask.Mask(size)
+
+        for depth in (16, 32):
+            # Test different combinations of SRCALPHA flags. The created
+            # surface always has the SRCALPHA flag set.
+            for flags in ((0, 0), (SRCALPHA, 0), (0, SRCALPHA)):
+                setsurface = pygame.Surface(size, flags=flags[0], depth=depth)
+                unsetsurface = pygame.Surface(size, flags=flags[1], depth=depth)
+
+                setsurface.fill(setsurface_color)
+                unsetsurface.fill(unsetsurface_color)
+
+                with self.assertRaises(ValueError):
+                    to_surface = mask.to_surface(
+                        setsurface=setsurface, unsetsurface=unsetsurface
+                    )
 
     def test_to_surface__dest_on_surface(self):
         """Ensures dest parameters on the surface work correctly
