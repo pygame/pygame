@@ -1964,9 +1964,12 @@ pg_set_palette(PyObject *self, PyObject *args)
         }
         if (!pg_IntFromObjIndex(item, 0, &r) ||
             !pg_IntFromObjIndex(item, 1, &g) ||
-            !pg_IntFromObjIndex(item, 2, &b))
+            !pg_IntFromObjIndex(item, 2, &b)) {
+            Py_DECREF(item);
+            free((char *)colors);
             return RAISE(PyExc_TypeError,
                          "RGB sequence must contain numeric values");
+        }
 
         colors[i].r = (unsigned char)r;
         colors[i].g = (unsigned char)g;

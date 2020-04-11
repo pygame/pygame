@@ -148,8 +148,10 @@ Overlay_New(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     // Create layer with desired format
     self->cOverlay = SDL_CreateYUVOverlay(w, h, pixelformat, screen);
-    if (!self->cOverlay)
+    if (!self->cOverlay) {
+        Py_TYPE(self)->tp_free(self);
         return RAISE(pgExc_SDLError, "Cannot create overlay");
+    }
 
     self->cRect.x = 0;
     self->cRect.y = 0;
