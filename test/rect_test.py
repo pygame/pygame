@@ -1557,8 +1557,6 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertIsNone(collide_item)
 
-    # This decorator can be removed when issue #1198 is resolved.
-    @unittest.expectedFailure
     def test_collidedict__negative_sized_rects(self):
         """Ensures collidedict works correctly with negative sized rects."""
         neg_rect = Rect(1, 1, -1, -1)
@@ -1588,8 +1586,6 @@ class RectTypeTest(unittest.TestCase):
             # The detected collision could be any of the possible items.
             self.assertIn(collide_item, collide_items)
 
-    # This decorator can be removed when issue #1198 is resolved.
-    @unittest.expectedFailure
     def test_collidedict__negative_sized_rects_as_args(self):
         """Ensures collidedict works correctly with negative sized rect args.
         """
@@ -1826,15 +1822,13 @@ class RectTypeTest(unittest.TestCase):
 
             self._assertCountEqual(collide_items, expected_items)
 
-    # This decorator can be removed when issue #1198 is resolved.
-    @unittest.expectedFailure
     def test_collidedictall__negative_sized_rects(self):
         """Ensures collidedictall works correctly with negative sized rects."""
         neg_rect = Rect(2, 2, -2, -2)
 
         collide_item1 = ("collide 1", neg_rect.copy())
         collide_item2 = ("collide 2", Rect(0, 0, 20, 20))
-        no_collide_item1 = ("no collide 1", Rect(1, 1, 20, 20))
+        no_collide_item1 = ("no collide 1", Rect(2, 2, 20, 20))
 
         # Dict to check collisions with values.
         rect_values = dict((collide_item1, collide_item2, no_collide_item1))
@@ -1856,8 +1850,6 @@ class RectTypeTest(unittest.TestCase):
 
             self._assertCountEqual(collide_items, expected_items)
 
-    # This decorator can be removed when issue #1198 is resolved.
-    @unittest.expectedFailure
     def test_collidedictall__negative_sized_rects_as_args(self):
         """Ensures collidedictall works correctly with negative sized rect
         args.

@@ -354,10 +354,14 @@ _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
         return 0;
     }
 
-    // A.topleft < B.bottomright &&
-    // A.bottomright > B.topleft
-    return (A->x < B->x + B->w && A->y < B->y + B->h && A->x + A->w > B->x &&
-            A->y + A->h > B->y);
+    // A.left   < B.right  &&
+    // A.top    < A.bottom &&
+    // A.right  > B.left   &&
+    // A.bottom > b.top
+    return (MIN(A->x, A->x + A->w) < MAX(B->x, B->x + B->w) &&
+            MIN(A->y, A->y + A->h) < MAX(B->y, B->y + B->h) &&
+            MAX(A->x, A->x + A->w) > MIN(B->x, B->x + B->w) &&
+            MAX(A->y, A->y + A->h) > MIN(B->y, B->y + B->h));
 }
 
 
