@@ -314,6 +314,62 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
+static PG_INLINE void
+unpack_RGB_color(char *data, Uint32 color, SDL_PixelFormat *format) {
+    data[0] = (char)(((color & format->Rmask) >> format->Rshift) << format->Rloss);
+    data[1] = (char)(((color & format->Gmask) >> format->Gshift) << format->Gloss);
+    data[2] = (char)(((color & format->Bmask) >> format->Bshift) << format->Bloss);
+}
+
+static PG_INLINE void
+unpack_RGB_color_alpha_mult(char *data, Uint32 color, SDL_PixelFormat *format, Uint32 alpha) {
+    data[0] = (char)(
+                      (((color & format->Rmask) >> format->Rshift) << format->Rloss) *
+                      alpha / 255
+                  );
+    data[1] = (char)(
+                      (((color & format->Gmask) >> format->Gshift) << format->Gloss) *
+                      alpha / 255
+                  );
+    data[2] = (char)(
+                      (((color & format->Bmask) >> format->Bshift) << format->Bloss) *
+                      alpha / 255
+                  );
+}
+
+static PG_INLINE void
+unpack_RGBA_color_alpha_mult(char *data, Uint32 color, SDL_PixelFormat *format) {
+    Uint32 alpha = ((color & format->Amask) >> format->Ashift) << format->Aloss;
+    unpack_RGB_color_alpha_mult(data, color, format, alpha);
+    data[3] = (char)alpha;
+}
+
+static PG_INLINE void
+unpack_ARGB_color_alpha_mult(char *data, Uint32 color, SDL_PixelFormat *format) {
+    Uint32 alpha = ((color & format->Amask) >> format->Ashift) << format->Aloss;
+    data[0] = (char)alpha;
+    unpack_RGB_color_alpha_mult(data + 1, color, format, alpha);
+}
+
+
+static PG_INLINE void
+unpack_ARGB_color(char *data, Uint32 color, SDL_PixelFormat *format) {
+    if (format->Amask) {
+        data[0] = (char)(((color & format->Amask) >> format->Ashift) << format->Aloss);
+    } else {
+        data[0] = (char)255;
+    }
+    unpack_RGB_color(data + 1, color, format);
+}
+
+
+static PG_INLINE void
+unpack_color_from_palette(char *data, Uint32 color, SDL_PixelFormat *format) {
+    data[0] = (char)format->palette->colors[color].r;
+    data[1] = (char)format->palette->colors[color].g;
+    data[2] = (char)format->palette->colors[color].b;
+}
+
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
@@ -322,8 +378,7 @@ image_tostring(PyObject *self, PyObject *arg)
     SDL_Surface *surf;
     int w, h, flipped = 0;
     Py_ssize_t len;
-    Uint32 Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
-        Gloss, Bloss, Aloss;
+    Uint32 Amask, Ashift, Aloss;
     int hascolorkey;
 #if IS_SDLv1
     SDL_Surface *temp = NULL;
@@ -331,7 +386,6 @@ image_tostring(PyObject *self, PyObject *arg)
 #else  /* IS_SDLv2 */
     Uint32 color, colorkey;
 #endif /* IS_SDLv2 */
-    Uint32 alpha;
 
     if (!PyArg_ParseTuple(arg, "O!s|i", &pgSurface_Type, &surfobj, &format,
                           &flipped))
@@ -345,17 +399,8 @@ image_tostring(PyObject *self, PyObject *arg)
     }
 #endif /* IS_SDLv1 */
 
-    Rmask = surf->format->Rmask;
-    Gmask = surf->format->Gmask;
-    Bmask = surf->format->Bmask;
     Amask = surf->format->Amask;
-    Rshift = surf->format->Rshift;
-    Gshift = surf->format->Gshift;
-    Bshift = surf->format->Bshift;
     Ashift = surf->format->Ashift;
-    Rloss = surf->format->Rloss;
-    Gloss = surf->format->Gloss;
-    Bloss = surf->format->Bloss;
     Aloss = surf->format->Aloss;
 #if IS_SDLv1
     hascolorkey = (surf->flags & SDL_SRCCOLORKEY) && !Amask;
@@ -403,9 +448,7 @@ image_tostring(PyObject *self, PyObject *arg)
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[0] = (char)surf->format->palette->colors[color].r;
-                        data[1] = (char)surf->format->palette->colors[color].g;
-                        data[2] = (char)surf->format->palette->colors[color].b;
+                        unpack_color_from_palette(data, color, surf->format);
                         data += 3;
                     }
                 }
@@ -416,9 +459,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        unpack_RGB_color(data, color, surf->format);
                         data += 3;
                     }
                 }
@@ -434,9 +475,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
 #endif
                         ptr += 3;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        unpack_RGB_color(data, color, surf->format);
                         data += 3;
                     }
                 }
@@ -447,9 +486,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
+                        unpack_RGB_color(data, color, surf->format);
                         data += 3;
                     }
                 }
@@ -482,9 +519,7 @@ image_tostring(PyObject *self, PyObject *arg)
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[0] = (char)surf->format->palette->colors[color].r;
-                        data[1] = (char)surf->format->palette->colors[color].g;
-                        data[2] = (char)surf->format->palette->colors[color].b;
+                        unpack_color_from_palette(data, color, surf->format);
                         data[3] = hascolorkey ? (char)(color != colorkey) * 255
                                               : (char)255;
                         data += 4;
@@ -497,9 +532,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        unpack_RGB_color(data, color, surf->format);
                         data[3] =
                             hascolorkey
                                 ? (char)(color != colorkey) * 255
@@ -521,9 +554,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
 #endif
                         ptr += 3;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        unpack_RGB_color(data, color, surf->format);
                         data[3] =
                             hascolorkey
                                 ? (char)(color != colorkey) * 255
@@ -540,9 +571,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                        unpack_RGB_color(data, color, surf->format);
                         data[3] =
                             hascolorkey
                                 ? (char)(color != colorkey) * 255
@@ -574,10 +603,8 @@ image_tostring(PyObject *self, PyObject *arg)
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[1] = (char)surf->format->palette->colors[color].r;
-                        data[2] = (char)surf->format->palette->colors[color].g;
-                        data[3] = (char)surf->format->palette->colors[color].b;
                         data[0] = (char)255;
+                        unpack_color_from_palette(data + 1, color, surf->format);
                         data += 4;
                     }
                 }
@@ -588,12 +615,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
+                        unpack_ARGB_color(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -609,12 +631,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
 #endif
                         ptr += 3;
-                        data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
+                        unpack_ARGB_color(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -625,12 +642,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
+                        unpack_ARGB_color(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -661,17 +673,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        data[0] =
-                            (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                   alpha / 255);
-                        data[1] =
-                            (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                   alpha / 255);
-                        data[2] =
-                            (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                   alpha / 255);
-                        data[3] = (char)alpha;
+                        unpack_RGBA_color_alpha_mult(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -687,17 +689,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
 #endif
                         ptr += 3;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        data[0] =
-                            (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                   alpha / 255);
-                        data[1] =
-                            (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                   alpha / 255);
-                        data[2] =
-                            (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                   alpha / 255);
-                        data[3] = (char)alpha;
+                        unpack_RGBA_color_alpha_mult(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -708,22 +700,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        if (alpha == 0) {
-                            data[0] = data[1] = data[2] = 0;
-                        }
-                        else {
-                            data[0] =
-                                (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                       alpha / 255);
-                            data[1] =
-                                (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                       alpha / 255);
-                            data[2] =
-                                (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                       alpha / 255);
-                        }
-                        data[3] = (char)alpha;
+                        unpack_RGBA_color_alpha_mult(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -754,17 +731,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        data[1] =
-                            (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                   alpha / 255);
-                        data[2] =
-                            (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                   alpha / 255);
-                        data[3] =
-                            (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                   alpha / 255);
-                        data[0] = (char)alpha;
+                        unpack_ARGB_color_alpha_mult(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -780,17 +747,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
 #endif
                         ptr += 3;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        data[1] =
-                            (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                   alpha / 255);
-                        data[2] =
-                            (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                   alpha / 255);
-                        data[3] =
-                            (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                   alpha / 255);
-                        data[0] = (char)alpha;
+                        unpack_ARGB_color_alpha_mult(data, color, surf->format);
                         data += 4;
                     }
                 }
@@ -801,22 +758,7 @@ image_tostring(PyObject *self, PyObject *arg)
                         surf->pixels, h, surf->pitch, surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
                         color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        if (alpha == 0) {
-                            data[1] = data[2] = data[3] = 0;
-                        }
-                        else {
-                            data[1] =
-                                (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                       alpha / 255);
-                            data[2] =
-                                (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                       alpha / 255);
-                            data[3] =
-                                (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                       alpha / 255);
-                        }
-                        data[0] = (char)alpha;
+                        unpack_ARGB_color_alpha_mult(data, color, surf->format);
                         data += 4;
                     }
                 }
