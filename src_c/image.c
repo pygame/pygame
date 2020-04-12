@@ -370,6 +370,14 @@ unpack_color_from_palette(char *data, Uint32 color, SDL_PixelFormat *format) {
     data[2] = (char)format->palette->colors[color].b;
 }
 
+static PG_INLINE Uint32 read_24bit_color(const Uint8 *ptr) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    return ptr[0] | (ptr[1] << 8) | (ptr[2] << 16);
+#else
+    return ptr[2] | (ptr[1] << 8) | (ptr[0] << 16);
+#endif
+}
+
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
@@ -469,11 +477,7 @@ image_tostring(PyObject *self, PyObject *arg)
                     Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
+                        color = read_24bit_color(ptr);
                         ptr += 3;
                         unpack_RGB_color(data, color, surf->format);
                         data += 3;
@@ -548,11 +552,7 @@ image_tostring(PyObject *self, PyObject *arg)
                     Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
+                        color = read_24bit_color(ptr);
                         ptr += 3;
                         unpack_RGB_color(data, color, surf->format);
                         data[3] =
@@ -625,11 +625,7 @@ image_tostring(PyObject *self, PyObject *arg)
                     Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
+                        color = read_24bit_color(ptr);
                         ptr += 3;
                         unpack_ARGB_color(data, color, surf->format);
                         data += 4;
@@ -683,11 +679,7 @@ image_tostring(PyObject *self, PyObject *arg)
                     Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
+                        color = read_24bit_color(ptr);
                         ptr += 3;
                         unpack_RGBA_color_alpha_mult(data, color, surf->format);
                         data += 4;
@@ -741,11 +733,7 @@ image_tostring(PyObject *self, PyObject *arg)
                     Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
                                                   surf->h, flipped);
                     for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
+                        color = read_24bit_color(ptr);
                         ptr += 3;
                         unpack_ARGB_color_alpha_mult(data, color, surf->format);
                         data += 4;
