@@ -1396,6 +1396,13 @@ pg_flip_internal(_DisplayState *state)
             SDL_RenderPresent(pg_renderer);
         }
         else {
+#if IS_SDLv2
+            /* Force a re-initialization of the surface in case it
+             * has been resized to avoid "please call SDL_GetWindowSurface"
+             * errors that the programmer cannot fix
+             */
+            (void)pg_GetDefaultWindowSurface();
+#endif
             status = SDL_UpdateWindowSurface(win);
         }
     }

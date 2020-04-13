@@ -1924,6 +1924,14 @@ static PyObject *
 pg_GetDefaultWindowSurface(void)
 {
     /*return a borrowed reference*/
+    if (pg_default_window) {
+        /* With SDL2, resizing invalidates the existing surface.  Calling
+         * SDL_GetWindowSurface will recreate the surface when it is
+         * invalid (or return the current surface if it is still valid)
+         */
+        SDL_Surface *new_surface = SDL_GetWindowSurface(pg_default_window);
+        ((pgSurfaceObject *)pg_default_screen)->surf = new_surface;
+    }
     return pg_default_screen;
 }
 
