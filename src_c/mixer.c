@@ -443,9 +443,12 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
 
         if (!channeldata) /*should always be null*/
         {
-            numchanneldata = MIX_CHANNELS;
             channeldata = (struct ChannelData *)malloc(
-                sizeof(struct ChannelData) * numchanneldata);
+                sizeof(struct ChannelData) * MIX_CHANNELS);
+            if (!channeldata) {
+                return PyErr_NoMemory();
+            }
+            numchanneldata = MIX_CHANNELS;
             for (i = 0; i < numchanneldata; ++i) {
                 channeldata[i].sound = NULL;
                 channeldata[i].queue = NULL;
