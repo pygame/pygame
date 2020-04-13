@@ -417,7 +417,17 @@ pg_get_init(PyObject *self, PyObject *args)
 static int
 pg_IntFromObj(PyObject *obj, int *val)
 {
-    int tmp_val = PyInt_AsLong(obj);
+    int tmp_val;
+
+    if (PyFloat_Check(obj)) {
+        /* Python3.8 complains with deprecation warnings if we pass
+         * floats to PyInt_AsLong.
+         */
+        double dv = PyFloat_AsDouble(obj);
+        tmp_val = (int)dv;
+    } else {
+        tmp_val = PyInt_AsLong(obj);
+    }
 
     if (tmp_val == -1 && PyErr_Occurred()) {
         PyErr_Clear();
