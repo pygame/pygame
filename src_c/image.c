@@ -314,13 +314,136 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
+/**
+ * Used by image_tostring to implement the loop over pixels that are
+ * stored in 1 byte (8bit) per pixel.
+ *
+ * It takes the following parameters:
+ *  - surf: The SDL_Surface containing the pixels to loop over
+ *  - flipped: A boolean saying whether we should read the format from
+ *    top to bottom (false) or from bottom to top (true)
+ *  - color_var: The name of a caller defined variable.  This will be
+ *    in each loop iteration to the read color of the current pixel.
+ *    This must be able to handle at least as many bits as the bits
+ *    per pixel (i.e. the XX in FOREACH_XXBIT_PIXEL).  Note that
+ *    Uint32 works fine in all cases.
+ *  - code: A block of code to be executed for each pixel.
+ *
+ * Note that the macro defines some internal (scoped) variables with
+ * the following names: w_, h_, ptr_.  Please avoid using these names
+ * for variables when using the macro to avoid name shadowing or
+ * conflicts.
+ *
+ * The "do { ... } while(0)" is to make this a "statement" requiring
+ * semi-colon (as it looks like one).
+ */
+#define FOREACH_8BIT_PIXEL(surf, flipped, color_var, code) \
+    do { \
+        int w_, h_; \
+        for (h_ = 0; h_ < surf->h; ++h_) { \
+            Uint8 *ptr_ = (Uint8 *)DATAROW( \
+                surf->pixels, h_, surf->pitch, surf->h, flipped); \
+            for (w_ = 0; w_ < surf->w; ++w_) { \
+                color_var = *ptr_++; \
+                code \
+            } \
+        } \
+    } while(0)
+
+/**
+ * Used by image_tostring to implement the loop over pixels that are
+ * stored in 2 byte (16bit) per pixel.
+ *
+ * See FOREACH_8BIT_PIXEL for details.
+ *
+ * The "do { ... } while(0)" is to make this a "statement" requiring
+ * semi-colon (as it looks like one).
+ */
+#define FOREACH_16BIT_PIXEL(surf, flipped, color_var, code) \
+    do { \
+        int w_, h_; \
+        for (h_ = 0; h_ < surf->h; ++h_) { \
+            Uint16 *ptr_ = (Uint16 *)DATAROW( \
+                surf->pixels, h_, surf->pitch, surf->h, flipped); \
+            for (w_ = 0; w_ < surf->w; ++w_) { \
+                color_var = *ptr_++; \
+                code \
+            } \
+        } \
+    } while(0)
+
+/**
+ * Used by image_tostring to implement the loop over pixels that are
+ * stored in 3 byte (24bit) per pixel.
+ *
+ * For the 24bit variant, we need to assemble the bytes manually based on
+ * the byte order as it is not aligned with any of the UintX types.
+ * Other than that, it is the other FOREACH_XBIT_PIXEL marcros.
+ *
+ * See FOREACH_8BIT_PIXEL for details.
+ *
+ * The "do { ... } while(0)" is to make this a "statement" requiring
+ * semi-colon (as it looks like one).
+ */
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define FOREACH_24BIT_PIXEL(surf, flipped, color_var, code) \
+    do { \
+        int w_, h_; \
+        for (h_ = 0; h_ < surf->h; ++h_) { \
+            Uint8 *ptr_ = (Uint8 *)DATAROW( \
+                surf->pixels, h_, surf->pitch, surf->h, flipped); \
+            for (w_ = 0; w_ < surf->w; ++w_) { \
+                color_var = ptr_[0] + (ptr_[1] << 8) + (ptr_[2] << 16); \
+                ptr_ += 3; \
+                code \
+            } \
+        } \
+    } while(0)
+#else
+#define FOREACH_24BIT_PIXEL(surf, flipped, color_var, code) \
+    do { \
+        int w_, h_; \
+        for (h_ = 0; h_ < surf->h; ++h_) { \
+            Uint8 *ptr_ = (Uint8 *)DATAROW( \
+                surf->pixels, h_, surf->pitch, surf->h, flipped); \
+            for (w_ = 0; w_ < surf->w; ++w_) { \
+                color_var = ptr_[2] + (ptr_[1] << 8) + (ptr_[0] << 16); \
+                ptr_ += 3; \
+                code \
+            } \
+        } \
+    } while(0)
+#endif
+
+/**
+ * Used by image_tostring to implement the loop over pixels that are
+ * stored in 4 byte (32bit) per pixel.
+ *
+ * See FOREACH_8BIT_PIXEL for details.
+ *
+ * The "do { ... } while(0)" is to make this a "statement" requiring
+ * semi-colon (as it looks like one).
+ */
+#define FOREACH_32BIT_PIXEL(surf, flipped, color_var, code) \
+    do { \
+        int w_, h_; \
+        for (h_ = 0; h_ < surf->h; ++h_) { \
+            Uint32 *ptr_ = (Uint32 *)DATAROW( \
+                surf->pixels, h_, surf->pitch, surf->h, flipped); \
+            for (w_ = 0; w_ < surf->w; ++w_) { \
+                color_var = *ptr_++; \
+                code \
+            } \
+        } \
+    } while(0)
+
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
     PyObject *surfobj, *string = NULL;
     char *format, *data, *pixels;
     SDL_Surface *surf;
-    int w, h, flipped = 0;
+    int flipped = 0;
     Py_ssize_t len;
     Uint32 Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
         Gloss, Bloss, Aloss;
@@ -365,6 +488,7 @@ image_tostring(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     if (!strcmp(format, "P")) {
+        int h;
         if (surf->format->BytesPerPixel != 1)
             return RAISE(
                 PyExc_ValueError,
@@ -398,61 +522,36 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[0] = (char)surf->format->palette->colors[color].r;
-                        data[1] = (char)surf->format->palette->colors[color].g;
-                        data[2] = (char)surf->format->palette->colors[color].b;
-                        data += 3;
-                    }
-                }
+                FOREACH_8BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)surf->format->palette->colors[color].r;
+                    data[1] = (char)surf->format->palette->colors[color].g;
+                    data[2] = (char)surf->format->palette->colors[color].b;
+                    data += 3;
+                });
                 break;
             case 2:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint16 *ptr = (Uint16 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data += 3;
-                    }
-                }
+                FOREACH_16BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data += 3;
+                });
                 break;
             case 3:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
-                        ptr += 3;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data += 3;
-                    }
-                }
+                FOREACH_24BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data += 3;
+                });
                 break;
             case 4:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint32 *ptr = (Uint32 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
-                        data += 3;
-                    }
-                }
+                FOREACH_32BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
+                    data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
+                    data += 3;
+                });
                 break;
         }
 
@@ -477,81 +576,56 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[0] = (char)surf->format->palette->colors[color].r;
-                        data[1] = (char)surf->format->palette->colors[color].g;
-                        data[2] = (char)surf->format->palette->colors[color].b;
-                        data[3] = hascolorkey ? (char)(color != colorkey) * 255
-                                              : (char)255;
-                        data += 4;
-                    }
-                }
+                FOREACH_8BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)surf->format->palette->colors[color].r;
+                    data[1] = (char)surf->format->palette->colors[color].g;
+                    data[2] = (char)surf->format->palette->colors[color].b;
+                    data[3] = hascolorkey ? (char)(color != colorkey) * 255
+                                          : (char)255;
+                    data += 4;
+                });
                 break;
             case 2:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint16 *ptr = (Uint16 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[3] =
-                            hascolorkey
-                                ? (char)(color != colorkey) * 255
-                                : (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
-                        data += 4;
-                    }
-                }
+                FOREACH_16BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data[3] =
+                        hascolorkey
+                            ? (char)(color != colorkey) * 255
+                            : (char)(Amask ? (((color & Amask) >> Ashift)
+                                              << Aloss)
+                                           : 255);
+                    data += 4;
+                });
                 break;
             case 3:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
-                        ptr += 3;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[3] =
-                            hascolorkey
-                                ? (char)(color != colorkey) * 255
-                                : (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
-                        data += 4;
-                    }
-                }
+                FOREACH_24BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data[3] =
+                        hascolorkey
+                            ? (char)(color != colorkey) * 255
+                            : (char)(Amask ? (((color & Amask) >> Ashift)
+                                              << Aloss)
+                                           : 255);
+                    data += 4;
+                });
                 break;
             case 4:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint32 *ptr = (Uint32 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[3] =
-                            hascolorkey
-                                ? (char)(color != colorkey) * 255
-                                : (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
-                        data += 4;
-                    }
-                }
+                FOREACH_32BIT_PIXEL(surf, flipped, color, {
+                    data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data[3] =
+                        hascolorkey
+                            ? (char)(color != colorkey) * 255
+                            : (char)(Amask ? (((color & Amask) >> Ashift)
+                                              << Aloss)
+                                           : 255);
+                    data += 4;
+                });
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -569,71 +643,46 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[1] = (char)surf->format->palette->colors[color].r;
-                        data[2] = (char)surf->format->palette->colors[color].g;
-                        data[3] = (char)surf->format->palette->colors[color].b;
-                        data[0] = (char)255;
-                        data += 4;
-                    }
-                }
+                FOREACH_8BIT_PIXEL(surf, flipped, color, {
+                    data[1] = (char)surf->format->palette->colors[color].r;
+                    data[2] = (char)surf->format->palette->colors[color].g;
+                    data[3] = (char)surf->format->palette->colors[color].b;
+                    data[0] = (char)255;
+                    data += 4;
+                });
                 break;
             case 2:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint16 *ptr = (Uint16 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
-                        data += 4;
-                    }
-                }
+                FOREACH_16BIT_PIXEL(surf, flipped, color, {
+                    data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
+                                              << Aloss)
+                                           : 255);
+                    data += 4;
+                });
                 break;
             case 3:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
-                        ptr += 3;
-                        data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
-                        data += 4;
-                    }
-                }
+                FOREACH_24BIT_PIXEL(surf, flipped, color, {
+                    data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
+                                              << Aloss)
+                                           : 255);
+                    data += 4;
+                });
                 break;
             case 4:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint32 *ptr = (Uint32 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
-                        data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
-                        data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
-                        data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
-                                                  << Aloss)
-                                               : 255);
-                        data += 4;
-                    }
-                }
+                FOREACH_32BIT_PIXEL(surf, flipped, color, {
+                    data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
+                    data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
+                    data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
+                    data[0] = (char)(Amask ? (((color & Amask) >> Ashift)
+                                              << Aloss)
+                                           : 255);
+                    data += 4;
+                });
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -656,38 +705,44 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint16 *ptr = (Uint16 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        data[0] =
-                            (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                   alpha / 255);
-                        data[1] =
-                            (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                   alpha / 255);
-                        data[2] =
-                            (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                   alpha / 255);
-                        data[3] = (char)alpha;
-                        data += 4;
-                    }
-                }
+                FOREACH_16BIT_PIXEL(surf, flipped, color, {
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[0] =
+                        (char)((((color & Rmask) >> Rshift) << Rloss) *
+                               alpha / 255);
+                    data[1] =
+                        (char)((((color & Gmask) >> Gshift) << Gloss) *
+                               alpha / 255);
+                    data[2] =
+                        (char)((((color & Bmask) >> Bshift) << Bloss) *
+                               alpha / 255);
+                    data[3] = (char)alpha;
+                    data += 4;
+                });
                 break;
             case 3:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
-                        ptr += 3;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
+                FOREACH_24BIT_PIXEL(surf, flipped, color, {
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[0] =
+                        (char)((((color & Rmask) >> Rshift) << Rloss) *
+                               alpha / 255);
+                    data[1] =
+                        (char)((((color & Gmask) >> Gshift) << Gloss) *
+                               alpha / 255);
+                    data[2] =
+                        (char)((((color & Bmask) >> Bshift) << Bloss) *
+                               alpha / 255);
+                    data[3] = (char)alpha;
+                    data += 4;
+                });
+                break;
+            case 4:
+                FOREACH_32BIT_PIXEL(surf, flipped, color, {
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    if (alpha == 0) {
+                        data[0] = data[1] = data[2] = 0;
+                    }
+                    else {
                         data[0] =
                             (char)((((color & Rmask) >> Rshift) << Rloss) *
                                    alpha / 255);
@@ -697,36 +752,10 @@ image_tostring(PyObject *self, PyObject *arg)
                         data[2] =
                             (char)((((color & Bmask) >> Bshift) << Bloss) *
                                    alpha / 255);
-                        data[3] = (char)alpha;
-                        data += 4;
                     }
-                }
-                break;
-            case 4:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint32 *ptr = (Uint32 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        if (alpha == 0) {
-                            data[0] = data[1] = data[2] = 0;
-                        }
-                        else {
-                            data[0] =
-                                (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                       alpha / 255);
-                            data[1] =
-                                (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                       alpha / 255);
-                            data[2] =
-                                (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                       alpha / 255);
-                        }
-                        data[3] = (char)alpha;
-                        data += 4;
-                    }
-                }
+                    data[3] = (char)alpha;
+                    data += 4;
+                });
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -749,38 +778,44 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint16 *ptr = (Uint16 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        data[1] =
-                            (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                   alpha / 255);
-                        data[2] =
-                            (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                   alpha / 255);
-                        data[3] =
-                            (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                   alpha / 255);
-                        data[0] = (char)alpha;
-                        data += 4;
-                    }
-                }
+                FOREACH_16BIT_PIXEL(surf, flipped, color, {
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[1] =
+                        (char)((((color & Rmask) >> Rshift) << Rloss) *
+                               alpha / 255);
+                    data[2] =
+                        (char)((((color & Gmask) >> Gshift) << Gloss) *
+                               alpha / 255);
+                    data[3] =
+                        (char)((((color & Bmask) >> Bshift) << Bloss) *
+                               alpha / 255);
+                    data[0] = (char)alpha;
+                    data += 4;
+                });
                 break;
             case 3:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint8 *ptr = (Uint8 *)DATAROW(surf->pixels, h, surf->pitch,
-                                                  surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        color = ptr[0] + (ptr[1] << 8) + (ptr[2] << 16);
-#else
-                        color = ptr[2] + (ptr[1] << 8) + (ptr[0] << 16);
-#endif
-                        ptr += 3;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
+                FOREACH_24BIT_PIXEL(surf, flipped, color, {
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[1] =
+                        (char)((((color & Rmask) >> Rshift) << Rloss) *
+                               alpha / 255);
+                    data[2] =
+                        (char)((((color & Gmask) >> Gshift) << Gloss) *
+                               alpha / 255);
+                    data[3] =
+                        (char)((((color & Bmask) >> Bshift) << Bloss) *
+                               alpha / 255);
+                    data[0] = (char)alpha;
+                    data += 4;
+                });
+                break;
+            case 4:
+                FOREACH_32BIT_PIXEL(surf, flipped, color, {
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    if (alpha == 0) {
+                        data[1] = data[2] = data[3] = 0;
+                    }
+                    else {
                         data[1] =
                             (char)((((color & Rmask) >> Rshift) << Rloss) *
                                    alpha / 255);
@@ -790,36 +825,10 @@ image_tostring(PyObject *self, PyObject *arg)
                         data[3] =
                             (char)((((color & Bmask) >> Bshift) << Bloss) *
                                    alpha / 255);
-                        data[0] = (char)alpha;
-                        data += 4;
                     }
-                }
-                break;
-            case 4:
-                for (h = 0; h < surf->h; ++h) {
-                    Uint32 *ptr = (Uint32 *)DATAROW(
-                        surf->pixels, h, surf->pitch, surf->h, flipped);
-                    for (w = 0; w < surf->w; ++w) {
-                        color = *ptr++;
-                        alpha = ((color & Amask) >> Ashift) << Aloss;
-                        if (alpha == 0) {
-                            data[1] = data[2] = data[3] = 0;
-                        }
-                        else {
-                            data[1] =
-                                (char)((((color & Rmask) >> Rshift) << Rloss) *
-                                       alpha / 255);
-                            data[2] =
-                                (char)((((color & Gmask) >> Gshift) << Gloss) *
-                                       alpha / 255);
-                            data[3] =
-                                (char)((((color & Bmask) >> Bshift) << Bloss) *
-                                       alpha / 255);
-                        }
-                        data[0] = (char)alpha;
-                        data += 4;
-                    }
-                }
+                    data[0] = (char)alpha;
+                    data += 4;
+                });
                 break;
         }
         pgSurface_Unlock(surfobj);
