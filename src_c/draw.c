@@ -496,7 +496,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int loop, t, l, b, r;
+    int loop;
     int width = 1; /* Default width. */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
@@ -555,10 +555,6 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
     }
 
-    l = MAX(rect->x, surf->clip_rect.x);
-    t = MAX(rect->y, surf->clip_rect.y);
-    r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
-    b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
     /* Compute return rect. */
     if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
         drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
@@ -577,7 +573,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int t, l, b, r;
     int width = 0; /* Default width. */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
@@ -637,10 +632,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
     }
 
-    l = MAX(rect->x, surf->clip_rect.x);
-    t = MAX(rect->y, surf->clip_rect.y);
-    r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
-    b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
     if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
         drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
         return pgRect_New4(drawn_area[0], drawn_area[1],
