@@ -429,10 +429,15 @@ class SurfarrayModuleTest(unittest.TestCase):
             palette = None
             if bitsize == 16:
                 palette = [surf.unmap_rgb(surf.map_rgb(c)) for c in self.test_palette]
-            surf.set_shifts(shifts)
-            surf.set_masks(masks)
-            pygame.surfarray.blit_array(surf, arr3d)
-            self._assert_surface(surf, palette)
+
+            if pygame.get_sdl_version()[0] == 1:
+                surf.set_shifts(shifts)
+                surf.set_masks(masks)
+                pygame.surfarray.blit_array(surf, arr3d)
+                self._assert_surface(surf, palette)
+            else:
+                self.assertRaises(AttributeError, surf.set_shifts, shifts)
+                self.assertRaises(AttributeError, surf.set_masks, masks)
 
         # Invalid arrays
         surf = pygame.Surface((1, 1), 0, 32)
