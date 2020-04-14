@@ -2152,9 +2152,17 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
             result = surface_fill_blend(surf, &sdlrect, color, blendargs);
         }
         else {
+            int locked = 0;
+            if (SDL_MUSTLOCK(surf)) {
+                locked = 1;
+                SDL_LockSurface(surf);
+            }
             pgSurface_Prep(self);
             result = SDL_FillRect(surf, &sdlrect, color);
             pgSurface_Unprep(self);
+            if (locked) {
+                SDL_UnlockSurface(surf);
+            }
         }
         if (result == -1)
             return RAISE(pgExc_SDLError, SDL_GetError());
