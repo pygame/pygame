@@ -348,14 +348,12 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
-#if IS_SDLv2
-#ifndef NO_SDL_AUDIODEVICE
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
         case SDL_AUDIODEVICEREMOVED:
             return "AudioDeviceRemoved";
-#endif
-#endif
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
@@ -581,12 +579,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "gain", PyInt_FromLong(gain));
             _pg_insobj(dict, "state", PyInt_FromLong(state));
             break;
-#ifndef NO_SDL_AUDIODEVICE
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(&event->adevice.which));
-            _pg_insobj(dict, "iscapture", PyInt_FromLong(&event->adevice.iscapture));
-#endif
+            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));
+            _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
             break;
         case SDL_KEYDOWN:
             _pg_insobj(dict, "unicode", Text_FromUTF8(_pg_last_unicode_char));
@@ -922,6 +920,10 @@ pg_event_str(PyObject *self)
     size = (11 + strlen(_pg_name_from_eventtype(e->type)) + strlen(s) +
             sizeof(e->type) * 3 + 1);
     str = (char *)PyMem_Malloc(size);
+    if (!str) {
+        Py_DECREF(strobj);
+        return PyErr_NoMemory();
+    }
     sprintf(str, "<Event(%d-%s %s)>", e->type, _pg_name_from_eventtype(e->type),
             s);
 
@@ -1410,7 +1412,11 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        PyList_Append(list, e);
+        if (0 != PyList_Append(list, e)) {
+            Py_DECREF(list);
+            Py_DECREF(e);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(e);
     }
     return list;
@@ -1422,9 +1428,13 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
     PyObject *e = pgEvent_New(event);
     if (!e) {
         Py_DECREF(list);
-        return 0;
+        return 0; /* Exception already set. */
     }
-    PyList_Append(list, e);
+    if (0 != PyList_Append(list, e)) {
+        Py_DECREF(e);
+        Py_DECREF(list);
+        return 0; /* Exception already set. */
+    }
     Py_DECREF(e);
     return 1;
 }

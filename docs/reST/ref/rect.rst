@@ -51,9 +51,10 @@
    all other assignments move the rectangle without resizing it. Notice that
    some attributes are integers and others are pairs of integers.
 
-   If a Rect has a nonzero width or height, it will return True for a nonzero
-   test. Some methods return a Rect with 0 size to represent an invalid
-   rectangle.
+   If a Rect has a nonzero width or height, it will return ``True`` for a
+   nonzero test. Some methods return a Rect with 0 size to represent an invalid
+   rectangle. A Rect with a 0 size will not collide when using collision
+   detection methods (e.g. :meth:`collidepoint`, :meth:`colliderect`, etc.).
 
    The coordinates for Rect objects are all integers. The size values can be
    programmed to have negative values, but these are considered illegal Rects

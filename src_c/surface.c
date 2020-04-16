@@ -2141,6 +2141,10 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w,
          * sdlrect.h); */
 
+        if (sdlrect.w <=0 || sdlrect.h <=0) {
+            return pgRect_New(&sdlrect);
+        }
+
         if (blendargs != 0) {
             /*
             printf ("Using blendargs: %d\n", blendargs);
@@ -2289,16 +2293,18 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             goto bliterror;
         }
         bliterrornum = 0;
-        srcobject = NULL;
-        argpos = NULL;
         argrect = NULL;
         special_flags = NULL;
         the_args = 0;
-        if (itemlength >= 2) {
-            /* (Surface, dest) */
-            srcobject = PySequence_GetItem(item, 0);
-            argpos = PySequence_GetItem(item, 1);
-        }
+
+        /* We know that there will be at least two items due to the
+           conditional at the start of the loop */
+        assert(itemlength >= 2);
+
+        /* (Surface, dest) */
+        srcobject = PySequence_GetItem(item, 0);
+        argpos = PySequence_GetItem(item, 1);
+
         if (itemlength >= 3) {
             /* (Surface, dest, area) */
             argrect = PySequence_GetItem(item, 2);
@@ -3379,7 +3385,7 @@ _get_buffer_1D(PyObject *obj, Py_buffer *view_p, int flags)
                 /* Should not be here */
                 PyErr_Format(PyExc_SystemError,
                              "Pygame bug caught at line %i in file %s: "
-                             "unknown pixel size %i. Please report",
+                             "unknown pixel size %zd. Please report",
                              (int)__LINE__, __FILE__, itemsize);
                 return -1;
 #endif

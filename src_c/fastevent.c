@@ -218,7 +218,11 @@ fastevent_get(PyObject *self, PyObject *args)
             return NULL;
         }
 
-        PyList_Append(list, e);
+        if (0 != PyList_Append(list, e)) {
+            Py_DECREF(list);
+            Py_DECREF(e);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(e);
     }
 

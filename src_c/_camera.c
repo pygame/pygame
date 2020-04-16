@@ -166,7 +166,16 @@ list_cameras(PyObject *self, PyObject *arg)
 
     for (i = 0; i < num_devices; i++) {
         string = Text_FromUTF8(devices[i]);
-        PyList_Append(ret_list, string);
+        if (0 != PyList_Append(ret_list, string)) {
+            /* Append failed; clean up and return */
+            Py_DECREF(ret_list);
+            Py_DECREF(string);
+            for (; i < num_devices ; i++) {
+                free(devices[i]);
+            }
+            free(devices);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(string);
         free(devices[i]);
     }
@@ -1795,6 +1804,10 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (cameraobj) {
         cameraobj->device_name =
             (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
+        if (!cameraobj->device_name) {
+            Py_DECREF(cameraobj);
+            return PyErr_NoMemory();
+        }
         strcpy(cameraobj->device_name, dev_name);
         cameraobj->camera_type = 0;
         cameraobj->pixelformat = 0;
@@ -1842,6 +1855,10 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (cameraobj) {
         cameraobj->device_name =
             (char *)malloc((strlen(dev_name) + 1) * sizeof(char));
+        if (!cameraobj->device_name) {
+            Py_DECREF(cameraobj);
+            return PyErr_NoMemory();
+        }
         strcpy(cameraobj->device_name, dev_name);
         if (color) {
             if (!strcmp(color, "YUV")) {

@@ -158,9 +158,15 @@ typedef uint8_t Uint8;
 #define SDL_WINDOW_POPUP_MENU 0
 #endif
 
-
-#ifndef SDL_AUDIODEVICEREMOVED
-#define NO_SDL_AUDIODEVICE
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+/* To control the use of:
+ * SDL_AUDIODEVICEADDED
+ * SDL_AUDIODEVICEREMOVED
+ *
+ * Ref: https://wiki.libsdl.org/SDL_EventType
+ * Ref: https://wiki.libsdl.org/SDL_AudioDeviceEvent
+ */
+#define SDL2_AUDIODEVICE_SUPPORTED
 #endif
 
 #ifndef SDL_MOUSEWHEEL_FLIPPED
@@ -168,8 +174,7 @@ typedef uint8_t Uint8;
 #endif
 
 
-
-#endif
+#endif /* defined(SDL_VERSION_ATLEAST) */
 
 
 #endif /* ~defined(PGCOMPAT_H) */

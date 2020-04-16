@@ -608,7 +608,12 @@ font_metrics(PyObject *self, PyObject *args)
             if (surrogate)
                 i++;
         }
-        PyList_Append(list, listitem);
+        if (0 != PyList_Append(list, listitem)) {
+            Py_DECREF(list);
+            Py_DECREF(listitem);
+            Py_DECREF(obj);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(listitem);
     }
     Py_DECREF(obj);

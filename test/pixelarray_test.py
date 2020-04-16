@@ -25,16 +25,31 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 
 
 class TestMixin(object):
-    def assert_surfaces_equal(self, s1, s2):
-        # Assumes the surfaces are the same size.
+    def assert_surfaces_equal(self, s1, s2, msg=None):
+        """Checks if two surfaces are equal in size and color."""
         w, h = s1.get_size()
+
+        self.assertTupleEqual((w, h), s2.get_size(), msg)
+
+        msg = "" if msg is None else "{}, ".format(msg)
+        msg += "size: ({}, {})".format(w, h)
+
         for x in range(w):
             for y in range(h):
                 self.assertEqual(
                     s1.get_at((x, y)),
                     s2.get_at((x, y)),
-                    "size: (%i, %i), position: (%i, %i)" % (w, h, x, y),
+                    "{}, position: ({}, {})".format(msg, x, y),
                 )
+
+    def assert_surface_filled(self, surface, expected_color, msg=None):
+        """Checks if the surface is filled with the given color."""
+        width, height = surface.get_size()
+
+        surface.lock()  # Lock for possible speed up.
+        for pos in ((x, y) for y in range(height) for x in range(width)):
+            self.assertEqual(surface.get_at(pos), expected_color, msg)
+        surface.unlock()
 
 
 class PixelArrayTypeTest(unittest.TestCase, TestMixin):
@@ -68,6 +83,151 @@ class PixelArrayTypeTest(unittest.TestCase, TestMixin):
 
         # FINISH ME!
         # Test other bit depths, slices, and distance != 0.
+
+    def test_compare__same_colors_within_distance(self):
+        """Ensures compare works correctly with same colored surfaces."""
+        size = (3, 5)
+        pixelarray_result_color = pygame.Color("white")
+        surface_color = (127, 127, 127, 255)
+
+        for depth in (8, 16, 24, 32):
+            expected_pixelarray_surface = pygame.Surface(size, depth=depth)
+            expected_pixelarray_surface.fill(pixelarray_result_color)
+
+            # Copy the surface to ensure same dimensions/formatting.
+            surf_a = expected_pixelarray_surface.copy()
+            surf_a.fill(surface_color)
+            # For non-32 bit depths, the actual color can be different from what
+            # was filled.
+            expected_surface_color = surf_a.get_at((0, 0))
+
+            pixelarray_a = pygame.PixelArray(surf_a)
+            pixelarray_b = pygame.PixelArray(surf_a.copy())
+
+            for distance in (0.0, 0.01, 0.1, 1.0):
+                pixelarray_result = pixelarray_a.compare(
+                    pixelarray_b, distance=distance
+                )
+
+                # Ensure the resulting pixelarray is correct and that the original
+                # surfaces were not changed.
+                self.assert_surfaces_equal(
+                    pixelarray_result.surface,
+                    expected_pixelarray_surface,
+                    (depth, distance),
+                )
+                self.assert_surface_filled(
+                    pixelarray_a.surface, expected_surface_color, (depth, distance)
+                )
+                self.assert_surface_filled(
+                    pixelarray_b.surface, expected_surface_color, (depth, distance)
+                )
+
+            pixelarray_a.close()
+            pixelarray_b.close()
+            pixelarray_result.close()
+
+    def test_compare__different_colors_within_distance(self):
+        """Ensures compare works correctly with different colored surfaces
+        and the color difference is within the given distance.
+        """
+        size = (3, 5)
+        pixelarray_result_color = pygame.Color("white")
+        surface_a_color = (127, 127, 127, 255)
+        surface_b_color = (128, 127, 127, 255)
+
+        for depth in (8, 16, 24, 32):
+            expected_pixelarray_surface = pygame.Surface(size, depth=depth)
+            expected_pixelarray_surface.fill(pixelarray_result_color)
+
+            # Copy the surface to ensure same dimensions/formatting.
+            surf_a = expected_pixelarray_surface.copy()
+            surf_a.fill(surface_a_color)
+            # For non-32 bit depths, the actual color can be different from what
+            # was filled.
+            expected_surface_a_color = surf_a.get_at((0, 0))
+            pixelarray_a = pygame.PixelArray(surf_a)
+
+            surf_b = expected_pixelarray_surface.copy()
+            surf_b.fill(surface_b_color)
+            # For non-32 bit depths, the actual color can be different from what
+            # was filled.
+            expected_surface_b_color = surf_b.get_at((0, 0))
+            pixelarray_b = pygame.PixelArray(surf_b)
+
+            for distance in (0.2, 0.3, 0.5, 1.0):
+                pixelarray_result = pixelarray_a.compare(
+                    pixelarray_b, distance=distance
+                )
+
+                # Ensure the resulting pixelarray is correct and that the original
+                # surfaces were not changed.
+                self.assert_surfaces_equal(
+                    pixelarray_result.surface,
+                    expected_pixelarray_surface,
+                    (depth, distance),
+                )
+                self.assert_surface_filled(
+                    pixelarray_a.surface, expected_surface_a_color, (depth, distance)
+                )
+                self.assert_surface_filled(
+                    pixelarray_b.surface, expected_surface_b_color, (depth, distance)
+                )
+
+            pixelarray_a.close()
+            pixelarray_b.close()
+            pixelarray_result.close()
+
+    def test_compare__different_colors_not_within_distance(self):
+        """Ensures compare works correctly with different colored surfaces
+        and the color difference is not within the given distance.
+        """
+        size = (3, 5)
+        pixelarray_result_color = pygame.Color("black")
+        surface_a_color = (127, 127, 127, 255)
+        surface_b_color = (128, 127, 127, 255)
+
+        for depth in (8, 16, 24, 32):
+            expected_pixelarray_surface = pygame.Surface(size, depth=depth)
+            expected_pixelarray_surface.fill(pixelarray_result_color)
+
+            # Copy the surface to ensure same dimensions/formatting.
+            surf_a = expected_pixelarray_surface.copy()
+            surf_a.fill(surface_a_color)
+            # For non-32 bit depths, the actual color can be different from what
+            # was filled.
+            expected_surface_a_color = surf_a.get_at((0, 0))
+            pixelarray_a = pygame.PixelArray(surf_a)
+
+            surf_b = expected_pixelarray_surface.copy()
+            surf_b.fill(surface_b_color)
+            # For non-32 bit depths, the actual color can be different from what
+            # was filled.
+            expected_surface_b_color = surf_b.get_at((0, 0))
+            pixelarray_b = pygame.PixelArray(surf_b)
+
+            for distance in (0.0, 0.00001, 0.0001, 0.001):
+                pixelarray_result = pixelarray_a.compare(
+                    pixelarray_b, distance=distance
+                )
+
+                # Ensure the resulting pixelarray is correct and that the original
+                # surfaces were not changed.
+                self.assert_surfaces_equal(
+                    pixelarray_result.surface,
+                    expected_pixelarray_surface,
+                    (depth, distance),
+                )
+                self.assert_surface_filled(
+                    pixelarray_a.surface, expected_surface_a_color, (depth, distance)
+                )
+                self.assert_surface_filled(
+                    pixelarray_b.surface, expected_surface_b_color, (depth, distance)
+                )
+
+            pixelarray_a.close()
+            pixelarray_b.close()
+            pixelarray_result.close()
 
     def test_close(self):
         """ does not crash when it is deleted.

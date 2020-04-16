@@ -284,6 +284,12 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     ylist = PyMem_New(float, length);
 
     if (NULL == xlist || NULL == ylist) {
+        if (xlist) {
+            PyMem_Del(xlist);
+        }
+        if (ylist) {
+            PyMem_Del(ylist);
+        }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw aalines");
     }
@@ -407,6 +413,12 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
     ylist = PyMem_New(int, length);
 
     if (NULL == xlist || NULL == ylist) {
+        if (xlist) {
+            PyMem_Del(xlist);
+        }
+        if (ylist) {
+            PyMem_Del(ylist);
+        }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw lines");
     }
@@ -484,7 +496,7 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int loop, t, l, b, r;
+    int loop;
     int width = 1; /* Default width. */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
@@ -543,10 +555,6 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
     }
 
-    l = MAX(rect->x, surf->clip_rect.x);
-    t = MAX(rect->y, surf->clip_rect.y);
-    r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
-    b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
     /* Compute return rect. */
     if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
         drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
@@ -565,7 +573,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
-    int loop, t, l, b, r;
     int width = 0; /* Default width. */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
@@ -597,10 +604,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
 
-    if (width > rect->w / 2 || width > rect->h / 2) {
-        width = MAX(rect->w / 2, rect->h / 2);
-    }
-
     if (!pgSurface_Lock(surfobj)) {
         return RAISE(PyExc_RuntimeError, "error locking surface");
     }
@@ -611,10 +614,17 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
                      rect->w, rect->h, 1, color, drawn_area);
     }
     else {
-        width = MIN(width, MIN(rect->w, rect->h) / 2);
-        for (loop = 0; loop < width; ++loop) {
-            draw_ellipse(surf, rect->x + rect->w / 2, rect->y + rect->h / 2,
-                         rect->w - loop, rect->h - loop, 0, color, drawn_area);
+        int loop;
+        int w = rect->w;
+        int h = rect->h;
+        int x = rect->x + w / 2;
+        int y = rect->y + h / 2;
+
+        /* Using +1 to round up. */
+        width = MIN(width, (MIN(w, h) + 1) / 2);
+
+        for (loop = 0; loop < width; ++loop, w -= 2, h -= 2) {
+            draw_ellipse(surf, x, y, w, h, 0, color, drawn_area);
         }
     }
 
@@ -622,10 +632,6 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
         return RAISE(PyExc_RuntimeError, "error unlocking surface");
     }
 
-    l = MAX(rect->x, surf->clip_rect.x);
-    t = MAX(rect->y, surf->clip_rect.y);
-    r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
-    b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
     if (drawn_area[0] != INT_MAX && drawn_area[1] != INT_MAX &&
         drawn_area[2] != INT_MIN && drawn_area[3] != INT_MIN)
         return pgRect_New4(drawn_area[0], drawn_area[1],
@@ -786,6 +792,12 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
     ylist = PyMem_New(int, length);
 
     if (NULL == xlist || NULL == ylist) {
+        if (xlist) {
+            PyMem_Del(xlist);
+        }
+        if (ylist) {
+            PyMem_Del(ylist);
+        }
         return RAISE(PyExc_MemoryError,
                      "cannot allocate memory to draw polygon");
     }

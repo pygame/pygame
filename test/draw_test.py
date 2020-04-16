@@ -536,6 +536,116 @@ class DrawEllipseMixin(object):
                 for left, top in left_top:
                     not_same_size(width, height, border_width, left, top)
 
+    def test_ellipse__thick_line(self):
+        """Ensures a thick lined ellipse is drawn correctly."""
+        ellipse_color = pygame.Color("yellow")
+        surface_color = pygame.Color("black")
+        surface = pygame.Surface((40, 40))
+        rect = pygame.Rect((0, 0), (31, 23))
+        rect.center = surface.get_rect().center
+
+        # As the lines get thicker the internals of the ellipse are not
+        # cleanly defined. So only test up to a few thicknesses before the
+        # maximum thickness.
+        for thickness in range(1, min(*rect.size) // 2 - 2):
+            surface.fill(surface_color)  # Clear for each test.
+
+            self.draw_ellipse(surface, ellipse_color, rect, thickness)
+
+            surface.lock()  # For possible speed up.
+
+            # Check vertical thickness on the ellipse's top.
+            x = rect.centerx
+            y_start = rect.top
+            y_end = rect.top + thickness - 1
+
+            for y in range(y_start, y_end + 1):
+                self.assertEqual(surface.get_at((x, y)), ellipse_color, thickness)
+
+            # Check pixels above and below this line.
+            self.assertEqual(surface.get_at((x, y_start - 1)), surface_color, thickness)
+            self.assertEqual(surface.get_at((x, y_end + 1)), surface_color, thickness)
+
+            # Check vertical thickness on the ellipse's bottom.
+            x = rect.centerx
+            y_start = rect.bottom - thickness
+            y_end = rect.bottom - 1
+
+            for y in range(y_start, y_end + 1):
+                self.assertEqual(surface.get_at((x, y)), ellipse_color, thickness)
+
+            # Check pixels above and below this line.
+            self.assertEqual(surface.get_at((x, y_start - 1)), surface_color, thickness)
+            self.assertEqual(surface.get_at((x, y_end + 1)), surface_color, thickness)
+
+            # Check horizontal thickness on the ellipse's left.
+            x_start = rect.left
+            x_end = rect.left + thickness - 1
+            y = rect.centery
+
+            for x in range(x_start, x_end + 1):
+                self.assertEqual(surface.get_at((x, y)), ellipse_color, thickness)
+
+            # Check pixels to the left and right of this line.
+            self.assertEqual(surface.get_at((x_start - 1, y)), surface_color, thickness)
+            self.assertEqual(surface.get_at((x_end + 1, y)), surface_color, thickness)
+
+            # Check horizontal thickness on the ellipse's right.
+            x_start = rect.right - thickness
+            x_end = rect.right - 1
+            y = rect.centery
+
+            for x in range(x_start, x_end + 1):
+                self.assertEqual(surface.get_at((x, y)), ellipse_color, thickness)
+
+            # Check pixels to the left and right of this line.
+            self.assertEqual(surface.get_at((x_start - 1, y)), surface_color, thickness)
+            self.assertEqual(surface.get_at((x_end + 1, y)), surface_color, thickness)
+
+            surface.unlock()
+
+    def test_ellipse__max_width(self):
+        """Ensures an ellipse with max width (and greater) is drawn correctly."""
+        ellipse_color = pygame.Color("yellow")
+        surface_color = pygame.Color("black")
+        surface = pygame.Surface((40, 40))
+        rect = pygame.Rect((0, 0), (31, 21))
+        rect.center = surface.get_rect().center
+        max_thickness = (min(*rect.size) + 1) // 2
+
+        for thickness in range(max_thickness, max_thickness + 3):
+            surface.fill(surface_color)  # Clear for each test.
+
+            self.draw_ellipse(surface, ellipse_color, rect, thickness)
+
+            surface.lock()  # For possible speed up.
+
+            # Check vertical thickness.
+            for y in range(rect.top, rect.bottom):
+                self.assertEqual(surface.get_at((rect.centerx, y)), ellipse_color)
+
+            # Check horizontal thickness.
+            for x in range(rect.left, rect.right):
+                self.assertEqual(surface.get_at((x, rect.centery)), ellipse_color)
+
+            # Check pixels above and below ellipse.
+            self.assertEqual(
+                surface.get_at((rect.centerx, rect.top - 1)), surface_color
+            )
+            self.assertEqual(
+                surface.get_at((rect.centerx, rect.bottom + 1)), surface_color
+            )
+
+            # Check pixels to the left and right of the ellipse.
+            self.assertEqual(
+                surface.get_at((rect.left - 1, rect.centery)), surface_color
+            )
+            self.assertEqual(
+                surface.get_at((rect.right + 1, rect.centery)), surface_color
+            )
+
+            surface.unlock()
+
     def _check_1_pixel_sized_ellipse(
         self, surface, collide_rect, surface_color, ellipse_color
     ):

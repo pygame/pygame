@@ -1406,7 +1406,11 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(list);
             return NULL;
         }
-        PyList_Append(list, size);
+        if (0 != PyList_Append(list, size)) {
+            Py_DECREF(list);
+            Py_DECREF(size);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(size);
     }
     return list;
@@ -1638,7 +1642,11 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(list);
             return NULL;
         }
-        PyList_Append(list, size);
+        if (0 != PyList_Append(list, size)) {
+            Py_DECREF(list);
+            Py_DECREF(size);
+            return NULL; /* Exception already set. */
+        }
         Py_DECREF(size);
     }
     return list;
@@ -2008,9 +2016,12 @@ pg_set_palette(PyObject *self, PyObject *args)
         }
         if (!pg_IntFromObjIndex(item, 0, &r) ||
             !pg_IntFromObjIndex(item, 1, &g) ||
-            !pg_IntFromObjIndex(item, 2, &b))
+            !pg_IntFromObjIndex(item, 2, &b)) {
+            Py_DECREF(item);
+            free((char *)colors);
             return RAISE(PyExc_TypeError,
                          "RGB sequence must contain numeric values");
+        }
 
         colors[i].r = (unsigned char)r;
         colors[i].g = (unsigned char)g;

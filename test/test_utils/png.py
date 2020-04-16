@@ -170,7 +170,7 @@ import struct
 import sys
 import zlib
 import warnings
-
+import sys
 
 __all__ = ["Image", "Reader", "Writer", "write_chunks", "from_array"]
 
@@ -207,6 +207,13 @@ def tostring(row):
     ``array``.
     """
     return row.tostring()
+
+if sys.version_info.major>=3:
+    def tostring(row):
+        """Convert byte-array of type `array` into byte string
+        of type `bytes`.
+        """
+        return row.tobytes()
 
 
 # Conditionally convert to bytes.  Works on Python 2 and Python 3.
@@ -1345,7 +1352,7 @@ class _readable:
     def read(self, n):
         r = self.buf[self.offset : self.offset + n]
         if isarray(r):
-            r = r.tostring()
+            r = tostring(r)
         self.offset += n
         return r
 

@@ -547,7 +547,7 @@ required).
    | :sl:`Return the size of the window or screen`
    | :sg:`get_window_size() -> tuple`
 
-   Returns the size of the window initialized with :func:`pygame.set_mode()`.
+   Returns the size of the window initialized with :func:`pygame.display.set_mode()`.
    This may differ from the size of the display surface if ``SCALED`` is used.
 
    .. versionadded:: 2.0

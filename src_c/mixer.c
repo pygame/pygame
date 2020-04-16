@@ -443,9 +443,12 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
 
         if (!channeldata) /*should always be null*/
         {
-            numchanneldata = MIX_CHANNELS;
             channeldata = (struct ChannelData *)malloc(
-                sizeof(struct ChannelData) * numchanneldata);
+                sizeof(struct ChannelData) * MIX_CHANNELS);
+            if (!channeldata) {
+                return PyErr_NoMemory();
+            }
+            numchanneldata = MIX_CHANNELS;
             for (i = 0; i < numchanneldata; ++i) {
                 channeldata[i].sound = NULL;
                 channeldata[i].queue = NULL;
@@ -1348,8 +1351,14 @@ set_num_channels(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
     if (numchans > numchanneldata) {
+        struct ChannelData *cd_org = channeldata;
         channeldata = (struct ChannelData *)realloc(
             channeldata, sizeof(struct ChannelData) * numchans);
+        if (!channeldata) {
+            /* Restore the original to avoid leaking it */
+            channeldata = cd_org;
+            return PyErr_NoMemory();
+        }
         for (i = numchanneldata; i < numchans; ++i) {
             channeldata[i].sound = NULL;
             channeldata[i].queue = NULL;
