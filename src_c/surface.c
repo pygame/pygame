@@ -2153,7 +2153,9 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         }
         else {
             pgSurface_Prep(self);
+            pgSurface_Lock(self);
             result = SDL_FillRect(surf, &sdlrect, color);
+            pgSurface_Unlock(self);
             pgSurface_Unprep(self);
         }
         if (result == -1)
