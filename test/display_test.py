@@ -420,7 +420,7 @@ class DisplayOpenGLTest(unittest.TestCase):
 
 
 class X11CrashTest(unittest.TestCase):
-    def todo_test_x11_set_mode_crash_gh1654(self):
+    def test_x11_set_mode_crash_gh1654(self):
         # Test for https://github.com/pygame/pygame/issues/1654
         # If unfixed, this will trip a segmentation fault
         pygame.display.init()
