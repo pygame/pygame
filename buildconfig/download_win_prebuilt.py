@@ -64,24 +64,24 @@ def get_urls(x86=True, x64=True, sdl2=True):
     if sdl2:
         url_sha1.extend([
             [
-            'https://www.libsdl.org/release/SDL2-devel-2.0.10-VC.zip',
-            '0bbac0106358dc99b8ba2401ae6a1c10d3927ca9',
+            'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip',
+            '6839b6ec345ef754a6585ab24f04e125e88c3392',
             ],
             [
             'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
             '137f86474691f4e12e76e07d58d5920c8d844d5b',
             ],
             [
-            'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip',
-            'c64d90c1f7d1bb3f3dcfcc255074611f017cdcc4',
+            'https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip',
+            '1436df41ebc47ac36e02ec9bda5699e80ff9bd27',
             ],
             [
             'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
             '9097148f4529cf19f805ccd007618dec280f0ecc',
             ],
             [
-            'https://www.ijg.org/files/jpegsr9c.zip',
-            '9ca086c960ffc4bff821ba194c8d0a15f69eae09',
+            'https://www.ijg.org/files/jpegsr9d.zip',
+            'ed10aa2b5a0fcfe74f8a6f7611aeb346b06a1f99',
             ],
         ])
     if x86:
@@ -196,8 +196,8 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
             shutil.copyfile(
                 os.path.join(
                     temp_dir,
-                    'jpegsr9c',
-                    'jpeg-9c',
+                    'jpegsr9d',
+                    'jpeg-9d',
                     file
                 ),
                 os.path.join(
@@ -233,23 +233,23 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2_ttf-devel-2.0.14-VC/SDL2_ttf-2.0.14'
+                'SDL2_ttf-devel-2.0.15-VC/SDL2_ttf-2.0.15'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2_ttf-2.0.14'
+                'SDL2_ttf-2.0.15'
             )
         )
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2-devel-2.0.10-VC/SDL2-2.0.10'
+                'SDL2-devel-2.0.12-VC/SDL2-2.0.12'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2-2.0.10'
+                'SDL2-2.0.12'
             )
         )
 
