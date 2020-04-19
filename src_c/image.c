@@ -924,10 +924,8 @@ image_fromstring(PyObject *self, PyObject *arg)
         for (looph = 0; looph < h; ++looph) {
             Uint32 *pix = (Uint32 *)DATAROW(surf->pixels, looph, surf->pitch,
                                             h, flipped);
-            for (loopw = 0; loopw < w; ++loopw) {
-                *pix++ = *((Uint32 *)data);
-                data += 4;
-            }
+            memcpy(pix, data, w * sizeof(Uint32));
+            data += w * sizeof(Uint32);
         }
         SDL_UnlockSurface(surf);
     }
@@ -948,10 +946,8 @@ image_fromstring(PyObject *self, PyObject *arg)
         for (looph = 0; looph < h; ++looph) {
             Uint32 *pix = (Uint32 *)DATAROW(surf->pixels, looph, surf->pitch,
                                             h, flipped);
-            for (loopw = 0; loopw < w; ++loopw) {
-                *pix++ = *((Uint32 *)data);
-                data += 4;
-            }
+            memcpy(pix, data, w * sizeof(Uint32));
+            data += w * sizeof(Uint32);
         }
         SDL_UnlockSurface(surf);
     }
