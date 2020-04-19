@@ -5,6 +5,8 @@
 # harrison@media.mit.edu
 # written in Pyrex
 
+# cython: language_level=2
+
 __version__ = "0.0.6"
 
 import array
