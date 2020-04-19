@@ -10,6 +10,7 @@
 __version__ = "0.0.6"
 
 import array
+import sys
 
 # CHANGES:
 
@@ -494,8 +495,12 @@ cdef class Output:
         self._check_open()
 
         if type(msg) is list:
-             # Markus Pfaff contribution
-            msg = array.array('B', msg).tostring()
+            # Markus Pfaff contribution
+            arr = array.array('B', msg)
+            if sys.version_info[0] == 3:
+                msg = arr.tobytes()
+            else:
+                msg = arr.tostring()
         cmsg = msg
 
         cur_time = Pt_Time()
