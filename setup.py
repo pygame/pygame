@@ -88,6 +88,19 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+if '-pygame-ci' in sys.argv:
+    cflags = os.environ.get('CFLAGS', '')
+    if cflags:
+        cflags += ' '
+    cflags += '-Werror=nested-externs -Werror=switch -Werror=implicit ' + \
+              '-Werror=implicit-function-declaration -Werror=return-type ' + \
+              '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
+              '-Werror=format-security -Werror=uninitialized ' + \
+              '-Werror=trigraphs -Werror=parentheses ' + \
+              '-Werror=cast-align'
+    os.environ['CFLAGS'] = cflags
+    sys.argv.remove ('-pygame-ci')
+
 if 'cython' in sys.argv:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
