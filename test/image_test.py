@@ -6,7 +6,7 @@ import tempfile
 import unittest
 import glob
 
-from pygame.tests.test_utils import example_path, png
+from pygame.tests.test_utils import example_path, png, tostring
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_, unicode_
 
@@ -411,7 +411,7 @@ class ImageModuleTest(unittest.TestCase):
                 byte_buf[i * 4 + 2] = byte_buf[i * 4 + 1]
                 byte_buf[i * 4 + 1] = byte_buf[i * 4 + 0]
                 byte_buf[i * 4 + 0] = alpha
-            return byte_buf.tostring()
+            return tostring(byte_buf)
 
         ####################################################################
         def RotateARGBtoRGBA(str_buf):
@@ -423,7 +423,7 @@ class ImageModuleTest(unittest.TestCase):
                 byte_buf[i * 4 + 1] = byte_buf[i * 4 + 2]
                 byte_buf[i * 4 + 2] = byte_buf[i * 4 + 3]
                 byte_buf[i * 4 + 3] = alpha
-            return byte_buf.tostring()
+            return tostring(byte_buf)
 
         ####################################################################
         test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA, depth=32)
