@@ -3,7 +3,7 @@ set -e -x
 
 cd $(dirname `readlink -f "$0"`)
 
-OGG=libogg-1.3.3
+OGG=libogg-1.3.4
 VORBIS=libvorbis-1.3.6
 
 curl -sL http://downloads.xiph.org/releases/ogg/${OGG}.tar.gz > ${OGG}.tar.gz
