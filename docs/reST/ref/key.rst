@@ -203,7 +203,7 @@ can be assembled by bitwise-ORing them together.
       KMOD_META     left meta or right meta or both
       KMOD_CAPS     caps lock
       KMOD_NUM      num lock
-      KMOD_MODE     mode
+      KMOD_MODE     AltGr
 
 
 The modifier information is contained in the ``mod`` attribute of the
