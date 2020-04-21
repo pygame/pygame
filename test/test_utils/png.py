@@ -163,6 +163,7 @@ __version__ = "$URL: http://pypng.googlecode.com/svn/trunk/code/png.py $ $Rev: 2
 
 from pygame.compat import geterror, imap_
 from array import array
+from pygame.tests.test_utils import tostring
 import itertools
 import math
 import operator
@@ -170,7 +171,6 @@ import struct
 import sys
 import zlib
 import warnings
-import sys
 
 __all__ = ["Image", "Reader", "Writer", "write_chunks", "from_array"]
 
@@ -200,20 +200,6 @@ def isarray(x):
     """Same as ``isinstance(x, array)``.
     """
     return isinstance(x, array)
-
-
-def tostring(row):
-    """Convert row of bytes to string.  Expects `row` to be an
-    ``array``.
-    """
-    return row.tostring()
-
-if sys.version_info.major>=3:
-    def tostring(row):
-        """Convert byte-array of type `array` into byte string
-        of type `bytes`.
-        """
-        return row.tobytes()
 
 
 # Conditionally convert to bytes.  Works on Python 2 and Python 3.
