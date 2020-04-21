@@ -278,16 +278,21 @@ time_set_timer(PyObject *self, PyObject *arg)
 
 /*clock object interface*/
 typedef struct {
-    PyObject_HEAD int last_tick;
+    PyObject_HEAD int last_frame;
     int fps_count, fps_tick;
     float fps;
     int timepassed, rawpassed;
-    PyObject *rendered;
+    Uint64 last_tick;
+    float elapsed_time;
+    Uint64 start_of_clock;
+    Uint64 current_ticks;
+    Uint64 delta;
+    Uint64 ticks_per_second;
+    float accumulated_time;
 } PyClockObject;
 
-// to be called by the other tick functions.
 static PyObject *
-clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
+clock_tick(PyObject *self, PyObject *arg)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     float framerate = 0.0f;
@@ -297,37 +302,27 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
         return NULL;
 
     if (framerate) {
-        int delay, endtime = (int)((1.0f / framerate) * 1000.0f);
-        _clock->rawpassed = SDL_GetTicks() - _clock->last_tick;
-        delay = endtime - _clock->rawpassed;
-
         /*just doublecheck that timer is initialized*/
         if (!SDL_WasInit(SDL_INIT_TIMER)) {
             if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
             }
         }
-
-        if (use_accurate_delay)
-            delay = accurate_delay(delay);
-        else {
-            // this uses sdls delay, which can be inaccurate.
-            if (delay < 0)
-                delay = 0;
-
-            Py_BEGIN_ALLOW_THREADS;
-            SDL_Delay((Uint32)delay);
-            Py_END_ALLOW_THREADS;
+        _clock->rawpassed = SDL_GetTicks() - _clock->last_tick;
+        float cycle_time = 1.0f / framerate;
+        while (_clock->accumulated_time - cycle_time < 0.00001f) {
+            _clock->current_ticks = SDL_GetPerformanceCounter() - _clock->start_of_clock;
+            _clock->delta = _clock->current_ticks - _clock->last_tick;
+            _clock->last_tick = _clock->current_ticks;
+            _clock->elapsed_time = _clock->delta / (float) _clock->ticks_per_second;
+            _clock->accumulated_time += _clock->elapsed_time;
         }
-
-        if (delay == -1)
-            return NULL;
+        _clock->accumulated_time -= cycle_time;
     }
-
     nowtime = SDL_GetTicks();
-    _clock->timepassed = nowtime - _clock->last_tick;
+    _clock->timepassed = nowtime - _clock->last_frame;
     _clock->fps_count += 1;
-    _clock->last_tick = nowtime;
+    _clock->last_frame = nowtime;
     if (!framerate)
         _clock->rawpassed = _clock->timepassed;
 
@@ -340,21 +335,8 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             _clock->fps_count / ((nowtime - _clock->fps_tick) / 1000.0f);
         _clock->fps_count = 0;
         _clock->fps_tick = nowtime;
-        Py_XDECREF(_clock->rendered);
     }
     return PyInt_FromLong(_clock->timepassed);
-}
-
-static PyObject *
-clock_tick(PyObject *self, PyObject *arg)
-{
-    return clock_tick_base(self, arg, 0);
-}
-
-static PyObject *
-clock_tick_busy_loop(PyObject *self, PyObject *arg)
-{
-    return clock_tick_base(self, arg, 1);
 }
 
 static PyObject *
@@ -386,7 +368,7 @@ static struct PyMethodDef clock_methods[] = {
     {"get_time", clock_get_time, METH_NOARGS, DOC_CLOCKGETTIME},
     {"get_rawtime", clock_get_rawtime, METH_NOARGS,
      DOC_CLOCKGETRAWTIME},
-    {"tick_busy_loop", clock_tick_busy_loop, METH_VARARGS,
+    {"tick_busy_loop", clock_tick, METH_VARARGS,
      DOC_CLOCKTICKBUSYLOOP},
     {NULL, NULL, 0, NULL}};
 
@@ -394,7 +376,6 @@ static void
 clock_dealloc(PyObject *self)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    Py_XDECREF(_clock->rendered);
     PyObject_DEL(self);
 }
 
@@ -467,10 +448,17 @@ ClockInit(PyObject *self)
     _clock->fps_tick = 0;
     _clock->timepassed = 0;
     _clock->rawpassed = 0;
-    _clock->last_tick = SDL_GetTicks();
+    _clock->last_frame = SDL_GetTicks();
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
-    _clock->rendered = NULL;
+
+    _clock->start_of_clock = SDL_GetPerformanceCounter();
+    _clock->current_ticks = SDL_GetPerformanceCounter() - _clock->start_of_clock;
+    _clock->delta = 0.0f;
+    _clock->last_tick = _clock->current_ticks;
+    _clock->ticks_per_second = SDL_GetPerformanceFrequency();
+    _clock->elapsed_time = _clock->delta / (float)_clock->ticks_per_second;
+    _clock->accumulated_time = 0.0f;
 
     return (PyObject *)_clock;
 }
