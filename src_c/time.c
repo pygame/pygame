@@ -295,6 +295,7 @@ static PyObject *
 clock_tick(PyObject *self, PyObject *arg)
 {
     PyClockObject *_clock = (PyClockObject *)self;
+    float cycle_time;
     float framerate = 0.0f;
     int nowtime;
 
@@ -309,7 +310,7 @@ clock_tick(PyObject *self, PyObject *arg)
             }
         }
         _clock->rawpassed = SDL_GetTicks() - _clock->last_tick;
-        float cycle_time = 1.0f / framerate;
+        cycle_time = 1.0f / framerate;
         while (_clock->accumulated_time - cycle_time < 0.00001f) {
             _clock->current_ticks = SDL_GetPerformanceCounter() - _clock->start_of_clock;
             _clock->delta = _clock->current_ticks - _clock->last_tick;
