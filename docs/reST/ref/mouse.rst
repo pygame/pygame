@@ -162,6 +162,9 @@ configured.
    Get the information about the mouse system cursor. The return value is the
    same data as the arguments passed into ``pygame.mouse.set_cursor()``.
 
+   .. note:: This method is unavailable with SDL2, as SDL2 does not provide
+             the underlying code to implement this method.
+
    .. ## pygame.mouse.get_cursor ##
 
 .. ## pygame.mouse ##

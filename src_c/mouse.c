@@ -278,7 +278,13 @@ interror:
     return RAISE(PyExc_TypeError, "Invalid number in mask array");
 }
 
-#if IS_SDLv1
+#if IS_SDLv2
+static PyObject *
+mouse_get_cursor(PyObject *self)
+{
+    return RAISE(PyExc_TypeError, "The get_cursor method is unavailable in SDL2");
+}
+#else /* IS_SDLv1*/
 static PyObject *
 mouse_get_cursor(PyObject *self)
 {
@@ -330,10 +336,8 @@ static PyMethodDef _mouse_methods[] = {
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},
-#if IS_SDLv1
     {"get_cursor", (PyCFunction)mouse_get_cursor, METH_VARARGS,
      DOC_PYGAMEMOUSEGETCURSOR},
-#endif /* IS_SDLv1 */
 
     {NULL, NULL, 0, NULL}};
 

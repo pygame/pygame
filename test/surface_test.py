@@ -544,7 +544,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             r2, g2, b2, a2 = s.get_masks()
             self.assertEqual((r, g, b, a), (b2, g2, r2, a2))
         else:
-            self.assertRaises(AttributeError, s.set_masks, (b, g, r, a))
+            self.assertRaises(TypeError, s.set_masks, (b, g, r, a))
 
     def test_set_shifts(self):
         s = pygame.Surface((32, 32))
@@ -554,7 +554,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             r2, g2, b2, a2 = s.get_shifts()
             self.assertEqual((r, g, b, a), (b2, g2, r2, a2))
         else:
-            self.assertRaises(AttributeError, s.set_shifts, (b, g, r, a))
+            self.assertRaises(TypeError, s.set_shifts, (b, g, r, a))
 
     def test_blit_keyword_args(self):
         color = (1, 2, 3, 255)

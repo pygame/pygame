@@ -436,8 +436,8 @@ class SurfarrayModuleTest(unittest.TestCase):
                 pygame.surfarray.blit_array(surf, arr3d)
                 self._assert_surface(surf, palette)
             else:
-                self.assertRaises(AttributeError, surf.set_shifts, shifts)
-                self.assertRaises(AttributeError, surf.set_masks, masks)
+                self.assertRaises(TypeError, surf.set_shifts, shifts)
+                self.assertRaises(TypeError, surf.set_masks, masks)
 
         # Invalid arrays
         surf = pygame.Surface((1, 1), 0, 32)
