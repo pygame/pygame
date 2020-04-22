@@ -18,6 +18,8 @@
 ##    Pete Shinners
 ##    pete@shinners.org
 
+# cython: language_level=2
+
 """pygame module with basic game object classes
 
 This module contains several simple classes to be used within games. There
