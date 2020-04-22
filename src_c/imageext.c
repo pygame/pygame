@@ -216,7 +216,8 @@ image_load_ext(PyObject *self, PyObject *arg)
 
     if (surf == NULL){
         SDL_ClearError();
-        return RAISE(PyExc_FileNotFoundError, "No such file or directory.");
+        PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
+        return NULL;
     }
     final = pgSurface_New(surf);
     if (final == NULL) {

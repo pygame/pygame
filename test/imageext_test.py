@@ -39,7 +39,7 @@ class ImageextModuleTest(unittest.TestCase):
 
     def test_load_unknown_extension(self):
         s = "foo.bar"
-        self.assertRaises(pygame.error, imageext.load_extended, s)
+        self.assertRaises(FileNotFoundError, imageext.load_extended, s)
 
     def test_load_unknown_file(self):
         s = "nonexistent.png"
