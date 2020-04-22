@@ -43,7 +43,7 @@ class ImageextModuleTest(unittest.TestCase):
 
     def test_load_unknown_file(self):
         s = "nonexistent.png"
-        self.assertRaises(pygame.error, imageext.load_extended, s)
+        self.assertRaises(FileNotFoundError, imageext.load_extended, s)
 
     def test_load_unicode_path_0(self):
         u = unicode_(example_path("data/alien1.png"))
