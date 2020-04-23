@@ -314,6 +314,14 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
+enum unpack_function {
+    UNPACK_RGB_COLOR,
+    UNPACK_RGB_COLOR_ALPHA_MULT,
+    UNPACK_RGBA_COLOR_ALPHA_MULT,
+    UNPACK_ARGB_COLOR_ALPHA_MULT,
+    UNPACK_ARGB_COLOR,
+};
+
 static PG_INLINE int
 unpack_RGB_color(char *data, Uint32 color, SDL_PixelFormat *format) {
     data[0] = (char)(((color & format->Rmask) >> format->Rshift) << format->Rloss);
@@ -381,37 +389,55 @@ static PG_INLINE Uint32 read_24bit_color(const Uint8 *ptr) {
 #endif
 }
 
-typedef int (*unpack_function)(char *, Uint32, SDL_PixelFormat *);
-
 static PG_INLINE void
-parse_8bit_colors(SDL_Surface *surf, char *data, int flipped, unpack_function unpack_func) {
+parse_8bit_colors(SDL_Surface *surf, char *data, int flipped) {
     int w, h;
+    SDL_Palette *palette = surf->format->palette;
     for (h = 0; h < surf->h; ++h) {
         Uint8 *ptr = (Uint8 *)DATAROW(
             surf->pixels, h, surf->pitch, surf->h, flipped);
         for (w = 0; w < surf->w; ++w) {
             Uint32 color = *ptr++;
-            data += unpack_func(data, color, surf->format);
+            data[0] = (char)palette->colors[color].r;
+            data[1] = (char)palette->colors[color].g;
+            data[2] = (char)palette->colors[color].b;
+            data += 3;
         }
     }
 }
 
 static PG_INLINE void
-parse_16bit_colors(SDL_Surface *surf, char *data, int flipped, unpack_function unpack_func) {
+parse_16bit_colors(SDL_Surface *surf, char *data, int flipped, enum unpack_function unpack_func) {
     int w, h;
     for (h = 0; h < surf->h; ++h) {
         Uint16 *ptr = (Uint16 *)DATAROW(
             surf->pixels, h, surf->pitch, surf->h, flipped);
         for (w = 0; w < surf->w; ++w) {
             Uint32 color = *ptr++;
-            data += unpack_func(data, color, surf->format);
+            switch (unpack_func) {
+            case UNPACK_RGB_COLOR:
+                data += unpack_RGB_color(data, color, surf->format);
+                break;
+            case UNPACK_RGBA_COLOR_ALPHA_MULT:
+                data += unpack_RGBA_color_alpha_mult(data, color, surf->format);
+                break;
+            case UNPACK_ARGB_COLOR_ALPHA_MULT:
+                data += unpack_ARGB_color_alpha_mult(data, color, surf->format);
+                break;
+            case UNPACK_ARGB_COLOR:
+                data += unpack_ARGB_color(data, color, surf->format);
+                break;
+            default:
+                assert(0);
+                break;
+            }
         }
     }
 }
 
 
 static PG_INLINE void
-parse_24bit_colors(SDL_Surface *surf, char *data, int flipped, unpack_function unpack_func) {
+parse_24bit_colors(SDL_Surface *surf, char *data, int flipped, enum unpack_function unpack_func) {
     int w, h;
     for (h = 0; h < surf->h; ++h) {
         Uint8 *ptr = (Uint8 *)DATAROW(
@@ -419,20 +445,52 @@ parse_24bit_colors(SDL_Surface *surf, char *data, int flipped, unpack_function u
         for (w = 0; w < surf->w; ++w) {
             Uint32 color = read_24bit_color(ptr);
             ptr += 3;
-            data += unpack_func(data, color, surf->format);
+            switch (unpack_func) {
+            case UNPACK_RGB_COLOR:
+                data += unpack_RGB_color(data, color, surf->format);
+                break;
+            case UNPACK_RGBA_COLOR_ALPHA_MULT:
+                data += unpack_RGBA_color_alpha_mult(data, color, surf->format);
+                break;
+            case UNPACK_ARGB_COLOR_ALPHA_MULT:
+                data += unpack_ARGB_color_alpha_mult(data, color, surf->format);
+                break;
+            case UNPACK_ARGB_COLOR:
+                data += unpack_ARGB_color(data, color, surf->format);
+                break;
+            default:
+                assert(0);
+                break;
+            }
         }
     }
 }
 
 static PG_INLINE void
-parse_32bit_colors(SDL_Surface *surf, char *data, int flipped, unpack_function unpack_func) {
+parse_32bit_colors(SDL_Surface *surf, char *data, int flipped, enum unpack_function unpack_func) {
     int w, h;
     for (h = 0; h < surf->h; ++h) {
         Uint32 *ptr = (Uint32 *)DATAROW(
             surf->pixels, h, surf->pitch, surf->h, flipped);
         for (w = 0; w < surf->w; ++w) {
             Uint32 color = *ptr++;
-            data += unpack_func(data, color, surf->format);
+            switch (unpack_func) {
+            case UNPACK_RGB_COLOR:
+                data += unpack_RGB_color(data, color, surf->format);
+                break;
+            case UNPACK_RGBA_COLOR_ALPHA_MULT:
+                data += unpack_RGBA_color_alpha_mult(data, color, surf->format);
+                break;
+            case UNPACK_ARGB_COLOR_ALPHA_MULT:
+                data += unpack_ARGB_color_alpha_mult(data, color, surf->format);
+                break;
+            case UNPACK_ARGB_COLOR:
+                data += unpack_ARGB_color(data, color, surf->format);
+                break;
+            default:
+                assert(0);
+                break;
+            }
         }
     }
 }
@@ -510,16 +568,16 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 1:
-                parse_8bit_colors(surf, data, flipped, unpack_color_from_palette);
+                parse_8bit_colors(surf, data, flipped);
                 break;
             case 2:
-                parse_16bit_colors(surf, data, flipped, unpack_RGB_color);
+                parse_16bit_colors(surf, data, flipped, UNPACK_RGB_COLOR);
                 break;
             case 3:
-                parse_24bit_colors(surf, data, flipped, unpack_RGB_color);
+                parse_24bit_colors(surf, data, flipped, UNPACK_RGB_COLOR);
                 break;
             case 4:
-                parse_32bit_colors(surf, data, flipped, unpack_RGB_color);
+                parse_32bit_colors(surf, data, flipped, UNPACK_RGB_COLOR);
                 break;
         }
 
@@ -636,13 +694,13 @@ image_tostring(PyObject *self, PyObject *arg)
                 }
                 break;
             case 2:
-                parse_16bit_colors(surf, data, flipped, unpack_ARGB_color);
+                parse_16bit_colors(surf, data, flipped, UNPACK_ARGB_COLOR);
                 break;
             case 3:
-                parse_24bit_colors(surf, data, flipped, unpack_ARGB_color);
+                parse_24bit_colors(surf, data, flipped, UNPACK_ARGB_COLOR);
                 break;
             case 4:
-                parse_32bit_colors(surf, data, flipped, unpack_ARGB_color);
+                parse_32bit_colors(surf, data, flipped, UNPACK_ARGB_COLOR);
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -665,13 +723,13 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
-                parse_16bit_colors(surf, data, flipped, unpack_RGBA_color_alpha_mult);
+                parse_16bit_colors(surf, data, flipped, UNPACK_RGBA_COLOR_ALPHA_MULT);
                 break;
             case 3:
-                parse_24bit_colors(surf, data, flipped, unpack_RGBA_color_alpha_mult);
+                parse_24bit_colors(surf, data, flipped, UNPACK_RGBA_COLOR_ALPHA_MULT);
                 break;
             case 4:
-                parse_32bit_colors(surf, data, flipped, unpack_RGBA_color_alpha_mult);
+                parse_32bit_colors(surf, data, flipped, UNPACK_RGBA_COLOR_ALPHA_MULT);
                 break;
         }
         pgSurface_Unlock(surfobj);
@@ -694,13 +752,13 @@ image_tostring(PyObject *self, PyObject *arg)
         pixels = (char *)surf->pixels;
         switch (surf->format->BytesPerPixel) {
             case 2:
-                parse_16bit_colors(surf, data, flipped, unpack_ARGB_color_alpha_mult);
+                parse_16bit_colors(surf, data, flipped, UNPACK_ARGB_COLOR_ALPHA_MULT);
                 break;
             case 3:
-                parse_24bit_colors(surf, data, flipped, unpack_ARGB_color_alpha_mult);
+                parse_24bit_colors(surf, data, flipped, UNPACK_ARGB_COLOR_ALPHA_MULT);
                 break;
             case 4:
-                parse_32bit_colors(surf, data, flipped, unpack_ARGB_color_alpha_mult);
+                parse_32bit_colors(surf, data, flipped, UNPACK_ARGB_COLOR_ALPHA_MULT);
                 break;
         }
         pgSurface_Unlock(surfobj);
