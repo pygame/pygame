@@ -233,6 +233,30 @@ else:
 #headers to install
 headers = glob.glob(os.path.join('src_c', '*.h'))
 headers.remove(os.path.join('src_c', 'scale.h'))
+headers.append(os.path.join('src_c', 'include'))
+
+import distutils.command.install_headers
+
+def run_install_headers(self):
+    headers = self.distribution.headers
+    if not headers:
+        return
+
+    self.mkpath(self.install_dir)
+    for header in headers:
+        if os.path.isdir(header):
+            destdir=os.path.join(self.install_dir, os.path.basename(header))
+            self.mkpath(destdir)
+            for entry in os.listdir(header):
+                header1=os.path.join(header, entry)
+                if not os.path.isdir(header1):
+                    (out, _) = self.copy_file(header1, destdir)
+                    self.outfiles.append(out)
+        else:
+            (out, _) = self.copy_file(header, self.install_dir)
+            self.outfiles.append(out)
+
+distutils.command.install_headers.install_headers.run = run_install_headers
 
 # option for not installing the headers.
 if "-noheaders" in sys.argv:
