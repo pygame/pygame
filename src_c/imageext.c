@@ -215,9 +215,14 @@ image_load_ext(PyObject *self, PyObject *arg)
     }
 
     if (surf == NULL){
-        SDL_ClearError();
-        PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
-        return NULL;
+        if (!strcmp(IMG_GetError(), "Couldn't open fname.asdf")){
+            SDL_ClearError();
+            PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
+            return NULL;
+        }
+        else{
+            return RAISE(pgExc_SDLError, IMG_GetError());
+        }
     }
     final = pgSurface_New(surf);
     if (final == NULL) {
