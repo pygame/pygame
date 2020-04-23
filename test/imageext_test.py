@@ -36,14 +36,22 @@ class ImageextModuleTest(unittest.TestCase):
         im = pygame.Surface((10, 10), 0, 32)
         s = "foo.bar"
         self.assertRaises(pygame.error, imageext.save_extended, im, s)
+    if sys.version_info >= (3, 0):
+        def test_load_unknown_extension(self):
+            s = "foo.bar"
+            self.assertRaises(FileNotFoundError, imageext.load_extended, s)
 
-    def test_load_unknown_extension(self):
-        s = "foo.bar"
-        self.assertRaises(FileNotFoundError, imageext.load_extended, s)
+        def test_load_unknown_file(self):
+            s = "nonexistent.png"
+            self.assertRaises(FileNotFoundError, imageext.load_extended, s)
+    else:
+        def test_load_unknown_extension(self):
+            s = "foo.bar"
+            self.assertRaises(IOError, imageext.load_extended, s)
 
-    def test_load_unknown_file(self):
-        s = "nonexistent.png"
-        self.assertRaises(FileNotFoundError, imageext.load_extended, s)
+        def test_load_unknown_file(self):
+            s = "nonexistent.png"
+            self.assertRaises(IOError, imageext.load_extended, s)
 
     def test_load_unicode_path_0(self):
         u = unicode_(example_path("data/alien1.png"))

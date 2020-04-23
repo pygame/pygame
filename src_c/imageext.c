@@ -215,9 +215,13 @@ image_load_ext(PyObject *self, PyObject *arg)
     }
 
     if (surf == NULL){
-        if (!strcmp(IMG_GetError(), "Couldn't open fname.asdf")){
+        if (!strncmp(IMG_GetError(), "Couldn't open", 12)){
             SDL_ClearError();
+#if PY3
             PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
+#else
+            PyErr_SetString(PyExc_IOError, "No such file or directory.");
+#endif
             return NULL;
         }
         else{
