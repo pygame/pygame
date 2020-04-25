@@ -30,6 +30,46 @@ mouse will never be stopped by the borders of the screen. See the functions
 ``pygame.mouse.set_visible()`` and ``pygame.event.set_grab()`` to get this
 configured.
 
+
+**Mouse Wheel Behavior in pygame2**
+
+There is proper functionality for mouse wheel behaviour with SDL2's
+``SDL_MOUSEWHEEL`` events. ``SDL_MOUSEWHEEL`` replaces the old method of treating
+mouse scrolling as a type of button like, as such in SDL1. The new events support
+horizontal and vertical scroll movements, with signed integer values representing
+the amount scrolled, as well as "flipped" direction (the set positive and negative
+values for each axis is flipped). Read more about SDL2 input-related changes `here
+<https://wiki.libsdl.org/MigrationGuide#Input>`_
+
+In pygame2, the mouse wheel functionality can be used by listening for the ``pygame.events.MOUSEWHEEL`` EventType.
+When this event is triggered, a developer can access the appropriate ``Event`` object with ``pygame.event.get()``. The object can be used
+to access data about the mouse scroll, such as ``which`` (it will tell you what exact mouse device trigger the event).
+
+.. code-block:: python
+   :caption: Code example of mouse scroll (tested on 2.0.0.dev7)
+   :name: test.py
+
+   # Taken from husano896's PR thread:
+   import pygame
+   from pygame.locals import *
+   pygame.init()
+   screen = pygame.display.set_mode((640,480))
+   clock = pygame.time.Clock()
+   
+   def main():
+      while True:
+         for event_var in pygame.event.get():
+               if event_var.type == QUIT:
+                  pygame.quit()
+                  return
+               elif event_var.type == MOUSEWHEEL:
+                  print(event_var) # can access properties with prop notation 
+                                   # (ex: event_var.y)
+         clock.tick(60)
+
+   # Execute game:
+   main()
+
 .. function:: get_pressed
 
    | :sl:`get the state of the mouse buttons`
