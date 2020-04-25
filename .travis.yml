@@ -124,7 +124,7 @@ install:
   - "$PIP_CMD install --upgrade pip"
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders -auto; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -pygame-ci -noheaders -auto; fi
   - if [[ "$MANYLINUX_WHL" == "yes" ]]; then source buildconfig/ci/travis/.travis_linux_build_wheels.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_install.sh; fi
 
