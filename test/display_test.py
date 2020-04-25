@@ -419,5 +419,15 @@ class DisplayOpenGLTest(unittest.TestCase):
         self.assertEqual((640, 480), screen.get_size())
 
 
+class X11CrashTest(unittest.TestCase):
+    def test_x11_set_mode_crash_gh1654(self):
+        # Test for https://github.com/pygame/pygame/issues/1654
+        # If unfixed, this will trip a segmentation fault
+        pygame.display.init()
+        pygame.display.quit()
+        screen = pygame.display.set_mode((640, 480), 0)
+        self.assertEqual((640, 480), screen.get_size())
+
+
 if __name__ == "__main__":
     unittest.main()

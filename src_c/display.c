@@ -838,7 +838,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     else if (display_env != NULL) {
         display = SDL_atoi(display_env);
     }
-    else {
+    /* On e.g. Linux X11, checking the mouse pointer requires that the
+     * video subsystem is initialized to avoid crashes.
+     *
+     * Note that we do not bother raising an error here; the condition will
+     * be rechecked after parsing the arguments and the function will throw
+     * the relevant error there.
+     */
+    else if (SDL_WasInit(SDL_INIT_VIDEO)) {
         int num_displays, i;
         SDL_Rect display_bounds;
         SDL_Point mouse_position;
