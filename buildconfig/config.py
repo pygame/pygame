@@ -159,16 +159,26 @@ def main(auto=False):
     additional_platform_setup = []
     sdl1 = "-sdl1" in sys.argv
     sdl2 = not sdl1
+    conan = "-conan" in sys.argv
 
     if '-sdl2' in sys.argv:
         sys.argv.remove('-sdl2')
     if '-sdl1' in sys.argv:
         sys.argv.remove('-sdl1')
 
+    if '-conan' in sys.argv:
+        sys.argv.remove('-conan')
+
     kwds = {}
     if sdl2:
         kwds['sdl2'] = True
-    if (sys.platform == 'win32' and
+    if conan:
+        print_('Using CONAN configuration...\n')
+        try:
+            import config_conan as CFG
+        except ImportError:
+            import buildconfig.config_conan as CFG
+    elif (sys.platform == 'win32' and
         # Note that msys builds supported for 2.6 and greater. Use prebuilt.
         (sys.version_info >= (2, 6) or not is_msys_mingw())):
         print_('Using WINDOWS configuration...\n')
@@ -189,8 +199,6 @@ def main(auto=False):
             import config_darwin as CFG
         except ImportError:
             import buildconfig.config_darwin as CFG
-
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
     else:
         print_('Using UNIX configuration...\n')
         try:
@@ -198,7 +206,14 @@ def main(auto=False):
         except ImportError:
             import buildconfig.config_unix as CFG
 
+
+    if sys.platform == 'win32':
+        pass
+    elif sys.platform == 'darwin':
+        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
+    else:
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
+
 
     if os.path.isfile('Setup'):
         if auto:
