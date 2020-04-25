@@ -428,11 +428,11 @@ required).
 .. function:: iconify
 
    | :sl:`Iconify the display surface`
-   | :sg:`iconify() -> bool`
+   | :sg:`iconify() -> int`
 
    Request the window for the display surface be iconified or hidden. Not all
    systems and displays support an iconified display. The function will return
-   True if successful.
+   1 if successful.
 
    When the display is iconified ``pygame.display.get_active()`` will return
    False. The event queue should receive a ``ACTIVEEVENT`` event when the
@@ -443,7 +443,7 @@ required).
 .. function:: toggle_fullscreen
 
    | :sl:`Switch between fullscreen and windowed displays`
-   | :sg:`toggle_fullscreen() -> bool`
+   | :sg:`toggle_fullscreen() -> int`
 
    Switches the display window between windowed and fullscreen modes. This
    function only works under the UNIX X11 video driver. For most situations it
@@ -454,12 +454,12 @@ required).
 .. function:: set_gamma
 
    | :sl:`Change the hardware gamma ramps`
-   | :sg:`set_gamma(red, green=None, blue=None) -> bool`
+   | :sg:`set_gamma(red, green=None, blue=None) -> int`
 
    Set the red, green, and blue gamma values on the display hardware. If the
    green and blue arguments are not passed, they will both be the same as red.
    Not all systems and hardware support gamma ramps, if the function succeeds
-   it will return True.
+   it will return 1.
 
    A gamma value of 1.0 creates a linear color table. Lower values will darken
    the display and higher values will brighten.
@@ -469,12 +469,12 @@ required).
 .. function:: set_gamma_ramp
 
    | :sl:`Change the hardware gamma ramps with a custom lookup`
-   | :sg:`set_gamma_ramp(red, green, blue) -> bool`
+   | :sg:`set_gamma_ramp(red, green, blue) -> int`
 
    Set the red, green, and blue gamma ramps with an explicit lookup table. Each
    argument should be sequence of 256 integers. The integers should range
    between 0 and 0xffff. Not all systems and hardware support gamma ramps, if
-   the function succeeds it will return True.
+   the function succeeds it will return 1.
 
    .. ## pygame.display.set_gamma_ramp ##
 
