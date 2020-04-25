@@ -2127,22 +2127,18 @@ pg_get_caption(PyObject *self, PyObject *args)
 static PyObject *
 pg_set_icon(PyObject *self, PyObject *arg)
 {
-#if (!defined(darwin))
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-#endif
     PyObject *surface;
     if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
         return NULL;
     if (!pgVideo_AutoInit())
         return RAISE(pgExc_SDLError, SDL_GetError());
-#if (!defined(darwin))
     Py_INCREF(surface);
     Py_XDECREF(state->icon);
     state->icon = surface;
     if (win)
         SDL_SetWindowIcon(win, pgSurface_AsSurface(surface));
-#endif
     Py_RETURN_NONE;
 }
 
