@@ -902,59 +902,76 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (radius <= 0 && top_left_radius <= 0 && top_right_radius <= 0 &&
         bottom_left_radius <= 0 && bottom_right_radius <= 0) {
-        SDL_Rect sdlrect;
-        int result;
-        /* TODO: use clip rect instead of surface bounds */
-        if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
-            sdlrect.x = sdlrect.y = 0;
-            sdlrect.w = sdlrect.h = 0;
+        if(width > 0){
+            l = rect->x;
+            r = rect->x + rect->w - 1;
+            t = rect->y;
+            b = rect->y + rect->h - 1;
+            points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
+            poly_args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
+            if (NULL == poly_args) {
+                return NULL; /* Exception already set. */
+            }
+
+            ret = polygon(NULL, poly_args, NULL);
+            Py_DECREF(poly_args);
+            return ret;
         }
         else {
-            sdlrect.x = rect->x;
-            sdlrect.y = rect->y;
-            sdlrect.w = rect->w;
-            sdlrect.h = rect->h;
-
-            // clip the rect to be within the surface.
-            if (sdlrect.x < 0) {
-                sdlrect.w = sdlrect.w + sdlrect.x;
-                sdlrect.x = 0;
+            SDL_Rect sdlrect;
+            int result;
+            /* TODO: use clip rect instead of surface bounds */
+            if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
+                sdlrect.x = sdlrect.y = 0;
+                sdlrect.w = sdlrect.h = 0;
             }
+            else {
+                sdlrect.x = rect->x;
+                sdlrect.y = rect->y;
+                sdlrect.w = rect->w;
+                sdlrect.h = rect->h;
 
-            if (sdlrect.y < 0) {
-                sdlrect.h = sdlrect.h + sdlrect.y;
-                sdlrect.y = 0;
+                // clip the rect to be within the surface.
+                if (sdlrect.x < 0) {
+                    sdlrect.w = sdlrect.w + sdlrect.x;
+                    sdlrect.x = 0;
+                }
 
+                if (sdlrect.y < 0) {
+                    sdlrect.h = sdlrect.h + sdlrect.y;
+                    sdlrect.y = 0;
+
+                }
+
+                if (sdlrect.x + sdlrect.w > surf->w) {
+                    sdlrect.w = sdlrect.w + (surf->w - (sdlrect.x + sdlrect.w));
+                }
+
+                if (sdlrect.y + sdlrect.h > surf->h) {
+                    sdlrect.h = sdlrect.h + (surf->h - (sdlrect.y + sdlrect.h));
+                }
+
+                if (sdlrect.x + sdlrect.w <= 0 || sdlrect.y + sdlrect.h <= 0) {
+                    sdlrect.w = 0;
+                    sdlrect.h = 0;
+                }
+
+                /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w,
+                 * sdlrect.h); */
+
+                if (sdlrect.w <=0 || sdlrect.h <=0) {
+                    return pgRect_New(&sdlrect);
+                }
+
+                pgSurface_Prep(self);
+                result = SDL_FillRect(surf, &sdlrect, color);
+                pgSurface_Unprep(self);
+
+                if (result == -1)
+                    return RAISE(pgExc_SDLError, SDL_GetError());
             }
-
-            if (sdlrect.x + sdlrect.w > surf->w) {
-                sdlrect.w = sdlrect.w + (surf->w - (sdlrect.x + sdlrect.w));
-           }
-
-            if (sdlrect.y + sdlrect.h > surf->h) {
-                sdlrect.h = sdlrect.h + (surf->h - (sdlrect.y + sdlrect.h));
-            }
-
-            if (sdlrect.x + sdlrect.w <= 0 || sdlrect.y + sdlrect.h <= 0) {
-                sdlrect.w = 0;
-                sdlrect.h = 0;
-            }
-
-            /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w,
-             * sdlrect.h); */
-
-            if (sdlrect.w <=0 || sdlrect.h <=0) {
-                return pgRect_New(&sdlrect);
-            }
-
-            pgSurface_Prep(self);
-            result = SDL_FillRect(surf, &sdlrect, color);
-            pgSurface_Unprep(self);
-
-            if (result == -1)
-                return RAISE(pgExc_SDLError, SDL_GetError());
+            return pgRect_New(&sdlrect);
         }
-        return pgRect_New(&sdlrect);
     }
     else {
         if (!pgSurface_Lock(surfobj)) {
@@ -1622,9 +1639,6 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
     int ddF_y = -2 * radius;
     int x = 0;
     int y = radius;
-    int y1;
-    int x1;
-    SDL_Rect square;
 
     while (x < y) {
         if (f >= 0) {
