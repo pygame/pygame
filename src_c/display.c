@@ -2797,6 +2797,11 @@ MODINIT_DEFINE(display)
         MODINIT_ERROR;
     }
 
+    /* type preparation */
+    if (PyType_Ready(&pgVidInfo_Type) < 0) {
+        MODINIT_ERROR;
+    }
+
     /* create the module */
 #if PY3
     module = PyModule_Create(&_module);
