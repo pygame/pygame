@@ -183,6 +183,9 @@ static PyObject *
 pgColor_NewLength(Uint8 rgba[], Uint8 length);
 static int
 pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[]);
+static int
+pg_RGBAFromFuzzyColorObj(PyObject *color, Uint8 rgba[]);
+
 
 /**
  * Methods, which are bound to the pgColorObject type.
@@ -887,9 +890,9 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
         return NULL;
     }
 
-    if (!pg_RGBAFromColorObj(colobj, rgba)) {
-        return RAISE(PyExc_TypeError,
-                        "Invalid color argument");
+    if (!pg_RGBAFromFuzzyColorObj(colobj, rgba)) {
+        /* Exception already set for us */
+        return NULL;
     }
 
     if (amt < 0 || amt > 1) {
@@ -2116,6 +2119,12 @@ pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[])
     return pg_RGBAFromObj(color, rgba);
 }
 
+static int
+pg_RGBAFromFuzzyColorObj(PyObject * color, Uint8 rgba[])
+{
+    return _parse_color_from_single_object(color, rgba) == 0;
+}
+
 /*DOC*/ static char _color_doc[] =
     /*DOC*/ "color module for pygame";
 
@@ -2194,6 +2203,7 @@ MODINIT_DEFINE(color)
     c_api[1] = pgColor_New;
     c_api[2] = pg_RGBAFromColorObj;
     c_api[3] = pgColor_NewLength;
+    c_api[4] = pg_RGBAFromFuzzyColorObj;
 
     apiobj = encapsulate_api(c_api, "color");
     if (apiobj == NULL) {

@@ -1121,10 +1121,11 @@ class ColorTypeTest(unittest.TestCase):
         # invalid input testing
         self.assertRaises(ValueError, lambda: color0.lerp(color128, 2.5))
         self.assertRaises(ValueError, lambda: color0.lerp(color128, -0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((256, 0, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((0, 256, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 256, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 0, 256), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((256, 0, 0, 0), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((0, 256, 0, 0), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((0, 0, 256, 0), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((0, 0, 0, 256), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp(0.2, 0.5))
 
 
 class SubclassTest(unittest.TestCase):

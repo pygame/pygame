@@ -985,10 +985,10 @@ surf_set_at(PyObject *self, PyObject *args)
         if (PyErr_Occurred() && (Sint32)color == -1)
             return RAISE(PyExc_TypeError, "invalid color argument");
     }
-    else if (pg_RGBAFromColorObj(rgba_obj, rgba))
+    else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba))
         color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+        return NULL; /* pg_RGBAFromFuzzyColorObj set an except for us */
 
     if (!pgSurface_Lock(self))
         return NULL;
@@ -1088,8 +1088,8 @@ surf_map_rgb(PyObject *self, PyObject *args)
     Uint8 rgba[4];
     int color;
 
-    if (!pg_RGBAFromColorObj(args, rgba))
-        return RAISE(PyExc_TypeError, "Invalid RGBA argument");
+    if (!pg_RGBAFromFuzzyColorObj(args, rgba))
+        return NULL; /* Exception already set for us */
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
@@ -1440,7 +1440,7 @@ surf_set_colorkey(PyObject *self, PyObject *args)
             if (PyErr_Occurred() && (Sint32)color == -1)
                 return RAISE(PyExc_TypeError, "invalid color argument");
         }
-        else if (pg_RGBAFromColorObj(rgba_obj, rgba)) {
+        else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba)) {
 #if IS_SDLv1
             color =
                 SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -1453,7 +1453,7 @@ surf_set_colorkey(PyObject *self, PyObject *args)
 #endif /* IS_SDLv2 */
         }
         else
-            return RAISE(PyExc_TypeError, "invalid color argument");
+            return NULL; /* pg_RGBAFromFuzzyColorObj set an exception for us */
         hascolor = SDL_TRUE;
     }
 #if IS_SDLv1
@@ -2088,10 +2088,10 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         color = (Uint32)PyInt_AsLong(rgba_obj);
     else if (PyLong_Check(rgba_obj))
         color = (Uint32)PyLong_AsUnsignedLong(rgba_obj);
-    else if (pg_RGBAFromColorObj(rgba_obj, rgba))
+    else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba))
         color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+        return NULL; /* pg_RGBAFromFuzzyColorObj set an exception for us */
 
     if (!r || r == Py_None) {
         rect = &temp;

@@ -357,8 +357,9 @@ font_render(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!pg_RGBAFromColorObj(fg_rgba_obj, rgba)) {
-        return RAISE(PyExc_TypeError, "Invalid foreground RGBA argument");
+    if (!pg_RGBAFromFuzzyColorObj(fg_rgba_obj, rgba)) {
+        /* Exception already set for us */
+        return NULL;
     }
     foreg.r = rgba[0];
     foreg.g = rgba[1];
@@ -373,8 +374,9 @@ font_render(PyObject *self, PyObject *args)
         bg_rgba_obj = NULL;
     }
     if (bg_rgba_obj != NULL) {
-        if (!pg_RGBAFromColorObj(bg_rgba_obj, rgba)) {
-            return RAISE(PyExc_TypeError, "Invalid background RGBA argument");
+        if (!pg_RGBAFromFuzzyColorObj(bg_rgba_obj, rgba)) {
+            /* Exception already set for us */
+            return NULL;
         } else {
             backg.r = rgba[0];
             backg.g = rgba[1];
