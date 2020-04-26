@@ -672,6 +672,43 @@ _color_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
+_parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
+    /* Named color */
+    PyObject *color = NULL;
+    PyObject *name1 = NULL, *name2 = NULL;
+
+    /* We assume the caller handled this check for us. */
+    assert(Text_Check(str_obj) || PyUnicode_Check(str_obj));
+
+    name1 = PyObject_CallMethod(str_obj, "replace", "(ss)", " ", "");
+    if (!name1) {
+        return -1;
+    }
+    name2 = PyObject_CallMethod(name1, "lower", NULL);
+    Py_DECREF(name1);
+    if (!name2) {
+        return -1;
+    }
+    color = PyDict_GetItem(_COLORDICT, name2);
+    Py_DECREF(name2);
+    if (!color) {
+        switch (_hexcolor(str_obj, rgba)) {
+            case TRISTATE_FAIL:
+                PyErr_SetString(PyExc_ValueError, "invalid color name");
+                return -1;
+            case TRISTATE_ERROR:
+                return -1;
+            default:
+                break;
+        }
+    } else if (!pg_RGBAFromObj(color, rgba)) {
+        PyErr_SetString(PyExc_ValueError, "invalid color");
+        return -1;
+    }
+    return 0;
+}
+
+static int
 _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
 {
     Uint8 *rgba = self->data;
@@ -685,38 +722,11 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (Text_Check(obj) || PyUnicode_Check(obj)) {
-        /* Named color */
-        PyObject *color = NULL;
-        PyObject *name1 = NULL, *name2 = NULL;
         if (obj1 || obj2 || obj3) {
             PyErr_SetString(PyExc_ValueError, "invalid arguments");
             return -1;
         }
-
-        name1 = PyObject_CallMethod(obj, "replace", "(ss)", " ", "");
-        if (!name1) {
-            return -1;
-        }
-        name2 = PyObject_CallMethod(name1, "lower", NULL);
-        Py_DECREF(name1);
-        if (!name2) {
-            return -1;
-        }
-        color = PyDict_GetItem(_COLORDICT, name2);
-        Py_DECREF(name2);
-        if (!color) {
-            switch (_hexcolor(obj, rgba)) {
-                case TRISTATE_FAIL:
-                    PyErr_SetString(PyExc_ValueError, "invalid color name");
-                    return -1;
-                case TRISTATE_ERROR:
-                    return -1;
-                default:
-                    break;
-            }
-        }
-        else if (!pg_RGBAFromObj(color, rgba)) {
-            PyErr_SetString(PyExc_ValueError, "invalid color");
+        if (_parse_color_from_text(obj, rgba)) {
             return -1;
         }
     }
