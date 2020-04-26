@@ -98,6 +98,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       both software and hardware display modes.
 
    .. versionchanged:: 2.0.0 Added support for keyword arguments.
+   .. versionchanged:: 2.0.0.dev8 Added support for border radius.
 
    .. ## pygame.draw.rect ##
 
@@ -204,6 +205,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
       used to be drawn when the radius equaled 0).
       Floats, and Vector2 are accepted for the ``center`` param.
       The drawing algorithm was improved to look more like a circle.
+   .. versionchanged:: 2.0.0.dev8 Added support for drawing circle quadrants.
 
    .. ## pygame.draw.circle ##
 
