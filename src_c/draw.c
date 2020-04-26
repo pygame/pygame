@@ -1290,6 +1290,7 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
     int y = radius;
     int y1;
     int i_y = radius - thickness;
+    int thickness_inner = thickness;
     int i_f = 1 - i_y;
     int i_ddF_x = 0;
     int i_ddF_y = -2 * i_y;
@@ -1301,6 +1302,7 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
             ddF_y += 2;
             f += ddF_y;
         }
+        /* inner circle*/
         if (i_f >= 0) {
             i_y--;
             i_ddF_y += 2;
@@ -1310,15 +1312,22 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
         ddF_x += 2;
         f += ddF_x + 1;
 
+        /* inner circle*/
         i_ddF_x += 2;
         i_f += i_ddF_x + 1;
 
-        if (thickness > 1)
-            thickness = y - i_y;
+        if (x > i_y) {
+            /* Distance between outer circle and 45-degree angle */
+            /* plus one pixel so there's no gap */
+            thickness_inner = y - x + 1;
+        } else {
+            /* Distance between outer and inner circle */
+            thickness_inner = y - i_y;
+        }
 
         /* Numbers represent parts of circle function draw in radians
            interval: [number - 1 * pi / 4, number * pi / 4] */
-        for (i = 0; i < thickness; i++) {
+        for (i = 0; i < thickness_inner; i++) {
             y1 = y - i;
             if ((y0 + y1 - 1) >= (y0 + x - 1)) {
                 set_at(surf, x0 + x - 1, y0 + y1 - 1, color,
