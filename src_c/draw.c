@@ -1191,6 +1191,83 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
     }
 }
 
+static void
+drawhorzline(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2)
+{
+    Uint8 *pixel, *end;
+    Uint8 *colorptr;
+
+    if (x1 == x2) {
+        return;
+    }
+
+    pixel = ((Uint8 *)surf->pixels) + surf->pitch * y1;
+    if (x1 < x2) {
+        end = pixel + x2 * surf->format->BytesPerPixel;
+        pixel += x1 * surf->format->BytesPerPixel;
+    }
+    else {
+        end = pixel + x1 * surf->format->BytesPerPixel;
+        pixel += x2 * surf->format->BytesPerPixel;
+    }
+    switch (surf->format->BytesPerPixel) {
+        case 1:
+            for (; pixel <= end; ++pixel) {
+                *pixel = (Uint8)color;
+            }
+            break;
+        case 2:
+            for (; pixel <= end; pixel += 2) {
+                *(Uint16 *)pixel = (Uint16)color;
+            }
+            break;
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+                color <<= 8;
+            colorptr = (Uint8 *)&color;
+            for (; pixel <= end; pixel += 3) {
+                pixel[0] = colorptr[0];
+                pixel[1] = colorptr[1];
+                pixel[2] = colorptr[2];
+            }
+            break;
+        default: /*case 4*/
+            for (; pixel <= end; pixel += 4) {
+                *(Uint32 *)pixel = color;
+            }
+            break;
+    }
+}
+
+static void
+drawhorzlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int *pts)
+{
+    if (y1 < surf->clip_rect.y || y1 >= surf->clip_rect.y + surf->clip_rect.h)
+        return;
+
+    if (x2 < x1) {
+        int temp = x1;
+        x1 = x2;
+        x2 = temp;
+    }
+
+    x1 = MAX(x1, surf->clip_rect.x);
+    x2 = MIN(x2, surf->clip_rect.x + surf->clip_rect.w - 1);
+
+    if (x2 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
+        return;
+
+    if (x1 == x2) {
+        /*set_at(surf, x1, y1, color, pts);*/
+        return;
+    }
+
+    add_pixel_to_drawn_list(x1, y1, pts);
+    add_pixel_to_drawn_list(x2, y1, pts);
+
+    drawhorzline(surf, color, x1, y1, x2);
+}
+
 /* Algorithm modified from
  * https://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm
  */
@@ -1558,30 +1635,12 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
         x++;
         ddF_x += 2;
         f += ddF_x + 1;
-        for (x1 = x0 - x; x1 < x0 + x; x1++) {
-            set_at(surf, x1, y0 + y - 1, color, drawn_area); /* 1 to 8 */
-            set_at(surf, x1, y0 - y, color, drawn_area);     /* 4 to 5 */
-        }
-        /* for (x1 = x0 - y; x1 < x0 + y; x1++) { */
-        /*     set_at(surf, x1, y0 + x - 1, color, drawn_area); /\* 2 to 7 *\/ */
-        /*     set_at(surf, x1, y0 - x, color, drawn_area);     /\* 3 to 6 *\/ */
-        /* } */
 
-        for (y1 = y0 - x; y1 < y0 + x; y1++) {
-            set_at(surf, x0 + y - 1, y1, color, drawn_area); /* 1 to 8 */
-            set_at(surf, x0 - y, y1, color, drawn_area);     /* 4 to 5 */
-        }
-        /* for (y1 = y0 - y; y1 < y0 + y; y1++) { */
-        /*     set_at(surf, x0 + x - 1, y1, color, drawn_area); /\* 2 to 7 *\/ */
-        /*     set_at(surf, x0 - x, y1, color, drawn_area);     /\* 3 to 6 *\/ */
-        /* } */
+        drawhorzlineclip(surf, color, x0 - x, y0 + y - 1, x0 + x -1, drawn_area);
+        drawhorzlineclip(surf, color, x0 - x, y0 - y, x0 + x -1, drawn_area);
+        drawhorzlineclip(surf, color, x0 - y, y0 + x - 1, x0 + y -1, drawn_area);
+        drawhorzlineclip(surf, color, x0 - y, y0 - x, x0 + y -1, drawn_area);
     }
-    square.w=x*2;
-    square.h=x*2;
-    square.x=x0-x;
-    square.y=y0-x;
-    SDL_FillRect(surf, &square, color);
-    /* TODO: Clip and return drawn pixels */
 }
 
 static void
