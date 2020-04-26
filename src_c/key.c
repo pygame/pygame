@@ -454,7 +454,7 @@ static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
 };
 
 static void
-_use_sdl1_key_names()
+_use_sdl1_key_names(void)
 {
     /* mostly copied from SDL_keyboard.c */
     SDL1_scancode_names[SDL_SCANCODE_BACKSPACE] = "backspace";

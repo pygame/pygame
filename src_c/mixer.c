@@ -341,7 +341,7 @@ pgMixer_AutoQuit(void)
 }
 
 static PyObject*
-import_music()
+import_music(void)
 {
     PyObject *music = PyImport_ImportModule(IMPPREFIX "mixer_music");
     if (music == NULL) {
