@@ -54,6 +54,9 @@ static void
 draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
                       int thickness, Uint32 color, int *drawn_area);
 static void
+draw_circle_bresenham_thin(SDL_Surface *surf, int x0, int y0, int radius,
+                      Uint32 color, int *drawn_area);
+static void
 draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
                    int *drawn_area);
 static void
@@ -708,8 +711,10 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
          bottom_right == 0)) {
         if (!width || width == radius) {
             draw_circle_filled(surf, posx, posy, radius, color, drawn_area);
-        }
-        else {
+        } else if (width == 1) {
+            draw_circle_bresenham_thin(surf, posx, posy, radius, color,
+                                  drawn_area);
+        } else {
             draw_circle_bresenham(surf, posx, posy, radius, width, color,
                                   drawn_area);
         }
@@ -1333,6 +1338,47 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
                 set_at(surf, x0 - y1, y0 + x - 1, color, drawn_area); /* 5 */
                 set_at(surf, x0 - y1, y0 - x, color, drawn_area);     /* 4 */
             }
+        }
+    }
+}
+
+static void
+draw_circle_bresenham_thin(SDL_Surface *surf, int x0, int y0, int radius,
+                           Uint32 color, int *drawn_area)
+{
+    int f = 1 - radius;
+    int ddF_x = 0;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+
+    while (x < y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x + 1;
+
+        if ((y0 + y - 1) >= (y0 + x - 1)) {
+            set_at(surf, x0 + x - 1, y0 + y - 1, color,
+                   drawn_area);                                  /* 7 */
+            set_at(surf, x0 - x, y0 + y - 1, color, drawn_area); /* 6 */
+        }
+        if ((y0 - y) <= (y0 - x)) {
+            set_at(surf, x0 + x - 1, y0 - y, color, drawn_area); /* 2 */
+            set_at(surf, x0 - x, y0 - y, color, drawn_area);     /* 3 */
+        }
+        if ((x0 + y - 1) >= (x0 + x - 1)) {
+            set_at(surf, x0 + y - 1, y0 + x - 1, color,
+                   drawn_area);                                  /* 8 */
+            set_at(surf, x0 + y - 1, y0 - x, color, drawn_area); /* 1 */
+        }
+        if ((x0 - y) <= (x0 - x)) {
+            set_at(surf, x0 - y, y0 + x - 1, color, drawn_area); /* 5 */
+            set_at(surf, x0 - y, y0 - x, color, drawn_area);     /* 4 */
         }
     }
 }
