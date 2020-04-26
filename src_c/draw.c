@@ -1546,6 +1546,8 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
     int x = 0;
     int y = radius;
     int y1;
+    int x1;
+    SDL_Rect square;
 
     while (x < y) {
         if (f >= 0) {
@@ -1556,16 +1558,30 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
         x++;
         ddF_x += 2;
         f += ddF_x + 1;
+        for (x1 = x0 - x; x1 < x0 + x; x1++) {
+            set_at(surf, x1, y0 + y - 1, color, drawn_area); /* 1 to 8 */
+            set_at(surf, x1, y0 - y, color, drawn_area);     /* 4 to 5 */
+        }
+        /* for (x1 = x0 - y; x1 < x0 + y; x1++) { */
+        /*     set_at(surf, x1, y0 + x - 1, color, drawn_area); /\* 2 to 7 *\/ */
+        /*     set_at(surf, x1, y0 - x, color, drawn_area);     /\* 3 to 6 *\/ */
+        /* } */
 
         for (y1 = y0 - x; y1 < y0 + x; y1++) {
             set_at(surf, x0 + y - 1, y1, color, drawn_area); /* 1 to 8 */
             set_at(surf, x0 - y, y1, color, drawn_area);     /* 4 to 5 */
         }
-        for (y1 = y0 - y; y1 < y0 + y; y1++) {
-            set_at(surf, x0 + x - 1, y1, color, drawn_area); /* 2 to 7 */
-            set_at(surf, x0 - x, y1, color, drawn_area);     /* 3 to 6 */
-        }
+        /* for (y1 = y0 - y; y1 < y0 + y; y1++) { */
+        /*     set_at(surf, x0 + x - 1, y1, color, drawn_area); /\* 2 to 7 *\/ */
+        /*     set_at(surf, x0 - x, y1, color, drawn_area);     /\* 3 to 6 *\/ */
+        /* } */
     }
+    square.w=x*2;
+    square.h=x*2;
+    square.x=x0-x;
+    square.y=y0-x;
+    SDL_FillRect(surf, &square, color);
+    /* TODO: Clip and return drawn pixels */
 }
 
 static void
