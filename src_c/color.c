@@ -420,7 +420,7 @@ _get_color(PyObject *val, Uint32 *color)
     }
 
     /* Failed */
-    PyErr_SetString(PyExc_ValueError, "invalid color argument");
+    PyErr_SetString(PyExc_TypeError, "invalid color argument");
     return 0;
 }
 
@@ -709,6 +709,43 @@ _parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
 }
 
 static int
+_parse_color_from_single_object(PyObject *obj, Uint8 *rgba) {
+
+    if (Text_Check(obj) || PyUnicode_Check(obj)) {
+        if (_parse_color_from_text(obj, rgba)) {
+            return -1;
+        }
+    } else {
+        /* At this point color is either tuple-like or a single integer. */
+        if (!pg_RGBAFromColorObj(obj, rgba)) {
+            /* Color is not a valid tuple-like. */
+            Uint32 color;
+            if (PyTuple_Check(obj) || PySequence_Check(obj)) {
+                /* It was a tuple-like; raise a ValueError
+                 * - if we pass it to _get_color, we will get a TypeError
+                 *   instead, which is wrong.  The type is correct, but it
+                 *   had the wrong number of arguments.
+                 */
+                PyErr_SetString(PyExc_ValueError, "invalid color argument");
+                return -1;
+            }
+
+            if (_get_color(obj, &color)) {
+                /* Color is a single integer. */
+                rgba[0] = (Uint8)(color >> 24);
+                rgba[1] = (Uint8)(color >> 16);
+                rgba[2] = (Uint8)(color >> 8);
+                rgba[3] = (Uint8)color;
+            } else {
+                /* Exception already set by _get_color(). */
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
+static int
 _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
 {
     Uint8 *rgba = self->data;
@@ -721,36 +758,11 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (Text_Check(obj) || PyUnicode_Check(obj)) {
-        if (obj1 || obj2 || obj3) {
-            PyErr_SetString(PyExc_ValueError, "invalid arguments");
+    if (!obj1) {
+        if (_parse_color_from_single_object(obj, rgba)) {
             return -1;
         }
-        if (_parse_color_from_text(obj, rgba)) {
-            return -1;
-        }
-    }
-    else if (!obj1) {
-        /* At this point color is either tuple-like or a single integer. */
-
-        if (!pg_RGBAFromObj(obj, rgba)) {
-            /* Color is not tuple-like. */
-            Uint32 color;
-
-            if (_get_color(obj, &color)) {
-                /* Color is a single interger. */
-                rgba[0] = (Uint8)(color >> 24);
-                rgba[1] = (Uint8)(color >> 16);
-                rgba[2] = (Uint8)(color >> 8);
-                rgba[3] = (Uint8)color;
-            }
-            else {
-                /* Exception already set by _get_color(). */
-                return -1;
-            }
-        }
-    }
-    else {
+    } else {
         Uint32 color = 0;
 
         /* Color(R,G,B[,A]) */
