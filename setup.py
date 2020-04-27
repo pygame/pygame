@@ -88,6 +88,19 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+if '-pygame-ci' in sys.argv:
+    cflags = os.environ.get('CFLAGS', '')
+    if cflags:
+        cflags += ' '
+    cflags += '-Werror=nested-externs -Werror=switch -Werror=implicit ' + \
+              '-Werror=implicit-function-declaration -Werror=return-type ' + \
+              '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
+              '-Werror=format-security -Werror=uninitialized ' + \
+              '-Werror=trigraphs -Werror=parentheses ' + \
+              '-Werror=cast-align'
+    os.environ['CFLAGS'] = cflags
+    sys.argv.remove ('-pygame-ci')
+
 if 'cython' in sys.argv:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
@@ -233,6 +246,30 @@ else:
 #headers to install
 headers = glob.glob(os.path.join('src_c', '*.h'))
 headers.remove(os.path.join('src_c', 'scale.h'))
+headers.append(os.path.join('src_c', 'include'))
+
+import distutils.command.install_headers
+
+def run_install_headers(self):
+    headers = self.distribution.headers
+    if not headers:
+        return
+
+    self.mkpath(self.install_dir)
+    for header in headers:
+        if os.path.isdir(header):
+            destdir=os.path.join(self.install_dir, os.path.basename(header))
+            self.mkpath(destdir)
+            for entry in os.listdir(header):
+                header1=os.path.join(header, entry)
+                if not os.path.isdir(header1):
+                    (out, _) = self.copy_file(header1, destdir)
+                    self.outfiles.append(out)
+        else:
+            (out, _) = self.copy_file(header, self.install_dir)
+            self.outfiles.append(out)
+
+distutils.command.install_headers.install_headers.run = run_install_headers
 
 # option for not installing the headers.
 if "-noheaders" in sys.argv:

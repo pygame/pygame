@@ -2679,18 +2679,16 @@ surf_set_masks(PyObject *self, PyObject *args)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    /*
-    printf("passed in: %d, %d, %d, %d\n", r,g,b,a );
-    printf("what are: %d, %d, %d, %d\n", surf->format->Rmask,
-    surf->format->Gmask, surf->format->Bmask, surf->format->Amask);
-    */
-
+#if IS_SDLv2
+    return RAISE(PyExc_TypeError, "The surface masks are read-only in SDL2");
+#else /* IS_SDLv1 */
     surf->format->Rmask = (Uint32)r;
     surf->format->Gmask = (Uint32)g;
     surf->format->Bmask = (Uint32)b;
     surf->format->Amask = (Uint32)a;
 
     Py_RETURN_NONE;
+#endif /* IS_SDLv1 */
 }
 
 static PyObject *
@@ -2715,12 +2713,16 @@ surf_set_shifts(PyObject *self, PyObject *args)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
+#if IS_SDLv2
+    return RAISE(PyExc_TypeError, "The surface shifts are read-only in SDL2");
+#else /* IS_SDLv1 */
     surf->format->Rshift = (Uint8)r;
     surf->format->Gshift = (Uint8)g;
     surf->format->Bshift = (Uint8)b;
     surf->format->Ashift = (Uint8)a;
 
     Py_RETURN_NONE;
+#endif /* IS_SDLv1 */
 }
 
 static PyObject *

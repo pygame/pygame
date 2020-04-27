@@ -17,6 +17,21 @@ except NameError:
     raw_input_ = input
 
 
+if sys.version_info[0] == 3:
+    def tostring(row):
+        """Convert row of bytes to string.  Expects `row` to be an
+        ``array``.
+        """
+        return row.tobytes()
+
+else:
+    def tostring(row):
+        """Convert row of bytes to string.  Expects `row` to be an
+        ``array``.
+        """
+        return row.tostring()
+
+
 def geterror():
     return sys.exc_info()[1]
 

@@ -838,7 +838,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     else if (display_env != NULL) {
         display = SDL_atoi(display_env);
     }
-    else {
+    /* On e.g. Linux X11, checking the mouse pointer requires that the
+     * video subsystem is initialized to avoid crashes.
+     *
+     * Note that we do not bother raising an error here; the condition will
+     * be rechecked after parsing the arguments and the function will throw
+     * the relevant error there.
+     */
+    else if (SDL_WasInit(SDL_INIT_VIDEO)) {
         int num_displays, i;
         SDL_Rect display_bounds;
         SDL_Point mouse_position;
@@ -1396,6 +1403,13 @@ pg_flip_internal(_DisplayState *state)
             SDL_RenderPresent(pg_renderer);
         }
         else {
+#if IS_SDLv2
+            /* Force a re-initialization of the surface in case it
+             * has been resized to avoid "please call SDL_GetWindowSurface"
+             * errors that the programmer cannot fix
+             */
+            (void)pg_GetDefaultWindowSurface();
+#endif
             status = SDL_UpdateWindowSurface(win);
         }
     }
@@ -2780,6 +2794,11 @@ MODINIT_DEFINE(display)
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
+
+    /* type preparation */
+    if (PyType_Ready(&pgVidInfo_Type) < 0) {
         MODINIT_ERROR;
     }
 

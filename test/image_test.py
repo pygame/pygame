@@ -6,7 +6,7 @@ import tempfile
 import unittest
 import glob
 
-from pygame.tests.test_utils import example_path, png
+from pygame.tests.test_utils import example_path, png, tostring
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_, unicode_
 
@@ -411,7 +411,7 @@ class ImageModuleTest(unittest.TestCase):
                 byte_buf[i * 4 + 2] = byte_buf[i * 4 + 1]
                 byte_buf[i * 4 + 1] = byte_buf[i * 4 + 0]
                 byte_buf[i * 4 + 0] = alpha
-            return byte_buf.tostring()
+            return tostring(byte_buf)
 
         ####################################################################
         def RotateARGBtoRGBA(str_buf):
@@ -423,7 +423,7 @@ class ImageModuleTest(unittest.TestCase):
                 byte_buf[i * 4 + 1] = byte_buf[i * 4 + 2]
                 byte_buf[i * 4 + 2] = byte_buf[i * 4 + 3]
                 byte_buf[i * 4 + 3] = alpha
-            return byte_buf.tostring()
+            return tostring(byte_buf)
 
         ####################################################################
         test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA, depth=32)
@@ -481,6 +481,29 @@ class ImageModuleTest(unittest.TestCase):
                 "tostring/fromstring functions are not "
                 'symmetric with "{}" format'.format(fmt),
             )
+
+    def test_tostring_depth_24(self):
+        test_surface = pygame.Surface((64, 256), depth=24)
+        for i in xrange_(256):
+            for j in xrange_(16):
+                intensity = j * 16 + 15
+                test_surface.set_at((j + 0, i), (intensity, i, i, i))
+                test_surface.set_at((j + 16, i), (i, intensity, i, i))
+                test_surface.set_at((j + 32, i), (i, i, intensity, i))
+                test_surface.set_at((j + 32, i), (i, i, i, intensity))
+
+        fmt = 'RGB'
+        fmt_buf = pygame.image.tostring(test_surface, fmt)
+        test_to_from_fmt_string = pygame.image.fromstring(
+            fmt_buf, test_surface.get_size(), fmt
+        )
+
+        self._assertSurfaceEqual(
+            test_surface,
+            test_to_from_fmt_string,
+            "tostring/fromstring functions are not "
+            'symmetric with "{}" format'.format(fmt),
+        )
 
     def todo_test_frombuffer(self):
 

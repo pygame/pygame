@@ -214,8 +214,19 @@ image_load_ext(PyObject *self, PyObject *arg)
         PyMem_Free(ext);
     }
 
-    if (surf == NULL) {
-        return RAISE(pgExc_SDLError, IMG_GetError());
+    if (surf == NULL){
+        if (!strncmp(IMG_GetError(), "Couldn't open", 12)){
+            SDL_ClearError();
+#if PY3
+            PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
+#else
+            PyErr_SetString(PyExc_IOError, "No such file or directory.");
+#endif
+            return NULL;
+        }
+        else{
+            return RAISE(pgExc_SDLError, IMG_GetError());
+        }
     }
     final = pgSurface_New(surf);
     if (final == NULL) {

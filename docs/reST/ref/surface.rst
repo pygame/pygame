@@ -768,6 +768,9 @@
 
       This is not needed for normal pygame usage.
 
+      .. note:: In SDL2, the masks are read-only and accordingly this method will raise
+                an AttributeError if called.
+
       .. versionadded:: 1.8.1
 
       .. ## Surface.set_masks ##
@@ -790,6 +793,9 @@
       | :sg:`set_shifts((r,g,b,a)) -> None`
 
       This is not needed for normal pygame usage.
+
+      .. note:: In SDL2, the shifts are read-only and accordingly this method will raise
+                an AttributeError if called.
 
       .. versionadded:: 1.8.1
 

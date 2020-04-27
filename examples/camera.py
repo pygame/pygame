@@ -85,7 +85,7 @@ class VideoCapturePlayer(object):
             for e in events:
                 if e.type == pg.QUIT or (e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE):
                     going = False
-                if e.type == KEYDOWN:
+                if e.type == pg.KEYDOWN:
                     if e.key in range(pg.K_0, pg.K_0 + 10):
                         self.init_cams(e.key - pg.K_0)
 
