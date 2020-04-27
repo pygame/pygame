@@ -924,6 +924,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
             if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
                 sdlrect.x = sdlrect.y = 0;
                 sdlrect.w = sdlrect.h = 0;
+                return pgRect_New4(rect->x, rect->y, 0, 0);
             }
             else {
                 sdlrect.x = rect->x;
@@ -960,7 +961,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
                  * sdlrect.h); */
 
                 if (sdlrect.w <=0 || sdlrect.h <=0) {
-                    return pgRect_New(&sdlrect);
+                    return pgRect_New4(rect->x, rect->y, 0, 0);
                 }
 
                 pgSurface_Prep(self);
@@ -969,8 +970,9 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
 
                 if (result == -1)
                     return RAISE(pgExc_SDLError, SDL_GetError());
+                return pgRect_New(&sdlrect);
+
             }
-            return pgRect_New(&sdlrect);
         }
     }
     else {
