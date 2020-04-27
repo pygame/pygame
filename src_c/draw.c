@@ -919,11 +919,12 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
         }
         else {
             SDL_Rect sdlrect;
+            SDL_Rect cliprect;
             int result;
+            SDL_Rect clipped;
+
             /* TODO: use clip rect instead of surface bounds */
             if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
-                sdlrect.x = sdlrect.y = 0;
-                sdlrect.w = sdlrect.h = 0;
                 return pgRect_New4(rect->x, rect->y, 0, 0);
             }
             else {
@@ -932,45 +933,21 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
                 sdlrect.w = rect->w;
                 sdlrect.h = rect->h;
 
-                // clip the rect to be within the surface.
-                if (sdlrect.x < 0) {
-                    sdlrect.w = sdlrect.w + sdlrect.x;
-                    sdlrect.x = 0;
-                }
+                SDL_GetClipRect(surf, &cliprect);
 
-                if (sdlrect.y < 0) {
-                    sdlrect.h = sdlrect.h + sdlrect.y;
-                    sdlrect.y = 0;
 
-                }
-
-                if (sdlrect.x + sdlrect.w > surf->w) {
-                    sdlrect.w = sdlrect.w + (surf->w - (sdlrect.x + sdlrect.w));
-                }
-
-                if (sdlrect.y + sdlrect.h > surf->h) {
-                    sdlrect.h = sdlrect.h + (surf->h - (sdlrect.y + sdlrect.h));
-                }
-
-                if (sdlrect.x + sdlrect.w <= 0 || sdlrect.y + sdlrect.h <= 0) {
-                    sdlrect.w = 0;
-                    sdlrect.h = 0;
-                }
-
-                /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w,
-                 * sdlrect.h); */
-
-                if (sdlrect.w <=0 || sdlrect.h <=0) {
+                if (!SDL_IntersectRect(&sdlrect,
+                                       &cliprect,
+                                       &clipped))
                     return pgRect_New4(rect->x, rect->y, 0, 0);
-                }
 
                 pgSurface_Prep(self);
-                result = SDL_FillRect(surf, &sdlrect, color);
+                result = SDL_FillRect(surf, &clipped, color);
                 pgSurface_Unprep(self);
 
                 if (result == -1)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                return pgRect_New(&sdlrect);
+                return pgRect_New(&clipped);
 
             }
         }
