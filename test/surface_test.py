@@ -213,7 +213,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertNotEqual(s1.get_at(pt), color)
 
     def test_fill_rle(self):
-        """Ensure an RLE sub-surface works independently of its parent."""
         color = (250, 25, 25, 255)
         color2 = (200, 200, 250, 255)
         sub_rect = pygame.Rect(16, 16, 16, 16)
@@ -222,6 +221,18 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         s1.set_colorkey((255,0,255), pygame.RLEACCEL)
         s0.blit(s1, (0,0))
         s1.fill(color)
+        self.assertTrue(s1.get_flags()&pygame.RLEACCEL)
+
+    @unittest.expectedFailure
+    def test_copy_rle(self):
+        color = (250, 25, 25, 255)
+        color2 = (200, 200, 250, 255)
+        sub_rect = pygame.Rect(16, 16, 16, 16)
+        s0 = pygame.Surface((32, 32), 24)
+        s1 = pygame.Surface((32, 32), 24)
+        s1.set_colorkey((255,0,255), pygame.RLEACCEL)
+        s0.blit(s1, (0,0))
+        s1.copy()
         self.assertTrue(s1.get_flags()&pygame.RLEACCEL)
 
     def test_subsurface_rle(self):
