@@ -940,6 +940,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
             }
             else {
+                PyErr_WarnEx(PyExc_RuntimeWarning, "Requested resolution incompatible with fullscreen windowed mode", 1);
                 sdl_flags |= SDL_WINDOW_FULLSCREEN;
             }
         }
