@@ -1445,9 +1445,11 @@ surf_set_colorkey(PyObject *self, PyObject *args)
             color =
                 SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 #else  /* IS_SDLv2 */
-            if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
+            if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)){
+                PyErr_WarnEx(PyExc_RuntimeWarning, "Setting color key on surface with per-pixel alpha", 1);
                 color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2],
                                     rgba[3]);
+            }
             else
                 color = pg_map_rgb(surf, rgba[0], rgba[1], rgba[2]);
 #endif /* IS_SDLv2 */
