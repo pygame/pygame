@@ -1583,7 +1583,7 @@ surf_set_alpha(PyObject *self, PyObject *args)
     else
         alpha = (Uint8)alphaval;
 
-    if (alpha==255) {
+    if (alpha==255 && !SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -1631,7 +1631,7 @@ surf_get_alpha(PyObject *self, PyObject *args)
     if (SDL_GetSurfaceBlendMode(surf, &mode) != 0)
         return RAISE(pgExc_SDLError, SDL_GetError());
 
-    if (mode != SDL_BLENDMODE_BLEND)
+    if (mode == SDL_BLENDMODE_NONE)
         return PyInt_FromLong(255);
 
     if (SDL_GetSurfaceAlphaMod(surf, &alpha) != 0)
