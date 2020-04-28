@@ -262,13 +262,13 @@ static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
-    return PyInt_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
+    return PyBool_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
 }
 #else  /* IS_SDLv1 */
 static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
-    return PyInt_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
+    return PyBool_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
 #endif /* IS_SDLv1 */
 
