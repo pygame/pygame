@@ -119,6 +119,18 @@ class TransformModuleTest(unittest.TestCase):
         # the wrong size surface is past in.  Should raise an error.
         self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33, 64), s3)
 
+    def test_smoothscale_threads(self):
+        import multiprocessing.pool
+        pool = multiprocessing.pool.ThreadPool()
+
+        surf = pygame.Surface((32, 32))
+        size = (64, 64)
+
+        for i in range(1000):
+            pool.apply_async(pygame.transform.smoothscale, (surf, size))
+        pool.close()
+        pool.join()
+
     def test_scale__zero_surface_transform(self):
         tmp_surface = pygame.transform.scale(pygame.Surface((128, 128)), (0, 0))
         self.assertEqual(tmp_surface.get_size(), (0, 0))
