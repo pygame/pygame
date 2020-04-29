@@ -1,7 +1,7 @@
 from typing import Optional, Union, Tuple, Any, overload
 
 from pygame.event import Event
-
+from . import music as music
 
 def init(frequency: Optional[int]=44100, size: Optional[int]=-16, channels: Optional[int]=2, buffer: Optional[int]=512, devicename: Optional[Union[str, None]]=None, allowedchanges: Optional[int]=5) -> None: ...
 def pre_init(frequency: Optional[int]=44100, size: Optional[int]=-16, channels: Optional[int]=2, buffer: Optional[int]=512, devicename: Optional[Union[str, None]]=None) -> None: ...
