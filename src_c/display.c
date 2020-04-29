@@ -1928,7 +1928,7 @@ pg_set_gamma(PyObject *self, PyObject *arg)
             free(state->gamma_ramp);
         state->gamma_ramp = gamma_ramp;
     }
-    return PyInt_FromLong(result == 0);
+    return PyBool_FromLong(result == 0);
 }
 
 #else  /* IS_SDLv1 */
@@ -2009,7 +2009,7 @@ pg_set_gamma(PyObject *self, PyObject *arg)
         g = b = r;
     VIDEO_INIT_CHECK();
     result = SDL_SetGamma(r, g, b);
-    return PyInt_FromLong(result == 0);
+    return PyBool_FromLong(result == 0);
 }
 #endif /* IS_SDLv1 */
 
@@ -2080,7 +2080,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
             free(state->gamma_ramp);
         state->gamma_ramp = gamma_ramp;
     }
-    return PyInt_FromLong(result == 0);
+    return PyBool_FromLong(result == 0);
 }
 
 static PyObject *
@@ -2162,7 +2162,7 @@ pg_iconify(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "No open window");
     SDL_MinimizeWindow(win);
 #pragma PG_WARN(Does this send the app an SDL_ActiveEvent loss event ?)
-    return PyInt_FromLong(1);
+    return PyBool_FromLong(1);
 }
 
 /* This is only here for debugging purposes. Games should not rely on the
@@ -2611,7 +2611,7 @@ pg_set_gamma_ramp(PyObject *self, PyObject *arg)
     free((char *)r);
     free((char *)g);
     free((char *)b);
-    return PyInt_FromLong(result == 0);
+    return PyBool_FromLong(result == 0);
 }
 
 static PyObject *
