@@ -428,7 +428,7 @@ required).
 .. function:: iconify
 
    | :sl:`Iconify the display surface`
-   | :sg:`iconify() -> int`
+   | :sg:`iconify() -> bool`
 
    Request the window for the display surface be iconified or hidden. Not all
    systems and displays support an iconified display. The function will return
@@ -454,7 +454,7 @@ required).
 .. function:: set_gamma
 
    | :sl:`Change the hardware gamma ramps`
-   | :sg:`set_gamma(red, green=None, blue=None) -> int`
+   | :sg:`set_gamma(red, green=None, blue=None) -> bool`
 
    Set the red, green, and blue gamma values on the display hardware. If the
    green and blue arguments are not passed, they will both be the same as red.
@@ -469,7 +469,7 @@ required).
 .. function:: set_gamma_ramp
 
    | :sl:`Change the hardware gamma ramps with a custom lookup`
-   | :sg:`set_gamma_ramp(red, green, blue) -> int`
+   | :sg:`set_gamma_ramp(red, green, blue) -> bool`
 
    Set the red, green, and blue gamma ramps with an explicit lookup table. Each
    argument should be sequence of 256 integers. The integers should range
