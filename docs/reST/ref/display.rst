@@ -432,7 +432,7 @@ required).
 
    Request the window for the display surface be iconified or hidden. Not all
    systems and displays support an iconified display. The function will return
-   1 if successful.
+   True if successful.
 
    When the display is iconified ``pygame.display.get_active()`` will return
    False. The event queue should receive a ``ACTIVEEVENT`` event when the
@@ -459,7 +459,7 @@ required).
    Set the red, green, and blue gamma values on the display hardware. If the
    green and blue arguments are not passed, they will both be the same as red.
    Not all systems and hardware support gamma ramps, if the function succeeds
-   it will return 1.
+   it will return True.
 
    A gamma value of 1.0 creates a linear color table. Lower values will darken
    the display and higher values will brighten.
@@ -474,7 +474,7 @@ required).
    Set the red, green, and blue gamma ramps with an explicit lookup table. Each
    argument should be sequence of 256 integers. The integers should range
    between 0 and 0xffff. Not all systems and hardware support gamma ramps, if
-   the function succeeds it will return 1.
+   the function succeeds it will return True.
 
    .. ## pygame.display.set_gamma_ramp ##
 
