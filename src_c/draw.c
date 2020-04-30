@@ -1402,24 +1402,16 @@ draw_circle_bresenham(SDL_Surface *surf, int x0, int y0, int radius,
            interval: [number - 1 * pi / 4, number * pi / 4] */
         for (i = 0; i < thickness_inner; i++) {
             y1 = y - i;
-            if ((y0 + y1 - 1) >= (y0 + x - 1)) {
-                set_at(surf, x0 + x - 1, y0 + y1 - 1, color,
-                       drawn_area);                                  /* 7 */
-                set_at(surf, x0 - x, y0 + y1 - 1, color, drawn_area); /* 6 */
-            }
-            if ((y0 - y1) <= (y0 - x)) {
-                set_at(surf, x0 + x - 1, y0 - y1, color, drawn_area); /* 2 */
-                set_at(surf, x0 - x, y0 - y1, color, drawn_area);     /* 3 */
-            }
-            if ((x0 + y1 - 1) >= (x0 + x - 1)) {
-                set_at(surf, x0 + y1 - 1, y0 + x - 1, color,
-                       drawn_area);                                  /* 8 */
-                set_at(surf, x0 + y1 - 1, y0 - x, color, drawn_area); /* 1 */
-            }
-            if ((x0 - y1) <= (x0 - x)) {
-                set_at(surf, x0 - y1, y0 + x - 1, color, drawn_area); /* 5 */
-                set_at(surf, x0 - y1, y0 - x, color, drawn_area);     /* 4 */
-            }
+            set_at(surf, x0 + x - 1, y0 + y1 - 1, color,
+                   drawn_area);                                  /* 7 */
+            set_at(surf, x0 - x, y0 + y1 - 1, color, drawn_area); /* 6 */
+            set_at(surf, x0 + x - 1, y0 - y1, color, drawn_area); /* 2 */
+            set_at(surf, x0 - x, y0 - y1, color, drawn_area);     /* 3 */
+            set_at(surf, x0 + y1 - 1, y0 + x - 1, color,
+                   drawn_area);                                  /* 8 */
+            set_at(surf, x0 + y1 - 1, y0 - x, color, drawn_area); /* 1 */
+            set_at(surf, x0 - y1, y0 + x - 1, color, drawn_area); /* 5 */
+            set_at(surf, x0 - y1, y0 - x, color, drawn_area);     /* 4 */
         }
     }
 }
@@ -1444,24 +1436,14 @@ draw_circle_bresenham_thin(SDL_Surface *surf, int x0, int y0, int radius,
         ddF_x += 2;
         f += ddF_x + 1;
 
-        if ((y0 + y - 1) >= (y0 + x - 1)) {
-            set_at(surf, x0 + x - 1, y0 + y - 1, color,
-                   drawn_area);                                  /* 7 */
-            set_at(surf, x0 - x, y0 + y - 1, color, drawn_area); /* 6 */
-        }
-        if ((y0 - y) <= (y0 - x)) {
-            set_at(surf, x0 + x - 1, y0 - y, color, drawn_area); /* 2 */
-            set_at(surf, x0 - x, y0 - y, color, drawn_area);     /* 3 */
-        }
-        if ((x0 + y - 1) >= (x0 + x - 1)) {
-            set_at(surf, x0 + y - 1, y0 + x - 1, color,
-                   drawn_area);                                  /* 8 */
-            set_at(surf, x0 + y - 1, y0 - x, color, drawn_area); /* 1 */
-        }
-        if ((x0 - y) <= (x0 - x)) {
-            set_at(surf, x0 - y, y0 + x - 1, color, drawn_area); /* 5 */
-            set_at(surf, x0 - y, y0 - x, color, drawn_area);     /* 4 */
-        }
+        set_at(surf, x0 + x - 1, y0 + y - 1, color, drawn_area); /* 7 */
+        set_at(surf, x0 - x,     y0 + y - 1, color, drawn_area); /* 6 */
+        set_at(surf, x0 + x - 1, y0 - y,     color, drawn_area); /* 2 */
+        set_at(surf, x0 - x,     y0 - y,     color, drawn_area); /* 3 */
+        set_at(surf, x0 + y - 1, y0 + x - 1, color, drawn_area); /* 8 */
+        set_at(surf, x0 + y - 1, y0 - x,     color, drawn_area); /* 1 */
+        set_at(surf, x0 - y,     y0 + x - 1, color, drawn_area); /* 5 */
+        set_at(surf, x0 - y,     y0 - x,     color, drawn_area); /* 4 */
     }
 }
 
@@ -1629,8 +1611,12 @@ draw_circle_filled(SDL_Surface *surf, int x0, int y0, int radius, Uint32 color,
         ddF_x += 2;
         f += ddF_x + 1;
 
-        drawhorzlineclip(surf, color, x0 - x, y0 + y - 1, x0 + x -1, drawn_area);
-        drawhorzlineclip(surf, color, x0 - x, y0 - y, x0 + x -1, drawn_area);
+        /* optimisation to avoid overdrawing and repeated return rect checks:
+           only draw a line if y-step is about to be decreased. */
+        if (f >= 0) {
+            drawhorzlineclip(surf, color, x0 - x, y0 + y - 1, x0 + x -1, drawn_area);
+            drawhorzlineclip(surf, color, x0 - x, y0 - y, x0 + x -1, drawn_area);
+        }
         drawhorzlineclip(surf, color, x0 - y, y0 + x - 1, x0 + y -1, drawn_area);
         drawhorzlineclip(surf, color, x0 - y, y0 - x, x0 + y -1, drawn_area);
     }
