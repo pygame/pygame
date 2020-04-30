@@ -1,10 +1,10 @@
-from typing import Any, AnyStr, overload, Optional
+from typing import Any, overload, Optional
 
 
 class BufferProxy(object):
     parent: Any
     length: int
-    raw: AnyStr
+    raw: str
     @overload
     def __init__(self) -> None: ...
     @overload

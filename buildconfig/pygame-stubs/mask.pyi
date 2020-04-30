@@ -6,7 +6,7 @@ from pygame.rect import Rect
 from pygame.color import Color
 
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
-_ColorValue = Union[Color, Tuple[int, int, int], List[int], int]
+_ColorValue = Union[Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]]
 _RectValue = Union[Rect, Union[Tuple[int, int, int, int], List[int]], Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]]]
 
 

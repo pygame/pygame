@@ -3,7 +3,7 @@ from typing import List, Optional, Union, Tuple
 from pygame.color import Color
 from pygame.surface import Surface
 
-_ColorValue = Union[Color, Tuple[int, int, int], List[int]]
+_ColorValue = Union[Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]]
 
 def init() -> None: ...
 def quit() -> None: ...
