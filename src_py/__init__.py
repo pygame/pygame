@@ -213,7 +213,7 @@ def warn_unwanted_files():
 
 
 try:
-    from pygame.surface import Surface
+    from pygame.surface import Surface, SurfaceType
 except (ImportError, IOError):
     Surface = lambda: Missing_Function
 
