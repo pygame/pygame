@@ -3,8 +3,11 @@ from pygame.math import Vector2
 from pygame.rect import Rect
 
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
-_RectValue = Union[Rect, Union[Tuple[int, int, int, int], List[int]], Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]]]
-
+_RectValue = Union[
+    Rect,
+    Union[Tuple[int, int, int, int], List[int]],
+    Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]],
+]
 
 def get_focused() -> bool: ...
 def get_pressed() -> Sequence[bool]: ...

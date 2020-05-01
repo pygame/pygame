@@ -8,6 +8,7 @@ class EventType(object):
     @overload
     def __init__(self, type: int, **attributes: Any) -> None: ...
     def __getattr__(self, name: str) -> Any: ...
+
 # Event is actually a function that returns an EventType, but it's often used
 # as an annotation.
 Event = EventType

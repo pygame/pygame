@@ -1,6 +1,6 @@
 from typing import Any, Tuple, Callable, Union, Optional, overload, Type
 
-#Most useful stuff
+# Most useful stuff
 from pygame.constants import *
 import pygame.surface
 import pygame.rect
@@ -29,6 +29,7 @@ import pygame.pixelcopy
 import pygame.sndarray
 import pygame.surfarray
 import pygame.math
+
 # Other
 import pygame.scrap
 
@@ -44,16 +45,27 @@ class Vector3(pygame.math.Vector3): ...
 def init() -> Tuple[int, int]: ...
 def quit() -> None: ...
 def get_init() -> bool: ...
-class error(RuntimeError): RuntimeError
+
+class error(RuntimeError):
+    RuntimeError
+
 def get_error() -> str: ...
 def set_error(error_msg: str) -> None: ...
 def get_sdl_version() -> Tuple[int, int, int]: ...
 def get_sdl_byteorder() -> int: ...
-def encode_string(obj: Union[str, bytes], encoding: Optional[str]='unicode_escape', errors: Optional[str]='backslashreplace', etype: Optional[Type[Exception]]=UnicodeEncodeError) -> bytes: ...
+def encode_string(
+    obj: Union[str, bytes],
+    encoding: Optional[str] = "unicode_escape",
+    errors: Optional[str] = "backslashreplace",
+    etype: Optional[Type[Exception]] = UnicodeEncodeError,
+) -> bytes: ...
 @overload
-def encode_file_path(obj: Union[str, bytes], etype: Optional[Type[Exception]]=UnicodeEncodeError) -> bytes: ...
+def encode_file_path(
+    obj: Union[str, bytes], etype: Optional[Type[Exception]] = UnicodeEncodeError
+) -> bytes: ...
 @overload
-def encode_file_path(obj: Any, etype: Optional[Type[Exception]]=UnicodeEncodeError) -> bytes: ...
+def encode_file_path(
+    obj: Any, etype: Optional[Type[Exception]] = UnicodeEncodeError
+) -> bytes: ...
 def register_quit(callable: Callable) -> None: ...
-
-# def __getattr__(name) -> Any: ...  # don't error on missing stubs
+def __getattr__(name) -> Any: ...  # don't error on missing stubs

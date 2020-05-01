@@ -5,24 +5,46 @@ from pygame.rect import Rect
 
 from pygame.math import Vector2
 
-_ColorInput = Union[Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]]
+_ColorInput = Union[
+    Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]
+]
 _RgbaOutput = Tuple[int, int, int, int]
-_RectStyle = Union[Tuple[float, float, float, float],
-                   Tuple[Tuple[float, float], Tuple[float, float]],
-                   List[float], List[Vector2], Tuple[Vector2, Vector2], Iterable[Vector2]]
+_RectStyle = Union[
+    Tuple[float, float, float, float],
+    Tuple[Tuple[float, float], Tuple[float, float]],
+    List[float],
+    List[Vector2],
+    Tuple[Vector2, Vector2],
+    Iterable[Vector2],
+]
 
 class Surface(object):
     _pixels_address: int
     @overload
     def __init__(
-        self, width_height: Tuple[float, float], flags: int = ...,
-        depth: int = ..., masks: Optional[_ColorInput] = ...) -> None: ...
+        self,
+        width_height: Tuple[float, float],
+        flags: int = ...,
+        depth: int = ...,
+        masks: Optional[_ColorInput] = ...,
+    ) -> None: ...
     @overload
-    def __init__(self, width_height: Tuple[float, float], flags: int = ...,
-                 surface: Surface = ...) -> None: ...
-    def blit(self, source: Surface, dest: Union[Sequence[float], Rect],
-             area: Optional[Rect] = ..., special_flags: int = ...) -> Rect: ...
-    def blits(self, sequence: Sequence[Union[Surface, Rect]], doreturn: Union[int, bool]) -> Union[List[Rect], None]: ...
+    def __init__(
+        self,
+        width_height: Tuple[float, float],
+        flags: int = ...,
+        surface: Surface = ...,
+    ) -> None: ...
+    def blit(
+        self,
+        source: Surface,
+        dest: Union[Sequence[float], Rect],
+        area: Optional[Rect] = ...,
+        special_flags: int = ...,
+    ) -> Rect: ...
+    def blits(
+        self, sequence: Sequence[Union[Surface, Rect]], doreturn: Union[int, bool]
+    ) -> Union[List[Rect], None]: ...
     @overload
     def convert(self, surface: Surface) -> Surface: ...
     @overload
@@ -36,8 +58,12 @@ class Surface(object):
     @overload
     def convert_alpha(self) -> Surface: ...
     def copy(self) -> Surface: ...
-    def fill(self, color: _ColorInput, rect: Optional[_RectStyle] = ...,
-             special_flags: int = ...) -> Rect: ...
+    def fill(
+        self,
+        color: _ColorInput,
+        rect: Optional[_RectStyle] = ...,
+        special_flags: int = ...,
+    ) -> Rect: ...
     def scroll(self, dx: int = ..., dy: int = ...) -> None: ...
     @overload
     def set_colorkey(self, color: _ColorInput, flags: int = ...) -> None: ...
@@ -68,9 +94,15 @@ class Surface(object):
     @overload
     def subsurface(self, rect: Union[_RectStyle, Rect]) -> Surface: ...
     @overload
-    def subsurface(self, left_top: Union[List[float], Tuple[float, float], Vector2], width_height: Union[List[float], Tuple[float, float], Vector2]) -> Surface: ...
+    def subsurface(
+        self,
+        left_top: Union[List[float], Tuple[float, float], Vector2],
+        width_height: Union[List[float], Tuple[float, float], Vector2],
+    ) -> Surface: ...
     @overload
-    def subsurface(self, left: float, top: float, width: float, height: float) -> Surface: ...
+    def subsurface(
+        self, left: float, top: float, width: float, height: float
+    ) -> Surface: ...
     def get_parent(self) -> Surface: ...
     def get_abs_parent(self) -> Surface: ...
     def get_offset(self) -> Tuple[int, int]: ...

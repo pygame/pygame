@@ -1,4 +1,4 @@
-'''
+"""
 Script used to generate this file (if we change something in the constants in the future):
 import pygame.constants
 const = []
@@ -9,7 +9,7 @@ for element in dir(pygame.constants):
 with open("constants.pyi", "w") as f:
     for line in const:
         f.write(str(line))
-'''
+"""
 
 ACTIVEEVENT: int
 ANYFORMAT: int
