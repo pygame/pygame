@@ -332,6 +332,15 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
    .. ## pygame.key.name ##
 
+.. function:: key_code
+
+   | :sl:`get the key identifier from a key name`
+   | :sg:`key_code(name=str) -> int`
+
+   Get the key identifier code of from the name of the key.
+
+   .. ## pygame.key.key_code ##
+
 .. function:: start_text_input
 
    | :sl:`start handling IME compositions`

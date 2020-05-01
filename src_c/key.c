@@ -710,6 +710,23 @@ key_name(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+key_code(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    const char * name;
+
+    static char *kwids[] = {
+        "name",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
+        return NULL;
+
+    return PyInt_FromLong(SDL_GetKeyFromName(name));
+
+}
+
+static PyObject *
 key_get_mods(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
@@ -786,6 +803,8 @@ static PyMethodDef _key_methods[] = {
     {"get_pressed", key_get_pressed, METH_NOARGS,
      DOC_PYGAMEKEYGETPRESSED},
     {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
+    {"key_code", (PyCFunction)key_code, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEKEYNAME},
     {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
     {"get_focused", key_get_focused, METH_NOARGS,
