@@ -262,13 +262,13 @@ static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
-    return PyInt_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
+    return PyBool_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
 }
 #else  /* IS_SDLv1 */
 static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
-    return PyInt_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
+    return PyBool_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
 #endif /* IS_SDLv1 */
 
@@ -2134,22 +2134,18 @@ pg_get_caption(PyObject *self, PyObject *args)
 static PyObject *
 pg_set_icon(PyObject *self, PyObject *arg)
 {
-#if (!defined(darwin))
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-#endif
     PyObject *surface;
     if (!PyArg_ParseTuple(arg, "O!", &pgSurface_Type, &surface))
         return NULL;
     if (!pgVideo_AutoInit())
         return RAISE(pgExc_SDLError, SDL_GetError());
-#if (!defined(darwin))
     Py_INCREF(surface);
     Py_XDECREF(state->icon);
     state->icon = surface;
     if (win)
         SDL_SetWindowIcon(win, pgSurface_AsSurface(surface));
-#endif
     Py_RETURN_NONE;
 }
 

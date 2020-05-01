@@ -266,7 +266,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: has
 
       | :sl:`test if a Group contains Sprites`
-      | :sg:`has(*sprites) -> None`
+      | :sg:`has(*sprites) -> bool`
 
       Return True if the Group contains all of the given sprites. This is
       similar to using the "in" operator on the Group ("if sprite in group:
@@ -636,6 +636,8 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
       Default is 1000./80 where 80 is the fps I want to switch to full screen
       mode.  This method's name is a typo and should be fixed.
+
+      :raises TypeError: if ``time_ms`` is not int or float
 
       .. ## LayeredDirty.set_timing_treshold ##
 

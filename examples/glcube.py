@@ -26,8 +26,8 @@ Keyboard Controls
 import pygame as pg
 
 try:
-    from OpenGL.GL import *
-    from OpenGL.GLU import *
+    import OpenGL.GL as GL
+    import OpenGL.GLU as GLU
 except ImportError:
     print("The GLCUBE example requires PyOpenGL")
     raise SystemExit
@@ -90,34 +90,34 @@ def drawcube():
     "draw the cube"
     allpoints = list(zip(CUBE_POINTS, CUBE_COLORS))
 
-    glBegin(GL_QUADS)
+    GL.glBegin(GL.GL_QUADS)
     for face in CUBE_QUAD_VERTS:
         for vert in face:
             pos, color = allpoints[vert]
-            glColor3fv(color)
-            glVertex3fv(pos)
-    glEnd()
+            GL.glColor3fv(color)
+            GL.glVertex3fv(pos)
+    GL.glEnd()
 
-    glColor3f(1.0, 1.0, 1.0)
-    glBegin(GL_LINES)
+    GL.glColor3f(1.0, 1.0, 1.0)
+    GL.glBegin(GL.GL_LINES)
     for line in CUBE_EDGES:
         for vert in line:
             pos, color = allpoints[vert]
-            glVertex3fv(pos)
+            GL.glVertex3fv(pos)
 
-    glEnd()
+    GL.glEnd()
 
 
 def init_gl_stuff():
 
-    glEnable(GL_DEPTH_TEST)  # use our zbuffer
+    GL.glEnable(GL.GL_DEPTH_TEST)  # use our zbuffer
 
     # setup the camera
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    gluPerspective(45.0, 640 / 480.0, 0.1, 100.0)  # setup lens
-    glTranslatef(0.0, 0.0, -3.0)  # move back
-    glRotatef(25, 1, 0, 0)  # orbit higher
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glLoadIdentity()
+    GLU.gluPerspective(45.0, 640 / 480.0, 0.1, 100.0)  # setup lens
+    GL.glTranslatef(0.0, 0.0, -3.0)  # move back
+    GL.glRotatef(25, 1, 0, 0)  # orbit higher
 
 
 def main():
@@ -154,10 +154,10 @@ def main():
                     init_gl_stuff()
 
         # clear screen and move camera
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         # orbit camera around by 1 degree
-        glRotatef(1, 0, 1, 0)
+        GL.glRotatef(1, 0, 1, 0)
 
         drawcube()
         pg.display.flip()

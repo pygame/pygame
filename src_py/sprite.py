@@ -1226,8 +1226,14 @@ class LayeredDirty(LayeredUpdates):
         method is taking so long to update the screen that the frame rate falls
         below 80 frames per second.
 
+        Raises TypeError if time_ms is not int or float.
+
         """
-        self._time_threshold = time_ms
+        if isinstance(time_ms, (int, float)):
+            self._time_threshold = time_ms
+        else:
+            raise TypeError("Expected numeric value, got {} instead".
+                            format(time_ms.__class__.__name__))
 
 
 class GroupSingle(AbstractGroup):
@@ -1417,7 +1423,7 @@ class collide_circle_ratio(object):
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
 
-        When the ratio is ratio=1.0, then it behaves exactly like the 
+        When the ratio is ratio=1.0, then it behaves exactly like the
         collide_circle method.
 
         """

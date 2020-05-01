@@ -166,9 +166,6 @@ def main(auto=False):
     if '-sdl1' in sys.argv:
         sys.argv.remove('-sdl1')
 
-    if '-conan' in sys.argv:
-        sys.argv.remove('-conan')
-
     kwds = {}
     if sdl2:
         kwds['sdl2'] = True
@@ -178,6 +175,7 @@ def main(auto=False):
             import config_conan as CFG
         except ImportError:
             import buildconfig.config_conan as CFG
+
     elif (sys.platform == 'win32' and
         # Note that msys builds supported for 2.6 and greater. Use prebuilt.
         (sys.version_info >= (2, 6) or not is_msys_mingw())):
@@ -221,6 +219,9 @@ def main(auto=False):
             shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
 
     deps = CFG.main(**kwds)
+    if '-conan' in sys.argv:
+        sys.argv.remove('-conan')
+
     if deps:
         basepath = None
         for d in deps:

@@ -69,7 +69,7 @@ class DependencyProg:
                     self.cflags += f + ' '
                 elif f[:3] == '-Wl':
                     self.cflags += '-Xlinker ' + f + ' '
-        except:
+        except ValueError:
             print_('WARNING: "%s" failed!' % command)
             self.found = 0
             self.ver = '0'
@@ -191,7 +191,7 @@ class DependencyDLL:
         test = self.file_name_test
         try:
             files = os.listdir(wdir)
-        except:
+        except OSError:
             pass
         else:
             for f in files:

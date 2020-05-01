@@ -18,3 +18,7 @@ sdl2:shared=True
 sdl2_image:shared=True
 sdl2_mixer:shared=True
 sdl2_ttf:shared=True
+
+[imports]
+bin, *.dll -> ./
+lib, *.dylib* -> ./
