@@ -416,12 +416,29 @@ required).
 
 .. function:: get_active
 
-   | :sl:`Returns True when the display is active on the display`
+   | :sl:`Returns True when the display is active on the screen`
    | :sg:`get_active() -> bool`
 
-   After ``pygame.display.set_mode()`` is called the display Surface will be
-   visible on the screen. Most windowed displays can be hidden by the user. If
-   the display Surface is hidden or iconified this will return False.
+   Returns True when the display Surface is considered actively
+   renderable on the screen and may be visible to the user.  This is
+   the default state immediately after ``pygame.display.set_mode()``.
+   This method may return True even if the application is fully hidden
+   behind another application window.
+
+   This will return False if the display Surface has been iconified or
+   minimized (either via ``pygame.display.iconify()`` or via an OS
+   specific method such as the minimize-icon available on most
+   desktops).
+
+   The method can also return False for other reasons without the
+   application being explicitly iconified or minimized by the user.  A
+   notable example being if the user has multiple virtual desktops and
+   the display Surface is not on the active virtual desktop.
+
+   .. note:: This function returning True is unrelated to whether the
+       application has input focus.  Please see
+       ``pygame.key.get_focused()`` and ``pygame.mouse.get_focused()``
+       for APIs related to input focus.
 
    .. ## pygame.display.get_active ##
 
