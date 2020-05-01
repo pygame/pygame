@@ -335,9 +335,11 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 .. function:: key_code
 
    | :sl:`get the key identifier from a key name`
-   | :sg:`key_code(name=str) -> int`
+   | :sg:`key_code(name=string) -> int`
 
-   Get the key identifier code of from the name of the key.
+   Get the key identifier code from the descriptive name of the key.
+
+   .. versionadded:: 2.0.0
 
    .. ## pygame.key.key_code ##
 

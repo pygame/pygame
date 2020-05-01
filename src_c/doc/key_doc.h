@@ -7,7 +7,7 @@
 #define DOC_PYGAMEKEYSETREPEAT "set_repeat() -> None\nset_repeat(delay) -> None\nset_repeat(delay, interval) -> None\ncontrol how held keys are repeated"
 #define DOC_PYGAMEKEYGETREPEAT "get_repeat() -> (delay, interval)\nsee how held keys are repeated"
 #define DOC_PYGAMEKEYNAME "name(key) -> string\nget the name of a key identifier"
-#define DOC_PYGAMEKEYCODENAME "key_code(name) -> int\nget the key identifier of a key by name"
+#define DOC_PYGAMEKEYKEYCODE "key_code(name=string) -> int\nget the key identifier from a key name"
 #define DOC_PYGAMEKEYSTARTTEXTINPUT "start_text_input() -> None\nstart handling IME compositions"
 #define DOC_PYGAMEKEYSTOPTEXTINPUT "stop_text_input() -> None\nstop handling IME compositions"
 #define DOC_PYGAMEKEYSETTEXTINPUTRECT "set_text_input_rect(Rect) -> None\ncontrols the position of the candidate list"
@@ -51,8 +51,8 @@ pygame.key.name
 get the name of a key identifier
 
 pygame.key.key_code
- key_code(name) -> int
-get the key identifier of a key name
+ key_code(name=string) -> int
+get the key identifier from a key name
 
 pygame.key.start_text_input
  start_text_input() -> None
