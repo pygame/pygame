@@ -108,7 +108,7 @@ def initsysfonts_win32():
                 # MBCS is the windows encoding for unicode file names.
                 try:
                     font = font.encode('MBCS')
-                except:
+                except UnicodeEncodeError:
                     # no success with str or MBCS encoding... skip this font.
                     continue
 
@@ -189,7 +189,7 @@ def initsysfonts_darwin():
     elif exists('/usr/sbin/system_profiler'):
         try:
             fonts = _system_profiler_darwin()
-        except:
+        except (OSError, ValueError):
             fonts = {}
     else:
         fonts = {}

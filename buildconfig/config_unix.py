@@ -50,7 +50,7 @@ class DependencyProg:
             if self.name == 'SDL':
                 inc = '-I' + '/usr/X11R6/include'
                 self.cflags = inc + ' ' + self.cflags
-        except:
+        except (ValueError, TypeError):
             print ('WARNING: "%s" failed!' % command)
             self.found = 0
             self.ver = '0'
