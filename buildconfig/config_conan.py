@@ -2,6 +2,7 @@
 """
 
 import os
+import sys
 import subprocess
 import json
 
@@ -53,15 +54,20 @@ def conan_install(force_build=True):
     if force_build:
         cmd.append("--build")
 
+    if '-conan' in sys.argv:
+        other_args = sys.argv[sys.argv.index('-conan')+1:]
+        cmd.extend(other_args)
+
+    print(cmd)
     try:
         return subprocess.call(cmd)
     finally:
         os.chdir(os.path.join('..', '..'))
 
 def main(sdl2=True):
-    conan_install(force_build=True)
+    # conan_install(force_build=True)
     # Reuse the previous conan build with this setting:
-    # conan_install(force_build=False)
+    conan_install(force_build=False)
 
     conanbuildinfo_json = os.path.join('build', 'conan', 'conanbuildinfo.json')
     conanbuildinfo = json.load(open(conanbuildinfo_json))

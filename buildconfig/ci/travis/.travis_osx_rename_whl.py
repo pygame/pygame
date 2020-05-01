@@ -14,7 +14,7 @@ import os
 import sys
 
 # There should be exactly one .whl
-filenames = glob.glob('dist/*.whl')
+filenames = glob.glob('dist/*macosx*x86_64.whl')
 
 if len(filenames) < 1:
     sys.exit("No wheels found")
@@ -22,20 +22,8 @@ elif len(filenames) > 1:
     print("Multiple wheels found:")
     for f in filenames:
         print("  {}".format(f))
-    sys.exit(1)
 
-path = filenames[0]
-
-if '_intel' in path:
-    print("Wheel already tagged 'intel':")
-    print(path)
-    sys.exit(0)
-elif '_x86_64' not in path:
-    print("Didn't find '_x86_64' in wheel filename:")
-    print(path)
-    sys.exit(1)
-
-new_path = path.replace('_x86_64', '_intel')
-os.rename(path, new_path)
-print("Renamed wheel to:")
-print(new_path)
+for path in filenames:
+    new_path = path.replace('_x86_64', '_intel')
+    os.rename(path, new_path)
+    print("Renamed wheel to:", new_path)
