@@ -565,6 +565,10 @@ typedef struct pgColorObject pgColorObject;
     (*(int (*)(PyObject *, Uint8 *)) \
         PYGAMEAPI_GET_SLOT(color, 2))
 
+#define pg_RGBAFromFuzzyColorObj \
+    (*(int (*)(PyObject *, Uint8 *)) \
+        PYGAMEAPI_GET_SLOT(color, 4))
+
 #define pgColor_AsArray(x) (((pgColorObject *)x)->data)
 #define pgColor_NumComponents(x) (((pgColorObject *)x)->len)
 

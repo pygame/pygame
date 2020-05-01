@@ -357,8 +357,9 @@ font_render(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!pg_RGBAFromColorObj(fg_rgba_obj, rgba)) {
-        return RAISE(PyExc_TypeError, "Invalid foreground RGBA argument");
+    if (!pg_RGBAFromFuzzyColorObj(fg_rgba_obj, rgba)) {
+        /* Exception already set for us */
+        return NULL;
     }
     foreg.r = rgba[0];
     foreg.g = rgba[1];
@@ -368,19 +369,15 @@ font_render(PyObject *self, PyObject *args)
 #else  /* IS_SDLv2 */
     foreg.a = SDL_ALPHA_OPAQUE;
 #endif /* IS_SDLv2 */
+    if (bg_rgba_obj == Py_None) {
+        /* Explicit None is the same as not passing a color for us */
+        bg_rgba_obj = NULL;
+    }
     if (bg_rgba_obj != NULL) {
-        if (!pg_RGBAFromColorObj(bg_rgba_obj, rgba)) {
-            bg_rgba_obj = NULL;
-            backg.r = 0;
-            backg.g = 0;
-            backg.b = 0;
-#if IS_SDLv1
-            backg.unused = 0;
-#else  /* IS_SDLv2 */
-            backg.a = SDL_ALPHA_OPAQUE;
-#endif /* IS_SDLv2 */
-        }
-        else {
+        if (!pg_RGBAFromFuzzyColorObj(bg_rgba_obj, rgba)) {
+            /* Exception already set for us */
+            return NULL;
+        } else {
             backg.r = rgba[0];
             backg.g = rgba[1];
             backg.b = rgba[2];

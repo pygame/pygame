@@ -813,11 +813,11 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(c[3], 213)
 
         # Now try some 'invalid' ones
-        self.assertRaises(ValueError, _assign_item, c, 0, 95.485)
+        self.assertRaises(TypeError, _assign_item, c, 0, 95.485)
         self.assertEqual(c[0], 33)
         self.assertRaises(ValueError, _assign_item, c, 1, -83)
         self.assertEqual(c[1], 48)
-        self.assertRaises(ValueError, _assign_item, c, 2, "Hello")
+        self.assertRaises(TypeError, _assign_item, c, 2, "Hello")
         self.assertEqual(c[2], 173)
 
     def test_Color_type_works_for_Surface_get_and_set_colorkey(self):
@@ -1121,10 +1121,11 @@ class ColorTypeTest(unittest.TestCase):
         # invalid input testing
         self.assertRaises(ValueError, lambda: color0.lerp(color128, 2.5))
         self.assertRaises(ValueError, lambda: color0.lerp(color128, -0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((256, 0, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((0, 256, 0, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 256, 0), 0.5))
-        self.assertRaises(TypeError, lambda: color0.lerp((0, 0, 0, 256), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((256, 0, 0, 0), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((0, 256, 0, 0), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((0, 0, 256, 0), 0.5))
+        self.assertRaises(ValueError, lambda: color0.lerp((0, 0, 0, 256), 0.5))
+        self.assertRaises(TypeError, lambda: color0.lerp(0.2, 0.5))
 
 
 class SubclassTest(unittest.TestCase):
