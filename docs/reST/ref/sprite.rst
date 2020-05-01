@@ -266,7 +266,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    .. method:: has
 
       | :sl:`test if a Group contains Sprites`
-      | :sg:`has(*sprites) -> None`
+      | :sg:`has(*sprites) -> bool`
 
       Return True if the Group contains all of the given sprites. This is
       similar to using the "in" operator on the Group ("if sprite in group:

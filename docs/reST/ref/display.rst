@@ -246,20 +246,20 @@ required).
 
    ::
 
-     hw:         True if the display is hardware accelerated
-     wm:         True if windowed display modes can be used
+     hw:         1 if the display is hardware accelerated
+     wm:         1 if windowed display modes can be used
      video_mem:  The megabytes of video memory on the display. This is 0 if unknown
      bitsize:    Number of bits used to store each pixel
      bytesize:   Number of bytes used to store each pixel
      masks:      Four values used to pack RGBA values into pixels
      shifts:     Four values used to pack RGBA values into pixels
      losses:     Four values used to pack RGBA values into pixels
-     blit_hw:    True if hardware Surface blitting is accelerated
-     blit_hw_CC: True if hardware Surface colorkey blitting is accelerated
-     blit_hw_A:  True if hardware Surface pixel alpha blitting is accelerated
-     blit_sw:    True if software Surface blitting is accelerated
-     blit_sw_CC: True if software Surface colorkey blitting is accelerated
-     blit_sw_A:  True if software Surface pixel alpha blitting is accelerated
+     blit_hw:    1 if hardware Surface blitting is accelerated
+     blit_hw_CC: 1 if hardware Surface colorkey blitting is accelerated
+     blit_hw_A:  1 if hardware Surface pixel alpha blitting is accelerated
+     blit_sw:    1 if software Surface blitting is accelerated
+     blit_sw_CC: 1 if software Surface colorkey blitting is accelerated
+     blit_sw_A:  1 if software Surface pixel alpha blitting is accelerated
      current_h, current_w:  Height and width of the current video mode, or of the
        desktop mode if called before the display.set_mode is called.
        (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
@@ -443,7 +443,7 @@ required).
 .. function:: toggle_fullscreen
 
    | :sl:`Switch between fullscreen and windowed displays`
-   | :sg:`toggle_fullscreen() -> bool`
+   | :sg:`toggle_fullscreen() -> int`
 
    Switches the display window between windowed and fullscreen modes. This
    function only works under the UNIX X11 video driver. For most situations it
