@@ -726,7 +726,7 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
     PyErr_SetString(PyExc_NotImplementedError, "not supported with SDL 1");
     return 0;
 #else
-    long code = SDL_GetKeyFromName(name);
+    SDL_Keycode code = SDL_GetKeyFromName(name);
     if (code != SDLK_UNKNOWN){
         return PyInt_FromLong(code);
     }
