@@ -722,7 +722,21 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
         return NULL;
 
-    return PyInt_FromLong(SDL_GetKeyFromName(name));
+#if IS_SDLv1
+    PyErr_SetString(PyExc_NotImplementedError, "not supported with SDL 1");
+    return 0;
+#else
+    long code = SDL_GetKeyFromName(name);
+    if (code != SDLK_UNKNOWN){
+        return PyInt_FromLong(code);
+    }
+    else{
+        // Raise an unknown key name error?
+        PyErr_SetString(PyExc_ValueError, "unknown key name");
+        return 0;
+    }
+
+#endif
 
 }
 

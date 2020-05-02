@@ -2,6 +2,8 @@ import unittest
 import pygame
 import pygame.key
 
+SDL1 = pygame.get_sdl_version()[0] < 2
+
 
 class KeyModuleTest(unittest.TestCase):
     @classmethod
@@ -49,6 +51,12 @@ class KeyModuleTest(unittest.TestCase):
         self.assertEqual(pygame.key.key_code("return"), pygame.K_RETURN)
         self.assertEqual(pygame.key.key_code("0"), pygame.K_0)
         self.assertEqual(pygame.key.key_code("space"), pygame.K_SPACE)
+
+        self.assertRaises(ValueError, pygame.key.key_code, "fizzbuzz")
+
+        if SDL1:
+            self.assertRaises(NotImplementedError, pygame.key.key_code,
+                              "return")
 
     def test_set_and_get_mods(self):
         pygame.key.set_mods(pygame.KMOD_CTRL)
