@@ -713,6 +713,7 @@ static PyObject *
 key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     const char * name;
+    SDL_Keycode code;
 
     static char *kwids[] = {
         "name",
@@ -726,7 +727,7 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
     PyErr_SetString(PyExc_NotImplementedError, "not supported with SDL 1");
     return 0;
 #else
-    SDL_Keycode code = SDL_GetKeyFromName(name);
+    code = SDL_GetKeyFromName(name);
     if (code != SDLK_UNKNOWN){
         return PyInt_FromLong(code);
     }
