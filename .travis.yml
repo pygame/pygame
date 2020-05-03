@@ -52,7 +52,7 @@ before_install:
         libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev \
         libtiff5-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
         xfonts-cyrillic fluid-soundfont-gm musescore-soundfont-gm \
-        libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+        libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev xvfb libgl1 freeglut3-dev
     fi
 
 install:
@@ -98,7 +98,12 @@ script:
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
+      export SDL_VIDEODRIVER=dummy
+      export SDL_AUDIODRIVER=disk
       $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl --time_out 300
+      unset SDL_VIDEODRIVER
+      echo 'running tests under xwindows'
+      xvfb-run $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl --time_out 300
     fi
 
 # Upload dist/*.whl to pypi on tags.
