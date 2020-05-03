@@ -870,6 +870,20 @@ class LayeredGroupBase:
 
         self.assertEqual(spr2.layer, expected_layer)
 
+    def test_get_sprites_at(self):
+        sprites = []
+        expected_sprites = []
+        for i in range(3):
+            spr = self.sprite()
+            spr.rect = pygame.Rect(i * 50, i * 50, 100, 100)
+            sprites.append(spr)
+            if i < 2:
+                expected_sprites.append(spr)
+        self.LG.add(sprites)
+        result = self.LG.get_sprites_at((50, 50))
+        self.assertEqual(result, expected_sprites)
+
+
     def test_get_top_layer(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]
         for i in layers:
