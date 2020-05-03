@@ -1009,65 +1009,53 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             }
 
             if (flags & PGS_SCALED && !(flags & PGS_FULLSCREEN)) {
-                /*strcmp(SDL_GetHint("SDL_HINT_RENDER_SCALE_QUALITY"), "best")==0)*/
-                if (SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE)) {
+                SDL_Rect display_bounds;
+                int fractional_scaling=SDL_FALSE;
+
 #if (SDL_VERSION_ATLEAST(2, 0, 5))
-                    SDL_Rect display_bounds;
-                    if (0 !=
-                        SDL_GetDisplayUsableBounds(display, &display_bounds)) {
-                        return RAISE(pgExc_SDLError, SDL_GetError());
-                    }
+                if (0 !=
+                    SDL_GetDisplayUsableBounds(display, &display_bounds)) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+#else
+                display_bounds.w=display_mode.w-80;
+                display_bounds.h=display_mode.h-30;
+#endif
+
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
+                if (SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE))
+                    fractional_scaling=SDL_TRUE;
+#endif
+                if (state->scaled_gl)
+                    fractional_scaling=SDL_TRUE;
+
+                if (fractional_scaling) {
+                    float aspect_ratio=((float)w)/(float)h;
+
                     w_1 = display_bounds.w;
                     h_1 = display_bounds.h;
-#else
-                    w_1 = display_mode.w - 5;
-                    h_1 = display_mode.h - 80;
-#endif
+
+                    if (((float)w_1)/(float)h_1 > aspect_ratio){
+                        w_1=h_1*aspect_ratio;
+                    } else {
+                        h_1=w_1/aspect_ratio;
+                    }
                 }
                 else {
                     int xscale, yscale;
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-                    SDL_Rect display_bounds;
-                    if (0 !=
-                        SDL_GetDisplayUsableBounds(display, &display_bounds)) {
-                        return RAISE(pgExc_SDLError, SDL_GetError());
-                    }
                     xscale = display_bounds.w / w;
                     yscale = display_bounds.h / h;
-#else
-                    xscale = (display_mode.w - 0) / w;
-                    yscale = (display_mode.h - 80) / h;
-#endif
+
                     scale = xscale < yscale ? xscale : yscale;
+
                     if (scale < 1)
                         scale = 1;
 
-#if (SDL_VERSION_ATLEAST(2, 0, 5))
-                    if (state->scaled_gl && display_bounds.w -5 > w &&
-                        display_bounds.h -30 > h ) {
-
-                        float aspect_ratio=((float)w)/(float)h;
-
-                        w_1 = display_bounds.w -5;
-                        h_1 = display_bounds.h -80;
-                        if (((float)w_1)/(float)h_1 > aspect_ratio){
-                            w_1=h_1*aspect_ratio;
-                        } else {
-                            h_1=w_1/aspect_ratio;
-                        }
-                    } else {
-                        w_1 = w * scale;
-                        h_1 = h * scale;
-                    }
-#else
                     w_1 = w * scale;
                     h_1 = h * scale;
-#endif
                 }
             }
-
-
 
             if (!win) {
                 /*open window*/
@@ -1082,10 +1070,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 SDL_SetWindowTitle(win, title);
                 SDL_SetWindowSize(win, w_1, h_1);
 
-#if defined(SDL_VERSION_ATLEAST)
 #if (SDL_VERSION_ATLEAST(2, 0, 5))
                 SDL_SetWindowResizable(win, flags & PGS_RESIZABLE);
-#endif
 #endif
                 SDL_SetWindowBordered(win, (flags & PGS_NOFRAME) == 0);
 
@@ -1174,6 +1160,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         return RAISE(pgExc_SDLError, "failed to create renderer");
                     }
 
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
+
                     /* use whole screen with uneven pixels on fullscreen,
                        exact scale otherwise.
                        we chose the window size for this to work */
@@ -1181,6 +1169,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                               pg_renderer,
                               !(flags & PGS_FULLSCREEN
                                 || SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",SDL_FALSE)));
+#endif
                     SDL_RenderSetLogicalSize(pg_renderer, w, h);
                     /* this must be called after creating the renderer!*/
                     SDL_SetWindowMinimumSize(win, w, h);
@@ -2458,9 +2447,12 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                                       SDL_TEXTUREACCESS_STREAMING, w, h);
             }
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
+
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
             /* use exact integer scale in windowed mode */
             SDL_RenderSetIntegerScale(pg_renderer,
                            !SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY", SDL_FALSE));
+#endif
             SDL_SetWindowMinimumSize(win, w, h);
         }
         else if (state->using_gl) {
@@ -2561,8 +2553,10 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             }
 
             SDL_RenderSetLogicalSize(pg_renderer, w, h);
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
             SDL_RenderSetIntegerScale(pg_renderer,
                                       SDL_FALSE);
+#endif
 
         }
         else if (state->using_gl) {
