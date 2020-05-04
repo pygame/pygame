@@ -112,6 +112,9 @@
          ``BLEND_RGB_ADD``, ``BLEND_RGB_SUB``, ``BLEND_RGB_MULT``,
          ``BLEND_RGB_MIN``, ``BLEND_RGB_MAX``.
 
+      .. versionadded:: 1.9.2
+         Optional ``special_flags``: ``BLEND_PREMULTIPLIED``
+
       The return rectangle is the area of the affected pixels, excluding any
       pixels outside the destination Surface, or outside the clipping area.
 
