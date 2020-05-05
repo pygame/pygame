@@ -50,9 +50,8 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    This will play the loaded music stream. If the music is already playing it
    will be restarted.
 
-   :param int loops: (optional) How many times to repeat the music after it
-       plays once. Setting it to 5 will play the music once, then repeat it 
-       5 more times, for a total of six times. Set to -1 to make the music
+   :param int loops: (optional) How many times to repeat the music. Setting it
+       to 5 will play the music five times. Set to -1 to make the music
        repeat indefinately.
 
    :param float start: (optional) The position where the music starts playing

@@ -332,6 +332,32 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
    .. ## pygame.key.name ##
 
+.. function:: key_code
+
+   | :sl:`get the key identifier from a key name`
+   | :sg:`key_code(name=string) -> int`
+
+   Get the key identifier code from the descriptive name of the key. This
+   returns an integer matching one of the K_* keycodes. For example:
+
+   ::
+
+        >>> pygame.key.key_code("return") == pygame.K_RETURN
+        True
+        >>> pygame.key.key_code("0") == pygame.K_0
+        True
+        >>> pygame.key.key_code("space") == pygame.K_SPACE
+        True
+
+   :raises ValueError: if the key name is not known.
+   :raises NotImplementedError: if used with SDL 1.
+
+   .. ## pygame.key.key_code ##
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.key.key_code ##
+
 .. function:: start_text_input
 
    | :sl:`start handling IME compositions`

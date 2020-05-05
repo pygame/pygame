@@ -183,6 +183,9 @@ static PyObject *
 pgColor_NewLength(Uint8 rgba[], Uint8 length);
 static int
 pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[]);
+static int
+pg_RGBAFromFuzzyColorObj(PyObject *color, Uint8 rgba[]);
+
 
 /**
  * Methods, which are bound to the pgColorObject type.
@@ -420,7 +423,7 @@ _get_color(PyObject *val, Uint32 *color)
     }
 
     /* Failed */
-    PyErr_SetString(PyExc_ValueError, "invalid color argument");
+    PyErr_SetString(PyExc_TypeError, "invalid color argument");
     return 0;
 }
 
@@ -672,6 +675,80 @@ _color_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
+_parse_color_from_text(PyObject *str_obj, Uint8 *rgba) {
+    /* Named color */
+    PyObject *color = NULL;
+    PyObject *name1 = NULL, *name2 = NULL;
+
+    /* We assume the caller handled this check for us. */
+    assert(Text_Check(str_obj) || PyUnicode_Check(str_obj));
+
+    name1 = PyObject_CallMethod(str_obj, "replace", "(ss)", " ", "");
+    if (!name1) {
+        return -1;
+    }
+    name2 = PyObject_CallMethod(name1, "lower", NULL);
+    Py_DECREF(name1);
+    if (!name2) {
+        return -1;
+    }
+    color = PyDict_GetItem(_COLORDICT, name2);
+    Py_DECREF(name2);
+    if (!color) {
+        switch (_hexcolor(str_obj, rgba)) {
+            case TRISTATE_FAIL:
+                PyErr_SetString(PyExc_ValueError, "invalid color name");
+                return -1;
+            case TRISTATE_ERROR:
+                return -1;
+            default:
+                break;
+        }
+    } else if (!pg_RGBAFromObj(color, rgba)) {
+        PyErr_SetString(PyExc_ValueError, "invalid color");
+        return -1;
+    }
+    return 0;
+}
+
+static int
+_parse_color_from_single_object(PyObject *obj, Uint8 *rgba) {
+
+    if (Text_Check(obj) || PyUnicode_Check(obj)) {
+        if (_parse_color_from_text(obj, rgba)) {
+            return -1;
+        }
+    } else {
+        /* At this point color is either tuple-like or a single integer. */
+        if (!pg_RGBAFromColorObj(obj, rgba)) {
+            /* Color is not a valid tuple-like. */
+            Uint32 color;
+            if (PyTuple_Check(obj) || PySequence_Check(obj)) {
+                /* It was a tuple-like; raise a ValueError
+                 * - if we pass it to _get_color, we will get a TypeError
+                 *   instead, which is wrong.  The type is correct, but it
+                 *   had the wrong number of arguments.
+                 */
+                PyErr_SetString(PyExc_ValueError, "invalid color argument");
+                return -1;
+            }
+
+            if (_get_color(obj, &color)) {
+                /* Color is a single integer. */
+                rgba[0] = (Uint8)(color >> 24);
+                rgba[1] = (Uint8)(color >> 16);
+                rgba[2] = (Uint8)(color >> 8);
+                rgba[3] = (Uint8)color;
+            } else {
+                /* Exception already set by _get_color(). */
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
+static int
 _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
 {
     Uint8 *rgba = self->data;
@@ -684,63 +761,11 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (Text_Check(obj) || PyUnicode_Check(obj)) {
-        /* Named color */
-        PyObject *color = NULL;
-        PyObject *name1 = NULL, *name2 = NULL;
-        if (obj1 || obj2 || obj3) {
-            PyErr_SetString(PyExc_ValueError, "invalid arguments");
+    if (!obj1) {
+        if (_parse_color_from_single_object(obj, rgba)) {
             return -1;
         }
-
-        name1 = PyObject_CallMethod(obj, "replace", "(ss)", " ", "");
-        if (!name1) {
-            return -1;
-        }
-        name2 = PyObject_CallMethod(name1, "lower", NULL);
-        Py_DECREF(name1);
-        if (!name2) {
-            return -1;
-        }
-        color = PyDict_GetItem(_COLORDICT, name2);
-        Py_DECREF(name2);
-        if (!color) {
-            switch (_hexcolor(obj, rgba)) {
-                case TRISTATE_FAIL:
-                    PyErr_SetString(PyExc_ValueError, "invalid color name");
-                    return -1;
-                case TRISTATE_ERROR:
-                    return -1;
-                default:
-                    break;
-            }
-        }
-        else if (!pg_RGBAFromObj(color, rgba)) {
-            PyErr_SetString(PyExc_ValueError, "invalid color");
-            return -1;
-        }
-    }
-    else if (!obj1) {
-        /* At this point color is either tuple-like or a single integer. */
-
-        if (!pg_RGBAFromObj(obj, rgba)) {
-            /* Color is not tuple-like. */
-            Uint32 color;
-
-            if (_get_color(obj, &color)) {
-                /* Color is a single interger. */
-                rgba[0] = (Uint8)(color >> 24);
-                rgba[1] = (Uint8)(color >> 16);
-                rgba[2] = (Uint8)(color >> 8);
-                rgba[3] = (Uint8)color;
-            }
-            else {
-                /* Exception already set by _get_color(). */
-                return -1;
-            }
-        }
-    }
-    else {
+    } else {
         Uint32 color = 0;
 
         /* Color(R,G,B[,A]) */
@@ -865,9 +890,9 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
         return NULL;
     }
 
-    if (!pg_RGBAFromColorObj(colobj, rgba)) {
-        return RAISE(PyExc_TypeError,
-                        "Invalid color argument");
+    if (!pg_RGBAFromFuzzyColorObj(colobj, rgba)) {
+        /* Exception already set for us */
+        return NULL;
     }
 
     if (amt < 0 || amt > 1) {
@@ -2094,6 +2119,12 @@ pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[])
     return pg_RGBAFromObj(color, rgba);
 }
 
+static int
+pg_RGBAFromFuzzyColorObj(PyObject * color, Uint8 rgba[])
+{
+    return _parse_color_from_single_object(color, rgba) == 0;
+}
+
 /*DOC*/ static char _color_doc[] =
     /*DOC*/ "color module for pygame";
 
@@ -2172,6 +2203,7 @@ MODINIT_DEFINE(color)
     c_api[1] = pgColor_New;
     c_api[2] = pg_RGBAFromColorObj;
     c_api[3] = pgColor_NewLength;
+    c_api[4] = pg_RGBAFromFuzzyColorObj;
 
     apiobj = encapsulate_api(c_api, "color");
     if (apiobj == NULL) {

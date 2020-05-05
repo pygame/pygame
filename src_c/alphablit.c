@@ -2834,12 +2834,12 @@ pygame_Blit (SDL_Surface * src, SDL_Rect * srcrect,
     /* Make sure the surfaces aren't locked */
     if (!src || !dst)
     {
-        SDL_SetError ("SDL_UpperBlit: passed a NULL surface");
+        SDL_SetError ("pygame_Blit: passed a NULL surface");
         return (-1);
     }
     if (src->locked || dst->locked)
     {
-        SDL_SetError ("Surfaces must not be locked during blit");
+        SDL_SetError ("pygame_Blit: Surfaces must not be locked during blit");
         return (-1);
     }
 
