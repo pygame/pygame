@@ -710,6 +710,38 @@ key_name(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+key_code(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    const char * name;
+    SDL_Keycode code;
+
+    static char *kwids[] = {
+        "name",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
+        return NULL;
+
+#if IS_SDLv1
+    PyErr_SetString(PyExc_NotImplementedError, "not supported with SDL 1");
+    return 0;
+#else
+    code = SDL_GetKeyFromName(name);
+    if (code != SDLK_UNKNOWN){
+        return PyInt_FromLong(code);
+    }
+    else{
+        // Raise an unknown key name error?
+        PyErr_SetString(PyExc_ValueError, "unknown key name");
+        return 0;
+    }
+
+#endif
+
+}
+
+static PyObject *
 key_get_mods(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
@@ -786,6 +818,8 @@ static PyMethodDef _key_methods[] = {
     {"get_pressed", key_get_pressed, METH_NOARGS,
      DOC_PYGAMEKEYGETPRESSED},
     {"name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME},
+    {"key_code", (PyCFunction)key_code, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEKEYNAME},
     {"get_mods", key_get_mods, METH_NOARGS, DOC_PYGAMEKEYGETMODS},
     {"set_mods", key_set_mods, METH_VARARGS, DOC_PYGAMEKEYSETMODS},
     {"get_focused", key_get_focused, METH_NOARGS,
