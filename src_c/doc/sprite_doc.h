@@ -13,7 +13,7 @@
 #define DOC_GROUPCOPY "copy() -> Group\nduplicate the Group"
 #define DOC_GROUPADD "add(*sprites) -> None\nadd Sprites to this Group"
 #define DOC_GROUPREMOVE "remove(*sprites) -> None\nremove Sprites from the Group"
-#define DOC_GROUPHAS "has(*sprites) -> None\ntest if a Group contains Sprites"
+#define DOC_GROUPHAS "has(*sprites) -> bool\ntest if a Group contains Sprites"
 #define DOC_GROUPUPDATE "update(*args, **kwargs) -> None\ncall the update method on contained Sprites"
 #define DOC_GROUPDRAW "draw(Surface) -> None\nblit the Sprite images"
 #define DOC_GROUPCLEAR "clear(Surface_dest, background) -> None\ndraw a background over the Sprites"
@@ -119,7 +119,7 @@ pygame.sprite.Group.remove
 remove Sprites from the Group
 
 pygame.sprite.Group.has
- has(*sprites) -> None
+ has(*sprites) -> bool
 test if a Group contains Sprites
 
 pygame.sprite.Group.update

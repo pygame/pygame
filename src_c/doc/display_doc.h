@@ -14,9 +14,9 @@
 #define DOC_PYGAMEDISPLAYMODEOK "mode_ok(size, flags=0, depth=0, display=0) -> depth\nPick the best color depth for a display mode"
 #define DOC_PYGAMEDISPLAYGLGETATTRIBUTE "gl_get_attribute(flag) -> value\nGet the value for an OpenGL flag for the current display"
 #define DOC_PYGAMEDISPLAYGLSETATTRIBUTE "gl_set_attribute(flag, value) -> None\nRequest an OpenGL display attribute for the display mode"
-#define DOC_PYGAMEDISPLAYGETACTIVE "get_active() -> bool\nReturns True when the display is active on the display"
+#define DOC_PYGAMEDISPLAYGETACTIVE "get_active() -> bool\nReturns True when the display is active on the screen"
 #define DOC_PYGAMEDISPLAYICONIFY "iconify() -> bool\nIconify the display surface"
-#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "toggle_fullscreen() -> bool\nSwitch between fullscreen and windowed displays"
+#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "toggle_fullscreen() -> int\nSwitch between fullscreen and windowed displays"
 #define DOC_PYGAMEDISPLAYSETGAMMA "set_gamma(red, green=None, blue=None) -> bool\nChange the hardware gamma ramps"
 #define DOC_PYGAMEDISPLAYSETGAMMARAMP "set_gamma_ramp(red, green, blue) -> bool\nChange the hardware gamma ramps with a custom lookup"
 #define DOC_PYGAMEDISPLAYSETICON "set_icon(Surface) -> None\nChange the system image for the display window"
@@ -93,14 +93,14 @@ Request an OpenGL display attribute for the display mode
 
 pygame.display.get_active
  get_active() -> bool
-Returns True when the display is active on the display
+Returns True when the display is active on the screen
 
 pygame.display.iconify
  iconify() -> bool
 Iconify the display surface
 
 pygame.display.toggle_fullscreen
- toggle_fullscreen() -> bool
+ toggle_fullscreen() -> int
 Switch between fullscreen and windowed displays
 
 pygame.display.set_gamma
