@@ -322,7 +322,7 @@ class DrawEllipseMixin(object):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_ellipse(surface, "blue", rect, 0)
+            bounds_rect = self.draw_ellipse(surface, 2.3, rect, 0)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -342,7 +342,7 @@ class DrawEllipseMixin(object):
             },
             {
                 "surface": surface,
-                "color": "green",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "rect": rect,
                 "width": 1,
             },
@@ -478,7 +478,6 @@ class DrawEllipseMixin(object):
     def test_ellipse__invalid_color_formats(self):
         """Ensures draw ellipse handles invalid color formats correctly."""
         pos = (1, 1)
-        surface_color = pygame.Color("black")
         surface = pygame.Surface((4, 3))
         kwargs = {
             "surface": surface,
@@ -487,9 +486,7 @@ class DrawEllipseMixin(object):
             "width": 1,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, surface):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -1201,7 +1198,7 @@ class LineMixin(BaseLineMixin):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_line(surface, "blue", start_pos, end_pos)
+            bounds_rect = self.draw_line(surface, 2.3, start_pos, end_pos)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -1224,7 +1221,7 @@ class LineMixin(BaseLineMixin):
             },
             {
                 "surface": surface,
-                "color": "green",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "start_pos": start_pos,
                 "end_pos": end_pos,
                 "width": width,
@@ -1487,9 +1484,7 @@ class LineMixin(BaseLineMixin):
             "width": 1,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -1904,7 +1899,7 @@ class LinesMixin(BaseLineMixin):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_lines(surface, "blue", closed, points)
+            bounds_rect = self.draw_lines(surface, 2.3, closed, points)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -1922,7 +1917,7 @@ class LinesMixin(BaseLineMixin):
 
         invalid_kwargs = {
             "surface": pygame.Surface,
-            "color": "green",
+            "color": 2.3,
             "closed": InvalidBool(),
             "points": (0, 0, 0),
             "width": 1.2,
@@ -2178,9 +2173,7 @@ class LinesMixin(BaseLineMixin):
             "width": 1,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -2453,9 +2446,9 @@ class AALineMixin(BaseLineMixin):
             # Invalid start_pos.
             bounds_rect = self.draw_aaline(surface, color, (1,), end_pos)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             # Invalid color.
-            bounds_rect = self.draw_aaline(surface, "blue", start_pos, end_pos)
+            bounds_rect = self.draw_aaline(surface, "invalid-color", start_pos, end_pos)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -2478,7 +2471,7 @@ class AALineMixin(BaseLineMixin):
             },
             {
                 "surface": surface,
-                "color": "green",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "start_pos": start_pos,
                 "end_pos": end_pos,
                 "blend": blend,
@@ -2746,9 +2739,7 @@ class AALineMixin(BaseLineMixin):
             "blend": 0,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -3280,7 +3271,7 @@ class AALinesMixin(BaseLineMixin):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_aalines(surface, "blue", closed, points)
+            bounds_rect = self.draw_aalines(surface, 2.3, closed, points)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -3298,7 +3289,7 @@ class AALinesMixin(BaseLineMixin):
 
         invalid_kwargs = {
             "surface": pygame.Surface,
-            "color": "green",
+            "color": 2.3,
             "closed": InvalidBool(),
             "points": (0, 0, 0),
             "blend": 1.2,
@@ -3555,9 +3546,7 @@ class AALinesMixin(BaseLineMixin):
             "blend": 0,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -3820,7 +3809,7 @@ class DrawPolygonMixin(object):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_polygon(surface, "blue", points)
+            bounds_rect = self.draw_polygon(surface, 2.3, points)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -3841,7 +3830,7 @@ class DrawPolygonMixin(object):
             },
             {
                 "surface": surface,
-                "color": "green",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "points": points,
                 "width": width,
             },
@@ -4055,9 +4044,7 @@ class DrawPolygonMixin(object):
             "width": 0,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -4472,7 +4459,7 @@ class DrawRectMixin(object):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_rect(surface, "yellow", rect, 3, 8)
+            bounds_rect = self.draw_rect(surface, 2.3, rect, 3, 8)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -4497,7 +4484,7 @@ class DrawRectMixin(object):
             },
             {
                 "surface": surface,
-                "color": "red",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "rect": rect,
                 "width": 1,
                 "border_radius": 10,
@@ -4738,7 +4725,6 @@ class DrawRectMixin(object):
     def test_rect__invalid_color_formats(self):
         """Ensures draw rect handles invalid color formats correctly."""
         pos = (1, 1)
-        surface_color = pygame.Color("black")
         surface = pygame.Surface((3, 4))
         kwargs = {
             "surface": surface,
@@ -4747,9 +4733,7 @@ class DrawRectMixin(object):
             "width": 1,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("red", "#FF0000FF", "0xFF0000FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -5109,7 +5093,7 @@ class DrawCircleMixin(object):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_circle(surface, "blue", center, radius)
+            bounds_rect = self.draw_circle(surface, 2.3, center, radius)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -5137,7 +5121,7 @@ class DrawCircleMixin(object):
             },
             {
                 "surface": surface,
-                "color": "green",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "center": center,
                 "radius": radius,
                 "width": width,
@@ -5462,9 +5446,7 @@ class DrawCircleMixin(object):
             "draw_bottom_right": True
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -5846,7 +5828,7 @@ class DrawArcMixin(object):
 
         with self.assertRaises(TypeError):
             # Invalid color.
-            bounds_rect = self.draw_arc(surface, "blue", rect, 0, 1, 1)
+            bounds_rect = self.draw_arc(surface, 2.3, rect, 0, 1, 1)
 
         with self.assertRaises(TypeError):
             # Invalid surface.
@@ -5870,7 +5852,7 @@ class DrawArcMixin(object):
             },
             {
                 "surface": surface,
-                "color": "green",  # Invalid color.
+                "color": 2.3,  # Invalid color.
                 "rect": rect,
                 "start_angle": start,
                 "stop_angle": stop,
@@ -6131,7 +6113,6 @@ class DrawArcMixin(object):
     def test_arc__invalid_color_formats(self):
         """Ensures draw arc handles invalid color formats correctly."""
         pos = (1, 1)
-        surface_color = pygame.Color("black")
         surface = pygame.Surface((4, 3))
         kwargs = {
             "surface": surface,
@@ -6142,9 +6123,7 @@ class DrawArcMixin(object):
             "width": 1,
         }
 
-        # These color formats are currently not supported (it would be
-        # nice to eventually support them).
-        for expected_color in ("green", "#00FF00FF", "0x00FF00FF"):
+        for expected_color in (2.3, self):
             kwargs["color"] = expected_color
 
             with self.assertRaises(TypeError):
@@ -6335,7 +6314,7 @@ class DrawModuleTest(unittest.TestCase):
 
     def test_color_validation(self):
         surf = pygame.Surface((10, 10))
-        colors = 123456, (1, 10, 100), RED  # but not '#ab12df' or 'red' ...
+        colors = 123456, (1, 10, 100), RED, '#ab12df', 'red'
         points = ((0, 0), (1, 1), (1, 0))
 
         # 1. valid colors
@@ -6350,7 +6329,7 @@ class DrawModuleTest(unittest.TestCase):
             draw.polygon(surf, col, points, 0)
 
         # 2. invalid colors
-        for col in ("invalid", 1.256, object(), None, "#ab12df", "red"):
+        for col in (1.256, object(), None):
             with self.assertRaises(TypeError):
                 draw.line(surf, col, (0, 0), (1, 1))
 

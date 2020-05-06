@@ -75,11 +75,11 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
 #define CHECK_LOAD_COLOR(colorobj)                                         \
     if (PyInt_Check(colorobj))                                             \
         color = (Uint32)PyInt_AsLong(colorobj);                            \
-    else if (pg_RGBAFromColorObj(colorobj, rgba))                          \
+    else if (pg_RGBAFromFuzzyColorObj(colorobj, rgba))                     \
         color =                                                            \
             SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]); \
     else                                                                   \
-        return RAISE(PyExc_TypeError, "invalid color argument");
+        return NULL; /* pg_RGBAFromFuzzyColorObj sets the exception for us */
 
 /* Definition of functions that get called in Python */
 

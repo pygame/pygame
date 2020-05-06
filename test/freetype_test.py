@@ -712,7 +712,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # misc parameter test
         self.assertRaises(ValueError, font.render_to, surf, (0, 0), "foobar", color)
         self.assertRaises(
-            TypeError, font.render_to, surf, (0, 0), "foobar", color, "", size=24
+            TypeError, font.render_to, surf, (0, 0), "foobar", color, 2.3, size=24
         )
         self.assertRaises(
             ValueError,
@@ -770,7 +770,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # misc parameter test
         self.assertRaises(ValueError, font.render, "foobar", color)
-        self.assertRaises(TypeError, font.render, "foobar", color, "", size=24)
+        self.assertRaises(TypeError, font.render, "foobar", color, 2.3, size=24)
         self.assertRaises(
             ValueError, font.render, "foobar", color, None, style=42, size=24
         )

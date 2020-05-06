@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev7",
+    "version":          "2.0.0.dev9",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -368,10 +368,19 @@ data_files = [('pygame', pygame_data_files)]
 # pygame_data_files.append('readme.html')
 # pygame_data_files.append('install.html')
 
+add_stubs = True
 # add *.pyi files into distribution directory
-# type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
-# for type_file in type_files:
-#     pygame_data_files.append(type_file)
+if add_stubs:
+    type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
+    for type_file in type_files:
+        pygame_data_files.append(type_file)
+    _sdl2 = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '_sdl2', '*.pyi'))
+    if _sdl2:
+        _sdl2_data_files = []
+        data_files.append(('pygame/_sdl2', _sdl2_data_files))
+        for type_file in _sdl2:
+            _sdl2_data_files.append(type_file)
+
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
@@ -478,6 +487,7 @@ def write_version_module(pygame_version, revision):
         version_file.write('ver = "' + pygame_version + '"\n')
         version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
+        version_file.write('\n__all__ = ["ver", "vernum", "rev"]\n')
 
 write_version_module(METADATA['version'], revision)
 
