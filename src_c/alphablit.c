@@ -254,6 +254,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         case PYGAME_BLEND_PREMULTIPLIED:
         {
+#ifdef __MMX__
             if (src->format->Rmask == dst->format->Rmask
                 && src->format->Gmask == dst->format->Gmask
                 && src->format->Bmask == dst->format->Bmask
@@ -265,11 +266,10 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 && src->format->Aloss == 0
                 && SDL_HasMMX() == SDL_TRUE) {
                 blit_blend_premultiplied_mmx (&info);
+                break;
             }
-            else {
-                blit_blend_premultiplied (&info);
-            }
-
+#endif /*__MMX__*/
+            blit_blend_premultiplied (&info);
             break;
         }
         default:
@@ -1055,6 +1055,7 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     }
 }
 
+#ifdef __MMX__
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */
 static void
 blit_blend_premultiplied_mmx(SDL_BlitInfo * info)
@@ -1119,6 +1120,7 @@ blit_blend_premultiplied_mmx(SDL_BlitInfo * info)
     }
     _mm_empty();
 }
+#endif /*__MMX__*/
 
 static void
 blit_blend_premultiplied (SDL_BlitInfo * info)
