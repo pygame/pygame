@@ -1114,7 +1114,6 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
             mm_alpha = _mm_srli_si128(mm_alpha, 3); /* mm_alpha >> ashift -> mm_alpha(000000000000000A) */
             mm_alpha = _mm_unpacklo_epi16(mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
             mm_alpha2 = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
-            mm_alpha = _mm_or_si128(mm_alpha2, multmask_128);    /* 000000000F0A0A0A -> mm_alpha  - This part seems to work*/
             mm_alpha2 = _mm_xor_si128(mm_alpha2, multmask2_128);    /* 255 - mm_alpha -> mm_alpha */
 
             /* pre-multiplied alpha blend */
@@ -1181,7 +1180,6 @@ blit_blend_premultiplied_mmx(SDL_BlitInfo * info)
             mm_alpha = _mm_srli_si64(mm_alpha, ashift); /* mm_alpha >> ashift -> mm_alpha(0000000A) */
             mm_alpha = _mm_unpacklo_pi16(mm_alpha, mm_alpha); /* 00000A0A -> mm_alpha */
             mm_alpha2 = _mm_unpacklo_pi32(mm_alpha, mm_alpha); /* 0A0A0A0A -> mm_alpha2 */
-            mm_alpha = _mm_or_si64(mm_alpha2, *(__m64 *) & multmask);    /* 0F0A0A0A -> mm_alpha */
             mm_alpha2 = _mm_xor_si64(mm_alpha2, *(__m64 *) & multmask2);    /* 255 - mm_alpha -> mm_alpha */
 
             /* pre-multiplied alpha blend */
