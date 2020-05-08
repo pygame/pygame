@@ -101,6 +101,16 @@ if '-pygame-ci' in sys.argv:
     os.environ['CFLAGS'] = cflags
     sys.argv.remove ('-pygame-ci')
 
+# This should detect Raspberry pis at least.
+from platform import machine
+if machine().startswith('arm'):
+    cflags = os.environ.get('CFLAGS', '')
+    if cflags:
+        cflags += ' '
+    cflags += '-mfpu=neon'
+    os.environ['CFLAGS'] = cflags
+
+
 if 'cython' in sys.argv:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
