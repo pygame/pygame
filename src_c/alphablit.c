@@ -67,6 +67,7 @@ static void blit_blend_rgba_max (SDL_BlitInfo * info);
 
 static void blit_blend_premultiplied (SDL_BlitInfo * info);
 static void blit_blend_premultiplied_mmx (SDL_BlitInfo * info);
+static void blit_blend_premultiplied_sse2 (SDL_BlitInfo * info);
 
 
 static int
@@ -254,7 +255,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         case PYGAME_BLEND_PREMULTIPLIED:
         {
-#ifdef __MMX__
+#if  defined(__MMX__) || defined(__SSE2__)
             if (src->format->Rmask == dst->format->Rmask
                 && src->format->Gmask == dst->format->Gmask
                 && src->format->Bmask == dst->format->Bmask
@@ -263,12 +264,23 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 && src->format->Gshift % 8 == 0
                 && src->format->Bshift % 8 == 0
                 && src->format->Ashift % 8 == 0
-                && src->format->Aloss == 0
-                && SDL_HasMMX() == SDL_TRUE) {
-                blit_blend_premultiplied_mmx (&info);
-                break;
-            }
+                && src->format->Aloss == 0){
+
+#ifdef __SSE2__
+                if (SDL_HasSSE2() == SDL_TRUE){
+                    blit_blend_premultiplied_sse2 (&info);
+                    break;
+                }
+#endif /* __SSE2__*/
+#ifdef __MMX__
+                if (SDL_HasMMX() == SDL_TRUE) {
+                    blit_blend_premultiplied_mmx (&info);
+                    break;
+                }
 #endif /*__MMX__*/
+
+            }
+#endif /*__MMX__ || __SSE2__*/
             blit_blend_premultiplied (&info);
             break;
         }
@@ -1054,6 +1066,75 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         }
     }
 }
+
+#ifdef __SSE2__
+static void
+blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
+{
+    int             n;
+    int             loop = 2;
+    int             width = info->width;
+    int             height = info->height;
+    Uint32          *srcp = (Uint32 *) info->s_pixels;
+    int             srcskip = info->s_skip >> 2;
+    Uint32          *dstp = (Uint32 *) info->d_pixels;
+    int             dstskip = info->d_skip >> 2;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    Uint32          amask = srcfmt->Amask;
+    int             ashift = srcfmt->Ashift;
+    Uint64          multmask, multmask2;
+
+    __m128i src1, dst1, mm_alpha, mm_zero, mm_alpha2, multmask_128, multmask2_128;
+
+    mm_zero = _mm_setzero_si128();
+    multmask = 0x00FF;
+    multmask <<= (ashift * 2);
+    multmask2 = 0x00FF00FF00FF00FF; // 0F0F0F0F
+
+    multmask_128 = _mm_loadl_epi64((const __m128i *) & multmask);
+    multmask2_128 = _mm_loadl_epi64((const __m128i *) & multmask2);
+
+    while (height--) {
+        /* *INDENT-OFF* */
+        LOOP_UNROLLED4({
+        Uint32 alpha = *srcp & amask;
+        if (alpha == 0) {
+            /* do nothing */
+        } else if (alpha == amask) {
+            *dstp = *srcp;
+        } else {
+            src1 = _mm_cvtsi32_si128(*srcp); /* src(ARGB) -> src1 (000000000000ARGB) */
+            src1 = _mm_unpacklo_epi8(src1, mm_zero); /* 000000000A0R0G0B -> src1 */
+
+            dst1 = _mm_cvtsi32_si128(*dstp); /* dst(ARGB) -> dst1 (000000000000ARGB) */
+            dst1 = _mm_unpacklo_epi8(dst1, mm_zero); /* 000000000A0R0G0B -> dst1 */
+
+            mm_alpha = _mm_cvtsi32_si128(alpha); /* alpha -> mm_alpha (000000000000A000) */
+            mm_alpha = _mm_srli_si128(mm_alpha, 3); /* mm_alpha >> ashift -> mm_alpha(000000000000000A) */
+            mm_alpha = _mm_unpacklo_epi16(mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
+            mm_alpha2 = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
+            mm_alpha = _mm_or_si128(mm_alpha2, multmask_128);    /* 000000000F0A0A0A -> mm_alpha  - This part seems to work*/
+            mm_alpha2 = _mm_xor_si128(mm_alpha2, multmask2_128);    /* 255 - mm_alpha -> mm_alpha */
+
+            /* pre-multiplied alpha blend */
+            dst1 = _mm_mullo_epi16(dst1, mm_alpha2);
+            dst1 = _mm_srli_epi16(dst1, 8);
+            dst1 = _mm_add_epi16(src1, dst1);
+            dst1 = _mm_packus_epi16(dst1, mm_zero);
+
+            *dstp = _mm_cvtsi128_si32(dst1);
+        }
+        ++srcp;
+        ++dstp;
+        }, n, width);
+        /* *INDENT-ON* */
+        srcp += srcskip;
+        dstp += dstskip;
+
+    }
+}
+#endif /*__SSE2__*/
 
 #ifdef __MMX__
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */
