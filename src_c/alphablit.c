@@ -25,6 +25,10 @@
 #define NO_PYGAME_C_API
 #include "_surface.h"
 
+#ifdef SDL_ARM_NEON_BLITTERS
+#include "sse2neon.h"
+#endif /* __SSE2__*/
+
 /* The structure passed to the low level blit functions */
 typedef struct
 {
@@ -255,7 +259,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         case PYGAME_BLEND_PREMULTIPLIED:
         {
-#if  defined(__MMX__) || defined(__SSE2__)
+#if  defined(__MMX__) || defined(__SSE2__) || defined(SDL_ARM_NEON_BLITTERS)
             if (src->format->Rmask == dst->format->Rmask
                 && src->format->Gmask == dst->format->Gmask
                 && src->format->Bmask == dst->format->Bmask
@@ -266,6 +270,12 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 && src->format->Ashift % 8 == 0
                 && src->format->Aloss == 0){
 
+#if SDL_ARM_NEON_BLITTERS
+                if (SDL_HasNEON() == SDL_TRUE){
+                    blit_blend_premultiplied_sse2 (&info);
+                    break;
+                }
+#endif /* SDL_ARM_NEON_BLITTERS*/
 #ifdef __SSE2__
                 if (SDL_HasSSE2() == SDL_TRUE){
                     blit_blend_premultiplied_sse2 (&info);
@@ -280,7 +290,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
 #endif /*__MMX__*/
 
             }
-#endif /*__MMX__ || __SSE2__*/
+#endif /*__MMX__ || __SSE2__ || SDL_ARM_NEON_BLITTERS*/
             blit_blend_premultiplied (&info);
             break;
         }
@@ -1067,7 +1077,7 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     }
 }
 
-#ifdef __SSE2__
+#if  defined(__SSE2__) || defined(SDL_ARM_NEON_BLITTERS)
 static void
 blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
 {
@@ -1133,7 +1143,7 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
 
     }
 }
-#endif /*__SSE2__*/
+#endif /*__SSE2__ || SDL_ARM_NEON_BLITTERS*/
 
 #ifdef __MMX__
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */
