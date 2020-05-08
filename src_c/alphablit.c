@@ -26,7 +26,7 @@
 #include "_surface.h"
 
 #ifdef SDL_ARM_NEON_BLITTERS
-#include "sse2neon.h"
+#include "include/sse2neon.h"
 #endif /* __SSE2__*/
 
 /* The structure passed to the low level blit functions */
@@ -70,8 +70,12 @@ static void blit_blend_rgba_min (SDL_BlitInfo * info);
 static void blit_blend_rgba_max (SDL_BlitInfo * info);
 
 static void blit_blend_premultiplied (SDL_BlitInfo * info);
+#ifdef __MMX__
 static void blit_blend_premultiplied_mmx (SDL_BlitInfo * info);
+#endif /*  __MMX__ */
+#if  defined(__MMX__) || defined(__SSE2__) || defined(SDL_ARM_NEON_BLITTERS)
 static void blit_blend_premultiplied_sse2 (SDL_BlitInfo * info);
+#endif /*defined(__MMX__) || defined(__SSE2__) || defined(SDL_ARM_NEON_BLITTERS)*/
 
 
 static int
@@ -1082,7 +1086,6 @@ static void
 blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
 {
     int             n;
-    int             loop = 2;
     int             width = info->width;
     int             height = info->height;
     Uint32          *srcp = (Uint32 *) info->s_pixels;
@@ -1090,19 +1093,13 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
     Uint32          *dstp = (Uint32 *) info->d_pixels;
     int             dstskip = info->d_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src;
-    SDL_PixelFormat *dstfmt = info->dst;
     Uint32          amask = srcfmt->Amask;
-    int             ashift = srcfmt->Ashift;
-    Uint64          multmask, multmask2;
+    Uint64          multmask2;
 
-    __m128i src1, dst1, mm_alpha, mm_zero, mm_alpha2, multmask_128, multmask2_128;
+    __m128i src1, dst1, mm_alpha, mm_zero, mm_alpha2, multmask2_128;
 
     mm_zero = _mm_setzero_si128();
-    multmask = 0x00FF;
-    multmask <<= (ashift * 2);
     multmask2 = 0x00FF00FF00FF00FF; // 0F0F0F0F
-
-    multmask_128 = _mm_loadl_epi64((const __m128i *) & multmask);
     multmask2_128 = _mm_loadl_epi64((const __m128i *) & multmask2);
 
     while (height--) {
@@ -1151,7 +1148,6 @@ static void
 blit_blend_premultiplied_mmx(SDL_BlitInfo * info)
 {
     int             n;
-    int             loop = 2;
     int             width = info->width;
     int             height = info->height;
     Uint32          *srcp = (Uint32 *) info->s_pixels;
@@ -1159,16 +1155,13 @@ blit_blend_premultiplied_mmx(SDL_BlitInfo * info)
     Uint32          *dstp = (Uint32 *) info->d_pixels;
     int             dstskip = info->d_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src;
-    SDL_PixelFormat *dstfmt = info->dst;
     Uint32          amask = srcfmt->Amask;
     Uint32          ashift = srcfmt->Ashift;
-    Uint64          multmask, multmask2;
+    Uint64          multmask2;
 
     __m64 src1, dst1, mm_alpha, mm_zero, mm_alpha2;
 
     mm_zero = _mm_setzero_si64();       /* 0 -> mm_zero */
-    multmask = 0x00FF;
-    multmask <<= (ashift * 2);
     multmask2 = 0x00FF00FF00FF00FFULL;
 
     while (height--) {
