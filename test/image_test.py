@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import array
+import binascii
 import os
 import tempfile
 import unittest
@@ -327,9 +328,9 @@ class ImageModuleTest(unittest.TestCase):
                             block_start,
                             block_end,
                             len(string1),
-                            block1.encode("hex"),
-                            block2.encode("hex"),
-                            source_block.encode("hex"),
+                            binascii.hexlify(block1),
+                            binascii.hexlify(block2),
+                            binascii.hexlify(source_block),
                         )
                     )
                     self.fail(msg)
@@ -396,7 +397,9 @@ class ImageModuleTest(unittest.TestCase):
         surf_b_get_at = surf_b.get_at
         for y in xrange_(a_height):
             for x in xrange_(a_width):
-                self.assertEqual(surf_a_get_at((x, y)), surf_b_get_at((x, y)), msg)
+                self.assertEqual(surf_a_get_at((x, y)),
+                                 surf_b_get_at((x, y)),
+                                 "%s (pixel: %d, %d)" % (msg, x, y))
 
     def test_fromstring__and_tostring(self):
         """Ensure methods tostring() and fromstring() are symmetric."""
