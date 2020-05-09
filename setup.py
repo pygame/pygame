@@ -101,15 +101,14 @@ if '-pygame-ci' in sys.argv:
     os.environ['CFLAGS'] = cflags
     sys.argv.remove ('-pygame-ci')
 
-# This should detect Raspberry pis at least.
-from platform import machine
-if machine().startswith('arm'):
+enable_neon = False
+if '-ENABLE_NEON' in sys.argv:
+    enable_neon = True
     cflags = os.environ.get('CFLAGS', '')
     if cflags:
         cflags += ' '
     cflags += '-mfpu=neon'
     os.environ['CFLAGS'] = cflags
-
 
 if 'cython' in sys.argv:
     # compile .pyx files
@@ -329,6 +328,12 @@ perhaps make a clean copy from "Setup.in".""")
     compilation_help()
     raise
 
+if enable_neon:
+    enable_neon_value = '1'
+else:
+    enable_neon_value = '0'
+for e in extensions:
+    e.define_macros.append(('ENABLE_ARMNEON', enable_neon_value))
 
 #decide whether or not to enable new buffer protocol support
 enable_newbuf = False
