@@ -2295,7 +2295,7 @@ class SurfaceBlendTest(unittest.TestCase):
         dst.blit(src, (0, 0), special_flags=BLEND_PREMULTIPLIED)
 
         # result.RGBA = source.RGBA + (dest.RGBA * (1 - source.A))
-        inv_src_alpha = ((255-src_col.a)/255)
+        inv_src_alpha = (float(255-src_col.a)/255.0)
         expected_col = pygame.Color(src_col.r + int(dst_col.r * inv_src_alpha),
                                     src_col.g + int(dst_col.g * inv_src_alpha),
                                     src_col.b + int(dst_col.b * inv_src_alpha),
