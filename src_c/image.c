@@ -395,13 +395,12 @@ compute_align_vector(SDL_PixelFormat *format, int color_offset,
  * (plus requires SSE4.2 support from the CPU).
  */
 static PG_INLINE void
-tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *out,
+tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
                           int color_offset, int alpha_offset) {
     const int step_size = 4;
     int h, w;
     SDL_PixelFormat *format = surf->format;
     int loop_max = surf->w / step_size;
-    __m128i *data = (__m128i*)(void *)out;
     int mask = (format->Rloss ? 0 : format->Rmask)
              | (format->Gloss ? 0 : format->Gmask)
              | (format->Bloss ? 0 : format->Bmask)
@@ -410,6 +409,11 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *out,
     __m128i mask_vector = _mm_set_epi32(mask, mask, mask, mask);
     __m128i align_vector = compute_align_vector(surf->format,
                                                 color_offset, alpha_offset);
+    /* How much we would overshoot if we overstep loop_max */
+    int rollback_count = surf->w % step_size;
+    if (rollback_count) {
+        rollback_count = step_size - rollback_count;
+    }
 
     DEBUG_PRINT128_NUM(mask_vector, "mask-vector");
     DEBUG_PRINT128_NUM(align_vector, "align-vector");
@@ -421,23 +425,49 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *out,
      */
     assert(sizeof(int) == sizeof(Uint32));
     assert(4 * sizeof(Uint32) == sizeof(__m128i));
-    assert(surf->w % step_size == 0);
+    /* If this assertion does not hold, the fallback code will overrun
+     * the buffers.
+     */
+    assert(surf->w >= step_size);
     assert(format->Rloss % 8 == 0);
     assert(format->Gloss % 8 == 0);
     assert(format->Bloss % 8 == 0);
     assert(format->Aloss % 8 == 0);
 
     for (h = 0; h < surf->h; ++h) {
-        const __m128i *row = (const __m128i*)(void *)DATAROW(
+        const char *row = (char *)DATAROW(
             surf->pixels, h, surf->pitch, surf->h, flipped);
         for (w = 0; w < loop_max; ++w) {
-            __m128i pvector = _mm_loadu_si128(row++);
+            __m128i pvector = _mm_loadu_si128((const __m128i*)row);
             DEBUG_PRINT128_NUM(pvector, "Load");
             pvector = _mm_and_si128(pvector, mask_vector);
             DEBUG_PRINT128_NUM(pvector, "after _mm_and_si128 (and)");
             pvector = _mm_shuffle_epi8(pvector, align_vector);
             DEBUG_PRINT128_NUM(pvector, "after _mm_shuffle_epi8 (reorder)");
-            _mm_storeu_si128(data++, pvector);
+            _mm_storeu_si128((__m128i *)data, pvector);
+            row += sizeof(__m128i);
+            data += sizeof(__m128i);
+        }
+        if (rollback_count) {
+            __m128i pvector;
+            /* Back up a bit to ensure we stay within the memory boundaries
+             * Technically, we end up redoing part of the computations, but
+             * it does not really matter as the runtime of these operations
+             * are fixed and the results are deterministic.
+             */
+            row -= rollback_count * sizeof(Uint32);
+            data -= rollback_count * sizeof(Uint32);
+
+            pvector = _mm_loadu_si128((const __m128i*)row);
+            DEBUG_PRINT128_NUM(pvector, "Load (remainder)");
+            pvector = _mm_and_si128(pvector, mask_vector);
+            DEBUG_PRINT128_NUM(pvector, "after _mm_and_si128 (and)");
+            pvector = _mm_shuffle_epi8(pvector, align_vector);
+            DEBUG_PRINT128_NUM(pvector, "after _mm_shuffle_epi8 (reorder)");
+            _mm_storeu_si128((__m128i *)data, pvector);
+
+            row += sizeof(__m128i);
+            data += sizeof(__m128i);
         }
     }
 }
@@ -486,7 +516,8 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
         && 4 * sizeof(Uint32) == sizeof(__m128i)
         && !hascolorkey /* No color key */
         && SDL_HasSSE42() == SDL_TRUE
-        && surf->w % 4 == 0 /* No unaligned parts */
+        /* The SSE code assumes it will always read at least 4 pixels */
+        && surf->w >= 4
         /* Our SSE code assumes masks are at most 0xff */
         && (surf->format->Rmask >> surf->format->Rshift) <= 0x0ff
         && (surf->format->Gmask >> surf->format->Gshift) <= 0x0ff
