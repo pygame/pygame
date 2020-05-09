@@ -30,6 +30,10 @@
 
 #include "doc/image_doc.h"
 
+#if __SSE4_2__
+#include <emmintrin.h>
+#endif
+
 #if IS_SDLv1
 #include "pgopengl.h"
 #endif /* IS_SDLv1 */
@@ -314,6 +318,132 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
+#ifdef __SSE4_2__
+#define SSE42_ALIGN_NEEDED 16
+#define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
+
+#define _SHIFT_N_STEP2ALIGN(shift, step) (shift/8 + step * 4)
+
+#if PYGAME_DEBUG_SSE
+/* Useful for debugging/comparing the SSE vectors */
+static void _debug_print128_num(__m128i var, const char *msg)
+{
+    uint32_t val[4];
+    memcpy(val, &var, sizeof(val));
+    fprintf(stderr, "%s: %04x%04x%04x%04x\n",
+           msg, val[0], val[1], val[2], val[3]);
+}
+#define DEBUG_PRINT128_NUM(var, msg) _debug_print128_num(var, msg)
+#else
+#define DEBUG_PRINT128_NUM(var, msg) do { /* do nothing */ } while (0)
+#endif
+
+/*
+ * Generates an SSE vector useful for reordering a SSE vector
+ * based on the "in-memory layout" to match the "tostring layout"
+ * It is only useful as second parameter to _mm_shuffle_epi8.
+ *
+ * A short _mm_shuffle_epi8 primer:
+ *
+ * - If the highest bit of a byte in the reorder vector is set,
+ *   the matching byte in the original vector is cleared:
+ * - Otherwise, the 3 lowest bit of the byte in the reorder vector
+ *   represent the byte index of where to find the relevant value
+ *   from the original vector.
+ *
+ * As an example, given the following in memory layout (bytes):
+ *
+ *    R1 G1 B1 A1 R2 G2 B2 A2 ...
+ *
+ * And we want:
+ *
+ *    A1 R1 G1 B1 A2 R2 G2 B2
+ *
+ * Then the reorder vector should look like (in hex):
+ *
+ *    03 00 01 02 07 04 05 06
+ *
+ * This is exactly the type of vector that compute_align_vector
+ * produces (based on the pixel format and where the alpha should
+ * be placed in the output).
+ */
+static PG_INLINE __m128i
+compute_align_vector(SDL_PixelFormat *format, int color_offset,
+                     int alpha_offset) {
+    int output_align[4];
+    size_t i;
+    size_t limit = sizeof(output_align) / sizeof(int);
+    int a_shift = alpha_offset * 8;
+    int r_shift = (color_offset + 0) * 8;
+    int g_shift = (color_offset + 1) * 8;
+    int b_shift = (color_offset + 2) * 8;
+    for (i = 0; i < limit; i++) {
+        int p = 3 - i;
+        output_align[i] = _SHIFT_N_STEP2ALIGN(format->Rshift, p) << r_shift
+                        | _SHIFT_N_STEP2ALIGN(format->Gshift, p) << g_shift
+                        | _SHIFT_N_STEP2ALIGN(format->Bshift, p) << b_shift
+                        | _SHIFT_N_STEP2ALIGN(format->Ashift, p) << a_shift;
+    }
+    return _mm_set_epi32(output_align[0], output_align[1],
+                         output_align[2], output_align[3]);
+}
+
+/*
+ * SSE4.2 variant of tostring_surf_32bpp.
+ *
+ * It is a lot faster but only works on a subset of the surfaces
+ * (plus requires SSE4.2 support from the CPU).
+ */
+static PG_INLINE void
+tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *out,
+                          int color_offset, int alpha_offset) {
+    const int step_size = 4;
+    int h, w;
+    SDL_PixelFormat *format = surf->format;
+    int loop_max = surf->w / step_size;
+    __m128i *data = (__m128i*)(void *)out;
+    int mask = (format->Rloss ? 0 : format->Rmask)
+             | (format->Gloss ? 0 : format->Gmask)
+             | (format->Bloss ? 0 : format->Bmask)
+             | (format->Aloss ? 0 : format->Amask);
+
+    __m128i mask_vector = _mm_set_epi32(mask, mask, mask, mask);
+    __m128i align_vector = compute_align_vector(surf->format,
+                                                color_offset, alpha_offset);
+
+    DEBUG_PRINT128_NUM(mask_vector, "mask-vector");
+    DEBUG_PRINT128_NUM(align_vector, "align-vector");
+
+    /* This code will be horribly wrong if these assumptions do not hold.
+     * They are intended as a debug/testing guard to ensure that nothing
+     * calls this function without ensuring the assumptions during
+     * development
+     */
+    assert(sizeof(int) == sizeof(Uint32));
+    assert(4 * sizeof(Uint32) == sizeof(__m128i));
+    assert(surf->w % step_size == 0);
+    assert(format->Rloss % 8 == 0);
+    assert(format->Gloss % 8 == 0);
+    assert(format->Bloss % 8 == 0);
+    assert(format->Aloss % 8 == 0);
+
+    for (h = 0; h < surf->h; ++h) {
+        const __m128i *row = (const __m128i*)(void *)DATAROW(
+            surf->pixels, h, surf->pitch, surf->h, flipped);
+        for (w = 0; w < loop_max; ++w) {
+            __m128i pvector = _mm_loadu_si128(row++);
+            DEBUG_PRINT128_NUM(pvector, "Load");
+            pvector = _mm_and_si128(pvector, mask_vector);
+            DEBUG_PRINT128_NUM(pvector, "after _mm_and_si128 (and)");
+            pvector = _mm_shuffle_epi8(pvector, align_vector);
+            DEBUG_PRINT128_NUM(pvector, "after _mm_shuffle_epi8 (reorder)");
+            _mm_storeu_si128(data++, pvector);
+        }
+    }
+}
+#endif /* __SSE4_2__ */
+
+
 #if IS_SDLv2
 static void
 tostring_surf_32bpp(SDL_Surface *surf, int flipped,
@@ -344,6 +474,39 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
     Uint32 Gloss = surf->format->Gloss;
     Uint32 Bloss = surf->format->Bloss;
     Uint32 Aloss = surf->format->Aloss;
+
+#if __SSE4_2__
+    if (/* SDL uses Uint32, SSE uses int for building vectors.
+         * Related, we assume that Uint32 is packed so 4 of
+         * them perfectly matches an __m128i.
+         * If these assumptions do not match up, we will
+         * produce incorrect results.
+         */
+        sizeof(int) == sizeof(Uint32)
+        && 4 * sizeof(Uint32) == sizeof(__m128i)
+        && !hascolorkey /* No color key */
+        && SDL_HasSSE42() == SDL_TRUE
+        && surf->w % 4 == 0 /* No unaligned parts */
+        /* Our SSE code assumes masks are at most 0xff */
+        && (surf->format->Rmask >> surf->format->Rshift) <= 0x0ff
+        && (surf->format->Gmask >> surf->format->Gshift) <= 0x0ff
+        && (surf->format->Bmask >> surf->format->Bshift) <= 0x0ff
+        && (Amask >> Ashift) <= 0x0ff
+        /* Our SSE code cannot handle losses other than 0 or 8
+         * Note the mask check above ensures that losses can be
+         * at most be 8 (assuming the pixel format makes sense
+         * at all).
+         */
+        && (surf->format->Rloss % 8) == 0
+        && (surf->format->Bloss % 8) == 0
+        && (surf->format->Gloss % 8) == 0
+        && (Aloss % 8) == 0
+        ) {
+        tostring_surf_32bpp_sse42(surf, flipped, serialized_image,
+                                  color_offset, alpha_offset);
+        return;
+    }
+#endif
 
     for (h = 0; h < surf->h; ++h) {
         Uint32 *pixel_row = (Uint32 *)DATAROW(
