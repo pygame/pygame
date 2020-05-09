@@ -1,6 +1,20 @@
-from typing import Tuple
+from typing import Tuple, Union
 
-SDL: Tuple[int, int, int]
+
+class SoftwareVersion(tuple):
+    def __new__(cls, major: int, minor: int, patch: int) -> PygameVersion: ...
+    def __repr__(self) -> str: ...
+    def __str__(self) -> str: ...
+
+    major: int
+    minor: int
+    patch: int
+
+class PygameVersion(SoftwareVersion):
+
+class SDLVersion(SoftwareVersion):
+
+SDL: SDLVersion
 ver: str
-vernum: Tuple[int, int, int]
+vernum: PygameVersion
 rev: str
