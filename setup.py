@@ -101,14 +101,15 @@ if '-pygame-ci' in sys.argv:
     os.environ['CFLAGS'] = cflags
     sys.argv.remove ('-pygame-ci')
 
-enable_neon = False
-if '-ENABLE_NEON' in sys.argv:
-    enable_neon = True
+enable_arm_neon = False
+if '-enable-arm-neon' in sys.argv:
+    enable_arm_neon = True
     cflags = os.environ.get('CFLAGS', '')
     if cflags:
         cflags += ' '
     cflags += '-mfpu=neon'
     os.environ['CFLAGS'] = cflags
+    sys.argv.remove('-enable-arm-neon')
 
 if 'cython' in sys.argv:
     # compile .pyx files
@@ -328,12 +329,12 @@ perhaps make a clean copy from "Setup.in".""")
     compilation_help()
     raise
 
-if enable_neon:
+if enable_arm_neon:
     enable_neon_value = '1'
 else:
     enable_neon_value = '0'
 for e in extensions:
-    e.define_macros.append(('ENABLE_ARMNEON', enable_neon_value))
+    e.define_macros.append(('ENABLE_ARM_NEON', enable_neon_value))
 
 #decide whether or not to enable new buffer protocol support
 enable_newbuf = False

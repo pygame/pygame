@@ -25,9 +25,10 @@
 #define NO_PYGAME_C_API
 #include "_surface.h"
 
-#ifdef PG_ENABLE_ARMNEON
+#ifdef PG_ENABLE_ARM_NEON
+// sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
 #include "include/sse2neon.h"
-#endif /* PG_ENABLE_ARMNEON */
+#endif /* PG_ENABLE_ARM_NEON */
 
 /* The structure passed to the low level blit functions */
 typedef struct
@@ -73,9 +74,9 @@ static void blit_blend_premultiplied (SDL_BlitInfo * info);
 #ifdef __MMX__
 static void blit_blend_premultiplied_mmx (SDL_BlitInfo * info);
 #endif /*  __MMX__ */
-#if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARMNEON)
+#if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
 static void blit_blend_premultiplied_sse2 (SDL_BlitInfo * info);
-#endif /*defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARMNEON)*/
+#endif /*defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)*/
 
 
 static int
@@ -263,7 +264,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         case PYGAME_BLEND_PREMULTIPLIED:
         {
-#if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARMNEON)
+#if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
             if (src->format->Rmask == dst->format->Rmask
                 && src->format->Gmask == dst->format->Gmask
                 && src->format->Bmask == dst->format->Bmask
@@ -274,12 +275,12 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 && src->format->Ashift % 8 == 0
                 && src->format->Aloss == 0){
 
-#if PG_ENABLE_ARMNEON
+#if PG_ENABLE_ARM_NEON
                 if (SDL_HasNEON() == SDL_TRUE){
                     blit_blend_premultiplied_sse2 (&info);
                     break;
                 }
-#endif /* PG_ENABLE_ARMNEON */
+#endif /* PG_ENABLE_ARM_NEON */
 #ifdef __SSE2__
                 if (SDL_HasSSE2() == SDL_TRUE){
                     blit_blend_premultiplied_sse2 (&info);
@@ -294,7 +295,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
 #endif /*__MMX__*/
 
             }
-#endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARMNEON*/
+#endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
             blit_blend_premultiplied (&info);
             break;
         }
@@ -1081,7 +1082,7 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     }
 }
 
-#if  defined(__SSE2__) || defined(PG_ENABLE_ARMNEON)
+#if  defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
 static void
 blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
 {
@@ -1140,7 +1141,7 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
 
     }
 }
-#endif /*__SSE2__ || PG_ENABLE_ARMNEON*/
+#endif /*__SSE2__ || PG_ENABLE_ARM_NEON*/
 
 #ifdef __MMX__
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */

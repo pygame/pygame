@@ -2283,6 +2283,34 @@ class SurfaceBlendTest(unittest.TestCase):
                     % (dst.get_at((x, y)), tst.get_at((x, y)), x, y),
                 )
 
+    def test_blit_blend_premultiplied(self):
+        src_col = pygame.Color(40, 20, 0, 51)
+        src = pygame.Surface((16, 16), SRCALPHA, 32)
+        src.fill(src_col)
+
+        dst_col = pygame.Color(40, 20, 0, 51)
+        dst = pygame.Surface((16, 16), SRCALPHA, 32)
+        dst.fill(dst_col)
+
+        dst.blit(src, (0, 0), special_flags=BLEND_PREMULTIPLIED)
+
+        # result.RGBA = source.RGBA + (dest.RGBA * (1 - source.A))
+        inv_src_alpha = ((255-src_col.a)/255)
+        expected_col = pygame.Color(src_col.r + int(dst_col.r * inv_src_alpha),
+                                    src_col.g + int(dst_col.g * inv_src_alpha),
+                                    src_col.b + int(dst_col.b * inv_src_alpha),
+                                    src_col.a + int(dst_col.a * inv_src_alpha))
+
+        returned_col = dst.get_at((8, 8))
+
+        # returned colours will be slightly inaccurate due to rounding errors
+        # with alpha pre-multiplications stored in 8 byte colour channels
+        self.assertLessEqual(abs(returned_col.r - expected_col.r), 1)
+        self.assertLessEqual(abs(returned_col.g - expected_col.g), 1)
+        self.assertLessEqual(abs(returned_col.b - expected_col.b), 1)
+        self.assertLessEqual(abs(returned_col.a - expected_col.a), 1)
+
+
     def test_blit_blend_big_rect(self):
         """ test that an oversized rect works ok.
         """
