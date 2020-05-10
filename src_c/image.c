@@ -388,17 +388,33 @@ compute_align_vector(SDL_PixelFormat *format, int color_offset,
                          output_align[2], output_align[3]);
 }
 
+
+static PG_INLINE void
+tostring_pixels_32bit_sse4(const __m128i *row, __m128i *data, int loop_max,
+                           __m128i mask_vector, __m128i align_vector) {
+    int w;
+    for (w = 0; w < loop_max; ++w) {
+        __m128i pvector = _mm_loadu_si128(row + w);
+        DEBUG_PRINT128_NUM(pvector, "Load");
+        pvector = _mm_and_si128(pvector, mask_vector);
+        DEBUG_PRINT128_NUM(pvector, "after _mm_and_si128 (and)");
+        pvector = _mm_shuffle_epi8(pvector, align_vector);
+        DEBUG_PRINT128_NUM(pvector, "after _mm_shuffle_epi8 (reorder)");
+        _mm_storeu_si128(data + w, pvector);
+    }
+}
+
 /*
  * SSE4.2 variant of tostring_surf_32bpp.
  *
  * It is a lot faster but only works on a subset of the surfaces
  * (plus requires SSE4.2 support from the CPU).
  */
-static PG_INLINE void
+static void
 tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
                           int color_offset, int alpha_offset) {
     const int step_size = 4;
-    int h, w;
+    int h;
     SDL_PixelFormat *format = surf->format;
     int loop_max = surf->w / step_size;
     int mask = (format->Rloss ? 0 : format->Rmask)
@@ -437,19 +453,11 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
     for (h = 0; h < surf->h; ++h) {
         const char *row = (char *)DATAROW(
             surf->pixels, h, surf->pitch, surf->h, flipped);
-        for (w = 0; w < loop_max; ++w) {
-            __m128i pvector = _mm_loadu_si128((const __m128i*)row);
-            DEBUG_PRINT128_NUM(pvector, "Load");
-            pvector = _mm_and_si128(pvector, mask_vector);
-            DEBUG_PRINT128_NUM(pvector, "after _mm_and_si128 (and)");
-            pvector = _mm_shuffle_epi8(pvector, align_vector);
-            DEBUG_PRINT128_NUM(pvector, "after _mm_shuffle_epi8 (reorder)");
-            _mm_storeu_si128((__m128i *)data, pvector);
-            row += sizeof(__m128i);
-            data += sizeof(__m128i);
-        }
+        tostring_pixels_32bit_sse4((const __m128i*)row, (__m128i *)data,
+                                   loop_max, mask_vector, align_vector);
+        row += sizeof(__m128i) * loop_max;
+        data += sizeof(__m128i) * loop_max;
         if (rollback_count) {
-            __m128i pvector;
             /* Back up a bit to ensure we stay within the memory boundaries
              * Technically, we end up redoing part of the computations, but
              * it does not really matter as the runtime of these operations
@@ -458,13 +466,8 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
             row -= rollback_count * sizeof(Uint32);
             data -= rollback_count * sizeof(Uint32);
 
-            pvector = _mm_loadu_si128((const __m128i*)row);
-            DEBUG_PRINT128_NUM(pvector, "Load (remainder)");
-            pvector = _mm_and_si128(pvector, mask_vector);
-            DEBUG_PRINT128_NUM(pvector, "after _mm_and_si128 (and)");
-            pvector = _mm_shuffle_epi8(pvector, align_vector);
-            DEBUG_PRINT128_NUM(pvector, "after _mm_shuffle_epi8 (reorder)");
-            _mm_storeu_si128((__m128i *)data, pvector);
+            tostring_pixels_32bit_sse4((const __m128i*)row, (__m128i *)data,
+                                       1, mask_vector, align_vector);
 
             row += sizeof(__m128i);
             data += sizeof(__m128i);
