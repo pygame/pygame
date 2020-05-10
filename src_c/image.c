@@ -30,8 +30,10 @@
 
 #include "doc/image_doc.h"
 
-#if __SSE4_2__
+#if __SSE4_2__ || PG_COMPILE_SSE4_2
 #include <emmintrin.h>
+/* SSSE 3 */
+#include <tmmintrin.h>
 #endif
 
 #if IS_SDLv1
@@ -318,7 +320,7 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
-#ifdef __SSE4_2__
+#if __SSE4_2__ || PG_COMPILE_SSE4_2
 #define SSE42_ALIGN_NEEDED 16
 #define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
 
@@ -389,7 +391,7 @@ compute_align_vector(SDL_PixelFormat *format, int color_offset,
 }
 
 
-static PG_INLINE void
+static PG_INLINE PG_FUNCTION_TARGET_SSE4_2 void
 tostring_pixels_32bit_sse4(const __m128i *row, __m128i *data, int loop_max,
                            __m128i mask_vector, __m128i align_vector) {
     int w;
@@ -410,7 +412,7 @@ tostring_pixels_32bit_sse4(const __m128i *row, __m128i *data, int loop_max,
  * It is a lot faster but only works on a subset of the surfaces
  * (plus requires SSE4.2 support from the CPU).
  */
-static void
+static PG_FUNCTION_TARGET_SSE4_2 void
 tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
                           int color_offset, int alpha_offset) {
     const int step_size = 4;
@@ -474,7 +476,7 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
         }
     }
 }
-#endif /* __SSE4_2__ */
+#endif /* __SSE4_2__ || PG_COMPILE_SSE4_2 */
 
 
 #if IS_SDLv2
@@ -508,7 +510,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
     Uint32 Bloss = surf->format->Bloss;
     Uint32 Aloss = surf->format->Aloss;
 
-#if __SSE4_2__
+#if __SSE4_2__ || PG_COMPILE_SSE4_2
     if (/* SDL uses Uint32, SSE uses int for building vectors.
          * Related, we assume that Uint32 is packed so 4 of
          * them perfectly matches an __m128i.
@@ -540,7 +542,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
                                   color_offset, alpha_offset);
         return;
     }
-#endif
+#endif /* __SSE4_2__ || PG_COMPILE_SSE4_2 */
 
     for (h = 0; h < surf->h; ++h) {
         Uint32 *pixel_row = (Uint32 *)DATAROW(
