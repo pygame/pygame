@@ -1,5 +1,5 @@
 import os
-
+import math
 import unittest
 from pygame.tests import test_utils
 from pygame.tests.test_utils import (
@@ -2284,31 +2284,144 @@ class SurfaceBlendTest(unittest.TestCase):
                 )
 
     def test_blit_blend_premultiplied(self):
-        src_col = pygame.Color(40, 20, 0, 51)
-        src = pygame.Surface((16, 16), SRCALPHA, 32)
-        src.fill(src_col)
 
-        dst_col = pygame.Color(40, 20, 0, 51)
-        dst = pygame.Surface((16, 16), SRCALPHA, 32)
-        dst.fill(dst_col)
+        def test_premul_surf(src_col,
+                             dst_col,
+                             src_size = (16, 16),
+                             dst_size = (16, 16),
+                             src_has_alpha = True,
+                             dst_has_alpha = True):
+            if src_has_alpha:
+                src = pygame.Surface(src_size, SRCALPHA, 32)
+                src.fill(src_col)
+            else:
+                src = pygame.Surface(dst_size)
+                src.fill(dst_col)
 
-        dst.blit(src, (0, 0), special_flags=BLEND_PREMULTIPLIED)
+            if dst_has_alpha:
+                dst = pygame.Surface(dst_size, SRCALPHA, 32)
+                dst.fill(dst_col)
+            else:
+                dst = pygame.Surface(dst_size)
+                dst.fill(dst_col)
 
-        # result.RGBA = source.RGBA + (dest.RGBA * (1 - source.A))
-        inv_src_alpha = (float(255-src_col.a)/255.0)
-        expected_col = pygame.Color(src_col.r + int(dst_col.r * inv_src_alpha),
-                                    src_col.g + int(dst_col.g * inv_src_alpha),
-                                    src_col.b + int(dst_col.b * inv_src_alpha),
-                                    src_col.a + int(dst_col.a * inv_src_alpha))
+            dst.blit(src, (0, 0), special_flags=BLEND_PREMULTIPLIED)
 
-        returned_col = dst.get_at((8, 8))
+            actual_col = dst.get_at((int(float(src_size[0] / 2.0)),
+                                     int(float(src_size[0] / 2.0))))
 
-        # returned colours will be slightly inaccurate due to rounding errors
-        # with alpha pre-multiplications stored in 8 byte colour channels
-        self.assertLessEqual(abs(returned_col.r - expected_col.r), 1)
-        self.assertLessEqual(abs(returned_col.g - expected_col.g), 1)
-        self.assertLessEqual(abs(returned_col.b - expected_col.b), 1)
-        self.assertLessEqual(abs(returned_col.a - expected_col.a), 1)
+            # This is the blend pre-multiplied formula
+            if src_col.a == 0:
+                expected_col = dst_col
+            elif src_col.a == 255:
+                expected_col = src_col
+            else:
+                # dA = sA + dA - ((sA * dA) / 255)
+                expected_col = pygame.Color((src_col.r + ((dst_col.r * (255 - src_col.a)) >> 8)),
+                                            (src_col.g + ((dst_col.g * (255 - src_col.a)) >> 8)),
+                                            (src_col.b + ((dst_col.b * (255 - src_col.a)) >> 8)),
+                                            (src_col.a + ((dst_col.a * (255 - src_col.a)) >> 8)))
+            if not dst_has_alpha:
+                expected_col.a = 255
+
+            return (expected_col, actual_col)
+
+        # Colour Tests
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                             pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(0, 0, 0, 0),
+                                             pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                             pygame.Color(0, 0, 0, 0)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(0, 0, 0, 0),
+                                             pygame.Color(0, 0, 0, 0)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(2, 2, 2, 2),
+                                             pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                             pygame.Color(2, 2, 2, 2)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(2, 2, 2, 2),
+                                             pygame.Color(2, 2, 2, 2)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(9, 9, 9, 9),
+                                             pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                             pygame.Color(9, 9, 9, 9)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(9, 9, 9, 9),
+                                             pygame.Color(9, 9, 9, 9)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(127, 127, 127, 127),
+                                             pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                             pygame.Color(127, 127, 127, 127)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(127, 127, 127, 127),
+                                             pygame.Color(127, 127, 127, 127)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(200, 200, 200, 200),
+                                             pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                             pygame.Color(200, 200, 200, 200)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(200, 200, 200, 200),
+                                             pygame.Color(200, 200, 200, 200)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(255, 255, 255, 255),
+                                           pygame.Color(40, 20, 0, 51)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                           pygame.Color(255, 255, 255, 255)))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(255, 255, 255, 255),
+                                           pygame.Color(255, 255, 255, 255)))
+
+        # Surface format tests
+        self.assertRaises(IndexError,
+                          test_premul_surf, pygame.Color(255, 255, 255, 255),
+                                            pygame.Color(255, 255, 255, 255),
+                                            src_size=(0,0),
+                                            dst_size=(0,0))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                           pygame.Color(40, 20, 0, 51),
+                                           src_size=(4, 4),
+                                           dst_size=(9, 9)
+                                           ))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                           pygame.Color(40, 20, 0, 51),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69)
+                                           ))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 255),
+                                           pygame.Color(40, 20, 0, 51),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69),
+                                           src_has_alpha=False,
+                                           ))
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+                                           pygame.Color(40, 20, 0, 255),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69),
+                                           dst_has_alpha=False,
+                                           ))
+        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 255),
+                                           pygame.Color(40, 20, 0, 255),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69),
+                                           src_has_alpha=False,
+                                           dst_has_alpha=False,
+                                           ))
 
 
     def test_blit_blend_big_rect(self):
