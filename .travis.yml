@@ -22,8 +22,14 @@ jobs:
     - python: 3.8
     - os: linux-ppc64le
       python: 3.7
+      arch: ppc64le
       env:
         - PPC=yes
+    - os: linux
+      python: 3.7
+      arch: arm64
+      env:
+        - ARM64=yes
     - os: linux
       python: 3.7
       env:
