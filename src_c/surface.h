@@ -335,14 +335,14 @@
         }                                           \
     } while(0)
 
-#define ALPHA_BLEND_PREMULTIPLIED_COMP(sC, dC, sA) (sC + dC - ((dC * sA) >> 8))
+#define ALPHA_BLEND_PREMULTIPLIED_COMP(sC, dC, sA) (sC + ((dC * (255 - sA)) >> 8))
 
 #define ALPHA_BLEND_PREMULTIPLIED(tmp, sR, sG, sB, sA, dR, dG, dB, dA) \
     do {                                            \
-            tmp = ALPHA_BLEND_PREMULTIPLIED_COMP(sR, dR, sA); dR = (tmp > 255 ? 255 : tmp); \
-            tmp = ALPHA_BLEND_PREMULTIPLIED_COMP(sG, dG, sA); dG = (tmp > 255 ? 255 : tmp); \
-            tmp = ALPHA_BLEND_PREMULTIPLIED_COMP(sB, dB, sA); dB = (tmp > 255 ? 255 : tmp); \
-            dA = sA + dA - ((sA * dA) / 255);       \
+            dR = ALPHA_BLEND_PREMULTIPLIED_COMP(sR, dR, sA);  \
+            dG = ALPHA_BLEND_PREMULTIPLIED_COMP(sG, dG, sA);  \
+            dB = ALPHA_BLEND_PREMULTIPLIED_COMP(sB, dB, sA);  \
+            dA = ALPHA_BLEND_PREMULTIPLIED_COMP(sA, dA, sA);  \
     } while(0)
 #elif 0
 
