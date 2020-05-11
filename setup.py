@@ -329,12 +329,10 @@ perhaps make a clean copy from "Setup.in".""")
     compilation_help()
     raise
 
+# Only define the ARM_NEON defines if they have been enabled at build time.
 if enable_arm_neon:
-    enable_neon_value = '1'
-else:
-    enable_neon_value = '0'
-for e in extensions:
-    e.define_macros.append(('ENABLE_ARM_NEON', enable_neon_value))
+    for e in extensions:
+        e.define_macros.append(('PG_ENABLE_ARM_NEON', '1'))
 
 #decide whether or not to enable new buffer protocol support
 enable_newbuf = False
