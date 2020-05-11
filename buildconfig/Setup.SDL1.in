@@ -40,7 +40,7 @@ gfxdraw src_c/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
 #or the configuration script will choke!)
 _freetype src_c/freetype/ft_cache.c src_c/freetype/ft_wrap.c src_c/freetype/ft_render.c  src_c/freetype/ft_render_cb.c src_c/freetype/ft_layout.c src_c/freetype/ft_unicode.c src_c/_freetype.c $(SDL) $(FREETYPE) $(DEBUG)
 
-_sprite src_c/_sprite.c $(DEBUG)
+#_sprite src_c/_sprite.c $(SDL) $(DEBUG)
 
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
