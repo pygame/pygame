@@ -724,8 +724,8 @@ def midi_to_ansi_note(midi_note):
     >>> midi_to_ansi_note(108)
     'C8'
     """
-    notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+    notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     num_notes = 12
-    note_name = notes[int(((midi_note - 21) % num_notes))]
+    note_name = notes[int(((midi_note - 24) % num_notes))]
     note_number = (midi_note - 12) // num_notes
     return '%s%s' % (note_name, note_number)
