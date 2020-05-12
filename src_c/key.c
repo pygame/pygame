@@ -713,7 +713,9 @@ static PyObject *
 key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     const char * name;
+#if IS_SDLv2
     SDL_Keycode code;
+#endif
 
     static char *kwids[] = {
         "name",
