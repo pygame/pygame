@@ -2613,6 +2613,46 @@ class SurfaceSelfBlitTest(unittest.TestCase):
                 surf.blit(surf, (d_x, d_y), (s_x, s_y, 50, 50))
                 self.assertEqual(surf.get_at(test_posn), rectc_right)
 
+    def test_overlap_check_unrolled(self):
+
+        surf = pygame.Surface((100, 100), 0, 32)
+        surf.set_alpha(255)
+
+        # iteration 1
+        surf.fill((0, 0, 0, 255))
+        surf.fill((255, 255, 255, 255), (25, 0, 25, 50))
+        surf.fill((128, 64, 32, 255), (0, 0, 25, 50))
+        surf.blit(surf, (1, 0), pygame.Rect(0, 0, 50, 50))
+        self.assertEqual(surf.get_at((50, 0)), (255, 255, 255, 255))
+
+        # iteration 2
+        surf.fill((0, 0, 0, 255))
+        surf.fill((255, 255, 255, 255), (25, 0, 25, 50))
+        surf.fill((128, 64, 32, 255), (0, 0, 25, 50))
+        surf.blit(surf, (49, 1), pygame.Rect(0, 0, 50, 50))
+        self.assertEqual(surf.get_at((98, 2)), (255, 255, 255, 255))
+
+        # iteration 3
+        surf.fill((0, 0, 0, 255))
+        surf.fill((255, 255, 255, 255), (25, 0, 25, 50))
+        surf.fill((128, 64, 32, 255), (0, 0, 25, 50))
+        surf.blit(surf, (49, 49), pygame.Rect(0, 0, 50, 50))
+        self.assertEqual(surf.get_at((98, 98)), (255, 255, 255, 255))
+
+        # iteration 4
+        surf.fill((0, 0, 0, 255))
+        surf.fill((255, 255, 255, 255), (25, 0, 25, 50))
+        surf.fill((128, 64, 32, 255), (0, 0, 25, 50))
+        surf.blit(surf, (0, 1), pygame.Rect(49, 0, 50, 50))
+        self.assertEqual(surf.get_at((0, 2)), (255, 255, 255, 255))
+
+        # iteration 5
+        surf.fill((0, 0, 0, 255))
+        surf.fill((255, 255, 255, 255), (25, 0, 25, 50))
+        surf.fill((128, 64, 32, 255), (0, 0, 25, 50))
+        surf.blit(surf, (0, 49), pygame.Rect(49, 0, 50, 50))
+        self.assertEqual(surf.get_at((0, 98)), (255, 255, 255, 255))
+
     # https://github.com/pygame/pygame/issues/370#issuecomment-364625291
     @unittest.skipIf("ppc64le" in platform.uname(), "known ppc64le issue")
     def test_colorkey(self):
