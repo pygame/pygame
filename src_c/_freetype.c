@@ -1786,8 +1786,8 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (fg_color_obj) {
-        if (!pg_RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
-            PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
+        if (!pg_RGBAFromFuzzyColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+            /* Exception already set for us */
             goto error;
         }
     }
@@ -1798,8 +1798,8 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
         fg_color.a = self->fgcolor[3];
     }
     if (bg_color_obj) {
-        if (!pg_RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
-            PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
+        if (!pg_RGBAFromFuzzyColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+            /* Exception already set for us */
             goto error;
         }
     }
@@ -1906,8 +1906,8 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (parse_dest(dest, &xpos, &ypos))
         goto error;
     if (fg_color_obj) {
-        if (!pg_RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
-            PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
+        if (!pg_RGBAFromFuzzyColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+            /* Exception already set for us */
             goto error;
         }
     }
@@ -1918,8 +1918,8 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
         fg_color.a = self->fgcolor[3];
     }
     if (bg_color_obj) {
-        if (!pg_RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
-            PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
+        if (!pg_RGBAFromFuzzyColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+            /* Exception already set for us */
             goto error;
         }
     }

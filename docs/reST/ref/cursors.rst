@@ -31,7 +31,7 @@ The example call would look like this:
 ::
 
    >>> cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
-   >>> pygame.mouse.set_cursor(*cursor)
+   >>> pygame.mouse.set_cursor((8, 16), (0, 0), *cursor)
 
 The following variables are cursor bitmaps that can be used as cursor:
 

@@ -985,10 +985,10 @@ surf_set_at(PyObject *self, PyObject *args)
         if (PyErr_Occurred() && (Sint32)color == -1)
             return RAISE(PyExc_TypeError, "invalid color argument");
     }
-    else if (pg_RGBAFromColorObj(rgba_obj, rgba))
+    else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba))
         color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+        return NULL; /* pg_RGBAFromFuzzyColorObj set an except for us */
 
     if (!pgSurface_Lock(self))
         return NULL;
@@ -1088,8 +1088,8 @@ surf_map_rgb(PyObject *self, PyObject *args)
     Uint8 rgba[4];
     int color;
 
-    if (!pg_RGBAFromColorObj(args, rgba))
-        return RAISE(PyExc_TypeError, "Invalid RGBA argument");
+    if (!pg_RGBAFromFuzzyColorObj(args, rgba))
+        return NULL; /* Exception already set for us */
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
@@ -1440,7 +1440,7 @@ surf_set_colorkey(PyObject *self, PyObject *args)
             if (PyErr_Occurred() && (Sint32)color == -1)
                 return RAISE(PyExc_TypeError, "invalid color argument");
         }
-        else if (pg_RGBAFromColorObj(rgba_obj, rgba)) {
+        else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba)) {
 #if IS_SDLv1
             color =
                 SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -1453,7 +1453,7 @@ surf_set_colorkey(PyObject *self, PyObject *args)
 #endif /* IS_SDLv2 */
         }
         else
-            return RAISE(PyExc_TypeError, "invalid color argument");
+            return NULL; /* pg_RGBAFromFuzzyColorObj set an exception for us */
         hascolor = SDL_TRUE;
     }
 #if IS_SDLv1
@@ -2093,10 +2093,10 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         color = (Uint32)PyInt_AsLong(rgba_obj);
     else if (PyLong_Check(rgba_obj))
         color = (Uint32)PyLong_AsUnsignedLong(rgba_obj);
-    else if (pg_RGBAFromColorObj(rgba_obj, rgba))
+    else if (pg_RGBAFromFuzzyColorObj(rgba_obj, rgba))
         color = pg_map_rgba(surf, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
-        return RAISE(PyExc_TypeError, "invalid color argument");
+        return NULL; /* pg_RGBAFromFuzzyColorObj set an exception for us */
 
     if (!r || r == Py_None) {
         rect = &temp;
@@ -2158,7 +2158,9 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         }
         else {
             pgSurface_Prep(self);
+            pgSurface_Lock(self);
             result = SDL_FillRect(surf, &sdlrect, color);
+            pgSurface_Unlock(self);
             pgSurface_Unprep(self);
         }
         if (result == -1)
@@ -2245,6 +2247,7 @@ surf_blit(PyObject *self, PyObject *args, PyObject *keywds)
 #define BLITS_ERR_INVALID_RECT_STYLE 6
 #define BLITS_ERR_MUST_ASSIGN_NUMERIC 7
 #define BLITS_ERR_BLIT_FAIL 8
+#define BLITS_ERR_PY_EXCEPTION_RAISED 9
 
 static PyObject *
 surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
@@ -2282,6 +2285,7 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
     }
     iterator = PyObject_GetIter(blitsequence);
     if (!iterator) {
+        Py_XDECREF(ret);
         return NULL;
     }
 
@@ -2319,6 +2323,8 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             special_flags = PySequence_GetItem(item, 3);
         }
         Py_DECREF(item);
+        /* Clear item to avoid double deref on errors */
+        item = NULL;
 
         src = pgSurface_AsSurface(srcobject);
         if (!dest) {
@@ -2379,11 +2385,6 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             }
         }
 
-        Py_DECREF(srcobject);
-        Py_DECREF(argpos);
-        Py_XDECREF(argrect);
-        Py_XDECREF(special_flags);
-
         result = pgSurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect,
                                 the_args);
         if (result != 0) {
@@ -2394,14 +2395,28 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
         if (doreturn) {
             retrect = NULL;
             retrect = pgRect_New(&dest_rect);
-            PyList_Append(ret, retrect);
+            if (PyList_Append(ret, retrect) != 0) {
+                bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                goto bliterror;
+            }
             Py_DECREF(retrect);
+            retrect = NULL; /* Clear to avoid double deref on errors */
         }
+        Py_DECREF(srcobject);
+        Py_DECREF(argpos);
+        Py_XDECREF(argrect);
+        Py_XDECREF(special_flags);
+        /* Clear to avoid double deref on errors */
+        srcobject = NULL;
+        argpos = NULL;
+        argrect = NULL;
+        special_flags = NULL;
     }
 
     Py_DECREF(iterator);
     if (PyErr_Occurred()) {
-        goto bliterror;
+        Py_XDECREF(ret);
+        return NULL;
     }
 
     if (doreturn) {
@@ -2415,9 +2430,11 @@ bliterror:
     Py_XDECREF(srcobject);
     Py_XDECREF(argpos);
     Py_XDECREF(argrect);
+    Py_XDECREF(retrect);
     Py_XDECREF(special_flags);
     Py_XDECREF(iterator);
     Py_XDECREF(item);
+    Py_XDECREF(ret);
 
     switch (bliterrornum) {
         case BLITS_ERR_SEQUENCE_REQUIRED:
@@ -2443,6 +2460,8 @@ bliterror:
             return RAISE(PyExc_TypeError, "Must assign numeric values");
         case BLITS_ERR_BLIT_FAIL:
             return RAISE(PyExc_TypeError, "Blit failed");
+        case BLITS_ERR_PY_EXCEPTION_RAISED:
+            return NULL; /* Raising a previously set exception */
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }

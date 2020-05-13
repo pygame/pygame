@@ -1,6 +1,7 @@
 """pygame module for loading and rendering fonts (freetype alternative)"""
 
-__all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont']
+__all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont',
+           "match_font", "get_fonts"]
 
 from pygame._freetype import init, Font as _Font, get_default_resolution
 from pygame._freetype import quit, get_default_font, get_init as _get_init
@@ -81,7 +82,7 @@ class Font(_Font):
     def get_bold(self):
         """get_bold() -> bool
            check if text will be rendered bold"""
- 
+
         return self.wide
 
     def set_italic(self, value):

@@ -1457,20 +1457,23 @@ surf_scalesmooth(PyObject *self, PyObject *arg)
     if (width && height) {
         SDL_LockSurface(newsurf);
         pgSurface_Lock(surfobj);
-        Py_BEGIN_ALLOW_THREADS;
 
         /* handle trivial case */
         if (surf->w == width && surf->h == height) {
             int y;
+            Py_BEGIN_ALLOW_THREADS;
             for (y = 0; y < height; y++) {
                 memcpy((Uint8 *)newsurf->pixels + y * newsurf->pitch,
                        (Uint8 *)surf->pixels + y * surf->pitch, width * bpp);
             }
+            Py_END_ALLOW_THREADS;
+        } else {
+            struct _module_state *st = GETSTATE(self);
+            Py_BEGIN_ALLOW_THREADS;
+            scalesmooth(surf, newsurf, st);
+            Py_END_ALLOW_THREADS;
         }
-        else {
-            scalesmooth(surf, newsurf, GETSTATE(self));
-        }
-        Py_END_ALLOW_THREADS;
+
 
         pgSurface_Unlock(surfobj);
         SDL_UnlockSurface(newsurf);

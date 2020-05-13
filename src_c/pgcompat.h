@@ -195,7 +195,7 @@
 
 
 #if defined(SDL_VERSION_ATLEAST)
-#if !(SDL_VERSION_ATLEAST(2, 0, 5))
+#if (SDL_VERSION_ATLEAST(2, 0, 0)) && !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.
 
   https://wiki.libsdl.org/SDL_SetWindowResizable
