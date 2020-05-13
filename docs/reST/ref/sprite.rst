@@ -405,7 +405,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    You can set the default layer through kwargs using 'default_layer' and an
    integer for the layer. The default layer is 0.
 
-   If the sprite you add has an attribute layer then that layer will be used.
+   If the sprite you add has an attribute _layer then that layer will be used.
    If the \**kwarg contains 'layer' then the sprites passed will be added to
    that layer (overriding the ``sprite.layer`` attribute). If neither sprite
    has attribute layer nor \**kwarg then the default layer is used to add the

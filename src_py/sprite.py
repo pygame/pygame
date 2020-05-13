@@ -471,9 +471,12 @@ class AbstractGroup(object):
 
         """
         sprites = self.sprites()
-        surface_blit = surface.blit
-        for spr in sprites:
-            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
+        self.spritedict.update(
+            zip(
+                sprites,
+                surface.blits((spr.image, spr.rect) for spr in sprites)
+            )
+        )
         self.lostsprites = []
 
     def clear(self, surface, bgd):
@@ -785,7 +788,7 @@ class LayeredUpdates(AbstractGroup):
 
         """
         _sprites = self._spritelist
-        rect = Rect(pos, (0, 0))
+        rect = Rect(pos, (1, 1))
         colliding_idx = rect.collidelistall(_sprites)
         colliding = [_sprites[i] for i in colliding_idx]
         return colliding

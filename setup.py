@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev7",
+    "version":          "2.0.0.dev9",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -100,6 +100,16 @@ if '-pygame-ci' in sys.argv:
               '-Werror=cast-align'
     os.environ['CFLAGS'] = cflags
     sys.argv.remove ('-pygame-ci')
+
+enable_arm_neon = False
+if '-enable-arm-neon' in sys.argv:
+    enable_arm_neon = True
+    cflags = os.environ.get('CFLAGS', '')
+    if cflags:
+        cflags += ' '
+    cflags += '-mfpu=neon'
+    os.environ['CFLAGS'] = cflags
+    sys.argv.remove('-enable-arm-neon')
 
 if 'cython' in sys.argv:
     # compile .pyx files
@@ -319,6 +329,10 @@ perhaps make a clean copy from "Setup.in".""")
     compilation_help()
     raise
 
+# Only define the ARM_NEON defines if they have been enabled at build time.
+if enable_arm_neon:
+    for e in extensions:
+        e.define_macros.append(('PG_ENABLE_ARM_NEON', '1'))
 
 #decide whether or not to enable new buffer protocol support
 enable_newbuf = False
@@ -487,6 +501,7 @@ def write_version_module(pygame_version, revision):
         version_file.write('ver = "' + pygame_version + '"\n')
         version_file.write('vernum = PygameVersion(%s)\n' % vernum)
         version_file.write('rev = "' + revision + '"\n')
+        version_file.write('\n__all__ = ["SDL", "ver", "vernum", "rev"]\n')
 
 write_version_module(METADATA['version'], revision)
 

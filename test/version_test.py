@@ -38,6 +38,10 @@ class VersionTest(unittest.TestCase):
         self.assertEqual(pgh_minor, version.vernum[1])
         self.assertEqual(pgh_patch, version.vernum[2])
 
+    def test_sdl_version(self):
+        from pygame import version
+        self.assertEqual(len(version.SDL), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -542,6 +542,9 @@ class AbstractGroupTypeTest(unittest.TestCase):
         self.assertEqual((255, 0, 0, 255), self.scr.get_at((5, 5)))
         self.assertEqual((0, 255, 0, 255), self.scr.get_at((15, 5)))
 
+        self.assertEqual(self.ag.spritedict[self.s1], pygame.Rect(0, 0, 10, 10))
+        self.assertEqual(self.ag.spritedict[self.s2], pygame.Rect(10, 0, 10, 10))
+
     def test_empty(self):
 
         self.ag.empty()
@@ -869,6 +872,20 @@ class LayeredGroupBase:
         self.LG.change_layer(spr2, expected_layer)
 
         self.assertEqual(spr2.layer, expected_layer)
+
+    def test_get_sprites_at(self):
+        sprites = []
+        expected_sprites = []
+        for i in range(3):
+            spr = self.sprite()
+            spr.rect = pygame.Rect(i * 50, i * 50, 100, 100)
+            sprites.append(spr)
+            if i < 2:
+                expected_sprites.append(spr)
+        self.LG.add(sprites)
+        result = self.LG.get_sprites_at((50, 50))
+        self.assertEqual(result, expected_sprites)
+
 
     def test_get_top_layer(self):
         layers = [1, 5, 2, 8, 4, 5, 3, 88, 23, 0]

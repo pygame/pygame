@@ -29,6 +29,7 @@ import pygame.pixelcopy
 import pygame.sndarray
 import pygame.surfarray
 import pygame.math
+import pygame.fastevent
 
 # Other
 import pygame.scrap
