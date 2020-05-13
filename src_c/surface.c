@@ -2242,6 +2242,7 @@ surf_blit(PyObject *self, PyObject *args, PyObject *keywds)
 #define BLITS_ERR_INVALID_RECT_STYLE 6
 #define BLITS_ERR_MUST_ASSIGN_NUMERIC 7
 #define BLITS_ERR_BLIT_FAIL 8
+#define BLITS_ERR_PY_EXCEPTION_RAISED 9
 
 static PyObject *
 surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
@@ -2279,6 +2280,7 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
     }
     iterator = PyObject_GetIter(blitsequence);
     if (!iterator) {
+        Py_XDECREF(ret);
         return NULL;
     }
 
@@ -2316,6 +2318,8 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             special_flags = PySequence_GetItem(item, 3);
         }
         Py_DECREF(item);
+        /* Clear item to avoid double deref on errors */
+        item = NULL;
 
         src = pgSurface_AsSurface(srcobject);
         if (!dest) {
@@ -2376,11 +2380,6 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
             }
         }
 
-        Py_DECREF(srcobject);
-        Py_DECREF(argpos);
-        Py_XDECREF(argrect);
-        Py_XDECREF(special_flags);
-
         result = pgSurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect,
                                 the_args);
         if (result != 0) {
@@ -2391,14 +2390,28 @@ surf_blits(PyObject *self, PyObject *args, PyObject *keywds)
         if (doreturn) {
             retrect = NULL;
             retrect = pgRect_New(&dest_rect);
-            PyList_Append(ret, retrect);
+            if (PyList_Append(ret, retrect) != 0) {
+                bliterrornum = BLITS_ERR_PY_EXCEPTION_RAISED;
+                goto bliterror;
+            }
             Py_DECREF(retrect);
+            retrect = NULL; /* Clear to avoid double deref on errors */
         }
+        Py_DECREF(srcobject);
+        Py_DECREF(argpos);
+        Py_XDECREF(argrect);
+        Py_XDECREF(special_flags);
+        /* Clear to avoid double deref on errors */
+        srcobject = NULL;
+        argpos = NULL;
+        argrect = NULL;
+        special_flags = NULL;
     }
 
     Py_DECREF(iterator);
     if (PyErr_Occurred()) {
-        goto bliterror;
+        Py_XDECREF(ret);
+        return NULL;
     }
 
     if (doreturn) {
@@ -2412,9 +2425,11 @@ bliterror:
     Py_XDECREF(srcobject);
     Py_XDECREF(argpos);
     Py_XDECREF(argrect);
+    Py_XDECREF(retrect);
     Py_XDECREF(special_flags);
     Py_XDECREF(iterator);
     Py_XDECREF(item);
+    Py_XDECREF(ret);
 
     switch (bliterrornum) {
         case BLITS_ERR_SEQUENCE_REQUIRED:
@@ -2440,6 +2455,8 @@ bliterror:
             return RAISE(PyExc_TypeError, "Must assign numeric values");
         case BLITS_ERR_BLIT_FAIL:
             return RAISE(PyExc_TypeError, "Blit failed");
+        case BLITS_ERR_PY_EXCEPTION_RAISED:
+            return NULL; /* Raising a previously set exception */
     }
     return RAISE(PyExc_TypeError, "Unknown error");
 }

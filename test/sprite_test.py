@@ -542,6 +542,9 @@ class AbstractGroupTypeTest(unittest.TestCase):
         self.assertEqual((255, 0, 0, 255), self.scr.get_at((5, 5)))
         self.assertEqual((0, 255, 0, 255), self.scr.get_at((15, 5)))
 
+        self.assertEqual(self.ag.spritedict[self.s1], pygame.Rect(0, 0, 10, 10))
+        self.assertEqual(self.ag.spritedict[self.s2], pygame.Rect(10, 0, 10, 10))
+
     def test_empty(self):
 
         self.ag.empty()

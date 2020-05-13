@@ -15,6 +15,7 @@
 #define DOC_PYGAMEVERSIONVER "ver = '1.2'\nversion number as a string"
 #define DOC_PYGAMEVERSIONVERNUM "vernum = (1, 5, 3)\ntupled integers of the version"
 #define DOC_PYGAMEVERSIONREV "rev = 'a6f89747b551+'\nrepository revision of the build"
+#define DOC_PYGAMEVERSIONSDL "SDL = '(2, 0, 12)'\ntupled integers of the SDL library version"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -82,5 +83,9 @@ tupled integers of the version
 pygame.version.rev
  rev = 'a6f89747b551+'
 repository revision of the build
+
+pygame.version.SDL
+ SDL = '(2, 0, 12)'
+tupled integers of the SDL library version
 
 */
