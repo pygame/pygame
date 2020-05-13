@@ -2417,9 +2417,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
              * desktop resolution in SDL 2.0.8 (unsure about other versions).
              * The display surface gets messed up, so we re-create the window.
              * This is only relevant in the non-GL case. */
+            int wx, wy;
+            wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+            wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+
             PyErr_WarnEx(PyExc_RuntimeWarning, "Destroying and re-creating X11 window", 1);
-            int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
-            int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
             if (win == NULL) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2513,8 +2515,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             display_surface->surf = SDL_GetWindowSurface(win);
             if (w != display_surface->surf->w ||
                 h != display_surface->surf->h) {
-                int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
-                int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+                int wx, wy;
+                wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
+                wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
                 PyErr_WarnEx(PyExc_RuntimeWarning, "Destroying and re-creating window", 1);
 
                 win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
