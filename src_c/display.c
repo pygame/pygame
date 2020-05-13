@@ -890,19 +890,20 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             return NULL;
     }
 
+    state->using_gl = (flags & PGS_OPENGL) != 0;
+    state->scaled_gl = state->using_gl && (flags & PGS_SCALED) != 0;
+
+    if (state->scaled_gl){
+        if (PyErr_WarnEx(PyExc_FutureWarning, "SCALED|OPENGL is experimental and subject to change", 1)!=0)
+            return NULL;
+    }
+
     if (!state->title) {
         state->title = malloc((strlen(DefaultTitle) + 1) * sizeof(char));
         if (!state->title)
             return PyErr_NoMemory();
         strcpy(state->title, DefaultTitle);
         title = state->title;
-    }
-
-    state->using_gl = (flags & PGS_OPENGL) != 0;
-    state->scaled_gl = state->using_gl && (flags & PGS_SCALED) != 0;
-
-    if (state->scaled_gl){
-        PyErr_WarnEx(PyExc_FutureWarning, "SCALED|OPENGL is experimental and subject to change" ,1);
     }
 
     if (vsync && !(flags & (PGS_SCALED|PGS_OPENGL))){
@@ -1125,9 +1126,15 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                for the whole desktop because of wayland GL compositing. */
             if (vsync) {
                 if (SDL_GL_SetSwapInterval(-1) != 0){
-                    PyErr_WarnEx(PyExc_Warning, "adaptive vsync for OpenGL not available, trying regular" ,1);
+                    if (PyErr_WarnEx(PyExc_Warning, "adaptive vsync for OpenGL not available, trying regular", 1) != 0) {
+                        _display_state_cleanup(state);
+                        goto DESTROY_WINDOW;
+                    }
                     if (SDL_GL_SetSwapInterval(1) != 0){
-                        PyErr_WarnEx(PyExc_Warning, "regular vsync for OpenGL *also* not available", 1);
+                        if(PyErr_WarnEx(PyExc_Warning, "regular vsync for OpenGL *also* not available", 1) != 0) {
+                            _display_state_cleanup(state);
+                            goto DESTROY_WINDOW;
+                    }
                     }
 
                 }
@@ -1176,10 +1183,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
                     SDL_GetRendererInfo(pg_renderer, &info);
                     if (vsync && !(info.flags & SDL_RENDERER_PRESENTVSYNC)) {
-                        PyErr_WarnEx(PyExc_Warning, "could not enable vsync" ,1);
+                        if(PyErr_WarnEx(PyExc_Warning, "could not enable vsync" , 1) != 0) {
+                            _display_state_cleanup(state);
+                            goto DESTROY_WINDOW;
+                        }
                     }
                     if (!(info.flags & SDL_RENDERER_ACCELERATED)) {
-                        PyErr_WarnEx(PyExc_Warning, "no fast renderer available" ,1);
+
+                        if(PyErr_WarnEx(PyExc_Warning, "no fast renderer available" ,1)!= 0) {
+                            _display_state_cleanup(state);
+                            goto DESTROY_WINDOW;
+                        }
                     }
 
                     pg_texture = SDL_CreateTexture(
@@ -2378,7 +2392,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 #if SDL_VERSION_ATLEAST(2, 0, 4)
         case SDL_SYSWM_ANDROID:  // currently not supported by pygame
 #endif
-            PyErr_WarnEx(PyExc_Warning, "cannot leave FULLSCREEN on this platform" ,1);
+            if (PyErr_WarnEx(PyExc_Warning, "cannot leave FULLSCREEN on this platform", 1) != 0) {
+                return NULL;
+            }
             return PyInt_FromLong(-1);
 
             // Untested and unsupported platforms
@@ -2507,7 +2523,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
              * This is only relevant in the non-GL case. */
             int wx = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
             int wy = SDL_WINDOWPOS_UNDEFINED_DISPLAY(window_display);
-            PyErr_WarnEx(PyExc_Warning, "re-creating window in toggle_fullscreen" ,1);
+            if (PyErr_WarnEx(PyExc_Warning, "re-creating window in toggle_fullscreen" ,1) != 0) {
+                return NULL;
+            }
             win = SDL_CreateWindow(state->title, wx, wy, w, h, 0);
             if (win == NULL) {
                 return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2541,7 +2559,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             }
             if (r_info.flags & SDL_RENDERER_SOFTWARE
                 && wm_info.subsystem == SDL_SYSWM_X11) {
-                PyErr_WarnEx(PyExc_Warning, "recreating software renderer in toggle_fullscreen" ,1);
+                if (PyErr_WarnEx(PyExc_Warning, "recreating software renderer in toggle_fullscreen", 1) != 0) {
+                    return NULL;
+                }
                 /* display surface lost? only on x11? */
                 SDL_DestroyTexture(pg_texture);
                 SDL_DestroyRenderer(pg_renderer);
@@ -2595,7 +2615,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             display_surface->surf = SDL_GetWindowSurface(win);
         }
         else if (wm_info.subsystem == SDL_SYSWM_WAYLAND) {
-            PyErr_WarnEx(PyExc_Warning, "skipping toggle_fullscreen on wayland" ,1);
+            if (PyErr_WarnEx(PyExc_Warning, "skipping toggle_fullscreen on wayland" ,1)!=0){
+                return NULL;
+            }
             return PyInt_FromLong(-1);
         }
         else {
@@ -2614,7 +2636,9 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                 }
                 display_surface->surf = SDL_GetWindowSurface(win);
                 pg_SetDefaultWindow(win);
-                PyErr_WarnEx(PyExc_Warning, "re-creating window in toggle_fullscreen" ,1);
+                if (PyErr_WarnEx(PyExc_Warning, "re-creating window in toggle_fullscreen", 1) != 0) {
+                    return NULL;
+                }
                 return PyInt_FromLong(-1);
             }
         }
