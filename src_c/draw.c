@@ -922,33 +922,27 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
             return ret;
         }
         else {
-            /* TODO: use clip rect instead of surface bounds */
-            if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
+            sdlrect.x = rect->x;
+            sdlrect.y = rect->y;
+            sdlrect.w = rect->w;
+            sdlrect.h = rect->h;
+
+            SDL_GetClipRect(surf, &cliprect);
+
+
+            if (!SDL_IntersectRect(&sdlrect,
+                                   &cliprect,
+                                   &clipped)) {
                 return pgRect_New4(rect->x, rect->y, 0, 0);
             }
-            else {
-                sdlrect.x = rect->x;
-                sdlrect.y = rect->y;
-                sdlrect.w = rect->w;
-                sdlrect.h = rect->h;
 
-                SDL_GetClipRect(surf, &cliprect);
+            pgSurface_Prep(self);
+            result = SDL_FillRect(surf, &clipped, color);
+            pgSurface_Unprep(self);
 
-
-                if (!SDL_IntersectRect(&sdlrect,
-                                       &cliprect,
-                                       &clipped))
-                    return pgRect_New4(rect->x, rect->y, 0, 0);
-
-                pgSurface_Prep(self);
-                result = SDL_FillRect(surf, &clipped, color);
-                pgSurface_Unprep(self);
-
-                if (result == -1)
-                    return RAISE(pgExc_SDLError, SDL_GetError());
-                return pgRect_New(&clipped);
-
-            }
+            if (result == -1)
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            return pgRect_New(&clipped);
         }
     }
     else {
