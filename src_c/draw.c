@@ -861,6 +861,10 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     int t, l, b, r, width = 0, radius = 0; /* Default values. */
     int top_left_radius = -1, top_right_radius = -1, bottom_left_radius = -1,
         bottom_right_radius = -1;
+    SDL_Rect sdlrect;
+    SDL_Rect cliprect;
+    int result;
+    SDL_Rect clipped;
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
     static char *keywords[] = {"surface",
@@ -918,11 +922,6 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
             return ret;
         }
         else {
-            SDL_Rect sdlrect;
-            SDL_Rect cliprect;
-            int result;
-            SDL_Rect clipped;
-
             /* TODO: use clip rect instead of surface bounds */
             if (rect->w < 0 || rect->h < 0 || rect->x > surf->w || rect->y > surf->h) {
                 return pgRect_New4(rect->x, rect->y, 0, 0);
