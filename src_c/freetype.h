@@ -95,6 +95,7 @@ typedef struct {
     pgFontId id;
     PyObject *path;
     int is_scalable;
+    int is_bg_col_set;
 
     Scale_t face_size;
     FT_Int16 style;
@@ -105,6 +106,7 @@ typedef struct {
     Angle_t rotation;
     FT_Matrix transform;
     FT_Byte fgcolor[4];
+    FT_Byte bgcolor[4];
 
     struct freetypeinstance_ *freetype;  /* Personal reference */
     struct fontinternals_ *_internals;
