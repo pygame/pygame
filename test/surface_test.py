@@ -2296,7 +2296,7 @@ class SurfaceBlendTest(unittest.TestCase):
                 src.fill(src_col)
             else:
                 src = pygame.Surface(dst_size)
-                src.fill(dst_col)
+                src.fill(src_col)
 
             if dst_has_alpha:
                 dst = pygame.Surface(dst_size, SRCALPHA, 32)
@@ -2392,30 +2392,30 @@ class SurfaceBlendTest(unittest.TestCase):
                                             dst_size=(0,0))
 
         self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
-                                           pygame.Color(40, 20, 0, 51),
+                                           pygame.Color(30, 20, 0, 51),
                                            src_size=(4, 4),
                                            dst_size=(9, 9)
                                            ))
 
-        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
                                            pygame.Color(40, 20, 0, 51),
                                            src_size=(17, 67),
                                            dst_size=(69, 69)
                                            ))
 
-        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 255),
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
                                            pygame.Color(40, 20, 0, 51),
                                            src_size=(17, 67),
                                            dst_size=(69, 69),
                                            src_has_alpha=False,
                                            ))
-        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
                                            pygame.Color(40, 20, 0, 255),
                                            src_size=(17, 67),
                                            dst_size=(69, 69),
                                            dst_has_alpha=False,
                                            ))
-        self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 255),
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
                                            pygame.Color(40, 20, 0, 255),
                                            src_size=(17, 67),
                                            dst_size=(69, 69),
