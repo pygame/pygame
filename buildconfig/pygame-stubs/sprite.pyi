@@ -1,4 +1,14 @@
-from typing import List, Dict, Any, Union, Tuple, Optional, Callable, SupportsFloat
+from typing import (
+    List,
+    Dict,
+    Any,
+    Union,
+    Tuple,
+    Optional,
+    Callable,
+    SupportsFloat,
+    Iterator,
+)
 
 from pygame.rect import Rect
 from pygame.surface import Surface
@@ -37,6 +47,8 @@ class AbstractGroup:
     spritedict = Dict[Sprite, int]
     lostsprites = List[int]  # I think
     def __init__(self) -> None: ...
+    def __len__(self) -> int: ...
+    def __iter__(self) -> Iterator[Sprite]: ...
     def copy(self) -> AbstractGroup: ...
     def sprites(self) -> List[Sprite]: ...
     def add(self, *sprites: Sprite) -> None: ...

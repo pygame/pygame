@@ -10,6 +10,7 @@ _ColorInput = Union[
 ]
 _RgbaOutput = Tuple[int, int, int, int]
 _RectStyle = Union[
+    Rect,
     Tuple[float, float, float, float],
     Tuple[Tuple[float, float], Tuple[float, float]],
     List[float],
