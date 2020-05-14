@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Union, Tuple, IO
 
 from pygame.color import Color
 from pygame.surface import Surface
@@ -20,7 +20,7 @@ def SysFont(
 ) -> Font: ...
 
 class Font(object):
-    def __init__(self, name: Union[str, None], size: int) -> None: ...
+    def __init__(self, name: Union[str, IO, None], size: int) -> None: ...
     def render(
         self,
         text: str,
