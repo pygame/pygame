@@ -30,5 +30,5 @@ import pygame.color as color
 Color = color.Color
 
 
-__all__ = ['Rect', 'Color', *all_constants]
-
+__all__ = ['Rect', 'Color']
+__all__.extend(all_constants)
