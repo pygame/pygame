@@ -30,8 +30,6 @@ import ctypes
 try:
     import OpenGL.GL as GL
     import OpenGL.GLU as GLU
-    import OpenGL.GL.shaders
-    import OpenGL.arrays.vbo as vbo
     from numpy import array, dot, eye, zeros, float32, uint32
 except ImportError:
     print("The GLCUBE example requires PyOpenGL & numpy")
