@@ -373,6 +373,17 @@ class DisplayModuleTest(unittest.TestCase):
             winsize[0] / surf.get_size()[0], winsize[1] / surf.get_size()[1]
         )
 
+    def test_screensaver_support(self):
+        if pygame.get_sdl_version()[0] == 1:
+            self.assertRaises(TypeError, pygame.display.get_screensaver_enabled)
+            self.assertRaises(TypeError, pygame.display.set_screensaver_enabled, (False,))
+            self.assertRaises(TypeError, pygame.display.set_screensaver_enabled, (True,))
+        else:
+            pygame.display.set_screensaver_enabled(True)
+            self.assertTrue(pygame.display.get_screensaver_enabled())
+            pygame.display.set_screensaver_enabled(False)
+            self.assertFalse(pygame.display.get_screensaver_enabled())
+
     def todo_test_set_palette(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.set_palette:
