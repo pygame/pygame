@@ -28,15 +28,19 @@
 
 /* macros used to create each constant */
 #if IS_SDLv2
-#define ADD_ERROR           \
-    {                       \
-        DECREF_MOD(module); \
-        MODINIT_ERROR;      \
+#define ADD_ERROR(x)                                \
+    {                                               \
+        DECREF_MOD(module);                         \
+        MODINIT_ERROR;                              \
+    }                                               \
+    else                                            \
+    {                                               \
+        PyList_Append(all_list, Text_FromUTF8(x)); \
     }
 #define STRINGIZE(x) #x
 #define DEC_CONSTS_(x, y)                           \
     if (PyModule_AddIntConstant(module, x, (int)y)) \
-    ADD_ERROR
+    ADD_ERROR(x)
 #define DEC_CONSTS(x, y) DEC_CONSTS_(#x, y)
 #define DEC_CONST(x) DEC_CONSTS_(#x, SDL_##x)
 #define DEC_CONSTKS(x, y) DEC_CONSTS_(STRINGIZE(K_##x), SDLK_##y)
@@ -53,29 +57,33 @@
 #define DEC_CONSTSF(x) DEC_CONSTS_(#x, PGS_##x)
 
 #else /* IS_SDLv1 */
-#define ADD_ERROR           \
-    {                       \
-        DECREF_MOD(module); \
-        MODINIT_ERROR;      \
+#define ADD_ERROR(x)                                \
+    {                                               \
+        DECREF_MOD(module);                         \
+        MODINIT_ERROR;                              \
+    }                                               \
+    else                                            \
+    {                                               \
+        PyList_Append(all_list, Text_FromUTF8(x));  \
     }
 #define DEC_CONST(x)                                       \
     if (PyModule_AddIntConstant(module, #x, (int)SDL_##x)) \
-    ADD_ERROR
+    ADD_ERROR(#x)
 #define DEC_CONSTK(x)                                     \
     if (PyModule_AddIntConstant(module, #x, (int)SDL##x)) \
-    ADD_ERROR
+    ADD_ERROR(#x)
 #define DEC_CONSTN(x)                                \
     if (PyModule_AddIntConstant(module, #x, (int)x)) \
-    ADD_ERROR
+    ADD_ERROR(#x)
 #define DEC_CONSTS(x, y)                             \
     if (PyModule_AddIntConstant(module, #x, (int)y)) \
-    ADD_ERROR
+    ADD_ERROR(#x)
 
 #endif /* IS_SDLv1 */
 
 #define ADD_STRING_CONST(x)                        \
     if (PyModule_AddStringConstant(module, #x, x)) \
-    ADD_ERROR
+    ADD_ERROR(#x)
 
 static PyMethodDef _constant_methods[] = {{NULL}};
 
@@ -85,6 +93,7 @@ static PyMethodDef _constant_methods[] = {{NULL}};
 MODINIT_DEFINE(constants)
 {
     PyObject *module;
+    PyObject *all_list;
 
 #if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
@@ -107,6 +116,9 @@ MODINIT_DEFINE(constants)
     if (module == NULL) {
         MODINIT_ERROR;
     }
+
+    // Attempt to create __all__ variable for constants module
+    all_list = (PyObject *)PyList_New(0);
 
     DEC_CONST(LIL_ENDIAN);
     DEC_CONST(BIG_ENDIAN);
@@ -343,13 +355,8 @@ MODINIT_DEFINE(constants)
     DEC_CONST(FINGERDOWN);
     DEC_CONST(FINGERUP);
     DEC_CONST(MULTIGESTURE);
-    #if SDL_VERSION_ATLEAST(2, 0, 4)
-        DEC_CONST(AUDIODEVICEADDED);
-        DEC_CONST(AUDIODEVICEREMOVED);
-    #else
-        DEC_CONSTS(AUDIODEVICEADDED, -1);
-        DEC_CONSTS(AUDIODEVICEREMOVED, -1);
-    #endif /* SDL_VERSION_ATLEAST(2, 0, 4) */
+    DEC_CONST(AUDIODEVICEADDED);
+    DEC_CONST(AUDIODEVICEREMOVED);
     DEC_CONST(MOUSEWHEEL);
     DEC_CONST(TEXTINPUT);
     DEC_CONST(TEXTEDITING);
@@ -833,6 +840,8 @@ MODINIT_DEFINE(constants)
 
 #define PYGAME_USEREVENT_DROPFILE 0x1000
     DEC_CONSTS(USEREVENT_DROPFILE, PYGAME_USEREVENT_DROPFILE);
+
+    PyModule_AddObject(module, "__all__", all_list);
 
     MODINIT_RETURN(module);
 }
