@@ -248,7 +248,7 @@ def create_aliases():
          'verasansmono', 'monotype', 'lucidaconsole', 'consolas'),
         ('sans', 'arial', 'helvetica', 'swiss', 'freesans',
          'bitstreamverasans', 'verasans', 'verdana', 'tahoma',
-         'calibri', 'gillsans', 'segoeui', 'trebuchetms'),
+         'calibri', 'gillsans', 'segoeui', 'trebuchetms', 'ubuntu'),
         ('serif', 'times', 'freeserif', 'bitstreamveraserif', 'roman',
          'timesroman', 'timesnewroman', 'dutch', 'veraserif',
          'georgia', 'cambria', 'constantia'),
