@@ -241,6 +241,8 @@ typedef struct {
     (*(GAME_Rect * (*)(PyObject *, GAME_Rect *)) \
         PYGAMEAPI_GET_SLOT(rect, 3))
 
+#define pgRect_Normalize (*(void (*)(GAME_Rect *)) PYGAMEAPI_GET_SLOT(rect, 4))
+
 #define import_pygame_rect() IMPORT_PYGAME_MODULE(rect)
 #endif /* ~PYGAMEAPI_RECT_INTERNAL */
 
