@@ -942,7 +942,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
             result = SDL_FillRect(surf, &clipped, color);
             pgSurface_Unlock(self);
             pgSurface_Unprep(self);
-            if (result == -1)
+            if (result != 0)
                 return RAISE(pgExc_SDLError, SDL_GetError());
             return pgRect_New(&clipped);
         }
