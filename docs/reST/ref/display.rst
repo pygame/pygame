@@ -156,7 +156,22 @@ required).
 
    .. versionadded:: 2.0.0 ``SCALED``
 
-   For example:
+   It is possible to get a display with vertical sync, or VSync, but you are
+   not guaranteed a vertically synchronised display after requesting one. What
+   you actually get depends entirely on the hardware and driver configuration
+   of the system pygame is running on. In pygame 2 the most reliable way to
+   request a display with VSync is to set the ``PYGAME_VSYNC`` environment
+   variable to ``"1"`` before calling ``set_mode()`` and to call ``set_mode()``
+   with the ``pygame.SCALED`` flag. E.g.
+
+   ::
+
+     os.environ['PYGAME_VSYNC'] = "1"
+     flags = pygame.SCALED | pygame.FULLSCREEN
+     window_surface = pygame.display.set_mode((1920, 1080), flags)
+
+
+   Basic example:
 
    ::
 
