@@ -576,16 +576,16 @@ required).
    | :sl:`Return whether pygame is hinted to enable or disable the screensaver.`
    | :sg:`get_screensaver_enabled() -> bool`
 
-   Return whether screensaver is enabled. The default is False.
-   By default pygame tries to turn off the screensaver during game play.
+   Return whether screensaver is allowed to run whilst the app is running.
+   Default is False.
+   By default pygame does not allow the screensaver during game play.
 
    .. note:: Some platforms do not have a screensaver or support
              disabling the screensaver.  Please see
              :func:`pygame.display.set_screensaver_enabled()` for
              caveats with screensaver support.
 
-   .. versionadded:: 2.0 This function is only available with SDL2. Under SDL1,
-   this function will raise a NotImplementedError exception.
+   .. versionadded:: 2.0
 
    .. ## pygame.display.get_screensaver_enabled ##
 
@@ -594,10 +594,11 @@ required).
    | :sl:`Change request state for whether screensaver may run`
    | :sg:`set_screensaver_enabled(bool) -> None`
 
-   Change whether screensavers should be enabled or disabled. The default is False.
-   By default pygame tries to turn off the screensaver during game play.
+   Change whether screensavers should be allowed whilst the app is running.
+   The default is False.
+   By default pygame does not allow the screensaver during game play.
 
-   If the screen has been disabled due to this function, it will automatically
+   If the screensaver has been disabled due to this function, it will automatically
    be re-enabled when :func:``pygame.quit()` is called.
 
    It is possible to influence the default value via the environment variable
@@ -611,9 +612,9 @@ required).
              providing any supported method for determining whether
              it supports changing the screensaver state.
              ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER`` is available in SDL 2.0.2 or later.
+             SDL1.2 does not implement this.
 
-   .. versionadded:: 2.0 This function is only available with SDL2. Under SDL1,
-   this function will raise a NotImplementedError exception.
+   .. versionadded:: 2.0
 
 
    .. ## pygame.display.set_screensaver_enabled ##
