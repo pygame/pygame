@@ -212,10 +212,13 @@ required).
    It is more efficient to pass many rectangles at once than to call update
    multiple times with single or a partial list of rectangles. If passing a
    sequence of rectangles it is safe to include None values in the list, which
-   will be skipped.
+   will be skipped. These rectangles are a suggested optimisation to the
+   display and will not always have any actual effect on the display's
+   behaviour depending on the platform. For example, on windows under SDL 2
+   the entire display is always updated whatever you pass in here.
 
-   This call cannot be used on ``pygame.OPENGL`` displays and will generate an
-   exception.
+   This call cannot be used on ``pygame.OPENGL`` displays and will
+   generate an exception.
 
    .. ## pygame.display.update ##
 
