@@ -42,4 +42,28 @@
 #define WIN32
 #endif
 
+#ifndef PG_TARGET_SSE4_2
+#if defined(__clang__) || defined(__GNUC__)
+#define PG_FUNCTION_TARGET_SSE4_2 __attribute__((target("sse4.2")))
+/* No else; we define the fallback later */
+#endif
+#endif /* ~PG_TARGET_SSE4_2 */
+
+#ifdef PG_FUNCTION_TARGET_SSE4_2
+#if !defined(__SSE4_2__) && !defined(PG_COMPILE_SSE4_2)
+#if defined(__x86_64__) || defined(__i386__)
+#define PG_COMPILE_SSE4_2 1
+#endif
+#endif
+#endif /* ~PG_TARGET_SSE4_2 */
+
+/* Fallback definition of target attribute */
+#ifndef PG_FUNCTION_TARGET_SSE4_2
+#define PG_FUNCTION_TARGET_SSE4_2
+#endif
+
+#ifndef PG_COMPILE_SSE4_2
+#define PG_COMPILE_SSE4_2 0
+#endif
+
 #endif /* ~PG_PLATFORM_H */
