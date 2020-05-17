@@ -245,13 +245,16 @@ def create_aliases():
     alias_groups = (
         ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
          'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
-         'verasansmono', 'monotype', 'lucidaconsole', 'consolas'),
+         'verasansmono', 'monotype', 'lucidaconsole', 'consolas',
+         'dejavusansmono', 'liberationmono'),
         ('sans', 'arial', 'helvetica', 'swiss', 'freesans',
          'bitstreamverasans', 'verasans', 'verdana', 'tahoma',
-         'calibri', 'gillsans', 'segoeui', 'trebuchetms', 'ubuntu'),
+         'calibri', 'gillsans', 'segoeui', 'trebuchetms', 'ubuntu',
+         'dejavusans', 'liberationsans'),
         ('serif', 'times', 'freeserif', 'bitstreamveraserif', 'roman',
          'timesroman', 'timesnewroman', 'dutch', 'veraserif',
-         'georgia', 'cambria', 'constantia'),
+         'georgia', 'cambria', 'constantia', 'dejavuserif',
+         'liberationserif'),
         ('wingdings', 'wingbats'),
     )
     for alias_set in alias_groups:

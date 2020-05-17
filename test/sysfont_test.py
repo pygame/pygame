@@ -7,11 +7,7 @@ class SysfontModuleTest(unittest.TestCase):
         import pygame.sysfont
         pygame.sysfont.initsysfonts()
         pygame.sysfont.create_aliases()
-
-        # failing test to get Travis xenial font list
-        self.maxDiff = 5000
-        self.assertEqual(pygame.sysfont.get_fonts(), ['ubuntu'])
-        # self.assertTrue(len(pygame.sysfont.Sysalias) > 0)
+        self.assertTrue(len(pygame.sysfont.Sysalias) > 0)
 
     def test_initsysfonts(self):
         import pygame.sysfont
