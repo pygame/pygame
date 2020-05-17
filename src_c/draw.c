@@ -929,17 +929,19 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
 
             SDL_GetClipRect(surf, &cliprect);
 
-
+            /* SDL_FillRect respects the clip rect already, but in order to
+               return the drawn area, we need to do this here, and keep the
+               pointer to the result in clipped */
             if (!SDL_IntersectRect(&sdlrect,
                                    &cliprect,
                                    &clipped)) {
                 return pgRect_New4(rect->x, rect->y, 0, 0);
             }
-
             pgSurface_Prep(self);
+            pgSurface_Lock(self);
             result = SDL_FillRect(surf, &clipped, color);
+            pgSurface_Unlock(self);
             pgSurface_Unprep(self);
-
             if (result == -1)
                 return RAISE(pgExc_SDLError, SDL_GetError());
             return pgRect_New(&clipped);
