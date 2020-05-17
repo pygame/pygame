@@ -25,6 +25,12 @@
 #define NO_PYGAME_C_API
 #include "_surface.h"
 
+#if PG_COMPILE_SSE4_2
+#include <emmintrin.h>
+/* SSSE 3 */
+#include <tmmintrin.h>
+#endif
+
 #ifdef PG_ENABLE_ARM_NEON
 // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
 #include "include/sse2neon.h"
