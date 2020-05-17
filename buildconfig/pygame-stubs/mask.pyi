@@ -1,4 +1,4 @@
-from typing import Optional, Union, Tuple, List, TypeVar, Sequence, NewType
+from typing import Optional, Union, Text, Tuple, List, TypeVar, Sequence, NewType
 
 from pygame.math import Vector2
 from pygame.surface import Surface
@@ -8,6 +8,9 @@ from pygame.color import Color
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _ColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
+]
+_ToSurfaceColorValue = Union[
+    Color, Tuple[int, int, int], List[int], int, Text, Tuple[int, int, int, int]
 ]
 _RectValue = Union[
     Rect,
@@ -67,7 +70,7 @@ class Mask:
         surface: Optional[Surface] = None,
         setsurface: Optional[Surface] = None,
         unsetsurface: Optional[Surface] = None,
-        setcolor: Optional[_ColorValue] = (255, 255, 255, 255),
-        unsetcolor: Optional[_ColorValue] = (0, 0, 0, 255),
+        setcolor: Optional[_ToSurfaceColorValue] = (255, 255, 255, 255),
+        unsetcolor: Optional[_ToSurfaceColorValue] = (0, 0, 0, 255),
         dest: Optional[Union[_RectValue, _Coordinate]] = (0, 0),
     ) -> Surface: ...

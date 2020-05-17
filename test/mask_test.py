@@ -2913,7 +2913,7 @@ class MaskTypeTest(unittest.TestCase):
             "surface": (1, 2, 3, 4),
             "setsurface": pygame.Color("green"),
             "unsetsurface": ((1, 2), (2, 1)),
-            "setcolor": (1, 2),
+            "setcolor": pygame.Mask((1, 2)),
             "unsetcolor": pygame.Surface((2, 2)),
             "dest": (0, 0, 0),
         }
@@ -3015,15 +3015,18 @@ class MaskTypeTest(unittest.TestCase):
         size = (5, 3)
         mask = pygame.mask.Mask(size, fill=True)
         surface = pygame.Surface(size, SRCALPHA, 32)
-        green = pygame.Color("green")
-        greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green), green)
+        expected_color = pygame.Color("green")
+        test_colors = (
+            (0, 255, 0),
+            (0, 255, 0, 255),
+            surface.map_rgb(expected_color),
+            expected_color,
+            "green",
+            "#00FF00FF",
+            "0x00FF00FF",
+        )
 
-        for setcolor in greens:
-            if isinstance(setcolor, int):
-                expected_color = surface.unmap_rgb(setcolor)
-            else:
-                expected_color = setcolor
-
+        for setcolor in test_colors:
             to_surface = mask.to_surface(setcolor=setcolor)
 
             assertSurfaceFilled(self, to_surface, expected_color)
@@ -3033,15 +3036,18 @@ class MaskTypeTest(unittest.TestCase):
         size = (5, 3)
         mask = pygame.mask.Mask(size)
         surface = pygame.Surface(size, SRCALPHA, 32)
-        green = pygame.Color("green")
-        greens = ((0, 255, 0), (0, 255, 0, 255), surface.map_rgb(green), green)
+        expected_color = pygame.Color("green")
+        test_colors = (
+            (0, 255, 0),
+            (0, 255, 0, 255),
+            surface.map_rgb(expected_color),
+            expected_color,
+            "green",
+            "#00FF00FF",
+            "0x00FF00FF",
+        )
 
-        for unsetcolor in greens:
-            if isinstance(unsetcolor, int):
-                expected_color = surface.unmap_rgb(unsetcolor)
-            else:
-                expected_color = unsetcolor
-
+        for unsetcolor in test_colors:
             to_surface = mask.to_surface(unsetcolor=unsetcolor)
 
             assertSurfaceFilled(self, to_surface, expected_color)
@@ -3050,17 +3056,25 @@ class MaskTypeTest(unittest.TestCase):
         """Ensures to_surface handles invalid setcolor formats correctly."""
         mask = pygame.mask.Mask((5, 3))
 
-        for setcolor in ("green", "#00FF00FF", "0x00FF00FF"):
+        for setcolor in ("green color", "#00FF00FF0", "0x00FF00FF0", (1, 2)):
+            with self.assertRaises(ValueError):
+                mask.to_surface(setcolor=setcolor)
+
+        for setcolor in (pygame.Surface((1, 2)), pygame.Mask((2, 1)), 1.1):
             with self.assertRaises(TypeError):
-                to_surface = mask.to_surface(setcolor=setcolor)
+                mask.to_surface(setcolor=setcolor)
 
     def test_to_surface__invalid_unsetcolor_formats(self):
         """Ensures to_surface handles invalid unsetcolor formats correctly."""
         mask = pygame.mask.Mask((5, 3))
 
-        for unsetcolor in ("green", "#00FF00FF", "0x00FF00FF"):
+        for unsetcolor in ("green color", "#00FF00FF0", "0x00FF00FF0", (1, 2)):
+            with self.assertRaises(ValueError):
+                mask.to_surface(unsetcolor=unsetcolor)
+
+        for unsetcolor in (pygame.Surface((1, 2)), pygame.Mask((2, 1)), 1.1):
             with self.assertRaises(TypeError):
-                to_surface = mask.to_surface(unsetcolor=unsetcolor)
+                mask.to_surface(unsetcolor=unsetcolor)
 
     def test_to_surface__valid_dest_formats(self):
         """Ensures to_surface handles valid dest formats correctly."""
