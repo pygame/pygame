@@ -44,6 +44,7 @@ static void
 pg_do_set_icon(PyObject *surface);
 static PyObject *pgDisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
+static int _allow_screensaver = 0;
 
 #else /* IS_SDLv2 */
 
@@ -2699,27 +2700,35 @@ pg_get_screensaver_enabled(PyObject *self) {
 #if IS_SDLv2
     return PyBool_FromLong(SDL_IsScreenSaverEnabled() == SDL_TRUE);
 #else /* IS_SDLv1*/
-    return RAISE(PyExc_TypeError, "get_screensaver_enabled requires SDLv2");
+    return PyBool_FromLong(_allow_screensaver);
 #endif /* IS_SDLv1*/
 }
 
 static PyObject *
-pg_set_screensaver_enabled(PyObject *self, PyObject* args) {
-    int val;
-    if (!PyArg_ParseTuple(args, "i", &val))
+pg_set_screensaver_enabled(PyObject *self, PyObject *arg, PyObject *kwds) {
+    int val = 0;
+    static char *keywords[] = {"value", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "i", keywords, val)) {
         return NULL;
+    }
 
     VIDEO_INIT_CHECK();
-#if IS_SDLv2
     if (val) {
+#if IS_SDLv2
         SDL_EnableScreenSaver();
+#else
+    _allow_screensaver = 1;
+#endif
     } else {
+#if IS_SDLv2
         SDL_DisableScreenSaver();
+#else
+        _allow_screensaver = 0;
+#endif
     }
+
     Py_RETURN_NONE;
-#else /* IS_SDLv1*/
-    return RAISE(PyExc_TypeError, "set_screensaver_enabled requires SDLv2");
-#endif /* IS_SDLv1*/
 }
 
 static PyMethodDef _pg_display_methods[] = {
@@ -2777,9 +2786,11 @@ static PyMethodDef _pg_display_methods[] = {
     {"gl_get_attribute", pg_gl_get_attribute, METH_VARARGS,
      DOC_PYGAMEDISPLAYGLGETATTRIBUTE},
 
-    {"get_screensaver_enabled", pg_get_screensaver_enabled, METH_NOARGS,
+    {"get_screensaver_enabled", (PyCFunction)pg_get_screensaver_enabled,
+     METH_NOARGS,
      DOC_PYGAMEDISPLAYGETSCREENSAVERENABLED},
-    {"set_screensaver_enabled", pg_set_screensaver_enabled, METH_VARARGS,
+    {"set_screensaver_enabled", (PyCFunction)pg_set_screensaver_enabled,
+     METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYSETSCREENSAVERENABLED},
 
     {NULL, NULL, 0, NULL}};
