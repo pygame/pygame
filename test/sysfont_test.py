@@ -7,7 +7,11 @@ class SysfontModuleTest(unittest.TestCase):
         import pygame.sysfont
         pygame.sysfont.initsysfonts()
         pygame.sysfont.create_aliases()
-        self.assertTrue(len(pygame.sysfont.Sysalias) > 0)
+
+        # failing test to get Travis xenial font list
+        self.maxDiff = 5000
+        self.assertEqual(pygame.sysfont.get_fonts(), ['ubuntu'])
+        # self.assertTrue(len(pygame.sysfont.Sysalias) > 0)
 
     def test_initsysfonts(self):
         import pygame.sysfont
@@ -25,6 +29,7 @@ class SysfontModuleTest(unittest.TestCase):
 
         pygame.font.init()
         arial = pygame.font.SysFont("Arial", 40)
+        self.assertTrue(isinstance(arial, pygame.font.Font))
 
     @unittest.skipIf(("Darwin" in platform.platform() or
                       "Windows" in platform.platform()), "Not unix we skip.")
@@ -41,7 +46,7 @@ class SysfontModuleTest(unittest.TestCase):
         self.assertTrue(len(pygame.sysfont.get_fonts()) > 10)
 
 
-################################################################################
+###############################################################################
 
 if __name__ == "__main__":
     unittest.main()
