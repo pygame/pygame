@@ -88,50 +88,97 @@ CUBE_EDGES = (
 )
 
 
-def translate(M, x, y=None, z=None):
-    y = x if y is None else y
-    z = x if z is None else z
-    T = array([[1.0, 0.0, 0.0, x],
-                  [0.0, 1.0, 0.0, y],
-                  [0.0, 0.0, 1.0, z],
-                  [0.0, 0.0, 0.0, 1.0]], dtype=M.dtype).T
-    M[...] = dot(M, T)
-    return M
+def translate(matrix, x=0.0, y=0.0, z=0.0):
+    """
+    Translate (move) a matrix in the x, y and z axes.
+
+    :param matrix: Matrix to translate.
+    :param x: direction and magnitude to translate in x axis. Defaults to 0.
+    :param y: direction and magnitude to translate in y axis. Defaults to 0.
+    :param z: direction and magnitude to translate in z axis. Defaults to 0.
+    :return: The translated matrix.
+    """
+    translation_matrix = array(
+        [[1.0, 0.0, 0.0, x],
+         [0.0, 1.0, 0.0, y],
+         [0.0, 0.0, 1.0, z],
+         [0.0, 0.0, 0.0, 1.0]], dtype=matrix.dtype).T
+    matrix[...] = dot(matrix, translation_matrix)
+    return matrix
 
 
 def frustum(left, right, bottom, top, znear, zfar):
-    M = zeros((4, 4), dtype=float32)
-    M[0, 0] = +2.0 * znear / (right - left)
-    M[2, 0] = (right + left) / (right - left)
-    M[1, 1] = +2.0 * znear / (top - bottom)
-    M[3, 1] = (top + bottom) / (top - bottom)
-    M[2, 2] = -(zfar + znear) / (zfar - znear)
-    M[3, 2] = -2.0 * znear * zfar / (zfar - znear)
-    M[2, 3] = -1.0
-    return M
+    """
+    Build a perspective matrix from the clipping planes, or camera 'frustrum'
+    volume.
+
+    :param left: left position of the near clipping plane.
+    :param right: right position of the near clipping plane.
+    :param bottom: bottom position of the near clipping plane.
+    :param top: top position of the near clipping plane.
+    :param znear: z depth of the near clipping plane.
+    :param zfar: z depth of the far clipping plane.
+
+    :return: A perspective matrix.
+    """
+    perspective_matrix = zeros((4, 4), dtype=float32)
+    perspective_matrix[0, 0] = +2.0 * znear / (right - left)
+    perspective_matrix[2, 0] = (right + left) / (right - left)
+    perspective_matrix[1, 1] = +2.0 * znear / (top - bottom)
+    perspective_matrix[3, 1] = (top + bottom) / (top - bottom)
+    perspective_matrix[2, 2] = -(zfar + znear) / (zfar - znear)
+    perspective_matrix[3, 2] = -2.0 * znear * zfar / (zfar - znear)
+    perspective_matrix[2, 3] = -1.0
+    return perspective_matrix
 
 
 def perspective(fovy, aspect, znear, zfar):
+    """
+    Build a perspective matrix from field of view, aspect ratio and depth
+    planes.
+
+    :param fovy: the field of view angle in the y axis.
+    :param aspect: aspect ratio of our view port.
+    :param znear: z depth of the near clipping plane.
+    :param zfar: z depth of the far clipping plane.
+
+    :return: A perspective matrix.
+    """
     h = math.tan(fovy / 360.0 * math.pi) * znear
     w = h * aspect
     return frustum(-w, w, -h, h, znear, zfar)
 
 
-def rotate(M, angle, x, y, z, point=None):
+def rotate(matrix, angle, x, y, z):
+    """
+    Rotate a matrix around an axis.
+
+    :param matrix: The matrix to rotate.
+    :param angle: The angle to rotate by.
+    :param x: x of axis to rotate around.
+    :param y: y of axis to rotate around.
+    :param z: z of axis to rotate around.
+
+    :return: The rotated matrix
+    """
     angle = math.pi * angle / 180
     c, s = math.cos(angle), math.sin(angle)
     n = math.sqrt(x * x + y * y + z * z)
     x, y, z = x/n, y/n, z/n
     cx, cy, cz = (1 - c) * x, (1 - c) * y, (1 - c) * z
-    R = array([[cx * x + c, cy * x - z * s, cz * x + y * s, 0],
-                  [cx * y + z * s, cy * y + c, cz * y - x * s, 0],
-                  [cx * z - y * s, cy * z + x * s, cz * z + c, 0],
-                  [0, 0, 0, 1]], dtype=M.dtype).T
-    M[...] = dot(M, R)
-    return M
+    rotation_matrix = array(
+        [[cx * x + c, cy * x - z * s, cz * x + y * s, 0],
+         [cx * y + z * s, cy * y + c, cz * y - x * s, 0],
+         [cx * z - y * s, cy * z + x * s, cz * z + c, 0],
+         [0, 0, 0, 1]], dtype=matrix.dtype).T
+    matrix[...] = dot(matrix, rotation_matrix)
+    return matrix
 
 
 class Rotation:
+    """
+    Data class that stores rotation angles in three axes.
+    """
     def __init__(self):
         self.theta = 20
         self.phi = 40
@@ -139,7 +186,9 @@ class Rotation:
 
 
 def drawcube_old():
-    """draw the cube"""
+    """
+    Draw the cube using the old open GL methods pre 3.2 core context.
+    """
     allpoints = list(zip(CUBE_POINTS, CUBE_COLORS))
 
     GL.glBegin(GL.GL_QUADS)
@@ -161,7 +210,9 @@ def drawcube_old():
 
 
 def init_gl_stuff_old():
-
+    """
+    Initialise open GL, prior to core context 3.2
+    """
     GL.glEnable(GL.GL_DEPTH_TEST)  # use our zbuffer
 
     # setup the camera
@@ -173,6 +224,12 @@ def init_gl_stuff_old():
 
 
 def init_gl_modern(display_size):
+    """
+    Initialise open GL in the 'modern' open GL style for open GL versions
+    greater than 3.1.
+
+    :param display_size: Size of the window/viewport.
+    """
 
     # Create shaders
     # --------------------------------------
@@ -306,7 +363,7 @@ def init_gl_modern(display_size):
 
     shader_data["constants"]["view"] = GL.glGetUniformLocation(program,
                                                                "view")
-    view = translate(eye(4), 0, 0, -6)
+    view = translate(eye(4), z=-6)
     GL.glUniformMatrix4fv(shader_data["constants"]["view"], 1, False, view)
 
     shader_data["constants"]["projection"] = GL.glGetUniformLocation(
@@ -352,6 +409,15 @@ def draw_cube_modern(shader_data,
                      filled_cube_indices,
                      outline_cube_indices,
                      rotation):
+    """
+    Draw a cube in the 'modern' Open GL style, for post 3.1 versions of
+    open GL.
+
+    :param shader_data: compile vertex & pixel shader data for drawing a cube.
+    :param filled_cube_indices: the indices to draw the 'filled' cube.
+    :param outline_cube_indices: the indices to draw the 'outline' cube.
+    :param rotation: the current rotations to apply.
+    """
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
@@ -392,11 +458,11 @@ def draw_cube_modern(shader_data,
 
 def main():
     """run the demo """
-    # initialize pygame and setup an opengl display
 
+    # initialize pygame and setup an opengl display
     pg.init()
 
-    gl_version = (2, 0)  # GL Version number (Major, Minor)
+    gl_version = (4, 0)  # GL Version number (Major, Minor)
 
     # By setting these attributes we can choose which Open GL Profile
     # to use, profiles greater than 3.2 use a different rendering path
