@@ -852,7 +852,8 @@ polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 rect(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *rectobj = NULL;
     PyObject *points = NULL, *poly_args = NULL, *ret = NULL;
     GAME_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
@@ -937,11 +938,11 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
                                    &clipped)) {
                 return pgRect_New4(rect->x, rect->y, 0, 0);
             }
-            pgSurface_Prep(self);
-            pgSurface_Lock(self);
+            pgSurface_Prep(surfobj);
+            pgSurface_Lock(surfobj);
             result = SDL_FillRect(surf, &clipped, color);
-            pgSurface_Unlock(self);
-            pgSurface_Unprep(self);
+            pgSurface_Unlock(surfobj);
+            pgSurface_Unprep(surfobj);
             if (result != 0)
                 return RAISE(pgExc_SDLError, SDL_GetError());
             return pgRect_New(&clipped);
