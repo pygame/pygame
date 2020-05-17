@@ -573,38 +573,36 @@ required).
 
 .. function:: get_screensaver_enabled
 
-   | :sl:`Return whether SDL is hinted to enable or disable the screensaver.`
+   | :sl:`Return whether pygame is hinted to enable or disable the screensaver.`
    | :sg:`get_screensaver_enabled() -> bool`
 
-   Return whether SDL is hinted to enable or disable the screensaver.
-   This function is only available with SDL2.  Under SDL1, this
-   function will raise an exception.
+   Return whether screensaver is enabled. The default is False.
+   By default pygame tries to turn off the screensaver during game play.
 
-   .. note:: The reliability of this function is subject to platform
-             support.  Please see
+   .. note:: Some platforms do not have a screensaver or support
+             disabling the screensaver.  Please see
              :func:`pygame.display.set_screensaver_enabled()` for
              caveats with screensaver support.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0 This function is only available with SDL2. Under SDL1,
+   this function will raise a NotImplementedError exception.
 
    .. ## pygame.display.get_screensaver_enabled ##
 
 .. function:: set_screensaver_enabled
 
    | :sl:`Change request state for whether screensaver may run`
-   | :sg:`set_screensaver_enabled() -> None`
+   | :sg:`set_screensaver_enabled(bool) -> None`
 
-   Change the SDL hint for whether screensavers should be enabled or
-   disabled.  This function is only available with SDL2.  Under SDL1,
-   this function will raise an exception.
+   Change whether screensavers should be enabled or disabled. The default is False.
+   By default pygame tries to turn off the screensaver during game play.
 
-   If the screen has been disabled due to this function (or by default
-   in SDL), it will automatically be re-enabled when
-   :func:``pygame.quit()` is called.
+   If the screen has been disabled due to this function, it will automatically
+   be re-enabled when :func:``pygame.quit()` is called.
 
-   It is possible to influence the default value under SDL 2.0.2 or
-   later via the environment variable ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER``,
-   which can be set to either ``0`` (disable) or ``1`` (enable).
+   It is possible to influence the default value via the environment variable
+   ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER``, which can be set to either ``0`` (disable)
+   or ``1`` (enable).
 
    .. note:: Disabling screensaver is subject to platform support.
              When platform support is absent, this function will
@@ -612,8 +610,11 @@ required).
              is unchanged.  The lack of feedback is due to SDL not
              providing any supported method for determining whether
              it supports changing the screensaver state.
+             ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER`` is available in SDL 2.0.2 or later.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0 This function is only available with SDL2. Under SDL1,
+   this function will raise a NotImplementedError exception.
+
 
    .. ## pygame.display.set_screensaver_enabled ##
 
