@@ -163,10 +163,10 @@ following formats.
 
 .. function:: frombuffer
 
-   | :sl:`create a new Surface that shares data inside a string buffer`
-   | :sg:`frombuffer(string, size, format) -> Surface`
+   | :sl:`create a new Surface that shares data inside a bytes buffer`
+   | :sg:`frombuffer(bytes, size, format) -> Surface`
 
-   Create a new Surface that shares pixel data directly from the string buffer.
+   Create a new Surface that shares pixel data directly from a bytes buffer.
    This method takes the same arguments as ``pygame.image.fromstring()``, but
    is unable to vertically flip the source data.
 

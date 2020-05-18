@@ -13,5 +13,5 @@ def fromstring(
     flipped: Optional[bool] = False,
 ) -> Surface: ...
 def frombuffer(
-    string: str, size: Union[List[int], Tuple[int, int]], format: str
+    bytes: bytes, size: Union[List[int], Tuple[int, int]], format: str
 ) -> Surface: ...
