@@ -511,22 +511,27 @@ class ImageModuleTest(unittest.TestCase):
     def test_frombuffer(self):
         """ test reading pixel data from a bytes buffer"""
         pygame.display.init()
-        rgb_buffer = bytes([0, 0, 0, 0,
-                            1, 1, 1, 1,
-                            2, 2, 2, 2,
-                            3, 3, 3, 3])
+        eight_bit_palette_buffer = bytearray([0, 0, 0, 0,
+                                              1, 1, 1, 1,
+                                              2, 2, 2, 2,
+                                              3, 3, 3, 3])
 
-        rgb_surf = pygame.image.frombuffer(rgb_buffer, (4, 4), "P")
-        rgb_surf.set_palette([(255, 10, 20),
-                              (255, 255, 255),
-                              (0, 0, 0),
-                              (50, 200, 20)])
-        self.assertEqual(rgb_surf.get_at((0, 0)), pygame.Color(255, 10, 20))
-        self.assertEqual(rgb_surf.get_at((1, 1)), pygame.Color(255, 255, 255))
-        self.assertEqual(rgb_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
-        self.assertEqual(rgb_surf.get_at((3, 3)), pygame.Color(50, 200, 20))
+        eight_bit_surf = pygame.image.frombuffer(eight_bit_palette_buffer,
+                                                 (4, 4), "P")
+        eight_bit_surf.set_palette([(255, 10, 20),
+                                    (255, 255, 255),
+                                    (0, 0, 0),
+                                    (50, 200, 20)])
+        self.assertEqual(eight_bit_surf.get_at((0, 0)),
+                         pygame.Color(255, 10, 20))
+        self.assertEqual(eight_bit_surf.get_at((1, 1)),
+                         pygame.Color(255, 255, 255))
+        self.assertEqual(eight_bit_surf.get_at((2, 2)),
+                         pygame.Color(0, 0, 0))
+        self.assertEqual(eight_bit_surf.get_at((3, 3)),
+                         pygame.Color(50, 200, 20))
 
-        rgb_buffer = bytes([255, 10, 20,
+        rgb_buffer = bytearray([255, 10, 20,
                             255, 10, 20,
                             255, 10, 20,
                             255, 10, 20,
@@ -552,7 +557,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgb_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
         self.assertEqual(rgb_surf.get_at((3, 3)), pygame.Color(50, 200, 20))
 
-        bgr_buffer = bytes([20, 10, 255,
+        bgr_buffer = bytearray([20, 10, 255,
                             20, 10, 255,
                             20, 10, 255,
                             20, 10, 255,
@@ -578,7 +583,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgb_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
         self.assertEqual(bgr_surf.get_at((3, 3)), pygame.Color(50, 200, 20))
 
-        rgbx_buffer = bytes([255, 10, 20, 255,
+        rgbx_buffer = bytearray([255, 10, 20, 255,
                              255, 10, 20, 255,
                              255, 10, 20, 255,
                              255, 10, 20, 255,
@@ -608,7 +613,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgbx_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
-        rgba_buffer = bytes([255, 10, 20, 200,
+        rgba_buffer = bytearray([255, 10, 20, 200,
                              255, 10, 20, 200,
                              255, 10, 20, 200,
                              255, 10, 20, 200,
@@ -638,7 +643,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgba_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
-        argb_buffer = bytes([200, 255, 10, 20,
+        argb_buffer = bytearray([200, 255, 10, 20,
                              200, 255, 10, 20,
                              200, 255, 10, 20,
                              200, 255, 10, 20,
@@ -668,25 +673,7 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(argb_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
-        rgba_buffer = bytes([255, 10, 20, 200,
-                             255, 10, 20, 200,
-                             255, 10, 20, 200,
-                             255, 10, 20, 200,
 
-                             255, 255, 255, 127,
-                             255, 255, 255, 127,
-                             255, 255, 255, 127,
-                             255, 255, 255, 127,
-
-                             0, 0, 0, 79,
-                             0, 0, 0, 79,
-                             0, 0, 0, 79,
-                             0, 0, 0, 79,
-
-                             50, 200, 20, 255,
-                             50, 200, 20, 255,
-                             50, 200, 20, 255,
-                             50, 200, 20, 255])
 
 
     def todo_test_get_extended(self):
