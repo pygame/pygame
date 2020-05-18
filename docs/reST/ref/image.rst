@@ -167,11 +167,25 @@ following formats.
    | :sg:`frombuffer(bytes, size, format) -> Surface`
 
    Create a new Surface that shares pixel data directly from a bytes buffer.
-   This method takes the same arguments as ``pygame.image.fromstring()``, but
+   This method takes similar arguments to ``pygame.image.fromstring()``, but
    is unable to vertically flip the source data.
 
    This will run much faster than :func:`pygame.image.fromstring`, since no
    pixel data must be allocated and copied.
+
+   It accepts the following 'format' arguments:
+
+      * ``P``, 8-bit palettized Surfaces
+
+      * ``RGB``, 24-bit image
+
+      * ``BGR``, 24-bit image, red and blue channels swapped.
+
+      * ``RGBX``, 32-bit image with unused space
+
+      * ``RGBA``, 32-bit image with an alpha channel
+
+      * ``ARGB``, 32-bit image with alpha channel first
 
    .. ## pygame.image.frombuffer ##
 
