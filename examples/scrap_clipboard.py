@@ -20,7 +20,7 @@ import pygame as pg
 import pygame.scrap as scrap
 from pygame.compat import as_bytes
 
-BytesIO = pygame.compat.get_BytesIO()
+BytesIO = pg.compat.get_BytesIO()
 
 
 def usage():
@@ -39,16 +39,16 @@ going = True
 
 # Initialize the scrap module and use the clipboard mode.
 scrap.init()
-scrap.set_mode(SCRAP_CLIPBOARD)
+scrap.set_mode(pg.SCRAP_CLIPBOARD)
 
 usage()
 
 while going:
     for e in pg.event.get():
-        if e.type == QUIT or (e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE):
+        if e.type == pg.QUIT or (e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE):
             going = False
 
-        elif e.type == KEYDOWN and e.key == pg.K_g:
+        elif e.type == pg.KEYDOWN and e.key == pg.K_g:
             # This means to look for data.
             print("Getting the different clipboard data..")
             for t in scrap.get_types():
@@ -66,12 +66,12 @@ while going:
                         loaded_surf = pg.image.load(f, "." + namehint)
                         screen.blit(loaded_surf, (0, 0))
 
-        elif e.type == KEYDOWN and e.key == pg.K_p:
+        elif e.type == pg.KEYDOWN and e.key == pg.K_p:
             # Place some text into the selection.
             print("Placing clipboard text.")
-            scrap.put(SCRAP_TEXT, as_bytes("Hello. This is a message from scrap."))
+            scrap.put(pg.SCRAP_TEXT, as_bytes("Hello. This is a message from scrap."))
 
-        elif e.type == KEYDOWN and e.key == pg.K_a:
+        elif e.type == pg.KEYDOWN and e.key == pg.K_a:
             # Get all available types.
             print("Getting the available types from the clipboard.")
             types = scrap.get_types()
@@ -80,9 +80,9 @@ while going:
                 print("Contains %s: %s" % (types[0], scrap.contains(types[0])))
                 print("Contains _INVALID_: ", scrap.contains("_INVALID_"))
 
-        elif e.type == KEYDOWN and e.key == pg.K_i:
+        elif e.type == pg.KEYDOWN and e.key == pg.K_i:
             print("Putting image into the clipboard.")
-            scrap.set_mode(SCRAP_CLIPBOARD)
+            scrap.set_mode(pg.SCRAP_CLIPBOARD)
             fp = open(os.path.join(main_dir, "data", "liquid.bmp"), "rb")
             buf = fp.read()
             scrap.put("image/bmp", buf)
