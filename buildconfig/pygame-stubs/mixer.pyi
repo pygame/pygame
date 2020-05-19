@@ -32,7 +32,7 @@ def get_busy() -> bool: ...
 def get_sdl_mixer_version(linked: bool) -> Tuple[int, int, int]: ...
 
 class Sound:
-    def __init__(self, name=Any) -> None: ...  # ?What should be here? #
+    def __init__(self, name) -> None: ...  # ?What should be here? #
     def play(
         self,
         loops: Optional[int] = 0,
