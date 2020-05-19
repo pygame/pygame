@@ -198,6 +198,37 @@ from distutils.command.install_data import install_data
 from distutils.command.sdist import sdist
 
 
+# monkey patch distutils.sysconfig.expand_makefile_vars
+def expand_makefile_vars(s, vars):
+    """Expand Makefile-style variables -- "${foo}" or "$(foo)" -- in
+    'string' according to 'vars' (a dictionary mapping variable names to
+    values).  Variables not present in 'vars' are silently expanded to the
+    empty string.  The variable values in 'vars' should not contain further
+    variable expansions; if 'vars' is the output of 'parse_makefile()',
+    you're fine.  Returns a variable-expanded version of 's'.
+    """
+
+    # This algorithm does multiple expansion, so if vars['foo'] contains
+    # "${bar}", it will expand ${foo} to ${bar}, and then expand
+    # ${bar}... and so forth.  This is fine as long as 'vars' comes from
+    # 'parse_makefile()', which takes care of such expansions eagerly,
+    # according to make's variable expansion semantics.
+    print('---expand_makefile_vars:%s: :%s:' % (s, vars))
+    while True:
+        print(s)
+        m = distutils.sysconfig._findvar1_rx.search(s) or distutils.sysconfig._findvar2_rx.search(s)
+        if m:
+            (beg, end) = m.span()
+            mgroup1 = m.group(1)
+            print('mgroup1:%s: %s' % (mgroup1, type(mgroup1)))
+            vars_mgroup1 = vars.get(mgroup1)
+            print('vars_mgroup1:%s: %s' % (vars_mgroup1, type(vars_mgroup1)))
+            s = s[0:beg] + vars_mgroup1 + s[end:]
+        else:
+            break
+    return s
+distutils.sysconfig.expand_makefile_vars = expand_makefile_vars
+
 revision = ''
 
 # Python 3.0 patch
