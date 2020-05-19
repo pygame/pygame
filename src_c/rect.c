@@ -1313,7 +1313,6 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
         else if (PySequence_Check(value)) {
             PyObject *item;
             int values[4];
-            Py_ssize_t i;
             Py_ssize_t size = PySequence_Size(value);
 
             if (size != slicelen) {
