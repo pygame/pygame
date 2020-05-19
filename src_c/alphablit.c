@@ -1230,7 +1230,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
     int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
-    int tmp;
 
     /*
     printf ("Premultiplied alpha blit with %d and %d\n", srcbpp, dstbpp);
