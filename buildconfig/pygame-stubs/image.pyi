@@ -1,6 +1,9 @@
 from typing import Optional, Tuple, List, Union, IO
 
 from pygame.surface import Surface
+from pygame.bufferproxy import BufferProxy
+
+_BufferStyle = Union[BufferProxy, bytes, bytearray, memoryview]
 
 def load(filename: Union[str, IO], namehint: Optional[str] = "") -> Surface: ...
 def save(surface: Surface, filename: str) -> None: ...
@@ -13,5 +16,5 @@ def fromstring(
     flipped: Optional[bool] = False,
 ) -> Surface: ...
 def frombuffer(
-    bytes: bytes, size: Union[List[int], Tuple[int, int]], format: str
+    bytes: _BufferStyle, size: Union[List[int], Tuple[int, int]], format: str
 ) -> Surface: ...

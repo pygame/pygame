@@ -508,7 +508,7 @@ class ImageModuleTest(unittest.TestCase):
             'symmetric with "{}" format'.format(fmt),
         )
 
-    def test_frombuffer(self):
+    def test_frombuffer_8bit(self):
         """ test reading pixel data from a bytes buffer"""
         pygame.display.init()
         eight_bit_palette_buffer = bytearray([0, 0, 0, 0,
@@ -531,25 +531,26 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(eight_bit_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20))
 
+    def test_frombuffer_RGB(self):
         rgb_buffer = bytearray([255, 10, 20,
-                            255, 10, 20,
-                            255, 10, 20,
-                            255, 10, 20,
+                                255, 10, 20,
+                                255, 10, 20,
+                                255, 10, 20,
 
-                            255, 255, 255,
-                            255, 255, 255,
-                            255, 255, 255,
-                            255, 255, 255,
+                                255, 255, 255,
+                                255, 255, 255,
+                                255, 255, 255,
+                                255, 255, 255,
 
-                            0, 0, 0,
-                            0, 0, 0,
-                            0, 0, 0,
-                            0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0,
 
-                            50, 200, 20,
-                            50, 200, 20,
-                            50, 200, 20,
-                            50, 200, 20])
+                                50, 200, 20,
+                                50, 200, 20,
+                                50, 200, 20,
+                                50, 200, 20])
 
         rgb_surf = pygame.image.frombuffer(rgb_buffer, (4, 4), "RGB")
         self.assertEqual(rgb_surf.get_at((0, 0)), pygame.Color(255, 10, 20))
@@ -557,51 +558,53 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgb_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
         self.assertEqual(rgb_surf.get_at((3, 3)), pygame.Color(50, 200, 20))
 
+    def test_frombuffer_BGR(self):
         bgr_buffer = bytearray([20, 10, 255,
-                            20, 10, 255,
-                            20, 10, 255,
-                            20, 10, 255,
+                                20, 10, 255,
+                                20, 10, 255,
+                                20, 10, 255,
 
-                            255, 255, 255,
-                            255, 255, 255,
-                            255, 255, 255,
-                            255, 255, 255,
+                                255, 255, 255,
+                                255, 255, 255,
+                                255, 255, 255,
+                                255, 255, 255,
 
-                            0, 0, 0,
-                            0, 0, 0,
-                            0, 0, 0,
-                            0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0,
+                                0, 0, 0,
 
-                            20, 200, 50,
-                            20, 200, 50,
-                            20, 200, 50,
-                            20, 200, 50])
+                                20, 200, 50,
+                                20, 200, 50,
+                                20, 200, 50,
+                                20, 200, 50])
 
         bgr_surf = pygame.image.frombuffer(bgr_buffer, (4, 4), "BGR")
         self.assertEqual(bgr_surf.get_at((0, 0)), pygame.Color(255, 10, 20))
-        self.assertEqual(rgb_surf.get_at((1, 1)), pygame.Color(255, 255, 255))
-        self.assertEqual(rgb_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
+        self.assertEqual(bgr_surf.get_at((1, 1)), pygame.Color(255, 255, 255))
+        self.assertEqual(bgr_surf.get_at((2, 2)), pygame.Color(0, 0, 0))
         self.assertEqual(bgr_surf.get_at((3, 3)), pygame.Color(50, 200, 20))
 
+    def test_frombuffer_RGBX(self):
         rgbx_buffer = bytearray([255, 10, 20, 255,
-                             255, 10, 20, 255,
-                             255, 10, 20, 255,
-                             255, 10, 20, 255,
+                                 255, 10, 20, 255,
+                                 255, 10, 20, 255,
+                                 255, 10, 20, 255,
 
-                             255, 255, 255, 255,
-                             255, 255, 255, 255,
-                             255, 255, 255, 255,
-                             255, 255, 255, 255,
+                                 255, 255, 255, 255,
+                                 255, 255, 255, 255,
+                                 255, 255, 255, 255,
+                                 255, 255, 255, 255,
 
-                             0, 0, 0, 255,
-                             0, 0, 0, 255,
-                             0, 0, 0, 255,
-                             0, 0, 0, 255,
+                                 0, 0, 0, 255,
+                                 0, 0, 0, 255,
+                                 0, 0, 0, 255,
+                                 0, 0, 0, 255,
 
-                             50, 200, 20, 255,
-                             50, 200, 20, 255,
-                             50, 200, 20, 255,
-                             50, 200, 20, 255])
+                                 50, 200, 20, 255,
+                                 50, 200, 20, 255,
+                                 50, 200, 20, 255,
+                                 50, 200, 20, 255])
 
         rgbx_surf = pygame.image.frombuffer(rgbx_buffer, (4, 4), "RGBX")
         self.assertEqual(rgbx_surf.get_at((0, 0)),
@@ -613,25 +616,26 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgbx_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
+    def test_frombuffer_RGBA(self):
         rgba_buffer = bytearray([255, 10, 20, 200,
-                             255, 10, 20, 200,
-                             255, 10, 20, 200,
-                             255, 10, 20, 200,
+                                 255, 10, 20, 200,
+                                 255, 10, 20, 200,
+                                 255, 10, 20, 200,
 
-                             255, 255, 255, 127,
-                             255, 255, 255, 127,
-                             255, 255, 255, 127,
-                             255, 255, 255, 127,
+                                 255, 255, 255, 127,
+                                 255, 255, 255, 127,
+                                 255, 255, 255, 127,
+                                 255, 255, 255, 127,
 
-                             0, 0, 0, 79,
-                             0, 0, 0, 79,
-                             0, 0, 0, 79,
-                             0, 0, 0, 79,
+                                 0, 0, 0, 79,
+                                 0, 0, 0, 79,
+                                 0, 0, 0, 79,
+                                 0, 0, 0, 79,
 
-                             50, 200, 20, 255,
-                             50, 200, 20, 255,
-                             50, 200, 20, 255,
-                             50, 200, 20, 255])
+                                 50, 200, 20, 255,
+                                 50, 200, 20, 255,
+                                 50, 200, 20, 255,
+                                 50, 200, 20, 255])
 
         rgba_surf = pygame.image.frombuffer(rgba_buffer, (4, 4), "RGBA")
         self.assertEqual(rgba_surf.get_at((0, 0)),
@@ -643,25 +647,26 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(rgba_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
+    def test_frombuffer_ARGB(self):
         argb_buffer = bytearray([200, 255, 10, 20,
-                             200, 255, 10, 20,
-                             200, 255, 10, 20,
-                             200, 255, 10, 20,
+                                 200, 255, 10, 20,
+                                 200, 255, 10, 20,
+                                 200, 255, 10, 20,
 
-                             127, 255, 255, 255,
-                             127, 255, 255, 255,
-                             127, 255, 255, 255,
-                             127, 255, 255, 255,
+                                 127, 255, 255, 255,
+                                 127, 255, 255, 255,
+                                 127, 255, 255, 255,
+                                 127, 255, 255, 255,
 
-                             79, 0, 0, 0,
-                             79, 0, 0, 0,
-                             79, 0, 0, 0,
-                             79, 0, 0, 0,
+                                 79, 0, 0, 0,
+                                 79, 0, 0, 0,
+                                 79, 0, 0, 0,
+                                 79, 0, 0, 0,
 
-                             255, 50, 200, 20,
-                             255, 50, 200, 20,
-                             255, 50, 200, 20,
-                             255, 50, 200, 20])
+                                 255, 50, 200, 20,
+                                 255, 50, 200, 20,
+                                 255, 50, 200, 20,
+                                 255, 50, 200, 20])
 
         argb_surf = pygame.image.frombuffer(argb_buffer, (4, 4), "ARGB")
         self.assertEqual(argb_surf.get_at((0, 0)),
@@ -672,9 +677,6 @@ class ImageModuleTest(unittest.TestCase):
                          pygame.Color(0, 0, 0, 79))
         self.assertEqual(argb_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
-
-
-
 
     def todo_test_get_extended(self):
 
