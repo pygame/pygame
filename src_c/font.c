@@ -274,7 +274,7 @@ font_set_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     int style, val;
-#ifdef PY3
+#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
 #else
     if (!PyArg_ParseTuple(args, "i", &val))
@@ -304,7 +304,7 @@ font_set_italic(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int style, val;
 
-#ifdef PY3
+#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
 #else
     if (!PyArg_ParseTuple(args, "i", &val))
@@ -334,7 +334,7 @@ font_set_underline(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int style, val;
 
-#ifdef PY3
+#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
 #else
     if (!PyArg_ParseTuple(args, "i", &val))
@@ -363,7 +363,7 @@ font_render(PyObject *self, PyObject *args)
     SDL_Color foreg, backg;
     int just_return;
 
-#ifdef PY3
+#if PY3
     if (!PyArg_ParseTuple(args, "OpO|O", &text, &aa, &fg_rgba_obj,
                           &bg_rgba_obj)) {
         return NULL;
