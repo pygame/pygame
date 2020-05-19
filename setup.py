@@ -557,6 +557,10 @@ if sys.platform == 'win32':
         else:
             pygame_data_files.append(f)
 
+    if '-enable-msvc-analyze' in sys.argv:
+        for e in extensions:
+            e.extra_compile_args += ['/analyze']
+
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
 
