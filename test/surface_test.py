@@ -1128,9 +1128,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def test_get_size(self):
-        surface = pygame.Surface((15, 5))
-        size = surface.get_size()
-        self.assertEqual(size, (15, 5))
+        sizes = ((1,1), (119, 10), (1000,1000))  # Could add a few more ideas here 
+        for width, height in sizes:
+            surf = pygame.Surface((width, height))
+            found_size = surf.get_size()
+            self.assertEqual((width, height), found_size)
 
     def todo_test_lock(self):
 
