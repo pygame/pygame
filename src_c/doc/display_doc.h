@@ -3,7 +3,7 @@
 #define DOC_PYGAMEDISPLAYINIT "init() -> None\nInitialize the display module"
 #define DOC_PYGAMEDISPLAYQUIT "quit() -> None\nUninitialize the display module"
 #define DOC_PYGAMEDISPLAYGETINIT "get_init() -> bool\nReturns True if the display module has been initialized"
-#define DOC_PYGAMEDISPLAYSETMODE "set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface\nInitialize a window or screen for display"
+#define DOC_PYGAMEDISPLAYSETMODE "set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=False) -> Surface\nInitialize a window or screen for display"
 #define DOC_PYGAMEDISPLAYGETSURFACE "get_surface() -> Surface\nGet a reference to the currently set display surface"
 #define DOC_PYGAMEDISPLAYFLIP "flip() -> None\nUpdate the full display Surface to the screen"
 #define DOC_PYGAMEDISPLAYUPDATE "update(rectangle=None) -> None\nupdate(rectangle_list) -> None\nUpdate portions of the screen for software displays"
@@ -47,7 +47,7 @@ pygame.display.get_init
 Returns True if the display module has been initialized
 
 pygame.display.set_mode
- set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface
+ set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=False) -> Surface
 Initialize a window or screen for display
 
 pygame.display.get_surface

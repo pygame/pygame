@@ -104,7 +104,7 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface`
+   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=False) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
@@ -156,20 +156,20 @@ required).
 
    .. versionadded:: 2.0.0 ``SCALED``
 
-   It is possible to get a display with vertical sync, or VSync, but you are
-   not guaranteed a vertically synchronised display after requesting one. What
-   you actually get depends entirely on the hardware and driver configuration
-   of the system pygame is running on. In pygame 2 the most reliable way to
-   request a display with VSync is to set the ``PYGAME_VSYNC`` environment
-   variable to ``"1"`` before calling ``set_mode()`` and to call ``set_mode()``
-   with the ``pygame.SCALED`` flag. E.g.
+   By setting the vsync parameter to True, it is possible to get a display with
+   vertical sync, but you are not guaranteed to get one. The request only works
+   at all for calls to set_mode() with the pygame.OPENGL or pygame.SCALED flags
+   set, and is still not guaranteed even with one of those set. What you
+   actually get  depends entirely on the hardware and driver configuration of
+   the system  pygame is running on. Here is an example usage of a call to
+   set_mode that may give you a display with vsync:
 
    ::
 
-     os.environ['PYGAME_VSYNC'] = "1"
-     flags = pygame.SCALED | pygame.FULLSCREEN
-     window_surface = pygame.display.set_mode((1920, 1080), flags)
+     flags = pygame.OPENGL | pygame.FULLSCREEN
+     window_surface = pygame.display.set_mode((1920, 1080), flags, vsync=True)
 
+   .. versionadded:: 2.0.0 ``vsync``
 
    Basic example:
 
