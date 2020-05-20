@@ -991,9 +991,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(ck, colorkey)
 
     def test_get_height(self):
-        surf = pygame.Surface((2,4))
-        height = surf.get_height()
-        self.assertEqual(height, 4)
+        sizes = ((1,1), (119, 10), (1000,1000))  # Could add a few more ideas here
+        for width, height in sizes:
+            surf = pygame.Surface((width, height))
+            found_height = surf.get_height()
+            self.assertEqual(height, found_height)
 
     def todo_test_get_locked(self):
 
