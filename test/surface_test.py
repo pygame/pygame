@@ -990,16 +990,10 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertIsInstance(ck, pygame.Color)
         self.assertEqual(ck, colorkey)
 
-    def todo_test_get_height(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_height:
-
-        # Surface.get_height(): return height
-        # get the height of the Surface
-        #
-        # Return the height of the Surface in pixels.
-
-        self.fail()
+    def test_get_height(self):
+        surf = pygame.Surface((2,4))
+        height = surf.get_height()
+        self.assertEqual(height, 4)
 
     def todo_test_get_locked(self):
 
