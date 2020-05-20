@@ -59,10 +59,10 @@ class MouseModuleTest(unittest.TestCase):
     def test_set_pos(self):
         """Ensures set_pos works correctly."""
         expected_pos = ((0, 0), (1, 400), (912, 566), (9999, 9999), (1000, 0), (0, 9999))
-        for pos in expected_pos:
-            pygame.mouse.set_pos(pos)
+        for x, y in expected_pos:
+            pygame.mouse.set_pos(x, y)
             found_pos = pygame.mouse.get_pos()
-            self.assertEqual(found_pos, pos)
+            self.assertEqual(found_pos, (x, y))
 
     def test_get_rel(self):
         """Ensures get_rel returns the correct types."""
