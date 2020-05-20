@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union, overload
 class EventType(object):
     type: int
     __dict__: Dict[str, Any]
-    __hash__ = None
+    __hash__: None  # type: ignore
     @overload
     def __init__(self, type: int, dict: Dict[str, Any]) -> None: ...
     @overload

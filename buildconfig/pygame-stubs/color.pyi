@@ -13,7 +13,7 @@ class Color:
     hsva: Tuple[float, float, float, float]
     hsla: Tuple[float, float, float, float]
     i1i2i3: Tuple[float, float, float]
-    __hash__ = None
+    __hash__: None  # type: ignore
     @overload
     def __init__(self, name: Text) -> None: ...
     @overload

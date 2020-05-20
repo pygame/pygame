@@ -94,7 +94,7 @@ def disable_swizzling() -> None: ...
 class Vector2:
     x: float
     y: float
-    __hash__ = None
+    __hash__: None  # type: ignore
     def __init__(
         self,
         x: Optional[Union[float, Vector2, Tuple[float, float], List[float]]] = 0,
@@ -150,7 +150,7 @@ class Vector3:
     x: float
     y: float
     z: float
-    __hash__ = None
+    __hash__: None  # type: ignore
     @overload
     def __init__(
         self,
