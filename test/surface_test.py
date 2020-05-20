@@ -1180,25 +1180,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf.set_at((0, 0), c)
         self.assertEqual(surf.get_at((0, 0)), color)
 
-    def todo_test_mustlock(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.mustlock:
-
-        # Surface.mustlock(): return bool
-        # test if the Surface requires locking
-        #
-        # Returns True if the Surface is required to be locked to access pixel
-        # data. Usually pure software Surfaces do not require locking. This
-        # method is rarely needed, since it is safe and quickest to just lock
-        # all Surfaces as needed.
-        #
-        # All pygame functions will automatically lock and unlock the Surface
-        # data as needed. If a section of code is going to make calls that
-        # will repeatedly lock and unlock the Surface many times, it can be
-        # helpful to wrap the block inside a lock and unlock pair.
-        #
-
-        self.fail()
+    def test_mustlock(self):
+        surf = pygame.Surface((4,4))
+        subsurf=surf.subsurface(pygame.Rect(1,1,2,2))
+        self.assertTrue(subsurf.mustlock())
+        self.assertFalse(surf.mustlock())
 
     def test_set_alpha_none(self):
         """surf.set_alpha(None) disables blending"""
