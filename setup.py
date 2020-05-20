@@ -558,8 +558,10 @@ if sys.platform == 'win32':
             pygame_data_files.append(f)
 
     if '-enable-msvc-analyze' in sys.argv:
+        os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
         for e in extensions:
-            e.extra_compile_args += ['/analyze']
+            e.extra_compile_args += ['/analyze', '/experimental:external',
+                                     '/external:W0', '/external:env:CAExcludePath' ]
 
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
