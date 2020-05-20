@@ -1001,18 +1001,42 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_locked(self):
+    def test_get_locked(self):
+        surf = pygame.Surface((100, 100))
+        # Surface should start unlocked
+        self.assertFalse(surf.get_locked())
+        # Surface should lock
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+        # Surface should unlock
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_locked:
+        # Check multiple locks
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        # Surface.get_locked(): return bool
-        # test if the Surface is current locked
-        #
-        # Returns True when the Surface is locked. It doesn't matter how many
-        # times the Surface is locked.
-        #
+        # Check many locks
+        surf = pygame.Surface((100, 100))
+        for i in range(1000):
+            surf.lock()
+        self.assertTrue(surf.get_locked())
+        for i in range(1000):
+            surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        self.fail()
+        # Unlocking an unlocked surface
+        surf = pygame.Surface((100, 100))
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
     def todo_test_get_locks(self):
 
