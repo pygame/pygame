@@ -57,11 +57,25 @@ class MouseModuleTest(unittest.TestCase):
                 pygame.mouse.set_pos(invalid_pos)
 
     def test_set_pos(self):
-        """Ensures set_pos works correctly."""
-        expected_pos = ((0, 0), (1, 400), (912, 566), (9999, 9999), (1000, 0), (0, 9999))
+        """Ensures set_pos works correctly.
+        Requires tester to move the mouse"""
+        pygame.display.set_mode((500, 500))
+
+        expected_pos = ((10, 0), (0, 0), (499, 0), (499, 499), (341, 143), (94, 49))
+
         for x, y in expected_pos:
             pygame.mouse.set_pos(x, y)
+
+            pygame.event.get()
+
             found_pos = pygame.mouse.get_pos()
+
+            ready_to_test = False
+            while not ready_to_test:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEMOTION:
+                        ready_to_test = True
+
             self.assertEqual(found_pos, (x, y))
 
     def test_get_rel(self):
