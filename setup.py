@@ -563,7 +563,7 @@ if sys.platform == 'win32':
         msc_ver = 1900
         if msc_pos != -1:
             msc_ver = int(sys.version[msc_pos + 6:msc_pos + 10])
-        print('Analyzing with MSC_VER =', msc_ver)
+        print ('Analyzing with MSC_VER =', msc_ver)
 
         # excluding system headers from analyze out put was only added after MSCV_VER 1913
         if msc_ver >= 1913:
