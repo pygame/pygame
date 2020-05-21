@@ -6,6 +6,10 @@ SDL2 = pygame.get_sdl_version()[0] >= 2
 
 
 class OverlayTypeTest(unittest.TestCase):
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     @unittest.skipIf(SDL2, "Overlay not ported to SDL2")
     def test_display(self):
         """Test we can create an overlay of all the different types"""
@@ -62,6 +66,10 @@ class OverlayTypeTest(unittest.TestCase):
 
         self.assertEqual(created_overlays, 2)
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     @unittest.skipIf(SDL2, "Overlay not ported to SDL2")
     def test_get_hardware(self):
         """Test for overlay hardware acceleration"""
@@ -71,6 +79,10 @@ class OverlayTypeTest(unittest.TestCase):
         overlay = pygame.Overlay(pygame.YV12_OVERLAY, (4, 4))
         self.assertFalse(overlay.get_hardware())
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     @unittest.skipIf(SDL2, "Overlay not ported to SDL2")
     def test_set_location(self):
         """Test overlay set location"""
