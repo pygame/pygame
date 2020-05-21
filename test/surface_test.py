@@ -24,6 +24,7 @@ import weakref
 import ctypes
 
 IS_PYPY = "PyPy" == platform.python_implementation()
+SDL1 = get_sdl_version()[0] < 2
 
 
 def intify(i):
@@ -2402,26 +2403,29 @@ class SurfaceBlendTest(unittest.TestCase):
                                            src_size=(17, 67),
                                            dst_size=(69, 69)
                                            ))
-
-        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
-                                           pygame.Color(40, 20, 0, 51),
-                                           src_size=(17, 67),
-                                           dst_size=(69, 69),
-                                           src_has_alpha=False,
-                                           ))
+        # These tests trigger some of the weird SDL1 alpha blending behaviour
+        if not SDL1:
+            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
+                                               pygame.Color(40, 20, 0, 51),
+                                               src_size=(17, 67),
+                                               dst_size=(69, 69),
+                                               src_has_alpha=False,
+                                               ))
         self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
                                            pygame.Color(40, 20, 0, 255),
                                            src_size=(17, 67),
                                            dst_size=(69, 69),
                                            dst_has_alpha=False,
                                            ))
-        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
-                                           pygame.Color(40, 20, 0, 255),
-                                           src_size=(17, 67),
-                                           dst_size=(69, 69),
-                                           src_has_alpha=False,
-                                           dst_has_alpha=False,
-                                           ))
+        # These tests trigger some of the weird SDL1 alpha blending behaviour
+        if not SDL1:
+            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
+                                               pygame.Color(40, 20, 0, 255),
+                                               src_size=(17, 67),
+                                               dst_size=(69, 69),
+                                               src_has_alpha=False,
+                                               dst_has_alpha=False,
+                                               ))
 
 
     def test_blit_blend_big_rect(self):
