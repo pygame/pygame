@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ pygame.examples.overlay
 
 The overlay module is deprecated now.
@@ -11,30 +10,28 @@ from pygame.compat import xrange_
 SR = (800, 600)
 ovl = None
 
+
 ########################################################################
 # Simple video player
 def vPlayer(fName):
     global ovl
     f = open(fName, "rb")
-    fmt = f.readline().strip()
-    res = f.readline().strip()
+    fmt = f.readline().strip().decode()
+    res = f.readline().strip().decode()
     unused_col = f.readline().strip()
     if fmt != "P5":
-        print("Unknown format( len %d ). Exiting..." % len(fmt))
+        print("Unknown format: %s ( len %d ). Exiting..." % (fmt, len(fmt)))
         return
 
     w, h = [int(x) for x in res.split(" ")]
-    h = (h * 2) / 3
+    h = int((h * 2) / 3)
     # Read into strings
     y = f.read(w * h)
-    u = []
-    v = []
-    for _ in xrange_(0, h / 2):
-        u.append(f.read(w / 2))
-        v.append(f.read(w / 2))
-
-    u = "".join(u)
-    v = "".join(v)
+    u = b''
+    v = b''
+    for _ in xrange_(0, int(h / 2)):
+        u += (f.read(int(w / 2)))
+        v += (f.read(int(w / 2)))
 
     # Open overlay with the resolution specified
     ovl = pg.Overlay(pg.YV12_OVERLAY, (w, h))
@@ -64,3 +61,8 @@ if __name__ == "__main__":
         print("Usage: play_file <file_pattern>")
     else:
         main(sys.argv[1])
+
+# Uncomment for quick test
+# ------------------------
+# if __name__ == "__main__":
+#     main('data/yuv_1.pgm')
