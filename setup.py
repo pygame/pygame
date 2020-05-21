@@ -558,10 +558,22 @@ if sys.platform == 'win32':
             pygame_data_files.append(f)
 
     if '-enable-msvc-analyze' in sys.argv:
-        os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
-        for e in extensions:
-            e.extra_compile_args += ['/analyze', '/experimental:external',
-                                     '/external:W0', '/external:env:CAExcludePath' ]
+        # calculate the MSVC compiler version as an int
+        msc_pos = sys.version.find('MSC v.')
+        msc_ver = 1900
+        if msc_pos != -1:
+            msc_ver = int(sys.version[msc_pos + 6:msc_pos + 10])
+        print('Analyzing with MSC_VER =', msc_ver)
+
+        # excluding system headers from analyze out put was only added after MSCV_VER 1913
+        if msc_ver >= 1913:
+            os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
+            for e in extensions:
+                e.extra_compile_args += ['/analyze', '/experimental:external',
+                                         '/external:W0', '/external:env:CAExcludePath' ]
+        else:
+            for e in extensions:
+                e.extra_compile_args += ['/analyze']
 
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
