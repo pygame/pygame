@@ -584,8 +584,8 @@ pg_get_error(PyObject *self, PyObject *args)
 #if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
     /* SDL 1's encoding is ambiguous */
     PyObject *obj;
-    if (obj = PyUnicode_DecodeUTF8(SDL_GetError(),
-                                   strlen(SDL_GetError()), "strict"))
+    if ((obj = PyUnicode_DecodeUTF8(SDL_GetError(),
+                                   strlen(SDL_GetError()), "strict")))
         return obj;
     PyErr_Clear();
     return PyUnicode_DecodeLocale(SDL_GetError(), "surrogateescape");
