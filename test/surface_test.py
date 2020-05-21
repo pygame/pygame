@@ -24,7 +24,7 @@ import weakref
 import ctypes
 
 IS_PYPY = "PyPy" == platform.python_implementation()
-SDL1 = get_sdl_version()[0] < 2
+SDL1 = pygame.get_sdl_version()[0] < 2
 
 
 def intify(i):
