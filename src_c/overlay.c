@@ -23,6 +23,8 @@
  * Dmitry Borisov
  */
 
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 
 #include "pygame.h"
@@ -67,7 +69,7 @@ Overlay_Display(PyGameOverlay *self, PyObject *args)
 {
     SDL_Rect cRect;
     // Parse data params for frame
-    int ls_y, ls_u, ls_v, y;
+    Py_ssize_t ls_y, ls_u, ls_v, y;
     unsigned char *src_y = 0, *src_u = 0, *src_v = 0;
 
     if (PyTuple_Size(args)) {
