@@ -1256,7 +1256,29 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1295,7 +1317,7 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1303,6 +1325,41 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                 dst += dstskip;
             }
 
+        }
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    if(sA == 0){
+                        dst[offsetR] = dR;
+                        dst[offsetG] = dG;
+                        dst[offsetB] = dB;
+                    }
+                    else if(sA == 255){
+                        dst[offsetR] = sR;
+                        dst[offsetG] = sG;
+                        dst[offsetB] = sB;
+                    }
+                    else{
+                        ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                        dst[offsetR] = dR;
+                        dst[offsetG] = dG;
+                        dst[offsetB] = dB;
+                    }
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
         }
         else /* dstbpp > 1 */
         {
