@@ -2139,6 +2139,7 @@ MODINIT_DEFINE(rect)
     c_api[1] = pgRect_New;
     c_api[2] = pgRect_New4;
     c_api[3] = pgRect_FromObject;
+    c_api[4] = pgRect_Normalize;
     apiobj = encapsulate_api(c_api, "rect");
     if (apiobj == NULL) {
         DECREF_MOD(module);

@@ -45,6 +45,7 @@
 #define DOC_FONTVERTICAL "vertical -> bool\nFont vertical mode"
 #define DOC_FONTROTATION "rotation -> int\ntext rotation in degrees counterclockwise"
 #define DOC_FONTFGCOLOR "fgcolor -> Color\ndefault foreground color"
+#define DOC_FONTBGCOLOR "bgcolor -> Color\ndefault background color"
 #define DOC_FONTORIGIN "origin -> bool\nFont render to text origin mode"
 #define DOC_FONTPAD "pad -> bool\npadded boundary mode"
 #define DOC_FONTUCS4 "ucs4 -> bool\nEnable UCS-4 mode"
@@ -240,6 +241,10 @@ text rotation in degrees counterclockwise
 pygame.freetype.Font.fgcolor
  fgcolor -> Color
 default foreground color
+
+pygame.freetype.Font.bgcolor
+ bgcolor -> Color
+default background color
 
 pygame.freetype.Font.origin
  origin -> bool

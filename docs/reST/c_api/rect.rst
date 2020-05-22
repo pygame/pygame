@@ -72,3 +72,8 @@ Header file: src_c/include/pygame.h
    On success return a pointer to a :c:type:`GAME_Rect` representation
    of the rectangle.
    One failure may raise a Python exception before returning *NULL*.
+
+.. c:function:: void pgRect_Normalize(GAME_Rect *rect)
+
+   Normalize the given rect. A rect with a negative size (negative width and/or
+   height) will be adjusted to have a positive size.

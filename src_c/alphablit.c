@@ -26,8 +26,14 @@
 #include "_surface.h"
 
 #ifdef PG_ENABLE_ARM_NEON
-// sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
-#include "include/sse2neon.h"
+    // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
+    #include "include/sse2neon.h"
+#else
+    #if IS_SDLv1
+        // SDL 1 doesn't import the latest intrinsics, this should should pull
+        // them all in for us
+        #include <immintrin.h>
+    #endif /* IS_SDLv1 */
 #endif /* PG_ENABLE_ARM_NEON */
 
 /* The structure passed to the low level blit functions */

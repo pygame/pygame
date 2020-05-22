@@ -702,6 +702,17 @@ loaded. This module must be imported explicitly to be used. ::
       Gets or sets the default glyph rendering color. It is initially opaque
       black ― (0, 0, 0, 255). Applies to :meth:`render` and :meth:`render_to`.
 
+   .. attribute:: bgcolor
+
+      | :sl:`default background color`
+      | :sg:`bgcolor -> Color`
+
+      Gets or sets the default background rendering color. Initially it is
+      unset and text will render with a transparent background by default.
+      Applies to :meth:`render` and :meth:`render_to`.
+
+   .. versionadded:: 2.0.0
+
    .. attribute:: origin
 
       | :sl:`Font render to text origin mode`

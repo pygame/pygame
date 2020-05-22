@@ -599,13 +599,13 @@ to store which parts collide.
          ``(255, 255, 255, 255)``, white), use ``None`` to skip drawing the set
          bits, the ``setsurface`` parameter (if set) will takes precedence over
          this parameter
-      :type setcolor: Color or int or tuple(int, int, int, [int]) or
+      :type setcolor: Color or str or int or tuple(int, int, int, [int]) or
          list(int, int, int, [int]) or None
       :param unsetcolor: (optional) color to draw unset bits (default is
          ``(0, 0, 0, 255)``, black), use ``None`` to skip drawing the unset
          bits, the ``unsetsurface`` parameter (if set) will takes precedence
          over this parameter
-      :type unsetcolor: Color or int or tuple(int, int, int, [int]) or
+      :type unsetcolor: Color or str or int or tuple(int, int, int, [int]) or
          list(int, int, int, [int]) or None
       :param dest: (optional) surface destination of where to position the
          topleft corner of the mask being drawn (default is ``(0, 0)``), if a

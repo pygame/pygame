@@ -105,15 +105,7 @@ class Camera:
         """
         abuffer, width, height = self.get_buffer()
         if abuffer:
-            surf = pygame.image.frombuffer(abuffer, (width, height), "RGB")
-
-            # swap it from a BGR surface to an RGB surface.
-            r,g,b,a = surf.get_masks()
-            surf.set_masks((b,g,r,a))
-
-            r,g,b,a = surf.get_shifts()
-            surf.set_shifts((b,g,r,a))
-
+            surf = pygame.image.frombuffer(abuffer, (width, height), "BGR")
             surf = pygame.transform.flip(surf, 0,1)
 
             # if there is a destination surface given, we blit onto that.

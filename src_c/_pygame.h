@@ -217,7 +217,7 @@ struct pgColorObject {
  * Remember to keep these constants up to date.
  */
 
-#define PYGAMEAPI_RECT_NUMSLOTS 4
+#define PYGAMEAPI_RECT_NUMSLOTS 5
 #define PYGAMEAPI_JOYSTICK_NUMSLOTS 2
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 #define PYGAMEAPI_SURFACE_NUMSLOTS 4

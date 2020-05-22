@@ -142,6 +142,10 @@ static PyObject *
 _ftfont_getfgcolor(pgFontObject *, void *);
 static int
 _ftfont_setfgcolor(pgFontObject *, PyObject *, void *);
+static PyObject *
+_ftfont_getbgcolor(pgFontObject *, void *);
+static int
+_ftfont_setbgcolor(pgFontObject *, PyObject *, void *);
 
 static PyObject *
 _ftfont_getresolution(pgFontObject *, void *);
@@ -620,6 +624,8 @@ static PyGetSetDef _ftfont_getsets[] = {
      DOC_FONTROTATION, 0},
     {"fgcolor", (getter)_ftfont_getfgcolor, (setter)_ftfont_setfgcolor,
      DOC_FONTFGCOLOR, 0},
+     {"bgcolor", (getter)_ftfont_getbgcolor, (setter)_ftfont_setbgcolor,
+     DOC_FONTBGCOLOR, 0},
     {"origin", (getter)_ftfont_getrender_flag, (setter)_ftfont_setrender_flag,
      DOC_FONTORIGIN, (void *)FT_RFLAG_ORIGIN},
 #if defined(PGFT_DEBUG_CACHE)
@@ -715,6 +721,11 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->fgcolor[1] = 0;
         obj->fgcolor[2] = 0;
         obj->fgcolor[3] = 255;
+        obj->is_bg_col_set = 0;
+        obj->bgcolor[0] = 0; /* rgba transparent black */
+        obj->bgcolor[1] = 0;
+        obj->bgcolor[2] = 0;
+        obj->bgcolor[3] = 0;
     }
     return (PyObject *)obj;
 }
@@ -1290,6 +1301,27 @@ _ftfont_setfgcolor(pgFontObject *self, PyObject *value, void *closure)
     return 0;
 }
 
+static PyObject *
+_ftfont_getbgcolor(pgFontObject *self, void *closure)
+{
+    return pgColor_New(self->bgcolor);
+}
+
+static int
+_ftfont_setbgcolor(pgFontObject *self, PyObject *value, void *closure)
+{
+    if (!pg_RGBAFromObj(value, self->bgcolor)) {
+        PyErr_Format(PyExc_AttributeError,
+                     "unable to convert %128s object to a color",
+                     Py_TYPE(value)->tp_name);
+        return -1;
+    }
+    else{
+        self->is_bg_col_set = 1;
+    }
+    return 0;
+}
+
 /** testing and debugging */
 #if defined(PGFT_DEBUG_CACHE)
 static PyObject *
@@ -1797,10 +1829,23 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
         fg_color.b = self->fgcolor[2];
         fg_color.a = self->fgcolor[3];
     }
+
     if (bg_color_obj) {
         if (!pg_RGBAFromFuzzyColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
             /* Exception already set for us */
             goto error;
+        }
+    }
+    else{
+        if (self->is_bg_col_set){
+            bg_color_obj = 1; // Using this as a boolean flag now
+            bg_color.r = self->bgcolor[0];
+            bg_color.g = self->bgcolor[1];
+            bg_color.b = self->bgcolor[2];
+            bg_color.a = self->bgcolor[3];
+        }
+        else{
+           bg_color_obj = 0;
         }
     }
 
@@ -1921,6 +1966,18 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
         if (!pg_RGBAFromFuzzyColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
             /* Exception already set for us */
             goto error;
+        }
+    }
+    else{
+        if (self->is_bg_col_set){
+            bg_color_obj = 1; // Using this as a boolean flag now
+            bg_color.r = self->bgcolor[0];
+            bg_color.g = self->bgcolor[1];
+            bg_color.b = self->bgcolor[2];
+            bg_color.a = self->bgcolor[3];
+        }
+        else{
+           bg_color_obj = 0;
         }
     }
 

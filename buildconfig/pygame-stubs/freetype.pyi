@@ -53,6 +53,7 @@ class Font:
     vertical: bool
     rotation: int
     fgcolor: Color
+    bgcolor: Color
     origin: bool
     pad: bool
     ucs4: bool
