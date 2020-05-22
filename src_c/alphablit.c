@@ -1101,13 +1101,16 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
     int             dstskip = info->d_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src;
     Uint32          amask = srcfmt->Amask;
-    Uint64          multmask2;
+    Uint64          multmask;
+    Uint64          ones;
 
-    __m128i src1, dst1, mm_alpha, mm_zero, mm_alpha2, multmask2_128;
+    __m128i src1, dst1, sub_dst, mm_alpha, mm_zero, multmask_128, ones_128;
 
     mm_zero = _mm_setzero_si128();
-    multmask2 = 0x00FF00FF00FF00FF; // 0F0F0F0F
-    multmask2_128 = _mm_loadl_epi64((const __m128i *) & multmask2);
+    multmask = 0x00FF00FF00FF00FF; // 0F0F0F0F
+    multmask_128 = _mm_loadl_epi64((const __m128i *) & multmask);
+    ones = 0x0001000100010001;
+    ones_128 = _mm_loadl_epi64((const __m128i *) & ones);
 
     while (height--) {
         /* *INDENT-OFF* */
@@ -1127,13 +1130,14 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
             mm_alpha = _mm_cvtsi32_si128(alpha); /* alpha -> mm_alpha (000000000000A000) */
             mm_alpha = _mm_srli_si128(mm_alpha, 3); /* mm_alpha >> ashift -> mm_alpha(000000000000000A) */
             mm_alpha = _mm_unpacklo_epi16(mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
-            mm_alpha2 = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
-            mm_alpha2 = _mm_xor_si128(mm_alpha2, multmask2_128);    /* 255 - mm_alpha -> mm_alpha */
+            mm_alpha = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
 
             /* pre-multiplied alpha blend */
-            dst1 = _mm_mullo_epi16(dst1, mm_alpha2);
-            dst1 = _mm_srli_epi16(dst1, 8);
+            sub_dst = _mm_add_epi16(dst1, ones_128);
+            sub_dst = _mm_mullo_epi16(sub_dst, mm_alpha);
+            sub_dst = _mm_srli_epi16(sub_dst, 8);
             dst1 = _mm_add_epi16(src1, dst1);
+            dst1 = _mm_sub_epi16(dst1, sub_dst);
             dst1 = _mm_packus_epi16(dst1, mm_zero);
 
             *dstp = _mm_cvtsi128_si32(dst1);
@@ -1236,7 +1240,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
     int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
-    int tmp;
 
     /*
     printf ("Premultiplied alpha blit with %d and %d\n", srcbpp, dstbpp);
@@ -1252,9 +1255,8 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    // Source alpha is 255 so we can skip the blend and just
-                    // use the source
-                    CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1271,9 +1273,8 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXEL (pixel, dstbpp, dst);
                     GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-                    // Source alpha is 255 so we can skip the blend and just
-                    // use the source
-                    CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1293,19 +1294,8 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    // We can save some blending time by just copying pixels
-                    // with  alphas of 255 or 0
-                    if(sA == 0){
-                        CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    }
-                    else if(sA == 255){
-                        CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
-                    }
-                    else{
-                        ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                        CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    }
-
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);

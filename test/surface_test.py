@@ -2342,11 +2342,11 @@ class SurfaceBlendTest(unittest.TestCase):
             elif src_col.a == 255:
                 expected_col = src_col
             else:
-                # dA = sA + dA - ((sA * dA) / 255)
-                expected_col = pygame.Color((src_col.r + ((dst_col.r * (255 - src_col.a)) >> 8)),
-                                            (src_col.g + ((dst_col.g * (255 - src_col.a)) >> 8)),
-                                            (src_col.b + ((dst_col.b * (255 - src_col.a)) >> 8)),
-                                            (src_col.a + ((dst_col.a * (255 - src_col.a)) >> 8)))
+                # sC + dC - (((dC + 1) * sA >> 8)
+                expected_col = pygame.Color((src_col.r + dst_col.r - ((dst_col.r + 1) * src_col.a >> 8)),
+                                            (src_col.g + dst_col.g - ((dst_col.g + 1) * src_col.a >> 8)),
+                                            (src_col.b + dst_col.b - ((dst_col.b + 1) * src_col.a >> 8)),
+                                            (src_col.a + dst_col.a - ((dst_col.a + 1) * src_col.a >> 8)))
             if not dst_has_alpha:
                 expected_col.a = 255
 
@@ -2428,28 +2428,27 @@ class SurfaceBlendTest(unittest.TestCase):
                                            src_size=(17, 67),
                                            dst_size=(69, 69)
                                            ))
-        # These tests trigger some of the weird SDL1 alpha blending behaviour
-        if not SDL1:
-            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
-                                               pygame.Color(40, 20, 0, 51),
-                                               src_size=(17, 67),
-                                               dst_size=(69, 69),
-                                               src_has_alpha=False,
-                                               ))
-            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
-                                               pygame.Color(40, 20, 0, 255),
-                                               src_size=(17, 67),
-                                               dst_size=(69, 69),
-                                               dst_has_alpha=False,
-                                               ))
 
-            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
-                                               pygame.Color(40, 20, 0, 255),
-                                               src_size=(17, 67),
-                                               dst_size=(69, 69),
-                                               src_has_alpha=False,
-                                               dst_has_alpha=False,
-                                               ))
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
+                                           pygame.Color(40, 20, 0, 51),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69),
+                                           src_has_alpha=False,
+                                           ))
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
+                                           pygame.Color(40, 20, 0, 255),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69),
+                                           dst_has_alpha=False,
+                                           ))
+
+        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
+                                           pygame.Color(40, 20, 0, 255),
+                                           src_size=(17, 67),
+                                           dst_size=(69, 69),
+                                           src_has_alpha=False,
+                                           dst_has_alpha=False,
+                                           ))
 
     def test_blit_blend_big_rect(self):
         """ test that an oversized rect works ok.
