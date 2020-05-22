@@ -1373,27 +1373,39 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf = pygame.Surface.__new__(pygame.Surface)
         self.assertRaises(pygame.error, surf.subsurface, (0, 0, 0, 0))
 
-    def todo_test_unlock(self):
+    def test_unlock(self):
+        # Basic
+        surf = pygame.Surface((100,100))
+        surf.lock()
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.unlock:
+        # Nested
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        # Surface.unlock(): return None
-        # unlock the Surface memory from pixel access
-        #
-        # Unlock the Surface pixel data after it has been locked. The unlocked
-        # Surface can once again be drawn and managed by Pygame. See the
-        # Surface.lock() documentation for more details.
-        #
-        # All pygame functions will automatically lock and unlock the Surface
-        # data as needed. If a section of code is going to make calls that
-        # will repeatedly lock and unlock the Surface many times, it can be
-        # helpful to wrap the block inside a lock and unlock pair.
-        #
-        # It is safe to nest locking and unlocking calls. The surface will
-        # only be unlocked after the final lock is released.
-        #
+        # Already Unlocked
+        surf = pygame.Surface((100, 100))
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        self.fail()
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.lock()
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
     def test_unmap_rgb(self):
         # Special case, 8 bit-per-pixel surface (has a palette).
