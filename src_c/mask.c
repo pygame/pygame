@@ -2027,6 +2027,8 @@ check_surface_pixel_format(SDL_Surface *surf, SDL_Surface *check_surf)
         (surf->format->BitsPerPixel != check_surf->format->BitsPerPixel)
 #if IS_SDLv2
         || (surf->format->format != check_surf->format->format)
+#else
+        || ((surf->flags & SDL_SRCALPHA) != (check_surf->flags & SDL_SRCALPHA))
 #endif
     ) {
         return 0;
