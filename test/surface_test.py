@@ -1400,10 +1400,10 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf = pygame.Surface((100, 100))
         surf.lock()
         surf.unlock()
-        self.assertTrue(surf.get_locked())
+        self.assertFalse(surf.get_locked())
         surf.lock()
         surf.unlock()
-        self.assertTrue(surf.get_locked())
+        self.assertFalse(surf.get_locked())
 
     def test_unmap_rgb(self):
         # Special case, 8 bit-per-pixel surface (has a palette).
