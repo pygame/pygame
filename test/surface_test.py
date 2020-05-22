@@ -1200,7 +1200,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         blit_surf = pygame.Surface((100,100))
         blit_surf.set_colorkey((0,0,255), RLEACCEL)
         surf.blit(blit_surf,(0,0))
-        self.assertTrue(blit_surf.mustlock())
+        self.assertEqual(blit_surf.mustlock(),(blit_surf.get_flags() & pygame.RLEACCEL) !=0)
 
     def test_set_alpha_none(self):
         """surf.set_alpha(None) disables blending"""
