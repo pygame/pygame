@@ -212,3 +212,5 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height
 
 
 #endif /* ~PGCOMPAT_INTERNAL_H */
+
+#define WINDOWS_IGNORE_PACKING_MISMATCH

@@ -2321,14 +2321,14 @@ class SurfaceBlendTest(unittest.TestCase):
                 src = pygame.Surface(src_size, SRCALPHA, 32)
                 src.fill(src_col)
             else:
-                src = pygame.Surface(dst_size)
+                src = pygame.Surface(dst_size, 0, 32)
                 src.fill(src_col)
 
             if dst_has_alpha:
                 dst = pygame.Surface(dst_size, SRCALPHA, 32)
                 dst.fill(dst_col)
             else:
-                dst = pygame.Surface(dst_size)
+                dst = pygame.Surface(dst_size, 0, 32)
                 dst.fill(dst_col)
 
             dst.blit(src, (0, 0), special_flags=BLEND_PREMULTIPLIED)

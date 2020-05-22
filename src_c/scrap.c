@@ -24,6 +24,8 @@
 #include <limits.h>
 #include <stdio.h>
 
+#include "pgcompat.h"
+
 #include "SDL.h"
 
 #include "SDL_syswm.h"
@@ -34,7 +36,7 @@
 
 #include "doc/scrap_doc.h"
 
-#include "pgcompat.h"
+
 
 /**
  * Indicates, whether pygame.scrap was initialized or not.
@@ -280,7 +282,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
 #if defined(PYGAME_SCRAP_FREE_STRING)
     free(scrap);
 #endif
-   
+
     return retval;
 }
 #endif
