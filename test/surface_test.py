@@ -1002,41 +1002,50 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def test_get_locked(self):
+        def blit_locked_test(surface):
+            newSurf = pygame.Surface((10, 10))
+            try:
+                newSurf.blit(surface, (0,0))
+            except pygame.error:
+                return True
+            else:
+                return False
+
         surf = pygame.Surface((100, 100))
-        # Surface should start unlocked
-        self.assertFalse(surf.get_locked())
+
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
         # Surface should lock
         surf.lock()
-        self.assertTrue(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
         # Surface should unlock
         surf.unlock()
-        self.assertFalse(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
 
         # Check multiple locks
         surf = pygame.Surface((100, 100))
         surf.lock()
         surf.lock()
-        self.assertTrue(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
         surf.unlock()
-        self.assertTrue(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
         surf.unlock()
-        self.assertFalse(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
 
         # Check many locks
         surf = pygame.Surface((100, 100))
         for i in range(1000):
             surf.lock()
-        self.assertTrue(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
         for i in range(1000):
             surf.unlock()
-        self.assertFalse(surf.get_locked())
+        self.assertFalse(surf.get_locked()) # Unlocked
 
         # Unlocking an unlocked surface
         surf = pygame.Surface((100, 100))
         surf.unlock()
-        self.assertFalse(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
         surf.unlock()
-        self.assertFalse(surf.get_locked())
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
 
     def todo_test_get_locks(self):
 
