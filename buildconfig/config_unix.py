@@ -136,13 +136,14 @@ def main(sdl2=False):
     #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
     if sdl2:
         origincdirs = ['/include', '/include/SDL2']
-        origlibdirs = ['/lib','/lib64','/X11R6/lib',
+        origlibdirs = ['/lib', '/lib64', '/X11R6/lib',
                        '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu',
-                       '/lib/arm-linux-gnueabihf/']
+                       '/lib/arm-linux-gnueabihf/', '/lib/aarch64-linux-gnu/']
 
     else:
         origincdirs = ['/include', '/include/SDL', '/include/SDL']
-        origlibdirs = ['/lib','/lib64','/X11R6/lib', '/lib/arm-linux-gnueabihf/']
+        origlibdirs = ['/lib', '/lib64', '/X11R6/lib', '/lib/arm-linux-gnueabihf/',
+                       '/lib/aarch64-linux-gnu/']
     if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
         origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
 

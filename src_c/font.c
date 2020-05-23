@@ -266,7 +266,7 @@ static PyObject *
 font_get_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_BOLD) != 0);
+    return PyBool_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_BOLD) != 0);
 }
 
 static PyObject *
@@ -274,8 +274,11 @@ font_set_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     int style, val;
-
+#if PY3
+    if (!PyArg_ParseTuple(args, "p", &val))
+#else
     if (!PyArg_ParseTuple(args, "i", &val))
+#endif /* PY3 */
         return NULL;
 
     style = TTF_GetFontStyle(font);
@@ -292,7 +295,7 @@ static PyObject *
 font_get_italic(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_ITALIC) != 0);
+    return PyBool_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_ITALIC) != 0);
 }
 
 static PyObject *
@@ -301,7 +304,11 @@ font_set_italic(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int style, val;
 
+#if PY3
+    if (!PyArg_ParseTuple(args, "p", &val))
+#else
     if (!PyArg_ParseTuple(args, "i", &val))
+#endif /* PY3 */
         return NULL;
 
     style = TTF_GetFontStyle(font);
@@ -318,7 +325,7 @@ static PyObject *
 font_get_underline(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    return PyInt_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_UNDERLINE) != 0);
+    return PyBool_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_UNDERLINE) != 0);
 }
 
 static PyObject *
@@ -327,7 +334,11 @@ font_set_underline(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int style, val;
 
+#if PY3
+    if (!PyArg_ParseTuple(args, "p", &val))
+#else
     if (!PyArg_ParseTuple(args, "i", &val))
+#endif /* PY3 */
         return NULL;
 
     style = TTF_GetFontStyle(font);
@@ -352,10 +363,18 @@ font_render(PyObject *self, PyObject *args)
     SDL_Color foreg, backg;
     int just_return;
 
+#if PY3
+    if (!PyArg_ParseTuple(args, "OpO|O", &text, &aa, &fg_rgba_obj,
+                          &bg_rgba_obj)) {
+        return NULL;
+    }
+#else
     if (!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj,
                           &bg_rgba_obj)) {
         return NULL;
     }
+#endif /* PY3 */
+
 
     if (!pg_RGBAFromFuzzyColorObj(fg_rgba_obj, rgba)) {
         /* Exception already set for us */

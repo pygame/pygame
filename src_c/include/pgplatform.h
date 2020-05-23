@@ -21,6 +21,21 @@
 #endif
 #endif /* ~PG_INLINE */
 
+// Worth trying this on MSVC/win32 builds to see if provides any speed up
+#ifndef PG_FORCEINLINE
+#if defined(__clang__)
+#define PG_INLINE __inline__ __attribute__((__unused__))
+#elif defined(__GNUC__)
+#define PG_INLINE __inline__
+#elif defined(_MSC_VER)
+#define PG_INLINE __forceinline
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define PG_INLINE inline
+#else
+#define PG_INLINE
+#endif
+#endif /* ~PG_INLINE */
+
 /* This is unconditionally defined in Python.h */
 #if defined(_POSIX_C_SOURCE)
 #undef _POSIX_C_SOURCE

@@ -2,11 +2,12 @@ import math
 import sys
 import unittest
 
-from pygame import Rect, Vector2
+from pygame import Rect, Vector2, get_sdl_version
 from pygame.tests import test_utils
 
 
 PY3 = sys.version_info >= (3, 0, 0)
+SDL1 = get_sdl_version()[0] < 2
 
 
 class RectTypeTest(unittest.TestCase):
@@ -844,6 +845,7 @@ class RectTypeTest(unittest.TestCase):
             r1, r1.clip(Rect(r1)), "r1 does not clip an identical rect to itself"
         )
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline(self):
         """Ensures clipline handles four int parameters.
 
@@ -861,6 +863,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertIsInstance(clipped_line, tuple)
         self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__two_sequences(self):
         """Ensures clipline handles a sequence of two sequences.
 
@@ -883,6 +886,7 @@ class RectTypeTest(unittest.TestCase):
                 self.assertIsInstance(clipped_line, tuple)
                 self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__sequence_of_four_ints(self):
         """Ensures clipline handles a sequence of four ints.
 
@@ -899,6 +903,7 @@ class RectTypeTest(unittest.TestCase):
             self.assertIsInstance(clipped_line, tuple)
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__sequence_of_two_sequences(self):
         """Ensures clipline handles a sequence of two sequences.
 
@@ -924,6 +929,7 @@ class RectTypeTest(unittest.TestCase):
                     self.assertIsInstance(clipped_line, tuple)
                     self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__floats(self):
         """Ensures clipline handles float parameters."""
         rect = Rect((1, 2), (35, 40))
@@ -943,6 +949,7 @@ class RectTypeTest(unittest.TestCase):
         self.assertIsInstance(clipped_line, tuple)
         self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__no_overlap(self):
         """Ensures lines that do not overlap the rect are not clipped."""
         rect = Rect((10, 25), (15, 20))
@@ -962,6 +969,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__both_endpoints_outside(self):
         """Ensures lines that overlap the rect are clipped.
 
@@ -1009,6 +1017,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__both_endpoints_inside(self):
         """Ensures lines that overlap the rect are clipped.
 
@@ -1040,6 +1049,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__endpoints_inside_and_outside(self):
         """Ensures lines that overlap the rect are clipped.
 
@@ -1092,6 +1102,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__edges(self):
         """Ensures clipline properly clips line that are along the rect edges.
         """
@@ -1128,6 +1139,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__equal_endpoints_with_overlap(self):
         """Ensures clipline handles lines with both endpoints the same.
 
@@ -1149,6 +1161,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__equal_endpoints_no_overlap(self):
         """Ensures clipline handles lines with both endpoints the same.
 
@@ -1163,6 +1176,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__zero_size_rect(self):
         """Ensures clipline handles zero sized rects correctly."""
         expected_line = ()
@@ -1174,6 +1188,7 @@ class RectTypeTest(unittest.TestCase):
 
             self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__negative_size_rect(self):
         """Ensures clipline handles negative sized rects correctly."""
         expected_line = ()
@@ -1229,6 +1244,7 @@ class RectTypeTest(unittest.TestCase):
 
                 self.assertTupleEqual(clipped_line, expected_line)
 
+    @unittest.skipIf(SDL1, "rect.clipline not available in SDL1")
     def test_clipline__invalid_line(self):
         """Ensures clipline handles invalid lines correctly."""
         rect = Rect((0, 0), (10, 20))

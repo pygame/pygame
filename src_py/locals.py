@@ -24,7 +24,11 @@
 the local namespace for your module"""
 
 from pygame.constants import *
+from pygame.constants import __all__ as all_constants
 from pygame.rect import Rect
 import pygame.color as color
 Color = color.Color
 
+
+__all__ = ['Rect', 'Color']
+__all__.extend(all_constants)

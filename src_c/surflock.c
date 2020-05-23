@@ -31,19 +31,19 @@
 #include "pgcompat.h"
 
 static int
-pgSurface_Lock(PyObject *);
+pgSurface_Lock(pgSurfaceObject *);
 static int
-pgSurface_Unlock(PyObject *);
+pgSurface_Unlock(pgSurfaceObject *);
 static int
-pgSurface_LockBy(PyObject *, PyObject *);
+pgSurface_LockBy(pgSurfaceObject *, PyObject *);
 static int
-pgSurface_UnlockBy(PyObject *, PyObject *);
+pgSurface_UnlockBy(pgSurfaceObject *, PyObject *);
 
 static void
 _lifelock_dealloc(PyObject *);
 
 static void
-pgSurface_Prep(PyObject *surfobj)
+pgSurface_Prep(pgSurfaceObject *surfobj)
 {
     struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
     if (data != NULL) {
@@ -55,7 +55,7 @@ pgSurface_Prep(PyObject *surfobj)
 }
 
 static void
-pgSurface_Unprep(PyObject *surfobj)
+pgSurface_Unprep(pgSurfaceObject *surfobj)
 {
     struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
     if (data != NULL) {
@@ -64,19 +64,19 @@ pgSurface_Unprep(PyObject *surfobj)
 }
 
 static int
-pgSurface_Lock(PyObject *surfobj)
+pgSurface_Lock(pgSurfaceObject *surfobj)
 {
     return pgSurface_LockBy(surfobj, surfobj);
 }
 
 static int
-pgSurface_Unlock(PyObject *surfobj)
+pgSurface_Unlock(pgSurfaceObject *surfobj)
 {
     return pgSurface_UnlockBy(surfobj, surfobj);
 }
 
 static int
-pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
+pgSurface_LockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 {
     PyObject *ref;
     pgSurfaceObject *surf = (pgSurfaceObject *)surfobj;
@@ -112,7 +112,7 @@ pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
 }
 
 static int
-pgSurface_UnlockBy(PyObject *surfobj, PyObject *lockobj)
+pgSurface_UnlockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)surfobj;
     int found = 0;
