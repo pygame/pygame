@@ -22,11 +22,6 @@
 
 #include "../doc/touch_doc.h"
 
-#if PY3
-#define INT_CHECK(o) PyLong_Check(o)
-#else
-#define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
-#endif
 
 static PyObject *
 pg_touch_num_devices(PyObject *self, PyObject *args)

@@ -1727,7 +1727,7 @@ _pxarray_subscript(pgPixelArrayObject *array, PyObject *op)
         return _pxarray_subscript_internal(array, start, stop, step, 0, dim1,
                                            1);
     }
-    else if (PyIndex_Check(op) || PyInt_Check(op) || PyLong_Check(op)) {
+    else if (PyIndex_Check(op) || INT_CHECK(op)) {
         Py_ssize_t i;
         PyObject *val = PyNumber_Index(op);
         if (!val) {
@@ -1889,7 +1889,7 @@ _pxarray_ass_subscript(pgPixelArrayObject *array, PyObject *op,
         Py_DECREF(tmparray);
         return retval;
     }
-    else if (PyIndex_Check(op) || PyInt_Check(op) || PyLong_Check(op)) {
+    else if (PyIndex_Check(op) || INT_CHECK(op)) {
         Py_ssize_t i;
         PyObject *val = PyNumber_Index(op);
         if (!val) {

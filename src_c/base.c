@@ -60,12 +60,6 @@ QDGlobals pg_qd;
 #endif
 #define BUF_MY_ENDIAN '='
 
-#if PY3
-#define INT_CHECK(o) PyLong_Check(o)
-#else
-#define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
-#endif
-
 /* Extended array struct */
 typedef struct pg_capsule_interface_s {
     PyArrayInterface inter;
