@@ -557,6 +557,30 @@ if sys.platform == 'win32':
         else:
             pygame_data_files.append(f)
 
+    def has_flag(compiler, flagname):
+        """
+        Adapted from here: https://github.com/pybind/python_example/blob/master/setup.py#L37
+        """
+        from distutils.errors import CompileError
+        import tempfile
+        with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
+            f.write('int main (int argc, char **argv) { return 0; }')
+            fname = f.name
+        try:
+            compiler.compile([fname], extra_postargs=[flagname])
+        except CompileError:
+            return False
+        finally:
+            try:
+                os.remove(fname)
+            except OSError:
+                pass
+        return True
+
+    # filter flags, returns list of accepted flags
+    def flag_filter(compiler, *flags):
+        return [flag for flag in flags if has_flag(compiler, flag)]
+
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
 
@@ -567,6 +591,14 @@ if sys.platform == 'win32':
             if e.name == 'base':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
+
+        def build_extensions(self):
+            # Add supported optimisations flags to reduce code size with MSVC
+            opts = flag_filter(self.compiler, "/GF", "/Gy")
+            for extension in extensions:
+                extension.extra_compile_args += opts
+
+            build_ext.build_extensions(self)
 
     cmdclass['build_ext'] = WinBuildExt
 
