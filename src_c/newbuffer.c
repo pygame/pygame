@@ -393,6 +393,8 @@ buffer_set_obj(BufferObject *self, PyObject *value, void *closure)
 {
     PyObject *tmp;
 
+    DEL_ATTR_NOT_SUPPORTED_CHECK("obj", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -428,6 +430,9 @@ buffer_get_buf(BufferObject *self, void *closure)
 static int
 buffer_set_buf(BufferObject *self, PyObject *value, void *closure)
 {
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("buf", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -446,6 +451,9 @@ buffer_get_len(BufferObject *self, void *closure)
 static int
 buffer_set_len(BufferObject *self, PyObject *value, void *closure)
 {
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("len", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -465,6 +473,8 @@ static int
 buffer_set_readonly(BufferObject *self, PyObject *value, void *closure)
 {
     int readonly = 1;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("readonly", value);
 
     if (check_view_set(self, (const char *)closure)) {
         return -1;
@@ -497,6 +507,8 @@ buffer_set_format(BufferObject *self, PyObject *value, void *closure)
 {
     void *vp = 0;
 
+    DEL_ATTR_NOT_SUPPORTED_CHECK("format", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -520,6 +532,8 @@ static int
 buffer_set_ndim(BufferObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t ndim = 0;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("mdim", value);
 
     if (check_view_set(self, (const char *)closure)) {
         return -1;
@@ -548,6 +562,8 @@ buffer_set_shape(BufferObject *self, PyObject *value, void *closure)
 {
     void *vp;
 
+    DEL_ATTR_NOT_SUPPORTED_CHECK("shape", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -574,6 +590,8 @@ static int
 buffer_set_strides(BufferObject *self, PyObject *value, void *closure)
 {
     void *vp;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("strides", value);
 
     if (check_view_set(self, (const char *)closure)) {
         return -1;
@@ -602,6 +620,8 @@ buffer_set_suboffsets(BufferObject *self, PyObject *value, void *closure)
 {
     void *vp;
 
+    DEL_ATTR_NOT_SUPPORTED_CHECK("suboffset", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -624,6 +644,8 @@ buffer_get_itemsize(BufferObject *self, void *closure)
 static int
 buffer_set_itemsize(BufferObject *self, PyObject *value, void *closure)
 {
+    DEL_ATTR_NOT_SUPPORTED_CHECK("itemsize", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }
@@ -646,6 +668,8 @@ buffer_get_internal(BufferObject *self, void *closure)
 static int
 buffer_set_internal(BufferObject *self, PyObject *value, void *closure)
 {
+    DEL_ATTR_NOT_SUPPORTED_CHECK("internal", value);
+
     if (check_view_set(self, (const char *)closure)) {
         return -1;
     }

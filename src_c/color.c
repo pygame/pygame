@@ -924,6 +924,9 @@ static int
 _color_set_r(pgColorObject *color, PyObject *value, void *closure)
 {
     Uint32 c;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("r", value);
+
     if (!_get_color(value, &c)) {
         return -1;
     }
@@ -951,6 +954,9 @@ static int
 _color_set_g(pgColorObject *color, PyObject *value, void *closure)
 {
     Uint32 c;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("g", value);
+
     if (!_get_color(value, &c)) {
         return -1;
     }
@@ -978,6 +984,9 @@ static int
 _color_set_b(pgColorObject *color, PyObject *value, void *closure)
 {
     Uint32 c;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("b", value);
+
     if (!_get_color(value, &c)) {
         return -1;
     }
@@ -1005,6 +1014,9 @@ static int
 _color_set_a(pgColorObject *color, PyObject *value, void *closure)
 {
     Uint32 c;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("a", value);
+
     if (!_get_color(value, &c)) {
         return -1;
     }
@@ -1073,6 +1085,9 @@ _color_set_hsva(pgColorObject *color, PyObject *value, void *closure)
     double hsva[4] = {0, 0, 0, 0};
     double f, p, q, t, v, s;
     int hi;
+
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("hsva", value);
 
     if (!PySequence_Check(value) || PySequence_Size(value) < 3) {
         PyErr_SetString(PyExc_ValueError, "invalid HSVA value");
@@ -1237,6 +1252,8 @@ _color_set_hsla(pgColorObject *color, PyObject *value, void *closure)
     double ht, h, q, p = 0, s, l = 0;
     static double onethird = 1.0 / 3.0f;
 
+    DEL_ATTR_NOT_SUPPORTED_CHECK("hsla", value);
+
     if (!PySequence_Check(value) || PySequence_Size(value) < 3) {
         PyErr_SetString(PyExc_ValueError, "invalid HSLA value");
         return -1;
@@ -1400,6 +1417,9 @@ _color_set_i1i2i3(pgColorObject *color, PyObject *value, void *closure)
     double i1i2i3[3] = {0, 0, 0};
     double ar, ag, ab;
 
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("i1i2i3", value);
+
     /* I1 */
     item = PySequence_GetItem(value, 0);
     if (!item || !_get_double(item, &(i1i2i3[0])) || i1i2i3[0] < 0 ||
@@ -1464,6 +1484,8 @@ _color_set_cmy(pgColorObject *color, PyObject *value, void *closure)
 {
     PyObject *item;
     double cmy[3] = {0, 0, 0};
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("cmy", value);
 
     /* I1 */
     item = PySequence_GetItem(value, 0);

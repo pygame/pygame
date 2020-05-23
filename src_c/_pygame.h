@@ -143,6 +143,20 @@ typedef enum {
 #endif /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
 
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
+#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)           \
+    do {                                                    \
+       if (!value) {                                        \
+           if (name) {                                      \
+               PyErr_Format(PyExc_AttributeError,           \
+                            "Cannot delete attribute %s",   \
+                            name);                          \
+           } else {                                         \
+               PyErr_SetString(PyExc_AttributeError,        \
+                               "Cannot delete attribute");  \
+           }                                                \
+           return -1;                                       \
+       }                                                    \
+    } while (0)
 
 /*
  * Initialization checks
