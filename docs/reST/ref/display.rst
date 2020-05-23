@@ -571,10 +571,10 @@ required).
 
    .. ## pygame.display.get_window_size ##
 
-.. function:: get_screensaver_enabled
+.. function:: get_allow_screensaver
 
-   | :sl:`Return whether pygame is hinted to enable or disable the screensaver.`
-   | :sg:`get_screensaver_enabled() -> bool`
+   | :sl:`Return whether the screensaver is allowed to run.`
+   | :sg:`get_allow_screensaver() -> bool`
 
    Return whether screensaver is allowed to run whilst the app is running.
    Default is False.
@@ -582,24 +582,24 @@ required).
 
    .. note:: Some platforms do not have a screensaver or support
              disabling the screensaver.  Please see
-             :func:`pygame.display.set_screensaver_enabled()` for
+             :func:`pygame.display.set_allow_screensaver()` for
              caveats with screensaver support.
 
    .. versionadded:: 2.0
 
-   .. ## pygame.display.get_screensaver_enabled ##
+   .. ## pygame.display.get_allow_screensaver ##
 
-.. function:: set_screensaver_enabled
+.. function:: set_allow_screensaver
 
-   | :sl:`Change request state for whether screensaver may run`
-   | :sg:`set_screensaver_enabled(bool) -> None`
+   | :sl:`Set whether the screensaver may run`
+   | :sg:`set_allow_screensaver(bool) -> None`
 
    Change whether screensavers should be allowed whilst the app is running.
    The default is False.
    By default pygame does not allow the screensaver during game play.
 
-   If the screensaver has been disabled due to this function, it will automatically
-   be re-enabled when :func:``pygame.quit()` is called.
+   If the screensaver has been disallowed due to this function, it will automatically
+   be allowed to run when :func:`pygame.quit()` is called.
 
    It is possible to influence the default value via the environment variable
    ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER``, which can be set to either ``0`` (disable)
@@ -617,6 +617,6 @@ required).
    .. versionadded:: 2.0
 
 
-   .. ## pygame.display.set_screensaver_enabled ##
+   .. ## pygame.display.set_allow_screensaver ##
 
 .. ## pygame.display ##

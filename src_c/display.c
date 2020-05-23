@@ -2860,12 +2860,12 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 
 
 static PyObject *
-pg_get_screensaver_enabled(PyObject *self) {
+pg_get_allow_screensaver(PyObject *self) {
     /* SDL_IsScreenSaverEnabled() unconditionally returns SDL_True if
      * the video system is not initialized.  Therefore we insist on
      * the video being initialized before calling it.
      */
-    VIDEO_INIT_CHECK();
+   VIDEO_INIT_CHECK();
 #if IS_SDLv2
     return PyBool_FromLong(SDL_IsScreenSaverEnabled() == SDL_TRUE);
 #else /* IS_SDLv1*/
@@ -2874,11 +2874,11 @@ pg_get_screensaver_enabled(PyObject *self) {
 }
 
 static PyObject *
-pg_set_screensaver_enabled(PyObject *self, PyObject *arg, PyObject *kwds) {
-    int val = 0;
+pg_set_allow_screensaver(PyObject *self, PyObject *arg, PyObject *kwargs) {
+    int val = 1;
     static char *keywords[] = {"value", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "i", keywords, val)) {
+    if (!PyArg_ParseTupleAndKeywords(arg, kwargs, "|i", keywords, &val)) {
         return NULL;
     }
 
@@ -2957,12 +2957,10 @@ static PyMethodDef _pg_display_methods[] = {
     {"gl_get_attribute", pg_gl_get_attribute, METH_VARARGS,
      DOC_PYGAMEDISPLAYGLGETATTRIBUTE},
 
-    {"get_screensaver_enabled", (PyCFunction)pg_get_screensaver_enabled,
-     METH_NOARGS,
-     DOC_PYGAMEDISPLAYGETSCREENSAVERENABLED},
-    {"set_screensaver_enabled", (PyCFunction)pg_set_screensaver_enabled,
-     METH_VARARGS | METH_KEYWORDS,
-     DOC_PYGAMEDISPLAYSETSCREENSAVERENABLED},
+    {"get_allow_screensaver", (PyCFunction)pg_get_allow_screensaver, METH_NOARGS,
+     DOC_PYGAMEDISPLAYGETALLOWSCREENSAVER},
+    {"set_allow_screensaver", (PyCFunction)pg_set_allow_screensaver, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMEDISPLAYSETALLOWSCREENSAVER},
 
     {NULL, NULL, 0, NULL}};
 
