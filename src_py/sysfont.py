@@ -292,9 +292,9 @@ def font_constructor(fontpath, size, bold, italic):
 
     font = pygame.font.Font(fontpath, size)
     if bold:
-        font.set_bold(1)
+        font.set_bold(True)
     if italic:
-        font.set_italic(1)
+        font.set_italic(True)
 
     return font
 

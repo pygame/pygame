@@ -359,6 +359,30 @@ class FontTypeTest(unittest.TestCase):
         f.set_underline(False)
         self.assertFalse(f.get_underline())
 
+    def test_bold_attr(self):
+        f = pygame_font.Font(None, 20)
+        self.assertFalse(f.bold)
+        f.bold = True
+        self.assertTrue(f.bold)
+        f.bold = False
+        self.assertFalse(f.bold)
+
+    def test_set_italic(self):
+        f = pygame_font.Font(None, 20)
+        self.assertFalse(f.italic)
+        f.italic = True
+        self.assertTrue(f.italic)
+        f.italic = False
+        self.assertFalse(f.italic)
+
+    def test_set_underline(self):
+        f = pygame_font.Font(None, 20)
+        self.assertFalse(f.underline)
+        f.underline = True
+        self.assertTrue(f.underline)
+        f.underline = False
+        self.assertFalse(f.underline)
+
     def test_size(self):
         f = pygame_font.Font(None, 20)
         text = as_unicode("Xg")
