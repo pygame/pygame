@@ -93,7 +93,8 @@ draw_round_rect(SDL_Surface *surf, int x1, int y1, int x2, int y2, int radius,
 static PyObject *
 aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *start = NULL, *end = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject* colorobj = NULL, *start = NULL, *end = NULL;
     SDL_Surface *surf = NULL;
     float startx, starty, endx, endy;
     int blend = 1; /* Default blend. */
@@ -160,7 +161,8 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 line(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *start = NULL, *end = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *start = NULL, *end = NULL;
     SDL_Surface *surf = NULL;
     int startx, starty, endx, endy;
     int pts[4];
@@ -231,7 +233,8 @@ line(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *closedobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *closedobj = NULL;
     PyObject *points = NULL, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint32 color;
@@ -363,7 +366,8 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *closedobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *closedobj = NULL;
     PyObject *points = NULL, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint32 color;
@@ -494,7 +498,8 @@ lines(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *rectobj = NULL;
     GAME_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
@@ -571,7 +576,8 @@ arc(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *rectobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *rectobj = NULL;
     GAME_Rect *rect = NULL, temp;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
@@ -647,7 +653,8 @@ ellipse(PyObject *self, PyObject *arg, PyObject *kwargs)
 static PyObject *
 circle(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -739,7 +746,8 @@ circle(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 polygon(PyObject *self, PyObject *arg, PyObject *kwargs)
 {
-    PyObject *surfobj = NULL, *colorobj = NULL, *points = NULL, *item = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *colorobj = NULL, *points = NULL, *item = NULL;
     SDL_Surface *surf = NULL;
     Uint8 rgba[4];
     Uint32 color;
@@ -862,10 +870,12 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     int t, l, b, r, width = 0, radius = 0; /* Default values. */
     int top_left_radius = -1, top_right_radius = -1, bottom_left_radius = -1,
         bottom_right_radius = -1;
+#if IS_SDLv2
     SDL_Rect sdlrect;
     SDL_Rect cliprect;
     int result;
     SDL_Rect clipped;
+#endif /* IS_SDLv2 */
     int drawn_area[4] = {INT_MAX, INT_MAX, INT_MIN,
                          INT_MIN}; /* Used to store bounding box values */
     static char *keywords[] = {"surface",

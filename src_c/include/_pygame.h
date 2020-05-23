@@ -436,19 +436,19 @@ typedef struct {
         PYGAMEAPI_GET_SLOT(surflock, 2)))(x)
 
 #define pgSurface_Lock \
-    (*(int (*)(PyObject *)) \
+    (*(int (*)(pgSurfaceObject *)) \
         PYGAMEAPI_GET_SLOT(surflock, 3))
 
 #define pgSurface_Unlock \
-    (*(int (*)(PyObject *)) \
+    (*(int (*)(pgSurfaceObject *)) \
         PYGAMEAPI_GET_SLOT(surflock, 4))
 
 #define pgSurface_LockBy   \
-    (*(int (*)(PyObject *, PyObject *)) \
+    (*(int (*)(pgSurfaceObject *, PyObject *)) \
         PYGAMEAPI_GET_SLOT(surflock, 5))
 
 #define pgSurface_UnlockBy \
-    (*(int (*)(PyObject *, PyObject *)) \
+    (*(int (*)(pgSurfaceObject *, PyObject *)) \
         PYGAMEAPI_GET_SLOT(surflock, 6))
 
 #define pgSurface_LockLifetime                 \
