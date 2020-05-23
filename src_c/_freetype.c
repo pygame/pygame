@@ -1838,7 +1838,6 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
     else{
         if (self->is_bg_col_set){
-            bg_color_obj = 1; // Using this as a boolean flag now
             bg_color.r = self->bgcolor[0];
             bg_color.g = self->bgcolor[1];
             bg_color.b = self->bgcolor[2];
@@ -1862,8 +1861,9 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
         goto error;
 
     surface =
-        _PGFT_Render_NewSurface(self->freetype, self, &render, text, &fg_color,
-                                bg_color_obj ? &bg_color : 0, &r);
+        _PGFT_Render_NewSurface(
+            self->freetype, self, &render, text, &fg_color,
+            (bg_color_obj || self->is_bg_col_set) ? &bg_color : 0, &r);
     if (!surface)
         goto error;
     free_string(text);
@@ -1970,7 +1970,6 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
     }
     else{
         if (self->is_bg_col_set){
-            bg_color_obj = 1; // Using this as a boolean flag now
             bg_color.r = self->bgcolor[0];
             bg_color.g = self->bgcolor[1];
             bg_color.b = self->bgcolor[2];
@@ -2000,9 +1999,10 @@ _ftfont_render_to(pgFontObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString(pgExc_SDLError, "display Surface quit");
         goto error;
     }
-    if (_PGFT_Render_ExistingSurface(self->freetype, self, &render, text,
-                                     surface, xpos, ypos, &fg_color,
-                                     bg_color_obj ? &bg_color : 0, &r))
+    if (_PGFT_Render_ExistingSurface(
+            self->freetype, self, &render, text,
+            surface, xpos, ypos, &fg_color,
+            (bg_color_obj || self->is_bg_col_set) ? &bg_color : 0, &r))
         goto error;
     free_string(text);
 
