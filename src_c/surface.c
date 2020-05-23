@@ -884,7 +884,7 @@ surf_get_at(PyObject *self, PyObject *args)
     if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
 
-    if (!pgSurface_Lock(self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self))
         return NULL;
 
     pixels = (Uint8 *)surf->pixels;
@@ -933,7 +933,7 @@ surf_get_at(PyObject *self, PyObject *args)
             break;
 #endif /* IS_SDLv2 */
     }
-    if (!pgSurface_Unlock(self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self))
         return NULL;
 
 #if IS_SDLv1
@@ -990,7 +990,7 @@ surf_set_at(PyObject *self, PyObject *args)
     else
         return NULL; /* pg_RGBAFromFuzzyColorObj set an except for us */
 
-    if (!pgSurface_Lock(self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self))
         return NULL;
     pixels = (Uint8 *)surf->pixels;
 
@@ -1018,7 +1018,7 @@ surf_set_at(PyObject *self, PyObject *args)
             break;
     }
 
-    if (!pgSurface_Unlock(self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -1051,7 +1051,7 @@ surf_get_at_mapped(PyObject *self, PyObject *args)
     if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
         return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
 
-    if (!pgSurface_Lock(self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self))
         return NULL;
 
     pixels = (Uint8 *)surf->pixels;
@@ -1075,7 +1075,7 @@ surf_get_at_mapped(PyObject *self, PyObject *args)
             color = *((Uint32 *)(pixels + y * surf->pitch) + x);
             break;
     }
-    if (!pgSurface_Unlock(self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self))
         return NULL;
 
     return PyInt_FromLong((long)color);
@@ -1129,7 +1129,7 @@ surf_unmap_rgb(PyObject *self, PyObject *arg)
 static PyObject *
 surf_lock(PyObject *self, PyObject *args)
 {
-    if (!pgSurface_Lock(self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -1137,7 +1137,7 @@ surf_lock(PyObject *self, PyObject *args)
 static PyObject *
 surf_unlock(PyObject *self, PyObject *args)
 {
-    pgSurface_Unlock(self);
+    pgSurface_Unlock((pgSurfaceObject *)self);
     Py_RETURN_NONE;
 }
 
@@ -2153,9 +2153,9 @@ surf_fill(PyObject *self, PyObject *args, PyObject *keywds)
         }
         else {
             pgSurface_Prep(self);
-            pgSurface_Lock(self);
+            pgSurface_Lock((pgSurfaceObject *)self);
             result = SDL_FillRect(surf, &sdlrect, color);
-            pgSurface_Unlock(self);
+            pgSurface_Unlock((pgSurfaceObject *)self);
             pgSurface_Unprep(self);
         }
         if (result == -1)
@@ -2501,7 +2501,7 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
         Py_RETURN_NONE;
     }
 
-    if (!pgSurface_Lock(self)) {
+    if (!pgSurface_Lock((pgSurfaceObject *)self)) {
         return NULL;
     }
 
@@ -2535,7 +2535,7 @@ surf_scroll(PyObject *self, PyObject *args, PyObject *keywds)
     }
     surface_move(src, dst, h, w * bpp, pitch, pitch);
 
-    if (!pgSurface_Unlock(self)) {
+    if (!pgSurface_Unlock((pgSurfaceObject *)self)) {
         return NULL;
     }
 
@@ -2787,7 +2787,7 @@ surf_subsurface(PyObject *self, PyObject *args)
         return RAISE(PyExc_ValueError,
                      "subsurface rectangle outside surface area");
 
-    pgSurface_Lock(self);
+    pgSurface_Lock((pgSurfaceObject *)self);
 
     pixeloffset = rect->x * format->BytesPerPixel + rect->y * surf->pitch;
     startpixel = ((char *)surf->pixels) + pixeloffset;
@@ -2796,7 +2796,7 @@ surf_subsurface(PyObject *self, PyObject *args)
         startpixel, rect->w, rect->h, format->BitsPerPixel, surf->pitch,
         format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
-    pgSurface_Unlock(self);
+    pgSurface_Unlock((pgSurfaceObject *)self);
 
 #if IS_SDLv1
     if (!sub)
@@ -3004,7 +3004,7 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    if (!pgSurface_Lock(self))
+    if (!pgSurface_Lock((pgSurfaceObject *)self))
         return RAISE(pgExc_SDLError, "could not lock surface");
 
     format = surf->format;
@@ -3156,7 +3156,7 @@ surf_get_bounding_rect(PyObject *self, PyObject *args, PyObject *kwargs)
             break;
         }
     }
-    if (!pgSurface_Unlock(self))
+    if (!pgSurface_Unlock((pgSurfaceObject *)self))
         return RAISE(pgExc_SDLError, "could not unlock surface");
 
     rect = pgRect_New4(min_x, min_y, max_x - min_x, max_y - min_y);
@@ -3697,7 +3697,7 @@ _init_buffer(PyObject *surf, Py_buffer *view_p, int flags)
         PyMem_Free(internal);
         return -1;
     }
-    if (!pgSurface_LockBy(surf, consumer)) {
+    if (!pgSurface_LockBy((pgSurfaceObject *)surf, consumer)) {
         PyErr_Format(pgExc_BufferError,
                      "Unable to lock <%s at %p> by <%s at %p>",
                      Py_TYPE(surf)->tp_name, (void *)surf,
@@ -3740,7 +3740,7 @@ _release_buffer(Py_buffer *view_p)
     assert(consumer_ref && PyWeakref_CheckRef(consumer_ref));
     consumer = PyWeakref_GetObject(consumer_ref);
     if (consumer) {
-        if (!pgSurface_UnlockBy(view_p->obj, consumer)) {
+        if (!pgSurface_UnlockBy((pgSurfaceObject *)view_p->obj, consumer)) {
             PyErr_Clear();
         }
     }
