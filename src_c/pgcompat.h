@@ -22,6 +22,8 @@
 #define PyInt_AsUnsignedLongLongMask PyLong_AsUnsignedLongLongMask
 #define PyInt_AS_LONG PyLong_AS_LONG
 #define PyNumber_Int PyNumber_Long
+/* Int and Long are identical in Py3 so only check one */
+#define INT_CHECK(op) PyLong_Check(op)
 
 /* Weakrefs flags changed in 3.x */
 #define Py_TPFLAGS_HAVE_WEAKREFS 0
@@ -83,6 +85,9 @@
 #else /* #if PY_MAJOR_VERSION >= 3 */
 
 #define PY3 0
+
+/* Check both Int and Long in PY2 */
+#define INT_CHECK(op) (PyInt_Check(op) || PyLong_Check(op))
 
 /* Module init function returns nothing. */
 #define MODINIT_RETURN(x) return

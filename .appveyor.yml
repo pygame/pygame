@@ -146,7 +146,7 @@ install:
   - "%PYTHON% -m ensurepip"
   - "%PYTHON% -m pip install -U wheel pip twine requests"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
-  - "%WITH_COMPILER% %PYTHON% setup.py build"
+  - "%WITH_COMPILER% %PYTHON% setup.py build -enable-msvc-analyze"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
 
