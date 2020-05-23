@@ -24,7 +24,7 @@
    The Rect functions that change the position or size of a Rect return a new
    copy of the Rect with the affected changes. The original Rect is not
    modified. Some methods have an alternate "in-place" version that returns
-   None but effects the original Rect. These "in-place" methods are denoted
+   None but affects the original Rect. These "in-place" methods are denoted
    with the "ip" suffix.
 
    The Rect object has several virtual attributes which can be used to move and
