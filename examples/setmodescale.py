@@ -27,7 +27,7 @@ done = False
 i = 0
 j = 0
 
-r_name, r_flags = pg.display.get_renderer_info()
+r_name, r_flags = pg.display._get_renderer_info()
 print("renderer:", r_name, "flags:", bin(r_flags))
 for flag, name in [(1, "software"), (2, "accelerated"), (4, "VSync"), (8, "render to texture")]:
     if (flag & r_flags):
@@ -42,7 +42,7 @@ while not done:
         if event.type == pg.KEYDOWN and event.key == pg.K_f:
             pg.display.toggle_fullscreen()
         if event.type == pg.VIDEORESIZE:
-            pg.display.resize_event(event)
+            pg.display._resize_event(event)
 
     i += 1
     i = i % screen.get_width()
