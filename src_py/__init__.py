@@ -77,7 +77,7 @@ class MissingModule:
 
 # first, the "required" modules
 from pygame.base import *
-from pygame.constants import *
+from pygame.constants import *  # now has __all__
 from pygame.version import *
 from pygame.rect import Rect
 from pygame.compat import PY_MAJOR_VERSION
