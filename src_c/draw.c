@@ -907,6 +907,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (radius <= 0 && top_left_radius <= 0 && top_right_radius <= 0 &&
         bottom_left_radius <= 0 && bottom_right_radius <= 0) {
+#if IS_SDLv2
         if(width > 0){
             l = rect->x;
             r = rect->x + rect->w - 1;
@@ -947,6 +948,21 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
                 return RAISE(pgExc_SDLError, SDL_GetError());
             return pgRect_New(&clipped);
         }
+#else
+        l = rect->x;
+        r = rect->x + rect->w - 1;
+        t = rect->y;
+        b = rect->y + rect->h - 1;
+        points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
+        poly_args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
+        if (NULL == poly_args) {
+            return NULL; /* Exception already set. */
+        }
+
+        ret = polygon(NULL, poly_args, NULL);
+        Py_DECREF(poly_args);
+        return ret;
+#endif
     }
     else {
         if (!pgSurface_Lock(surfobj)) {
