@@ -569,7 +569,8 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *string = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *string = NULL;
     char *format, *data, *pixels;
     SDL_Surface *surf;
     int w, h, flipped = 0;

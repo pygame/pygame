@@ -531,7 +531,8 @@ stretch(SDL_Surface *src, SDL_Surface *dst)
 static PyObject *
 surf_scale(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *surfobj2;
+    pgSurfaceObject *surfobj;
+    PyObject *surfobj2;
     SDL_Surface *surf, *newsurf;
     int width, height;
     surfobj2 = NULL;
@@ -647,7 +648,7 @@ surf_scale2x(PyObject *self, PyObject *arg)
 static PyObject *
 surf_rotate(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
     float angle;
 
@@ -748,7 +749,7 @@ surf_rotate(PyObject *self, PyObject *arg)
 static PyObject *
 surf_flip(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
     int xaxis, yaxis;
     int loopx, loopy;
@@ -900,7 +901,7 @@ surf_flip(PyObject *self, PyObject *arg)
 static PyObject *
 surf_rotozoom(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf, *surf32;
     float scale, angle;
 
@@ -1416,7 +1417,8 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
 static PyObject *
 surf_scalesmooth(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *surfobj2;
+    pgSurfaceObject *surfobj;
+    PyObject *surfobj2;
     SDL_Surface *surf, *newsurf;
     int width, height, bpp;
     surfobj2 = NULL;
@@ -1745,7 +1747,7 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *dest_surf_obj;
     SDL_Surface *dest_surf = NULL;
 
-    PyObject *surf_obj = NULL;
+    pgSurfaceObject *surf_obj = NULL;
     SDL_Surface *surf = NULL;
 
     PyObject *search_color_obj;
@@ -1883,10 +1885,10 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (dest_surf)
-        pgSurface_Lock(dest_surf_obj);
+        pgSurface_Lock((pgSurfaceObject*)dest_surf_obj);
     pgSurface_Lock(surf_obj);
     if (search_surf)
-        pgSurface_Lock(search_surf_obj);
+        pgSurface_Lock((pgSurfaceObject*)search_surf_obj);
 
     Py_BEGIN_ALLOW_THREADS;
     num_threshold_pixels =
@@ -1895,10 +1897,10 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     Py_END_ALLOW_THREADS;
 
     if (dest_surf)
-        pgSurface_Unlock(dest_surf_obj);
+        pgSurface_Unlock((pgSurfaceObject*)dest_surf_obj);
     pgSurface_Unlock(surf_obj);
     if (search_surf)
-        pgSurface_Unlock(search_surf_obj);
+        pgSurface_Unlock((pgSurfaceObject*)search_surf_obj);
 
     return PyInt_FromLong(num_threshold_pixels);
 }
@@ -2708,7 +2710,8 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 static PyObject *
 surf_average_color(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *rectobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *rectobj = NULL;
     SDL_Surface *surf;
     GAME_Rect *rect, temp;
     Uint8 r, g, b, a;

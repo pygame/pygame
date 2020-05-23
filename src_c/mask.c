@@ -761,7 +761,7 @@ static PyObject *
 mask_from_surface(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = NULL;
-    PyObject *surfobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
     pgMaskObject *maskobj = NULL;
     Uint32 colorkey;
     int threshold = 127; /* default value */
@@ -991,7 +991,8 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 static PyObject *
 mask_from_threshold(PyObject *self, PyObject *args)
 {
-    PyObject *surfobj, *surfobj2 = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    pgSurfaceObject *surfobj2 = NULL;
     pgMaskObject *maskobj = NULL;
     SDL_Surface *surf = NULL, *surf2 = NULL;
     PyObject *rgba_obj_color, *rgba_obj_threshold = NULL;
@@ -2185,21 +2186,22 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
         }
     }
 
-    if (!pgSurface_Lock(surfobj)) {
+    if (!pgSurface_Lock((pgSurfaceObject *)surfobj)) {
         PyErr_SetString(PyExc_RuntimeError, "cannot lock surface");
         goto to_surface_error;
     }
 
     /* Only lock the setsurface if it is being used.
      * i.e. setsurf is non-NULL */
-    if (NULL != setsurf && !pgSurface_Lock(setsurfobj)) {
+    if (NULL != setsurf && !pgSurface_Lock((pgSurfaceObject *)setsurfobj)) {
         PyErr_SetString(PyExc_RuntimeError, "cannot lock setsurface");
         goto to_surface_error;
     }
 
     /* Only lock the unsetsurface if it is being used.
      * i.e.. unsetsurf is non-NULL. */
-    if (NULL != unsetsurf && !pgSurface_Lock(unsetsurfobj)) {
+    if (NULL != unsetsurf &&
+        !pgSurface_Lock((pgSurfaceObject *)unsetsurfobj)) {
         PyErr_SetString(PyExc_RuntimeError, "cannot lock unsetsurface");
         goto to_surface_error;
     }
@@ -2212,17 +2214,19 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
     Py_END_ALLOW_THREADS; /* Obtain the GIL. */
 
-    if (NULL != unsetsurf && !pgSurface_Unlock(unsetsurfobj)) {
+    if (NULL != unsetsurf &&
+        !pgSurface_Unlock((pgSurfaceObject *)unsetsurfobj)) {
         PyErr_SetString(PyExc_RuntimeError, "cannot unlock unsetsurface");
         goto to_surface_error;
     }
 
-    if (NULL != setsurf && !pgSurface_Unlock(setsurfobj)) {
+    if (NULL != setsurf &&
+        !pgSurface_Unlock((pgSurfaceObject *)setsurfobj)) {
         PyErr_SetString(PyExc_RuntimeError, "cannot unlock setsurface");
         goto to_surface_error;
     }
 
-    if (!pgSurface_Unlock(surfobj)) {
+    if (!pgSurface_Unlock((pgSurfaceObject *)surfobj)) {
         PyErr_SetString(PyExc_RuntimeError, "cannot unlock surface");
         goto to_surface_error;
     }
