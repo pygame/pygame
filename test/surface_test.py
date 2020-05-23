@@ -2364,7 +2364,7 @@ class SurfaceBlendTest(unittest.TestCase):
 
             return (expected_col, actual_col)
 
-        # Colour Tests
+        # # Colour Tests
         self.assertEqual(*test_premul_surf(pygame.Color(40, 20, 0, 51),
                                              pygame.Color(40, 20, 0, 51)))
 

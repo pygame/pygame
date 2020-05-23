@@ -30,9 +30,17 @@
     #include "include/sse2neon.h"
 #else
     #if IS_SDLv1
+        // MSVC uses these defines for SSE2 support for some reason
+        #if defined(_M_IX86_FP) || (defined(_M_AMD64) || defined(_M_X64))
+            #if (_M_IX86_FP == 2) || (defined(_M_AMD64) || defined(_M_X64))
+                #define __SSE2__ 1
+            #endif
+        #endif
         // SDL 1 doesn't import the latest intrinsics, this should should pull
         // them all in for us
-        #include <immintrin.h>
+        #ifdef __SSE2__ // don't import this file on non-SSE platforms.
+            #include <immintrin.h>
+        #endif /* __SSE2__ */
     #endif /* IS_SDLv1 */
 #endif /* PG_ENABLE_ARM_NEON */
 
@@ -270,38 +278,44 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         case PYGAME_BLEND_PREMULTIPLIED:
         {
+    #if IS_SDLv1
+            if (src->format->BytesPerPixel == 4 &&
+                dst->format->BytesPerPixel == 4 &&
+                src->format->Rmask == dst->format->Rmask &&
+                src->format->Gmask == dst->format->Gmask &&
+                src->format->Bmask == dst->format->Bmask &&
+                info.src_flags & SDL_SRCALPHA)
+    #else /* IS_SDLv2 */
+            if (src->format->BytesPerPixel == 4 &&
+                dst->format->BytesPerPixel == 4 &&
+                src->format->Rmask == dst->format->Rmask &&
+                src->format->Gmask == dst->format->Gmask &&
+                src->format->Bmask == dst->format->Bmask &&
+                info.src_blend != SDL_BLENDMODE_NONE)
+    #endif /* IS_SDLv2 */
+            {
 #if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
-            if (src->format->Rmask == dst->format->Rmask
-                && src->format->Gmask == dst->format->Gmask
-                && src->format->Bmask == dst->format->Bmask
-                && src->format->BytesPerPixel == 4
-                && src->format->Rshift % 8 == 0
-                && src->format->Gshift % 8 == 0
-                && src->format->Bshift % 8 == 0
-                && src->format->Ashift % 8 == 0
-                && src->format->Aloss == 0){
-
-#if PG_ENABLE_ARM_NEON
+    #if PG_ENABLE_ARM_NEON
                 if (SDL_HasNEON() == SDL_TRUE){
                     blit_blend_premultiplied_sse2 (&info);
                     break;
                 }
-#endif /* PG_ENABLE_ARM_NEON */
-#ifdef __SSE2__
-                if (SDL_HasSSE2() == SDL_TRUE){
+    #endif /* PG_ENABLE_ARM_NEON */
+    #ifdef __SSE2__
+                if (SDL_HasSSE2()){
                     blit_blend_premultiplied_sse2 (&info);
                     break;
                 }
-#endif /* __SSE2__*/
-#ifdef __MMX__
+    #endif /* __SSE2__*/
+    #ifdef __MMX__
                 if (SDL_HasMMX() == SDL_TRUE) {
                     blit_blend_premultiplied_mmx (&info);
                     break;
                 }
-#endif /*__MMX__*/
-
-            }
+    #endif /*__MMX__*/
 #endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
+            }
+
             blit_blend_premultiplied (&info);
             break;
         }
@@ -1233,6 +1247,7 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
+    Uint32          tmp;
 #if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
@@ -1241,9 +1256,46 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
-    /*
-    printf ("Premultiplied alpha blit with %d and %d\n", srcbpp, dstbpp);
-    */
+#if IS_SDLv1
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+#else /* IS_SDLv2 */
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
+#endif /* IS_SDLv2 */
+    {
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                dst[dstoffsetR] = src[srcoffsetR];
+                dst[dstoffsetG] = src[srcoffsetG];
+                dst[dstoffsetB] = src[srcoffsetB];
+
+                src += srcpxskip;
+                dst += dstpxskip;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
 
     if (srcbpp == 1)
     {
