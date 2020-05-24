@@ -152,22 +152,24 @@ required).
       pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
-      pygame.SCALED        resolution depends on desktop size and scale graphics
+      pygame.SCALED        resolution depends on desktop size and scale
+                           graphics
 
    .. versionadded:: 2.0.0 ``SCALED``
 
-   By setting the vsync parameter to True, it is possible to get a display with
-   vertical sync, but you are not guaranteed to get one. The request only works
-   at all for calls to set_mode() with the pygame.OPENGL or pygame.SCALED flags
-   set, and is still not guaranteed even with one of those set. What you
-   actually get  depends entirely on the hardware and driver configuration of
-   the system  pygame is running on. Here is an example usage of a call to
-   set_mode that may give you a display with vsync:
+   By setting the ``vsync`` parameter to True, it is possible to get a display
+   with vertical sync, but you are not guaranteed to get one. The request only
+   works at all for calls to ``set_mode()`` with the ``pygame.OPENGL`` or
+   ``pygame.SCALED`` flags set, and is still not guaranteed even with one of
+   those set. What you actually get depends entirely on the hardware and driver
+   configuration of the system pygame is running on. Here is an example usage
+   of a call to ``set_mode()`` that may give you a display with vsync:
 
    ::
 
      flags = pygame.OPENGL | pygame.FULLSCREEN
-     window_surface = pygame.display.set_mode((1920, 1080), flags, vsync=True)
+     window_surface = pygame.display.set_mode((1920, 1080),
+                                              flags, vsync=True)
 
    .. versionadded:: 2.0.0 ``vsync``
 
@@ -263,7 +265,8 @@ required).
 
      hw:         1 if the display is hardware accelerated
      wm:         1 if windowed display modes can be used
-     video_mem:  The megabytes of video memory on the display. This is 0 if unknown
+     video_mem:  The megabytes of video memory on the display. This is 0 if
+                 unknown
      bitsize:    Number of bits used to store each pixel
      bytesize:   Number of bytes used to store each pixel
      masks:      Four values used to pack RGBA values into pixels
@@ -275,10 +278,11 @@ required).
      blit_sw:    1 if software Surface blitting is accelerated
      blit_sw_CC: 1 if software Surface colorkey blitting is accelerated
      blit_sw_A:  1 if software Surface pixel alpha blitting is accelerated
-     current_h, current_w:  Height and width of the current video mode, or of the
-       desktop mode if called before the display.set_mode is called.
-       (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
-       They are -1 on error, or if an old SDL is being used.
+     current_h, current_w:  Height and width of the current video mode, or
+                 of the desktop mode if called before the display.set_mode
+                 is called. (current_h, current_w are available since
+                 SDL 1.2.10, and pygame 1.8.0). They are -1 on error, or if
+                 an old SDL is being used.
 
    .. ## pygame.display.Info ##
 
@@ -420,7 +424,8 @@ required).
 
        GL_CONTEXT_PROFILE_CORE             disable deprecated features
        GL_CONTEXT_PROFILE_COMPATIBILITY    allow deprecated features
-       GL_CONTEXT_PROFILE_ES               allow only the ES feature subset of OpenGL
+       GL_CONTEXT_PROFILE_ES               allow only the ES feature
+                                           subset of OpenGL
 
    :const:`GL_ACCELERATED_VISUAL`
 
