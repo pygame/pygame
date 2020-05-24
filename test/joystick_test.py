@@ -1,4 +1,5 @@
 import unittest
+import pygame
 
 
 class JoystickTypeTest(unittest.TestCase):
@@ -46,16 +47,43 @@ class JoytickModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_init(self):
+    def test_get_init(self):
+        # Check that get_init() matches what is actually happening
+        def error_check_get_init():
+            try:
+                pygame.joystick.get_count()
+            except pygame.error:
+                return False
+            return True
 
-        # __doc__ (as of 2008-08-02) for pygame.joystick.get_init:
+        # Start uninitialised
+        self.assertEqual(pygame.joystick.get_init(), False)
 
-        # pygame.joystick.get_init(): return bool
-        # true if the joystick module is initialized
-        #
-        # Test if the pygame.joystick.init() function has been called.
+        pygame.joystick.init()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # True
+        pygame.joystick.quit()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
 
-        self.fail()
+        pygame.joystick.init()
+        pygame.joystick.init()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # True
+        pygame.joystick.quit()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+
+        pygame.joystick.quit()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # False
+
+        for i in range(100):
+            pygame.joystick.init()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # True
+        pygame.joystick.quit()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+
+        for i in range(100):
+            pygame.joystick.quit()
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+
+
 
     def todo_test_init(self):
 
