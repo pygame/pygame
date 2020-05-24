@@ -583,13 +583,21 @@ if sys.platform == 'win32':
         """
         from distutils.errors import CompileError
         import tempfile
+        root_drive = os.path.splitdrive(sys.executable)[0] + '\\'
         with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
             f.write('int main (int argc, char **argv) { return 0; }')
             fname = f.name
         try:
-            compiler.compile([fname], extra_postargs=[flagname])
+            compiler.compile([fname], output_dir=root_drive, extra_postargs=[flagname])
         except CompileError:
             return False
+        else:
+            try:
+                base_file = os.path.splitext(fname)[0]
+                obj_file = base_file + '.obj'
+                os.remove(obj_file)
+            except OSError:
+                pass
         finally:
             try:
                 os.remove(fname)
