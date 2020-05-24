@@ -251,80 +251,81 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 break;
             }
 
-        case PYGAME_BLEND_RGBA_ADD:
-        {
-        blit_blend_rgba_add (&info);
-        break;
-        }
-        case PYGAME_BLEND_RGBA_SUB:
-        {
-            blit_blend_rgba_sub (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MULT:
-        {
-            blit_blend_rgba_mul (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MIN:
-        {
-            blit_blend_rgba_min (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MAX:
-        {
-            blit_blend_rgba_max (&info);
-            break;
-        }
-        case PYGAME_BLEND_PREMULTIPLIED:
-        {
-    #if IS_SDLv1
-            if (src->format->BytesPerPixel == 4 &&
-                dst->format->BytesPerPixel == 4 &&
-                src->format->Rmask == dst->format->Rmask &&
-                src->format->Gmask == dst->format->Gmask &&
-                src->format->Bmask == dst->format->Bmask &&
-                info.src_flags & SDL_SRCALPHA)
-    #else /* IS_SDLv2 */
-            if (src->format->BytesPerPixel == 4 &&
-                dst->format->BytesPerPixel == 4 &&
-                src->format->Rmask == dst->format->Rmask &&
-                src->format->Gmask == dst->format->Gmask &&
-                src->format->Bmask == dst->format->Bmask &&
-                info.src_blend != SDL_BLENDMODE_NONE)
-    #endif /* IS_SDLv2 */
+            case PYGAME_BLEND_RGBA_ADD:
             {
-#if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
-    #if PG_ENABLE_ARM_NEON
-                if (SDL_HasNEON() == SDL_TRUE){
-                    blit_blend_premultiplied_sse2 (&info);
-                    break;
-                }
-    #endif /* PG_ENABLE_ARM_NEON */
-    #ifdef __SSE2__
-                if (SDL_HasSSE2()){
-                    blit_blend_premultiplied_sse2 (&info);
-                    break;
-                }
-    #endif /* __SSE2__*/
-    #ifdef __MMX__
-                if (SDL_HasMMX() == SDL_TRUE) {
-                    blit_blend_premultiplied_mmx (&info);
-                    break;
-                }
-    #endif /*__MMX__*/
-#endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
+            blit_blend_rgba_add (&info);
+            break;
             }
+            case PYGAME_BLEND_RGBA_SUB:
+            {
+                blit_blend_rgba_sub (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MULT:
+            {
+                blit_blend_rgba_mul (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MIN:
+            {
+                blit_blend_rgba_min (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MAX:
+            {
+                blit_blend_rgba_max (&info);
+                break;
+            }
+            case PYGAME_BLEND_PREMULTIPLIED:
+            {
+        #if IS_SDLv1
+                if (src->format->BytesPerPixel == 4 &&
+                    dst->format->BytesPerPixel == 4 &&
+                    src->format->Rmask == dst->format->Rmask &&
+                    src->format->Gmask == dst->format->Gmask &&
+                    src->format->Bmask == dst->format->Bmask &&
+                    info.src_flags & SDL_SRCALPHA)
+        #else /* IS_SDLv2 */
+                if (src->format->BytesPerPixel == 4 &&
+                    dst->format->BytesPerPixel == 4 &&
+                    src->format->Rmask == dst->format->Rmask &&
+                    src->format->Gmask == dst->format->Gmask &&
+                    src->format->Bmask == dst->format->Bmask &&
+                    info.src_blend != SDL_BLENDMODE_NONE)
+        #endif /* IS_SDLv2 */
+                {
+    #if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+        #if PG_ENABLE_ARM_NEON
+                    if (SDL_HasNEON() == SDL_TRUE){
+                        blit_blend_premultiplied_sse2 (&info);
+                        break;
+                    }
+        #endif /* PG_ENABLE_ARM_NEON */
+        #ifdef __SSE2__
+                    if (SDL_HasSSE2()){
+                        blit_blend_premultiplied_sse2 (&info);
+                        break;
+                    }
+        #endif /* __SSE2__*/
+        #ifdef __MMX__
+                    if (SDL_HasMMX() == SDL_TRUE) {
+                        blit_blend_premultiplied_mmx (&info);
+                        break;
+                    }
+        #endif /*__MMX__*/
+    #endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
+                }
 
-            blit_blend_premultiplied (&info);
-            break;
-        }
-        default:
-        {
-            SDL_SetError ("Invalid argument passed to blit.");
-            okay = 0;
-            break;
-        }
+                blit_blend_premultiplied (&info);
+                break;
+            }
+            default:
+            {
+                SDL_SetError ("Invalid argument passed to blit.");
+                okay = 0;
+                break;
+            }
+            }
         }
     }
 
@@ -1245,7 +1246,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    Uint32          tmp;
 #if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
