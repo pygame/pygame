@@ -86,7 +86,7 @@ cdrom_init(PyObject *self)
 static PyObject *
 get_init(PyObject *self)
 {
-    return PyInt_FromLong(SDL_WasInit(SDL_INIT_CDROM) != 0);
+    return PyBool_FromLong(SDL_WasInit(SDL_INIT_CDROM) != 0);
 }
 
 static void
@@ -147,7 +147,7 @@ static PyObject *
 cd_get_init(PyObject *self, PyObject *args)
 {
     int cd_id = pgCD_AsID(self);
-    return PyInt_FromLong(cdrom_drivedata[cd_id] != NULL);
+    return PyBool_FromLong(cdrom_drivedata[cd_id] != NULL);
 }
 
 static PyObject *

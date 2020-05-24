@@ -255,7 +255,7 @@ pg_init(PyObject *self, PyObject *args)
 static PyObject *
 pg_get_init(PyObject *self, PyObject *args)
 {
-    return PyInt_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
+    return PyBool_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
 }
 
 #if IS_SDLv2

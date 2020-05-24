@@ -230,7 +230,7 @@ fontmodule_init(PyObject *self)
 static PyObject *
 get_init(PyObject *self)
 {
-    return PyInt_FromLong(font_initialized);
+    return PyBool_FromLong(font_initialized);
 }
 
 /* font object methods */
