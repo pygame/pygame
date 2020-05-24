@@ -571,4 +571,52 @@ required).
 
    .. ## pygame.display.get_window_size ##
 
+.. function:: get_allow_screensaver
+
+   | :sl:`Return whether the screensaver is allowed to run.`
+   | :sg:`get_allow_screensaver() -> bool`
+
+   Return whether screensaver is allowed to run whilst the app is running.
+   Default is False.
+   By default pygame does not allow the screensaver during game play.
+
+   .. note:: Some platforms do not have a screensaver or support
+             disabling the screensaver.  Please see
+             :func:`pygame.display.set_allow_screensaver()` for
+             caveats with screensaver support.
+
+   .. versionadded:: 2.0
+
+   .. ## pygame.display.get_allow_screensaver ##
+
+.. function:: set_allow_screensaver
+
+   | :sl:`Set whether the screensaver may run`
+   | :sg:`set_allow_screensaver(bool) -> None`
+
+   Change whether screensavers should be allowed whilst the app is running.
+   The default is False.
+   By default pygame does not allow the screensaver during game play.
+
+   If the screensaver has been disallowed due to this function, it will automatically
+   be allowed to run when :func:`pygame.quit()` is called.
+
+   It is possible to influence the default value via the environment variable
+   ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER``, which can be set to either ``0`` (disable)
+   or ``1`` (enable).
+
+   .. note:: Disabling screensaver is subject to platform support.
+             When platform support is absent, this function will
+             silently appear to work even though the screensaver state
+             is unchanged.  The lack of feedback is due to SDL not
+             providing any supported method for determining whether
+             it supports changing the screensaver state.
+             ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER`` is available in SDL 2.0.2 or later.
+             SDL1.2 does not implement this.
+
+   .. versionadded:: 2.0
+
+
+   .. ## pygame.display.set_allow_screensaver ##
+
 .. ## pygame.display ##
