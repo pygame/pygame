@@ -26,8 +26,14 @@
 #include "_surface.h"
 
 #ifdef PG_ENABLE_ARM_NEON
-// sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
-#include "include/sse2neon.h"
+    // sse2neon.h is from here: https://github.com/DLTcollab/sse2neon
+    #include "include/sse2neon.h"
+#else
+    #if IS_SDLv1
+        // SDL 1 doesn't import the latest intrinsics, this should should pull
+        // them all in for us
+        #include <immintrin.h>
+    #endif /* IS_SDLv1 */
 #endif /* PG_ENABLE_ARM_NEON */
 
 /* The structure passed to the low level blit functions */
@@ -157,158 +163,157 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         if (SDL_GetSurfaceBlendMode(src, &info.src_blend) ||
             SDL_GetSurfaceBlendMode(dst, &info.dst_blend)) {
             okay = 0;
-            goto LEAVE;
         }
 #endif /* IS_SDLv2 */
-
-        if (info.d_pixels > info.s_pixels)
-        {
-            int span = info.width * info.src->BytesPerPixel;
-            Uint8 *srcpixend =
-                info.s_pixels + (info.height - 1) * src->pitch + span;
-
-            if (info.d_pixels < srcpixend)
+        if (okay){
+            if (info.d_pixels > info.s_pixels)
             {
-                int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+                int span = info.width * info.src->BytesPerPixel;
+                Uint8 *srcpixend =
+                    info.s_pixels + (info.height - 1) * src->pitch + span;
 
-                if (dstoffset < span || dstoffset > src->pitch - span)
+                if (info.d_pixels < srcpixend)
                 {
-                    /* Overlapping Self blit with positive destination offset.
-                       Reverse direction of the blit.
-                    */
-                    info.s_pixels = srcpixend - info.s_pxskip;
-                    info.s_pxskip = -info.s_pxskip;
-                    info.s_skip = -info.s_skip;
-                    info.d_pixels = (info.d_pixels +
-                                     (info.height - 1) * dst->pitch +
-                                     span - info.d_pxskip);
-                    info.d_pxskip = -info.d_pxskip;
-                    info.d_skip = -info.d_skip;
+                    int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+
+                    if (dstoffset < span || dstoffset > src->pitch - span)
+                    {
+                        /* Overlapping Self blit with positive destination offset.
+                           Reverse direction of the blit.
+                        */
+                        info.s_pixels = srcpixend - info.s_pxskip;
+                        info.s_pxskip = -info.s_pxskip;
+                        info.s_skip = -info.s_skip;
+                        info.d_pixels = (info.d_pixels +
+                                         (info.height - 1) * dst->pitch +
+                                         span - info.d_pxskip);
+                        info.d_pxskip = -info.d_pxskip;
+                        info.d_skip = -info.d_skip;
+                    }
                 }
             }
-        }
 
-        switch (the_args)
-        {
-        case 0:
-        {
+            switch (the_args)
+            {
+            case 0:
+            {
 #if IS_SDLv1
-            if (src->flags & SDL_SRCALPHA && src->format->Amask)
-                alphablit_alpha (&info);
-            else if (src->flags & SDL_SRCCOLORKEY)
-                alphablit_colorkey (&info);
-            else
-                alphablit_solid (&info);
-            break;
+                if (src->flags & SDL_SRCALPHA && src->format->Amask)
+                    alphablit_alpha (&info);
+                else if (src->flags & SDL_SRCCOLORKEY)
+                    alphablit_colorkey (&info);
+                else
+                    alphablit_solid (&info);
+                break;
 #else /* IS_SDLv2 */
-            if (info.src_blend != SDL_BLENDMODE_NONE && src->format->Amask) {
-                alphablit_alpha (&info);
-            } else if (info.src_has_colorkey) {
-                alphablit_colorkey (&info);
-            } else {
-                alphablit_solid (&info);
-            }
-            break;
+                if (info.src_blend != SDL_BLENDMODE_NONE &&
+                    src->format->Amask) {
+                    alphablit_alpha (&info);
+                } else if (info.src_has_colorkey) {
+                    alphablit_colorkey (&info);
+                } else {
+                    alphablit_solid (&info);
+                }
+                break;
 #endif /* IS_SDLv2 */
-        }
-        case PYGAME_BLEND_ADD:
-        {
-            blit_blend_add (&info);
-            break;
-        }
-        case PYGAME_BLEND_SUB:
-        {
-            blit_blend_sub (&info);
-            break;
-        }
-        case PYGAME_BLEND_MULT:
-        {
-            blit_blend_mul (&info);
-            break;
-        }
-        case PYGAME_BLEND_MIN:
-        {
-            blit_blend_min (&info);
-            break;
-        }
-        case PYGAME_BLEND_MAX:
-        {
-            blit_blend_max (&info);
-            break;
-        }
+            }
+            case PYGAME_BLEND_ADD:
+            {
+                blit_blend_add (&info);
+                break;
+            }
+            case PYGAME_BLEND_SUB:
+            {
+                blit_blend_sub (&info);
+                break;
+            }
+            case PYGAME_BLEND_MULT:
+            {
+                blit_blend_mul (&info);
+                break;
+            }
+            case PYGAME_BLEND_MIN:
+            {
+                blit_blend_min (&info);
+                break;
+            }
+            case PYGAME_BLEND_MAX:
+            {
+                blit_blend_max (&info);
+                break;
+            }
 
-        case PYGAME_BLEND_RGBA_ADD:
-        {
-        blit_blend_rgba_add (&info);
-        break;
-        }
-        case PYGAME_BLEND_RGBA_SUB:
-        {
-            blit_blend_rgba_sub (&info);
+            case PYGAME_BLEND_RGBA_ADD:
+            {
+            blit_blend_rgba_add (&info);
             break;
-        }
-        case PYGAME_BLEND_RGBA_MULT:
-        {
-            blit_blend_rgba_mul (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MIN:
-        {
-            blit_blend_rgba_min (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MAX:
-        {
-            blit_blend_rgba_max (&info);
-            break;
-        }
-        case PYGAME_BLEND_PREMULTIPLIED:
-        {
+            }
+            case PYGAME_BLEND_RGBA_SUB:
+            {
+                blit_blend_rgba_sub (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MULT:
+            {
+                blit_blend_rgba_mul (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MIN:
+            {
+                blit_blend_rgba_min (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MAX:
+            {
+                blit_blend_rgba_max (&info);
+                break;
+            }
+            case PYGAME_BLEND_PREMULTIPLIED:
+            {
 #if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
-            if (src->format->Rmask == dst->format->Rmask
-                && src->format->Gmask == dst->format->Gmask
-                && src->format->Bmask == dst->format->Bmask
-                && src->format->BytesPerPixel == 4
-                && src->format->Rshift % 8 == 0
-                && src->format->Gshift % 8 == 0
-                && src->format->Bshift % 8 == 0
-                && src->format->Ashift % 8 == 0
-                && src->format->Aloss == 0){
+                if (src->format->Rmask == dst->format->Rmask
+                    && src->format->Gmask == dst->format->Gmask
+                    && src->format->Bmask == dst->format->Bmask
+                    && src->format->BytesPerPixel == 4
+                    && src->format->Rshift % 8 == 0
+                    && src->format->Gshift % 8 == 0
+                    && src->format->Bshift % 8 == 0
+                    && src->format->Ashift % 8 == 0
+                    && src->format->Aloss == 0){
 
 #if PG_ENABLE_ARM_NEON
-                if (SDL_HasNEON() == SDL_TRUE){
-                    blit_blend_premultiplied_sse2 (&info);
-                    break;
-                }
+                    if (SDL_HasNEON() == SDL_TRUE){
+                        blit_blend_premultiplied_sse2 (&info);
+                        break;
+                    }
 #endif /* PG_ENABLE_ARM_NEON */
 #ifdef __SSE2__
-                if (SDL_HasSSE2() == SDL_TRUE){
-                    blit_blend_premultiplied_sse2 (&info);
-                    break;
-                }
+                    if (SDL_HasSSE2() == SDL_TRUE){
+                        blit_blend_premultiplied_sse2 (&info);
+                        break;
+                    }
 #endif /* __SSE2__*/
 #ifdef __MMX__
-                if (SDL_HasMMX() == SDL_TRUE) {
-                    blit_blend_premultiplied_mmx (&info);
-                    break;
-                }
+                    if (SDL_HasMMX() == SDL_TRUE) {
+                        blit_blend_premultiplied_mmx (&info);
+                        break;
+                    }
 #endif /*__MMX__*/
 
-            }
+                }
 #endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
-            blit_blend_premultiplied (&info);
-            break;
-        }
-        default:
-        {
-            SDL_SetError ("Invalid argument passed to blit.");
-            okay = 0;
-            break;
-        }
+                blit_blend_premultiplied (&info);
+                break;
+            }
+            default:
+            {
+                SDL_SetError ("Invalid argument passed to blit.");
+                okay = 0;
+                break;
+            }
+            }
         }
     }
-
-LEAVE:
 
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
@@ -1230,7 +1235,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
     int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
-    int tmp;
 
     /*
     printf ("Premultiplied alpha blit with %d and %d\n", srcbpp, dstbpp);

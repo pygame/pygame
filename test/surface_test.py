@@ -24,6 +24,7 @@ import weakref
 import ctypes
 
 IS_PYPY = "PyPy" == platform.python_implementation()
+SDL1 = pygame.get_sdl_version()[0] < 2
 
 
 def intify(i):
@@ -990,29 +991,58 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertIsInstance(ck, pygame.Color)
         self.assertEqual(ck, colorkey)
 
-    def todo_test_get_height(self):
+    def test_get_height(self):
+        sizes = ((1,1), (119, 10), (10,119), (1,1000), (1000,1), (1000,1000))
+        for width, height in sizes:
+            surf = pygame.Surface((width, height))
+            found_height = surf.get_height()
+            self.assertEqual(height, found_height)
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_height:
+    def test_get_locked(self):
+        def blit_locked_test(surface):
+            newSurf = pygame.Surface((10, 10))
+            try:
+                newSurf.blit(surface, (0,0))
+            except pygame.error:
+                return True
+            else:
+                return False
 
-        # Surface.get_height(): return height
-        # get the height of the Surface
-        #
-        # Return the height of the Surface in pixels.
+        surf = pygame.Surface((100, 100))
 
-        self.fail()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
+        # Surface should lock
+        surf.lock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
+        # Surface should unlock
+        surf.unlock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
 
-    def todo_test_get_locked(self):
+        # Check multiple locks
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
+        surf.unlock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
+        surf.unlock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_locked:
+        # Check many locks
+        surf = pygame.Surface((100, 100))
+        for i in range(1000):
+            surf.lock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Locked
+        for i in range(1000):
+            surf.unlock()
+        self.assertFalse(surf.get_locked()) # Unlocked
 
-        # Surface.get_locked(): return bool
-        # test if the Surface is current locked
-        #
-        # Returns True when the Surface is locked. It doesn't matter how many
-        # times the Surface is locked.
-        #
-
-        self.fail()
+        # Unlocking an unlocked surface
+        surf = pygame.Surface((100, 100))
+        surf.unlock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
+        surf.unlock()
+        self.assertIs(surf.get_locked(), blit_locked_test(surf)) # Unlocked
 
     def todo_test_get_locks(self):
 
@@ -1127,16 +1157,12 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_size(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_size:
-
-        # Surface.get_size(): return (width, height)
-        # get the dimensions of the Surface
-        #
-        # Return the width and height of the Surface in pixels.
-
-        self.fail()
+    def test_get_size(self):
+        sizes = ((1,1), (119, 10), (1000,1000), (1,5000), (1221,1), (99,999))
+        for width, height in sizes:
+            surf = pygame.Surface((width, height))
+            found_size = surf.get_size()
+            self.assertEqual((width, height), found_size)
 
     def todo_test_lock(self):
 
@@ -1184,25 +1210,27 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf.set_at((0, 0), c)
         self.assertEqual(surf.get_at((0, 0)), color)
 
-    def todo_test_mustlock(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.mustlock:
-
-        # Surface.mustlock(): return bool
-        # test if the Surface requires locking
-        #
-        # Returns True if the Surface is required to be locked to access pixel
-        # data. Usually pure software Surfaces do not require locking. This
-        # method is rarely needed, since it is safe and quickest to just lock
-        # all Surfaces as needed.
-        #
-        # All pygame functions will automatically lock and unlock the Surface
-        # data as needed. If a section of code is going to make calls that
-        # will repeatedly lock and unlock the Surface many times, it can be
-        # helpful to wrap the block inside a lock and unlock pair.
-        #
-
-        self.fail()
+    def test_mustlock(self):
+        #Test that subsurfaces mustlock
+        surf = pygame.Surface((1024,1024))
+        subsurf=surf.subsurface((0,0,1024,1024))
+        self.assertTrue(subsurf.mustlock())
+        self.assertFalse(surf.mustlock())
+        #Tests nested subsurfaces
+        rects = ((0,0,512,512),(0,0,256,256),(0,0,128,128))
+        surf_stack = []
+        surf_stack.append(surf)
+        surf_stack.append(subsurf)
+        for rect in rects:
+            surf_stack.append(surf_stack[-1].subsurface(rect))
+            self.assertTrue(surf_stack[-1].mustlock())
+            self.assertTrue(surf_stack[-2].mustlock())
+        #Test RLEACCEL flag in set_colorkey
+        surf = pygame.Surface((100,100))
+        blit_surf = pygame.Surface((100,100))
+        blit_surf.set_colorkey((0,0,255), RLEACCEL)
+        surf.blit(blit_surf,(0,0))
+        self.assertEqual(blit_surf.mustlock(),(blit_surf.get_flags() & pygame.RLEACCEL) !=0)
 
     def test_set_alpha_none(self):
         """surf.set_alpha(None) disables blending"""
@@ -1347,27 +1375,37 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf = pygame.Surface.__new__(pygame.Surface)
         self.assertRaises(pygame.error, surf.subsurface, (0, 0, 0, 0))
 
-    def todo_test_unlock(self):
+    def test_unlock(self):
+        # Basic
+        surf = pygame.Surface((100,100))
+        surf.lock()
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.unlock:
+        # Nested
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        # Surface.unlock(): return None
-        # unlock the Surface memory from pixel access
-        #
-        # Unlock the Surface pixel data after it has been locked. The unlocked
-        # Surface can once again be drawn and managed by Pygame. See the
-        # Surface.lock() documentation for more details.
-        #
-        # All pygame functions will automatically lock and unlock the Surface
-        # data as needed. If a section of code is going to make calls that
-        # will repeatedly lock and unlock the Surface many times, it can be
-        # helpful to wrap the block inside a lock and unlock pair.
-        #
-        # It is safe to nest locking and unlocking calls. The surface will
-        # only be unlocked after the final lock is released.
-        #
+        # Already Unlocked
+        surf = pygame.Surface((100, 100))
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
-        self.fail()
+        # Surface can be relocked
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
+        surf.lock()
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
     def test_unmap_rgb(self):
         # Special case, 8 bit-per-pixel surface (has a palette).
@@ -2402,27 +2440,28 @@ class SurfaceBlendTest(unittest.TestCase):
                                            src_size=(17, 67),
                                            dst_size=(69, 69)
                                            ))
+        # These tests trigger some of the weird SDL1 alpha blending behaviour
+        if not SDL1:
+            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
+                                               pygame.Color(40, 20, 0, 51),
+                                               src_size=(17, 67),
+                                               dst_size=(69, 69),
+                                               src_has_alpha=False,
+                                               ))
+            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
+                                               pygame.Color(40, 20, 0, 255),
+                                               src_size=(17, 67),
+                                               dst_size=(69, 69),
+                                               dst_has_alpha=False,
+                                               ))
 
-        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
-                                           pygame.Color(40, 20, 0, 51),
-                                           src_size=(17, 67),
-                                           dst_size=(69, 69),
-                                           src_has_alpha=False,
-                                           ))
-        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 51),
-                                           pygame.Color(40, 20, 0, 255),
-                                           src_size=(17, 67),
-                                           dst_size=(69, 69),
-                                           dst_has_alpha=False,
-                                           ))
-        self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
-                                           pygame.Color(40, 20, 0, 255),
-                                           src_size=(17, 67),
-                                           dst_size=(69, 69),
-                                           src_has_alpha=False,
-                                           dst_has_alpha=False,
-                                           ))
-
+            self.assertEqual(*test_premul_surf(pygame.Color(30, 20, 0, 255),
+                                               pygame.Color(40, 20, 0, 255),
+                                               src_size=(17, 67),
+                                               dst_size=(69, 69),
+                                               src_has_alpha=False,
+                                               dst_has_alpha=False,
+                                               ))
 
     def test_blit_blend_big_rect(self):
         """ test that an oversized rect works ok.

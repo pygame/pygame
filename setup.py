@@ -96,7 +96,7 @@ if '-pygame-ci' in sys.argv:
               '-Werror=implicit-function-declaration -Werror=return-type ' + \
               '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
               '-Werror=format-security -Werror=uninitialized ' + \
-              '-Werror=trigraphs -Werror=parentheses ' + \
+              '-Werror=trigraphs -Werror=parentheses -Werror=unused-value ' + \
               '-Werror=cast-align'
     os.environ['CFLAGS'] = cflags
     sys.argv.remove ('-pygame-ci')
@@ -557,6 +557,49 @@ if sys.platform == 'win32':
         else:
             pygame_data_files.append(f)
 
+
+    if '-enable-msvc-analyze' in sys.argv:
+        # calculate the MSVC compiler version as an int
+        msc_pos = sys.version.find('MSC v.')
+        msc_ver = 1900
+        if msc_pos != -1:
+            msc_ver = int(sys.version[msc_pos + 6:msc_pos + 10])
+        print ('Analyzing with MSC_VER =', msc_ver)
+
+        # excluding system headers from analyze out put was only added after MSCV_VER 1913
+        if msc_ver >= 1913:
+            os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
+            for e in extensions:
+                e.extra_compile_args += ['/analyze', '/experimental:external',
+                                         '/external:W0', '/external:env:CAExcludePath' ]
+        else:
+            for e in extensions:
+                e.extra_compile_args += ['/analyze']
+
+    def has_flag(compiler, flagname):
+        """
+        Adapted from here: https://github.com/pybind/python_example/blob/master/setup.py#L37
+        """
+        from distutils.errors import CompileError
+        import tempfile
+        with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
+            f.write('int main (int argc, char **argv) { return 0; }')
+            fname = f.name
+        try:
+            compiler.compile([fname], extra_postargs=[flagname])
+        except CompileError:
+            return False
+        finally:
+            try:
+                os.remove(fname)
+            except OSError:
+                pass
+        return True
+
+    # filter flags, returns list of accepted flags
+    def flag_filter(compiler, *flags):
+        return [flag for flag in flags if has_flag(compiler, flag)]
+
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
 
@@ -567,6 +610,14 @@ if sys.platform == 'win32':
             if e.name == 'base':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
+
+        def build_extensions(self):
+            # Add supported optimisations flags to reduce code size with MSVC
+            opts = flag_filter(self.compiler, "/GF", "/Gy")
+            for extension in extensions:
+                extension.extra_compile_args += opts
+
+            build_ext.build_extensions(self)
 
     cmdclass['build_ext'] = WinBuildExt
 

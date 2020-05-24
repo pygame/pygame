@@ -30,7 +30,7 @@
 
 #include "doc/image_doc.h"
 
-#if __SSE4_2__ || PG_COMPILE_SSE4_2
+#if (__SSE4_2__ || PG_COMPILE_SSE4_2) && (SDL_VERSION_ATLEAST(2, 0, 0))
 #include <emmintrin.h>
 /* SSSE 3 */
 #include <tmmintrin.h>
@@ -130,13 +130,15 @@ opengltosdl()
     surf = SDL_GetVideoSurface();
 
     if (!surf) {
-        RAISE(PyExc_RuntimeError, "Cannot get video surface.");
-        return NULL;
+        return (SDL_Surface *)RAISE(PyExc_RuntimeError,
+                                    "Cannot get video surface.");
+
     }
 
     if (!p_glReadPixels) {
-        RAISE(PyExc_RuntimeError, "Cannot find glReadPixels function.");
-        return NULL;
+        return (SDL_Surface *)RAISE(PyExc_RuntimeError,
+                                    "Cannot find glReadPixels function.");
+
     }
 
     /*
@@ -147,8 +149,10 @@ opengltosdl()
     pixels = (unsigned char *)malloc(surf->w * surf->h * 3);
 
     if (!pixels) {
-        RAISE(PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
-        return NULL;
+        return (SDL_Surface *)RAISE(
+                                  PyExc_MemoryError,
+                                  "Cannot allocate enough memory for pixels.");
+
     }
     // p_glReadPixels(0, 0, surf->w, surf->h, 6407, 5121, pixels);
     // glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
@@ -168,8 +172,7 @@ opengltosdl()
                                 gmask, bmask, 0);
     if (!surf) {
         free(pixels);
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return NULL;
+        return (SDL_Surface *)RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     for (i = 0; i < surf->h; ++i) {
@@ -320,7 +323,7 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
-#if __SSE4_2__ || PG_COMPILE_SSE4_2
+#if (__SSE4_2__ || PG_COMPILE_SSE4_2) && (SDL_VERSION_ATLEAST(2, 0, 0))
 #define SSE42_ALIGN_NEEDED 16
 #define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
 
@@ -476,7 +479,7 @@ tostring_surf_32bpp_sse42(SDL_Surface *surf, int flipped, char *data,
         }
     }
 }
-#endif /* __SSE4_2__ || PG_COMPILE_SSE4_2 */
+#endif /* __SSE4_2__ || PG_COMPILE_SSE4_2  && (SDL_VERSION_ATLEAST(2, 0, 0)) */
 
 
 #if IS_SDLv2
@@ -510,7 +513,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
     Uint32 Bloss = surf->format->Bloss;
     Uint32 Aloss = surf->format->Aloss;
 
-#if __SSE4_2__ || PG_COMPILE_SSE4_2
+#if (__SSE4_2__ || PG_COMPILE_SSE4_2) && (SDL_VERSION_ATLEAST(2, 0, 0))
     if (/* SDL uses Uint32, SSE uses int for building vectors.
          * Related, we assume that Uint32 is packed so 4 of
          * them perfectly matches an __m128i.
@@ -542,7 +545,7 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
                                   color_offset, alpha_offset);
         return;
     }
-#endif /* __SSE4_2__ || PG_COMPILE_SSE4_2 */
+#endif /* __SSE4_2__ || PG_COMPILE_SSE4_2 && (SDL_VERSION_ATLEAST(2, 0, 0)) */
 
     for (h = 0; h < surf->h; ++h) {
         Uint32 *pixel_row = (Uint32 *)DATAROW(
@@ -569,7 +572,8 @@ tostring_surf_32bpp(SDL_Surface *surf, int flipped,
 PyObject *
 image_tostring(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *string = NULL;
+    pgSurfaceObject *surfobj = NULL;
+    PyObject *string = NULL;
     char *format, *data, *pixels;
     SDL_Surface *surf;
     int w, h, flipped = 0;
@@ -1251,6 +1255,15 @@ image_frombuffer(PyObject *self, PyObject *arg)
                        );
 
         */
+    }
+    else if (!strcmp(format, "BGR")) {
+        if (len != (Py_ssize_t)w * h * 3)
+            return RAISE(
+                PyExc_ValueError,
+                "Buffer length does not equal format and resolution size");
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3,
+                                        0xFF << 16, 0xFF << 8,
+                                        0xFF, 0);
     }
     else if (!strcmp(format, "RGBA") || !strcmp(format, "RGBX")) {
         int alphamult = !strcmp(format, "RGBA");

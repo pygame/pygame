@@ -72,7 +72,7 @@ install:
       $PIP_CMD install --upgrade pip
       $PIP_CMD install --upgrade numpy
       $PYTHON_EXE setup.py -config -auto $WHICH_SDL_BUILD
-      $PYTHON_EXE setup.py install -pygame-ci -noheaders -auto
+      $PYTHON_EXE setup.py install -pygame-ci -noheaders
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then

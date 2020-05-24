@@ -37,6 +37,7 @@ class Rect(object):
     height: int
     w: int
     h: int
+    __hash__: None  # type: ignore
     @overload
     def __init__(
         self, left: float, top: float, width: float, height: float

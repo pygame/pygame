@@ -60,12 +60,6 @@ QDGlobals pg_qd;
 #endif
 #define BUF_MY_ENDIAN '='
 
-#if PY3
-#define INT_CHECK(o) PyLong_Check(o)
-#else
-#define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
-#endif
-
 /* Extended array struct */
 typedef struct pg_capsule_interface_s {
     PyArrayInterface inter;
@@ -584,8 +578,8 @@ pg_get_error(PyObject *self, PyObject *args)
 #if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
     /* SDL 1's encoding is ambiguous */
     PyObject *obj;
-    if (obj = PyUnicode_DecodeUTF8(SDL_GetError(),
-                                   strlen(SDL_GetError()), "strict"))
+    if ((obj = PyUnicode_DecodeUTF8(SDL_GetError(),
+                                   strlen(SDL_GetError()), "strict")))
         return obj;
     PyErr_Clear();
     return PyUnicode_DecodeLocale(SDL_GetError(), "surrogateescape");
