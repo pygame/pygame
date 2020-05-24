@@ -147,8 +147,9 @@ def _add_font_paths(sub_elements, fonts):
     font_name = font_path = None
     for tag in sub_elements:
         if tag.text == "_name":
-            font_name = next(sub_elements).text
-            if splitext(font_name)[1] not in OpenType_extensions:
+            font_file_name = next(sub_elements).text
+            font_name = splitext(font_file_name)[0]
+            if splitext(font_file_name)[1] not in OpenType_extensions:
                 break
             bold = "bold" in font_name
             italic = "italic" in font_name
@@ -241,7 +242,9 @@ def initsysfonts_unix(path="fc-list"):
 
 
 def create_aliases():
-    """map common fonts that are absent from the system to similar fonts that are installed in the system"""
+    """ Map common fonts that are absent from the system to similar fonts
+        that are installed in the system
+    """
     alias_groups = (
         ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
          'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
