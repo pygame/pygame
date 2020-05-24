@@ -31,52 +31,53 @@
 #include "pgcompat.h"
 
 static int
-pgSurface_Lock(PyObject *);
+pgSurface_Lock(pgSurfaceObject *);
 static int
-pgSurface_Unlock(PyObject *);
+pgSurface_Unlock(pgSurfaceObject *);
 static int
-pgSurface_LockBy(PyObject *, PyObject *);
+pgSurface_LockBy(pgSurfaceObject *, PyObject *);
 static int
-pgSurface_UnlockBy(PyObject *, PyObject *);
+pgSurface_UnlockBy(pgSurfaceObject *, PyObject *);
 
 static void
 _lifelock_dealloc(PyObject *);
 
 static void
-pgSurface_Prep(PyObject *surfobj)
+pgSurface_Prep(pgSurfaceObject *surfobj)
 {
     struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
     if (data != NULL) {
         SDL_Surface *surf = pgSurface_AsSurface(surfobj);
         SDL_Surface *owner = pgSurface_AsSurface(data->owner);
-        pgSurface_LockBy(data->owner, surfobj);
+        pgSurface_LockBy((pgSurfaceObject *)data->owner, (PyObject *)surfobj);
         surf->pixels = ((char *)owner->pixels) + data->pixeloffset;
     }
 }
 
 static void
-pgSurface_Unprep(PyObject *surfobj)
+pgSurface_Unprep(pgSurfaceObject *surfobj)
 {
     struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
     if (data != NULL) {
-        pgSurface_UnlockBy(data->owner, surfobj);
+        pgSurface_UnlockBy((pgSurfaceObject *)data->owner,
+                           (PyObject *)surfobj);
     }
 }
 
 static int
-pgSurface_Lock(PyObject *surfobj)
+pgSurface_Lock(pgSurfaceObject *surfobj)
 {
-    return pgSurface_LockBy(surfobj, surfobj);
+    return pgSurface_LockBy(surfobj, (PyObject *)surfobj);
 }
 
 static int
-pgSurface_Unlock(PyObject *surfobj)
+pgSurface_Unlock(pgSurfaceObject *surfobj)
 {
-    return pgSurface_UnlockBy(surfobj, surfobj);
+    return pgSurface_UnlockBy(surfobj, (PyObject *)surfobj);
 }
 
 static int
-pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
+pgSurface_LockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 {
     PyObject *ref;
     pgSurfaceObject *surf = (pgSurfaceObject *)surfobj;
@@ -112,7 +113,7 @@ pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
 }
 
 static int
-pgSurface_UnlockBy(PyObject *surfobj, PyObject *lockobj)
+pgSurface_UnlockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 {
     pgSurfaceObject *surf = (pgSurfaceObject *)surfobj;
     int found = 0;
@@ -226,7 +227,8 @@ _lifelock_dealloc(PyObject *self)
         PyObject_ClearWeakRefs(self);
     }
 
-    pgSurface_UnlockBy(lifelock->surface, lifelock->lockobj);
+    pgSurface_UnlockBy((pgSurfaceObject *)lifelock->surface,
+                       lifelock->lockobj);
     Py_DECREF(lifelock->surface);
     PyObject_DEL(self);
 }
@@ -245,7 +247,7 @@ pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
         life->lockobj = lockobj;
         life->weakrefs = NULL;
         Py_INCREF(surfobj);
-        if (!pgSurface_LockBy(surfobj, lockobj)) {
+        if (!pgSurface_LockBy((pgSurfaceObject *)surfobj, lockobj)) {
             return NULL;
         }
     }

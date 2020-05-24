@@ -118,10 +118,8 @@ check_value(PyObject *o, const char *name)
 }
 
 #if PY_MAJOR_VERSION < 3
-#define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
 #define INT_AS_PY_SSIZE_T(o) (PyInt_AsSsize_t(o))
 #else
-#define INT_CHECK(o) (PyLong_Check(o))
 #define INT_AS_PY_SSIZE_T(o) (PyLong_AsSsize_t(o))
 #endif
 

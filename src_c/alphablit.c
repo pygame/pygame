@@ -171,85 +171,85 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         if (SDL_GetSurfaceBlendMode(src, &info.src_blend) ||
             SDL_GetSurfaceBlendMode(dst, &info.dst_blend)) {
             okay = 0;
-            goto LEAVE;
         }
 #endif /* IS_SDLv2 */
-
-        if (info.d_pixels > info.s_pixels)
-        {
-            int span = info.width * info.src->BytesPerPixel;
-            Uint8 *srcpixend =
-                info.s_pixels + (info.height - 1) * src->pitch + span;
-
-            if (info.d_pixels < srcpixend)
+        if (okay){
+            if (info.d_pixels > info.s_pixels)
             {
-                int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+                int span = info.width * info.src->BytesPerPixel;
+                Uint8 *srcpixend =
+                    info.s_pixels + (info.height - 1) * src->pitch + span;
 
-                if (dstoffset < span || dstoffset > src->pitch - span)
+                if (info.d_pixels < srcpixend)
                 {
-                    /* Overlapping Self blit with positive destination offset.
-                       Reverse direction of the blit.
-                    */
-                    info.s_pixels = srcpixend - info.s_pxskip;
-                    info.s_pxskip = -info.s_pxskip;
-                    info.s_skip = -info.s_skip;
-                    info.d_pixels = (info.d_pixels +
-                                     (info.height - 1) * dst->pitch +
-                                     span - info.d_pxskip);
-                    info.d_pxskip = -info.d_pxskip;
-                    info.d_skip = -info.d_skip;
+                    int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+
+                    if (dstoffset < span || dstoffset > src->pitch - span)
+                    {
+                        /* Overlapping Self blit with positive destination offset.
+                           Reverse direction of the blit.
+                        */
+                        info.s_pixels = srcpixend - info.s_pxskip;
+                        info.s_pxskip = -info.s_pxskip;
+                        info.s_skip = -info.s_skip;
+                        info.d_pixels = (info.d_pixels +
+                                         (info.height - 1) * dst->pitch +
+                                         span - info.d_pxskip);
+                        info.d_pxskip = -info.d_pxskip;
+                        info.d_skip = -info.d_skip;
+                    }
                 }
             }
-        }
 
-        switch (the_args)
-        {
-        case 0:
-        {
+            switch (the_args)
+            {
+            case 0:
+            {
 #if IS_SDLv1
-            if (src->flags & SDL_SRCALPHA && src->format->Amask)
-                alphablit_alpha (&info);
-            else if (src->flags & SDL_SRCCOLORKEY)
-                alphablit_colorkey (&info);
-            else
-                alphablit_solid (&info);
-            break;
+                if (src->flags & SDL_SRCALPHA && src->format->Amask)
+                    alphablit_alpha (&info);
+                else if (src->flags & SDL_SRCCOLORKEY)
+                    alphablit_colorkey (&info);
+                else
+                    alphablit_solid (&info);
+                break;
 #else /* IS_SDLv2 */
-            if (info.src_blend != SDL_BLENDMODE_NONE && src->format->Amask) {
-                alphablit_alpha (&info);
-            } else if (info.src_has_colorkey) {
-                alphablit_colorkey (&info);
-            } else {
-                alphablit_solid (&info);
-            }
-            break;
+                if (info.src_blend != SDL_BLENDMODE_NONE &&
+                    src->format->Amask) {
+                    alphablit_alpha (&info);
+                } else if (info.src_has_colorkey) {
+                    alphablit_colorkey (&info);
+                } else {
+                    alphablit_solid (&info);
+                }
+                break;
 #endif /* IS_SDLv2 */
-        }
-        case PYGAME_BLEND_ADD:
-        {
-            blit_blend_add (&info);
-            break;
-        }
-        case PYGAME_BLEND_SUB:
-        {
-            blit_blend_sub (&info);
-            break;
-        }
-        case PYGAME_BLEND_MULT:
-        {
-            blit_blend_mul (&info);
-            break;
-        }
-        case PYGAME_BLEND_MIN:
-        {
-            blit_blend_min (&info);
-            break;
-        }
-        case PYGAME_BLEND_MAX:
-        {
-            blit_blend_max (&info);
-            break;
-        }
+            }
+            case PYGAME_BLEND_ADD:
+            {
+                blit_blend_add (&info);
+                break;
+            }
+            case PYGAME_BLEND_SUB:
+            {
+                blit_blend_sub (&info);
+                break;
+            }
+            case PYGAME_BLEND_MULT:
+            {
+                blit_blend_mul (&info);
+                break;
+            }
+            case PYGAME_BLEND_MIN:
+            {
+                blit_blend_min (&info);
+                break;
+            }
+            case PYGAME_BLEND_MAX:
+            {
+                blit_blend_max (&info);
+                break;
+            }
 
         case PYGAME_BLEND_RGBA_ADD:
         {
@@ -327,8 +327,6 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         }
         }
     }
-
-LEAVE:
 
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)

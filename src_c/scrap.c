@@ -20,6 +20,7 @@
 */
 
 /* Handle clipboard text and data in arbitrary formats */
+#include "pgcompat.h"
 
 #include <limits.h>
 #include <stdio.h>
