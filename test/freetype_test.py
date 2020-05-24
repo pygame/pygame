@@ -679,7 +679,7 @@ class FreeTypeFontTest(unittest.TestCase):
         rrect = font.render_to(surf, rect, "FoobarBax", color, None, size=24)
         self.assertEqual(rrect.top, rrect.height)
         self.assertNotEqual(rrect.size, rect.size)
-        rrect = font.render_to(surf, (int(20.1), int(18.9)), "FoobarBax", color, None, size=24)
+        rrect = font.render_to(surf, (20.1, 18.9), "FoobarBax", color, None, size=24)
         ## self.assertEqual(tuple(rend[1].topleft), (20, 18))
 
         rrect = font.render_to(surf, rect, "", color, None, size=24)
