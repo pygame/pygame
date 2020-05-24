@@ -586,7 +586,7 @@ surf_scale(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -642,7 +642,7 @@ surf_scale2x(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -676,7 +676,7 @@ surf_rotate(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
         if (!newsurf)
             return NULL;
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
     }
 
     radangle = angle * .01745329251994329;
@@ -743,7 +743,7 @@ surf_rotate(PyObject *self, PyObject *arg)
     pgSurface_Unlock(surfobj);
     SDL_UnlockSurface(newsurf);
 
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -895,7 +895,7 @@ surf_flip(PyObject *self, PyObject *arg)
 
     pgSurface_Unlock(surfobj);
     SDL_UnlockSurface(newsurf);
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -912,7 +912,7 @@ surf_rotozoom(PyObject *self, PyObject *arg)
     surf = pgSurface_AsSurface(surfobj);
     if (scale == 0.0 || surf->w == 0 || surf->h ==0) {
         newsurf = newsurf_fromsurf(surf, 0, 0);
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
     }
 
     if (surf->format->BitsPerPixel == 32) {
@@ -936,7 +936,7 @@ surf_rotozoom(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
     else
         SDL_FreeSurface(surf32);
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 static SDL_Surface *
@@ -1025,7 +1025,7 @@ surf_chop(PyObject *self, PyObject *arg)
     newsurf = chop(surf, rect->x, rect->y, rect->w, rect->h);
     Py_END_ALLOW_THREADS;
 
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 /*
@@ -1486,7 +1486,7 @@ surf_scalesmooth(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -2241,7 +2241,7 @@ surf_laplacian(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 int
@@ -2564,7 +2564,7 @@ surf_average_surfaces(PyObject *self, PyObject *arg)
             ret = surfobj2;
         }
         else {
-            ret = pgSurface_New(newsurf);
+            ret = (PyObject *)pgSurface_New(newsurf);
         }
     }
 

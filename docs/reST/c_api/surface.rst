@@ -29,7 +29,7 @@ Header file: src_c/include/pygame.h
    Will return false if *x* is a subclass of `Surface`.
    This is a macro. No check is made that *x* is not *NULL*.
 
-.. c:function:: PyObject* pgSurface_New(SDL_Surface *s)
+.. c:function:: pgSurfaceObject* pgSurface_New(SDL_Surface *s)
 
    Return a new new pygame surface instance for SDL surface *s*.
    Return *NULL* on error.

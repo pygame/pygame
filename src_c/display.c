@@ -42,7 +42,7 @@ pgVidInfo_New(const SDL_VideoInfo *info);
 
 static void
 pg_do_set_icon(PyObject *surface);
-static PyObject *pgDisplaySurfaceObject = NULL;
+static pgSurfaceObject *pgDisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 static int _allow_screensaver = 0;
 
@@ -220,7 +220,7 @@ pg_display_autoquit(void)
 {
     if (pgDisplaySurfaceObject) {
         pgSurface_AsSurface(pgDisplaySurfaceObject) = NULL;
-        Py_DECREF(pgDisplaySurfaceObject);
+        Py_DECREF((PyObject *)pgDisplaySurfaceObject);
         pgDisplaySurfaceObject = NULL;
         icon_was_set = 0;
     }
@@ -432,7 +432,7 @@ pg_GetVideoInfo(pg_VideoInfo *info)
     SDL_DisplayMode mode;
     SDL_PixelFormat *tempformat;
     Uint32 formatenum;
-    PyObject *winsurfobj;
+    pgSurfaceObject *winsurfobj;
     SDL_Surface *winsurf;
 
 #pragma PG_WARN(hardcoding wm_available to 1)
@@ -706,11 +706,11 @@ pg_get_driver(PyObject *self, PyObject *args)
 static PyObject *
 pg_get_surface(PyObject *self, PyObject *args)
 {
-    PyObject *surface = pg_GetDefaultWindowSurface();
+    pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     if (!surface)
         Py_RETURN_NONE;
     Py_INCREF(surface);
-    return surface;
+    return (PyObject *)surface;
 }
 #else  /* IS_SDLv1 */
 static PyObject *
@@ -728,8 +728,8 @@ pg_get_surface(PyObject *self, PyObject *args)
 {
     if (!pgDisplaySurfaceObject)
         Py_RETURN_NONE;
-    Py_INCREF(pgDisplaySurfaceObject);
-    return pgDisplaySurfaceObject;
+    Py_INCREF((PyObject *)pgDisplaySurfaceObject);
+    return (PyObject *)pgDisplaySurfaceObject;
 }
 #endif /* IS_SDLv1 */
 
@@ -851,7 +851,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     _DisplayState *state = DISPLAY_MOD_STATE(self);
     SDL_Window *win = pg_GetDefaultWindow();
-    PyObject *surface = pg_GetDefaultWindowSurface();
+    pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     SDL_Surface *surf = NULL;
     SDL_Surface *newownedsurf = NULL;
     int depth = 0;
@@ -1297,7 +1297,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     /*return the window's surface (screen)*/
     Py_INCREF(surface);
-    return surface;
+    return (PyObject *)surface;
 
 DESTROY_WINDOW:
 
@@ -1626,7 +1626,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     SDL_PumpEvents();
 
     if (pgDisplaySurfaceObject)
-        ((pgSurfaceObject *)pgDisplaySurfaceObject)->surf = surf;
+        pgDisplaySurfaceObject->surf = surf;
     else
         pgDisplaySurfaceObject = pgSurface_New(surf);
 
@@ -1642,8 +1642,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         }
     }
 #endif
-    Py_INCREF(pgDisplaySurfaceObject);
-    return pgDisplaySurfaceObject;
+    Py_INCREF((PyObject *)pgDisplaySurfaceObject);
+    return (PyObject *)pgDisplaySurfaceObject;
 }
 
 static PyObject *
@@ -1917,7 +1917,7 @@ pg_update(PyObject *self, PyObject *arg)
 static PyObject *
 pg_set_palette(PyObject *self, PyObject *args)
 {
-    PyObject *surface = pg_GetDefaultWindowSurface();
+    pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     SDL_Surface *surf;
     SDL_Palette *pal;
     SDL_Color *colors;
@@ -2428,7 +2428,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
             return RAISE(pgExc_SDLError, "Unsupported platform");
     }
 
-    display_surface = (pgSurfaceObject *)pg_GetDefaultWindowSurface();
+    display_surface = pg_GetDefaultWindowSurface();
 
     // could also take the size of the old display surface
     SDL_GetWindowSize(win, &window_w, &window_h);

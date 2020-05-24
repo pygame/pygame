@@ -97,7 +97,8 @@ if '-pygame-ci' in sys.argv:
               '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
               '-Werror=format-security -Werror=uninitialized ' + \
               '-Werror=trigraphs -Werror=parentheses -Werror=unused-value ' + \
-              '-Werror=cast-align'
+              '-Werror=cast-align -Werror=int-conversion ' + \
+              '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
     sys.argv.remove ('-pygame-ci')
 

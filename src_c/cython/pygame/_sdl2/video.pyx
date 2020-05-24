@@ -28,6 +28,9 @@ cdef extern from "SDL.h" nogil:
 
 
 cdef extern from "pygame.h" nogil:
+    ctypedef struct pgSurfaceObject:
+        pass
+
     int pgSurface_Check(object surf)
     SDL_Surface* pgSurface_AsSurface(object surf)
     void import_pygame_surface()
@@ -46,7 +49,7 @@ cdef extern from "pygame.h" nogil:
     object pgColor_New(Uint8 rgba[])
     object pgColor_NewLength(Uint8 rgba[], Uint8 length)
     void import_pygame_color()
-    object pgSurface_New2(SDL_Surface *info, int owner)
+    pgSurfaceObject *pgSurface_New2(SDL_Surface *info, int owner)
 
 cdef extern from "pgcompat.h" nogil:
     pass
@@ -1174,7 +1177,7 @@ cdef class Renderer:
             if surf == NULL:
                 raise MemoryError("not enough memory for the surface")
 
-            surface = pgSurface_New2(surf, 1)
+            surface = <object>pgSurface_New2(surf, 1)
         elif pgSurface_Check(surface):
             surf = pgSurface_AsSurface(surface)
             if surf.w < rarea.w or surf.h < rarea.h:

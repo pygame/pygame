@@ -1867,7 +1867,7 @@ _ftfont_render(pgFontObject *self, PyObject *args, PyObject *kwds)
     if (!surface)
         goto error;
     free_string(text);
-    surface_obj = pgSurface_New(surface);
+    surface_obj = (PyObject *)pgSurface_New(surface);
     if (!surface_obj)
         goto error;
 

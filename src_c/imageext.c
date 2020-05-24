@@ -228,7 +228,7 @@ image_load_ext(PyObject *self, PyObject *arg)
             return RAISE(pgExc_SDLError, IMG_GetError());
         }
     }
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -798,7 +798,7 @@ opengltosdl(void)
 static PyObject *
 image_save_ext(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *obj;
     PyObject *oencoded = NULL;
     SDL_Surface *surf;

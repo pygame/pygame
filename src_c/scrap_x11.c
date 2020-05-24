@@ -795,7 +795,7 @@ pygame_scrap_get_types(void)
 #if PY3
         PyObject *chars;
 #endif
-        int pos = 0;
+        Py_ssize_t pos = 0;
         int i = 0;
         PyObject *dict =
             (_currentmode == SCRAP_SELECTION) ? _selectiondata : _clipdata;
