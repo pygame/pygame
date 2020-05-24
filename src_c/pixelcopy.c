@@ -1142,7 +1142,7 @@ make_surface(PyObject *self, PyObject *arg)
 {
     pg_buffer pg_view;
     Py_buffer *view_p = (Py_buffer *)&pg_view;
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *args;
     PyObject *result;
     SDL_Surface *surf;
@@ -1224,7 +1224,7 @@ make_surface(PyObject *self, PyObject *arg)
         return 0;
     }
     Py_DECREF(result);
-    return surfobj;
+    return (PyObject *)surfobj;
 }
 
 static PyMethodDef _pixelcopy_methods[] = {

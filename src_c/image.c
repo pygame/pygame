@@ -104,7 +104,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -194,7 +194,7 @@ opengltosdl()
 PyObject *
 image_save(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *obj;
     PyObject *oencoded;
     PyObject *imgext = NULL;
@@ -1183,7 +1183,7 @@ image_fromstring(PyObject *self, PyObject *arg)
     else
         return RAISE(PyExc_ValueError, "Unrecognized type of format");
 
-    return pgSurface_New(surf);
+    return (PyObject *)pgSurface_New(surf);
 }
 
 static int
@@ -1221,7 +1221,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
     SDL_Surface *surf = NULL;
     int w, h;
     Py_ssize_t len;
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
 
     if (!PyArg_ParseTuple(arg, "O(ii)s|i", &buffer, &w, &h, &format))
         return NULL;
@@ -1303,8 +1303,8 @@ image_frombuffer(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, SDL_GetError());
     surfobj = pgSurface_New(surf);
     Py_INCREF(buffer);
-    ((pgSurfaceObject *)surfobj)->dependency = buffer;
-    return surfobj;
+    surfobj->dependency = buffer;
+    return (PyObject *)surfobj;
 }
 
 /*******************************************************/
