@@ -966,21 +966,10 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_clip(self):
+    def test_get_clip(self):
+        surf = pygame.Surface(200,200)
+        pygame.surf.get_clip()
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_clip:
-
-        # Surface.get_clip(): return Rect
-        # get the current clipping area of the Surface
-        #
-        # Return a rectangle of the current clipping area. The Surface will
-        # always return a valid rectangle that will never be outside the
-        # bounds of the image. If the Surface has had None set for the
-        # clipping area, the Surface will return a rectangle with the full
-        # area of the Surface.
-        #
-
-        self.fail()
 
     def todo_test_get_colorkey(self):
         surf = pygame.surface((2, 2), 0, 24)
