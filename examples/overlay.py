@@ -16,25 +16,22 @@ ovl = None
 def vPlayer(fName):
     global ovl
     f = open(fName, "rb")
-    fmt = f.readline().strip()
-    res = f.readline().strip()
+    fmt = f.readline().strip().decode()
+    res = f.readline().strip().decode()
     unused_col = f.readline().strip()
     if fmt != "P5":
         print("Unknown format( len %d ). Exiting..." % len(fmt))
         return
 
     w, h = [int(x) for x in res.split(" ")]
-    h = (h * 2) / 3
+    h = int((h * 2) / 3)
     # Read into strings
     y = f.read(w * h)
-    u = []
-    v = []
-    for _ in xrange_(0, h / 2):
-        u.append(f.read(w / 2))
-        v.append(f.read(w / 2))
-
-    u = "".join(u)
-    v = "".join(v)
+    u = bytes()
+    v = bytes()
+    for _ in xrange_(0, int(h / 2)):
+        u += (f.read(int(w / 2)))
+        v += (f.read(int(w / 2)))
 
     # Open overlay with the resolution specified
     ovl = pg.Overlay(pg.YV12_OVERLAY, (w, h))
@@ -61,6 +58,11 @@ def main(fname):
 # Test all modules
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: play_file <file_pattern>")
+        print("Example usage: python overlay.py data/yuv_1.pgm")
     else:
         main(sys.argv[1])
+
+# Uncomment the code below for a quick test
+# ------------------------------------------
+# if __name__ == "__main__":
+#     main('data/yuv_1.pgm')
