@@ -25,6 +25,8 @@
 #include <limits.h>
 #include <stdio.h>
 
+#include "pgcompat.h"
+
 #include "SDL.h"
 
 #include "SDL_syswm.h"

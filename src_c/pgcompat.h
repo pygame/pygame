@@ -215,7 +215,8 @@ SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height
 #endif
 #endif /* defined(SDL_VERSION_ATLEAST) */
 
-// Needed to build with Windows SDK 10.0.18362.0
+// Currently needed to build scrap.c, event.c, display.c
+// with Windows SDK 10.0.18362.0 and SDL1 build
 #ifdef _MSC_VER
     #ifndef WINDOWS_IGNORE_PACKING_MISMATCH
         #define WINDOWS_IGNORE_PACKING_MISMATCH
