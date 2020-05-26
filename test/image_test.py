@@ -2,6 +2,7 @@
 
 import array
 import binascii
+import io
 import os
 import tempfile
 import unittest
@@ -254,6 +255,30 @@ class ImageModuleTest(unittest.TestCase):
             finally:
                 # clean up the temp file, comment out to leave tmp file after run.
                 os.remove(temp_filename)
+
+    def test_save_to_fileobject(self):
+        s = pygame.Surface((1, 1))
+        s.fill((23, 23, 23))
+        bytes_stream = io.BytesIO()
+
+        pygame.image.save(s, bytes_stream)
+        bytes_stream.seek(0)
+        s2 = pygame.image.load(bytes_stream, "tga")
+        self.assertEqual(s.get_at((0, 0)), s2.get_at((0, 0)))
+
+    def test_save_tga(self):
+        s = pygame.Surface((1, 1))
+        s.fill((23, 23, 23))
+        with tempfile.NamedTemporaryFile(suffix=".tga", delete=False) as f:
+            temp_filename = f.name
+
+        try:
+            pygame.image.save(s, temp_filename)
+            s2 = pygame.image.load(temp_filename)
+            self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
+        finally:
+            # clean up the temp file, even if test fails
+            os.remove(temp_filename)
 
     def test_save_colorkey(self):
         """ make sure the color key is not changed when saving.
