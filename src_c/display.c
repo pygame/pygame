@@ -724,12 +724,12 @@ pg_get_surface(PyObject *self, PyObject *args)
         SDL_Surface *sdl_surface = SDL_GetWindowSurface(win);
         pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
         if (sdl_surface != old_surface->surf) {
-            PyObject *new_surface = pgSurface_New2(sdl_surface, SDL_FALSE);
+            pgSurfaceObject *new_surface = pgSurface_New2(sdl_surface, SDL_FALSE);
             if (!new_surface)
                 return NULL;
-            Py_DECREF(old_surface);
+            Py_DECREF((PyObject *)old_surface);
             pg_SetDefaultWindowSurface(new_surface);
-            Py_INCREF(new_surface);
+            Py_INCREF((PyObject *)new_surface);
             return (PyObject *)new_surface;
         }
         Py_INCREF(old_surface);
