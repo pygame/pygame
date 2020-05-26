@@ -81,7 +81,7 @@ static int pg_is_init = 0;
 static int pg_sdl_was_init = 0;
 #if IS_SDLv2
 SDL_Window *pg_default_window = NULL;
-PyObject *pg_default_screen = NULL;
+pgSurfaceObject *pg_default_screen = NULL;
 #endif /* IS_SDLv2 */
 
 static void
@@ -176,10 +176,10 @@ static SDL_Window *
 pg_GetDefaultWindow(void);
 static void
 pg_SetDefaultWindow(SDL_Window *);
-static PyObject *
+static pgSurfaceObject *
 pg_GetDefaultWindowSurface(void);
 static void
-pg_SetDefaultWindowSurface(PyObject *);
+pg_SetDefaultWindowSurface(pgSurfaceObject *);
 #endif /* IS_SDLv2 */
 
 static int
@@ -1924,23 +1924,15 @@ pg_SetDefaultWindow(SDL_Window *win)
     pg_default_window = win;
 }
 
-static PyObject *
+static pgSurfaceObject *
 pg_GetDefaultWindowSurface(void)
 {
-    /*return a borrowed reference*/
-    if (pg_default_window && NULL==SDL_GetRenderer(pg_default_window)) {
-        /* With SDL2, resizing invalidates the existing surface.  Calling
-         * SDL_GetWindowSurface will recreate the surface when it is
-         * invalid (or return the current surface if it is still valid)
-         */
-        SDL_Surface *new_surface = SDL_GetWindowSurface(pg_default_window);
-        ((pgSurfaceObject *)pg_default_screen)->surf = new_surface;
-    }
+    /* return a borrowed reference*/
     return pg_default_screen;
 }
 
 static void
-pg_SetDefaultWindowSurface(PyObject *screen)
+pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 {
     /*a screen surface can be replaced with itself*/
     if (screen == pg_default_screen) {
