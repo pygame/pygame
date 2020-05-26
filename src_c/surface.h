@@ -335,7 +335,7 @@
         }                                           \
     } while(0)
 
-#define ALPHA_BLEND_PREMULTIPLIED_COMP(sC, dC, sA) (sC + ((dC * (255 - sA)) >> 8))
+#define ALPHA_BLEND_PREMULTIPLIED_COMP(sC, dC, sA) (sC + dC - ((dC + 1) * sA >> 8))
 
 #define ALPHA_BLEND_PREMULTIPLIED(tmp, sR, sG, sB, sA, dR, dG, dB, dA) \
     do {                                            \

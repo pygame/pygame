@@ -1115,6 +1115,8 @@ _ftfont_setsize(pgFontObject *self, PyObject *value, void *closure)
 {
     Scale_t face_size;
 
+    DEL_ATTR_NOT_SUPPORTED_CHECK("size", value);
+
     if (!obj_to_scale(value, &face_size))
         goto error;
     self->face_size = face_size;
@@ -1134,8 +1136,12 @@ static int
 _ftfont_setunderlineadjustment(pgFontObject *self, PyObject *value,
                                void *closure)
 {
-    PyObject *adjustmentobj = PyNumber_Float(value);
+    PyObject *adjustmentobj;
     double adjustment;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("underline_adjustment", value);
+
+    adjustmentobj = PyNumber_Float(value);
 
     if (!adjustmentobj) {
         return -1;
@@ -1236,6 +1242,9 @@ _ftfont_setrender_flag(pgFontObject *self, PyObject *value, void *closure)
 {
     const long render_flag = (long)closure;
 
+    /* Generic setter; We do not know the name of the attribute */
+    DEL_ATTR_NOT_SUPPORTED_CHECK(NULL, value);
+
     if (!PyBool_Check(value)) {
         PyErr_SetString(PyExc_TypeError, "The style value must be a boolean");
         return -1;
@@ -1268,6 +1277,9 @@ _ftfont_getrotation(pgFontObject *self, void *closure)
 static int
 _ftfont_setrotation(pgFontObject *self, PyObject *value, void *closure)
 {
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("rotation", value);
+
     if (!self->is_scalable) {
         if (pgFont_IS_ALIVE(self)) {
             PyErr_SetString(PyExc_AttributeError,
@@ -1292,6 +1304,9 @@ _ftfont_getfgcolor(pgFontObject *self, void *closure)
 static int
 _ftfont_setfgcolor(pgFontObject *self, PyObject *value, void *closure)
 {
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("fgcolor", value);
+
     if (!pg_RGBAFromObj(value, self->fgcolor)) {
         PyErr_Format(PyExc_AttributeError,
                      "unable to convert %128s object to a color",
@@ -1310,6 +1325,9 @@ _ftfont_getbgcolor(pgFontObject *self, void *closure)
 static int
 _ftfont_setbgcolor(pgFontObject *self, PyObject *value, void *closure)
 {
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("bgcolor", value);
+
     if (!pg_RGBAFromObj(value, self->bgcolor)) {
         PyErr_Format(PyExc_AttributeError,
                      "unable to convert %128s object to a color",
