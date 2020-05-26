@@ -346,7 +346,11 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
     if (!helper->write)
         return -1;
 
+#if PY3
+    result = PyObject_CallFunction(helper->write, "y#", ptr, size * num);
+#else  /* PY2 */
     result = PyObject_CallFunction(helper->write, "s#", ptr, size * num);
+#endif  /* PY2 */
     if (!result)
         return -1;
 
@@ -362,7 +366,11 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
         return -1;
     state = PyGILState_Ensure();
 
+#if PY3
+    result = PyObject_CallFunction(helper->write, "y#", ptr, size * num);
+#else  /* PY2 */
     result = PyObject_CallFunction(helper->write, "s#", ptr, size * num);
+#endif  /* PY2 */
     if (!result) {
         PyErr_Print();
         retval = -1;

@@ -25,6 +25,8 @@
 #define DOC_PYGAMEDISPLAYSETPALETTE "set_palette(palette=None) -> None\nSet the display color palette for indexed displays"
 #define DOC_PYGAMEDISPLAYGETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays"
 #define DOC_PYGAMEDISPLAYGETWINDOWSIZE "get_window_size() -> tuple\nReturn the size of the window or screen"
+#define DOC_PYGAMEDISPLAYGETALLOWSCREENSAVER "get_allow_screensaver() -> bool\nReturn whether the screensaver is allowed to run."
+#define DOC_PYGAMEDISPLAYSETALLOWSCREENSAVER "set_allow_screensaver(bool) -> None\nSet whether the screensaver may run"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -134,5 +136,13 @@ Return the number of displays
 pygame.display.get_window_size
  get_window_size() -> tuple
 Return the size of the window or screen
+
+pygame.display.get_allow_screensaver
+ get_allow_screensaver() -> bool
+Return whether the screensaver is allowed to run.
+
+pygame.display.set_allow_screensaver
+ set_allow_screensaver(bool) -> None
+Set whether the screensaver may run
 
 */

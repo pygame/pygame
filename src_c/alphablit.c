@@ -30,9 +30,17 @@
     #include "include/sse2neon.h"
 #else
     #if IS_SDLv1
+        // MSVC uses these defines for SSE2 support for some reason
+        #if defined(_M_IX86_FP) || (defined(_M_AMD64) || defined(_M_X64))
+            #if (_M_IX86_FP == 2) || (defined(_M_AMD64) || defined(_M_X64))
+                #define __SSE2__ 1
+            #endif
+        #endif
         // SDL 1 doesn't import the latest intrinsics, this should should pull
         // them all in for us
-        #include <immintrin.h>
+        #ifdef __SSE2__ // don't import this file on non-SSE platforms.
+            #include <immintrin.h>
+        #endif /* __SSE2__ */
     #endif /* IS_SDLv1 */
 #endif /* PG_ENABLE_ARM_NEON */
 
@@ -163,158 +171,163 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         if (SDL_GetSurfaceBlendMode(src, &info.src_blend) ||
             SDL_GetSurfaceBlendMode(dst, &info.dst_blend)) {
             okay = 0;
-            goto LEAVE;
         }
 #endif /* IS_SDLv2 */
-
-        if (info.d_pixels > info.s_pixels)
-        {
-            int span = info.width * info.src->BytesPerPixel;
-            Uint8 *srcpixend =
-                info.s_pixels + (info.height - 1) * src->pitch + span;
-
-            if (info.d_pixels < srcpixend)
+        if (okay){
+            if (info.d_pixels > info.s_pixels)
             {
-                int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+                int span = info.width * info.src->BytesPerPixel;
+                Uint8 *srcpixend =
+                    info.s_pixels + (info.height - 1) * src->pitch + span;
 
-                if (dstoffset < span || dstoffset > src->pitch - span)
+                if (info.d_pixels < srcpixend)
                 {
-                    /* Overlapping Self blit with positive destination offset.
-                       Reverse direction of the blit.
-                    */
-                    info.s_pixels = srcpixend - info.s_pxskip;
-                    info.s_pxskip = -info.s_pxskip;
-                    info.s_skip = -info.s_skip;
-                    info.d_pixels = (info.d_pixels +
-                                     (info.height - 1) * dst->pitch +
-                                     span - info.d_pxskip);
-                    info.d_pxskip = -info.d_pxskip;
-                    info.d_skip = -info.d_skip;
+                    int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+
+                    if (dstoffset < span || dstoffset > src->pitch - span)
+                    {
+                        /* Overlapping Self blit with positive destination offset.
+                           Reverse direction of the blit.
+                        */
+                        info.s_pixels = srcpixend - info.s_pxskip;
+                        info.s_pxskip = -info.s_pxskip;
+                        info.s_skip = -info.s_skip;
+                        info.d_pixels = (info.d_pixels +
+                                         (info.height - 1) * dst->pitch +
+                                         span - info.d_pxskip);
+                        info.d_pxskip = -info.d_pxskip;
+                        info.d_skip = -info.d_skip;
+                    }
                 }
             }
-        }
 
-        switch (the_args)
-        {
-        case 0:
-        {
+            switch (the_args)
+            {
+            case 0:
+            {
 #if IS_SDLv1
-            if (src->flags & SDL_SRCALPHA && src->format->Amask)
-                alphablit_alpha (&info);
-            else if (src->flags & SDL_SRCCOLORKEY)
-                alphablit_colorkey (&info);
-            else
-                alphablit_solid (&info);
-            break;
+                if (src->flags & SDL_SRCALPHA && src->format->Amask)
+                    alphablit_alpha (&info);
+                else if (src->flags & SDL_SRCCOLORKEY)
+                    alphablit_colorkey (&info);
+                else
+                    alphablit_solid (&info);
+                break;
 #else /* IS_SDLv2 */
-            if (info.src_blend != SDL_BLENDMODE_NONE && src->format->Amask) {
-                alphablit_alpha (&info);
-            } else if (info.src_has_colorkey) {
-                alphablit_colorkey (&info);
-            } else {
-                alphablit_solid (&info);
-            }
-            break;
+                if (info.src_blend != SDL_BLENDMODE_NONE &&
+                    src->format->Amask) {
+                    alphablit_alpha (&info);
+                } else if (info.src_has_colorkey) {
+                    alphablit_colorkey (&info);
+                } else {
+                    alphablit_solid (&info);
+                }
+                break;
 #endif /* IS_SDLv2 */
-        }
-        case PYGAME_BLEND_ADD:
-        {
-            blit_blend_add (&info);
-            break;
-        }
-        case PYGAME_BLEND_SUB:
-        {
-            blit_blend_sub (&info);
-            break;
-        }
-        case PYGAME_BLEND_MULT:
-        {
-            blit_blend_mul (&info);
-            break;
-        }
-        case PYGAME_BLEND_MIN:
-        {
-            blit_blend_min (&info);
-            break;
-        }
-        case PYGAME_BLEND_MAX:
-        {
-            blit_blend_max (&info);
-            break;
-        }
-
-        case PYGAME_BLEND_RGBA_ADD:
-        {
-        blit_blend_rgba_add (&info);
-        break;
-        }
-        case PYGAME_BLEND_RGBA_SUB:
-        {
-            blit_blend_rgba_sub (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MULT:
-        {
-            blit_blend_rgba_mul (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MIN:
-        {
-            blit_blend_rgba_min (&info);
-            break;
-        }
-        case PYGAME_BLEND_RGBA_MAX:
-        {
-            blit_blend_rgba_max (&info);
-            break;
-        }
-        case PYGAME_BLEND_PREMULTIPLIED:
-        {
-#if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
-            if (src->format->Rmask == dst->format->Rmask
-                && src->format->Gmask == dst->format->Gmask
-                && src->format->Bmask == dst->format->Bmask
-                && src->format->BytesPerPixel == 4
-                && src->format->Rshift % 8 == 0
-                && src->format->Gshift % 8 == 0
-                && src->format->Bshift % 8 == 0
-                && src->format->Ashift % 8 == 0
-                && src->format->Aloss == 0){
-
-#if PG_ENABLE_ARM_NEON
-                if (SDL_HasNEON() == SDL_TRUE){
-                    blit_blend_premultiplied_sse2 (&info);
-                    break;
-                }
-#endif /* PG_ENABLE_ARM_NEON */
-#ifdef __SSE2__
-                if (SDL_HasSSE2() == SDL_TRUE){
-                    blit_blend_premultiplied_sse2 (&info);
-                    break;
-                }
-#endif /* __SSE2__*/
-#ifdef __MMX__
-                if (SDL_HasMMX() == SDL_TRUE) {
-                    blit_blend_premultiplied_mmx (&info);
-                    break;
-                }
-#endif /*__MMX__*/
-
             }
-#endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
-            blit_blend_premultiplied (&info);
+            case PYGAME_BLEND_ADD:
+            {
+                blit_blend_add (&info);
+                break;
+            }
+            case PYGAME_BLEND_SUB:
+            {
+                blit_blend_sub (&info);
+                break;
+            }
+            case PYGAME_BLEND_MULT:
+            {
+                blit_blend_mul (&info);
+                break;
+            }
+            case PYGAME_BLEND_MIN:
+            {
+                blit_blend_min (&info);
+                break;
+            }
+            case PYGAME_BLEND_MAX:
+            {
+                blit_blend_max (&info);
+                break;
+            }
+
+            case PYGAME_BLEND_RGBA_ADD:
+            {
+            blit_blend_rgba_add (&info);
             break;
-        }
-        default:
-        {
-            SDL_SetError ("Invalid argument passed to blit.");
-            okay = 0;
-            break;
-        }
+            }
+            case PYGAME_BLEND_RGBA_SUB:
+            {
+                blit_blend_rgba_sub (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MULT:
+            {
+                blit_blend_rgba_mul (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MIN:
+            {
+                blit_blend_rgba_min (&info);
+                break;
+            }
+            case PYGAME_BLEND_RGBA_MAX:
+            {
+                blit_blend_rgba_max (&info);
+                break;
+            }
+            case PYGAME_BLEND_PREMULTIPLIED:
+            {
+        #if IS_SDLv1
+                if (src->format->BytesPerPixel == 4 &&
+                    dst->format->BytesPerPixel == 4 &&
+                    src->format->Rmask == dst->format->Rmask &&
+                    src->format->Gmask == dst->format->Gmask &&
+                    src->format->Bmask == dst->format->Bmask &&
+                    info.src_flags & SDL_SRCALPHA)
+        #else /* IS_SDLv2 */
+                if (src->format->BytesPerPixel == 4 &&
+                    dst->format->BytesPerPixel == 4 &&
+                    src->format->Rmask == dst->format->Rmask &&
+                    src->format->Gmask == dst->format->Gmask &&
+                    src->format->Bmask == dst->format->Bmask &&
+                    info.src_blend != SDL_BLENDMODE_NONE)
+        #endif /* IS_SDLv2 */
+                {
+    #if  defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+        #if PG_ENABLE_ARM_NEON
+                    if (SDL_HasNEON() == SDL_TRUE){
+                        blit_blend_premultiplied_sse2 (&info);
+                        break;
+                    }
+        #endif /* PG_ENABLE_ARM_NEON */
+        #ifdef __SSE2__
+                    if (SDL_HasSSE2()){
+                        blit_blend_premultiplied_sse2 (&info);
+                        break;
+                    }
+        #endif /* __SSE2__*/
+        #ifdef __MMX__
+                    if (SDL_HasMMX() == SDL_TRUE) {
+                        blit_blend_premultiplied_mmx (&info);
+                        break;
+                    }
+        #endif /*__MMX__*/
+    #endif /*__MMX__ || __SSE2__ || PG_ENABLE_ARM_NEON*/
+                }
+
+                blit_blend_premultiplied (&info);
+                break;
+            }
+            default:
+            {
+                SDL_SetError ("Invalid argument passed to blit.");
+                okay = 0;
+                break;
+            }
+            }
         }
     }
-
-LEAVE:
 
     /* We need to unlock the surfaces if they're locked */
     if (dst_locked)
@@ -1101,13 +1114,16 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
     int             dstskip = info->d_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src;
     Uint32          amask = srcfmt->Amask;
-    Uint64          multmask2;
+    Uint64          multmask;
+    Uint64          ones;
 
-    __m128i src1, dst1, mm_alpha, mm_zero, mm_alpha2, multmask2_128;
+    __m128i src1, dst1, sub_dst, mm_alpha, mm_zero, multmask_128, ones_128;
 
     mm_zero = _mm_setzero_si128();
-    multmask2 = 0x00FF00FF00FF00FF; // 0F0F0F0F
-    multmask2_128 = _mm_loadl_epi64((const __m128i *) & multmask2);
+    multmask = 0x00FF00FF00FF00FF; // 0F0F0F0F
+    multmask_128 = _mm_loadl_epi64((const __m128i *) & multmask);
+    ones = 0x0001000100010001;
+    ones_128 = _mm_loadl_epi64((const __m128i *) & ones);
 
     while (height--) {
         /* *INDENT-OFF* */
@@ -1127,13 +1143,14 @@ blit_blend_premultiplied_sse2(SDL_BlitInfo * info)
             mm_alpha = _mm_cvtsi32_si128(alpha); /* alpha -> mm_alpha (000000000000A000) */
             mm_alpha = _mm_srli_si128(mm_alpha, 3); /* mm_alpha >> ashift -> mm_alpha(000000000000000A) */
             mm_alpha = _mm_unpacklo_epi16(mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
-            mm_alpha2 = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
-            mm_alpha2 = _mm_xor_si128(mm_alpha2, multmask2_128);    /* 255 - mm_alpha -> mm_alpha */
+            mm_alpha = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
 
             /* pre-multiplied alpha blend */
-            dst1 = _mm_mullo_epi16(dst1, mm_alpha2);
-            dst1 = _mm_srli_epi16(dst1, 8);
+            sub_dst = _mm_add_epi16(dst1, ones_128);
+            sub_dst = _mm_mullo_epi16(sub_dst, mm_alpha);
+            sub_dst = _mm_srli_epi16(sub_dst, 8);
             dst1 = _mm_add_epi16(src1, dst1);
+            dst1 = _mm_sub_epi16(dst1, sub_dst);
             dst1 = _mm_packus_epi16(dst1, mm_zero);
 
             *dstp = _mm_cvtsi128_si32(dst1);
@@ -1237,9 +1254,46 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
 #endif /* IS_SDLv2 */
 
-    /*
-    printf ("Premultiplied alpha blit with %d and %d\n", srcbpp, dstbpp);
-    */
+#if IS_SDLv1
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+#else /* IS_SDLv2 */
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
+#endif /* IS_SDLv2 */
+    {
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                dst[dstoffsetR] = src[srcoffsetR];
+                dst[dstoffsetG] = src[srcoffsetG];
+                dst[dstoffsetB] = src[srcoffsetB];
+
+                src += srcpxskip;
+                dst += dstpxskip;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
 
     if (srcbpp == 1)
     {
@@ -1251,9 +1305,30 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    // Source alpha is 255 so we can skip the blend and just
-                    // use the source
-                    CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1270,9 +1345,8 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXEL (pixel, dstbpp, dst);
                     GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-                    // Source alpha is 255 so we can skip the blend and just
-                    // use the source
-                    CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1292,19 +1366,8 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    // We can save some blending time by just copying pixels
-                    // with  alphas of 255 or 0
-                    if(sA == 0){
-                        CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    }
-                    else if(sA == 255){
-                        CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
-                    }
-                    else{
-                        ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                        CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    }
-
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1312,6 +1375,41 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                 dst += dstskip;
             }
 
+        }
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    if(sA == 0){
+                        dst[offsetR] = dR;
+                        dst[offsetG] = dG;
+                        dst[offsetB] = dB;
+                    }
+                    else if(sA == 255){
+                        dst[offsetR] = sR;
+                        dst[offsetG] = sG;
+                        dst[offsetB] = sB;
+                    }
+                    else{
+                        ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                        dst[offsetR] = dR;
+                        dst[offsetG] = dG;
+                        dst[offsetB] = dB;
+                    }
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
         }
         else /* dstbpp > 1 */
         {

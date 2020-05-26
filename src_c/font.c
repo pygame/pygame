@@ -230,7 +230,7 @@ fontmodule_init(PyObject *self)
 static PyObject *
 get_init(PyObject *self)
 {
-    return PyInt_FromLong(font_initialized);
+    return PyBool_FromLong(font_initialized);
 }
 
 /* font object methods */
@@ -504,7 +504,7 @@ font_render(PyObject *self, PyObject *args)
         surf->format->palette->colors[0].g = backg.g;
         surf->format->palette->colors[0].b = backg.b;
     }
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }

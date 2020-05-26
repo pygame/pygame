@@ -480,7 +480,8 @@ _copy_unmapped(Py_buffer *view_p, SDL_Surface *surf)
 static PyObject *
 array_to_surface(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *arrayobj;
+    pgSurfaceObject *surfobj;
+    PyObject *arrayobj;
     pg_buffer pg_view;
     Py_buffer *view_p = (Py_buffer *)&pg_view;
     char *array_data;
@@ -774,7 +775,7 @@ static PyObject *
 surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *arrayobj;
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     pg_buffer pg_view;
     Py_buffer *view_p = (Py_buffer *)&pg_view;
     _pc_view_kind_t view_kind = VIEWKIND_RGB;
@@ -854,7 +855,7 @@ map_array(PyObject *self, PyObject *args)
 #define PIXELCOPY_MAX_DIM 10
     PyObject *src_array;
     PyObject *tar_array;
-    PyObject *format_surf;
+    pgSurfaceObject *format_surf;
     SDL_PixelFormat *format;
     pg_buffer src_pg_view;
     Py_buffer *src_view_p = 0;
@@ -1141,7 +1142,7 @@ make_surface(PyObject *self, PyObject *arg)
 {
     pg_buffer pg_view;
     Py_buffer *view_p = (Py_buffer *)&pg_view;
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *args;
     PyObject *result;
     SDL_Surface *surf;
@@ -1223,7 +1224,7 @@ make_surface(PyObject *self, PyObject *arg)
         return 0;
     }
     Py_DECREF(result);
-    return surfobj;
+    return (PyObject *)surfobj;
 }
 
 static PyMethodDef _pixelcopy_methods[] = {
