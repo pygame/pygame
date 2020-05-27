@@ -420,9 +420,8 @@ loaded. This module must be imported explicitly to be used. ::
       That is, the alpha values of the foreground, background, and destination
       target surface all affect the blit.
 
-      The return value is a :class:`Rect <pygame.Rect>` instance containing the
-      width and height of the text's bounding box and the position of the
-      text's origin. This is the same as ``get_rect()``.
+      The return value is a rectangle giving the size and position of the
+      rendered text within the surface.
 
       If an empty string is passed for text then the returned
       :class:`Rect <pygame.Rect>` is zero width and the height of the font.
