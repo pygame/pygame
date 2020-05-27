@@ -967,8 +967,12 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def test_get_clip(self):
-        surf = pygame.Surface(200,200)
-        pygame.surf.get_clip()
+        s = pygame.Surface((800,600))
+        rectangle = s.get_clip()
+        self.assertEqual(rectangle, (0, 0, 800, 600))
+
+
+
 
 
     def todo_test_get_colorkey(self):
