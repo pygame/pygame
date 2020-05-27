@@ -727,7 +727,6 @@ pg_get_surface(PyObject *self, PyObject *args)
             pgSurfaceObject *new_surface = pgSurface_New2(sdl_surface, SDL_FALSE);
             if (!new_surface)
                 return NULL;
-            Py_DECREF((PyObject *)old_surface);
             pg_SetDefaultWindowSurface(new_surface);
             Py_INCREF((PyObject *)new_surface);
             return (PyObject *)new_surface;
@@ -830,30 +829,65 @@ _get_video_window_pos(int *x, int *y, int *center_window)
 
 static int SDLCALL
 pg_ResizeEventWatch(void *userdata, SDL_Event *event) {
-    SDL_Window *pygame_window = pg_GetDefaultWindow();
-    PyObject *self= (PyObject *) userdata;
-    _DisplayState *state = DISPLAY_MOD_STATE(self);
+    SDL_Window *pygame_window;
+    PyObject *self;
+    _DisplayState *state;
+    SDL_Window *window;
 
+    if (event->type != SDL_WINDOWEVENT)
+        return 0;
+
+    self= (PyObject *) userdata;
+    pygame_window = pg_GetDefaultWindow();
+    state = DISPLAY_MOD_STATE(self);
+
+    window = SDL_GetWindowFromID(event->window.windowID);
+    if (window != pygame_window)
+        return 0;
+
+    if (pg_renderer!=NULL) {
 #if (SDL_VERSION_ATLEAST(2, 0, 5))
-    if (event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_MAXIMIZED && pg_renderer !=NULL) {
-        SDL_RenderSetIntegerScale(pg_renderer,
-                                  SDL_FALSE);
-    }
-    if (event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESTORED && pg_renderer !=NULL) {
+
+        if (event->window.event == SDL_WINDOWEVENT_MAXIMIZED) {
+            SDL_RenderSetIntegerScale(pg_renderer,
+                                      SDL_FALSE);
+        }
+        if (event->window.event == SDL_WINDOWEVENT_RESTORED) {
             SDL_RenderSetIntegerScale(pg_renderer,
                                       !(SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",SDL_FALSE)));
         }
 #endif
-
-    if (pg_renderer!=NULL)
         return 0;
+    }
 
-    if (state->using_gl)
+    if (state->using_gl) {
+        if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+
+            GL_glViewport_Func p_glViewport = (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
+            int wnew=event->window.data1;
+            int hnew=event->window.data2;
+            SDL_GL_MakeCurrent(pygame_window, state->gl_context);
+            if (state->scaled_gl) {
+                float saved_aspect_ratio =
+                    ((float)state->scaled_gl_w) / (float)state->scaled_gl_h;
+                float window_aspect_ratio = ((float)wnew) / (float)hnew;
+
+                if (window_aspect_ratio > saved_aspect_ratio) {
+                    int width = (int)(hnew * saved_aspect_ratio);
+                    p_glViewport((wnew - width) / 2, 0, width, hnew);
+                }
+                else {
+                    p_glViewport(0, 0, wnew, (int)(wnew / saved_aspect_ratio));
+                }
+            }
+            else {
+                p_glViewport(0, 0, wnew, hnew);
+            }
+        }
         return 0;
+    }
 
-    if (event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-        SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
-
+    if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
         if (window == pygame_window) {
             SDL_Surface *sdl_surface = SDL_GetWindowSurface(window);
             pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
