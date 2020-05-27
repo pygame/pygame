@@ -973,8 +973,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
 
 
-
-
     def todo_test_get_colorkey(self):
         surf = pygame.surface((2, 2), 0, 24)
         self.assertIsNone(surf.get_colorykey())
