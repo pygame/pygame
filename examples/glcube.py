@@ -24,7 +24,6 @@ Keyboard Controls
 
 """
 import math
-import platform
 import ctypes
 
 import pygame as pg
@@ -42,10 +41,14 @@ except ImportError:
     print("numpy missing. The GLCUBE example requires: pyopengl numpy")
     raise SystemExit
 
+
+# do we want to use the 'modern' OpenGL API or the old one?
+# This example shows you how to do both.
+USE_MODERN_GL = True
+
 # Some simple data for a colored cube here we have the 3D point position
 # and color for each corner. A list of indices describes each face, and a
 # list of indices describes each edge.
-
 
 CUBE_POINTS = (
     (0.5, -0.5, -0.5),
@@ -250,6 +253,8 @@ def init_gl_modern(display_size):
     # Create shaders
     # --------------------------------------
     vertex_code = """
+
+    #version 150
     uniform mat4   model;
     uniform mat4   view;
     uniform mat4   projection;
@@ -257,22 +262,25 @@ def init_gl_modern(display_size):
     uniform vec4   colour_mul;
     uniform vec4   colour_add;
 
-    attribute vec4 vertex_colour;         // vertex colour in
-    attribute vec3 vertex_position;
+    in vec4 vertex_colour;         // vertex colour in
+    in vec3 vertex_position;
 
-    varying vec4   vertex_shader_out;            // vertex colour out
+    out vec4   vertex_color_out;            // vertex colour out
     void main()
     {
-        vertex_shader_out = (colour_mul * vertex_colour) + colour_add;
+        vertex_color_out = (colour_mul * vertex_colour) + colour_add;
         gl_Position = projection * view * model * vec4(vertex_position, 1.0);
     }
+
     """
 
     fragment_code = """
-    varying vec4 vertex_shader_out;  // vertex colour from vertex shader
+    #version 150
+    in vec4 vertex_color_out;  // vertex colour from vertex shader
+    out vec4 fragColor;
     void main()
     {
-        gl_FragColor = vertex_shader_out;
+        fragColor = vertex_color_out;
     }
     """
 
@@ -281,11 +289,29 @@ def init_gl_modern(display_size):
     fragment = GL.glCreateShader(GL.GL_FRAGMENT_SHADER)
     GL.glShaderSource(vertex, vertex_code)
     GL.glCompileShader(vertex)
+
+    # this logs issues the shader compiler finds.
+    log = GL.glGetShaderInfoLog(vertex)
+    if isinstance(log, bytes):
+        log = log.decode()
+    for line in log.split("\n"):
+        print(line)
+
     GL.glAttachShader(program, vertex)
     GL.glShaderSource(fragment, fragment_code)
     GL.glCompileShader(fragment)
+
+    # this logs issues the shader compiler finds.
+    log = GL.glGetShaderInfoLog(fragment)
+    if isinstance(log, bytes):
+        log = log.decode()
+    for line in log.split("\n"):
+        print(line)
+
     GL.glAttachShader(program, fragment)
+    GL.glValidateProgram(program)
     GL.glLinkProgram(program)
+
     GL.glDetachShader(program, vertex)
     GL.glDetachShader(program, fragment)
     GL.glUseProgram(program)
@@ -497,11 +523,9 @@ def main():
     # initialize pygame and setup an opengl display
     pg.init()
 
-    USE_MODERN_GL = True and platform.system() != "Darwin"
     gl_version = (3, 0)  # GL Version number (Major, Minor)
     if USE_MODERN_GL:
-        # gl_version = (3, 2)  # GL Version number (Major, Minor)
-        gl_version = (4, 0)  # GL Version number (Major, Minor)
+        gl_version = (3, 2)  # GL Version number (Major, Minor)
 
         # By setting these attributes we can choose which Open GL Profile
         # to use, profiles greater than 3.2 use a different rendering path
