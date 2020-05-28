@@ -23,16 +23,22 @@ Keyboard Controls
 * f key to toggle fullscreen.
 
 """
-import pygame as pg
 import math
+import platform
 import ctypes
 
+import pygame as pg
 try:
     import OpenGL.GL as GL
     import OpenGL.GLU as GLU
+except ImportError:
+    print("pyopengl missing. The GLCUBE example requires: pyopengl numpy")
+    raise SystemExit
+
+try:
     from numpy import array, dot, eye, zeros, float32, uint32
 except ImportError:
-    print("The GLCUBE example requires PyOpenGL & numpy")
+    print("numpy missing. The GLCUBE example requires: pyopengl numpy")
     raise SystemExit
 
 # Some simple data for a colored cube here we have the 3D point position
@@ -462,21 +468,25 @@ def main():
     # initialize pygame and setup an opengl display
     pg.init()
 
-    gl_version = (4, 0)  # GL Version number (Major, Minor)
+    USE_MODERN_GL = True and platform.system() != 'Darwin'
+    gl_version = (3, 0)  # GL Version number (Major, Minor)
+    if USE_MODERN_GL:
+        # gl_version = (3, 2)  # GL Version number (Major, Minor)
+        gl_version = (4, 0)  # GL Version number (Major, Minor)
 
-    # By setting these attributes we can choose which Open GL Profile
-    # to use, profiles greater than 3.2 use a different rendering path
-    pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, gl_version[0])
-    pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, gl_version[1])
-    pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK,
-                                pg.GL_CONTEXT_PROFILE_CORE)
+        # By setting these attributes we can choose which Open GL Profile
+        # to use, profiles greater than 3.2 use a different rendering path
+        pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, gl_version[0])
+        pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, gl_version[1])
+        pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK,
+                                    pg.GL_CONTEXT_PROFILE_CORE)
 
     fullscreen = False  # start in windowed mode
 
     display_size = (640, 480)
-    pg.display.set_mode(display_size, pg.OPENGL | pg.DOUBLEBUF)
+    pg.display.set_mode(display_size, pg.OPENGL | pg.DOUBLEBUF | pg.RESIZABLE)
 
-    if gl_version[0] >= 4 or (gl_version[0] == 3 and gl_version[1] >= 2):
+    if USE_MODERN_GL:
         gpu, f_indices, o_indices = init_gl_modern(display_size)
         rotation = Rotation()
     else:
@@ -511,7 +521,7 @@ def main():
                 else:
                     init_gl_stuff_old()
 
-        if gl_version[0] >= 4 or (gl_version[0] == 3 and gl_version[1] >= 2):
+        if USE_MODERN_GL:
             draw_cube_modern(gpu, f_indices, o_indices, rotation)
         else:
             # clear screen and move camera
