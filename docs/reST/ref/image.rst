@@ -93,10 +93,13 @@ following formats.
 
    | :sl:`save an image to disk`
    | :sg:`save(Surface, filename) -> None`
+   | :sg:`save(Surface, fileobj) -> None`
 
    This will save your Surface as either a ``BMP``, ``TGA``, ``PNG``, or
    ``JPEG`` image. If the filename extension is unrecognized it will default to
    ``TGA``. Both ``TGA``, and ``BMP`` file formats create uncompressed files.
+   You can pass a filename or a Python file-like object. For file-like object,
+   the image is saved to ``TGA`` format.
 
    .. versionadded:: 1.8 Saving PNG and JPEG files.
 
