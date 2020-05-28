@@ -28,6 +28,7 @@ import platform
 import ctypes
 
 import pygame as pg
+
 try:
     import OpenGL.GL as GL
     import OpenGL.GLU as GLU
@@ -105,10 +106,14 @@ def translate(matrix, x=0.0, y=0.0, z=0.0):
     :return: The translated matrix.
     """
     translation_matrix = array(
-        [[1.0, 0.0, 0.0, x],
-         [0.0, 1.0, 0.0, y],
-         [0.0, 0.0, 1.0, z],
-         [0.0, 0.0, 0.0, 1.0]], dtype=matrix.dtype).T
+        [
+            [1.0, 0.0, 0.0, x],
+            [0.0, 1.0, 0.0, y],
+            [0.0, 0.0, 1.0, z],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=matrix.dtype,
+    ).T
     matrix[...] = dot(matrix, translation_matrix)
     return matrix
 
@@ -170,13 +175,17 @@ def rotate(matrix, angle, x, y, z):
     angle = math.pi * angle / 180
     c, s = math.cos(angle), math.sin(angle)
     n = math.sqrt(x * x + y * y + z * z)
-    x, y, z = x/n, y/n, z/n
+    x, y, z = x / n, y / n, z / n
     cx, cy, cz = (1 - c) * x, (1 - c) * y, (1 - c) * z
     rotation_matrix = array(
-        [[cx * x + c, cy * x - z * s, cz * x + y * s, 0],
-         [cx * y + z * s, cy * y + c, cz * y - x * s, 0],
-         [cx * z - y * s, cy * z + x * s, cz * z + c, 0],
-         [0, 0, 0, 1]], dtype=matrix.dtype).T
+        [
+            [cx * x + c, cy * x - z * s, cz * x + y * s, 0],
+            [cx * y + z * s, cy * y + c, cz * y - x * s, 0],
+            [cx * z - y * s, cy * z + x * s, cz * z + c, 0],
+            [0, 0, 0, 1],
+        ],
+        dtype=matrix.dtype,
+    ).T
     matrix[...] = dot(matrix, rotation_matrix)
     return matrix
 
@@ -185,6 +194,7 @@ class Rotation:
     """
     Data class that stores rotation angles in three axes.
     """
+
     def __init__(self):
         self.theta = 20
         self.phi = 40
@@ -284,45 +294,78 @@ def init_gl_modern(display_size):
     # ------------------------------------------
 
     # Cube Data
-    vertices = zeros(8, [("vertex_position", float32, 3),
-                         ("vertex_colour", float32, 4)])
+    vertices = zeros(
+        8, [("vertex_position", float32, 3), ("vertex_colour", float32, 4)]
+    )
 
-    vertices["vertex_position"] = [[ 1,  1,  1],
-                                   [-1,  1,  1],
-                                   [-1, -1,  1],
-                                   [ 1, -1,  1],
-                                   [ 1, -1, -1],
-                                   [ 1,  1, -1],
-                                   [-1,  1, -1],
-                                   [-1, -1, -1]]
+    vertices["vertex_position"] = [
+        [1, 1, 1],
+        [-1, 1, 1],
+        [-1, -1, 1],
+        [1, -1, 1],
+        [1, -1, -1],
+        [1, 1, -1],
+        [-1, 1, -1],
+        [-1, -1, -1],
+    ]
 
-    vertices["vertex_colour"] = [[0, 1, 1, 1],
-                                 [0, 0, 1, 1],
-                                 [0, 0, 0, 1],
-                                 [0, 1, 0, 1],
-                                 [1, 1, 0, 1],
-                                 [1, 1, 1, 1],
-                                 [1, 0, 1, 1],
-                                 [1, 0, 0, 1]]
+    vertices["vertex_colour"] = [
+        [0, 1, 1, 1],
+        [0, 0, 1, 1],
+        [0, 0, 0, 1],
+        [0, 1, 0, 1],
+        [1, 1, 0, 1],
+        [1, 1, 1, 1],
+        [1, 0, 1, 1],
+        [1, 0, 0, 1],
+    ]
 
-    filled_cube_indices = array([0, 1, 2,
-                                 0, 2, 3,
-                                 0, 3, 4,
-                                 0, 4, 5,
-                                 0, 5, 6,
-                                 0, 6, 1,
-                                 1, 6, 7,
-                                 1, 7, 2,
-                                 7, 4, 3,
-                                 7, 3, 2,
-                                 4, 7, 6,
-                                 4, 6, 5],
-                                dtype=uint32)
+    filled_cube_indices = array(
+        [
+            0,
+            1,
+            2,
+            0,
+            2,
+            3,
+            0,
+            3,
+            4,
+            0,
+            4,
+            5,
+            0,
+            5,
+            6,
+            0,
+            6,
+            1,
+            1,
+            6,
+            7,
+            1,
+            7,
+            2,
+            7,
+            4,
+            3,
+            7,
+            3,
+            2,
+            4,
+            7,
+            6,
+            4,
+            6,
+            5,
+        ],
+        dtype=uint32,
+    )
 
-    outline_cube_indices = array([0, 1, 1, 2, 2, 3, 3, 0,
-                                  4, 7, 7, 6, 6, 5, 5, 4,
-                                  0, 5, 1, 6, 2, 7, 3, 4],
-                                 dtype=uint32)
+    outline_cube_indices = array(
+        [0, 1, 1, 2, 2, 3, 3, 0, 4, 7, 7, 6, 6, 5, 5, 4, 0, 5, 1, 6, 2, 7, 3, 4],
+        dtype=uint32,
+    )
 
     shader_data = {"buffer": {}, "constants": {}}
 
@@ -330,8 +373,7 @@ def init_gl_modern(display_size):
 
     shader_data["buffer"]["vertices"] = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, shader_data["buffer"]["vertices"])
-    GL.glBufferData(GL.GL_ARRAY_BUFFER, vertices.nbytes, vertices,
-                    GL.GL_DYNAMIC_DRAW)
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL.GL_DYNAMIC_DRAW)
 
     stride = vertices.strides[0]
     offset = ctypes.c_void_p(0)
@@ -347,49 +389,47 @@ def init_gl_modern(display_size):
     GL.glVertexAttribPointer(loc, 4, GL.GL_FLOAT, False, stride, offset)
 
     shader_data["buffer"]["filled"] = GL.glGenBuffers(1)
-    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER,
-                    shader_data["buffer"]["filled"])
-    GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER,
-                    filled_cube_indices.nbytes,
-                    filled_cube_indices,
-                    GL.GL_STATIC_DRAW)
+    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, shader_data["buffer"]["filled"])
+    GL.glBufferData(
+        GL.GL_ELEMENT_ARRAY_BUFFER,
+        filled_cube_indices.nbytes,
+        filled_cube_indices,
+        GL.GL_STATIC_DRAW,
+    )
 
     shader_data["buffer"]["outline"] = GL.glGenBuffers(1)
-    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER,
-                    shader_data["buffer"]["outline"])
-    GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER,
-                    outline_cube_indices.nbytes,
-                    outline_cube_indices,
-                    GL.GL_STATIC_DRAW)
+    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, shader_data["buffer"]["outline"])
+    GL.glBufferData(
+        GL.GL_ELEMENT_ARRAY_BUFFER,
+        outline_cube_indices.nbytes,
+        outline_cube_indices,
+        GL.GL_STATIC_DRAW,
+    )
 
-    shader_data["constants"]["model"] = GL.glGetUniformLocation(program,
-                                                                "model")
-    GL.glUniformMatrix4fv(shader_data["constants"]["model"],
-                          1, False, eye(4))
+    shader_data["constants"]["model"] = GL.glGetUniformLocation(program, "model")
+    GL.glUniformMatrix4fv(shader_data["constants"]["model"], 1, False, eye(4))
 
-    shader_data["constants"]["view"] = GL.glGetUniformLocation(program,
-                                                               "view")
+    shader_data["constants"]["view"] = GL.glGetUniformLocation(program, "view")
     view = translate(eye(4), z=-6)
     GL.glUniformMatrix4fv(shader_data["constants"]["view"], 1, False, view)
 
     shader_data["constants"]["projection"] = GL.glGetUniformLocation(
-                                                            program,
-                                                            "projection")
-    GL.glUniformMatrix4fv(shader_data["constants"]["projection"],
-                          1, False, eye(4))
+        program, "projection"
+    )
+    GL.glUniformMatrix4fv(shader_data["constants"]["projection"], 1, False, eye(4))
 
     # This colour is multiplied with the base vertex colour in producing
     # the final output
     shader_data["constants"]["colour_mul"] = GL.glGetUniformLocation(
-                                                            program,
-                                                            "colour_mul")
+        program, "colour_mul"
+    )
     GL.glUniform4f(shader_data["constants"]["colour_mul"], 1, 1, 1, 1)
 
     # This colour is added on to the base vertex colour in producing
     # the final output
     shader_data["constants"]["colour_add"] = GL.glGetUniformLocation(
-                                                            program,
-                                                            "colour_add")
+        program, "colour_add"
+    )
     GL.glUniform4f(shader_data["constants"]["colour_add"], 0, 0, 0, 0)
 
     # Set GL drawing data
@@ -402,19 +442,13 @@ def init_gl_modern(display_size):
     GL.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST)
     GL.glLineWidth(1.0)
 
-    projection = perspective(45.0,
-                             display_size[0] / float(display_size[1]),
-                             2.0, 100.0)
-    GL.glUniformMatrix4fv(shader_data["constants"]["projection"],
-                          1, False, projection)
+    projection = perspective(45.0, display_size[0] / float(display_size[1]), 2.0, 100.0)
+    GL.glUniformMatrix4fv(shader_data["constants"]["projection"], 1, False, projection)
 
     return shader_data, filled_cube_indices, outline_cube_indices
 
 
-def draw_cube_modern(shader_data,
-                     filled_cube_indices,
-                     outline_cube_indices,
-                     rotation):
+def draw_cube_modern(shader_data, filled_cube_indices, outline_cube_indices, rotation):
     """
     Draw a cube in the 'modern' Open GL style, for post 3.1 versions of
     open GL.
@@ -433,23 +467,18 @@ def draw_cube_modern(shader_data,
     GL.glEnable(GL.GL_POLYGON_OFFSET_FILL)
     GL.glUniform4f(shader_data["constants"]["colour_mul"], 1, 1, 1, 1)
     GL.glUniform4f(shader_data["constants"]["colour_add"], 0, 0, 0, 0.0)
-    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER,
-                    shader_data["buffer"]["filled"])
-    GL.glDrawElements(GL.GL_TRIANGLES,
-                      len(filled_cube_indices),
-                      GL.GL_UNSIGNED_INT,
-                      None)
+    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, shader_data["buffer"]["filled"])
+    GL.glDrawElements(
+        GL.GL_TRIANGLES, len(filled_cube_indices), GL.GL_UNSIGNED_INT, None
+    )
 
     # Outlined cube
     GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
     GL.glEnable(GL.GL_BLEND)
     GL.glUniform4f(shader_data["constants"]["colour_mul"], 0, 0, 0, 0.0)
     GL.glUniform4f(shader_data["constants"]["colour_add"], 1, 1, 1, 1.0)
-    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER,
-                    shader_data["buffer"]["outline"])
-    GL.glDrawElements(GL.GL_LINES,
-                      len(outline_cube_indices),
-                      GL.GL_UNSIGNED_INT, None)
+    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, shader_data["buffer"]["outline"])
+    GL.glDrawElements(GL.GL_LINES, len(outline_cube_indices), GL.GL_UNSIGNED_INT, None)
 
     # Rotate cube
     # rotation.theta += 1.0  # degrees
@@ -468,7 +497,7 @@ def main():
     # initialize pygame and setup an opengl display
     pg.init()
 
-    USE_MODERN_GL = True and platform.system() != 'Darwin'
+    USE_MODERN_GL = True and platform.system() != "Darwin"
     gl_version = (3, 0)  # GL Version number (Major, Minor)
     if USE_MODERN_GL:
         # gl_version = (3, 2)  # GL Version number (Major, Minor)
@@ -478,8 +507,9 @@ def main():
         # to use, profiles greater than 3.2 use a different rendering path
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, gl_version[0])
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, gl_version[1])
-        pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK,
-                                    pg.GL_CONTEXT_PROFILE_CORE)
+        pg.display.gl_set_attribute(
+            pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
+        )
 
     fullscreen = False  # start in windowed mode
 
@@ -506,16 +536,13 @@ def main():
                 if not fullscreen:
                     print("Changing to FULLSCREEN")
                     pg.display.set_mode(
-                        (640, 480),
-                        pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN
+                        (640, 480), pg.OPENGL | pg.DOUBLEBUF | pg.FULLSCREEN
                     )
                 else:
                     print("Changing to windowed mode")
-                    pg.display.set_mode((640, 480),
-                                        pg.OPENGL | pg.DOUBLEBUF)
+                    pg.display.set_mode((640, 480), pg.OPENGL | pg.DOUBLEBUF)
                 fullscreen = not fullscreen
-                if gl_version[0] >= 4 or (
-                        gl_version[0] == 3 and gl_version[1] >= 2):
+                if gl_version[0] >= 4 or (gl_version[0] == 3 and gl_version[1] >= 2):
                     gpu, f_indices, o_indices = init_gl_modern(display_size)
                     rotation = Rotation()
                 else:
