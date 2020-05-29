@@ -62,6 +62,7 @@ static int pg_key_repeat_interval = 0;
 
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
+static SDL_bool  _pg_event_generate_videoresize = SDL_TRUE;
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -102,6 +103,18 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
 static char _pg_last_unicode_char[32] = { 0 };
 static SDL_Event *_pg_last_keydown_event = NULL;
 
+static int SDLCALL
+RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
+{
+    SDL_Event *new_event = (SDL_Event *)userdata;
+
+    if (event->type == SDL_VIDEORESIZE &&
+        event->window.windowID == new_event->window.windowID) {
+        /* We're about to post a new size event, drop the old one */
+        return 0;
+    }
+    return 1;
+}
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int
@@ -113,9 +126,20 @@ pg_event_filter(void *_, SDL_Event *event)
 
     if (type == SDL_WINDOWEVENT) {
         switch (event->window.event) {
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                return 1;
             case SDL_WINDOWEVENT_RESIZED:
-                event->type = SDL_VIDEORESIZE;
-                break;
+                if(_pg_event_generate_videoresize) {
+                    /* keep resized event around for SDL_RendererEventWatch */
+                    SDL_Event newevent = *event;
+                    newevent.type = SDL_VIDEORESIZE;
+                    SDL_FilterEvents(RemovePending_PGS_VIDEORESIZE_Events, &newevent);
+                    SDL_PushEvent(&newevent);
+                    return 1;
+                }
+                else {
+                    return 1;
+                }
             case SDL_WINDOWEVENT_EXPOSED:
                 event->type = SDL_VIDEOEXPOSE;
                 break;
@@ -125,8 +149,12 @@ pg_event_filter(void *_, SDL_Event *event)
             case SDL_WINDOWEVENT_FOCUS_LOST:
             case SDL_WINDOWEVENT_MINIMIZED:
             case SDL_WINDOWEVENT_RESTORED:
-                event->type = SDL_ACTIVEEVENT;
-                break;
+                {
+                    SDL_Event newevent = *event;
+                    newevent.type = SDL_ACTIVEEVENT;
+                    SDL_PushEvent(&newevent);
+                    return 1;
+                }
             case SDL_WINDOWEVENT_CLOSE:
                 break;
             default:
@@ -235,8 +263,12 @@ pg_event_filter(void *_, SDL_Event *event)
         }
         newevent.button.button |= PGM_BUTTON_KEEP;
 
-        if (SDL_PushEvent(&newevent) < 0)
+        /* this doesn't work! This is called by SDL, not Python:*/
+        /*
+          if (SDL_PushEvent(&newevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
+        */
+        SDL_PushEvent(&newevent);
     }
     return 1;
 }
@@ -1440,6 +1472,29 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
+pg_event_set_gen_videoresize(PyObject *self, PyObject *args)
+{
+    SDL_bool do_generate;
+
+#if PY3
+    if (!PyArg_ParseTuple(args, "p", &do_generate))
+        return NULL;
+#else
+    if (!PyArg_ParseTuple(args, "i", &do_generate))
+        return NULL;
+#endif
+    _pg_event_generate_videoresize=do_generate;
+
+    if(do_generate) {
+        Py_RETURN_TRUE;
+    }
+    else {
+        Py_RETURN_FALSE;
+    }
+}
+
+
+static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
@@ -1843,6 +1898,7 @@ static PyMethodDef _event_methods[] = {
 #if IS_SDLv2
     {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
+    {"_set_gen_videoresize", pg_event_set_gen_videoresize, METH_VARARGS, "enable or disable legacy VIDEORESIZE events"},
 #endif /* IS_SDLv2 */
 
     {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,

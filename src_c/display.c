@@ -65,6 +65,7 @@ typedef struct _display_state_s {
     Uint8 scaled_gl;
     int scaled_gl_w;
     int scaled_gl_h;
+    SDL_bool auto_resize;
 } _DisplayState;
 
 static int
@@ -706,11 +707,34 @@ pg_get_driver(PyObject *self, PyObject *args)
 static PyObject *
 pg_get_surface(PyObject *self, PyObject *args)
 {
-    pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
-    if (!surface)
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
+    SDL_Window *win = pg_GetDefaultWindow();
+
+    if (pg_renderer!=NULL || state->using_gl) {
+        pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
+        if (!surface)
+            Py_RETURN_NONE;
+        Py_INCREF(surface);
+        return (PyObject *)surface;
+    }
+    else if (win==NULL) {
         Py_RETURN_NONE;
-    Py_INCREF(surface);
-    return (PyObject *)surface;
+    }
+    else {
+        SDL_Surface *sdl_surface = SDL_GetWindowSurface(win);
+        pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
+        if (sdl_surface != old_surface->surf) {
+            pgSurfaceObject *new_surface = pgSurface_New2(sdl_surface, SDL_FALSE);
+            if (!new_surface)
+                return NULL;
+            pg_SetDefaultWindowSurface(new_surface);
+            Py_INCREF((PyObject *)new_surface);
+            return (PyObject *)new_surface;
+        }
+        Py_INCREF(old_surface);
+        return (PyObject *)old_surface;
+    }
+    return NULL;
 }
 #else  /* IS_SDLv1 */
 static PyObject *
@@ -802,6 +826,105 @@ _get_video_window_pos(int *x, int *y, int *center_window)
     }
     return 0;
 }
+
+static int SDLCALL
+pg_ResizeEventWatch(void *userdata, SDL_Event *event) {
+    SDL_Window *pygame_window;
+    PyObject *self;
+    _DisplayState *state;
+    SDL_Window *window;
+
+    if (event->type != SDL_WINDOWEVENT)
+        return 0;
+
+    self= (PyObject *) userdata;
+    pygame_window = pg_GetDefaultWindow();
+    state = DISPLAY_MOD_STATE(self);
+
+    window = SDL_GetWindowFromID(event->window.windowID);
+    if (window != pygame_window)
+        return 0;
+
+    if (pg_renderer!=NULL) {
+#if (SDL_VERSION_ATLEAST(2, 0, 5))
+
+        if (event->window.event == SDL_WINDOWEVENT_MAXIMIZED) {
+            SDL_RenderSetIntegerScale(pg_renderer,
+                                      SDL_FALSE);
+        }
+        if (event->window.event == SDL_WINDOWEVENT_RESTORED) {
+            SDL_RenderSetIntegerScale(pg_renderer,
+                                      !(SDL_GetHintBoolean("SDL_HINT_RENDER_SCALE_QUALITY",SDL_FALSE)));
+        }
+#endif
+        return 0;
+    }
+
+    if (state->using_gl) {
+        if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+
+            GL_glViewport_Func p_glViewport = (GL_glViewport_Func)SDL_GL_GetProcAddress("glViewport");
+            int wnew=event->window.data1;
+            int hnew=event->window.data2;
+            SDL_GL_MakeCurrent(pygame_window, state->gl_context);
+            if (state->scaled_gl) {
+                float saved_aspect_ratio =
+                    ((float)state->scaled_gl_w) / (float)state->scaled_gl_h;
+                float window_aspect_ratio = ((float)wnew) / (float)hnew;
+
+                if (window_aspect_ratio > saved_aspect_ratio) {
+                    int width = (int)(hnew * saved_aspect_ratio);
+                    p_glViewport((wnew - width) / 2, 0, width, hnew);
+                }
+                else {
+                    p_glViewport(0, 0, wnew, (int)(wnew / saved_aspect_ratio));
+                }
+            }
+            else {
+                p_glViewport(0, 0, wnew, hnew);
+            }
+        }
+        return 0;
+    }
+
+    if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+        if (window == pygame_window) {
+            SDL_Surface *sdl_surface = SDL_GetWindowSurface(window);
+            pgSurfaceObject *old_surface = pg_GetDefaultWindowSurface();
+            if (sdl_surface != old_surface->surf) {
+                old_surface->surf=sdl_surface;
+            }
+        }
+    }
+    return 0;
+}
+
+static PyObject *
+pg_display_set_autoresize(PyObject *self, PyObject *args)
+{
+    SDL_bool do_resize;
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
+
+#if PY3
+    if (!PyArg_ParseTuple(args, "p",  &do_resize))
+        return NULL;
+#else
+    if (!PyArg_ParseTuple(args, "i", &do_resize))
+        return NULL;
+#endif
+
+    state->auto_resize=do_resize;
+    SDL_DelEventWatch(pg_ResizeEventWatch, self);
+
+    if(do_resize) {
+        SDL_AddEventWatch(pg_ResizeEventWatch, self);
+        Py_RETURN_TRUE;
+    }
+    else {
+        Py_RETURN_FALSE;
+    }
+}
+
 
 int
 _get_display(SDL_Window *win)
@@ -929,6 +1052,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         pg_renderer = NULL;
     }
 
+    SDL_DelEventWatch(pg_ResizeEventWatch, self);
+
     {
         Uint32 sdl_flags = 0;
         SDL_DisplayMode display_mode;
@@ -970,8 +1095,11 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             sdl_flags |= SDL_WINDOW_OPENGL;
         if (flags & PGS_NOFRAME)
             sdl_flags |= SDL_WINDOW_BORDERLESS;
-        if (flags & PGS_RESIZABLE)
+        if (flags & PGS_RESIZABLE) {
             sdl_flags |= SDL_WINDOW_RESIZABLE;
+            if(state->auto_resize)
+                SDL_AddEventWatch(pg_ResizeEventWatch, self);
+        }
         if (flags & PGS_SHOWN)
             sdl_flags |= SDL_WINDOW_SHOWN;
         if (flags & PGS_HIDDEN)
@@ -2942,6 +3070,8 @@ static PyMethodDef _pg_display_methods[] = {
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
 
 #if IS_SDLv2
+    {"_set_autoresize", (PyCFunction)pg_display_set_autoresize
+     , METH_VARARGS, "provisional API, subject to change"},
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
      "provisional API, subject to change"},
     {"_get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info,
@@ -3032,6 +3162,8 @@ MODINIT_DEFINE(display)
     state->icon = NULL;
     state->gamma_ramp = NULL;
     state->using_gl = 0;
+    state->auto_resize = SDL_TRUE;
+
     MODINIT_RETURN(module);
 }
 #else /* IF_SDLv1 */
