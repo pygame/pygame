@@ -620,6 +620,35 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(s1.get_at((0, 0)), (0, 0, 0, 255))
         self.assertEqual(s1.get_at((1, 1)), color)
 
+    @unittest.skipIf(pygame.get_sdl_version()[0] == 1, "only works in SDL2")
+    def test_blit_big_rects(self):
+        """ SDL2 can have more than 16 bits for x, y, width, height.
+        """
+        big_surf = pygame.Surface((100, 68000), 0, 32)
+        big_surf_color = (255, 0, 0)
+        big_surf.fill(big_surf_color)
+
+        background = pygame.Surface((500, 500), 0, 32)
+        background_color = (0, 255, 0)
+        background.fill(background_color)
+
+        # copy parts of the big_surf using more than 16bit parts.
+        background.blit(big_surf, (100, 100), area=(0, 16000, 100, 100))
+        background.blit(big_surf, (200, 200), area=(0, 32000, 100, 100))
+        background.blit(big_surf, (300, 300), area=(0, 66000, 100, 100))
+
+        # check that all three areas are drawn.
+        self.assertEqual(background.get_at((101, 101)), big_surf_color)
+        self.assertEqual(background.get_at((201, 201)), big_surf_color)
+        self.assertEqual(background.get_at((301, 301)), big_surf_color)
+
+        # areas outside the 3 blitted areas not covered by those blits.
+        self.assertEqual(background.get_at((400, 301)), background_color)
+        self.assertEqual(background.get_at((400, 201)), background_color)
+        self.assertEqual(background.get_at((100, 201)), background_color)
+        self.assertEqual(background.get_at((99, 99)), background_color)
+        self.assertEqual(background.get_at((450, 450)), background_color)
+
     def todo_test_blit(self):
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.blit:
 
@@ -967,11 +996,9 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def test_get_clip(self):
-        s = pygame.Surface((800,600))
+        s = pygame.Surface((800, 600))
         rectangle = s.get_clip()
         self.assertEqual(rectangle, (0, 0, 800, 600))
-
-
 
     def todo_test_get_colorkey(self):
         surf = pygame.surface((2, 2), 0, 24)
