@@ -2173,7 +2173,10 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     PyObject *argpos, *argrect = NULL;
     pgSurfaceObject *srcobject;
     int dx, dy, result;
-    SDL_Rect dest_rect, sdlsrc_rect;
+    SDL_Rect dest_rect;
+#if IS_SDLv1
+    SDL_Rect sdlsrc_rect;
+#endif /* IS_SDLv1  */
     int sx, sy;
     int the_args = 0;
 
@@ -2216,6 +2219,7 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         src_rect = &temp;
     }
 
+#if IS_SDLv1
     dest_rect.x = (short)dx;
     dest_rect.y = (short)dy;
     dest_rect.w = (unsigned short)src_rect->w;
@@ -2224,12 +2228,24 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     sdlsrc_rect.y = (short)src_rect->y;
     sdlsrc_rect.w = (unsigned short)src_rect->w;
     sdlsrc_rect.h = (unsigned short)src_rect->h;
+#else /* IS_SDLv2 */
+    dest_rect.x = dx;
+    dest_rect.y = dy;
+    dest_rect.w = src_rect->w;
+    dest_rect.h = src_rect->h;
+#endif /* IS_SDLv2  */
 
     if (!the_args)
         the_args = 0;
 
+#if IS_SDLv1
     result =
         pgSurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect, the_args);
+#else /* IS_SDLv2  */
+    result =
+        pgSurface_Blit(self, srcobject, &dest_rect, src_rect, the_args);
+#endif /* IS_SDLv2  */
+
     if (result != 0)
         return NULL;
 
@@ -2254,7 +2270,10 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     GAME_Rect *src_rect, temp;
     PyObject *srcobject = NULL, *argpos = NULL, *argrect = NULL;
     int dx, dy, result;
-    SDL_Rect dest_rect, sdlsrc_rect;
+    SDL_Rect dest_rect;
+#if IS_SDLv1
+    SDL_Rect sdlsrc_rect;
+#endif /* IS_SDLv1  */
     int sx, sy;
     int the_args = 0;
 
@@ -2372,6 +2391,7 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             src_rect = &temp;
         }
 
+#if IS_SDLv1
         dest_rect.x = (short)dx;
         dest_rect.y = (short)dy;
         dest_rect.w = (unsigned short)src_rect->w;
@@ -2380,6 +2400,12 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         sdlsrc_rect.y = (short)src_rect->y;
         sdlsrc_rect.w = (unsigned short)src_rect->w;
         sdlsrc_rect.h = (unsigned short)src_rect->h;
+#else /* IS_SDLv2  */
+        dest_rect.x = dx;
+        dest_rect.y = dy;
+        dest_rect.w = src_rect->w;
+        dest_rect.h = src_rect->h;
+#endif /* IS_SDLv2  */
 
         if (special_flags) {
             if (!pg_IntFromObj(special_flags, &the_args)) {
@@ -2388,8 +2414,14 @@ surf_blits(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             }
         }
 
+#if IS_SDLv1
         result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
                                  &sdlsrc_rect, the_args);
+#else /* IS_SDLv2  */
+        result = pgSurface_Blit(self, (pgSurfaceObject *)srcobject, &dest_rect,
+                                 src_rect, the_args);
+#endif /* IS_SDLv2  */
+
         if (result != 0) {
             bliterrornum = BLITS_ERR_BLIT_FAIL;
             goto bliterror;
