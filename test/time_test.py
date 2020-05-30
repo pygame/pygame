@@ -145,7 +145,7 @@ class TimeModuleTest(unittest.TestCase):
         millis = 50
         iterations = 20
         # TODO: review margin of error
-        delta = 0.1  # Represents acceptable margin of error for delay in ms
+        delta = 1  # Represents acceptable margin of error for delay in ms
         # take starting time for duration calculation
         start_time = time.time()
         for i in range(iterations):
@@ -198,7 +198,7 @@ class TimeModuleTest(unittest.TestCase):
         millis = 50
         iterations = 20
         # TODO: review margin of error
-        delta = 2  # Represents acceptable margin of error for wait in ms
+        delta = 5  # Represents acceptable margin of error for wait in ms
         # take starting time for duration calculation
         start_time = time.time()
         for i in range(iterations):
