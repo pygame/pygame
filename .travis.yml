@@ -81,6 +81,7 @@ install:
       $PIP_CMD install conan
       $PIP_CMD install cibuildwheel==1.3.0
       conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+      conan remote add pygame-repo https://api.bintray.com/conan/pygame/pygame
       # $PYTHON_EXE buildconfig/config.py -conan --build libtiff --build opusfile --build sdl2_image --build sdl2_ttf
       $PYTHON_EXE buildconfig/config.py -conan --build
       cp build/conan/*.dylib .
