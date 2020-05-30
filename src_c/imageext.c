@@ -228,7 +228,7 @@ image_load_ext(PyObject *self, PyObject *arg)
             return RAISE(pgExc_SDLError, IMG_GetError());
         }
     }
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -747,19 +747,21 @@ opengltosdl(void)
     surf = SDL_GetVideoSurface();
 
     if (!surf) {
-        RAISE(PyExc_RuntimeError, "Cannot get video surface.");
-        return NULL;
+        return (SDL_Surface *)RAISE(PyExc_RuntimeError,
+                                    "Cannot get video surface.");
     }
     if (!p_glReadPixels) {
-        RAISE(PyExc_RuntimeError, "Cannot find glReadPixels function.");
-        return NULL;
+        return (SDL_Surface *)RAISE(PyExc_RuntimeError,
+                                    "Cannot find glReadPixels function.");
+
     }
 
     pixels = (unsigned char *)malloc(surf->w * surf->h * 3);
 
     if (!pixels) {
-        RAISE(PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
-        return NULL;
+        return (SDL_Surface *)RAISE(
+                                  PyExc_MemoryError,
+                                  "Cannot allocate enough memory for pixels.");
     }
 
     /* GL_RGB, GL_UNSIGNED_BYTE */
@@ -779,8 +781,7 @@ opengltosdl(void)
                                 gmask, bmask, 0);
     if (!surf) {
         free(pixels);
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return NULL;
+        return (SDL_Surface *)RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     for (i = 0; i < surf->h; ++i) {
@@ -797,7 +798,7 @@ opengltosdl(void)
 static PyObject *
 image_save_ext(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *obj;
     PyObject *oencoded = NULL;
     SDL_Surface *surf;

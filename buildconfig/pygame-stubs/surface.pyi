@@ -32,10 +32,7 @@ class Surface(object):
     ) -> None: ...
     @overload
     def __init__(
-        self,
-        size: _Coordinate,
-        flags: int = ...,
-        surface: Surface = ...,
+        self, size: _Coordinate, flags: int = ..., surface: Surface = ...,
     ) -> None: ...
     def blit(
         self,

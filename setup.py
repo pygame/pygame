@@ -111,8 +111,9 @@ if consume_arg('-pygame-ci'):
               '-Werror=implicit-function-declaration -Werror=return-type ' + \
               '-Werror=implicit-int -Werror=main -Werror=pointer-arith ' + \
               '-Werror=format-security -Werror=uninitialized ' + \
-              '-Werror=trigraphs -Werror=parentheses ' + \
-              '-Werror=cast-align'
+              '-Werror=trigraphs -Werror=parentheses -Werror=unused-value ' + \
+              '-Werror=cast-align -Werror=int-conversion ' + \
+              '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
 
 STRIPPED=False
@@ -218,6 +219,7 @@ from distutils.core import setup, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 from distutils.command.sdist import sdist
+
 
 revision = ''
 
@@ -382,7 +384,6 @@ if add_stubs:
     type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
     for type_file in type_files:
         pygame_data_files.append(type_file)
-
     _sdl2 = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '_sdl2', '*.pyi'))
     if _sdl2:
         _sdl2_data_files = []
@@ -561,6 +562,57 @@ if sys.platform == 'win32':
         else:
             pygame_data_files.append(f)
 
+
+    if '-enable-msvc-analyze' in sys.argv:
+        # calculate the MSVC compiler version as an int
+        msc_pos = sys.version.find('MSC v.')
+        msc_ver = 1900
+        if msc_pos != -1:
+            msc_ver = int(sys.version[msc_pos + 6:msc_pos + 10])
+        print ('Analyzing with MSC_VER =', msc_ver)
+
+        # excluding system headers from analyze out put was only added after MSCV_VER 1913
+        if msc_ver >= 1913:
+            os.environ['CAExcludePath'] = 'C:\\Program Files (x86)\\'
+            for e in extensions:
+                e.extra_compile_args += ['/analyze', '/experimental:external',
+                                         '/external:W0', '/external:env:CAExcludePath' ]
+        else:
+            for e in extensions:
+                e.extra_compile_args += ['/analyze']
+
+    def has_flag(compiler, flagname):
+        """
+        Adapted from here: https://github.com/pybind/python_example/blob/master/setup.py#L37
+        """
+        from distutils.errors import CompileError
+        import tempfile
+        root_drive = os.path.splitdrive(sys.executable)[0] + '\\'
+        with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
+            f.write('int main (int argc, char **argv) { return 0; }')
+            fname = f.name
+        try:
+            compiler.compile([fname], output_dir=root_drive, extra_postargs=[flagname])
+        except CompileError:
+            return False
+        else:
+            try:
+                base_file = os.path.splitext(fname)[0]
+                obj_file = base_file + '.obj'
+                os.remove(obj_file)
+            except OSError:
+                pass
+        finally:
+            try:
+                os.remove(fname)
+            except OSError:
+                pass
+        return True
+
+    # filter flags, returns list of accepted flags
+    def flag_filter(compiler, *flags):
+        return [flag for flag in flags if has_flag(compiler, flag)]
+
     @add_command('build_ext')
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
@@ -572,6 +624,14 @@ if sys.platform == 'win32':
             if e.name == 'base':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
+
+        def build_extensions(self):
+            # Add supported optimisations flags to reduce code size with MSVC
+            opts = flag_filter(self.compiler, "/GF", "/Gy")
+            for extension in extensions:
+                extension.extra_compile_args += opts
+
+            build_ext.build_extensions(self)
 
     # Add the precompiled smooth scale MMX functions to transform.
     def replace_scale_mmx():
@@ -672,6 +732,7 @@ class TestCommand(Command):
         '''
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
+
 
 
 @add_command('docs')

@@ -42,7 +42,7 @@ class Font(_Font):
         if file is None:
             resolution = int(self.__get_default_resolution() * 0.6875)
             if resolution == 0:
-                kwds['resolution'] = 1
+                resolution = 1
         else:
             resolution = 0
         super(Font, self).__init__(file, size=size, resolution=resolution)
@@ -85,6 +85,8 @@ class Font(_Font):
 
         return self.wide
 
+    bold = property(get_bold, set_bold)
+
     def set_italic(self, value):
         """set_italic(bool) -> None
            enable fake rendering of italic text"""
@@ -96,6 +98,8 @@ class Font(_Font):
            check if the text will be rendered italic"""
 
         return self.oblique
+
+    italic = property(get_italic, set_italic)
 
     def set_underline(self, value):
         """set_underline(bool) -> None

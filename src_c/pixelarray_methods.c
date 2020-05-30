@@ -149,7 +149,7 @@ _make_surface(pgPixelArrayObject *array, PyObject *args)
     Py_ssize_t dim1 = array->shape[1] ? array->shape[1] : 1;
     Py_ssize_t stride0 = array->strides[0];
     Py_ssize_t stride1 = array->strides[1];
-    PyObject *new_surface;
+    pgSurfaceObject *new_surface;
     SDL_Surface *temp_surf;
     SDL_Surface *new_surf;
     Py_ssize_t new_stride0;
@@ -274,7 +274,7 @@ _make_surface(pgPixelArrayObject *array, PyObject *args)
     if (SDL_MUSTLOCK(new_surf) == 0) {
         SDL_UnlockSurface(new_surf);
     }
-    return new_surface;
+    return (PyObject *)new_surface;
 }
 
 static int

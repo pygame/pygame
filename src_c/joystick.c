@@ -89,7 +89,7 @@ init(PyObject *self)
 static PyObject *
 get_init(PyObject *self)
 {
-    return PyInt_FromLong(SDL_WasInit(SDL_INIT_JOYSTICK) != 0);
+    return PyBool_FromLong(SDL_WasInit(SDL_INIT_JOYSTICK) != 0);
 }
 
 /*joystick object funcs*/
@@ -152,7 +152,7 @@ static PyObject *
 joy_get_init(PyObject *self, PyObject *args)
 {
     int joy_id = pgJoystick_AsID(self);
-    return PyInt_FromLong(joystick_stickdata[joy_id] != NULL);
+    return PyBool_FromLong(joystick_stickdata[joy_id] != NULL);
 }
 
 static PyObject *

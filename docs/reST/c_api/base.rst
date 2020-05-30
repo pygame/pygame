@@ -165,14 +165,14 @@ C header: src_c/include/pygame.h
 
    Availability: SDL 2.
 
-.. c:function:: PyObject* pg_GetDefaultWindowSurface(void)
+.. c:function:: pgSurfaceObject* pg_GetDefaultWindowSurface(void)
 
    Return a borrowed reference to the Pygame default window display surface,
    or *NULL* if no default window is open.
 
    Availability: SDL 2.
 
-.. c:function:: void pg_SetDefaultWindowSurface(PyObject *screen)
+.. c:function:: void pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
 
    Replace the Pygame default display surface with object *screen*.
    The previous surface object, if any, is invalidated.

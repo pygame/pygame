@@ -93,10 +93,13 @@ following formats.
 
    | :sl:`save an image to disk`
    | :sg:`save(Surface, filename) -> None`
+   | :sg:`save(Surface, fileobj) -> None`
 
    This will save your Surface as either a ``BMP``, ``TGA``, ``PNG``, or
    ``JPEG`` image. If the filename extension is unrecognized it will default to
    ``TGA``. Both ``TGA``, and ``BMP`` file formats create uncompressed files.
+   You can pass a filename or a Python file-like object. For file-like object,
+   the image is saved to ``TGA`` format.
 
    .. versionadded:: 1.8 Saving PNG and JPEG files.
 
@@ -163,15 +166,29 @@ following formats.
 
 .. function:: frombuffer
 
-   | :sl:`create a new Surface that shares data inside a string buffer`
-   | :sg:`frombuffer(string, size, format) -> Surface`
+   | :sl:`create a new Surface that shares data inside a bytes buffer`
+   | :sg:`frombuffer(bytes, size, format) -> Surface`
 
-   Create a new Surface that shares pixel data directly from the string buffer.
-   This method takes the same arguments as ``pygame.image.fromstring()``, but
+   Create a new Surface that shares pixel data directly from a bytes buffer.
+   This method takes similar arguments to ``pygame.image.fromstring()``, but
    is unable to vertically flip the source data.
 
    This will run much faster than :func:`pygame.image.fromstring`, since no
    pixel data must be allocated and copied.
+
+   It accepts the following 'format' arguments:
+
+      * ``P``, 8-bit palettized Surfaces
+
+      * ``RGB``, 24-bit image
+
+      * ``BGR``, 24-bit image, red and blue channels swapped.
+
+      * ``RGBX``, 32-bit image with unused space
+
+      * ``RGBA``, 32-bit image with an alpha channel
+
+      * ``ARGB``, 32-bit image with alpha channel first
 
    .. ## pygame.image.frombuffer ##
 

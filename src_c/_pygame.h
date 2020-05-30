@@ -27,6 +27,11 @@
 #define _PYGAME_INTERNAL_H
 
 #include "pgplatform.h"
+/*
+    If PY_SSIZE_T_CLEAN is defined before including Python.h, length is a
+    Py_ssize_t rather than an int for all # variants of formats (s#, y#, etc.)
+*/
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <SDL.h>
 
@@ -143,6 +148,20 @@ typedef enum {
 #endif /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
 
 #define RAISE(x, y) (PyErr_SetString((x), (y)), (PyObject *)NULL)
+#define DEL_ATTR_NOT_SUPPORTED_CHECK(name, value)           \
+    do {                                                    \
+       if (!value) {                                        \
+           if (name) {                                      \
+               PyErr_Format(PyExc_AttributeError,           \
+                            "Cannot delete attribute %s",   \
+                            name);                          \
+           } else {                                         \
+               PyErr_SetString(PyExc_AttributeError,        \
+                               "Cannot delete attribute");  \
+           }                                                \
+           return -1;                                       \
+       }                                                    \
+    } while (0)
 
 /*
  * Initialization checks

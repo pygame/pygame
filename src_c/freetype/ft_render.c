@@ -322,7 +322,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
+        r->h = (Uint16)_PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
 
@@ -336,7 +336,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
+        r->h = (Uint16)_PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
     surf_offset.x = INT_TO_FX6(x);
@@ -744,7 +744,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
+        r->h = (Uint16)_PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
 
@@ -756,7 +756,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, pgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
+        r->h = (Uint16)_PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
     array_offset.x = INT_TO_FX6(x);

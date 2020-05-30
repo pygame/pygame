@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, Tuple, IO
+from typing import List, Optional, Union, Tuple, IO, Hashable
 
 from pygame.color import Color
 from pygame.surface import Surface
@@ -13,13 +13,21 @@ def get_init() -> bool: ...
 def get_default_font() -> str: ...
 def get_fonts() -> List[str]: ...
 def match_font(
-    name: str, bold: Optional[bool] = False, italic: Optional[bool] = False
+    name: str, bold: Optional[Hashable] = False, italic: Optional[Hashable] = False
 ) -> str: ...
 def SysFont(
-    name: str, size: int, bold: Optional[bool] = False, italic: Optional[bool] = False
+    name: str,
+    size: int,
+    bold: Optional[Hashable] = False,
+    italic: Optional[Hashable] = False,
 ) -> Font: ...
 
 class Font(object):
+
+    bold: bool
+    italic: bool
+    underline: bool
+
     def __init__(self, name: Union[str, IO, None], size: int) -> None: ...
     def render(
         self,

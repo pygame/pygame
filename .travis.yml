@@ -72,7 +72,7 @@ install:
       $PIP_CMD install --upgrade pip
       $PIP_CMD install --upgrade numpy
       $PYTHON_EXE setup.py -config -auto $WHICH_SDL_BUILD
-      $PYTHON_EXE setup.py install -pygame-ci -noheaders -auto
+      $PYTHON_EXE setup.py install -pygame-ci -noheaders
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
@@ -81,6 +81,7 @@ install:
       $PIP_CMD install conan
       $PIP_CMD install cibuildwheel==1.3.0
       conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+      conan remote add pygame-repo https://api.bintray.com/conan/pygame/pygame
       # $PYTHON_EXE buildconfig/config.py -conan --build libtiff --build opusfile --build sdl2_image --build sdl2_ttf
       $PYTHON_EXE buildconfig/config.py -conan --build
       cp build/conan/*.dylib .

@@ -5,7 +5,7 @@
 #define DOC_PYGAMEIMAGEGETEXTENDED "get_extended() -> bool\ntest if extended image formats can be loaded"
 #define DOC_PYGAMEIMAGETOSTRING "tostring(Surface, format, flipped=False) -> string\ntransfer image to string buffer"
 #define DOC_PYGAMEIMAGEFROMSTRING "fromstring(string, size, format, flipped=False) -> Surface\ncreate new Surface from a string buffer"
-#define DOC_PYGAMEIMAGEFROMBUFFER "frombuffer(string, size, format) -> Surface\ncreate a new Surface that shares data inside a string buffer"
+#define DOC_PYGAMEIMAGEFROMBUFFER "frombuffer(bytes, size, format) -> Surface\ncreate a new Surface that shares data inside a bytes buffer"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -37,7 +37,7 @@ pygame.image.fromstring
 create new Surface from a string buffer
 
 pygame.image.frombuffer
- frombuffer(string, size, format) -> Surface
-create a new Surface that shares data inside a string buffer
+ frombuffer(bytes, size, format) -> Surface
+create a new Surface that shares data inside a bytes buffer
 
 */

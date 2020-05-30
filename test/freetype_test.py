@@ -1230,7 +1230,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, f, "fgcolor", None)
 
     def test_freetype_Font_bgcolor(self):
-        f = ft.Font(None, 12)
+        f = ft.Font(None, 32)
         zero = "0"  # the default font 0 glyph does not have a pixel at (0, 0)
         f.origin = False
         f.pad = False

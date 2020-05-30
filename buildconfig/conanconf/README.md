@@ -24,6 +24,9 @@ python3 -m pip install conan
 # add the bincrafters conan repository.
 conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 
+# add the pygame conan repository.
+conan remote add pygame-repo https://api.bintray.com/conan/pygame/pygame
+
 # install dependencies with conan, and write a `Setup` file for pygame to build with.
 python3 buildconfig/config.py -conan
 
@@ -47,3 +50,17 @@ python3 setup.py install
 python3 -m pygame.example.aliens
 python3 -m pygame.tests
 ```
+
+
+## pygame conan repo on 'bintray'.
+
+Here's the pygame organization on "[bintray.com/pygame](https://bintray.com/pygame)". It's where some conan packages can be uploaded.
+
+Custom packages are useful to work around major bugs in released dependencies that may not have new releases with the fixes in them for several months.
+
+Another use case for a conan repo is uploading binaries.
+
+In order to make a custom package, I started by [setting up bintray](https://docs.conan.io/en/latest/uploading_packages/using_bintray.html)
+
+Then this one for [uploading packages to remotes](https://docs.conan.io/en/latest/uploading_packages/uploading_to_remotes.html)
+

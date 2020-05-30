@@ -79,7 +79,7 @@ camera_get_raw(pgCameraObject *self, PyObject *args);
 PyObject *
 surf_colorspace(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj, *surfobj2;
+    pgSurfaceObject *surfobj, *surfobj2;
     SDL_Surface *surf, *newsurf;
     char *color;
     int cspace;
@@ -136,10 +136,10 @@ surf_colorspace(PyObject *self, PyObject *arg)
 
     if (surfobj2) {
         Py_INCREF(surfobj2);
-        return surfobj2;
+        return (PyObject *)surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 /* list_cameras() - lists cameras available on the computer */
@@ -346,7 +346,7 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 {
 #if defined(__unix__)
     SDL_Surface *surf = NULL;
-    PyObject *surfobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
 
     if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj))
         return NULL;
@@ -377,14 +377,14 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 
     if (surfobj) {
         Py_INCREF(surfobj);
-        return surfobj;
+        return (PyObject *)surfobj;
     }
     else {
-        return pgSurface_New(surf);
+        return (PyObject *)pgSurface_New(surf);
     }
 #elif defined(PYGAME_MAC_CAMERA_OLD)
     SDL_Surface *surf = NULL;
-    PyObject *surfobj = NULL;
+    pgSurfaceObject *surfobj = NULL;
 
     if (!PyArg_ParseTuple(arg, "|O!", &pgSurface_Type, &surfobj))
         return NULL;
@@ -417,10 +417,10 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
 
     if (surfobj) {
         Py_INCREF(surfobj);
-        return surfobj;
+        return (PyObject *)surfobj;
     }
     else {
-        return pgSurface_New(surf);
+        return (PyObject *)pgSurface_New(surf);
     }
 #endif
     Py_RETURN_NONE;
