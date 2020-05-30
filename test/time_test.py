@@ -1,5 +1,6 @@
 import unittest
 import pygame
+import time
 
 Clock = pygame.time.Clock
 
@@ -135,20 +136,27 @@ class ClockTypeTest(unittest.TestCase):
 
 
 class TimeModuleTest(unittest.TestCase):
-    def todo_test_delay(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.time.delay:
-
-        # pygame.time.delay(milliseconds): return time
-        # pause the program for an amount of time
-        #
-        # Will pause for a given number of milliseconds. This function will
-        # use the processor (rather than sleeping) in order to make the delay
-        # more accurate than pygame.time.wait().
-        #
-        # This returns the actual number of milliseconds used.
-
-        self.fail()
+    def test_delay(self):
+        """Tests time.delay() function."""
+        # call time.delay(millis) "iterations" times and check each time if
+        # wait "waited" for given millisecond (+- delta). At the end, take
+        # average time for each call (whole_duration/iterations), which should
+        # be equal to millis (+- delta - acceptable margin of error)
+        millis = 50
+        iterations = 20
+        # TODO: review margin of error
+        delta = 0.1  # Represents acceptable margin of error for delay in ms
+        # take starting time for duration calculation
+        start_time = time.time()
+        for i in range(iterations):
+            delay = pygame.time.delay(millis)
+            # Check equality of delay and millis with margin of error delta
+            self.assertAlmostEqual(delay, millis, delta=delta)
+        stop_time = time.time()
+        # Cycle duration in millisecond
+        duration = round((stop_time-start_time)*1000)
+        # Duration/Iterations should be (almost) equal to predefined millis
+        self.assertAlmostEqual(duration/iterations, millis, delta=delta)
 
     def todo_test_get_ticks(self):
 
@@ -181,22 +189,27 @@ class TimeModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_wait(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.time.wait:
-
-        # pygame.time.wait(milliseconds): return time
-        # pause the program for an amount of time
-        #
-        # Will pause for a given number of milliseconds. This function sleeps
-        # the process to share the processor with other programs. A program
-        # that waits for even a few milliseconds will consume very little
-        # processor time. It is slightly less accurate than the
-        # pygame.time.delay() function.
-        #
-        # This returns the actual number of milliseconds used.
-
-        self.fail()
+    def test_wait(self):
+        """Tests time.wait() function."""
+        # call time.wait(millis) "iterations" times and check each time if
+        # wait "waited" for given millisecond (+- delta). At the end, take
+        # average time for each call (whole_duration/iterations), which should
+        # be equal to millis (+- delta - acceptable margin of error)
+        millis = 50
+        iterations = 20
+        # TODO: review margin of error
+        delta = 2  # Represents acceptable margin of error for wait in ms
+        # take starting time for duration calculation
+        start_time = time.time()
+        for i in range(iterations):
+            wait_time = pygame.time.wait(millis)
+            # Check equality of wait_time and millis with margin of error delta
+            self.assertAlmostEqual(wait_time, millis, delta=delta)
+        stop_time = time.time()
+        # Cycle duration in millisecond
+        duration = round((stop_time-start_time)*1000)
+        # Duration/Iterations should be (almost) equal to predefined millis
+        self.assertAlmostEqual(duration/iterations, millis, delta=delta)
 
 
 ################################################################################
