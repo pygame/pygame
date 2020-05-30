@@ -104,7 +104,7 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=False) -> Surface`
+   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
@@ -157,7 +157,7 @@ required).
 
    .. versionadded:: 2.0.0 ``SCALED``
 
-   By setting the ``vsync`` parameter to True, it is possible to get a display
+   By setting the ``vsync`` parameter to 1, it is possible to get a display
    with vertical sync, but you are not guaranteed to get one. The request only
    works at all for calls to ``set_mode()`` with the ``pygame.OPENGL`` or
    ``pygame.SCALED`` flags set, and is still not guaranteed even with one of
@@ -169,7 +169,7 @@ required).
 
      flags = pygame.OPENGL | pygame.FULLSCREEN
      window_surface = pygame.display.set_mode((1920, 1080),
-                                              flags, vsync=True)
+                                              flags, vsync=1)
 
    .. versionadded:: 2.0.0 ``vsync``
 
