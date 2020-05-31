@@ -140,7 +140,7 @@ class TimeModuleTest(unittest.TestCase):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration
         iterations = 20  # number of iterations
-        delta = 1  # Represents acceptable margin of error for wait in ms
+        delta = 5  # Represents acceptable margin of error for wait in ms
         # Call checking function
         self._wait_delay_check(pygame.time.delay, millis, iterations, delta)
         # After timing behaviour, check argument type exceptions
@@ -154,7 +154,7 @@ class TimeModuleTest(unittest.TestCase):
         """
         iterations = 20
         millis = 50
-        delta = 3  # Acceptable margin of error in ms
+        delta = 15  # Acceptable margin of error in ms
         # Assert return type to be int
         self.assertTrue(type(pygame.time.get_ticks()) == int)
         for i in range(iterations):
@@ -187,9 +187,9 @@ class TimeModuleTest(unittest.TestCase):
 
     def test_wait(self):
         """Tests time.wait() function."""
-        millis = 50  # millisecond to wait on each iteration
-        iterations = 20  # number of iterations
-        delta = 5  # Represents acceptable margin of error for wait in ms
+        millis = 100  # millisecond to wait on each iteration
+        iterations = 10  # number of iterations
+        delta = 50  # Represents acceptable margin of error for wait in ms
         # Call checking function
         self._wait_delay_check(pygame.time.wait, millis, iterations, delta)
         # After timing behaviour, check argument type exceptions
