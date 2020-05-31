@@ -146,18 +146,26 @@ class TimeModuleTest(unittest.TestCase):
         # After timing behaviour, check argument type exceptions
         self._type_error_checks(pygame.time.delay)
 
-    def todo_test_get_ticks(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.time.get_ticks:
-
-        # pygame.time.get_ticks(): return milliseconds
-        # get the time in milliseconds
-        #
-        # Return the number of milliseconds since pygame.init() was called.
-        # Before pygame is initialized this will always be 0.
-        #
-
-        self.fail()
+    def test_get_ticks(self):
+        """Tests time.get_ticks()"""
+        """
+         Iterates and delays for arbitrary amount of time for each iteration,
+         check get_ticks to equal correct gap time
+        """
+        iterations = 20
+        millis = 50
+        delta = 3  # Acceptable margin of error in ms
+        # Assert return type to be int
+        self.assertTrue(type(pygame.time.get_ticks()) == int)
+        for i in range(iterations):
+            curr_ticks = pygame.time.get_ticks()  # Save current tick count
+            curr_time = time.time()  # Save current time
+            pygame.time.delay(millis)  # Delay for millis
+            # Time and Ticks difference from start of the iteration
+            time_diff = round((time.time() - curr_time)*1000)
+            ticks_diff = pygame.time.get_ticks() - curr_ticks
+            # Assert almost equality of the ticking time and time difference
+            self.assertAlmostEqual(ticks_diff, time_diff, delta=delta)
 
     def todo_test_set_timer(self):
 
