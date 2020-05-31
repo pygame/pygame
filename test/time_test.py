@@ -135,85 +135,85 @@ class ClockTypeTest(unittest.TestCase):
         self.fail()
 
 
-class TimeModuleTest(unittest.TestCase):
-    def test_delay(self):
-        """Tests time.delay() function."""
-        millis = 50  # millisecond to wait on each iteration
-        iterations = 20  # number of iterations
-        delta = 1  # Represents acceptable margin of error for wait in ms
-        # Call checking function
-        self._wait_delay_check(pygame.time.delay, millis, iterations, delta)
-        # After timing behaviour, check argument type exceptions
-        self._type_error_checks(pygame.time.delay)
+# class TimeModuleTest(unittest.TestCase):
+#     def test_delay(self):
+#         """Tests time.delay() function."""
+#         millis = 50  # millisecond to wait on each iteration
+#         iterations = 20  # number of iterations
+#         delta = 1  # Represents acceptable margin of error for wait in ms
+#         # Call checking function
+#         self._wait_delay_check(pygame.time.delay, millis, iterations, delta)
+#         # After timing behaviour, check argument type exceptions
+#         self._type_error_checks(pygame.time.delay)
 
-    def todo_test_get_ticks(self):
+#     def todo_test_get_ticks(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.time.get_ticks:
+#         # __doc__ (as of 2008-08-02) for pygame.time.get_ticks:
 
-        # pygame.time.get_ticks(): return milliseconds
-        # get the time in milliseconds
-        #
-        # Return the number of milliseconds since pygame.init() was called.
-        # Before pygame is initialized this will always be 0.
-        #
+#         # pygame.time.get_ticks(): return milliseconds
+#         # get the time in milliseconds
+#         #
+#         # Return the number of milliseconds since pygame.init() was called.
+#         # Before pygame is initialized this will always be 0.
+#         #
 
-        self.fail()
+#         self.fail()
 
-    def todo_test_set_timer(self):
+#     def todo_test_set_timer(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.time.set_timer:
+#         # __doc__ (as of 2008-08-02) for pygame.time.set_timer:
 
-        # pygame.time.set_timer(eventid, milliseconds): return None
-        # repeatedly create an event on the event queue
-        #
-        # Set an event type to appear on the event queue every given number of
-        # milliseconds. The first event will not appear until the amount of
-        # time has passed.
-        #
-        # Every event type can have a separate timer attached to it. It is
-        # best to use the value between pygame.USEREVENT and pygame.NUMEVENTS.
-        #
-        # To disable the timer for an event, set the milliseconds argument to 0.
+#         # pygame.time.set_timer(eventid, milliseconds): return None
+#         # repeatedly create an event on the event queue
+#         #
+#         # Set an event type to appear on the event queue every given number of
+#         # milliseconds. The first event will not appear until the amount of
+#         # time has passed.
+#         #
+#         # Every event type can have a separate timer attached to it. It is
+#         # best to use the value between pygame.USEREVENT and pygame.NUMEVENTS.
+#         #
+#         # To disable the timer for an event, set the milliseconds argument to 0.
 
-        self.fail()
+#         self.fail()
 
-    def test_wait(self):
-        """Tests time.wait() function."""
-        millis = 50  # millisecond to wait on each iteration
-        iterations = 20  # number of iterations
-        delta = 5  # Represents acceptable margin of error for wait in ms
-        # Call checking function
-        self._wait_delay_check(pygame.time.wait, millis, iterations, delta)
-        # After timing behaviour, check argument type exceptions
-        self._type_error_checks(pygame.time.wait)
+#     def test_wait(self):
+#         """Tests time.wait() function."""
+#         millis = 50  # millisecond to wait on each iteration
+#         iterations = 20  # number of iterations
+#         delta = 5  # Represents acceptable margin of error for wait in ms
+#         # Call checking function
+#         self._wait_delay_check(pygame.time.wait, millis, iterations, delta)
+#         # After timing behaviour, check argument type exceptions
+#         self._type_error_checks(pygame.time.wait)
 
-    def _wait_delay_check(self, func_to_check, millis, iterations, delta):
-        """"
-         call func_to_check(millis) "iterations" times and check each time if
-         function "waited" for given millisecond (+- delta). At the end, take
-         average time for each call (whole_duration/iterations), which should
-         be equal to millis (+- delta - acceptable margin of error).
-         *Created to avoid code duplication during delay and wait tests
-        """
-        # take starting time for duration calculation
-        start_time = time.time()
-        for i in range(iterations):
-            wait_time = func_to_check(millis)
-            # Check equality of wait_time and millis with margin of error delta
-            self.assertAlmostEqual(wait_time, millis, delta=delta)
-        stop_time = time.time()
-        # Cycle duration in millisecond
-        duration = round((stop_time-start_time)*1000)
-        # Duration/Iterations should be (almost) equal to predefined millis
-        self.assertAlmostEqual(duration/iterations, millis, delta=delta)
+#     def _wait_delay_check(self, func_to_check, millis, iterations, delta):
+#         """"
+#          call func_to_check(millis) "iterations" times and check each time if
+#          function "waited" for given millisecond (+- delta). At the end, take
+#          average time for each call (whole_duration/iterations), which should
+#          be equal to millis (+- delta - acceptable margin of error).
+#          *Created to avoid code duplication during delay and wait tests
+#         """
+#         # take starting time for duration calculation
+#         start_time = time.time()
+#         for i in range(iterations):
+#             wait_time = func_to_check(millis)
+#             # Check equality of wait_time and millis with margin of error delta
+#             self.assertAlmostEqual(wait_time, millis, delta=delta)
+#         stop_time = time.time()
+#         # Cycle duration in millisecond
+#         duration = round((stop_time-start_time)*1000)
+#         # Duration/Iterations should be (almost) equal to predefined millis
+#         self.assertAlmostEqual(duration/iterations, millis, delta=delta)
 
-    def _type_error_checks(self, func_to_check):
-        """Checks 3 TypeError (float, tuple, string) for the func_to_check"""
-        """Intended for time.delay and time.wait functions"""
-        # Those methods throw no exceptions on negative integers
-        self.assertRaises(TypeError, func_to_check, 0.1)  # check float
-        self.assertRaises(TypeError, pygame.time.delay, (0, 1))  # check tuple
-        self.assertRaises(TypeError, pygame.time.delay, "10")  # check string
+#     def _type_error_checks(self, func_to_check):
+#         """Checks 3 TypeError (float, tuple, string) for the func_to_check"""
+#         """Intended for time.delay and time.wait functions"""
+#         # Those methods throw no exceptions on negative integers
+#         self.assertRaises(TypeError, func_to_check, 0.1)  # check float
+#         self.assertRaises(TypeError, pygame.time.delay, (0, 1))  # check tuple
+#         self.assertRaises(TypeError, pygame.time.delay, "10")  # check string
 
 ###############################################################################
 
