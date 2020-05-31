@@ -1033,10 +1033,10 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         title = state->title;
     }
 
-    if (vsync && !(flags & (PGS_SCALED | PGS_OPENGL))) {
-        return RAISE(pgExc_SDLError,
-                     "vsync needs either SCALED or OPENGL flag");
-    }
+    // if (vsync && !(flags & (PGS_SCALED | PGS_OPENGL))) {
+    //     return RAISE(pgExc_SDLError,
+    //                  "vsync needs either SCALED or OPENGL flag");
+    // }
 
     /* set these only in toggle_fullscreen, clear on set_mode */
     state->toggle_windowed_w = 0;
