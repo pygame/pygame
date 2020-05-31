@@ -134,7 +134,6 @@ class ClockTypeTest(unittest.TestCase):
 
         self.fail()
 
-
 class TimeModuleTest(unittest.TestCase):
     def test_delay(self):
         """Tests time.delay() function."""
