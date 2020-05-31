@@ -138,25 +138,13 @@ class ClockTypeTest(unittest.TestCase):
 class TimeModuleTest(unittest.TestCase):
     def test_delay(self):
         """Tests time.delay() function."""
-        # call time.delay(millis) "iterations" times and check each time if
-        # wait "waited" for given millisecond (+- delta). At the end, take
-        # average time for each call (whole_duration/iterations), which should
-        # be equal to millis (+- delta - acceptable margin of error)
-        millis = 50
-        iterations = 20
-        # TODO: review margin of error
-        delta = 1  # Represents acceptable margin of error for delay in ms
-        # take starting time for duration calculation
-        start_time = time.time()
-        for i in range(iterations):
-            delay = pygame.time.delay(millis)
-            # Check equality of delay and millis with margin of error delta
-            self.assertAlmostEqual(delay, millis, delta=delta)
-        stop_time = time.time()
-        # Cycle duration in millisecond
-        duration = round((stop_time-start_time)*1000)
-        # Duration/Iterations should be (almost) equal to predefined millis
-        self.assertAlmostEqual(duration/iterations, millis, delta=delta)
+        millis = 50  # millisecond to wait on each iteration
+        iterations = 20  # number of iterations
+        delta = 1  # Represents acceptable margin of error for wait in ms
+        # Call checking function
+        self._wait_delay_check(pygame.time.delay, millis, iterations, delta)
+        # After timing behaviour, check argument type exceptions
+        self._type_error_checks(pygame.time.delay)
 
     def todo_test_get_ticks(self):
 
@@ -191,18 +179,26 @@ class TimeModuleTest(unittest.TestCase):
 
     def test_wait(self):
         """Tests time.wait() function."""
-        # call time.wait(millis) "iterations" times and check each time if
-        # wait "waited" for given millisecond (+- delta). At the end, take
-        # average time for each call (whole_duration/iterations), which should
-        # be equal to millis (+- delta - acceptable margin of error)
-        millis = 50
-        iterations = 20
-        # TODO: review margin of error
+        millis = 50  # millisecond to wait on each iteration
+        iterations = 20  # number of iterations
         delta = 5  # Represents acceptable margin of error for wait in ms
+        # Call checking function
+        self._wait_delay_check(pygame.time.wait, millis, iterations, delta)
+        # After timing behaviour, check argument type exceptions
+        self._type_error_checks(pygame.time.wait)
+
+    def _wait_delay_check(self, func_to_check, millis, iterations, delta):
+        """"
+         call func_to_check(millis) "iterations" times and check each time if
+         function "waited" for given millisecond (+- delta). At the end, take
+         average time for each call (whole_duration/iterations), which should
+         be equal to millis (+- delta - acceptable margin of error).
+         *Created to avoid code duplication during delay and wait tests
+        """
         # take starting time for duration calculation
         start_time = time.time()
         for i in range(iterations):
-            wait_time = pygame.time.wait(millis)
+            wait_time = func_to_check(millis)
             # Check equality of wait_time and millis with margin of error delta
             self.assertAlmostEqual(wait_time, millis, delta=delta)
         stop_time = time.time()
@@ -211,8 +207,15 @@ class TimeModuleTest(unittest.TestCase):
         # Duration/Iterations should be (almost) equal to predefined millis
         self.assertAlmostEqual(duration/iterations, millis, delta=delta)
 
+    def _type_error_checks(self, func_to_check):
+        """Checks 3 TypeError (float, tuple, string) for the func_to_check"""
+        """Intended for time.delay and time.wait functions"""
+        # Those methods throw no exceptions on negative integers
+        self.assertRaises(TypeError, func_to_check, 0.1)  # check float
+        self.assertRaises(TypeError, pygame.time.delay, (0, 1))  # check tuple
+        self.assertRaises(TypeError, pygame.time.delay, "10")  # check string
 
-################################################################################
+###############################################################################
 
 if __name__ == "__main__":
     unittest.main()
