@@ -1534,6 +1534,7 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     PyObject *alpha_obj = NULL, *intobj = NULL;
     Uint8 alpha;
     int result, alphaval = 255;
+    Uint32 colorkey;
 #if IS_SDLv1
     int hasalpha = 0;
 #endif /* IS_SDLv1 */
@@ -1562,8 +1563,17 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
 #if IS_SDLv1
         hasalpha = 1;
 #else  /* IS_SDLv2 */
-        if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND) != 0)
-            return RAISE(pgExc_SDLError, SDL_GetError());
+        if (SDL_GetColorKey(surf, &colorkey) != 0){
+            if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND) != 0){
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            }
+        }
+        else{
+            if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0){
+                return RAISE(pgExc_SDLError, SDL_GetError());
+            }
+        }
+
 #endif /* IS_SDLv2 */
     }
 #if IS_SDLv2
