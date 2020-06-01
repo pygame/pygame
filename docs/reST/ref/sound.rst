@@ -8,7 +8,7 @@
 
 | :sl:`pygame module for sound loading`
 
-The sound module is a thin wrapper around :mod:`pygame.mixer` and it's Sound
+The sound module is a thin wrapper around :mod:`pygame.mixer` and its Sound
 class. For more extensive documentation you should check there.
 
 .. versionadded:: 2.0
@@ -25,7 +25,7 @@ class. For more extensive documentation you should check there.
    uncompressed ``wav`` or ``ogg``) and create a new Sound object from the
    data.
 
-   The returned Sound can be played by calling it's ``.play()`` method.
+   The returned Sound can be played by calling its ``.play()`` method.
 
    This function is a thin wrapper around the constructor of the
    pygame.mixer.Sound class. See :mod:`pygame.mixer` which has more detailed
