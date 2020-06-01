@@ -47,7 +47,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a rectangle`
    | :sg:`rect(surface, color, rect) -> Rect`
-   | :sg:`rect(surface, color, rect, width=0, border_radius=0, border_radius=-1, border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1) -> Rect`
+   | :sg:`rect(surface, color, rect, width=0, border_radius=0, border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1, border_bottom_right_radius=-1) -> Rect`
 
    Draws a rectangle on the given surface.
 
