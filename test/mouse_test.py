@@ -73,14 +73,14 @@ class MouseModuleTest(MouseTests):
 
     def test_get_pressed(self):
         """Ensures get_pressed returns the correct types."""
-        expected_length = 3
+        expected_length = 5
 
         buttons_pressed = pygame.mouse.get_pressed()
 
         self.assertIsInstance(buttons_pressed, tuple)
         self.assertEqual(len(buttons_pressed), expected_length)
         for value in buttons_pressed:
-            self.assertIsInstance(value, int)
+            self.assertIsInstance(value, bool)
 
     def test_get_pos(self):
         """Ensures get_pos returns the correct types."""
