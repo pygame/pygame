@@ -14,6 +14,7 @@ import pygame.image
 import pygame.key
 import pygame.mixer
 import pygame.mouse
+import pygame.sound
 import pygame.time
 import pygame.version
 

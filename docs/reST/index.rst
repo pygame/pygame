@@ -158,6 +158,9 @@ Reference
 :doc:`ref/sndarray`
   Manipulate sound sample data.
 
+:doc:`ref/sound`
+  Wrapper for loading sounds.
+
 :doc:`ref/sprite`
   Higher level objects to represent game images.
 

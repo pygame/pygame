@@ -143,6 +143,11 @@ except (ImportError, IOError):
     mouse = MissingModule("mouse", urgent=1)
 
 try:
+    import pygame.sound
+except (ImportError, IOError):
+    sound = MissingModule("sound", urgent=1)
+
+try:
     import pygame.sprite
 except (ImportError, IOError):
     sprite = MissingModule("sprite", urgent=1)
