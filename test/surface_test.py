@@ -1159,7 +1159,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_shifts(self):
+    def test_get_shifts(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_shifts:
 
@@ -1170,8 +1170,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # mapped integer.
         #
         # This value is not needed for normal Pygame usage.
-
-        self.fail()
+        
+        surf = pygame.Surface((32, 32))
+        surf.set_shifts((0,168,111,1))
+        r,g,b,a = surf.get_shifts()
+        self.assertEqual((r, g, b, a), (0,168,111,1))
 
     def test_get_size(self):
         sizes = ((1, 1), (119, 10), (1000, 1000), (1, 5000), (1221, 1), (99, 999))
