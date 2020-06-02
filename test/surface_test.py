@@ -1035,7 +1035,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # test for using method when display is created with OpenGL and the SDL version is 1
         if pygame.get_sdl_version()[0] > 1: # this function returns a tuple
-            pygame.display.set_mode(flags=pygame.OpenGL)
+            pygame.display.set_mode(flags=pygame.OPENGL)
             self.assertRaises(pygame.error, s.get_colorkey())
 
     def test_get_height(self):
