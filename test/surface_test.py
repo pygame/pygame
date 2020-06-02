@@ -1029,19 +1029,16 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(s.get_colorkey(), (r, g, b, 255))
         
         # test for using method after display.quit() is called...
-        def f():
+        with self.assertRaises(pygame.error):
             s = pygame.display.set_mode()
             pygame.display.quit()
-            with self.assertRaises(pygame.error)
-                s.get_colorkey()
-
+            s.get_colorkey()
 
         # test for using method when display is created with OpenGL and the SDL version is 1
         if SDL1: # SLD1 is a bool defined at the top...
-            s = pygame.display.set_mode(flags=pygame.OPENGL)
             with self.assertRaises(pygame.error):   
+                s = pygame.display.set_mode(flags=pygame.OPENGL)
                 s.get_colorkey()
-
 
     def test_get_height(self):
         sizes = ((1, 1), (119, 10), (10, 119), (1, 1000), (1000, 1), (1000, 1000))
