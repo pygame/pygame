@@ -117,7 +117,7 @@ RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
 }
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
-static int
+static int SDLCALL
 pg_event_filter(void *_, SDL_Event *event)
 {
     /* This event filter alters events inplace.
@@ -130,9 +130,16 @@ pg_event_filter(void *_, SDL_Event *event)
                 return 1;
             case SDL_WINDOWEVENT_RESIZED:
                 if(_pg_event_generate_videoresize) {
-                    /* keep resized event around for SDL_RendererEventWatch */
+                    /* keep resized event around for SDL_RendererEventWatch
+                       (SDL2-internal) and pygame-internal event watch in
+                       display.c */
                     SDL_Event newevent = *event;
                     newevent.type = SDL_VIDEORESIZE;
+
+                    /* all previous resize events are superseded.
+                       SDL2 already does this for SDL_WINDOWEVENT_RESIZED,
+                       so we only need to filter our own custom event before
+                       we push the new one*/
                     SDL_FilterEvents(RemovePending_PGS_VIDEORESIZE_Events, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
@@ -141,8 +148,12 @@ pg_event_filter(void *_, SDL_Event *event)
                     return 1;
                 }
             case SDL_WINDOWEVENT_EXPOSED:
-                event->type = SDL_VIDEOEXPOSE;
-                break;
+                {
+                    SDL_Event newevent = *event;
+                    newevent.type = SDL_VIDEOEXPOSE;
+                    SDL_PushEvent(&newevent);
+                    return 1;
+                }
             case SDL_WINDOWEVENT_ENTER:
             case SDL_WINDOWEVENT_LEAVE:
             case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -158,8 +169,11 @@ pg_event_filter(void *_, SDL_Event *event)
             case SDL_WINDOWEVENT_CLOSE:
                 break;
             default:
-                /*ignore other SDL_WINDOWEVENTs for now.*/
-                return 0;
+                /* DON'T ignore other SDL_WINDOWEVENTs for now.
+                   If we delete events here, they won't be available to
+                   low-level SDL2 either. For the python side, it's better
+                   to omit events in pygame.event.get(). */
+                return 1;
         }
     }
 #pragma PG_WARN(Add event blocking here.)
