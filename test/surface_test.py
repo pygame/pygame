@@ -326,6 +326,20 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(s1.get_bytesize(), depth_bytes)
         self.assertEqual(s1.get_bitsize(), depth)
 
+        depth = 15
+        depth_bytes = 2
+        s1 = pygame.Surface((32, 32), 0, depth)
+
+        self.assertEqual(s1.get_bytesize(), depth_bytes)
+        self.assertEqual(s1.get_bitsize(), depth)
+
+        depth = 12
+        depth_bytes = 2
+        s1 = pygame.Surface((32, 32), 0, depth)
+
+        self.assertEqual(s1.get_bytesize(), depth_bytes)
+        self.assertEqual(s1.get_bitsize(), depth)
+
     ########################################################################
 
     def test_get_flags(self):
@@ -981,19 +995,31 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 "%i != %i, bitsize: %i" % (pixel, surf.map_rgb(color), bitsize),
             )
 
-    def todo_test_get_bitsize(self):
+    def test_get_bitsize(self):
+        expected_size = (11, 21)
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_bitsize:
+        # Check that get_bitsize returns passed depth
+        expected_depth = 32
+        surface = pygame.Surface(expected_size, pygame.SRCALPHA, expected_depth)
+        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_bitsize(), expected_depth)
 
-        # Surface.get_bitsize(): return int
-        # get the bit depth of the Surface pixel format
-        #
-        # Returns the number of bits used to represent each pixel. This value
-        # may not exactly fill the number of bytes used per pixel. For example
-        # a 15 bit Surface still requires a full 2 bytes.
-        #
+        expected_depth = 16
+        surface = pygame.Surface(expected_size, pygame.SRCALPHA, expected_depth)
+        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_bitsize(), expected_depth)
 
-        self.fail()
+        expected_depth = 15
+        surface = pygame.Surface(expected_size, 0, expected_depth)
+        self.assertEqual(surface.get_size(), expected_size)
+        self.assertEqual(surface.get_bitsize(), expected_depth)
+        # Check for invalid depths
+        expected_depth = -1
+        self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
+        expected_depth = 11
+        self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
+        expected_depth = 1024
+        self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
 
     def test_get_clip(self):
         s = pygame.Surface((800, 600))
