@@ -343,6 +343,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertIs(child.get_parent(), parent)
 
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode()
+            pygame.display.quit()
+            surface.get_parent()
+
     ########################################################################
 
     def test_get_rect(self):
@@ -946,6 +951,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # Total offset: (0+2+0+3+6+5, 0+2+0+7+1+6) = (16, 16)
         self.assertEqual(sub_level_5.get_abs_offset(), (16, 16))
 
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode()
+            pygame.display.quit()
+            surface.get_abs_offset()
+
     def test_get_abs_parent(self):
         parent = pygame.Surface((32, 32), SRCALPHA, 32)
 
@@ -972,6 +982,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(sub_level_4.get_abs_parent(), parent)
         self.assertEqual(sub_level_5.get_abs_parent(), parent)
         self.assertEqual(sub_level_6.get_abs_parent(), sub_level_6.get_parent().get_abs_parent())
+
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode()
+            pygame.display.quit()
+            surface.get_abs_parent()
 
     def test_get_at(self):
         surf = pygame.Surface((2, 2), 0, 24)
@@ -1132,6 +1147,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # subsurface offset test
         subsurf = surf.subsurface(1, 1, 10, 10)
         self.assertEqual(subsurf.get_offset(), (1, 1))
+
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode()
+            pygame.display.quit()
+            surface.get_offset()
 
     def test_get_palette(self):
         pygame.display.init()
