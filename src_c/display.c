@@ -211,6 +211,7 @@ pg_display_autoquit(void)
     _DisplayState *state = DISPLAY_STATE;
     _display_state_cleanup(state);
     if (pg_GetDefaultWindowSurface()) {
+        pgSurface_AsSurface(pg_GetDefaultWindowSurface()) = NULL;
         pg_SetDefaultWindowSurface(NULL);
         pg_SetDefaultWindow(NULL);
     }
