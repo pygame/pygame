@@ -499,9 +499,9 @@ def write_version_module(pygame_version, revision):
         header = header_file.read()
     with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
-        version_file.write('ver = "' + pygame_version + '"\n')
+        version_file.write('ver = "' + pygame_version + '"  # pylint: disable=invalid-name\n')
         version_file.write('vernum = PygameVersion(%s)\n' % vernum)
-        version_file.write('rev = "' + revision + '"\n')
+        version_file.write('rev = "' + revision + '"  # pylint: disable=invalid-name\n')
         version_file.write('\n__all__ = ["SDL", "ver", "vernum", "rev"]\n')
 
 write_version_module(METADATA['version'], revision)
