@@ -1021,6 +1021,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         expected_depth = 1024
         self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
 
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode()
+            pygame.display.quit()
+            surface.get_bitsize()
+
     def test_get_clip(self):
         s = pygame.Surface((800, 600))
         rectangle = s.get_clip()
