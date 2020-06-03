@@ -340,6 +340,11 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(s1.get_bytesize(), depth_bytes)
         self.assertEqual(s1.get_bitsize(), depth)
 
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode()
+            pygame.display.quit()
+            surface.get_bytesize()
+
     ########################################################################
 
     def test_get_flags(self):
