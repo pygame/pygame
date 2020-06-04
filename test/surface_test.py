@@ -1001,43 +1001,53 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(rectangle, (0, 0, 800, 600))
 
     def test_get_colorkey(self):
-        # if set_colorkey is not used
-        s = pygame.Surface((800, 600))
-        self.assertIsNone(s.get_colorkey())
+        pygame.display.init()
+        try:
+            # if set_colorkey is not used
+            s = pygame.Surface((800, 600), 0, 32)
+            self.assertIsNone(s.get_colorkey())
 
-        # if set_colorkey is used
-        s.set_colorkey(None)
-        self.assertIsNone(s.get_colorkey())
-        
-        # setting up remainder of tests...
-        r, g, b, a  = 20, 40, 60, 12
-        colorkey = pygame.Color(r, g, b)
-        s.set_colorkey(colorkey)
-        
-        #test for ideal case
-        self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
-        #test for if the color_key is set using pygame.RLEACCEL
-        s.set_colorkey(colorkey, pygame.RLEACCEL)
-        self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
-        #test for if the color key is not what's expected
-        s.set_colorkey(pygame.Color(r + 1, g + 1, b + 1))
-        self.assertNotEqual(s.get_colorkey(), (r, g, b, 255))
+            # if set_colorkey is used
+            s.set_colorkey(None)
+            self.assertIsNone(s.get_colorkey())
 
-        s.set_colorkey(pygame.Color(r, g, b, a)) # regardless of whether alpha is not 255, colorkey returned from surface is always 255
-        self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
-        # test for using method after display.quit() is called...
-        with self.assertRaises(pygame.error):
-            s = pygame.display.set_mode()
+            # setting up remainder of tests...
+            r, g, b, a  = 20, 40, 60, 12
+            colorkey = pygame.Color(r, g, b)
+            s.set_colorkey(colorkey)
+
+            #test for ideal case
+            self.assertEqual(s.get_colorkey(), (r, g, b, 255))
+
+            #test for if the color_key is set using pygame.RLEACCEL
+            s.set_colorkey(colorkey, pygame.RLEACCEL)
+            self.assertEqual(s.get_colorkey(), (r, g, b, 255))
+
+            #test for if the color key is not what's expected
+            s.set_colorkey(pygame.Color(r + 1, g + 1, b + 1))
+            self.assertNotEqual(s.get_colorkey(), (r, g, b, 255))
+
+            s.set_colorkey(pygame.Color(r, g, b, a)) # regardless of whether alpha is not 255, colorkey returned from surface is always 255
+            self.assertEqual(s.get_colorkey(), (r, g, b, 255))
+
+            # test for using method when display is created with OpenGL and the SDL version is 1
+            # Open GL is not available on the dummy video driver
+            if SDL1:  # SLD1 is a bool defined at the top...
+                try:
+                    s = pygame.display.set_mode((200, 200),
+                                                pygame.OPENGL, 32)
+                except pygame.error:
+                    pass  # If we can't create OPENGL surface don't try this test
+                else:
+                    with self.assertRaises(pygame.error):
+                        s.get_colorkey()
+
+
+        finally:
+            # test for using method after display.quit() is called...
+            s = pygame.display.set_mode((200, 200), 0, 32)
             pygame.display.quit()
-            s.get_colorkey()
-
-        # test for using method when display is created with OpenGL and the SDL version is 1
-        if SDL1: # SLD1 is a bool defined at the top...
-            with self.assertRaises(pygame.error):   
-                s = pygame.display.set_mode(flags=pygame.OPENGL)
+            with self.assertRaises(pygame.error):
                 s.get_colorkey()
 
     def test_get_height(self):
