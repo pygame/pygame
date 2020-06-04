@@ -142,12 +142,14 @@ mouse_get_pressed(PyObject *self)
     VIDEO_INIT_CHECK();
 
     state = SDL_GetMouseState(NULL, NULL);
-    if (!(tuple = PyTuple_New(3)))
+    if (!(tuple = PyTuple_New(5)))
         return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong((state & SDL_BUTTON(1)) != 0));
-    PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong((state & SDL_BUTTON(2)) != 0));
-    PyTuple_SET_ITEM(tuple, 2, PyInt_FromLong((state & SDL_BUTTON(3)) != 0));
+    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong((state & SDL_BUTTON_LMASK) != 0));
+    PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong((state & SDL_BUTTON_MMASK) != 0));
+    PyTuple_SET_ITEM(tuple, 2, PyBool_FromLong((state & SDL_BUTTON_RMASK) != 0));
+    PyTuple_SET_ITEM(tuple, 3, PyBool_FromLong((state & SDL_BUTTON_X1MASK) != 0));
+    PyTuple_SET_ITEM(tuple, 4, PyBool_FromLong((state & SDL_BUTTON_X2MASK) != 0));
 
     return tuple;
 }
