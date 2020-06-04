@@ -338,15 +338,20 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_get_parent(self):
         """Ensure a surface's parent can be retrieved."""
-        parent = pygame.Surface((16, 16))
-        child = parent.subsurface((0, 0, 5, 5))
+        pygame.display.init()
+        try:
+            parent = pygame.Surface((16, 16))
+            child = parent.subsurface((0, 0, 5, 5))
 
-        self.assertIs(child.get_parent(), parent)
+            self.assertIs(child.get_parent(), parent)
 
-        with self.assertRaises(pygame.error):
-            surface = pygame.display.set_mode()
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_parent()
+        finally:
             pygame.display.quit()
-            surface.get_parent()
+
 
     ########################################################################
 
@@ -929,64 +934,73 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             pygame.display.quit()
 
     def test_get_abs_offset(self):
-        parent = pygame.Surface((64, 64), SRCALPHA, 32)
-        
-        # Stack bunch of subsurfaces
-        sub_level_1 = parent.subsurface((2, 2), (34, 37))
-        sub_level_2 = sub_level_1.subsurface((0, 0), (30, 29))
-        sub_level_3 = sub_level_2.subsurface((3, 7), (20, 21))
-        sub_level_4 = sub_level_3.subsurface((6, 1), (14, 14))
-        sub_level_5 = sub_level_4.subsurface((5, 6), (3, 4))
+        pygame.display.init()
+        try:
+            parent = pygame.Surface((64, 64), SRCALPHA, 32)
+            
+            # Stack bunch of subsurfaces
+            sub_level_1 = parent.subsurface((2, 2), (34, 37))
+            sub_level_2 = sub_level_1.subsurface((0, 0), (30, 29))
+            sub_level_3 = sub_level_2.subsurface((3, 7), (20, 21))
+            sub_level_4 = sub_level_3.subsurface((6, 1), (14, 14))
+            sub_level_5 = sub_level_4.subsurface((5, 6), (3, 4))
 
-        # Parent is always (0, 0)
-        self.assertEqual(parent.get_abs_offset(), (0, 0))
-        # Total offset: (0+2, 0+2) = (2, 2)
-        self.assertEqual(sub_level_1.get_abs_offset(), (2, 2))
-        # Total offset: (0+2+0, 0+2+0) = (2, 2)
-        self.assertEqual(sub_level_2.get_abs_offset(), (2, 2))
-        # Total offset: (0+2+0+3, 0+2+0+7) = (5, 9)
-        self.assertEqual(sub_level_3.get_abs_offset(), (5, 9))
-        # Total offset: (0+2+0+3+6, 0+2+0+7+1) = (11, 10)
-        self.assertEqual(sub_level_4.get_abs_offset(), (11, 10))
-        # Total offset: (0+2+0+3+6+5, 0+2+0+7+1+6) = (16, 16)
-        self.assertEqual(sub_level_5.get_abs_offset(), (16, 16))
+            # Parent is always (0, 0)
+            self.assertEqual(parent.get_abs_offset(), (0, 0))
+            # Total offset: (0+2, 0+2) = (2, 2)
+            self.assertEqual(sub_level_1.get_abs_offset(), (2, 2))
+            # Total offset: (0+2+0, 0+2+0) = (2, 2)
+            self.assertEqual(sub_level_2.get_abs_offset(), (2, 2))
+            # Total offset: (0+2+0+3, 0+2+0+7) = (5, 9)
+            self.assertEqual(sub_level_3.get_abs_offset(), (5, 9))
+            # Total offset: (0+2+0+3+6, 0+2+0+7+1) = (11, 10)
+            self.assertEqual(sub_level_4.get_abs_offset(), (11, 10))
+            # Total offset: (0+2+0+3+6+5, 0+2+0+7+1+6) = (16, 16)
+            self.assertEqual(sub_level_5.get_abs_offset(), (16, 16))
 
-        with self.assertRaises(pygame.error):
-            surface = pygame.display.set_mode()
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_abs_offset()
+        finally:
             pygame.display.quit()
-            surface.get_abs_offset()
+
 
     def test_get_abs_parent(self):
-        parent = pygame.Surface((32, 32), SRCALPHA, 32)
+        pygame.display.init()
+        try:
+            parent = pygame.Surface((32, 32), SRCALPHA, 32)
 
-        # Stack bunch of subsurfaces
-        sub_level_1 = parent.subsurface((1, 1), (15, 15))
-        sub_level_2 = sub_level_1.subsurface((1, 1), (12, 12))
-        sub_level_3 = sub_level_2.subsurface((1, 1), (9, 9))
-        sub_level_4 = sub_level_3.subsurface((1, 1), (8, 8))
-        sub_level_5 = sub_level_4.subsurface((2, 2), (3, 4))
-        sub_level_6 = sub_level_5.subsurface((0, 0), (2, 1))
+            # Stack bunch of subsurfaces
+            sub_level_1 = parent.subsurface((1, 1), (15, 15))
+            sub_level_2 = sub_level_1.subsurface((1, 1), (12, 12))
+            sub_level_3 = sub_level_2.subsurface((1, 1), (9, 9))
+            sub_level_4 = sub_level_3.subsurface((1, 1), (8, 8))
+            sub_level_5 = sub_level_4.subsurface((2, 2), (3, 4))
+            sub_level_6 = sub_level_5.subsurface((0, 0), (2, 1))
 
-        # Can't have subsurfaces bigger than parents
-        self.assertRaises(ValueError, parent.subsurface, (5, 5), (100, 100))
-        self.assertRaises(ValueError, sub_level_3.subsurface, (0, 0), (11, 5))
-        self.assertRaises(ValueError, sub_level_6.subsurface, (0, 0), (5, 5))
-        
-        # Calling get_abs_parent on parent should return itself
-        self.assertEqual(parent.get_abs_parent(), parent)
+            # Can't have subsurfaces bigger than parents
+            self.assertRaises(ValueError, parent.subsurface, (5, 5), (100, 100))
+            self.assertRaises(ValueError, sub_level_3.subsurface, (0, 0), (11, 5))
+            self.assertRaises(ValueError, sub_level_6.subsurface, (0, 0), (5, 5))
+            
+            # Calling get_abs_parent on parent should return itself
+            self.assertEqual(parent.get_abs_parent(), parent)
 
-        # On subclass "depth" of 1, get_abs_parent and get_parent should return the same
-        self.assertEqual(sub_level_1.get_abs_parent(), sub_level_1.get_parent())
-        self.assertEqual(sub_level_2.get_abs_parent(), parent)
-        self.assertEqual(sub_level_3.get_abs_parent(), parent)
-        self.assertEqual(sub_level_4.get_abs_parent(), parent)
-        self.assertEqual(sub_level_5.get_abs_parent(), parent)
-        self.assertEqual(sub_level_6.get_abs_parent(), sub_level_6.get_parent().get_abs_parent())
+            # On subclass "depth" of 1, get_abs_parent and get_parent should return the same
+            self.assertEqual(sub_level_1.get_abs_parent(), sub_level_1.get_parent())
+            self.assertEqual(sub_level_2.get_abs_parent(), parent)
+            self.assertEqual(sub_level_3.get_abs_parent(), parent)
+            self.assertEqual(sub_level_4.get_abs_parent(), parent)
+            self.assertEqual(sub_level_5.get_abs_parent(), parent)
+            self.assertEqual(sub_level_6.get_abs_parent(), sub_level_6.get_parent().get_abs_parent())
 
-        with self.assertRaises(pygame.error):
-            surface = pygame.display.set_mode()
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_abs_parent()
+        finally:
             pygame.display.quit()
-            surface.get_abs_parent()
 
     def test_get_at(self):
         surf = pygame.Surface((2, 2), 0, 24)
@@ -1172,17 +1186,22 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         """get_offset returns the (0,0) if surface is not a child
                       returns the position of child subsurface inside of parent
         """
-        surf = pygame.Surface((100, 100))
-        self.assertEqual(surf.get_offset(), (0, 0))
+        pygame.display.init()
+        try:
+            surf = pygame.Surface((100, 100))
+            self.assertEqual(surf.get_offset(), (0, 0))
 
-        # subsurface offset test
-        subsurf = surf.subsurface(1, 1, 10, 10)
-        self.assertEqual(subsurf.get_offset(), (1, 1))
+            # subsurface offset test
+            subsurf = surf.subsurface(1, 1, 10, 10)
+            self.assertEqual(subsurf.get_offset(), (1, 1))
 
-        with self.assertRaises(pygame.error):
-            surface = pygame.display.set_mode()
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_offset()
+        finally:
             pygame.display.quit()
-            surface.get_offset()
+
 
     def test_get_palette(self):
         pygame.display.init()
