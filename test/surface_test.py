@@ -1004,7 +1004,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         pygame.display.init()
         try:
             # if set_colorkey is not used
-            s = pygame.Surface((800, 600))
+            s = pygame.Surface((800, 600), 0, 32)
             self.assertIsNone(s.get_colorkey())
 
             # if set_colorkey is used
@@ -1032,13 +1032,14 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             # test for using method when display is created with OpenGL and the SDL version is 1
             if SDL1:  # SLD1 is a bool defined at the top...
-                s = pygame.display.set_mode(flags=pygame.OPENGL)
+                s = pygame.display.set_mode((200, 200),
+                                            pygame.OPENGL, 32)
                 with self.assertRaises(pygame.error):
                     s.get_colorkey()
 
         finally:
             # test for using method after display.quit() is called...
-            s = pygame.display.set_mode()
+            s = pygame.display.set_mode((200, 200), 0, 32)
             pygame.display.quit()
             with self.assertRaises(pygame.error):
                 s.get_colorkey()
