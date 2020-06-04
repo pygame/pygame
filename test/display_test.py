@@ -105,21 +105,42 @@ class DisplayModuleTest(unittest.TestCase):
 
     def test_get_driver(self):
         drivers = [
-            'windib',
-            'directx',
-            'x11',
-            'dga',
-            'fbcon',
-            'directfb',
-            'ggi',
-            'vgl',
-            'svgalib',
             'aalib',
+            'android',
+            'arm',
             'cocoa',
-            'dummy'
+            'dga',
+            'directx',
+            'directfb',
+            'dummy',
+            'emscripten',
+            'fbcon',
+            'ggi',
+            'haiku',
+            'khronos',
+            'kmsdrm',
+            'nacl',
+            'offscreen',
+            'pandora',
+            'psp',
+            'qnx',
+            'raspberry',
+            'svgalib',
+            'uikit',
+            'vgl',
+            'vivante',
+            'wayland',
+            'windows',
+            'windib',
+            'winrt',
+            'x11'
         ]
         driver = display.get_driver()
         self.assertIn(driver, drivers)
+
+        display.quit()
+        driver = display.get_driver()
+        self.assertIsNone(driver)
 
     def test_get_init(self):
         """Ensures the module's initialization state can be retrieved."""
