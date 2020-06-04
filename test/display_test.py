@@ -103,22 +103,23 @@ class DisplayModuleTest(unittest.TestCase):
         else:
             self.assertEqual(unicode_(display.get_caption()[0], "utf8"), TEST_CAPTION)
 
-    def todo_test_get_driver(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.get_driver:
-
-        # pygame.display.get_driver(): return name
-        # get the name of the pygame display backend
-        #
-        # Pygame chooses one of many available display backends when it is
-        # initialized. This returns the internal name used for the display
-        # backend. This can be used to provide limited information about what
-        # display capabilities might be accelerated. See the SDL_VIDEODRIVER
-        # flags in pygame.display.set_mode() to see some of the common
-        # options.
-        #
-
-        self.fail()
+    def test_get_driver(self):
+        drivers = [
+            'windib',
+            'directx',
+            'x11',
+            'dga',
+            'fbcon',
+            'directfb',
+            'ggi',
+            'vgl',
+            'svgalib',
+            'aalib',
+            'cocoa',
+            'dummy'
+        ]
+        driver = display.get_driver()
+        self.assertIn(driver, drivers)
 
     def test_get_init(self):
         """Ensures the module's initialization state can be retrieved."""
