@@ -1031,11 +1031,17 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(s.get_colorkey(), (r, g, b, 255))
 
             # test for using method when display is created with OpenGL and the SDL version is 1
+            # Open GL is not available on the dummy video driver
             if SDL1:  # SLD1 is a bool defined at the top...
-                s = pygame.display.set_mode((200, 200),
-                                            pygame.OPENGL, 32)
-                with self.assertRaises(pygame.error):
-                    s.get_colorkey()
+                try:
+                    s = pygame.display.set_mode((200, 200),
+                                                pygame.OPENGL, 32)
+                except pygame.error:
+                    pass  # If we can't create OPENGL surface don't try this test
+                else:
+                    with self.assertRaises(pygame.error):
+                        s.get_colorkey()
+
 
         finally:
             # test for using method after display.quit() is called...
