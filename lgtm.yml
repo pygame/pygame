@@ -1,0 +1,5 @@
+extraction:
+  python:
+    python_setup:
+      requirements:
+        - pygame==2.0.0.dev10
