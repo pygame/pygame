@@ -12,28 +12,26 @@ class ClockTypeTest(unittest.TestCase):
 
         self.assertTrue(c, "Clock cannot be constructed")
 
-    def todo_test_get_fps(self):
+    def test_get_fps(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_fps:
+        delay_per_frame = 1.0 / 100.0
+        
+        c = Clock()
+        
+        #get_fps() must return 0.0 for the first 10 iterations
+        for i in range(10):
+            c.tick()
+            time.sleep(delay_per_frame)
+            self.assertEqual(c.get_fps(), 0.0)
+        
+        #testing for 100 fps with delta = 3
+        for f in range(200):
+            c.tick()
+            time.sleep(delay_per_frame)
 
-        # Clock.get_fps(): return float
-        # compute the clock framerate
-        #
-        # Compute your game's framerate (in frames per second). It is computed
-        # by averaging the last few calls to Clock.tick().
-        #
-
-        self.fail()
-
-        # delay_per_frame = 1 / 100.0
-        #
-        # c = Clock()
-        #
-        # for f in range(100):
-        #     c.tick()
-        #     time.sleep(delay_per_frame)
-        #
-        # self.assertTrue(99.0 < c.get_fps() < 101.0)
+        fps = c.get_fps()
+        
+        self.assertAlmostEqual(100.0, fps, delta=3.0)
 
     def todo_test_get_rawtime(self):
 
