@@ -1956,7 +1956,7 @@ clamp_4
             *(p_byte_buf + (p_format->Gshift >> 3)) =                         \
                 (Uint8)(p_color >> p_format->Gshift);                         \
             *(p_byte_buf + (p_format->Bshift >> 3)) =                         \
-                (Uint8)(p_color >> p_format->Bshift;                          \
+                (Uint8)(p_color >> p_format->Bshift);                          \
             break;                                                            \
         default:                                                              \
             *((Uint32 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)) = p_color;  \
