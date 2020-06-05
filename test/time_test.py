@@ -181,7 +181,7 @@ class TimeModuleTest(unittest.TestCase):
         pygame.display.init()
         TIMER_EVENT_TYPE = pygame.event.custom_type()
         timer_event = pygame.event.Event(TIMER_EVENT_TYPE, {'code': 0})
-        delta = 100
+        delta = 200
         timer_delay = 250
         test_number = 8 # Number of events to read for the test
         events = 0 # Events read
