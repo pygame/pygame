@@ -139,8 +139,8 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertIn(driver, drivers)
 
         display.quit()
-        driver = display.get_driver()
-        self.assertIsNone(driver)
+        with self.assertRaises(pygame.error):
+            driver = display.get_driver()
 
     def test_get_init(self):
         """Ensures the module's initialization state can be retrieved."""
