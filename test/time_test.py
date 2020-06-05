@@ -48,29 +48,33 @@ class ClockTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_time(self):
+    def test_get_time(self):
+        #Testing parameters
+        delay = 0.1 #seconds
+        delay_miliseconds = delay*(10**3)
+        iterations = 10
+        delta = 50 #milliseconds
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_time:
+        #Testing Clock Initialization
+        c = Clock()
+        self.assertEqual(c.get_time(), 0)
 
-        # Clock.get_time(): return milliseconds
-        # time used in the previous tick
-        #
-        # Returns the parameter passed to the last call to Clock.tick(). It is
-        # the number of milliseconds passed between the previous two calls to
-        # Pygame.tick().
-        #
+        #Testing within delay parameter range
+        for i in range(iterations):
+            time.sleep(delay)
+            c.tick()
+            c1 = c.get_time()
+            self.assertAlmostEqual(delay_miliseconds, c1, delta=delta)
 
-        self.fail()
-
-        # c = Clock()
-        # c.tick()                    #between   here
-        # time.sleep(0.02)
-        #                                              #get_time()
-        # c.tick()                    #          here
-        #
-        # time.sleep(0.02)
-        #
-        # self.assertTrue(20 <= c.get_time() <= 30)
+        #Comparing get_time() results with the 'time' module
+        for i in range(iterations):
+            t0 = time.time()
+            time.sleep(delay)
+            c.tick() 
+            t1 = time.time()
+            c1 = c.get_time() #elapsed time in milliseconds
+            d0 = (t1-t0)*(10**3) #'time' module elapsed time converted to milliseconds
+            self.assertAlmostEqual(d0, c1, delta=delta)
 
     def todo_test_tick(self):
 
