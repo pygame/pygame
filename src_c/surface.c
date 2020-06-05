@@ -1005,13 +1005,13 @@ surf_set_at(PyObject *self, PyObject *args)
         case 3:
             byte_buf = (Uint8 *)(pixels + y * surf->pitch) + x * 3;
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-            *(byte_buf + (format->Rshift >> 3)) = (Uint8)(color >> 16);
-            *(byte_buf + (format->Gshift >> 3)) = (Uint8)(color >> 8);
-            *(byte_buf + (format->Bshift >> 3)) = (Uint8)color;
+            *(byte_buf + (format->Rshift >> 3)) = (Uint8)(color >> format->Rshift);
+            *(byte_buf + (format->Gshift >> 3)) = (Uint8)(color >> format->Gshift);
+            *(byte_buf + (format->Bshift >> 3)) = (Uint8)(color >> format->Bshift);
 #else
-            *(byte_buf + 2 - (format->Rshift >> 3)) = (Uint8)(color >> 16);
-            *(byte_buf + 2 - (format->Gshift >> 3)) = (Uint8)(color >> 8);
-            *(byte_buf + 2 - (format->Bshift >> 3)) = (Uint8)color;
+            *(byte_buf + 2 - (format->Rshift >> 3)) = (Uint8)(color >> format->Rshift);
+            *(byte_buf + 2 - (format->Gshift >> 3)) = (Uint8)(color >> format->Gshift);
+            *(byte_buf + 2 - (format->Bshift >> 3)) = (Uint8)(color >> format->Bshift);
 #endif
             break;
         default: /* case 4: */

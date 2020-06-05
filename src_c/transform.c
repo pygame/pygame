@@ -2165,17 +2165,18 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
                         (Uint8 *)(destpixels + y * destsurf->pitch) + x * 3;
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                     *(byte_buf + (destformat->Rshift >> 3)) =
-                        (Uint8)(the_color >> 16);
+                        (Uint8)(the_color >> surf->format->Rshift);
                     *(byte_buf + (destformat->Gshift >> 3)) =
-                        (Uint8)(the_color >> 8);
-                    *(byte_buf + (destformat->Bshift >> 3)) = (Uint8)the_color;
+                        (Uint8)(the_color >> surf->format->Gshift);
+                    *(byte_buf + (destformat->Bshift >> 3)) =
+                        (Uint8)(the_color >> surf->format->Bshift);
 #else
                     *(byte_buf + 2 - (destformat->Rshift >> 3)) =
-                        (Uint8)(the_color >> 16);
+                        (Uint8)(the_color >> surf->format->Rshift);
                     *(byte_buf + 2 - (destformat->Gshift >> 3)) =
-                        (Uint8)(the_color >> 8);
+                        (Uint8)(the_color >> surf->format->Gshift);
                     *(byte_buf + 2 - (destformat->Bshift >> 3)) =
-                        (Uint8)the_color;
+                        (Uint8)(the_color >> surf->format->Bshift);
 #endif
                     break;
                 default:
