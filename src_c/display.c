@@ -699,6 +699,7 @@ static PyObject *
 pg_get_driver(PyObject *self, PyObject *args)
 {
     const char *name = NULL;
+    VIDEO_INIT_CHECK();
     name = SDL_GetCurrentVideoDriver();
     if (!name)
         Py_RETURN_NONE;

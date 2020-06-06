@@ -2938,7 +2938,11 @@ surf_subsurface(PyObject *self, PyObject *args)
 static PyObject *
 surf_get_offset(PyObject *self, PyObject *args)
 {
+    SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
     if (!subdata)
@@ -2949,9 +2953,13 @@ surf_get_offset(PyObject *self, PyObject *args)
 static PyObject *
 surf_get_abs_offset(PyObject *self, PyObject *args)
 {
+    SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
     PyObject *owner;
     int offsetx, offsety;
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
     if (!subdata)
@@ -2974,7 +2982,11 @@ surf_get_abs_offset(PyObject *self, PyObject *args)
 static PyObject *
 surf_get_parent(PyObject *self, PyObject *args)
 {
+    SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
     if (!subdata)
@@ -2987,8 +2999,12 @@ surf_get_parent(PyObject *self, PyObject *args)
 static PyObject *
 surf_get_abs_parent(PyObject *self, PyObject *args)
 {
+    SDL_Surface *surf = pgSurface_AsSurface(self);
     struct pgSubSurface_Data *subdata;
     PyObject *owner;
+
+    if (!surf)
+        return RAISE(pgExc_SDLError, "display Surface quit");
 
     subdata = ((pgSurfaceObject *)self)->subsurface;
     if (!subdata) {

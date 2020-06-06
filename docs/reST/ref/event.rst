@@ -19,9 +19,12 @@ events into the queue from other threads, please use the
 The event queue has an upper limit on the number of events it can hold
 (128 for standard SDL 1.2). When the queue becomes full new events are quietly
 dropped. To prevent lost events, especially input events which signal a quit
-command, your program must regularly check for events and process them.
-To speed up queue processing use :func:`pygame.event.set_blocked()` to
-limit which events get queued.
+command, your program must handle events every frame (with
+``pygame.event.get()``, ``pygame.event.pump()``, ``pygame.event.wait()``,
+``pygame.event.peek()`` or ``pygame.event.clear()``)
+and process them. Not handling events may cause your system to decide your
+program has locked up. To speed up queue processing use
+:func:`pygame.event.set_blocked()` to limit which events get queued.
 
 To get the state of various input devices, you can forego the event queue and
 access the input devices directly with their appropriate modules:
