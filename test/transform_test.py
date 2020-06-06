@@ -1,7 +1,10 @@
 import unittest
+import os
 import platform
 
 from pygame.tests import test_utils
+from pygame.tests.test_utils import example_path
+
 import pygame
 import pygame.transform
 from pygame.locals import *
@@ -829,6 +832,24 @@ class TransformModuleTest(unittest.TestCase):
             print(sr.get_shifts(), s1.get_shifts())
 
         self.assertEqual(sr.get_at((0, 0)), (10, 53, 50, 255))
+
+    def test_average_surfaces__24_big_endian(self):
+        pygame.display.init()
+        try:
+            surf_1 = pygame.image.load(
+                example_path(os.path.join("data", "BGR.png")))
+
+            surf_2 = pygame.transform.flip(surf_1, False, True)
+
+            surfaces = [surf_1, surf_2]
+            surf_av = pygame.transform.average_surfaces(surfaces)
+            self.assertEqual(surf_av.get_masks(), surf_1.get_masks())
+            self.assertEqual(surf_av.get_flags(), surf_1.get_flags())
+            self.assertEqual(surf_av.get_losses(), surf_1.get_losses())
+
+            self.assertEqual(surf_av.get_at((0, 0)), (128, 0, 128, 255))
+        finally:
+            pygame.display.quit()
 
     def test_average_surfaces__subclassed_surfaces(self):
         """Ensure average_surfaces accepts subclassed surfaces."""
