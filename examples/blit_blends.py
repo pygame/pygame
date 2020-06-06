@@ -38,11 +38,11 @@ def main():
     pg.mixer.quit()  # remove ALSA underflow messages for Debian squeeze
     screen = pg.display.set_mode((640, 480))
 
-    im1 = pg.Surface(screen.get_size())
+    im1 = pg.surface.Surface(screen.get_size())
     # im1= im1.convert()
     im1.fill((100, 0, 0))
 
-    im2 = pg.Surface(screen.get_size())
+    im2 = pg.surface.Surface(screen.get_size())
     im2.fill((0, 50, 0))
     # we make a srcalpha copy of it.
     # im3= im2.convert(SRCALPHA)
