@@ -185,8 +185,12 @@ class TimeModuleTest(unittest.TestCase):
         timer_delay = 250
         test_number = 8 # Number of events to read for the test
         events = 0 # Events read
-        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+        # Get the events a few times. The time SDL_PumpEvents takes
+        # for the first 2-3 calls is longer and less stable...
+        for i in range(5):
+            pygame.event.get()
 
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
         # Test that 'test_number' events are posted in the right amount of time
         t1 = pygame.time.get_ticks()
         max_test_time = t1 + timer_delay * test_number + delta
