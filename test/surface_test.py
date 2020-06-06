@@ -107,6 +107,27 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         r = s.get_at((10, 1))
         self.assertEqual(r, (0, 0, 255, 255))
 
+    def test_set_at__big_endian(self):
+        """ png files are loaded in big endian format (BGR rather than RGB)"""
+        pygame.display.init()
+        try:
+            image = pygame.image.load(example_path(os.path.join("data",
+                                                                "BGR.png")))
+
+            # Set pixels to red, green, blue with set_at:
+            image.set_at((10, 10), pygame.Color(255, 0, 0))
+            image.set_at((10, 20), pygame.Color(0, 255, 0))
+            image.set_at((10, 40), pygame.Color(0, 0, 255))
+            self.assertEqual(image.get_at((10, 10)),
+                             pygame.Color(255, 0, 0))
+            self.assertEqual(image.get_at((10, 20)),
+                             pygame.Color(0, 255, 0))
+            self.assertEqual(image.get_at((10, 40)),
+                             pygame.Color(0, 0, 255))
+
+        finally:
+            pygame.display.quit()
+
     def test_SRCALPHA(self):
         # has the flag been passed in ok?
         surf = pygame.Surface((70, 70), SRCALPHA, 32)
@@ -1008,26 +1029,26 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # if set_colorkey is used
         s.set_colorkey(None)
         self.assertIsNone(s.get_colorkey())
-        
+
         # setting up remainder of tests...
         r, g, b, a  = 20, 40, 60, 12
         colorkey = pygame.Color(r, g, b)
         s.set_colorkey(colorkey)
-        
+
         #test for ideal case
         self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
+
         #test for if the color_key is set using pygame.RLEACCEL
         s.set_colorkey(colorkey, pygame.RLEACCEL)
         self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
+
         #test for if the color key is not what's expected
         s.set_colorkey(pygame.Color(r + 1, g + 1, b + 1))
         self.assertNotEqual(s.get_colorkey(), (r, g, b, 255))
 
         s.set_colorkey(pygame.Color(r, g, b, a)) # regardless of whether alpha is not 255, colorkey returned from surface is always 255
         self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
+
         # test for using method after display.quit() is called...
         with self.assertRaises(pygame.error):
             s = pygame.display.set_mode()
@@ -1036,7 +1057,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # test for using method when display is created with OpenGL and the SDL version is 1
         if SDL1: # SLD1 is a bool defined at the top...
-            with self.assertRaises(pygame.error):   
+            with self.assertRaises(pygame.error):
                 s = pygame.display.set_mode(flags=pygame.OPENGL)
                 s.get_colorkey()
 
