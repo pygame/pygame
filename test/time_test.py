@@ -204,7 +204,7 @@ class TimeModuleTest(unittest.TestCase):
         self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
 
         # Test that the timer stoped when set with 0ms delay.
-        pygame.event.pump()
+        pygame.event.get()
         pygame.time.delay(500)
         self.assertNotIn(timer_event, pygame.event.get())
 
