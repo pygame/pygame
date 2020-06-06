@@ -113,11 +113,20 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         try:
             image = pygame.image.load(example_path(os.path.join("data",
                                                                 "BGR.png")))
-
-            # Set pixels to red, green, blue with set_at:
+            # Check they start red, green and blue
+            self.assertEqual(image.get_at((10, 10)),
+                             pygame.Color(255, 0, 0))
+            self.assertEqual(image.get_at((10, 20)),
+                             pygame.Color(0, 255, 0))
+            self.assertEqual(image.get_at((10, 40)),
+                             pygame.Color(0, 0, 255))
+            # Set three pixels that are already red, green, blue
+            # to red, green and, blue with set_at:
             image.set_at((10, 10), pygame.Color(255, 0, 0))
             image.set_at((10, 20), pygame.Color(0, 255, 0))
             image.set_at((10, 40), pygame.Color(0, 0, 255))
+
+            # Check they still are
             self.assertEqual(image.get_at((10, 10)),
                              pygame.Color(255, 0, 0))
             self.assertEqual(image.get_at((10, 20)),

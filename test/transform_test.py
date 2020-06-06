@@ -839,15 +839,18 @@ class TransformModuleTest(unittest.TestCase):
             surf_1 = pygame.image.load(
                 example_path(os.path.join("data", "BGR.png")))
 
-            surf_2 = pygame.transform.flip(surf_1, False, True)
+            surf_2 = surf_1.copy()
 
             surfaces = [surf_1, surf_2]
+            self.assertEqual(surf_1.get_at((0, 0)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((0, 0)), (255, 0, 0, 255))
+
             surf_av = pygame.transform.average_surfaces(surfaces)
             self.assertEqual(surf_av.get_masks(), surf_1.get_masks())
             self.assertEqual(surf_av.get_flags(), surf_1.get_flags())
             self.assertEqual(surf_av.get_losses(), surf_1.get_losses())
 
-            self.assertEqual(surf_av.get_at((0, 0)), (128, 0, 128, 255))
+            self.assertEqual(surf_av.get_at((0, 0)), (255, 0, 0, 255))
         finally:
             pygame.display.quit()
 
