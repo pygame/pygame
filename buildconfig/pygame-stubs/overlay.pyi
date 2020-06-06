@@ -1,0 +1,13 @@
+from typing import Optional, Tuple
+
+from pygame.rect import Rect
+
+
+class Overlay(object):
+    def __init__(self, format: int, size: Tuple[int, int]) -> None: ...
+
+    def display(self, pixel_data: Optional[Tuple[bytes, bytes, bytes]]) -> None: ...
+
+    def set_location(self, rect: Rect) -> None: ...
+
+    def get_hardware(self, rect: Rect) -> int: ...
