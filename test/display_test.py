@@ -65,20 +65,31 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_active(self):
+    def test_get_active(self):
+        """Test the get_active function"""
 
-        # __doc__ (as of 2008-08-02) for pygame.display.get_active:
+        #Initially, the display is not active
+        self.assertEqual(pygame.display.get_active(), False)
 
-        # pygame.display.get_active(): return bool
-        # true when the display is active on the display
-        #
-        # After pygame.display.set_mode() is called the display Surface will
-        # be visible on the screen. Most windowed displays can be hidden by
-        # the user. If the display Surface is hidden or iconified this will
-        # return False.
-        #
+        #get_active defaults to true after a set_mode
+        pygame.display.set_mode((640, 480))
+        self.assertEqual(pygame.display.get_active(), True)
 
-        self.fail()
+        #get_active after init/quit should be False
+        #since no display is visible
+        pygame.display.quit()
+        self.assertEqual(pygame.display.get_active(), False)
+        pygame.display.init()
+        self.assertEqual(pygame.display.get_active(), False)
+
+
+        #According to the docs, get_active should return
+        #false if the display is iconified
+        pygame.display.set_mode((640, 480))
+        if pygame.display.iconify():
+            self.assertEqual(pygame.display.get_active(), False)
+        else:
+            self.assertEqual(pygame.display.get_active(), True)
 
     def test_get_caption(self):
         screen = display.set_mode((100, 100))
@@ -398,20 +409,36 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_toggle_fullscreen(self):
+    def test_toggle_fullscreen(self):
+        """Test for toggle fullscreen"""
 
-        # __doc__ (as of 2008-08-02) for pygame.display.toggle_fullscreen:
+        #try to toggle fullscreen with no active display
+        #this should result in an error
+        try:
+            pygame.display.toggle_fullscreen()
+        except pygame.error:
+            #display is not currently active
+            self.assertEqual(pygame.display.get_active(), False)
 
-        # pygame.display.toggle_fullscreen(): return bool
-        # switch between fullscreen and windowed displays
-        #
-        # Switches the display window between windowed and fullscreen modes.
-        # This function only works under the unix x11 video driver. For most
-        # situations it is better to call pygame.display.set_mode() with new
-        # display flags.
-        #
+        width_height = (640,480)
+        test_surf = pygame.display.set_mode(width_height)
 
-        self.fail()
+        #toggle fullscreen
+        return_val = pygame.display.toggle_fullscreen()
+
+        #if success, the width/height should be a
+        #value found in list_modes
+        if return_val == 1:
+
+            boolean = (test_surf.get_width(), test_surf.get_height()) \
+            in pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)
+
+            self.assertEqual(boolean, True)
+
+        #if not original width/height should be preserved
+        else:
+            self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
+            width_height)
 
 
 @unittest.skipIf(
