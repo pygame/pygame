@@ -403,5 +403,5 @@ if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
 
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule,\
+del pygame, os, sys, surflock, MissingModule
 del MissingClass, copy_reg, PY_MAJOR_VERSION
