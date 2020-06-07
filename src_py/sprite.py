@@ -1066,109 +1066,47 @@ class LayeredDirty(LayeredUpdates):
         if _clip is None:
             _clip = _orig_clip
 
-        _surf = surface
-        _sprites = self._spritelist
-        _old_rect = self.spritedict
-        _update = self.lostsprites
-        _update_append = _update.append
         _ret = None
-        _surf_blit = _surf.blit
+        _surf_blit = surface.blit
         _rect = pygame.Rect
         if bgd is not None:
             self._bgd = bgd
         _bgd = self._bgd
         init_rect = self._init_rect
 
-        _surf.set_clip(_clip)
+        surface.set_clip(_clip)
         # -------
         # 0. decide whether to render with update or flip
         start_time = pygame.time.get_ticks()
         if self._use_update:  # dirty rects mode
-            # 1. find dirty area on screen and put the rects into _update
-            # still not happy with that part
-            for spr in _sprites:
-                if spr.dirty > 0:
-                    # chose the right rect
-                    if spr.source_rect:
-                        _union_rect = _rect(spr.rect.topleft,
-                                            spr.source_rect.size)
-                    else:
-                        _union_rect = _rect(spr.rect)
-
-                    _union_rect_collidelist = _union_rect.collidelist
-                    _union_rect_union_ip = _union_rect.union_ip
-                    i = _union_rect_collidelist(_update)
-                    while -1 < i:
-                        _union_rect_union_ip(_update[i])
-                        del _update[i]
-                        i = _union_rect_collidelist(_update)
-                    _update_append(_union_rect.clip(_clip))
-
-                    if _old_rect[spr] is not init_rect:
-                        _union_rect = _rect(_old_rect[spr])
-                        _union_rect_collidelist = _union_rect.collidelist
-                        _union_rect_union_ip = _union_rect.union_ip
-                        i = _union_rect_collidelist(_update)
-                        while -1 < i:
-                            _union_rect_union_ip(_update[i])
-                            del _update[i]
-                            i = _union_rect_collidelist(_update)
-                        _update_append(_union_rect.clip(_clip))
+            # 1. find dirty area on screen and put the rects into
+            # self.lostsprites still not happy with that part
+            self._find_dirty_area(_clip, self.spritedict,
+                                  _rect, self._spritelist,
+                                  self.lostsprites,
+                                  self.lostsprites.append, init_rect)
             # can it be done better? because that is an O(n**2) algorithm in
             # worst case
 
             # clear using background
             if _bgd is not None:
-                for rec in _update:
+                for rec in self.lostsprites:
                     _surf_blit(_bgd, rec, rec)
 
             # 2. draw
-            for spr in _sprites:
-                if spr.dirty < 1:
-                    if spr.visible:
-                        # sprite not dirty; blit only the intersecting part
-                        if spr.source_rect is not None:
-                            # For possible future speed up, source_rect's data
-                            # can be pre-fetched outside of this loop.
-                            _spr_rect = _rect(spr.rect.topleft,
-                                              spr.source_rect.size)
-                            rect_offset_x = spr.source_rect[0] - _spr_rect[0]
-                            rect_offset_y = spr.source_rect[1] - _spr_rect[1]
-                        else:
-                            _spr_rect = spr.rect
-                            rect_offset_x = -_spr_rect[0]
-                            rect_offset_y = -_spr_rect[1]
-
-                        _spr_rect_clip = _spr_rect.clip
-
-                        for idx in _spr_rect.collidelistall(_update):
-                            # clip
-                            clip = _spr_rect_clip(_update[idx])
-                            _surf_blit(spr.image,
-                                       clip,
-                                       (clip[0] + rect_offset_x,
-                                        clip[1] + rect_offset_y,
-                                        clip[2],
-                                        clip[3]),
-                                       spr.blendmode)
-                else:  # dirty sprite
-                    if spr.visible:
-                        _old_rect[spr] = _surf_blit(spr.image,
-                                                    spr.rect,
-                                                    spr.source_rect,
-                                                    spr.blendmode)
-                    if spr.dirty == 1:
-                        spr.dirty = 0
-            _ret = list(_update)
+            self._draw_dirty_internal(self.spritedict, _rect,
+                                      self._spritelist,
+                                      _surf_blit, self.lostsprites)
+            _ret = list(self.lostsprites)
         else:  # flip, full screen mode
             if _bgd is not None:
                 _surf_blit(_bgd, (0, 0))
-            for spr in _sprites:
+            for spr in self._spritelist:
                 if spr.visible:
-                    _old_rect[spr] = _surf_blit(spr.image,
-                                                spr.rect,
-                                                spr.source_rect,
-                                                spr.blendmode)
+                    self.spritedict[spr] = _surf_blit(spr.image,
+                                                      spr.rect,
+                                                      spr.source_rect,
+                                                      spr.blendmode)
             _ret = [_rect(_clip)]  # return only the part of the screen changed
 
         # timing for switching modes
@@ -1180,12 +1118,84 @@ class LayeredDirty(LayeredUpdates):
             self._use_update = True
 
         # emtpy dirty rects list
-        _update[:] = []
+        self.lostsprites[:] = []
 
         # -------
         # restore original clip
-        _surf.set_clip(_orig_clip)
+        surface.set_clip(_orig_clip)
         return _ret
+
+    @staticmethod
+    def _draw_dirty_internal(_old_rect, _rect, _sprites, _surf_blit,
+                             _update):
+        for spr in _sprites:
+            if spr.dirty < 1:
+                if spr.visible:
+                    # sprite not dirty; blit only the intersecting part
+                    if spr.source_rect is not None:
+                        # For possible future speed up, source_rect's data
+                        # can be pre-fetched outside of this loop.
+                        _spr_rect = _rect(spr.rect.topleft,
+                                          spr.source_rect.size)
+                        rect_offset_x = spr.source_rect[0] - _spr_rect[0]
+                        rect_offset_y = spr.source_rect[1] - _spr_rect[1]
+                    else:
+                        _spr_rect = spr.rect
+                        rect_offset_x = -_spr_rect[0]
+                        rect_offset_y = -_spr_rect[1]
+
+                    _spr_rect_clip = _spr_rect.clip
+
+                    for idx in _spr_rect.collidelistall(_update):
+                        # clip
+                        clip = _spr_rect_clip(_update[idx])
+                        _surf_blit(spr.image,
+                                   clip,
+                                   (clip[0] + rect_offset_x,
+                                    clip[1] + rect_offset_y,
+                                    clip[2],
+                                    clip[3]),
+                                   spr.blendmode)
+            else:  # dirty sprite
+                if spr.visible:
+                    _old_rect[spr] = _surf_blit(spr.image,
+                                                spr.rect,
+                                                spr.source_rect,
+                                                spr.blendmode)
+                if spr.dirty == 1:
+                    spr.dirty = 0
+
+    @staticmethod
+    def _find_dirty_area(_clip, _old_rect, _rect, _sprites, _update,
+                         _update_append, init_rect):
+        for spr in _sprites:
+            if spr.dirty > 0:
+                # chose the right rect
+                if spr.source_rect:
+                    _union_rect = _rect(spr.rect.topleft,
+                                        spr.source_rect.size)
+                else:
+                    _union_rect = _rect(spr.rect)
+
+                _union_rect_collidelist = _union_rect.collidelist
+                _union_rect_union_ip = _union_rect.union_ip
+                i = _union_rect_collidelist(_update)
+                while -1 < i:
+                    _union_rect_union_ip(_update[i])
+                    del _update[i]
+                    i = _union_rect_collidelist(_update)
+                _update_append(_union_rect.clip(_clip))
+
+                if _old_rect[spr] is not init_rect:
+                    _union_rect = _rect(_old_rect[spr])
+                    _union_rect_collidelist = _union_rect.collidelist
+                    _union_rect_union_ip = _union_rect.union_ip
+                    i = _union_rect_collidelist(_update)
+                    while i > -1:
+                        _union_rect_union_ip(_update[i])
+                        del _update[i]
+                        i = _union_rect_collidelist(_update)
+                    _update_append(_union_rect.clip(_clip))
 
     def clear(self, surface, bgd):
         """use to set background
@@ -1584,7 +1594,7 @@ def spritecollide(sprite, group, dokill, collided=None):
 
         return crashed
 
-    elif collided:
+    if collided:
         return [group_sprite
                 for group_sprite in group
                 if collided(sprite, group_sprite)]
