@@ -777,6 +777,41 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(s2.get_at((0, 31)), (255, 0, 0, 255))
         self.assertEqual(s2.get_at((31, 31)), (255, 0, 0, 255))
 
+    def test_laplacian__24_big_endian(self):
+        """
+        """
+        pygame.display.init()
+        try:
+            surf_1 = pygame.image.load(
+                example_path(os.path.join("data", "laplacian.png")))
+            SIZE = 32
+            surf_2 = pygame.Surface((SIZE, SIZE), 0, 24)
+            # s1.fill((10, 10, 70))
+            # pygame.draw.line(s1, (255, 0, 0), (3, 10), (20, 20))
+
+            # a line at the last row of the image.
+            # pygame.draw.line(s1, (255, 0, 0), (0, 31), (31, 31))
+
+            pygame.transform.laplacian(surf_1, surf_2)
+
+            # show_image(s1)
+            # show_image(s2)
+
+            self.assertEqual(surf_2.get_at((0, 0)), (0, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((3, 10)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((0, 31)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((31, 31)), (255, 0, 0, 255))
+
+            # here we create the return surface.
+            surf_2 = pygame.transform.laplacian(surf_1)
+
+            self.assertEqual(surf_2.get_at((0, 0)), (0, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((3, 10)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((0, 31)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((31, 31)), (255, 0, 0, 255))
+        finally:
+            pygame.display.quit()
+
     def test_average_surfaces(self):
         """
         """
