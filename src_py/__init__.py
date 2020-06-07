@@ -248,7 +248,8 @@ def warn_unwanted_files():
 
 try:
     import pygame.surface
-    from pygame.surface import Surface, SurfaceType
+    from pygame.surface import SurfaceType
+    Surface = pygame.surface.Surface
 except (ImportError, IOError):
     Surface = MissingClass('Surface', urgent=1)
 
@@ -260,13 +261,13 @@ except (ImportError, IOError):
 
 try:
     import pygame.pixelarray
-    from pygame.pixelarray import PixelArray
+    PixelArray = pygame.pixelarray.PixelArray
 except (ImportError, IOError):
     PixelArray = MissingClass('PixelArray', urgent=1)
 
 try:
     import pygame.overlay
-    from pygame.overlay import Overlay
+    Overlay = pygame.overlay.Overlay
 except (ImportError, IOError):
     Overlay = MissingClass('PixelArray', urgent=0)
 
