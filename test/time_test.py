@@ -19,8 +19,8 @@ class ClockTypeTest(unittest.TestCase):
         self.assertEqual(c.get_fps(), 0)
         # Type check get_fps should return float
         self.assertTrue(type(c.get_fps()) == float)
-        # Allowable margin of error in fps
-        delta = 4
+        # Allowable margin of error in percentage
+        delta = 0.20
         # Test fps correctness for 100, 60 and 30 fps
         self._fps_test(c, 100, delta)
         self._fps_test(c, 60, delta)
@@ -32,8 +32,8 @@ class ClockTypeTest(unittest.TestCase):
         for f in range(fps):  # For one second tick and sleep
             clock.tick()
             time.sleep(delay_per_frame)
-        # We should get around fps (+- delta)
-        self.assertAlmostEqual(clock.get_fps(), fps, delta=delta)
+        # We should get around fps (+- fps*delta -- delta % of fps)
+        self.assertAlmostEqual(clock.get_fps(), fps, delta=fps*delta)
 
     def todo_test_get_rawtime(self):
 
