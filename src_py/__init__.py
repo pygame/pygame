@@ -29,7 +29,7 @@ import os
 
 # Choose Windows display driver
 if os.name == 'nt':
-    #pypy does not find the dlls, so we add package folder to PATH.
+    # pypy does not find the dlls, so we add package folder to PATH.
     pygame_dir = os.path.split(__file__)[0]
     os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
 
@@ -63,7 +63,8 @@ class MissingModule:
 
     def warn(self):
         msg_type = 'import' if self.urgent else 'use'
-        message = '%s %s: %s\n(%s)' % (msg_type, self.name, self.info, self.reason)
+        message = '%s %s: %s\n(%s)' % (msg_type, self.name,
+                                       self.info, self.reason)
         try:
             import warnings
             level = 4 if self.urgent else 3
@@ -71,6 +72,39 @@ class MissingModule:
         except ImportError:
             print (message)
 
+
+class MissingClass:
+    _NOT_IMPLEMENTED_ = True
+
+    def __init__(self, name, urgent=0):
+        self.name = name
+        exc_type, exc_msg = sys.exc_info()[:2]
+        self.info = str(exc_msg)
+        self.reason = "%s: %s" % (exc_type.__name__, self.info)
+        self.urgent = urgent
+        if urgent:
+            self.warn()
+
+    def __getattr__(self, var):
+        if not self.urgent:
+            self.warn()
+            self.urgent = 1
+        missing_msg = "%s class not available (%s)" % (self.name, self.reason)
+        raise NotImplementedError(missing_msg)
+
+    def __nonzero__(self):
+        return 0
+
+    def warn(self):
+        msg_type = 'import' if self.urgent else 'use'
+        message = '%s %s: %s\n(%s)' % (msg_type, self.name,
+                                       self.info, self.reason)
+        try:
+            import warnings
+            level = 4 if self.urgent else 3
+            warnings.warn(message, RuntimeWarning, level)
+        except ImportError:
+            print(message)
 
 # we need to import like this, each at a time. the cleanest way to import
 # our modules is with the import command (not the __import__ function)
@@ -84,9 +118,9 @@ from pygame.compat import PY_MAJOR_VERSION
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
-Color = color.Color
+Color = pygame.color.Color
 import pygame.bufferproxy
-BufferProxy = bufferproxy.BufferProxy
+BufferProxy = pygame.bufferproxy.BufferProxy
 import pygame.math
 Vector2 = pygame.math.Vector2
 Vector3 = pygame.math.Vector3
@@ -215,24 +249,23 @@ def warn_unwanted_files():
 try:
     from pygame.surface import Surface, SurfaceType
 except (ImportError, IOError):
-    Surface = lambda: Missing_Function
-
+    Surface = MissingClass('Surface', urgent=1)
 
 try:
     import pygame.mask
     from pygame.mask import Mask
 except (ImportError, IOError):
-    Mask = lambda: Missing_Function
+    Mask = MissingClass('Mask', urgent=1)
 
 try:
     from pygame.pixelarray import PixelArray
 except (ImportError, IOError):
-    PixelArray = lambda: Missing_Function
+    PixelArray = MissingClass('PixelArray', urgent=1)
 
 try:
     from pygame.overlay import Overlay
 except (ImportError, IOError):
-    Overlay = lambda: Missing_Function
+    Overlay = MissingClass('PixelArray', urgent=0)
 
 try:
     import pygame.time
@@ -263,8 +296,8 @@ except (ImportError, IOError):
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
     import pygame.mixer_music
-    #del pygame.mixer_music
-    #print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
+    # del pygame.mixer_music
+    # print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
 except (ImportError, IOError):
     pass
 
@@ -323,6 +356,7 @@ def packager_imports():
     import pygame.colordict
     import pygame._view
 
+
 # make Rects pickleable
 if PY_MAJOR_VERSION >= 3:
     import copyreg as copy_reg
@@ -337,6 +371,8 @@ def __rect_constructor(x, y, w, h):
 def __rect_reduce(r):
     assert type(r) == Rect
     return __rect_constructor, (r.x, r.y, r.w, r.h)
+
+
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 
@@ -348,15 +384,19 @@ def __color_constructor(r, g, b, a):
 def __color_reduce(c):
     assert type(c) == Color
     return __color_constructor, (c.r, c.g, c.b, c.a)
+
+
 copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
-# Thanks for supporting pygame. Without support now, there won't be pygame later.
+# Thanks for supporting pygame.
+# Without support now, there won't be pygame later.
 if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
     print('pygame {} (SDL {}.{}.{}, python {}.{}.{})'.format(
         ver, *get_sdl_version() + sys.version_info[0:3]
     ))
-    print('Hello from the pygame community. https://www.pygame.org/contribute.html')
+    print('Hello from the pygame community. '
+          'https://www.pygame.org/contribute.html')
 
 
 # cleanup namespace
