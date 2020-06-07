@@ -328,11 +328,15 @@ class AbstractGroup(object):  # pylint: disable=useless-object-inheritance
         """
         return list(self.spritedict)
 
-    def add_internal(self, sprite):
+    def add_internal(self,
+                     sprite,
+                     layer=None  # pylint: disable=unused-argument
+                     ):
         """
         For adding a sprite to this group internally.
 
         :param sprite: The sprite we are adding.
+        :param layer: the layer to add to, if the group type supports layers
         """
         self.spritedict[sprite] = 0
 
@@ -364,7 +368,7 @@ class AbstractGroup(object):  # pylint: disable=useless-object-inheritance
         and has the same sprites in it.
 
         """
-        return self.__class__(self.sprites())
+        return self.__class__(self.sprites()) # noqa pylint: disable=too-many-function-args
 
     def __iter__(self):
         return iter(self.sprites())
@@ -449,35 +453,28 @@ class AbstractGroup(object):  # pylint: disable=useless-object-inheritance
         'in' operator, e.g. 'sprite in group', 'subgroup in group'.
 
         """
-        return_value = False
+        if not sprites:
+            return False  # return False if no sprites passed in
 
         for sprite in sprites:
             if isinstance(sprite, Sprite):
                 # Check for Sprite instance's membership in this group
-                if self.has_internal(sprite):
-                    return_value = True
-                else:
+                if not self.has_internal(sprite):
                     return False
             else:
                 try:
-                    if self.has(*sprite):
-                        return_value = True
-                    else:
+                    if not self.has(*sprite):
                         return False
                 except (TypeError, AttributeError):
                     if hasattr(sprite, '_spritegroup'):
                         for spr in sprite.sprites():
-                            if self.has_internal(spr):
-                                return_value = True
-                            else:
+                            if not self.has_internal(spr):
                                 return False
                     else:
-                        if self.has_internal(sprite):
-                            return_value = True
-                        else:
+                        if not self.has_internal(sprite):
                             return False
 
-        return return_value
+        return True
 
     def update(self, *args, **kwargs):
         """call the update method of every member sprite
@@ -637,7 +634,7 @@ class OrderedUpdates(RenderUpdates):
     def sprites(self):
         return list(self._spritelist)
 
-    def add_internal(self, sprite):
+    def add_internal(self, sprite, layer=None):
         RenderUpdates.add_internal(self, sprite)
         self._spritelist.append(sprite)
 
@@ -678,7 +675,7 @@ class LayeredUpdates(AbstractGroup):
 
         self.add(*sprites, **kwargs)
 
-    def add_internal_layer(self, sprite, layer=None):
+    def add_internal(self, sprite, layer=None):
         """Do not use this method directly.
 
         It is used by the group to add a sprite internally.
@@ -736,7 +733,7 @@ class LayeredUpdates(AbstractGroup):
             # and not the iterator object.
             if isinstance(sprite, Sprite):
                 if not self.has_internal(sprite):
-                    self.add_internal_layer(sprite, layer)
+                    self.add_internal(sprite, layer)
                     sprite.add_internal(self)
             else:
                 try:
@@ -751,10 +748,10 @@ class LayeredUpdates(AbstractGroup):
                     if hasattr(sprite, '_spritegroup'):
                         for spr in sprite.sprites():
                             if not self.has_internal(spr):
-                                self.add_internal_layer(spr, layer)
+                                self.add_internal(spr, layer)
                                 spr.add_internal(self)
                     elif not self.has_internal(sprite):
-                        self.add_internal_layer(sprite, layer)
+                        self.add_internal(sprite, layer)
                         sprite.add_internal(self)
 
     def remove_internal(self, sprite):
@@ -1032,7 +1029,7 @@ class LayeredDirty(LayeredUpdates):
                     and hasattr(self, key)):
                 setattr(self, key, val)
 
-    def add_internal_layer(self, sprite, layer=None):
+    def add_internal(self, sprite, layer=None):
         """Do not use this method directly.
 
         It is used by the group to add a sprite internally.
@@ -1052,7 +1049,7 @@ class LayeredDirty(LayeredUpdates):
         if sprite.dirty == 0:  # set it dirty if it is not
             sprite.dirty = 1
 
-        LayeredUpdates.add_internal_layer(self, sprite, layer)
+        LayeredUpdates.add_internal(self, sprite, layer)
 
     def draw(self, surface, bgd=None):
         """draw all sprites in the right order onto the given surface
@@ -1290,7 +1287,7 @@ class GroupSingle(AbstractGroup):
             return [self.__sprite]
         return []
 
-    def add_internal(self, sprite):
+    def add_internal(self, sprite, _=None):
         if self.__sprite is not None:
             self.__sprite.remove_internal(self)
             self.remove_internal(self.__sprite)
@@ -1371,6 +1368,12 @@ class collide_rect_ratio:  # noqa pylint: disable=invalid-name
 
         """
         self.ratio = ratio
+
+    def __repr__(self):
+        """
+        Turn the class into a string.
+        """
+        return 'ratio: ' + str(self.ratio)
 
     def __call__(self, left, right):
         """detect collision between two sprites using scaled rects
@@ -1468,6 +1471,12 @@ class collide_circle_ratio(object):  # noqa pylint: disable=useless-object-inher
 
         """
         self.ratio = ratio
+
+    def __repr__(self):
+        """
+        Turn the class into a string.
+        """
+        return 'ratio: ' + str(self.ratio)
 
     def __call__(self, left, right):
         """detect collision between two sprites using scaled circles
