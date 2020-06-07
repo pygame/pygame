@@ -247,6 +247,7 @@ def warn_unwanted_files():
 
 
 try:
+    import pygame.surface
     from pygame.surface import Surface, SurfaceType
 except (ImportError, IOError):
     Surface = MissingClass('Surface', urgent=1)
@@ -258,11 +259,13 @@ except (ImportError, IOError):
     Mask = MissingClass('Mask', urgent=1)
 
 try:
+    import pygame.pixelarray
     from pygame.pixelarray import PixelArray
 except (ImportError, IOError):
     PixelArray = MissingClass('PixelArray', urgent=1)
 
 try:
+    import pygame.overlay
     from pygame.overlay import Overlay
 except (ImportError, IOError):
     Overlay = MissingClass('PixelArray', urgent=0)
@@ -400,4 +403,5 @@ if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
 
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, PY_MAJOR_VERSION
+del pygame, os, sys, surflock, MissingModule,\
+del MissingClass, copy_reg, PY_MAJOR_VERSION
