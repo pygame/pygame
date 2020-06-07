@@ -12,28 +12,28 @@ class ClockTypeTest(unittest.TestCase):
 
         self.assertTrue(c, "Clock cannot be constructed")
 
-    def todo_test_get_fps(self):
+    def test_get_fps(self):
+        """ test_get_fps tests pygame.time.get_fps() """
+        # Initialization check, first call should return 0 fps
+        c = Clock()
+        self.assertEqual(c.get_fps(), 0)
+        # Type check get_fps should return float
+        self.assertTrue(type(c.get_fps()) == float)
+        # Allowable margin of error in fps
+        delta = 4
+        # Test fps correctness for 100, 60 and 30 fps
+        self._fps_test(c, 100, delta)
+        self._fps_test(c, 60, delta)
+        self._fps_test(c, 30, delta)
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_fps:
-
-        # Clock.get_fps(): return float
-        # compute the clock framerate
-        #
-        # Compute your game's framerate (in frames per second). It is computed
-        # by averaging the last few calls to Clock.tick().
-        #
-
-        self.fail()
-
-        # delay_per_frame = 1 / 100.0
-        #
-        # c = Clock()
-        #
-        # for f in range(100):
-        #     c.tick()
-        #     time.sleep(delay_per_frame)
-        #
-        # self.assertTrue(99.0 < c.get_fps() < 101.0)
+    def _fps_test(self, clock, fps, delta):
+        """ticks fps times each second, hence get_fps() should return fps"""
+        delay_per_frame = 1.0/fps
+        for f in range(fps):  # For one second tick and sleep
+            clock.tick()
+            time.sleep(delay_per_frame)
+        # We should get around fps (+- delta)
+        self.assertAlmostEqual(clock.get_fps(), fps, delta=delta)
 
     def todo_test_get_rawtime(self):
 
@@ -70,7 +70,7 @@ class ClockTypeTest(unittest.TestCase):
         for i in range(iterations):
             t0 = time.time()
             time.sleep(delay)
-            c.tick() 
+            c.tick()
             t1 = time.time()
             c1 = c.get_time() #elapsed time in milliseconds
             d0 = (t1-t0)*(10**3) #'time' module elapsed time converted to milliseconds
