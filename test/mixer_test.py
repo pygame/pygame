@@ -1004,18 +1004,20 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.fail()
 
     def test_get_num_channels(self):
-        """Ensure correct number of channels."""
-        expected_channels = 0
+        """
+        Tests if Sound.get_num_channels returns the correct number
+        of channels playing a specific sound.
+        """
         filename = example_path(os.path.join("data", "house_lo.wav"))
         sound = mixer.Sound(file=filename)
 
-        num_channels = sound.get_num_channels()
-
-        self.assertEqual(num_channels, expected_channels)
-
-    def todo_test_get_num_channels__while_playing(self):
-        """Ensure correct number of channels while playing."""
-        self.fail()
+        self.assertEqual(sound.get_num_channels(), 0)
+        sound.play()
+        self.assertEqual(sound.get_num_channels(), 1)
+        sound.play()
+        self.assertEqual(sound.get_num_channels(), 2)
+        sound.stop()
+        self.assertEqual(sound.get_num_channels(), 0)
 
     def test_get_volume(self):
         """Ensure a sound's volume can be retrieved."""
