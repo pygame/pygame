@@ -992,16 +992,18 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_length(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.get_length:
-
-        # Sound.get_length(): return seconds
-        # get the length of the Sound
-        #
-        # Return the length of this Sound in seconds.
-
-        self.fail()
+    def test_get_length(self):
+        """Tests if get_length returns a correct length."""
+        filename = example_path(os.path.join("data", "punch.wav"))
+        sound = mixer.Sound(file=filename)
+        # The sound data is in the mixer output format. So dividing the
+        # length of the raw sound data by the mixer settings gives
+        # the expected length of the sound.
+        sound_bytes = sound.get_raw()
+        mix_freq, mix_bits, mix_channels = pygame.mixer.get_init()
+        mix_bytes = abs(mix_bits) / 8
+        expected_length = len(sound_bytes) / mix_freq / mix_bytes / mix_channels
+        self.assertAlmostEqual(expected_length, sound.get_length())
 
     def test_get_num_channels(self):
         """
