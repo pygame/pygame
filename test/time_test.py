@@ -170,23 +170,52 @@ class TimeModuleTest(unittest.TestCase):
             # Assert almost equality of the ticking time and time difference
             self.assertAlmostEqual(ticks_diff, time_diff, delta=delta)
 
-    def todo_test_set_timer(self):
+    def test_set_timer(self):
+        """Tests time.set_timer()"""
+        """
+        Tests if a timer will post the correct amount of eventid events in
+        the specified delay.
+        Also tests if setting milliseconds to 0 stops the timer and if
+        the once argument works.
+        """
+        pygame.display.init()
+        TIMER_EVENT_TYPE = pygame.event.custom_type()
+        timer_event = pygame.event.Event(TIMER_EVENT_TYPE, {'code': 0})
+        delta = 200
+        timer_delay = 250
+        test_number = 8 # Number of events to read for the test
+        events = 0 # Events read
+        # Get the events a few times. The time SDL_PumpEvents takes
+        # for the first 2-3 calls is longer and less stable...
+        for i in range(5):
+            pygame.event.get()
 
-        # __doc__ (as of 2008-08-02) for pygame.time.set_timer:
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+        # Test that 'test_number' events are posted in the right amount of time
+        t1 = pygame.time.get_ticks()
+        max_test_time = t1 + timer_delay * test_number + delta
+        while events < test_number:
+            for event in pygame.event.get():
+                if event == timer_event:
+                    events += 1
+            # The test takes too much time
+            if pygame.time.get_ticks() > max_test_time:
+                break
+        pygame.time.set_timer(TIMER_EVENT_TYPE, 0)
+        t2 = pygame.time.get_ticks()
+        # Is the number ef events and the timing right?
+        self.assertEqual(events, test_number)
+        self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
 
-        # pygame.time.set_timer(eventid, milliseconds): return None
-        # repeatedly create an event on the event queue
-        #
-        # Set an event type to appear on the event queue every given number of
-        # milliseconds. The first event will not appear until the amount of
-        # time has passed.
-        #
-        # Every event type can have a separate timer attached to it. It is
-        # best to use the value between pygame.USEREVENT and pygame.NUMEVENTS.
-        #
-        # To disable the timer for an event, set the milliseconds argument to 0.
+        # Test that the timer stoped when set with 0ms delay.
+        pygame.event.get()
+        pygame.time.delay(500)
+        self.assertNotIn(timer_event, pygame.event.get())
 
-        self.fail()
+        # Test that the once argument works
+        pygame.time.set_timer(TIMER_EVENT_TYPE, 10, True)
+        pygame.time.delay(100)
+        self.assertEqual(pygame.event.get().count(timer_event), 1)
 
     def test_wait(self):
         """Tests time.wait() function."""
