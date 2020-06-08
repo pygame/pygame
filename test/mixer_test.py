@@ -1002,7 +1002,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         sound_bytes = sound.get_raw()
         mix_freq, mix_bits, mix_channels = pygame.mixer.get_init()
         mix_bytes = abs(mix_bits) / 8
-        expected_length = len(sound_bytes) / mix_freq / mix_bytes / mix_channels
+        expected_length = float(len(sound_bytes)) / mix_freq / mix_bytes / mix_channels
         self.assertAlmostEqual(expected_length, sound.get_length())
 
     def test_get_num_channels(self):
