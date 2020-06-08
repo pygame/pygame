@@ -20,7 +20,6 @@ jobs:
       env:
         - WHICH_SDL_BUILD=-sdl1
     - python: 3.6
-    - python: 3.7
     - python: 3.8
     - os: linux-ppc64le
       python: 3.7
@@ -32,6 +31,9 @@ jobs:
       arch: arm64
       env:
         - ARM64=yes
+    - os: linux
+      python: 3.7
+      arch: s390x
     - os: linux
       python: 3.7
       env:
@@ -48,10 +50,9 @@ jobs:
         - GITHUB_UPLOAD=yes
         - UPLOAD_WHL_PYPI=yes
 
-  # allow_failures:
-  #   - python: pypy
-  #   - os: linux-ppc64le
-  #   - python: 3.8-dev
+  allow_failures:
+    - arch: s390x
+    # - python: pypy
 
 before_install:
   - |
