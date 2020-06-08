@@ -107,6 +107,36 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         r = s.get_at((10, 1))
         self.assertEqual(r, (0, 0, 255, 255))
 
+    def test_set_at__big_endian(self):
+        """ png files are loaded in big endian format (BGR rather than RGB)"""
+        pygame.display.init()
+        try:
+            image = pygame.image.load(example_path(os.path.join("data",
+                                                                "BGR.png")))
+            # Check they start red, green and blue
+            self.assertEqual(image.get_at((10, 10)),
+                             pygame.Color(255, 0, 0))
+            self.assertEqual(image.get_at((10, 20)),
+                             pygame.Color(0, 255, 0))
+            self.assertEqual(image.get_at((10, 40)),
+                             pygame.Color(0, 0, 255))
+            # Set three pixels that are already red, green, blue
+            # to red, green and, blue with set_at:
+            image.set_at((10, 10), pygame.Color(255, 0, 0))
+            image.set_at((10, 20), pygame.Color(0, 255, 0))
+            image.set_at((10, 40), pygame.Color(0, 0, 255))
+
+            # Check they still are
+            self.assertEqual(image.get_at((10, 10)),
+                             pygame.Color(255, 0, 0))
+            self.assertEqual(image.get_at((10, 20)),
+                             pygame.Color(0, 255, 0))
+            self.assertEqual(image.get_at((10, 40)),
+                             pygame.Color(0, 0, 255))
+
+        finally:
+            pygame.display.quit()
+
     def test_SRCALPHA(self):
         # has the flag been passed in ok?
         surf = pygame.Surface((70, 70), SRCALPHA, 32)
@@ -960,7 +990,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         pygame.display.init()
         try:
             parent = pygame.Surface((64, 64), SRCALPHA, 32)
-            
+
             # Stack bunch of subsurfaces
             sub_level_1 = parent.subsurface((2, 2), (34, 37))
             sub_level_2 = sub_level_1.subsurface((0, 0), (30, 29))
@@ -1006,7 +1036,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertRaises(ValueError, parent.subsurface, (5, 5), (100, 100))
             self.assertRaises(ValueError, sub_level_3.subsurface, (0, 0), (11, 5))
             self.assertRaises(ValueError, sub_level_6.subsurface, (0, 0), (5, 5))
-            
+
             # Calling get_abs_parent on parent should return itself
             self.assertEqual(parent.get_abs_parent(), parent)
 
