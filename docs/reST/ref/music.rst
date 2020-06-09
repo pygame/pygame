@@ -56,9 +56,12 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    :param float start: (optional) The position where the music starts playing
        from. The starting position depends on the format of the music played.
-       ``MP3`` and ``OGG`` use the position as time in seconds. For ``MOD``
-       music it is the pattern order number. Passing a start position will
-       raise a NotImplementedError if the start position cannot be set.
+       ``MP3`` and ``OGG`` use the position as time in seconds. For mp3s the
+       start time position selected may not be accurate as things like variable
+       bit rate encoding and ID3 tags can throw off the timing calculations.
+       For ``MOD``  music it is the pattern order number. Passing a start
+       position will raise a NotImplementedError if the start position cannot
+       be set.
 
    :param int fade_ms: (optional) Make the music start playing at 0 volume and
       fade up to full volume over the given time. The sample may end before

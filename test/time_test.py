@@ -12,28 +12,28 @@ class ClockTypeTest(unittest.TestCase):
 
         self.assertTrue(c, "Clock cannot be constructed")
 
-    def todo_test_get_fps(self):
+    def test_get_fps(self):
+        """ test_get_fps tests pygame.time.get_fps() """
+        # Initialization check, first call should return 0 fps
+        c = Clock()
+        self.assertEqual(c.get_fps(), 0)
+        # Type check get_fps should return float
+        self.assertTrue(type(c.get_fps()) == float)
+        # Allowable margin of error in percentage
+        delta = 0.20
+        # Test fps correctness for 100, 60 and 30 fps
+        self._fps_test(c, 100, delta)
+        self._fps_test(c, 60, delta)
+        self._fps_test(c, 30, delta)
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_fps:
-
-        # Clock.get_fps(): return float
-        # compute the clock framerate
-        #
-        # Compute your game's framerate (in frames per second). It is computed
-        # by averaging the last few calls to Clock.tick().
-        #
-
-        self.fail()
-
-        # delay_per_frame = 1 / 100.0
-        #
-        # c = Clock()
-        #
-        # for f in range(100):
-        #     c.tick()
-        #     time.sleep(delay_per_frame)
-        #
-        # self.assertTrue(99.0 < c.get_fps() < 101.0)
+    def _fps_test(self, clock, fps, delta):
+        """ticks fps times each second, hence get_fps() should return fps"""
+        delay_per_frame = 1.0/fps
+        for f in range(fps):  # For one second tick and sleep
+            clock.tick()
+            time.sleep(delay_per_frame)
+        # We should get around fps (+- fps*delta -- delta % of fps)
+        self.assertAlmostEqual(clock.get_fps(), fps, delta=fps*delta)
 
     def todo_test_get_rawtime(self):
 
@@ -48,29 +48,33 @@ class ClockTypeTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_time(self):
+    def test_get_time(self):
+        #Testing parameters
+        delay = 0.1 #seconds
+        delay_miliseconds = delay*(10**3)
+        iterations = 10
+        delta = 50 #milliseconds
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_time:
+        #Testing Clock Initialization
+        c = Clock()
+        self.assertEqual(c.get_time(), 0)
 
-        # Clock.get_time(): return milliseconds
-        # time used in the previous tick
-        #
-        # Returns the parameter passed to the last call to Clock.tick(). It is
-        # the number of milliseconds passed between the previous two calls to
-        # Pygame.tick().
-        #
+        #Testing within delay parameter range
+        for i in range(iterations):
+            time.sleep(delay)
+            c.tick()
+            c1 = c.get_time()
+            self.assertAlmostEqual(delay_miliseconds, c1, delta=delta)
 
-        self.fail()
-
-        # c = Clock()
-        # c.tick()                    #between   here
-        # time.sleep(0.02)
-        #                                              #get_time()
-        # c.tick()                    #          here
-        #
-        # time.sleep(0.02)
-        #
-        # self.assertTrue(20 <= c.get_time() <= 30)
+        #Comparing get_time() results with the 'time' module
+        for i in range(iterations):
+            t0 = time.time()
+            time.sleep(delay)
+            c.tick()
+            t1 = time.time()
+            c1 = c.get_time() #elapsed time in milliseconds
+            d0 = (t1-t0)*(10**3) #'time' module elapsed time converted to milliseconds
+            self.assertAlmostEqual(d0, c1, delta=delta)
 
     def todo_test_tick(self):
 
@@ -139,7 +143,7 @@ class TimeModuleTest(unittest.TestCase):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration
         iterations = 20  # number of iterations
-        delta = 5  # Represents acceptable margin of error for wait in ms
+        delta = 50  # Represents acceptable margin of error for wait in ms
         # Call checking function
         self._wait_delay_check(pygame.time.delay, millis, iterations, delta)
         # After timing behaviour, check argument type exceptions
@@ -166,23 +170,52 @@ class TimeModuleTest(unittest.TestCase):
             # Assert almost equality of the ticking time and time difference
             self.assertAlmostEqual(ticks_diff, time_diff, delta=delta)
 
-    def todo_test_set_timer(self):
+    def test_set_timer(self):
+        """Tests time.set_timer()"""
+        """
+        Tests if a timer will post the correct amount of eventid events in
+        the specified delay.
+        Also tests if setting milliseconds to 0 stops the timer and if
+        the once argument works.
+        """
+        pygame.display.init()
+        TIMER_EVENT_TYPE = pygame.event.custom_type()
+        timer_event = pygame.event.Event(TIMER_EVENT_TYPE, {'code': 0})
+        delta = 200
+        timer_delay = 250
+        test_number = 8 # Number of events to read for the test
+        events = 0 # Events read
+        # Get the events a few times. The time SDL_PumpEvents takes
+        # for the first 2-3 calls is longer and less stable...
+        for i in range(5):
+            pygame.event.get()
 
-        # __doc__ (as of 2008-08-02) for pygame.time.set_timer:
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+        # Test that 'test_number' events are posted in the right amount of time
+        t1 = pygame.time.get_ticks()
+        max_test_time = t1 + timer_delay * test_number + delta
+        while events < test_number:
+            for event in pygame.event.get():
+                if event == timer_event:
+                    events += 1
+            # The test takes too much time
+            if pygame.time.get_ticks() > max_test_time:
+                break
+        pygame.time.set_timer(TIMER_EVENT_TYPE, 0)
+        t2 = pygame.time.get_ticks()
+        # Is the number ef events and the timing right?
+        self.assertEqual(events, test_number)
+        self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
 
-        # pygame.time.set_timer(eventid, milliseconds): return None
-        # repeatedly create an event on the event queue
-        #
-        # Set an event type to appear on the event queue every given number of
-        # milliseconds. The first event will not appear until the amount of
-        # time has passed.
-        #
-        # Every event type can have a separate timer attached to it. It is
-        # best to use the value between pygame.USEREVENT and pygame.NUMEVENTS.
-        #
-        # To disable the timer for an event, set the milliseconds argument to 0.
+        # Test that the timer stoped when set with 0ms delay.
+        pygame.event.get()
+        pygame.time.delay(500)
+        self.assertNotIn(timer_event, pygame.event.get())
 
-        self.fail()
+        # Test that the once argument works
+        pygame.time.set_timer(TIMER_EVENT_TYPE, 10, True)
+        pygame.time.delay(100)
+        self.assertEqual(pygame.event.get().count(timer_event), 1)
 
     def test_wait(self):
         """Tests time.wait() function."""
