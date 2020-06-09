@@ -69,6 +69,7 @@ class DisplayModuleTest(unittest.TestCase):
         """Test the get_active function"""
 
         #Initially, the display is not active
+        pygame.display.quit()
         self.assertEqual(pygame.display.get_active(), False)
 
         #get_active defaults to true after a set_mode
@@ -78,7 +79,6 @@ class DisplayModuleTest(unittest.TestCase):
         #get_active after init/quit should be False
         #since no display is visible
         pygame.display.quit()
-        self.assertEqual(pygame.display.get_active(), False)
         pygame.display.init()
         self.assertEqual(pygame.display.get_active(), False)
 
@@ -411,34 +411,37 @@ class DisplayModuleTest(unittest.TestCase):
 
     def test_toggle_fullscreen(self):
         """Test for toggle fullscreen"""
-
         #try to toggle fullscreen with no active display
         #this should result in an error
-        try:
+        pygame.display.quit()
+        with self.assertRaises(pygame.error):
             pygame.display.toggle_fullscreen()
-        except pygame.error:
-            #display is not currently active
-            self.assertEqual(pygame.display.get_active(), False)
 
+        pygame.display.init()
         width_height = (640,480)
         test_surf = pygame.display.set_mode(width_height)
 
-        #toggle fullscreen
-        return_val = pygame.display.toggle_fullscreen()
+        #try to toggle fullscreen
+        try:
+            pygame.display.toggle_fullscreen()
 
-        #if success, the width/height should be a
-        #value found in list_modes
-        if return_val == 1:
+        except pygame.error:
+            with self.assertRaises(pygame.error):
+                pygame.display.toggle_fullscreen()
 
-            boolean = (test_surf.get_width(), test_surf.get_height()) \
-            in pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)
-
-            self.assertEqual(boolean, True)
-
-        #if not original width/height should be preserved
         else:
-            self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
-            width_height)
+            #if toggle success, the width/height should be a
+            #value found in list_modes
+            if pygame.display.toggle_fullscreen():
+                boolean = (test_surf.get_width(), test_surf.get_height()) \
+                in pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)
+
+                self.assertEqual(boolean, True)
+
+            #if not original width/height should be preserved
+            else:
+                self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
+                width_height)
 
 
 @unittest.skipIf(
