@@ -102,15 +102,15 @@ class ClockTypeTest(unittest.TestCase):
             collection.append(c.tick())
 
         # removes the first highest and lowest value
-        # for outlier in [min(collection), max(collection)]:
-        #     if outlier != milliseconds:
-        #         collection.remove(outlier)
+        for outlier in [min(collection), max(collection)]:
+            if outlier != milliseconds:
+                collection.remove(outlier)
 
         average_time = sum(collection) / len(collection)
 
         # assert the deviation from the intended framerate is within the
         # acceptable amount (the delay is not taking a dramatically long time)
-        self.assertLess(abs(average_time - milliseconds), epsilon)
+        self.assertAlmostEqual(average_time, milliseconds,delta = epsilon)
 
         # verify tick will control the framerate
 
@@ -122,6 +122,11 @@ class ClockTypeTest(unittest.TestCase):
         for i in range(testing_framerate):
             collection.append(c.tick(testing_framerate))
 
+        # remove the highest and lowest outliers
+        for outlier in [min(collection), max(collection)]:
+            if outlier != round(1000/testing_framerate):
+                collection.remove(outlier)
+
         end = time.time()
 
         # Since calling tick with a desired fps will prevent the program from
@@ -130,7 +135,7 @@ class ClockTypeTest(unittest.TestCase):
         self.assertGreater(end - start, 1)
 
         average_tick_time = sum(collection) / len(collection)
-        self.assertLess(abs((1000/average_tick_time) - testing_framerate), epsilon2)
+        self.assertAlmostEqual(1000/average_tick_time, testing_framerate,delta= epsilon2)
 
 
     def todo_test_tick_busy_loop(self):
