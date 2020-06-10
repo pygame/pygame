@@ -315,14 +315,14 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertFalse(display.get_init())
 
     def test_set_gamma(self):
-        pygame.display.set_mode((1, 1))
+        if(not SDL2):
+            pygame.display.set_mode((1, 1))
         gammas = [0.0,0.25,0.5,0.88,1.0]
         for gamma in gammas:
             self.assertEqual(pygame.display.set_gamma(gamma),True)
         gammas = [(0.5,0.5,0.5),(1.0,1.0,1.0),(0.22,0.33,0.44),(0.0,0.0,0.0)]
         for gammaTuple in gammas:
             self.assertEqual(pygame.display.set_gamma(gammaTuple[0],gammaTuple[1],gammaTuple[2]),True)
-
 
     def todo_test_set_gamma_ramp(self):
 
