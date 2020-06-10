@@ -92,7 +92,7 @@ class ClockTypeTest(unittest.TestCase):
             self.assertAlmostEqual(d0, c1, delta=delta)
 
     def test_tick(self):
-        """Tests time.CLock.tick()"""
+        """Tests time.Clock.tick()"""
         """
         Loops with a set delay a few times then checks what tick reports to
         verify its accuracy. Then calls tick with a desired framerate and
