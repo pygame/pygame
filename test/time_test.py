@@ -91,43 +91,69 @@ class ClockTypeTest(unittest.TestCase):
             d0 = (t1-t0)*(10**3) #'time' module elapsed time converted to milliseconds
             self.assertAlmostEqual(d0, c1, delta=delta)
 
-    def todo_test_tick(self):
+    def test_tick(self):
+        """Tests time.Clock.tick()"""
+        """
+        Loops with a set delay a few times then checks what tick reports to
+        verify its accuracy. Then calls tick with a desired framerate and
+        verifies it is not faster than the desired framerate nor is it taking
+        a dramatically long time to complete
+        """
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.tick:
+        # Adjust this value to increase the acceptable sleep jitter
+        epsilon = 0.75
+        # Adjust this value to increase the acceptable locked framerate jitter
+        epsilon2 = 0.3
+        # adjust this value to increase the acceptable framerate margin
+        epsilon3 = 10
+        testing_framerate = 60
+        milliseconds = 5.0
 
-        # Clock.tick(framerate=0): return milliseconds
-        # control timer events
-        # update the clock
-        #
-        # This method should be called once per frame. It will compute how
-        # many milliseconds have passed since the previous call.
-        #
-        # If you pass the optional framerate argument the function will delay
-        # to keep the game running slower than the given ticks per second.
-        # This can be used to help limit the runtime speed of a game. By
-        # calling Clock.tick(40) once per frame, the program will never run at
-        # more than 40 frames per second.
-        #
-        # Note that this function uses SDL_Delay function which is not
-        # accurate on every platform, but does not use much cpu.  Use
-        # tick_busy_loop if you want an accurate timer, and don't mind chewing
-        # cpu.
-        #
+        collection = []
+        c = Clock()
 
-        self.fail()
+        # verify time.Clock.tick() will measure the time correctly
+        c.tick()
+        for i in range(100):
+            time.sleep(milliseconds / 1000) # convert to seconds
+            collection.append(c.tick())
 
-        # collection = []
-        # c = Clock()
-        #
-        # c.tick()
-        # for i in range(100):
-        #     time.sleep(0.005)
-        #     collection.append(c.tick())
-        #
-        # for outlier in [min(collection), max(collection)]:
-        #     if outlier != 5: collection.remove(outlier)
-        #
-        # self.assertEqual(sum(collection) / len(collection), 5)
+        # removes the first highest and lowest value
+        for outlier in [min(collection), max(collection)]:
+            if outlier != milliseconds:
+                collection.remove(outlier)
+
+        average_time = float(sum(collection)) / len(collection)
+
+        # assert the deviation from the intended framerate is within the
+        # acceptable amount (the delay is not taking a dramatically long time)
+        self.assertAlmostEqual(average_time, milliseconds,delta = epsilon)
+
+        # verify tick will control the framerate
+
+        c = Clock()
+        collection = []
+
+        start = time.time()
+
+        for i in range(testing_framerate):
+            collection.append(c.tick(testing_framerate))
+
+        # remove the highest and lowest outliers
+        for outlier in [min(collection), max(collection)]:
+            if outlier != round(1000/testing_framerate):
+                collection.remove(outlier)
+
+        end = time.time()
+
+        # Since calling tick with a desired fps will prevent the program from
+        # running at greater than the given fps, 100 iterations at 100 fps
+        # should last no less than 1 second
+        self.assertAlmostEqual(end - start, 1, delta=epsilon2)
+
+        average_tick_time = float(sum(collection)) / len(collection)
+        self.assertAlmostEqual(1000/average_tick_time, testing_framerate,delta= epsilon3)
+
 
     def todo_test_tick_busy_loop(self):
 
