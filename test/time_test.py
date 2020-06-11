@@ -107,7 +107,7 @@ class ClockTypeTest(unittest.TestCase):
         # adjust this value to increase the acceptable framerate margin
         epsilon3 = 10
         testing_framerate = 60
-        milliseconds = 5
+        milliseconds = 5.0
 
         collection = []
         c = Clock()
