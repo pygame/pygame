@@ -314,6 +314,10 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.assertFalse(display.get_init())
 
+    @unittest.skipIf(
+    os.environ.get("SDL_VIDEODRIVER") == "dummy",
+    'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     def test_set_gamma(self):
         if(not SDL2):
             pygame.display.set_mode((1, 1))
