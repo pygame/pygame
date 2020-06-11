@@ -87,8 +87,10 @@ class ClockTypeTest(unittest.TestCase):
 
         # Adjust this value to increase the acceptable sleep jitter
         epsilon = 0.75
+        # Adjust this value to increase the acceptable locked framerate jitter
+        epsilon2 = 0.3
         # adjust this value to increase the acceptable framerate margin
-        epsilon2 = 10
+        epsilon3 = 10
         testing_framerate = 60
         milliseconds = 5
 
@@ -106,7 +108,7 @@ class ClockTypeTest(unittest.TestCase):
             if outlier != milliseconds:
                 collection.remove(outlier)
 
-        average_time = sum(collection) / len(collection)
+        average_time = float(sum(collection)) / len(collection)
 
         # assert the deviation from the intended framerate is within the
         # acceptable amount (the delay is not taking a dramatically long time)
@@ -132,10 +134,10 @@ class ClockTypeTest(unittest.TestCase):
         # Since calling tick with a desired fps will prevent the program from
         # running at greater than the given fps, 100 iterations at 100 fps
         # should last no less than 1 second
-        self.assertGreater(end - start, 1)
+        self.assertAlmostEqual(end - start, 1, delta=epsilon2)
 
-        average_tick_time = sum(collection) / len(collection)
-        self.assertAlmostEqual(1000/average_tick_time, testing_framerate,delta= epsilon2)
+        average_tick_time = float(sum(collection)) / len(collection)
+        self.assertAlmostEqual(1000/average_tick_time, testing_framerate,delta= epsilon3)
 
 
     def todo_test_tick_busy_loop(self):
