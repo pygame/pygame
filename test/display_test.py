@@ -316,7 +316,7 @@ class DisplayModuleTest(unittest.TestCase):
 
     @unittest.skipIf(
     os.environ.get("SDL_VIDEODRIVER") == "dummy",
-    'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    "Can't set gamma on SDL 1 with the dummy video driver",
     )
     def test_set_gamma(self):
         if(not SDL2):
