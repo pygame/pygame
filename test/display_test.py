@@ -315,7 +315,7 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertFalse(display.get_init())
 
     @unittest.skipIf(
-    os.environ.get("SDL_VIDEODRIVER") == "dummy",
+    os.environ.get("SDL_VIDEODRIVER") == "dummy" and not SDL2,
     "Can't set gamma on SDL 1 with the dummy video driver",
     )
     def test_set_gamma(self):
