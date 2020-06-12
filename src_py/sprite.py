@@ -99,7 +99,7 @@ except ImportError:
         raise NotImplementedError("Failed to import pygame.mask")
 
 
-class Sprite(object):  # pylint: disable=useless-object-inheritance
+class Sprite(object):
     """simple base class for visible game objects
 
     pygame.sprite.Sprite(*groups): return Sprite
@@ -296,7 +296,7 @@ class DirtySprite(Sprite):
             (self.__class__.__name__, len(self.groups()))
 
 
-class AbstractGroup(object):  # pylint: disable=useless-object-inheritance
+class AbstractGroup(object):
     """base class for containers of sprites
 
     AbstractGroup does everything needed to behave as a normal group. You can
@@ -330,7 +330,7 @@ class AbstractGroup(object):  # pylint: disable=useless-object-inheritance
 
     def add_internal(self,
                      sprite,
-                     layer=None  # pylint: disable=unused-argument
+                     layer=None  # noqa pylint: disable=unused-argument, supporting legacy derived classes that override in non-pythonic way
                      ):
         """
         For adding a sprite to this group internally.
@@ -368,7 +368,7 @@ class AbstractGroup(object):  # pylint: disable=useless-object-inheritance
         and has the same sprites in it.
 
         """
-        return self.__class__(self.sprites()) # noqa pylint: disable=too-many-function-args
+        return self.__class__(self.sprites()) # noqa pylint: disable=too-many-function-args, needed because copy() won't work on AbstractGroup
 
     def __iter__(self):
         return iter(self.sprites())
@@ -685,11 +685,11 @@ class LayeredUpdates(AbstractGroup):
 
         if layer is None:
             try:
-                layer = sprite._layer  # pylint: disable=protected-access
+                layer = sprite._layer  # noqa pylint: disable=protected-access, explicitly trying to break protected access
             except AttributeError:
                 layer = sprite._layer = self._default_layer
         elif hasattr(sprite, '_layer'):
-            sprite._layer = layer  # pylint: disable=protected-access
+            sprite._layer = layer  # noqa pylint: disable=protected-access, explicitly trying to break protected access
 
         sprites = self._spritelist  # speedup
         sprites_layers = self._spritelayers
@@ -1358,7 +1358,7 @@ def collide_rect(left, right):
     return left.rect.colliderect(right.rect)
 
 
-class collide_rect_ratio:  # noqa pylint: disable=invalid-name
+class collide_rect_ratio:  # noqa pylint: invalid-name, this is a function-like class
     """A callable class that checks for collisions using scaled rects
 
     The class checks for collisions between two sprites using a scaled version
@@ -1458,7 +1458,7 @@ def collide_circle(left, right):
     return distancesquared <= (leftradius + rightradius) ** 2
 
 
-class collide_circle_ratio(object):  # noqa pylint: disable=useless-object-inheritance,invalid-name
+class collide_circle_ratio(object):  # noqa pylint: invalid-name, this is a function-like class
     """detect collision between two sprites using scaled circles
 
     This callable class checks for collisions between two sprites using a
