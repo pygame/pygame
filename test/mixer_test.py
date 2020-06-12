@@ -1031,8 +1031,8 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 sound.get_num_channels()
     
     def test_get_volume(self):
+        """Ensure a sound's volume can be retrieved."""
         try:
-            """Ensure a sound's volume can be retrieved."""
             expected_volume = 1.0  # default
             filename = example_path(os.path.join("data", "house_lo.wav"))
             sound = mixer.Sound(file=filename)
