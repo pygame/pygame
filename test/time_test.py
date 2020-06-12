@@ -95,17 +95,17 @@ class ClockTypeTest(unittest.TestCase):
         """Tests time.Clock.tick()"""
         """
         Loops with a set delay a few times then checks what tick reports to
-        verify its accuracy. Then calls tick with a desired framerate and
-        verifies it is not faster than the desired framerate nor is it taking
+        verify its accuracy. Then calls tick with a desired frame-rate and
+        verifies it is not faster than the desired frame-rate nor is it taking
         a dramatically long time to complete
         """
 
         # Adjust this value to increase the acceptable sleep jitter
-        epsilon = 0.75
-        # Adjust this value to increase the acceptable locked framerate jitter
+        epsilon = 1.5
+        # Adjust this value to increase the acceptable locked frame-rate jitter
         epsilon2 = 0.3
-        # adjust this value to increase the acceptable framerate margin
-        epsilon3 = 10
+        # adjust this value to increase the acceptable frame-rate margin
+        epsilon3 = 20
         testing_framerate = 60
         milliseconds = 5.0
 
@@ -125,11 +125,11 @@ class ClockTypeTest(unittest.TestCase):
 
         average_time = float(sum(collection)) / len(collection)
 
-        # assert the deviation from the intended framerate is within the
+        # assert the deviation from the intended frame-rate is within the
         # acceptable amount (the delay is not taking a dramatically long time)
-        self.assertAlmostEqual(average_time, milliseconds,delta = epsilon)
+        self.assertAlmostEqual(average_time, milliseconds, delta=epsilon)
 
-        # verify tick will control the framerate
+        # verify tick will control the frame-rate
 
         c = Clock()
         collection = []
@@ -152,8 +152,8 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(end - start, 1, delta=epsilon2)
 
         average_tick_time = float(sum(collection)) / len(collection)
-        self.assertAlmostEqual(1000/average_tick_time, testing_framerate,delta= epsilon3)
-
+        self.assertAlmostEqual(1000/average_tick_time,
+                               testing_framerate, delta=epsilon3)
 
     def todo_test_tick_busy_loop(self):
 
@@ -222,13 +222,13 @@ class TimeModuleTest(unittest.TestCase):
         pygame.display.init()
         TIMER_EVENT_TYPE = pygame.event.custom_type()
         timer_event = pygame.event.Event(TIMER_EVENT_TYPE, {'code': 0})
-        delta = 200
+        delta = 400
         timer_delay = 250
-        test_number = 8 # Number of events to read for the test
-        events = 0 # Events read
+        test_number = 8  # Number of events to read for the test
+        events = 0  # Events read
         # Get the events a few times. The time SDL_PumpEvents takes
         # for the first 2-3 calls is longer and less stable...
-        for i in range(5):
+        for _ in range(5):
             pygame.event.get()
 
         pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
@@ -248,7 +248,7 @@ class TimeModuleTest(unittest.TestCase):
         self.assertEqual(events, test_number)
         self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
 
-        # Test that the timer stoped when set with 0ms delay.
+        # Test that the timer stopped when set with 0ms delay.
         pygame.event.get()
         pygame.time.delay(500)
         self.assertNotIn(timer_event, pygame.event.get())
