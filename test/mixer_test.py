@@ -1110,7 +1110,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.mixer.quit()
             with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
-                sound.set_volume()
+                sound.set_volume(1)
 
     def todo_test_set_volume__while_playing(self):
         """Ensure a sound's volume can be set while playing."""
