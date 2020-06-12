@@ -893,6 +893,10 @@ class ChannelTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
 
 class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        mixer.quit()
+        
     def setUp(cls):
         # This makes sure the mixer is always initialized before each test (in
         # case a test calls pygame.mixer.quit()).
