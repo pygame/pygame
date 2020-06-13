@@ -431,6 +431,7 @@ class DisplayModuleTest(unittest.TestCase):
 
     def test_toggle_fullscreen(self):
         """Test for toggle fullscreen"""
+
         #try to toggle fullscreen with no active display
         #this should result in an error
         pygame.display.quit()
@@ -452,7 +453,7 @@ class DisplayModuleTest(unittest.TestCase):
         else:
             #if toggle success, the width/height should be a
             #value found in list_modes
-            if pygame.display.toggle_fullscreen():
+            if pygame.display.toggle_fullscreen() == 1:
                 boolean = (test_surf.get_width(), test_surf.get_height()) \
                 in pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)
 
@@ -462,6 +463,8 @@ class DisplayModuleTest(unittest.TestCase):
             else:
                 self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
                 width_height)
+
+
 
 
 @unittest.skipIf(
