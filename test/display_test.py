@@ -98,16 +98,12 @@ class DisplayModuleTest(unittest.TestCase):
         is_running = True
         while is_running:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    is_running = False
-
                 if event.type == pygame.KEYDOWN:
                     pygame.display.iconify()
 
                 if not pygame.display.get_active():
                     self.assertEqual(pygame.display.get_active(), False)
-                    pygame.event.post(pygame.event.Event(pygame.QUIT))
-
+                    is_running = False
 
                 pygame.display.update()
 
