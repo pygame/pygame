@@ -69,10 +69,12 @@ class DisplayModuleTest(unittest.TestCase):
         """Test the get_active function"""
 
         #Initially, the display is not active
+        pygame.quit()
         pygame.display.quit()
         self.assertEqual(pygame.display.get_active(), False)
 
         #get_active defaults to true after a set_mode
+        pygame.init()
         pygame.display.set_mode((640, 480))
         self.assertEqual(pygame.display.get_active(), True)
 
@@ -82,14 +84,32 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.init()
         self.assertEqual(pygame.display.get_active(), False)
 
+        #Clear events so iconify/get_active can be tested
+        #in isolation
+        pygame.event.clear()
 
         #According to the docs, get_active should return
         #false if the display is iconified
         pygame.display.set_mode((640, 480))
-        if pygame.display.iconify():
-            self.assertEqual(pygame.display.get_active(), False)
-        else:
-            self.assertEqual(pygame.display.get_active(), True)
+
+        #Simulate a keydown causing iconify!
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN))
+
+        is_running = True
+        while is_running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    is_running = False
+
+                if event.type == pygame.KEYDOWN:
+                    pygame.display.iconify()
+
+                if not pygame.display.get_active():
+                    self.assertEqual(pygame.display.get_active(), False)
+                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+
+
+                pygame.display.update()
 
     def test_get_caption(self):
         screen = display.set_mode((100, 100))
