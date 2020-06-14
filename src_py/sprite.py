@@ -223,6 +223,18 @@ class Sprite(object):
         return "<%s sprite(in %d groups)>" % (self.__class__.__name__,
                                               len(self.__g))
 
+    @property
+    def layer(self):
+        """
+        Dynamic, read only property for protected _layer attribute.
+        This will get the _layer variable if it exists.
+
+        If you try to get it before it is set it will raise an attribute error.
+
+        :return: layer as an int, or raise AttributeError.
+        """
+        return getattr(self, '_layer')
+
 
 class DirtySprite(Sprite):
     """a more featureful subclass of Sprite with more attributes
@@ -290,6 +302,15 @@ class DirtySprite(Sprite):
     @visible.setter
     def visible(self, value):
         self._set_visible(value)
+
+    @property
+    def layer(self):
+        """
+        Read only property access for protected _layer attribute.
+
+        Overwrites dynamic property from sprite class for speed.
+        """
+        return self._layer
 
     def __repr__(self):
         return "<%s DirtySprite(in %d groups)>" % \
@@ -421,8 +442,8 @@ class AbstractGroup(object):
         """
         # This function behaves essentially the same as Group.add. It first
         # tries to handle each argument as an instance of the Sprite class. If
-        # that failes, then it tries to handle the argument as an iterable
-        # object. If that failes, then it tries to handle the argument as an
+        # that fails, then it tries to handle the argument as an iterable
+        # object. If that fails, then it tries to handle the argument as an
         # old-style sprite group. Lastly, if that fails, it assumes that the
         # normal Sprite methods should be used.
         for sprite in sprites:
@@ -685,11 +706,12 @@ class LayeredUpdates(AbstractGroup):
 
         if layer is None:
             try:
-                layer = sprite._layer  # noqa pylint: disable=protected-access; explicitly trying to break protected access
+                layer = sprite.layer
             except AttributeError:
-                layer = sprite._layer = self._default_layer
-        elif hasattr(sprite, '_layer'):
-            sprite._layer = layer  # noqa pylint: disable=protected-access; explicitly trying to break protected access
+                layer = self._default_layer
+                setattr(sprite, '_layer', layer)
+        elif hasattr(sprite, 'layer'):
+            setattr(sprite, '_layer', layer)
 
         sprites = self._spritelist  # speedup
         sprites_layers = self._spritelayers
@@ -878,7 +900,7 @@ class LayeredUpdates(AbstractGroup):
             mid += 1
         sprites.insert(mid, sprite)
         if hasattr(sprite, 'layer'):
-            sprite.layer = new_layer
+            setattr(sprite, '_layer', new_layer)
 
         # add layer info
         sprites_layers[sprite] = new_layer
@@ -1060,7 +1082,7 @@ class LayeredDirty(LayeredUpdates):
         value that is not None, then the bgd argument has no effect.
 
         """
-        # functions and classes assigned locally to sped up loops
+        # functions and classes assigned locally to speed up loops
         orig_clip = surface.get_clip()
         latest_clip = self._clip
         if latest_clip is None:
