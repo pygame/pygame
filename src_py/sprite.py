@@ -330,7 +330,7 @@ class AbstractGroup(object):
 
     def add_internal(self,
                      sprite,
-                     layer=None  # noqa pylint: disable=unused-argument, supporting legacy derived classes that override in non-pythonic way
+                     layer=None  # noqa pylint: disable=unused-argument; supporting legacy derived classes that override in non-pythonic way
                      ):
         """
         For adding a sprite to this group internally.
@@ -368,7 +368,7 @@ class AbstractGroup(object):
         and has the same sprites in it.
 
         """
-        return self.__class__(self.sprites()) # noqa pylint: disable=too-many-function-args, needed because copy() won't work on AbstractGroup
+        return self.__class__(self.sprites()) # noqa pylint: disable=too-many-function-args; needed because copy() won't work on AbstractGroup
 
     def __iter__(self):
         return iter(self.sprites())
@@ -685,11 +685,11 @@ class LayeredUpdates(AbstractGroup):
 
         if layer is None:
             try:
-                layer = sprite._layer  # noqa pylint: disable=protected-access, explicitly trying to break protected access
+                layer = sprite._layer  # noqa pylint: disable=protected-access; explicitly trying to break protected access
             except AttributeError:
                 layer = sprite._layer = self._default_layer
         elif hasattr(sprite, '_layer'):
-            sprite._layer = layer  # noqa pylint: disable=protected-access, explicitly trying to break protected access
+            sprite._layer = layer  # noqa pylint: disable=protected-access; explicitly trying to break protected access
 
         sprites = self._spritelist  # speedup
         sprites_layers = self._spritelayers
@@ -1051,7 +1051,7 @@ class LayeredDirty(LayeredUpdates):
 
         LayeredUpdates.add_internal(self, sprite, layer)
 
-    def draw(self, surface, bgd=None):
+    def draw(self, surface, bgd=None):  # noqa pylint: disable=arguments-differ; unable to change public interface
         """draw all sprites in the right order onto the given surface
 
         LayeredDirty.draw(surface, bgd=None): return Rect_list
@@ -1060,54 +1060,56 @@ class LayeredDirty(LayeredUpdates):
         value that is not None, then the bgd argument has no effect.
 
         """
-        # speedups
-        _orig_clip = surface.get_clip()
-        _clip = self._clip
-        if _clip is None:
-            _clip = _orig_clip
+        # functions and classes assigned locally to sped up loops
+        orig_clip = surface.get_clip()
+        latest_clip = self._clip
+        if latest_clip is None:
+            latest_clip = orig_clip
 
-        _ret = None
-        _surf_blit = surface.blit
-        _rect = pygame.Rect
+        local_sprites = self._spritelist
+        local_old_rect = self.spritedict
+        local_update = self.lostsprites
+
+        surf_blit_func = surface.blit
         if bgd is not None:
             self._bgd = bgd
-        _bgd = self._bgd
-        init_rect = self._init_rect
+        local_bgd = self._bgd
 
-        surface.set_clip(_clip)
+        surface.set_clip(latest_clip)
         # -------
         # 0. decide whether to render with update or flip
         start_time = pygame.time.get_ticks()
         if self._use_update:  # dirty rects mode
             # 1. find dirty area on screen and put the rects into
             # self.lostsprites still not happy with that part
-            self._find_dirty_area(_clip, self.spritedict,
-                                  _rect, self._spritelist,
-                                  self.lostsprites,
-                                  self.lostsprites.append, init_rect)
+            self._find_dirty_area(latest_clip, local_old_rect,
+                                  pygame.Rect, local_sprites,
+                                  local_update,
+                                  local_update.append, self._init_rect)
             # can it be done better? because that is an O(n**2) algorithm in
             # worst case
 
             # clear using background
-            if _bgd is not None:
-                for rec in self.lostsprites:
-                    _surf_blit(_bgd, rec, rec)
+            if local_bgd is not None:
+                for rec in local_update:
+                    surf_blit_func(local_bgd, rec, rec)
 
             # 2. draw
-            self._draw_dirty_internal(self.spritedict, _rect,
-                                      self._spritelist,
-                                      _surf_blit, self.lostsprites)
-            _ret = list(self.lostsprites)
+            self._draw_dirty_internal(local_old_rect, pygame.Rect,
+                                      local_sprites,
+                                      surf_blit_func, local_update)
+            local_ret = list(local_update)
         else:  # flip, full screen mode
-            if _bgd is not None:
-                _surf_blit(_bgd, (0, 0))
-            for spr in self._spritelist:
+            if local_bgd is not None:
+                surf_blit_func(local_bgd, (0, 0))
+            for spr in local_sprites:
                 if spr.visible:
-                    self.spritedict[spr] = _surf_blit(spr.image,
-                                                      spr.rect,
-                                                      spr.source_rect,
-                                                      spr.blendmode)
-            _ret = [_rect(_clip)]  # return only the part of the screen changed
+                    local_old_rect[spr] = surf_blit_func(spr.image,
+                                                         spr.rect,
+                                                         spr.source_rect,
+                                                         spr.blendmode)
+            # return only the part of the screen changed
+            local_ret = [pygame.Rect(latest_clip)]
 
         # timing for switching modes
         # How may a good threshold be found? It depends on the hardware.
@@ -1118,44 +1120,43 @@ class LayeredDirty(LayeredUpdates):
             self._use_update = True
 
         # emtpy dirty rects list
-        self.lostsprites[:] = []
+        local_update[:] = []
 
         # -------
         # restore original clip
-        surface.set_clip(_orig_clip)
-        return _ret
+        surface.set_clip(orig_clip)
+        return local_ret
 
     @staticmethod
     def _draw_dirty_internal(_old_rect, _rect, _sprites, _surf_blit,
                              _update):
         for spr in _sprites:
-            if spr.dirty < 1:
-                if spr.visible:
-                    # sprite not dirty; blit only the intersecting part
-                    if spr.source_rect is not None:
-                        # For possible future speed up, source_rect's data
-                        # can be pre-fetched outside of this loop.
-                        _spr_rect = _rect(spr.rect.topleft,
-                                          spr.source_rect.size)
-                        rect_offset_x = spr.source_rect[0] - _spr_rect[0]
-                        rect_offset_y = spr.source_rect[1] - _spr_rect[1]
-                    else:
-                        _spr_rect = spr.rect
-                        rect_offset_x = -_spr_rect[0]
-                        rect_offset_y = -_spr_rect[1]
+            if spr.dirty < 1 and spr.visible:
+                # sprite not dirty; blit only the intersecting part
+                if spr.source_rect is not None:
+                    # For possible future speed up, source_rect's data
+                    # can be pre-fetched outside of this loop.
+                    _spr_rect = _rect(spr.rect.topleft,
+                                      spr.source_rect.size)
+                    rect_offset_x = spr.source_rect[0] - _spr_rect[0]
+                    rect_offset_y = spr.source_rect[1] - _spr_rect[1]
+                else:
+                    _spr_rect = spr.rect
+                    rect_offset_x = -_spr_rect[0]
+                    rect_offset_y = -_spr_rect[1]
 
-                    _spr_rect_clip = _spr_rect.clip
+                _spr_rect_clip = _spr_rect.clip
 
-                    for idx in _spr_rect.collidelistall(_update):
-                        # clip
-                        clip = _spr_rect_clip(_update[idx])
-                        _surf_blit(spr.image,
-                                   clip,
-                                   (clip[0] + rect_offset_x,
-                                    clip[1] + rect_offset_y,
-                                    clip[2],
-                                    clip[3]),
-                                   spr.blendmode)
+                for idx in _spr_rect.collidelistall(_update):
+                    # clip
+                    clip = _spr_rect_clip(_update[idx])
+                    _surf_blit(spr.image,
+                               clip,
+                               (clip[0] + rect_offset_x,
+                                clip[1] + rect_offset_y,
+                                clip[2],
+                                clip[3]),
+                               spr.blendmode)
             else:  # dirty sprite
                 if spr.visible:
                     _old_rect[spr] = _surf_blit(spr.image,
@@ -1358,7 +1359,7 @@ def collide_rect(left, right):
     return left.rect.colliderect(right.rect)
 
 
-class collide_rect_ratio:  # noqa pylint: invalid-name, this is a function-like class
+class collide_rect_ratio:  # noqa pylint: disable=invalid-name; this is a function-like class
     """A callable class that checks for collisions using scaled rects
 
     The class checks for collisions between two sprites using a scaled version
@@ -1383,7 +1384,11 @@ class collide_rect_ratio:  # noqa pylint: invalid-name, this is a function-like 
         """
         Turn the class into a string.
         """
-        return 'ratio: ' + str(self.ratio)
+        return "<{klass} @{id:x} {attrs}>".format(
+            klass=self.__class__.__name__,
+            id=id(self) & 0xFFFFFF,
+            attrs=" ".join(
+                "{}={!r}".format(k, v) for k, v in self.__dict__.items()))
 
     def __call__(self, left, right):
         """detect collision between two sprites using scaled rects
@@ -1458,7 +1463,7 @@ def collide_circle(left, right):
     return distancesquared <= (leftradius + rightradius) ** 2
 
 
-class collide_circle_ratio(object):  # noqa pylint: invalid-name, this is a function-like class
+class collide_circle_ratio(object):  # noqa pylint: disable=invalid-name; this is a function-like class
     """detect collision between two sprites using scaled circles
 
     This callable class checks for collisions between two sprites using a
@@ -1486,7 +1491,11 @@ class collide_circle_ratio(object):  # noqa pylint: invalid-name, this is a func
         """
         Turn the class into a string.
         """
-        return 'ratio: ' + str(self.ratio)
+        return "<{klass} @{id:x} {attrs}>".format(
+            klass=self.__class__.__name__,
+            id=id(self) & 0xFFFFFF,
+            attrs=" ".join(
+                "{}={!r}".format(k, v) for k, v in self.__dict__.items()))
 
     def __call__(self, left, right):
         """detect collision between two sprites using scaled circles
@@ -1577,6 +1586,10 @@ def spritecollide(sprite, group, dokill, collided=None):
     which will be used to calculate the collision.
 
     """
+    # pull the default collision function in as a local variable outside
+    # the loop as this makes the loop run faster
+    default_sprite_collide_func = sprite.rect.colliderect
+
     if dokill:
 
         crashed = []
@@ -1588,7 +1601,7 @@ def spritecollide(sprite, group, dokill, collided=None):
                     group_sprite.kill()
                     append(group_sprite)
             else:
-                if sprite.rect.colliderect(group_sprite.rect):
+                if default_sprite_collide_func(group_sprite.rect):
                     group_sprite.kill()
                     append(group_sprite)
 
@@ -1601,7 +1614,7 @@ def spritecollide(sprite, group, dokill, collided=None):
 
     return [group_sprite
             for group_sprite in group
-            if sprite.rect.colliderect(group_sprite.rect)]
+            if default_sprite_collide_func(group_sprite.rect)]
 
 
 def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
@@ -1623,17 +1636,20 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
 
     """
     crashed = {}
+    # pull the collision function in as a local variable outside
+    # the loop as this makes the loop run faster
+    sprite_collide_func = spritecollide
     if dokilla:
         for group_a_sprite in groupa.sprites():
-            collision = spritecollide(group_a_sprite, groupb,
-                                      dokillb, collided)
+            collision = sprite_collide_func(group_a_sprite, groupb,
+                                            dokillb, collided)
             if collision:
                 crashed[group_a_sprite] = collision
                 group_a_sprite.kill()
     else:
         for group_a_sprite in groupa:
-            collision = spritecollide(group_a_sprite, groupb,
-                                      dokillb, collided)
+            collision = sprite_collide_func(group_a_sprite, groupb,
+                                            dokillb, collided)
             if collision:
                 crashed[group_a_sprite] = collision
     return crashed
@@ -1659,6 +1675,10 @@ def spritecollideany(sprite, group, collided=None):
 
 
     """
+    # pull the default collision function in as a local variable outside
+    # the loop as this makes the loop run faster
+    default_sprite_collide_func = sprite.rect.colliderect
+
     if collided is not None:
         for group_sprite in group:
             if collided(sprite, group_sprite):
@@ -1666,6 +1686,6 @@ def spritecollideany(sprite, group, collided=None):
     else:
         # Special case old behaviour for speed.
         for group_sprite in group:
-            if sprite.rect.colliderect(group_sprite.rect):
+            if default_sprite_collide_func(group_sprite.rect):
                 return group_sprite
     return None
