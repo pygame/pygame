@@ -107,6 +107,36 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         r = s.get_at((10, 1))
         self.assertEqual(r, (0, 0, 255, 255))
 
+    def test_set_at__big_endian(self):
+        """ png files are loaded in big endian format (BGR rather than RGB)"""
+        pygame.display.init()
+        try:
+            image = pygame.image.load(example_path(os.path.join("data",
+                                                                "BGR.png")))
+            # Check they start red, green and blue
+            self.assertEqual(image.get_at((10, 10)),
+                             pygame.Color(255, 0, 0))
+            self.assertEqual(image.get_at((10, 20)),
+                             pygame.Color(0, 255, 0))
+            self.assertEqual(image.get_at((10, 40)),
+                             pygame.Color(0, 0, 255))
+            # Set three pixels that are already red, green, blue
+            # to red, green and, blue with set_at:
+            image.set_at((10, 10), pygame.Color(255, 0, 0))
+            image.set_at((10, 20), pygame.Color(0, 255, 0))
+            image.set_at((10, 40), pygame.Color(0, 0, 255))
+
+            # Check they still are
+            self.assertEqual(image.get_at((10, 10)),
+                             pygame.Color(255, 0, 0))
+            self.assertEqual(image.get_at((10, 20)),
+                             pygame.Color(0, 255, 0))
+            self.assertEqual(image.get_at((10, 40)),
+                             pygame.Color(0, 0, 255))
+
+        finally:
+            pygame.display.quit()
+
     def test_SRCALPHA(self):
         # has the flag been passed in ok?
         surf = pygame.Surface((70, 70), SRCALPHA, 32)
@@ -319,12 +349,35 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_get_bytesize(self):
         """Ensure a surface's bit and byte sizes can be retrieved."""
-        depth = 32
-        depth_bytes = 4
-        s1 = pygame.Surface((32, 32), pygame.SRCALPHA, depth)
+        pygame.display.init()
+        try:
+            depth = 32
+            depth_bytes = 4
+            s1 = pygame.Surface((32, 32), pygame.SRCALPHA, depth)
 
-        self.assertEqual(s1.get_bytesize(), depth_bytes)
-        self.assertEqual(s1.get_bitsize(), depth)
+            self.assertEqual(s1.get_bytesize(), depth_bytes)
+            self.assertEqual(s1.get_bitsize(), depth)
+
+            depth = 15
+            depth_bytes = 2
+            s1 = pygame.Surface((32, 32), 0, depth)
+
+            self.assertEqual(s1.get_bytesize(), depth_bytes)
+            self.assertEqual(s1.get_bitsize(), depth)
+
+            depth = 12
+            depth_bytes = 2
+            s1 = pygame.Surface((32, 32), 0, depth)
+
+            self.assertEqual(s1.get_bytesize(), depth_bytes)
+            self.assertEqual(s1.get_bitsize(), depth)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_bytesize()
+        finally:
+                pygame.display.quit()
 
     ########################################################################
 
@@ -338,10 +391,20 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_get_parent(self):
         """Ensure a surface's parent can be retrieved."""
-        parent = pygame.Surface((16, 16))
-        child = parent.subsurface((0, 0, 5, 5))
+        pygame.display.init()
+        try:
+            parent = pygame.Surface((16, 16))
+            child = parent.subsurface((0, 0, 5, 5))
 
-        self.assertIs(child.get_parent(), parent)
+            self.assertIs(child.get_parent(), parent)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_parent()
+        finally:
+            pygame.display.quit()
+
 
     ########################################################################
 
@@ -923,32 +986,74 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_get_abs_offset(self):
+    def test_get_abs_offset(self):
+        pygame.display.init()
+        try:
+            parent = pygame.Surface((64, 64), SRCALPHA, 32)
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_abs_offset:
+            # Stack bunch of subsurfaces
+            sub_level_1 = parent.subsurface((2, 2), (34, 37))
+            sub_level_2 = sub_level_1.subsurface((0, 0), (30, 29))
+            sub_level_3 = sub_level_2.subsurface((3, 7), (20, 21))
+            sub_level_4 = sub_level_3.subsurface((6, 1), (14, 14))
+            sub_level_5 = sub_level_4.subsurface((5, 6), (3, 4))
 
-        # Surface.get_abs_offset(): return (x, y)
-        # find the absolute position of a child subsurface inside its top level parent
-        #
-        # Get the offset position of a child subsurface inside of its top
-        # level parent Surface. If the Surface is not a subsurface this will
-        # return (0, 0).
-        #
+            # Parent is always (0, 0)
+            self.assertEqual(parent.get_abs_offset(), (0, 0))
+            # Total offset: (0+2, 0+2) = (2, 2)
+            self.assertEqual(sub_level_1.get_abs_offset(), (2, 2))
+            # Total offset: (0+2+0, 0+2+0) = (2, 2)
+            self.assertEqual(sub_level_2.get_abs_offset(), (2, 2))
+            # Total offset: (0+2+0+3, 0+2+0+7) = (5, 9)
+            self.assertEqual(sub_level_3.get_abs_offset(), (5, 9))
+            # Total offset: (0+2+0+3+6, 0+2+0+7+1) = (11, 10)
+            self.assertEqual(sub_level_4.get_abs_offset(), (11, 10))
+            # Total offset: (0+2+0+3+6+5, 0+2+0+7+1+6) = (16, 16)
+            self.assertEqual(sub_level_5.get_abs_offset(), (16, 16))
 
-        self.fail()
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_abs_offset()
+        finally:
+            pygame.display.quit()
 
-    def todo_test_get_abs_parent(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_abs_parent:
+    def test_get_abs_parent(self):
+        pygame.display.init()
+        try:
+            parent = pygame.Surface((32, 32), SRCALPHA, 32)
 
-        # Surface.get_abs_parent(): return Surface
-        # find the top level parent of a subsurface
-        #
-        # Returns the parent Surface of a subsurface. If this is not a
-        # subsurface then this surface will be returned.
-        #
+            # Stack bunch of subsurfaces
+            sub_level_1 = parent.subsurface((1, 1), (15, 15))
+            sub_level_2 = sub_level_1.subsurface((1, 1), (12, 12))
+            sub_level_3 = sub_level_2.subsurface((1, 1), (9, 9))
+            sub_level_4 = sub_level_3.subsurface((1, 1), (8, 8))
+            sub_level_5 = sub_level_4.subsurface((2, 2), (3, 4))
+            sub_level_6 = sub_level_5.subsurface((0, 0), (2, 1))
 
-        self.fail()
+            # Can't have subsurfaces bigger than parents
+            self.assertRaises(ValueError, parent.subsurface, (5, 5), (100, 100))
+            self.assertRaises(ValueError, sub_level_3.subsurface, (0, 0), (11, 5))
+            self.assertRaises(ValueError, sub_level_6.subsurface, (0, 0), (5, 5))
+
+            # Calling get_abs_parent on parent should return itself
+            self.assertEqual(parent.get_abs_parent(), parent)
+
+            # On subclass "depth" of 1, get_abs_parent and get_parent should return the same
+            self.assertEqual(sub_level_1.get_abs_parent(), sub_level_1.get_parent())
+            self.assertEqual(sub_level_2.get_abs_parent(), parent)
+            self.assertEqual(sub_level_3.get_abs_parent(), parent)
+            self.assertEqual(sub_level_4.get_abs_parent(), parent)
+            self.assertEqual(sub_level_5.get_abs_parent(), parent)
+            self.assertEqual(sub_level_6.get_abs_parent(), sub_level_6.get_parent().get_abs_parent())
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_abs_parent()
+        finally:
+            pygame.display.quit()
 
     def test_get_at(self):
         surf = pygame.Surface((2, 2), 0, 24)
@@ -981,19 +1086,40 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 "%i != %i, bitsize: %i" % (pixel, surf.map_rgb(color), bitsize),
             )
 
-    def todo_test_get_bitsize(self):
+    def test_get_bitsize(self):
+        pygame.display.init()
+        try:
+            expected_size = (11, 21)
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_bitsize:
+            # Check that get_bitsize returns passed depth
+            expected_depth = 32
+            surface = pygame.Surface(expected_size, pygame.SRCALPHA, expected_depth)
+            self.assertEqual(surface.get_size(), expected_size)
+            self.assertEqual(surface.get_bitsize(), expected_depth)
 
-        # Surface.get_bitsize(): return int
-        # get the bit depth of the Surface pixel format
-        #
-        # Returns the number of bits used to represent each pixel. This value
-        # may not exactly fill the number of bytes used per pixel. For example
-        # a 15 bit Surface still requires a full 2 bytes.
-        #
+            expected_depth = 16
+            surface = pygame.Surface(expected_size, pygame.SRCALPHA, expected_depth)
+            self.assertEqual(surface.get_size(), expected_size)
+            self.assertEqual(surface.get_bitsize(), expected_depth)
 
-        self.fail()
+            expected_depth = 15
+            surface = pygame.Surface(expected_size, 0, expected_depth)
+            self.assertEqual(surface.get_size(), expected_size)
+            self.assertEqual(surface.get_bitsize(), expected_depth)
+            # Check for invalid depths
+            expected_depth = -1
+            self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
+            expected_depth = 11
+            self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
+            expected_depth = 1024
+            self.assertRaises(ValueError, pygame.Surface, expected_size, 0, expected_depth)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_bitsize()
+        finally:
+                pygame.display.quit()
 
     def test_get_clip(self):
         s = pygame.Surface((800, 600))
@@ -1001,43 +1127,53 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(rectangle, (0, 0, 800, 600))
 
     def test_get_colorkey(self):
-        # if set_colorkey is not used
-        s = pygame.Surface((800, 600))
-        self.assertIsNone(s.get_colorkey())
+        pygame.display.init()
+        try:
+            # if set_colorkey is not used
+            s = pygame.Surface((800, 600), 0, 32)
+            self.assertIsNone(s.get_colorkey())
 
-        # if set_colorkey is used
-        s.set_colorkey(None)
-        self.assertIsNone(s.get_colorkey())
-        
-        # setting up remainder of tests...
-        r, g, b, a  = 20, 40, 60, 12
-        colorkey = pygame.Color(r, g, b)
-        s.set_colorkey(colorkey)
-        
-        #test for ideal case
-        self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
-        #test for if the color_key is set using pygame.RLEACCEL
-        s.set_colorkey(colorkey, pygame.RLEACCEL)
-        self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
-        #test for if the color key is not what's expected
-        s.set_colorkey(pygame.Color(r + 1, g + 1, b + 1))
-        self.assertNotEqual(s.get_colorkey(), (r, g, b, 255))
+            # if set_colorkey is used
+            s.set_colorkey(None)
+            self.assertIsNone(s.get_colorkey())
 
-        s.set_colorkey(pygame.Color(r, g, b, a)) # regardless of whether alpha is not 255, colorkey returned from surface is always 255
-        self.assertEqual(s.get_colorkey(), (r, g, b, 255))
-        
-        # test for using method after display.quit() is called...
-        with self.assertRaises(pygame.error):
-            s = pygame.display.set_mode()
+            # setting up remainder of tests...
+            r, g, b, a  = 20, 40, 60, 12
+            colorkey = pygame.Color(r, g, b)
+            s.set_colorkey(colorkey)
+
+            #test for ideal case
+            self.assertEqual(s.get_colorkey(), (r, g, b, 255))
+
+            #test for if the color_key is set using pygame.RLEACCEL
+            s.set_colorkey(colorkey, pygame.RLEACCEL)
+            self.assertEqual(s.get_colorkey(), (r, g, b, 255))
+
+            #test for if the color key is not what's expected
+            s.set_colorkey(pygame.Color(r + 1, g + 1, b + 1))
+            self.assertNotEqual(s.get_colorkey(), (r, g, b, 255))
+
+            s.set_colorkey(pygame.Color(r, g, b, a)) # regardless of whether alpha is not 255, colorkey returned from surface is always 255
+            self.assertEqual(s.get_colorkey(), (r, g, b, 255))
+
+            # test for using method when display is created with OpenGL and the SDL version is 1
+            # Open GL is not available on the dummy video driver
+            if SDL1:  # SLD1 is a bool defined at the top...
+                try:
+                    s = pygame.display.set_mode((200, 200),
+                                                pygame.OPENGL, 32)
+                except pygame.error:
+                    pass  # If we can't create OPENGL surface don't try this test
+                else:
+                    with self.assertRaises(pygame.error):
+                        s.get_colorkey()
+
+
+        finally:
+            # test for using method after display.quit() is called...
+            s = pygame.display.set_mode((200, 200), 0, 32)
             pygame.display.quit()
-            s.get_colorkey()
-
-        # test for using method when display is created with OpenGL and the SDL version is 1
-        if SDL1: # SLD1 is a bool defined at the top...
-            with self.assertRaises(pygame.error):   
-                s = pygame.display.set_mode(flags=pygame.OPENGL)
+            with self.assertRaises(pygame.error):
                 s.get_colorkey()
 
     def test_get_height(self):
@@ -1134,12 +1270,22 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         """get_offset returns the (0,0) if surface is not a child
                       returns the position of child subsurface inside of parent
         """
-        surf = pygame.Surface((100, 100))
-        self.assertEqual(surf.get_offset(), (0, 0))
+        pygame.display.init()
+        try:
+            surf = pygame.Surface((100, 100))
+            self.assertEqual(surf.get_offset(), (0, 0))
 
-        # subsurface offset test
-        subsurf = surf.subsurface(1, 1, 10, 10)
-        self.assertEqual(subsurf.get_offset(), (1, 1))
+            # subsurface offset test
+            subsurf = surf.subsurface(1, 1, 10, 10)
+            self.assertEqual(subsurf.get_offset(), (1, 1))
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_offset()
+        finally:
+            pygame.display.quit()
+
 
     def test_get_palette(self):
         pygame.display.init()
