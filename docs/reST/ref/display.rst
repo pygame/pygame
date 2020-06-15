@@ -593,7 +593,7 @@ required).
 
 .. function:: get_allow_screensaver
 
-   | :sl:`Return whether the screensaver is allowed to run.`
+   | :sl:`Return whether the screensaver is allowed to run`
    | :sg:`get_allow_screensaver() -> bool`
 
    Return whether screensaver is allowed to run whilst the app is running.
@@ -636,6 +636,45 @@ required).
 
    .. versionadded:: 2.0
 
+.. function:: set_window_minimum_size
+
+   | :sl:`Set the minimum size the window can be`
+   | :sg:`set_window_minimum_size(min_w, min_h) -> None`
+
+   Makes it so the display window cannot be resized or created smaller than minimum
+   width (min_w) and minimum height (min_h).
+   
+   .. versionadded:: 2.0.0.dev12
+
+.. function:: get_window_minimum_size
+
+   | :sl:`Get the minimum size the window can be`
+   | :sg:`get_window_minimum_size() -> (min_w, min_h)`
+
+   Returns the minimum size the window can be, if it has been set by 
+   :func:`set_window_minimum_size`. If a minimum hasn't been set, it returns (0,0).
+
+   .. versionadded:: 2.0.0.dev12
+
+.. function:: set_window_maximum_size
+
+   | :sl:`Set the maximum size the window can be`
+   | :sg:`set_window_maximum_size(max_w, max_h) -> None`
+
+   Makes it so the display cannot be resized or created larger than maximum width (max_w)
+   and maximum height (max_h).
+   
+   .. versionadded:: 2.0.0.dev12
+
+.. function:: get_window_maximum_size
+
+   | :sl:`Get the maximum size the window can be`
+   | :sg:`get_window_maximum_size() -> (max_w, max_h)`
+
+   Returns the maximum size the window can be, if it has been set by
+   :func:`set_window_maximum_size`. If a maximum hasn't been set, it returns (0,0).
+   
+   .. versionadded:: 2.0.0.dev12
 
    .. ## pygame.display.set_allow_screensaver ##
 
