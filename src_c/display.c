@@ -2043,6 +2043,76 @@ pg_update(PyObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+pg_set_window_minimum_size(PyObject *self, PyObject *arg)
+{
+    int min_w, min_h;
+    SDL_Window *win = pg_GetDefaultWindow();
+
+    VIDEO_INIT_CHECK();
+
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    if (!PyArg_ParseTuple(arg, "ii", &min_w, &min_h))
+        return NULL;
+
+    SDL_SetWindowMinimumSize(win, min_w, min_h);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+pg_get_window_minimum_size(PyObject *self, PyObject *arg)
+{
+    int min_w, min_h;
+    SDL_Window *win = pg_GetDefaultWindow();
+
+    VIDEO_INIT_CHECK();
+
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    SDL_GetWindowMinimumSize(win, &min_w, &min_h);
+
+    Py_BuildValue("(ii)", min_w, min_h);
+}
+
+static PyObject*
+pg_set_window_maximum_size(PyObject *self, PyObject *arg)
+{
+    int max_w, max_h;
+    SDL_Window *win = pg_GetDefaultWindow();
+
+    VIDEO_INIT_CHECK();
+
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    if (!PyArg_ParseTuple(arg, "ii", &max_w, &max_h))
+        return NULL;
+
+    SDL_SetWindowMaximumSize(win, max_w, max_h);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+pg_get_window_maximum_size(PyObject *self, PyObject *arg)
+{
+    int max_w, max_h;
+    SDL_Window *win = pg_GetDefaultWindow();
+
+    VIDEO_INIT_CHECK();
+
+    if (!win)
+        return RAISE(pgExc_SDLError, "No open window");
+
+    SDL_GetWindowMinimumSize(win, &max_w, &max_h);
+
+    Py_BuildValue("(ii)", max_w, max_h);
+}
+
 #if IS_SDLv2
 static PyObject *
 pg_set_palette(PyObject *self, PyObject *args)
@@ -3070,6 +3140,15 @@ static PyMethodDef _pg_display_methods[] = {
     {"iconify", pg_iconify, METH_NOARGS, DOC_PYGAMEDISPLAYICONIFY},
     {"toggle_fullscreen", pg_toggle_fullscreen, METH_NOARGS,
      DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN},
+
+    {"set_window_minimum_size", pg_set_window_minimum_size, METH_VARARGS,
+     DOC_PYGAMEDISPLAYSETWINDOWMINIMUMSIZE},
+    {"get_window_minimum_size", pg_get_window_minimum_size, METH_NOARGS,
+     DOC_PYGAMEDISPLAYGETWINDOWMINIMUMSIZE},
+    {"set_window_maximum_size", pg_set_window_maximum_size, METH_VARARGS,
+     DOC_PYGAMEDISPLAYSETWINDOWMAXIMUMSIZE},
+    {"get_window_maximum_size", pg_get_window_maximum_size, METH_NOARGS,
+     DOC_PYGAMEDISPLAYGETWINDOWMAXIMUMSIZE},
 
 #if IS_SDLv2
     {"_set_autoresize", (PyCFunction)pg_display_set_autoresize
