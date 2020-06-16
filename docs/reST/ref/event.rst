@@ -87,7 +87,8 @@ specific attributes.
     USEREVENT         code
 
 |
-
+..
+Should have links to documentation of event type constants such K_UP for key events for easier reference.
 .. versionadded:: 1.9.2
 
 On MacOSX when a file is opened using a pygame application, a ``USEREVENT``
