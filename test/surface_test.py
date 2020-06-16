@@ -1254,17 +1254,21 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_masks(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_masks:
-
-        # Surface.get_masks(): return (R, G, B, A)
-        # the bitmasks needed to convert between a color and a mapped integer
-        #
-        # Returns the bitmasks used to isolate each color in a mapped integer.
-        # This value is not needed for normal Pygame usage.
-
-        self.fail()
+    def test_get_masks(self):
+        masks_list = ((0b00101, 0b10010, 0b01011, 0b11111), (0b01111, 0b01101, 0b00011, 0b01111), (0b01100, 0b01010, 0b00100, 0b11101), (0b10110, 0b11100, 0b00101, 0b11011), (0b01011, 0b01000, 0b10111, 0b11101), (0b01000, 0b10100, 0b00100, 0b10101))
+        if pygame.get_sdl_version()[0] == 1:
+            for r, g, b, a in masks_list:
+                surf = pygame.Surface((100,100))
+                surf.set_masks((r,g,b,a))
+                found_masks = surf.get_masks()
+                self.assertEqual((r, g, b, a), found_masks)
+        else:
+            depth_list = (8, 12, 16, 24, 32)
+            masks_list = ((0,0,0,0), (3840, 240, 15, 0), (63488, 2016, 31, 0), (16711680, 65280, 255, 0), (16711680, 65280, 255, 0))
+            for i in range(0,5):
+                surf = pygame.Surface((100,100), depth=depth_list[i])
+                mask = surf.get_masks()
+                self.assertEqual(mask, masks_list[i])
 
     def test_get_offset(self):
         """get_offset returns the (0,0) if surface is not a child
