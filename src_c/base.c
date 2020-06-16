@@ -1520,7 +1520,12 @@ _pg_typestr_check(PyObject *op)
         return -1;
     }
     if (PyUnicode_Check(op)) {
-        if (PyUnicode_GET_SIZE(op) != 3) {
+#if PY2
+        Py_ssize_t len = PyUnicode_GET_SIZE(op);
+#else
+        Py_ssize_t len = PyUnicode_GET_LENGTH(op);
+#endif
+        if (len != 3) {
             PyErr_SetString(PyExc_ValueError,
                             "expected 'typestr' to be length 3");
             return -1;
