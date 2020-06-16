@@ -59,17 +59,17 @@ class MouseModuleTest(MouseTests):
 
     def test_get_cursor(self):
         """Ensures get_cursor works correctly."""
-        #error should be raised when the display is unintialized
-        with self.assertRaisesRegex(pygame.error, "video system not initialized"):
-            pygame.display.quit()
-            pygame.mouse.get_cursor()
-        
-        pygame.display.init()
-
         if not SDL1:
             with self.assertRaises(TypeError):
                 pygame.mouse.get_cursor()
         else:
+            #error should be raised when the display is unintialized
+            with self.assertRaises(pygame.error):
+                pygame.display.quit()
+                pygame.mouse.get_cursor()
+
+            pygame.display.init()
+
             size = (8, 8)
             hotspot = (0, 0)
             xormask = (0, 96, 120, 126, 112, 96, 0, 0)
