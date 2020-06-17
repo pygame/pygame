@@ -3825,7 +3825,7 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
 #else
         if (PyUnicode_GET_LENGTH(obj) != 1) {
             PyErr_SetString(PyExc_TypeError,
-                            "expected a length 1 string for argument 3");
+                            "expected a length 1 string for argument 1");
             return 0;
         }
         ch = PyUnicode_READ_CHAR(obj, 0);
