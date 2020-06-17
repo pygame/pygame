@@ -956,23 +956,34 @@ class TransformModuleTest(unittest.TestCase):
                 pygame.transform.average_color(s, (16, 0, 16, 32)), (0, 100, 200, 0)
             )
 
-    def todo_test_rotate(self):
+    def test_rotate(self):
+        #setting colors and canvas
+        blue = (0, 0, 255, 255)
+        red = (255, 0, 0, 255)
+        black = (0,0,0) 
+        canvas = pygame.Surface((3, 3))
+        rotation = 0
 
-        # __doc__ (as of 2008-06-25) for pygame.transform.rotate:
+        canvas.set_at((2, 0), blue)
+        canvas.set_at((0, 2), red)
 
-        # pygame.transform.rotate(Surface, angle): return Surface
-        # rotate an image
+        self.assertEqual(canvas.get_at((0, 0)), black)
+        self.assertEqual(canvas.get_at((2, 0)), blue)
+        self.assertEqual(canvas.get_at((0, 2)), red)
 
-        # color = (128, 128, 128, 255)
-        # s = pygame.Surface((3, 3))
+        for i in range(0,4):
+            if i % 2 == 0:
+                self.assertEqual(canvas.get_at((0, 0)), black)
+            elif i == 1: 
+                self.assertEqual(canvas.get_at((0, 0)), blue)
+            elif i == 3:
+                self.assertEqual(canvas.get_at((0, 0)), red)
 
-        # s.set_at((2, 0), color)
+            rotation+=90
+            canvas = pygame.transform.rotate(canvas, 90)
 
-        # self.assertNotEqual(s.get_at((0, 0)), color)
-        # s = pygame.transform.rotate(s, 90)
-        # self.assertEqual(s.get_at((0, 0)), color)
+        self.assertEqual(canvas.get_at((0, 0)), black)
 
-        self.fail()
 
     def test_rotate__lossless_at_90_degrees(self):
         w, h = 32, 32
