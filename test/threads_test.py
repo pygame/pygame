@@ -53,13 +53,33 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
         self.assertIs(wq.queue.get(), STOP)
 
-    def todo_test_threadloop(self):
+    def test_threadloop(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.threadloop:
 
         # Loops until all of the tasks are finished.
 
-        self.fail()
+        #Make a worker queue with only one thread
+        wq = WorkerQueue(1)
+
+        #Ocuppy the one worker with the threadloop
+        #wq threads are just threadloop, so this makes an embedded threadloop
+        wq.do(wq.threadloop)
+
+        #Make sure wq can still do work
+        #If wq can still do work, threadloop works
+        l = []
+        wq.do(l.append,1)
+        #Wait won't work because the primary thread is in an infinite loop
+        time.sleep(.5)
+        self.assertEqual(l[0],1)
+
+        #Kill the embedded threadloop by sending stop onto the stack
+        #Threadloop puts STOP back onto the queue when it STOPs so this kills both loops
+        wq.stop()
+
+        #Make sure wq has stopped
+        self.assertFalse(wq.pool[0].is_alive())
 
     def test_wait(self):
 
