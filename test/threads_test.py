@@ -135,9 +135,11 @@ class ThreadsModuleTest(unittest.TestCase):
 
         tmapped2 = list(tmap(always_excepts, data2, stop_on_error=False))
 
-        # Use list comprehension to check all entries have the correct exception attached
-        # Condense to single bool with all, which will return true if all entries are true
-        self.assertTrue(all([isinstance(x.exception, ZeroDivisionError) for x in tmapped2]))
+        # Use list comprehension to check all entries are None as all function
+        # calls made by tmap will have thrown an exception (ZeroDivisionError)
+        # Condense to single bool with `all`, which will return true if all
+        # entries are true
+        self.assertTrue(all([x is None for x in tmapped2]))
 
 
 
