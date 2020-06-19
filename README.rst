@@ -61,82 +61,85 @@ Thanks to everyone who has helped contribute to this library.
 Special thanks are also in order.
 
 Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
+
 Lenard Lindstrom - the 1.8+ windows maintainer, many changes, and fixes.
+
 Brian Fisher - for svn auto builder, bug tracker and many contributions.
+
 Rene Dudfield - many changes, and fixes, 1.7+ release manager/maintainer.
 
-     Phil Hassey - for his work on the pygame.org website.
+Phil Hassey - for his work on the pygame.org website.
 
-     DR0ID for his work on the sprite module.
+DR0ID for his work on the sprite module.
 
-     Richard Goedeken for his smoothscale function.
+Richard Goedeken for his smoothscale function.
 
-     Ulf Ekström for his pixel perfect collision detection code.
+Ulf Ekström for his pixel perfect collision detection code.
 
-     Pete Shinners - original author.
+Pete Shinners - original author.
 
-     David Clark - for filling the right-hand-man position
+David Clark - for filling the right-hand-man position
 
-     Ed Boraas and Francis Irving - Debian packages
+Ed Boraas and Francis Irving - Debian packages
 
-     Maxim Sobolev - FreeBSD packaging
+Maxim Sobolev - FreeBSD packaging
 
-     Bob Ippolito - MacOS and OS X porting (much work!)
+Bob Ippolito - MacOS and OS X porting (much work!)
 
-     Jan Ekhol, Ray Kelm, and Peter Nicolai - putting up with my early
-     design ideas
+Jan Ekhol, Ray Kelm, and Peter Nicolai - putting up with my early
+design ideas
 
-     Nat Pryce for starting our unit tests
+Nat Pryce for starting our unit tests
 
-     Dan Richter for documentation work
+Dan Richter for documentation work
 
-     TheCorruptor for his incredible logos and graphics
+TheCorruptor for his incredible logos and graphics
 
-     Nicholas Dudfield - many test improvements.
+Nicholas Dudfield - many test improvements.
 
-     Alex Folkner - for pygame-ctypes
+Alex Folkner - for pygame-ctypes
 
-     Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
-     Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
-     Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Herve Cauwelier,
-     James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
-     Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
-     Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
-     Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan,
-     Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
-     Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
-     Cambell Barton.
+Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
+Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
+Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Herve Cauwelier,
+James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
+Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
+Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
+Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan,
+Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
+Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
+Cambell Barton.
 
-     And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
-     Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck,
-     Michael Benfield, David Lau
+And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
+Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck,
+Michael Benfield, David Lau
 
-     There's many more folks out there who've submitted helpful ideas, kept
-     this project going, and basically made my life easier. Thanks!
+There's many more folks out there who've submitted helpful ideas, kept
+this project going, and basically made my life easier. Thanks!
 
-     Many thank you's for people making documentation comments, and adding to the
-     pygame.org wiki.
+Many thank you's for people making documentation comments, and adding to the
+pygame.org wiki.
 
-     Also many thanks for people creating games and putting them on the
-     pygame.org website for others to learn from and enjoy.
+Also many thanks for people creating games and putting them on the
+pygame.org website for others to learn from and enjoy.
 
-     Lots of thanks to James Paige for hosting the pygame bugzilla.
+Lots of thanks to James Paige for hosting the pygame bugzilla.
 
-     Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
-     excellent hosting.
+Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
+excellent hosting.
 
 Dependencies
 ============
 
-     Pygame is obviously strongly dependent on SDL and Python. It also
-     links to and embeds several other smaller libraries. The font
-     module relies on SDL_tff, which is dependent on freetype. The mixer
-     (and mixer.music) modules depend on SDL_mixer. The image module
-     depends on SDL_image, which also can use libjpeg and libpng. The
-     transform module has an embedded version of SDL_rotozoom for its
-     own rotozoom function. The surfarray module requires the Python
-     NumPy package for its multidimensional numeric arrays.
-     Dependency versions:
+Pygame is obviously strongly dependent on SDL and Python. It also
+links to and embeds several other smaller libraries. The font
+module relies on SDL_tff, which is dependent on freetype. The mixer
+(and mixer.music) modules depend on SDL_mixer. The image module
+depends on SDL_image, which also can use libjpeg and libpng. The
+transform module has an embedded version of SDL_rotozoom for its
+own rotozoom function. The surfarray module requires the Python
+NumPy package for its multidimensional numeric arrays.
+Dependency versions:
 
      * Python >= 2.7 or PyPy >= 6.0.0 (and pypy3)
      * SDL >= 1.2.15
@@ -150,7 +153,7 @@ Dependencies
 Contribute
 ==========
 
-     https://www.pygame.org/contribute.html
+https://www.pygame.org/contribute.html
 
 License
 =======
