@@ -20,54 +20,50 @@ We need your help to make pygame the best it can be! https://www.pygame.org/cont
 Installation
 ============
 
-     pip install pygame
+pip install pygame
 
-     You should definitely begin by installing a binary package for your
-     system. The binary packages usually come with or give the
-     information needed for dependencies. Choose an appropriate
-     installer for your system and version of Python from the pygame
-     downloads page. https://www.pygame.org/download.shtml
+You should definitely begin by installing a binary package for your
+system. The binary packages usually come with or give the
+information needed for dependencies. Choose an appropriate
+installer for your system and version of Python from the pygame
+downloads page. https://www.pygame.org/download.shtml
 
-     Installing from source is fairly automated. The most work will
-     involve compiling and installing all the pygame dependencies. Once
-     that is done, run the "setup.py" script which will attempt to
-     auto-configure, build, and install pygame.
+Installing from source is fairly automated. The most work will
+involve compiling and installing all the pygame dependencies. Once
+that is done, run the "setup.py" script which will attempt to
+auto-configure, build, and install pygame.
 
-     Much more information about installing and compiling is available
-     in the install.html file and at https://www.pygame.org/wiki/Compilation
+Much more information about installing and compiling is available
+in the install.html file and at https://www.pygame.org/wiki/Compilation
 
 Help
 ====
 
-     If you are just getting started with pygame, you should be able to
-     get started fairly quickly. Pygame comes with many tutorials and
-     introductions. There is also full reference documentation for the
-     entire library. Browse the documentation from the documentation
-     index: docs/index.html.
+If you are just getting started with pygame, you should be able to
+get started fairly quickly. Pygame comes with many tutorials and
+introductions. There is also full reference documentation for the
+entire library. Browse the documentation from the documentation
+index: docs/index.html.
 
-     On the pygame website, there is also an online copy of this
-     documentation. You should know that the online documentation stays
-     up to date with the development version of pygame in hg. This may
-     be a bit newer than the version of pygame you are using.
+On the pygame website, there is also an online copy of this
+documentation. You should know that the online documentation stays
+up to date with the development version of pygame in hg. This may
+be a bit newer than the version of pygame you are using.
 
-     Best of all, the examples directory has many playable small programs
-     which can get you started playing with the code right away.
+Best of all, the examples directory has many playable small programs
+which can get you started playing with the code right away.
 
 Credits
 =======
 
+Thanks to everyone who has helped contribute to this library.
 
-     Thanks to everyone who has helped contribute to this library.
-     Special thanks are also in order.
+Special thanks are also in order.
 
-
-     Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
-
-     Lenard Lindstrom - the 1.8+ windows maintainer, many changes, and fixes.
-
-     Brian Fisher - for svn auto builder, bug tracker and many contributions.
-
-     Rene Dudfield - many changes, and fixes, 1.7+ release manager/maintainer.
+Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
+Lenard Lindstrom - the 1.8+ windows maintainer, many changes, and fixes.
+Brian Fisher - for svn auto builder, bug tracker and many contributions.
+Rene Dudfield - many changes, and fixes, 1.7+ release manager/maintainer.
 
      Phil Hassey - for his work on the pygame.org website.
 
