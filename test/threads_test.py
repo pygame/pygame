@@ -121,12 +121,27 @@ class ThreadsModuleTest(unittest.TestCase):
         #        results, is returned as a list of FuncResult instances.
         # stop_on_error -
 
+        ## test that the outcomes of map and tmap are the same
         func, data = lambda x: x + 1, xrange_(100)
 
         tmapped = list(tmap(func, data))
         mapped = list(map(func, data))
 
         self.assertEqual(tmapped, mapped)
+
+        ## Test that setting tmap to not stop on errors produces the expected result
+        data2 = xrange_(100)
+        always_excepts = lambda x: 1/0
+
+        tmapped2 = list(tmap(always_excepts, data2, stop_on_error=False))
+
+        # Use list comprehension to check all entries have the correct exception attached
+        # Condense to single bool with all, which will return true if all entries are true
+        self.assertTrue(all([isinstance(x.exception, ZeroDivisionError) for x in tmapped2]))
+
+
+
+
 
     def todo_test_tmap__None_func_and_multiple_sequences(self):
         """Using a None as func and multiple sequences"""
