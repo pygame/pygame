@@ -1,4 +1,8 @@
+.. raw:: html
 
+   <p style="height:22px">
+      <img src="https://www.pygame.org/images/logo_lofi.png">
+   </p>
 
 About pygame
 ============
