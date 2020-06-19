@@ -6,15 +6,14 @@
 
 About pygame
 ============
+Pygame: this library is cross-platform and designed to make it easy to
+write multimedia software, such as games, in Python. Pygame
+requires the Python language and SDL multimedia library. It can
+also make use of several other popular libraries.
 
-     Pygame: this library is cross-platform and designed to make it easy to
-     write multimedia software, such as games, in Python. Pygame
-     requires the Python language and SDL multimedia library. It can
-     also make use of several other popular libraries.
+https://www.pygame.org
 
-     https://www.pygame.org
-
-     We need your help to make pygame the best it can be! https://www.pygame.org/contribute.html
+We need your help to make pygame the best it can be! https://www.pygame.org/contribute.html
 
 |TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|_ |LGTMAlerts|_ |LGTMGradePython|_ |LGTMGradeC|_ |Coverity|_
 
@@ -160,21 +159,19 @@ Contribute
 License
 =======
 
-     This library is distributed under GNU LGPL version 2.1, which can
-     be found in the file "doc/LGPL". I reserve the right to place
-     future versions of this library under a different license.
-     https://www.gnu.org/copyleft/lesser.html
+This library is distributed under GNU LGPL version 2.1, which can
+be found in the file "doc/LGPL". I reserve the right to place
+future versions of this library under a different license.
+https://www.gnu.org/copyleft/lesser.html
 
-     This basically means you can use pygame in any project you want,
-     but if you make any changes or additions to pygame itself, those
-     must be released with a compatible license (preferably submitted
-     back to the pygame project). Closed source and commercial games are
-     fine.
+This basically means you can use pygame in any project you want,
+but if you make any changes or additions to pygame itself, those
+must be released with a compatible license (preferably submitted
+back to the pygame project). Closed source and commercial games are
+fine.
 
-     The programs in the "examples" subdirectory are in the public
-     domain.
-
-
+The programs in the "examples" subdirectory are in the public
+domain.
 
 
 .. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
