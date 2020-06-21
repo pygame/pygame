@@ -234,7 +234,7 @@ def _draw_line(surf, color, start, end):
         # 1. check in which octants we are & set init values
         if end.x < start.x:
             start.x, end.x = end.x, start.x
-            start.y, end.y = end.x, start.x
+            start.y, end.y = end.y, start.y
         line_y = start.y
         dy_sign = 1 if (start.y < end.y) else -1
 
