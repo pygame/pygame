@@ -89,14 +89,9 @@ from operator import truth
 
 import pygame
 
-
-# Don't depend on pygame.mask if it's not there...
-try:
-    from pygame.mask import from_surface
-except ImportError:
-    def from_surface(_):
-        """ Fake from_surface()"""
-        raise NotImplementedError("Failed to import pygame.mask")
+from pygame.rect import Rect
+from pygame.time import get_ticks
+from pygame.mask import from_surface
 
 
 class Sprite(object):
@@ -220,7 +215,7 @@ class Sprite(object):
         return truth(self.__g)
 
     def __repr__(self):
-        return "<%s sprite(in %d groups)>" % (self.__class__.__name__,
+        return "<%s Sprite(in %d groups)>" % (self.__class__.__name__,
                                               len(self.__g))
 
     @property
@@ -674,7 +669,7 @@ class LayeredUpdates(AbstractGroup):
 
     """
 
-    _init_rect = pygame.Rect(0, 0, 0, 0)
+    _init_rect = Rect(0, 0, 0, 0)
 
     def __init__(self, *sprites, **kwargs):
         """initialize an instance of LayeredUpdates with the given attributes
@@ -836,7 +831,7 @@ class LayeredUpdates(AbstractGroup):
 
         """
         _sprites = self._spritelist
-        rect = pygame.Rect(pos, (1, 1))
+        rect = Rect(pos, (1, 1))
         colliding_idx = rect.collidelistall(_sprites)
         return [_sprites[i] for i in colliding_idx]
 
@@ -1091,6 +1086,7 @@ class LayeredDirty(LayeredUpdates):
         local_sprites = self._spritelist
         local_old_rect = self.spritedict
         local_update = self.lostsprites
+        rect_type = Rect
 
         surf_blit_func = surface.blit
         if bgd is not None:
@@ -1100,12 +1096,12 @@ class LayeredDirty(LayeredUpdates):
         surface.set_clip(latest_clip)
         # -------
         # 0. decide whether to render with update or flip
-        start_time = pygame.time.get_ticks()
+        start_time = get_ticks()
         if self._use_update:  # dirty rects mode
             # 1. find dirty area on screen and put the rects into
             # self.lostsprites still not happy with that part
             self._find_dirty_area(latest_clip, local_old_rect,
-                                  pygame.Rect, local_sprites,
+                                  rect_type, local_sprites,
                                   local_update,
                                   local_update.append, self._init_rect)
             # can it be done better? because that is an O(n**2) algorithm in
@@ -1117,7 +1113,7 @@ class LayeredDirty(LayeredUpdates):
                     surf_blit_func(local_bgd, rec, rec)
 
             # 2. draw
-            self._draw_dirty_internal(local_old_rect, pygame.Rect,
+            self._draw_dirty_internal(local_old_rect, rect_type,
                                       local_sprites,
                                       surf_blit_func, local_update)
             local_ret = list(local_update)
@@ -1131,11 +1127,11 @@ class LayeredDirty(LayeredUpdates):
                                                          spr.source_rect,
                                                          spr.blendmode)
             # return only the part of the screen changed
-            local_ret = [pygame.Rect(latest_clip)]
+            local_ret = [rect_type(latest_clip)]
 
         # timing for switching modes
         # How may a good threshold be found? It depends on the hardware.
-        end_time = pygame.time.get_ticks()
+        end_time = get_ticks()
         if end_time-start_time > self._time_threshold:
             self._use_update = False
         else:
@@ -1203,7 +1199,7 @@ class LayeredDirty(LayeredUpdates):
                 _union_rect_collidelist = _union_rect.collidelist
                 _union_rect_union_ip = _union_rect.union_ip
                 i = _union_rect_collidelist(_update)
-                while -1 < i:
+                while i > -1:
                     _union_rect_union_ip(_update[i])
                     del _update[i]
                     i = _union_rect_collidelist(_update)
@@ -1239,7 +1235,7 @@ class LayeredDirty(LayeredUpdates):
         if self._clip:
             self.lostsprites.append(screen_rect.clip(self._clip))
         else:
-            self.lostsprites.append(pygame.Rect(screen_rect))
+            self.lostsprites.append(Rect(screen_rect))
 
     def set_clip(self, screen_rect=None):
         """clip the area where to draw; pass None (default) to reset the clip
