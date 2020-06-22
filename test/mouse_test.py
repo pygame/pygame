@@ -69,46 +69,45 @@ class MouseModuleTest(MouseTests):
         andmask = (254, 255, 254, 112, 56, 28, 12, 0)
         expected_cursor = (size, hotspot, xormask, andmask)
 
+        # Error should be raised when the display is uninitialized
+        with self.assertRaises(pygame.error):
+            pygame.display.quit()
+            pygame.mouse.set_cursor(size, hotspot, xormask, andmask)
 
+        pygame.display.init()
+        
+        # TypeError raised when PyArg_ParseTuple fails to parse parameters
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(("w", "h"), hotspot, xormask, andmask)
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(size, ("0", "0"), xormask, andmask)
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(size, ("x", "y", "z"), xormask, andmask)
+
+        # TypeError raised when either mask is not a sequence
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(size, hotspot, 12345678, andmask)
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(size, hotspot, xormask, 12345678)            
+
+        # TypeError raised when element of mask is not an integer
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(size, hotspot, "00000000", andmask)
+        with self.assertRaises(TypeError):
+            pygame.mouse.set_cursor(size, hotspot, xormask, (2, [0], 4, 0, 0, 8, 0, 1))
+
+        # ValueError raised when width not divisible by 8
+        with self.assertRaises(ValueError): 
+            pygame.mouse.set_cursor((3, 8), hotspot, xormask, andmask)
+
+        # ValueError raised when length of either mask != width * height / 8
+        with self.assertRaises(ValueError):
+            pygame.mouse.set_cursor((16, 2), hotspot, (128, 64, 32), andmask)
+        with self.assertRaises(ValueError):
+            pygame.mouse.set_cursor((16, 2), hotspot, xormask, (192, 96, 48, 0, 1))
+
+        # Working as intended
         try:
-            # Error should be raised when the display is uninitialized
-            with self.assertRaises(pygame.error):
-                pygame.display.quit()
-                pygame.mouse.set_cursor(size, hotspot, xormask, andmask)
-
-            pygame.display.init()
-            
-            # TypeError raised when PyArg_ParseTuple fails to parse parameters
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(("w", "h"), hotspot, xormask, andmask)
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(size, ("0", "0"), xormask, andmask)
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(size, ("x", "y", "z"), xormask, andmask)
-
-            # TypeError raised when either mask is not a sequence
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(size, hotspot, 12345678, andmask)
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(size, hotspot, xormask, 12345678)            
-
-            # TypeError raised when element of mask is not an integer
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(size, hotspot, "00000000", andmask)
-            with self.assertRaises(TypeError):
-                pygame.mouse.set_cursor(size, hotspot, xormask, (2, [0], 4, 0, 0, 8, 0, 1))
-
-            # ValueError raised when width not divisible by 8
-            with self.assertRaises(ValueError): 
-                pygame.mouse.set_cursor((3, 8), hotspot, xormask, andmask)
-
-            # ValueError raised when length of either mask != width * height / 8
-            with self.assertRaises(ValueError):
-                pygame.mouse.set_cursor((16, 2), hotspot, (128, 64, 32), andmask)
-            with self.assertRaises(ValueError):
-                pygame.mouse.set_cursor((16, 2), hotspot, xormask, (192, 96, 48, 0, 1))
-
-            # Working as intended
             self.assertEqual(
                 pygame.mouse.set_cursor((16, 1), hotspot, (8, 0), (0, 192)), None
             )
@@ -116,12 +115,11 @@ class MouseModuleTest(MouseTests):
             self.assertEqual(pygame.mouse.get_cursor(), expected_cursor)
             pygame.mouse.set_cursor(size, hotspot, list(xormask), list(andmask))
             self.assertEqual(pygame.mouse.get_cursor(), expected_cursor)
-
+            
         # SDLError should be raised when mouse cursor is NULL
         except pygame.error:
             with self.assertRaises(pygame.error):
                 pygame.mouse.set_cursor(size, hotspot, xormask, andmask)
-
 
     def test_get_focused(self):
         """Ensures get_focused returns the correct type."""
