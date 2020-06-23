@@ -164,7 +164,7 @@ def main(
     if use_layered_dirty:
         update_rects = True
 
-    # pg.init()
+    pg.init()  # needed to initialise time module for get_ticks()
     pg.display.init()
 
     # if "-fast" in sys.argv:
