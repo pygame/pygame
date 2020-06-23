@@ -594,6 +594,8 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
 
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
     r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
+    r->x = x;
+    r->y = y;
     r->w = (Uint16)width;
     r->h = (Uint16)height;
 
