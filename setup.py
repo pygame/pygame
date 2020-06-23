@@ -76,8 +76,8 @@ if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
 if sys.version_info >= (3, 0) and sys.version_info < (3, 5):
     compilation_help()
     raise SystemExit("Pygame requires Python3 version 3.5 or above.")
-if IS_PYPY and sys.version_info < (3, 5):
-    raise SystemExit("Pygame requires PyPy compatible with Python 3.5 or above.")
+if IS_PYPY and sys.pypy_version_info < (7,):
+    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython 2.7 or CPython 3.5+")
 
 def consume_arg(name):
     if name in sys.argv:
