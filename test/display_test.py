@@ -200,9 +200,42 @@ class DisplayModuleTest(unittest.TestCase):
         # attributes. See pygame.display.gl_set_attribute() for a list of
         # valid flags.
         #
+ 	
+	# assign values with gl_set_attribute
+        pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE,8)
+        pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,32)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS,0)
+	pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES,0)
+	pygame.display.gl_set_attribute(pygame.GL_STEREO,0)
 
-        self.fail()
 
+	# call set_mode with OPENGL flag
+	screen = display.set_mode((0,0), pygame.OPENGL)
+
+	# tests using gl_get_attribute
+	self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE),8)
+	self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE),32)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_RED_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_GREEN_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_BLUE_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_ALPHA_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS),0)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES),0)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_STEREO),0)
+	
+	# test using dummy flag argument
+	with self.assertRaises(AttributeError):
+	    pygame.display.gl_get_attribute(pygame.DUMMY)
+
+	# test using non-flag argument
+	with self.assertRaises(TypeError):
+	    pygame.display.gl_get_attribute("DUMMY")
+	
+	
     def todo_test_gl_set_attribute(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.gl_set_attribute:
