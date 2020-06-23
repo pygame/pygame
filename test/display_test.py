@@ -222,7 +222,15 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
-        self.fail()
+        # assign values with gl_set_attribute
+        pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE,8)
+        pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,32)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS,16)
+
 
     def todo_test_iconify(self):
 
