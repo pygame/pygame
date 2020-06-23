@@ -233,7 +233,7 @@ class DisplayModuleTest(unittest.TestCase):
         # call set_mode with OPENGL flag
         screen = display.set_mode((0,0), pygame.OPENGL)
 
-        # tests using gl_get_attribute
+        # test SDL1 flags using gl_get_attribute
         self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE),8)
         self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE),32)
         self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_STENCIL_SIZE),0)
@@ -244,11 +244,13 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS),0)
         self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES),0)
         self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_STEREO),0)
+        
+        # test SDL2 flags using sl_get_attribute (if applicable)
         if(SDL2):
             self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL),0)
-	    self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION),1)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION),1)
             self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION),1)
-            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS,0)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS),0)
             self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK),0)
             self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT),0)
             self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_RELEASE_BEHAVIOR),1)
