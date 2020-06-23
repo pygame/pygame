@@ -119,7 +119,6 @@ if consume_arg('-pygame-ci'):
 STRIPPED=False
 
 # STRIPPED builds don't have developer resources like docs or tests
-# TODO: mangle CFLAGS and strip debug symbols
 
 if "PYGAME_ANDROID" in os.environ:
     # test cases and docs are useless inside an APK
