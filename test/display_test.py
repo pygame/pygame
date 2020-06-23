@@ -210,7 +210,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE,16)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS,0)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES,0)
-	pygame.display.gl_set_attribute(pygame.GL_STEREO,0)
+        pygame.display.gl_set_attribute(pygame.GL_STEREO,0)
 
 
         # call set_mode with OPENGL flag
