@@ -226,9 +226,23 @@ class Sprite(object):
 
         If you try to get it before it is set it will raise an attribute error.
 
+        Layer property can only be set before the sprite is added to a group,
+        after that it is read only and a sprite's layer in a group should be
+        set via the group's change_layer() method.
+
         :return: layer as an int, or raise AttributeError.
         """
         return getattr(self, '_layer')
+
+    @layer.setter
+    def layer(self, value):
+        if not self.alive():
+            setattr(self, '_layer', value)
+        else:
+            raise AttributeError("Can't set layer directly after "
+                                 "adding to group. Use "
+                                 "group.change_layer(sprite, new_layer) "
+                                 "instead.")
 
 
 class DirtySprite(Sprite):
@@ -301,11 +315,23 @@ class DirtySprite(Sprite):
     @property
     def layer(self):
         """
-        Read only property access for protected _layer attribute.
+        Layer property can only be set before the sprite is added to a group,
+        after that it is read only and a sprite's layer in a group should be
+        set via the group's change_layer() method.
 
         Overwrites dynamic property from sprite class for speed.
         """
         return self._layer
+
+    @layer.setter
+    def layer(self, value):
+        if not self.alive():
+            self._layer = value
+        else:
+            raise AttributeError("Can't set layer directly after "
+                                 "adding to group. Use "
+                                 "group.change_layer(sprite, new_layer) "
+                                 "instead.")
 
     def __repr__(self):
         return "<%s DirtySprite(in %d groups)>" % \
@@ -705,7 +731,7 @@ class LayeredUpdates(AbstractGroup):
             except AttributeError:
                 layer = self._default_layer
                 setattr(sprite, '_layer', layer)
-        elif hasattr(sprite, 'layer'):
+        elif hasattr(sprite, '_layer'):
             setattr(sprite, '_layer', layer)
 
         sprites = self._spritelist  # speedup
@@ -894,7 +920,7 @@ class LayeredUpdates(AbstractGroup):
         while mid < leng and sprites_layers[sprites[mid]] <= new_layer:
             mid += 1
         sprites.insert(mid, sprite)
-        if hasattr(sprite, 'layer'):
+        if hasattr(sprite, '_layer'):
             setattr(sprite, '_layer', new_layer)
 
         # add layer info

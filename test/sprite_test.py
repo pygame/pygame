@@ -768,8 +768,7 @@ class LayeredGroupBase:
         sprite_and_layer_count = 10
         for i in range(sprite_and_layer_count):
             sprites.append(self.sprite())
-            with self.assertRaises(AttributeError):
-                sprites[-1].layer = i
+            sprites[-1].layer = i
 
         self.LG.add(sprites, layer=expected_layer)
 
@@ -868,8 +867,7 @@ class LayeredGroupBase:
 
         expected_layer = 77
         spr2 = self.sprite()
-        with self.assertRaises(AttributeError):
-            spr2.layer = 55
+        spr2.layer = 55
         self.LG.add(spr2)
         self.LG.change_layer(spr2, expected_layer)
 
