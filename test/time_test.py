@@ -155,29 +155,27 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(1000/average_tick_time,
                                testing_framerate, delta=epsilon3)
 
-    def todo_test_tick_busy_loop(self):
+    def test_tick_busy_loop(self):
+        """Test tick_busy_loop"""
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.tick_busy_loop:
+        c = Clock()
 
-        # Clock.tick_busy_loop(framerate=0): return milliseconds
-        # control timer events
-        # update the clock
-        #
-        # This method should be called once per frame. It will compute how
-        # many milliseconds have passed since the previous call.
-        #
-        # If you pass the optional framerate argument the function will delay
-        # to keep the game running slower than the given ticks per second.
-        # This can be used to help limit the runtime speed of a game. By
-        # calling Clock.tick(40) once per frame, the program will never run at
-        # more than 40 frames per second.
-        #
-        # Note that this function uses pygame.time.delay, which uses lots of
-        # cpu in a busy loop to make sure that timing is more accurate.
-        #
-        # New in pygame 1.8.0.
+        # Test whether the return value of tick_busy_loop is the length of the
+        # tick in milliseconds
+        second_length = 1000
+        sample_fps = 40
 
-        self.fail()
+        self.assertEqual(second_length/sample_fps, c.tick_busy_loop(sample_fps))
+
+        high_fps = 1000
+        self.assertEqual(second_length/high_fps, c.tick_busy_loop(high_fps))
+
+        low_fps = 1
+        self.assertEqual(second_length/low_fps, c.tick_busy_loop(low_fps))
+
+        zero_fps = 0
+        self.assertEqual(0, c.tick_busy_loop(zero_fps))
+
 
 class TimeModuleTest(unittest.TestCase):
     def test_delay(self):
