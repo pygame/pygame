@@ -188,7 +188,7 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_gl_get_attribute(self):
+    def test_gl_get_attribute(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.gl_get_attribute:
 
