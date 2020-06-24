@@ -203,7 +203,13 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_gl_set_attribute(self):
+
+    @unittest.skipIf(
+            os.environ.get("SDL_VIDEODRIVER") == "dummy",
+            'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
+    )
+
+    def test_gl_set_attribute(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.gl_set_attribute:
 
@@ -221,15 +227,67 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE, GL_ACCUM_RED_SIZE,
         #   GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
+        
+        # test with dummy flag argument
+        with self.assertRaises(AttributeError):
+            pygame.display.gl_set_attribute(pygame.DUMMY,0)
 
-        # assign values with gl_set_attribute
+        # test with non-flag argument
+        with self.assertRaises(TypeError):
+            pygame.display.gl_set_attribute("DUMMY")
+
+        # test with insufficient arguments (just flag, no value)
+        with self.assertRaises(TypeError):
+            pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE)
+
+        # assign SDL1-supported values with gl_set_attribute
         pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE,8)
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,32)
+        pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE,0)
         pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE,16)
         pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE,16)
         pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE,16)
         pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE,16)
-        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS,16)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS,0)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES,0)
+        pygame.display.gl_set_attribute(pygame.GL_STEREO,0)
+
+        # assign SDL2-supported values with gl_set_attribute (if applicable)
+        if(SDL2):
+            pygame.display.gl_set_attribute(GL_ACCELERATED_VISUAL,0)
+            pygame.display.gl_set_attribute(GL_CONTEXT_MAJOR_VERSION,1)
+            pygame.display.gl_set_attribute(GL_CONTEXT_MINOR_VERSION,1)
+            pygame.display.gl_set_attribute(GL_CONTEXT_FLAGS,0)
+            pygame.display.gl_set_attribute(GL_CONTEXT_PROFILE_MASK,0)
+            pygame.display.gl_set_attribute(GL_SHARE_WITH_CURRENT_CONTEXT,0)
+            pygame.display.gl_set_attribute(GL_CONTEXT_RELEASE_BEHAVIOR,1)
+            pygame.display.gl_set_attribute(GL_FRAMEBUFFER_SRGB_CAPABLE,0)
+
+        # call set_mode with OPENGL flag
+        screen = display.set_mode((0,0), pygame.OPENGL)
+
+        # test SDL1 flags using gl_get_attribiute
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE),8)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE),32)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_STENCIL_SIZE),0)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_RED_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_GREEN_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_BLUE_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCUM_ALPHA_SIZE),16)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS),0)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES),0)
+        self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_STEREO),0)
+
+        # test SDL2 flags using sl_get_attribute (if applicable)
+        if(SDL2):
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL),0)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION),1)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION),1)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS),0)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK),0)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT),0)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_RELEASE_BEHAVIOR),1)
+            self.assertEqual(pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE),0)
 
 
     def todo_test_iconify(self):
