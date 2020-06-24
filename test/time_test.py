@@ -167,11 +167,19 @@ class ClockTypeTest(unittest.TestCase):
 
         self.assertEqual(second_length/sample_fps, c.tick_busy_loop(sample_fps))
 
-        high_fps = 1000
+        high_fps = 500
         self.assertEqual(second_length/high_fps, c.tick_busy_loop(high_fps))
 
         low_fps = 1
         self.assertEqual(second_length/low_fps, c.tick_busy_loop(low_fps))
+
+        low_non_factor_fps = 35  # 1000/35 makes 28.5714285714
+        without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
+        self.assertEqual(without_decimal_places, c.tick_busy_loop(low_non_factor_fps))
+
+        high_non_factor_fps = 750  # 1000/750 makes 1.3333...
+        without_decimal_places = int(second_length/high_non_factor_fps)  # Same result as math.floor
+        self.assertEqual(without_decimal_places, c.tick_busy_loop(high_non_factor_fps))
 
         zero_fps = 0
         self.assertEqual(0, c.tick_busy_loop(zero_fps))
