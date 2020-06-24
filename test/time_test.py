@@ -163,26 +163,33 @@ class ClockTypeTest(unittest.TestCase):
         # Test whether the return value of tick_busy_loop is the length of the
         # tick in milliseconds
         second_length = 1000
+        shortfall_tolerance = 1  # (ms) The amount of time a tick is allowed to run short of, to account for underlying rounding errors
         sample_fps = 40
 
-        self.assertLessEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps)
+        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        pygame.time.wait(10)  # incur delay between ticks that's faster than sample_fps
+        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        pygame.time.wait(200)  # incur delay between ticks that's slower than sample_fps
+        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
 
         high_fps = 500
-        self.assertLessEqual(c.tick_busy_loop(high_fps), second_length/high_fps)
+        self.assertGreaterEqual(c.tick_busy_loop(high_fps), (second_length/high_fps) - shortfall_tolerance)
 
         low_fps = 1
-        self.assertLessEqual(c.tick_busy_loop(low_fps), second_length/low_fps)
+        self.assertGreaterEqual(c.tick_busy_loop(low_fps), (second_length/low_fps) - shortfall_tolerance)
 
         low_non_factor_fps = 35  # 1000/35 makes 28.5714285714
         without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
-        self.assertLessEqual(c.tick_busy_loop(low_non_factor_fps), without_decimal_places)
+        self.assertGreaterEqual(c.tick_busy_loop(low_non_factor_fps), without_decimal_places - shortfall_tolerance)
 
         high_non_factor_fps = 750  # 1000/750 makes 1.3333...
-        without_decimal_places = int(second_length/high_non_factor_fps)  # Same result as math.floor
-        self.assertLessEqual(c.tick_busy_loop(high_non_factor_fps), without_decimal_places)
+        without_decimal_places_2 = int(second_length/high_non_factor_fps)  # Same result as math.floor
+        self.assertGreaterEqual(c.tick_busy_loop(high_non_factor_fps), without_decimal_places_2 - shortfall_tolerance)
 
         zero_fps = 0
-        self.assertLessEqual(c.tick_busy_loop(zero_fps), 0)
+        self.assertEqual(c.tick_busy_loop(zero_fps), 0)
+
+
 
 
 class TimeModuleTest(unittest.TestCase):
