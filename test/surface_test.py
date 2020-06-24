@@ -1199,7 +1199,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf.unlock()
         self.assertIs(surf.get_locked(), blit_locked_test(surf))  # Unlocked
 
-    def todo_test_get_locks(self):
+    def test_get_locks(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_locks:
 
@@ -1208,7 +1208,21 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # Returns the currently existing locks for the Surface.
 
-        self.fail()
+        # test on a surface that is not initially locked
+        surface = pygame.Surface((100,100))
+        self.assertEqual(surface.get_locks(),())
+
+        # test on the same surface after it has been locked
+        surface.lock()
+        self.assertEqual(surface.get_locks(),(surface,))
+
+        # test on the same surface after it has been unlocked
+        surface.unlock()
+        self.assertEqual(surface.get_locks(),())
+
+        # AttributeError raised when called on invalid object type (i.e. not a pygame.Surface object) 
+        with self.assertRaises(AttributeError):
+            "DUMMY".get_locks()
 
     def todo_test_get_losses(self):
 
