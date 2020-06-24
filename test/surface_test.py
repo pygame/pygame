@@ -1220,6 +1220,14 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surface.unlock()
         self.assertEqual(surface.get_locks(),())
 
+        # test with PixelArray initialization: locks surface
+        pxarray = pygame.PixelArray(surface)
+        self.assertNotEqual(surface.get_locks(),())
+
+        # closing the PixelArray releases the surface lock
+        pxarray.close()
+        self.assertEqual(surface.get_locks(),())
+
         # AttributeError raised when called on invalid object type (i.e. not a pygame.Surface object) 
         with self.assertRaises(AttributeError):
             "DUMMY".get_locks()
