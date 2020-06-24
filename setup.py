@@ -73,7 +73,7 @@ def compilation_help():
 if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
     compilation_help()
     raise SystemExit("Pygame requires Python version 2.7 or above.")
-if sys.version_info >= (3, 0) and sys.version_info < (3, 5):
+if sys.version_info >= (3, 0) and sys.version_info < (3, 4):
     compilation_help()
     raise SystemExit("Pygame requires Python3 version 3.5 or above.")
 if IS_PYPY and sys.pypy_version_info < (7,):
