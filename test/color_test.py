@@ -43,7 +43,7 @@ def gamma_correct(rgba_0_255, gamma):
 
 
 def _assignr(x, y):
-    x.r = y
+    x.r = y + 1
 
 
 def _assigng(x, y):
