@@ -1386,7 +1386,35 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # only be unlocked after the final lock is released.
         #
 
-        self.fail()
+        # Basic
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+
+        # Nested
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        surf.lock()
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
+
+        # Already Locked
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
     def test_map_rgb(self):
         color = Color(0, 128, 255, 64)
