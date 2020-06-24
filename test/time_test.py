@@ -165,24 +165,24 @@ class ClockTypeTest(unittest.TestCase):
         second_length = 1000
         sample_fps = 40
 
-        self.assertLessEqual(second_length/sample_fps, c.tick_busy_loop(sample_fps))
+        self.assertLessEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps)
 
         high_fps = 500
-        self.assertLessEqual(second_length/high_fps, c.tick_busy_loop(high_fps))
+        self.assertLessEqual(c.tick_busy_loop(high_fps), second_length/high_fps)
 
         low_fps = 1
-        self.assertLessEqual(second_length/low_fps, c.tick_busy_loop(low_fps))
+        self.assertLessEqual(c.tick_busy_loop(low_fps), second_length/low_fps)
 
         low_non_factor_fps = 35  # 1000/35 makes 28.5714285714
         without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
-        self.assertLessEqual(without_decimal_places, c.tick_busy_loop(low_non_factor_fps))
+        self.assertLessEqual(c.tick_busy_loop(low_non_factor_fps), without_decimal_places)
 
         high_non_factor_fps = 750  # 1000/750 makes 1.3333...
         without_decimal_places = int(second_length/high_non_factor_fps)  # Same result as math.floor
-        self.assertLessEqual(without_decimal_places, c.tick_busy_loop(high_non_factor_fps))
+        self.assertLessEqual(c.tick_busy_loop(high_non_factor_fps), without_decimal_places)
 
         zero_fps = 0
-        self.assertLessEqual(0, c.tick_busy_loop(zero_fps))
+        self.assertLessEqual(c.tick_busy_loop(zero_fps), 0)
 
 
 class TimeModuleTest(unittest.TestCase):
