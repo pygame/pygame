@@ -401,9 +401,13 @@ class DisplayModuleTest(unittest.TestCase):
 
 
     def test_set_palette(self):
-        screen = pygame.display.set_mode((640,64),pygame.DOUBLEBUF,8)
+        screen = pygame.display.set_mode((1024,768),pygame.DOUBLEBUF,8)
         palette = []
-        self.assertIsNone(pygame.display.set_palette(palette))
+        self.assertIsNone(screen.set_palette(palette))
+        palette = [[0,0,0]] + [[x,x,x] for x in range(1,255)]
+        screen.set_palette(palette)
+        self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
+        self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
 
     def todo_test_toggle_fullscreen(self):
 
