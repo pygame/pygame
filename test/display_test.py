@@ -400,21 +400,10 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertTrue(pygame.display.get_allow_screensaver())
 
 
-    def todo_test_set_palette(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_palette:
-
-        # pygame.display.set_palette(palette=None): return None
-        # set the display color palette for indexed displays
-        #
-        # This will change the video display color palette for 8bit displays.
-        # This does not change the palette for the actual display Surface,
-        # only the palette that is used to display the Surface. If no palette
-        # argument is passed, the system default palette will be restored. The
-        # palette is a sequence of RGB triplets.
-        #
-
-        self.fail()
+    def test_set_palette(self):
+        screen = pygame.display.set_mode((640,64),pygame.DOUBLEBUF,8)
+        palette = []
+        self.assertIsNone(pygame.display.set_palette(palette))
 
     def todo_test_toggle_fullscreen(self):
 
