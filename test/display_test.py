@@ -399,7 +399,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-    @unittest.skipIf(SDL2, "SDL2 issues") 
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
     def test_set_palette(self):
         screen = pygame.display.set_mode((1024,768),pygame.DOUBLEBUF,8)
         palette = []
