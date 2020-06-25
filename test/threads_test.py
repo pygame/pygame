@@ -25,14 +25,33 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertEqual(fr.result, 2)
         self.assertEqual(fr2.result, 3)
 
-    def todo_test_do(self):
+    def test_do(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.do:
 
         # puts a function on a queue for running later.
         #
+        def f0(x):
+            i=0
+            while i<x:
+                i+=1
+            rets.append(i)
+        def f1(x,y):
+            rets.append(x+y)
+        def f2(x):
+            rets.append(x*x)
 
-        self.fail()
+        funs = [f0,f1,f2]
+        params = [(4,),(4,4),(4,)]
+        rets = []
+
+        wq = WorkerQueue()
+
+        for fun, param in zip(funs,params):
+            wq.do(fun,*param)
+        wq.wait()
+        
+        self.assertEqual(len(rets),len(funs))
 
     def test_stop(self):
         """Ensure stop() stops the worker queue"""
