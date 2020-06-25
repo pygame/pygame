@@ -182,17 +182,24 @@ class ClockTypeTest(unittest.TestCase):
         self.assertGreaterEqual(c.tick_busy_loop(low_fps), (second_length/low_fps) - shortfall_tolerance)
 
         low_non_factor_fps = 35  # 1000/35 makes 28.5714285714
-        without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
-        self.assertGreaterEqual(c.tick_busy_loop(low_non_factor_fps), without_decimal_places - shortfall_tolerance)
+        frame_length_without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
+        self.assertGreaterEqual(c.tick_busy_loop(low_non_factor_fps), frame_length_without_decimal_places - shortfall_tolerance)
 
         high_non_factor_fps = 750  # 1000/750 makes 1.3333...
-        without_decimal_places_2 = int(second_length/high_non_factor_fps)  # Same result as math.floor
-        self.assertGreaterEqual(c.tick_busy_loop(high_non_factor_fps), without_decimal_places_2 - shortfall_tolerance)
+        frame_length_without_decimal_places_2 = int(second_length/high_non_factor_fps)  # Same result as math.floor
+        self.assertGreaterEqual(c.tick_busy_loop(high_non_factor_fps), frame_length_without_decimal_places_2 - shortfall_tolerance)
 
         zero_fps = 0
         self.assertEqual(c.tick_busy_loop(zero_fps), 0)
 
+        # Check behaviour of unexpected values
 
+        negative_fps = -1
+        self.assertEqual(c.tick_busy_loop(negative_fps), 0)
+
+        fractional_fps = 32.75
+        frame_length_without_decimal_places_3 = int(second_length/fractional_fps)
+        self.assertGreaterEqual(c.tick_busy_loop(fractional_fps), frame_length_without_decimal_places_3 - shortfall_tolerance)
 
 
 class TimeModuleTest(unittest.TestCase):
