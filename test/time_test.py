@@ -201,6 +201,8 @@ class ClockTypeTest(unittest.TestCase):
         frame_length_without_decimal_places_3 = int(second_length/fractional_fps)
         self.assertGreaterEqual(c.tick_busy_loop(fractional_fps), frame_length_without_decimal_places_3 - shortfall_tolerance)
 
+        bool_fps = True
+        self.assertGreaterEqual(c.tick_busy_loop(bool_fps), (second_length/bool_fps) - shortfall_tolerance)
 
 class TimeModuleTest(unittest.TestCase):
     def test_delay(self):
