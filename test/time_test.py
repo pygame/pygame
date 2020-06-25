@@ -160,8 +160,11 @@ class ClockTypeTest(unittest.TestCase):
 
         c = Clock()
 
-        # Test whether the return value of tick_busy_loop is the length of the
-        # tick in milliseconds
+        # Test whether the return value of tick_busy_loop is equal to
+        # (FPS is accurate) or greater than (slower than the set FPS)
+        # with a small margin for error based on differences in how this
+        # test runs in practise - it either sometimes runs slightly fast
+        # or seems to based on a rounding error.
         second_length = 1000
         shortfall_tolerance = 1  # (ms) The amount of time a tick is allowed to run short of, to account for underlying rounding errors
         sample_fps = 40
