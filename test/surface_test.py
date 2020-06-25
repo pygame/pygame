@@ -1357,7 +1357,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             found_size = surf.get_size()
             self.assertEqual((width, height), found_size)
 
-    def todo_test_lock(self):
+    def test_lock(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.lock:
 
