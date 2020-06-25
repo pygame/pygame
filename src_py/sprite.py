@@ -1064,7 +1064,7 @@ class LayeredDirty(LayeredUpdates):
 
         self._use_update = False
 
-        self._time_threshold = 1000.0 / 999.0  # 1000.0 / fps
+        self._time_threshold = 1000.0 / 80.0  # 1000.0 / fps
 
         self._bgd = None
         for key, val in kwargs.items():
