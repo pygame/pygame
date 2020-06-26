@@ -17,7 +17,11 @@ virtualrunenv
 sdl2:shared=True
 sdl2_image:shared=True
 sdl2_mixer:shared=True
-sdl2_ttf:shared=True
+sdl2_mixer:opus=False
+#sdl2_ttf:shared=True
+libpng:shared=True
+libjpeg:shared=True
+freetype:shared=True
 
 [imports]
 bin, *.dll -> ./

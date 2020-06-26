@@ -514,49 +514,77 @@ if sys.platform == 'win32':
 
     from distutils.command.build_ext import build_ext
 
-    #add dependency DLLs to the project
-    lib_dependencies = {}
-    for e in extensions:
-        if e.name.startswith('COPYLIB_'):
-            lib_dependencies[e.name[8:]] = e.libraries
 
-    def dependencies(roots):
-        """Return a set of dependencies for the list of library file roots
+    # When using conan for the dependencies 
+    using_conan = any(
+        (e for e in extensions
+         if any(
+            [ld for ld in e.library_dirs if '.conan' in ld]
+         ) == True
+        )
+    )
 
-        The return set is a dictionary keyed on library root name with values of 1.
-        """
+    if using_conan:
+        # TODO: add the dlls to pygame_data_files
+        # print ("WARNING, DLL for %s library not found." % lib)
+        # pygame_data_files.append(f)
+        # e.library_dirs contains a /lib path, dlls are in /bin/
+        conan_dlls = []
+        for e in extensions:
+            for libdir in e.library_dirs:
+                if '.conan' in libdir:
+                    for dllpath in glob.glob(os.path.join(libdir, '..', 'bin', '*.dll')):
+                        conan_dlls.append(dllpath)
+        pygame_data_files.extend(list(set(conan_dlls)))
+        [[libdir for libdir in e.library_dirs] for e in extensions]
+        # breakpoint()
+    if not using_conan:
 
-        root_set = {}
-        for root in roots:
-            try:
-                deps = lib_dependencies[root]
-            except KeyError:
-                pass
+        #add dependency DLLs to the project
+        lib_dependencies = {}
+        ce = [e for e in extensions if e.name.startswith('COPYLIB_')]
+        # breakpoint()
+        for e in extensions:
+            if e.name.startswith('COPYLIB_'):
+                lib_dependencies[e.name[8:]] = e.libraries
+
+        def dependencies(roots):
+            """Return a set of dependencies for the list of library file roots
+
+            The return set is a dictionary keyed on library root name with values of 1.
+            """
+
+            root_set = {}
+            for root in roots:
+                try:
+                    deps = lib_dependencies[root]
+                except KeyError:
+                    pass
+                else:
+                    root_set[root] = 1
+                    root_set.update(dependencies(deps))
+            return root_set
+
+        the_dlls = {}
+        required_dlls = {}
+        for e in extensions:
+            if e.name.startswith('COPYLIB_'):
+                the_dlls[e.name[8:]] = e.library_dirs[0]
             else:
-                root_set[root] = 1
-                root_set.update(dependencies(deps))
-        return root_set
+                required_dlls.update(dependencies(e.libraries))
 
-    the_dlls = {}
-    required_dlls = {}
-    for e in extensions:
-        if e.name.startswith('COPYLIB_'):
-            the_dlls[e.name[8:]] = e.library_dirs[0]
-        else:
-            required_dlls.update(dependencies(e.libraries))
+        # join the required_dlls and the_dlls keys together.
+        lib_names = {}
+        for lib in list(required_dlls.keys()) + list(the_dlls.keys()):
+            lib_names[lib] = 1
 
-    # join the required_dlls and the_dlls keys together.
-    lib_names = {}
-    for lib in list(required_dlls.keys()) + list(the_dlls.keys()):
-        lib_names[lib] = 1
-
-    for lib in lib_names.keys():
-        #next DLL; a distutils bug requires the paths to have Windows separators
-        f = the_dlls[lib].replace('/', os.sep)
-        if f == '_':
-            print ("WARNING, DLL for %s library not found." % lib)
-        else:
-            pygame_data_files.append(f)
+        for lib in lib_names.keys():
+            #next DLL; a distutils bug requires the paths to have Windows separators
+            f = the_dlls[lib].replace('/', os.sep)
+            if f == '_':
+                print ("WARNING, DLL for %s library not found." % lib)
+            else:
+                pygame_data_files.append(f)
 
 
     if '-enable-msvc-analyze' in sys.argv:

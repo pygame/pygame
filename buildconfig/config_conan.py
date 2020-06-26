@@ -6,6 +6,11 @@ import sys
 import subprocess
 import json
 
+def quote(alist):
+    """ Windows likes paths with quotes around them.
+        What windows wants, windows gets.
+    """
+    return ['"%s"' % l for l in alist]
 
 class Dependency:
     def __init__(self, conanbuildinfo, name, conan_name, extra_libs=None):
@@ -20,9 +25,9 @@ class Dependency:
         if infos:
             info = infos[0]
             self.found = 1
-            self.lib_dir = info['lib_paths'][:]
-            self.libs = info['libs'][:]
-            self.inc_dir = info['include_paths'][:]
+            self.lib_dir = quote(info['lib_paths'][:])
+            self.libs = quote(info['libs'][:])
+            self.inc_dir = quote(info['include_paths'][:])
 
             if info["frameworks"]:
                 for n in info["frameworks"]:
