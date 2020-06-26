@@ -200,7 +200,10 @@ class DrawEllipseMixin(object):
 
     This class contains all the general ellipse drawing tests.
     """
-
+    def test_ellipse(self) : 
+        surf = pygame.Surface((320,200))
+        pygame.draw.ellipse(surf,(255,0,0),(10,10,25,20))
+        
     def test_ellipse__args(self):
         """Ensures draw ellipse accepts the correct args."""
         bounds_rect = self.draw_ellipse(
