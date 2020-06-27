@@ -30,7 +30,7 @@ class JoystickTypeTest(unittest.TestCase):
         self.fail()
 
 
-class JoytickModuleTest(unittest.TestCase):
+class JoystickModuleTest(unittest.TestCase):
     def todo_test_get_count(self):
 
         # __doc__ (as of 2008-08-02) for pygame.joystick.get_count:
@@ -85,35 +85,44 @@ class JoytickModuleTest(unittest.TestCase):
 
 
 
-    def todo_test_init(self):
+    def test_init(self):
+        """
+        This unit test is for joystick.init()
+        It was written to help reduce maintenance costs
+        and to help test against changes to the code or
+        different platforms.
+        """
+        pygame.quit()
+        #test that pygame.init automatically calls joystick.init
+        pygame.init()
+        self.assertEqual(pygame.joystick.get_init(), True)
 
-        # __doc__ (as of 2008-08-02) for pygame.joystick.init:
+        #test that get_count doesn't work w/o joystick init
+        #this is done before and after an init to test
+        #that init activates the joystick functions
+        pygame.joystick.quit()
+        with self.assertRaises(pygame.error):
+            pygame.joystick.get_count()
 
-        # pygame.joystick.init(): return None
-        # initialize the joystick module
-        #
-        # This function is called automatically by pygame.init().
-        # It initializes the joystick module. This will scan the system for
-        # all joystick devices. The module must be initialized before any
-        # other functions will work.
-        #
-        # It is safe to call this function more than once.
+        #test explicit call(s) to joystick.init.
+        #Also test that get_count works once init is called
+        iterations = 20
+        for i in range(iterations):
+            pygame.joystick.init()
+        self.assertEqual(pygame.joystick.get_init(), True)
+        self.assertIsNotNone(pygame.joystick.get_count())
 
-        self.fail()
+    def test_quit(self):
+        """Test if joystick.quit works."""
 
-    def todo_test_quit(self):
+        pygame.joystick.init()
 
-        # __doc__ (as of 2008-08-02) for pygame.joystick.quit:
+        self.assertIsNotNone(pygame.joystick.get_count()) #Is not None before quit
 
-        # pygame.joystick.quit(): return None
-        # uninitialize the joystick module
-        #
-        # Uninitialize the joystick module. After you call this any existing
-        # joystick objects will no longer work.
-        #
-        # It is safe to call this function more than once.
+        pygame.joystick.quit()
 
-        self.fail()
+        with self.assertRaises(pygame.error):  #Raises error if quit worked
+            pygame.joystick.get_count()
 
 
 ################################################################################

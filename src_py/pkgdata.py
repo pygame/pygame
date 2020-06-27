@@ -1,10 +1,10 @@
 """
-pkgdata is a simple, extensible way for a package to acquire data file 
+pkgdata is a simple, extensible way for a package to acquire data file
 resources.
 
 The getResource function is equivalent to the standard idioms, such as
 the following minimal implementation:
-    
+
     import sys, os
 
     def getResource(identifier, pkgname=__name__):
@@ -26,10 +26,22 @@ BytesIO = get_BytesIO()
 try:
     from pkg_resources import resource_stream, resource_exists
 except ImportError:
-    def resource_exists(package_or_requirement, resource_name):
+    def resource_exists(_package_or_requirement, _resource_name):
+        """
+        A stub for when we fail to import this function.
+
+        :return: Always returns False
+        """
         return False
-    def resource_stream(package_of_requirement, resource_name):
+
+    def resource_stream(_package_of_requirement, _resource_name):
+        """
+        A stub for when we fail to import this function.
+
+        Always raises a NotImplementedError when called.
+        """
         raise NotImplementedError
+
 
 def getResource(identifier, pkgname=__name__):
     """
@@ -51,10 +63,10 @@ def getResource(identifier, pkgname=__name__):
         return resource_stream(pkgname, identifier)
 
     mod = sys.modules[pkgname]
-    fn = getattr(mod, '__file__', None)
-    if fn is None:
+    path_to_file = getattr(mod, '__file__', None)
+    if path_to_file is None:
         raise IOError("%s has no __file__!" % repr(mod))
-    path = os.path.join(os.path.dirname(fn), identifier)
+    path = os.path.join(os.path.dirname(path_to_file), identifier)
     if sys.version_info < (3, 3):
         loader = getattr(mod, '__loader__', None)
         if loader is not None:

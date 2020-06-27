@@ -1,21 +1,48 @@
 """Enhanced Pygame module for loading and rendering computer fonts"""
 
 from pygame._freetype import (
-   Font,
-   STYLE_NORMAL, STYLE_OBLIQUE, STYLE_STRONG, STYLE_UNDERLINE, STYLE_WIDE,
-   STYLE_DEFAULT,
-   init, quit, get_init,
-   was_init, get_cache_size, get_default_font, get_default_resolution,
-   get_error, get_version, set_default_resolution,
-   _PYGAME_C_API, __PYGAMEinit__,
-   )
+    Font,
+    STYLE_NORMAL,
+    STYLE_OBLIQUE,
+    STYLE_STRONG,
+    STYLE_UNDERLINE,
+    STYLE_WIDE,
+    STYLE_DEFAULT,
+    init,
+    quit,
+    get_init,
+    was_init,
+    get_cache_size,
+    get_default_font,
+    get_default_resolution,
+    get_error,
+    get_version,
+    set_default_resolution,
+)
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 
-__all__ = ["Font", "STYLE_NORMAL", "STYLE_OBLIQUE", "STYLE_STRONG",
-           "STYLE_UNDERLINE", "STYLE_WIDE", "STYLE_DEFAULT", "init", "quit",
-           "get_init", "was_init", "get_cache_size", "get_default_font",
-           "get_default_resolution", "get_error", "get_version",
-           "set_default_resolution", "match_font", "get_fonts"]
+__all__ = [
+    "Font",
+    "STYLE_NORMAL",
+    "STYLE_OBLIQUE",
+    "STYLE_STRONG",
+    "STYLE_UNDERLINE",
+    "STYLE_WIDE",
+    "STYLE_DEFAULT",
+    "init",
+    "quit",
+    "get_init",
+    "was_init",
+    "get_cache_size",
+    "get_default_font",
+    "get_default_resolution",
+    "get_error",
+    "get_version",
+    "set_default_resolution",
+    "match_font",
+    "get_fonts",
+]
+
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
@@ -40,6 +67,7 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
        a Font instance. If None, a pygame.freetype.Font object is created.
     """
     if constructor is None:
+
         def constructor(fontpath, size, bold, italic):
             font = Font(fontpath, size)
             font.strong = bold

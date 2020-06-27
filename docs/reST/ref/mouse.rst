@@ -73,7 +73,7 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
 .. function:: get_pressed
 
    | :sl:`get the state of the mouse buttons`
-   | :sg:`get_pressed() -> (button1, button2, button3)`
+   | :sg:`get_pressed() -> (button1, button2, button3, button4, button5)`
 
    Returns a sequence of booleans representing the state of all the mouse
    buttons. A true value means the mouse is currently being pressed at the time
@@ -93,6 +93,9 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
 
    Note, remember to call ``pygame.event.get()`` before this function.
    Otherwise it will not work.
+
+   ``button4`` & ``button5`` were added to the returned tuple for pygame 2.
+   .. versionadded:: 2.0.0
 
    .. ## pygame.mouse.get_pressed ##
 
