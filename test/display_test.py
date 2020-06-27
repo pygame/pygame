@@ -401,6 +401,9 @@ class DisplayModuleTest(unittest.TestCase):
 
     @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
     def test_set_palette(self):
+        with self.assertRaises(UnboundLocalError) :
+            palette = [1,2,3]
+            screen.set_palette(palette)
         screen = pygame.display.set_mode((1024,768),pygame.DOUBLEBUF,8)
         palette = []
         self.assertIsNone(screen.set_palette(palette))
@@ -408,6 +411,24 @@ class DisplayModuleTest(unittest.TestCase):
         screen.set_palette(palette)
         self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
         self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
+        with self.assertRaises(ValueError): 
+            palette = 12
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [[1,2],[1,2]]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = "qwerty"
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [[123,123,123]*10000]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [1,2,3]
+            screen.set_palette(palette)
 
     def todo_test_toggle_fullscreen(self):
 
