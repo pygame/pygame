@@ -227,8 +227,8 @@ def main(sdl2=False):
     incdirs = []
     libdirs = []
     for extrabase in extrabases:
-        incdirs = [extrabase + d for d in origincdirs]
-        libdirs = [extrabase + d for d in origlibdirs]
+        incdirs += [extrabase + d for d in origincdirs]
+        libdirs += [extrabase + d for d in origlibdirs]
     incdirs += ["/usr"+d for d in origincdirs]
     libdirs += ["/usr"+d for d in origlibdirs]
     incdirs += ["/usr/local"+d for d in origincdirs]
