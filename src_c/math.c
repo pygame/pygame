@@ -1587,7 +1587,11 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
     double *coords;
     Py_ssize_t i, idx, len;
     PyObject *attr_unicode = NULL;
+#if PY2
     Py_UNICODE *attr = NULL;
+#else
+    const char *attr = NULL;
+#endif
     PyObject *res = NULL;
 
     len = PySequence_Length(attr_name);
@@ -1602,7 +1606,11 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
     attr_unicode = PyUnicode_FromObject(attr_name);
     if (attr_unicode == NULL)
         goto swizzle_failed;
+#if PY2
     attr = PyUnicode_AsUnicode(attr_unicode);
+#else
+    attr = PyUnicode_AsUTF8AndSize(attr_unicode, &len);
+#endif
     if (attr == NULL)
         goto internal_error;
     /* If we are not a swizzle, go straight to GenericGetAttr. */

@@ -134,12 +134,21 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
     _pc_view_kind_t *view_kind_ptr = (_pc_view_kind_t *)view_kind_vptr;
 
     if (PyUnicode_Check(obj)) {
+#if PY2
         if (PyUnicode_GET_SIZE(obj) != 1) {
             PyErr_SetString(PyExc_TypeError,
                             "expected a length 1 string for argument 3");
             return 0;
         }
         ch = *PyUnicode_AS_UNICODE(obj);
+#else
+        if (PyUnicode_GET_LENGTH(obj) != 1) {
+            PyErr_SetString(PyExc_TypeError,
+                            "expected a length 1 string for argument 3");
+            return 0;
+        }
+        ch = PyUnicode_READ_CHAR(obj, 0);
+#endif
     }
     else if (Bytes_Check(obj)) {
         if (Bytes_GET_SIZE(obj) != 1) {
