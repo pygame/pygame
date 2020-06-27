@@ -41,7 +41,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertGreater(len(wq.pool), 0)
 
         for t in wq.pool:
-            self.assertTrue(t.isAlive())
+            self.assertTrue(t.is_alive())
 
         for i in xrange_(200):
             wq.do(lambda x: x + 1, i)
@@ -49,7 +49,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         wq.stop()
 
         for t in wq.pool:
-            self.assertFalse(t.isAlive())
+            self.assertFalse(t.is_alive())
 
         self.assertIs(wq.queue.get(), STOP)
 

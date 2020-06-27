@@ -136,22 +136,44 @@ class DisplayModuleTest(unittest.TestCase):
         else:
             self.assertEqual(unicode_(display.get_caption()[0], "utf8"), TEST_CAPTION)
 
-    def todo_test_get_driver(self):
+    def test_get_driver(self):
+        drivers = [
+            'aalib',
+            'android',
+            'arm',
+            'cocoa',
+            'dga',
+            'directx',
+            'directfb',
+            'dummy',
+            'emscripten',
+            'fbcon',
+            'ggi',
+            'haiku',
+            'khronos',
+            'kmsdrm',
+            'nacl',
+            'offscreen',
+            'pandora',
+            'psp',
+            'qnx',
+            'raspberry',
+            'svgalib',
+            'uikit',
+            'vgl',
+            'vivante',
+            'wayland',
+            'windows',
+            'windib',
+            'winrt',
+            'x11'
+        ]
+        driver = display.get_driver()
+        self.assertIn(driver, drivers)
 
-        # __doc__ (as of 2008-08-02) for pygame.display.get_driver:
-
-        # pygame.display.get_driver(): return name
-        # get the name of the pygame display backend
-        #
-        # Pygame chooses one of many available display backends when it is
-        # initialized. This returns the internal name used for the display
-        # backend. This can be used to provide limited information about what
-        # display capabilities might be accelerated. See the SDL_VIDEODRIVER
-        # flags in pygame.display.set_mode() to see some of the common
-        # options.
-        #
-
-        self.fail()
+        display.quit()
+        with self.assertRaises(pygame.error):
+            driver = display.get_driver()
 
     def test_get_init(self):
         """Ensures the module's initialization state can be retrieved."""
@@ -325,23 +347,19 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.assertFalse(display.get_init())
 
-    def todo_test_set_gamma(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_gamma:
-
-        # pygame.display.set_gamma(red, green=None, blue=None): return bool
-        # change the hardware gamma ramps
-        #
-        # Set the red, green, and blue gamma values on the display hardware.
-        # If the green and blue arguments are not passed, they will both be
-        # the same as red. Not all systems and hardware support gamma ramps,
-        # if the function succeeds it will return True.
-        #
-        # A gamma value of 1.0 creates a linear color table. Lower values will
-        # darken the display and higher values will brighten.
-        #
-
-        self.fail()
+    @unittest.skipIf(
+    os.environ.get("SDL_VIDEODRIVER") == "dummy" and not SDL2,
+    "Can't set gamma on SDL 1 with the dummy video driver",
+    )
+    def test_set_gamma(self):
+        if(not SDL2):
+            pygame.display.set_mode((1, 1))
+        gammas = [0.0,0.25,0.5,0.88,1.0]
+        for gamma in gammas:
+            self.assertEqual(pygame.display.set_gamma(gamma),True)
+        gammas = [(0.5,0.5,0.5),(1.0,1.0,1.0),(0.22,0.33,0.44),(0.0,0.0,0.0)]
+        for gammaTuple in gammas:
+            self.assertEqual(pygame.display.set_gamma(gammaTuple[0],gammaTuple[1],gammaTuple[2]),True)
 
     def todo_test_set_gamma_ramp(self):
 
