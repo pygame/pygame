@@ -265,7 +265,8 @@ static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
     Uint32 flags = SDL_GetWindowFlags(pg_GetDefaultWindow());
-    return PyBool_FromLong((flags & SDL_WINDOW_SHOWN) != 0);
+    return PyBool_FromLong((flags & SDL_WINDOW_SHOWN) &&
+                           !(flags & SDL_WINDOW_MINIMIZED));
 }
 #else  /* IS_SDLv1 */
 static PyObject *
