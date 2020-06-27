@@ -271,7 +271,9 @@ pg_get_active(PyObject *self, PyObject *args)
 static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
-    return PyBool_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
+  if (!pgDisplaySurfaceObject)
+       return PyBool_FromLong(0);
+  return PyBool_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
 #endif /* IS_SDLv1 */
 

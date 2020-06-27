@@ -69,12 +69,11 @@ class DisplayModuleTest(unittest.TestCase):
         """Test the get_active function"""
 
         #Initially, the display is not active
-        pygame.quit()
         pygame.display.quit()
         self.assertEqual(pygame.display.get_active(), False)
 
         #get_active defaults to true after a set_mode
-        pygame.init()
+        pygame.display.init()
         pygame.display.set_mode((640, 480))
         self.assertEqual(pygame.display.get_active(), True)
 
@@ -92,7 +91,6 @@ class DisplayModuleTest(unittest.TestCase):
     def test_get_active_iconify(self):
         """Test the get_active function after an iconify"""
 
-        pygame.init()
 
         #According to the docs, get_active should return
         #false if the display is iconified
@@ -103,7 +101,7 @@ class DisplayModuleTest(unittest.TestCase):
 
         #Number of iterations conservatively determined based
         #off of local runs, might have to change on various systems
-        for i in range(1500):
+        for i in range(5000):
             pygame.event.pump()
 
         self.assertEqual(pygame.display.get_active(), False)
@@ -431,6 +429,11 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
+    skip_list = ["dummy", "android"]
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") in skip_list,
+        'requires the SDL_VIDEODRIVER to be non dummy'
+    )
     def test_toggle_fullscreen(self):
         """Test for toggle fullscreen"""
 
@@ -449,8 +452,7 @@ class DisplayModuleTest(unittest.TestCase):
             pygame.display.toggle_fullscreen()
 
         except pygame.error:
-            with self.assertRaises(pygame.error):
-                pygame.display.toggle_fullscreen()
+            self.fail()
 
         else:
             #if toggle success, the width/height should be a
