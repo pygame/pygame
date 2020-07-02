@@ -399,22 +399,36 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-
-    def todo_test_set_palette(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_palette:
-
-        # pygame.display.set_palette(palette=None): return None
-        # set the display color palette for indexed displays
-        #
-        # This will change the video display color palette for 8bit displays.
-        # This does not change the palette for the actual display Surface,
-        # only the palette that is used to display the Surface. If no palette
-        # argument is passed, the system default palette will be restored. The
-        # palette is a sequence of RGB triplets.
-        #
-
-        self.fail()
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
+    def test_set_palette(self):
+        with self.assertRaises(UnboundLocalError) :
+            palette = [1,2,3]
+            screen.set_palette(palette)
+        screen = pygame.display.set_mode((1024,768),pygame.DOUBLEBUF,8)
+        palette = []
+        self.assertIsNone(screen.set_palette(palette))
+        palette = [[0,0,0]] + [[x,x,x] for x in range(1,255)]
+        screen.set_palette(palette)
+        self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
+        self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
+        with self.assertRaises(ValueError): 
+            palette = 12
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [[1,2],[1,2]]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = "qwerty"
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [[123,123,123]*10000]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError): 
+            palette = [1,2,3]
+            screen.set_palette(palette)
 
     def todo_test_toggle_fullscreen(self):
 
