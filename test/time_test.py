@@ -155,29 +155,54 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(1000/average_tick_time,
                                testing_framerate, delta=epsilon3)
 
-    def todo_test_tick_busy_loop(self):
+    def test_tick_busy_loop(self):
+        """Test tick_busy_loop"""
 
-        # __doc__ (as of 2008-08-02) for pygame.time.Clock.tick_busy_loop:
+        c = Clock()
 
-        # Clock.tick_busy_loop(framerate=0): return milliseconds
-        # control timer events
-        # update the clock
-        #
-        # This method should be called once per frame. It will compute how
-        # many milliseconds have passed since the previous call.
-        #
-        # If you pass the optional framerate argument the function will delay
-        # to keep the game running slower than the given ticks per second.
-        # This can be used to help limit the runtime speed of a game. By
-        # calling Clock.tick(40) once per frame, the program will never run at
-        # more than 40 frames per second.
-        #
-        # Note that this function uses pygame.time.delay, which uses lots of
-        # cpu in a busy loop to make sure that timing is more accurate.
-        #
-        # New in pygame 1.8.0.
+        # Test whether the return value of tick_busy_loop is equal to
+        # (FPS is accurate) or greater than (slower than the set FPS)
+        # with a small margin for error based on differences in how this
+        # test runs in practise - it either sometimes runs slightly fast
+        # or seems to based on a rounding error.
+        second_length = 1000
+        shortfall_tolerance = 1  # (ms) The amount of time a tick is allowed to run short of, to account for underlying rounding errors
+        sample_fps = 40
 
-        self.fail()
+        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        pygame.time.wait(10)  # incur delay between ticks that's faster than sample_fps
+        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        pygame.time.wait(200)  # incur delay between ticks that's slower than sample_fps
+        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+
+        high_fps = 500
+        self.assertGreaterEqual(c.tick_busy_loop(high_fps), (second_length/high_fps) - shortfall_tolerance)
+
+        low_fps = 1
+        self.assertGreaterEqual(c.tick_busy_loop(low_fps), (second_length/low_fps) - shortfall_tolerance)
+
+        low_non_factor_fps = 35  # 1000/35 makes 28.5714285714
+        frame_length_without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
+        self.assertGreaterEqual(c.tick_busy_loop(low_non_factor_fps), frame_length_without_decimal_places - shortfall_tolerance)
+
+        high_non_factor_fps = 750  # 1000/750 makes 1.3333...
+        frame_length_without_decimal_places_2 = int(second_length/high_non_factor_fps)  # Same result as math.floor
+        self.assertGreaterEqual(c.tick_busy_loop(high_non_factor_fps), frame_length_without_decimal_places_2 - shortfall_tolerance)
+
+        zero_fps = 0
+        self.assertEqual(c.tick_busy_loop(zero_fps), 0)
+
+        # Check behaviour of unexpected values
+
+        negative_fps = -1
+        self.assertEqual(c.tick_busy_loop(negative_fps), 0)
+
+        fractional_fps = 32.75
+        frame_length_without_decimal_places_3 = int(second_length/fractional_fps)
+        self.assertGreaterEqual(c.tick_busy_loop(fractional_fps), frame_length_without_decimal_places_3 - shortfall_tolerance)
+
+        bool_fps = True
+        self.assertGreaterEqual(c.tick_busy_loop(bool_fps), (second_length/bool_fps) - shortfall_tolerance)
 
 class TimeModuleTest(unittest.TestCase):
     def test_delay(self):
