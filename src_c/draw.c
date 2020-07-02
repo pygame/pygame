@@ -1645,7 +1645,7 @@ static void
 draw_ellipse_filled(SDL_Surface *surf, int x0, int y0, int width, int height,
                     Uint32 color, int *drawn_area)
 {
-    int dx, dy, x, y, x1, x_offset, y_offset;
+    int dx, dy, x, y, x_offset, y_offset;
     double d1, d2;
     if (width == 1) {
         draw_line(surf, x0, y0, x0, y0 + height - 1, color, drawn_area);
