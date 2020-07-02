@@ -690,9 +690,7 @@ class DrawEllipseMixin(object):
 
         # Test some even and odd heights.
         for ellipse_h in range(6, 10):
-            # The ellipse is drawn on the edge of the rect so collide_rect
-            # needs +1 height to track where it's drawn.
-            collide_rect.h = ellipse_h + 1
+            collide_rect.h = ellipse_h
             rect.h = ellipse_h
 
             # Calculate some variable positions.
@@ -785,9 +783,7 @@ class DrawEllipseMixin(object):
 
         # Test some even and odd widths.
         for ellipse_w in range(6, 10):
-            # The ellipse is drawn on the edge of the rect so collide_rect
-            # needs +1 width to track where it's drawn.
-            collide_rect.w = ellipse_w + 1
+            collide_rect.w = ellipse_w
             rect.w = ellipse_w
 
             # Calculate some variable positions.
