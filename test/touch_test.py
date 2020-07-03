@@ -35,8 +35,26 @@ class TouchTest(unittest.TestCase):
         self.assertRaises(pygame.error, touch.get_num_fingers, -1234)
 
     @unittest.skipIf(not has_touchdevice, "no touch devices found")
-    def todo_test_get_finger(self):
+    def test_get_finger(self):
         """ask for touch input and check the dict"""
+
+        # parameters: touch device id and index of finger to get info about
+        touchid = touch.get_device(0)
+        index = 0
+
+        dict = touch.get_finger(touchid, index)
+
+        # check resulting dict's keys
+        self.assertIs(type(dict['id']),int)
+
+        self.assertIs(type(dict['x']), float)
+        self.assertTrue(dict['x'] >= 0.0 and dict['x'] <= 1.0)
+
+        self.assertIs(type(dict['y']), float)
+        self.assertTrue(dict['y'] >= 0.0 and dict['y'] <= 1.0)
+
+        self.assertIs(type(dict['pressure']), float)
+        self.assertIs(dict['pressure'] >= 0.0 and dict['pressure'] <= 1.0)
 
 
 if __name__ == "__main__":
