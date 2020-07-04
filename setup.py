@@ -507,7 +507,7 @@ cmdclass = {}
 
 def add_command(name):
     def decorator(command):
-        assert issubclass(command, Command)
+        assert issubclass(command, distutils.cmd.Command)
         cmdclass[name]=command
         return command
     return decorator
