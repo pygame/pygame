@@ -949,9 +949,9 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
     int loopx, loopy;
 
     if ((x + width) > src->w)
-        width = src->w - x;
+        width = MIN(MAX(src->w - x, 0), src->w);
     if ((y + height) > src->h)
-        height = src->h - y;
+        height = MIN(MAX(src->h - y, 0), src->h);
     if (x < 0) {
         width -= (-x);
         x = 0;

@@ -960,7 +960,7 @@ class TransformModuleTest(unittest.TestCase):
         #setting colors and canvas
         blue = (0, 0, 255, 255)
         red = (255, 0, 0, 255)
-        black = (0,0,0) 
+        black = (0,0,0)
         canvas = pygame.Surface((3, 3))
         rotation = 0
 
@@ -974,7 +974,7 @@ class TransformModuleTest(unittest.TestCase):
         for i in range(0,4):
             if i % 2 == 0:
                 self.assertEqual(canvas.get_at((0, 0)), black)
-            elif i == 1: 
+            elif i == 1:
                 self.assertEqual(canvas.get_at((0, 0)), blue)
             elif i == 3:
                 self.assertEqual(canvas.get_at((0, 0)), red)
@@ -1071,23 +1071,71 @@ class TransformModuleTest(unittest.TestCase):
         filter_type = pygame.transform.get_smoothscale_backend()
         self.assertEqual(filter_type, original_type)
 
-    def todo_test_chop(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.transform.chop:
-
-        # pygame.transform.chop(Surface, rect): return Surface
-        # gets a copy of an image with an interior area removed
-        #
-        # Extracts a portion of an image. All vertical and horizontal pixels
-        # surrounding the given rectangle area are removed. The corner areas
-        # (diagonal to the rect) are then brought together. (The original
-        # image is not altered by this operation.)
-        #
-        # NOTE: If you want a "crop" that returns the part of an image within
-        # a rect, you can blit with a rect to a new surface or copy a
-        # subsurface.
-
-        self.fail()
+    def test_chop(self):
+        original_surface = pygame.Surface((20, 20))
+        pygame.draw.rect(original_surface, (255, 0, 0), (0, 0, 10, 10))
+        pygame.draw.rect(original_surface, (0, 255, 0), (0, 10, 10, 10))
+        pygame.draw.rect(original_surface, (0, 0, 255), (10, 0, 10, 10))
+        pygame.draw.rect(original_surface, (255, 255, 0), (10, 10, 10, 10))
+        # Test chopping the corner of image
+        rect = pygame.Rect(0, 0, 5, 15)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        # Check the size of chopped image
+        self.assertEqual(test_surface.get_size(), (15, 5))
+        # Check if the colors of the chopped image are correct
+        for x in range(15):
+            for y in range(5):
+                if x < 5:
+                    self.assertEqual(test_surface.get_at((x, y)), (0, 255, 0))
+                else:
+                    self.assertEqual(test_surface.get_at((x, y)),
+                                     (255, 255, 0))
+        # Check if the original image stayed the same
+        self.assertEqual(original_surface.get_size(), (20, 20))
+        for x in range(20):
+            for y in range(20):
+                if x < 10 and y < 10:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (255, 0, 0))
+                if x < 10 < y:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (0, 255, 0))
+                if x > 10 > y:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (0, 0, 255))
+                if x > 10 and y > 10:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (255, 255, 0))
+        # Test chopping the center of the surface:
+        rect = pygame.Rect(0, 0, 10, 10)
+        rect.center = original_surface.get_rect().center
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (10, 10))
+        for x in range(10):
+            for y in range(10):
+                if x < 5 and y < 5:
+                    self.assertEqual(test_surface.get_at((x, y)), (255, 0, 0))
+                if x < 5 < y:
+                    self.assertEqual(test_surface.get_at((x, y)), (0, 255, 0))
+                if x > 5 > y:
+                    self.assertEqual(test_surface.get_at((x, y)), (0, 0, 255))
+                if x > 5 and y > 5:
+                    self.assertEqual(test_surface.get_at((x, y)), (255, 255, 0))
+        # Test chopping with the empty rect
+        rect = pygame.Rect(10, 10, 0, 0)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (20, 20))
+        # Test chopping the entire surface
+        rect = pygame.Rect(0, 0, 20, 20)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (0, 0))
+        # Test chopping outside of surface
+        rect = pygame.Rect(5, 15, 20, 20)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (5, 15))
+        rect = pygame.Rect(400, 400, 10, 10)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (20, 20))
 
     def test_rotozoom(self):
 
