@@ -65,20 +65,51 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_active(self):
+    def test_get_active(self):
+        """Test the get_active function"""
 
-        # __doc__ (as of 2008-08-02) for pygame.display.get_active:
+        #Initially, the display is not active
+        pygame.display.quit()
+        self.assertEqual(pygame.display.get_active(), False)
 
-        # pygame.display.get_active(): return bool
-        # true when the display is active on the display
-        #
-        # After pygame.display.set_mode() is called the display Surface will
-        # be visible on the screen. Most windowed displays can be hidden by
-        # the user. If the display Surface is hidden or iconified this will
-        # return False.
-        #
+        #get_active defaults to true after a set_mode
+        pygame.display.init()
+        pygame.display.set_mode((640, 480))
+        self.assertEqual(pygame.display.get_active(), True)
 
-        self.fail()
+        #get_active after init/quit should be False
+        #since no display is visible
+        pygame.display.quit()
+        pygame.display.init()
+        self.assertEqual(pygame.display.get_active(), False)
+
+
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires the SDL_VIDEODRIVER to be a non dummy value'
+    )
+    def test_get_active_iconify(self):
+        """Test the get_active function after an iconify"""
+
+
+        #According to the docs, get_active should return
+        #false if the display is iconified
+        pygame.display.set_mode((640, 480))
+
+        pygame.event.clear()
+        pygame.display.iconify()
+
+        #Number of iterations conservatively determined based
+        #off of local runs, might have to change on various systems
+        for i in range(5000):
+            pygame.event.pump()
+
+        self.assertEqual(pygame.display.get_active(), False)
+
+
+
+
+
 
     def test_get_caption(self):
         screen = display.set_mode((100, 100))
@@ -430,20 +461,46 @@ class DisplayModuleTest(unittest.TestCase):
             palette = [1,2,3]
             screen.set_palette(palette)
 
-    def todo_test_toggle_fullscreen(self):
+    skip_list = ["dummy", "android"]
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") in skip_list,
+        'requires the SDL_VIDEODRIVER to be non dummy'
+    )
+    def test_toggle_fullscreen(self):
+        """Test for toggle fullscreen"""
 
-        # __doc__ (as of 2008-08-02) for pygame.display.toggle_fullscreen:
+        #try to toggle fullscreen with no active display
+        #this should result in an error
+        pygame.display.quit()
+        with self.assertRaises(pygame.error):
+            pygame.display.toggle_fullscreen()
 
-        # pygame.display.toggle_fullscreen(): return bool
-        # switch between fullscreen and windowed displays
-        #
-        # Switches the display window between windowed and fullscreen modes.
-        # This function only works under the unix x11 video driver. For most
-        # situations it is better to call pygame.display.set_mode() with new
-        # display flags.
-        #
+        pygame.display.init()
+        width_height = (640,480)
+        test_surf = pygame.display.set_mode(width_height)
 
-        self.fail()
+        #try to toggle fullscreen
+        try:
+            pygame.display.toggle_fullscreen()
+
+        except pygame.error:
+            self.fail()
+
+        else:
+            #if toggle success, the width/height should be a
+            #value found in list_modes
+            if pygame.display.toggle_fullscreen() == 1:
+                boolean = (test_surf.get_width(), test_surf.get_height()) \
+                in pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)
+
+                self.assertEqual(boolean, True)
+
+            #if not original width/height should be preserved
+            else:
+                self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
+                width_height)
+
+
 
 
 @unittest.skipIf(
