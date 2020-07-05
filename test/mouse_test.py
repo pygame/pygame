@@ -130,7 +130,6 @@ class MouseModuleTest(MouseTests):
         hotspot = (0, 0)
         xormask = (0, 126, 64, 64, 32, 16, 0, 0)
         andmask = (254, 255, 254, 112, 56, 28, 12, 0)
-        expected_cursor = (size, hotspot, xormask, andmask)
 
         # Error should be raised when the display is uninitialized
         with self.assertRaises(pygame.error):
@@ -172,7 +171,9 @@ class MouseModuleTest(MouseTests):
         # Working as intended, no checks for same value as mouse.get_cursor in SDL2
         try:
             self.assertEqual(
-                pygame.mouse.set_cursor((16, 1), hotspot, (8, 0), (0, 192)), None)
+                pygame.mouse.set_cursor(size, hotspot, xormask, andmask), None)
+            self.assertEqual(
+                pygame.mouse.set_cursor(size, hotspot, list(xormask), list(andmask)), None)
 
         # SDLError should be raised when mouse cursor is NULL
         except pygame.error:
