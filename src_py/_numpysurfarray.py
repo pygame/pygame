@@ -61,7 +61,7 @@ for type_name in "float float32 float64 float96".split():
 _pixel2d_bitdepths = set([8, 16, 32])
 
 
-def blit_array (surface, array):
+def blit_array(surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
 
     Blit directly from a array values.
@@ -85,10 +85,10 @@ def make_surface(array):
 
     Create a new Surface that best resembles the data and format on the
     array. The array can be 2D or 3D with any sized integer values.
-    """ 
+    """
     if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
         array = array.round(0).astype(numpy_uint32)
-    return pix_make_surface (array)
+    return pix_make_surface(array)
 
 def array2d(surface):
     """pygame.numpyarray.array2d(Surface): return array
@@ -112,12 +112,12 @@ def array2d(surface):
     array = numpy.empty(size, dtype)
     surface_to_array(array, surface)
     return array
-    
+
 def pixels2d(surface):
     """pygame.numpyarray.pixels2d(Surface): return array
 
     reference pixels into a 2d array
-    
+
     Create a new 2D array that directly references the pixel values in a
     Surface. Any changes to the array will affect the pixels in the
     Surface. This is a fast operation since no data is copied.
@@ -129,7 +129,7 @@ def pixels2d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    if (surface.get_bitsize() not in _pixel2d_bitdepths):
+    if surface.get_bitsize() not in _pixel2d_bitdepths:
         raise ValueError("unsupport bit depth for 2D reference array")
     try:
         return numpy_array(surface.get_view('2'), copy=False)
@@ -150,12 +150,12 @@ def array3d(surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    w, h = surface.get_size()
-    array = numpy.empty((w, h, 3), numpy.uint8)
+    width, height = surface.get_size()
+    array = numpy.empty((width, height, 3), numpy.uint8)
     surface_to_array(array, surface)
     return array
 
-def pixels3d (surface):
+def pixels3d(surface):
     """pygame.numpyarray.pixels3d(Surface): return array
 
     reference pixels into a 3d array
@@ -275,7 +275,7 @@ def array_green(surface):
     surface_to_array(array, surface, 'G')
     return array
 
-def pixels_blue (surface):
+def pixels_blue(surface):
     """pygame.surfarray.pixels_blue(Surface): return array
 
     Reference pixel blue into a 2d array.
@@ -350,4 +350,3 @@ def map_array(surface, array):
     target = numpy_empty(shape[:-1], numpy.int32)
     pix_map_array(target, array, surface)
     return target
-
