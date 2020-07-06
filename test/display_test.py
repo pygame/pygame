@@ -255,23 +255,19 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_iconify(self):
+    def test_iconify(self):
+        pygame.display.set_mode((640, 480))
+        Iconified_event = False
+        success = pygame.display.iconify()
 
-        # __doc__ (as of 2008-08-02) for pygame.display.iconify:
+        for e in pygame.event.get():
+            if e.type == pygame.ACTIVEEVENT:
+                if e.gain == 0 and e.state == 2 and success:
+                    Iconified_event = True
+        Iconified_get_active = pygame.display.get_active()
 
-        # pygame.display.iconify(): return bool
-        # iconify the display surface
-        #
-        # Request the window for the display surface be iconified or hidden.
-        # Not all systems and displays support an iconified display. The
-        # function will return True if successfull.
-        #
-        # When the display is iconified pygame.display.get_active() will
-        # return False. The event queue should receive a ACTIVEEVENT event
-        # when the window has been iconified.
-        #
-
-        self.fail()
+        self.assertEqual(Iconified_get_active, success)
+        self.assertEqual(Iconified_event, success)
 
     def test_init(self):
         """Ensures the module is initialized after init called."""
@@ -430,7 +426,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
     def test_set_palette(self):
         with self.assertRaises(UnboundLocalError) :
             palette = [1,2,3]
@@ -442,22 +438,22 @@ class DisplayModuleTest(unittest.TestCase):
         screen.set_palette(palette)
         self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
         self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = 12
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[1,2],[1,2]]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = "qwerty"
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[123,123,123]*10000]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [1,2,3]
             screen.set_palette(palette)
 
