@@ -31,21 +31,28 @@ class JoystickTypeTest(unittest.TestCase):
 
 
 class JoystickModuleTest(unittest.TestCase):
-    def todo_test_get_count(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.joystick.get_count:
+    def test_get_count(self):
+        # Test get_count correctly identifies number of connected joysticks
+        pygame.joystick.init()
 
         # pygame.joystick.get_count(): return count
-        # number of joysticks on the system
-        #
-        # Return the number of joystick devices on the system. The count will
-        # be 0 if there are no joysticks on the system.
-        #
+        # number of joysticks on the system, 0 means no joysticks connected
+        try:
+            count = pygame.joystick.get_count()
+        except pygame.error:
+            return False
+        self.assertGreaterEqual(count, 0, """joystick.get_count() must
+                                            return a value >= 0""")
+
         # When you create Joystick objects using Joystick(id), you pass an
         # integer that must be lower than this count.
-        #
+        # Test Joystick(id) for each connected joystick
+        if count != 0:
+            for x in range(0,count):
+                pygame.joystick.Joystick(x)
+        with self.assertRaises(pygame.error):
+            pygame.joystick.Joystick(count)
 
-        self.fail()
 
     def test_get_init(self):
         # Check that get_init() matches what is actually happening
