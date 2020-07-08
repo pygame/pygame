@@ -53,6 +53,8 @@ class JoystickModuleTest(unittest.TestCase):
         with self.assertRaises(pygame.error):
             pygame.joystick.Joystick(count)
 
+        pygame.joystick.quit()
+
 
     def test_get_init(self):
         # Check that get_init() matches what is actually happening
