@@ -254,7 +254,11 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
         self.fail()
-
+        
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy" and SDL2,
+        'requires the SDL_VIDEODRIVER to be a non dummy value'
+    )
     def test_iconify(self):
         screen = pygame.display.set_mode((640, 480))
         Iconified_event = False
