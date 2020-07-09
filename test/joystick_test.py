@@ -1,4 +1,6 @@
 import unittest
+from pygame.tests.test_utils import question
+
 import pygame
 
 
@@ -37,12 +39,19 @@ class JoystickModuleTest(unittest.TestCase):
 
         # pygame.joystick.get_count(): return count
         # number of joysticks on the system, 0 means no joysticks connected
-        try:
-            count = pygame.joystick.get_count()
-        except pygame.error:
-            return False
-        self.assertGreaterEqual(count, 0, """joystick.get_count() must
-                                            return a value >= 0""")
+        count = pygame.joystick.get_count()
+
+        self.assertGreaterEqual(count, 0, ("joystick.get_count() must "
+                                            "return a value >= 0"))
+
+        response = question(
+            ("NOTE: Having Steam open may add an extra virtual joystick for "
+             "each joystick physically plugged in.\n"
+             "Is the correct number of joysticks connected to this system [{}]?"
+             .format(count))
+        )
+
+        self.assertTrue(response)
 
         # When you create Joystick objects using Joystick(id), you pass an
         # integer that must be lower than this count.
