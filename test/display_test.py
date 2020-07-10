@@ -256,27 +256,33 @@ class DisplayModuleTest(unittest.TestCase):
         self.fail()
         
     @unittest.skipIf(
-        os.environ.get("SDL_VIDEODRIVER") == "dummy" and SDL2,
-        'requires the SDL_VIDEODRIVER to be a non dummy value'
+        os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
+        'iconify is only supported on some video drivers/platforms'
     )
     def test_iconify(self):
-        screen = pygame.display.set_mode((640, 480))
-        Iconified_event = False
+        _ = pygame.display.set_mode((640, 480))
+
+        self.assertEqual(pygame.display.get_active(), True)
+
         success = pygame.display.iconify()
 
-        #'ActiveEvent' (gain 0 state 2) didnt seem to work but is the same as 'WindowEvent' 7
-        for e in pygame.event.get():
-            # if e.type == pygame.ACTIVEEVENT:
-            #     if e.gain == 0 and e.state == 2 and success:
-            #         Iconified_event = True
-            if e.type == pygame.WINDOWEVENT and e.event == 7 and success:
-                Iconified_event = True
+        if success:
+            minimized_event = False
+            # make sure we cycle the event loop enough to get the display
+            # hidden
+            for _ in range(5000):
+                for event in pygame.event.get():
+                    if SDL2:
+                        if (event.type == pygame.WINDOWEVENT and
+                            event.event == 7):  # should be WINDOWEVENT_MINIMIZED
+                            minimized_event = True
 
-        Iconified_get_active = pygame.display.get_active()
+            if SDL2:
+                self.assertEqual(minimized_event, True)
+                self.assertEqual(pygame.display.get_active(), False)
 
-        #Im not sure if get_active works after an iconify correctly. I had issues with it in dev10
-        #self.assertNotEqual(Iconified_get_active, success)
-        self.assertEqual(Iconified_event, success)
+        else:
+            self.fail('Iconify not supported on this platform, please skip')
 
     def test_init(self):
         """Ensures the module is initialized after init called."""
