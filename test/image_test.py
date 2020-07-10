@@ -703,18 +703,24 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(argb_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
-    def todo_test_get_extended(self):
+    def test_get_extended(self):
+        #Create a png file and try to load it. If it cannot, get_extended() should return False
+        raw_image = []
+        raw_image.append((200, 200, 200, 255, 100, 100, 100, 255))
 
-        # __doc__ (as of 2008-08-02) for pygame.image.get_extended:
+        f_descriptor, f_path = tempfile.mkstemp(suffix='.png')
 
-        # pygame.image.get_extended(): return bool
-        # test if extended image formats can be loaded
-        #
-        # If pygame is built with extended image formats this function will
-        # return True. It is still not possible to determine which formats
-        # will be available, but generally you will be able to load them all.
+        with os.fdopen(f_descriptor, 'wb') as file:
+            w = png.Writer(2, 1, alpha=True)
+            w.write(file, raw_image)
 
-        self.fail()
+        try:
+            surf = pygame.image.load(f_path)
+            loaded = True
+        except pygame.error:
+            loaded = False
+
+        self.assertEqual(pygame.image.get_extended(), loaded)
 
     def todo_test_load_basic(self):
 
