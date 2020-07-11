@@ -4,7 +4,7 @@ import pygame
 
 
 class CursorsModuleTest(unittest.TestCase):
-    def todo_test_compile(self):
+    def test_compile(self):
 
         # __doc__ (as of 2008-06-25) for pygame.cursors.compile:
 
@@ -21,10 +21,68 @@ class CursorsModuleTest(unittest.TestCase):
         # considered clear.
         #
         # This returns a tuple containing the cursor data and cursor mask
-        # data. Both these arguments are used when setting a cursor with
+        # data. Both these arguments are used whesn setting a cursor with
         # pygame.mouse.set_cursor().
 
-        self.fail()
+        #Various types of input strings
+        test_cursor1 = (
+            "X.X.XXXX",
+            "XXXXXX..",
+            "  XXXX  "
+        )
+
+        test_cursor2 = (
+            "X.X.XXXX",
+            "XXXXXX..",
+            "XXXXXX ",
+            "XXXXXX..",
+            "XXXXXX..",
+            "XXXXXX",
+            "XXXXXX..",
+            "XXXXXX.."
+        )
+        test_cursor3 = (
+            ".XX.",
+            "  ",
+            "..  ",
+            "X.. X"
+        )
+        
+        # Test such that total number of strings is not divisible by 8
+        with self.assertRaises(ValueError):
+            pygame.cursors.compile(test_cursor1)
+
+        # Test such that size of individual string is not divisible by 8
+        with self.assertRaises(ValueError):
+            pygame.cursors.compile(test_cursor2)
+
+        # Test such that neither size of individual string nor total number of strings is divisible by 8
+        with self.assertRaises(ValueError):
+            pygame.cursors.compile(test_cursor3)
+
+        #Test that checks whether the byte data from compile funtion is equal to actual byte data
+        actual_byte_data = (192, 0, 0, 224, 0, 0, 240, 0, 0, 216, 0, 0, 
+            204, 0, 0, 198, 0, 0, 195, 0, 0, 193, 128, 0, 192, 192, 0, 192, 96, 0, 192, 48, 0, 
+            192, 56, 0, 192, 248, 0, 220, 192, 0, 246, 96, 0, 198, 96, 0, 6, 96, 0, 3, 48, 0, 
+            3, 48, 0, 1, 224, 0, 1, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), (192, 0, 0, 224, 0, 0, 
+            240, 0, 0, 248, 0, 0, 252, 0, 0, 254, 0, 0, 255, 0, 0, 255, 128, 0, 255, 192, 0, 255, 
+            224, 0, 255, 240, 0, 255, 248, 0, 255, 248, 0, 255, 192, 0, 247, 224, 0, 199, 224, 
+            0, 7, 224, 0, 3, 240, 0, 3, 240, 0, 1, 224, 0, 1, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+        cursor = pygame.cursors.compile(pygame.cursors.thickarrow_strings)
+        self.assertEqual(cursor,actual_byte_data)
+
+        #Test such that cursor byte data obtained from compile function is valid in pygame.mouse.set_cursor()
+        pygame.display.init()
+        try:
+            pygame.mouse.set_cursor((24, 24), (0, 0), *cursor)
+        except:
+            self.fail()
+        finally:
+            pygame.display.quit()
+
+
+################################################################################
 
     def test_load_xbm(self):
         # __doc__ (as of 2008-06-25) for pygame.cursors.load_xbm:
