@@ -21,7 +21,7 @@ class CursorsModuleTest(unittest.TestCase):
         # considered clear.
         #
         # This returns a tuple containing the cursor data and cursor mask
-        # data. Both these arguments are used whesn setting a cursor with
+        # data. Both these arguments are used when setting a cursor with
         # pygame.mouse.set_cursor().
 
         #Various types of input strings
