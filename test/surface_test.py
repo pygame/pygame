@@ -957,8 +957,42 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             s2 = pygame.Surface((100, 100), 0, 32)
             s2_alpha = s2.convert_alpha()
 
+            s3 = pygame.Surface((100, 100), 0, 8)
+            s3_alpha = s3.convert_alpha()
+
+            s4 = pygame.Surface((100, 100), 0, 12)
+            s4_alpha = s4.convert_alpha()
+
+            s5 = pygame.Surface((100, 100), 0, 15)
+            s5_alpha = s5.convert_alpha()
+
+            s6 = pygame.Surface((100, 100), 0, 16)
+            s6_alpha = s6.convert_alpha()
+
+            s7 = pygame.Surface((100, 100), 0, 24)
+            s7_alpha = s7.convert_alpha()
+
             self.assertEqual(s1_alpha.get_alpha(), 255)
             self.assertEqual(s2_alpha.get_alpha(), 255)
+            self.assertEqual(s3_alpha.get_alpha(), 255)
+            self.assertEqual(s4_alpha.get_alpha(), 255)
+            self.assertEqual(s5_alpha.get_alpha(), 255)
+            self.assertEqual(s6_alpha.get_alpha(), 255)
+            self.assertEqual(s7_alpha.get_alpha(), 255)
+
+            self.assertEqual(s1_alpha.get_bitsize(), 32)
+            self.assertEqual(s2_alpha.get_bitsize(), 32)
+            self.assertEqual(s3_alpha.get_bitsize(), 32)
+            self.assertEqual(s4_alpha.get_bitsize(), 32)
+            self.assertEqual(s5_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.convert_alpha()
+
         finally:
             pygame.display.quit()
 
