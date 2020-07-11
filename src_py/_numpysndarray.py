@@ -37,7 +37,7 @@ import pygame.mixer as mixer
 import numpy
 
 
-def array (sound):
+def array(sound):
     """pygame._numpysndarray.array(Sound): return array
 
     Copy Sound samples into an array.
@@ -47,9 +47,9 @@ def array (sound):
     pygame.mixer.get_init().
     """
 
-    return numpy.array (sound, copy=True)
+    return numpy.array(sound, copy=True)
 
-def samples (sound):
+def samples(sound):
     """pygame._numpysndarray.samples(Sound): return array
 
     Reference Sound samples into an array.
@@ -59,17 +59,16 @@ def samples (sound):
     always be in the format returned from pygame.mixer.get_init().
     """
 
-    return numpy.array (sound, copy=False)
+    return numpy.array(sound, copy=False)
 
-def make_sound (array):
+def make_sound(array):
     """pygame._numpysndarray.make_sound(array): return Sound
 
     Convert an array into a Sound object.
-    
+
     Create a new playable Sound object from an array. The mixer module
     must be initialized and the array format must be similar to the mixer
     audio format.
     """
-    
-    return mixer.Sound (array=array)
 
+    return mixer.Sound(array=array)
