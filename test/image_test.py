@@ -732,13 +732,9 @@ class ImageModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_load_extended(self):
+    def test_load_extended(self, image):
 
-        # __doc__ (as of 2008-08-02) for pygame.image.load_extended:
-
-        # pygame module for image transfer
-
-        self.fail()
+        self.assertRaises(pygame.error, image.load_extended, [])
 
     def todo_test_save_extended(self):
 
