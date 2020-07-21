@@ -1240,19 +1240,49 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_losses(self):
+    def test_get_losses(self):
+        """Ensure a surface's losses can be retrieved"""
+        pygame.display.init()
+        try:
+            # Masks for 8-bit depth surface with 3:3:2:0 bit configuration
+            r8bit = int("11100000", 2)
+            g8bit = int("11100", 2)
+            b8bit = int("11", 2)
+            rgba8 = (r8bit, g8bit, b8bit, 0)
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_losses:
+            # Masks for 32-bit depth surface with 8:8:8:8 bit configuration
+            r32bit = int("11111111000000000000000000000000", 2)
+            g32bit = int("111111110000000000000000", 2)
+            b32bit = int("1111111100000000", 2)
+            a32bit = int("11111111", 2)
+            rgba32 = (r32bit, g32bit, b32bit, a32bit)
 
-        # Surface.get_losses(): return (R, G, B, A)
-        # the significant bits used to convert between a color and a mapped integer
-        #
-        # Return the least significant number of bits stripped from each color
-        # in a mapped integer.
-        #
-        # This value is not needed for normal Pygame usage.
+            # Surfaces with standard depths and some with masks passed
+            surf_default = pygame.Surface((100, 100))
+            surf_8bit = pygame.Surface((100, 100), depth=8)
+            surf_8bit_332 = pygame.Surface((100, 100), depth=8, masks=rgba8)
+            surf_15bit = pygame.Surface((100, 100), depth=15)
+            surf_16bit = pygame.Surface((100, 100), depth=16)
+            surf_24bit = pygame.Surface((100, 100), depth=24)
+            surf_32bit_rgb = pygame.Surface((100, 100), depth=32)
+            surf_32bit_rgba = pygame.Surface((100, 100), depth=32, masks=rgba32)
+            
+            # Test each surface for correct losses
+            self.assertEqual(surf_default.get_losses(), (0, 0, 0, 8))
+            self.assertEqual(surf_8bit.get_losses(), (6, 5, 6, 8))
+            self.assertEqual(surf_8bit_332.get_losses(), (5, 5, 6, 8))
+            self.assertEqual(surf_15bit.get_losses(), (3, 3, 3, 8))
+            self.assertEqual(surf_16bit.get_losses(), (3, 2, 3, 8))
+            self.assertEqual(surf_24bit.get_losses(), (0, 0, 0, 8))
+            self.assertEqual(surf_32bit_rgb.get_losses(), (0, 0, 0, 8))
+            self.assertEqual(surf_32bit_rgba.get_losses(), (0, 0, 0, 0))
 
-        self.fail()
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.get_losses()
+        finally:
+            pygame.display.quit()
 
     def todo_test_get_masks(self):
 
