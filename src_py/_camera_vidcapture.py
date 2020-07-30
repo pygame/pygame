@@ -39,10 +39,7 @@ def quit():
 
 class Camera:
 
-    def __init__(self, device =0,
-                       size = (640,480),
-                       mode = "RGB",
-                       show_video_window=0):
+    def __init__(self, device=0, size=(640, 480), mode="RGB", show_video_window=0):
         """device:  VideoCapture enumerates the available video capture devices
                     on your system.  If you have more than one device, specify
                     the desired one here.  The device number starts from 0.
@@ -95,22 +92,22 @@ class Camera:
         """ Not implemented.
         """
 
-    def get_image(self, dest_surf = None):
+    def get_image(self, dest_surf=None):
         """
         """
         return self.get_surface(dest_surf)
 
-    def get_surface(self, dest_surf = None):
+    def get_surface(self, dest_surf=None):
         """Returns a pygame Surface.
         """
         abuffer, width, height = self.get_buffer()
         if abuffer:
             surf = pygame.image.frombuffer(abuffer, (width, height), "BGR")
-            surf = pygame.transform.flip(surf, 0,1)
+            surf = pygame.transform.flip(surf, 0, 1)
 
             # if there is a destination surface given, we blit onto that.
             if dest_surf:
-                dest_surf.blit(surf, (0,0))
+                dest_surf.blit(surf, (0, 0))
             else:
                 dest_surf = surf
             return dest_surf

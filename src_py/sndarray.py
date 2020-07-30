@@ -47,7 +47,7 @@ if the sound sample type requests this.
 # import pygame._numpysndarray as numpysnd
 numpysnd = None
 
-def array (sound):
+def array(sound):
     """pygame.sndarray.array(Sound): return array
 
     Copy Sound samples into an array.
@@ -58,13 +58,13 @@ def array (sound):
     """
     global numpysnd
     try:
-        return numpysnd.array (sound)
+        return numpysnd.array(sound)
     except AttributeError:
         import pygame._numpysndarray as numpysnd
-        return numpysnd.array (sound)
+        return numpysnd.array(sound)
 
 
-def samples (sound):
+def samples(sound):
     """pygame.sndarray.samples(Sound): return array
 
     Reference Sound samples into an array.
@@ -75,12 +75,12 @@ def samples (sound):
     """
     global numpysnd
     try:
-        return numpysnd.samples (sound)
+        return numpysnd.samples(sound)
     except AttributeError:
         import pygame._numpysndarray as numpysnd
-        return numpysnd.samples (sound)
+        return numpysnd.samples(sound)
 
-def make_sound (array):
+def make_sound(array):
     """pygame.sndarray.make_sound(array): return Sound
 
     Convert an array into a Sound object.
@@ -91,29 +91,29 @@ def make_sound (array):
     """
     global numpysnd
     try:
-        return numpysnd.make_sound (array)
+        return numpysnd.make_sound(array)
     except AttributeError:
         import pygame._numpysndarray as numpysnd
-        return numpysnd.make_sound (array)
+        return numpysnd.make_sound(array)
 
-def use_arraytype (arraytype):
-    """pygame.sndarray.use_arraytype (arraytype): return None
+def use_arraytype(arraytype):
+    """pygame.sndarray.use_arraytype(arraytype): return None
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    arraytype = arraytype.lower ()
+    arraytype = arraytype.lower()
     if arraytype != 'numpy':
         raise ValueError("invalid array type")
 
-def get_arraytype ():
-    """pygame.sndarray.get_arraytype (): return str
+def get_arraytype():
+    """pygame.sndarray.get_arraytype(): return str
 
     DEPRECATED - only numpy arrays are now supported.
     """
     return 'numpy'
 
-def get_arraytypes ():
-    """pygame.sndarray.get_arraytypes (): return tuple
+def get_arraytypes():
+    """pygame.sndarray.get_arraytypes(): return tuple
 
     DEPRECATED - only numpy arrays are now supported.
     """
