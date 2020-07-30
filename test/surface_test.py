@@ -944,25 +944,57 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_convert_alpha(self):
+    def test_convert_alpha(self):
+        """ Ensure the surface returned by surf.convert_alpha
+            has alpha values added"""
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((640, 480))
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert_alpha:
+            s1 = pygame.Surface((100, 100), 0, 32)
+            s1_alpha = pygame.Surface.convert_alpha(s1)
 
-        # Surface.convert_alpha(Surface): return Surface
-        # Surface.convert_alpha(): return Surface
-        # change the pixel format of an image including per pixel alphas
-        #
-        # Creates a new copy of the surface with the desired pixel format. The
-        # new surface will be in a format suited for quick blitting to the
-        # given format with per pixel alpha. If no surface is given, the new
-        # surface will be optimized for blitting to the current display.
-        #
-        # Unlike the Surface.convert() method, the pixel format for the new
-        # image will not be exactly the same as the requested source, but it
-        # will be optimized for fast alpha blitting to the destination.
-        #
+            s2 = pygame.Surface((100, 100), 0, 32)
+            s2_alpha = s2.convert_alpha()
 
-        self.fail()
+            s3 = pygame.Surface((100, 100), 0, 8)
+            s3_alpha = s3.convert_alpha()
+
+            s4 = pygame.Surface((100, 100), 0, 12)
+            s4_alpha = s4.convert_alpha()
+
+            s5 = pygame.Surface((100, 100), 0, 15)
+            s5_alpha = s5.convert_alpha()
+
+            s6 = pygame.Surface((100, 100), 0, 16)
+            s6_alpha = s6.convert_alpha()
+
+            s7 = pygame.Surface((100, 100), 0, 24)
+            s7_alpha = s7.convert_alpha()
+
+            self.assertEqual(s1_alpha.get_alpha(), 255)
+            self.assertEqual(s2_alpha.get_alpha(), 255)
+            self.assertEqual(s3_alpha.get_alpha(), 255)
+            self.assertEqual(s4_alpha.get_alpha(), 255)
+            self.assertEqual(s5_alpha.get_alpha(), 255)
+            self.assertEqual(s6_alpha.get_alpha(), 255)
+            self.assertEqual(s7_alpha.get_alpha(), 255)
+
+            self.assertEqual(s1_alpha.get_bitsize(), 32)
+            self.assertEqual(s2_alpha.get_bitsize(), 32)
+            self.assertEqual(s3_alpha.get_bitsize(), 32)
+            self.assertEqual(s4_alpha.get_bitsize(), 32)
+            self.assertEqual(s5_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.convert_alpha()
+
+        finally:
+            pygame.display.quit()
 
     def test_convert_alpha__pixel_format_as_surface_subclass(self):
         """Ensure convert_alpha accepts a Surface subclass argument."""
