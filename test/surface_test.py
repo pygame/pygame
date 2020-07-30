@@ -1245,7 +1245,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         try:
             # Masks for different color component configurations
             mask8 = (224, 28, 3, 0)
-            mask15 = (63488, 992, 31, 0)
+            mask15 = (31744, 992, 31, 0)
             mask16 = (63488, 2016, 31, 0)
             mask24 = (4278190080, 16711680, 65280, 0)
             mask32 = (4278190080, 16711680, 65280, 255)
