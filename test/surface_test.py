@@ -1265,8 +1265,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             surf_32bit_8888 = pygame.Surface((100, 100), depth=32, masks=mask32)
             
             # Test each surface for correct losses
-            self.assertEqual(display_surf.get_losses(), (8, 8, 8, 8))
-            self.assertEqual(surf.get_losses(), (8, 8, 8, 8))
+            self.assertEqual(display_surf.get_losses(), (0, 0, 0, 8))
+            self.assertEqual(surf.get_losses(), (0, 0, 0, 8))
             self.assertEqual(surf_8bit.get_losses(), (6, 5, 6, 8))
             # self.assertEqual(surf_8bit_3320.get_losses(), (5, 5, 6, 8))
             self.assertEqual(surf_15bit.get_losses(), (3, 3, 3, 8))
