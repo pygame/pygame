@@ -25,9 +25,12 @@ class KeyModuleTest(unittest.TestCase):
         import pygame.key
 
     def test_get_focused(self):
-        """Ensure get_focused returns the correct type"""
+        self.assertFalse(pygame.key.get_focused()) #No window to focus
+        pygame.display.set_mode((500, 500))
+        pygame.event.get() #Pump event queue to get window focus
         focused = pygame.key.get_focused()
         self.assertIsInstance(focused, int)
+        self.assertTrue(focused)
 
     def test_get_pressed(self):
         states = pygame.key.get_pressed()
