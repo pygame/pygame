@@ -162,6 +162,45 @@ joy_get_id(PyObject *self, PyObject *args)
     return PyInt_FromLong(joy_id);
 }
 
+#if IS_SDLv2
+
+static PyObject *
+joy_get_instance_id(PyObject *self, PyObject *args)
+{
+    int joy_id = pgJoystick_AsID(self);
+    SDL_Joystick *joy = joystick_stickdata[joy_id];
+
+    JOYSTICK_INIT_CHECK();
+    if (!joy) {
+        return RAISE(pgExc_SDLError, "Joystick not initialized");
+    }
+
+    return PyInt_FromLong(SDL_JoystickInstanceID(joy));
+}
+
+
+static PyObject *
+joy_get_guid(PyObject *self, PyObject *args)
+{
+    int joy_id = pgJoystick_AsID(self);
+    SDL_Joystick *joy = joystick_stickdata[joy_id];
+    SDL_JoystickGUID guid;
+    char strguid[64];
+
+    JOYSTICK_INIT_CHECK();
+    if (!joy) {
+        return RAISE(pgExc_SDLError, "Joystick not initialized");
+    }
+
+    guid = SDL_JoystickGetGUID(joy);
+    SDL_JoystickGetGUIDString(guid, strguid, 64);
+
+    return PyUnicode_FromString(strguid);
+}
+
+#endif
+
+
 static PyObject *
 joy_get_name(PyObject *self, PyObject *args)
 {
@@ -363,6 +402,10 @@ static PyMethodDef joy_methods[] = {
     {"get_init", joy_get_init, METH_NOARGS, DOC_JOYSTICKGETINIT},
 
     {"get_id", joy_get_id, METH_NOARGS, DOC_JOYSTICKGETID},
+#if IS_SDLv2
+    {"get_instance_id", joy_get_instance_id, METH_NOARGS, DOC_JOYSTICKGETINSTANCEID},
+    {"get_guid", joy_get_guid, METH_NOARGS, DOC_JOYSTICKGETGUID},
+#endif
     {"get_name", joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
 
     {"get_numaxes", joy_get_numaxes, METH_NOARGS,

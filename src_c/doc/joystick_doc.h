@@ -19,6 +19,9 @@
 #define DOC_JOYSTICKGETNUMHATS "get_numhats() -> int\nget the number of hat controls on a Joystick"
 #define DOC_JOYSTICKGETHAT "get_hat(hat_number) -> x, y\nget the position of a joystick hat"
 
+#define DOC_JOYSTICKGETINSTANCEID "get_instance_id() -> int\nGet the instance ID of the stick."
+#define DOC_JOYSTICKGETGUID "get_guid() -> int\nGet the GUID of the stick."
+
 
 /* Docs in a comment... slightly easier to read. */
 
