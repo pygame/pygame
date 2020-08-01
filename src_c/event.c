@@ -36,6 +36,12 @@
 #if IS_SDLv2
 /*only register one block of user events.*/
 static int have_registered_events = 0;
+
+#define JOYEVENT_INSTANCE_ID "instance_id"
+#define JOYEVENT_DEVICE_INDEX "device_index"
+#else /* IS_SDLv1 */
+#define JOYEVENT_INSTANCE_ID "joy"
+#define JOYEVENT_DEVICE_INDEX "joy"
 #endif /* IS_SDLv2 */
 
 // The system message code is only tested on windows, so only
@@ -473,6 +479,10 @@ _pg_name_from_eventtype(int type)
             return "ControllerDeviceRemoved";
         case SDL_CONTROLLERDEVICEREMAPPED:
             return "ControllerDeviceMapped";
+        case SDL_JOYDEVICEADDED:
+            return "JoyDeviceAdded";
+        case SDL_JOYDEVICEREMOVED:
+            return "JoyDeviceRemoved";
 #endif
 
     }
@@ -488,6 +498,21 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
 {
     if (v) {
         PyDict_SetItemString(dict, name, v);
+        Py_DECREF(v);
+    }
+}
+
+/* Helper for adding objects to a dict, with an alias for SDL2.
+ *
+ * Check for errors with PyErr_Occurred()
+ * */
+static void
+_pg_insobj_sdl2alias(PyObject *dict, char *name, char *alias, PyObject *v) {
+    if (v) {
+        PyDict_SetItemString(dict, name, v);
+#if IS_SDLv2
+        PyDict_SetItemString(dict, alias, v);
+#endif
         Py_DECREF(v);
     }
 }
@@ -667,19 +692,19 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
             break;
         case SDL_JOYAXISMOTION:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jaxis.which));
+            _pg_insobj_sdl2alias(dict, "joy", "instance_id", PyInt_FromLong(event->jaxis.which));
             _pg_insobj(dict, "axis", PyInt_FromLong(event->jaxis.axis));
             _pg_insobj(dict, "value",
                    PyFloat_FromDouble(event->jaxis.value / 32767.0));
             break;
         case SDL_JOYBALLMOTION:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jball.which));
+            _pg_insobj_sdl2alias(dict, "joy", "instance_id", PyInt_FromLong(event->jball.which));
             _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
             obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
             _pg_insobj(dict, "rel", obj);
             break;
         case SDL_JOYHATMOTION:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jhat.which));
+            _pg_insobj_sdl2alias(dict, "joy", "instance_id", PyInt_FromLong(event->jhat.which));
             _pg_insobj(dict, "hat", PyInt_FromLong(event->jhat.hat));
             hx = hy = 0;
             if (event->jhat.value & SDL_HAT_UP)
@@ -694,7 +719,7 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_JOYBUTTONUP:
         case SDL_JOYBUTTONDOWN:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jbutton.which));
+            _pg_insobj_sdl2alias(dict, "joy", "instance_id", PyInt_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
             break;
 #if IS_SDLv2
@@ -758,21 +783,29 @@ dict_from_event(SDL_Event *event)
 
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
-            _pg_insobj(dict, "joy", PyLong_FromLong(event->caxis.which));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->caxis.which));
             _pg_insobj(dict, "axis", PyLong_FromLong(event->caxis.axis));
             _pg_insobj(dict, "value", PyLong_FromLong(event->caxis.value));
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
             /* https://wiki.libsdl.org/SDL_ControllerButtonEvent */
-            _pg_insobj(dict, "joy", PyLong_FromLong(event->cbutton.which));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
             break;
         case SDL_CONTROLLERDEVICEADDED:
+            _pg_insobj(dict, "device_id", PyLong_FromLong(event->cdevice.which));
+            break;
+        case SDL_JOYDEVICEADDED:
+            _pg_insobj(dict, "device_id", PyLong_FromLong(event->jdevice.which));
+            break;
         case SDL_CONTROLLERDEVICEREMOVED:
         case SDL_CONTROLLERDEVICEREMAPPED:
             /* https://wiki.libsdl.org/SDL_ControllerDeviceEvent */
-            _pg_insobj(dict, "joy", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cdevice.which));
+            break;
+        case SDL_JOYDEVICEREMOVED:
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jdevice.which));
             break;
 #endif
 

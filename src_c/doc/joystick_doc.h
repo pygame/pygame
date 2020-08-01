@@ -21,6 +21,7 @@
 
 #define DOC_JOYSTICKGETINSTANCEID "get_instance_id() -> int\nGet the instance ID of the stick."
 #define DOC_JOYSTICKGETGUID "get_guid() -> int\nGet the GUID of the stick."
+#define DOC_JOYSTICKGETPOWERLEVEL "get_power_level() -> str\nGet a string representing the power level of the joystick (empty/low/medium/full/max/wired/unknown)"
 
 
 /* Docs in a comment... slightly easier to read. */

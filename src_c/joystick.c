@@ -198,6 +198,44 @@ joy_get_guid(PyObject *self, PyObject *args)
     return PyUnicode_FromString(strguid);
 }
 
+
+const char *_pg_powerlevel_string(SDL_JoystickPowerLevel level) {
+    switch (level) {
+        case SDL_JOYSTICK_POWER_EMPTY:
+            return "empty";
+        case SDL_JOYSTICK_POWER_LOW:
+            return "low";
+        case SDL_JOYSTICK_POWER_MEDIUM:
+            return "medium";
+        case SDL_JOYSTICK_POWER_FULL:
+            return "full";
+        case SDL_JOYSTICK_POWER_WIRED:
+            return "wired";
+        case SDL_JOYSTICK_POWER_MAX:
+            return "max";
+        default:
+            return "unknown";
+    }
+}
+
+
+static PyObject *
+joy_get_power_level(PyObject *self, PyObject *args)
+{
+    int joy_id = pgJoystick_AsID(self);
+    SDL_Joystick *joy = joystick_stickdata[joy_id];
+
+    JOYSTICK_INIT_CHECK();
+    if (!joy) {
+        return RAISE(pgExc_SDLError, "Joystick not initialized");
+    }
+
+    SDL_JoystickPowerLevel level = SDL_JoystickCurrentPowerLevel(joy);
+    const char *leveltext = _pg_powerlevel_string(level);
+
+    return PyUnicode_FromString(leveltext);
+}
+
 #endif
 
 
@@ -405,6 +443,7 @@ static PyMethodDef joy_methods[] = {
 #if IS_SDLv2
     {"get_instance_id", joy_get_instance_id, METH_NOARGS, DOC_JOYSTICKGETINSTANCEID},
     {"get_guid", joy_get_guid, METH_NOARGS, DOC_JOYSTICKGETGUID},
+    {"get_power_level", joy_get_power_level, METH_NOARGS, DOC_JOYSTICKGETPOWERLEVEL},
 #endif
     {"get_name", joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
 
