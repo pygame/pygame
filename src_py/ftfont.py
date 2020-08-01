@@ -59,11 +59,9 @@ class Font(_Font):
 
         if text is None:
             text = ""
-        if (isinstance(text, unicode_) and  # conditional and
-            self.__unull in text):
+        if (isinstance(text, unicode_) and self.__unull in text):
             raise ValueError("A null character was found in the text")
-        if (isinstance(text, bytes_) and  # conditional and
-            self.__bnull in text):
+        if (isinstance(text, bytes_) and self.__bnull in text):
             raise ValueError("A null character was found in the text")
         save_antialiased = self.antialiased
         self.antialiased = bool(antialias)
@@ -141,7 +139,7 @@ class Font(_Font):
         """get_linesize() -> int
            get the line space of the font text"""
 
-        return self.get_sized_height();
+        return self.get_sized_height()
 
     def size(self, text):
         """size(text) -> (width, height)
@@ -152,10 +150,10 @@ class Font(_Font):
 FontType = Font
 
 def get_init():
-   """get_init() -> bool
-      true if the font module is initialized"""
+    """get_init() -> bool
+       true if the font module is initialized"""
 
-   return _get_init()
+    return _get_init()
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
@@ -189,4 +187,3 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
     return _SysFont(name, size, bold, italic, constructor)
 
 del _Font, get_default_resolution, encode_file_path, as_unicode, as_bytes
-

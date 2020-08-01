@@ -23,24 +23,23 @@ def quit():
 
 class Camera:
 
-    def __init__(self, device = 0, size = (640,480), mode = "RGB"):
+    def __init__(self, device=0, size=(640, 480), mode="RGB"):
         """
         """
         self.camera = highgui.cvCreateCameraCapture(device)
         if not self.camera:
-            raise ValueError ("Could not open camera.  Sorry.")
-
+            raise ValueError("Could not open camera.  Sorry.")
 
     def set_controls(self, **kwargs):
         """
         """
-
 
     def set_resolution(self, width, height):
         """Sets the capture resolution. (without dialog)
         """
         # nothing to do here.
         pass
+
     def query_image(self):
         return True
 
@@ -56,10 +55,10 @@ class Camera:
         """
         return self.get_surface().get_buffer()
 
-    def get_image(self, dest_surf = None):
+    def get_image(self, dest_surf=None):
         return self.get_surface(dest_surf)
 
-    def get_surface(self, dest_surf = None):
+    def get_surface(self, dest_surf=None):
         camera = self.camera
 
         im = highgui.cvQueryFrame(camera)
@@ -76,14 +75,13 @@ class Camera:
             if xx.shape[2] != 3:
                 raise ValueError("not sure what to do about this size")
 
-            pg_img = pygame.image.frombuffer(xxx, (xx.shape[1],xx.shape[0]), "RGB")
+            pg_img = pygame.image.frombuffer(xxx, (xx.shape[1], xx.shape[0]), "RGB")
 
             # if there is a destination surface given, we blit onto that.
             if dest_surf:
-                dest_surf.blit(pg_img, (0,0))
+                dest_surf.blit(pg_img, (0, 0))
             return dest_surf
             #return pg_img
-
 
 
 if __name__ == "__main__":
@@ -94,5 +92,3 @@ if __name__ == "__main__":
     pygame.camera.Camera = Camera
     pygame.camera.list_cameras = list_cameras
     pygame.examples.camera.main()
-
-

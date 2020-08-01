@@ -944,25 +944,57 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_convert_alpha(self):
+    def test_convert_alpha(self):
+        """ Ensure the surface returned by surf.convert_alpha
+            has alpha values added"""
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((640, 480))
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert_alpha:
+            s1 = pygame.Surface((100, 100), 0, 32)
+            s1_alpha = pygame.Surface.convert_alpha(s1)
 
-        # Surface.convert_alpha(Surface): return Surface
-        # Surface.convert_alpha(): return Surface
-        # change the pixel format of an image including per pixel alphas
-        #
-        # Creates a new copy of the surface with the desired pixel format. The
-        # new surface will be in a format suited for quick blitting to the
-        # given format with per pixel alpha. If no surface is given, the new
-        # surface will be optimized for blitting to the current display.
-        #
-        # Unlike the Surface.convert() method, the pixel format for the new
-        # image will not be exactly the same as the requested source, but it
-        # will be optimized for fast alpha blitting to the destination.
-        #
+            s2 = pygame.Surface((100, 100), 0, 32)
+            s2_alpha = s2.convert_alpha()
 
-        self.fail()
+            s3 = pygame.Surface((100, 100), 0, 8)
+            s3_alpha = s3.convert_alpha()
+
+            s4 = pygame.Surface((100, 100), 0, 12)
+            s4_alpha = s4.convert_alpha()
+
+            s5 = pygame.Surface((100, 100), 0, 15)
+            s5_alpha = s5.convert_alpha()
+
+            s6 = pygame.Surface((100, 100), 0, 16)
+            s6_alpha = s6.convert_alpha()
+
+            s7 = pygame.Surface((100, 100), 0, 24)
+            s7_alpha = s7.convert_alpha()
+
+            self.assertEqual(s1_alpha.get_alpha(), 255)
+            self.assertEqual(s2_alpha.get_alpha(), 255)
+            self.assertEqual(s3_alpha.get_alpha(), 255)
+            self.assertEqual(s4_alpha.get_alpha(), 255)
+            self.assertEqual(s5_alpha.get_alpha(), 255)
+            self.assertEqual(s6_alpha.get_alpha(), 255)
+            self.assertEqual(s7_alpha.get_alpha(), 255)
+
+            self.assertEqual(s1_alpha.get_bitsize(), 32)
+            self.assertEqual(s2_alpha.get_bitsize(), 32)
+            self.assertEqual(s3_alpha.get_bitsize(), 32)
+            self.assertEqual(s4_alpha.get_bitsize(), 32)
+            self.assertEqual(s5_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.convert_alpha()
+
+        finally:
+            pygame.display.quit()
 
     def test_convert_alpha__pixel_format_as_surface_subclass(self):
         """Ensure convert_alpha accepts a Surface subclass argument."""
@@ -1229,7 +1261,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf.unlock()
         self.assertIs(surf.get_locked(), blit_locked_test(surf))  # Unlocked
 
-    def todo_test_get_locks(self):
+    def test_get_locks(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_locks:
 
@@ -1238,7 +1270,29 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # Returns the currently existing locks for the Surface.
 
-        self.fail()
+        # test on a surface that is not initially locked
+        surface = pygame.Surface((100,100))
+        self.assertEqual(surface.get_locks(),())
+
+        # test on the same surface after it has been locked
+        surface.lock()
+        self.assertEqual(surface.get_locks(),(surface,))
+
+        # test on the same surface after it has been unlocked
+        surface.unlock()
+        self.assertEqual(surface.get_locks(),())
+
+        # test with PixelArray initialization: locks surface
+        pxarray = pygame.PixelArray(surface)
+        self.assertNotEqual(surface.get_locks(),())
+
+        # closing the PixelArray releases the surface lock
+        pxarray.close()
+        self.assertEqual(surface.get_locks(),())
+
+        # AttributeError raised when called on invalid object type (i.e. not a pygame.Surface object) 
+        with self.assertRaises(AttributeError):
+            "DUMMY".get_locks()
 
     def todo_test_get_losses(self):
 

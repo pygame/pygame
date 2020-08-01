@@ -1,4 +1,6 @@
 import unittest
+from pygame.tests.test_utils import question, prompt
+
 import pygame
 import re           # to create a regular expressions used throughout
 
@@ -77,22 +79,6 @@ class JoystickTypeTest(unittest.TestCase):
 
 
 class JoystickModuleTest(unittest.TestCase):
-    def todo_test_get_count(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.joystick.get_count:
-
-        # pygame.joystick.get_count(): return count
-        # number of joysticks on the system
-        #
-        # Return the number of joystick devices on the system. The count will
-        # be 0 if there are no joysticks on the system.
-        #
-        # When you create Joystick objects using Joystick(id), you pass an
-        # integer that must be lower than this count.
-        #
-
-        self.fail()
-
     def test_get_init(self):
         # Check that get_init() matches what is actually happening
         def error_check_get_init():
@@ -128,8 +114,6 @@ class JoystickModuleTest(unittest.TestCase):
         for i in range(100):
             pygame.joystick.quit()
         self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
-
-
 
     def test_init(self):
         """
@@ -169,6 +153,52 @@ class JoystickModuleTest(unittest.TestCase):
 
         with self.assertRaises(pygame.error):  #Raises error if quit worked
             pygame.joystick.get_count()
+
+    def test_get_count(self):
+        # Test that get_count correctly returns a non-negative number of joysticks
+        pygame.joystick.init()
+
+        try:
+            count = pygame.joystick.get_count()
+            self.assertGreaterEqual(count, 0, ("joystick.get_count() must "
+                                                "return a value >= 0"))
+        finally:
+            pygame.joystick.quit()
+
+class JoystickInteractiveTest(unittest.TestCase):
+
+    __tags__ = ["interactive"]
+
+    def test_get_count_interactive(self):
+        # Test get_count correctly identifies number of connected joysticks
+        prompt(("Please connect any joysticks/controllers now before starting the "
+                "joystick.get_count() test."))
+
+        pygame.joystick.init()
+        # pygame.joystick.get_count(): return count
+        # number of joysticks on the system, 0 means no joysticks connected
+        count = pygame.joystick.get_count()
+
+        response = question(
+            ("NOTE: Having Steam open may add an extra virtual controller for "
+             "each joystick/controller physically plugged in.\n"
+             "joystick.get_count() thinks there is [{}] joystick(s)/controller(s)"
+             "connected to this system. Is this correct?"
+             .format(count))
+        )
+
+        self.assertTrue(response)
+
+        # When you create Joystick objects using Joystick(id), you pass an
+        # integer that must be lower than this count.
+        # Test Joystick(id) for each connected joystick
+        if count != 0:
+            for x in range(count):
+                pygame.joystick.Joystick(x)
+            with self.assertRaises(pygame.error):
+                pygame.joystick.Joystick(count)
+
+        pygame.joystick.quit()
 
 
 ################################################################################

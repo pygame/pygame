@@ -69,7 +69,7 @@ class MissingModule:
             level = 4 if self.urgent else 3
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
-            print (message)
+            print(message)
 
 
 # we need to import like this, each at a time. the cleanest way to import
@@ -205,7 +205,7 @@ def warn_unwanted_files():
             level = 4
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
-            print (message)
+            print(message)
 
 
 # disable, because we hopefully don't need it.
