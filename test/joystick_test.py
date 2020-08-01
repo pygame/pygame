@@ -1,18 +1,37 @@
 import unittest
 import pygame
+import re           # to create a regular expressions used throughout
+
+
+def yes_no(question : str) -> bool:
+    '''returns true if the user inputs 'Y' or 'y', false otherwise
+        
+    it will ask a yes or no question, matching user input against an regular expression
+    if the user does not answer 'Y' or 'y'... this will return false...
+    '''
+    confirm = input(question + "(Y/N)? ") 
+    return bool(re.match(r"^\s*[yY]\s*$", confirm)) # regex allows input of 'y' or 'Y' unaffected by spaces
 
 
 class JoystickTypeTest(unittest.TestCase):
-    def todo_test_Joystick(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.joystick.Joystick:
-
+    def test_Joystick(self):
+        # __doc__ (as of 2008-08-02) for pygame.joystick.Joystick
         # pygame.joystick.Joystick(id): return Joystick
         # create a new Joystick object
         #
         # Create a new joystick to access a physical device. The id argument
         # must be a value from 0 to pygame.joystick.get_count()-1.
-        #
+        
+        
+        # Check if the user has a joystick available...
+        print("You will need a joystick on hand to test the Joystick class and all related code.")
+        print("If you have a joystick ready, it does not need to be plugged in yet.")
+        print("The test will prompt you when you will need to plug or unplug your joystick.")
+        print("It is recommended to use a controller such as a PS3 or PS4 DualShock controller.")
+        
+        if not yes_no("Do you have a joystick"):
+            self.fail("You need a joystick to properly test Joystick(id)!")
+
         # To access most of the Joystick methods, you'll need to init() the
         # Joystick. This is separate from making sure the joystick module is
         # initialized. When multiple Joysticks objects are created for the
@@ -26,8 +45,35 @@ class JoystickTypeTest(unittest.TestCase):
         # You can call the Joystick.get_name() and Joystick.get_id() functions
         # without initializing the Joystick object.
         #
+        
+        # Testing Joystick(id) without joysticks plugged in...
+        print("Testing construction without joystick devices plugged in.")
+        print("Unplug external hardware such as a mouse, second keyboard, etcetera.")
 
-        self.fail()
+        if not yes_no("Did you unplug as many devices as you can"):
+            self.fail("You need all joysticks unplugged to properly test Joystick(id)!")
+        
+        pygame.joystick.init()  # initializes joystick module and scans for joystick devices; thus we have to scan after unplugging...
+
+        with self.assertRaises(pygame.error) as no_joy_error:
+            joy = pygame.joystick.Joystick(0)
+
+        # Testing Joystick(id) with a joystick plugged in 
+        print("Testing construction with joystick devices plugged in.")
+        print("If you haven't plugged in the joystick that you're trying to test, do so now.")
+
+        if not yes_no("Did you plug in an valid joystick device(Y/N)? "):            
+            self.fail("You need a joysticks plugged to properly test Joystick(id)!")
+        
+        pygame.joystick.quit()
+        pygame.joystick.init()  # we need to scan for joystick devices again
+        
+        try:
+            joy = pygame.joystick.Joystick(0)
+        except pygame.error:
+            self.fail("No valid joystick device detected! Try another one!")
+        
+
 
 
 class JoystickModuleTest(unittest.TestCase):
