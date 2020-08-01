@@ -8,7 +8,10 @@
 #define DOC_JOYSTICKINIT "init() -> None\ninitialize the Joystick"
 #define DOC_JOYSTICKQUIT "quit() -> None\nuninitialize the Joystick"
 #define DOC_JOYSTICKGETINIT "get_init() -> bool\ncheck if the Joystick is initialized"
-#define DOC_JOYSTICKGETID "get_id() -> int\nget the Joystick ID"
+#define DOC_JOYSTICKGETID "get_id() -> int\nget the device index (deprecated)"
+#define DOC_JOYSTICKGETINSTANCEID "get_instance_id() -> int\nget the joystick instance id"
+#define DOC_JOYSTICKGETGUID "get_guid() -> str\nget the joystick GUID"
+#define DOC_JOYSTICKGETPOWERLEVEL "get_power_level() -> str\nget the approximate power status of the device"
 #define DOC_JOYSTICKGETNAME "get_name() -> string\nget the Joystick system name"
 #define DOC_JOYSTICKGETNUMAXES "get_numaxes() -> int\nget the number of axes on a Joystick"
 #define DOC_JOYSTICKGETAXIS "get_axis(axis_number) -> float\nget the current position of an axis"
@@ -18,10 +21,6 @@
 #define DOC_JOYSTICKGETBUTTON "get_button(button) -> bool\nget the current button state"
 #define DOC_JOYSTICKGETNUMHATS "get_numhats() -> int\nget the number of hat controls on a Joystick"
 #define DOC_JOYSTICKGETHAT "get_hat(hat_number) -> x, y\nget the position of a joystick hat"
-
-#define DOC_JOYSTICKGETINSTANCEID "get_instance_id() -> int\nGet the instance ID of the stick."
-#define DOC_JOYSTICKGETGUID "get_guid() -> int\nGet the GUID of the stick."
-#define DOC_JOYSTICKGETPOWERLEVEL "get_power_level() -> str\nGet a string representing the power level of the joystick (empty/low/medium/full/max/wired/unknown)"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -65,7 +64,19 @@ check if the Joystick is initialized
 
 pygame.joystick.Joystick.get_id
  get_id() -> int
-get the Joystick ID
+get the device index (deprecated)
+
+pygame.joystick.Joystick.get_instance_id
+ get_instance_id() -> int
+get the joystick instance id
+
+pygame.joystick.Joystick.get_guid
+ get_guid() -> str
+get the joystick GUID
+
+pygame.joystick.Joystick.get_power_level
+ get_power_level() -> str
+get the approximate power status of the device
 
 pygame.joystick.Joystick.get_name
  get_name() -> string

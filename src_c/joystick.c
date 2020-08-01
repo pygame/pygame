@@ -222,6 +222,8 @@ const char *_pg_powerlevel_string(SDL_JoystickPowerLevel level) {
 static PyObject *
 joy_get_power_level(PyObject *self, PyObject *args)
 {
+    SDL_JoystickPowerLevel level;
+    const char *leveltext;
     int joy_id = pgJoystick_AsID(self);
     SDL_Joystick *joy = joystick_stickdata[joy_id];
 
@@ -230,8 +232,8 @@ joy_get_power_level(PyObject *self, PyObject *args)
         return RAISE(pgExc_SDLError, "Joystick not initialized");
     }
 
-    SDL_JoystickPowerLevel level = SDL_JoystickCurrentPowerLevel(joy);
-    const char *leveltext = _pg_powerlevel_string(level);
+    level = SDL_JoystickCurrentPowerLevel(joy);
+    leveltext = _pg_powerlevel_string(level);
 
     return PyUnicode_FromString(leveltext);
 }

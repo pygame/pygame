@@ -13,7 +13,7 @@ Joystick devices include trackballs and video-game-style
 gamepads, and the module allows the use of multiple buttons and "hats".
 Computers may manage multiple joysticks at a time.
 
-Each instance of the Joystick class represents one gaming device plugged 
+Each instance of the Joystick class represents one gaming device plugged
 into the computer. If a gaming pad has multiple joysticks on it, than the
 joystick object can actually represent multiple joysticks on that single
 game device.
@@ -139,12 +139,55 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
    .. method:: get_id
 
-      | :sl:`get the Joystick ID`
+      | :sl:`get the device index (deprecated)`
       | :sg:`get_id() -> int`
 
-      Returns the integer ``ID`` that represents this device. This is the same
+      Returns the original device index for this device. This is the same
       value that was passed to the ``Joystick()`` constructor. This method can
       safely be called while the Joystick is not initialized.
+
+      .. deprecated:: 2.0
+
+         The original device index is not useful in SDL2. Use
+         :meth:`.get_instance_id` instead. Will be removed in Pygame 2.1.
+
+   .. method:: get_instance_id() -> int
+
+      | :sl:`get the joystick instance id`
+      | :sg:`get_instance_id() -> int`
+
+      *Availability: SDL2*
+
+      Get the joystick instance ID. This matches the ``instance_id`` field
+      that is given in joystick events.
+
+      .. versionadded:: 2.0.0dev12
+
+   .. method:: get_guid() -> str
+
+      | :sl:`get the joystick GUID`
+      | :sg:`get_guid() -> str`
+
+      *Availability: SDL2*
+
+      Get the GUID string. This identifies the exact hardware of the joystick
+      device.
+
+      .. versionadded:: 2.0.0dev12
+
+   .. method:: get_power_level() -> str
+
+      | :sl:`get the approximate power status of the device`
+      | :sg:`get_power_level() -> str`
+
+      *Availability: SDL2*
+
+      Get a string giving the power status of the device.
+
+      One of: ``empty``, ``low``, ``medium``, ``full``, ``wired``, ``max``, or
+      ``unknown``.
+
+      .. versionadded:: 2.0.0dev12
 
       .. ## Joystick.get_id ##
 
@@ -283,6 +326,5 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
    :alt: joystick module example
 
    Example code for joystick module.
-   
+
 .. literalinclude:: code_examples/joystick_calls.py
-   

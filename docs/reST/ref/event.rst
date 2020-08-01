@@ -77,11 +77,11 @@ specific attributes.
     MOUSEMOTION       pos, rel, buttons
     MOUSEBUTTONUP     pos, button
     MOUSEBUTTONDOWN   pos, button
-    JOYAXISMOTION     joy, axis, value
-    JOYBALLMOTION     joy, ball, rel
-    JOYHATMOTION      joy, hat, value
-    JOYBUTTONUP       joy, button
-    JOYBUTTONDOWN     joy, button
+    JOYAXISMOTION     joy (deprecated), instance_id (SDL2 only), axis, value
+    JOYBALLMOTION     joy (deprecated), instance_id (SDL2 only), ball, rel
+    JOYHATMOTION      joy (deprecated), instance_id (SDL2 only), hat, value
+    JOYBUTTONUP       joy (deprecated), instance_id (SDL2 only), button
+    JOYBUTTONDOWN     joy (deprecated), instance_id (SDL2 only), button
     VIDEORESIZE       size, w, h
     VIDEOEXPOSE       none
     USEREVENT         code
