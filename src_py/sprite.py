@@ -1563,22 +1563,24 @@ class collide_circle_ratio(object):  # noqa pylint: disable=invalid-name; this i
         distancesquared = xdistance ** 2 + ydistance ** 2
 
         if hasattr(left, "radius"):
-            leftradius = left.radius * ratio
+            leftradius = left.radius
         else:
             leftrect = left.rect
-            leftradius = (ratio * 0.5 * ((leftrect.width ** 2 +
-                                          leftrect.height ** 2) ** 0.5))
+            leftradius = (0.5 * ((leftrect.width ** 2 +
+                                  leftrect.height ** 2) ** 0.5))
             # store the radius on the sprite for next time
             setattr(left, 'radius', leftradius)
+        leftradius *= ratio
 
         if hasattr(right, "radius"):
-            rightradius = right.radius * ratio
+            rightradius = right.radius
         else:
             rightrect = right.rect
-            rightradius = (ratio * 0.5 * ((rightrect.width ** 2 +
-                                           rightrect.height ** 2) ** 0.5))
+            rightradius = (0.5 * ((rightrect.width ** 2 +
+                                   rightrect.height ** 2) ** 0.5))
             # store the radius on the sprite for next time
             setattr(right, 'radius', rightradius)
+        rightradius *= ratio
 
         return distancesquared <= (leftradius + rightradius) ** 2
 
