@@ -26,7 +26,8 @@ class KeyModuleTest(unittest.TestCase):
 
     def test_get_focused(self):
         focused = pygame.key.get_focused()
-        self.assertFalse(focused) #No window to focus
+        if not SDL1:
+            self.assertFalse(focused) #No window to focus
         self.assertIsInstance(focused, int)
         display_sizes = pygame.display.list_modes()
         if display_sizes == -1:
@@ -35,7 +36,7 @@ class KeyModuleTest(unittest.TestCase):
             return
         pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
         pygame.event.set_grab(True)
-        pygame.event.pump() #Pump event queue to get window focus
+        pygame.event.pump() #Pump event queue to get window focus on macos
         if not pygame.event.get_grab():
             return
         focused = pygame.key.get_focused()
