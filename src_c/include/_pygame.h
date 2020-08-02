@@ -273,10 +273,13 @@ typedef struct {
  * JOYSTICK module
  */
 typedef struct {
-    PyObject_HEAD int id;
+    PyObject_HEAD
+    int id;
+    SDL_Joystick *joy;
 } pgJoystickObject;
 
 #define pgJoystick_AsID(x) (((pgJoystickObject *)x)->id)
+#define pgJoystick_AsSDL(x) (((pgJoystickObject *)x)->joy)
 
 #ifndef PYGAMEAPI_JOYSTICK_INTERNAL
 #define pgJoystick_Type \

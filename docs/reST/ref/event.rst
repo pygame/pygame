@@ -146,6 +146,22 @@ Events reserved for :mod:`pygame.midi` use.
 |
 
 
+|
+
+.. versionadded:: 2.0.0
+
+SDL2 supports controller hotplugging:
+
+::
+
+   CONTROLLERDEVICEADDED    device_index
+   JOYDEVICEADDED           device_index
+   CONTROLLERDEVICEREMOVED  instance_id
+   JOYDEVICEREMOVED         instance_id
+   CONTROLLERDEVICEREMAPPED instance_id
+
+|
+
 .. function:: pump
 
    | :sl:`internally process pygame event handlers`

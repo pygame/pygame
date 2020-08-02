@@ -146,7 +146,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       value that was passed to the ``Joystick()`` constructor. This method can
       safely be called while the Joystick is not initialized.
 
-      .. deprecated:: 2.0
+      .. deprecated:: 2.0.0
 
          The original device index is not useful in SDL2. Use
          :meth:`.get_instance_id` instead. Will be removed in Pygame 2.1.
@@ -161,7 +161,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Get the joystick instance ID. This matches the ``instance_id`` field
       that is given in joystick events.
 
-      .. versionadded:: 2.0.0dev12
+      .. versionadded:: 2.0.0dev11
 
    .. method:: get_guid() -> str
 
@@ -173,7 +173,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Get the GUID string. This identifies the exact hardware of the joystick
       device.
 
-      .. versionadded:: 2.0.0dev12
+      .. versionadded:: 2.0.0dev11
 
    .. method:: get_power_level() -> str
 
@@ -187,7 +187,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       One of: ``empty``, ``low``, ``medium``, ``full``, ``wired``, ``max``, or
       ``unknown``.
 
-      .. versionadded:: 2.0.0dev12
+      .. versionadded:: 2.0.0dev11
 
       .. ## Joystick.get_id ##
 
