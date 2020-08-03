@@ -199,11 +199,12 @@ joy_get_guid(PyObject *self, PyObject *args)
     char strguid[33];
 
     JOYSTICK_INIT_CHECK();
-    if (!joy) {
-        return RAISE(pgExc_SDLError, "Joystick not initialized");
+    if (joy) {
+        guid = SDL_JoystickGetGUID(joy);
+    } else {
+        guid = SDL_JoystickGetDeviceGUID(pgJoystick_AsID(self));
     }
 
-    guid = SDL_JoystickGetGUID(joy);
     SDL_JoystickGetGUIDString(guid, strguid, 33);
 
     return Text_FromUTF8(strguid);

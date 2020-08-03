@@ -517,6 +517,17 @@ _pg_insobj_sdl2alias(PyObject *dict, char *name, char *alias, PyObject *v) {
     }
 }
 
+#if IS_SDLv2
+static PyObject *
+get_joy_guid(int device_index) {
+    char strguid[33];
+    SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(device_index);
+
+    SDL_JoystickGetGUIDString(guid, strguid, 33);
+    return Text_FromUTF8(strguid);
+}
+#endif
+
 #if IS_SDLv1
 
 #if defined(Py_USING_UNICODE)
@@ -794,10 +805,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
             break;
         case SDL_CONTROLLERDEVICEADDED:
-            _pg_insobj(dict, "device_id", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "device_index", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
             break;
         case SDL_JOYDEVICEADDED:
-            _pg_insobj(dict, "device_id", PyLong_FromLong(event->jdevice.which));
+            _pg_insobj(dict, "device_index", PyLong_FromLong(event->jdevice.which));
+            _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
             break;
         case SDL_CONTROLLERDEVICEREMOVED:
         case SDL_CONTROLLERDEVICEREMAPPED:
