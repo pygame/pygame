@@ -27,18 +27,33 @@
 
 #include "doc/joystick_doc.h"
 
+static pgJoystickObject *joylist_head = NULL;
 static PyTypeObject pgJoystick_Type;
 static PyObject *
 pgJoystick_New(int);
 #define pgJoystick_Check(x) ((x)->ob_type == &pgJoystick_Type)
 
+
+
 static void
 joy_autoquit(void)
 {
+    /* Walk joystick objects to deallocate the stick objects. */
+    pgJoystickObject *cur = joylist_head;
+    cur = joylist_head;
+    while (cur) {
+        if (cur->joy) {
+            SDL_JoystickClose(cur->joy);
+            cur->joy = NULL;
+        }
+        cur = cur->next;
+    }
+
     if (SDL_WasInit(SDL_INIT_JOYSTICK)) {
         SDL_JoystickEventState(SDL_ENABLE);
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
     }
+
 }
 
 static PyObject *
@@ -86,6 +101,14 @@ get_init(PyObject *self)
 static void
 joy_dealloc(PyObject *self)
 {
+    pgJoystickObject *jstick = (pgJoystickObject *) self;
+    if (jstick->prev) {
+        jstick->prev->next = jstick->next;
+    }
+    if (jstick->next) {
+        jstick->next->prev = jstick->prev;
+    }
+
     PyObject_DEL(self);
 }
 
@@ -108,6 +131,7 @@ get_count(PyObject *self, PyObject *args)
     JOYSTICK_INIT_CHECK();
     return PyInt_FromLong(SDL_NumJoysticks());
 }
+
 
 static PyObject *
 joy_init(PyObject *self, PyObject *args)
@@ -485,7 +509,7 @@ static PyTypeObject pgJoystick_Type = {
 static PyObject *
 pgJoystick_New(int id)
 {
-    pgJoystickObject *jstick;
+    pgJoystickObject *jstick, *cur;
     SDL_Joystick *joy;
 
     JOYSTICK_INIT_CHECK();
@@ -499,6 +523,16 @@ pgJoystick_New(int id)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
+    /* Search existing joystick objects to see if we already have this stick. */
+    cur = joylist_head;
+    while (cur) {
+        if (cur->joy == joy) {
+            Py_INCREF(cur);
+            return (PyObject *) cur;
+        }
+        cur = cur->next;
+    }
+
     /* Construct the Python object */
     jstick = PyObject_NEW(pgJoystickObject, &pgJoystick_Type);
     if (!jstick) {
@@ -506,6 +540,12 @@ pgJoystick_New(int id)
     }
     jstick->id = id;
     jstick->joy = joy;
+    jstick->prev = NULL;
+    jstick->next = joylist_head;
+    if (joylist_head) {
+        joylist_head->prev = jstick;
+    }
+    joylist_head = jstick;
     return (PyObject *)jstick;
 }
 
