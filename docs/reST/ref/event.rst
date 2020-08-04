@@ -77,11 +77,11 @@ specific attributes.
     MOUSEMOTION       pos, rel, buttons
     MOUSEBUTTONUP     pos, button
     MOUSEBUTTONDOWN   pos, button
-    JOYAXISMOTION     joy (deprecated), instance_id (SDL2 only), axis, value
-    JOYBALLMOTION     joy (deprecated), instance_id (SDL2 only), ball, rel
-    JOYHATMOTION      joy (deprecated), instance_id (SDL2 only), hat, value
-    JOYBUTTONUP       joy (deprecated), instance_id (SDL2 only), button
-    JOYBUTTONDOWN     joy (deprecated), instance_id (SDL2 only), button
+    JOYAXISMOTION     joy (deprecated), instance_id, axis, value
+    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
+    JOYHATMOTION      joy (deprecated), instance_id, hat, value
+    JOYBUTTONUP       joy (deprecated), instance_id, button
+    JOYBUTTONDOWN     joy (deprecated), instance_id, button
     VIDEORESIZE       size, w, h
     VIDEOEXPOSE       none
     USEREVENT         code
@@ -159,6 +159,9 @@ SDL2 supports controller hotplugging:
    CONTROLLERDEVICEREMOVED  instance_id
    JOYDEVICEREMOVED         instance_id
    CONTROLLERDEVICEREMAPPED instance_id
+
+Also in this version, ``instance_id`` attributes were added to joystick events,
+and the ``joy`` attribute was deprecated.
 
 |
 
