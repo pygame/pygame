@@ -100,6 +100,11 @@ static void
 joy_dealloc(PyObject *self)
 {
     pgJoystickObject *jstick = (pgJoystickObject *) self;
+
+    if (jstick->joy) {
+        SDL_JoystickClose(jstick->joy);
+    }
+
     if (jstick->prev) {
         jstick->prev->next = jstick->next;
     } else {
