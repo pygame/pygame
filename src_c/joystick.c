@@ -28,19 +28,17 @@
 #include "doc/joystick_doc.h"
 
 static pgJoystickObject *joylist_head = NULL;
+static PyObject *joy_instance_map = NULL;
 static PyTypeObject pgJoystick_Type;
-static PyObject *
-pgJoystick_New(int);
+static PyObject *pgJoystick_New(int);
+static int _joy_map_insert(pgJoystickObject *jstick);
 #define pgJoystick_Check(x) ((x)->ob_type == &pgJoystick_Type)
-
-
 
 static void
 joy_autoquit(void)
 {
     /* Walk joystick objects to deallocate the stick objects. */
     pgJoystickObject *cur = joylist_head;
-    cur = joylist_head;
     while (cur) {
         if (cur->joy) {
             SDL_JoystickClose(cur->joy);
@@ -104,6 +102,8 @@ joy_dealloc(PyObject *self)
     pgJoystickObject *jstick = (pgJoystickObject *) self;
     if (jstick->prev) {
         jstick->prev->next = jstick->next;
+    } else {
+        joylist_head = jstick->next;
     }
     if (jstick->next) {
         jstick->next->prev = jstick->prev;
@@ -145,7 +145,38 @@ joy_init(PyObject *self, PyObject *args)
         }
     }
 
+    if (-1 == _joy_map_insert(jstick)) {
+        return NULL;
+    }
+
     Py_RETURN_NONE;
+}
+
+static int
+_joy_map_insert(pgJoystickObject *jstick) {
+    SDL_JoystickID instance_id;
+    PyObject *k, *v;
+
+    if (!joy_instance_map) {
+        return -1;
+    }
+
+#if IS_SDLv2
+    instance_id = SDL_JoystickInstanceID(jstick->joy);
+    if (instance_id < 0) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    k = PyInt_FromLong(instance_id);
+    v = PyInt_FromLong(jstick->id);
+    if (k && v) {
+        PyDict_SetItem(joy_instance_map, k, v);
+    }
+    Py_XDECREF(k);
+    Py_XDECREF(v);
+#endif
+
+    return 0;
 }
 
 static PyObject *
@@ -547,6 +578,12 @@ pgJoystick_New(int id)
         joylist_head->prev = jstick;
     }
     joylist_head = jstick;
+
+    if (-1 == _joy_map_insert(jstick)) {
+        Py_DECREF(jstick);
+        return NULL;
+    }
+
     return (PyObject *)jstick;
 }
 
@@ -592,6 +629,14 @@ MODINIT_DEFINE(joystick)
     if (PyType_Ready(&pgJoystick_Type) == -1) {
         MODINIT_ERROR;
     }
+
+    /* Grab the instance -> device id mapping */
+    module = PyImport_ImportModule("pygame.event");
+    if (!module) {
+        return NULL;
+    }
+    joy_instance_map = PyObject_GetAttrString(module, "_joy_instance_map");
+    Py_DECREF(module);
 
     /* create the module */
 #if PY3
