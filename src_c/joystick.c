@@ -159,6 +159,7 @@ joy_init(PyObject *self, PyObject *args)
 
 static int
 _joy_map_insert(pgJoystickObject *jstick) {
+#if IS_SDLv2
     SDL_JoystickID instance_id;
     PyObject *k, *v;
 
@@ -166,7 +167,6 @@ _joy_map_insert(pgJoystickObject *jstick) {
         return -1;
     }
 
-#if IS_SDLv2
     instance_id = SDL_JoystickInstanceID(jstick->joy);
     if (instance_id < 0) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());

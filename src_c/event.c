@@ -525,7 +525,7 @@ _joy_map_add(int device_index) {
     PyObject *k, *v;
     if (instance_id != -1) {
         k = PyInt_FromLong(instance_id);
-        v = PyInt_FromLong(device_id);
+        v = PyInt_FromLong(device_index);
         if (k != NULL && v != NULL) {
             PyDict_SetItem(joy_instance_map, k, v);
         }
@@ -537,7 +537,7 @@ _joy_map_add(int device_index) {
 
 /** Look up a device ID for an instance ID. */
 PyObject *
-_joy_map_instance(SDL_JoystickID instance_id) {
+_joy_map_instance(int instance_id) {
     PyObject *v, *k = PyInt_FromLong(instance_id);
     if (!k) {
         Py_RETURN_NONE;
@@ -553,7 +553,7 @@ _joy_map_instance(SDL_JoystickID instance_id) {
 
 /** Discard a joystick from the joystick instance -> device mapping. */
 void
-_joy_map_discard(SDL_JoystickID instance_id) {
+_joy_map_discard(int instance_id) {
     PyObject *k = PyInt_FromLong(instance_id);
 
     if (k) {
