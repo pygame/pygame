@@ -1483,27 +1483,27 @@ def collide_circle(left, right):
     ydistance = left.rect.centery - right.rect.centery
     distancesquared = xdistance ** 2 + ydistance ** 2
 
-    if hasattr(left, 'radius'):
+    try:
         leftradius = left.radius
-    else:
+    except AttributeError:
         leftrect = left.rect
         # approximating the radius of a square by using half of the diagonal,
         # might give false positives (especially if its a long small rect)
         leftradius = (0.5 * ((leftrect.width ** 2 +
                               leftrect.height ** 2) ** 0.5))
         # store the radius on the sprite for next time
-        setattr(left, 'radius', leftradius)
+        left.radius = leftradius
 
-    if hasattr(right, 'radius'):
+    try:
         rightradius = right.radius
-    else:
+    except AttributeError:
         rightrect = right.rect
         # approximating the radius of a square by using half of the diagonal
         # might give false positives (especially if its a long small rect)
         rightradius = (0.5 * ((rightrect.width ** 2 +
                                rightrect.height ** 2) ** 0.5))
         # store the radius on the sprite for next time
-        setattr(right, 'radius', rightradius)
+        right.radius = rightradius
     return distancesquared <= (leftradius + rightradius) ** 2
 
 
@@ -1562,24 +1562,24 @@ class collide_circle_ratio(object):  # noqa pylint: disable=invalid-name; this i
         ydistance = left.rect.centery - right.rect.centery
         distancesquared = xdistance ** 2 + ydistance ** 2
 
-        if hasattr(left, "radius"):
+        try:
             leftradius = left.radius
-        else:
+        except AttributeError:
             leftrect = left.rect
             leftradius = (0.5 * ((leftrect.width ** 2 +
                                   leftrect.height ** 2) ** 0.5))
             # store the radius on the sprite for next time
-            setattr(left, 'radius', leftradius)
+            left.radius = leftradius
         leftradius *= ratio
 
-        if hasattr(right, "radius"):
+        try:
             rightradius = right.radius
-        else:
+        except AttributeError:
             rightrect = right.rect
             rightradius = (0.5 * ((rightrect.width ** 2 +
                                    rightrect.height ** 2) ** 0.5))
             # store the radius on the sprite for next time
-            setattr(right, 'radius', rightradius)
+            right.radius = rightradius
         rightradius *= ratio
 
         return distancesquared <= (leftradius + rightradius) ** 2
