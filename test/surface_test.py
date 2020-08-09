@@ -1419,7 +1419,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             surface.set_alpha(alpha)
             r1, g1, b1, a1 = surface.get_shifts()
             surface.set_alpha(off)
-            r2, g2, g2, a2 = surface.get_shifts()
+            r2, g2, b2, a2 = surface.get_shifts()
             self.assertEqual((r1, g1, b1, a1), (r2, g2, b2, a2))
 
 
