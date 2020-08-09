@@ -1390,7 +1390,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_shifts(self):
+
+    def test_get_shifts(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_shifts:
 
@@ -1402,7 +1403,25 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # This value is not needed for normal Pygame usage.
 
-        self.fail()
+        # Test for SDL1 -> set_shifts() raises AttributeError in SDL2
+        if SDL1:
+          surface = pygame.Surface((32, 32))
+          surface.set_shifts((2, 4, 8, 16))
+          r, g, b, a = surface.get_shifts()
+          self.assertEqual((r, g, b, a), (2, 4, 8, 16))
+        # Test for SDL2 on surfaces with various depths and alpha on/off
+        else:
+          depths = [8, 24, 32]
+          alpha = 128
+          off = None
+          for bit_depth in depths:
+            surface = pygame.Surface((32, 32), depth=bit_depth)
+            surface.set_alpha(alpha)
+            r1, g1, b1, a1 = surface.get_shifts()
+            surface.set_alpha(off)
+            r2, g2, g2, a2 = surface.get_shifts()
+            self.assertEqual((r1, g1, b1, a1), (r2, g2, b2, a2))
+
 
     def test_get_size(self):
         sizes = ((1, 1), (119, 10), (1000, 1000), (1, 5000), (1221, 1), (99, 999))
