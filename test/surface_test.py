@@ -1389,7 +1389,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # This value is not needed for normal Pygame usage.
 
         # Test get_pitch() on several surfaces of varying size
-        sizes = ((1, 1), (7, 33), (33, 7), (1, 734), (734, 1), (734, 734))
+        sizes = ((2, 2), (7, 33), (33, 7), (2, 734), (734, 2), (734, 734))
         for width, height in sizes:
             # Test get_pitch() on parent surface
             surf = pygame.Surface((width, height))
