@@ -377,7 +377,7 @@ class DisplayModuleTest(unittest.TestCase):
         # hardware support gamma ramps, if the function succeeds it will
         # return True.
         #
-        pygame.display.set_mode(5, 5)
+        pygame.display.set_mode((5, 5))
         r = list(range(256))
         g = [number + 256 for number in r]
         b = [number + 256 for number in g]
