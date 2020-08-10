@@ -1375,7 +1375,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_get_pitch(self):
+    def test_get_pitch(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_pitch:
 
@@ -1388,7 +1388,14 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # This value is not needed for normal Pygame usage.
 
-        self.fail()
+        # Test get_pitch() on several surfaces of varying size
+        sizes = ((1, 1), (7, 33), (33, 7), (1, 734), (734, 1), (734, 734))
+        for width, height in sizes:
+            surf = pygame.Surface((width, height))
+            buff = surf.get_buffer()
+            pitch = buff.length / surf.get_height()
+            test_pitch = surf.get_pitch()
+            self.assertEqual(pitch, test_pitch)
 
     def todo_test_get_shifts(self):
 
