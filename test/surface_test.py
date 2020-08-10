@@ -1408,7 +1408,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             rect2 = rect1.inflate(-width/2, -height/2)
             subsurf2 = surf.subsurface(rect2)
             sub_buff2 = subsurf2.get_buffer()
-            sub_pitch2 = sub_buff2.length / subsurf2.get_height()
+            sub_pitch2 = sub_buff2.length / float(subsurf2.get_height())
             test_sub_pitch2 = subsurf2.get_pitch()
             self.assertEqual(sub_pitch2, test_sub_pitch2)
 
