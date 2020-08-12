@@ -378,26 +378,8 @@ class DisplayModuleTest(unittest.TestCase):
 
     def todo_test_set_icon(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.display.set_icon:
-
-        # pygame.display.set_icon(Surface): return None
-        # change the system image for the display window
-        #
-        # Sets the runtime icon the system will use to represent the display
-        # window. All windows default to a simple pygame logo for the window
-        # icon.
-        #
-        # You can pass any surface, but most systems want a smaller image
-        # around 32x32. The image can have colorkey transparency which will be
-        # passed to the system.
-        #
-        # Some systems do not allow the window icon to change after it has
-        # been shown. This function can be called before
-        # pygame.display.set_mode() to create the icon before the display mode
-        # is set.
-        #
-
-        self.fail()
+        test_icon = pygame.Surface((32, 32))
+        self.assertIsNone(pygame.dispaly.set_icon(test_icon))
 
     def test_set_mode_kwargs(self):
 
@@ -430,7 +412,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
     def test_set_palette(self):
         with self.assertRaises(UnboundLocalError) :
             palette = [1,2,3]
@@ -442,22 +424,22 @@ class DisplayModuleTest(unittest.TestCase):
         screen.set_palette(palette)
         self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
         self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = 12
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[1,2],[1,2]]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = "qwerty"
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[123,123,123]*10000]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [1,2,3]
             screen.set_palette(palette)
 
