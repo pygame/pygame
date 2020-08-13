@@ -376,10 +376,10 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_icon(self):
+    def test_set_icon(self):
 
         test_icon = pygame.Surface((32, 32))
-        self.assertIsNone(pygame.dispaly.set_icon(test_icon))
+        self.assertIsNone(pygame.display.set_icon(test_icon))
 
     def test_set_mode_kwargs(self):
 
