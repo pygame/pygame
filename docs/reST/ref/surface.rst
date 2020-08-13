@@ -93,9 +93,8 @@
       | :sg:`blit(source, dest, area=None, special_flags=0) -> Rect`
 
       Draws a source Surface onto this Surface. The draw can be positioned with
-      the dest argument. Dest can either be pair of coordinates representing
-      the upper left corner of the source. A Rect can also be passed as the
-      destination and the topleft corner of the rectangle will be used as the
+      the dest argument. The dest argument can either be a pair of coordinates representing the position of
+      the upper left corner of the blit or a Rect, where the upper left corner of the rectangle will be used as the
       position for the blit. The size of the destination rectangle does not
       effect the blit.
 
