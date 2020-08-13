@@ -439,7 +439,7 @@ class DisplayModuleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             palette = [[123,123,123]*10000]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): 
             palette = [1,2,3]
             screen.set_palette(palette)
 
