@@ -280,6 +280,42 @@ class ImageModuleTest(unittest.TestCase):
             # clean up the temp file, even if test fails
             os.remove(temp_filename)
 
+    def test_save__to_fileobject_w_namehint_argument(self):
+        s = pygame.Surface((10, 10))
+        s.fill((23, 23, 23))
+        magic_hex = {}
+        magic_hex["jpg"] = [0xFF, 0xD8, 0xFF, 0xE0]
+        magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
+        magic_hex["bmp"] = [0x42, 0x4D]
+
+        formats = ["jpg", "png", "bmp"]
+        # uppercase too... JPG
+        formats = formats + [x.upper() for x in formats]
+
+        for fmt in formats:
+            try:
+                temp_filename = "%s.%s" % ("tmpimg", fmt)
+                # Using 'with' ensures the file is closed even if test fails.
+                with open(temp_filename, "wb") as handle:
+                    pygame.image.save(s, handle, fmt)
+
+                with open(temp_filename, "rb") as handle:
+                    # Test the magic numbers at the start of the file to ensure
+                    # they are saved as the correct file type.
+                    self.assertEqual(
+                        (1, fmt), (test_magic(handle, magic_hex[fmt.lower()]), fmt)
+                    )
+
+                # load the file to make sure it was saved correctly.
+                #    Note load can load a jpg saved with a .png file name.
+                s2 = pygame.image.load(temp_filename)
+                # compare contents, might only work reliably for png...
+                #   but because it's all one color it seems to work with jpg.
+                self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
+            finally:
+                # clean up the temp file, comment out to leave tmp file after run.
+                os.remove(temp_filename)
+
     def test_save_colorkey(self):
         """ make sure the color key is not changed when saving.
         """
