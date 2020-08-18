@@ -35,8 +35,8 @@ EVENT_TYPES = (
 
 EVENT_TEST_PARAMS = collections.defaultdict(dict)
 EVENT_TEST_PARAMS.update({
-    pygame.KEYDOWN:dict(key=pygame.K_SPACE),
-    pygame.KEYUP:dict(key=pygame.K_SPACE),
+    pygame.KEYDOWN:{'key': pygame.K_SPACE, 'scancode': 2328724320 },
+    pygame.KEYUP:{'key': pygame.K_SPACE,  'scancode': 2328724320},
     pygame.MOUSEMOTION:dict(),
     pygame.MOUSEBUTTONDOWN:dict(button=1),
     pygame.MOUSEBUTTONUP:dict(button=1),
@@ -204,6 +204,27 @@ class EventModuleTest(unittest.TestCase):
         else:
             self.assertItemsEqual(*args, **kwargs)
 
+    def _assertExpectedEvents(self, expected, got):
+        """Find events like expected events, raise on unexpected or missing,
+        ignore additional event properties if expected properties are present."""
+
+        # This does greedy matching, don't encode an NP-hard problem
+        # into your input data, *please*
+        items_left=got[:]
+        for expected_element in expected:
+            for item in items_left:
+                for key in expected_element.__dict__:
+                    if item.__dict__[key]!=expected_element.__dict__[key]:
+                        break
+                else:
+                    #found item!
+                    items_left.remove(item)
+                    break
+            else:
+                raise AssertionError("Expected "+str(expected_element)+" among remaining events "+str(items_left)+" out of "+str(got))
+        if len(items_left)>0:
+            raise AssertionError("Unexpected Events: "+str(items_left))
+
     def setUp(self):
         pygame.display.init()
         pygame.event.clear()  # flush events
@@ -342,7 +363,10 @@ class EventModuleTest(unittest.TestCase):
         pygame.event.clear()
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        # don't use self._assertCountEqual here. This checks for
+        # expected properties in events, and ignores unexpected ones, for
+        # forward compatibility with SDL2.
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test when an event type not in the list is in the queue.
         expected_events = []
@@ -351,7 +375,7 @@ class EventModuleTest(unittest.TestCase):
 
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test when 1 event type in the list is in the queue.
         expected_events = [pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]])]
@@ -360,19 +384,19 @@ class EventModuleTest(unittest.TestCase):
 
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test all events in the list are in the queue.
         pygame.event.clear()
         expected_events = []
 
         for etype in event_types:
-            expected_events.append(pygame.event.Event(etype))
+            expected_events.append(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
             pygame.event.post(expected_events[-1])
 
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
     def test_clear(self):
         """Ensure clear() removes all the events on the queue."""
