@@ -2111,6 +2111,34 @@ class Vector3TypeTest(unittest.TestCase):
         v *= 2
         self.assertEqual(v, (4.0, 4.0, 4.0))
 
+    def test_swizzle_constants(self):
+        """We can get constant values from a swizzle."""
+        v = Vector2(7, 6)
+        self.assertEqual(
+            v.xy1,
+            (7.0, 6.0, 1.0),
+        )
+
+    def test_swizzle_four_constants(self):
+        """We can get 4 constant values from a swizzle."""
+        v = Vector2(7, 6)
+        self.assertEqual(
+            v.xy01,
+            (7.0, 6.0, 0.0, 1.0),
+        )
+
+    def test_swizzle_oob(self):
+        """An out-of-bounds swizzle raises an AttributeError."""
+        v = Vector2(7, 6)
+        with self.assertRaises(AttributeError):
+            v.xyz
+
+    def test_swizzle_set_oob(self):
+        """An out-of-bounds swizzle set raises an AttributeError."""
+        v = Vector2(7, 6)
+        with self.assertRaises(AttributeError):
+            v.xz = (1, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
