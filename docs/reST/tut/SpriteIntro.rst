@@ -81,7 +81,7 @@ The class constructor (``__init__`` method) takes an argument of a
 You can also change the ``Group`` membership for the ``Sprite`` with the
 :meth:`add() <pygame.sprite.Sprite.add>` and
 :meth:`remove() <pygame.sprite.Sprite.remove>` methods.
-there is also a :meth:`groups() <pygame.sprite.Sprite.groups>` method,
+There is also a :meth:`groups() <pygame.sprite.Sprite.groups>` method,
 which returns a list of the current groups containing the sprite.
 
 When using the your Sprite classes it's best to think of them as "valid" or
@@ -164,7 +164,7 @@ add multiple players, and instead of adding more "close_to_player2",
 "close_to_player3" attributes, you can easily add them to different groups or
 each player.
 
-Another important benefit of using the ``Sprites`` and ``Groups``, the groups
+Another important benefit of using the ``Sprites`` and ``Groups`` is that the groups
 cleanly handle the deleting (or killing) of game objects. In a game where many
 objects are referencing other objects, sometimes deleting an object can be the
 hardest part, since it can't go away until it is not referenced by anyone. Say
@@ -245,8 +245,8 @@ probably just get away with the ``RenderUpdates`` one, but it adds overhead not
 really needed for something like a scrolling game. So we have a couple tools
 here, pick the right one for the right job.
 
-For a scrolling type game, where the background completely changes every frame.
-We obviously don't need to worry about python's update rectangles in the call
+For a scrolling type game, where the background completely changes every frame,
+we obviously don't need to worry about python's update rectangles in the call
 to ``display.update()``. You should definitely go with the ``RenderPlain``
 group here to manage your rendering.
 
