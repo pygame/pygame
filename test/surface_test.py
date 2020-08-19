@@ -1245,50 +1245,44 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         try:
             # Masks for different color component configurations
             mask8 = (224, 28, 3, 0)
+            mask8a = (224, 28, 2, 1)
             mask15 = (31744, 992, 31, 0)
             mask16 = (63488, 2016, 31, 0)
             mask24 = (4278190080, 16711680, 65280, 0)
             mask32 = (4278190080, 16711680, 65280, 255)
 
-            # Surfaces with standard depths and some with masks passed
+            # Surfaces with standard depths and masks
             display_surf = pygame.display.set_mode((100, 100))
             surf = pygame.Surface((100, 100))
-            surf_8bit = pygame.Surface((100, 100), depth=8)
-            surf_8bit_3320 = pygame.Surface((100, 100), depth=8, masks=mask8)
-            surf_15bit = pygame.Surface((100, 100), depth=15)
-            surf_15bit_5550 = pygame.Surface((100, 100), depth=15, masks=mask15)
-            surf_16bit = pygame.Surface((100, 100), depth=16)
-            surf_16bit_5650 = pygame.Surface((100, 100), depth=16, masks=mask16)
-            surf_24bit = pygame.Surface((100, 100), depth=24)
-            surf_24bit_8880 = pygame.Surface((100, 100), depth=24, masks=mask24)
-            surf_32bit = pygame.Surface((100, 100), depth=32)
-            surf_32bit_8888 = pygame.Surface((100, 100), depth=32, masks=mask32)
+            surf_8bit = pygame.Surface((100, 100), depth=8, masks=mask8)
+            surf_8bit_a = pygame.Surface((100, 100), depth=8, masks=mask8a)
+            surf_15bit = pygame.Surface((100, 100), depth=15, masks=mask15)
+            surf_16bit = pygame.Surface((100, 100), depth=16, masks=mask16)
+            surf_24bit = pygame.Surface((100, 100), depth=24, masks=mask24)
+            surf_32bit = pygame.Surface((100, 100), depth=32, masks=mask32)
+
+            # Test output is correct type, length, and value range
+            losses = surf.get_losses()
+            self.assertIsInstance(losses, tuple)
+            self.assertEqual(len(losses), 4)
+            for loss in losses:
+                self.assertIsInstance(loss, int)
+                self.assertGreaterEqual(loss, 0)
+                self.assertLessEqual(loss, 8)
             
             # Test each surface for correct losses
+            # Display surface losses gives idea of default surface losses
             if (display_surf.get_losses() == (0, 0, 0, 8)):
                 self.assertEqual(surf.get_losses(), (0, 0, 0, 8))
-                self.assertEqual(surf_8bit.get_losses(), (8, 8, 8, 8))
-                self.assertEqual(surf_8bit_3320.get_losses(), (5, 5, 6, 8))
-                self.assertEqual(surf_15bit.get_losses(), (3, 3, 3, 8))
-                self.assertEqual(surf_15bit_5550.get_losses(), (3, 3, 3, 8))
-                self.assertEqual(surf_16bit.get_losses(), (3, 2, 3, 8))
-                self.assertEqual(surf_16bit_5650.get_losses(), (3, 2, 3, 8))
-                self.assertEqual(surf_24bit.get_losses(), (0, 0, 0, 8))
-                self.assertEqual(surf_24bit_8880.get_losses(), (0, 0, 0, 8))
-                self.assertEqual(surf_32bit.get_losses(), (0, 0, 0, 8))
-                self.assertEqual(surf_32bit_8888.get_losses(), (0, 0, 0, 0))
-            # elif (display_surf.get_losses() == (8, 8, 8, 8)):
-            #     self.assertEqual(surf.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_8bit.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_8bit_3320.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_15bit.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_15bit_5550.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_16bit.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_16bit_5650.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_24bit.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_24bit_8880.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_32bit.get_losses(), (8, 8, 8, 8))
-            #     self.assertEqual(surf_32bit_8888.get_losses(), (8, 8, 8, 8))
+            elif (display_surf.get_losses() == (8, 8, 8, 8)):
+                self.assertEqual(surf.get_losses(), (8, 8, 8, 8))
+
+            self.assertEqual(surf_8bit.get_losses(), (5, 5, 6, 8))
+            self.assertEqual(surf_8bit_a.get_losses(), (5, 5, 7, 7))
+            self.assertEqual(surf_15bit.get_losses(), (3, 3, 3, 8))
+            self.assertEqual(surf_16bit.get_losses(), (3, 2, 3, 8))
+            self.assertEqual(surf_24bit.get_losses(), (0, 0, 0, 8))
+            self.assertEqual(surf_32bit.get_losses(), (0, 0, 0, 0))
             
             # Method should fail when display is not intialized
             with self.assertRaises(pygame.error):
