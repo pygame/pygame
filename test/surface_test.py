@@ -1245,7 +1245,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         try:
             # Masks for different color component configurations
             mask8 = (224, 28, 3, 0)
-            mask8a = (224, 28, 2, 1)
             mask15 = (31744, 992, 31, 0)
             mask16 = (63488, 2016, 31, 0)
             mask24 = (4278190080, 16711680, 65280, 0)
@@ -1272,9 +1271,9 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             # Test each surface for correct losses
             # Display surface losses gives idea of default surface losses
             if (display_surf.get_losses() == (0, 0, 0, 8)):
-                self.assertEqual(surf.get_losses(), (0, 0, 0, 8))
+                self.assertEqual(losses, (0, 0, 0, 8))
             elif (display_surf.get_losses() == (8, 8, 8, 8)):
-                self.assertEqual(surf.get_losses(), (8, 8, 8, 8))
+                self.assertEqual(losses, (8, 8, 8, 8))
 
             self.assertEqual(surf_8bit.get_losses(), (5, 5, 6, 8))
             self.assertEqual(surf_15bit.get_losses(), (3, 3, 3, 8))
