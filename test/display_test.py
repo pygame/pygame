@@ -5,6 +5,7 @@ import os
 
 import pygame, pygame.transform
 from pygame.compat import unicode_
+from pygame.locals import *
 
 from pygame import display
 
@@ -376,10 +377,30 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_icon(self):
+    def test_set_icon(self):
+
+        # on my computer, the window was being created off-screen
+        # thus i set the window position manually
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
 
         test_icon = pygame.Surface((32, 32))
-        self.assertIsNone(pygame.dispaly.set_icon(test_icon))
+        test_icon.fill((255,0,0))
+        
+        pygame.display.set_icon(test_icon)
+        screen = pygame.display.set_mode((750,100))
+        pygame.display.set_caption(
+        "If icon to the left is NOT a red square, press 'f' key. \
+        If it IS a red square, press any key other than 'f'."
+        )
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    result = pygame.key.get_pressed()
+                    if result[K_f]:
+                        self.fail()
+                    else:
+                        return
 
     def test_set_mode_kwargs(self):
 
@@ -439,7 +460,7 @@ class DisplayModuleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             palette = [[123,123,123]*10000]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [1,2,3]
             screen.set_palette(palette)
 
