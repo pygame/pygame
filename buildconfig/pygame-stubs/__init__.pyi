@@ -1,71 +1,55 @@
-from typing import Any, Tuple, Callable, Union, Optional, overload, Type
+from typing import Callable, Optional, Tuple, Type, Union
 
-# Most useful stuff
-from pygame.constants import *
-import pygame.surface
-import pygame.rect
-import pygame.color
-import pygame.event
-import pygame.bufferproxy
-import pygame.draw
-import pygame.display
-import pygame.font
-import pygame.image
-import pygame.key
-import pygame.mixer
-import pygame.mouse
-import pygame.time
-import pygame.version
-
-# Advanced stuff
-import pygame.cursors
-import pygame.joystick
-import pygame.mask
-import pygame.sprite
-import pygame.transform
-import pygame.bufferproxy
-import pygame.pixelarray
-import pygame.pixelcopy
-import pygame.sndarray
-import pygame.surfarray
-import pygame.math
-import pygame.fastevent
-
-# Other
-import pygame.scrap
+from . import bufferproxy as bufferproxy
+from . import color as color
+from . import constants as constants
+from . import cursors as cursors
+from . import display as display
+from . import draw as draw
+from . import event as event
+from . import fastevent as fastevent
+from . import font as font
+from . import image as image
+from . import joystick as joystick
+from . import key as key
+from . import mask as mask
+from . import math as math
+from . import mixer as mixer
+from . import mouse as mouse
+from . import pixelarray as pixelarray
+from . import pixelcopy as pixelcopy
+from . import rect as rect
+from . import scrap as scrap
+from . import sndarray as sndarray
+from . import sprite as sprite
+from . import surface as surface
+from . import surfarray as surfarray
+from . import time as time
+from . import transform as transform
+from . import version as version
 
 # This classes are auto imported with pygame, so I put their declaration here
-class Rect(pygame.rect.Rect): ...
-class Surface(pygame.surface.Surface): ...
-class Color(pygame.color.Color): ...
-class PixelArray(pygame.pixelarray.PixelArray): ...
-class Vector2(pygame.math.Vector2): ...
-class Vector3(pygame.math.Vector3): ...
+class Rect(rect.Rect): ...
+class Surface(surface.Surface): ...
+class Color(color.Color): ...
+class PixelArray(pixelarray.PixelArray): ...
+class Vector2(math.Vector2): ...
+class Vector3(math.Vector3): ...
 
 def init() -> Tuple[int, int]: ...
 def quit() -> None: ...
 def get_init() -> bool: ...
 
-class error(RuntimeError):
-    RuntimeError
+class error(RuntimeError): ...
 
 def get_error() -> str: ...
 def set_error(error_msg: str) -> None: ...
 def get_sdl_version() -> Tuple[int, int, int]: ...
 def get_sdl_byteorder() -> int: ...
 def encode_string(
-    obj: Union[str, bytes],
-    encoding: Optional[str] = "unicode_escape",
-    errors: Optional[str] = "backslashreplace",
-    etype: Optional[Type[Exception]] = UnicodeEncodeError,
+    obj: Union[str, bytes], encoding: Optional[str] = ..., errors: Optional[str] = ..., etype: Optional[Type[Exception]] = ...,
 ) -> bytes: ...
-@overload
-def encode_file_path(
-    obj: Union[str, bytes], etype: Optional[Type[Exception]] = UnicodeEncodeError
-) -> bytes: ...
-@overload
-def encode_file_path(
-    obj: Any, etype: Optional[Type[Exception]] = UnicodeEncodeError
-) -> bytes: ...
-def register_quit(callable: Callable) -> None: ...
-def __getattr__(name) -> Any: ...  # don't error on missing stubs
+def encode_file_path(obj: Union[str, bytes, object], etype: Optional[Type[Exception]] = ...) -> bytes: ...
+def register_quit(callable: Callable[[], None]) -> None: ...
+
+# def __getattr__(name) -> Any: ...  # don't error on missing stubs

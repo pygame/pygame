@@ -1,26 +1,22 @@
-from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any
+from typing import IO, Optional, Sequence, Text, Tuple, Union
 
-from pygame.surface import Surface
+from pygame.bufferproxy import BufferProxy
 from pygame.color import Color
 from pygame.rect import Rect
+from pygame.surface import Surface
 
-_ColorValue = Union[Color, Tuple[int, int, int], List[int], int]
+_ColorValue = Union[Color, Tuple[int, int, int], Sequence[int], int]
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...
-def init(cache_size: Optional[int] = 64, resolution: Optional[int] = 72): ...
-def quit(): ...
+def init(cache_size: Optional[int] = ..., resolution: Optional[int] = ...) -> None: ...
+def quit() -> None: ...
 def get_init() -> bool: ...
 def was_init() -> bool: ...
 def get_cache_size() -> int: ...
 def get_default_resolution() -> int: ...
 def set_default_resolution(resolution: int) -> None: ...
-def SysFont(
-    name: Union[str, List[str]],
-    size: int,
-    bold: Optional[int] = False,
-    italic: Optional[int] = False,
-): ...
+def SysFont(name: Union[str, Sequence[str]], size: int, bold: Optional[int] = ..., italic: Optional[int] = ...,) -> Font: ...
 def get_default_font() -> str: ...
 
 STYLE_NORMAL: int
@@ -60,62 +56,56 @@ class Font:
     resolution: int
     def __init__(
         self,
-        file: Union[str, IO],
-        size: Optional[float] = 0,
-        font_index: Optional[int] = 0,
-        resolution: Optional[int] = 0,
-        ucs4: Optional[int] = False,
+        file: Union[str, IO[bytes]],
+        size: Optional[float] = ...,
+        font_index: Optional[int] = ...,
+        resolution: Optional[int] = ...,
+        ucs4: Optional[int] = ...,  # ucs4 is a bool but passed in as an int
     ) -> None: ...
     def get_rect(
-        self,
-        text: str,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
+        self, text: str, style: Optional[int] = ..., rotation: Optional[int] = ..., size: Optional[float] = ...,
     ) -> Rect: ...
-    def get_metrics(
-        self, text: str, size: Optional[float] = 0
-    ) -> List[Tuple[int, int, int, int, float, float]]: ...
+    def get_metrics(self, text: str, size: Optional[float] = ...) -> Sequence[Tuple[int, int, int, int, float, float]]: ...
     def get_sized_ascender(self, size: float) -> int: ...
     def get_sized_descender(self, size: float) -> int: ...
     def get_sized_height(self, size: float) -> int: ...
     def get_sized_glyph_height(self, size: float) -> int: ...
-    def get_sizes(self) -> List[Tuple[int, int, int, float, float]]: ...
+    def get_sizes(self) -> Sequence[Tuple[int, int, int, float, float]]: ...
     def render(
         self,
         text: str,
-        fgcolor: Optional[_ColorValue] = None,
-        bgcolor: Optional[_ColorValue] = None,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
+        fgcolor: Optional[_ColorValue] = ...,
+        bgcolor: Optional[_ColorValue] = ...,
+        style: Optional[int] = ...,
+        rotation: Optional[int] = ...,
+        size: Optional[float] = ...,
     ) -> Tuple[Surface, Rect]: ...
     def render_to(
         self,
         surf: Surface,
-        dest: Union[Tuple[int, int], Sequence[int], Rect],
+        dest: Union[Sequence[int], Rect],
         text: str,
-        fgcolor: Optional[_ColorValue] = None,
-        bgcolor: Optional[_ColorValue] = None,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
+        fgcolor: Optional[_ColorValue] = ...,
+        bgcolor: Optional[_ColorValue] = ...,
+        style: Optional[int] = ...,
+        rotation: Optional[int] = ...,
+        size: Optional[float] = ...,
     ) -> Rect: ...
     def render_raw(
         self,
         text: str,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
-        invert: Optional[bool] = False,
+        style: Optional[int] = ...,
+        rotation: Optional[int] = ...,
+        size: Optional[float] = ...,
+        invert: Optional[bool] = ...,
     ) -> Tuple[bytes, Tuple[int, int]]: ...
     def render_raw_to(
         self,
-        array: Any,
+        array: BufferProxy,
         text: str,
-        dest: Optional[Union[Tuple[int, int], List[int]]] = None,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
-        invert: Optional[bool] = False,
+        dest: Optional[Union[Tuple[int, int], Sequence[int]]] = ...,
+        style: Optional[int] = ...,
+        rotation: Optional[int] = ...,
+        size: Optional[float] = ...,
+        invert: Optional[bool] = ...,
     ) -> Rect: ...
