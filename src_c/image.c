@@ -64,6 +64,40 @@ opengltosdl(void);
     ((flipped) ? (((char *)data) + (height - row - 1) * width) \
                : (((char *)data) + row * width))
 
+#ifdef WIN32
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
+
+enum filetype {FT_TGA, FT_BMP, FT_PNG, FT_JPG, FT_DEFAULT=FT_TGA};
+
+enum filetype
+find_filetype(const char *filename)
+{
+    if (filename == NULL) {
+        return FT_DEFAULT;
+    }
+    const char *extension = strrchr(filename, '.');
+    if (extension == NULL) {
+         extension = filename;
+    }
+    else {
+        extension += 1;
+    }
+#define EXT_LIST_LEN 4
+    const char *ext_list[EXT_LIST_LEN] = {
+        "bmp", "png", "jpg", "jpeg"};
+    const enum filetype ft_list[EXT_LIST_LEN] = {
+        FT_BMP, FT_PNG, FT_JPG, FT_JPG};
+    for (int i = 0; i < EXT_LIST_LEN; i++) {
+        if (strcasecmp(extension, ext_list[i]) == 0) {
+            return ft_list[i];
+        }
+    }
+    return FT_DEFAULT;
+}
+
 static PyObject *
 image_load_basic(PyObject *self, PyObject *arg)
 {
@@ -185,17 +219,12 @@ opengltosdl()
 }
 #endif /* IS_SDLv1 */
 
-#ifdef WIN32
-#define strcasecmp _stricmp
-#else
-#include <strings.h>
-#endif
-
 PyObject *
 image_save(PyObject *self, PyObject *arg)
 {
     pgSurfaceObject *surfobj;
     PyObject *obj;
+    const char *namehint = NULL;
     PyObject *oencoded;
     PyObject *imgext = NULL;
     SDL_Surface *surf;
@@ -204,7 +233,8 @@ image_save(PyObject *self, PyObject *arg)
     SDL_Surface *temp = NULL;
 #endif /* IS_SDLv1 */
 
-    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
+    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
+                &obj, &namehint)) {
         return NULL;
     }
 
@@ -224,10 +254,55 @@ image_save(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
+    enum filetype f_type;
     if (oencoded == Py_None) {
+        f_type = find_filetype(namehint);
+    }
+    else if (oencoded != NULL) {
+        f_type = find_filetype(Bytes_AS_STRING(oencoded));
+    }
+
+    if (f_type == FT_PNG || f_type == FT_JPG) {
+        /* If it is .png .jpg .jpeg use the extended module. */
+        /* try to get extended formats */
+        imgext = PyImport_ImportModule(IMPPREFIX "imageext");
+        if (imgext != NULL) {
+            PyObject *extsave =
+                PyObject_GetAttrString(imgext, "save_extended");
+
+            Py_DECREF(imgext);
+            if (extsave != NULL) {
+                PyObject *data = PyObject_CallObject(extsave, arg);
+
+                Py_DECREF(extsave);
+                if (data == NULL) {
+                    result = -2;
+                }
+                else {
+                    Py_DECREF(data);
+                    result = 0;
+                }
+            }
+            else {
+                result = -2;
+            }
+        }
+        else {
+            result = -2;
+        }
+    }
+    else if (oencoded == Py_None) {
         SDL_RWops *rw = pgRWops_FromFileObject(obj);
         if (rw != NULL) {
-            result = SaveTGA_RW(surf, rw, 1);
+            if (f_type == FT_BMP) {
+                /* The SDL documentation didn't specify which negative number 
+                 * is returned upon error. We want to be sure that result is
+                 * either 0 or -1: */
+                result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
+            }
+            else {
+                result = SaveTGA_RW(surf, rw, 1);
+            }
         }
         else {
             result = -2;
@@ -235,51 +310,15 @@ image_save(PyObject *self, PyObject *arg)
     }
     else if (oencoded != NULL) {
         const char *name = Bytes_AS_STRING(oencoded);
-        Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
-        int written = 0;
-
-        if (namelen > 3) {
-            if (!strcasecmp(name + namelen - 3, "bmp")) {
-                Py_BEGIN_ALLOW_THREADS;
-                result = SDL_SaveBMP(surf, name);
-                Py_END_ALLOW_THREADS;
-                written = 1;
-            }
-            else if (!strcasecmp(name + namelen - 3, "png") ||
-                     !strcasecmp(name + namelen - 3, "jpg") ||
-                     !strcasecmp(name + namelen - 4, "jpeg")) {
-                /* If it is .png .jpg .jpeg use the extended module. */
-                /* try to get extended formats */
-                imgext = PyImport_ImportModule(IMPPREFIX "imageext");
-                if (imgext != NULL) {
-                    PyObject *extsave =
-                        PyObject_GetAttrString(imgext, "save_extended");
-
-                    Py_DECREF(imgext);
-                    if (extsave != NULL) {
-                        PyObject *data = PyObject_CallObject(extsave, arg);
-
-                        Py_DECREF(extsave);
-                        if (data == NULL) {
-                            result = -2;
-                        }
-                        else {
-                            Py_DECREF(data);
-                            result = 0;
-                        }
-                    }
-                    else {
-                        result = -2;
-                    }
-                }
-                else {
-                    result = -2;
-                }
-                written = 1;
-            }
+        if (f_type == FT_BMP) {
+            Py_BEGIN_ALLOW_THREADS;
+            /* The SDL documentation didn't specify which negative number 
+             * is returned upon error. We want to be sure that result is
+             * either 0 or -1: */
+            result = (SDL_SaveBMP(surf, name) == 0 ? 0 : -1);
+            Py_END_ALLOW_THREADS;
         }
-
-        if (!written) {
+        else {
             Py_BEGIN_ALLOW_THREADS;
             result = SaveTGA(surf, name, 1);
             Py_END_ALLOW_THREADS;
