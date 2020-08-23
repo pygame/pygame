@@ -254,7 +254,7 @@ image_save(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    enum filetype f_type;
+    enum filetype f_type = FT_DEFAULT;
     if (oencoded == Py_None) {
         f_type = find_filetype(namehint);
     }
