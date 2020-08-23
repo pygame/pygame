@@ -288,7 +288,7 @@ class ImageModuleTest(unittest.TestCase):
         magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
         magic_hex["bmp"] = [0x42, 0x4D]
 
-        formats = ["bmp", "jpg", "png"]
+        formats = ["bmp", "png", "jpg"]
         # uppercase too... JPG
         formats = formats + [x.upper() for x in formats]
 

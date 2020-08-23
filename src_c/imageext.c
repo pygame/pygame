@@ -258,16 +258,21 @@ png_flush_fn(png_structp png_ptr)
 }
 
 static int
-write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
-          int bitdepth)
+write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows, int w, int h,
+          int colortype, int bitdepth)
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     SDL_RWops *rwops;
     char *doing;
 
-    if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
-        return -1;
+    if (rw == NULL) {
+        if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
+            return -1;
+        }
+    }
+    else {
+        rwops = rw;
     }
 
     doing = "create png write struct";
@@ -298,9 +303,11 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
     doing = "write end";
     png_write_end(png_ptr, NULL);
 
-    doing = "closing file";
-    if (0 != SDL_RWclose(rwops))
-        goto fail;
+    if (rw == NULL) {
+        doing = "closing file";
+        if (0 != SDL_RWclose(rwops))
+            goto fail;
+    }
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return 0;
 
@@ -320,7 +327,7 @@ fail:
 }
 
 static int
-SavePNG(SDL_Surface *surface, const char *file)
+SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
 {
     static unsigned char **ss_rows;
     static int ss_size;
@@ -445,11 +452,11 @@ SavePNG(SDL_Surface *surface, const char *file)
     }
 
     if (alpha) {
-        r = write_png(file, ss_rows, surface->w, surface->h,
+        r = write_png(file, rw, ss_rows, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB_ALPHA, 8);
     }
     else {
-        r = write_png(file, ss_rows, surface->w, surface->h,
+        r = write_png(file, rw, ss_rows, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB, 8);
     }
 
@@ -553,7 +560,7 @@ j_stdio_dest(j_compress_ptr cinfo, SDL_RWops *outfile)
  */
 
 int
-write_jpeg(const char *file_name, unsigned char **image_buffer,
+write_jpeg(const char *file_name, SDL_RWops *rw, unsigned char **image_buffer,
            int image_width, int image_height, int quality)
 {
     struct jpeg_compress_struct cinfo;
@@ -567,8 +574,13 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if (!(outfile = SDL_RWFromFile(file_name, "wb"))) {
-        return -1;
+    if (rw == NULL) {
+        if (!(outfile = SDL_RWFromFile(file_name, "wb"))) {
+            return -1;
+        }
+    }
+    else {
+        outfile = rw;
     }
     j_stdio_dest(&cinfo, outfile);
 
@@ -601,13 +613,15 @@ write_jpeg(const char *file_name, unsigned char **image_buffer,
     }
 
     jpeg_finish_compress(&cinfo);
-    SDL_RWclose(outfile);
+    if (rw == NULL) {
+        SDL_RWclose(outfile);
+    }
     jpeg_destroy_compress(&cinfo);
     return 0;
 }
 
 int
-SaveJPEG(SDL_Surface *surface, const char *file)
+SaveJPEG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define RED_MASK 0xff0000
@@ -711,7 +725,7 @@ SaveJPEG(SDL_Surface *surface, const char *file)
         ss_rows[i] =
             ((unsigned char *)ss_surface->pixels) + i * ss_surface->pitch;
     }
-    r = write_jpeg(file, ss_rows, surface->w, surface->h, JPEG_QUALITY);
+    r = write_jpeg(file, rw, ss_rows, surface->w, surface->h, JPEG_QUALITY);
 
     free(ss_rows);
 
@@ -800,6 +814,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 {
     pgSurfaceObject *surfobj;
     PyObject *obj;
+    const char *namehint = NULL;
     PyObject *oencoded = NULL;
     SDL_Surface *surf;
     int result = 1;
@@ -807,7 +822,8 @@ image_save_ext(PyObject *self, PyObject *arg)
     SDL_Surface *temp = NULL;
 #endif /* IS_SDLv1 */
 
-    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
+    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
+                &obj, &namehint)) {
         return NULL;
     }
 
@@ -827,31 +843,37 @@ image_save_ext(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == Py_None) {
-        PyErr_Format(PyExc_TypeError,
-                     "Expected a string for the file argument: got %.1024s",
-                     Py_TYPE(obj)->tp_name);
+    const char *name = NULL;
+    SDL_RWops *rw = NULL;
+    if (oencoded == NULL) {
         result = -2;
     }
-    else if (oencoded != NULL) {
-        const char *name = Bytes_AS_STRING(oencoded);
-        Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
-
-        if ((namelen >= 4) &&
-            (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
-              (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
-              (name[namelen - 4] == 'j' || name[namelen - 4] == 'J')) ||
-             ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
-              (name[namelen - 3] == 'j' || name[namelen - 3] == 'J')))) {
+    else if (oencoded == Py_None) {
+        rw = pgRWops_FromFileObject(obj);
+        if (rw == NULL) {
+            PyErr_Format(PyExc_TypeError,
+                         "Expected a string or file object for the file "
+                         "argument: got %.1024s",
+                         Py_TYPE(obj)->tp_name);
+            result = -2;
+        }
+        else {
+            name = namehint;
+        }
+    }
+    else {
+        name = Bytes_AS_STRING(oencoded);
+    }
+    if (result > 0) {
+        const char *ext = find_extension(name);
+        if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
 #ifdef JPEGLIB_H
             /* jpg save functions seem *NOT* thread safe at least on windows.
              */
             /*
             Py_BEGIN_ALLOW_THREADS;
             */
-            result = SaveJPEG(surf, name);
+            result = SaveJPEG(surf, name, rw);
             /*
             Py_END_ALLOW_THREADS;
             */
@@ -860,22 +882,16 @@ image_save_ext(PyObject *self, PyObject *arg)
             result = -2;
 #endif /* ~JPEGLIB_H */
         }
-        else if ((namelen >= 3) &&
-                 ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                  (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
-                  (name[namelen - 3] == 'p' || name[namelen - 3] == 'P'))) {
+        else if (!strcasecmp(ext, "png")) {
 #ifdef PNG_H
             /*Py_BEGIN_ALLOW_THREADS; */
-            result = SavePNG(surf, name);
+            result = SavePNG(surf, name, rw);
             /*Py_END_ALLOW_THREADS; */
 #else
             RAISE(pgExc_SDLError, "No support for png compiled in.");
             result = -2;
 #endif /* ~PNG_H */
         }
-    }
-    else {
-        result = -2;
     }
 
 #if IS_SDLv1
