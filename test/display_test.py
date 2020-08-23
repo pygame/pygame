@@ -502,15 +502,6 @@ class DisplayInteractiveTest(unittest.TestCase):
 
         self.assertTrue(response)
 
-        '''while True:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN:
-                    result = pygame.key.get_pressed()
-                    if result[K_f]:
-                        self.fail()
-                    else:
-                        return'''
-
         pygame.display.quit()
 
 
