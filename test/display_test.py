@@ -6,6 +6,7 @@ import os
 import pygame, pygame.transform
 from pygame.compat import unicode_
 from pygame.locals import *
+from pygame.tests.test_utils import question
 
 from pygame import display
 
@@ -492,20 +493,25 @@ class DisplayInteractiveTest(unittest.TestCase):
         test_icon.fill((255,0,0))
 
         pygame.display.set_icon(test_icon)
-        screen = pygame.display.set_mode((750,100))
+        screen = pygame.display.set_mode((400,100))
         pygame.display.set_caption(
-        "If icon to the left is NOT a red square, press 'f' key. \
-        If it IS a red square, press any key other than 'f'."
+        "Is the icon to the left a red square?"
         )
 
-        while True:
+        response = question("Is the display icon red square?")
+
+        self.assertTrue(response)
+
+        '''while True:
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
                     result = pygame.key.get_pressed()
                     if result[K_f]:
                         self.fail()
                     else:
-                        return
+                        return'''
+
+        pygame.display.quit()
 
 
 @unittest.skipIf(
