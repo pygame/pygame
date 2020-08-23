@@ -377,37 +377,6 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def test_set_icon(self):
-<<<<<<< HEAD
-
-        # on my computer, the window was being created off-screen
-        # thus i set the window position manually
-        os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
-
-        test_icon = pygame.Surface((32, 32))
-        test_icon.fill((255,0,0))
-        
-        pygame.display.set_icon(test_icon)
-        screen = pygame.display.set_mode((750,100))
-        pygame.display.set_caption(
-        "If icon to the left is NOT a red square, press 'f' key. \
-        If it IS a red square, press any key other than 'f'."
-        )
-
-        while True:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN:
-                    result = pygame.key.get_pressed()
-                    if result[K_f]:
-                        self.fail()
-                    else:
-                        return
-=======
-
-        test_icon = pygame.Surface((32, 32))
-        self.assertIsNone(pygame.display.set_icon(test_icon))
->>>>>>> 192156a45dabbb782f65483d5efdb6664aa2c450
-
     def test_set_mode_kwargs(self):
 
         pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
@@ -439,7 +408,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
     def test_set_palette(self):
         with self.assertRaises(UnboundLocalError) :
             palette = [1,2,3]
@@ -451,19 +420,19 @@ class DisplayModuleTest(unittest.TestCase):
         screen.set_palette(palette)
         self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
         self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = 12
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[1,2],[1,2]]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = "qwerty"
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[123,123,123]*10000]
             screen.set_palette(palette)
         with self.assertRaises(ValueError):
@@ -509,7 +478,34 @@ class DisplayModuleTest(unittest.TestCase):
                 self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
                 width_height)
 
+class DisplayInteractiveTest(unittest.TestCase):
 
+    __tags__ = ["interactive"]
+
+    def test_set_icon_interactive(self):
+
+        # on my computer, the window was being created off-screen
+        # thus i set the window position manually
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
+
+        test_icon = pygame.Surface((32, 32))
+        test_icon.fill((255,0,0))
+
+        pygame.display.set_icon(test_icon)
+        screen = pygame.display.set_mode((750,100))
+        pygame.display.set_caption(
+        "If icon to the left is NOT a red square, press 'f' key. \
+        If it IS a red square, press any key other than 'f'."
+        )
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    result = pygame.key.get_pressed()
+                    if result[K_f]:
+                        self.fail()
+                    else:
+                        return
 
 
 @unittest.skipIf(
