@@ -55,7 +55,7 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertIsNone(pygame.display.flip())
 
         #test with a change
-        pygame.Surface.fill(disp, (66,66,53))
+        pygame.Surface.fill(screen, (66,66,53))
         self.assertIsNone(pygame.display.flip())
 
         #test without display init
