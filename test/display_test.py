@@ -48,22 +48,25 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertEqual(inf.current_h, 128)
         self.assertEqual(inf.current_w, 128)
 
-    def todo_test_flip(self):
+    def test_flip(self):
+        screen = pygame.display.set_mode((100, 100))
 
-        # __doc__ (as of 2008-08-02) for pygame.display.flip:
+        #test without a change
+        self.assertIsNone(pygame.display.flip())
 
-        # pygame.display.flip(): return None
-        # update the full display Surface to the screen
-        #
-        # This will update the contents of the entire display. If your display
-        # mode is using the flags pygame.HWSURFACE and pygame.DOUBLEBUF, this
-        # will wait for a vertical retrace and swap the surfaces. If you are
-        # using a different type of display mode, it will simply update the
-        # entire contents of the surface.
-        #
-        # When using an pygame.OPENGL display mode this will perform a gl buffer swap.
+        #test with a change
+        pygame.Surface.fill(disp, (66,66,53))
+        self.assertIsNone(pygame.display.flip())
 
-        self.fail()
+        #test without display init
+        pygame.display.quit()
+        with self.assertRaises(pygame.error):
+            (pygame.display.flip())
+
+        #test without window
+        del disp
+        with self.assertRaises(pygame.error):
+            (pygame.display.flip())
 
     def test_get_active(self):
         """Test the get_active function"""
