@@ -64,7 +64,7 @@ class DisplayModuleTest(unittest.TestCase):
             (pygame.display.flip())
 
         #test without window
-        del disp
+        del screen
         with self.assertRaises(pygame.error):
             (pygame.display.flip())
 
