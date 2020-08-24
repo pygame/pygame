@@ -64,38 +64,20 @@ opengltosdl(void);
     ((flipped) ? (((char *)data) + (height - row - 1) * width) \
                : (((char *)data) + row * width))
 
-#ifdef WIN32
-#define strcasecmp _stricmp
-#else
-#include <strings.h>
-#endif
-
-enum filetype {FT_TGA, FT_BMP, FT_PNG, FT_JPG, FT_DEFAULT=FT_TGA};
-
-enum filetype
-find_filetype(const char *filename)
+static const char *
+find_extension(const char *fullname)
 {
-    if (filename == NULL) {
-        return FT_DEFAULT;
+    const char *dot;
+
+    if (fullname == NULL) {
+        return NULL;
     }
-    const char *extension = strrchr(filename, '.');
-    if (extension == NULL) {
-         extension = filename;
+
+    dot = strrchr(fullname, '.');
+    if (dot == NULL) {
+        return fullname;
     }
-    else {
-        extension += 1;
-    }
-#define EXT_LIST_LEN 4
-    const char *ext_list[EXT_LIST_LEN] = {
-        "bmp", "png", "jpg", "jpeg"};
-    const enum filetype ft_list[EXT_LIST_LEN] = {
-        FT_BMP, FT_PNG, FT_JPG, FT_JPG};
-    for (int i = 0; i < EXT_LIST_LEN; i++) {
-        if (strcasecmp(extension, ext_list[i]) == 0) {
-            return ft_list[i];
-        }
-    }
-    return FT_DEFAULT;
+    return dot + 1;
 }
 
 static PyObject *
@@ -219,6 +201,12 @@ opengltosdl()
 }
 #endif /* IS_SDLv1 */
 
+#ifdef WIN32
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
+
 PyObject *
 image_save(PyObject *self, PyObject *arg)
 {
@@ -254,33 +242,60 @@ image_save(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    enum filetype f_type = FT_DEFAULT;
-    if (oencoded == Py_None) {
-        f_type = find_filetype(namehint);
+    if (oencoded == NULL) {
+        result = -2;
     }
-    else if (oencoded != NULL) {
-        f_type = find_filetype(Bytes_AS_STRING(oencoded));
-    }
+    else {
+        const char *name = NULL;
+        if (oencoded == Py_None) {
+            name = (namehint ? namehint: "tga");
+        }
+        else {
+            name = Bytes_AS_STRING(oencoded);
+        }
+        const char * ext = find_extension(name);
+        if (!strcasecmp(ext, "png") ||
+                !strcasecmp(ext, "jpg") ||
+                !strcasecmp(ext, "jpeg")) {
+            /* If it is .png .jpg .jpeg use the extended module. */
+            /* try to get extended formats */
+            imgext = PyImport_ImportModule(IMPPREFIX "imageext");
+            if (imgext != NULL) {
+                PyObject *extsave =
+                    PyObject_GetAttrString(imgext, "save_extended");
 
-    if (f_type == FT_PNG || f_type == FT_JPG) {
-        /* If it is .png .jpg .jpeg use the extended module. */
-        /* try to get extended formats */
-        imgext = PyImport_ImportModule(IMPPREFIX "imageext");
-        if (imgext != NULL) {
-            PyObject *extsave =
-                PyObject_GetAttrString(imgext, "save_extended");
+                Py_DECREF(imgext);
+                if (extsave != NULL) {
+                    PyObject *data = PyObject_CallObject(extsave, arg);
 
-            Py_DECREF(imgext);
-            if (extsave != NULL) {
-                PyObject *data = PyObject_CallObject(extsave, arg);
-
-                Py_DECREF(extsave);
-                if (data == NULL) {
-                    result = -2;
+                    Py_DECREF(extsave);
+                    if (data == NULL) {
+                        result = -2;
+                    }
+                    else {
+                        Py_DECREF(data);
+                        result = 0;
+                    }
                 }
                 else {
-                    Py_DECREF(data);
-                    result = 0;
+                    result = -2;
+                }
+            }
+            else {
+                result = -2;
+            }
+        }
+        else if (oencoded == Py_None) {
+            SDL_RWops *rw = pgRWops_FromFileObject(obj);
+            if (rw != NULL) {
+                if (!strcasecmp(ext, "bmp")) {
+                    /* The SDL documentation didn't specify which negative number 
+                     * is returned upon error. We want to be sure that result is
+                     * either 0 or -1: */
+                    result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
+                }
+                else {
+                    result = SaveTGA_RW(surf, rw, 1);
                 }
             }
             else {
@@ -288,44 +303,20 @@ image_save(PyObject *self, PyObject *arg)
             }
         }
         else {
-            result = -2;
-        }
-    }
-    else if (oencoded == Py_None) {
-        SDL_RWops *rw = pgRWops_FromFileObject(obj);
-        if (rw != NULL) {
-            if (f_type == FT_BMP) {
+            if (!strcasecmp(ext, "bmp")) {
+                Py_BEGIN_ALLOW_THREADS;
                 /* The SDL documentation didn't specify which negative number 
                  * is returned upon error. We want to be sure that result is
                  * either 0 or -1: */
-                result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
+                result = (SDL_SaveBMP(surf, name) == 0 ? 0 : -1);
+                Py_END_ALLOW_THREADS;
             }
             else {
-                result = SaveTGA_RW(surf, rw, 1);
+                Py_BEGIN_ALLOW_THREADS;
+                result = SaveTGA(surf, name, 1);
+                Py_END_ALLOW_THREADS;
             }
         }
-        else {
-            result = -2;
-        }
-    }
-    else if (oencoded != NULL) {
-        const char *name = Bytes_AS_STRING(oencoded);
-        if (f_type == FT_BMP) {
-            Py_BEGIN_ALLOW_THREADS;
-            /* The SDL documentation didn't specify which negative number 
-             * is returned upon error. We want to be sure that result is
-             * either 0 or -1: */
-            result = (SDL_SaveBMP(surf, name) == 0 ? 0 : -1);
-            Py_END_ALLOW_THREADS;
-        }
-        else {
-            Py_BEGIN_ALLOW_THREADS;
-            result = SaveTGA(surf, name, 1);
-            Py_END_ALLOW_THREADS;
-        }
-    }
-    else {
-        result = -2;
     }
     Py_XDECREF(oencoded);
 

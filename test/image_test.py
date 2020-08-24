@@ -288,7 +288,7 @@ class ImageModuleTest(unittest.TestCase):
         magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
         magic_hex["bmp"] = [0x42, 0x4D]
 
-        formats = ["bmp", "png", "jpg"]
+        formats = ["tga", "bmp", "png" , "jpg" ]
         # uppercase too... JPG
         formats = formats + [x.upper() for x in formats]
 
@@ -297,14 +297,16 @@ class ImageModuleTest(unittest.TestCase):
                 temp_filename = "%s.%s" % ("tmpimg", fmt)
                 # Using 'with' ensures the file is closed even if test fails.
                 with open(temp_filename, "wb") as handle:
-                    pygame.image.save(s, handle, fmt)
+                    pygame.image.save(s, handle, temp_filename)
 
-                with open(temp_filename, "rb") as handle:
-                    # Test the magic numbers at the start of the file to ensure
-                    # they are saved as the correct file type.
-                    self.assertEqual(
-                        (1, fmt), (test_magic(handle, magic_hex[fmt.lower()]), fmt)
-                    )
+                if fmt.lower() in magic_hex:
+                    with open(temp_filename, "rb") as handle:
+                        # Test the magic numbers at the start of the file to
+                        # ensure they are saved as the correct file type.
+                        self.assertEqual(
+                            (1, fmt),
+                            (test_magic(handle, magic_hex[fmt.lower()]), fmt)
+                        )
 
                 # load the file to make sure it was saved correctly.
                 #    Note load can load a jpg saved with a .png file name.
