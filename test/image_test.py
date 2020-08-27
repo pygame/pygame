@@ -290,35 +290,34 @@ class ImageModuleTest(unittest.TestCase):
         magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
         magic_hex["bmp"] = [0x42, 0x4D]
 
-        formats = ["tga", "bmp", "png" , "jpg" ]
+        formats = ["tga", "jpg", "bmp", "png"]
         # uppercase too... JPG
         formats = formats + [x.upper() for x in formats]
 
         for fmt in formats:
-            try:
-                temp_filename = "%s.%s" % ("tmpimg", fmt)
-                # Using 'with' ensures the file is closed even if test fails.
-                with open(temp_filename, "wb") as handle:
-                    pygame.image.save(s, handle, temp_filename)
+            tmp_file, tmp_filename = tempfile.mkstemp(suffix=".%s"%fmt)
+            if pygame.get_sdl_version()[0] < 2 and fmt.lower() == "jpg":
+                with os.fdopen(tmp_file, 'wb') as handle:
+                    with self.assertRaises(pygame.error):
+                        pygame.image.save(s, handle, tmp_filename)
+            else:
+                with os.fdopen(tmp_file, 'r+b') as handle:
+                    pygame.image.save(s, handle, tmp_filename)
 
-                if fmt.lower() in magic_hex:
-                    with open(temp_filename, "rb") as handle:
+                    if fmt.lower() in magic_hex:
                         # Test the magic numbers at the start of the file to
                         # ensure they are saved as the correct file type.
+                        handle.seek(0)
                         self.assertEqual(
                             (1, fmt),
                             (test_magic(handle, magic_hex[fmt.lower()]), fmt)
                         )
-
-                # load the file to make sure it was saved correctly.
-                #    Note load can load a jpg saved with a .png file name.
-                s2 = pygame.image.load(temp_filename)
-                # compare contents, might only work reliably for png...
-                #   but because it's all one color it seems to work with jpg.
-                self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
-            finally:
-                # clean up the temp file, comment out to leave tmp file after run.
-                os.remove(temp_filename)
+                    # load the file to make sure it was saved correctly.
+                    handle.flush()
+                    handle.seek(0)
+                    s2 = pygame.image.load(handle, tmp_filename)
+                    self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
+            os.remove(tmp_filename)
 
     def test_save_colorkey(self):
         """ make sure the color key is not changed when saving.
