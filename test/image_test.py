@@ -147,6 +147,8 @@ class ImageModuleTest(unittest.TestCase):
             posn = rect.move((offset, offset)).topleft
             self.assertEqual(approx(jpg_surf.get_at(posn)), approx(color))
 
+        os.remove(f_path)
+
     def testSavePNG32(self):
         """ see if we can save a png with color values in the proper channels.
         """
@@ -759,6 +761,7 @@ class ImageModuleTest(unittest.TestCase):
             loaded = False
 
         self.assertEqual(pygame.image.get_extended(), loaded)
+        os.remove(f_path)
 
     def todo_test_load_basic(self):
 
