@@ -63,6 +63,7 @@
 #else
 #include <strings.h>
 #endif
+#include <string.h>
 
 #define JPEG_QUALITY 85
 
@@ -560,7 +561,7 @@ j_stdio_dest(j_compress_ptr cinfo, SDL_RWops *outfile)
  */
 
 int
-write_jpeg(const char *file_name, SDL_RWops *rw, unsigned char **image_buffer,
+write_jpeg(const char *file_name, unsigned char **image_buffer,
            int image_width, int image_height, int quality)
 {
     struct jpeg_compress_struct cinfo;
@@ -574,13 +575,8 @@ write_jpeg(const char *file_name, SDL_RWops *rw, unsigned char **image_buffer,
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-    if (rw == NULL) {
-        if (!(outfile = SDL_RWFromFile(file_name, "wb"))) {
-            return -1;
-        }
-    }
-    else {
-        outfile = rw;
+    if (!(outfile = SDL_RWFromFile(file_name, "wb"))) {
+        return -1;
     }
     j_stdio_dest(&cinfo, outfile);
 
@@ -613,15 +609,13 @@ write_jpeg(const char *file_name, SDL_RWops *rw, unsigned char **image_buffer,
     }
 
     jpeg_finish_compress(&cinfo);
-    if (rw == NULL) {
-        SDL_RWclose(outfile);
-    }
+    SDL_RWclose(outfile);
     jpeg_destroy_compress(&cinfo);
     return 0;
 }
 
 int
-SaveJPEG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
+SaveJPEG(SDL_Surface *surface, const char *file)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define RED_MASK 0xff0000
@@ -725,7 +719,7 @@ SaveJPEG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
         ss_rows[i] =
             ((unsigned char *)ss_surface->pixels) + i * ss_surface->pitch;
     }
-    r = write_jpeg(file, rw, ss_rows, surface->w, surface->h, JPEG_QUALITY);
+    r = write_jpeg(file, ss_rows, surface->w, surface->h, JPEG_QUALITY);
 
     free(ss_rows);
 
@@ -867,20 +861,55 @@ image_save_ext(PyObject *self, PyObject *arg)
     if (result > 0) {
         const char *ext = find_extension(name);
         if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
+#if (SDL_IMAGE_MAJOR_VERSION * 1000 + SDL_IMAGE_MINOR_VERSION * 100 + \
+        SDL_IMAGE_PATCHLEVEL) < 2002
+            /* SDL_Image is a version less than 2.0.2 and therefore does not
+             * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
+             */
+            if (rw != NULL) {
+                RAISE(pgExc_SDLError, "SDL_Image 2.0.2 or newer nedded to save "
+                        "jpeg to a fileobject.");
+                result = -2;
+            }
+            else {
 #ifdef JPEGLIB_H
             /* jpg save functions seem *NOT* thread safe at least on windows.
              */
             /*
             Py_BEGIN_ALLOW_THREADS;
             */
-            result = SaveJPEG(surf, name, rw);
+                result = SaveJPEG(surf, name);
             /*
             Py_END_ALLOW_THREADS;
             */
 #else
-            RAISE(pgExc_SDLError, "No support for jpg compiled in.");
-            result = -2;
+                RAISE(pgExc_SDLError, "No support for jpg compiled in.");
+                result = -2;
 #endif /* ~JPEGLIB_H */
+            }
+#else
+            /* SDL_Image is version 2.0.2 or newer and therefore does
+             * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
+             */
+            if (rw != NULL) {
+                result = IMG_SaveJPG_RW(surf, rw, 0, JPEG_QUALITY);
+            }
+            else {
+                result = IMG_SaveJPG(surf, name, JPEG_QUALITY);
+#ifdef JPEGLIB_H
+                /* In the unlikely event that pygame is compiled with support
+                 * for jpg but SDL_Image was not, then we can catch that and
+                 * try calling the pygame SaveJPEG function.
+                 */
+                if (result == -1) {
+                    if (strstr(SDL_GetError(), "not built with jpeglib") != NULL) {
+                        SDL_ClearError();
+                        result = SaveJPEG(surf, name);
+                    }
+                }
+#endif /* JPEGLIB_H */
+            }
+#endif /* SDL_Image >= 2.0.2 */
         }
         else if (!strcasecmp(ext, "png")) {
 #ifdef PNG_H
