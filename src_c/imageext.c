@@ -867,7 +867,8 @@ image_save_ext(PyObject *self, PyObject *arg)
              * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
              */
             if (rw != NULL) {
-                RAISE(pgExc_SDLError, "SDL_Image 2.0.2 or newer nedded to save "
+                PyErr_SetString(pgExc_SDLError,
+                        "SDL_Image 2.0.2 or newer nedded to save "
                         "jpeg to a fileobject.");
                 result = -2;
             }
@@ -883,7 +884,8 @@ image_save_ext(PyObject *self, PyObject *arg)
             Py_END_ALLOW_THREADS;
             */
 #else
-                RAISE(pgExc_SDLError, "No support for jpg compiled in.");
+                PyErr_SetString(
+                        pgExc_SDLError, "No support for jpg compiled in.");
                 result = -2;
 #endif /* ~JPEGLIB_H */
             }
@@ -902,7 +904,8 @@ image_save_ext(PyObject *self, PyObject *arg)
                  * try calling the pygame SaveJPEG function.
                  */
                 if (result == -1) {
-                    if (strstr(SDL_GetError(), "not built with jpeglib") != NULL) {
+                    if (strstr(SDL_GetError(),
+                                "not built with jpeglib") != NULL) {
                         SDL_ClearError();
                         result = SaveJPEG(surf, name);
                     }
@@ -917,7 +920,8 @@ image_save_ext(PyObject *self, PyObject *arg)
             result = SavePNG(surf, name, rw);
             /*Py_END_ALLOW_THREADS; */
 #else
-            RAISE(pgExc_SDLError, "No support for png compiled in.");
+            PyErr_SetString(
+                    pgExc_SDLError, "No support for png compiled in.");
             result = -2;
 #endif /* ~PNG_H */
         }
