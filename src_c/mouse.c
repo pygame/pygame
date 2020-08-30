@@ -292,6 +292,7 @@ mouse_set_system_cursor(PyObject *self, PyObject *args)
         return NULL;
     }
 
+#if IS_SDLv2
     cursor = SDL_CreateSystemCursor(idnum);
     if (!cursor) {
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -299,7 +300,7 @@ mouse_set_system_cursor(PyObject *self, PyObject *args)
     lastcursor = SDL_GetCursor();
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
-
+#endif
     Py_RETURN_NONE;
 }
 
