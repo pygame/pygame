@@ -259,24 +259,35 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
         self.fail()
+        
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
+        'iconify is only supported on some video drivers/platforms'
+    )
+    def test_iconify(self):
+        _ = pygame.display.set_mode((640, 480))
 
-    def todo_test_iconify(self):
+        self.assertEqual(pygame.display.get_active(), True)
 
-        # __doc__ (as of 2008-08-02) for pygame.display.iconify:
+        success = pygame.display.iconify()
 
-        # pygame.display.iconify(): return bool
-        # iconify the display surface
-        #
-        # Request the window for the display surface be iconified or hidden.
-        # Not all systems and displays support an iconified display. The
-        # function will return True if successfull.
-        #
-        # When the display is iconified pygame.display.get_active() will
-        # return False. The event queue should receive a ACTIVEEVENT event
-        # when the window has been iconified.
-        #
+        if success:
+            minimized_event = False
+            # make sure we cycle the event loop enough to get the display
+            # hidden
+            for _ in range(5000):
+                for event in pygame.event.get():
+                    if SDL2:
+                        if (event.type == pygame.WINDOWEVENT and
+                            event.event == 7):  # should be WINDOWEVENT_MINIMIZED
+                            minimized_event = True
 
-        self.fail()
+            if SDL2:
+                self.assertEqual(minimized_event, True)
+                self.assertEqual(pygame.display.get_active(), False)
+
+        else:
+            self.fail('Iconify not supported on this platform, please skip')
 
     def test_init(self):
         """Ensures the module is initialized after init called."""
