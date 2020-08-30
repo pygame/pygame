@@ -86,12 +86,12 @@ def get_urls(x86=True, x64=True, sdl2=True):
         ])
     if x86:
         url_sha1.append([
-         'https://bitbucket.org/llindstrom/pygame/downloads/prebuilt-x86-pygame-1.9.2-20150922.zip',
+         'https://pygame.org/ftp/prebuilt-x86-pygame-1.9.2-20150922.zip',
          'dbce1d5ea27b3da17273e047826d172e1c34b478'
         ])
     if x64:
         url_sha1.append([
-         'https://bitbucket.org/llindstrom/pygame/downloads/prebuilt-x64-pygame-1.9.2-20150922.zip',
+         'https://pygame.org/ftp/prebuilt-x64-pygame-1.9.2-20150922.zip',
          '3a5af3427b3aa13a0aaf5c4cb08daaed341613ed'
         ])
     return url_sha1
