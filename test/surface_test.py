@@ -1375,20 +1375,32 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_get_pitch(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_pitch:
-
-        # Surface.get_pitch(): return int
-        # get the number of bytes used per Surface row
-        #
-        # Return the number of bytes separating each row in the Surface.
-        # Surfaces in video memory are not always linearly packed. Subsurfaces
-        # will also have a larger pitch than their real width.
-        #
-        # This value is not needed for normal Pygame usage.
-
-        self.fail()
+    def test_get_pitch(self):
+        # Test get_pitch() on several surfaces of varying size/depth
+        sizes = ((2, 2), (7, 33), (33, 7), (2, 734), (734, 2), (734, 734))
+        depths = [8, 24, 32]
+        for width, height in sizes:
+            for depth in depths:
+                # Test get_pitch() on parent surface
+                surf = pygame.Surface((width, height), depth=depth)
+                buff = surf.get_buffer()
+                pitch = buff.length / surf.get_height()
+                test_pitch = surf.get_pitch()
+                self.assertEqual(pitch, test_pitch)
+                # Test get_pitch() on subsurface with same rect as parent
+                rect1 = surf.get_rect()
+                subsurf1 = surf.subsurface(rect1)
+                sub_buff1 = subsurf1.get_buffer()
+                sub_pitch1 = sub_buff1.length / subsurf1.get_height()
+                test_sub_pitch1 = subsurf1.get_pitch()
+                self.assertEqual(sub_pitch1, test_sub_pitch1)
+                # Test get_pitch on subsurface with modified rect
+                rect2 = rect1.inflate(-width/2, -height/2)
+                subsurf2 = surf.subsurface(rect2)
+                sub_buff2 = subsurf2.get_buffer()
+                sub_pitch2 = sub_buff2.length / float(subsurf2.get_height())
+                test_sub_pitch2 = subsurf2.get_pitch()
+                self.assertEqual(sub_pitch2, test_sub_pitch2)
 
 
     def test_get_shifts(self):
