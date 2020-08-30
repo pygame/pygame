@@ -100,4 +100,3 @@ def filesystem_encode(u):
         # practice, arbitrary bytes are allowed, and most things expect UTF-8.
         fsencoding = 'utf-8'
     return u.encode(fsencoding, filesystem_errors)
-

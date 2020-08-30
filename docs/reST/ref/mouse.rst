@@ -179,7 +179,7 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
 
 .. function:: set_cursor
 
-   | :sl:`set the image for the system mouse cursor`
+   | :sl:`set the image for the mouse cursor`
    | :sg:`set_cursor(size, hotspot, xormasks, andmasks) -> None`
 
    When the mouse cursor is visible, it will be displayed as a black and white
@@ -193,13 +193,48 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    for the given width and height. Otherwise an exception is raised.
 
    See the ``pygame.cursor`` module for help creating default and custom masks
-   for the system cursor.
+   for the mouse cursor.
 
    .. ## pygame.mouse.set_cursor ##
 
+.. function:: set_system_cursor
+
+   | :sl:`set the mouse cursor to a system variant`
+   | :sg:`set_system_cursor(constant) -> None`
+
+   When the mouse cursor is visible, it will displayed as a operating system
+   specific variant of the options below.
+
+   ::
+
+      Pygame Cursor Constant           Description
+      --------------------------------------------
+      pygame.SYSTEM_CURSOR_ARROW       arrow
+      pygame.SYSTEM_CURSOR_IBEAM       i-beam
+      pygame.SYSTEM_CURSOR_WAIT        wait
+      pygame.SYSTEM_CURSOR_CROSSHAIR   crosshair
+      pygame.SYSTEM_CURSOR_WAITARROW   small wait cursor 
+                                       (or wait if not available)
+      pygame.SYSTEM_CURSOR_SIZENWSE    double arrow pointing 
+                                       northwest and southeast
+      pygame.SYSTEM_CURSOR_SIZENESW    double arrow pointing
+                                       northeast and southwest
+      pygame.SYSTEM_CURSOR_SIZEWE      double arrow pointing
+                                       west and east
+      pygame.SYSTEM_CURSOR_SIZENS      double arrow pointing 
+                                       north and south
+      pygame.SYSTEM_CURSOR_SIZEALL     four pointed arrow pointing
+                                       north, south, east, and west
+      pygame.SYSTEM_CURSOR_NO          slashed circle or crossbones
+      pygame.SYSTEM_CURSOR_HAND        hand
+
+   .. versionadded:: 2.0.0
+
+   .. ## pygame.mouse.set_system_cursor ##
+
 .. function:: get_cursor
 
-   | :sl:`get the image for the system mouse cursor`
+   | :sl:`get the image of the mouse cursor`
    | :sg:`get_cursor() -> (size, hotspot, xormasks, andmasks)`
 
    Get the information about the mouse system cursor. The return value is the

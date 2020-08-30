@@ -148,8 +148,8 @@ Multiple coordinates can be set using slices or swizzling::
 
       Scales the vector so that it has the given length. The direction of the
       vector is not changed. You can also scale to length 0. If the vector is
-      the zero vector (i.e. has length 0 thus no direction) an
-      ZeroDivisionError is raised.
+      the zero vector (i.e. has length 0 thus no direction) a
+      ValueError is raised.
 
       .. ## Vector2.scale_to_length ##
 
@@ -421,8 +421,8 @@ Multiple coordinates can be set using slices or swizzling::
 
       Scales the vector so that it has the given length. The direction of the
       vector is not changed. You can also scale to length 0. If the vector is
-      the zero vector (i.e. has length 0 thus no direction) an
-      ZeroDivisionError is raised.
+      the zero vector (i.e. has length 0 thus no direction) a
+      ValueError is raised.
 
       .. ## Vector3.scale_to_length ##
 

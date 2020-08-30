@@ -5,6 +5,8 @@ import os
 
 import pygame, pygame.transform
 from pygame.compat import unicode_
+from pygame.locals import *
+from pygame.tests.test_utils import question
 
 from pygame import display
 
@@ -48,37 +50,71 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertEqual(inf.current_h, 128)
         self.assertEqual(inf.current_w, 128)
 
-    def todo_test_flip(self):
+    def test_flip(self):
+        screen = pygame.display.set_mode((100, 100))
 
-        # __doc__ (as of 2008-08-02) for pygame.display.flip:
+        #test without a change
+        self.assertIsNone(pygame.display.flip())
 
-        # pygame.display.flip(): return None
-        # update the full display Surface to the screen
-        #
-        # This will update the contents of the entire display. If your display
-        # mode is using the flags pygame.HWSURFACE and pygame.DOUBLEBUF, this
-        # will wait for a vertical retrace and swap the surfaces. If you are
-        # using a different type of display mode, it will simply update the
-        # entire contents of the surface.
-        #
-        # When using an pygame.OPENGL display mode this will perform a gl buffer swap.
+        #test with a change
+        pygame.Surface.fill(screen, (66,66,53))
+        self.assertIsNone(pygame.display.flip())
 
-        self.fail()
+        #test without display init
+        pygame.display.quit()
+        with self.assertRaises(pygame.error):
+            (pygame.display.flip())
 
-    def todo_test_get_active(self):
+        #test without window
+        del screen
+        with self.assertRaises(pygame.error):
+            (pygame.display.flip())
 
-        # __doc__ (as of 2008-08-02) for pygame.display.get_active:
+    def test_get_active(self):
+        """Test the get_active function"""
 
-        # pygame.display.get_active(): return bool
-        # true when the display is active on the display
-        #
-        # After pygame.display.set_mode() is called the display Surface will
-        # be visible on the screen. Most windowed displays can be hidden by
-        # the user. If the display Surface is hidden or iconified this will
-        # return False.
-        #
+        #Initially, the display is not active
+        pygame.display.quit()
+        self.assertEqual(pygame.display.get_active(), False)
 
-        self.fail()
+        #get_active defaults to true after a set_mode
+        pygame.display.init()
+        pygame.display.set_mode((640, 480))
+        self.assertEqual(pygame.display.get_active(), True)
+
+        #get_active after init/quit should be False
+        #since no display is visible
+        pygame.display.quit()
+        pygame.display.init()
+        self.assertEqual(pygame.display.get_active(), False)
+
+
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires the SDL_VIDEODRIVER to be a non dummy value'
+    )
+    def test_get_active_iconify(self):
+        """Test the get_active function after an iconify"""
+
+
+        #According to the docs, get_active should return
+        #false if the display is iconified
+        pygame.display.set_mode((640, 480))
+
+        pygame.event.clear()
+        pygame.display.iconify()
+
+        #Number of iterations conservatively determined based
+        #off of local runs, might have to change on various systems
+        for i in range(5000):
+            pygame.event.pump()
+
+        self.assertEqual(pygame.display.get_active(), False)
+
+
+
+
+
 
     def test_get_caption(self):
         screen = display.set_mode((100, 100))
@@ -223,24 +259,35 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
         self.fail()
+        
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
+        'iconify is only supported on some video drivers/platforms'
+    )
+    def test_iconify(self):
+        _ = pygame.display.set_mode((640, 480))
 
-    def todo_test_iconify(self):
+        self.assertEqual(pygame.display.get_active(), True)
 
-        # __doc__ (as of 2008-08-02) for pygame.display.iconify:
+        success = pygame.display.iconify()
 
-        # pygame.display.iconify(): return bool
-        # iconify the display surface
-        #
-        # Request the window for the display surface be iconified or hidden.
-        # Not all systems and displays support an iconified display. The
-        # function will return True if successfull.
-        #
-        # When the display is iconified pygame.display.get_active() will
-        # return False. The event queue should receive a ACTIVEEVENT event
-        # when the window has been iconified.
-        #
+        if success:
+            minimized_event = False
+            # make sure we cycle the event loop enough to get the display
+            # hidden
+            for _ in range(5000):
+                for event in pygame.event.get():
+                    if SDL2:
+                        if (event.type == pygame.WINDOWEVENT and
+                            event.event == 7):  # should be WINDOWEVENT_MINIMIZED
+                            minimized_event = True
 
-        self.fail()
+            if SDL2:
+                self.assertEqual(minimized_event, True)
+                self.assertEqual(pygame.display.get_active(), False)
+
+        else:
+            self.fail('Iconify not supported on this platform, please skip')
 
     def test_init(self):
         """Ensures the module is initialized after init called."""
@@ -345,29 +392,6 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_icon(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_icon:
-
-        # pygame.display.set_icon(Surface): return None
-        # change the system image for the display window
-        #
-        # Sets the runtime icon the system will use to represent the display
-        # window. All windows default to a simple pygame logo for the window
-        # icon.
-        #
-        # You can pass any surface, but most systems want a smaller image
-        # around 32x32. The image can have colorkey transparency which will be
-        # passed to the system.
-        #
-        # Some systems do not allow the window icon to change after it has
-        # been shown. This function can be called before
-        # pygame.display.set_mode() to create the icon before the display mode
-        # is set.
-        #
-
-        self.fail()
-
     def test_set_mode_kwargs(self):
 
         pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
@@ -399,37 +423,100 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
+    def test_set_palette(self):
+        with self.assertRaises(UnboundLocalError) :
+            palette = [1,2,3]
+            screen.set_palette(palette)
+        screen = pygame.display.set_mode((1024,768),pygame.DOUBLEBUF,8)
+        palette = []
+        self.assertIsNone(screen.set_palette(palette))
+        palette = [[0,0,0]] + [[x,x,x] for x in range(1,255)]
+        screen.set_palette(palette)
+        self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
+        self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
+        with self.assertRaises(ValueError):
+            palette = 12
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError):
+            palette = [[1,2],[1,2]]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError):
+            palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError):
+            palette = "qwerty"
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError):
+            palette = [[123,123,123]*10000]
+            screen.set_palette(palette)
+        with self.assertRaises(ValueError):
+            palette = [1,2,3]
+            screen.set_palette(palette)
 
-    def todo_test_set_palette(self):
+    skip_list = ["dummy", "android"]
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") in skip_list,
+        'requires the SDL_VIDEODRIVER to be non dummy'
+    )
+    def test_toggle_fullscreen(self):
+        """Test for toggle fullscreen"""
 
-        # __doc__ (as of 2008-08-02) for pygame.display.set_palette:
+        #try to toggle fullscreen with no active display
+        #this should result in an error
+        pygame.display.quit()
+        with self.assertRaises(pygame.error):
+            pygame.display.toggle_fullscreen()
 
-        # pygame.display.set_palette(palette=None): return None
-        # set the display color palette for indexed displays
-        #
-        # This will change the video display color palette for 8bit displays.
-        # This does not change the palette for the actual display Surface,
-        # only the palette that is used to display the Surface. If no palette
-        # argument is passed, the system default palette will be restored. The
-        # palette is a sequence of RGB triplets.
-        #
+        pygame.display.init()
+        width_height = (640,480)
+        test_surf = pygame.display.set_mode(width_height)
 
-        self.fail()
+        #try to toggle fullscreen
+        try:
+            pygame.display.toggle_fullscreen()
 
-    def todo_test_toggle_fullscreen(self):
+        except pygame.error:
+            self.fail()
 
-        # __doc__ (as of 2008-08-02) for pygame.display.toggle_fullscreen:
+        else:
+            #if toggle success, the width/height should be a
+            #value found in list_modes
+            if pygame.display.toggle_fullscreen() == 1:
+                boolean = (test_surf.get_width(), test_surf.get_height()) \
+                in pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)
 
-        # pygame.display.toggle_fullscreen(): return bool
-        # switch between fullscreen and windowed displays
-        #
-        # Switches the display window between windowed and fullscreen modes.
-        # This function only works under the unix x11 video driver. For most
-        # situations it is better to call pygame.display.set_mode() with new
-        # display flags.
-        #
+                self.assertEqual(boolean, True)
 
-        self.fail()
+            #if not original width/height should be preserved
+            else:
+                self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
+                width_height)
+
+class DisplayInteractiveTest(unittest.TestCase):
+
+    __tags__ = ["interactive"]
+
+    def test_set_icon_interactive(self):
+
+        # on my computer, the window was being created off-screen
+        # thus i set the window position manually
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
+
+        test_icon = pygame.Surface((32, 32))
+        test_icon.fill((255,0,0))
+
+        pygame.display.set_icon(test_icon)
+        screen = pygame.display.set_mode((400,100))
+        pygame.display.set_caption(
+        "Is the icon to the left a red square?"
+        )
+
+        response = question("Is the display icon red square?")
+
+        self.assertTrue(response)
+
+        pygame.display.quit()
 
 
 @unittest.skipIf(

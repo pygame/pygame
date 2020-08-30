@@ -944,25 +944,57 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_convert_alpha(self):
+    def test_convert_alpha(self):
+        """ Ensure the surface returned by surf.convert_alpha
+            has alpha values added"""
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((640, 480))
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert_alpha:
+            s1 = pygame.Surface((100, 100), 0, 32)
+            s1_alpha = pygame.Surface.convert_alpha(s1)
 
-        # Surface.convert_alpha(Surface): return Surface
-        # Surface.convert_alpha(): return Surface
-        # change the pixel format of an image including per pixel alphas
-        #
-        # Creates a new copy of the surface with the desired pixel format. The
-        # new surface will be in a format suited for quick blitting to the
-        # given format with per pixel alpha. If no surface is given, the new
-        # surface will be optimized for blitting to the current display.
-        #
-        # Unlike the Surface.convert() method, the pixel format for the new
-        # image will not be exactly the same as the requested source, but it
-        # will be optimized for fast alpha blitting to the destination.
-        #
+            s2 = pygame.Surface((100, 100), 0, 32)
+            s2_alpha = s2.convert_alpha()
 
-        self.fail()
+            s3 = pygame.Surface((100, 100), 0, 8)
+            s3_alpha = s3.convert_alpha()
+
+            s4 = pygame.Surface((100, 100), 0, 12)
+            s4_alpha = s4.convert_alpha()
+
+            s5 = pygame.Surface((100, 100), 0, 15)
+            s5_alpha = s5.convert_alpha()
+
+            s6 = pygame.Surface((100, 100), 0, 16)
+            s6_alpha = s6.convert_alpha()
+
+            s7 = pygame.Surface((100, 100), 0, 24)
+            s7_alpha = s7.convert_alpha()
+
+            self.assertEqual(s1_alpha.get_alpha(), 255)
+            self.assertEqual(s2_alpha.get_alpha(), 255)
+            self.assertEqual(s3_alpha.get_alpha(), 255)
+            self.assertEqual(s4_alpha.get_alpha(), 255)
+            self.assertEqual(s5_alpha.get_alpha(), 255)
+            self.assertEqual(s6_alpha.get_alpha(), 255)
+            self.assertEqual(s7_alpha.get_alpha(), 255)
+
+            self.assertEqual(s1_alpha.get_bitsize(), 32)
+            self.assertEqual(s2_alpha.get_bitsize(), 32)
+            self.assertEqual(s3_alpha.get_bitsize(), 32)
+            self.assertEqual(s4_alpha.get_bitsize(), 32)
+            self.assertEqual(s5_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+            self.assertEqual(s6_alpha.get_bitsize(), 32)
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.convert_alpha()
+
+        finally:
+            pygame.display.quit()
 
     def test_convert_alpha__pixel_format_as_surface_subclass(self):
         """Ensure convert_alpha accepts a Surface subclass argument."""
@@ -1229,7 +1261,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         surf.unlock()
         self.assertIs(surf.get_locked(), blit_locked_test(surf))  # Unlocked
 
-    def todo_test_get_locks(self):
+    def test_get_locks(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_locks:
 
@@ -1238,7 +1270,29 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # Returns the currently existing locks for the Surface.
 
-        self.fail()
+        # test on a surface that is not initially locked
+        surface = pygame.Surface((100,100))
+        self.assertEqual(surface.get_locks(),())
+
+        # test on the same surface after it has been locked
+        surface.lock()
+        self.assertEqual(surface.get_locks(),(surface,))
+
+        # test on the same surface after it has been unlocked
+        surface.unlock()
+        self.assertEqual(surface.get_locks(),())
+
+        # test with PixelArray initialization: locks surface
+        pxarray = pygame.PixelArray(surface)
+        self.assertNotEqual(surface.get_locks(),())
+
+        # closing the PixelArray releases the surface lock
+        pxarray.close()
+        self.assertEqual(surface.get_locks(),())
+
+        # AttributeError raised when called on invalid object type (i.e. not a pygame.Surface object) 
+        with self.assertRaises(AttributeError):
+            "DUMMY".get_locks()
 
     def todo_test_get_losses(self):
 
@@ -1321,22 +1375,35 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_get_pitch(self):
+    def test_get_pitch(self):
+        # Test get_pitch() on several surfaces of varying size/depth
+        sizes = ((2, 2), (7, 33), (33, 7), (2, 734), (734, 2), (734, 734))
+        depths = [8, 24, 32]
+        for width, height in sizes:
+            for depth in depths:
+                # Test get_pitch() on parent surface
+                surf = pygame.Surface((width, height), depth=depth)
+                buff = surf.get_buffer()
+                pitch = buff.length / surf.get_height()
+                test_pitch = surf.get_pitch()
+                self.assertEqual(pitch, test_pitch)
+                # Test get_pitch() on subsurface with same rect as parent
+                rect1 = surf.get_rect()
+                subsurf1 = surf.subsurface(rect1)
+                sub_buff1 = subsurf1.get_buffer()
+                sub_pitch1 = sub_buff1.length / subsurf1.get_height()
+                test_sub_pitch1 = subsurf1.get_pitch()
+                self.assertEqual(sub_pitch1, test_sub_pitch1)
+                # Test get_pitch on subsurface with modified rect
+                rect2 = rect1.inflate(-width/2, -height/2)
+                subsurf2 = surf.subsurface(rect2)
+                sub_buff2 = subsurf2.get_buffer()
+                sub_pitch2 = sub_buff2.length / float(subsurf2.get_height())
+                test_sub_pitch2 = subsurf2.get_pitch()
+                self.assertEqual(sub_pitch2, test_sub_pitch2)
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_pitch:
 
-        # Surface.get_pitch(): return int
-        # get the number of bytes used per Surface row
-        #
-        # Return the number of bytes separating each row in the Surface.
-        # Surfaces in video memory are not always linearly packed. Subsurfaces
-        # will also have a larger pitch than their real width.
-        #
-        # This value is not needed for normal Pygame usage.
-
-        self.fail()
-
-    def todo_test_get_shifts(self):
+    def test_get_shifts(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_shifts:
 
@@ -1348,7 +1415,25 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # This value is not needed for normal Pygame usage.
 
-        self.fail()
+        # Test for SDL1 -> set_shifts() raises AttributeError in SDL2
+        if SDL1:
+          surface = pygame.Surface((32, 32))
+          surface.set_shifts((2, 4, 8, 16))
+          r, g, b, a = surface.get_shifts()
+          self.assertEqual((r, g, b, a), (2, 4, 8, 16))
+        # Test for SDL2 on surfaces with various depths and alpha on/off
+        else:
+          depths = [8, 24, 32]
+          alpha = 128
+          off = None
+          for bit_depth in depths:
+            surface = pygame.Surface((32, 32), depth=bit_depth)
+            surface.set_alpha(alpha)
+            r1, g1, b1, a1 = surface.get_shifts()
+            surface.set_alpha(off)
+            r2, g2, b2, a2 = surface.get_shifts()
+            self.assertEqual((r1, g1, b1, a1), (r2, g2, b2, a2))
+
 
     def test_get_size(self):
         sizes = ((1, 1), (119, 10), (1000, 1000), (1, 5000), (1221, 1), (99, 999))
@@ -1357,7 +1442,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             found_size = surf.get_size()
             self.assertEqual((width, height), found_size)
 
-    def todo_test_lock(self):
+    def test_lock(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.lock:
 
@@ -1386,7 +1471,35 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # only be unlocked after the final lock is released.
         #
 
-        self.fail()
+        # Basic
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+
+        # Nested
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        surf.lock()
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
+
+        # Already Locked
+        surf = pygame.Surface((100, 100))
+        surf.lock()
+        surf.lock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertTrue(surf.get_locked())
+        surf.unlock()
+        self.assertFalse(surf.get_locked())
 
     def test_map_rgb(self):
         color = Color(0, 128, 255, 64)
