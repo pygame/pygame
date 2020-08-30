@@ -19,3 +19,4 @@ def set_cursor(
 def get_cursor() -> Tuple[
     Tuple[int, int], Tuple[int, int], Sequence[int], Sequence[int]
 ]: ...
+def set_system_cursor(cursor: int) -> None

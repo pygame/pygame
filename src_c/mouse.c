@@ -283,10 +283,10 @@ interror:
 static PyObject *
 mouse_set_system_cursor(PyObject *self, PyObject *args)
 {
-    VIDEO_INIT_CHECK();
-
-    SDL_Cursor *lastcursor, *cursor = NULL;
     int idnum;
+    SDL_Cursor *lastcursor, *cursor = NULL;
+
+    VIDEO_INIT_CHECK();
 
     if (!PyArg_ParseTuple(args, "i", &idnum)) {
         return NULL;
