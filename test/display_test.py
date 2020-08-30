@@ -5,6 +5,8 @@ import os
 
 import pygame, pygame.transform
 from pygame.compat import unicode_
+from pygame.locals import *
+from pygame.tests.test_utils import question
 
 from pygame import display
 
@@ -379,29 +381,6 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_icon(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.set_icon:
-
-        # pygame.display.set_icon(Surface): return None
-        # change the system image for the display window
-        #
-        # Sets the runtime icon the system will use to represent the display
-        # window. All windows default to a simple pygame logo for the window
-        # icon.
-        #
-        # You can pass any surface, but most systems want a smaller image
-        # around 32x32. The image can have colorkey transparency which will be
-        # passed to the system.
-        #
-        # Some systems do not allow the window icon to change after it has
-        # been shown. This function can be called before
-        # pygame.display.set_mode() to create the icon before the display mode
-        # is set.
-        #
-
-        self.fail()
-
     def test_set_mode_kwargs(self):
 
         pygame.display.set_mode(size=(1, 1), flags=0, depth=0, display=0)
@@ -433,7 +412,7 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2") 
+    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
     def test_set_palette(self):
         with self.assertRaises(UnboundLocalError) :
             palette = [1,2,3]
@@ -445,22 +424,22 @@ class DisplayModuleTest(unittest.TestCase):
         screen.set_palette(palette)
         self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
         self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = 12
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[1,2],[1,2]]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = "qwerty"
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [[123,123,123]*10000]
             screen.set_palette(palette)
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
             palette = [1,2,3]
             screen.set_palette(palette)
 
@@ -503,7 +482,30 @@ class DisplayModuleTest(unittest.TestCase):
                 self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
                 width_height)
 
+class DisplayInteractiveTest(unittest.TestCase):
 
+    __tags__ = ["interactive"]
+
+    def test_set_icon_interactive(self):
+
+        # on my computer, the window was being created off-screen
+        # thus i set the window position manually
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
+
+        test_icon = pygame.Surface((32, 32))
+        test_icon.fill((255,0,0))
+
+        pygame.display.set_icon(test_icon)
+        screen = pygame.display.set_mode((400,100))
+        pygame.display.set_caption(
+        "Is the icon to the left a red square?"
+        )
+
+        response = question("Is the display icon red square?")
+
+        self.assertTrue(response)
+
+        pygame.display.quit()
 
 
 @unittest.skipIf(
