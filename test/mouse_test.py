@@ -94,7 +94,10 @@ class MouseModuleTest(MouseTests):
                 with self.assertRaises(pygame.error):
                     pygame.mouse.get_cursor()
 
-    @unittest.skipIf(SDL1, "mouse.set_sytem_cursor only available in SDL2")
+    @unittest.skipIf(
+        SDL1 or os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
+        "mouse.set_sytem_cursor only available in SDL2",
+    )
     def test_set_system_cursor(self):
         """Ensures set_system_cursor works correctly."""
 
