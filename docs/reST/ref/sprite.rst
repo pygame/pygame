@@ -222,7 +222,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
       | :sg:`sprites() -> sprite_list`
 
       Return a list of all the Sprites this group contains. You can also get an
-      iterator from the group, but you cannot iterator over a Group while
+      iterator from the group, but you cannot iterate over a Group while
       modifying it.
 
       .. ## Group.sprites ##
