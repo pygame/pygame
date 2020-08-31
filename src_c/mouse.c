@@ -283,15 +283,16 @@ interror:
 static PyObject *
 mouse_set_system_cursor(PyObject *self, PyObject *args)
 {
-    VIDEO_INIT_CHECK();
-
-    SDL_Cursor *lastcursor, *cursor = NULL;
     int idnum;
+    SDL_Cursor *lastcursor, *cursor = NULL;
+
+    VIDEO_INIT_CHECK();
 
     if (!PyArg_ParseTuple(args, "i", &idnum)) {
         return NULL;
     }
 
+#if IS_SDLv2
     cursor = SDL_CreateSystemCursor(idnum);
     if (!cursor) {
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -299,7 +300,7 @@ mouse_set_system_cursor(PyObject *self, PyObject *args)
     lastcursor = SDL_GetCursor();
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
-
+#endif
     Py_RETURN_NONE;
 }
 
