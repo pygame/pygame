@@ -294,9 +294,17 @@ class ImageModuleTest(unittest.TestCase):
         # uppercase too... JPG
         formats = formats + [x.upper() for x in formats]
 
+        SDL_Im_version = pygame.image.get_sdl_image_version()
+        # We assume here that minor version and patch level of SDL_Image
+        # never goes above 99
+        isAtLeastSDL_image_2_0_2 = ((SDL_Im_version is not None) and
+                (SDL_Im_version[0] * 10000 +
+                 SDL_Im_version[1] * 100 +
+                 SDL_Im_version[2])
+                >= 20002)
         for fmt in formats:
             tmp_file, tmp_filename = tempfile.mkstemp(suffix=".%s"%fmt)
-            if pygame.get_sdl_version()[0] < 2 and fmt.lower() == "jpg":
+            if not isAtLeastSDL_image_2_0_2 and fmt.lower() == "jpg":
                 with os.fdopen(tmp_file, 'wb') as handle:
                     with self.assertRaises(pygame.error):
                         pygame.image.save(s, handle, tmp_filename)
@@ -761,6 +769,24 @@ class ImageModuleTest(unittest.TestCase):
 
         self.assertEqual(pygame.image.get_extended(), loaded)
         os.remove(f_path)
+
+    def test_get_sdl_image_version(self):
+        # If get_extended() returns False then get_sdl_image_version() should
+        # return None
+        if not pygame.image.get_extended():
+            self.assertIsNone(pygame.image.get_sdl_image_version())
+        else:
+            expected_length = 3
+            expected_type = tuple
+            expected_item_type = int
+
+            version = pygame.image.get_sdl_image_version()
+
+            self.assertIsInstance(version, expected_type)
+            self.assertEqual(len(version), expected_length)
+
+            for item in version:
+                self.assertIsInstance(item, expected_item_type)
 
     def todo_test_load_basic(self):
 
