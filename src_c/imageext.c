@@ -812,6 +812,8 @@ image_save_ext(PyObject *self, PyObject *arg)
     PyObject *oencoded = NULL;
     SDL_Surface *surf;
     int result = 1;
+    const char *name = NULL;
+    SDL_RWops *rw = NULL;
 #if IS_SDLv1
     SDL_Surface *temp = NULL;
 #endif /* IS_SDLv1 */
@@ -837,8 +839,6 @@ image_save_ext(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    const char *name = NULL;
-    SDL_RWops *rw = NULL;
     if (oencoded == NULL) {
         result = -2;
     }

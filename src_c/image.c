@@ -247,13 +247,14 @@ image_save(PyObject *self, PyObject *arg)
     }
     else {
         const char *name = NULL;
+        const char * ext = NULL;
         if (oencoded == Py_None) {
             name = (namehint ? namehint: "tga");
         }
         else {
             name = Bytes_AS_STRING(oencoded);
         }
-        const char * ext = find_extension(name);
+        ext = find_extension(name);
         if (!strcasecmp(ext, "png") ||
                 !strcasecmp(ext, "jpg") ||
                 !strcasecmp(ext, "jpeg")) {
