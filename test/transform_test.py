@@ -1196,13 +1196,13 @@ class TransformModuleTest(unittest.TestCase):
         starting_surface = pygame.Surface((20, 20), depth=24)
         smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (10, 10))
         self.assertEqual(smoothscaled_surface.get_size(), (10, 10))
-        self.assertEqual(smoothscaled_surface.get_at(1, 1), starting_surface.get_at(1, 1))
+        self.assertEqual(smoothscaled_surface.get_at((1, 1)), starting_surface.get_at((1, 1)))
 
         # Test scale-up + color at (1, 1)
         starting_surface = pygame.Surface((20, 20), depth=24)
         smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (40, 40))
         self.assertEqual(smoothscaled_surface.get_size(), (40, 40))
-        self.assertEqual(smoothscaled_surface.get_at(1, 1), starting_surface.get_at(1, 1))
+        self.assertEqual(smoothscaled_surface.get_at((1, 1)), starting_surface.get_at((1, 1)))
 
 class TransformDisplayModuleTest(unittest.TestCase):
     def setUp(self):
