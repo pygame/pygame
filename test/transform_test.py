@@ -1157,7 +1157,7 @@ class TransformModuleTest(unittest.TestCase):
 
         self.assertEqual(s1.get_rect(), pygame.Rect(0,0,0,0))
 
-    def todo_test_smoothscale(self):
+    def test_smoothscale(self):
         # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:
 
         # pygame.transform.smoothscale(Surface, (width, height), DestSurface =
@@ -1176,8 +1176,33 @@ class TransformModuleTest(unittest.TestCase):
         #
         # New in pygame 1.8
 
-        self.fail()
+        #check stated exceptions
+        def smoothscale_low_bpp():
+            starting_surface = pygame.Surface((20, 20), depth=12)
+            smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (10, 10))
+        self.assertRaises(ValueError, smoothscale_low_bpp)
 
+        def smoothscale_high_bpp():
+            starting_surface = pygame.Surface((20, 20), depth=48)
+            smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (10, 10))
+        self.assertRaises(ValueError, smoothscale_high_bpp)
+
+        def smoothscale_invalid_scale():
+            starting_surface = pygame.Surface((20, 20), depth=36)
+            smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (-1, -1))
+        self.assertRaises(ValueError, smoothscale_invalid_scale)
+
+        # Test scale-down + color at (1, 1)
+        starting_surface = pygame.Surface((20, 20), depth=24)
+        smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (10, 10))
+        self.assertEqual(smoothscaled_surface.get_size(), (10, 10))
+        self.assertEqual(smoothscaled_surface.get_at(1, 1), starting_surface.get_at(1, 1))
+
+        # Test scale-up + color at (1, 1)
+        starting_surface = pygame.Surface((20, 20), depth=24)
+        smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (40, 40))
+        self.assertEqual(smoothscaled_surface.get_size(), (40, 40))
+        self.assertEqual(smoothscaled_surface.get_at(1, 1), starting_surface.get_at(1, 1))
 
 class TransformDisplayModuleTest(unittest.TestCase):
     def setUp(self):
