@@ -347,6 +347,16 @@ image_save(PyObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+image_get_sdl_image_version_none(PyObject *self, PyObject *arg)
+{
+    /* If the extended formats can't be imported, then no SDL_Image is used.
+     * get_sdl_image_version() will then point to this function which will
+     * allways return None.
+     */
+    Py_RETURN_NONE;
+}
+
 PyObject *
 image_get_extended(PyObject *self, PyObject *arg)
 {
@@ -1655,6 +1665,8 @@ static PyMethodDef _image_methods[] = {
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
     {"fromstring", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMSTRING},
     {"frombuffer", image_frombuffer, METH_VARARGS, DOC_PYGAMEIMAGEFROMBUFFER},
+    {"_get_sdl_image_version_none", image_get_sdl_image_version_none, METH_NOARGS,
+        "_get_sdl_image_version_none() -> None\nNote: Should not be used directly."},
 
     {NULL, NULL, 0, NULL}};
 
@@ -1709,6 +1721,7 @@ MODINIT_DEFINE(image)
     if (extmodule) {
         PyObject *extload;
         PyObject *extsave;
+        PyObject *sdlImageV;
 
         extload = PyObject_GetAttrString(extmodule, "load_extended");
         if (!extload) {
@@ -1723,15 +1736,26 @@ MODINIT_DEFINE(image)
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
-        if (PyModule_AddObject(module, "load_extended", extload)) {
+        sdlImageV = PyObject_GetAttrString(extmodule,
+                "_get_sdl_image_version");
+        if (!sdlImageV) {
             Py_DECREF(extload);
             Py_DECREF(extsave);
             Py_DECREF(extmodule);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
+        if (PyModule_AddObject(module, "load_extended", extload)) {
+            Py_DECREF(extload);
+            Py_DECREF(extsave);
+            Py_DECREF(sdlImageV);
+            Py_DECREF(extmodule);
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
         if (PyModule_AddObject(module, "save_extended", extsave)) {
             Py_DECREF(extsave);
+            Py_DECREF(sdlImageV);
             Py_DECREF(extmodule);
             DECREF_MOD(module);
             MODINIT_ERROR;
@@ -1739,6 +1763,13 @@ MODINIT_DEFINE(image)
         Py_INCREF(extload);
         if (PyModule_AddObject(module, "load", extload)) {
             Py_DECREF(extload);
+            Py_DECREF(sdlImageV);
+            Py_DECREF(extmodule);
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
+        if (PyModule_AddObject(module, "get_sdl_image_version", sdlImageV)) {
+            Py_DECREF(sdlImageV);
             Py_DECREF(extmodule);
             DECREF_MOD(module);
             MODINIT_ERROR;
@@ -1748,11 +1779,14 @@ MODINIT_DEFINE(image)
     }
     else {
         PyObject *basicload = PyObject_GetAttrString(module, "load_basic");
+        PyObject *noSDLimage = PyObject_GetAttrString(module,
+                "_get_sdl_image_version_none");
         PyErr_Clear();
         Py_INCREF(Py_None);
         if (PyModule_AddObject(module, "load_extended", Py_None)) {
             Py_DECREF(Py_None);
             Py_DECREF(basicload);
+            Py_DECREF(noSDLimage);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
@@ -1761,12 +1795,20 @@ MODINIT_DEFINE(image)
         if (PyModule_AddObject(module, "save_extended", Py_None)) {
             Py_DECREF(Py_None);
             Py_DECREF(basicload);
+            Py_DECREF(noSDLimage);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
 
         if (PyModule_AddObject(module, "load", basicload)) {
             Py_DECREF(basicload);
+            Py_DECREF(noSDLimage);
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
+
+        if (PyModule_AddObject(module, "get_sdl_image_version", noSDLimage)) {
+            Py_DECREF(noSDLimage);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
