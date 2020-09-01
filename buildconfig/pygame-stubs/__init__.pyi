@@ -1,6 +1,13 @@
 from typing import Callable, Optional, Tuple, Type, Union
 
-from . import color, pixelarray, rect, surface, math
+# Most useful stuff
+from . import constants, surface, rect, color, event, bufferproxy, draw, display, font, image, key, mixer, mouse, time, version
+
+# Advanced stuff
+from . import cursors, joystick, mask, sprite, transform, pixelarray, pixelcopy, sndarray, surfarray, math, fastevent
+
+# Other
+from . import scrap
 
 # This classes are auto imported with pygame, so I put their declaration here
 class Rect(rect.Rect): ...
