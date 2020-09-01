@@ -1,18 +1,17 @@
 from typing import Optional, Sequence, Tuple, Union
 
-from pygame.color import Color
-from pygame.surface import Surface
+from . import color, surface as s
 
-_ColorValue = Union[Color, Tuple[int, int, int], Sequence[int], int, Tuple[int, int, int, int]]
+_ColorValue = Union[color.Color, Tuple[int, int, int], Sequence[int], int, Tuple[int, int, int, int]]
 
 class PixelArray:
-    surface: Surface
+    surface: s.Surface
     itemsize: int
     ndim: int
     shape: Tuple[int, ...]
     strides: Tuple[int, ...]
-    def __init__(self, surface: Surface) -> None: ...
-    def make_surface(self) -> Surface: ...
+    def __init__(self, surface: s.Surface) -> None: ...
+    def make_surface(self) -> s.Surface: ...
     def replace(
         self,
         color: _ColorValue,

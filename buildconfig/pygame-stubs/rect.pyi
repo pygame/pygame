@@ -1,6 +1,6 @@
-from typing import Iterable, Mapping, Sequence, Tuple, TypeVar, Union, overload
+from typing import Iterable, List, Mapping, Sequence, Tuple, TypeVar, Union, overload
 
-from pygame.math import Vector2
+from . import math
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
@@ -8,14 +8,14 @@ _V = TypeVar("_V")
 _RectStyle = Union[
     Tuple[float, float, float, float],
     Tuple[Tuple[float, float], Tuple[float, float]],
-    Sequence[float],
-    Sequence[Vector2],
-    Tuple[Vector2, Vector2],
-    Iterable[Vector2],
+    List[float],
+    List[math.Vector2],
+    Tuple[math.Vector2, math.Vector2],
+    Iterable[math.Vector2],
 ]
-_Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
+_Coordinate = Union[Tuple[float, float], Sequence[float], math.Vector2]
 
-class Rect:
+class Rect(object):
     x: int
     y: int
     top: int
@@ -44,15 +44,15 @@ class Rect:
     @overload
     def __init__(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> None: ...
     @overload
     def __init__(self, left_top_width_height: Union[Tuple[float, float, float, float], Sequence[float]],) -> None: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
     @overload
-    def __getitem__(self, s: slice) -> Sequence[int]: ...
+    def __getitem__(self, s: slice) -> List[int]: ...
     def copy(self) -> Rect: ...
     def move(self, x: float, y: float) -> Rect: ...
     def move_ip(self, x: float, y: float) -> None: ...
@@ -63,8 +63,8 @@ class Rect:
     @overload
     def clamp(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> Rect: ...
     @overload
     def clamp(self, left: float, top: float, width: float, height: float) -> Rect: ...
@@ -73,8 +73,8 @@ class Rect:
     @overload
     def clamp_ip(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> None: ...
     @overload
     def clamp_ip(self, left: float, top: float, width: float, height: float) -> None: ...
@@ -83,8 +83,8 @@ class Rect:
     @overload
     def clip(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> Rect: ...
     @overload
     def clip(self, left: float, top: float, width: float, height: float) -> Rect: ...
@@ -109,8 +109,8 @@ class Rect:
     @overload
     def union(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> Rect: ...
     @overload
     def union(self, left: float, top: float, width: float, height: float) -> Rect: ...
@@ -119,8 +119,8 @@ class Rect:
     @overload
     def union_ip(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> None: ...
     @overload
     def union_ip(self, left: float, top: float, width: float, height: float) -> None: ...
@@ -131,8 +131,8 @@ class Rect:
     @overload
     def fit(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> Rect: ...
     @overload
     def fit(self, left: float, top: float, width: float, height: float) -> Rect: ...
@@ -142,8 +142,8 @@ class Rect:
     @overload
     def contains(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> int: ...
     @overload
     def contains(self, left: float, top: float, width: float, height: float) -> int: ...
@@ -156,13 +156,13 @@ class Rect:
     @overload
     def colliderect(
         self,
-        left_top: Union[Sequence[float], Tuple[float, float], Vector2],
-        width_height: Union[Sequence[float], Tuple[float, float], Vector2],
+        left_top: Union[Sequence[float], Tuple[float, float], math.Vector2],
+        width_height: Union[Sequence[float], Tuple[float, float], math.Vector2],
     ) -> int: ...
     @overload
     def colliderect(self, left: float, top: float, width: float, height: float) -> int: ...
     def collidelist(self, rect_list: Sequence[Union[Rect, _RectStyle]]) -> int: ...
-    def collidelistall(self, rect_list: Sequence[Union[Rect, _RectStyle]]) -> Sequence[int]: ...
+    def collidelistall(self, rect_list: Sequence[Union[Rect, _RectStyle]]) -> List[int]: ...
     # Also undocumented: the dict collision methods take a 'values' argument
     # that defaults to False. If it is False, the keys in rect_dict must be
     # Rect-like; otherwise, the values must be Rects.
@@ -171,7 +171,7 @@ class Rect:
     @overload
     def collidedict(self, rect_dict: Mapping[_K, "Rect"], values: bool) -> Tuple[_K, "Rect"]: ...
     @overload
-    def collidedictall(self, rect_dict: Mapping[_RectStyle, _V], values: bool = ...) -> Sequence[Tuple[_RectStyle, _V]]: ...
+    def collidedictall(self, rect_dict: Mapping[_RectStyle, _V], values: bool = ...) -> List[Tuple[_RectStyle, _V]]: ...
     @overload
-    def collidedictall(self, rect_dict: Mapping[_K, "Rect"], values: bool) -> Sequence[Tuple[_K, "Rect"]]: ...
+    def collidedictall(self, rect_dict: Mapping[_K, "Rect"], values: bool) -> List[Tuple[_K, "Rect"]]: ...
 

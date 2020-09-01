@@ -1,6 +1,6 @@
 from typing import AnyStr, Optional
 
-class BufferProxy:
+class BufferProxy(object):
     parent: Optional[BufferProxy]
     length: int
     raw: AnyStr

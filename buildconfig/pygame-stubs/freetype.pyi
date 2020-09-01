@@ -1,11 +1,8 @@
-from typing import IO, Optional, Sequence, Text, Tuple, Union
+from typing import Any, IO, List, Optional, Sequence, Text, Tuple, Union
 
-from pygame.bufferproxy import BufferProxy
-from pygame.color import Color
-from pygame.rect import Rect
-from pygame.surface import Surface
+from . import color, rect, surface
 
-_ColorValue = Union[Color, Tuple[int, int, int], Sequence[int], int]
+_ColorValue = Union[color.Color, Tuple[int, int, int], Sequence[int], int]
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...
@@ -48,8 +45,8 @@ class Font:
     kerning: bool
     vertical: bool
     rotation: int
-    fgcolor: Color
-    bgcolor: Color
+    fgcolor: color.Color
+    bgcolor: color.Color
     origin: bool
     pad: bool
     ucs4: bool
@@ -64,13 +61,13 @@ class Font:
     ) -> None: ...
     def get_rect(
         self, text: str, style: Optional[int] = ..., rotation: Optional[int] = ..., size: Optional[float] = ...,
-    ) -> Rect: ...
-    def get_metrics(self, text: str, size: Optional[float] = ...) -> Sequence[Tuple[int, int, int, int, float, float]]: ...
+    ) -> rect.Rect: ...
+    def get_metrics(self, text: str, size: Optional[float] = ...) -> List[Tuple[int, int, int, int, float, float]]: ...
     def get_sized_ascender(self, size: float) -> int: ...
     def get_sized_descender(self, size: float) -> int: ...
     def get_sized_height(self, size: float) -> int: ...
     def get_sized_glyph_height(self, size: float) -> int: ...
-    def get_sizes(self) -> Sequence[Tuple[int, int, int, float, float]]: ...
+    def get_sizes(self) -> List[Tuple[int, int, int, float, float]]: ...
     def render(
         self,
         text: str,
@@ -79,18 +76,18 @@ class Font:
         style: Optional[int] = ...,
         rotation: Optional[int] = ...,
         size: Optional[float] = ...,
-    ) -> Tuple[Surface, Rect]: ...
+    ) -> Tuple[surface.Surface, rect.Rect]: ...
     def render_to(
         self,
-        surf: Surface,
-        dest: Union[Sequence[int], Rect],
+        surf: surface.Surface,
+        dest: Union[Sequence[int], rect.Rect],
         text: str,
         fgcolor: Optional[_ColorValue] = ...,
         bgcolor: Optional[_ColorValue] = ...,
         style: Optional[int] = ...,
         rotation: Optional[int] = ...,
         size: Optional[float] = ...,
-    ) -> Rect: ...
+    ) -> rect.Rect: ...
     def render_raw(
         self,
         text: str,
@@ -101,11 +98,11 @@ class Font:
     ) -> Tuple[bytes, Tuple[int, int]]: ...
     def render_raw_to(
         self,
-        array: BufferProxy,
+        array: Any,  # BufferProxy
         text: str,
         dest: Optional[Union[Tuple[int, int], Sequence[int]]] = ...,
         style: Optional[int] = ...,
         rotation: Optional[int] = ...,
         size: Optional[float] = ...,
         invert: Optional[bool] = ...,
-    ) -> Rect: ...
+    ) -> rect.Rect: ...

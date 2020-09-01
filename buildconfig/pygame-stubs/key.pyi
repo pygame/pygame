@@ -1,15 +1,14 @@
-from typing import Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
-from pygame.math import Vector2
-from pygame.rect import Rect
+from . import math, rect
 
-_Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
+_Coordinate = Union[Tuple[float, float], Sequence[float], math.Vector2]
 _RectValue = Union[
-    Rect, Union[Tuple[int, int, int, int], Sequence[int]], Union[Tuple[_Coordinate, _Coordinate], Sequence[_Coordinate]],
+    rect.Rect, Union[Tuple[int, int, int, int], Sequence[int]], Union[Tuple[_Coordinate, _Coordinate], Sequence[_Coordinate]],
 ]
 
 def get_focused() -> bool: ...
-def get_pressed() -> Sequence[bool]: ...
+def get_pressed() -> List[bool]: ...
 def get_mods() -> int: ...
 def set_mods() -> int: ...
 def set_repeat(delay: Optional[int] = ..., interval: Optional[int] = ...) -> None: ...
