@@ -15,6 +15,8 @@ def set_cursor(
     hotspot: Union[Tuple[int, int], Sequence[int]],
     xormasks: Sequence[int],
     andmasks: Sequence[int],
-) -> None: ...
-def get_cursor() -> Tuple[Tuple[int, int], Tuple[int, int], Sequence[int], Sequence[int]]: ...
-
+) -> None: ...  # This needs to be checked
+def get_cursor() -> Tuple[
+    Tuple[int, int], Tuple[int, int], Sequence[int], Sequence[int]
+]: ...
+def set_system_cursor(cursor: int) -> None

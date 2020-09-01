@@ -280,6 +280,31 @@ interror:
     return RAISE(PyExc_TypeError, "Invalid number in mask array");
 }
 
+static PyObject *
+mouse_set_system_cursor(PyObject *self, PyObject *args)
+{
+    int idnum;
+    SDL_Cursor *lastcursor, *cursor = NULL;
+
+    VIDEO_INIT_CHECK();
+
+    if (!PyArg_ParseTuple(args, "i", &idnum)) {
+        return NULL;
+    }
+
+#if IS_SDLv2
+    cursor = SDL_CreateSystemCursor(idnum);
+    if (!cursor) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    lastcursor = SDL_GetCursor();
+    SDL_SetCursor(cursor);
+    SDL_FreeCursor(lastcursor);
+#endif
+    Py_RETURN_NONE;
+}
+
+
 #if IS_SDLv2
 static PyObject *
 mouse_get_cursor(PyObject *self)
@@ -338,6 +363,7 @@ static PyMethodDef _mouse_methods[] = {
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},
+    {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETSYSTEMCURSOR},
     {"get_cursor", (PyCFunction)mouse_get_cursor, METH_VARARGS,
      DOC_PYGAMEMOUSEGETCURSOR},
 
