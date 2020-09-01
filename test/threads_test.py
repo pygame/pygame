@@ -25,14 +25,31 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertEqual(fr.result, 2)
         self.assertEqual(fr2.result, 3)
 
-    def todo_test_do(self):
+    def test_do(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.do:
 
-        # puts a function on a queue for running later.
+        # puts a function on a queue for running _later_.
         #
+        def sleepTest():
+            time.sleep(1)
 
-        self.fail()
+        def calcTest(x):
+            return x + 1
+
+        wq = WorkerQueue(num_workers=1)
+        sleepReturn = FuncResult(sleepTest)
+        calcReturn = FuncResult(calcTest)
+        init_time = time.time()
+        wq.do(sleepReturn)
+        wq.do(calcReturn, 1)
+        wq.wait()
+        wq.stop()
+        time_diff = time.time() - init_time
+
+        self.assertEqual(sleepReturn.result, None)
+        self.assertEqual(calcReturn.result, 2)
+        self.assertGreater(time_diff, 1)
 
     def test_stop(self):
         """Ensure stop() stops the worker queue"""
@@ -79,7 +96,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
 
 class ThreadsModuleTest(unittest.TestCase):
-    def todo_test_benchmark_workers(self):
+    def test_benchmark_workers(self):
         "tags:long_running"
 
         # __doc__ (as of 2008-06-28) for pygame.threads.benchmark_workers:
@@ -91,8 +108,9 @@ class ThreadsModuleTest(unittest.TestCase):
         # You can pass in benchmark data, and functions if you want.
         # a_bench_func - f(data)
         # the_data - data to work on.
-
-        self.fail()
+        optimal_workers = threads.benchmark_workers()
+        self.assertTrue(type(optimal_workers) == int)
+        self.assertTrue(0 <= optimal_workers < 64)
 
     def test_init(self):
         """Ensure init() sets up the worker queue"""
