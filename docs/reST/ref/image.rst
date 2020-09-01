@@ -52,6 +52,9 @@ following formats.
    * ``JPEG``
 
 .. versionadded:: 1.8 Saving PNG and JPEG files.
+.. versionchanged:: 2.0.0.dev11 The save function got an optional  *namehint*
+parameter to make it possible to save other formats than ``TGA`` to a
+file-like object.
 
 .. function:: load
 
@@ -93,17 +96,39 @@ following formats.
 
    | :sl:`save an image to disk`
    | :sg:`save(Surface, filename) -> None`
-   | :sg:`save(Surface, fileobj) -> None`
+   | :sg:`save(Surface, fileobj, namehint="") -> None`
 
    This will save your Surface as either a ``BMP``, ``TGA``, ``PNG``, or
    ``JPEG`` image. If the filename extension is unrecognized it will default to
    ``TGA``. Both ``TGA``, and ``BMP`` file formats create uncompressed files.
    You can pass a filename or a Python file-like object. For file-like object,
-   the image is saved to ``TGA`` format.
+   the image is saved to ``TGA`` format unless a namehint is used.
+
+   .. note:: To be able to save the ``JPEG`` file format to a file-like object,
+   SDL2_Image version 2.0.2 or newer is needed.
+
+   .. note:: When saving to a file-like object, it seems that for most
+   formats, it needs to be flushed after saving to be able to load from it.
 
    .. versionadded:: 1.8 Saving PNG and JPEG files.
+   .. versionchanged:: 2.0.0.dev11 The *namehint* parameter was added to make
+   it possible to save other formats than ``TGA`` to a file-like object.
 
    .. ## pygame.image.save ##
+
+.. function:: get_sdl_image_version
+
+   | :sl: `get version number of the SDL_Image library used`
+   | :sg: `get_sdl_image_version() -> None`
+   | :sg: `get_sdl_image_version() -> (major, minor, patch)`
+
+   If pygame is built with extended image formats, then this function will
+   return the SDL_Image library's version number as a tuple of 3 integers
+   ``(major, minor, patch)``. If not, then it will return ``None``.
+
+   .. versionadded:: 2.0.0.dev11
+
+   .. ## pygame,image.get_sdl_image_version ##
 
 .. function:: get_extended
 
