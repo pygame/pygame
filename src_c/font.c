@@ -830,18 +830,31 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         filename = Bytes_AS_STRING(oencoded);
     }
 
+#if FONT_HAVE_RWOPS
+    /* Try opening the path through RWops first */
     if (filename) {
         rw = SDL_RWFromFile(filename, "rb");
-        if (rw == NULL) {
+        if (rw != NULL) {
+            Py_BEGIN_ALLOW_THREADS;
+            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+            Py_END_ALLOW_THREADS;
+        } else {
+            /*
             PyErr_Format(PyExc_IOError,
                                  "unable to read font file '%.1024s'",
                                  filename);
-        }
+            goto error;
+            */
 
-        Py_BEGIN_ALLOW_THREADS;
-        font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-        Py_END_ALLOW_THREADS;
+            /* silently ignore this failure. We will try opening the path
+               with fopen (pg_open_obj) again later.
+               RWops can open assets bundled with P4A on Android, but not
+               font_resource() paths */
+        }
+        if(font!=NULL)
+            goto success;
     }
+#endif
 
     if(font==NULL) {
         /*check if it is a valid file, else SDL_ttf segfaults*/
@@ -882,10 +895,14 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             Py_DECREF(tmp);
         }
         Py_DECREF(test);
+        /* opened file (test) is not used for loading,
+           SDL_TTF fopens the file _again_.*/
+
         Py_BEGIN_ALLOW_THREADS;
         font = TTF_OpenFont(filename, fontsize);
         Py_END_ALLOW_THREADS;
     }
+
 fileobject:
     if (font == NULL) {
 #if FONT_HAVE_RWOPS
@@ -910,6 +927,7 @@ fileobject:
         goto error;
     }
 
+success:
     Py_XDECREF(oencoded);
     Py_DECREF(obj);
     self->font = font;
