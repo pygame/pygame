@@ -1798,6 +1798,9 @@ pg_event_post(PyObject *self, PyObject *args)
             return NULL;
     }
     else {
+        /* HACK:
+           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
+           event queue. This needs to be decoded again. */
          if (pgEvent_FillUserEvent(e, &event))
             return NULL;
     }
