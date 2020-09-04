@@ -1898,7 +1898,7 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 
-int _custom_event = PGE_USEREVENT;
+int _custom_event = PGE_USEREVENT + 1;
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *args)
 {
