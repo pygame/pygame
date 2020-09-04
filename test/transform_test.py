@@ -1200,6 +1200,7 @@ class TransformModuleTest(unittest.TestCase):
         for k in [2**x for x in range(5,8)]: # Enlarge to targets 32, 64...256
             bigger_surface = pygame.transform.smoothscale(two_pixel_surface, (k, 1))
             self.assertEqual(bigger_surface.get_at((k//2, 0)), pygame.Color(127, 127, 127))
+            self.assertEqual(bigger_surface.get_size(), (k, 1))
         # Test Color Blending Scaling-Down
         two_five_six_surf = pygame.Surface((256, 1), depth=32)
         two_five_six_surf.fill(pygame.Color(0, 0, 0), pygame.Rect(0, 0, 128, 1))
@@ -1207,6 +1208,7 @@ class TransformModuleTest(unittest.TestCase):
         for k in range(3, 11, 2): #Shrink to targets 3, 5...11 pixels wide
             smaller_surface = pygame.transform.smoothscale(two_five_six_surf, (k, 1))
             self.assertEqual(smaller_surface.get_at(((k//2), 0)), pygame.Color(127, 127, 127))
+            self.assertEqual(smaller_surface.get_size(), (k, 1))
 
 class TransformDisplayModuleTest(unittest.TestCase):
     def setUp(self):
