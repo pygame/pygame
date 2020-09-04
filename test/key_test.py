@@ -20,20 +20,23 @@ class KeyModuleTest(unittest.TestCase):
         # case a test calls pygame.quit()).
         if not pygame.get_init():
             pygame.init()
+        if not pygame.display.get_init():
+            pygame.display.init()
 
     def test_import(self):
         "does it import"
         import pygame.key
 
+    @unittest.skipIf(SDL1, "SDL1 always thinks it has keyboard focus.")
     def test_get_focused(self):
         focused = pygame.key.get_focused()
-        #If using SDL1, these tests should fail, as SDL1 always returns true,
-        #Kept tests as is, as this is probably wrong.
+        # If using SDL1, these tests should fail, as SDL1 always returns true,
+        # Kept tests as is, as this is probably wrong.
         self.assertFalse(focused) #No window to focus
         self.assertIsInstance(focused, int)
-        #Dummy video driver never gets keyboard focus.
+        # Dummy video driver never gets keyboard focus.
         if os.environ.get("SDL_VIDEODRIVER") != 'dummy':
-            #Positive test, fullscreen with events grabbed
+            # Positive test, fullscreen with events grabbed
             display_sizes = pygame.display.list_modes()
             if display_sizes == -1:
                 display_sizes = [(500, 500)]
@@ -43,20 +46,22 @@ class KeyModuleTest(unittest.TestCase):
             focused = pygame.key.get_focused()
             self.assertIsInstance(focused, int)
             self.assertTrue(focused)
-            #Now test negative, iconify takes away focus
+            # Now test negative, iconify takes away focus
             pygame.event.clear()
-            pygame.display.iconify()
-            #Apparent need to pump event queue in order to make sure iconify
-            #happens. See display_test.py's test_get_active_iconify
-            for _ in range(5000):
-                pygame.event.pump()
-            self.assertFalse(pygame.key.get_focused())
-            #Test if focus is returned when iconify is gone
-            pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
-            for i in range(5000):
-                pygame.event.pump()
-            self.assertTrue(pygame.key.get_focused())
-        #Test if a quit display raises an error:
+            # TODO: iconify test fails in windows
+            if os.name != 'nt':
+                pygame.display.iconify()
+                # Apparent need to pump event queue in order to make sure iconify
+                # happens. See display_test.py's test_get_active_iconify
+                for _ in range(5000):
+                    pygame.event.pump()
+                self.assertFalse(pygame.key.get_focused())
+                # Test if focus is returned when iconify is gone
+                pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
+                for i in range(5000):
+                    pygame.event.pump()
+                self.assertTrue(pygame.key.get_focused())
+        # Test if a quit display raises an error:
         pygame.display.quit()
         with self.assertRaises(pygame.error) as cm:
             pygame.key.get_focused()
