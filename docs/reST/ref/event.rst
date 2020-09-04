@@ -77,11 +77,11 @@ specific attributes.
     MOUSEMOTION       pos, rel, buttons
     MOUSEBUTTONUP     pos, button
     MOUSEBUTTONDOWN   pos, button
-    JOYAXISMOTION     joy, axis, value
-    JOYBALLMOTION     joy, ball, rel
-    JOYHATMOTION      joy, hat, value
-    JOYBUTTONUP       joy, button
-    JOYBUTTONDOWN     joy, button
+    JOYAXISMOTION     joy (deprecated), instance_id, axis, value
+    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
+    JOYHATMOTION      joy (deprecated), instance_id, hat, value
+    JOYBUTTONUP       joy (deprecated), instance_id, button
+    JOYBUTTONDOWN     joy (deprecated), instance_id, button
     VIDEORESIZE       size, w, h
     VIDEOEXPOSE       none
     USEREVENT         code
@@ -145,6 +145,25 @@ Events reserved for :mod:`pygame.midi` use.
 
 |
 
+
+|
+
+.. versionadded:: 2.0.0
+
+SDL2 supports controller hotplugging:
+
+::
+
+   CONTROLLERDEVICEADDED    device_index
+   JOYDEVICEADDED           device_index
+   CONTROLLERDEVICEREMOVED  instance_id
+   JOYDEVICEREMOVED         instance_id
+   CONTROLLERDEVICEREMAPPED instance_id
+
+Also in this version, ``instance_id`` attributes were added to joystick events,
+and the ``joy`` attribute was deprecated.
+
+|
 
 .. function:: pump
 
