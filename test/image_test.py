@@ -147,6 +147,8 @@ class ImageModuleTest(unittest.TestCase):
             posn = rect.move((offset, offset)).topleft
             self.assertEqual(approx(jpg_surf.get_at(posn)), approx(color))
 
+        os.remove(f_path)
+
     def testSavePNG32(self):
         """ see if we can save a png with color values in the proper channels.
         """
@@ -279,6 +281,51 @@ class ImageModuleTest(unittest.TestCase):
         finally:
             # clean up the temp file, even if test fails
             os.remove(temp_filename)
+
+    def test_save__to_fileobject_w_namehint_argument(self):
+        s = pygame.Surface((10, 10))
+        s.fill((23, 23, 23))
+        magic_hex = {}
+        magic_hex["jpg"] = [0xFF, 0xD8, 0xFF, 0xE0]
+        magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
+        magic_hex["bmp"] = [0x42, 0x4D]
+
+        formats = ["tga", "jpg", "bmp", "png"]
+        # uppercase too... JPG
+        formats = formats + [x.upper() for x in formats]
+
+        SDL_Im_version = pygame.image.get_sdl_image_version()
+        # We assume here that minor version and patch level of SDL_Image
+        # never goes above 99
+        isAtLeastSDL_image_2_0_2 = ((SDL_Im_version is not None) and
+                (SDL_Im_version[0] * 10000 +
+                 SDL_Im_version[1] * 100 +
+                 SDL_Im_version[2])
+                >= 20002)
+        for fmt in formats:
+            tmp_file, tmp_filename = tempfile.mkstemp(suffix=".%s"%fmt)
+            if not isAtLeastSDL_image_2_0_2 and fmt.lower() == "jpg":
+                with os.fdopen(tmp_file, 'wb') as handle:
+                    with self.assertRaises(pygame.error):
+                        pygame.image.save(s, handle, tmp_filename)
+            else:
+                with os.fdopen(tmp_file, 'r+b') as handle:
+                    pygame.image.save(s, handle, tmp_filename)
+
+                    if fmt.lower() in magic_hex:
+                        # Test the magic numbers at the start of the file to
+                        # ensure they are saved as the correct file type.
+                        handle.seek(0)
+                        self.assertEqual(
+                            (1, fmt),
+                            (test_magic(handle, magic_hex[fmt.lower()]), fmt)
+                        )
+                    # load the file to make sure it was saved correctly.
+                    handle.flush()
+                    handle.seek(0)
+                    s2 = pygame.image.load(handle, tmp_filename)
+                    self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
+            os.remove(tmp_filename)
 
     def test_save_colorkey(self):
         """ make sure the color key is not changed when saving.
@@ -721,6 +768,25 @@ class ImageModuleTest(unittest.TestCase):
             loaded = False
 
         self.assertEqual(pygame.image.get_extended(), loaded)
+        os.remove(f_path)
+
+    def test_get_sdl_image_version(self):
+        # If get_extended() returns False then get_sdl_image_version() should
+        # return None
+        if not pygame.image.get_extended():
+            self.assertIsNone(pygame.image.get_sdl_image_version())
+        else:
+            expected_length = 3
+            expected_type = tuple
+            expected_item_type = int
+
+            version = pygame.image.get_sdl_image_version()
+
+            self.assertIsInstance(version, expected_type)
+            self.assertEqual(len(version), expected_length)
+
+            for item in version:
+                self.assertIsInstance(item, expected_item_type)
 
     def todo_test_load_basic(self):
 
