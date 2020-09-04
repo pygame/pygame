@@ -740,13 +740,39 @@ class ImageModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_save_extended(self):
+    def test_save_extended(self):
+        surf = pygame.Surface((5, 5))
+        surf.fill((23, 23, 23))
 
-        # __doc__ (as of 2008-08-02) for pygame.image.save_extended:
+        passing_formats = ['jpg', 'png']
+        passing_formats += [fmt.upper() for fmt in passing_formats]
 
-        # pygame module for image transfer
+        magic_hex = {}
+        magic_hex["jpg"] = [0xFF, 0xD8, 0xFF, 0xE0]
+        magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
 
-        self.fail()
+        failing_formats = ['bmp', 'tga']
+        failing_formats += [fmt.upper() for fmt in failing_formats]
+
+        # check that .jpg and .png save
+        for fmt in passing_formats:
+            temp_file_name = "temp_file.%s" % fmt
+            # save image as .jpg and .png
+            pygame.image.save_extended(surf, temp_file_name)
+            with open(temp_file_name, "rb") as file:
+                # Test the magic numbers at the start of the file to ensure
+                # they are saved as the correct file type.
+                self.assertEqual(
+                    1, (test_magic(file, magic_hex[fmt.lower()]))
+                )
+            # load the file to make sure it was saved correctly
+            loaded_file = pygame.image.load(temp_file_name)
+            self.assertEqual(loaded_file.get_at((0, 0)), surf.get_at((0, 0)))
+            # clean up the temp file
+            os.remove(temp_file_name)
+        # check that .bmp and .tga do not save
+        for fmt in failing_formats:
+            self.assertRaises(pygame.error, pygame.image.save_extended, surf, "temp_file.%s" % fmt)
 
     def threads_load(self, images):
         import pygame.threads
