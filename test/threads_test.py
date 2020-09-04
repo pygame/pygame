@@ -1,6 +1,6 @@
 import unittest
 from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP
-from pygame import threads
+from pygame import threads, Surface, transform
 from pygame.compat import xrange_
 
 import time
@@ -26,30 +26,30 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertEqual(fr2.result, 3)
 
     def test_do(self):
-
+        """ Tests function placement on queue and execution after blocking function completion."""
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.do:
 
         # puts a function on a queue for running _later_.
-        #
-        def sleepTest():
-            time.sleep(1)
 
-        def calcTest(x):
+        def sleep_test():
+            time.sleep(0.5)
+
+        def calc_test(x):
             return x + 1
 
-        wq = WorkerQueue(num_workers=1)
-        sleepReturn = FuncResult(sleepTest)
-        calcReturn = FuncResult(calcTest)
+        worker_queue = WorkerQueue(num_workers=1)
+        sleep_return = FuncResult(sleep_test)
+        calc_return = FuncResult(calc_test)
         init_time = time.time()
-        wq.do(sleepReturn)
-        wq.do(calcReturn, 1)
-        wq.wait()
-        wq.stop()
+        worker_queue.do(sleep_return)
+        worker_queue.do(calc_return, 1)
+        worker_queue.wait()
+        worker_queue.stop()
         time_diff = time.time() - init_time
 
-        self.assertEqual(sleepReturn.result, None)
-        self.assertEqual(calcReturn.result, 2)
-        self.assertGreater(time_diff, 1)
+        self.assertEqual(sleep_return.result, None)
+        self.assertEqual(calc_return.result, 2)
+        self.assertGreater(time_diff, 0.5)
 
     def test_stop(self):
         """Ensure stop() stops the worker queue"""
@@ -97,6 +97,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
 class ThreadsModuleTest(unittest.TestCase):
     def test_benchmark_workers(self):
+        """Ensure benchmark_workers performance measure functions properly with both default and specified inputs"""
         "tags:long_running"
 
         # __doc__ (as of 2008-06-28) for pygame.threads.benchmark_workers:
@@ -109,8 +110,16 @@ class ThreadsModuleTest(unittest.TestCase):
         # a_bench_func - f(data)
         # the_data - data to work on.
         optimal_workers = threads.benchmark_workers()
-        self.assertTrue(type(optimal_workers) == int)
+        self.assertIsInstance(optimal_workers, int)
         self.assertTrue(0 <= optimal_workers < 64)
+        
+        # Test passing benchmark data and function explicitly
+        def smooth_scale_bench(data):
+            transform.smoothscale(data, (128, 128))
+
+        surf_data = [Surface((x, x), 0, 32) for x in range(12, 64, 12)]
+        best_num_workers = threads.benchmark_workers(smooth_scale_bench, surf_data)
+        self.assertIsInstance(best_num_workers, int)
 
     def test_init(self):
         """Ensure init() sets up the worker queue"""
