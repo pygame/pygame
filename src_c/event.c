@@ -1988,10 +1988,11 @@ int _custom_event = PGE_USEREVENT + 1;
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *args)
 {
-    if (_custom_event > PG_NUMEVENTS) {
-        return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
+    if (_custom_event < PG_NUMEVENTS) {
+        return PyInt_FromLong(_custom_event++);
     }
-    return PyInt_FromLong(_custom_event++);
+    else
+        return RAISE(pgExc_SDLError, "pygame.event.custom_type made too many event types.");
 }
 
 static PyMethodDef _event_methods[] = {
