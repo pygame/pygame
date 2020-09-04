@@ -587,6 +587,7 @@ class EventModuleTest(unittest.TestCase):
         self.assertFalse(a == d)
 
     def test_custom_type(self):
+        self.assertEqual(pygame.event.custom_type(), pygame.USEREVENT + 1)
         atype = pygame.event.custom_type()
         atype2 = pygame.event.custom_type()
 
