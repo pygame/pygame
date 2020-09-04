@@ -86,6 +86,9 @@ specific attributes.
     VIDEOEXPOSE       none
     USEREVENT         code
 
+You can also find a list of constants for keyboard keys
+:ref:`here <key-constants-label>`.
+
 |
 
 .. versionadded:: 1.9.2
