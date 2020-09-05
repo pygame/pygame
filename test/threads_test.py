@@ -49,7 +49,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
         self.assertEqual(sleep_return.result, None)
         self.assertEqual(calc_return.result, 2)
-        self.assertGreater(time_diff, 0.5)
+        self.assertGreaterEqual(time_diff, 0.5)
 
     def test_stop(self):
         """Ensure stop() stops the worker queue"""
