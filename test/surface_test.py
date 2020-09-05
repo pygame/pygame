@@ -1270,9 +1270,9 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             
             # Test each surface for correct losses
             # Display surface losses gives idea of default surface losses
-            if (display_surf.get_losses() == (0, 0, 0, 8)):
+            if display_surf.get_losses() == (0, 0, 0, 8):
                 self.assertEqual(losses, (0, 0, 0, 8))
-            elif (display_surf.get_losses() == (8, 8, 8, 8)):
+            elif display_surf.get_losses() == (8, 8, 8, 8):
                 self.assertEqual(losses, (8, 8, 8, 8))
 
             self.assertEqual(surf_8bit.get_losses(), (5, 5, 6, 8))
@@ -1281,7 +1281,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(surf_24bit.get_losses(), (0, 0, 0, 8))
             self.assertEqual(surf_32bit.get_losses(), (0, 0, 0, 0))
             
-            # Method should fail when display is not intialized
+            # Method should fail when display is not initialized
             with self.assertRaises(pygame.error):
                 surface = pygame.display.set_mode((100, 100))
                 pygame.display.quit()
