@@ -368,6 +368,14 @@ and the ``joy`` attribute was deprecated.
 
    If the event queue is full a :exc:`pygame.error` is raised.
 
+   Caution: In pygame 2.0, calling this function with event types defined by
+   pygame (such as ``pygame.KEYDOWN``) may put events into the SDL2 event queue.
+   In this case, an error may be raised if standard attributes of that event
+   are missing or have incompatible values, and unexpected properties may
+   be silently omitted. In order to avoid this behaviour, custom event
+   properties should be used with custom event types.
+   This behaviour is not guaranteed.
+
    .. ## pygame.event.post ##
 
 .. function:: custom_type
