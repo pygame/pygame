@@ -712,7 +712,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(background.get_at((99, 99)), background_color)
         self.assertEqual(background.get_at((450, 450)), background_color)
 
-    def todo_test_blit(self):
+    def test_blit(self):
+        """Tests basic blitting functionality and options."""
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.blit:
 
         # Surface.blit(source, dest, area=None, special_flags = 0): return Rect
@@ -741,8 +742,65 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # Pixel alphas will be ignored when blitting to an 8 bit Surface.
         # special_flags new in pygame 1.8.
+        def reset_dest(dst_surface):
+            """Resets our blank canvas destination surface"""
+            dst_surface.fill(pygame.Color(0,0,0))
+        
+        #Init
+        src_surface = pygame.Surface((256, 256), 32)
+        src_surface.fill(pygame.Color(255,255,255))
+        dst_surface = pygame.Surface((64, 64), 32)
+        reset_dest(dst_surface)
 
-        self.fail()
+        # Full coverage w/ overflow, specified with Coordinate
+        result = dst_surface.blit(src_surface, (0,0))
+        self.assertIsInstance(result, pygame.Rect)
+        self.assertEqual(result.size, (64, 64))
+        for k in [(x, x) for x in range(64)]:
+            self.assertEqual(dst_surface.get_at(k), (255, 255, 255))
+        reset_dest(dst_surface)
+
+        # Full coverage w/ overflow, specified with a Rect
+        result = dst_surface.blit(src_surface, pygame.Rect(-1,-1,300,300))
+        self.assertIsInstance(result, pygame.Rect)
+        self.assertEqual(result.size, (64, 64))
+        for k in [(x, x) for x in range(64)]:
+            self.assertEqual(dst_surface.get_at(k), (255, 255, 255))
+        reset_dest(dst_surface)
+
+        # Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)
+        result = dst_surface.blit(src_surface, dest=pygame.Rect((1,1,1,1)))
+        self.assertIsInstance(result, pygame.Rect)
+        self.assertEqual(result.size, (63, 63))
+        self.assertEqual(dst_surface.get_at((0,0)), (0, 0, 0))
+        self.assertEqual(dst_surface.get_at((63,0)), (0, 0, 0))
+        self.assertEqual(dst_surface.get_at((0,63)), (0, 0, 0))
+        self.assertEqual(dst_surface.get_at((1,1)), (255, 255, 255))
+        self.assertEqual(dst_surface.get_at((63,63)), (255, 255, 255))
+        reset_dest(dst_surface)
+
+        #Testing area constraint
+        result = dst_surface.blit(src_surface, dest=pygame.Rect((1,1,1,1)), area=pygame.Rect((2,2,2,2)))
+        self.assertIsInstance(result, pygame.Rect)
+        self.assertEqual(result.size, (2, 2))
+        self.assertEqual(dst_surface.get_at((0,0)), (0, 0, 0)) #Corners
+        self.assertEqual(dst_surface.get_at((63,0)), (0, 0, 0))
+        self.assertEqual(dst_surface.get_at((0,63)), (0, 0, 0))
+        self.assertEqual(dst_surface.get_at((63,63)), (0, 0, 0))
+        self.assertEqual(dst_surface.get_at((1,1)), (255, 255, 255)) #Blitted Area
+        self.assertEqual(dst_surface.get_at((2,2)), (255, 255, 255))
+        self.assertEqual(dst_surface.get_at((3,3)), (0, 0, 0)) #Should stop short of filling in (3,3)
+        reset_dest(dst_surface)
+
+        #Testing zero-overlap condition
+        result = dst_surface.blit(src_surface, dest=pygame.Rect((-256,-256,1,1)), area=pygame.Rect((2,2,256,256)))
+        self.assertIsInstance(result, pygame.Rect)
+        self.assertEqual(result.size, (0, 0)) #No blitting expected
+        for k in [(x, x) for x in range(64)]:
+            self.assertEqual(dst_surface.get_at(k), (0, 0, 0)) #Diagonal
+        self.assertEqual(dst_surface.get_at((63,0)), (0, 0, 0)) #Remaining corners
+        self.assertEqual(dst_surface.get_at((0,63)), (0, 0, 0))
+        reset_dest(dst_surface)
 
     def test_blit__SRCALPHA_opaque_source(self):
         src = pygame.Surface((256, 256), SRCALPHA, 32)
