@@ -539,12 +539,16 @@ class AbstractGroup(object):
 
         """
         sprites = self.sprites()
-        self.spritedict.update(
-            zip(
-                sprites,
-                surface.blits((spr.image, spr.rect) for spr in sprites)
+        if hasattr(surface, "blits"):
+            self.spritedict.update(
+                zip(
+                    sprites,
+                    surface.blits((spr.image, spr.rect) for spr in sprites)
+                )
             )
-        )
+        else:
+            for spr in sprites:
+                self.spritedict[spr] = surface.blit(spr.image, spr.rect)
         self.lostsprites = []
 
     def clear(self, surface, bgd):
