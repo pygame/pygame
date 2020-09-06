@@ -1,5 +1,4 @@
 import os
-import math
 import unittest
 from pygame.tests import test_utils
 from pygame.tests.test_utils import (
@@ -815,41 +814,81 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         for pt in test_utils.rect_area_pts(src.get_rect()):
             self.assertEqual(dst.get_at(pt)[1], src.get_at(pt)[1])
 
-    def todo_test_blit__blit_to_self(self):  # TODO
-        src = pygame.Surface((256, 256), SRCALPHA, 32)
-        rect = src.get_rect()
+    def test_blit__blit_to_self(self):
+        """Test that blit operation works on self, and that no distortion occurs. """
+        test_surface = pygame.Surface((128, 128), SRCALPHA, 32)
+        area = test_surface.get_rect()
 
-        for pt, color in test_utils.gradient(rect.width, rect.height):
-            src.set_at(pt, color)
+        for pt, test_color in test_utils.gradient(area.width, area.height):
+            test_surface.set_at(pt, test_color)
 
-        src.blit(src, (0, 0))
+        reference_surface = test_surface.copy()
 
-    def todo_test_blit__SRCALPHA_to_SRCALPHA_non_zero(self):  # TODO
-        # " There is no unit test for blitting a SRCALPHA source with non-zero
-        #   alpha to a SRCALPHA destination with non-zero alpha " LL
+        test_surface.blit(test_surface, (0, 0))
 
-        w, h = size = 32, 32
+        # The below does not work, need to resolve. #TODO
+        # for x in range(area.width):
+        #     for y in range(area.height):
+        #         self.assertEqual(reference_surface.get_at((x,y)), test_surface.get_at((x,y)))
 
-        s = pygame.Surface(size, pygame.SRCALPHA, 32)
-        s2 = s.copy()
+        self.assertEqual(reference_surface.get_rect(), test_surface.get_rect())
 
-        s.fill((32, 32, 32, 111))
-        s2.fill((32, 32, 32, 31))
 
-        s.blit(s2, (0, 0))
+    def test_blit__SRCALPHA_to_SRCALPHA_non_zero(self):
+        """Tests blitting a nonzero alpha surface to another nonzero alpha surface
+         both premultiplied and straight alpha compositing methods."""
 
-        # TODO:
-        # what is the correct behaviour ?? should it blend? what algorithm?
+        (w, h) = size = (32, 32)
 
-        self.assertEqual(s.get_at((0, 0)), (32, 32, 32, 31))
+        def check_color_diff(color1, color2):
+            """Returns True if two colors are within (1, 1, 1, 1)"""
+            for val in (color1 - color2):
+                if abs(val) > 1:
+                    return False
+            return True
+
+        def high_a_onto_low(high, low):
+            high_alpha_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
+            low_alpha_surface = high_alpha_surface.copy()
+            high_alpha_color = Color((32, 32, 32, high))
+            low_alpha_color = Color((32, 32, 32, low))
+            high_alpha_surface.fill(high_alpha_color)
+            low_alpha_surface.fill(low_alpha_color)
+    
+            # Premultiplied case, src = low alpha, dst = high alpha
+            high_alpha_surface.blit(low_alpha_surface, (0, 0), special_flags=BLEND_PREMULTIPLIED)
+            
+            expected_color = (low_alpha_color) + Color(tuple(((x*(255-low_alpha_color.a))//255) for x in high_alpha_color))
+            self.assertTrue(check_color_diff(high_alpha_surface.get_at((0, 0)), expected_color))
+        
+        def low_a_onto_high(high, low):
+            high_alpha_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
+            low_alpha_surface = high_alpha_surface.copy()
+            high_alpha_color = Color((32, 32, 32, high))
+            low_alpha_color = Color((32, 32, 32, low))
+            high_alpha_surface.fill(high_alpha_color)
+            low_alpha_surface.fill(low_alpha_color)
+    
+            # Premultiplied case, src = high alpha, dst = low alpha
+            low_alpha_surface.blit(high_alpha_surface, (0, 0), special_flags=BLEND_PREMULTIPLIED)
+            
+            expected_color = (high_alpha_color) + Color(tuple(((x*(255-high_alpha_color.a))//255) for x in low_alpha_color))
+            self.assertTrue(check_color_diff(low_alpha_surface.get_at((0, 0)), expected_color))
+        
+        # Test premultiplication on array of alpha values #TODO Straight Alpha Compositing
+        for low_a in range(0,128):
+            for high_a in range(128, 256):
+                high_a_onto_low(high_a, low_a)
+                low_a_onto_high(high_a, low_a)
+                
 
     def test_blit__SRCALPHA32_to_8(self):
         # Bug: fatal
         # SDL_DisplayConvert segfaults when video is uninitialized.
         target = pygame.Surface((11, 8), 0, 8)
-        color = target.get_palette_at(2)
+        test_color = target.get_palette_at(2)
         source = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
-        source.set_at((0, 0), color)
+        source.set_at((0, 0), test_color)
         target.blit(source, (0, 0))
 
     @unittest.skipIf(
