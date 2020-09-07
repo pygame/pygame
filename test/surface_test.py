@@ -815,7 +815,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(dst.get_at(pt)[1], src.get_at(pt)[1])
 
     def test_blit__blit_to_self(self):
-        """Test that blit operation works on self, and that no distortion occurs. """
+        """Test that blit operation works on self, alpha value is correct, and that no RGB distortion occurs."""
         test_surface = pygame.Surface((128, 128), SRCALPHA, 32)
         area = test_surface.get_rect()
 
@@ -826,56 +826,58 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         test_surface.blit(test_surface, (0, 0))
 
-        # The below does not work, need to resolve. #TODO
-        # for x in range(area.width):
-        #     for y in range(area.height):
-        #         self.assertEqual(reference_surface.get_at((x,y)), test_surface.get_at((x,y)))
+        for x in range(area.width):
+            for y in range(area.height):
+                (r, g, b, a) = reference_color = reference_surface.get_at((x,y))
+                expected_color = (r, g, b, (a+(a*((256-a)//256))))
+                self.assertEqual(reference_color, expected_color)
 
         self.assertEqual(reference_surface.get_rect(), test_surface.get_rect())
 
 
     def test_blit__SRCALPHA_to_SRCALPHA_non_zero(self):
         """Tests blitting a nonzero alpha surface to another nonzero alpha surface
-         both premultiplied and straight alpha compositing methods."""
+         both straight alpha compositing method. Test is fuzzy (+/- 1/256) to account for
+         different implementations in SDL1 and SDL2.
+        """
 
-        (w, h) = size = (32, 32)
+        size = (32, 32)
 
         def check_color_diff(color1, color2):
-            """Returns True if two colors are within (1, 1, 1, 1)"""
+            """Returns True if two colors are within (1, 1, 1, 1) of each other."""
             for val in (color1 - color2):
                 if abs(val) > 1:
                     return False
             return True
 
         def high_a_onto_low(high, low):
+            """Tests straight alpha case. Source is low alpha, destination is high alpha"""
             high_alpha_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
             low_alpha_surface = high_alpha_surface.copy()
-            high_alpha_color = Color((32, 32, 32, high))
-            low_alpha_color = Color((32, 32, 32, low))
+            high_alpha_color = Color((high, high, low, high)) # Injecting some RGB variance. Any numbers can be chosen.
+            low_alpha_color = Color((high, low, low, low))
             high_alpha_surface.fill(high_alpha_color)
             low_alpha_surface.fill(low_alpha_color)
-    
-            # Premultiplied case, src = low alpha, dst = high alpha
-            high_alpha_surface.blit(low_alpha_surface, (0, 0), special_flags=BLEND_PREMULTIPLIED)
+            
+            high_alpha_surface.blit(low_alpha_surface, (0, 0))
             
             expected_color = (low_alpha_color) + Color(tuple(((x*(255-low_alpha_color.a))//255) for x in high_alpha_color))
             self.assertTrue(check_color_diff(high_alpha_surface.get_at((0, 0)), expected_color))
         
         def low_a_onto_high(high, low):
+            """Tests straight alpha case. Source is high alpha, destination is low alpha"""
             high_alpha_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
             low_alpha_surface = high_alpha_surface.copy()
-            high_alpha_color = Color((32, 32, 32, high))
-            low_alpha_color = Color((32, 32, 32, low))
+            high_alpha_color = Color((high, high, low, high)) # Injecting some RGB variance. Any numbers can be chosen.
+            low_alpha_color = Color((high, low, low, low))
             high_alpha_surface.fill(high_alpha_color)
             low_alpha_surface.fill(low_alpha_color)
     
-            # Premultiplied case, src = high alpha, dst = low alpha
-            low_alpha_surface.blit(high_alpha_surface, (0, 0), special_flags=BLEND_PREMULTIPLIED)
+            low_alpha_surface.blit(high_alpha_surface, (0, 0))
             
             expected_color = (high_alpha_color) + Color(tuple(((x*(255-high_alpha_color.a))//255) for x in low_alpha_color))
             self.assertTrue(check_color_diff(low_alpha_surface.get_at((0, 0)), expected_color))
         
-        # Test premultiplication on array of alpha values #TODO Straight Alpha Compositing
         for low_a in range(0,128):
             for high_a in range(128, 256):
                 high_a_onto_low(high_a, low_a)
@@ -1501,7 +1503,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
 
     def test_get_shifts(self):
-
+        """Tests whether Surface.get_shifts returns proper RGBA shifts under various conditions."""
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_shifts:
 
         # Surface.get_shifts(): return (R, G, B, A)
@@ -1514,22 +1516,22 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # Test for SDL1 -> set_shifts() raises AttributeError in SDL2
         if SDL1:
-          surface = pygame.Surface((32, 32))
-          surface.set_shifts((2, 4, 8, 16))
-          r, g, b, a = surface.get_shifts()
-          self.assertEqual((r, g, b, a), (2, 4, 8, 16))
+            surface = pygame.Surface((32, 32))
+            surface.set_shifts((2, 4, 8, 16))
+            r, g, b, a = surface.get_shifts()
+            self.assertEqual((r, g, b, a), (2, 4, 8, 16))
         # Test for SDL2 on surfaces with various depths and alpha on/off
         else:
-          depths = [8, 24, 32]
-          alpha = 128
-          off = None
-          for bit_depth in depths:
-            surface = pygame.Surface((32, 32), depth=bit_depth)
-            surface.set_alpha(alpha)
-            r1, g1, b1, a1 = surface.get_shifts()
-            surface.set_alpha(off)
-            r2, g2, b2, a2 = surface.get_shifts()
-            self.assertEqual((r1, g1, b1, a1), (r2, g2, b2, a2))
+            depths = [8, 24, 32]
+            alpha = 128
+            off = None
+            for bit_depth in depths:
+                surface = pygame.Surface((32, 32), depth=bit_depth)
+                surface.set_alpha(alpha)
+                r1, g1, b1, a1 = surface.get_shifts()
+                surface.set_alpha(off)
+                r2, g2, b2, a2 = surface.get_shifts()
+                self.assertEqual((r1, g1, b1, a1), (r2, g2, b2, a2))
 
 
     def test_get_size(self):
