@@ -189,7 +189,7 @@
                          start, stop, step, slicelength)
 #endif
 
-/* Support new buffer protocol? */
+/* Support new buffer protocol */
 #if !defined(PG_ENABLE_NEWBUF)  /* allow for command line override */
 #if !defined(PYPY_VERSION)
 #define PG_ENABLE_NEWBUF 1

@@ -522,138 +522,19 @@ proxy_releasebuffer(pgBufproxyObject *self, Py_buffer *view_p)
     PyMem_Free(view_p->internal);
 }
 
-#if PG_ENABLE_NEWBUF || PG_ENABLE_OLDBUF
-
-#if PG_ENABLE_OLDBUF
-static int
-_is_byte_view(Py_buffer *view_p)
-{
-    const char *format = view_p->format;
-
-    /* Conditional ||'s */
-    return ((!format) || (format[0] == 'B' && format[1] == '\0') ||
-            (format[0] == '=' && format[1] == 'B' && format[2] == '\0') ||
-            (format[0] == '<' && format[1] == 'B' && format[2] == '\0') ||
-            (format[0] == '>' && format[1] == 'B' && format[2] == '\0') ||
-            (format[0] == '@' && format[1] == 'B' && format[2] == '\0') ||
-            (format[0] == '!' && format[1] == 'B' && format[2] == '\0'));
-}
-
-static Py_ssize_t
-proxy_getreadbuf(pgBufproxyObject *self, Py_ssize_t _index, void **ptr)
-{
-    Py_buffer *view_p = (Py_buffer *)self->pg_view_p;
-    Py_ssize_t offset = 0;
-    Py_ssize_t dim;
-
-    if (_index < 0 || _index >= self->segcount) {
-        if (_index == 0 && self->segcount == 0) {
-            *ptr = 0;
-            return 0;
-        }
-        PyErr_SetString(PyExc_IndexError, "segment index out of range");
-        return -1;
-    }
-    if (!view_p) {
-        *ptr = 0;
-        return 0;
-    }
-    if (self->segcount == 1) {
-        assert(_index == 0);
-        *ptr = view_p->buf;
-        return view_p->len;
-    }
-    /* Segments will be strictly in C contiguous order, which may
-       differ from the actual order in memory. It can affect buffer
-       copying. This may never be an issue, though, since Python
-       never directly supported multi-segment buffers. And besides,
-       the old buffer is deprecated. */
-    for (dim = view_p->ndim - 1; dim != -1; --dim) {
-        offset += _index % view_p->shape[dim] * view_p->strides[dim];
-        _index /= view_p->shape[dim];
-    }
-    *ptr = (char *)view_p->buf + offset;
-    return view_p->itemsize;
-}
-
-static Py_ssize_t
-proxy_getwritebuf(pgBufproxyObject *self, Py_ssize_t _index, void **ptr)
-{
-    void *p;
-    Py_ssize_t seglen = proxy_getreadbuf(self, _index, &p);
-
-    if (seglen < 0) {
-        return -1;
-    }
-    if (seglen > 0 && /* cond. && */
-        ((Py_buffer *)self->pg_view_p)->readonly) {
-        PyErr_SetString(PyExc_ValueError, "buffer is not writeable");
-        return -1;
-    }
-    *ptr = p;
-    return seglen;
-}
-
-static Py_ssize_t
-proxy_getsegcount(pgBufproxyObject *self, Py_ssize_t *lenp)
-{
-    Py_buffer *view_p = _proxy_get_view(self);
-
-    if (!view_p) {
-        PyErr_Clear();
-        self->seglen = 0;
-        self->segcount = 0;
-    }
-    else if (view_p->ndim == 0 ||
-             (view_p->ndim == 1 && _is_byte_view(view_p))) {
-        self->seglen = view_p->len;
-        self->segcount = 1;
-    }
-    else {
-        self->seglen = view_p->len;
-        self->segcount = view_p->len / view_p->itemsize;
-    }
-    if (lenp) {
-        *lenp = self->seglen;
-    }
-    return self->segcount;
-}
-
-#endif /* #if PG_ENABLE_OLDBUF */
 
 #define PROXY_BUFFERPROCS (&proxy_bufferprocs)
 
 static PyBufferProcs proxy_bufferprocs = {
-#if PG_ENABLE_OLDBUF
-    (readbufferproc)proxy_getreadbuf,
-    (writebufferproc)proxy_getwritebuf,
-    (segcountproc)proxy_getsegcount,
-    0
-#elif HAVE_OLD_BUFPROTO
-    0, 0, 0,
-    0
-#endif
-
-#if HAVE_OLD_BUFPROTO
-    ,
-#endif
-
-#if PG_ENABLE_NEWBUF
     (getbufferproc)proxy_getbuffer,
     (releasebufferproc)proxy_releasebuffer
-#else
-    0,
-    0
-#endif
 };
-
-#endif /* #if PG_ENABLE_NEWBUF || PG_ENABLE_OLDBUF */
 
 #if !defined(PROXY_BUFFERPROCS)
 #define PROXY_BUFFERPROCS 0
 #endif
 
-#if PY2 && PG_ENABLE_NEWBUF
+#if PY2
 #define PROXY_TPFLAGS                                                \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
      Py_TPFLAGS_HAVE_NEWBUFFER)

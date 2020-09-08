@@ -266,8 +266,6 @@ static PyMappingMethods _pxarray_mapping = {
     (objobjargproc)_pxarray_ass_subscript, /*mp_ass_subscript*/
 };
 
-#if PG_ENABLE_NEWBUF
-
 static PyBufferProcs _pxarray_bufferprocs = {
 #if HAVE_OLD_BUFPROTO
     0,
@@ -280,11 +278,7 @@ static PyBufferProcs _pxarray_bufferprocs = {
 
 #define PXARRAY_BUFFERPROCS &_pxarray_bufferprocs
 
-#else
-#define PXARRAY_BUFFERPROCS 0
-#endif /* #if PG_ENABLE_NEWBUF */
-
-#if PY2 && PG_ENABLE_NEWBUF
+#if PY2
 #define PXARRAY_TPFLAGS                                              \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
      Py_TPFLAGS_HAVE_NEWBUFFER)

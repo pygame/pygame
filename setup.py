@@ -348,9 +348,15 @@ enable_newbuf = True
 
 # TODO: remove all PG_ENABLE_NEWBUF conditionals from C code
 # and just fail when PEP 3118 (Py_TPFLAGS_HAVE_NEWBUFFER) is not present
-# then remove this logic
-for e in extensions:
-    e.define_macros.append(('ENABLE_NEWBUF', '1'))
+# # then remove this logic
+
+# for e in extensions:
+#     e.define_macros.append(('ENABLE_NEWBUF', '1'))
+
+# if not Py_TPFLAGS_HAVE_NEWBUFFER:
+#     print ("""Please use a supported version of Python.""")
+#     compilation_help()
+#     raise EnvironmentError
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')

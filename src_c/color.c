@@ -297,7 +297,6 @@ static PyMappingMethods _color_as_mapping = {
     (objobjargproc)_color_set_slice
 };
 
-#if PG_ENABLE_NEWBUF
 static PyBufferProcs _color_as_buffer = {
 #if HAVE_OLD_BUFPROTO
     NULL,
@@ -308,11 +307,9 @@ static PyBufferProcs _color_as_buffer = {
     (getbufferproc)_color_getbuffer,
     NULL};
 
-#endif
-
 #define COLOR_TPFLAGS_COMMON \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES)
-#if PY2 && PG_ENABLE_NEWBUF
+#if PY2
 #define COLOR_TPFLAGS (COLOR_TPFLAGS_COMMON | Py_TPFLAGS_HAVE_NEWBUFFER)
 #else
 #define COLOR_TPFLAGS COLOR_TPFLAGS_COMMON
@@ -338,11 +335,7 @@ static PyTypeObject pgColor_Type = {
     NULL,                              /* tp_str */
     NULL,                              /* tp_getattro */
     NULL,                              /* tp_setattro */
-#if PG_ENABLE_NEWBUF
     &_color_as_buffer, /* tp_as_buffer */
-#else
-    NULL,                   /* tp_as_buffer */
-#endif
     COLOR_TPFLAGS,
     DOC_PYGAMECOLOR,       /* tp_doc */
     NULL,                  /* tp_traverse */
