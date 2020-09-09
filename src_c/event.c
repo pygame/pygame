@@ -84,15 +84,27 @@ _pg_repeat_callback(Uint32 interval, void *param)
     return pg_key_repeat_interval;
 }
 
+/* _custom_event stores the next custom user event type that will be returned
+ * by pygame.event.custom_type(). It was supposed to start at PGE_USEREVENT
+ * but because of a clash with libraries that just use pygame.USEREVENT
+ * directly to be backward compatible with pygame 1.9.x, it was changed to
+ * start at one higher.*/
+#define _PGE_CUSTOM_EVENT_INIT PGE_USEREVENT + 1
+static int _custom_event = _PGE_CUSTOM_EVENT_INIT;
 static int _pg_event_is_init = 0;
 
 static void
-_pg_repeat_cleanup(void)
+_pg_event_cleanup(void)
 {
     if (_pg_repeat_timer) {
         SDL_RemoveTimer(_pg_repeat_timer);
         _pg_repeat_timer = 0;
     }
+    /* The main reason for _custom_event to be reset here is so we can have a
+     * unit test that checks if pygame.event.custom_type() stops returning new
+     * types when they are finished, without that test preventing further
+     * tests from getting a custom event type.*/
+    _custom_event = _PGE_CUSTOM_EVENT_INIT;
     _pg_event_is_init = 0;
 }
 
@@ -102,7 +114,7 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
     if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
-        pg_RegisterQuit(_pg_repeat_cleanup);
+        pg_RegisterQuit(_pg_event_cleanup);
         _pg_event_is_init = 1;
     }
 
@@ -1984,7 +1996,6 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 
-int _custom_event = PGE_USEREVENT + 1;
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *args)
 {
