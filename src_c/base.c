@@ -2217,7 +2217,7 @@ MODINIT_DEFINE(base)
         MODINIT_ERROR;
     }
 
-    if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", PG_ENABLE_NEWBUF)) {
+    if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", 1)) {
         Py_XDECREF(atexit_register);
         Py_DECREF(pgExc_BufferError);
         DECREF_MOD(module);
