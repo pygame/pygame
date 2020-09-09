@@ -8,6 +8,9 @@
 #define DOC_PYGAMEFONTMATCHFONT "match_font(name, bold=False, italic=False) -> path\nfind a specific font on the system"
 #define DOC_PYGAMEFONTSYSFONT "SysFont(name, size, bold=False, italic=False) -> Font\ncreate a Font object from the system fonts"
 #define DOC_PYGAMEFONTFONT "Font(filename, size) -> Font\nFont(object, size) -> Font\ncreate a new Font object from a file"
+#define DOC_FONTBOLD "bold -> bool\nGets or sets whether the font should be rendered in (faked) bold."
+#define DOC_FONTITALIC "bold -> bool\nGets or sets whether the font should be rendered in (faked) italics."
+#define DOC_FONTUNDERLINE "bold -> bool\nGets or sets whether the font should be rendered with an underline."
 #define DOC_FONTRENDER "render(text, antialias, color, background=None) -> Surface\ndraw text on a new Surface"
 #define DOC_FONTSIZE "size(text) -> (width, height)\ndetermine the amount of space needed to render text"
 #define DOC_FONTSETUNDERLINE "set_underline(bool) -> None\ncontrol if text is rendered with an underline"
@@ -62,6 +65,18 @@ pygame.font.Font
  Font(filename, size) -> Font
  Font(object, size) -> Font
 create a new Font object from a file
+
+pygame.font.Font.bold
+ bold -> bool
+Gets or sets whether the font should be rendered in (faked) bold.
+
+pygame.font.Font.italic
+ bold -> bool
+Gets or sets whether the font should be rendered in (faked) italics.
+
+pygame.font.Font.underline
+ bold -> bool
+Gets or sets whether the font should be rendered with an underline.
 
 pygame.font.Font.render
  render(text, antialias, color, background=None) -> Surface

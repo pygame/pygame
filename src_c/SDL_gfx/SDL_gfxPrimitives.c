@@ -2598,7 +2598,7 @@ int _aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, 
 		{
 			return (hlineColor(dst, x1, x2, y1, color));
 		} else {
-			if (dx>0) {
+			if (dx!=0) {
 				return (hlineColor(dst, xx0, xx0+dx, y1, color));
 			} else {
 				return (pixelColor(dst, x1, y1, color));

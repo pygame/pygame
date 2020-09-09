@@ -42,7 +42,7 @@ class Font(_Font):
         if file is None:
             resolution = int(self.__get_default_resolution() * 0.6875)
             if resolution == 0:
-                kwds['resolution'] = 1
+                resolution = 1
         else:
             resolution = 0
         super(Font, self).__init__(file, size=size, resolution=resolution)
@@ -59,11 +59,9 @@ class Font(_Font):
 
         if text is None:
             text = ""
-        if (isinstance(text, unicode_) and  # conditional and
-            self.__unull in text):
+        if (isinstance(text, unicode_) and self.__unull in text):
             raise ValueError("A null character was found in the text")
-        if (isinstance(text, bytes_) and  # conditional and
-            self.__bnull in text):
+        if (isinstance(text, bytes_) and self.__bnull in text):
             raise ValueError("A null character was found in the text")
         save_antialiased = self.antialiased
         self.antialiased = bool(antialias)
@@ -85,6 +83,8 @@ class Font(_Font):
 
         return self.wide
 
+    bold = property(get_bold, set_bold)
+
     def set_italic(self, value):
         """set_italic(bool) -> None
            enable fake rendering of italic text"""
@@ -96,6 +96,8 @@ class Font(_Font):
            check if the text will be rendered italic"""
 
         return self.oblique
+
+    italic = property(get_italic, set_italic)
 
     def set_underline(self, value):
         """set_underline(bool) -> None
@@ -137,7 +139,7 @@ class Font(_Font):
         """get_linesize() -> int
            get the line space of the font text"""
 
-        return self.get_sized_height();
+        return self.get_sized_height()
 
     def size(self, text):
         """size(text) -> (width, height)
@@ -148,10 +150,10 @@ class Font(_Font):
 FontType = Font
 
 def get_init():
-   """get_init() -> bool
-      true if the font module is initialized"""
+    """get_init() -> bool
+       true if the font module is initialized"""
 
-   return _get_init()
+    return _get_init()
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
@@ -185,4 +187,3 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
     return _SysFont(name, size, bold, italic, constructor)
 
 del _Font, get_default_resolution, encode_file_path, as_unicode, as_bytes
-

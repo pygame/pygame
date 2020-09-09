@@ -36,6 +36,12 @@
 #if IS_SDLv2
 /*only register one block of user events.*/
 static int have_registered_events = 0;
+
+#define JOYEVENT_INSTANCE_ID "instance_id"
+#define JOYEVENT_DEVICE_INDEX "device_index"
+#else /* IS_SDLv1 */
+#define JOYEVENT_INSTANCE_ID "joy"
+#define JOYEVENT_DEVICE_INDEX "joy"
 #endif /* IS_SDLv2 */
 
 // The system message code is only tested on windows, so only
@@ -56,12 +62,16 @@ typedef struct UserEventObject {
 
 static UserEventObject *user_event_objects = NULL;
 
+// Map joystick instance IDs to device ids for partial backwards compatibility
+static PyObject *joy_instance_map = NULL;
+
 #if IS_SDLv2
 static int pg_key_repeat_delay = 0;
 static int pg_key_repeat_interval = 0;
 
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
+static SDL_bool  _pg_event_generate_videoresize = SDL_TRUE;
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -102,9 +112,21 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
 static char _pg_last_unicode_char[32] = { 0 };
 static SDL_Event *_pg_last_keydown_event = NULL;
 
+static int SDLCALL
+RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
+{
+    SDL_Event *new_event = (SDL_Event *)userdata;
+
+    if (event->type == SDL_VIDEORESIZE &&
+        event->window.windowID == new_event->window.windowID) {
+        /* We're about to post a new size event, drop the old one */
+        return 0;
+    }
+    return 1;
+}
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
-static int
+static int SDLCALL
 pg_event_filter(void *_, SDL_Event *event)
 {
     /* This event filter alters events inplace.
@@ -113,25 +135,54 @@ pg_event_filter(void *_, SDL_Event *event)
 
     if (type == SDL_WINDOWEVENT) {
         switch (event->window.event) {
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                return 1;
             case SDL_WINDOWEVENT_RESIZED:
-                event->type = SDL_VIDEORESIZE;
-                break;
+                if(_pg_event_generate_videoresize) {
+                    /* keep resized event around for SDL_RendererEventWatch
+                       (SDL2-internal) and pygame-internal event watch in
+                       display.c */
+                    SDL_Event newevent = *event;
+                    newevent.type = SDL_VIDEORESIZE;
+
+                    /* all previous resize events are superseded.
+                       SDL2 already does this for SDL_WINDOWEVENT_RESIZED,
+                       so we only need to filter our own custom event before
+                       we push the new one*/
+                    SDL_FilterEvents(RemovePending_PGS_VIDEORESIZE_Events, &newevent);
+                    SDL_PushEvent(&newevent);
+                    return 1;
+                }
+                else {
+                    return 1;
+                }
             case SDL_WINDOWEVENT_EXPOSED:
-                event->type = SDL_VIDEOEXPOSE;
-                break;
+                {
+                    SDL_Event newevent = *event;
+                    newevent.type = SDL_VIDEOEXPOSE;
+                    SDL_PushEvent(&newevent);
+                    return 1;
+                }
             case SDL_WINDOWEVENT_ENTER:
             case SDL_WINDOWEVENT_LEAVE:
             case SDL_WINDOWEVENT_FOCUS_GAINED:
             case SDL_WINDOWEVENT_FOCUS_LOST:
             case SDL_WINDOWEVENT_MINIMIZED:
             case SDL_WINDOWEVENT_RESTORED:
-                event->type = SDL_ACTIVEEVENT;
-                break;
+                {
+                    SDL_Event newevent = *event;
+                    newevent.type = SDL_ACTIVEEVENT;
+                    SDL_PushEvent(&newevent);
+                    return 1;
+                }
             case SDL_WINDOWEVENT_CLOSE:
                 break;
             default:
-                /*ignore other SDL_WINDOWEVENTs for now.*/
-                return 0;
+                /* DON'T ignore other SDL_WINDOWEVENTs for now.
+                   If we delete events here, they won't be available to
+                   low-level SDL2 either. For the python side, it's better
+                   to omit events in pygame.event.get(). */
+                return 1;
         }
     }
 #pragma PG_WARN(Add event blocking here.)
@@ -235,8 +286,12 @@ pg_event_filter(void *_, SDL_Event *event)
         }
         newevent.button.button |= PGM_BUTTON_KEEP;
 
-        if (SDL_PushEvent(&newevent) < 0)
+        /* this doesn't work! This is called by SDL, not Python:*/
+        /*
+          if (SDL_PushEvent(&newevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
+        */
+        SDL_PushEvent(&newevent);
     }
     return 1;
 }
@@ -427,6 +482,10 @@ _pg_name_from_eventtype(int type)
             return "ControllerDeviceRemoved";
         case SDL_CONTROLLERDEVICEREMAPPED:
             return "ControllerDeviceMapped";
+        case SDL_JOYDEVICEADDED:
+            return "JoyDeviceAdded";
+        case SDL_JOYDEVICEREMOVED:
+            return "JoyDeviceRemoved";
 #endif
 
     }
@@ -443,6 +502,63 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
     if (v) {
         PyDict_SetItemString(dict, name, v);
         Py_DECREF(v);
+    }
+}
+
+
+#if IS_SDLv2
+static PyObject *
+get_joy_guid(int device_index) {
+    char strguid[33];
+    SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(device_index);
+
+    SDL_JoystickGetGUIDString(guid, strguid, 33);
+    return Text_FromUTF8(strguid);
+}
+#endif
+
+/** Try to insert the instance ID for a new device into the joystick mapping. */
+void
+_joy_map_add(int device_index) {
+#if SDL_VERSION_ATLEAST(2, 0, 6)
+    int instance_id = (int) SDL_JoystickGetDeviceInstanceID(device_index);
+    PyObject *k, *v;
+    if (instance_id != -1) {
+        k = PyInt_FromLong(instance_id);
+        v = PyInt_FromLong(device_index);
+        if (k != NULL && v != NULL) {
+            PyDict_SetItem(joy_instance_map, k, v);
+        }
+        Py_XDECREF(k);
+        Py_XDECREF(v);
+    }
+#endif
+}
+
+/** Look up a device ID for an instance ID. */
+PyObject *
+_joy_map_instance(int instance_id) {
+    PyObject *v, *k = PyInt_FromLong(instance_id);
+    if (!k) {
+        Py_RETURN_NONE;
+    }
+    v = PyDict_GetItem(joy_instance_map, k);
+    if (v) {
+        Py_DECREF(k);
+        Py_INCREF(v);
+        return v;
+    }
+    return k;
+}
+
+/** Discard a joystick from the joystick instance -> device mapping. */
+void
+_joy_map_discard(int instance_id) {
+    PyObject *k = PyInt_FromLong(instance_id);
+
+    if (k) {
+        PyDict_DelItem(joy_instance_map, k);
+        Py_DECREF(k);
     }
 }
 
@@ -621,19 +737,22 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
             break;
         case SDL_JOYAXISMOTION:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jaxis.which));
+            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
+            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jaxis.which));
             _pg_insobj(dict, "axis", PyInt_FromLong(event->jaxis.axis));
             _pg_insobj(dict, "value",
                    PyFloat_FromDouble(event->jaxis.value / 32767.0));
             break;
         case SDL_JOYBALLMOTION:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jball.which));
+            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
+            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jball.which));
             _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
             obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
             _pg_insobj(dict, "rel", obj);
             break;
         case SDL_JOYHATMOTION:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jhat.which));
+            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
+            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jhat.which));
             _pg_insobj(dict, "hat", PyInt_FromLong(event->jhat.hat));
             hx = hy = 0;
             if (event->jhat.value & SDL_HAT_UP)
@@ -648,7 +767,8 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_JOYBUTTONUP:
         case SDL_JOYBUTTONDOWN:
-            _pg_insobj(dict, "joy", PyInt_FromLong(event->jbutton.which));
+            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
+            _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
             break;
 #if IS_SDLv2
@@ -712,21 +832,33 @@ dict_from_event(SDL_Event *event)
 
         case SDL_CONTROLLERAXISMOTION:
             /* https://wiki.libsdl.org/SDL_ControllerAxisEvent */
-            _pg_insobj(dict, "joy", PyLong_FromLong(event->caxis.which));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->caxis.which));
             _pg_insobj(dict, "axis", PyLong_FromLong(event->caxis.axis));
             _pg_insobj(dict, "value", PyLong_FromLong(event->caxis.value));
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
             /* https://wiki.libsdl.org/SDL_ControllerButtonEvent */
-            _pg_insobj(dict, "joy", PyLong_FromLong(event->cbutton.which));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cbutton.which));
             _pg_insobj(dict, "button", PyLong_FromLong(event->cbutton.button));
             break;
         case SDL_CONTROLLERDEVICEADDED:
+            _pg_insobj(dict, "device_index", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
+            break;
+        case SDL_JOYDEVICEADDED:
+            _joy_map_add(event->jdevice.which);
+            _pg_insobj(dict, "device_index", PyLong_FromLong(event->jdevice.which));
+            _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
+            break;
         case SDL_CONTROLLERDEVICEREMOVED:
         case SDL_CONTROLLERDEVICEREMAPPED:
             /* https://wiki.libsdl.org/SDL_ControllerDeviceEvent */
-            _pg_insobj(dict, "joy", PyLong_FromLong(event->cdevice.which));
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cdevice.which));
+            break;
+        case SDL_JOYDEVICEREMOVED:
+            _joy_map_discard(event->jdevice.which);
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jdevice.which));
             break;
 #endif
 
@@ -1440,6 +1572,29 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
+pg_event_set_gen_videoresize(PyObject *self, PyObject *args)
+{
+    SDL_bool do_generate;
+
+#if PY3
+    if (!PyArg_ParseTuple(args, "p", &do_generate))
+        return NULL;
+#else
+    if (!PyArg_ParseTuple(args, "i", &do_generate))
+        return NULL;
+#endif
+    _pg_event_generate_videoresize=do_generate;
+
+    if(do_generate) {
+        Py_RETURN_TRUE;
+    }
+    else {
+        Py_RETURN_FALSE;
+    }
+}
+
+
+static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
@@ -1677,9 +1832,64 @@ pg_event_post(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    if (pgEvent_FillUserEvent(e, &event))
-        return NULL;
+    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
+        PyObject *event_key      = PyDict_GetItemString(e->dict, "key");
+        PyObject *event_scancode = PyDict_GetItemString(e->dict, "scancode");
+        PyObject *event_mod      = PyDict_GetItemString(e->dict, "mod");
+#if IS_SDLv1
+        PyObject *event_unicode  = PyDict_GetItemString(e->dict, "unicode");
+#else  /* IS_SDLv2 */
+        PyObject *event_window_ID= PyDict_GetItemString(e->dict, "window");
+#endif /* IS_SDLv2 */
+        event.type =  e->type;
 
+        if (event_key == NULL){
+            return RAISE(pgExc_SDLError, "key event posted without keycode");
+        }
+        if (!PyInt_Check(event_key)){
+            return RAISE(pgExc_SDLError, "posted event keycode must be int");
+        }
+        event.key.keysym.sym = PyLong_AsLong(event_key);
+
+        if (event_scancode != NULL){
+            if (!PyInt_Check(event_scancode)){
+                return RAISE(pgExc_SDLError, "posted event scancode must be int");
+            }
+            event.key.keysym.scancode = PyLong_AsLong(event_scancode);
+        }
+
+        if (event_mod != NULL && event_mod != Py_None){
+            if (!PyInt_Check(event_scancode)){
+                return RAISE(pgExc_SDLError, "posted event modifiers must be int");
+            }
+            if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
+                return RAISE(pgExc_SDLError, "mods must be 16-bit int");
+            }
+            event.key.keysym.mod = (Uint16) PyLong_AsLong(event_mod);
+        }
+
+#if IS_SDLv1
+        /*ignore unicode property*/
+#else  /* IS_SDLv2 */
+        if (event_window_ID != NULL && event_window_ID != Py_None){
+            if (!PyInt_Check(event_window_ID)){
+                return RAISE(pgExc_SDLError, "posted event window id must be int");
+            }
+            event.key.windowID = PyLong_AsLong(event_window_ID);
+        }
+#endif /* IS_SDLv2 */
+    }
+    else if (e->type >= PGE_USEREVENT && e->type < PG_NUMEVENTS) {
+        if (pgEvent_FillUserEvent(e, &event))
+            return NULL;
+    }
+    else {
+        /* HACK:
+           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
+           event queue. This needs to be decoded again. */
+         if (pgEvent_FillUserEvent(e, &event))
+            return NULL;
+    }
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
 #else  /* IS_SDLv2 */
@@ -1829,7 +2039,7 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 }
 
 
-int _custom_event = PGE_USEREVENT;
+int _custom_event = PGE_USEREVENT + 1;
 static PyObject *
 pg_event_custom_type(PyObject *self, PyObject *args)
 {
@@ -1843,6 +2053,7 @@ static PyMethodDef _event_methods[] = {
 #if IS_SDLv2
     {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
+    {"_set_gen_videoresize", pg_event_set_gen_videoresize, METH_VARARGS, "enable or disable legacy VIDEORESIZE events"},
 #endif /* IS_SDLv2 */
 
     {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
@@ -1907,6 +2118,16 @@ MODINIT_DEFINE(event)
         Py_InitModule3(MODPREFIX "event", _event_methods, DOC_PYGAMEEVENT);
 #endif
     dict = PyModule_GetDict(module);
+
+    if (NULL == (joy_instance_map = PyDict_New())) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
+    if (-1 == PyDict_SetItemString(dict, "_joy_instance_map", joy_instance_map)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
 
     if (PyDict_SetItemString(dict, "EventType", (PyObject *)&pgEvent_Type) ==
         -1) {

@@ -11,13 +11,15 @@ SDL = -I/usr/include -D_REENTRANT -DSDL2 -lSDL2
 FONT = -lSDL2_ttf
 IMAGE = -lSDL2_image
 MIXER = -lSDL2_mixer
+PNG = -lpng
+JPEG = -ljpeg
 SCRAP = -lX11
 PORTMIDI = -lportmidi
 PORTTIME = -lporttime
 FREETYPE = -lfreetype
 #--EndConfig
 
-DEBUG = 
+DEBUG =
 
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have
@@ -72,4 +74,4 @@ bufferproxy src_c/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)
 math src_c/math.c $(SDL) $(DEBUG)
 pixelcopy src_c/pixelcopy.c $(SDL) $(DEBUG)
-newbuffer src_c/newbuffer.c $(DEBUG)
+newbuffer src_c/newbuffer.c $(SDL) $(DEBUG)

@@ -26,7 +26,7 @@ else:
     # use up to date version
     from Queue import Queue
     from Queue import Empty
-    
+
 import threading
 Thread = threading.Thread
 
@@ -43,13 +43,12 @@ _wq = None
 _use_workers = 0
 
 # Set this to the maximum for the amount of Cores/CPUs
-#    Note, that the tests early out.  
+#    Note, that the tests early out.
 #    So it should only test the best number of workers +2
 MAX_WORKERS_TO_TEST = 64
 
 
-
-def init(number_of_workers = 0):
+def init(number_of_workers=0):
     """ Does a little test to see if threading is worth it.
           Sets up a global worker queue if it's worth it.
 
@@ -66,8 +65,6 @@ def init(number_of_workers = 0):
     _wq = WorkerQueue(_use_workers)
 
 
-
-
 def quit():
     """ cleans up everything.
     """
@@ -77,7 +74,7 @@ def quit():
     _use_workers = False
 
 
-def benchmark_workers(a_bench_func = None, the_data = None):
+def benchmark_workers(a_bench_func=None, the_data=None):
     """ does a little test to see if workers are at all faster.
         Returns the number of workers which works best.
         Takes a little bit of time to run, so you should only really call
@@ -92,10 +89,8 @@ def benchmark_workers(a_bench_func = None, the_data = None):
     #  first find some variables so that using 0 workers takes about 1.0 seconds.
     #  then go from there.
 
-
     # note, this will only work with pygame 1.8rc3+
     # replace the doit() and the_data with something that releases the GIL
-
 
     import pygame
     import pygame.transform
@@ -110,7 +105,7 @@ def benchmark_workers(a_bench_func = None, the_data = None):
     if not the_data:
         thedata = []
         for x in range(10):
-            thedata.append(pygame.Surface((155,155), 0, 32))
+            thedata.append(pygame.Surface((155, 155), 0, 32))
     else:
         thedata = the_data
 
@@ -123,19 +118,18 @@ def benchmark_workers(a_bench_func = None, the_data = None):
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for xx in range(20):
-            print ("active count:%s" % threading.activeCount())
-            tmap(doit, thedata, worker_queue = wq)
+            print("active count:%s" % threading.activeCount())
+            tmap(doit, thedata, worker_queue=wq)
         t2 = time.time()
 
         wq.stop()
 
-
         total_time = t2 - t1
-        print ("total time num_workers:%s: time:%s:" % (num_workers, total_time))
+        print("total time num_workers:%s: time:%s:" % (num_workers, total_time))
 
         if total_time < best:
             #last_best = best_number
-            best_number =num_workers 
+            best_number = num_workers
             best = total_time
 
         if num_workers - best_number > 1:
@@ -143,15 +137,12 @@ def benchmark_workers(a_bench_func = None, the_data = None):
             #   so we stop with testing at this number.
             break
 
-
     return best_number
-
-
 
 
 class WorkerQueue(object):
 
-    def __init__(self, num_workers = 20):
+    def __init__(self, num_workers=20):
         self.queue = Queue()
         self.pool = []
         self._setup_workers(num_workers)
@@ -169,12 +160,10 @@ class WorkerQueue(object):
             a_thread.setDaemon(True)
             a_thread.start()
 
-
     def do(self, f, *args, **kwArgs):
         """ puts a function on a queue for running later.
         """
         self.queue.put((f, args, kwArgs))
-
 
     def stop(self):
         """ Stops the WorkerQueue, waits for all of the threads to finish up.
@@ -183,8 +172,7 @@ class WorkerQueue(object):
         for thread in self.pool:
             thread.join()
 
-
-    def threadloop(self): #, finish = False):
+    def threadloop(self): #, finish=False):
         """ Loops until all of the tasks are finished.
         """
         while True:
@@ -201,29 +189,29 @@ class WorkerQueue(object):
                     self.queue.task_done()
                     #raise
 
-
     def wait(self):
         """ waits until all tasks are complete.
         """
         self.queue.join()
 
+
 class FuncResult:
     """ Used for wrapping up a function call so that the results are stored
          inside the instances result attribute.
     """
-    def __init__(self, f, callback = None, errback = None):
-        """ f - is the function we that we call 
+    def __init__(self, f, callback=None, errback=None):
+        """ f - is the function we that we call
             callback(result) - this is called when the function(f) returns
             errback(exception) - this is called when the function(f) raises
                                    an exception.
         """
         self.f = f
         self.exception = None
+        self.result = None
         self.callback = callback
         self.errback = errback
 
     def __call__(self, *args, **kwargs):
-
         #we try to call the function here.  If it fails we store the exception.
         try:
             self.result = self.f(*args, **kwargs)
@@ -235,15 +223,15 @@ class FuncResult:
                 self.errback(self.exception)
 
 
-def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_on_error = True):
+def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_error=True):
     """ like map, but uses a thread pool to execute.
         num_workers - the number of worker threads that will be used.  If pool
                         is passed in, then the num_workers arg is ignored.
         worker_queue - you can optionally pass in an existing WorkerQueue.
         wait - True means that the results are returned when everything is finished.
-               False means that we return the [worker_queue, results] right away instead. 
+               False means that we return the [worker_queue, results] right away instead.
                results, is returned as a list of FuncResult instances.
-        stop_on_error - 
+        stop_on_error -
     """
 
     if worker_queue:
@@ -265,18 +253,14 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
 
     #print ("queue size:%s" % wq.queue.qsize())
 
-
-    #TODO: divide the data (seq_args) into even chunks and 
+    #TODO: divide the data (seq_args) into even chunks and
     #       then pass each thread a map(f, equal_part(seq_args))
     #      That way there should be less locking, and overhead.
-
-
 
     results = []
     for sa in seq_args:
         results.append(FuncResult(f))
         wq.do(results[-1], sa)
-
 
     #wq.stop()
 
@@ -295,16 +279,15 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
                 um = wq.queue.get()
                 if not um is STOP:
                     raise Exception("buggy threadmap")
-        
-        
+
         # see if there were any errors.  If so raise the first one.  This matches map behaviour.
         # TODO: the traceback doesn't show up nicely.
         # NOTE: TODO: we might want to return the results anyway?  This should be an option.
         if stop_on_error:
-            error_ones = list(filter(lambda x:x.exception, results))
+            error_ones = list(filter(lambda x: x.exception, results))
             if error_ones:
                 raise error_ones[0].exception
-        
-        return map(lambda x:x.result, results)
+
+        return map(lambda x: x.result, results)
     else:
         return [wq, results]

@@ -1,4 +1,4 @@
-from typing import Text, Tuple, Union, overload, List
+from typing import Text, Tuple, Union, overload, List, Optional
 
 _ColorValue = Union[
     "Color", str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
@@ -15,11 +15,9 @@ class Color:
     i1i2i3: Tuple[float, float, float]
     __hash__: None  # type: ignore
     @overload
-    def __init__(self, name: Text) -> None: ...
+    def __init__(self, r: int, g: int, b: int, a: Optional[int] = ...) -> None: ...
     @overload
-    def __init__(self, r: int, g: int, b: int, a: int = ...) -> None: ...
-    @overload
-    def __init__(self, rgbvalue: Union[Text, int]) -> None: ...
+    def __init__(self, rgbvalue: _ColorValue) -> None: ...
     @overload
     def __getitem__(self, i: int) -> int: ...
     @overload

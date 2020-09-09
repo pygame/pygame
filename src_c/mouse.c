@@ -142,12 +142,14 @@ mouse_get_pressed(PyObject *self)
     VIDEO_INIT_CHECK();
 
     state = SDL_GetMouseState(NULL, NULL);
-    if (!(tuple = PyTuple_New(3)))
+    if (!(tuple = PyTuple_New(5)))
         return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong((state & SDL_BUTTON(1)) != 0));
-    PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong((state & SDL_BUTTON(2)) != 0));
-    PyTuple_SET_ITEM(tuple, 2, PyInt_FromLong((state & SDL_BUTTON(3)) != 0));
+    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong((state & SDL_BUTTON_LMASK) != 0));
+    PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong((state & SDL_BUTTON_MMASK) != 0));
+    PyTuple_SET_ITEM(tuple, 2, PyBool_FromLong((state & SDL_BUTTON_RMASK) != 0));
+    PyTuple_SET_ITEM(tuple, 3, PyBool_FromLong((state & SDL_BUTTON_X1MASK) != 0));
+    PyTuple_SET_ITEM(tuple, 4, PyBool_FromLong((state & SDL_BUTTON_X2MASK) != 0));
 
     return tuple;
 }
@@ -278,6 +280,31 @@ interror:
     return RAISE(PyExc_TypeError, "Invalid number in mask array");
 }
 
+static PyObject *
+mouse_set_system_cursor(PyObject *self, PyObject *args)
+{
+    int idnum;
+    SDL_Cursor *lastcursor, *cursor = NULL;
+
+    VIDEO_INIT_CHECK();
+
+    if (!PyArg_ParseTuple(args, "i", &idnum)) {
+        return NULL;
+    }
+
+#if IS_SDLv2
+    cursor = SDL_CreateSystemCursor(idnum);
+    if (!cursor) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    lastcursor = SDL_GetCursor();
+    SDL_SetCursor(cursor);
+    SDL_FreeCursor(lastcursor);
+#endif
+    Py_RETURN_NONE;
+}
+
+
 #if IS_SDLv2
 static PyObject *
 mouse_get_cursor(PyObject *self)
@@ -336,6 +363,7 @@ static PyMethodDef _mouse_methods[] = {
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},
+    {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETSYSTEMCURSOR},
     {"get_cursor", (PyCFunction)mouse_get_cursor, METH_VARARGS,
      DOC_PYGAMEMOUSEGETCURSOR},
 

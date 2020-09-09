@@ -19,11 +19,12 @@ jobs:
   include:
     - python: 2.7
     - python: 3.5
+      name: SDL 1.2
       env:
         - WHICH_SDL_BUILD=-sdl1
     - python: 3.6
-    - python: 3.7
     - python: 3.8
+    - python: 3.9-dev
     - os: linux-ppc64le
       python: 3.8
       arch: ppc64le
@@ -36,7 +37,11 @@ jobs:
       env:
         - ARM64=yes
     - os: linux
-      python: 3.8
+      python: 3.7
+      arch: s390x
+    - os: linux
+      python: 3.7
+      name: manylinux x86/amd64 python 2.7, 3.4-3.8.
       env:
         - MANYLINUX_WHL=yes
         - UPLOAD_WHL_PYPI=yes
@@ -51,10 +56,9 @@ jobs:
         - GITHUB_UPLOAD=yes
         - UPLOAD_WHL_PYPI=yes
 
-  # allow_failures:
-  #   - python: pypy
-  #   - os: linux-ppc64le
-  #   - python: 3.9-dev
+  allow_failures:
+    - arch: s390x
+    # - python: pypy
 
 before_install:
   - |
@@ -84,6 +88,7 @@ install:
       $PIP_CMD install conan
       $PIP_CMD install cibuildwheel==1.3.0
       conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+      conan remote add pygame-repo https://api.bintray.com/conan/pygame/pygame
       # $PYTHON_EXE buildconfig/config.py -conan --build libtiff --build opusfile --build sdl2_image --build sdl2_ttf
       $PYTHON_EXE buildconfig/config.py -conan --build
       cp build/conan/*.dylib .

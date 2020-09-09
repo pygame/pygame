@@ -1,6 +1,6 @@
 import unittest
 from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP
-from pygame import threads
+from pygame import threads, Surface, transform
 from pygame.compat import xrange_
 
 import time
@@ -25,14 +25,31 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertEqual(fr.result, 2)
         self.assertEqual(fr2.result, 3)
 
-    def todo_test_do(self):
-
+    def test_do(self):
+        """ Tests function placement on queue and execution after blocking function completion."""
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.do:
 
-        # puts a function on a queue for running later.
-        #
+        # puts a function on a queue for running _later_.
 
-        self.fail()
+        def sleep_test():
+            time.sleep(0.5)
+
+        def calc_test(x):
+            return x + 1
+
+        worker_queue = WorkerQueue(num_workers=1)
+        sleep_return = FuncResult(sleep_test)
+        calc_return = FuncResult(calc_test)
+        init_time = time.time()
+        worker_queue.do(sleep_return)
+        worker_queue.do(calc_return, 1)
+        worker_queue.wait()
+        worker_queue.stop()
+        time_diff = time.time() - init_time
+
+        self.assertEqual(sleep_return.result, None)
+        self.assertEqual(calc_return.result, 2)
+        self.assertGreaterEqual(time_diff, 0.5)
 
     def test_stop(self):
         """Ensure stop() stops the worker queue"""
@@ -41,7 +58,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assertGreater(len(wq.pool), 0)
 
         for t in wq.pool:
-            self.assertTrue(t.isAlive())
+            self.assertTrue(t.is_alive())
 
         for i in xrange_(200):
             wq.do(lambda x: x + 1, i)
@@ -49,17 +66,37 @@ class WorkerQueueTypeTest(unittest.TestCase):
         wq.stop()
 
         for t in wq.pool:
-            self.assertFalse(t.isAlive())
+            self.assertFalse(t.is_alive())
 
         self.assertIs(wq.queue.get(), STOP)
 
-    def todo_test_threadloop(self):
+    def test_threadloop(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.threadloop:
 
         # Loops until all of the tasks are finished.
 
-        self.fail()
+        #Make a worker queue with only one thread
+        wq = WorkerQueue(1)
+
+        #Ocuppy the one worker with the threadloop
+        #wq threads are just threadloop, so this makes an embedded threadloop
+        wq.do(wq.threadloop)
+
+        #Make sure wq can still do work
+        #If wq can still do work, threadloop works
+        l = []
+        wq.do(l.append,1)
+        #Wait won't work because the primary thread is in an infinite loop
+        time.sleep(.5)
+        self.assertEqual(l[0],1)
+
+        #Kill the embedded threadloop by sending stop onto the stack
+        #Threadloop puts STOP back onto the queue when it STOPs so this kills both loops
+        wq.stop()
+
+        #Make sure wq has stopped
+        self.assertFalse(wq.pool[0].is_alive())
 
     def test_wait(self):
 
@@ -79,7 +116,8 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
 
 class ThreadsModuleTest(unittest.TestCase):
-    def todo_test_benchmark_workers(self):
+    def test_benchmark_workers(self):
+        """Ensure benchmark_workers performance measure functions properly with both default and specified inputs"""
         "tags:long_running"
 
         # __doc__ (as of 2008-06-28) for pygame.threads.benchmark_workers:
@@ -91,8 +129,17 @@ class ThreadsModuleTest(unittest.TestCase):
         # You can pass in benchmark data, and functions if you want.
         # a_bench_func - f(data)
         # the_data - data to work on.
+        optimal_workers = threads.benchmark_workers()
+        self.assertIsInstance(optimal_workers, int)
+        self.assertTrue(0 <= optimal_workers < 64)
+        
+        # Test passing benchmark data and function explicitly
+        def smooth_scale_bench(data):
+            transform.smoothscale(data, (128, 128))
 
-        self.fail()
+        surf_data = [Surface((x, x), 0, 32) for x in range(12, 64, 12)]
+        best_num_workers = threads.benchmark_workers(smooth_scale_bench, surf_data)
+        self.assertIsInstance(best_num_workers, int)
 
     def test_init(self):
         """Ensure init() sets up the worker queue"""
@@ -121,12 +168,29 @@ class ThreadsModuleTest(unittest.TestCase):
         #        results, is returned as a list of FuncResult instances.
         # stop_on_error -
 
+        ## test that the outcomes of map and tmap are the same
         func, data = lambda x: x + 1, xrange_(100)
 
         tmapped = list(tmap(func, data))
         mapped = list(map(func, data))
 
         self.assertEqual(tmapped, mapped)
+
+        ## Test that setting tmap to not stop on errors produces the expected result
+        data2 = xrange_(100)
+        always_excepts = lambda x: 1/0
+
+        tmapped2 = list(tmap(always_excepts, data2, stop_on_error=False))
+
+        # Use list comprehension to check all entries are None as all function
+        # calls made by tmap will have thrown an exception (ZeroDivisionError)
+        # Condense to single bool with `all`, which will return true if all
+        # entries are true
+        self.assertTrue(all([x is None for x in tmapped2]))
+
+
+
+
 
     def todo_test_tmap__None_func_and_multiple_sequences(self):
         """Using a None as func and multiple sequences"""

@@ -104,7 +104,7 @@ required).
 .. function:: set_mode
 
    | :sl:`Initialize a window or screen for display`
-   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface`
+   | :sg:`set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
    requests for a display type. The actual created display will be the best
@@ -152,11 +152,28 @@ required).
       pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
-      pygame.SCALED        resolution depends on desktop size and scale graphics
+      pygame.SCALED        resolution depends on desktop size and scale
+                           graphics
 
    .. versionadded:: 2.0.0 ``SCALED``
 
-   For example:
+   By setting the ``vsync`` parameter to 1, it is possible to get a display
+   with vertical sync, but you are not guaranteed to get one. The request only
+   works at all for calls to ``set_mode()`` with the ``pygame.OPENGL`` or
+   ``pygame.SCALED`` flags set, and is still not guaranteed even with one of
+   those set. What you actually get depends entirely on the hardware and driver
+   configuration of the system pygame is running on. Here is an example usage
+   of a call to ``set_mode()`` that may give you a display with vsync:
+
+   ::
+
+     flags = pygame.OPENGL | pygame.FULLSCREEN
+     window_surface = pygame.display.set_mode((1920, 1080),
+                                              flags, vsync=1)
+
+   .. versionadded:: 2.0.0 ``vsync``
+
+   Basic example:
 
    ::
 
@@ -248,7 +265,8 @@ required).
 
      hw:         1 if the display is hardware accelerated
      wm:         1 if windowed display modes can be used
-     video_mem:  The megabytes of video memory on the display. This is 0 if unknown
+     video_mem:  The megabytes of video memory on the display. This is 0 if
+                 unknown
      bitsize:    Number of bits used to store each pixel
      bytesize:   Number of bytes used to store each pixel
      masks:      Four values used to pack RGBA values into pixels
@@ -260,10 +278,11 @@ required).
      blit_sw:    1 if software Surface blitting is accelerated
      blit_sw_CC: 1 if software Surface colorkey blitting is accelerated
      blit_sw_A:  1 if software Surface pixel alpha blitting is accelerated
-     current_h, current_w:  Height and width of the current video mode, or of the
-       desktop mode if called before the display.set_mode is called.
-       (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
-       They are -1 on error, or if an old SDL is being used.
+     current_h, current_w:  Height and width of the current video mode, or
+                 of the desktop mode if called before the display.set_mode
+                 is called. (current_h, current_w are available since
+                 SDL 1.2.10, and pygame 1.8.0). They are -1 on error, or if
+                 an old SDL is being used.
 
    .. ## pygame.display.Info ##
 
@@ -405,7 +424,8 @@ required).
 
        GL_CONTEXT_PROFILE_CORE             disable deprecated features
        GL_CONTEXT_PROFILE_COMPATIBILITY    allow deprecated features
-       GL_CONTEXT_PROFILE_ES               allow only the ES feature subset of OpenGL
+       GL_CONTEXT_PROFILE_ES               allow only the ES feature
+                                           subset of OpenGL
 
    :const:`GL_ACCELERATED_VISUAL`
 
@@ -570,5 +590,53 @@ required).
    .. versionadded:: 2.0
 
    .. ## pygame.display.get_window_size ##
+
+.. function:: get_allow_screensaver
+
+   | :sl:`Return whether the screensaver is allowed to run.`
+   | :sg:`get_allow_screensaver() -> bool`
+
+   Return whether screensaver is allowed to run whilst the app is running.
+   Default is False.
+   By default pygame does not allow the screensaver during game play.
+
+   .. note:: Some platforms do not have a screensaver or support
+             disabling the screensaver.  Please see
+             :func:`pygame.display.set_allow_screensaver()` for
+             caveats with screensaver support.
+
+   .. versionadded:: 2.0
+
+   .. ## pygame.display.get_allow_screensaver ##
+
+.. function:: set_allow_screensaver
+
+   | :sl:`Set whether the screensaver may run`
+   | :sg:`set_allow_screensaver(bool) -> None`
+
+   Change whether screensavers should be allowed whilst the app is running.
+   The default is False.
+   By default pygame does not allow the screensaver during game play.
+
+   If the screensaver has been disallowed due to this function, it will automatically
+   be allowed to run when :func:`pygame.quit()` is called.
+
+   It is possible to influence the default value via the environment variable
+   ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER``, which can be set to either ``0`` (disable)
+   or ``1`` (enable).
+
+   .. note:: Disabling screensaver is subject to platform support.
+             When platform support is absent, this function will
+             silently appear to work even though the screensaver state
+             is unchanged.  The lack of feedback is due to SDL not
+             providing any supported method for determining whether
+             it supports changing the screensaver state.
+             ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER`` is available in SDL 2.0.2 or later.
+             SDL1.2 does not implement this.
+
+   .. versionadded:: 2.0
+
+
+   .. ## pygame.display.set_allow_screensaver ##
 
 .. ## pygame.display ##

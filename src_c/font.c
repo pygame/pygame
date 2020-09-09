@@ -230,7 +230,7 @@ fontmodule_init(PyObject *self)
 static PyObject *
 get_init(PyObject *self)
 {
-    return PyInt_FromLong(font_initialized);
+    return PyBool_FromLong(font_initialized);
 }
 
 /* font object methods */
@@ -263,17 +263,62 @@ font_get_linesize(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-font_get_bold(PyObject *self, PyObject *args)
+_font_get_style_flag_as_py_bool(PyObject *self, int flag)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    return PyBool_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_BOLD) != 0);
+    return PyBool_FromLong((TTF_GetFontStyle(font) & flag) != 0);
 }
 
+static void
+_font_set_or_clear_style_flag(TTF_Font *font, int flag, int set_flag)
+{
+    int style = TTF_GetFontStyle(font);
+    if (set_flag)
+        style |= flag;
+    else
+        style &= ~flag;
+    TTF_SetFontStyle(font, style);
+}
+
+/* Implements getter for the bold attribute */
+static PyObject *
+font_getter_bold(PyObject *self, void *closure)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_BOLD);
+}
+
+/* Implements setter for the bold attribute */
+static int
+font_setter_bold(PyObject *self, PyObject *value, void *closure)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("bold", value);
+
+    val = PyObject_IsTrue(value);
+    if (val == -1) {
+        return -1;
+    }
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_BOLD, val);
+    return 0;
+}
+
+
+/* Implements get_bold() */
+static PyObject *
+font_get_bold(PyObject *self, PyObject *args)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_BOLD);
+}
+
+/* Implements set_bold(bool) */
 static PyObject *
 font_set_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int style, val;
+    int val;
 #if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
 #else
@@ -281,28 +326,49 @@ font_set_bold(PyObject *self, PyObject *args)
 #endif /* PY3 */
         return NULL;
 
-    style = TTF_GetFontStyle(font);
-    if (val)
-        style |= TTF_STYLE_BOLD;
-    else
-        style &= ~TTF_STYLE_BOLD;
-    TTF_SetFontStyle(font, style);
+    _font_set_or_clear_style_flag(font, TTF_STYLE_BOLD, val);
 
     Py_RETURN_NONE;
 }
 
+/* Implements getter for the italic attribute */
+static PyObject *
+font_getter_italic(PyObject *self, void *closure)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_ITALIC);
+}
+
+/* Implements setter for the italic attribute */
+static int
+font_setter_italic(PyObject *self, PyObject *value, void *closure)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("italic", value);
+
+    val = PyObject_IsTrue(value);
+    if (val == -1) {
+        return -1;
+    }
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_ITALIC, val);
+    return 0;
+}
+
+/* Implements get_italic() */
 static PyObject *
 font_get_italic(PyObject *self, PyObject *args)
 {
-    TTF_Font *font = PyFont_AsFont(self);
-    return PyBool_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_ITALIC) != 0);
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_ITALIC);
 }
 
+/* Implements set_italic(bool) */
 static PyObject *
 font_set_italic(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int style, val;
+    int val;
 
 #if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
@@ -311,28 +377,51 @@ font_set_italic(PyObject *self, PyObject *args)
 #endif /* PY3 */
         return NULL;
 
-    style = TTF_GetFontStyle(font);
-    if (val)
-        style |= TTF_STYLE_ITALIC;
-    else
-        style &= ~TTF_STYLE_ITALIC;
-    TTF_SetFontStyle(font, style);
+    _font_set_or_clear_style_flag(font, TTF_STYLE_ITALIC, val);
 
     Py_RETURN_NONE;
 }
 
+
+/* Implements getter for the underline attribute */
+static PyObject *
+font_getter_underline(PyObject *self, void *closure)
+{
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_UNDERLINE);
+}
+
+/* Implements setter for the underline attribute */
+static int
+font_setter_underline(PyObject *self, PyObject *value, void *closure)
+{
+    TTF_Font *font = PyFont_AsFont(self);
+    int val;
+
+    DEL_ATTR_NOT_SUPPORTED_CHECK("underline", value);
+
+    val = PyObject_IsTrue(value);
+    if (val == -1) {
+        return -1;
+    }
+
+    _font_set_or_clear_style_flag(font, TTF_STYLE_UNDERLINE, val);
+    return 0;
+}
+
+/* Implements get_underline() */
 static PyObject *
 font_get_underline(PyObject *self, PyObject *args)
 {
-    TTF_Font *font = PyFont_AsFont(self);
-    return PyBool_FromLong((TTF_GetFontStyle(font) & TTF_STYLE_UNDERLINE) != 0);
+    return _font_get_style_flag_as_py_bool(self, TTF_STYLE_UNDERLINE);
 }
 
+
+/* Implements set_underline(bool) */
 static PyObject *
 font_set_underline(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
-    int style, val;
+    int val;
 
 #if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
@@ -341,12 +430,7 @@ font_set_underline(PyObject *self, PyObject *args)
 #endif /* PY3 */
         return NULL;
 
-    style = TTF_GetFontStyle(font);
-    if (val)
-        style |= TTF_STYLE_UNDERLINE;
-    else
-        style &= ~TTF_STYLE_UNDERLINE;
-    TTF_SetFontStyle(font, style);
+    _font_set_or_clear_style_flag(font, TTF_STYLE_UNDERLINE, val);
 
     Py_RETURN_NONE;
 }
@@ -504,7 +588,7 @@ font_render(PyObject *self, PyObject *args)
         surf->format->palette->colors[0].g = backg.g;
         surf->format->palette->colors[0].b = backg.b;
     }
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -636,6 +720,18 @@ font_metrics(PyObject *self, PyObject *args)
     return list;
 }
 
+/**
+ * Getters and setters for the pgFontObject.
+ */
+static PyGetSetDef font_getsets[] = {
+    {"bold", (getter)font_getter_bold, (setter)font_setter_bold,
+     DOC_FONTBOLD, NULL},
+    {"italic", (getter)font_getter_italic, (setter)font_setter_italic,
+     DOC_FONTITALIC, NULL},
+    {"underline", (getter)font_getter_underline, (setter)font_setter_underline,
+     DOC_FONTUNDERLINE, NULL},
+    {NULL, NULL, NULL, NULL, NULL}};
+
 static PyMethodDef font_methods[] = {
     {"get_height", font_get_height, METH_NOARGS,
      DOC_FONTGETHEIGHT},
@@ -683,6 +779,8 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *obj;
     PyObject *test;
     PyObject *oencoded = NULL;
+    SDL_RWops *rw;
+
     const char *filename;
 
     self->font = NULL;
@@ -732,14 +830,54 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         filename = Bytes_AS_STRING(oencoded);
     }
 
-    /*check if it is a valid file, else SDL_ttf segfaults*/
-    test = pg_open_obj(obj, "rb");
-    if (test == NULL) {
-        if (strcmp(filename, font_defaultname) == 0) {
-            PyObject *tmp;
-            PyErr_Clear();
-            tmp = font_resource(font_defaultname);
-            if (tmp == NULL) {
+#if FONT_HAVE_RWOPS
+    /* Try opening the path through RWops first */
+    if (filename) {
+        rw = SDL_RWFromFile(filename, "rb");
+        if (rw != NULL) {
+            Py_BEGIN_ALLOW_THREADS;
+            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+            Py_END_ALLOW_THREADS;
+        } else {
+            /*
+            PyErr_Format(PyExc_IOError,
+                                 "unable to read font file '%.1024s'",
+                                 filename);
+            goto error;
+            */
+
+            /* silently ignore this failure. We will try opening the path
+               with fopen (pg_open_obj) again later.
+               RWops can open assets bundled with P4A on Android, but not
+               font_resource() paths */
+        }
+        if(font!=NULL)
+            goto success;
+    }
+#endif
+
+    if(font==NULL) {
+        /*check if it is a valid file, else SDL_ttf segfaults*/
+        test = pg_open_obj(obj, "rb");
+        if (test == NULL) {
+            if (strcmp(filename, font_defaultname) == 0) {
+                PyObject *tmp;
+                PyErr_Clear();
+                tmp = font_resource(font_defaultname);
+                if (tmp == NULL) {
+                    if (!PyErr_Occurred()) {
+                        PyErr_Format(PyExc_IOError,
+                                     "unable to read font file '%.1024s'",
+                                     filename);
+                    }
+                    goto error;
+                }
+                Py_DECREF(obj);
+                obj = tmp;
+                filename = Bytes_AS_STRING(obj);
+                test = pg_open_obj(obj, "rb");
+            }
+            if (test == NULL) {
                 if (!PyErr_Occurred()) {
                     PyErr_Format(PyExc_IOError,
                                  "unable to read font file '%.1024s'",
@@ -747,37 +885,28 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
                 }
                 goto error;
             }
-            Py_DECREF(obj);
-            obj = tmp;
-            filename = Bytes_AS_STRING(obj);
-            test = pg_open_obj(obj, "rb");
         }
-        if (test == NULL) {
-            if (!PyErr_Occurred()) {
-                PyErr_Format(PyExc_IOError,
-                             "unable to read font file '%.1024s'",
-                             filename);
+        {
+            PyObject *tmp;
+            if (!(tmp = PyObject_CallMethod(test, "close", NULL))) {
+                Py_DECREF(test);
+                goto error;
             }
-            goto error;
+            Py_DECREF(tmp);
         }
+        Py_DECREF(test);
+        /* opened file (test) is not used for loading,
+           SDL_TTF fopens the file _again_.*/
+
+        Py_BEGIN_ALLOW_THREADS;
+        font = TTF_OpenFont(filename, fontsize);
+        Py_END_ALLOW_THREADS;
     }
-    {
-        PyObject *tmp;
-        if (!(tmp = PyObject_CallMethod(test, "close", NULL))) {
-            Py_DECREF(test);
-            goto error;
-        }
-        Py_DECREF(tmp);
-    }
-    Py_DECREF(test);
-    Py_BEGIN_ALLOW_THREADS;
-    font = TTF_OpenFont(filename, fontsize);
-    Py_END_ALLOW_THREADS;
 
 fileobject:
     if (font == NULL) {
 #if FONT_HAVE_RWOPS
-        SDL_RWops *rw = pgRWops_FromFileObject(obj);
+        rw = pgRWops_FromFileObject(obj);
 
         if (rw == NULL) {
             goto error;
@@ -798,6 +927,7 @@ fileobject:
         goto error;
     }
 
+success:
     Py_XDECREF(oencoded);
     Py_DECREF(obj);
     self->font = font;
@@ -838,7 +968,7 @@ static PyTypeObject PyFont_Type = {
     0,                                        /* tp_iternext */
     font_methods,                             /* tp_methods */
     0,                                        /* tp_members */
-    0,                                        /* tp_getset */
+    font_getsets,                             /* tp_getset */
     0,                                        /* tp_base */
     0,                                        /* tp_dict */
     0,                                        /* tp_descr_get */

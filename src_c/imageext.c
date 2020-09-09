@@ -63,6 +63,7 @@
 #else
 #include <strings.h>
 #endif
+#include <string.h>
 
 #define JPEG_QUALITY 85
 
@@ -228,7 +229,7 @@ image_load_ext(PyObject *self, PyObject *arg)
             return RAISE(pgExc_SDLError, IMG_GetError());
         }
     }
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -258,16 +259,21 @@ png_flush_fn(png_structp png_ptr)
 }
 
 static int
-write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
-          int bitdepth)
+write_png(const char *file_name, SDL_RWops *rw, png_bytep *rows, int w, int h,
+          int colortype, int bitdepth)
 {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     SDL_RWops *rwops;
     char *doing;
 
-    if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
-        return -1;
+    if (rw == NULL) {
+        if (!(rwops = SDL_RWFromFile(file_name, "wb"))) {
+            return -1;
+        }
+    }
+    else {
+        rwops = rw;
     }
 
     doing = "create png write struct";
@@ -298,9 +304,11 @@ write_png(const char *file_name, png_bytep *rows, int w, int h, int colortype,
     doing = "write end";
     png_write_end(png_ptr, NULL);
 
-    doing = "closing file";
-    if (0 != SDL_RWclose(rwops))
-        goto fail;
+    if (rw == NULL) {
+        doing = "closing file";
+        if (0 != SDL_RWclose(rwops))
+            goto fail;
+    }
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return 0;
 
@@ -320,7 +328,7 @@ fail:
 }
 
 static int
-SavePNG(SDL_Surface *surface, const char *file)
+SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
 {
     static unsigned char **ss_rows;
     static int ss_size;
@@ -445,11 +453,11 @@ SavePNG(SDL_Surface *surface, const char *file)
     }
 
     if (alpha) {
-        r = write_png(file, ss_rows, surface->w, surface->h,
+        r = write_png(file, rw, ss_rows, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB_ALPHA, 8);
     }
     else {
-        r = write_png(file, ss_rows, surface->w, surface->h,
+        r = write_png(file, rw, ss_rows, surface->w, surface->h,
                       PNG_COLOR_TYPE_RGB, 8);
     }
 
@@ -798,16 +806,20 @@ opengltosdl(void)
 static PyObject *
 image_save_ext(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *obj;
+    const char *namehint = NULL;
     PyObject *oencoded = NULL;
     SDL_Surface *surf;
     int result = 1;
+    const char *name = NULL;
+    SDL_RWops *rw = NULL;
 #if IS_SDLv1
     SDL_Surface *temp = NULL;
 #endif /* IS_SDLv1 */
 
-    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
+    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
+                &obj, &namehint)) {
         return NULL;
     }
 
@@ -827,55 +839,92 @@ image_save_ext(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == Py_None) {
-        PyErr_Format(PyExc_TypeError,
-                     "Expected a string for the file argument: got %.1024s",
-                     Py_TYPE(obj)->tp_name);
+    if (oencoded == NULL) {
         result = -2;
     }
-    else if (oencoded != NULL) {
-        const char *name = Bytes_AS_STRING(oencoded);
-        Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
-
-        if ((namelen >= 4) &&
-            (((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'e' || name[namelen - 2] == 'E') &&
-              (name[namelen - 3] == 'p' || name[namelen - 3] == 'P') &&
-              (name[namelen - 4] == 'j' || name[namelen - 4] == 'J')) ||
-             ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-              (name[namelen - 2] == 'p' || name[namelen - 2] == 'P') &&
-              (name[namelen - 3] == 'j' || name[namelen - 3] == 'J')))) {
+    else if (oencoded == Py_None) {
+        rw = pgRWops_FromFileObject(obj);
+        if (rw == NULL) {
+            PyErr_Format(PyExc_TypeError,
+                         "Expected a string or file object for the file "
+                         "argument: got %.1024s",
+                         Py_TYPE(obj)->tp_name);
+            result = -2;
+        }
+        else {
+            name = namehint;
+        }
+    }
+    else {
+        name = Bytes_AS_STRING(oencoded);
+    }
+    if (result > 0) {
+        const char *ext = find_extension(name);
+        if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
+#if (SDL_IMAGE_MAJOR_VERSION * 1000 + SDL_IMAGE_MINOR_VERSION * 100 + \
+        SDL_IMAGE_PATCHLEVEL) < 2002
+            /* SDL_Image is a version less than 2.0.2 and therefore does not
+             * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
+             */
+            if (rw != NULL) {
+                PyErr_SetString(pgExc_SDLError,
+                        "SDL_Image 2.0.2 or newer nedded to save "
+                        "jpeg to a fileobject.");
+                result = -2;
+            }
+            else {
 #ifdef JPEGLIB_H
             /* jpg save functions seem *NOT* thread safe at least on windows.
              */
             /*
             Py_BEGIN_ALLOW_THREADS;
             */
-            result = SaveJPEG(surf, name);
+                result = SaveJPEG(surf, name);
             /*
             Py_END_ALLOW_THREADS;
             */
 #else
-            RAISE(pgExc_SDLError, "No support for jpg compiled in.");
-            result = -2;
+                PyErr_SetString(
+                        pgExc_SDLError, "No support for jpg compiled in.");
+                result = -2;
 #endif /* ~JPEGLIB_H */
+            }
+#else
+            /* SDL_Image is version 2.0.2 or newer and therefore does
+             * have the functions IMG_SaveJPG() and IMG_SaveJPG_RW().
+             */
+            if (rw != NULL) {
+                result = IMG_SaveJPG_RW(surf, rw, 0, JPEG_QUALITY);
+            }
+            else {
+                result = IMG_SaveJPG(surf, name, JPEG_QUALITY);
+#ifdef JPEGLIB_H
+                /* In the unlikely event that pygame is compiled with support
+                 * for jpg but SDL_Image was not, then we can catch that and
+                 * try calling the pygame SaveJPEG function.
+                 */
+                if (result == -1) {
+                    if (strstr(SDL_GetError(),
+                                "not built with jpeglib") != NULL) {
+                        SDL_ClearError();
+                        result = SaveJPEG(surf, name);
+                    }
+                }
+#endif /* JPEGLIB_H */
+            }
+#endif /* SDL_Image >= 2.0.2 */
         }
-        else if ((namelen >= 3) &&
-                 ((name[namelen - 1] == 'g' || name[namelen - 1] == 'G') &&
-                  (name[namelen - 2] == 'n' || name[namelen - 2] == 'N') &&
-                  (name[namelen - 3] == 'p' || name[namelen - 3] == 'P'))) {
+        else if (!strcasecmp(ext, "png")) {
 #ifdef PNG_H
             /*Py_BEGIN_ALLOW_THREADS; */
-            result = SavePNG(surf, name);
+            result = SavePNG(surf, name, rw);
             /*Py_END_ALLOW_THREADS; */
 #else
-            RAISE(pgExc_SDLError, "No support for png compiled in.");
+            PyErr_SetString(
+                    pgExc_SDLError, "No support for png compiled in.");
             result = -2;
 #endif /* ~PNG_H */
         }
-    }
-    else {
-        result = -2;
     }
 
 #if IS_SDLv1
@@ -905,6 +954,13 @@ image_save_ext(PyObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+image_get_sdl_image_version(PyObject *self, PyObject *arg)
+{
+    return Py_BuildValue("iii", SDL_IMAGE_MAJOR_VERSION,
+            SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
+}
+
 #ifdef WITH_THREAD
 #if PY3
 static void
@@ -930,6 +986,9 @@ _imageext_free(void)
 static PyMethodDef _imageext_methods[] = {
     {"load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
     {"save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE},
+    {"_get_sdl_image_version", image_get_sdl_image_version, METH_NOARGS,
+        "_get_sdl_image_version() -> (major, minor, patch)\n"
+            "Note: Should not be used directly."},
     {NULL, NULL, 0, NULL}};
 
 /*DOC*/ static char _imageext_doc[] =

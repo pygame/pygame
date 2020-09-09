@@ -1,7 +1,10 @@
 import unittest
+import os
 import platform
 
 from pygame.tests import test_utils
+from pygame.tests.test_utils import example_path
+
 import pygame
 import pygame.transform
 from pygame.locals import *
@@ -774,6 +777,41 @@ class TransformModuleTest(unittest.TestCase):
         self.assertEqual(s2.get_at((0, 31)), (255, 0, 0, 255))
         self.assertEqual(s2.get_at((31, 31)), (255, 0, 0, 255))
 
+    def test_laplacian__24_big_endian(self):
+        """
+        """
+        pygame.display.init()
+        try:
+            surf_1 = pygame.image.load(
+                example_path(os.path.join("data", "laplacian.png")))
+            SIZE = 32
+            surf_2 = pygame.Surface((SIZE, SIZE), 0, 24)
+            # s1.fill((10, 10, 70))
+            # pygame.draw.line(s1, (255, 0, 0), (3, 10), (20, 20))
+
+            # a line at the last row of the image.
+            # pygame.draw.line(s1, (255, 0, 0), (0, 31), (31, 31))
+
+            pygame.transform.laplacian(surf_1, surf_2)
+
+            # show_image(s1)
+            # show_image(s2)
+
+            self.assertEqual(surf_2.get_at((0, 0)), (0, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((3, 10)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((0, 31)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((31, 31)), (255, 0, 0, 255))
+
+            # here we create the return surface.
+            surf_2 = pygame.transform.laplacian(surf_1)
+
+            self.assertEqual(surf_2.get_at((0, 0)), (0, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((3, 10)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((0, 31)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((31, 31)), (255, 0, 0, 255))
+        finally:
+            pygame.display.quit()
+
     def test_average_surfaces(self):
         """
         """
@@ -829,6 +867,27 @@ class TransformModuleTest(unittest.TestCase):
             print(sr.get_shifts(), s1.get_shifts())
 
         self.assertEqual(sr.get_at((0, 0)), (10, 53, 50, 255))
+
+    def test_average_surfaces__24_big_endian(self):
+        pygame.display.init()
+        try:
+            surf_1 = pygame.image.load(
+                example_path(os.path.join("data", "BGR.png")))
+
+            surf_2 = surf_1.copy()
+
+            surfaces = [surf_1, surf_2]
+            self.assertEqual(surf_1.get_at((0, 0)), (255, 0, 0, 255))
+            self.assertEqual(surf_2.get_at((0, 0)), (255, 0, 0, 255))
+
+            surf_av = pygame.transform.average_surfaces(surfaces)
+            self.assertEqual(surf_av.get_masks(), surf_1.get_masks())
+            self.assertEqual(surf_av.get_flags(), surf_1.get_flags())
+            self.assertEqual(surf_av.get_losses(), surf_1.get_losses())
+
+            self.assertEqual(surf_av.get_at((0, 0)), (255, 0, 0, 255))
+        finally:
+            pygame.display.quit()
 
     def test_average_surfaces__subclassed_surfaces(self):
         """Ensure average_surfaces accepts subclassed surfaces."""
@@ -897,23 +956,33 @@ class TransformModuleTest(unittest.TestCase):
                 pygame.transform.average_color(s, (16, 0, 16, 32)), (0, 100, 200, 0)
             )
 
-    def todo_test_rotate(self):
+    def test_rotate(self):
+        #setting colors and canvas
+        blue = (0, 0, 255, 255)
+        red = (255, 0, 0, 255)
+        black = (0,0,0)
+        canvas = pygame.Surface((3, 3))
+        rotation = 0
 
-        # __doc__ (as of 2008-06-25) for pygame.transform.rotate:
+        canvas.set_at((2, 0), blue)
+        canvas.set_at((0, 2), red)
 
-        # pygame.transform.rotate(Surface, angle): return Surface
-        # rotate an image
+        self.assertEqual(canvas.get_at((0, 0)), black)
+        self.assertEqual(canvas.get_at((2, 0)), blue)
+        self.assertEqual(canvas.get_at((0, 2)), red)
 
-        # color = (128, 128, 128, 255)
-        # s = pygame.Surface((3, 3))
+        for i in range(0,4):
+            if i % 2 == 0:
+                self.assertEqual(canvas.get_at((0, 0)), black)
+            elif i == 1:
+                self.assertEqual(canvas.get_at((0, 0)), blue)
+            elif i == 3:
+                self.assertEqual(canvas.get_at((0, 0)), red)
 
-        # s.set_at((2, 0), color)
+            rotation+=90
+            canvas = pygame.transform.rotate(canvas, 90)
 
-        # self.assertNotEqual(s.get_at((0, 0)), color)
-        # s = pygame.transform.rotate(s, 90)
-        # self.assertEqual(s.get_at((0, 0)), color)
-
-        self.fail()
+        self.assertEqual(canvas.get_at((0, 0)), black)
 
     def test_rotate__lossless_at_90_degrees(self):
         w, h = 32, 32
@@ -1002,23 +1071,71 @@ class TransformModuleTest(unittest.TestCase):
         filter_type = pygame.transform.get_smoothscale_backend()
         self.assertEqual(filter_type, original_type)
 
-    def todo_test_chop(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.transform.chop:
-
-        # pygame.transform.chop(Surface, rect): return Surface
-        # gets a copy of an image with an interior area removed
-        #
-        # Extracts a portion of an image. All vertical and horizontal pixels
-        # surrounding the given rectangle area are removed. The corner areas
-        # (diagonal to the rect) are then brought together. (The original
-        # image is not altered by this operation.)
-        #
-        # NOTE: If you want a "crop" that returns the part of an image within
-        # a rect, you can blit with a rect to a new surface or copy a
-        # subsurface.
-
-        self.fail()
+    def test_chop(self):
+        original_surface = pygame.Surface((20, 20))
+        pygame.draw.rect(original_surface, (255, 0, 0), (0, 0, 10, 10))
+        pygame.draw.rect(original_surface, (0, 255, 0), (0, 10, 10, 10))
+        pygame.draw.rect(original_surface, (0, 0, 255), (10, 0, 10, 10))
+        pygame.draw.rect(original_surface, (255, 255, 0), (10, 10, 10, 10))
+        # Test chopping the corner of image
+        rect = pygame.Rect(0, 0, 5, 15)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        # Check the size of chopped image
+        self.assertEqual(test_surface.get_size(), (15, 5))
+        # Check if the colors of the chopped image are correct
+        for x in range(15):
+            for y in range(5):
+                if x < 5:
+                    self.assertEqual(test_surface.get_at((x, y)), (0, 255, 0))
+                else:
+                    self.assertEqual(test_surface.get_at((x, y)),
+                                     (255, 255, 0))
+        # Check if the original image stayed the same
+        self.assertEqual(original_surface.get_size(), (20, 20))
+        for x in range(20):
+            for y in range(20):
+                if x < 10 and y < 10:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (255, 0, 0))
+                if x < 10 < y:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (0, 255, 0))
+                if x > 10 > y:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (0, 0, 255))
+                if x > 10 and y > 10:
+                    self.assertEqual(original_surface.get_at((x, y)),
+                                     (255, 255, 0))
+        # Test chopping the center of the surface:
+        rect = pygame.Rect(0, 0, 10, 10)
+        rect.center = original_surface.get_rect().center
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (10, 10))
+        for x in range(10):
+            for y in range(10):
+                if x < 5 and y < 5:
+                    self.assertEqual(test_surface.get_at((x, y)), (255, 0, 0))
+                if x < 5 < y:
+                    self.assertEqual(test_surface.get_at((x, y)), (0, 255, 0))
+                if x > 5 > y:
+                    self.assertEqual(test_surface.get_at((x, y)), (0, 0, 255))
+                if x > 5 and y > 5:
+                    self.assertEqual(test_surface.get_at((x, y)), (255, 255, 0))
+        # Test chopping with the empty rect
+        rect = pygame.Rect(10, 10, 0, 0)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (20, 20))
+        # Test chopping the entire surface
+        rect = pygame.Rect(0, 0, 20, 20)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (0, 0))
+        # Test chopping outside of surface
+        rect = pygame.Rect(5, 15, 20, 20)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (5, 15))
+        rect = pygame.Rect(400, 400, 10, 10)
+        test_surface = pygame.transform.chop(original_surface, rect)
+        self.assertEqual(test_surface.get_size(), (20, 20))
 
     def test_rotozoom(self):
 
@@ -1040,7 +1157,8 @@ class TransformModuleTest(unittest.TestCase):
 
         self.assertEqual(s1.get_rect(), pygame.Rect(0,0,0,0))
 
-    def todo_test_smoothscale(self):
+    def test_smoothscale(self):
+        """Tests the stated boundaries, sizing, and color blending of smoothscale function"""
         # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:
 
         # pygame.transform.smoothscale(Surface, (width, height), DestSurface =
@@ -1059,8 +1177,38 @@ class TransformModuleTest(unittest.TestCase):
         #
         # New in pygame 1.8
 
-        self.fail()
+        #check stated exceptions
+        def smoothscale_low_bpp():
+            starting_surface = pygame.Surface((20, 20), depth=12)
+            smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (10, 10))
+        self.assertRaises(ValueError, smoothscale_low_bpp)
 
+        def smoothscale_high_bpp():
+            starting_surface = pygame.Surface((20, 20), depth=48)
+            smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (10, 10))
+        self.assertRaises(ValueError, smoothscale_high_bpp)
+
+        def smoothscale_invalid_scale():
+            starting_surface = pygame.Surface((20, 20), depth=32)
+            smoothscaled_surface = pygame.transform.smoothscale(starting_surface, (-1, -1))
+        self.assertRaises(ValueError, smoothscale_invalid_scale)
+
+        # Test Color Blending Scaling-Up
+        two_pixel_surface = pygame.Surface((2, 1), depth=32)
+        two_pixel_surface.fill(pygame.Color(0, 0, 0), pygame.Rect(0, 0, 1, 1))
+        two_pixel_surface.fill(pygame.Color(255, 255, 255), pygame.Rect(1, 0, 1, 1))
+        for k in [2**x for x in range(5,8)]: # Enlarge to targets 32, 64...256
+            bigger_surface = pygame.transform.smoothscale(two_pixel_surface, (k, 1))
+            self.assertEqual(bigger_surface.get_at((k//2, 0)), pygame.Color(127, 127, 127))
+            self.assertEqual(bigger_surface.get_size(), (k, 1))
+        # Test Color Blending Scaling-Down
+        two_five_six_surf = pygame.Surface((256, 1), depth=32)
+        two_five_six_surf.fill(pygame.Color(0, 0, 0), pygame.Rect(0, 0, 128, 1))
+        two_five_six_surf.fill(pygame.Color(255, 255, 255), pygame.Rect(128, 0, 128, 1))
+        for k in range(3, 11, 2): #Shrink to targets 3, 5...11 pixels wide
+            smaller_surface = pygame.transform.smoothscale(two_five_six_surf, (k, 1))
+            self.assertEqual(smaller_surface.get_at(((k//2), 0)), pygame.Color(127, 127, 127))
+            self.assertEqual(smaller_surface.get_size(), (k, 1))
 
 class TransformDisplayModuleTest(unittest.TestCase):
     def setUp(self):

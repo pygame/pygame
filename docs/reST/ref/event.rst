@@ -19,9 +19,12 @@ events into the queue from other threads, please use the
 The event queue has an upper limit on the number of events it can hold
 (128 for standard SDL 1.2). When the queue becomes full new events are quietly
 dropped. To prevent lost events, especially input events which signal a quit
-command, your program must regularly check for events and process them.
-To speed up queue processing use :func:`pygame.event.set_blocked()` to
-limit which events get queued.
+command, your program must handle events every frame (with
+``pygame.event.get()``, ``pygame.event.pump()``, ``pygame.event.wait()``,
+``pygame.event.peek()`` or ``pygame.event.clear()``)
+and process them. Not handling events may cause your system to decide your
+program has locked up. To speed up queue processing use
+:func:`pygame.event.set_blocked()` to limit which events get queued.
 
 To get the state of various input devices, you can forego the event queue and
 access the input devices directly with their appropriate modules:
@@ -74,14 +77,17 @@ specific attributes.
     MOUSEMOTION       pos, rel, buttons
     MOUSEBUTTONUP     pos, button
     MOUSEBUTTONDOWN   pos, button
-    JOYAXISMOTION     joy, axis, value
-    JOYBALLMOTION     joy, ball, rel
-    JOYHATMOTION      joy, hat, value
-    JOYBUTTONUP       joy, button
-    JOYBUTTONDOWN     joy, button
+    JOYAXISMOTION     joy (deprecated), instance_id, axis, value
+    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
+    JOYHATMOTION      joy (deprecated), instance_id, hat, value
+    JOYBUTTONUP       joy (deprecated), instance_id, button
+    JOYBUTTONDOWN     joy (deprecated), instance_id, button
     VIDEORESIZE       size, w, h
     VIDEOEXPOSE       none
     USEREVENT         code
+
+You can also find a list of constants for keyboard keys
+:ref:`here <key-constants-label>`.
 
 |
 
@@ -142,6 +148,25 @@ Events reserved for :mod:`pygame.midi` use.
 
 |
 
+
+|
+
+.. versionadded:: 2.0.0
+
+SDL2 supports controller hotplugging:
+
+::
+
+   CONTROLLERDEVICEADDED    device_index
+   JOYDEVICEADDED           device_index
+   CONTROLLERDEVICEREMOVED  instance_id
+   JOYDEVICEREMOVED         instance_id
+   CONTROLLERDEVICEREMAPPED instance_id
+
+Also in this version, ``instance_id`` attributes were added to joystick events,
+and the ``joy`` attribute was deprecated.
+
+|
 
 .. function:: pump
 
@@ -342,6 +367,14 @@ Events reserved for :mod:`pygame.midi` use.
    appropriate values.
 
    If the event queue is full a :exc:`pygame.error` is raised.
+
+   Caution: In pygame 2.0, calling this function with event types defined by
+   pygame (such as ``pygame.KEYDOWN``) may put events into the SDL2 event queue.
+   In this case, an error may be raised if standard attributes of that event
+   are missing or have incompatible values, and unexpected properties may
+   be silently omitted. In order to avoid this behaviour, custom event
+   properties should be used with custom event types.
+   This behaviour is not guaranteed.
 
    .. ## pygame.event.post ##
 

@@ -192,6 +192,32 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
+    @unittest.skipIf(os.environ.get("SDL_AUDIODRIVER")  == 'disk',
+                     'disk audio driver "playback" writing to disk is slow')
+    def test_play__start_time(self):
+
+        pygame.display.init()
+
+        # music file is 7 seconds long
+        filename = example_path(os.path.join("data", "house_lo.ogg"))
+        pygame.mixer.music.load(filename)
+        start_time_in_seconds = 6.0  # 6 seconds
+
+        music_finished = False
+        clock = pygame.time.Clock()
+        start_time_in_ms = clock.tick()
+        # should play the last 1 second
+        pygame.mixer.music.play(0, start=start_time_in_seconds)
+        running = True
+        while running:
+            pygame.event.pump()
+
+            if not (pygame.mixer.music.get_busy() or music_finished):
+                music_finished = True
+                time_to_finish = (clock.tick() - start_time_in_ms) // 1000
+                self.assertEqual(time_to_finish, 1)
+                running = False
+
     def todo_test_play(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.play:

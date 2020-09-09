@@ -164,12 +164,12 @@ def main(
     if use_layered_dirty:
         update_rects = True
 
-    # pg.init()
+    pg.init()  # needed to initialise time module for get_ticks()
     pg.display.init()
 
     # if "-fast" in sys.argv:
 
-    screen = pg.display.set_mode(screen_dims, flags)
+    screen = pg.display.set_mode(screen_dims, flags, vsync="-vsync" in sys.argv)
 
     # this is mainly for GP2X, so it can quit.
     pg.joystick.init()

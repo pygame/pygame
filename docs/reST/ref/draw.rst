@@ -47,7 +47,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    | :sl:`draw a rectangle`
    | :sg:`rect(surface, color, rect) -> Rect`
-   | :sg:`rect(surface, color, rect, width=0, border_radius=0, border_radius=-1, border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1) -> Rect`
+   | :sg:`rect(surface, color, rect, width=0, border_radius=0, border_top_left_radius=-1, border_top_right_radius=-1, border_bottom_left_radius=-1, border_bottom_right_radius=-1) -> Rect`
 
    Draws a rectangle on the given surface.
 
@@ -180,16 +180,16 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
          .. note::
             When using ``width`` values ``> 1``, the edge lines will only grow
             inward.
-   :param bool draw_top_right: (optional) if this is set to True than the top right corner
+   :param bool draw_top_right: (optional) if this is set to True then the top right corner
       of the circle will be drawn
-   :param bool draw_top_left: (optional) if this is set to True than the top left corner
+   :param bool draw_top_left: (optional) if this is set to True then the top left corner
       of the circle will be drawn
-   :param bool draw_bottom_left: (optional) if this is set to True than the bottom left corner
+   :param bool draw_bottom_left: (optional) if this is set to True then the bottom left corner
       of the circle will be drawn
-   :param bool draw_bottom_right: (optional) if this is set to True than the bottom right corner
+   :param bool draw_bottom_right: (optional) if this is set to True then the bottom right corner
       of the circle will be drawn
 
-         | if any of the draw_circle_part is True than it will draw all circle parts that have the True
+         | if any of the draw_circle_part is True then it will draw all circle parts that have the True
          | value, otherwise it will draw the entire circle.
 
    :returns: a rect bounding the changed pixels, if nothing is drawn the

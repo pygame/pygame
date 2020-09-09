@@ -29,6 +29,9 @@ releases. (hmm, until we get to versions > 10)
 from pygame.base import get_sdl_version
 
 class SoftwareVersion(tuple):
+    """
+    A class for storing data about software versions.
+    """
     __slots__ = ()
     fields = 'major', 'minor', 'patch'
     def __new__(cls, major, minor, patch):
@@ -53,4 +56,4 @@ class SDLVersion(SoftwareVersion):
     """
 
 _sdl_tuple = get_sdl_version()
-SDL = SDLVersion(_sdl_tuple[0],_sdl_tuple[1],_sdl_tuple[2])
+SDL = SDLVersion(_sdl_tuple[0], _sdl_tuple[1], _sdl_tuple[2])

@@ -2,6 +2,7 @@
 
 import array
 import binascii
+import io
 import os
 import tempfile
 import unittest
@@ -146,6 +147,8 @@ class ImageModuleTest(unittest.TestCase):
             posn = rect.move((offset, offset)).topleft
             self.assertEqual(approx(jpg_surf.get_at(posn)), approx(color))
 
+        os.remove(f_path)
+
     def testSavePNG32(self):
         """ see if we can save a png with color values in the proper channels.
         """
@@ -254,6 +257,75 @@ class ImageModuleTest(unittest.TestCase):
             finally:
                 # clean up the temp file, comment out to leave tmp file after run.
                 os.remove(temp_filename)
+
+    def test_save_to_fileobject(self):
+        s = pygame.Surface((1, 1))
+        s.fill((23, 23, 23))
+        bytes_stream = io.BytesIO()
+
+        pygame.image.save(s, bytes_stream)
+        bytes_stream.seek(0)
+        s2 = pygame.image.load(bytes_stream, "tga")
+        self.assertEqual(s.get_at((0, 0)), s2.get_at((0, 0)))
+
+    def test_save_tga(self):
+        s = pygame.Surface((1, 1))
+        s.fill((23, 23, 23))
+        with tempfile.NamedTemporaryFile(suffix=".tga", delete=False) as f:
+            temp_filename = f.name
+
+        try:
+            pygame.image.save(s, temp_filename)
+            s2 = pygame.image.load(temp_filename)
+            self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
+        finally:
+            # clean up the temp file, even if test fails
+            os.remove(temp_filename)
+
+    def test_save__to_fileobject_w_namehint_argument(self):
+        s = pygame.Surface((10, 10))
+        s.fill((23, 23, 23))
+        magic_hex = {}
+        magic_hex["jpg"] = [0xFF, 0xD8, 0xFF, 0xE0]
+        magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
+        magic_hex["bmp"] = [0x42, 0x4D]
+
+        formats = ["tga", "jpg", "bmp", "png"]
+        # uppercase too... JPG
+        formats = formats + [x.upper() for x in formats]
+
+        SDL_Im_version = pygame.image.get_sdl_image_version()
+        # We assume here that minor version and patch level of SDL_Image
+        # never goes above 99
+        isAtLeastSDL_image_2_0_2 = ((SDL_Im_version is not None) and
+                (SDL_Im_version[0] * 10000 +
+                 SDL_Im_version[1] * 100 +
+                 SDL_Im_version[2])
+                >= 20002)
+        for fmt in formats:
+            tmp_file, tmp_filename = tempfile.mkstemp(suffix=".%s"%fmt)
+            if not isAtLeastSDL_image_2_0_2 and fmt.lower() == "jpg":
+                with os.fdopen(tmp_file, 'wb') as handle:
+                    with self.assertRaises(pygame.error):
+                        pygame.image.save(s, handle, tmp_filename)
+            else:
+                with os.fdopen(tmp_file, 'r+b') as handle:
+                    pygame.image.save(s, handle, tmp_filename)
+
+                    if fmt.lower() in magic_hex:
+                        # Test the magic numbers at the start of the file to
+                        # ensure they are saved as the correct file type.
+                        handle.seek(0)
+                        self.assertEqual(
+                            (1, fmt),
+                            (test_magic(handle, magic_hex[fmt.lower()]), fmt)
+                        )
+                    # load the file to make sure it was saved correctly.
+                    handle.flush()
+                    handle.seek(0)
+                    s2 = pygame.image.load(handle, tmp_filename)
+                    self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
+            os.remove(tmp_filename)
 
     def test_save_colorkey(self):
         """ make sure the color key is not changed when saving.
@@ -678,18 +750,43 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(argb_surf.get_at((3, 3)),
                          pygame.Color(50, 200, 20, 255))
 
-    def todo_test_get_extended(self):
+    def test_get_extended(self):
+        #Create a png file and try to load it. If it cannot, get_extended() should return False
+        raw_image = []
+        raw_image.append((200, 200, 200, 255, 100, 100, 100, 255))
 
-        # __doc__ (as of 2008-08-02) for pygame.image.get_extended:
+        f_descriptor, f_path = tempfile.mkstemp(suffix='.png')
 
-        # pygame.image.get_extended(): return bool
-        # test if extended image formats can be loaded
-        #
-        # If pygame is built with extended image formats this function will
-        # return True. It is still not possible to determine which formats
-        # will be available, but generally you will be able to load them all.
+        with os.fdopen(f_descriptor, 'wb') as file:
+            w = png.Writer(2, 1, alpha=True)
+            w.write(file, raw_image)
 
-        self.fail()
+        try:
+            surf = pygame.image.load(f_path)
+            loaded = True
+        except pygame.error:
+            loaded = False
+
+        self.assertEqual(pygame.image.get_extended(), loaded)
+        os.remove(f_path)
+
+    def test_get_sdl_image_version(self):
+        # If get_extended() returns False then get_sdl_image_version() should
+        # return None
+        if not pygame.image.get_extended():
+            self.assertIsNone(pygame.image.get_sdl_image_version())
+        else:
+            expected_length = 3
+            expected_type = tuple
+            expected_item_type = int
+
+            version = pygame.image.get_sdl_image_version()
+
+            self.assertIsInstance(version, expected_type)
+            self.assertEqual(len(version), expected_length)
+
+            for item in version:
+                self.assertIsInstance(item, expected_item_type)
 
     def todo_test_load_basic(self):
 
@@ -709,13 +806,39 @@ class ImageModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_save_extended(self):
+    def test_save_extended(self):
+        surf = pygame.Surface((5, 5))
+        surf.fill((23, 23, 23))
 
-        # __doc__ (as of 2008-08-02) for pygame.image.save_extended:
+        passing_formats = ['jpg', 'png']
+        passing_formats += [fmt.upper() for fmt in passing_formats]
 
-        # pygame module for image transfer
+        magic_hex = {}
+        magic_hex["jpg"] = [0xFF, 0xD8, 0xFF, 0xE0]
+        magic_hex["png"] = [0x89, 0x50, 0x4E, 0x47]
 
-        self.fail()
+        failing_formats = ['bmp', 'tga']
+        failing_formats += [fmt.upper() for fmt in failing_formats]
+
+        # check that .jpg and .png save
+        for fmt in passing_formats:
+            temp_file_name = "temp_file.%s" % fmt
+            # save image as .jpg and .png
+            pygame.image.save_extended(surf, temp_file_name)
+            with open(temp_file_name, "rb") as file:
+                # Test the magic numbers at the start of the file to ensure
+                # they are saved as the correct file type.
+                self.assertEqual(
+                    1, (test_magic(file, magic_hex[fmt.lower()]))
+                )
+            # load the file to make sure it was saved correctly
+            loaded_file = pygame.image.load(temp_file_name)
+            self.assertEqual(loaded_file.get_at((0, 0)), surf.get_at((0, 0)))
+            # clean up the temp file
+            os.remove(temp_file_name)
+        # check that .bmp and .tga do not save
+        for fmt in failing_formats:
+            self.assertRaises(pygame.error, pygame.image.save_extended, surf, "temp_file.%s" % fmt)
 
     def threads_load(self, images):
         import pygame.threads

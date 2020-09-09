@@ -64,6 +64,22 @@ opengltosdl(void);
     ((flipped) ? (((char *)data) + (height - row - 1) * width) \
                : (((char *)data) + row * width))
 
+static const char *
+find_extension(const char *fullname)
+{
+    const char *dot;
+
+    if (fullname == NULL) {
+        return NULL;
+    }
+
+    dot = strrchr(fullname, '.');
+    if (dot == NULL) {
+        return fullname;
+    }
+    return dot + 1;
+}
+
 static PyObject *
 image_load_basic(PyObject *self, PyObject *arg)
 {
@@ -104,7 +120,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    final = pgSurface_New(surf);
+    final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -194,8 +210,9 @@ opengltosdl()
 PyObject *
 image_save(PyObject *self, PyObject *arg)
 {
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
     PyObject *obj;
+    const char *namehint = NULL;
     PyObject *oencoded;
     PyObject *imgext = NULL;
     SDL_Surface *surf;
@@ -204,7 +221,8 @@ image_save(PyObject *self, PyObject *arg)
     SDL_Surface *temp = NULL;
 #endif /* IS_SDLv1 */
 
-    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
+    if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
+                &obj, &namehint)) {
         return NULL;
     }
 
@@ -224,69 +242,82 @@ image_save(PyObject *self, PyObject *arg)
 #endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == Py_None) {
-        SDL_RWops *rw = pgRWops_FromFileObject(obj);
-        if (rw != NULL) {
-            result = SaveTGA_RW(surf, rw, 1);
+    if (oencoded == NULL) {
+        result = -2;
+    }
+    else {
+        const char *name = NULL;
+        const char * ext = NULL;
+        if (oencoded == Py_None) {
+            name = (namehint ? namehint: "tga");
         }
         else {
-            result = -2;
+            name = Bytes_AS_STRING(oencoded);
         }
-    }
-    else if (oencoded != NULL) {
-        const char *name = Bytes_AS_STRING(oencoded);
-        Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
-        int written = 0;
+        ext = find_extension(name);
+        if (!strcasecmp(ext, "png") ||
+                !strcasecmp(ext, "jpg") ||
+                !strcasecmp(ext, "jpeg")) {
+            /* If it is .png .jpg .jpeg use the extended module. */
+            /* try to get extended formats */
+            imgext = PyImport_ImportModule(IMPPREFIX "imageext");
+            if (imgext != NULL) {
+                PyObject *extsave =
+                    PyObject_GetAttrString(imgext, "save_extended");
 
-        if (namelen > 3) {
-            if (!strcasecmp(name + namelen - 3, "bmp")) {
-                Py_BEGIN_ALLOW_THREADS;
-                result = SDL_SaveBMP(surf, name);
-                Py_END_ALLOW_THREADS;
-                written = 1;
-            }
-            else if (!strcasecmp(name + namelen - 3, "png") ||
-                     !strcasecmp(name + namelen - 3, "jpg") ||
-                     !strcasecmp(name + namelen - 4, "jpeg")) {
-                /* If it is .png .jpg .jpeg use the extended module. */
-                /* try to get extended formats */
-                imgext = PyImport_ImportModule(IMPPREFIX "imageext");
-                if (imgext != NULL) {
-                    PyObject *extsave =
-                        PyObject_GetAttrString(imgext, "save_extended");
+                Py_DECREF(imgext);
+                if (extsave != NULL) {
+                    PyObject *data = PyObject_CallObject(extsave, arg);
 
-                    Py_DECREF(imgext);
-                    if (extsave != NULL) {
-                        PyObject *data = PyObject_CallObject(extsave, arg);
-
-                        Py_DECREF(extsave);
-                        if (data == NULL) {
-                            result = -2;
-                        }
-                        else {
-                            Py_DECREF(data);
-                            result = 0;
-                        }
+                    Py_DECREF(extsave);
+                    if (data == NULL) {
+                        result = -2;
                     }
                     else {
-                        result = -2;
+                        Py_DECREF(data);
+                        result = 0;
                     }
                 }
                 else {
                     result = -2;
                 }
-                written = 1;
+            }
+            else {
+                result = -2;
             }
         }
-
-        if (!written) {
-            Py_BEGIN_ALLOW_THREADS;
-            result = SaveTGA(surf, name, 1);
-            Py_END_ALLOW_THREADS;
+        else if (oencoded == Py_None) {
+            SDL_RWops *rw = pgRWops_FromFileObject(obj);
+            if (rw != NULL) {
+                if (!strcasecmp(ext, "bmp")) {
+                    /* The SDL documentation didn't specify which negative number 
+                     * is returned upon error. We want to be sure that result is
+                     * either 0 or -1: */
+                    result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
+                }
+                else {
+                    result = SaveTGA_RW(surf, rw, 1);
+                }
+            }
+            else {
+                result = -2;
+            }
         }
-    }
-    else {
-        result = -2;
+        else {
+            if (!strcasecmp(ext, "bmp")) {
+                Py_BEGIN_ALLOW_THREADS;
+                /* The SDL documentation didn't specify which negative number 
+                 * is returned upon error. We want to be sure that result is
+                 * either 0 or -1: */
+                result = (SDL_SaveBMP(surf, name) == 0 ? 0 : -1);
+                Py_END_ALLOW_THREADS;
+            }
+            else {
+                Py_BEGIN_ALLOW_THREADS;
+                result = SaveTGA(surf, name, 1);
+                Py_END_ALLOW_THREADS;
+            }
+        }
     }
     Py_XDECREF(oencoded);
 
@@ -314,6 +345,16 @@ image_save(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, "Unrecognized image type");
     }
 
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+image_get_sdl_image_version_none(PyObject *self, PyObject *arg)
+{
+    /* If the extended formats can't be imported, then no SDL_Image is used.
+     * get_sdl_image_version() will then point to this function which will
+     * allways return None.
+     */
     Py_RETURN_NONE;
 }
 
@@ -1183,7 +1224,7 @@ image_fromstring(PyObject *self, PyObject *arg)
     else
         return RAISE(PyExc_ValueError, "Unrecognized type of format");
 
-    return pgSurface_New(surf);
+    return (PyObject *)pgSurface_New(surf);
 }
 
 static int
@@ -1221,7 +1262,7 @@ image_frombuffer(PyObject *self, PyObject *arg)
     SDL_Surface *surf = NULL;
     int w, h;
     Py_ssize_t len;
-    PyObject *surfobj;
+    pgSurfaceObject *surfobj;
 
     if (!PyArg_ParseTuple(arg, "O(ii)s|i", &buffer, &w, &h, &format))
         return NULL;
@@ -1246,24 +1287,28 @@ image_frombuffer(PyObject *self, PyObject *arg)
             return RAISE(
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3, 0xFF, 0xFF << 8,
                                         0xFF << 16, 0);
-        /*
-        #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                                 0xFF, 0xFF<<8, 0xFF<<16,
-        0xFF<<24 #else 0xFF<<24, 0xFF<<16, 0xFF<<8, 0xFF #endif
-                       );
-
-        */
+#else
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3, 0xFF << 16,
+                                        0xFF << 8, 0xFF, 0);
+#endif
     }
     else if (!strcmp(format, "BGR")) {
         if (len != (Py_ssize_t)w * h * 3)
             return RAISE(
                 PyExc_ValueError,
                 "Buffer length does not equal format and resolution size");
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3,
                                         0xFF << 16, 0xFF << 8,
                                         0xFF, 0);
+#else
+        surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w * 3,
+                                        0xFF, 0xFF << 8,
+                                        0xFF << 16, 0);
+#endif
     }
     else if (!strcmp(format, "RGBA") || !strcmp(format, "RGBX")) {
         int alphamult = !strcmp(format, "RGBA");
@@ -1303,8 +1348,8 @@ image_frombuffer(PyObject *self, PyObject *arg)
         return RAISE(pgExc_SDLError, SDL_GetError());
     surfobj = pgSurface_New(surf);
     Py_INCREF(buffer);
-    ((pgSurfaceObject *)surfobj)->dependency = buffer;
-    return surfobj;
+    surfobj->dependency = buffer;
+    return (PyObject *)surfobj;
 }
 
 /*******************************************************/
@@ -1621,6 +1666,8 @@ static PyMethodDef _image_methods[] = {
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
     {"fromstring", image_fromstring, METH_VARARGS, DOC_PYGAMEIMAGEFROMSTRING},
     {"frombuffer", image_frombuffer, METH_VARARGS, DOC_PYGAMEIMAGEFROMBUFFER},
+    {"_get_sdl_image_version_none", image_get_sdl_image_version_none, METH_NOARGS,
+        "_get_sdl_image_version_none() -> None\nNote: Should not be used directly."},
 
     {NULL, NULL, 0, NULL}};
 
@@ -1675,6 +1722,7 @@ MODINIT_DEFINE(image)
     if (extmodule) {
         PyObject *extload;
         PyObject *extsave;
+        PyObject *sdlImageV;
 
         extload = PyObject_GetAttrString(extmodule, "load_extended");
         if (!extload) {
@@ -1689,15 +1737,26 @@ MODINIT_DEFINE(image)
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
-        if (PyModule_AddObject(module, "load_extended", extload)) {
+        sdlImageV = PyObject_GetAttrString(extmodule,
+                "_get_sdl_image_version");
+        if (!sdlImageV) {
             Py_DECREF(extload);
             Py_DECREF(extsave);
             Py_DECREF(extmodule);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
+        if (PyModule_AddObject(module, "load_extended", extload)) {
+            Py_DECREF(extload);
+            Py_DECREF(extsave);
+            Py_DECREF(sdlImageV);
+            Py_DECREF(extmodule);
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
         if (PyModule_AddObject(module, "save_extended", extsave)) {
             Py_DECREF(extsave);
+            Py_DECREF(sdlImageV);
             Py_DECREF(extmodule);
             DECREF_MOD(module);
             MODINIT_ERROR;
@@ -1705,6 +1764,13 @@ MODINIT_DEFINE(image)
         Py_INCREF(extload);
         if (PyModule_AddObject(module, "load", extload)) {
             Py_DECREF(extload);
+            Py_DECREF(sdlImageV);
+            Py_DECREF(extmodule);
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
+        if (PyModule_AddObject(module, "get_sdl_image_version", sdlImageV)) {
+            Py_DECREF(sdlImageV);
             Py_DECREF(extmodule);
             DECREF_MOD(module);
             MODINIT_ERROR;
@@ -1714,11 +1780,14 @@ MODINIT_DEFINE(image)
     }
     else {
         PyObject *basicload = PyObject_GetAttrString(module, "load_basic");
+        PyObject *noSDLimage = PyObject_GetAttrString(module,
+                "_get_sdl_image_version_none");
         PyErr_Clear();
         Py_INCREF(Py_None);
         if (PyModule_AddObject(module, "load_extended", Py_None)) {
             Py_DECREF(Py_None);
             Py_DECREF(basicload);
+            Py_DECREF(noSDLimage);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
@@ -1727,12 +1796,20 @@ MODINIT_DEFINE(image)
         if (PyModule_AddObject(module, "save_extended", Py_None)) {
             Py_DECREF(Py_None);
             Py_DECREF(basicload);
+            Py_DECREF(noSDLimage);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }
 
         if (PyModule_AddObject(module, "load", basicload)) {
             Py_DECREF(basicload);
+            Py_DECREF(noSDLimage);
+            DECREF_MOD(module);
+            MODINIT_ERROR;
+        }
+
+        if (PyModule_AddObject(module, "get_sdl_image_version", noSDLimage)) {
+            Py_DECREF(noSDLimage);
             DECREF_MOD(module);
             MODINIT_ERROR;
         }

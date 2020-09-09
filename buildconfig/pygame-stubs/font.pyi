@@ -23,6 +23,11 @@ def SysFont(
 ) -> Font: ...
 
 class Font(object):
+
+    bold: bool
+    italic: bool
+    underline: bool
+
     def __init__(self, name: Union[str, IO, None], size: int) -> None: ...
     def render(
         self,

@@ -586,7 +586,7 @@ surf_scale(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -642,7 +642,7 @@ surf_scale2x(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -676,7 +676,7 @@ surf_rotate(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
         if (!newsurf)
             return NULL;
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
     }
 
     radangle = angle * .01745329251994329;
@@ -743,7 +743,7 @@ surf_rotate(PyObject *self, PyObject *arg)
     pgSurface_Unlock(surfobj);
     SDL_UnlockSurface(newsurf);
 
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -895,7 +895,7 @@ surf_flip(PyObject *self, PyObject *arg)
 
     pgSurface_Unlock(surfobj);
     SDL_UnlockSurface(newsurf);
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -912,7 +912,7 @@ surf_rotozoom(PyObject *self, PyObject *arg)
     surf = pgSurface_AsSurface(surfobj);
     if (scale == 0.0 || surf->w == 0 || surf->h ==0) {
         newsurf = newsurf_fromsurf(surf, 0, 0);
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
     }
 
     if (surf->format->BitsPerPixel == 32) {
@@ -936,7 +936,7 @@ surf_rotozoom(PyObject *self, PyObject *arg)
         pgSurface_Unlock(surfobj);
     else
         SDL_FreeSurface(surf32);
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 static SDL_Surface *
@@ -949,9 +949,9 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
     int loopx, loopy;
 
     if ((x + width) > src->w)
-        width = src->w - x;
+        width = MIN(MAX(src->w - x, 0), src->w);
     if ((y + height) > src->h)
-        height = src->h - y;
+        height = MIN(MAX(src->h - y, 0), src->h);
     if (x < 0) {
         width -= (-x);
         x = 0;
@@ -1025,7 +1025,7 @@ surf_chop(PyObject *self, PyObject *arg)
     newsurf = chop(surf, rect->x, rect->y, rect->w, rect->h);
     Py_END_ALLOW_THREADS;
 
-    return pgSurface_New(newsurf);
+    return (PyObject *)pgSurface_New(newsurf);
 }
 
 /*
@@ -1486,7 +1486,7 @@ surf_scalesmooth(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 static PyObject *
@@ -1951,9 +1951,12 @@ clamp_4
             break;                                                            \
         case 3:                                                               \
             p_byte_buf = (Uint8 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)*3; \
-            *(p_byte_buf + (p_format->Rshift >> 3)) = (Uint8)(p_color >> 16); \
-            *(p_byte_buf + (p_format->Gshift >> 3)) = (Uint8)(p_color >> 8);  \
-            *(p_byte_buf + (p_format->Bshift >> 3)) = (Uint8)p_color;         \
+            *(p_byte_buf + (p_format->Rshift >> 3)) =                         \
+                (Uint8)(p_color >> p_format->Rshift);                         \
+            *(p_byte_buf + (p_format->Gshift >> 3)) =                         \
+                (Uint8)(p_color >> p_format->Gshift);                         \
+            *(p_byte_buf + (p_format->Bshift >> 3)) =                         \
+                (Uint8)(p_color >> p_format->Bshift);                          \
             break;                                                            \
         default:                                                              \
             *((Uint32 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)) = p_color;  \
@@ -1976,10 +1979,11 @@ clamp_4
         case 3:                                                               \
             p_byte_buf = (Uint8 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)*3; \
             *(p_byte_buf + 2 - (p_format->Rshift >> 3)) =                     \
-                (Uint8)(p_color >> 16);                                       \
+                (Uint8)(p_color >> p_format->Rshift);                         \
             *(p_byte_buf + 2 - (p_format->Gshift >> 3)) =                     \
-                (Uint8)(p_color >> 8);                                        \
-            *(p_byte_buf + 2 - (p_format->Bshift >> 3)) = (Uint8)p_color;     \
+                (Uint8)(p_color >> p_format->Gshift);                         \
+            *(p_byte_buf + 2 - (p_format->Bshift >> 3)) =                     \
+                (Uint8)(p_color >> p_format->Bshift);                         \
             break;                                                            \
         default:                                                              \
             *((Uint32 *)(p_pixels + (p_y)*p_surf->pitch) + (p_x)) = p_color;  \
@@ -2165,17 +2169,18 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
                         (Uint8 *)(destpixels + y * destsurf->pitch) + x * 3;
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                     *(byte_buf + (destformat->Rshift >> 3)) =
-                        (Uint8)(the_color >> 16);
+                        (Uint8)(the_color >> surf->format->Rshift);
                     *(byte_buf + (destformat->Gshift >> 3)) =
-                        (Uint8)(the_color >> 8);
-                    *(byte_buf + (destformat->Bshift >> 3)) = (Uint8)the_color;
+                        (Uint8)(the_color >> surf->format->Gshift);
+                    *(byte_buf + (destformat->Bshift >> 3)) =
+                        (Uint8)(the_color >> surf->format->Bshift);
 #else
                     *(byte_buf + 2 - (destformat->Rshift >> 3)) =
-                        (Uint8)(the_color >> 16);
+                        (Uint8)(the_color >> surf->format->Rshift);
                     *(byte_buf + 2 - (destformat->Gshift >> 3)) =
-                        (Uint8)(the_color >> 8);
+                        (Uint8)(the_color >> surf->format->Gshift);
                     *(byte_buf + 2 - (destformat->Bshift >> 3)) =
-                        (Uint8)the_color;
+                        (Uint8)(the_color >> surf->format->Bshift);
 #endif
                     break;
                 default:
@@ -2241,7 +2246,7 @@ surf_laplacian(PyObject *self, PyObject *arg)
         return surfobj2;
     }
     else
-        return pgSurface_New(newsurf);
+        return (PyObject *)pgSurface_New(newsurf);
 }
 
 int
@@ -2564,7 +2569,7 @@ surf_average_surfaces(PyObject *self, PyObject *arg)
             ret = surfobj2;
         }
         else {
-            ret = pgSurface_New(newsurf);
+            ret = (PyObject *)pgSurface_New(newsurf);
         }
     }
 

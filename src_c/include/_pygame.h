@@ -192,11 +192,11 @@ typedef struct pg_bufferinfo_s {
         PYGAMEAPI_GET_SLOT(base, 20))
 
 #define pg_GetDefaultWindowSurface \
-    (*(PyObject * (*)(void))       \
+    (*(pgSurfaceObject * (*)(void))       \
         PYGAMEAPI_GET_SLOT(base, 21))
 
 #define pg_SetDefaultWindowSurface \
-    (*(void (*)(PyObject *))       \
+    (*(void (*)(pgSurfaceObject *))       \
         PYGAMEAPI_GET_SLOT(base, 22))
 
 #endif /* PG_API_VERSION == 2 */
@@ -272,11 +272,22 @@ typedef struct {
 /*
  * JOYSTICK module
  */
-typedef struct {
-    PyObject_HEAD int id;
+typedef struct pgJoystickObject {
+    PyObject_HEAD
+    int id;
+    SDL_Joystick *joy;
+
+    /* Joysticks form an intrusive linked list.
+     *
+     * Note that we don't maintain refcounts for these so they are weakrefs from
+     * the Python side.
+     */
+    struct pgJoystickObject *next;
+    struct pgJoystickObject *prev;
 } pgJoystickObject;
 
 #define pgJoystick_AsID(x) (((pgJoystickObject *)x)->id)
+#define pgJoystick_AsSDL(x) (((pgJoystickObject *)x)->joy)
 
 #ifndef PYGAMEAPI_JOYSTICK_INTERNAL
 #define pgJoystick_Type \
@@ -377,25 +388,25 @@ typedef struct {
     (PyObject_IsInstance((x), (PyObject *) &pgSurface_Type))
 #if PG_API_VERSION == 1
 #define pgSurface_New                 \
-    (*(PyObject * (*)(SDL_Surface *)) \
+    (*(pgSurfaceObject * (*)(SDL_Surface *)) \
         PYGAMEAPI_GET_SLOT(surface, 1))
 
 #define pgSurface_SetSurface                \
-    (*(int (*)(PyObject *, SDL_Surface *))  \
+    (*(int (*)(pgSurfaceObject *, SDL_Surface *))  \
         PYGAMEAPI_GET_SLOT(surface, 3))
 
 #else /* PG_API_VERSION == 2 */
 #define pgSurface_New2                     \
-    (*(PyObject * (*)(SDL_Surface *, int)) \
+    (*(pgSurfaceObject * (*)(SDL_Surface *, int)) \
         PYGAMEAPI_GET_SLOT(surface, 1))
 
 #define pgSurface_SetSurface                     \
-    (*(int (*)(PyObject *, SDL_Surface *, int))  \
+    (*(int (*)(pgSurfaceObject *, SDL_Surface *, int))  \
         PYGAMEAPI_GET_SLOT(surface, 3))
 
 #endif /* PG_API_VERSION == 2 */
 #define pgSurface_Blit                                                  \
-    (*(int (*)(PyObject *, PyObject *, GAME_Rect *, GAME_Rect *, int))  \
+    (*(int (*)(pgSurfaceObject *, pgSurfaceObject *, GAME_Rect *, GAME_Rect *, int))  \
         PYGAMEAPI_GET_SLOT(surface, 2))
 
 #define import_pygame_surface()         \
@@ -426,13 +437,13 @@ typedef struct {
     ((x)->ob_type == &pgLifetimeLock_Type)
 
 #define pgSurface_Prep(x)                   \
-    if (((pgSurfaceObject *)x)->subsurface) \
-    (*(*(void (*)(PyObject *)) \
+    if ((x)->subsurface) \
+    (*(*(void (*)(pgSurfaceObject *)) \
         PYGAMEAPI_GET_SLOT(surflock, 1)))(x)
 
 #define pgSurface_Unprep(x)                 \
-    if (((pgSurfaceObject *)x)->subsurface) \
-    (*(*(void (*)(PyObject *)) \
+    if ((x)->subsurface) \
+    (*(*(void (*)(pgSurfaceObject *)) \
         PYGAMEAPI_GET_SLOT(surflock, 2)))(x)
 
 #define pgSurface_Lock \

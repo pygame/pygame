@@ -3,7 +3,7 @@
 #define DOC_PYGAMEDISPLAYINIT "init() -> None\nInitialize the display module"
 #define DOC_PYGAMEDISPLAYQUIT "quit() -> None\nUninitialize the display module"
 #define DOC_PYGAMEDISPLAYGETINIT "get_init() -> bool\nReturns True if the display module has been initialized"
-#define DOC_PYGAMEDISPLAYSETMODE "set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface\nInitialize a window or screen for display"
+#define DOC_PYGAMEDISPLAYSETMODE "set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface\nInitialize a window or screen for display"
 #define DOC_PYGAMEDISPLAYGETSURFACE "get_surface() -> Surface\nGet a reference to the currently set display surface"
 #define DOC_PYGAMEDISPLAYFLIP "flip() -> None\nUpdate the full display Surface to the screen"
 #define DOC_PYGAMEDISPLAYUPDATE "update(rectangle=None) -> None\nupdate(rectangle_list) -> None\nUpdate portions of the screen for software displays"
@@ -25,6 +25,8 @@
 #define DOC_PYGAMEDISPLAYSETPALETTE "set_palette(palette=None) -> None\nSet the display color palette for indexed displays"
 #define DOC_PYGAMEDISPLAYGETNUMDISPLAYS "get_num_displays() -> int\nReturn the number of displays"
 #define DOC_PYGAMEDISPLAYGETWINDOWSIZE "get_window_size() -> tuple\nReturn the size of the window or screen"
+#define DOC_PYGAMEDISPLAYGETALLOWSCREENSAVER "get_allow_screensaver() -> bool\nReturn whether the screensaver is allowed to run."
+#define DOC_PYGAMEDISPLAYSETALLOWSCREENSAVER "set_allow_screensaver(bool) -> None\nSet whether the screensaver may run"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -47,7 +49,7 @@ pygame.display.get_init
 Returns True if the display module has been initialized
 
 pygame.display.set_mode
- set_mode(size=(0, 0), flags=0, depth=0, display=0) -> Surface
+ set_mode(size=(0, 0), flags=0, depth=0, display=0, vsync=0) -> Surface
 Initialize a window or screen for display
 
 pygame.display.get_surface
@@ -134,5 +136,13 @@ Return the number of displays
 pygame.display.get_window_size
  get_window_size() -> tuple
 Return the size of the window or screen
+
+pygame.display.get_allow_screensaver
+ get_allow_screensaver() -> bool
+Return whether the screensaver is allowed to run.
+
+pygame.display.set_allow_screensaver
+ set_allow_screensaver(bool) -> None
+Set whether the screensaver may run
 
 */
