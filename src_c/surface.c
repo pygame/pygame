@@ -1584,10 +1584,12 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     else
         alpha = (Uint8)alphaval;
 
+#if IS_SDLv2
     if (alpha==255 && !SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
+#endif /* IS_SDLv1 */
 
     pgSurface_Prep(self);
 #if IS_SDLv1
