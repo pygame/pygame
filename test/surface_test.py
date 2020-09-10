@@ -711,8 +711,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(background.get_at((99, 99)), background_color)
         self.assertEqual(background.get_at((450, 450)), background_color)
 
-    def test_blit(self):
-        """Tests basic blitting functionality and options."""
+class TestSurfaceBlit(unittest.TestCase):
+    """Tests basic blitting functionality and options."""
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.blit:
 
         # Surface.blit(source, dest, area=None, special_flags = 0): return Rect
@@ -741,65 +741,66 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         #
         # Pixel alphas will be ignored when blitting to an 8 bit Surface.
         # special_flags new in pygame 1.8.
-        def reset_dest(dst_surface):
-            """Resets our blank canvas destination surface"""
-            dst_surface.fill(pygame.Color(0,0,0))
-        
-        #Init
-        src_surface = pygame.Surface((256, 256), 32)
-        src_surface.fill(pygame.Color(255,255,255))
-        dst_surface = pygame.Surface((64, 64), 32)
-        reset_dest(dst_surface)
 
-        # Full coverage w/ overflow, specified with Coordinate
-        result = dst_surface.blit(src_surface, (0,0))
+    def setUp(self):
+        """Resets starting surfaces."""
+        self.src_surface = pygame.Surface((256, 256), 32)
+        self.src_surface.fill(pygame.Color(255, 255, 255))
+        self.dst_surface = pygame.Surface((64, 64), 32)
+        self.dst_surface.fill(pygame.Color(0, 0, 0))
+
+    def test_blit_overflow_coord(self):
+        """Full coverage w/ overflow, specified with Coordinate"""
+        result = self.dst_surface.blit(self.src_surface, (0, 0))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))
         for k in [(x, x) for x in range(64)]:
-            self.assertEqual(dst_surface.get_at(k), (255, 255, 255))
-        reset_dest(dst_surface)
+            self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
-        # Full coverage w/ overflow, specified with a Rect
-        result = dst_surface.blit(src_surface, pygame.Rect(-1,-1,300,300))
+    def test_blit_overflow_rect(self):
+        """Full coverage w/ overflow, specified with a Rect""" 
+        result = self.dst_surface.blit(self.src_surface, pygame.Rect(-1, -1, 300, 300))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))
         for k in [(x, x) for x in range(64)]:
-            self.assertEqual(dst_surface.get_at(k), (255, 255, 255))
-        reset_dest(dst_surface)
+            self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
-        # Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)
-        result = dst_surface.blit(src_surface, dest=pygame.Rect((1,1,1,1)))
+    def test_blit_overflow_nonorigin(self):
+        """# Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)"""
+        result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (63, 63))
-        self.assertEqual(dst_surface.get_at((0,0)), (0, 0, 0))
-        self.assertEqual(dst_surface.get_at((63,0)), (0, 0, 0))
-        self.assertEqual(dst_surface.get_at((0,63)), (0, 0, 0))
-        self.assertEqual(dst_surface.get_at((1,1)), (255, 255, 255))
-        self.assertEqual(dst_surface.get_at((63,63)), (255, 255, 255))
-        reset_dest(dst_surface)
+        self.assertEqual(self.dst_surface.get_at((0, 0)), (0, 0, 0))
+        self.assertEqual(self.dst_surface.get_at((63, 0)), (0, 0, 0))
+        self.assertEqual(self.dst_surface.get_at((0, 63)), (0, 0, 0))
+        self.assertEqual(self.dst_surface.get_at((1, 1)), (255, 255, 255))
+        self.assertEqual(self.dst_surface.get_at((63, 63)), (255, 255, 255))
 
-        #Testing area constraint
-        result = dst_surface.blit(src_surface, dest=pygame.Rect((1,1,1,1)), area=pygame.Rect((2,2,2,2)))
+    def test_blit_area_contraint(self):
+        """Testing area constraint"""
+        result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)),\
+            area=pygame.Rect((2, 2, 2, 2)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (2, 2))
-        self.assertEqual(dst_surface.get_at((0,0)), (0, 0, 0)) #Corners
-        self.assertEqual(dst_surface.get_at((63,0)), (0, 0, 0))
-        self.assertEqual(dst_surface.get_at((0,63)), (0, 0, 0))
-        self.assertEqual(dst_surface.get_at((63,63)), (0, 0, 0))
-        self.assertEqual(dst_surface.get_at((1,1)), (255, 255, 255)) #Blitted Area
-        self.assertEqual(dst_surface.get_at((2,2)), (255, 255, 255))
-        self.assertEqual(dst_surface.get_at((3,3)), (0, 0, 0)) #Should stop short of filling in (3,3)
-        reset_dest(dst_surface)
+        self.assertEqual(self.dst_surface.get_at((0, 0)), (0, 0, 0)) #Corners
+        self.assertEqual(self.dst_surface.get_at((63, 0)), (0, 0, 0))
+        self.assertEqual(self.dst_surface.get_at((0, 63)), (0, 0, 0))
+        self.assertEqual(self.dst_surface.get_at((63, 63)), (0, 0, 0))
+        self.assertEqual(self.dst_surface.get_at((1, 1)), (255, 255, 255)) #Blitted Area
+        self.assertEqual(self.dst_surface.get_at((2, 2)), (255, 255, 255))
+        self.assertEqual(self.dst_surface.get_at((3, 3)), (0, 0, 0))
+        #Should stop short of filling in (3,3)
 
-        #Testing zero-overlap condition
-        result = dst_surface.blit(src_surface, dest=pygame.Rect((-256,-256,1,1)), area=pygame.Rect((2,2,256,256)))
+    def test_blit_zero_overlap(self):
+        """Testing zero-overlap condition."""
+        result = self.dst_surface.blit(self.src_surface,\
+            dest=pygame.Rect((-256, -256, 1, 1)), area=pygame.Rect((2, 2, 256, 256)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (0, 0)) #No blitting expected
         for k in [(x, x) for x in range(64)]:
-            self.assertEqual(dst_surface.get_at(k), (0, 0, 0)) #Diagonal
-        self.assertEqual(dst_surface.get_at((63,0)), (0, 0, 0)) #Remaining corners
-        self.assertEqual(dst_surface.get_at((0,63)), (0, 0, 0))
-        reset_dest(dst_surface)
+            self.assertEqual(self.dst_surface.get_at(k), (0, 0, 0)) #Diagonal
+        self.assertEqual(self.dst_surface.get_at((63, 0)), (0, 0, 0)) #Remaining corners
+        self.assertEqual(self.dst_surface.get_at((0, 63)), (0, 0, 0))
 
     def test_blit__SRCALPHA_opaque_source(self):
         src = pygame.Surface((256, 256), SRCALPHA, 32)
@@ -815,7 +816,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(dst.get_at(pt)[1], src.get_at(pt)[1])
 
     def test_blit__blit_to_self(self):
-        """Test that blit operation works on self, alpha value is correct, and that no RGB distortion occurs."""
+        """Test that blit operation works on self, alpha value is
+        correct, and that no RGB distortion occurs."""
         test_surface = pygame.Surface((128, 128), SRCALPHA, 32)
         area = test_surface.get_rect()
 
@@ -878,7 +880,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             expected_color = (high_alpha_color) + Color(tuple(((x*(255-high_alpha_color.a))//255) for x in low_alpha_color))
             self.assertTrue(check_color_diff(low_alpha_surface.get_at((0, 0)), expected_color))
         
-        for low_a in range(0,128):
+        for low_a in range(0, 128):
             for high_a in range(128, 256):
                 high_a_onto_low(high_a, low_a)
                 low_a_onto_high(high_a, low_a)
@@ -892,7 +894,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         source = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         source.set_at((0, 0), test_color)
         target.blit(source, (0, 0))
-
+class GeneralSurfaceTests(unittest.TestCase):
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") == "dummy",
         'requires a non-"dummy" SDL_VIDEODRIVER',
