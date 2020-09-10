@@ -98,7 +98,7 @@ def initsysfonts_win32():
 
         # try to handle windows unicode strings for file names with
         # international characters
-        if PY_MAJOR_VERSION < 3:
+        if PY_MAJOR_VERSION < 3: # Python 3
             # here are two documents with some information about it:
             # http://www.python.org/peps/pep-0277.html
             # https://www.microsoft.com/technet/archive/interopmigration/linux/mvc/lintowin.mspx#ECAA

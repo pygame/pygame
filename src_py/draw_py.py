@@ -8,7 +8,7 @@ from __future__ import absolute_import, division
 from collections import namedtuple
 import sys
 
-if sys.version_info >= (3, 0, 0):
+if sys.version_info >= (3, 0, 0): # Python 3
     from math import floor, ceil
 else:
     # Python2.7
@@ -78,6 +78,7 @@ def draw_pixel(surf, pos, color, bright, blend=True):
 
 
 def _drawhorzline(surf, color, x_from, in_y, x_to):
+    # This function will draw a horizontal line
     if x_from == x_to:
         surf.set_at((x_from, in_y), color)
         return
@@ -88,6 +89,7 @@ def _drawhorzline(surf, color, x_from, in_y, x_to):
 
 
 def _drawvertline(surf, color, in_x, y_from, y_to):
+    # This fucntion will draw a vertical line
     if y_from == y_to:
         surf.set_at((in_x, y_from), color)
         return

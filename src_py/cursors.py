@@ -48,7 +48,7 @@ arrow = (
         0x4F, 0x00, 0x07, 0x80, 0x07, 0x80, 0x03, 0x00,
     ),
 )
-
+# Set the diamond arrow
 diamond = (
     (16, 16),
     (7, 7),
@@ -65,7 +65,7 @@ diamond = (
         7, 192, 3, 128, 1, 0, 0, 0,
     ),
 )
-
+# Set the ball arrow
 ball = (
     (16, 16),
     (7, 7),
@@ -82,7 +82,7 @@ ball = (
         63, 252, 31, 248, 15, 240, 3, 192,
     ),
 )
-
+# Set the broken_x arrow
 broken_x = (
     (16, 16),
     (7, 7),
@@ -99,7 +99,7 @@ broken_x = (
         124, 62, 248, 31, 240, 15, 224, 7,
     ),
 )
-
+# Set the tri_left arrow
 tri_left = (
     (16, 16),
     (1, 1),
@@ -116,7 +116,7 @@ tri_left = (
         7, 192, 3, 192, 3, 192, 1, 128,
     ),
 )
-
+# Set the tri_right arrow
 tri_right = (
     (16, 16),
     (14, 1),
