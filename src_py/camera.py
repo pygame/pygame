@@ -70,7 +70,7 @@ def quit():
 
 
 def _check_init():
-    # This function will check wether you have initialized the camera
+    # This function will check whether you have initialized the camera
     global _is_init
     if not _is_init:
         raise ValueError("Need to call camera.init() before using.")
