@@ -1,7 +1,4 @@
-
 _is_init = 0
-
-
 
 def init():
     global list_cameras, Camera, colorspace, _is_init
@@ -12,21 +9,22 @@ def init():
     use_vidcapture = False
     use__camera = True
 
-    if sys.platform == 'win32':
+    # Check the operating system
+    if sys.platform == 'win32':  # If windows 32bit
         use_vidcapture = True
         use__camera = False
-    elif "linux" in sys.platform:
+    elif "linux" in sys.platform: # If linux
         use__camera = True
-    elif "darwin" in sys.platform:
+    elif "darwin" in sys.platform: # If darwin
         use__camera = True
-    else:
+    else: # If any other operating system
         use_opencv = True
 
     # see if we have any user specified defaults in environments.
     camera_env = os.environ.get("PYGAME_CAMERA", "")
-    if camera_env == "opencv":
+    if camera_env == "opencv": # If the pygame camera is set to use opencv
         use_opencv = True
-    if camera_env == "vidcapture":
+    if camera_env == "vidcapture": # If the pygame camera is set to use vidcapture
         use_vidcapture = True
 
     # select the camera module to import here.
@@ -40,10 +38,10 @@ def init():
         list_cameras = _camera.list_cameras
         Camera = _camera.Camera
 
-    if use_opencv:
+    if use_opencv: # If using Opencv for pygame camera
         try:
             from pygame import _camera_opencv_highgui
-        except ImportError:
+        except ImportError: # If cant import pygame camera
             _camera_opencv_highgui = None
 
         if _camera_opencv_highgui:
@@ -52,10 +50,10 @@ def init():
             list_cameras = _camera_opencv_highgui.list_cameras
             Camera = _camera_opencv_highgui.Camera
 
-    if use_vidcapture:
+    if use_vidcapture: # If using VidCapture for pygame camera
         try:
             from pygame import _camera_vidcapture
-        except ImportError:
+        except ImportError: # If cant import pygame camera
             _camera_vidcapture = None
 
         if _camera_vidcapture:
@@ -72,6 +70,7 @@ def quit():
 
 
 def _check_init():
+    # This function will check wether you have initialized the camera
     global _is_init
     if not _is_init:
         raise ValueError("Need to call camera.init() before using.")
@@ -85,7 +84,7 @@ def list_cameras():
 
 
 class Camera:
-
+    # This will store all the infomation about the camera
     def __init__(self, device=0, size=(320, 200), mode="RGB"):
         """
         """
