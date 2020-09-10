@@ -84,6 +84,7 @@ _pg_repeat_callback(Uint32 interval, void *param)
     return pg_key_repeat_interval;
 }
 
+#endif /* IS_SLDv2 */
 /* _custom_event stores the next custom user event type that will be returned
  * by pygame.event.custom_type(). It was supposed to start at PGE_USEREVENT
  * but because of a clash with libraries that just use pygame.USEREVENT
@@ -91,15 +92,18 @@ _pg_repeat_callback(Uint32 interval, void *param)
  * start at one higher.*/
 #define _PGE_CUSTOM_EVENT_INIT PGE_USEREVENT + 1
 static int _custom_event = _PGE_CUSTOM_EVENT_INIT;
+
 static int _pg_event_is_init = 0;
 
 static void
 _pg_event_cleanup(void)
 {
+#if IS_SDLv2
     if (_pg_repeat_timer) {
         SDL_RemoveTimer(_pg_repeat_timer);
         _pg_repeat_timer = 0;
     }
+#endif /* IS_SLDv2 */
     /* The main reason for _custom_event to be reset here is so we can have a
      * unit test that checks if pygame.event.custom_type() stops returning new
      * types when they are finished, without that test preventing further
@@ -112,8 +116,10 @@ static PyObject *
 pgEvent_AutoInit(PyObject *self, PyObject *args)
 {
     if (!_pg_event_is_init) {
+#if IS_SDLv2
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
+#endif /* IS_SLDv2 */
         pg_RegisterQuit(_pg_event_cleanup);
         _pg_event_is_init = 1;
     }
@@ -121,6 +127,7 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
     return PyInt_FromLong(_pg_event_is_init);
 }
 
+#if IS_SDLv2
 static char _pg_last_unicode_char[32] = { 0 };
 static SDL_Event *_pg_last_keydown_event = NULL;
 
@@ -2007,9 +2014,9 @@ pg_event_custom_type(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef _event_methods[] = {
-#if IS_SDLv2
     {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
+#if IS_SDLv2
     {"_set_gen_videoresize", pg_event_set_gen_videoresize, METH_VARARGS, "enable or disable legacy VIDEORESIZE events"},
 #endif /* IS_SDLv2 */
 
