@@ -22,12 +22,12 @@ def quit():
 
 
 class Camera:
-
+    # This object will store all the infomation and functions about a certain camera
     def __init__(self, device=0, size=(640, 480), mode="RGB"):
         """
         """
         self.camera = highgui.cvCreateCameraCapture(device)
-        if not self.camera:
+        if not self.camera: # If no camera
             raise ValueError("Could not open camera.  Sorry.")
 
     def set_controls(self, **kwargs):
@@ -59,8 +59,10 @@ class Camera:
         return self.get_surface(dest_surf)
 
     def get_surface(self, dest_surf=None):
+        # Returns the current frame of the camera
         camera = self.camera
 
+        # Gets the current frame from the camera
         im = highgui.cvQueryFrame(camera)
         #convert Ipl image to PIL image
         #print type(im)
