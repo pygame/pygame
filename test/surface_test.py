@@ -894,7 +894,7 @@ class TestSurfaceBlit(unittest.TestCase):
         source = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         source.set_at((0, 0), test_color)
         target.blit(source, (0, 0))
-class GeneralSurfaceTests(unittest.TestCase):
+class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") == "dummy",
         'requires a non-"dummy" SDL_VIDEODRIVER',
