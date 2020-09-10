@@ -31,6 +31,7 @@ import os
 if os.name == 'nt':
     #pypy does not find the dlls, so we add package folder to PATH.
     pygame_dir = os.path.split(__file__)[0]
+    # Adds pygame to the enviroment variables
     os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
 
 # when running under X11, always set the SDL window WM_CLASS to make the
@@ -48,7 +49,9 @@ class MissingModule:
         self.info = str(exc_msg)
         self.reason = "%s: %s" % (exc_type.__name__, self.info)
         self.urgent = urgent
+        # If urgent is above 0
         if urgent:
+            # Warn the user of the missing module
             self.warn()
 
     def __getattr__(self, var):
@@ -62,11 +65,14 @@ class MissingModule:
         return 0
 
     def warn(self):
+        # If there is a missing module this function is called
         msg_type = 'import' if self.urgent else 'use'
+        # This defines the message that will be shown to the user
         message = '%s %s: %s\n(%s)' % (msg_type, self.name, self.info, self.reason)
         try:
             import warnings
             level = 4 if self.urgent else 3
+            # This warns the user of the missing module
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
             print(message)
@@ -100,61 +106,97 @@ if get_sdl_version() < (2, 0, 0):
     try:
         import pygame.cdrom
     except (ImportError, IOError):
+        # This creates a missing module object
+        # With the name of cdrom
+        # And the urgency level 1
         cdrom = MissingModule("cdrom", urgent=1)
 
 try:
     import pygame.cursors
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of cursors
+    # And the urgency level 1
     cursors = MissingModule("cursors", urgent=1)
 
 try:
     import pygame.display
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of display
+    # And the urgency level 1
     display = MissingModule("display", urgent=1)
 
 try:
     import pygame.draw
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of draw
+    # And the urgency level 1
     draw = MissingModule("draw", urgent=1)
 
 try:
     import pygame.event
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of event
+    # And the urgency level 1
     event = MissingModule("event", urgent=1)
 
 try:
     import pygame.image
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of image
+    # And the urgency level 1
     image = MissingModule("image", urgent=1)
 
 try:
     import pygame.joystick
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of joystick
+    # And the urgency level 1
     joystick = MissingModule("joystick", urgent=1)
 
 try:
     import pygame.key
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of key
+    # And the urgency level 1
     key = MissingModule("key", urgent=1)
 
 try:
     import pygame.mouse
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of mouse
+    # And the urgency level 1
     mouse = MissingModule("mouse", urgent=1)
 
 try:
     import pygame.sprite
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of sprite
+    # And the urgency level 1
     sprite = MissingModule("sprite", urgent=1)
 
 try:
     import pygame.threads
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of threads
+    # And the urgency level 1
     threads = MissingModule("threads", urgent=1)
 
 try:
     import pygame.pixelcopy
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of pixelcopy
+    # And the urgency level 1
     pixelcopy = MissingModule("pixelcopy", urgent=1)
 
 
@@ -184,6 +226,7 @@ def warn_unwanted_files():
 
     files = py_files + extension_files
 
+    # Creates a list of unwanted files
     unwanted_files = []
     for f in files:
         unwanted_files.append(os.path.join(install_path, f))
@@ -194,6 +237,7 @@ def warn_unwanted_files():
             ask_remove.append(f)
 
     if ask_remove:
+        # Setting a message if there are old files
         message = "Detected old file(s).  Please remove the old files:\n"
 
         for f in ask_remove:
@@ -203,6 +247,7 @@ def warn_unwanted_files():
         try:
             import warnings
             level = 4
+            # Warn the user of the old files
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
             print(message)
@@ -237,17 +282,24 @@ except (ImportError, IOError):
 try:
     import pygame.time
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of time
+    # And the urgency level 1
     time = MissingModule("time", urgent=1)
 
 try:
     import pygame.transform
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of transform
+    # And the urgency level 1
     transform = MissingModule("transform", urgent=1)
 
 # lastly, the "optional" pygame modules
 if 'PYGAME_FREETYPE' in os.environ:
     try:
         import pygame.ftfont as font
+        # Map the pygame.font module to font
         sys.modules['pygame.font'] = font
     except (ImportError, IOError):
         pass
@@ -258,6 +310,9 @@ try:
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of font
+    # And the urgency level 0
     font = MissingModule("font", urgent=0)
 
 # try and load pygame.mixer_music before mixer, for py2app...
@@ -271,11 +326,17 @@ except (ImportError, IOError):
 try:
     import pygame.mixer
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of mixer
+    # And the urgency level 0
     mixer = MissingModule("mixer", urgent=0)
 
 try:
     import pygame.movie
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of movie
+    # And the urgency level 0
     movie = MissingModule("movie", urgent=0)
 
 # try:
@@ -286,21 +347,33 @@ except (ImportError, IOError):
 try:
     import pygame.scrap
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of scrap
+    # And the urgency level 0
     scrap = MissingModule("scrap", urgent=0)
 
 try:
     import pygame.surfarray
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of surfarray
+    # And the urgency level 0
     surfarray = MissingModule("surfarray", urgent=0)
 
 try:
     import pygame.sndarray
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of sndarray
+    # And the urgency level 0
     sndarray = MissingModule("sndarray", urgent=0)
 
 try:
     import pygame.fastevent
 except (ImportError, IOError):
+    # This creates a missing module object
+    # With the name of fastevent
+    # And the urgency level 0
     fastevent = MissingModule("fastevent", urgent=0)
 
 # there's also a couple "internal" modules not needed
@@ -324,13 +397,14 @@ def packager_imports():
     import pygame._view
 
 # make Rects pickleable
-if PY_MAJOR_VERSION >= 3:
+if PY_MAJOR_VERSION >= 3: # If python version is above or equal to 3
     import copyreg as copy_reg
 else:
     import copy_reg
 
 
 def __rect_constructor(x, y, w, h):
+    # Returns a rect object with the coordinates and sizes passed in
     return Rect(x, y, w, h)
 
 
@@ -342,6 +416,7 @@ copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 # make Colors pickleable
 def __color_constructor(r, g, b, a):
+    # Returns a color object with the colors passed in
     return Color(r, g, b, a)
 
 
