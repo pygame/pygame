@@ -7,14 +7,14 @@ __all__ = ['geterror', 'long_', 'xrange_', 'ord_', 'unichr_',
            'unicode_', 'raw_input_', 'as_bytes', 'as_unicode',
            'bytes_', 'imap_', 'PY_MAJOR_VERSION']
 
+# Get the python version
 PY_MAJOR_VERSION = sys.version_info[0]
 
 
 def geterror():
     return sys.exc_info()[1]
 
-# Python 3
-if PY_MAJOR_VERSION >= 3:
+if PY_MAJOR_VERSION >= 3: # Python 3
     long_ = int
     xrange_ = range
     from io import StringIO
@@ -42,8 +42,8 @@ if PY_MAJOR_VERSION >= 3:
         return rstring.encode('ascii', 'strict').decode('unicode_escape',
                                                         'strict')
 
-# Python 2
-else:
+
+else: # Python 2
     long_ = long
     xrange_ = xrange
     from cStringIO import StringIO
@@ -85,9 +85,9 @@ def ord_(o):
     except TypeError:
         return o
 
-if sys.platform == 'win32':
+if sys.platform == 'win32': # If sysytem os is Windows 32bit
     filesystem_errors = "replace"
-elif PY_MAJOR_VERSION >= 3:
+elif PY_MAJOR_VERSION >= 3: # Python 3
     filesystem_errors = "surrogateescape"
 else:
     filesystem_errors = "strict"

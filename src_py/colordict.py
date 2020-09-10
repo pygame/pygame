@@ -22,6 +22,7 @@
 
 from pygame.compat import unicode_
 
+# This dictionary will store all the color codes for comon colors
 THECOLORS = {
     'aliceblue': (240, 248, 255, 255),
     'antiquewhite': (250, 235, 215, 255),
