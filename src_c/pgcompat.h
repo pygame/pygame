@@ -189,11 +189,6 @@
                          start, stop, step, slicelength)
 #endif
 
-
-#if defined(PYPY_VERSION)
-#error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a supported Python version.
-#endif
-
 #if defined(SDL_VERSION_ATLEAST)
 #if (SDL_VERSION_ATLEAST(2, 0, 0)) && !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.

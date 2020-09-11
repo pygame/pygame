@@ -341,23 +341,6 @@ if enable_arm_neon:
     for e in extensions:
         e.define_macros.append(('PG_ENABLE_ARM_NEON', '1'))
 
-# decide whether or not to enable new buffer protocol support (PEP 3118)
-# old CPython versions without newbuf are no longer supported!
-# new PYPY also supports PEP 3118
-enable_newbuf = True
-
-# TODO: remove all PG_ENABLE_NEWBUF conditionals from C code
-# and just fail when PEP 3118 (Py_TPFLAGS_HAVE_NEWBUFFER) is not present
-# # then remove this logic
-
-# for e in extensions:
-#     e.define_macros.append(('ENABLE_NEWBUF', '1'))
-
-# if not Py_TPFLAGS_HAVE_NEWBUFFER:
-#     print ("""Please use a supported version of Python.""")
-#     compilation_help()
-#     raise EnvironmentError
-
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
 if os.path.exists(alternate_font):

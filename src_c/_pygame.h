@@ -137,6 +137,13 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 #else /* ~SDL_VERSION_ATLEAST(2, 0, 0) */
+
+
+/* New buffer protocol (PEP 3118) implemented on all supported Py versions.*/
+#if !defined(Py_TPFLAGS_HAVE_NEWBUFFER)
+#error No support for PEP 3118/Py_TPFLAGS_HAVE_NEWBUFFER. Please use a supported Python version.
+#endif
+
 /* To maintain SDL 1.2 build support. */
 #define PGE_USEREVENT SDL_USEREVENT
 #define PG_NUMEVENTS SDL_NUMEVENTS
