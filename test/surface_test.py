@@ -711,6 +711,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(background.get_at((99, 99)), background_color)
         self.assertEqual(background.get_at((450, 450)), background_color)
 
+
 class TestSurfaceBlit(unittest.TestCase):
     """Tests basic blitting functionality and options."""
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.blit:
@@ -766,7 +767,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_nonorigin(self):
-        """# Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)"""
+        """Test Rectange Dest, with overflow but with starting rect with top-left at (1,1)"""
         result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (63, 63))
@@ -778,28 +779,28 @@ class TestSurfaceBlit(unittest.TestCase):
 
     def test_blit_area_contraint(self):
         """Testing area constraint"""
-        result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)),\
-            area=pygame.Rect((2, 2, 2, 2)))
+        result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((1, 1, 1, 1)),
+                                       area=pygame.Rect((2, 2, 2, 2)))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (2, 2))
-        self.assertEqual(self.dst_surface.get_at((0, 0)), (0, 0, 0)) #Corners
+        self.assertEqual(self.dst_surface.get_at((0, 0)), (0, 0, 0))  # Corners
         self.assertEqual(self.dst_surface.get_at((63, 0)), (0, 0, 0))
         self.assertEqual(self.dst_surface.get_at((0, 63)), (0, 0, 0))
         self.assertEqual(self.dst_surface.get_at((63, 63)), (0, 0, 0))
-        self.assertEqual(self.dst_surface.get_at((1, 1)), (255, 255, 255)) #Blitted Area
+        self.assertEqual(self.dst_surface.get_at((1, 1)), (255, 255, 255))  # Blitted Area
         self.assertEqual(self.dst_surface.get_at((2, 2)), (255, 255, 255))
         self.assertEqual(self.dst_surface.get_at((3, 3)), (0, 0, 0))
-        #Should stop short of filling in (3,3)
+        # Should stop short of filling in (3,3)
 
     def test_blit_zero_overlap(self):
         """Testing zero-overlap condition."""
-        result = self.dst_surface.blit(self.src_surface,\
-            dest=pygame.Rect((-256, -256, 1, 1)), area=pygame.Rect((2, 2, 256, 256)))
+        result = self.dst_surface.blit(self.src_surface, dest=pygame.Rect((-256, -256, 1, 1)),
+                                       area=pygame.Rect((2, 2, 256, 256)))
         self.assertIsInstance(result, pygame.Rect)
-        self.assertEqual(result.size, (0, 0)) #No blitting expected
+        self.assertEqual(result.size, (0, 0))  # No blitting expected
         for k in [(x, x) for x in range(64)]:
-            self.assertEqual(self.dst_surface.get_at(k), (0, 0, 0)) #Diagonal
-        self.assertEqual(self.dst_surface.get_at((63, 0)), (0, 0, 0)) #Remaining corners
+            self.assertEqual(self.dst_surface.get_at(k), (0, 0, 0))  # Diagonal
+        self.assertEqual(self.dst_surface.get_at((63, 0)), (0, 0, 0))  # Remaining corners
         self.assertEqual(self.dst_surface.get_at((0, 63)), (0, 0, 0))
 
     def test_blit__SRCALPHA_opaque_source(self):
@@ -836,7 +837,6 @@ class TestSurfaceBlit(unittest.TestCase):
 
         self.assertEqual(reference_surface.get_rect(), test_surface.get_rect())
 
-
     def test_blit__SRCALPHA_to_SRCALPHA_non_zero(self):
         """Tests blitting a nonzero alpha surface to another nonzero alpha surface
          both straight alpha compositing method. Test is fuzzy (+/- 1/256) to account for
@@ -847,7 +847,7 @@ class TestSurfaceBlit(unittest.TestCase):
 
         def check_color_diff(color1, color2):
             """Returns True if two colors are within (1, 1, 1, 1) of each other."""
-            for val in (color1 - color2):
+            for val in color1 - color2:
                 if abs(val) > 1:
                     return False
             return True
@@ -856,35 +856,34 @@ class TestSurfaceBlit(unittest.TestCase):
             """Tests straight alpha case. Source is low alpha, destination is high alpha"""
             high_alpha_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
             low_alpha_surface = high_alpha_surface.copy()
-            high_alpha_color = Color((high, high, low, high)) # Injecting some RGB variance. Any numbers can be chosen.
+            high_alpha_color = Color((high, high, low, high))  # Injecting some RGB variance.
             low_alpha_color = Color((high, low, low, low))
             high_alpha_surface.fill(high_alpha_color)
             low_alpha_surface.fill(low_alpha_color)
-            
+
             high_alpha_surface.blit(low_alpha_surface, (0, 0))
-            
-            expected_color = (low_alpha_color) + Color(tuple(((x*(255-low_alpha_color.a))//255) for x in high_alpha_color))
+
+            expected_color = low_alpha_color + Color(tuple(((x*(255-low_alpha_color.a))//255) for x in high_alpha_color))
             self.assertTrue(check_color_diff(high_alpha_surface.get_at((0, 0)), expected_color))
-        
+
         def low_a_onto_high(high, low):
             """Tests straight alpha case. Source is high alpha, destination is low alpha"""
             high_alpha_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
             low_alpha_surface = high_alpha_surface.copy()
-            high_alpha_color = Color((high, high, low, high)) # Injecting some RGB variance. Any numbers can be chosen.
+            high_alpha_color = Color((high, high, low, high)) # Injecting some RGB variance.
             low_alpha_color = Color((high, low, low, low))
             high_alpha_surface.fill(high_alpha_color)
             low_alpha_surface.fill(low_alpha_color)
-    
+
             low_alpha_surface.blit(high_alpha_surface, (0, 0))
-            
-            expected_color = (high_alpha_color) + Color(tuple(((x*(255-high_alpha_color.a))//255) for x in low_alpha_color))
+
+            expected_color = high_alpha_color + Color(tuple(((x*(255-high_alpha_color.a))//255) for x in low_alpha_color))
             self.assertTrue(check_color_diff(low_alpha_surface.get_at((0, 0)), expected_color))
-        
+
         for low_a in range(0, 128):
             for high_a in range(128, 256):
                 high_a_onto_low(high_a, low_a)
                 low_a_onto_high(high_a, low_a)
-                
 
     def test_blit__SRCALPHA32_to_8(self):
         # Bug: fatal
@@ -894,6 +893,8 @@ class TestSurfaceBlit(unittest.TestCase):
         source = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         source.set_at((0, 0), test_color)
         target.blit(source, (0, 0))
+
+
 class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") == "dummy",
