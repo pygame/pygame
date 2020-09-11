@@ -1122,7 +1122,9 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
             return -1;
         }
         success = 1;
-    }    if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
+    }    
+    
+    if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
         if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
             Py_DECREF(cobj);
             return -1;
