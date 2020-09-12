@@ -638,7 +638,7 @@ MODINIT_DEFINE(joystick)
     /* Grab the instance -> device id mapping */
     module = PyImport_ImportModule("pygame.event");
     if (!module) {
-        return NULL;
+        MODINIT_ERROR;
     }
     joy_instance_map = PyObject_GetAttrString(module, "_joy_instance_map");
     Py_DECREF(module);
