@@ -18,6 +18,7 @@ except NameError:
 
 
 if sys.version_info[0] == 3:
+
     def tostring(row):
         """Convert row of bytes to string.  Expects `row` to be an
         ``array``.
@@ -25,11 +26,24 @@ if sys.version_info[0] == 3:
         return row.tobytes()
 
 else:
+
     def tostring(row):
         """Convert row of bytes to string.  Expects `row` to be an
         ``array``.
         """
         return row.tostring()
+
+    import unittest
+
+    if not hasattr(unittest.TestCase, "subTest"):
+        import contextlib
+
+        @contextlib.contextmanager
+        def subTest(self, msg=None, **params):
+            yield
+            return
+
+        unittest.TestCase.subTest = subTest
 
 
 def geterror():
@@ -118,12 +132,12 @@ def rgba_between(value, minimum=0, maximum=255):
 
 def combinations(seqs):
     """
-    
+
     Recipe 496807 from ActiveState Python CookBook
-    
-    Non recursive technique for getting all possible combinations of a sequence 
+
+    Non recursive technique for getting all possible combinations of a sequence
     of sequences.
-    
+
     """
 
     r = [[]]
@@ -137,9 +151,9 @@ def gradient(width, height):
 
     Yields a pt and corresponding RGBA tuple, for every (width, height) combo.
     Useful for generating gradients.
-    
+
     Actual gradient may be changed, no tests rely on specific values.
-    
+
     Used in transform.rotate lossless tests to generate a fixture.
 
     """
@@ -157,16 +171,16 @@ def rect_area_pts(rect):
 
 def rect_perimeter_pts(rect):
     """
-    
+
     Returns pts ((L, T) tuples) encompassing the perimeter of a rect.
-    
+
     The order is clockwise:
 
           topleft to topright
          topright to bottomright
       bottomright to bottomleft
        bottomleft to topleft
-    
+
     Duplicate pts are not returned
 
     """
@@ -185,13 +199,13 @@ def rect_perimeter_pts(rect):
 def rect_outer_bounds(rect):
     """
 
-    Returns topleft outerbound if possible and then the other pts, that are 
-    "exclusive" bounds of the rect
-        
-   ?------O     
-    |RECT|      ?|0)uterbound
-    |----|     
-   O      O
+     Returns topleft outerbound if possible and then the other pts, that are
+     "exclusive" bounds of the rect
+
+    ?------O
+     |RECT|      ?|0)uterbound
+     |----|
+    O      O
 
     """
     return ([(rect.left - 1, rect.top)] if rect.left else []) + [
@@ -218,9 +232,9 @@ class SurfaceSubclass(pygame.Surface):
 
 def test():
     """
-    
+
     Lightweight test for helpers
-    
+
     """
 
     r = pygame.Rect(0, 0, 10, 10)

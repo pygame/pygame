@@ -1801,18 +1801,19 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             w, h = surf.get_size()
             for x in range(w):
                 for y in range(h):
-                    self.assertEqual(
-                        surf.get_at((x, y)),
-                        comp.get_at((x, y)),
-                        "%s != %s, bpp:, %i, x: %i, y: %i"
-                        % (
+                    with self.subTest(x=x, y=y):
+                        self.assertEqual(
                             surf.get_at((x, y)),
                             comp.get_at((x, y)),
-                            bitsize,
-                            dx,
-                            dy,
-                        ),
-                    )
+                            "%s != %s, bpp:, %i, x: %i, y: %i"
+                            % (
+                                surf.get_at((x, y)),
+                                comp.get_at((x, y)),
+                                bitsize,
+                                dx,
+                                dy,
+                            ),
+                        )
         # Confirm clip rect containment
         surf = pygame.Surface((20, 13), 0, 32)
         surf.fill((255, 0, 0))
