@@ -472,7 +472,10 @@ required).
    True if successful.
 
    When the display is iconified ``pygame.display.get_active()`` will return
-   False. The event queue should receive a ``ACTIVEEVENT`` event when the
+   False. When using SDL 1 (usually in pygame versions less than 2.0.0) the
+   event queue should receive a ``ACTIVEEVENT`` event when the window has been
+   iconified. When using SDL 2 (usually in pygame versions greater than 2.0.0)
+   the event queue should receive a ``WINDOWEVENT_MINIMIZED`` event when the
    window has been iconified.
 
    .. ## pygame.display.iconify ##

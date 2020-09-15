@@ -259,7 +259,7 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
         self.fail()
-        
+
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
         'iconify is only supported on some video drivers/platforms'
@@ -279,7 +279,7 @@ class DisplayModuleTest(unittest.TestCase):
                 for event in pygame.event.get():
                     if SDL2:
                         if (event.type == pygame.WINDOWEVENT and
-                            event.event == 7):  # should be WINDOWEVENT_MINIMIZED
+                                event.event == pygame.WINDOWEVENT_MINIMIZED):
                             minimized_event = True
 
             if SDL2:
@@ -374,7 +374,7 @@ class DisplayModuleTest(unittest.TestCase):
         gammas = [(0.5,0.5,0.5),(1.0,1.0,1.0),(0.22,0.33,0.44),(0.0,0.0,0.0)]
         for gammaTuple in gammas:
             self.assertEqual(pygame.display.set_gamma(gammaTuple[0],gammaTuple[1],gammaTuple[2]),True)
-    
+
     @unittest.skipIf(
         not hasattr(pygame.display,"set_gamma_ramp"),
         "Not all systems and hardware support gamma ramps"
