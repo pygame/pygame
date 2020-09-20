@@ -6,10 +6,10 @@
 # To configure, compile, install, just run this script.
 #     python setup.py install
 
-DESCRIPTION = """Pygame is a Python wrapper module for the
-SDL multimedia library. It contains python functions and classes
-that will allow you to use SDL's support for playing cdroms,
-audio and video output, and keyboard, mouse and joystick input."""
+import io
+
+with io.open('README.rst', encoding='utf-8') as readme:
+    LONG_DESCRIPTION = readme.read()
 
 EXTRAS = {}
 
@@ -21,7 +21,7 @@ METADATA = {
     "author":           "A community project.",
     "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
-    "long_description": DESCRIPTION,
+    "long_description": LONG_DESCRIPTION,
 }
 
 import re
