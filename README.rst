@@ -1,23 +1,21 @@
-About pygame
-============
-
-Pygame: this library is cross-platform and designed to make it easy to
-write multimedia software, such as games, in Python.  Pygame
-requires the Python language and SDL multimedia library.  It can
-also make use of several other popular libraries.
-
-https://www.pygame.org
-
-We need your help to make pygame the best it can be!
-https://www.pygame.org/contribute.html
+pygame
+======
 
 |TravisBuild| |AppVeyorBuild| |LaunchpadBuild|
 |PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
 |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |Coverity|
 
+pygame_ is a Free and Open Source cross-platform library
+for the development of multimedia applications like video games on Python.
+It uses the `Simple DirectMedia Layer library`_ and several other
+popular libraries to abstract most common functions and makes writing
+these program a more intuitive task.
+
+`We need your help`_ to make pygame the best it can be!
+
 
 Installation
-============
+------------
 
 ::
 
@@ -27,7 +25,7 @@ You should definitely begin by installing a binary package for your
 system.  The binary packages usually come with or give the
 information needed for dependencies.  Choose an appropriate
 installer for your system and version of Python from the pygame
-downloads page.  https://www.pygame.org/download.shtml
+`downloads page`_.
 
 Installing from source is fairly automated.  The most work will
 involve compiling and installing all the pygame dependencies.  Once
@@ -35,11 +33,11 @@ that is done, run the ``setup.py`` script which will attempt to
 auto-configure, build, and install pygame.
 
 Much more information about installing and compiling is available
-in the install.html file and at https://www.pygame.org/wiki/Compilation
+on the `Getting Started wiki page`_.
 
 
 Help
-====
+----
 
 If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
@@ -57,7 +55,7 @@ which can get you started playing with the code right away.
 
 
 Credits
-=======
+-------
 
 Thanks to everyone who has helped contribute to this library.
 Special thanks are also in order.
@@ -112,7 +110,7 @@ Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
 excellent hosting.
 
 Dependencies
-============
+------------
 
 Pygame is obviously strongly dependent on SDL and Python.  It also
 links to and embeds several other smaller libraries.  The font
@@ -124,7 +122,7 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* Python >= 2.7 or PyPy >= 6.0.0 (and pypy3)
+* CPython >= 2.7 or PyPy >= 6.0.0 (and pypy3)
 * SDL >= 1.2.15
 * SDL_mixer >= 1.2.13
 * SDL_image >= 1.2.12
@@ -134,27 +132,24 @@ Dependency versions:
 
 
 Contribute
-==========
+----------
 
-https://www.pygame.org/contribute.html
+Please see https://www.pygame.org/contribute.html
 
 
 License
-=======
+-------
 
-This library is distributed under GNU LGPL version 2.1, which can
-be found in the file "doc/LGPL".  We reserve the right to place
+This library is distributed under `GNU LGPL version 2.1`_, which can
+be found in the file ``docs/LGPL.txt``.  We reserve the right to place
 future versions of this library under a different license.
-https://www.gnu.org/copyleft/lesser.html
 
 This basically means you can use pygame in any project you want,
 but if you make any changes or additions to pygame itself, those
 must be released with a compatible license (preferably submitted
-back to the pygame project).  Closed source and commercial games are
-fine.
+back to the pygame project).  Closed source and commercial games are fine.
 
-The programs in the "examples" subdirectory are in the public
-domain.
+The programs in the ``examples`` subdirectory are in the public domain.
 
 
 .. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
@@ -189,3 +184,10 @@ domain.
 
 .. |Coverity| image:: https://scan.coverity.com/projects/12288/badge.svg?v=2
    :target: https://scan.coverity.com/projects/pygame
+
+.. _pygame: https://www.pygame.org
+.. _Simple DirectMedia Layer library: https://www.libsdl.org
+.. _We need your help: https://www.pygame.org/contribute.html
+.. _downloads page: https://www.pygame.org/download.shtml
+.. _Getting Started wiki page: https://www.pygame.org/wiki/Compilation
+.. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html
