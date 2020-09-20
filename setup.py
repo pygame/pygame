@@ -380,6 +380,7 @@ data_files = [('pygame', pygame_data_files)]
 add_stubs = True
 # add *.pyi files into distribution directory
 if add_stubs:
+    pygame_data_files.append(os.path.join('buildconfig', 'pygame-stubs', 'py.typed'))
     type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
     for type_file in type_files:
         pygame_data_files.append(type_file)
