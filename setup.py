@@ -410,19 +410,7 @@ add_datafiles(data_files, 'pygame/tests',
 
 #examples
 add_datafiles(data_files, 'pygame/examples',
-              ['examples',
-                  ['readme.rst',
-                   ['data',
-                       ['*']],
-                   ['macosx',
-                       ['*.py',
-                        ['aliens_app_example',
-                            ['*.py',
-                             'README.txt',
-                             ['English.lproj',
-                                 ['aliens.icns',
-                                  ['MainMenu.nib',
-                                      ['*']]]]]]]]]])
+              ['examples', ['README.rst', ['data', ['*']]]])
 
 #docs
 add_datafiles(data_files, 'pygame/docs',
@@ -673,9 +661,10 @@ class smart_install_data(install_data):
 @add_command('sdist')
 class OurSdist(sdist):
     def initialize_options(self):
-        super(sdist, self).initialize_options()
+        super(OurSdist, self).initialize_options()
         # we do not want MANIFEST.in to appear in the root cluttering up things.
         self.template = os.path.join('buildconfig', 'MANIFEST.in')
+
 
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files
