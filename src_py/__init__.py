@@ -59,7 +59,9 @@ class MissingModule:
         raise NotImplementedError(missing_msg)
 
     def __nonzero__(self):
-        return 0
+        return False
+
+    __bool__ = __nonzero__
 
     def warn(self):
         msg_type = 'import' if self.urgent else 'use'

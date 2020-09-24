@@ -591,6 +591,8 @@ class AbstractGroup(object):
     def __nonzero__(self):
         return truth(self.sprites())
 
+    __bool__ = __nonzero__
+
     def __len__(self):
         """return number of sprites in group
 
@@ -1354,6 +1356,8 @@ class GroupSingle(AbstractGroup):
 
     def __nonzero__(self):
         return self.__sprite is not None
+
+    __bool__ = __nonzero__
 
     def _get_sprite(self):
         return self.__sprite
