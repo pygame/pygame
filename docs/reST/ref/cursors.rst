@@ -55,6 +55,8 @@ The following strings can be converted into cursor bitmaps with
    * ``pygame.cursors.sizer_y_strings``
 
    * ``pygame.cursors.sizer_xy_strings``
+   
+   * ``pygame.cursor.textmarker_strings``
 
 .. function:: compile
 
