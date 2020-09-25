@@ -748,7 +748,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_rect(self):
-        """Full coverage w/ overflow, specified with a Rect""" 
+        """Full coverage w/ overflow, specified with a Rect"""
         result = self.dst_surface.blit(self.src_surface, pygame.Rect(-1, -1, 300, 300))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))
@@ -976,7 +976,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    @unittest.skip("causes failures in other tests if run, so skip")
+    # @unittest.skip("causes failures in other tests if run, so skip")
     def test_src_alpha_issue_1289(self):
         """blit should be white."""
         surf1 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)

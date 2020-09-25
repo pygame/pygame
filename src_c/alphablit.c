@@ -92,6 +92,8 @@ static void blit_blend_premultiplied_mmx (SDL_BlitInfo * info);
 static void blit_blend_premultiplied_sse2 (SDL_BlitInfo * info);
 #endif /*defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)*/
 
+static void blit_blend_sdl1_alpha (SDL_BlitInfo * info);
+
 
 static int
 SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect,
@@ -276,6 +278,12 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 blit_blend_rgba_max (&info);
                 break;
             }
+            case PYGAME_BLEND_SDL1_ALPHA:
+            {
+                blit_blend_sdl1_alpha (&info);
+                break;
+            }
+
             case PYGAME_BLEND_PREMULTIPLIED:
             {
         #if IS_SDLv1
@@ -3114,6 +3122,268 @@ alphablit_solid (SDL_BlitInfo * info)
         }
     }
 }
+
+
+
+
+
+
+
+
+static void
+blit_blend_sdl1_alpha (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->width;
+    int             height = info->height;
+    Uint8          *src = info->s_pixels;
+    int             srcpxskip = info->s_pxskip;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstpxskip = info->d_pxskip;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+#if IS_SDLv1
+    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
+    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+#else /* IS_SDLv2 */
+    int             srcppa = info->src_blend != SDL_BLENDMODE_NONE && srcfmt->Amask;
+    int             dstppa = info->dst_blend != SDL_BLENDMODE_NONE && dstfmt->Amask;
+#endif /* IS_SDLv2 */
+
+#if IS_SDLv1
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+#else /* IS_SDLv2 */
+    if (srcbpp >= 3 && dstbpp >= 3 && info->src_blend == SDL_BLENDMODE_NONE)
+#endif /* IS_SDLv2 */
+    {
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                dst[dstoffsetR] = src[srcoffsetR];
+                dst[dstoffsetG] = src[srcoffsetG];
+                dst[dstoffsetB] = src[srcoffsetB];
+
+                src += srcpxskip;
+                dst += dstpxskip;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    if(sA == 0){
+                        dst[offsetR] = dR;
+                        dst[offsetG] = dG;
+                        dst[offsetB] = dB;
+                    }
+                    else if(sA == 255){
+                        dst[offsetR] = sR;
+                        dst[offsetG] = sG;
+                        dst[offsetB] = sB;
+                    }
+                    else{
+                        ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                        dst[offsetR] = dR;
+                        dst[offsetG] = dG;
+                        dst[offsetB] = dB;
+                    }
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    // We can save some blending time by just copying pixels
+                    // with  alphas of 255 or 0
+                    if(sA == 0){
+                        CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    }
+                    else if(sA == 255){
+                        CREATE_PIXEL(dst, sR, sG, sB, sA, dstbpp, dstfmt);
+                    }
+                    else{
+                        ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                        CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    }
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*we assume the "dst" has pixel alpha*/
 int

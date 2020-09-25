@@ -4151,6 +4151,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
          dst->pixels == src->pixels &&
          surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
+        printf("meow2\n");
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
@@ -4160,9 +4161,11 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
               ((SDL_GetSurfaceAlphaMod(src, &alpha) == 0 && alpha != 255)))) {
         /* Py_BEGIN_ALLOW_THREADS */
         if (src->format->BytesPerPixel == 1) {
+            printf("meow3\n");
             result = pygame_Blit(src, srcrect, dst, dstrect, 0);
         }
         else {
+            printf("meow4\n");
             SDL_PixelFormat *fmt = src->format;
             SDL_PixelFormat newfmt;
 
@@ -4195,7 +4198,32 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
 #endif /* IS_SDLv2 */
     else {
         /* Py_BEGIN_ALLOW_THREADS */
+
+
+
+#if IS_SDLv1
         result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+#else
+        printf("meow1\n");
+        printf("dst->format->BytesPerPixel:%i\n", dst->format->BytesPerPixel);
+        printf("SDL_ISPIXELFORMAT_ALPHA(dst->format->format):%i\n", SDL_ISPIXELFORMAT_ALPHA(dst->format->format));
+        printf("SDL_GetSurfaceAlphaMod(dst, &alpha) == 0:%i\n", SDL_GetSurfaceAlphaMod(dst, &alpha) == 0);
+
+        printf("src->format->BytesPerPixel:%i\n", src->format->BytesPerPixel);
+        printf("SDL_ISPIXELFORMAT_ALPHA(src->format->format):%i\n", SDL_ISPIXELFORMAT_ALPHA(src->format->format));
+        printf("SDL_GetSurfaceAlphaMod(src, &alpha) == 0:%i\n", SDL_GetSurfaceAlphaMod(src, &alpha) == 0);
+
+        if ((dst->format->BytesPerPixel == 4 && src->format->BytesPerPixel == 4) &&
+            (SDL_ISPIXELFORMAT_ALPHA(dst->format->format) || SDL_GetSurfaceAlphaMod(dst, &alpha) == 0) &&
+            (SDL_ISPIXELFORMAT_ALPHA(src->format->format) || SDL_GetSurfaceAlphaMod(src, &alpha) == 0)
+          ) {
+          printf("meow3 -> do special blit for SDL1 compat.");
+        }
+
+        result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+
+#endif /* IS_SDLv2 */
+
         /* Py_END_ALLOW_THREADS */
     }
 
