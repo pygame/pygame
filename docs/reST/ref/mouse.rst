@@ -185,9 +185,10 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    When the mouse cursor is visible, it will be displayed as a black and white
    bitmap using the given bitmask arrays. The ``size`` is a sequence containing 
    the cursor width and height. ``hotspot`` is a sequence containing the cursor 
-   hotspot
- position. A cursor has a width and height, but a mouse position is represented 
-   by a set of point coordinates. So the value passed into the cursor hotspot 
+   hotspot position. 
+   
+   A cursor has a width and height, but a mouse position is represented by a 
+   set of point coordinates. So the value passed into the cursor ``hotspot`` 
    variable helps pygame to actually determine at what exact point the cursor 
    is at.
    
@@ -201,7 +202,7 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    correct size for the given width and height. Otherwise an exception is raised.
 
    See the ``pygame.cursor`` module for help creating default and custom masks
-   for the mouse cursor.
+   for the mouse cursor and also for more examples related to cursors.
 
    .. ## pygame.mouse.set_cursor ##
 
