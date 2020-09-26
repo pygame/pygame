@@ -1054,6 +1054,64 @@ add_pixel_to_drawn_list(int x, int y, int *pts)
     }
 }
 
+static int
+clip_line(SDL_Surface *surf, int *x1, int *y1, int *x2, int *y2) {
+    int p1 = *x1 - *x2;
+    int p2 = -p1;
+    int p3 = *y1 - *y2;
+    int p4 = -p3;
+    int q1 = *x1 - surf->clip_rect.x;
+    int q2 = surf->clip_rect.w - *x1;
+    int q3 = *y1 - surf->clip_rect.y;
+    int q4 = surf->clip_rect.h - *y1;
+    int old_x1 = *x1;
+    int old_y1 = *y1;
+    double nmax = 0;
+    double pmin = 1;
+    double r1, r2;
+    if (p1 == 0 && q1 < 0 || p2 == 0 && q2 < 0 || p3 == 0 && q3 < 0 || p4 == 0 && q4 < 0)
+        return 0;
+    if (p1) {
+        r1 = (double) q1 / p1;
+        r2 = (double) q2 / p2;
+        if (p1 < 0) {
+            if (r1 > nmax)
+                nmax = r1;
+            if (r2 < pmin)
+                pmin = r2;
+        }
+        else {
+            if (r2 > nmax)
+                nmax = r2;
+            if (r2 < pmin)
+                pmin = r1;
+        }
+    }
+    if (p3) {
+        r1 = (double) q3 / p3;
+        r2 = (double) q4 / p4;
+        if (p3 < 0) {
+            if (r1 > nmax)
+                nmax = r1;
+            if (r2 < pmin)
+                pmin = r2;
+        }
+        else {
+            if (r2 > nmax)
+                nmax = r2;
+            if (r1 < pmin)
+                pmin = r1;
+        }
+    }
+    if (nmax > pmin)
+        return 0;
+    *x1 = old_x1 + (int) (p2 * nmax + 0.5);
+    *y1 = old_y1 + (int) (p4 * nmax + 0.5);
+    *x2 = old_x1 + (int) (p2 * pmin + 0.5);
+    *y2 = old_y1 + (int) (p4 * pmin + 0.5);
+    return 1;
+}
+
 /* This is an internal helper function.
  *
  * This function draws a line that is clipped by the given rect. To draw thick
@@ -1088,10 +1146,12 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int width, int *pts,
         xinc = 1;
     }
     /* Draw central line */
-    draw_line(surf, pts[0], pts[1], pts[2], pts[3], color, drawn_area);
+    if (clip_line(surf, &pts[0], &pts[1], &pts[2], &pts[3]))
+        draw_line(surf, pts[0], pts[1], pts[2], pts[3], color, drawn_area);
+
     /* If width is > 1 start drawing lines connected to the central line, first
      * try to draw to the right / down, and then to the left / right. */
-    if (width != 1) {
+    /*if (width != 1) {
         for (loop = 1; loop < width; loop += 2) {
             pts[0] = original_values[0] + xinc * (loop / 2 + 1);
             pts[1] = original_values[1] + yinc * (loop / 2 + 1);
@@ -1106,7 +1166,7 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int width, int *pts,
                 draw_line(surf, pts[0], pts[1], pts[2], pts[3], color, drawn_area);
             }
         }
-    }
+    }*/
 }
 
 static int
