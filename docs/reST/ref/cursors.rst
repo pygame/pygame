@@ -16,24 +16,15 @@ This cursors module contains functions for loading and decoding various
 cursor formats. These allow you to easily store your cursors in external files
 or directly as encoded python strings.
 
-The module includes several standard cursors. The ``pygame.mouse.set_cursor()``
+The module includes several standard cursors. The :func:`pygame.mouse.set_cursor()`
 function takes several arguments. All those arguments have been stored in a
 single tuple you can call like this:
 
 ::
 
    >>> pygame.mouse.set_cursor(*pygame.cursors.arrow)
-
-This module also contains a few cursors as formatted strings. You'll need to
-pass these to ``pygame.cursors.compile()`` function before you can use them.
-The example call would look like this:
-
-::
-
-   >>> cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
-   >>> pygame.mouse.set_cursor((8, 16), (0, 0), *cursor)
-
-The following variables are cursor bitmaps that can be used as cursor:
+   
+The following variables can be passed to ``pygame.mouse.set_cursor`` function:
 
    * ``pygame.cursors.arrow``
 
@@ -44,6 +35,15 @@ The following variables are cursor bitmaps that can be used as cursor:
    * ``pygame.cursors.tri_left``
 
    * ``pygame.cursors.tri_right``
+
+This module also contains a few cursors as formatted strings. You'll need to
+pass these to ``pygame.cursors.compile()`` function before you can use them.
+The example call would look like this:
+
+::
+
+   >>> cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
+   >>> pygame.mouse.set_cursor((8, 16), (0, 0), *cursor)
 
 The following strings can be converted into cursor bitmaps with
 ``pygame.cursors.compile()`` :
@@ -64,16 +64,19 @@ The following strings can be converted into cursor bitmaps with
    | :sg:`compile(strings, black='X', white='.', xor='o') -> data, mask`
 
    A sequence of strings can be used to create binary cursor data for the
-   system cursor. The return values are the same format needed by
-   ``pygame.mouse.set_cursor()``.
+   system cursor. This returns the binary data in the form of two tuples.
+   Those can be passed as the third and fourth arguments respectively of the 
+   :func:`pygame.mouse.set_cursor()` function.
 
    If you are creating your own cursor strings, you can use any value represent
    the black and white pixels. Some system allow you to set a special toggle
    color for the system color, this is also called the xor color. If the system
    does not support xor cursors, that color will simply be black.
-
-   The width of the strings must all be equal and be divisible by 8. An example
-   set of cursor strings looks like this
+   
+   The height must be divisible by 8. The width of the strings must all be equal 
+   and be divisible by 8. If these two conditions are not met, ``ValueError`` is
+   raised.
+   An example set of cursor strings looks like this
 
    ::
 
