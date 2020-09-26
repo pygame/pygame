@@ -285,7 +285,7 @@ loaded. This module must be imported explicitly to be used. ::
 
           (min_x, max_x, min_y, max_y, horizontal_advance_x, horizontal_advance_y)
 
-      The bounding box min_x, max_y, min_y, and max_y values are returned as
+      The bounding box min_x, max_x, min_y, and max_y values are returned as
       grid-fitted pixel coordinates of type int. The advance values are 
       float values.
 
