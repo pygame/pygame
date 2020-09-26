@@ -183,14 +183,22 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    | :sg:`set_cursor(size, hotspot, xormasks, andmasks) -> None`
 
    When the mouse cursor is visible, it will be displayed as a black and white
-   bitmap using the given bitmask arrays. The size is a sequence containing the
-   cursor width and height. Hotspot is a sequence containing the cursor hotspot
-   position. xormasks is a sequence of bytes containing the cursor xor data
+   bitmap using the given bitmask arrays. The ``size`` is a sequence containing 
+   the cursor width and height. ``hotspot`` is a sequence containing the cursor 
+   hotspot
+ position. A cursor has a width and height, but a mouse position is represented 
+   by a set of point coordinates. So the value passed into the cursor hotspot 
+   variable helps pygame to actually determine at what exact point the cursor 
+   is at.
+   
+   xormasks is a sequence of bytes containing the cursor xor data
    masks. Lastly is andmasks, a sequence of bytes containing the cursor
    bitmask data.
+   To create these variables, we can make use of the 
+   :func:`pygame.cursors.compile()` function.
 
-   Width must be a multiple of 8, and the mask arrays must be the correct size
-   for the given width and height. Otherwise an exception is raised.
+   Width and height must be a multiple of 8, and the mask arrays must be the 
+   correct size for the given width and height. Otherwise an exception is raised.
 
    See the ``pygame.cursor`` module for help creating default and custom masks
    for the mouse cursor.
