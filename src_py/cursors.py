@@ -1,22 +1,22 @@
-##    pygame - Python Game Library
-##    Copyright (C) 2000-2003  Pete Shinners
-##
-##    This library is free software; you can redistribute it and/or
-##    modify it under the terms of the GNU Library General Public
-##    License as published by the Free Software Foundation; either
-##    version 2 of the License, or (at your option) any later version.
-##
-##    This library is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-##    Library General Public License for more details.
-##
-##    You should have received a copy of the GNU Library General Public
-##    License along with this library; if not, write to the Free
-##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-##
-##    Pete Shinners
-##    pete@shinners.org
+#    pygame - Python Game Library
+#    Copyright (C) 2000-2003  Pete Shinners
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Library General Public
+#    License as published by the Free Software Foundation; either
+#    version 2 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Library General Public License for more details.
+#
+#    You should have received a copy of the GNU Library General Public
+#    License along with this library; if not, write to the Free
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#    Pete Shinners
+#    pete@shinners.org
 
 """Set of cursor resources available for use. These cursors come
 in a sequence of values that are needed as the arguments for
@@ -139,7 +139,8 @@ tri_right = (
 #    curs, mask = pygame.cursors.compile_cursor(pygame.cursors.thickarrow_strings, 'X', '.')
 #    pygame.mouse.set_cursor((24, 24), (0, 0), curs, mask)
 
-thickarrow_strings = (  # sized 24x24
+# sized 24x24
+thickarrow_strings = (
     "XX                      ",
     "XXX                     ",
     "XXXX                    ",
@@ -166,7 +167,8 @@ thickarrow_strings = (  # sized 24x24
     "                        ",
 )
 
-sizer_x_strings = (  # sized 24x16
+# sized 24x16
+sizer_x_strings = (
     "     X      X           ",
     "    XX      XX          ",
     "   X.X      X.X         ",
@@ -185,7 +187,8 @@ sizer_x_strings = (  # sized 24x16
     "                        ",
 )
 
-sizer_y_strings = (  # sized 16x24
+# sized 16x24
+sizer_y_strings = (
     "     X          ",
     "    X.X         ",
     "   X...X        ",
@@ -212,7 +215,8 @@ sizer_y_strings = (  # sized 16x24
     "                ",
 )
 
-sizer_xy_strings = (  # sized 24x16
+# sized 24x16
+sizer_xy_strings = (
     "XXXXXXXX                ",
     "X.....X                 ",
     "X....X                  ",
@@ -231,7 +235,8 @@ sizer_xy_strings = (  # sized 24x16
     "                        ",
 )
 
-textmarker_strings = (  # sized 8x16
+# sized 8x16
+textmarker_strings = (
     "ooo ooo ",
     "   o    ",
     "   o    ",
@@ -252,7 +257,7 @@ textmarker_strings = (  # sized 8x16
 
 
 def compile(strings, black='X', white='.', xor='o'):
-    """pygame.cursors.compile(strings, black, white,xor) -> data, mask
+    """pygame.cursors.compile(strings, black, white, xor) -> data, mask
     compile cursor strings into cursor data
 
     This takes a set of strings with equal length and computes
@@ -263,12 +268,16 @@ def compile(strings, black='X', white='.', xor='o'):
     tells which characters will represent black pixels, and which
     characters represent white pixels. All other characters are
     considered clear.
+    
+    Some systems allow you to set a special toggle color for the 
+    system color, this is also called the xor color. If the system
+    does not support xor cursors, that color will simply be black.
 
     This returns a tuple containing the cursor data and cursor mask
     data. Both these arguments are used when setting a cursor with
     pygame.mouse.set_cursor().
     """
-    #first check for consistent lengths
+    # first check for consistent lengths
     size = len(strings[0]), len(strings)
     if size[0] % 8 or size[1] % 8:
         raise ValueError("cursor string sizes must be divisible by 8 %s" %
@@ -278,8 +287,8 @@ def compile(strings, black='X', white='.', xor='o'):
         if len(s) != size[0]:
             raise ValueError("Cursor strings are inconsistent lengths")
 
-    #create the data arrays.
-    #this could stand a little optimizing
+    # create the data arrays.
+    # this could stand a little optimizing
     maskdata = []
     filldata = []
     maskitem = fillitem = 0
@@ -333,7 +342,7 @@ def load_xbm(curs, mask):
     else:
         mask = mask.readlines()
 
-    #avoid comments
+    # avoid comments
     for line in range(len(curs)):
         if curs[line].startswith("#define"):
             curs = curs[line:]
@@ -344,10 +353,10 @@ def load_xbm(curs, mask):
             mask = mask[line:]
             break
 
-    #load width,height
+    # load width,height
     width = int(curs[0].split()[-1])
     height = int(curs[1].split()[-1])
-    #load hotspot position
+    # load hotspot position
     if curs[2].startswith('#define'):
         hotx = int(curs[2].split()[-1])
         hoty = int(curs[3].split()[-1])
