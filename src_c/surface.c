@@ -1458,17 +1458,68 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     if (hascolor) {
         /* For an indexed surface, remove the previous colorkey first.
          */
-        result = SDL_SetColorKey(surf, SDL_FALSE, color);
+        // result = SDL_SetColorKey(surf, SDL_FALSE, color);
     }
     if (result == 0 && hascolor) {
-        result = SDL_SetSurfaceRLE(
-            surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
-    }
-    if (result == 0) {
+        printf("result == 0 && hascolor SDL_SetSurfaceRLE %i\n", flags & PGS_RLEACCEL);
+
+        // result = SDL_SetColorKey(surf, hascolor, color);
+        // SDL_UnlockSurface(surf);
+        // int newresult = SDL_SetSurfaceRLE(
+        //     surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+
+
+
+        // if (newresult == 0);
+        // {
+        //     printf("wwieuriwuerew, %i, %i\n", surf, newresult);
+        //     // return RAISE(pgExc_SDLError, SDL_GetError());
+        // }
+        // SDL_LockSurface(surf);
+        printf("--mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, surf->flags & PGS_RLEACCEL);
+
+        if (flags & PGS_RLEACCEL) {
+            result = SDL_SetColorKey(surf, hascolor | SDL_RLEACCEL, color);
+            // surf->flags |= SDL_RLEACCEL;
+        }
+        else {
+            result = SDL_SetColorKey(surf, hascolor, color);
+            // surf->flags &= ~SDL_RLEACCEL;
+        }
+
+        /*
+        Here we do something a bit hacky.
+         */
+        SDL_Rect sdlrect3;
+        sdlrect3.x = 0;
+        sdlrect3.y = 0;
+        sdlrect3.h = 0;
+        sdlrect3.w = 0;
+
+        // SDL_BlitSurface(surf, &sdlrect, surf, &sdlrect);
+        // SDL_LowerBlit(surf, &sdlrect3, surf, &sdlrect3);
+        // SDL_MapSurface(surf)
+
+        // SDL_UnlockSurface(surf);
+        printf("mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, surf->flags & PGS_RLEACCEL);
+
+        // SDL_RLESurface(surf);
+        // printf("new result? %i\n", surf->flags & SDL_RLEACCEL);
+        // printf("new result? %i, %i\n", result, surf->flags & SDL_RLEACCEL);
+        // result = SDL_SetColorKey(surf, hascolor, color);
+    } else {
         result = SDL_SetColorKey(surf, hascolor, color);
     }
+
+    // if (result == 0) {
+    //     printf("before SDL_SetColorKey %i\n", surf->flags & SDL_RLEACCEL);
+    //     result = SDL_SetColorKey(surf, hascolor, color);
+    // }
 #endif /* IS_SDLv2 */
+    printf("before end set_colorkey %i\n", surf->flags & SDL_RLEACCEL);
     pgSurface_Unprep(self);
+
+    printf("end set_colorkey %i\n", surf->flags & SDL_RLEACCEL);
 
     if (result == -1)
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2208,6 +2259,8 @@ surf_blit(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     src = pgSurface_AsSurface(srcobject);
     if (!dest || !src)
         return RAISE(pgExc_SDLError, "display Surface quit");
+
+    printf("ouchie1 %i, %i\n", src->flags & SDL_RLEACCEL, dest->flags & SDL_RLEACCEL);
 
 #if IS_SDLv1
     if (dest->flags & SDL_OPENGL &&
@@ -4041,6 +4094,9 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
     Uint32 key;
 #endif /* IS_SDLv2 */
 
+    printf("ouchie. %i, %i\n", src->flags & SDL_RLEACCEL, dst->flags & SDL_RLEACCEL);
+
+
     /* passthrough blits to the real surface */
     if (((pgSurfaceObject *)dstobj)->subsurface) {
         PyObject *owner;
@@ -4085,6 +4141,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         /* special case, SDL works */
         (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4)) {
         /* Py_BEGIN_ALLOW_THREADS */
+        printf("woof1\n");
         result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
@@ -4098,6 +4155,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
               dst->pixels == src->pixels &&
               surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
+        printf("woof2\n");
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
@@ -4141,7 +4199,32 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         /* Py_END_ALLOW_THREADS */
     }
 #else  /* IS_SDLv2 */
-    if (the_args != 0 ||
+
+    if ((dst->format->BytesPerPixel == 4 || dst->format->BytesPerPixel == 2) &&
+        // (!SDL_MUSTLOCK(src) && !SDL_MUSTLOCK(dst)) &&
+        (!(dst->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL)) &&
+        (SDL_ISPIXELFORMAT_ALPHA(dst->format->format) || SDL_GetSurfaceAlphaMod(dst, &alpha) == 0) &&
+        (SDL_ISPIXELFORMAT_ALPHA(src->format->format) || SDL_GetSurfaceAlphaMod(src, &alpha) == 0)
+      ) {
+        printf("meow3 -> do special blit for SDL1 compat. %i, %i\n", src->flags & SDL_RLEACCEL, dst->flags & SDL_RLEACCEL);
+
+        /*
+          We do a hacky blit with a zero size
+          with SDL_LowerBlit incase it is an RLE surface.
+        */
+        SDL_Rect sdlrect2;
+        sdlrect2.x = 0;
+        sdlrect2.y = 0;
+        sdlrect2.h = 0;
+        sdlrect2.w = 0;
+
+        SDL_LowerBlit(src, &sdlrect2, dst, &sdlrect2);
+        // result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+
+        result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args);
+    }
+    else
+      if (the_args != 0 ||
         ((SDL_GetColorKey(src, &key) == 0 || _PgSurface_SrcAlpha(src) == 1) &&
          /* This simplification is possible because a source subsurface
             is converted to its owner with a clip rect and a dst
@@ -4151,6 +4234,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
          dst->pixels == src->pixels &&
          surface_do_overlap(src, srcrect, dst, dstrect))) {
         /* Py_BEGIN_ALLOW_THREADS */
+        printf("meow2\n");
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
@@ -4160,9 +4244,11 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
               ((SDL_GetSurfaceAlphaMod(src, &alpha) == 0 && alpha != 255)))) {
         /* Py_BEGIN_ALLOW_THREADS */
         if (src->format->BytesPerPixel == 1) {
+            printf("meow3\n");
             result = pygame_Blit(src, srcrect, dst, dstrect, 0);
         }
         else {
+            printf("meow4\n");
             SDL_PixelFormat *fmt = src->format;
             SDL_PixelFormat newfmt;
 
