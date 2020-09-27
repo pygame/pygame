@@ -358,7 +358,8 @@ if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
     print('pygame {} (SDL {}.{}.{}, python {}.{}.{})'.format(
         ver, *get_sdl_version() + sys.version_info[0:3]
     ))
-    print('Hello from the pygame community. https://www.pygame.org/contribute.html')
+    print('Hello from the pygame community. https://www.pygame.org/contribute.html\n'
+          'To disable this prompt, make an environment varaible named PYGAME_HIDE_SUPPORT_PROMPT')
 
 
 # cleanup namespace
