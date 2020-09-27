@@ -287,7 +287,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(s1.get_flags() & pygame.RLEACCEL)
         self.assertTrue(not s2.get_flags() & pygame.RLEACCEL)
 
-    @unittest.expectedFailure
     def test_subsurface_rle2(self):
         color = (250, 25, 25, 255)
         color2 = (200, 200, 250, 255)
