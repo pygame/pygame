@@ -1517,7 +1517,8 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     }
     if (flags & PGS_RLEACCEL) {
       /* we try and get the SDL_RLEACCEL flag to be set.
-      There's an SDL2 bug, where it doesn't set this for some reason.
+      There's an SDL2 bug in SDL_SetSurfaceRLE, where it doesn't set this for some reason.
+      However, SDL_LowerBlit with a rect(0,0,0,0) does.
       */
       SDL_Rect sdlrect3;
       sdlrect3.x = 0;
@@ -1750,10 +1751,13 @@ surf_copy(pgSurfaceObject *self, PyObject *args)
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
+    int has_rle = surf->flags & SDL_RLEACCEL;
+
 #if IS_SDLv1
     if (surf->flags & SDL_OPENGL)
         return RAISE(pgExc_SDLError, "Cannot copy opengl display");
 #endif /* IS_SDLv1 */
+    printf("XXpoooooo :%i\n", surf->flags & SDL_RLEACCEL);
 
     pgSurface_Prep(self);
 #if IS_SDLv1
@@ -1761,7 +1765,37 @@ surf_copy(pgSurfaceObject *self, PyObject *args)
     if (surf->flags & SDL_SRCALPHA)
         newsurf->format->alpha = surf->format->alpha;
 #else
+    printf("++poooooo :%i\n", surf->flags & SDL_RLEACCEL);
     newsurf = SDL_ConvertSurface(surf, surf->format, 0);
+    /*Note, SDL_ConvertSurface removes SDL_RLEACCEL from surf! */
+    printf("--poooooo :%i\n", surf->flags & SDL_RLEACCEL);
+
+    if (has_rle) {
+      /* we try and get the SDL_RLEACCEL flag to be set.
+      There's an SDL2 bug in SDL_SetSurfaceRLE, where it doesn't set this for some reason.
+      However, SDL_LowerBlit with a rect(0,0,0,0) does.
+      */
+      SDL_Rect sdlrect3;
+      sdlrect3.x = 0;
+      sdlrect3.y = 0;
+      sdlrect3.h = 0;
+      sdlrect3.w = 0;
+      printf("poooooo\n");
+
+      SDL_Surface *surface;
+      surface = SDL_CreateRGBSurface(0, 1, 1, 32, surf->format->Rmask, surf->format->Gmask, surf->format->Bmask,
+                                     surf->format->Amask);
+      SDL_BlitSurface(surface, &sdlrect3, surf, &sdlrect3);
+      SDL_LowerBlit(surf, &sdlrect3, surface, &sdlrect3);
+
+      SDL_BlitSurface(surface, &sdlrect3, newsurf, &sdlrect3);
+      SDL_LowerBlit(newsurf, &sdlrect3, surface, &sdlrect3);
+
+      SDL_FreeSurface(surface);
+
+
+    }
+
 #endif
     pgSurface_Unprep(self);
 

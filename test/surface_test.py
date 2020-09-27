@@ -260,7 +260,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(blit_surf.mustlock())
 
 
-    @unittest.expectedFailure
     def test_copy_rle(self):
         color = (250, 25, 25, 255)
         color2 = (200, 200, 250, 255)
@@ -268,9 +267,12 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         s0 = pygame.Surface((32, 32), 24)
         s1 = pygame.Surface((32, 32), 24)
         s1.set_colorkey((255, 0, 255), pygame.RLEACCEL)
-        s0.blit(s1, (0, 0))
-        s1.copy()
         self.assertTrue(s1.get_flags() & pygame.RLEACCEL)
+
+        # s0.blit(s1, (0, 0))
+        newsurf = s1.copy()
+        self.assertTrue(s1.get_flags() & pygame.RLEACCEL)
+        self.assertTrue(newsurf.get_flags() & pygame.RLEACCEL)
 
     def test_subsurface_rle(self):
         """Ensure an RLE sub-surface works independently of its parent."""
