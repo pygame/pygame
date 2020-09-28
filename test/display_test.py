@@ -206,6 +206,42 @@ class DisplayModuleTest(unittest.TestCase):
         surface = pygame.display.get_surface()
 
         self.assertIsNone(surface)
+        
+    def test_get_wm_info(self):
+		wm_info = display.get_wm_info()
+		# Assert function returns a dictionary type
+		self.assertIsInstance(wm_info,dict)
+		
+		wm_info_potential_keys = {
+		'colorbuffer',
+		'connection',
+		'data',
+		'dfb',
+		'display',
+		'framebuffer',
+		'fswindow',
+		'hdc',
+		'hglrc',
+		'hinstance',
+		'lock_func',
+		'resolveFramebuffer',
+		'shell_surface',
+		'surface',
+		'taskHandle',
+		'unlock_func',
+		'wimpVersion',
+		'window',
+		'wmwindow'
+		}
+		
+		# If any unexpected dict keys are present, they
+		# will be stored in set wm_info_remaining_keys
+		wm_info_remaining_keys = set(wm_info.keys()).difference(wm_info_potential_keys)
+		
+		# Assert set is empty (& therefore does not
+		# contain unexpected dict keys)
+		self.assertFalse(wm_info_remaining_keys)
+		
 
     def todo_test_get_wm_info(self):
 
