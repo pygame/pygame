@@ -2940,8 +2940,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
 
     def test_short_non_antialiased_lines(self):
         """test very short not anti aliased lines in all directions."""
-        if isinstance(self, DrawTestCase):
-            self.skipTest("not working with draw.aaline")
 
         # Horizontal, vertical and diagonal lines should not be anti-aliased,
         # even with draw.aaline ...
@@ -2970,8 +2968,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
         check_both_directions((6, 4), (4, 6), [(5, 5)])
 
     def test_short_line_anti_aliasing(self):
-        if isinstance(self, DrawTestCase):
-            self.skipTest("not working with draw.aaline")
 
         self.surface = pygame.Surface((10, 10))
         draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
