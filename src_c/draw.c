@@ -1183,7 +1183,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
             pixel_color = get_antialiased_color(surf, (int) intersect_y, x,
                                                 color, brightness, blend);
             set_and_check_rect(surf, (int) intersect_y, x, pixel_color, drawn_area);
-            if ((int) intersect_y < intersect_y || (x == x_pixel_end && from_y != to_y)) {
+            if ((int) intersect_y < intersect_y) {
                 brightness = intersect_y - (int) intersect_y;
                 pixel_color = get_antialiased_color(surf, (int) intersect_y + 1,
                                                     x, color, brightness, blend);
@@ -1195,7 +1195,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
             pixel_color = get_antialiased_color(surf, x, (int) intersect_y,
                                                 color, brightness, blend);
             set_and_check_rect(surf, x, (int) intersect_y, pixel_color, drawn_area);
-            if ((int) intersect_y < intersect_y || (x == x_pixel_end && from_y != to_y)) {
+            if ((int) intersect_y < intersect_y) {
                 brightness = intersect_y - (int) intersect_y;
                 pixel_color = get_antialiased_color(surf, x, (int) intersect_y + 1,
                                                     color, brightness, blend);
