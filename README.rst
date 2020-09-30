@@ -1,7 +1,7 @@
 
 
-About pygame
-============
+About amazing pygame libraries
+==============================
 
      Pygame: this library is cross-platform and designed to make it easy to
      write multimedia software, such as games, in Python. Pygame
@@ -14,8 +14,8 @@ About pygame
 
 |TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|_ |LGTMAlerts|_ |LGTMGradePython|_ |LGTMGradeC|_ |Coverity|_
 
-Installation
-============
+Installation process
+====================
 
      pip install pygame
 
