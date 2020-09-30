@@ -204,12 +204,13 @@ class ClockTypeTest(unittest.TestCase):
         bool_fps = True
         self.assertGreaterEqual(c.tick_busy_loop(bool_fps), (second_length/bool_fps) - shortfall_tolerance)
 
+
 class TimeModuleTest(unittest.TestCase):
     def test_delay(self):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration
         iterations = 20  # number of iterations
-        delta = 50  # Represents acceptable margin of error for wait in ms
+        delta = 150  # Represents acceptable margin of error for wait in ms
         # Call checking function
         self._wait_delay_check(pygame.time.delay, millis, iterations, delta)
         # After timing behaviour, check argument type exceptions

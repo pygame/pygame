@@ -77,14 +77,17 @@ specific attributes.
     MOUSEMOTION       pos, rel, buttons
     MOUSEBUTTONUP     pos, button
     MOUSEBUTTONDOWN   pos, button
-    JOYAXISMOTION     joy, axis, value
-    JOYBALLMOTION     joy, ball, rel
-    JOYHATMOTION      joy, hat, value
-    JOYBUTTONUP       joy, button
-    JOYBUTTONDOWN     joy, button
+    JOYAXISMOTION     joy (deprecated), instance_id, axis, value
+    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
+    JOYHATMOTION      joy (deprecated), instance_id, hat, value
+    JOYBUTTONUP       joy (deprecated), instance_id, button
+    JOYBUTTONDOWN     joy (deprecated), instance_id, button
     VIDEORESIZE       size, w, h
     VIDEOEXPOSE       none
     USEREVENT         code
+
+You can also find a list of constants for keyboard keys
+:ref:`here <key-constants-label>`.
 
 |
 
@@ -145,6 +148,25 @@ Events reserved for :mod:`pygame.midi` use.
 
 |
 
+
+|
+
+.. versionadded:: 2.0.0
+
+SDL2 supports controller hotplugging:
+
+::
+
+   CONTROLLERDEVICEADDED    device_index
+   JOYDEVICEADDED           device_index
+   CONTROLLERDEVICEREMOVED  instance_id
+   JOYDEVICEREMOVED         instance_id
+   CONTROLLERDEVICEREMAPPED instance_id
+
+Also in this version, ``instance_id`` attributes were added to joystick events,
+and the ``joy`` attribute was deprecated.
+
+|
 
 .. function:: pump
 
@@ -345,6 +367,14 @@ Events reserved for :mod:`pygame.midi` use.
    appropriate values.
 
    If the event queue is full a :exc:`pygame.error` is raised.
+
+   Caution: In pygame 2.0, calling this function with event types defined by
+   pygame (such as ``pygame.KEYDOWN``) may put events into the SDL2 event queue.
+   In this case, an error may be raised if standard attributes of that event
+   are missing or have incompatible values, and unexpected properties may
+   be silently omitted. In order to avoid this behaviour, custom event
+   properties should be used with custom event types.
+   This behaviour is not guaranteed.
 
    .. ## pygame.event.post ##
 

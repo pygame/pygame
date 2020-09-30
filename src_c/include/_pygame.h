@@ -272,11 +272,22 @@ typedef struct {
 /*
  * JOYSTICK module
  */
-typedef struct {
-    PyObject_HEAD int id;
+typedef struct pgJoystickObject {
+    PyObject_HEAD
+    int id;
+    SDL_Joystick *joy;
+
+    /* Joysticks form an intrusive linked list.
+     *
+     * Note that we don't maintain refcounts for these so they are weakrefs from
+     * the Python side.
+     */
+    struct pgJoystickObject *next;
+    struct pgJoystickObject *prev;
 } pgJoystickObject;
 
 #define pgJoystick_AsID(x) (((pgJoystickObject *)x)->id)
+#define pgJoystick_AsSDL(x) (((pgJoystickObject *)x)->joy)
 
 #ifndef PYGAMEAPI_JOYSTICK_INTERNAL
 #define pgJoystick_Type \
