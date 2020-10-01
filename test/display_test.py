@@ -206,23 +206,41 @@ class DisplayModuleTest(unittest.TestCase):
         surface = pygame.display.get_surface()
 
         self.assertIsNone(surface)
-
-    def todo_test_get_wm_info(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.get_wm_info:
-
-        # pygame.display.get_wm_info(): return dict
-        # Get information about the current windowing system
-        #
-        # Creates a dictionary filled with string keys. The strings and values
-        # are arbitrarily created by the system. Some systems may have no
-        # information and an empty dictionary will be returned. Most platforms
-        # will return a "window" key with the value set to the system id for
-        # the current display.
-        #
-        # New with pygame 1.7.1
-
-        self.fail()
+        
+    def test_get_wm_info(self):
+        wm_info = display.get_wm_info()
+        # Assert function returns a dictionary type
+        self.assertIsInstance(wm_info,dict)
+        
+        wm_info_potential_keys = {
+        'colorbuffer',
+        'connection',
+        'data',
+        'dfb',
+        'display',
+        'framebuffer',
+        'fswindow',
+        'hdc',
+        'hglrc',
+        'hinstance',
+        'lock_func',
+        'resolveFramebuffer',
+        'shell_surface',
+        'surface',
+        'taskHandle',
+        'unlock_func',
+        'wimpVersion',
+        'window',
+        'wmwindow'
+        }
+        
+        # If any unexpected dict keys are present, they
+        # will be stored in set wm_info_remaining_keys
+        wm_info_remaining_keys = set(wm_info.keys()).difference(wm_info_potential_keys)
+        
+        # Assert set is empty (& therefore does not
+        # contain unexpected dict keys)
+        self.assertFalse(wm_info_remaining_keys)
 
     def todo_test_gl_get_attribute(self):
 
