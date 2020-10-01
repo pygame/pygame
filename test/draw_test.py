@@ -2977,8 +2977,11 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
         def check_both_directions(from_pt, to_pt, should):
             self._check_antialiasing(from_pt, to_pt, should, check_points)
 
-        # lets say dx = abs(x0 - x1) ; dy = abs(y0 - y1)
         brown = (127, 127, 0)
+        reddish = (191, 63, 0)
+        greenish = (63, 191, 0)
+
+        # lets say dx = abs(x0 - x1) ; dy = abs(y0 - y1)
 
         # dy / dx = 0.5
         check_both_directions((4, 4), (6, 5), {(5, 4): brown, (5, 5): brown})
@@ -2991,8 +2994,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
         # some little longer lines; so we need to check more points:
         check_points = [(i, j) for i in range(2, 9) for j in range(2, 9)]
         # dy / dx = 0.25
-        reddish = (191, 63, 0)
-        greenish = (63, 191, 0)
         should = {
             (4, 3): greenish,
             (5, 3): brown,
@@ -3036,23 +3037,25 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
 
     def test_anti_aliasing_float_coordinates(self):
         """Float coordinates should be blended smoothly."""
-        if isinstance(self, DrawTestCase):
-            self.skipTest("not working with draw.aaline")
+#        if isinstance(self, DrawTestCase):
+#            self.skipTest("not working with draw.aaline")
 
         self.surface = pygame.Surface((10, 10))
         draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
 
         check_points = [(i, j) for i in range(5) for j in range(5)]
         brown = (127, 127, 0)
+        reddish = (191, 63, 0)
+        greenish = (63, 191, 0)
 
         # 0. identical point : current implementation does no smoothing...
-        expected = {(1, 2): FG_GREEN}
+        expected = {(2, 2): FG_GREEN}
         self._check_antialiasing(
             (1.5, 2), (1.5, 2), expected, check_points, set_endpoints=False
         )
-        expected = {(2, 2): FG_GREEN}
+        expected = {(2, 3): FG_GREEN}
         self._check_antialiasing(
-            (2.5, 2.7), (2.5, 2.7), expected, check_points, set_endpoints=False
+            (2.49, 2.7), (2.49, 2.7), expected, check_points, set_endpoints=False
         )
 
         # 1. horizontal lines
@@ -3069,7 +3072,7 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
         self._check_antialiasing(
             (1, 2), (1.5, 2), expected, check_points, set_endpoints=False
         )
-        expected = {(1, 2): brown, (2, 2): (63, 191, 0)}
+        expected = {(1, 2): brown, (2, 2): greenish}
         self._check_antialiasing(
             (1.5, 2), (1.75, 2), expected, check_points, set_endpoints=False
         )
@@ -3086,7 +3089,7 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
         self._check_antialiasing(
             (2, 1.5), (2, 2.5), expected, check_points, set_endpoints=False
         )
-        expected = {(2, 1): brown, (2, 2): (63, 191, 0)}
+        expected = {(2, 1): brown, (2, 2): greenish}
         self._check_antialiasing(
             (2, 1.5), (2, 1.75), expected, check_points, set_endpoints=False
         )
@@ -3111,8 +3114,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
             (2, 1.5), (3, 2.5), expected, check_points, set_endpoints=False
         )
 
-        reddish = (191, 63, 0)
-        greenish = (63, 191, 0)
         expected = {
             (2, 1): greenish,
             (2, 2): reddish,
