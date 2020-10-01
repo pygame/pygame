@@ -132,7 +132,7 @@ following formats.
 
    .. versionadded:: 2.0.0.dev11
 
-   .. ## pygame,image.get_sdl_image_version ##
+   .. ## pygame.image.get_sdl_image_version ##
 
 .. function:: get_extended
 
