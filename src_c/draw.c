@@ -1161,23 +1161,118 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
     float gradient, dx, dy, intersect_y, brightness;
     int x, x_pixel_start, x_pixel_end;
     Uint32 pixel_color;
-    int steep = (to_x - from_x < 0 ? - (to_x - from_x) : (to_x - from_x)) <
-                (to_y - from_y < 0 ? - (to_y - from_y) : (to_y - from_y));
-    if (steep) {
-        swap(&from_x , &from_y);
-        swap(&to_x , &to_y);
-    }
-    if (from_x > to_x) {
-        swap(&from_x, &to_x);
-        swap(&from_y, &to_y);
-    }
+    float x_gap, y_endpoint;
+    int steep, y;
+
     dx = to_x - from_x;
     dy = to_y - from_y;
-    x_pixel_start = (int) from_x;
-    x_pixel_end = (int) to_x;
-    gradient = dx == 0 ? 1 : dy/dx;
-    intersect_y = from_y + gradient * ((int) from_x - from_x);
-    for (x = x_pixel_start; x <= x_pixel_end; x++) {
+
+    /* Single point.
+     * A line with length 0 is drawn as a single pixel at full brightness. */
+    if (fabs(dx) < 0.0001 && fabs(dy) < 0.0001) {
+        pixel_color = get_antialiased_color(surf, (int)round(from_x),
+                                            (int)round(from_y), color, 1, blend);
+        set_and_check_rect(surf, (int)round(from_x), (int)round(from_y),
+                           pixel_color, drawn_area);
+        return;
+    }
+
+    steep = fabs(dx) < fabs(dy);
+    if (steep) {
+        swap(&from_x, &from_y);
+        swap(&to_x, &to_y);
+        swap(&dx, &dy);
+    }
+    if (dx < 0) {
+        swap(&from_x, &to_x);
+        swap(&from_y, &to_y);
+        dx = -dx;
+        dy = -dy;
+    }
+
+    if (to_x <= -1.0f || from_x > surf->w) {
+        /* The line does not enter the surface */
+        return;
+    }
+
+    /* Note. There is no need to guard against a division by zero here. If dx
+     * was zero then either we had a single point (and we've returned) or it
+     * has been swapped with a non-zero dy. */
+    gradient = dy/dx;
+
+    if (from_x < 0) {
+        /* No need to waste CPU cycles on pixels not on the surface. */
+        from_y += gradient * (-from_x);
+        from_x = 0.0f;
+    }
+    /* TODO: Also check if the endpoints are below/above the surface */
+
+    /* Handle endpoints separatly.
+     * The line is not a mathematical line of thickness zero. The same
+     * goes for the endpoints. The have a height and width of one pixel. */
+    /* First endpoint */
+    x_pixel_start = (int)from_x;
+    y_endpoint = intersect_y = from_y + gradient * (x_pixel_start - from_x);
+    if (to_x > 0) {
+        x_gap = 1 + x_pixel_start - from_x;
+        brightness = 1 - y_endpoint + (float)floor(y_endpoint);
+        if (steep) {
+            x = (int)floor(y_endpoint);
+            y = x_pixel_start;
+        }
+        else {
+            x = x_pixel_start;
+            y = (int)floor(y_endpoint);
+        }
+        pixel_color = get_antialiased_color(surf, x, y, color,
+                                            brightness * x_gap, blend);
+        set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+        if (floor(y_endpoint) < y_endpoint) {
+            if (steep) {
+                x++;
+            }
+            else {
+                y++;
+            }
+            brightness = 1 - brightness;
+            pixel_color = get_antialiased_color(surf, x, y, color,
+                                                brightness * x_gap, blend);
+            set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+        }
+        intersect_y += gradient;
+        x_pixel_start++;
+    }
+    /* Second endpoint */
+    x_pixel_end = (int)ceil(to_x);
+    y_endpoint = to_y + gradient * (x_pixel_end - to_x);
+    x_gap = 1 - x_pixel_end + to_x;
+    brightness = 1 - y_endpoint + (float)floor(y_endpoint);
+    if (steep) {
+        x = (int)floor(y_endpoint);
+        y = x_pixel_end;
+    }
+    else {
+        x = x_pixel_end;
+        y = (int)floor(y_endpoint);
+    }
+    pixel_color = get_antialiased_color(surf, x, y, color,
+                                        brightness * x_gap, blend);
+    set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+    if (floor(y_endpoint) < y_endpoint) {
+        if (steep) {
+            x++;
+        }
+        else {
+            y++;
+        }
+        brightness = 1 - brightness;
+        pixel_color = get_antialiased_color(surf, x, y, color,
+                                            brightness * x_gap, blend);
+        set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+    }
+
+    /* main line drawing loop */
+    for (x = x_pixel_start; x < x_pixel_end; x++) {
         if (steep) {
             brightness = 1 - intersect_y + (int) intersect_y;
             pixel_color = get_antialiased_color(surf, (int) intersect_y, x,

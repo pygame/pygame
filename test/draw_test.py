@@ -2632,7 +2632,7 @@ class AALineMixin(BaseLineMixin):
                 for i, sub_color in enumerate(expected_color):
                     # The color could be slightly off the expected color due to
                     # any fractional position arguments.
-                    self.assertGreaterEqual(color[i] + 5, sub_color, start_pos)
+                    self.assertGreaterEqual(color[i] + 6, sub_color, start_pos)
                 self.assertIsInstance(bounds_rect, pygame.Rect, start_pos)
 
     def test_aaline__valid_end_pos_formats(self):
@@ -3037,8 +3037,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
 
     def test_anti_aliasing_float_coordinates(self):
         """Float coordinates should be blended smoothly."""
-#        if isinstance(self, DrawTestCase):
-#            self.skipTest("not working with draw.aaline")
 
         self.surface = pygame.Surface((10, 10))
         draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)
