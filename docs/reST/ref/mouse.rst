@@ -73,7 +73,8 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
 .. function:: get_pressed
 
    | :sl:`get the state of the mouse buttons`
-   | :sg:`get_pressed(num_buttons=3) -> (button1, button2, button3) or (button1, button2, button3, button4, button5)`
+   | :sg:`get_pressed(num_buttons=3) -> (button1, button2, button3)
+   | :sg:`get_pressed(num_buttons=5) -> (button1, button2, button3, button4, button5)`
 
    Returns a sequence of booleans representing the state of all the mouse
    buttons. A true value means the mouse is currently being pressed at the time
