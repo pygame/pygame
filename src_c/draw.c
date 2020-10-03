@@ -1170,10 +1170,11 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
     /* Single point.
      * A line with length 0 is drawn as a single pixel at full brightness. */
     if (fabs(dx) < 0.0001 && fabs(dy) < 0.0001) {
-        pixel_color = get_antialiased_color(surf, (int)round(from_x),
-                                            (int)round(from_y), color, 1, blend);
-        set_and_check_rect(surf, (int)round(from_x), (int)round(from_y),
-                           pixel_color, drawn_area);
+        pixel_color = get_antialiased_color(surf, (int)floor(from_x + 0.5),
+                                            (int)floor(from_y + 0.5), color,
+                                            1, blend);
+        set_and_check_rect(surf, (int)floor(from_x + 0.5),
+                           (int)floor(from_y + 0.5), pixel_color, drawn_area);
         return;
     }
 
