@@ -3127,8 +3127,6 @@ class DrawAALineTest(AALineMixin, DrawTestCase):
 
     def test_anti_aliasing_at_and_outside_the_border(self):
         """Ensures antialiasing works correct at a surface's borders."""
-        if isinstance(self, DrawTestCase):
-            self.skipTest("not working with draw.aaline")
 
         self.surface = pygame.Surface((10, 10))
         draw.rect(self.surface, BG_RED, (0, 0, 10, 10), 0)

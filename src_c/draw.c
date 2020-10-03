@@ -1274,28 +1274,29 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
 
     /* main line drawing loop */
     for (x = x_pixel_start; x < x_pixel_end; x++) {
+        y = (int)floor(intersect_y);
         if (steep) {
-            brightness = 1 - intersect_y + (int) intersect_y;
-            pixel_color = get_antialiased_color(surf, (int) intersect_y, x,
+            brightness = 1 - intersect_y + y;
+            pixel_color = get_antialiased_color(surf, y, x,
                                                 color, brightness, blend);
-            set_and_check_rect(surf, (int) intersect_y, x, pixel_color, drawn_area);
-            if ((int) intersect_y < intersect_y) {
-                brightness = intersect_y - (int) intersect_y;
-                pixel_color = get_antialiased_color(surf, (int) intersect_y + 1,
-                                                    x, color, brightness, blend);
-                set_and_check_rect(surf, (int) intersect_y + 1, x, pixel_color, drawn_area);
+            set_and_check_rect(surf, y, x, pixel_color, drawn_area);
+            if (y < intersect_y) {
+                brightness = 1 - brightness;
+                pixel_color = get_antialiased_color(surf, y + 1, x,
+                                                    color, brightness, blend);
+                set_and_check_rect(surf, y + 1, x, pixel_color, drawn_area);
             }
         }
         else {
-            brightness = 1 - intersect_y + (int) intersect_y;
-            pixel_color = get_antialiased_color(surf, x, (int) intersect_y,
+            brightness = 1 - intersect_y + y;
+            pixel_color = get_antialiased_color(surf, x, y,
                                                 color, brightness, blend);
-            set_and_check_rect(surf, x, (int) intersect_y, pixel_color, drawn_area);
-            if ((int) intersect_y < intersect_y) {
-                brightness = intersect_y - (int) intersect_y;
-                pixel_color = get_antialiased_color(surf, x, (int) intersect_y + 1,
+            set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+            if (y < intersect_y) {
+                brightness = 1 - brightness;
+                pixel_color = get_antialiased_color(surf, x, y + 1,
                                                     color, brightness, blend);
-                set_and_check_rect(surf, x, (int) intersect_y + 1, pixel_color, drawn_area);
+                set_and_check_rect(surf, x, y + 1, pixel_color, drawn_area);
             }
         }
         intersect_y += gradient;
