@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Create a report to help us improve Pygame!
+name: Guided bug report
+about: A template to help you create a bug report to improve Pygame! Useful if this is your first time reporting an issue.
 title: ''
 labels: bug
 assignees: ''
