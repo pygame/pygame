@@ -6,6 +6,7 @@ Clock = pygame.time.Clock
 
 
 class ClockTypeTest(unittest.TestCase):
+    __tags__ = ['timing']
     def test_construction(self):
         """Ensure a Clock object can be created"""
         c = Clock()
@@ -206,6 +207,7 @@ class ClockTypeTest(unittest.TestCase):
 
 
 class TimeModuleTest(unittest.TestCase):
+    __tags__ = ['timing']
     def test_delay(self):
         """Tests time.delay() function."""
         millis = 50  # millisecond to wait on each iteration
