@@ -6,10 +6,10 @@
 # To configure, compile, install, just run this script.
 #     python setup.py install
 
-DESCRIPTION = """Pygame is a Python wrapper module for the
-SDL multimedia library. It contains python functions and classes
-that will allow you to use SDL's support for playing cdroms,
-audio and video output, and keyboard, mouse and joystick input."""
+import io
+
+with io.open('README.rst', encoding='utf-8') as readme:
+    LONG_DESCRIPTION = readme.read()
 
 EXTRAS = {}
 
@@ -21,7 +21,7 @@ METADATA = {
     "author":           "A community project.",
     "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
-    "long_description": DESCRIPTION,
+    "long_description": LONG_DESCRIPTION,
 }
 
 import re
@@ -410,19 +410,7 @@ add_datafiles(data_files, 'pygame/tests',
 
 #examples
 add_datafiles(data_files, 'pygame/examples',
-              ['examples',
-                  ['readme.rst',
-                   ['data',
-                       ['*']],
-                   ['macosx',
-                       ['*.py',
-                        ['aliens_app_example',
-                            ['*.py',
-                             'README.txt',
-                             ['English.lproj',
-                                 ['aliens.icns',
-                                  ['MainMenu.nib',
-                                      ['*']]]]]]]]]])
+              ['examples', ['README.rst', ['data', ['*']]]])
 
 #docs
 add_datafiles(data_files, 'pygame/docs',
@@ -673,9 +661,10 @@ class smart_install_data(install_data):
 @add_command('sdist')
 class OurSdist(sdist):
     def initialize_options(self):
-        super(sdist, self).initialize_options()
+        super(OurSdist, self).initialize_options()
         # we do not want MANIFEST.in to appear in the root cluttering up things.
         self.template = os.path.join('buildconfig', 'MANIFEST.in')
+
 
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files
