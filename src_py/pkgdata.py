@@ -59,8 +59,13 @@ def getResource(identifier, pkgname=__name__):
     rather than use it as a file-like object.  For example, you may
     be handing data off to a C API.
     """
-    if resource_exists(pkgname, identifier):
-        return resource_stream(pkgname, identifier)
+    
+    # When pyinstaller (or similar tools) are used, resource_exists may raise NotImplemented error
+    try:
+        if resource_exists(pkgname, identifier):
+            return resource_stream(pkgname, identifier)
+    except NotImplementedError:
+        pass
 
     mod = sys.modules[pkgname]
     path_to_file = getattr(mod, '__file__', None)
