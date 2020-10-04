@@ -18,12 +18,19 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR 
 jobs:
   include:
     - python: 2.7
+      env:
+        - RUN_SDIST=yes
     - python: 3.5
       name: SDL 1.2
       env:
         - WHICH_SDL_BUILD=-sdl1
+        - RUN_SDIST=yes
     - python: 3.6
+      env:
+        - RUN_SDIST=yes
     - python: 3.8
+      env:
+        - RUN_SDIST=yes
     - python: 3.9-dev
     - os: linux-ppc64le
       python: 3.8
@@ -48,6 +55,7 @@ jobs:
         - UPLOAD_SDIST_PYPI=yes
         - GITHUB_UPLOAD=yes
         - PYTHON_EXE=python3
+        - RUN_SDIST=yes
       services:
         - docker
     - os: osx
@@ -118,6 +126,12 @@ script:
       $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
       $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl --time_out 300
     fi
+  # to make sure setup.py sdist runs.
+  - |
+    if [[ "$RUN_SDIST" == "yes" ]]; then
+      $PYTHON_EXE setup.py sdist
+    fi
+
 
 # Upload dist/*.whl to pypi on tags.
 after_success:
