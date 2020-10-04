@@ -661,7 +661,7 @@ class smart_install_data(install_data):
 @add_command('sdist')
 class OurSdist(sdist):
     def initialize_options(self):
-        super(OurSdist, self).initialize_options()
+        sdist.initialize_options(self)
         # we do not want MANIFEST.in to appear in the root cluttering up things.
         self.template = os.path.join('buildconfig', 'MANIFEST.in')
 
