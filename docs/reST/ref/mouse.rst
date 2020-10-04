@@ -37,13 +37,15 @@ There is proper functionality for mouse wheel behaviour with SDL2's
 ``SDL_MOUSEWHEEL`` events. ``SDL_MOUSEWHEEL`` replaces the old method of treating
 mouse scrolling as a type of button like, as such in SDL1. The new events support
 horizontal and vertical scroll movements, with signed integer values representing
-the amount scrolled, as well as "flipped" direction (the set positive and negative
-values for each axis is flipped). Read more about SDL2 input-related changes `here
-<https://wiki.libsdl.org/MigrationGuide#Input>`_
+the amount scrolled(``x`` and ``y``), as well as ``flipped`` direction (the set 
+positive and negative values for each axis is flipped). Read more about SDL2 
+input-related changes here `<https://wiki.libsdl.org/MigrationGuide#Input>`_
 
-In pygame2, the mouse wheel functionality can be used by listening for the ``pygame.events.MOUSEWHEEL`` EventType.
-When this event is triggered, a developer can access the appropriate ``Event`` object with ``pygame.event.get()``. The object can be used
-to access data about the mouse scroll, such as ``which`` (it will tell you what exact mouse device trigger the event).
+In pygame2, the mouse wheel functionality can be used by listening for the 
+``pygame.MOUSEWHEEL`` type of an event.
+When this event is triggered, a developer can access the appropriate ``Event`` object 
+with ``pygame.event.get()``. The object can be used to access data about the mouse 
+scroll, such as ``which`` (it will tell you what exact mouse device trigger the event).
 
 .. code-block:: python
    :caption: Code example of mouse scroll (tested on 2.0.0.dev7)
@@ -79,13 +81,9 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    buttons. A true value means the mouse is currently being pressed at the time
    of the call.
 
-   Note, to get all of the mouse events it is better to use either
-
-   ::
-
-    pygame.event.wait() or pygame.event.get() and check all of those events
-
-   to see if they are ``MOUSEBUTTONDOWN``, ``MOUSEBUTTONUP``, or
+   Note, to get all of the mouse events it is better to use either 
+   ``pygame.event.wait()`` or ``pygame.event.get()`` and check all of those 
+   events to see if they are ``MOUSEBUTTONDOWN``, ``MOUSEBUTTONUP``, or
    ``MOUSEMOTION``.
 
    Note, that on ``X11`` some X servers use middle button emulation. When you
