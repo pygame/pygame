@@ -1476,9 +1476,12 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
         //     // return RAISE(pgExc_SDLError, SDL_GetError());
         // }
         // SDL_LockSurface(surf);
-        printf("--mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, surf->flags & PGS_RLEACCEL);
+        printf("--mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, flags & PGS_RLEACCEL);
 
         if (flags & PGS_RLEACCEL) {
+            printf("_rle_hack ok\n");
+            _rle_hack(surf);
+            printf("++mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, flags & PGS_RLEACCEL);
             result = SDL_SetColorKey(surf, hascolor | SDL_RLEACCEL, color);
             // surf->flags |= SDL_RLEACCEL;
         }
@@ -1486,27 +1489,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
             result = SDL_SetColorKey(surf, hascolor, color);
             // surf->flags &= ~SDL_RLEACCEL;
         }
-
-        /*
-        Here we do something a bit hacky.
-         */
-        // SDL_Rect sdlrect3;
-        // sdlrect3.x = 0;
-        // sdlrect3.y = 0;
-        // sdlrect3.h = 0;
-        // sdlrect3.w = 0;
-
-        // // SDL_BlitSurface(surf, &sdlrect3, surf, &sdlrect3);
-        // SDL_LowerBlit(surf, &sdlrect3, surf, &sdlrect3);
-        // SDL_MapSurface(surf)
-
-        // SDL_UnlockSurface(surf);
-        printf("mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, surf->flags & PGS_RLEACCEL);
-
-        // SDL_RLESurface(surf);
-        // printf("new result? %i\n", surf->flags & SDL_RLEACCEL);
-        // printf("new result? %i, %i\n", result, surf->flags & SDL_RLEACCEL);
-        // result = SDL_SetColorKey(surf, hascolor, color);
+        printf("mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, flags & PGS_RLEACCEL);
     } else {
         result = SDL_SetColorKey(surf, hascolor, color);
     }
@@ -1516,22 +1499,8 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
         result = SDL_SetColorKey(surf, hascolor, color);
     }
     if (flags & PGS_RLEACCEL) {
-      /* we try and get the SDL_RLEACCEL flag to be set.
-      There's an SDL2 bug in SDL_SetSurfaceRLE, where it doesn't set this for some reason.
-      However, SDL_LowerBlit with a rect(0,0,0,0) does.
-      */
-      SDL_Rect sdlrect3;
-      sdlrect3.x = 0;
-      sdlrect3.y = 0;
-      sdlrect3.h = 0;
-      sdlrect3.w = 0;
-
-      SDL_Surface *surface;
-      surface = SDL_CreateRGBSurface(0, 1, 1, 32, surf->format->Rmask, surf->format->Gmask, surf->format->Bmask,
-                                     surf->format->Amask);
-      SDL_BlitSurface(surface, &sdlrect3, surf, &sdlrect3);
-      SDL_LowerBlit(surf, &sdlrect3, surface, &sdlrect3);
-      SDL_FreeSurface(surface);
+        printf("_rle_hack\n");
+        _rle_hack(surf);
     }
 #endif /* IS_SDLv2 */
     printf("before end set_colorkey %i\n", surf->flags & SDL_RLEACCEL);
@@ -1741,17 +1710,42 @@ surf_get_blendmode(PyObject *self, PyObject *args)
 }
 #endif /* IS_SDLv2 */
 
+
+#if IS_SDLv2
+_rle_hack(SDL_Surface *surf) {
+    /* we try and get the SDL_RLEACCEL flag to be set.
+    There's an SDL2 bug in SDL_SetSurfaceRLE, where it doesn't set this for some reason.
+    However, SDL_LowerBlit with a rect(0,0,0,0) does.
+    */
+    SDL_Rect sdlrect;
+    SDL_Surface *surface;
+    sdlrect.x = 0;
+    sdlrect.y = 0;
+    sdlrect.h = 0;
+    sdlrect.w = 0;
+
+    surface = SDL_CreateRGBSurface(0, 1, 1, 32, surf->format->Rmask, surf->format->Gmask, surf->format->Bmask,
+                             surf->format->Amask);
+    SDL_BlitSurface(surface, &sdlrect, surf, &sdlrect);
+    SDL_LowerBlit(surf, &sdlrect, surface, &sdlrect);
+
+    SDL_FreeSurface(surface);
+}
+#endif /* IS_SDLv2 */
+
+
 static PyObject *
 surf_copy(pgSurfaceObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     PyObject *final;
     SDL_Surface *newsurf;
+    int has_rle;
 
     if (!surf)
         return RAISE(pgExc_SDLError, "display Surface quit");
 
-    int has_rle = surf->flags & SDL_RLEACCEL;
+    has_rle = surf->flags & SDL_RLEACCEL;
 
 #if IS_SDLv1
     if (surf->flags & SDL_OPENGL)
@@ -1771,29 +1765,8 @@ surf_copy(pgSurfaceObject *self, PyObject *args)
     printf("--poooooo :%i\n", surf->flags & SDL_RLEACCEL);
 
     if (has_rle) {
-      /* we try and get the SDL_RLEACCEL flag to be set.
-      There's an SDL2 bug in SDL_SetSurfaceRLE, where it doesn't set this for some reason.
-      However, SDL_LowerBlit with a rect(0,0,0,0) does.
-      */
-      SDL_Rect sdlrect3;
-      sdlrect3.x = 0;
-      sdlrect3.y = 0;
-      sdlrect3.h = 0;
-      sdlrect3.w = 0;
-      printf("poooooo\n");
-
-      SDL_Surface *surface;
-      surface = SDL_CreateRGBSurface(0, 1, 1, 32, surf->format->Rmask, surf->format->Gmask, surf->format->Bmask,
-                                     surf->format->Amask);
-      SDL_BlitSurface(surface, &sdlrect3, surf, &sdlrect3);
-      SDL_LowerBlit(surf, &sdlrect3, surface, &sdlrect3);
-
-      SDL_BlitSurface(surface, &sdlrect3, newsurf, &sdlrect3);
-      SDL_LowerBlit(newsurf, &sdlrect3, surface, &sdlrect3);
-
-      SDL_FreeSurface(surface);
-
-
+        _rle_hack(surf);
+        _rle_hack(newsurf);
     }
 
 #endif
@@ -1823,7 +1796,7 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     Uint32 colorkey;
     Uint8 key_r, key_g, key_b, key_a = 255;
     int has_colorkey = SDL_FALSE;
-
+    int has_rle = SDL_FALSE;
 #endif /* IS_SDLv2 */
 
     if (!SDL_WasInit(SDL_INIT_VIDEO))
@@ -1841,6 +1814,7 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     pgSurface_Prep(self);
 
 #if IS_SDLv2
+    has_rle = surf->flags & SDL_RLEACCEL;
     if (SDL_GetColorKey(surf, &colorkey) == 0) {
         has_colorkey = SDL_TRUE;
         if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format))
@@ -1859,6 +1833,11 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
                 src->flags | (surf->flags & (SDL_SRCCOLORKEY | SDL_SRCALPHA));
             newsurf = SDL_ConvertSurface(surf, src->format, flags);
 #else  /* IS_SDLv2 */
+            /*
+            From SDL2 docs:
+              "the flags are unused and should be set to 0;
+                this is a leftover from SDL 1.2's API"
+            */
             newsurf = SDL_ConvertSurface(surf, src->format, 0);
 #endif /* IS_SDLv2 */
         }
@@ -2002,6 +1981,12 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
             SDL_FreeSurface(newsurf);
             return NULL;
         }
+    }
+    if (has_rle) {
+        printf("newsurf->flags & SDL_RLEACCEL;%i \n", newsurf->flags & SDL_RLEACCEL);
+        SDL_SetSurfaceRLE(newsurf, SDL_TRUE);
+        _rle_hack(newsurf);
+        printf("++newsurf->flags & SDL_RLEACCEL;%i \n", newsurf->flags & SDL_RLEACCEL);
     }
 
 #endif /* IS_SDLv2 */
@@ -4266,23 +4251,6 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         (SDL_ISPIXELFORMAT_ALPHA(src->format->format))
       ) {
         printf("meow3 -> do special blit for SDL1 compat. %i, %i\n", src->flags & SDL_RLEACCEL, dst->flags & SDL_RLEACCEL);
-
-        /*
-          We do a hacky blit with a zero size
-          with SDL_LowerBlit incase it is an RLE surface.
-        */
-        SDL_Rect sdlrect2;
-        sdlrect2.x = 0;
-        sdlrect2.y = 0;
-        sdlrect2.h = 0;
-        sdlrect2.w = 0;
-
-        SDL_LowerBlit(src, &sdlrect2, dst, &sdlrect2);
-        SDL_LowerBlit(dst, &sdlrect2, src, &sdlrect2);
-        // result = SDL_BlitSurface(src, &sdlrect2, dst, &sdlrect2);
-
-        // result = SDL_BlitSurface(src, srcrect, dst, dstrect);
-
         result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args);
     }
     else

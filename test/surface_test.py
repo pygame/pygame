@@ -260,6 +260,15 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(blit_surf.mustlock())
 
 
+    def test_mustlock_surf_alpha_rle(self):
+        # Test RLEACCEL flag in set_colorkey
+        blit_surf = pygame.Surface((100, 100), depth=32, flags=pygame.SRCALPHA)
+        blit_surf.set_colorkey((192, 191, 192, 255), pygame.RLEACCEL)
+        self.assertTrue(blit_surf.get_flags() & pygame.RLEACCEL)
+        self.assertTrue(blit_surf.get_flags() & pygame.SRCALPHA)
+        self.assertTrue(blit_surf.mustlock())
+
+
     def test_copy_rle(self):
         color = (250, 25, 25, 255)
         color2 = (200, 200, 250, 255)
