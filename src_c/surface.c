@@ -140,7 +140,7 @@ surf_copy(pgSurfaceObject *self, PyObject *args);
 static PyObject *
 surf_convert(pgSurfaceObject *self, PyObject *args);
 static PyObject *
-surf_convert_alpha(pgSurfaceObject *self, PyObject *args);
+surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds);
 static PyObject *
 surf_set_clip(PyObject *self, PyObject *args);
 static PyObject *
@@ -308,7 +308,8 @@ static struct PyMethodDef surface_methods[] = {
     {"copy", (PyCFunction)surf_copy, METH_NOARGS, DOC_SURFACECOPY},
     {"__copy__", (PyCFunction)surf_copy, METH_NOARGS, DOC_SURFACECOPY},
     {"convert", (PyCFunction)surf_convert, METH_VARARGS, DOC_SURFACECONVERT},
-    {"convert_alpha", (PyCFunction)surf_convert_alpha, METH_VARARGS,
+    {"convert_alpha", (PyCFunction)surf_convert_alpha,
+     METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACECONVERTALPHA},
 
     {"set_clip", surf_set_clip, METH_VARARGS, DOC_SURFACESETCLIP},
@@ -1981,11 +1982,12 @@ pg_DisplayFormatAlpha(SDL_Surface *surface)
 #endif /* IS_SDLv2 */
 
 static PyObject *
-surf_convert_alpha(pgSurfaceObject *self, PyObject *args)
+surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
     PyObject *final;
     pgSurfaceObject *srcsurf = NULL;
+    int premul = 0;
     SDL_Surface *newsurf;
 #if IS_SDLv1
     SDL_Surface *src;
@@ -1995,7 +1997,10 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args)
         return RAISE(pgExc_SDLError,
                      "cannot convert without pygame.display initialized");
 
-    if (!PyArg_ParseTuple(args, "|O!", &pgSurface_Type, &srcsurf))
+    static char *kwids[] = {"srcsurf", "premul", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|O!i", kwids,
+                                     &pgSurface_Type, &srcsurf,
+                                     &premul))
         return NULL;
 
 #pragma PG_WARN("srcsurf doesn't actually do anything?")
@@ -2008,6 +2013,13 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args)
      */
     newsurf = pg_DisplayFormatAlpha(surf);
     SDL_SetSurfaceBlendMode(newsurf, SDL_BLENDMODE_BLEND);
+
+    if(premul)
+    {
+        pgSurface_Prep(self);
+        premul_surf_color_by_alpha(surf, newsurf);
+    }
+
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
 #else  /* IS_SDLv1 */
     pgSurface_Prep(self);

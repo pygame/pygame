@@ -3227,3 +3227,74 @@ pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
 {
     return pygame_Blit (src, srcrect, dst, dstrect, the_args);
 }
+
+int
+premul_surf_color_by_alpha (SDL_Surface * src, SDL_Surface * dst)
+{
+    int okay;
+    int src_locked;
+    int dst_locked;
+    /* Lock the destination if it's in hardware */
+    dst_locked = 0;
+    if (SDL_MUSTLOCK (dst))
+    {
+        if (SDL_LockSurface (dst) < 0)
+            okay = 0;
+        else
+            dst_locked = 1;
+    }
+    /* Lock the source if it's in hardware */
+    src_locked = 0;
+    if (SDL_MUSTLOCK (src))
+    {
+        if (SDL_LockSurface (src) < 0)
+            okay = 0;
+        else
+            src_locked = 1;
+    }
+    SDL_PixelFormat *srcfmt = src->format;
+    SDL_PixelFormat *dstfmt = dst->format;
+    int               width = src->w;
+    int              height = src->h;
+    int              srcbpp = srcfmt->BytesPerPixel;
+    int              dstbpp = dstfmt->BytesPerPixel;
+    Uint8*       src_pixels = (Uint8 *) src->pixels;
+    Uint8*       dst_pixels = (Uint8 *) dst->pixels;
+
+    int           srcpxskip = src->format->BytesPerPixel;
+    int           dstpxskip = dst->format->BytesPerPixel;
+    int             srcskip = src->pitch - width * srcbpp;
+    int             dstskip = dst->pitch - width * dstbpp;
+
+    int             srcppa = 1;
+
+    int          n;
+    int          pixel;
+    Uint8        dR, dG, dB, dA, sR, sG, sB, sA;
+    int          dRi, dGi, dBi, dAi, sRi, sGi, sBi, sAi;
+    double       alpha;
+
+    while (height--)
+    {
+        LOOP_UNROLLED4(
+        {
+            GET_PIXEL(pixel, srcbpp, src_pixels);
+            GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+            alpha = sA / 255.0;
+            dR = (Uint8)(sR * alpha);
+            dG = (Uint8)(sG * alpha);
+            dB = (Uint8)(sR * alpha);
+            dA = sA;
+            CREATE_PIXEL(dst_pixels, dR, dG, dB, dA, dstbpp, dstfmt);
+            src_pixels += srcpxskip;
+            dst_pixels += dstpxskip;
+        }, n, width);
+        src_pixels += srcskip;
+        dst_pixels += dstskip;
+    }
+    if (dst_locked)
+        SDL_UnlockSurface (dst);
+    if (src_locked)
+        SDL_UnlockSurface (src);
+    return 0;
+}
