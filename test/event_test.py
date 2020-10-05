@@ -530,6 +530,20 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertEqual(wait_event.type, event.type)
 
+    def test_wait_timeout(self):
+        """Ensure wait(timeout) waits for an event, but stops if it reaches timeout milliseconds."""
+
+        # should return a pygame.NOEVENT if no event comes up in the given time
+        wait_event = pygame.event.wait(250)
+        self.assertEqual(wait_event.type, pygame.NOEVENT)
+
+        # if there is an event on the queue, it returns that right away
+        event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
+        pygame.event.post(event)
+        wait_event = pygame.event.wait(250)
+
+        self.assertEqual(wait_event.type, event.type)
+
     def test_peek(self):
         """Ensure queued events can be peeked at."""
         event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION]
