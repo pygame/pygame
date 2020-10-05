@@ -88,6 +88,8 @@ static PyObject *
 _color_set_length(pgColorObject *, PyObject *);
 static PyObject *
 _color_lerp(pgColorObject *, PyObject *, PyObject *);
+static PyObject *
+_premul_alpha(pgColorObject *, PyObject *);
 
 /* Getters/setters */
 static PyObject *
@@ -199,6 +201,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORSETLENGTH},
     {"lerp", (PyCFunction)_color_lerp, METH_VARARGS | METH_KEYWORDS,
      DOC_COLORLERP},
+    {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
+     DOC_COLORPREMULALPHA},
     {NULL, NULL, 0, NULL}};
 
 /**
@@ -899,6 +903,23 @@ _color_lerp(pgColorObject *self, PyObject *args, PyObject *kw)
     new_rgba[3] = (Uint8)pg_round(self->data[3] * (1 - amt) + rgba[3] * amt);
 
     return (PyObject *)_color_new_internal(Py_TYPE(self), new_rgba);
+}
+
+/**
+ * color.premul_alpha()
+ */
+static PyObject *
+_premul_alpha(pgColorObject *color, PyObject *args)
+{
+    Uint8 new_rgba[4];
+    double alpha = color->data[3] / 255.0;
+
+    new_rgba[0] = (Uint8)pg_round(color->data[0] * alpha);
+    new_rgba[1] = (Uint8)pg_round(color->data[1] * alpha);
+    new_rgba[2] = (Uint8)pg_round(color->data[2] * alpha);
+    new_rgba[3] = color->data[3];
+
+    return (PyObject *)_color_new_internal(Py_TYPE(color), new_rgba);
 }
 
 /**
