@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+import collections
 
 import pygame
 from pygame.compat import as_unicode
@@ -31,6 +32,15 @@ EVENT_TYPES = (
     pygame.USEREVENT,
     #   pygame.NUMEVENTS,
 )
+
+EVENT_TEST_PARAMS = collections.defaultdict(dict)
+EVENT_TEST_PARAMS.update({
+    pygame.KEYDOWN:{'key': pygame.K_SPACE},
+    pygame.KEYUP:{'key': pygame.K_SPACE},
+    pygame.MOUSEMOTION:dict(),
+    pygame.MOUSEBUTTONDOWN:dict(button=1),
+    pygame.MOUSEBUTTONUP:dict(button=1),
+})
 
 
 NAMES_AND_EVENTS = (
@@ -186,6 +196,53 @@ class EventModuleArgsTest(unittest.TestCase):
         pygame.event.peek(eventtype=pygame.USEREVENT, pump=False)
 
 
+class EventCustomTypeTest(unittest.TestCase):
+    """Those tests are special in that they need the _custom_event counter to
+    be reset before and/or after being run."""
+    def setUp(self):
+        pygame.quit()
+        pygame.init()
+        pygame.display.init()
+
+    def tearDown(self):
+        pygame.quit()
+
+    def test_custom_type(self):
+        self.assertEqual(pygame.event.custom_type(), pygame.USEREVENT + 1)
+        atype = pygame.event.custom_type()
+        atype2 = pygame.event.custom_type()
+
+        self.assertEqual(atype, atype2 - 1)
+
+        ev = pygame.event.Event(atype)
+        pygame.event.post(ev)
+        queue = pygame.event.get(atype)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, atype)
+
+    def test_custom_type__end_boundary(self):
+        """Ensure custom_type() raises error when no more custom types.
+
+        The last allowed custom type number should be (pygame.NUMEVENTS - 1).
+        """
+        start = pygame.event.custom_type() + 1
+        for i in range(start, pygame.NUMEVENTS):
+            last = pygame.event.custom_type()
+        self.assertEqual(last, pygame.NUMEVENTS - 1)
+        with self.assertRaises(pygame.error):
+            pygame.event.custom_type()
+
+    def test_custom_type__reset(self):
+        """Ensure custom events get 'deregistered' by quit().
+        """
+        before = pygame.event.custom_type()
+        self.assertEqual(before, pygame.event.custom_type() - 1)
+        pygame.quit()
+        pygame.init()
+        pygame.display.init()
+        self.assertEqual(before, pygame.event.custom_type())
+
+
 class EventModuleTest(unittest.TestCase):
     def _assertCountEqual(self, *args, **kwargs):
         # Handle method name differences between Python versions.
@@ -193,6 +250,27 @@ class EventModuleTest(unittest.TestCase):
             self.assertCountEqual(*args, **kwargs)
         else:
             self.assertItemsEqual(*args, **kwargs)
+
+    def _assertExpectedEvents(self, expected, got):
+        """Find events like expected events, raise on unexpected or missing,
+        ignore additional event properties if expected properties are present."""
+
+        # This does greedy matching, don't encode an NP-hard problem
+        # into your input data, *please*
+        items_left=got[:]
+        for expected_element in expected:
+            for item in items_left:
+                for key in expected_element.__dict__:
+                    if item.__dict__[key]!=expected_element.__dict__[key]:
+                        break
+                else:
+                    #found item!
+                    items_left.remove(item)
+                    break
+            else:
+                raise AssertionError("Expected "+str(expected_element)+" among remaining events "+str(items_left)+" out of "+str(got))
+        if len(items_left)>0:
+            raise AssertionError("Unexpected Events: "+str(items_left))
 
     def setUp(self):
         pygame.display.init()
@@ -221,7 +299,7 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertTrue(pygame.event.get_blocked(event))
 
-        pygame.event.post(pygame.event.Event(event))
+        pygame.event.post(pygame.event.Event(event, **EVENT_TEST_PARAMS[EVENT_TYPES[0]]))
         ret = pygame.event.get()
         should_be_blocked = [e for e in ret if e.type == event]
 
@@ -259,11 +337,22 @@ class EventModuleTest(unittest.TestCase):
 
         # fuzzing event types
         for i in range(1, 11):
-            pygame.event.post(pygame.event.Event(EVENT_TYPES[i]))
+            pygame.event.post(pygame.event.Event(EVENT_TYPES[i], **EVENT_TEST_PARAMS[EVENT_TYPES[i]]))
 
             self.assertEqual(
                 pygame.event.poll().type, EVENT_TYPES[i], race_condition_notification
             )
+
+    def test_post_and_get_keydown(self):
+        """Ensure keydown events can be posted to the queue."""
+        surf = pygame.display.set_mode((10, 10))
+        pygame.event.get()
+        e1 = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a)
+        pygame.event.post(e1)
+        posted_event = pygame.event.poll()
+        self.assertEqual(e1.type, posted_event.type, race_condition_notification)
+        self.assertEqual(e1.type, pygame.KEYDOWN, race_condition_notification)
+        self.assertEqual(e1.key, posted_event.key, race_condition_notification)
 
     def test_post_large_user_event(self):
         pygame.event.post(pygame.event.Event(pygame.USEREVENT, {"a": "a" * 1024}))
@@ -321,43 +410,45 @@ class EventModuleTest(unittest.TestCase):
         pygame.event.clear()
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        # don't use self._assertCountEqual here. This checks for
+        # expected properties in events, and ignores unexpected ones, for
+        # forward compatibility with SDL2.
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test when an event type not in the list is in the queue.
         expected_events = []
         pygame.event.clear()
-        pygame.event.post(pygame.event.Event(other_event_type))
+        pygame.event.post(pygame.event.Event(other_event_type, **EVENT_TEST_PARAMS[other_event_type]))
 
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test when 1 event type in the list is in the queue.
-        expected_events = [pygame.event.Event(event_types[0])]
+        expected_events = [pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]])]
         pygame.event.clear()
         pygame.event.post(expected_events[0])
 
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
         # Test all events in the list are in the queue.
         pygame.event.clear()
         expected_events = []
 
         for etype in event_types:
-            expected_events.append(pygame.event.Event(etype))
+            expected_events.append(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
             pygame.event.post(expected_events[-1])
 
         retrieved_events = pygame.event.get(event_types)
 
-        self._assertCountEqual(retrieved_events, expected_events)
+        self._assertExpectedEvents(expected=expected_events, got=retrieved_events)
 
     def test_clear(self):
         """Ensure clear() removes all the events on the queue."""
         for e in EVENT_TYPES:
-            pygame.event.post(pygame.event.Event(e))
-
+            pygame.event.post(pygame.event.Event(e, **EVENT_TEST_PARAMS[e]))
         poll_event = pygame.event.poll()
 
         self.assertNotEqual(poll_event.type, pygame.NOEVENT)
@@ -387,10 +478,10 @@ class EventModuleTest(unittest.TestCase):
 
         # Add the events to the queue.
         for etype in cleared_event_types:
-            pygame.event.post(pygame.event.Event(etype))
+            pygame.event.post(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
 
         for etype in expected_events:
-            expected_events.append(pygame.event.Event(etype))
+            expected_events.append(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
             pygame.event.post(expected_events[-1])
 
         # Clear the cleared_events from the queue.
@@ -433,7 +524,7 @@ class EventModuleTest(unittest.TestCase):
 
     def test_wait(self):
         """Ensure wait() waits for an event on the queue."""
-        event = pygame.event.Event(EVENT_TYPES[0])
+        event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
         pygame.event.post(event)
         wait_event = pygame.event.wait()
 
@@ -444,7 +535,7 @@ class EventModuleTest(unittest.TestCase):
         event_types = [pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION]
 
         for event_type in event_types:
-            pygame.event.post(pygame.event.Event(event_type))
+            pygame.event.post(pygame.event.Event(event_type, **EVENT_TEST_PARAMS[event_type]))
 
         # Ensure events can be checked individually.
         for event_type in event_types:
@@ -466,7 +557,7 @@ class EventModuleTest(unittest.TestCase):
 
         # Test when an event type not in the list is in the queue.
         pygame.event.clear()
-        pygame.event.post(pygame.event.Event(other_event_type))
+        pygame.event.post(pygame.event.Event(other_event_type, **EVENT_TEST_PARAMS[other_event_type]))
 
         peeked = pygame.event.peek(event_types)
 
@@ -474,7 +565,7 @@ class EventModuleTest(unittest.TestCase):
 
         # Test when 1 event type in the list is in the queue.
         pygame.event.clear()
-        pygame.event.post(pygame.event.Event(event_types[0]))
+        pygame.event.post(pygame.event.Event(event_types[0], **EVENT_TEST_PARAMS[event_types[0]]))
 
         peeked = pygame.event.peek(event_types)
 
@@ -483,7 +574,7 @@ class EventModuleTest(unittest.TestCase):
         # Test all events in the list are in the queue.
         pygame.event.clear()
         for etype in event_types:
-            pygame.event.post(pygame.event.Event(etype))
+            pygame.event.post(pygame.event.Event(etype, **EVENT_TEST_PARAMS[etype]))
 
         peeked = pygame.event.peek(event_types)
 
@@ -585,19 +676,6 @@ class EventModuleTest(unittest.TestCase):
         self.assertFalse(a == c)
         self.assertTrue(a != d)
         self.assertFalse(a == d)
-
-    def test_custom_type(self):
-        self.assertEqual(pygame.event.custom_type(), pygame.USEREVENT + 1)
-        atype = pygame.event.custom_type()
-        atype2 = pygame.event.custom_type()
-
-        self.assertEqual(atype, atype2 - 1)
-
-        ev = pygame.event.Event(atype)
-        pygame.event.post(ev)
-        queue = pygame.event.get(atype)
-        self.assertEqual(len(queue), 1)
-        self.assertEqual(queue[0].type, atype)
 
     def test_get_blocked(self):
         """Ensure an event's blocked state can be retrieved."""

@@ -207,6 +207,7 @@ class FuncResult:
         """
         self.f = f
         self.exception = None
+        self.result = None
         self.callback = callback
         self.errback = errback
 

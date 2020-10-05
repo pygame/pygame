@@ -14,5 +14,6 @@ PointerAlignment: Right
 ReflowComments: true
 SpaceBeforeParens: ControlStatements
 SpacesInParentheses: false
+SortIncludes: false
 TabWidth: 4
 UseTab: Never

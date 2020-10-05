@@ -1,3 +1,5 @@
+os: linux
+dist: bionic  # focal
 language: python
 
 cache:
@@ -16,20 +18,28 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR 
 jobs:
   include:
     - python: 2.7
+      env:
+        - RUN_SDIST=yes
     - python: 3.5
       name: SDL 1.2
       env:
         - WHICH_SDL_BUILD=-sdl1
+        - RUN_SDIST=yes
     - python: 3.6
+      env:
+        - RUN_SDIST=yes
     - python: 3.8
+      env:
+        - RUN_SDIST=yes
     - python: 3.9-dev
     - os: linux-ppc64le
-      python: 3.7
+      python: 3.8
       arch: ppc64le
       env:
         - PPC=yes
     - os: linux
-      python: 3.7
+      dist: xenial
+      python: 3.8
       arch: arm64
       env:
         - ARM64=yes
@@ -45,6 +55,7 @@ jobs:
         - UPLOAD_SDIST_PYPI=yes
         - GITHUB_UPLOAD=yes
         - PYTHON_EXE=python3
+        - RUN_SDIST=yes
       services:
         - docker
     - os: osx
@@ -64,7 +75,7 @@ before_install:
       sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
         libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev \
         libtiff5-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
-        xfonts-cyrillic fluid-soundfont-gm musescore-soundfont-gm \
+        xfonts-cyrillic fluid-soundfont-gm timgm6mb-soundfont \
         libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
     fi
 
@@ -115,6 +126,12 @@ script:
       $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
       $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl --time_out 300
     fi
+  # to make sure setup.py sdist runs.
+  - |
+    if [[ "$RUN_SDIST" == "yes" ]]; then
+      $PYTHON_EXE setup.py sdist
+    fi
+
 
 # Upload dist/*.whl to pypi on tags.
 after_success:
@@ -133,19 +150,19 @@ after_success:
 
 deploy:
   # https://docs.travis-ci.com/user/deployment/releases/
-  - provider: releases
-    api_key:
-      secure: MzyOmZ6HU16YGuiT66kuTDeGO7Ue+fKCf7HBztuxiHGyVVYdYpDgMIgEKqZ7vAQy9KfdXMzlGkwGesMnOm+i6eU0/USG19yP11ABWJhXe7mv0sGXvQpbMnARARyj73+bSZuNfXrYWOQI9R87LIGqFC3ZEKSgdNdaUQevwW5VG0tEHIeA1FUEL9OTDKsK1KdiG8dwhABZRoC4zak200DwD+1wVyBNSmVBNRa9qRuDeN/MTguqWNLyh1vXSYGB1sl2j0YVWz3uvn/Og0f9tZjcYTZ8/l38Qqvs5EPWmTm8WEtrbYFbPcoctiz1HfQ7ZWi9exJXnNVjguUknJfIsUERZKhqLzR961WI/NRaWtTvKd6RcTYERr+BfvP5nbKryEiifTJKP3OUMKzMAhPPxCp8WPk02lnDAjaxUg6TZ8/lzt6ntDfSfM/50vsN/BRInXU6G4sNb6feklFSpgoqatSKk45V+7jXnCXMmiPbSAdYAcZn/PllFdob7wYOfOED2ynKubZiSI1fRQTdMsUZP0H1Ax5zQpUtEbaXnD1DQRv+UlE0TyQxV4w2D8ZAFKBPxOqDKzODCbJ7fVvUR0SSO0+a8w2rWp2h3MIs+HGDdYII28cM1CHRyqnlMjo6o9eEd/Wi/f5hoL5RkN8OuLUHBLp4mC2D69XI8XzHreigqs1lJgg=
-    file_glob: true
-    file:
-      - dist/*.whl
-    skip_cleanup: true
-    draft: true
-    on:
-      all_branches: true
-      # branches:
-      #   only:
-      #     - master
-      tags: true
-      repo: pygame/pygame
-      condition: $GITHUB_UPLOAD = yes
+  provider: releases
+  token:
+    secure: MzyOmZ6HU16YGuiT66kuTDeGO7Ue+fKCf7HBztuxiHGyVVYdYpDgMIgEKqZ7vAQy9KfdXMzlGkwGesMnOm+i6eU0/USG19yP11ABWJhXe7mv0sGXvQpbMnARARyj73+bSZuNfXrYWOQI9R87LIGqFC3ZEKSgdNdaUQevwW5VG0tEHIeA1FUEL9OTDKsK1KdiG8dwhABZRoC4zak200DwD+1wVyBNSmVBNRa9qRuDeN/MTguqWNLyh1vXSYGB1sl2j0YVWz3uvn/Og0f9tZjcYTZ8/l38Qqvs5EPWmTm8WEtrbYFbPcoctiz1HfQ7ZWi9exJXnNVjguUknJfIsUERZKhqLzR961WI/NRaWtTvKd6RcTYERr+BfvP5nbKryEiifTJKP3OUMKzMAhPPxCp8WPk02lnDAjaxUg6TZ8/lzt6ntDfSfM/50vsN/BRInXU6G4sNb6feklFSpgoqatSKk45V+7jXnCXMmiPbSAdYAcZn/PllFdob7wYOfOED2ynKubZiSI1fRQTdMsUZP0H1Ax5zQpUtEbaXnD1DQRv+UlE0TyQxV4w2D8ZAFKBPxOqDKzODCbJ7fVvUR0SSO0+a8w2rWp2h3MIs+HGDdYII28cM1CHRyqnlMjo6o9eEd/Wi/f5hoL5RkN8OuLUHBLp4mC2D69XI8XzHreigqs1lJgg=
+  file_glob: true
+  file:
+    - dist/*.whl
+  skip_cleanup: true
+  draft: true
+  on:
+    all_branches: true
+    # branches:
+    #   only:
+    #     - master
+    tags: true
+    repo: pygame/pygame
+    condition: $GITHUB_UPLOAD = yes

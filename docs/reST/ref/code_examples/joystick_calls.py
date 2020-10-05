@@ -84,12 +84,25 @@ while not done:
         joystick = pygame.joystick.Joystick(i)
         joystick.init()
 
-        textPrint.tprint(screen, "Joystick {}".format(i))
+        try:
+            jid = joystick.get_instance_id()
+        except AttributeError:
+            # get_instance_id() is an SDL2 method
+            jid = joystick.get_id()
+        textPrint.tprint(screen, "Joystick {}".format(jid))
         textPrint.indent()
 
         # Get the name from the OS for the controller/joystick.
         name = joystick.get_name()
         textPrint.tprint(screen, "Joystick name: {}".format(name))
+
+        try:
+            guid = joystick.get_guid()
+        except AttributeError:
+            # get_guid() is an SDL2 method
+            pass
+        else:
+            textPrint.tprint(screen, "GUID: {}".format(guid))
 
         # Usually axis run in pairs, up/down for one, and left/right for
         # the other.

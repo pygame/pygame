@@ -6,22 +6,22 @@
 # To configure, compile, install, just run this script.
 #     python setup.py install
 
-DESCRIPTION = """Pygame is a Python wrapper module for the
-SDL multimedia library. It contains python functions and classes
-that will allow you to use SDL's support for playing cdroms,
-audio and video output, and keyboard, mouse and joystick input."""
+import io
+
+with io.open('README.rst', encoding='utf-8') as readme:
+    LONG_DESCRIPTION = readme.read()
 
 EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev11",
+    "version":          "2.0.0.dev13",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
     "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
-    "long_description": DESCRIPTION,
+    "long_description": LONG_DESCRIPTION,
 }
 
 import re
@@ -341,17 +341,6 @@ if enable_arm_neon:
     for e in extensions:
         e.define_macros.append(('PG_ENABLE_ARM_NEON', '1'))
 
-# decide whether or not to enable new buffer protocol support (PEP 3118)
-# old CPython versions without newbuf are no longer supported!
-# new PYPY also supports PEP 3118
-enable_newbuf = True
-
-# TODO: remove all PG_ENABLE_NEWBUF conditionals from C code
-# and just fail when PEP 3118 (Py_TPFLAGS_HAVE_NEWBUFFER) is not present
-# then remove this logic
-for e in extensions:
-    e.define_macros.append(('ENABLE_NEWBUF', '1'))
-
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('src_py', 'font.py')
 if os.path.exists(alternate_font):
@@ -380,6 +369,7 @@ data_files = [('pygame', pygame_data_files)]
 add_stubs = True
 # add *.pyi files into distribution directory
 if add_stubs:
+    pygame_data_files.append(os.path.join('buildconfig', 'pygame-stubs', 'py.typed'))
     type_files = glob.glob(os.path.join('buildconfig', 'pygame-stubs', '*.pyi'))
     for type_file in type_files:
         pygame_data_files.append(type_file)
@@ -409,19 +399,7 @@ add_datafiles(data_files, 'pygame/tests',
 
 #examples
 add_datafiles(data_files, 'pygame/examples',
-              ['examples',
-                  ['readme.rst',
-                   ['data',
-                       ['*']],
-                   ['macosx',
-                       ['*.py',
-                        ['aliens_app_example',
-                            ['*.py',
-                             'README.txt',
-                             ['English.lproj',
-                                 ['aliens.icns',
-                                  ['MainMenu.nib',
-                                      ['*']]]]]]]]]])
+              ['examples', ['README.rst', ['data', ['*']]]])
 
 #docs
 add_datafiles(data_files, 'pygame/docs',
@@ -672,9 +650,10 @@ class smart_install_data(install_data):
 @add_command('sdist')
 class OurSdist(sdist):
     def initialize_options(self):
-        super(sdist, self).initialize_options()
+        sdist.initialize_options(self)
         # we do not want MANIFEST.in to appear in the root cluttering up things.
         self.template = os.path.join('buildconfig', 'MANIFEST.in')
+
 
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files

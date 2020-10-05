@@ -206,23 +206,41 @@ class DisplayModuleTest(unittest.TestCase):
         surface = pygame.display.get_surface()
 
         self.assertIsNone(surface)
-
-    def todo_test_get_wm_info(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.display.get_wm_info:
-
-        # pygame.display.get_wm_info(): return dict
-        # Get information about the current windowing system
-        #
-        # Creates a dictionary filled with string keys. The strings and values
-        # are arbitrarily created by the system. Some systems may have no
-        # information and an empty dictionary will be returned. Most platforms
-        # will return a "window" key with the value set to the system id for
-        # the current display.
-        #
-        # New with pygame 1.7.1
-
-        self.fail()
+        
+    def test_get_wm_info(self):
+        wm_info = display.get_wm_info()
+        # Assert function returns a dictionary type
+        self.assertIsInstance(wm_info,dict)
+        
+        wm_info_potential_keys = {
+        'colorbuffer',
+        'connection',
+        'data',
+        'dfb',
+        'display',
+        'framebuffer',
+        'fswindow',
+        'hdc',
+        'hglrc',
+        'hinstance',
+        'lock_func',
+        'resolveFramebuffer',
+        'shell_surface',
+        'surface',
+        'taskHandle',
+        'unlock_func',
+        'wimpVersion',
+        'window',
+        'wmwindow'
+        }
+        
+        # If any unexpected dict keys are present, they
+        # will be stored in set wm_info_remaining_keys
+        wm_info_remaining_keys = set(wm_info.keys()).difference(wm_info_potential_keys)
+        
+        # Assert set is empty (& therefore does not
+        # contain unexpected dict keys)
+        self.assertFalse(wm_info_remaining_keys)
 
     def todo_test_gl_get_attribute(self):
 
@@ -259,7 +277,7 @@ class DisplayModuleTest(unittest.TestCase):
         #   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 
         self.fail()
-        
+
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER") in ["dummy", "android"],
         'iconify is only supported on some video drivers/platforms'
@@ -279,7 +297,7 @@ class DisplayModuleTest(unittest.TestCase):
                 for event in pygame.event.get():
                     if SDL2:
                         if (event.type == pygame.WINDOWEVENT and
-                            event.event == 7):  # should be WINDOWEVENT_MINIMIZED
+                                event.event == pygame.WINDOWEVENT_MINIMIZED):
                             minimized_event = True
 
             if SDL2:
@@ -375,7 +393,11 @@ class DisplayModuleTest(unittest.TestCase):
         for gammaTuple in gammas:
             self.assertEqual(pygame.display.set_gamma(gammaTuple[0],gammaTuple[1],gammaTuple[2]),True)
 
-    def todo_test_set_gamma_ramp(self):
+    @unittest.skipIf(
+        not hasattr(pygame.display,"set_gamma_ramp"),
+        "Not all systems and hardware support gamma ramps"
+    )
+    def test_set_gamma_ramp(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.set_gamma_ramp:
 
@@ -389,8 +411,15 @@ class DisplayModuleTest(unittest.TestCase):
         # hardware support gamma ramps, if the function succeeds it will
         # return True.
         #
-
-        self.fail()
+        pygame.display.set_mode((5, 5))
+        r = list(range(256))
+        g = [number + 256 for number in r]
+        b = [number + 256 for number in g]
+        isSupported = pygame.display.set_gamma_ramp(r, g, b)
+        if (isSupported):
+            self.assertTrue(pygame.display.set_gamma_ramp(r, g, b))
+        else:
+            self.assertFalse(pygame.display.set_gamma_ramp(r, g, b))
 
     def test_set_mode_kwargs(self):
 

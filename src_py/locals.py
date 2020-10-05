@@ -22,7 +22,7 @@
 """Set of functions from PyGame that are handy to have in
 the local namespace for your module"""
 
-from pygame.constants import *  # pylint: disable=wildcard-import
+from pygame.constants import *  # pylint: disable=wildcard-import; lgtm[py/polluting-import]
 from pygame.rect import Rect
 import pygame.color as color
 Color = color.Color
@@ -87,6 +87,9 @@ __all__ = [
     'CONTROLLERDEVICEADDED',
     'CONTROLLERDEVICEREMAPPED',
     'CONTROLLERDEVICEREMOVED',
+    'CONTROLLERDEVICEREMOVED',
+    'JOYDEVICEADDED',
+    'JOYDEVICEREMOVED',
     'CONTROLLER_AXIS_INVALID',
     'CONTROLLER_AXIS_LEFTX',
     'CONTROLLER_AXIS_LEFTY',
@@ -529,6 +532,18 @@ __all__ = [
     'SRCALPHA',
     'SRCCOLORKEY',
     'SWSURFACE',
+    'SYSTEM_CURSOR_ARROW',
+    'SYSTEM_CURSOR_CROSSHAIR',
+    'SYSTEM_CURSOR_HAND',
+    'SYSTEM_CURSOR_IBEAM',
+    'SYSTEM_CURSOR_NO',
+    'SYSTEM_CURSOR_SIZEALL',
+    'SYSTEM_CURSOR_SIZENESW',
+    'SYSTEM_CURSOR_SIZENS',
+    'SYSTEM_CURSOR_SIZENWSE',
+    'SYSTEM_CURSOR_SIZEWE',
+    'SYSTEM_CURSOR_WAIT',
+    'SYSTEM_CURSOR_WAITARROW',
     'SYSWMEVENT',
     'TEXTEDITING',
     'TEXTINPUT',
@@ -539,4 +554,5 @@ __all__ = [
     'VIDEORESIZE',
     'WINDOWEVENT',
     'WINDOWEVENT_CLOSE',
+    'WINDOWEVENT_MINIMIZED',
 ]
