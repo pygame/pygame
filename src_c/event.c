@@ -1361,7 +1361,7 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int status;
-    int timeout = 0;
+    int timeout = NULL;
 
     VIDEO_INIT_CHECK();
 
@@ -1374,15 +1374,20 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (timeout && IS_SDLv1) {
-        return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
-    }
+    #if IS_SDLv1
+        if (timeout)
+            return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
+    #endif
 
     Py_BEGIN_ALLOW_THREADS;
-    if (!timeout)
+    #if IS_SDLv1
         status = SDL_WaitEvent(&event);
-    else
-        status = SDL_WaitEventTimeout(&event, timeout);
+    #else /* IS_SDLv2 */
+        if (!timeout)
+            status = SDL_WaitEvent(&event);
+        else
+            status = SDL_WaitEventTimeout(&event, timeout);
+    #endif /* IS_SDLv2 */
     Py_END_ALLOW_THREADS;
 
     if (!status && !timeout) //status 0 means an error normally
