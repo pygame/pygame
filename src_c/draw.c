@@ -1053,7 +1053,7 @@ clip_line(SDL_Surface *surf, int *x1, int *y1, int *x2, int *y2) {
     double nmax = 0;
     double pmin = 1;
     double r1, r2;
-    if (p1 == 0 && q1 < 0 || p2 == 0 && q2 < 0 || p3 == 0 && q3 < 0 || p4 == 0 && q4 < 0)
+    if ((p1 == 0 && q1 < 0) || (p2 == 0 && q2 < 0) || (p3 == 0 && q3 < 0) || (p4 == 0 && q4 < 0))
         return 0;
     if (p1) {
         r1 = (double) q1 / p1;
