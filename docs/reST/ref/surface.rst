@@ -179,7 +179,7 @@
    .. method:: convert_alpha
 
       | :sl:`change the pixel format of an image including per pixel alphas`
-      | :sg:`convert_alpha(Surface) -> Surface`
+      | :sg:`convert_alpha(srcsurf=None, premul=False) -> Surface`
       | :sg:`convert_alpha() -> Surface`
 
       Creates a new copy of the surface with the desired pixel format. The new
@@ -193,6 +193,16 @@
 
       As with :meth:`convert()` the returned surface has the same class as
       the converted surface.
+
+      .. versionadded:: 2.0
+
+      From version 2.0, if you set the new `premul` parameter to True, pygame
+      will attempt to multiply  the red, green & blue color channels in the
+      surface by a pre-existing alpha channel and return the result as a new
+      surface. If there is no pre-existing alpha channel then setting this
+      option to True will raise an error. The `premul` parameter is designed
+      to make working with the `BLEND_PREMULTIPLIED` flag for
+      :meth:`pygame.Surface.blit()` easier.
 
       .. ## Surface.convert_alpha ##
 
