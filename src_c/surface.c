@@ -1989,6 +1989,7 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     pgSurfaceObject *srcsurf = NULL;
     int premul = 0;
     SDL_Surface *newsurf;
+    static char *kwids[] = {"srcsurf", "premul", NULL};
 #if IS_SDLv1
     SDL_Surface *src;
 #endif
@@ -1997,7 +1998,6 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
         return RAISE(pgExc_SDLError,
                      "cannot convert without pygame.display initialized");
 
-    static char *kwids[] = {"srcsurf", "premul", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|O!i", kwids,
                                      &pgSurface_Type, &srcsurf,
                                      &premul))
@@ -2018,6 +2018,7 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     {
         pgSurface_Prep(self);
         premul_surf_color_by_alpha(surf, newsurf);
+        pgSurface_Unprep(self);
     }
 
     final = surf_subtype_new(Py_TYPE(self), newsurf, 1);
@@ -2033,6 +2034,11 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     }
     else
         newsurf = SDL_DisplayFormatAlpha(surf);
+
+    if(premul)
+    {
+        premul_surf_color_by_alpha(surf, newsurf);
+    }
     pgSurface_Unprep(self);
 
     final = surf_subtype_new(Py_TYPE(self), newsurf);

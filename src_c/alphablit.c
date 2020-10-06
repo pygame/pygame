@@ -92,6 +92,12 @@ static void blit_blend_premultiplied_mmx (SDL_BlitInfo * info);
 static void blit_blend_premultiplied_sse2 (SDL_BlitInfo * info);
 #endif /*defined(__MMX__) || defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)*/
 
+static void premul_surf_color_by_alpha_software (SDL_Surface * src,
+                                                 SDL_Surface * dst);
+#if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+static void premul_surf_color_by_alpha_sse2 (SDL_Surface * src,
+                                             SDL_Surface * dst);
+#endif /* defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)*/
 
 static int
 SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect,
@@ -3231,27 +3237,55 @@ pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
 int
 premul_surf_color_by_alpha (SDL_Surface * src, SDL_Surface * dst)
 {
-    int okay;
-    int src_locked;
-    int dst_locked;
-    /* Lock the destination if it's in hardware */
-    dst_locked = 0;
-    if (SDL_MUSTLOCK (dst))
+    int have_run = 0;
+#if IS_SDLv2
+    SDL_BlendMode    src_blend;
+    SDL_GetSurfaceBlendMode(src, &src_blend);
+#endif /* IS_SDLv2 */
+
+#if IS_SDLv1
+    if (src->format->BytesPerPixel == 4 &&
+        dst->format->BytesPerPixel == 4 &&
+        src->format->Rmask == dst->format->Rmask &&
+        src->format->Gmask == dst->format->Gmask &&
+        src->format->Bmask == dst->format->Bmask &&
+        src->flags & SDL_SRCALPHA)
+#else /* IS_SDLv2 */
+    if (src->format->BytesPerPixel == 4 &&
+        dst->format->BytesPerPixel == 4 &&
+        src->format->Rmask == dst->format->Rmask &&
+        src->format->Gmask == dst->format->Gmask &&
+        src->format->Bmask == dst->format->Bmask &&
+        src_blend != SDL_BLENDMODE_NONE)
+#endif /* IS_SDLv2 */
     {
-        if (SDL_LockSurface (dst) < 0)
-            okay = 0;
-        else
-            dst_locked = 1;
+    #if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+        #if PG_ENABLE_ARM_NEON
+        if (SDL_HasNEON() == SDL_TRUE){
+            premul_surf_color_by_alpha_sse2 (src, dst);
+            have_run = 1;
+        }
+        #endif /* PG_ENABLE_ARM_NEON */
+        #ifdef __SSE2__
+        if (SDL_HasSSE2()){
+            premul_surf_color_by_alpha_sse2 (src, dst);
+            have_run = 1;
+        }
+        #endif /* __SSE2__*/
+    #endif /* __SSE2__ || PG_ENABLE_ARM_NEON*/
     }
-    /* Lock the source if it's in hardware */
-    src_locked = 0;
-    if (SDL_MUSTLOCK (src))
+
+    if (!have_run)
     {
-        if (SDL_LockSurface (src) < 0)
-            okay = 0;
-        else
-            src_locked = 1;
+        premul_surf_color_by_alpha_software (src, dst);
     }
+
+    return 0;
+}
+
+static void
+premul_surf_color_by_alpha_software (SDL_Surface * src, SDL_Surface * dst)
+{
     SDL_PixelFormat *srcfmt = src->format;
     SDL_PixelFormat *dstfmt = dst->format;
     int               width = src->w;
@@ -3263,15 +3297,12 @@ premul_surf_color_by_alpha (SDL_Surface * src, SDL_Surface * dst)
 
     int           srcpxskip = src->format->BytesPerPixel;
     int           dstpxskip = dst->format->BytesPerPixel;
-    int             srcskip = src->pitch - width * srcbpp;
-    int             dstskip = dst->pitch - width * dstbpp;
 
-    int             srcppa = 1;
+    int             srcppa = SDL_TRUE;
 
     int          n;
     int          pixel;
     Uint8        dR, dG, dB, dA, sR, sG, sB, sA;
-    int          dRi, dGi, dBi, dAi, sRi, sGi, sBi, sAi;
     double       alpha;
 
     while (height--)
@@ -3289,12 +3320,59 @@ premul_surf_color_by_alpha (SDL_Surface * src, SDL_Surface * dst)
             src_pixels += srcpxskip;
             dst_pixels += dstpxskip;
         }, n, width);
-        src_pixels += srcskip;
-        dst_pixels += dstskip;
     }
-    if (dst_locked)
-        SDL_UnlockSurface (dst);
-    if (src_locked)
-        SDL_UnlockSurface (src);
-    return 0;
 }
+
+#if  defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
+static void
+premul_surf_color_by_alpha_sse2 (SDL_Surface * src, SDL_Surface * dst)
+{
+    int             n;
+    int             width = src->w;
+    int             height = src->h;
+    Uint32          *srcp = (Uint32 *) src->pixels;
+    Uint32          *dstp = (Uint32 *) dst->pixels;
+
+    SDL_PixelFormat *srcfmt = src->format;
+    Uint32          amask = srcfmt->Amask;
+    Uint64          multmask;
+    Uint64          ones;
+
+    __m128i src1, dst1, rgb_mul_src, mm_alpha, mm_alpha_in, mm_zero, ones_128;
+
+    mm_zero = _mm_setzero_si128();
+    ones = 0x0001000100010001;
+    ones_128 = _mm_loadl_epi64((const __m128i *) & ones);
+
+    while (height--) {
+        /* *INDENT-OFF* */
+        LOOP_UNROLLED4({
+        Uint32 alpha = *srcp & amask;
+        if (alpha == amask) {
+            *dstp = *srcp;
+        } else {
+            /* extract source pixels */
+            src1 = _mm_cvtsi32_si128(*srcp); /* src(ARGB) -> src1 (000000000000ARGB) */
+            src1 = _mm_unpacklo_epi8(src1, mm_zero); /* 000000000A0R0G0B -> src1 */
+
+            /* extract source alpha and copy to r, g, b channels */
+            mm_alpha_in = _mm_cvtsi32_si128(alpha); /* alpha -> mm_alpha (000000000000A000) */
+            mm_alpha = _mm_srli_si128(mm_alpha_in, 3); /* mm_alpha >> ashift -> mm_alpha(000000000000000A) */
+            mm_alpha = _mm_unpacklo_epi16(mm_alpha, mm_alpha); /* 0000000000000A0A -> mm_alpha */
+            mm_alpha = _mm_unpacklo_epi32(mm_alpha, mm_alpha); /* 000000000A0A0A0A -> mm_alpha2 */
+
+            /* rgb alpha multiply */
+            rgb_mul_src = _mm_add_epi16(src1, ones_128);
+            rgb_mul_src = _mm_mullo_epi16(rgb_mul_src, mm_alpha);
+            rgb_mul_src = _mm_srli_epi16(rgb_mul_src, 8);
+            dst1 = _mm_packus_epi16(rgb_mul_src, mm_zero);
+            dst1 = _mm_max_epu8(mm_alpha_in,dst1); /* restore original alpha */
+
+            *dstp = _mm_cvtsi128_si32(dst1);
+        }
+        ++srcp;
+        ++dstp;
+        }, n, width);
+    }
+}
+#endif /* __SSE2__ || PG_ENABLE_ARM_NEON*/
