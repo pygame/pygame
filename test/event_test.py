@@ -8,7 +8,7 @@ from pygame.compat import as_unicode
 
 
 PY3 = sys.version_info >= (3, 0, 0)
-
+SDL1 = pygame.get_sdl_version()[0] < 2
 
 ################################################################################
 
@@ -524,25 +524,31 @@ class EventModuleTest(unittest.TestCase):
 
     def test_wait(self):
         """Ensure wait() waits for an event on the queue."""
+        # Test case without timeout.
         event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
         pygame.event.post(event)
         wait_event = pygame.event.wait()
 
         self.assertEqual(wait_event.type, event.type)
 
-    def test_wait_timeout(self):
-        """Ensure wait(timeout) waits for an event, but stops if it reaches timeout milliseconds."""
+        # Test case with timeout and no event in the queue.
+        if SDL1:
+            with self.assertRaises(TypeError):
+                pygame.event.wait(250)
+        else:
+            wait_event = pygame.event.wait(250)
+            self.assertEqual(wait_event.type, pygame.NOEVENT)
 
-        # should return a pygame.NOEVENT if no event comes up in the given time
-        wait_event = pygame.event.wait(250)
-        self.assertEqual(wait_event.type, pygame.NOEVENT)
+        # Test case with timeout and an event in the queue.
+        if SDL1:
+            with self.assertRaises(TypeError):
+                pygame.event.wait(250)
+        else:
+            event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
+            pygame.event.post(event)
+            wait_event = pygame.event.wait(250)
 
-        # if there is an event on the queue, it returns that right away
-        event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
-        pygame.event.post(event)
-        wait_event = pygame.event.wait(250)
-
-        self.assertEqual(wait_event.type, event.type)
+            self.assertEqual(wait_event.type, event.type)
 
     def test_peek(self):
         """Ensure queued events can be peeked at."""
