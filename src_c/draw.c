@@ -1045,9 +1045,9 @@ clip_line(SDL_Surface *surf, int *x1, int *y1, int *x2, int *y2) {
     int p3 = *y1 - *y2;
     int p4 = -p3;
     int q1 = *x1 - surf->clip_rect.x;
-    int q2 = surf->clip_rect.w - *x1;
+    int q2 = surf->clip_rect.w + surf->clip_rect.x - *x1;
     int q3 = *y1 - surf->clip_rect.y;
-    int q4 = surf->clip_rect.h - *y1;
+    int q4 = surf->clip_rect.h + surf->clip_rect.y - *y1;
     int old_x1 = *x1;
     int old_y1 = *y1;
     double nmax = 0;
@@ -1295,10 +1295,8 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2,
                 if (xinc)
                     drawhorzlineclip(surf, color, x1 - (width - 1) / 2, y1, x1 + width / 2, drawn_area);
                 else {
-                    set_and_check_rect(surf, x1, y1 - (width - 1) / 2, color, drawn_area);
-                    for (int i = -(width - 1) / 2 + 1; i < width / 2; i++)
-                        set_at(surf, x1, y1 + i, color);
-                    set_and_check_rect(surf, x1, y1 + width / 2, color, drawn_area);
+                    for (int i = -(width - 1) / 2; i <= width / 2; i++)
+                        set_and_check_rect(surf, x1, y1 + i, color, drawn_area);
                 }
                 e2 = err;
                 if (e2 >-dx) { err -= dy; x1 += sx; }
@@ -1307,10 +1305,8 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2,
             if (xinc)
                 drawhorzlineclip(surf, color, x2 - (width - 1) / 2, y2, x2 + width / 2, drawn_area);
             else {
-                set_and_check_rect(surf, x2, y2 - (width - 1) / 2, color, drawn_area);
-                for (int i = -(width - 1) / 2 + 1; i < width / 2; i++)
-                    set_at(surf, x2, y2 + i, color);
-                set_and_check_rect(surf, x2, y2 + width / 2, color, drawn_area);
+                for (int i = -(width - 1) / 2; i <= width / 2; i++)
+                    set_and_check_rect(surf, x2, y2 + i, color, drawn_area);
             }
         }
     }
