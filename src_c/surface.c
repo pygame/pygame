@@ -2017,7 +2017,11 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
     if(premul)
     {
         pgSurface_Prep(self);
-        premul_surf_color_by_alpha(surf, newsurf);
+        if (premul_surf_color_by_alpha(surf, newsurf) != 0)
+        {
+            return RAISE(PyExc_ValueError,
+            "source surface to be pre-multiplied must have alpha channel");
+        }
         pgSurface_Unprep(self);
     }
 
@@ -2037,7 +2041,11 @@ surf_convert_alpha(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
 
     if(premul)
     {
-        premul_surf_color_by_alpha(surf, newsurf);
+        if (premul_surf_color_by_alpha(surf, newsurf) != 0)
+        {
+            return RAISE(PyExc_ValueError,
+            "source surface to be pre-multiplied must have alpha channel");
+        }
     }
     pgSurface_Unprep(self);
 

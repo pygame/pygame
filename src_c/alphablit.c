@@ -3241,23 +3241,19 @@ premul_surf_color_by_alpha (SDL_Surface * src, SDL_Surface * dst)
 #if IS_SDLv2
     SDL_BlendMode    src_blend;
     SDL_GetSurfaceBlendMode(src, &src_blend);
-#endif /* IS_SDLv2 */
+    if (src_blend == SDL_BLENDMODE_NONE)
+        return -1;
+#else /* IS_SDLv1 */
+    if (!(src->flags & SDL_SRCALPHA))
+        return -1;
+#endif
 
-#if IS_SDLv1
+
     if (src->format->BytesPerPixel == 4 &&
         dst->format->BytesPerPixel == 4 &&
         src->format->Rmask == dst->format->Rmask &&
         src->format->Gmask == dst->format->Gmask &&
-        src->format->Bmask == dst->format->Bmask &&
-        src->flags & SDL_SRCALPHA)
-#else /* IS_SDLv2 */
-    if (src->format->BytesPerPixel == 4 &&
-        dst->format->BytesPerPixel == 4 &&
-        src->format->Rmask == dst->format->Rmask &&
-        src->format->Gmask == dst->format->Gmask &&
-        src->format->Bmask == dst->format->Bmask &&
-        src_blend != SDL_BLENDMODE_NONE)
-#endif /* IS_SDLv2 */
+        src->format->Bmask == dst->format->Bmask)
     {
     #if defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)
         #if PG_ENABLE_ARM_NEON
@@ -3312,9 +3308,9 @@ premul_surf_color_by_alpha_software (SDL_Surface * src, SDL_Surface * dst)
             GET_PIXEL(pixel, srcbpp, src_pixels);
             GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
             alpha = sA / 255.0;
-            dR = (Uint8)(sR * alpha);
-            dG = (Uint8)(sG * alpha);
-            dB = (Uint8)(sR * alpha);
+            dR = (Uint8)(((sR + 1) * sA) >> 8);
+            dG = (Uint8)(((sG + 1) * sA) >> 8);
+            dB = (Uint8)(((sB + 1) * sA) >> 8);
             dA = sA;
             CREATE_PIXEL(dst_pixels, dR, dG, dB, dA, dstbpp, dstfmt);
             src_pixels += srcpxskip;

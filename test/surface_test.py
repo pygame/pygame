@@ -748,7 +748,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_rect(self):
-        """Full coverage w/ overflow, specified with a Rect""" 
+        """Full coverage w/ overflow, specified with a Rect"""
         result = self.dst_surface.blit(self.src_surface, pygame.Rect(-1, -1, 300, 300))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))
@@ -1105,6 +1105,66 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertIsInstance(surface, pygame.Surface)
             self.assertIsInstance(surface, SurfaceSubclass)
             self.assertEqual(surface.get_size(), expected_size)
+        finally:
+            pygame.display.quit()
+
+    def test_convert_alpha_premul(self):
+        """Ensure the premul parameter to convert_alpha() works correctly"""
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((640, 480))
+
+            # basic functionality at valid bit depths - 32 & 16
+            s1 = pygame.Surface((100, 100), pygame.SRCALPHA, 32)
+            s1.fill(pygame.Color(255, 255, 255, 100))
+            s1_alpha = s1.convert_alpha(premul=True)
+            self.assertEqual(s1_alpha.get_at((50, 50)),
+                             pygame.Color(100, 100, 100, 100))
+
+            # 16 bit colour has less precision
+            s2 = pygame.Surface((100, 100), pygame.SRCALPHA, 16)
+            s2.fill(pygame.Color(int(15/15 * 255),
+                                 int(15/15 * 255),
+                                 int(15/15 * 255),
+                                 int(10/15 * 255)))
+            s2_alpha = s2.convert_alpha(premul=True)
+            self.assertEqual(s2_alpha.get_at((50, 50)),
+                             pygame.Color(int(10 / 15 * 255),
+                                          int(10 / 15 * 255),
+                                          int(10 / 15 * 255),
+                                          int(10 / 15 * 255)))
+
+            # invalid surface - we need alpha to pre-multiply
+            invalid_surf = pygame.Surface((100, 100), 0, 32)
+            invalid_surf.fill(pygame.Color(255, 255, 255, 100))
+            with self.assertRaises(ValueError):
+                invalid_surf.convert_alpha(premul=True)
+
+            # check passing by value
+            s3 = pygame.Surface((100, 100), pygame.SRCALPHA, 32)
+            s3.fill(pygame.Color(255, 255, 255, 100))
+            s3_alpha = s3.convert_alpha(s3, True)
+            self.assertEqual(s1_alpha.get_at((50, 50)),
+                             pygame.Color(100, 100, 100, 100))
+
+            # churn a bunch of values
+            test_colors = [(200, 30, 74), (76, 83, 24), (184, 21, 6),
+                           (74, 4, 74), (76, 83, 24), (184, 21, 234),
+                           (160, 30, 74), (96, 147, 204), (198, 201, 60),
+                           (132, 89, 74), (245, 9, 224), (184, 112, 6)]
+
+            for r, g, b in test_colors:
+                for a in range(255):
+                    with self.subTest(r=r, g=g, b=b, a=a):
+                        surf = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+                        surf.fill(pygame.Color(r, g, b, a))
+                        surf = surf.convert_alpha(premul=True)
+                        self.assertEqual(surf.get_at((5, 5)),
+                                         Color(((r + 1) * a) >> 8,
+                                               ((g + 1) * a) >> 8,
+                                               ((b + 1) * a) >> 8,
+                                               a))
+
         finally:
             pygame.display.quit()
 
