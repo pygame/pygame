@@ -251,6 +251,14 @@ check which version of pygame has been imported.
    package was built. If the identifier ends with a plus sign '+' then the
    package contains uncommitted changes. Please include this revision number
    in bug reports, especially for non-release pygame builds.
+   
+   Important note: pygame development has moved to github, this variable is 
+   obsolete now. As soon as development shifted to github, this variable started
+   returning an empty string ``""``. 
+   It has always been returning an empty string since ``v1.9.5``.
+   
+   .. versionchanged:: 1.9.5
+      Always returns an empty string ``""``.
 
    .. ## pygame.version.rev ##
 
