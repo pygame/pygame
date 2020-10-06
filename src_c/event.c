@@ -2103,7 +2103,7 @@ static PyMethodDef _event_methods[] = {
     {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
     {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
-    {"wait", pg_event_wait, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTWAIT},
+    {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTWAIT},
     {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
     {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
     {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
