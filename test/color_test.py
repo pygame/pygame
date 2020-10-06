@@ -1163,9 +1163,9 @@ class ColorTypeTest(unittest.TestCase):
                 with self.subTest(r=r, g=g, b=b, a=a):
                     alpha = a/255.0
                     self.assertEqual(Color(r, g, b, a).premul_alpha(),
-                                     Color(int(round(r * alpha)),
-                                           int(round(g * alpha)),
-                                           int(round(b * alpha)),
+                                     Color(((r + 1) * a) >> 8,
+                                           ((g + 1) * a) >> 8,
+                                           ((b + 1) * a) >> 8,
                                            a))
 
 

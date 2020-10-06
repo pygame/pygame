@@ -912,11 +912,9 @@ static PyObject *
 _premul_alpha(pgColorObject *color, PyObject *args)
 {
     Uint8 new_rgba[4];
-    double alpha = color->data[3] / 255.0;
-
-    new_rgba[0] = (Uint8)pg_round(color->data[0] * alpha);
-    new_rgba[1] = (Uint8)pg_round(color->data[1] * alpha);
-    new_rgba[2] = (Uint8)pg_round(color->data[2] * alpha);
+    new_rgba[0] = (Uint8)(((color->data[0] + 1) * color->data[3]) >> 8);
+    new_rgba[1] = (Uint8)(((color->data[1] + 1) * color->data[3]) >> 8);
+    new_rgba[2] = (Uint8)(((color->data[2] + 1) * color->data[3]) >> 8);
     new_rgba[3] = color->data[3];
 
     return (PyObject *)_color_new_internal(Py_TYPE(color), new_rgba);
