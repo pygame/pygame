@@ -2638,7 +2638,6 @@ surf_get_flags(PyObject *self, PyObject *args)
         if (surf == pgSurface_AsSurface(pg_GetDefaultWindowSurface()))
             is_window_surf = 1;
             window_flags = SDL_GetWindowFlags(win);
-    pgSurfaceObject *surface = pg_GetDefaultWindowSurface();
     sdl_flags = surf->flags;
     if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1)
         return NULL;
