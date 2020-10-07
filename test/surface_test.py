@@ -377,6 +377,19 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertEqual(s1.get_flags(), pygame.SRCALPHA)
 
+    def test_get_flags__display_surf(self):
+        pygame.display.init()
+        try:
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.FULLSCREEN)
+
+            found_flag = False
+            if screen_surf.get_flags() & pygame.FULLSCREEN:
+                found_flag = True
+            self.assertEqual(found_flag, True)
+        finally:
+            pygame.display.quit()
+
     ########################################################################
 
     def test_get_parent(self):
@@ -748,7 +761,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_rect(self):
-        """Full coverage w/ overflow, specified with a Rect""" 
+        """Full coverage w/ overflow, specified with a Rect"""
         result = self.dst_surface.blit(self.src_surface, pygame.Rect(-1, -1, 300, 300))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))

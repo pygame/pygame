@@ -2642,6 +2642,9 @@ surf_get_flags(PyObject *self, PyObject *args)
         flags |= PGS_PREALLOC;
     if (sdl_flags & SDL_RLEACCEL)
         flags |= PGS_RLEACCEL;
+    if (sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
+        sdl_flags & SDL_WINDOW_FULLSCREEN)
+        flags |= PGS_FULLSCREEN;
     return PyInt_FromLong((long)flags);
 #endif /* IS_SDLv2 */
 }
