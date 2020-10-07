@@ -1362,13 +1362,12 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Event event;
     int status;
     int timeout = 0;
-
-    VIDEO_INIT_CHECK();
-
     static char *kwids[] = {
         "timeout",
         NULL
     };
+
+    VIDEO_INIT_CHECK();
     
     if(!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &timeout)) {
         return NULL;
