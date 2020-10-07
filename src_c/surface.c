@@ -2654,7 +2654,13 @@ surf_get_flags(PyObject *self, PyObject *args)
     {
         if (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
             window_flags & SDL_WINDOW_FULLSCREEN)
-        flags |= PGS_FULLSCREEN;
+            flags |= PGS_FULLSCREEN;
+        if (window_flags & SDL_WINDOW_OPENGL)
+            flags |= PGS_OPENGL;
+        if (window_flags & SDL_WINDOW_RESIZABLE)
+            flags |= PGS_RESIZABLE;
+        if (window_flags & SDL_WINDOW_BORDERLESS)
+            flags |= PGS_NOFRAME;
     }
 
     return PyInt_FromLong((long)flags);
