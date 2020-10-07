@@ -19,9 +19,7 @@ from pygame.compat import geterror
 if sys.version_info[0] == 3:
     from queue import Queue
     from queue import Empty
-elif (sys.version_info[0] == 2 and sys.version_info[1] < 5):
-    from Py25Queue import Queue
-    from Py25Queue import Empty
+    
 else:
     # use up to date version
     from Queue import Queue
