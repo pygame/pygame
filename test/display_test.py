@@ -206,12 +206,12 @@ class DisplayModuleTest(unittest.TestCase):
         surface = pygame.display.get_surface()
 
         self.assertIsNone(surface)
-        
+
     def test_get_wm_info(self):
         wm_info = display.get_wm_info()
         # Assert function returns a dictionary type
         self.assertIsInstance(wm_info,dict)
-        
+
         wm_info_potential_keys = {
         'colorbuffer',
         'connection',
@@ -233,11 +233,11 @@ class DisplayModuleTest(unittest.TestCase):
         'window',
         'wmwindow'
         }
-        
+
         # If any unexpected dict keys are present, they
         # will be stored in set wm_info_remaining_keys
         wm_info_remaining_keys = set(wm_info.keys()).difference(wm_info_potential_keys)
-        
+
         # Assert set is empty (& therefore does not
         # contain unexpected dict keys)
         self.assertFalse(wm_info_remaining_keys)
@@ -454,34 +454,32 @@ class DisplayModuleTest(unittest.TestCase):
 
     @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
     def test_set_palette(self):
-        with self.assertRaises(UnboundLocalError) :
-            palette = [1,2,3]
-            screen.set_palette(palette)
-        screen = pygame.display.set_mode((1024,768),pygame.DOUBLEBUF,8)
+        with self.assertRaises(pygame.error):
+            palette = [1, 2, 3]
+            pygame.display.set_palette(palette)
+        pygame.display.set_mode((1024, 768), 0, 8)
         palette = []
-        self.assertIsNone(screen.set_palette(palette))
-        palette = [[0,0,0]] + [[x,x,x] for x in range(1,255)]
-        screen.set_palette(palette)
-        self.assertEqual(screen.get_palette_at(1),(1,1,1,255))
-        self.assertEqual(screen.get_palette_at(123),(123,123,123,255))
+        self.assertIsNone(pygame.display.set_palette(palette))
+
         with self.assertRaises(ValueError):
             palette = 12
-            screen.set_palette(palette)
-        with self.assertRaises(ValueError):
-            palette = [[1,2],[1,2]]
-            screen.set_palette(palette)
-        with self.assertRaises(ValueError):
-            palette = [[0,0,0,0,0]] + [[x,x,x,x,x] for x in range(1,255)]
-            screen.set_palette(palette)
-        with self.assertRaises(ValueError):
+            pygame.display.set_palette(palette)
+        with self.assertRaises(TypeError):
+            palette = [[1, 2], [1, 2]]
+            pygame.display.set_palette(palette)
+        with self.assertRaises(TypeError):
+            palette = [[0, 0, 0, 0, 0]] + [[x, x, x, x, x]
+                                           for x in range(1, 255)]
+            pygame.display.set_palette(palette)
+        with self.assertRaises(TypeError):
             palette = "qwerty"
-            screen.set_palette(palette)
-        with self.assertRaises(ValueError):
-            palette = [[123,123,123]*10000]
-            screen.set_palette(palette)
-        with self.assertRaises(ValueError):
-            palette = [1,2,3]
-            screen.set_palette(palette)
+            pygame.display.set_palette(palette)
+        with self.assertRaises(TypeError):
+            palette = [[123, 123, 123]*10000]
+            pygame.display.set_palette(palette)
+        with self.assertRaises(TypeError):
+            palette = [1, 2, 3]
+            pygame.display.set_palette(palette)
 
     skip_list = ["dummy", "android"]
     @unittest.skipIf(
