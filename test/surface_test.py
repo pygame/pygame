@@ -377,16 +377,21 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertEqual(s1.get_flags(), pygame.SRCALPHA)
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires a non-"dummy" SDL_VIDEODRIVER',
+    )
     def test_get_flags__display_surf(self):
         pygame.display.init()
         try:
             screen_surf = pygame.display.set_mode((600, 400),
-                                                  flags=pygame.FULLSCREEN)
+                                                  flags=0)
 
-            found_flag = False
-            if screen_surf.get_flags() & pygame.FULLSCREEN:
-                found_flag = True
-            self.assertEqual(found_flag, True)
+            self.assertFalse(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.FULLSCREEN)
+            self.assertTrue(screen_surf.get_flags() & pygame.FULLSCREEN)
         finally:
             pygame.display.quit()
 
