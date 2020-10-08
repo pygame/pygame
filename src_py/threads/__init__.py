@@ -17,13 +17,9 @@ import traceback, sys
 from pygame.compat import geterror
 
 if sys.version_info[0] == 3:
-    from queue import Queue
-    from queue import Empty
-    
+    from queue import Queue, Empty
 else:
-    # use up to date version
-    from Queue import Queue
-    from Queue import Empty
+    from Queue import Queue, Empty
 
 import threading
 Thread = threading.Thread
