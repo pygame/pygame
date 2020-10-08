@@ -1161,7 +1161,7 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
     float gradient, dx, dy, intersect_y, brightness;
     int x, x_pixel_start, x_pixel_end;
     Uint32 pixel_color;
-    float x_gap, y_endpoint;
+    float x_gap, y_endpoint, clip_left, clip_right, clip_top, clip_bottom;
     int steep, y;
 
     dx = to_x - from_x;
@@ -1178,11 +1178,21 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
         return;
     }
 
+    /* To draw correctly the pixels at the border of the clipping area when
+     * the line crosses it, we need to clip it one pixel wider in all four
+     * directions: */
+    clip_left = (float)surf->clip_rect.x - 1.0f;
+    clip_right = (float)clip_left + surf->clip_rect.w + 1.0f;
+    clip_top = (float)surf->clip_rect.y - 1.0f;
+    clip_bottom = (float)clip_top + surf->clip_rect.h + 1.0f;
+
     steep = fabs(dx) < fabs(dy);
     if (steep) {
         swap(&from_x, &from_y);
         swap(&to_x, &to_y);
         swap(&dx, &dy);
+        swap(&clip_left, &clip_top);
+        swap(&clip_right, &clip_bottom);
     }
     if (dx < 0) {
         swap(&from_x, &to_x);
@@ -1191,8 +1201,8 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
         dy = -dy;
     }
 
-    if (to_x <= -1.0f || from_x > surf->w) {
-        /* The line does not enter the surface */
+    if (to_x <= clip_left || from_x >= clip_right) {
+        /* The line is completly to the side of the surface */
         return;
     }
 
@@ -1201,12 +1211,46 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
      * has been swapped with a non-zero dy. */
     gradient = dy/dx;
 
-    if (from_x < 0) {
-        /* No need to waste CPU cycles on pixels not on the surface. */
-        from_y += gradient * (-from_x);
-        from_x = 0.0f;
+    /* No need to waste CPU cycles on pixels not on the surface. */
+    if (from_x < clip_left) {
+        from_y += gradient * (clip_left - from_x);
+        from_x = clip_left;
     }
-    /* TODO: Also check if the endpoints are below/above the surface */
+    if (to_x > clip_right) {
+        to_y += gradient * (clip_right - to_x);
+        to_x = clip_right;
+    }
+
+    if (gradient > 0.0f) {
+        /* from_ is the topmost endpoint */
+        if (to_y <= clip_top || from_y >= clip_bottom) {
+            /* The line does not enter the surface */
+            return;
+        }
+        if (from_y < clip_top) {
+            from_x += (clip_top - from_y) / gradient;
+            from_y = clip_top;
+        }
+        if (to_y > clip_bottom) {
+            to_x += (clip_bottom - to_y) / gradient;
+            to_y = clip_bottom;
+        }
+    }
+    else {
+        /* to_ is the topmost endpoint */
+        if (from_y <= clip_top || to_y >= clip_bottom) {
+            /* The line does not enter the surface */
+            return;
+        }
+        if (to_y < clip_top) {
+            to_x += (clip_top - to_y) / gradient;
+            to_y = clip_top;
+        }
+        if (from_y > clip_bottom) {
+            from_x += (clip_bottom - from_y) / gradient;
+            from_y = clip_bottom;
+        }
+    }
 
     /* Handle endpoints separatly.
      * The line is not a mathematical line of thickness zero. The same
