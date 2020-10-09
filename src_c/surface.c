@@ -94,6 +94,10 @@ surface_cleanup(pgSurfaceObject *self);
 static void
 surface_move(Uint8 *src, Uint8 *dst, int h, int span, int srcpitch,
              int dstpitch);
+#if IS_SDLv2
+static void
+surface_rle_hack(SDL_Surface *surf);
+#endif
 
 static PyObject *
 surf_get_at(PyObject *self, PyObject *args);
@@ -1407,6 +1411,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     PyObject *rgba_obj = NULL;
     Uint8 rgba[4];
     int result;
+    int newresult;
     int hascolor = SDL_FALSE;
 
     if (!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
@@ -1465,7 +1470,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
 
         // result = SDL_SetColorKey(surf, hascolor, color);
         // SDL_UnlockSurface(surf);
-        int newresult = SDL_SetSurfaceRLE(
+        newresult = SDL_SetSurfaceRLE(
             surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
 
 
@@ -1480,7 +1485,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
 
         if (flags & PGS_RLEACCEL) {
             printf("_rle_hack ok\n");
-            _rle_hack(surf);
+            surface_rle_hack(surf);
             printf("++mustlock?, %i, SDL_RLEACCEL:%i, %i\n", SDL_MUSTLOCK(surf), surf->flags & SDL_RLEACCEL, flags & PGS_RLEACCEL);
             result = SDL_SetColorKey(surf, hascolor | SDL_RLEACCEL, color);
             // surf->flags |= SDL_RLEACCEL;
@@ -1500,7 +1505,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     }
     if (flags & PGS_RLEACCEL) {
         printf("_rle_hack\n");
-        _rle_hack(surf);
+        surface_rle_hack(surf);
     }
 #endif /* IS_SDLv2 */
     printf("before end set_colorkey %i\n", surf->flags & SDL_RLEACCEL);
@@ -1712,7 +1717,8 @@ surf_get_blendmode(PyObject *self, PyObject *args)
 
 
 #if IS_SDLv2
-_rle_hack(SDL_Surface *surf) {
+static void
+surface_rle_hack(SDL_Surface *surf) {
     /* we try and get the SDL_RLEACCEL flag to be set.
     There's an SDL2 bug in SDL_SetSurfaceRLE, where it doesn't set this for some reason.
     However, SDL_LowerBlit with a rect(0,0,0,0) does.
@@ -1765,8 +1771,8 @@ surf_copy(pgSurfaceObject *self, PyObject *args)
     printf("--poooooo :%i\n", surf->flags & SDL_RLEACCEL);
 
     if (has_rle) {
-        _rle_hack(surf);
-        _rle_hack(newsurf);
+        surface_rle_hack(surf);
+        surface_rle_hack(newsurf);
     }
 
 #endif
@@ -1985,7 +1991,7 @@ surf_convert(pgSurfaceObject *self, PyObject *args)
     if (has_rle) {
         printf("newsurf->flags & SDL_RLEACCEL;%i \n", newsurf->flags & SDL_RLEACCEL);
         SDL_SetSurfaceRLE(newsurf, SDL_TRUE);
-        _rle_hack(newsurf);
+        surface_rle_hack(newsurf);
         printf("++newsurf->flags & SDL_RLEACCEL;%i \n", newsurf->flags & SDL_RLEACCEL);
     }
 
@@ -4180,7 +4186,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4)) {
         /* Py_BEGIN_ALLOW_THREADS */
         printf("woof1\n");
-        result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args, 1);
+        result = pygame_AlphaBlit(src, srcrect, dst, dstrect, the_args);
         /* Py_END_ALLOW_THREADS */
     }
     else if (the_args != 0 ||
