@@ -313,6 +313,57 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(s1.get_flags() & pygame.RLEACCEL)
         self.assertTrue(not s2.get_flags() & pygame.RLEACCEL)
 
+
+
+    def test_solarwolf_rle_usage(self):
+        def optimize(img, screen_surf):
+            # ~ if surface.get_alpha():
+            # ~ img.set_alpha()
+            # ~ if surface.get_flags() & HWSURFACE:
+            # ~ img.set_colorkey(0)
+            # ~ else:
+            # ~ img.set_colorkey(0, RLEACCEL)
+            # ~ elif not surface.get_flags() & HWSURFACE:
+            if not screen_surf.get_flags() & HWSURFACE:
+                clear = img.get_colorkey()
+                if clear:
+                    img.set_colorkey(clear, RLEACCEL)
+            return img.convert()
+
+        def animstrip(img, screen_surf, width=0):
+            if not width:
+                width = img.get_height()
+            size = width, img.get_height()
+            images = []
+            origalpha = img.get_alpha()
+            origckey = img.get_colorkey()
+            img.set_colorkey(None)
+            img.set_alpha(None)
+            for x in range(0, img.get_width(), width):
+                i = pygame.Surface(size)
+                i.blit(img, (0, 0), ((x, 0), size))
+                if origalpha:
+                    i.set_colorkey((0, 0, 0))
+                elif origckey:
+                    i.set_colorkey(origckey)
+                images.append(optimize(i, screen_surf))
+            img.set_alpha(origalpha)
+            img.set_colorkey(origckey)
+            return images
+
+        pygame.display.init()
+        try:
+            window_surf = pygame.display.set_mode((640, 480))
+
+            image = pygame.image.load(example_path(os.path.join("data",
+                                                        "ship-up-boost1.png")))
+            image = optimize(image, window_surf)
+            result = animstrip(image, window_surf)
+            self.assertTrue(len(result) > 0)
+        finally:
+            pygame.display.quit()
+
+
     def test_fill_negative_coordinates(self):
 
         # negative coordinates should be clipped by fill, and not draw outside the surface.
