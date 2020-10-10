@@ -207,9 +207,6 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
-#ifdef WIN32
-        SDL_Event inputEvent[2];
-#endif /* WIN32 */
 
         if (event->key.repeat) {
             return 0;
@@ -222,34 +219,9 @@ pg_event_filter(void *_, SDL_Event *event)
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
                                             NULL);
         }
-#ifdef WIN32
-        /* This does not seem to work on Mac 10.13. */
-#pragma PG_WARN(PumpEvents is not thread-safe)
-        SDL_PumpEvents();
-        if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
-                           SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
-        {
-            SDL_Event *ev = inputEvent;
-            SDL_PumpEvents();
-            if (_pg_last_unicode_char[0] == 0) {
-                if (SDL_PeepEvents(inputEvent, 2, SDL_PEEKEVENT,
-                                   SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
-                    ev = &inputEvent[1];
-            }
-
-            /* Only copy size - 1. This will always leave the string
-             * terminated with a 0. */
-            strncpy(_pg_last_unicode_char, ev->text.text,
-                    sizeof(_pg_last_unicode_char) - 1);
-        }
-        else {
-            _pg_last_unicode_char[0] = 0;
-        }
-#else
         _pg_last_unicode_char[0] = 0;
         /* store the keydown event for later in the SDL_TEXTINPUT */
         _pg_last_keydown_event = event;
-#endif /* WIN32 */
     }
     else if (type == SDL_TEXTINPUT) {
         if (_pg_last_keydown_event != NULL) {
