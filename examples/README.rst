@@ -1,116 +1,145 @@
+These examples should help get you started with pygame.  Here is a
+brief rundown of what you get.  The source code for all examples
+is in the public domain.  Feel free to use for your own projects.
 
-These examples should help get you started with pygame. Here is a
-brief rundown of what you get. The source code for all examples
-is in the public domain. Feel free to use for your own projects.
+aliens.py
+   This started off as a port of the SDL demonstration, Aliens.
+   Now it has evolved into something sort of resembling fun.
+   This demonstrates a lot of different uses of sprites and
+   optimized blitting.  Also transparancy, colorkeys, fonts, sound,
+   music, joystick, and more.  (PS, my high score is 117! goodluck)
 
+arraydemo.py
+   Another example filled with various surfarray effects.
+   It requires the surfarray and image modules to be installed.
+   This little demo can also make a good starting point for any of
+   your own tests with surfarray
 
+audiocapture.py
+   Record sound from a microphone, and play back the recorded sound.
 
-aliens.py - This started off as a port of the SDL demonstration, Aliens.
-    Now it has evolved into something sort of resembling fun.
-    This demonstrates a lot of different uses of sprites and
-    optimized blitting. Also transparancy, colorkeys, fonts, sound,
-    music, joystick, and more. (PS, my high score is 117! goodluck)
+blend_fill.py
+   BLEND_ing colors in different ways with Surface.fill().
 
-arraydemo.py - Another example filled with various surfarray effects.
-    It requires the surfarray and image modules to be installed.
-    This little demo can also make a good starting point for any of
-    your own tests with surfarray
+blit_blends.py
+   BLEND_ing colors Surface.blit().
 
-audiocapture.py - Record sound from a microphone, and play back the
-    recorded sound.
+camera.py
+   Basic image capturing and display using pygame.camera
 
-blend_fill.py - BLEND_ing colors in different ways with Surface.fill().
+cursors.py
+   Make custom cursors :)
 
-blit_blends.py - BLEND_ing colors Surface.blit().
+dropevent.py
+   Drag and drop files.  Using the following events.
+   DROPBEGIN, DROPCOMPLETE, DROPTEXT, DROPFILE
 
-camera.py - Basic image capturing and display using pygame.camera
+eventlist.py
+   Learn about pygame events and input.
+   Watch the events fly by.  Click the mouse, and see the mouse
+   event come up.  Press a keyboard key, and see the key up event.
 
-cursors.py - make custom cursors :)
+fastevents.py
+   Posting events from other threads? Check this out.
 
-dropevent.py - drag and drop files. Using the following events.
-    DROPBEGIN, DROPCOMPLETE, DROPTEXT, DROPFILE
+font_viewer.py
+   Display all available fonts in a scrolling window.
 
-eventlist.py - Learn about pygame events and input.
-    Watch the events fly by. Click the mouse, and see the mouse
-    event come up. Press a keyboard key, and see the key up event.
+fonty.py
+   Super quick, super simple application demonstrating
+   the different ways to render fonts with the font module
 
-fastevents.py - Posting events from other threads? Check this out.
+freetype_misc.py
+   FreeType is a world famous font project.
 
-font_viewer.py - Display all available fonts in a scrolling window.
+glcube.py
+   Using PyOpenGL and Pygame, this creates a spinning 3D multicolored cube.
 
-fonty.py - Super quick, super simple application demonstrating
-    the different ways to render fonts with the font module
+headless_no_windows_needed.py
+   For using pygame in scripts.
 
-freetype_misc.py - freetype is a world famous font project.
+liquid.py
+   This example was created in a quick comparison with the
+   BlitzBasic gaming language.  Nonetheless, it demonstrates a quick
+   8-bit setup (with colormap).
 
-glcube.py - Using PyOpenGL and Pygame, this creates a spinning 3D
-    multicolored cube.
+mask.py
+   Single bit pixel manipulation.  Fast for collision detection,
+   and also good for computer vision.
 
-headless_no_windows_needed.py - for using pygame in scripts.
+midi.py
+   For connecting pygame to musical equipment.
 
-liquid.py - This example was created in a quick comparison with the
-    BlitzBasic gaming language. Nonetheless, it demonstrates a quick
-    8-bit setup (with colormap).
+moveit.py
+   A very simple example of moving stuff.
 
-mask.py - single bit pixel manipulation. Fast for collision detection,
-    and also good for computer vision.
+music_drop_fade.py
+   Fade in and play music from a list while observing
+   several events.  Uses fade_ms added in pygame2, as well as set_endevent,
+   set_volume, drag and drop events, and the scrap module.
 
-midi.py - for connecting pygame to musical equipment.
+overlay.py
+   An old way of displaying video content.
 
-moveit.py - a very simple example of moving stuff.
+pixelarray.py
+   Process whole arrays of pixels at a time.
+   Like numpy, but for pixels, and also built into pygame.
 
-music_drop_fade.py - Fade in and play music from a list while observing
-    several events. Uses fade_ms added in pygame2, as well as set_endevent,
-    set_volume, drag and drop events, and the scrap module.
+playmus.py
+   Simple music playing example.
 
-overlay.py - an old way of displaying video content.
+prevent_display_stretching.py
+   A windows specific example.
 
-pixelarray.py - process whole arrays of pixels at a time.
-    Like numpy, but for pixels, and also built into pygame.
+scaletest.py
+   Showing how to scale Surfaces.
 
-playmus.py - simple music playing example.
+scrap_clipboard.py
+   A simple demonstration example for the clipboard support.
 
-prevent_display_stretching.py - a windows specific example.
+setmodescale.py
+   SCALED allows you to work in 320x200 and have it show up big.
+   It handles mouse scaling and selection of a good sized window depending
+   on the display.
 
-scaletest.py - showing how to scale Surfaces.
+sound.py
+   Extremely basic testing of the mixer module.  Load a
+   sound and play it.  All from the command shell, no graphics.
 
-scrap_clipboard.py - A simple demonstration example for the clipboard support.
+sound_array_demos.py
+   Echo, delay and other array based processing of sounds.
 
-setmodescale.py - SCALED allows you to work in 320x200 and have it show up big.
-    It handles mouse scaling and selection of a good sized window depending
-    on the display.
+sprite_texture.py
+   Shows how to use hardware Image Textures with pygame.sprite.
 
-sound.py - Extremely basic testing of the mixer module. Load a
-    sound and play it. All from the command shell, no graphics.
+stars.py
+   A simple starfield example.  You can change the center of
+   perspective by leftclicking the mouse on the screen.
 
-sound_array_demos.py - echo, delay and other array based processing of sounds.
+testsprite.py
+   More of a test example.  If you're interested in how to use sprites,
+   then check out the aliens.py example instead.
 
-sprite_texture.py - shows how to use hardware Image Textures with pygame.sprite.
+textinput.py
+   A little "console" where you can write in text.
+   Shows how to use the TEXTEDITING and TEXTINPUT events.
 
-stars.py - A simple starfield example. You can change the center of
-    perspective by leftclicking the mouse on the screen.
+vgrade.py
+   Demonstrates creating a vertical gradient with
+   Numpy.  The app will create a new gradient every half
+   second and report the time needed to create and display the
+   image.  If you're not prepared to start working with the
+   Numpy arrays, don't worry about the source for this one :]
 
-testsprite.py - more of a test example. If you're interested in how to use sprites,
-    then check out the aliens.py example instead.
+video.py
+   It explores some new video APIs in pygame 2.
+   Including multiple windows, Textures, and such.
 
-textinput.py - A little "console" where you can write in text.
-    Shows how to use the TEXTEDITING and TEXTINPUT events.
-
-vgrade.py - Demonstrates creating a vertical gradient with
-    Numpy. The app will create a new gradient every half
-    second and report the time needed to create and display the
-    image. If you're not prepared to start working with the
-    Numpy arrays, don't worry about the source for this one :]
-
-video.py - It explores some new video APIs in pygame 2.
-    Including multiple windows, Textures, and such.
-
-data/ - directory with the resources for the examples
-
-
+data/
+   Directory with the resources for the examples.
 
 There's LOTS of examples on the pygame website, and on places like github.
 
 We're always on the lookout for more examples and/or example
-requests. Code like this is probably the best way to start
-getting involved with python gaming.
+requests.  Code like this is probably the best way to start
+getting involved with Python gaming.

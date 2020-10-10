@@ -377,6 +377,51 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertEqual(s1.get_flags(), pygame.SRCALPHA)
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires a non-"dummy" SDL_VIDEODRIVER',
+    )
+    def test_get_flags__display_surf(self):
+        pygame.display.init()
+        try:
+            # FULLSCREEN
+            screen_surf = pygame.display.set_mode((600, 400), flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.FULLSCREEN)
+            self.assertTrue(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            # NOFRAME
+            screen_surf = pygame.display.set_mode((600, 400),flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.NOFRAME)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.NOFRAME)
+            self.assertTrue(screen_surf.get_flags() & pygame.NOFRAME)
+
+            # RESIZABLE
+            screen_surf = pygame.display.set_mode((600, 400),flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.RESIZABLE)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.RESIZABLE)
+            self.assertTrue(screen_surf.get_flags() & pygame.RESIZABLE)
+
+
+            # OPENGL
+            screen_surf = pygame.display.set_mode((600, 400), flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.OPENGL)
+
+            try:
+                pygame.display.set_mode((200, 200), pygame.OPENGL, 32)
+            except pygame.error:
+                pass  # If we can't create OPENGL surface don't try this test
+            else:
+                self.assertTrue(screen_surf.get_flags() & pygame.OPENGL)
+        finally:
+            pygame.display.quit()
+
     ########################################################################
 
     def test_get_parent(self):
@@ -748,7 +793,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_rect(self):
-        """Full coverage w/ overflow, specified with a Rect""" 
+        """Full coverage w/ overflow, specified with a Rect"""
         result = self.dst_surface.blit(self.src_surface, pygame.Rect(-1, -1, 300, 300))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))
@@ -1441,17 +1486,46 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    def todo_test_get_masks(self):
+    def test_get_masks__rgba(self):
+        """
+        Ensure that get_mask can return RGBA mask.
+        """
+        masks = [
+            (0x0f00, 0x00f0, 0x000f, 0xf000),
+            (0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000)
+        ]
+        depths = [16, 32]
+        for expected, depth in list(zip(masks, depths)):
+            surface = pygame.Surface((10, 10), pygame.SRCALPHA, depth)
+            self.assertEqual(expected, surface.get_masks())
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_masks:
+    def test_get_masks__rgb(self):
+        """
+        Ensure that get_mask can return RGB mask.
+        """
+        masks = [
+            (0x60, 0x1c, 0x03, 0x00),
+            (0xf00, 0x0f0, 0x00f, 0x000),
+            (0x7c00, 0x03e0, 0x001f, 0x0000),
+            (0xf800, 0x07e0, 0x001f, 0x0000),
+            (0xff0000, 0x00ff00, 0x0000ff, 0x000000),
+            (0xff0000, 0x00ff00, 0x0000ff, 0x000000)
+        ]
+        depths = [8, 12, 15, 16, 24, 32]
+        for expected, depth in list(zip(masks, depths)):
+            surface = pygame.Surface((10, 10), 0, depth)
+            if depth == 8 and pygame.get_sdl_version()[0] == 2:
+                expected = (0x00, 0x00, 0x00, 0x00)
+            self.assertEqual(expected, surface.get_masks())
 
-        # Surface.get_masks(): return (R, G, B, A)
-        # the bitmasks needed to convert between a color and a mapped integer
-        #
-        # Returns the bitmasks used to isolate each color in a mapped integer.
-        # This value is not needed for normal Pygame usage.
-
-        self.fail()
+    def test_get_masks__no_surface(self):
+        """
+        Ensure that after display.quit, calling get_masks raises pygame.error.
+        """
+        with self.assertRaises(pygame.error):
+            surface = pygame.display.set_mode((10, 10))
+            pygame.display.quit()
+            surface.get_masks()
 
     def test_get_offset(self):
         """get_offset returns the (0,0) if surface is not a child

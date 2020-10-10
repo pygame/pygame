@@ -52,10 +52,12 @@ following formats.
    * ``JPEG``
 
 .. versionadded:: 1.8 Saving PNG and JPEG files.
-.. versionchanged:: 2.0.0.dev11
-                    The save function got an optional  *namehint* parameter
-                    to make it possible to save other formats than ``TGA``
-                    to a file-like object.
+
+There are a three undocumented functions in this module, namely 
+``pygame.image.load_basic()``, ``pygame.image.load_extended()`` and ``pygame.image.save_extended()`` that are meant to be internal functions. 
+The use of these functions is not recommended, as these may get deprecated 
+or removed. Instead, use ``pygame.image.load()`` and ``pygame.image.save()`` 
+for loading and saving images, respectively.
 
 .. function:: load
 
@@ -132,7 +134,7 @@ following formats.
 
    .. versionadded:: 2.0.0.dev11
 
-   .. ## pygame,image.get_sdl_image_version ##
+   .. ## pygame.image.get_sdl_image_version ##
 
 .. function:: get_extended
 

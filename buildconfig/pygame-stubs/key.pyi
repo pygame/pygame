@@ -1,12 +1,18 @@
 from typing import Sequence, Optional, Tuple, Union, List
+from typing_extensions import Protocol
 from pygame.math import Vector2
 from pygame.rect import Rect
 
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
-_RectValue = Union[
+_CanBeRect = Union[
     Rect,
-    Union[Tuple[int, int, int, int], List[int]],
-    Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]],
+    Tuple[int, int, int, int], List[int],
+    Tuple[_Coordinate, _Coordinate], List[_Coordinate]
+]
+class _HasRectAttribute(Protocol):
+    rect: _CanBeRect
+_RectValue = Union[
+    _CanBeRect, _HasRectAttribute
 ]
 
 def get_focused() -> bool: ...

@@ -206,7 +206,7 @@ and the ``joy`` attribute was deprecated.
 
    If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
 
-   .. versionadded:: 1.9.5 ``pump``
+   .. versionchanged:: 1.9.5 Added ``pump`` argument
 
    .. ## pygame.event.get ##
 
@@ -228,12 +228,17 @@ and the ``joy`` attribute was deprecated.
 
    | :sl:`wait for a single event from the queue`
    | :sg:`wait() -> EventType instance`
+   | :sg:`wait(timeout) -> EventType instance`
 
    Returns a single event from the queue. If the queue is empty this function
-   will wait until one is created. The event is removed from the queue once it
-   has been returned. While the program is waiting it will sleep in an idle
-   state. This is important for programs that want to share the system with
-   other applications.
+   will wait until one is created. From pygame 2.0.0, if a ``timeout`` argument
+   is given, the function will return an event of type ``pygame.NOEVENT`` 
+   if no events enter the queue in ``timeout`` milliseconds. The event is removed
+   from the queue once it has been returned. While the program is waiting it will
+   sleep in an idle state. This is important for programs that want to share the
+   system with other applications.
+
+   .. versionchanged:: 2.0.0.dev13 Added ``timeout`` argument
 
    .. caution::
       This function should only be called in the thread that initialized :mod:`pygame.display`.
@@ -252,7 +257,7 @@ and the ``joy`` attribute was deprecated.
 
    If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
 
-   .. versionadded:: 1.9.5 ``pump``
+   .. versionchanged:: 1.9.5 Added ``pump`` argument
 
    .. ## pygame.event.peek ##
 

@@ -1046,8 +1046,6 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
     flags |= PyBUF_PYGAME;
 #endif
 
-#if PG_ENABLE_NEWBUF
-
     if (PyObject_CheckBuffer(obj)) {
         char *fchar_p;
 
@@ -1124,9 +1122,8 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
             return -1;
         }
         success = 1;
-    }
-
-#endif
+    }    
+    
     if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
         if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
             Py_DECREF(cobj);
@@ -2156,13 +2153,9 @@ MODINIT_DEFINE(base)
         MODINIT_ERROR;
     }
 
-#if PG_ENABLE_NEWBUF
     pgExc_BufferError =
         PyErr_NewException("pygame.BufferError", PyExc_BufferError, NULL);
-#else
-    pgExc_BufferError =
-        PyErr_NewException("pygame.BufferError", PyExc_RuntimeError, NULL);
-#endif
+
     if (pgExc_SDLError == NULL) {
         Py_XDECREF(atexit_register);
         DECREF_MOD(module);
@@ -2226,7 +2219,7 @@ MODINIT_DEFINE(base)
         MODINIT_ERROR;
     }
 
-    if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", PG_ENABLE_NEWBUF)) {
+    if (PyModule_AddIntConstant(module, "HAVE_NEWBUF", 1)) {
         Py_XDECREF(atexit_register);
         Py_DECREF(pgExc_BufferError);
         DECREF_MOD(module);
