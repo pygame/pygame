@@ -1,4 +1,5 @@
 from typing import Union, Tuple, List, Sequence
+from typing_extensions import Protocol
 
 from pygame.surface import Surface
 from pygame.math import Vector2
@@ -8,8 +9,17 @@ from pygame.rect import Rect
 _ColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
-_RectValue = Union[Rect, Tuple[int, int, int, int]]
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
+_CanBeRect = Union[
+    Rect,
+    Tuple[int, int, int, int], List[int],
+    Tuple[_Coordinate, _Coordinate], List[_Coordinate]
+]
+class _HasRectAttribute(Protocol):
+    rect: _CanBeRect
+_RectValue = Union[
+    _CanBeRect, _HasRectAttribute
+]
 
 def pixel(surface: Surface, x: int, y: int, color: _ColorValue) -> None: ...
 def hline(surface: Surface, x1: int, x2: int, y: int, color: _ColorValue) -> None: ...
