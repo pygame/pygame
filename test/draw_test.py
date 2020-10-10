@@ -1,6 +1,7 @@
 import math
 import unittest
 import sys
+import warnings
 
 import pygame
 from pygame import draw
@@ -2369,6 +2370,17 @@ class AALineMixin(BaseLineMixin):
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
 
+    def test_aaline__blend_warning(self):
+        """From pygame 2, blend=False should raise DeprecationWarning."""
+        with warnings.catch_warnings(record=True) as w:
+            #Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            #Trigger DeprecationWarning.
+            self.draw_aaline(pygame.Surface((2, 2)), (0, 0, 0, 50), (0, 0), (2, 2), False)
+            #Check if there is only one warning and is a DeprecationWarning.
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+
     def test_aaline__kwargs(self):
         """Ensures draw aaline accepts the correct kwargs
         with and without a blend arg.
@@ -3197,6 +3209,17 @@ class AALinesMixin(BaseLineMixin):
         )
 
         self.assertIsInstance(bounds_rect, pygame.Rect)
+
+    def test_aalines__blend_warning(self):
+        """From pygame 2, blend=False should raise DeprecationWarning."""
+        with warnings.catch_warnings(record=True) as w:
+            #Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            #Trigger DeprecationWarning.
+            self.draw_aaline(pygame.Surface((2, 2)), (0, 0, 0, 50), (0, 0), (2, 2), False)
+            #Check if there is only one warning and is a DeprecationWarning.
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
 
     def test_aalines__kwargs(self):
         """Ensures draw aalines accepts the correct kwargs
