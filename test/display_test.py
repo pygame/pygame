@@ -2,6 +2,7 @@
 
 import unittest
 import os
+import time
 
 import pygame, pygame.transform
 from pygame.compat import unicode_
@@ -104,17 +105,11 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.event.clear()
         pygame.display.iconify()
 
-        #Number of iterations conservatively determined based
-        #off of local runs, might have to change on various systems
-        for i in range(5000):
+        for _ in range(100):
+            time.sleep(0.01)
             pygame.event.pump()
 
         self.assertEqual(pygame.display.get_active(), False)
-
-
-
-
-
 
     def test_get_caption(self):
         screen = display.set_mode((100, 100))
@@ -293,7 +288,8 @@ class DisplayModuleTest(unittest.TestCase):
             minimized_event = False
             # make sure we cycle the event loop enough to get the display
             # hidden
-            for _ in range(5000):
+            for _ in range(100):
+                time.sleep(0.01)
                 for event in pygame.event.get():
                     if SDL2:
                         if (event.type == pygame.WINDOWEVENT and
