@@ -116,10 +116,12 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (!blend) {
-        PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "blend=False will be deprecated in pygame 2.2 and will "
-                     "default to True",
-                     1);
+        if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                "blend=False will be deprecated in pygame 2.2 and will "
+                "default to True",
+                1) == -1) {
+            return NULL;
+        }
     }
 
     surf = pgSurface_AsSurface(surfobj);
@@ -272,10 +274,13 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
     }
 
     if (!blend) {
-        PyErr_WarnEx(PyExc_DeprecationWarning,
-                     "blend=False will be deprecated in pygame 2.2 and will "
-                     "default to True",
-                     1);
+        if (PyErr_WarnEx(
+                PyExc_DeprecationWarning,
+                "blend=False will be deprecated in pygame 2.2 and will "
+                "default to True",
+                1) == -1) {
+            return NULL;
+        }
     }
 
     CHECK_LOAD_COLOR(colorobj)
