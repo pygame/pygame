@@ -134,22 +134,35 @@ mouse_get_rel(PyObject *self)
 }
 
 static PyObject *
-mouse_get_pressed(PyObject *self)
+mouse_get_pressed(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *tuple;
     int state;
+    int num_buttons = 3;
 
+    static char *kwids[] = {
+        "num_buttons",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids,
+                                     &num_buttons))
+    return NULL;
     VIDEO_INIT_CHECK();
 
+    if (num_buttons != 3 && num_buttons != 5)
+        return RAISE(PyExc_ValueError, "Number of buttons needs to be 3 or 5.");
+
     state = SDL_GetMouseState(NULL, NULL);
-    if (!(tuple = PyTuple_New(5)))
+    if (!(tuple = PyTuple_New(num_buttons)))
         return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong((state & SDL_BUTTON_LMASK) != 0));
-    PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong((state & SDL_BUTTON_MMASK) != 0));
-    PyTuple_SET_ITEM(tuple, 2, PyBool_FromLong((state & SDL_BUTTON_RMASK) != 0));
-    PyTuple_SET_ITEM(tuple, 3, PyBool_FromLong((state & SDL_BUTTON_X1MASK) != 0));
-    PyTuple_SET_ITEM(tuple, 4, PyBool_FromLong((state & SDL_BUTTON_X2MASK) != 0));
+        PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong((state & SDL_BUTTON_LMASK) != 0));
+        PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong((state & SDL_BUTTON_MMASK) != 0));
+        PyTuple_SET_ITEM(tuple, 2, PyBool_FromLong((state & SDL_BUTTON_RMASK) != 0));
+    if (num_buttons == 5)
+        PyTuple_SET_ITEM(tuple, 3, PyBool_FromLong((state & SDL_BUTTON_X1MASK) != 0));
+        PyTuple_SET_ITEM(tuple, 4, PyBool_FromLong((state & SDL_BUTTON_X2MASK) != 0));
 
     return tuple;
 }
@@ -355,8 +368,8 @@ static PyMethodDef _mouse_methods[] = {
      DOC_PYGAMEMOUSEGETPOS},
     {"get_rel", (PyCFunction)mouse_get_rel, METH_VARARGS,
      DOC_PYGAMEMOUSEGETREL},
-    {"get_pressed", (PyCFunction)mouse_get_pressed, METH_VARARGS,
-     DOC_PYGAMEMOUSEGETPRESSED},
+    {"get_pressed", (PyCFunction)mouse_get_pressed,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMOUSEGETPRESSED},
     {"set_visible", mouse_set_visible, METH_VARARGS,
      DOC_PYGAMEMOUSESETVISIBLE},
     {"get_visible", mouse_get_visible, METH_NOARGS, DOC_PYGAMEMOUSEGETVISIBLE},
