@@ -144,6 +144,19 @@ RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
     return 1;
 }
 
+static int SDLCALL
+RemovePending_PGS_VIDEOEXPOSE_Events(void * userdata, SDL_Event *event)
+{
+    SDL_Event *new_event = (SDL_Event *)userdata;
+
+    if (event->type == SDL_VIDEOEXPOSE &&
+        event->window.windowID == new_event->window.windowID) {
+        /* We're about to post a new size event, drop the old one */
+        return 0;
+    }
+    return 1;
+}
+
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int SDLCALL
 pg_event_filter(void *_, SDL_Event *event)
@@ -191,6 +204,8 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_ACTIVEEVENT;
+                    
+                    SDL_FilterEvents(RemovePending_PGS_VIDEOEXPOSE_Events, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
