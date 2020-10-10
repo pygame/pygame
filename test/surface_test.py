@@ -377,6 +377,51 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertEqual(s1.get_flags(), pygame.SRCALPHA)
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires a non-"dummy" SDL_VIDEODRIVER',
+    )
+    def test_get_flags__display_surf(self):
+        pygame.display.init()
+        try:
+            # FULLSCREEN
+            screen_surf = pygame.display.set_mode((600, 400), flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.FULLSCREEN)
+            self.assertTrue(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            # NOFRAME
+            screen_surf = pygame.display.set_mode((600, 400),flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.NOFRAME)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.NOFRAME)
+            self.assertTrue(screen_surf.get_flags() & pygame.NOFRAME)
+
+            # RESIZABLE
+            screen_surf = pygame.display.set_mode((600, 400),flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.RESIZABLE)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.RESIZABLE)
+            self.assertTrue(screen_surf.get_flags() & pygame.RESIZABLE)
+
+
+            # OPENGL
+            screen_surf = pygame.display.set_mode((600, 400), flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.OPENGL)
+
+            try:
+                pygame.display.set_mode((200, 200), pygame.OPENGL, 32)
+            except pygame.error:
+                pass  # If we can't create OPENGL surface don't try this test
+            else:
+                self.assertTrue(screen_surf.get_flags() & pygame.OPENGL)
+        finally:
+            pygame.display.quit()
+
     ########################################################################
 
     def test_get_parent(self):
@@ -748,7 +793,7 @@ class TestSurfaceBlit(unittest.TestCase):
             self.assertEqual(self.dst_surface.get_at(k), (255, 255, 255))
 
     def test_blit_overflow_rect(self):
-        """Full coverage w/ overflow, specified with a Rect""" 
+        """Full coverage w/ overflow, specified with a Rect"""
         result = self.dst_surface.blit(self.src_surface, pygame.Rect(-1, -1, 300, 300))
         self.assertIsInstance(result, pygame.Rect)
         self.assertEqual(result.size, (64, 64))
