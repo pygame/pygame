@@ -1148,45 +1148,193 @@ draw_aaline(SDL_Surface *surf, Uint32 color, float from_x, float from_y,
     float gradient, dx, dy, intersect_y, brightness;
     int x, x_pixel_start, x_pixel_end;
     Uint32 pixel_color;
-    int steep = (to_x - from_x < 0 ? - (to_x - from_x) : (to_x - from_x)) <
-                (to_y - from_y < 0 ? - (to_y - from_y) : (to_y - from_y));
-    if (steep) {
-        swap(&from_x , &from_y);
-        swap(&to_x , &to_y);
-    }
-    if (from_x > to_x) {
-        swap(&from_x, &to_x);
-        swap(&from_y, &to_y);
-    }
+    float x_gap, y_endpoint, clip_left, clip_right, clip_top, clip_bottom;
+    int steep, y;
+
     dx = to_x - from_x;
     dy = to_y - from_y;
-    x_pixel_start = (int) from_x;
-    x_pixel_end = (int) to_x;
-    gradient = dx == 0 ? 1 : dy/dx;
-    intersect_y = from_y + gradient * ((int) from_x + 0.5f - from_x);
-    for (x = x_pixel_start; x <= x_pixel_end; x++) {
+
+    /* Single point.
+     * A line with length 0 is drawn as a single pixel at full brightness. */
+    if (fabs(dx) < 0.0001 && fabs(dy) < 0.0001) {
+        pixel_color = get_antialiased_color(surf, (int)floor(from_x + 0.5),
+                                            (int)floor(from_y + 0.5), color,
+                                            1, blend);
+        set_and_check_rect(surf, (int)floor(from_x + 0.5),
+                           (int)floor(from_y + 0.5), pixel_color, drawn_area);
+        return;
+    }
+
+    /* To draw correctly the pixels at the border of the clipping area when
+     * the line crosses it, we need to clip it one pixel wider in all four
+     * directions: */
+    clip_left = (float)surf->clip_rect.x - 1.0f;
+    clip_right = (float)clip_left + surf->clip_rect.w + 1.0f;
+    clip_top = (float)surf->clip_rect.y - 1.0f;
+    clip_bottom = (float)clip_top + surf->clip_rect.h + 1.0f;
+
+    steep = fabs(dx) < fabs(dy);
+    if (steep) {
+        swap(&from_x, &from_y);
+        swap(&to_x, &to_y);
+        swap(&dx, &dy);
+        swap(&clip_left, &clip_top);
+        swap(&clip_right, &clip_bottom);
+    }
+    if (dx < 0) {
+        swap(&from_x, &to_x);
+        swap(&from_y, &to_y);
+        dx = -dx;
+        dy = -dy;
+    }
+
+    if (to_x <= clip_left || from_x >= clip_right) {
+        /* The line is completly to the side of the surface */
+        return;
+    }
+
+    /* Note. There is no need to guard against a division by zero here. If dx
+     * was zero then either we had a single point (and we've returned) or it
+     * has been swapped with a non-zero dy. */
+    gradient = dy/dx;
+
+    /* No need to waste CPU cycles on pixels not on the surface. */
+    if (from_x < clip_left) {
+        from_y += gradient * (clip_left - from_x);
+        from_x = clip_left;
+    }
+    if (to_x > clip_right) {
+        to_y += gradient * (clip_right - to_x);
+        to_x = clip_right;
+    }
+
+    if (gradient > 0.0f) {
+        /* from_ is the topmost endpoint */
+        if (to_y <= clip_top || from_y >= clip_bottom) {
+            /* The line does not enter the surface */
+            return;
+        }
+        if (from_y < clip_top) {
+            from_x += (clip_top - from_y) / gradient;
+            from_y = clip_top;
+        }
+        if (to_y > clip_bottom) {
+            to_x += (clip_bottom - to_y) / gradient;
+            to_y = clip_bottom;
+        }
+    }
+    else {
+        /* to_ is the topmost endpoint */
+        if (from_y <= clip_top || to_y >= clip_bottom) {
+            /* The line does not enter the surface */
+            return;
+        }
+        if (to_y < clip_top) {
+            to_x += (clip_top - to_y) / gradient;
+            to_y = clip_top;
+        }
+        if (from_y > clip_bottom) {
+            from_x += (clip_bottom - from_y) / gradient;
+            from_y = clip_bottom;
+        }
+    }
+    /* By moving the points one pixel down, we can assume y is never negative.
+     * That permit us to use (int)y to round down intead of having to use
+     * floor(y). We then draw the pixels one higher.*/
+    from_y += 1.0f;
+    to_y += 1.0f;
+
+    /* Handle endpoints separatly.
+     * The line is not a mathematical line of thickness zero. The same
+     * goes for the endpoints. The have a height and width of one pixel. */
+    /* First endpoint */
+    x_pixel_start = (int)from_x;
+    y_endpoint = intersect_y = from_y + gradient * (x_pixel_start - from_x);
+    if (to_x > clip_left + 1.0f) {
+        x_gap = 1 + x_pixel_start - from_x;
+        brightness = y_endpoint - (int)y_endpoint;
         if (steep) {
-            brightness = 1 - intersect_y + (int) intersect_y;
-            pixel_color = get_antialiased_color(surf, (int) intersect_y, x,
+            x = (int)y_endpoint;
+            y = x_pixel_start;
+        }
+        else {
+            x = x_pixel_start;
+            y = (int)y_endpoint;
+        }
+        if ((int)y_endpoint < y_endpoint) {
+            pixel_color = get_antialiased_color(surf, x, y, color,
+                                                brightness * x_gap, blend);
+            set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+        }
+        if (steep) {
+            x--;
+        }
+        else {
+            y--;
+        }
+        brightness = 1 - brightness;
+        pixel_color = get_antialiased_color(surf, x, y, color,
+                                            brightness * x_gap, blend);
+        set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+        intersect_y += gradient;
+        x_pixel_start++;
+    }
+    /* Second endpoint */
+    x_pixel_end = (int)ceil(to_x);
+    if (from_x < clip_right - 1.0f) {
+        y_endpoint = to_y + gradient * (x_pixel_end - to_x);
+        x_gap = 1 - x_pixel_end + to_x;
+        brightness = y_endpoint - (int)y_endpoint;
+        if (steep) {
+            x = (int)y_endpoint;
+            y = x_pixel_end;
+        }
+        else {
+            x = x_pixel_end;
+            y = (int)y_endpoint;
+        }
+        if ((int)y_endpoint < y_endpoint) {
+            pixel_color = get_antialiased_color(surf, x, y, color,
+                                                brightness * x_gap, blend);
+            set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+        }
+        if (steep) {
+            x--;
+        }
+        else {
+            y--;
+        }
+        brightness = 1 - brightness;
+        pixel_color = get_antialiased_color(surf, x, y, color,
+                                            brightness * x_gap, blend);
+        set_and_check_rect(surf, x, y, pixel_color, drawn_area);
+    }
+
+    /* main line drawing loop */
+    for (x = x_pixel_start; x < x_pixel_end; x++) {
+        y = (int)intersect_y;
+        if (steep) {
+            brightness = 1 - intersect_y + y;
+            pixel_color = get_antialiased_color(surf, y - 1, x,
                                                 color, brightness, blend);
-            set_and_check_rect(surf, (int) intersect_y, x, pixel_color, drawn_area);
-            if ((int) intersect_y < to_y || (x == x_pixel_end && from_y != to_y)) {
-                brightness = intersect_y - (int) intersect_y;
-                pixel_color = get_antialiased_color(surf, (int) intersect_y + 1,
-                                                    x, color, brightness, blend);
-                set_and_check_rect(surf, (int) intersect_y + 1, x, pixel_color, drawn_area);
+            set_and_check_rect(surf, y - 1, x, pixel_color, drawn_area);
+            if (y < intersect_y) {
+                brightness = 1 - brightness;
+                pixel_color = get_antialiased_color(surf, y, x,
+                                                    color, brightness, blend);
+                set_and_check_rect(surf, y, x, pixel_color, drawn_area);
             }
         }
         else {
-            brightness = 1 - intersect_y + (int) intersect_y;
-            pixel_color = get_antialiased_color(surf, x, (int) intersect_y,
+            brightness = 1 - intersect_y + y;
+            pixel_color = get_antialiased_color(surf, x, y - 1,
                                                 color, brightness, blend);
-            set_and_check_rect(surf, x, (int) intersect_y, pixel_color, drawn_area);
-            if ((int) intersect_y < to_y || (x == x_pixel_end && from_y != to_y)) {
-                brightness = intersect_y - (int) intersect_y;
-                pixel_color = get_antialiased_color(surf, x, (int) intersect_y + 1,
+            set_and_check_rect(surf, x, y - 1, pixel_color, drawn_area);
+            if (y < intersect_y) {
+                brightness = 1 - brightness;
+                pixel_color = get_antialiased_color(surf, x, y,
                                                     color, brightness, blend);
-                set_and_check_rect(surf, x, (int) intersect_y + 1, pixel_color, drawn_area);
+                set_and_check_rect(surf, x, y, pixel_color, drawn_area);
             }
         }
         intersect_y += gradient;
