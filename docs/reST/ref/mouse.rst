@@ -92,13 +92,13 @@ scroll, such as ``which`` (it will tell you what exact mouse device trigger the 
    click both buttons 1 and 3 at the same time a 2 button event can be emitted.
 
    Note, remember to call ``pygame.event.get()`` before this function.
-   Otherwise it will not work.
+   Otherwise it will not work as expected.
 
    To support five button mice, an optional parameter ``num_buttons`` has been 
-   added in pygame 2. When this is set to 5 ``button4`` & ``button5`` are added 
+   added in pygame 2. When this is set to 5 ``button4`` and ``button5`` are added 
    to the returned tuple. Only 3 and 5 are valid values for this parameter.
    
-   .. versionchanged: 2.0.0
+   .. versionchanged:: 2.0.0 ``num_buttons`` argument added
 
    .. ## pygame.mouse.get_pressed ##
 
