@@ -63,6 +63,13 @@ environment:
       USE_SDL2: "-sdl2"
       USE_ANALYZE: ""
 
+    - PYTHON: "C:\\Python39\\python"
+      PYTHONPATH: "C:\\Python39"
+      PYTHON_VERSION: "3.9.0"
+      PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
+      USE_ANALYZE: ""
+
     - PYTHON: "C:\\Python27-x64\\python"
       PYTHONPATH: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.13"
@@ -97,6 +104,13 @@ environment:
       PYTHON_ARCH: "64"
       USE_SDL2: "-sdl2"
       USE_ANALYZE: "-enable-msvc-analyze"
+
+    - PYTHON: "C:\\Python39-x64\\python"
+      PYTHONPATH: "C:\\Python39-x64"
+      PYTHON_VERSION: "3.9.0"
+      PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
+      USE_ANALYZE: ""
 
 #     - PYTHON: "C:\\Python27\\python"
 #       PYTHON_VERSION: "2.7.13"
@@ -145,11 +159,33 @@ install:
   # install.ps1 only needed for SDL1 stuff.
   # - "powershell buildconfig\\ci\\appveyor\\install.ps1"
 
+  # https://github.com/appveyor/build-images/blob/master/scripts/Windows/install_python.ps1#L88-L108
   - ps: |
-      if (-not (Test-Path $env:PYTHONPATH)) {
-        curl -o install_python.ps1 https://gist.githubusercontent.com/illume/aa9236573a4aa1217918861427f0048e/raw/a474093baf038b0af65cda2f27056948f6faae20/install_python.ps1
-        .\install_python.ps1
+      function InstallPythonEXE($version, $platform, $targetPath) {
+          $urlPlatform = ""
+          if ($platform -eq 'x64') {
+              $urlPlatform = "-amd64"
+          }
+
+          Write-Host "Installing Python $version $platform to $($targetPath)..." -ForegroundColor Cyan
+
+          $downloadUrl = "https://www.python.org/ftp/python/$version/python-$version$urlPlatform.exe"
+          Write-Host "Downloading $($downloadUrl)..."
+          $exePath = "$env:TEMP\python-$version.exe"
+          (New-Object Net.WebClient).DownloadFile($downloadUrl, $exePath)
+
+          Write-Host "Installing..."
+          cmd /c start /wait $exePath /quiet TargetDir="$targetPath" Shortcuts=0 Include_launcher=1 InstallLauncherAllUsers=1 Include_debug=1
+          Remove-Item $exePath
+
+          Start-ProcessWithOutput "$targetPath\python.exe --version"
+
+          Write-Host "Installed Python $version" -ForegroundColor Green
       }
+      if (-not (Test-Path $env:PYTHONPATH)) {
+        InstallPythonEXE $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHONPATH
+      }
+
   - "%PYPY_DOWNLOAD%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
