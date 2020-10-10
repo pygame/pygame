@@ -192,6 +192,8 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_VIDEOEXPOSE;
+                    
+                    SDL_FilterEvents(RemovePending_PGS_VIDEOEXPOSE_Events, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -205,7 +207,6 @@ pg_event_filter(void *_, SDL_Event *event)
                     SDL_Event newevent = *event;
                     newevent.type = SDL_ACTIVEEVENT;
                     
-                    SDL_FilterEvents(RemovePending_PGS_VIDEOEXPOSE_Events, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
