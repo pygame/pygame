@@ -86,6 +86,8 @@ specific attributes.
     VIDEOEXPOSE       none
     USEREVENT         code
 
+.. versionchanged:: The ``joy`` attribute was deprecated, ``instance_id`` was added.
+
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
 
@@ -273,7 +275,7 @@ and the ``joy`` attribute was deprecated.
 
    If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
 
-   .. versionadded:: 1.9.5 ``pump``
+   .. versionchanged:: 1.9.5 Added ``pump`` argument
 
    .. ## pygame.event.clear ##
 
