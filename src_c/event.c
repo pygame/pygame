@@ -1357,19 +1357,43 @@ pg_event_pump(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_event_wait(PyObject *self, PyObject *args)
+pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int status;
+    int timeout = 0;
+    static char *kwids[] = {
+        "timeout",
+        NULL
+    };
 
     VIDEO_INIT_CHECK();
+    
+    if(!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &timeout)) {
+        return NULL;
+    }
+
+    #if IS_SDLv1
+        if (timeout)
+            return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
+    #endif
 
     Py_BEGIN_ALLOW_THREADS;
-    status = SDL_WaitEvent(&event);
+    #if IS_SDLv1
+        status = SDL_WaitEvent(&event);
+    #else /* IS_SDLv2 */
+        if (!timeout)
+            status = SDL_WaitEvent(&event);
+        else
+            status = SDL_WaitEventTimeout(&event, timeout);
+    #endif /* IS_SDLv2 */
     Py_END_ALLOW_THREADS;
 
-    if (!status)
+    if (!status && !timeout) //status 0 means an error normally
         return RAISE(pgExc_SDLError, SDL_GetError());
+
+    if (!status && timeout) //status 0 means WaitEventTimeout timed out
+        return pgEvent_New(NULL);
 
     return pgEvent_New(&event);
 }
@@ -2083,7 +2107,7 @@ static PyMethodDef _event_methods[] = {
     {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
     {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
-    {"wait", pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
+    {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTWAIT},
     {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
     {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
     {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
