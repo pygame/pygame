@@ -3216,7 +3216,7 @@ class AALinesMixin(BaseLineMixin):
             #Cause all warnings to always be triggered.
             warnings.simplefilter("always")
             #Trigger DeprecationWarning.
-            self.draw_aaline(pygame.Surface((2, 2)), (0, 0, 0, 50), (0, 0), (2, 2), False)
+            self.draw_aalines(pygame.Surface((2, 2)), (0, 0, 0, 50), False, ((0, 0), (1, 1)), False)
             #Check if there is only one warning and is a DeprecationWarning.
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
