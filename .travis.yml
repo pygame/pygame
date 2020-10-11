@@ -17,47 +17,47 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR 
 
 jobs:
   include:
-    - python: 2.7
-      env:
-        - RUN_SDIST=yes
-    - python: 3.5
-      name: SDL 1.2
-      env:
-        - WHICH_SDL_BUILD=-sdl1
-        - RUN_SDIST=yes
-    - python: 3.6
-      env:
-        - RUN_SDIST=yes
-    - python: 3.8
-      env:
-        - RUN_SDIST=yes
-    - python: 3.9-dev
-    - os: linux-ppc64le
-      python: 3.8
-      arch: ppc64le
-      env:
-        - PPC=yes
-    - os: linux
-      dist: xenial
-      python: 3.8
-      arch: arm64
-      env:
-        - ARM64=yes
-    - os: linux
-      python: 3.7
-      arch: s390x
-    - os: linux
-      python: 3.7
-      name: manylinux x86/amd64 python 2.7, 3.4-3.8.
-      env:
-        - MANYLINUX_WHL=yes
-        - UPLOAD_WHL_PYPI=yes
-        - UPLOAD_SDIST_PYPI=yes
-        - GITHUB_UPLOAD=yes
-        - PYTHON_EXE=python3
-        - RUN_SDIST=yes
-      services:
-        - docker
+    # - python: 2.7
+    #   env:
+    #     - RUN_SDIST=yes
+    # - python: 3.5
+    #   name: SDL 1.2
+    #   env:
+    #     - WHICH_SDL_BUILD=-sdl1
+    #     - RUN_SDIST=yes
+    # - python: 3.6
+    #   env:
+    #     - RUN_SDIST=yes
+    # - python: 3.8
+    #   env:
+    #     - RUN_SDIST=yes
+    # - python: 3.9-dev
+    # - os: linux-ppc64le
+    #   python: 3.8
+    #   arch: ppc64le
+    #   env:
+    #     - PPC=yes
+    # - os: linux
+    #   dist: xenial
+    #   python: 3.8
+    #   arch: arm64
+    #   env:
+    #     - ARM64=yes
+    # - os: linux
+    #   python: 3.7
+    #   arch: s390x
+    # - os: linux
+    #   python: 3.7
+    #   name: manylinux x86/amd64 python 2.7, 3.4-3.8.
+    #   env:
+    #     - MANYLINUX_WHL=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    #     - UPLOAD_SDIST_PYPI=yes
+    #     - GITHUB_UPLOAD=yes
+    #     - PYTHON_EXE=python3
+    #     - RUN_SDIST=yes
+    #   services:
+    #     - docker
     - os: osx
       language: shell
       env:
