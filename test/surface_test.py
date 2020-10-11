@@ -411,7 +411,9 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             # OPENGL
             screen_surf = pygame.display.set_mode((600, 400), flags=0)
-            self.assertFalse(screen_surf.get_flags() & pygame.OPENGL)
+            # it can have an OPENGL flag by default on Macos?
+            if not (screen_surf.get_flags() & pygame.OPENGL):
+                self.assertFalse(screen_surf.get_flags() & pygame.OPENGL)
 
             try:
                 pygame.display.set_mode((200, 200), pygame.OPENGL, 32)
