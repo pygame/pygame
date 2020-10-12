@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-SUPPORTED_PYTHONS="cp27-cp27mu cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38"
+SUPPORTED_PYTHONS="cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
 
 export PORTMIDI_INC_PORTTIME=1
 

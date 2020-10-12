@@ -2717,8 +2717,11 @@ surf_get_flags(PyObject *self, PyObject *args)
 {
 #if IS_SDLv2
     Uint32 sdl_flags = 0;
+    Uint32 window_flags = 0;
     Uint32 flags = 0;
     int is_alpha;
+    int is_window_surf = 0;
+    SDL_Window *win = pg_GetDefaultWindow();
 #endif /* IS_SDLv2 */
 
     SDL_Surface *surf = pgSurface_AsSurface(self);
@@ -2728,6 +2731,10 @@ surf_get_flags(PyObject *self, PyObject *args)
 #if IS_SDLv1
     return PyInt_FromLong((long)surf->flags);
 #else  /* IS_SDLv2 */
+    if (win && pg_GetDefaultWindowSurface())
+        if (surf == pgSurface_AsSurface(pg_GetDefaultWindowSurface()))
+            is_window_surf = 1;
+            window_flags = SDL_GetWindowFlags(win);
     sdl_flags = surf->flags;
     if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1)
         return NULL;
@@ -2739,6 +2746,19 @@ surf_get_flags(PyObject *self, PyObject *args)
         flags |= PGS_PREALLOC;
     if (sdl_flags & SDL_RLEACCEL)
         flags |= PGS_RLEACCEL;
+    if (is_window_surf)
+    {
+        if (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
+            window_flags & SDL_WINDOW_FULLSCREEN)
+            flags |= PGS_FULLSCREEN;
+        if (window_flags & SDL_WINDOW_OPENGL)
+            flags |= PGS_OPENGL;
+        if (window_flags & SDL_WINDOW_RESIZABLE)
+            flags |= PGS_RESIZABLE;
+        if (window_flags & SDL_WINDOW_BORDERLESS)
+            flags |= PGS_NOFRAME;
+    }
+
     return PyInt_FromLong((long)flags);
 #endif /* IS_SDLv2 */
 }

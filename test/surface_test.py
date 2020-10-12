@@ -454,6 +454,53 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertEqual(s1.get_flags(), pygame.SRCALPHA)
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires a non-"dummy" SDL_VIDEODRIVER',
+    )
+    def test_get_flags__display_surf(self):
+        pygame.display.init()
+        try:
+            # FULLSCREEN
+            screen_surf = pygame.display.set_mode((600, 400), flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.FULLSCREEN)
+            self.assertTrue(screen_surf.get_flags() & pygame.FULLSCREEN)
+
+            # NOFRAME
+            screen_surf = pygame.display.set_mode((600, 400),flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.NOFRAME)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.NOFRAME)
+            self.assertTrue(screen_surf.get_flags() & pygame.NOFRAME)
+
+            # RESIZABLE
+            screen_surf = pygame.display.set_mode((600, 400),flags=0)
+            self.assertFalse(screen_surf.get_flags() & pygame.RESIZABLE)
+
+            screen_surf = pygame.display.set_mode((600, 400),
+                                                  flags=pygame.RESIZABLE)
+            self.assertTrue(screen_surf.get_flags() & pygame.RESIZABLE)
+
+
+            # OPENGL
+            screen_surf = pygame.display.set_mode((600, 400), flags=0)
+            # it can have an OPENGL flag by default on Macos?
+            if not (screen_surf.get_flags() & pygame.OPENGL):
+                self.assertFalse(screen_surf.get_flags() & pygame.OPENGL)
+
+            try:
+                pygame.display.set_mode((200, 200), pygame.OPENGL, 32)
+            except pygame.error:
+                pass  # If we can't create OPENGL surface don't try this test
+            else:
+                self.assertTrue(screen_surf.get_flags() & pygame.OPENGL)
+        finally:
+            pygame.display.quit()
+
     ########################################################################
 
     def test_get_parent(self):

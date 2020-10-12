@@ -189,16 +189,6 @@
                          start, stop, step, slicelength)
 #endif
 
-/* Support new buffer protocol? */
-#if !defined(PG_ENABLE_NEWBUF)  /* allow for command line override */
-#if !defined(PYPY_VERSION)
-#define PG_ENABLE_NEWBUF 1
-#else
-#define PG_ENABLE_NEWBUF 0
-#endif
-#endif /* !defined(PG_ENABLE_NEWBUF) */
-
-
 #if defined(SDL_VERSION_ATLEAST)
 #if (SDL_VERSION_ATLEAST(2, 0, 0)) && !(SDL_VERSION_ATLEAST(2, 0, 5))
 /* These functions require SDL 2.0.5 or greater.

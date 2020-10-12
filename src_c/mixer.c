@@ -950,16 +950,12 @@ snd_releasebuffer(PyObject *obj, Py_buffer *view)
     }
 }
 
-#if PG_ENABLE_NEWBUF
 
 static PyBufferProcs sound_as_buffer[] = {{
 #if HAVE_OLD_BUFPROTO
     0, 0, 0, 0,
 #endif
     snd_getbuffer, snd_releasebuffer}};
-#else
-#define sound_as_buffer 0
-#endif /* #if PG_ENABLE_NEWBUF */
 
 /*sound object internals*/
 static void

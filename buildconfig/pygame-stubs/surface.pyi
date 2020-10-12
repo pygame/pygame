@@ -1,4 +1,5 @@
 from typing import Any, List, Optional, Sequence, Text, Tuple, Union, overload, Iterable
+from typing_extensions import Protocol
 from pygame.bufferproxy import BufferProxy
 from pygame.color import Color
 from pygame.rect import Rect
@@ -9,7 +10,7 @@ _ColorInput = Union[
     Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]
 ]
 _RgbaOutput = Tuple[int, int, int, int]
-_RectStyle = Union[
+_CanBeRect = Union[
     Rect,
     Tuple[float, float, float, float],
     Tuple[Tuple[float, float], Tuple[float, float]],
@@ -17,6 +18,11 @@ _RectStyle = Union[
     List[Vector2],
     Tuple[Vector2, Vector2],
     Iterable[Vector2],
+]
+class _HasRectAttribute(Protocol):
+    rect: _CanBeRect
+_RectValue = Union[
+    _CanBeRect, _HasRectAttribute
 ]
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
 
