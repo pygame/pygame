@@ -163,7 +163,7 @@ install:
   - ps: |
       function InstallPythonEXE($version, $platform, $targetPath) {
           $urlPlatform = ""
-          if ($platform -eq 'x64') {
+          if ($platform -eq '64') {
               $urlPlatform = "-amd64"
           }
 
