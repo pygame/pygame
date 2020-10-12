@@ -42,6 +42,41 @@ user adjusts the window dimensions. Hardware displays that draw direct to the
 screen will get ``pygame.VIDEOEXPOSE`` events when portions of the window must
 be redrawn.
 
+In pygame 2 (when built with SDL 2), there is a new type of event called
+``pygame.WINDOWEVENT`` that is meant to replace all window related events
+like ``pygame.VIDEORESIZE``, ``pygame.VIDEOEXPOSE`` and ``pygame.ACTIVEEVENT``.
+
+While SDL has removed support for these old events, pygame is still supporting
+them for backwards compatability.
+
+The new ``pygame.WINDOWEVENT`` has an ``event`` attribute that can take the 
+following values
+
+::
+         Value of event attribute        Description
+         ---------------------------------------------------
+         WINDOWEVENT_SHOWN          Window became shown
+         WINDOWEVENT_HIDDEN         Window became hidden
+         WINDOWEVENT_EXPOSED        Window got updated by some external event
+         WINDOWEVENT_MOVED          Window got moved
+         WINDOWEVENT_RESIZED        Window got resized
+         WINDOWEVENT_SIZE_CHANGED   Window changed it's size
+         WINDOWEVENT_MINIMIZED      Window was minimised
+         WINDOWEVENT_MAXIMIZED      Window was maximised
+         WINDOWEVENT_RESTORED       Window was restored
+         WINDOWEVENT_ENTER          Mouse entered the window
+         WINDOWEVENT_LEAVE          Mouse left the window
+         WINDOWEVENT_FOCUS_GAINED   Window gained focus
+         WINDOWEVENT_FOCUS_LOST     Window lost focus
+         WINDOWEVENT_CLOSE          Window was closed
+         WINDOWEVENT_TAKE_FOCUS     When window is offered focus
+         WINDOWEVENT_HIT_TEST       Window has a special hit test
+
+If SDL version used is less than 2.0.5, the last two values ``WINDOWEVENT_TAKE_FOCUS``
+and ``WINDOWEVENT_HIT_TEST`` will not work.
+
+See the SDL implementation of the same `over here.<https://wiki.libsdl.org/SDL_WindowEvent>`_
+
 Some display environments have an option for automatically stretching all
 windows. When this option is enabled, this automatic stretching distorts the
 appearance of the pygame window. In the pygame examples directory, there is
