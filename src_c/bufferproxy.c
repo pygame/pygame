@@ -654,7 +654,7 @@ static PyBufferProcs proxy_bufferprocs = {
 #endif
 
 static PyTypeObject pgBufproxy_Type = {
-    TYPE_HEAD(NULL, 0)
+	PyVarObject_HEAD_INIT(&PyType_Type, 0)
     .tp_name = PROXY_TYPE_FULLNAME,
     .tp_basicsize = sizeof(pgBufproxyObject),
     .tp_dealloc = (destructor)proxy_dealloc,
