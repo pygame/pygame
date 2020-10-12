@@ -653,8 +653,15 @@ static PyBufferProcs proxy_bufferprocs = {
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 #endif
 
+/* Temporary Testing Macro */
+#if defined(MS_WINDOWS)
+#define PYVAROBJECT_HEAD_INIT(a,b) PyVarObject_HEAD_INIT(0,b)
+#else
+#define PYVAROBJECT_HEAD_INIT(a,b) PyVarObject_HEAD_INIT(a,b)
+#endif
+
 static PyTypeObject pgBufproxy_Type = {
-	PyVarObject_HEAD_INIT(&PyType_Type, 0)
+	PYVAROBJECT_HEAD_INIT(&PyType_Type, 0)
     .tp_name = PROXY_TYPE_FULLNAME,
     .tp_basicsize = sizeof(pgBufproxyObject),
     .tp_dealloc = (destructor)proxy_dealloc,
