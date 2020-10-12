@@ -105,12 +105,12 @@ environment:
     #   USE_SDL2: "-sdl2"
     #   USE_ANALYZE: "-enable-msvc-analyze"
 
-    - PYTHON: "C:\\Python39-x64\\python"
-      PYTHONPATH: "C:\\Python39-x64"
-      PYTHON_VERSION: "3.9.0"
-      PYTHON_ARCH: "64"
-      USE_SDL2: "-sdl2"
-      USE_ANALYZE: ""
+    # - PYTHON: "C:\\Python39-x64\\python"
+    #   PYTHONPATH: "C:\\Python39-x64"
+    #   PYTHON_VERSION: "3.9.0"
+    #   PYTHON_ARCH: "64"
+    #   USE_SDL2: "-sdl2"
+    #   USE_ANALYZE: ""
 
 #     - PYTHON: "C:\\Python27\\python"
 #       PYTHON_VERSION: "2.7.13"
