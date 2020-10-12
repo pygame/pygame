@@ -189,6 +189,7 @@ required).
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
    
+   
    When pygame is compiled with SDL2, these additional flags are available
    
    ::
@@ -198,7 +199,8 @@ required).
       pygame.SHOWN         window is opened in visible mode (default)
       pygame.HIDDEN        window is opened in hidden mode
    
-   .. versionadded:: 2.0.0 ``SCALED``, `SHOWN`` and `HIDDEN``
+   
+   .. versionadded:: 2.0.0 ``SCALED``, ``SHOWN`` and ``HIDDEN``
 
    By setting the ``vsync`` parameter to 1, it is possible to get a display
    with vertical sync, but you are not guaranteed to get one. The request only
