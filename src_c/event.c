@@ -151,7 +151,7 @@ RemovePending_PGS_VIDEOEXPOSE_Events(void * userdata, SDL_Event *event)
 
     if (event->type == SDL_VIDEOEXPOSE &&
         event->window.windowID == new_event->window.windowID) {
-        /* We're about to post a new size event, drop the old one */
+        /* We're about to post a new videoexpose event, drop the old one */
         return 0;
     }
     return 1;
