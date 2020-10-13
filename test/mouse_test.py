@@ -58,10 +58,7 @@ class MouseModuleInteractiveTest(MouseTests):
 class MouseModuleTest(MouseTests):
     def test_get_cursor(self):
         """Ensures get_cursor works correctly."""
-        if not SDL1:
-            with self.assertRaises(TypeError):
-                pygame.mouse.get_cursor()
-        else:
+        if True:
             # error should be raised when the display is unintialized
             with self.assertRaises(pygame.error):
                 pygame.display.quit()
