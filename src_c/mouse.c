@@ -319,14 +319,6 @@ mouse_set_system_cursor(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-
-#if IS_SDLv2
-static PyObject *
-mouse_get_cursor(PyObject *self)
-{
-    return RAISE(PyExc_TypeError, "The get_cursor method is unavailable in SDL2");
-}
-#else /* IS_SDLv1*/
 static PyObject *
 mouse_get_cursor(PyObject *self)
 {
@@ -362,7 +354,6 @@ mouse_get_cursor(PyObject *self)
 
     return Py_BuildValue("((ii)(ii)NN)", w, h, spotx, spoty, xordata, anddata);
 }
-#endif /* IS_SDLv1 */
 
 static PyMethodDef _mouse_methods[] = {
     {"set_pos", mouse_set_pos, METH_VARARGS, DOC_PYGAMEMOUSESETPOS},
