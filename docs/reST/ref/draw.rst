@@ -407,6 +407,22 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
    Draws a straight antialiased line on the given surface.
 
+   If both endpoints are equal, a single pixel is drawn (after rounding floats
+   to nearest integer).
+
+   The line has a thickness of one pixel and the endpoints have a height and
+   width of one pixel each.
+   
+   .. note::
+      Regarding float values for coordinates, a point with coordinate
+      consisting of two whole numbers is considered being right in the center
+      of said pixel (and having a height and width of 1 pixel would therefore
+      completely cover it), while a point with coordinate where one (or both)
+      of the numbers have non-zero decimal parts would be partially covering
+      two (or four if both numbers have decimal parts) adjacent pixels, *e.g.*
+      the point (1.4, 2) covers 60% of the pixel (1, 2) and 40% of the pixel
+      (2,2).
+
    :param Surface surface: surface to draw on
    :param color: color to draw with, the alpha value is optional if using a
       tuple ``(RGB[A])``
