@@ -320,9 +320,9 @@ class TimeModuleTest(unittest.TestCase):
         """Checks 3 TypeError (float, tuple, string) for the func_to_check"""
         """Intended for time.delay and time.wait functions"""
         # Those methods throw no exceptions on negative integers
-        self.assertRaises(TypeError, func_to_check, 0.1)  # check float
-        self.assertRaises(TypeError, pygame.time.delay, (0, 1))  # check tuple
-        self.assertRaises(TypeError, pygame.time.delay, "10")  # check string
+        self.assertRaises(TypeError, pygame.time.wait, 0.1)  # check float
+        self.assertRaises(TypeError, func_to_check, (0, 1))  # check tuple
+        self.assertRaises(TypeError, func_to_check, "10")  # check string
 
 ###############################################################################
 
