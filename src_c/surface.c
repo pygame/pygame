@@ -1445,6 +1445,7 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     Uint8 rgba[4];
     int result;
     int hascolor = SDL_FALSE;
+    int bpp = surf->format->BytesPerPixel;
 
     if (!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
         return NULL;
@@ -1492,7 +1493,8 @@ surf_set_colorkey(pgSurfaceObject *self, PyObject *args)
     result = SDL_SetColorKey(surf, flags, color);
 #else  /* IS_SDLv2 */
     result = 0;
-    if (hascolor) {
+    if (hascolor && bpp == 1)
+    {
         /* For an indexed surface, remove the previous colorkey first.
          */
         result = SDL_SetColorKey(surf, SDL_FALSE, color);

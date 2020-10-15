@@ -408,7 +408,6 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    @unittest.skipIf(pygame.get_sdl_version()[0] == 2, "only works in SDL 1")
     def test_set_alpha__set_colorkey_rle(self):
         pygame.display.init()
         try:
@@ -427,6 +426,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             sample_pixel_rle = blit_to_surf.get_at((50, 50))
 
             # Now reset the colorkey to the original value with RLE
+            self.assertEqual(image.get_colorkey(), orig_colorkey)
             image.set_colorkey(orig_colorkey, RLEACCEL)
             blit_to_surf.fill((255, 255, 255))
             blit_to_surf.blit(image, (0, 0))
