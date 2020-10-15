@@ -102,7 +102,7 @@ timer_callback_once(Uint32 interval, void *param)
 static double
 get_delta_millis(clock_t start)
 {
-    return (double)(1000 * (clock() - start)) / CLOCKS_PER_SEC;
+    return 1000.0f * ((double)(clock() - start) / CLOCKS_PER_SEC);
 }
 
 static double
@@ -137,7 +137,7 @@ time_delay(PyObject *self, PyObject *arg)
 
     /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
     if (PyTuple_Size(arg) != 1)
-        return RAISE(PyExc_ValueError, "delay requires only one argument");
+        return RAISE(PyExc_ValueError, "delay requires one number argument");
 
     arg0 = PyTuple_GET_ITEM(arg, 0);
     if (PyInt_Check(arg0)) {
@@ -151,7 +151,7 @@ time_delay(PyObject *self, PyObject *arg)
         return PyFloat_FromDouble(ticks);
     } 
     else {
-        return RAISE(PyExc_TypeError, "delay must be an integer or floating point value");
+        return RAISE(PyExc_TypeError, "argument must be a number");
     }
 
 }
@@ -310,7 +310,7 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             accurate_delay(delay);
         else {
             // this uses sdls delay, which can be inaccurate.
-            if (delay < 0)
+            if (delay < 1)
                 delay = 0.0f;
 
             if (delay) {
