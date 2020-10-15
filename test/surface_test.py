@@ -346,7 +346,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         pygame.display.init()
         try:
-            pygame.display.set_mode((640, 480))
+            pygame.display.set_mode((640, 480), depth=32)
             blit_to_surf = pygame.Surface((100, 100))
 
             image = pygame.image.load(example_path(os.path.join("data",
