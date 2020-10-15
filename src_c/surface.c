@@ -66,8 +66,8 @@ typedef struct pg_bufferinternal_s {
 } pg_bufferinternal;
 
 /* copy of SDL Blit mapping definitions to enable pointer casting hack
-   for checking state of SDL_COPY_RLE_DESIRED flag */
-#define SDL_COPY_RLE_DESIRED        0x00001000
+   for checking state of the SDL_COPY_RLE_DESIRED flag */
+#define PGS_COPY_RLE_DESIRED        0x00001000
 
 typedef struct
 {
@@ -100,7 +100,7 @@ typedef struct pg_BlitMap
     Uint32 dst_palette_version;
     Uint32 src_palette_version;
 } pg_BlitMap;
-/* end SDL_COPY_RLE_DESIRED hack definitions */
+/* end PGS_COPY_RLE_DESIRED hack definitions */
 
 int
 pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
@@ -2651,14 +2651,14 @@ pg_HasSurfaceRLE(SDL_Surface * surface)
 {
     pg_BlitMap *blit_map;
     /* this is part of a hack to allow us to access
-       the SDL_COPY_RLE_DESIRED flag from pygame */
+       the COPY_RLE_DESIRED flag from pygame */
     if (!surface) {
         return SDL_FALSE;
     }
 
     blit_map = (pg_BlitMap*)surface->map;
 
-    if (!(blit_map->info.flags & SDL_COPY_RLE_DESIRED)) {
+    if (!(blit_map->info.flags & PGS_COPY_RLE_DESIRED)) {
         return SDL_FALSE;
     }
 

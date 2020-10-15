@@ -234,10 +234,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertNotEqual(s1.get_at(pt), color)
 
     def test_fill_rle(self):
+        """Test RLEACCEL flag with fill()"""
         color = (250, 25, 25, 255)
-        color2 = (200, 200, 250, 255)
-        # s0 = pygame.Surface((32, 32), 24)
-        # s1 = pygame.Surface((32, 32), 24)
 
         surf = pygame.Surface((32, 32))
         blit_surf = pygame.Surface((32, 32))
@@ -252,7 +250,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(blit_surf.get_flags() & pygame.RLEACCEL)
 
     def test_mustlock_rle(self):
-        # Test RLEACCEL flag in set_colorkey
+        """Test RLEACCEL flag with mustlock()"""
         surf = pygame.Surface((100, 100))
         blit_surf = pygame.Surface((100, 100))
         blit_surf.set_colorkey((0, 0, 255), pygame.RLEACCEL)
@@ -263,7 +261,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     @unittest.skipIf(pygame.get_sdl_version()[0] == 1, "only works in SDL2")
     def test_mustlock_surf_alpha_rle(self):
-        # Test RLEACCEL flag in set_colorkey
+        """Test RLEACCEL flag with mustlock() on a surface
+           with per pixel alpha"""
         surf = pygame.Surface((100, 100))
         blit_surf = pygame.Surface((100, 100), depth=32, flags=pygame.SRCALPHA)
         blit_surf.set_colorkey((192, 191, 192, 255), pygame.RLEACCEL)
@@ -274,6 +273,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(blit_surf.mustlock())
 
     def test_copy_rle(self):
+        """ Test copying a surface set to use run length encoding"""
         s1 = pygame.Surface((32, 32), 24)
         s1.set_colorkey((255, 0, 255), pygame.RLEACCEL)
         self.assertTrue(s1.get_flags() & pygame.RLEACCELOK)
@@ -298,6 +298,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(not s2.get_flags() & pygame.RLEACCEL)
 
     def test_subsurface_rle2(self):
+        """Ensure an RLE sub-surface works independently of its parent."""
         color = (250, 25, 25, 255)
         color2 = (200, 200, 250, 255)
         sub_rect = pygame.Rect(16, 16, 16, 16)
@@ -313,7 +314,9 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertTrue(not s2.get_flags() & pygame.RLEACCELOK)
 
     def test_solarwolf_rle_usage(self):
-
+        """ Test for error/crash when calling set_colorkey() followed
+            by convert twice in succession. Code originally taken
+            from solarwolf. """
         def optimize(img):
             clear = img.get_colorkey()
             img.set_colorkey(clear, RLEACCEL)
@@ -321,10 +324,9 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         pygame.display.init()
         try:
-            window_surf = pygame.display.set_mode((640, 480))
-
+            pygame.display.set_mode((640, 480))
             image = pygame.image.load(example_path(os.path.join("data",
-                                                        "ship-up-boost1.png")))
+                                                                "alien1.png")))
             image = optimize(image)
             image = optimize(image)
             self.assertTrue(isinstance(image, pygame.Surface))
