@@ -1,24 +1,21 @@
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
-
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
   License as published by the Free Software Foundation; either
   version 2 of the License, or (at your option) any later version.
-
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Library General Public License for more details.
-
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
   Pete Shinners
   pete@shinners.org
 */
+#include <time.h>
 
 #include "pygame.h"
 
@@ -98,35 +95,26 @@ timer_callback_once(Uint32 interval, void *param)
     return timer_callback(0, param);
 }
 
-
-static int
-accurate_delay(int ticks)
+static double
+get_delta_millis(clock_t start)
 {
-    int funcstart, delay;
-    if (ticks <= 0)
+    return (double)(1000 * (clock() - start)) / CLOCKS_PER_SEC;
+}
+
+static double
+accurate_delay(double millis)
+{
+    double delay;
+    clock_t starttime;
+    if (millis <= 0)
         return 0;
 
-    if (!SDL_WasInit(SDL_INIT_TIMER)) {
-        if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            return -1;
-        }
-    }
-
-    funcstart = SDL_GetTicks();
-    if (ticks >= WORST_CLOCK_ACCURACY) {
-        delay = (ticks - 2) - (ticks % WORST_CLOCK_ACCURACY);
-        if (delay >= WORST_CLOCK_ACCURACY) {
-            Py_BEGIN_ALLOW_THREADS;
-            SDL_Delay(delay);
-            Py_END_ALLOW_THREADS;
-        }
-    }
+    starttime = clock();
     do {
-        delay = ticks - (SDL_GetTicks() - funcstart);
+        delay = millis - get_delta_millis(starttime);
     } while (delay > 0);
 
-    return SDL_GetTicks() - funcstart;
+    return get_delta_millis(starttime);
 }
 
 static PyObject *
@@ -140,24 +128,28 @@ time_get_ticks(PyObject *self)
 static PyObject *
 time_delay(PyObject *self, PyObject *arg)
 {
-    int ticks;
+    double ticks;
     PyObject *arg0;
 
     /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
     if (PyTuple_Size(arg) != 1)
-        return RAISE(PyExc_ValueError, "delay requires one integer argument");
+        return RAISE(PyExc_ValueError, "delay requires only one argument");
+
     arg0 = PyTuple_GET_ITEM(arg, 0);
-    if (!PyInt_Check(arg0))
-        return RAISE(PyExc_TypeError, "delay requires one integer argument");
+    if (PyInt_Check(arg0)) {
+        ticks = (double)PyInt_AsLong(arg0);
+        ticks = accurate_delay(ticks);
+        return PyInt_FromLong((long)ticks);
+    } 
+    else if (PyFloat_Check(arg0)) {
+        ticks = PyFloat_AsDouble(arg0);
+        ticks = accurate_delay(ticks);
+        return PyFloat_FromDouble(ticks);
+    } 
+    else {
+        return RAISE(PyExc_TypeError, "delay must be an integer or floating point value");
+    }
 
-    ticks = PyInt_AsLong(arg0);
-    if (ticks < 0)
-        ticks = 0;
-
-    ticks = accurate_delay(ticks);
-    if (ticks == -1)
-        return NULL;
-    return PyInt_FromLong(ticks);
 }
 
 static PyObject *
@@ -278,10 +270,9 @@ time_set_timer(PyObject *self, PyObject *arg)
 
 /*clock object interface*/
 typedef struct {
-    PyObject_HEAD int last_tick;
-    int fps_count, fps_tick;
-    float fps;
-    int timepassed, rawpassed;
+    clock_t last_tick, fps_tick;
+    int fps_count, juststarted;
+    float fps, timepassed, rawpassed;
     PyObject *rendered;
 } PyClockObject;
 
@@ -291,14 +282,15 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
 {
     PyClockObject *_clock = (PyClockObject *)self;
     float framerate = 0.0f;
-    int nowtime;
 
     if (!PyArg_ParseTuple(arg, "|f", &framerate))
         return NULL;
 
     if (framerate) {
-        int delay, endtime = (int)((1.0f / framerate) * 1000.0f);
-        _clock->rawpassed = SDL_GetTicks() - _clock->last_tick;
+        float delay, endtime;
+        endtime = 1000.0f / framerate;
+
+        _clock->rawpassed = get_delta_millis(_clock->last_tick);
         delay = endtime - _clock->rawpassed;
 
         /*just doublecheck that timer is initialized*/
@@ -309,40 +301,44 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
         }
 
         if (use_accurate_delay)
-            delay = accurate_delay(delay);
+            accurate_delay(delay);
         else {
             // this uses sdls delay, which can be inaccurate.
             if (delay < 0)
-                delay = 0;
+                delay = 0.0f;
 
-            Py_BEGIN_ALLOW_THREADS;
-            SDL_Delay((Uint32)delay);
-            Py_END_ALLOW_THREADS;
+            if (delay) {
+                Py_BEGIN_ALLOW_THREADS;
+                SDL_Delay((Uint32)delay);
+                Py_END_ALLOW_THREADS;
+            }
         }
-
-        if (delay == -1)
-            return NULL;
     }
 
-    nowtime = SDL_GetTicks();
-    _clock->timepassed = nowtime - _clock->last_tick;
     _clock->fps_count += 1;
-    _clock->last_tick = nowtime;
-    if (!framerate)
-        _clock->rawpassed = _clock->timepassed;
-
-    if (!_clock->fps_tick) {
+    if (_clock->juststarted) {
+        _clock->juststarted = 0;
         _clock->fps_count = 0;
-        _clock->fps_tick = nowtime;
+        _clock->fps_tick = clock();
     }
     else if (_clock->fps_count >= 10) {
         _clock->fps =
-            _clock->fps_count / ((nowtime - _clock->fps_tick) / 1000.0f);
+            (_clock->fps_count * 1000.0f) / get_delta_millis(_clock->fps_tick);
         _clock->fps_count = 0;
-        _clock->fps_tick = nowtime;
+        _clock->fps_tick = clock();
         Py_XDECREF(_clock->rendered);
     }
-    return PyInt_FromLong(_clock->timepassed);
+
+    _clock->timepassed = get_delta_millis(_clock->last_tick);
+    _clock->last_tick = clock();
+
+    if (!framerate)
+        _clock->rawpassed = _clock->timepassed;
+
+    if (use_accurate_delay)
+        return PyFloat_FromDouble(_clock->timepassed);
+    else
+        return PyInt_FromLong((long)_clock->timepassed);
 }
 
 static PyObject *
@@ -368,14 +364,14 @@ static PyObject *
 clock_get_time(PyObject *self, PyObject *args)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    return PyInt_FromLong(_clock->timepassed);
+    return PyFloat_FromDouble(_clock->timepassed);
 }
 
 static PyObject *
 clock_get_rawtime(PyObject *self, PyObject *args)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    return PyInt_FromLong(_clock->rawpassed);
+    return PyFloat_FromDouble(_clock->rawpassed);
 }
 
 /* clock object internals */
@@ -463,11 +459,11 @@ ClockInit(PyObject *self)
         if (SDL_InitSubSystem(SDL_INIT_TIMER))
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
-
-    _clock->fps_tick = 0;
+    _clock->juststarted = 1;
     _clock->timepassed = 0;
     _clock->rawpassed = 0;
-    _clock->last_tick = SDL_GetTicks();
+    _clock->last_tick = clock();
+    _clock->fps_tick = _clock->last_tick;
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
     _clock->rendered = NULL;
