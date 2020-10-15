@@ -27,8 +27,6 @@
 
 #include "doc/time_doc.h"
 
-#define WORST_CLOCK_ACCURACY 12
-
 #if IS_SDLv2
 #define pgNUMEVENTS (16 + (PG_NUMEVENTS - PGE_USEREVENT))
 #else /* IS_SDLv1 */
@@ -275,10 +273,9 @@ time_set_timer(PyObject *self, PyObject *arg)
 /*clock object interface*/
 typedef struct {
     PyObject_HEAD
-    int juststarted;
     int fps_count;
-    clock_t last_tick, fps_tick;
-    float fps, timepassed, rawpassed;
+    clock_t last_tick;
+    float fps, fps_sum, timepassed, rawpassed;
 } PyClockObject;
 
 // to be called by the other tick functions.
@@ -294,17 +291,15 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     _clock->rawpassed = get_delta_millis(_clock->last_tick);
     if (framerate) {
         delay = ((1.0f / framerate) * 1000.0f) - _clock->rawpassed;
-
-        /*just doublecheck that timer is initialized*/
-        if (!SDL_WasInit(SDL_INIT_TIMER)) {
-            if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
-                return RAISE(pgExc_SDLError, SDL_GetError());
-            }
-        }
-
         if (use_accurate_delay)
             accurate_delay(delay);
         else {
+            // just doublecheck that timer is initialized
+            if (!SDL_WasInit(SDL_INIT_TIMER)) {
+                if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
+                    return RAISE(pgExc_SDLError, SDL_GetError());
+                }
+            }
             // this uses sdls delay, which can be inaccurate.
             if (delay < 1)
                 delay = 0.0f;
@@ -316,23 +311,18 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             }
         }
     }
-
-    _clock->fps_count += 1;
-    if (_clock->juststarted) {
-        _clock->juststarted = 0;
-        _clock->fps_count = 0;
-        _clock->fps_tick = clock();
-    }
-    else if (_clock->fps_count >= 10) {
-        _clock->fps =
-            (_clock->fps_count * 1000.0f) / get_delta_millis(_clock->fps_tick);
-        _clock->fps_count = 0;
-        _clock->fps_tick = clock();
-    }
-
     _clock->timepassed = get_delta_millis(_clock->last_tick);
     _clock->last_tick = clock();
-
+    
+    _clock->fps_count += 1;
+    _clock->fps_sum += _clock->timepassed;
+    
+    if (_clock->fps_count >= 10) {
+        _clock->fps = 1000.0f * (_clock->fps_count / _clock->fps_sum);
+        _clock->fps_count = 0;
+        _clock->fps_sum = 0.0f;
+    }
+    
     if (use_accurate_delay)
         return PyFloat_FromDouble(_clock->timepassed);
     else
@@ -456,11 +446,10 @@ ClockInit(PyObject *self)
         if (SDL_InitSubSystem(SDL_INIT_TIMER))
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
-    _clock->juststarted = 1;
     _clock->timepassed = 0.0f;
     _clock->rawpassed = 0.0f;
     _clock->last_tick = clock();
-    _clock->fps_tick = clock();
+    _clock->fps_sum = 0.0f;
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
 
