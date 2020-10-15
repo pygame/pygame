@@ -329,6 +329,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
             image = pygame.image.load(example_path(os.path.join("data",
                                                                 "alien1.png")))
+            image = image.convert()
             orig_colorkey = image.get_colorkey()
 
             image = optimize(image)
