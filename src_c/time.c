@@ -275,9 +275,9 @@ time_set_timer(PyObject *self, PyObject *arg)
 /*clock object interface*/
 typedef struct {
     PyObject_HEAD
-    clock_t last_tick; 
-    clock_t fps_tick;
-    int fps_count, juststarted;
+    int juststarted;
+    int fps_count;
+    clock_t last_tick, fps_tick;
     float fps, timepassed, rawpassed;
     PyObject *rendered;
 } PyClockObject;
