@@ -279,7 +279,6 @@ typedef struct {
     int fps_count;
     clock_t last_tick, fps_tick;
     float fps, timepassed, rawpassed;
-    PyObject *rendered;
 } PyClockObject;
 
 // to be called by the other tick functions.
@@ -329,7 +328,6 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             (_clock->fps_count * 1000.0f) / get_delta_millis(_clock->fps_tick);
         _clock->fps_count = 0;
         _clock->fps_tick = clock();
-        Py_XDECREF(_clock->rendered);
     }
 
     _clock->timepassed = get_delta_millis(_clock->last_tick);
@@ -390,7 +388,6 @@ static void
 clock_dealloc(PyObject *self)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    Py_XDECREF(_clock->rendered);
     PyObject_DEL(self);
 }
 
@@ -466,7 +463,6 @@ ClockInit(PyObject *self)
     _clock->fps_tick = clock();
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
-    _clock->rendered = NULL;
 
     return (PyObject *)_clock;
 }
