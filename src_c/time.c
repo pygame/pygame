@@ -99,16 +99,16 @@ timer_callback_once(Uint32 interval, void *param)
     return timer_callback(0, param);
 }
 
-static double
+static float
 get_delta_millis(clock_t start)
 {
-    return 1000.0f * ((double)(clock() - start) / CLOCKS_PER_SEC);
+    return 1000.0f * ((float)(clock() - start) / CLOCKS_PER_SEC);
 }
 
-static double
-accurate_delay(double millis)
+static float
+accurate_delay(float millis)
 {
-    double delay;
+    float delay;
     clock_t starttime;
     if (millis <= 0)
         return 0;
@@ -132,7 +132,7 @@ time_get_ticks(PyObject *self)
 static PyObject *
 time_delay(PyObject *self, PyObject *arg)
 {
-    double ticks;
+    float ticks;
     PyObject *arg0;
 
     /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
@@ -141,7 +141,7 @@ time_delay(PyObject *self, PyObject *arg)
 
     arg0 = PyTuple_GET_ITEM(arg, 0);
     if (PyInt_Check(arg0)) {
-        ticks = (double)PyInt_AsLong(arg0);
+        ticks = (float)PyInt_AsLong(arg0);
         ticks = accurate_delay(ticks);
         return PyInt_FromLong((long)ticks);
     } 
@@ -294,7 +294,7 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
 
     if (framerate) {
         float delay, endtime;
-        endtime = 1000.0f / framerate;
+        endtime = (1.0f / framerate) * 1000.0f;
 
         _clock->rawpassed = get_delta_millis(_clock->last_tick);
         delay = endtime - _clock->rawpassed;
