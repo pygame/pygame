@@ -1610,6 +1610,8 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     PyObject *alpha_obj = NULL, *intobj = NULL;
     Uint8 alpha;
     int result, alphaval = 255;
+    SDL_Rect sdlrect;
+    SDL_Surface *surface;
 
     if (!PyArg_ParseTuple(args, "|Oi", &alpha_obj, &flags))
         return NULL;
@@ -1646,6 +1648,26 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     pgSurface_Prep(self);
     result =
         SDL_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
+    /* HACK HACK HACK */
+    if ((surf->flags & SDL_RLEACCEL) && (!(flags & PGS_RLEACCEL)))
+    {
+        /* hack to strip SDL_RLEACCEL flag off surface immediately when
+           it is not requested */
+        sdlrect.x = 0;
+        sdlrect.y = 0;
+        sdlrect.h = 0;
+        sdlrect.w = 0;
+
+        surface = SDL_CreateRGBSurface(0, 1, 1, 32,
+                                       surf->format->Rmask,
+                                       surf->format->Gmask,
+                                       surf->format->Bmask,
+                                       surf->format->Amask);
+
+        SDL_LowerBlit(surf, &sdlrect, surface, &sdlrect);
+        SDL_FreeSurface(surface);
+    }
+    /* HACK HACK HACK */
     if (result == 0)
         result = SDL_SetSurfaceAlphaMod(surf, alpha);
     pgSurface_Unprep(self);
