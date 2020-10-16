@@ -66,6 +66,9 @@ scroll, such as ``which`` (it will tell you what exact mouse device trigger the 
                   return
                elif event.type == MOUSEWHEEL:
                   print(event) 
+                  print(event.x, event.y)
+                  print(event.flipped)
+                  print(event.which)
                   # can access properties with 
                   # proper notation(ex: event.y)
          clock.tick(60)
