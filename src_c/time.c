@@ -97,42 +97,59 @@ timer_callback_once(Uint32 interval, void *param)
     return timer_callback(0, param);
 }
 
-// This uses monotonic clock, which includes the time the process slept
-static float
-get_monotonic_delta_millis(struct timespec start)
-{
-    struct timespec end;
-    if (clock_gettime(CLOCK_MONOTONIC, &end) == 0) {
-        return (1000.0f * (float)(end.tv_sec - start.tv_sec)) + 
-            ((float)(end.tv_nsec - start.tv_nsec) / 1000000.0f);
+// win32 block also covers win64
+#ifdef _WIN32
+    // This uses clock function, which uses the wall time on windows
+    // and processor time on linux (therefore it works as expected only
+    // on windows)
+    static double
+    get_delta_millis(clock_t start)
+    {
+        return 1000.0 * ((double)(clock() - start) / CLOCKS_PER_SEC);
     }
-    else {
-        return 0.0f;
+#else
+    // This uses monotonic clock, which includes the time the process slept
+    // does not work on windows
+    static double
+    get_delta_millis(struct timespec start)
+    {
+        struct timespec end;
+        if (clock_gettime(CLOCK_MONOTONIC, &end) == 0) {
+            return (1000.0 * (double)(end.tv_sec - start.tv_sec)) + 
+                ((double)(end.tv_nsec - start.tv_nsec) / 1000000.0);
+        }
+        else {
+            return -1.0;
+        }
     }
-}
+#endif
 
-// This uses clock function, which does not calculate the time the process slept
-// Used only for getting an accurate busy loop
-static float
-get_clock_delta_millis(clock_t start)
+static double
+accurate_delay(double millis)
 {
-    return 1000.0f * ((float)(clock() - start) / CLOCKS_PER_SEC);
-}
-
-static float
-accurate_delay(float millis)
-{
-    float delay;
+    double delay, elap;
+#ifdef _WIN32
     clock_t starttime;
-    if (millis <= 0)
-        return 0.0f;
-
     starttime = clock();
+#else
+    struct timespec startime;
+    if (clock_gettime(CLOCK_MONOTONIC, &starttime) == -1) {
+        return -1.0;
+    }
+#endif
+    
+    if (millis <= 0){
+        return 0.0;
+    }  
     do {
-        delay = millis - get_clock_delta_millis(starttime);
+        elap = get_delta_millis(starttime);
+        if (elap < 0) {
+            return -1.0;
+        }
+        delay = millis - elap;
     } while (delay > 0);
 
-    return get_clock_delta_millis(starttime);
+    return get_delta_millis(starttime);
 }
 
 static PyObject *
@@ -146,7 +163,7 @@ time_get_ticks(PyObject *self)
 static PyObject *
 time_delay(PyObject *self, PyObject *arg)
 {
-    float ticks;
+    double ticks;
     PyObject *arg0;
 
     /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
@@ -155,14 +172,20 @@ time_delay(PyObject *self, PyObject *arg)
 
     arg0 = PyTuple_GET_ITEM(arg, 0);
     if (PyInt_Check(arg0)) {
-        ticks = (float)PyInt_AsLong(arg0);
+        ticks = (double)PyInt_AsLong(arg0);
         ticks = accurate_delay(ticks);
-        return PyInt_FromLong((long)ticks);
+        if (ticks < 0)
+            return NULL;
+        else
+            return PyInt_FromLong((long)ticks);
     } 
     else if (PyFloat_Check(arg0)) {
         ticks = PyFloat_AsDouble(arg0);
         ticks = accurate_delay(ticks);
-        return PyFloat_FromDouble(ticks);
+        if (ticks < 0)
+            return NULL;
+        else
+            return PyFloat_FromDouble(ticks);
     } 
     else {
         return RAISE(PyExc_TypeError, "argument must be a number");
@@ -290,8 +313,12 @@ time_set_timer(PyObject *self, PyObject *arg)
 typedef struct {
     PyObject_HEAD
     int fps_count;
+#ifdef _WIN32
+    clock_t last_tick;
+#else
     struct timespec last_tick;
-    float fps, fps_sum, timepassed, rawpassed;
+#endif
+    double fps, fps_sum, timepassed, rawpassed;
 } PyClockObject;
 
 // to be called by the other tick functions.
@@ -299,19 +326,21 @@ static PyObject *
 clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
 {
     PyClockObject *_clock = (PyClockObject *)self;
-    float delay, framerate = 0.0f;
+    double delay, framerate = 0.0;
 
-    if (!PyArg_ParseTuple(arg, "|f", &framerate))
+    if (!PyArg_ParseTuple(arg, "|d", &framerate))
         return NULL;
     
-    _clock->rawpassed = get_monotonic_delta_millis(_clock->last_tick);
-    if (!_clock->rawpassed)
+    _clock->rawpassed = get_delta_millis(_clock->last_tick);
+    if (_clock->rawpassed < 0)
         return NULL;
     
     if (framerate) {
-        delay = ((1.0f / framerate) * 1000.0f) - _clock->rawpassed;
-        if (use_accurate_delay)
-            accurate_delay(delay);
+        delay = (1000.0 / framerate) - _clock->rawpassed;
+        if (use_accurate_delay) {
+            if (accurate_delay(delay) < 0) 
+                return NULL;
+        }
         else {
             // just doublecheck that timer is initialized
             if (!SDL_WasInit(SDL_INIT_TIMER)) {
@@ -321,7 +350,7 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             }
             // this uses sdls delay, which can be inaccurate.
             if (delay < 1)
-                delay = 0.0f;
+                delay = 0.0;
 
             if (delay) {
                 Py_BEGIN_ALLOW_THREADS;
@@ -330,21 +359,25 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             }
         }
     }
-    _clock->timepassed = get_monotonic_delta_millis(_clock->last_tick);
-    if (!_clock->timepassed)
+    _clock->timepassed = get_delta_millis(_clock->last_tick);
+    if (_clock->timepassed < 0)
         return NULL;
-    
+
+#ifdef _WIN32
+    _clock->last_tick = clock();
+#else
     if (clock_gettime(CLOCK_MONOTONIC, &_clock->last_tick) == -1) {
         return NULL;
     }
+#endif
     
     _clock->fps_count += 1;
     _clock->fps_sum += _clock->timepassed;
     
     if (_clock->fps_count >= 10) {
-        _clock->fps = 1000.0f * (_clock->fps_count / _clock->fps_sum);
+        _clock->fps = 1000.0 * (_clock->fps_count / _clock->fps_sum);
         _clock->fps_count = 0;
-        _clock->fps_sum = 0.0f;
+        _clock->fps_sum = 0.0;
     }
     
     if (use_accurate_delay)
@@ -470,15 +503,19 @@ ClockInit(PyObject *self)
         if (SDL_InitSubSystem(SDL_INIT_TIMER))
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
-    _clock->timepassed = 0.0f;
-    _clock->rawpassed = 0.0f;
-    _clock->fps_sum = 0.0f;
-    _clock->fps = 0.0f;
+    _clock->timepassed = 0.0;
+    _clock->rawpassed = 0.0;
+    _clock->fps_sum = 0.0;
+    _clock->fps = 0.0;
     _clock->fps_count = 0;
-    
+ 
+#ifdef _WIN32
+    _clock->last_tick = clock();
+#else
     if (clock_gettime(CLOCK_MONOTONIC, &_clock->last_tick) == -1) {
         return NULL;
     }
+#endif
 
     return (PyObject *)_clock;
 }
