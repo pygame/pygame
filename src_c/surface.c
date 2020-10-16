@@ -2635,9 +2635,13 @@ surf_get_flags(PyObject *self, PyObject *args)
     return PyInt_FromLong((long)surf->flags);
 #else  /* IS_SDLv2 */
     if (win && pg_GetDefaultWindowSurface())
+    {
         if (surf == pgSurface_AsSurface(pg_GetDefaultWindowSurface()))
+        {
             is_window_surf = 1;
             window_flags = SDL_GetWindowFlags(win);
+        }
+    }
     sdl_flags = surf->flags;
     if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1)
         return NULL;
