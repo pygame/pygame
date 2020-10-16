@@ -4,7 +4,6 @@ import sys
 import time
 
 import pygame
-import pygame.midi
 import pygame.compat
 from pygame.locals import *
 
@@ -13,6 +12,8 @@ class MidiInputTest(unittest.TestCase):
     __tags__ = ["interactive"]
 
     def setUp(self):
+        import pygame.midi
+
         pygame.midi.init()
         in_id = pygame.midi.get_default_input_id()
         if in_id != -1:
@@ -80,6 +81,7 @@ class MidiOutputTest(unittest.TestCase):
     __tags__ = ["interactive"]
 
     def setUp(self):
+        import pygame.midi
         pygame.midi.init()
         m_out_id = pygame.midi.get_default_output_id()
         if m_out_id != -1:
@@ -243,6 +245,7 @@ class MidiModuleTest(unittest.TestCase):
     __tags__ = ["interactive"]
 
     def setUp(self):
+        import pygame.midi
         pygame.midi.init()
 
     def tearDown(self):
@@ -336,6 +339,9 @@ class MidiModuleNonInteractiveTest(unittest.TestCase):
 
     See MidiModuleTest for interactive module tests.
     """
+
+    def setUp(self):
+        import pygame.midi
 
     def test_midiin(self):
         """Ensures the MIDIIN event id exists in the midi module.

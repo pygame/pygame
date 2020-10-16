@@ -132,13 +132,26 @@ static char _pg_last_unicode_char[32] = { 0 };
 static SDL_Event *_pg_last_keydown_event = NULL;
 
 static int SDLCALL
-RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
+_pg_remove_pending_PGS_VIDEORESIZE(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
     if (event->type == SDL_VIDEORESIZE &&
         event->window.windowID == new_event->window.windowID) {
         /* We're about to post a new size event, drop the old one */
+        return 0;
+    }
+    return 1;
+}
+
+static int SDLCALL
+_pg_remove_pending_PGS_VIDEOEXPOSE(void * userdata, SDL_Event *event)
+{
+    SDL_Event *new_event = (SDL_Event *)userdata;
+
+    if (event->type == SDL_VIDEOEXPOSE &&
+        event->window.windowID == new_event->window.windowID) {
+        /* We're about to post a new videoexpose event, drop the old one */
         return 0;
     }
     return 1;
@@ -168,7 +181,7 @@ pg_event_filter(void *_, SDL_Event *event)
                        SDL2 already does this for SDL_WINDOWEVENT_RESIZED,
                        so we only need to filter our own custom event before
                        we push the new one*/
-                    SDL_FilterEvents(RemovePending_PGS_VIDEORESIZE_Events, &newevent);
+                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEORESIZE, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -179,6 +192,8 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_VIDEOEXPOSE;
+                    
+                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEOEXPOSE, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -191,6 +206,7 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_ACTIVEEVENT;
+                    
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -207,9 +223,6 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
-#ifdef WIN32
-        SDL_Event inputEvent[2];
-#endif /* WIN32 */
 
         if (event->key.repeat) {
             return 0;
@@ -222,34 +235,9 @@ pg_event_filter(void *_, SDL_Event *event)
             _pg_repeat_timer = SDL_AddTimer(pg_key_repeat_delay, _pg_repeat_callback,
                                             NULL);
         }
-#ifdef WIN32
-        /* This does not seem to work on Mac 10.13. */
-#pragma PG_WARN(PumpEvents is not thread-safe)
-        SDL_PumpEvents();
-        if (SDL_PeepEvents(inputEvent, 1, SDL_PEEKEVENT,
-                           SDL_TEXTINPUT, SDL_TEXTINPUT) == 1)
-        {
-            SDL_Event *ev = inputEvent;
-            SDL_PumpEvents();
-            if (_pg_last_unicode_char[0] == 0) {
-                if (SDL_PeepEvents(inputEvent, 2, SDL_PEEKEVENT,
-                                   SDL_TEXTINPUT, SDL_TEXTINPUT) == 2)
-                    ev = &inputEvent[1];
-            }
-
-            /* Only copy size - 1. This will always leave the string
-             * terminated with a 0. */
-            strncpy(_pg_last_unicode_char, ev->text.text,
-                    sizeof(_pg_last_unicode_char) - 1);
-        }
-        else {
-            _pg_last_unicode_char[0] = 0;
-        }
-#else
         _pg_last_unicode_char[0] = 0;
         /* store the keydown event for later in the SDL_TEXTINPUT */
         _pg_last_keydown_event = event;
-#endif /* WIN32 */
     }
     else if (type == SDL_TEXTINPUT) {
         if (_pg_last_keydown_event != NULL) {
@@ -1357,19 +1345,43 @@ pg_event_pump(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_event_wait(PyObject *self, PyObject *args)
+pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     int status;
+    int timeout = 0;
+    static char *kwids[] = {
+        "timeout",
+        NULL
+    };
 
     VIDEO_INIT_CHECK();
+    
+    if(!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &timeout)) {
+        return NULL;
+    }
+
+    #if IS_SDLv1
+        if (timeout)
+            return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
+    #endif
 
     Py_BEGIN_ALLOW_THREADS;
-    status = SDL_WaitEvent(&event);
+    #if IS_SDLv1
+        status = SDL_WaitEvent(&event);
+    #else /* IS_SDLv2 */
+        if (!timeout)
+            status = SDL_WaitEvent(&event);
+        else
+            status = SDL_WaitEventTimeout(&event, timeout);
+    #endif /* IS_SDLv2 */
     Py_END_ALLOW_THREADS;
 
-    if (!status)
+    if (!status && !timeout) //status 0 means an error normally
         return RAISE(pgExc_SDLError, SDL_GetError());
+
+    if (!status && timeout) //status 0 means WaitEventTimeout timed out
+        return pgEvent_New(NULL);
 
     return pgEvent_New(&event);
 }
@@ -2083,7 +2095,7 @@ static PyMethodDef _event_methods[] = {
     {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
     {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
-    {"wait", pg_event_wait, METH_NOARGS, DOC_PYGAMEEVENTWAIT},
+    {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTWAIT},
     {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
     {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
     {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},

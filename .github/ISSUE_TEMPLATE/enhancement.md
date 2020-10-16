@@ -1,5 +1,5 @@
 ---
-name: Enhancement
+name: 💡 Enhancement
 about: Suggest an idea to improve or add to Pygame!
 title: ''
 labels: enhancement
