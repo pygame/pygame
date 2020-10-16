@@ -162,34 +162,34 @@ class ClockTypeTest(unittest.TestCase):
         c = Clock()
 
         # Test whether the return value of tick_busy_loop is equal to
-        # (FPS is accurate) or greater than (slower than the set FPS)
-        # with a small margin for error based on differences in how this
-        # test runs in practise - it either sometimes runs slightly fast
-        # or seems to based on a rounding error.
+        # (or almost equal). Now that tick_busy_loop is more accurate, 
+        # the small error can happen in either side of the expected value
+
         second_length = 1000
-        shortfall_tolerance = 1  # (ms) The amount of time a tick is allowed to run short of, to account for underlying rounding errors
+        delta_error= 10
         sample_fps = 40
 
-        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        self.assertAlmostEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps, delta=delta_error)
         pygame.time.wait(10)  # incur delay between ticks that's faster than sample_fps
-        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        self.assertAlmostEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps, delta=delta_error)
         pygame.time.wait(200)  # incur delay between ticks that's slower than sample_fps
-        self.assertGreaterEqual(c.tick_busy_loop(sample_fps), (second_length/sample_fps) - shortfall_tolerance)
+        self.assertAlmostEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps, delta=delta_error)
 
         high_fps = 500
-        self.assertGreaterEqual(c.tick_busy_loop(high_fps), (second_length/high_fps) - shortfall_tolerance)
+        high_fps_delta_error = 1
+        self.assertAlmostEqual(c.tick_busy_loop(high_fps), second_length/high_fps, delta=high_fps_delta_error)
 
         low_fps = 1
-        self.assertGreaterEqual(c.tick_busy_loop(low_fps), (second_length/low_fps) - shortfall_tolerance)
+        low_fps_delta_error = 40
+        self.assertAlmostEqual(c.tick_busy_loop(low_fps), second_length/low_fps, delta=low_fps_delta_error)
 
         low_non_factor_fps = 35  # 1000/35 makes 28.5714285714
-        frame_length_without_decimal_places = int(second_length/low_non_factor_fps)  # Same result as math.floor
-        self.assertGreaterEqual(c.tick_busy_loop(low_non_factor_fps), frame_length_without_decimal_places - shortfall_tolerance)
-
+        self.assertAlmostEqual(c.tick_busy_loop(low_non_factor_fps), second_length/low_non_factor_fps, delta=delta_error)
+        
         high_non_factor_fps = 750  # 1000/750 makes 1.3333...
-        frame_length_without_decimal_places_2 = int(second_length/high_non_factor_fps)  # Same result as math.floor
-        self.assertGreaterEqual(c.tick_busy_loop(high_non_factor_fps), frame_length_without_decimal_places_2 - shortfall_tolerance)
-
+        self.assertAlmostEqual(c.tick_busy_loop(high_non_factor_fps), 
+                               second_length/high_non_factor_fps, delta=high_fps_delta_error)
+        
         zero_fps = 0
         self.assertAlmostEqual(c.tick_busy_loop(zero_fps), 0, delta=0.5)
 
@@ -199,11 +199,11 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(c.tick_busy_loop(negative_fps), 0, delta=0.5)
 
         fractional_fps = 32.75
-        frame_length_without_decimal_places_3 = int(second_length/fractional_fps)
-        self.assertGreaterEqual(c.tick_busy_loop(fractional_fps), frame_length_without_decimal_places_3 - shortfall_tolerance)
-
+        self.assertAlmostEqual(c.tick_busy_loop(fractional_fps), second_length/fractional_fps, delta=delta_error)
+        
         bool_fps = True
-        self.assertGreaterEqual(c.tick_busy_loop(bool_fps), (second_length/bool_fps) - shortfall_tolerance)
+        bool_delta_error = 40
+        self.assertAlmostEqual(c.tick_busy_loop(bool_fps), second_length/bool_fps, delta=bool_delta_error)
 
 
 class TimeModuleTest(unittest.TestCase):
