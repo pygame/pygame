@@ -173,7 +173,8 @@ class ClockTypeTest(unittest.TestCase):
         pygame.time.wait(10)  # incur delay between ticks that's faster than sample_fps
         self.assertAlmostEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps, delta=delta_error)
         pygame.time.wait(200)  # incur delay between ticks that's slower than sample_fps
-        self.assertAlmostEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps, delta=delta_error)
+        # the function must return a value close to 200, because we waited for 200 millis
+        self.assertAlmostEqual(c.tick_busy_loop(sample_fps), 200, delta=delta_error)
 
         high_fps = 500
         high_fps_delta_error = 1
