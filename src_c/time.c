@@ -97,8 +97,24 @@ timer_callback_once(Uint32 interval, void *param)
     return timer_callback(0, param);
 }
 
+// This uses monotonic clock, which includes the time the process slept
 static float
-get_delta_millis(clock_t start)
+get_monotonic_delta_millis(struct timespec start)
+{
+    struct timespec end;
+    if (clock_gettime(CLOCK_MONOTONIC, &end) == 0) {
+        return (1000.0f * (float)(end.tv_sec - start.tv_sec)) + 
+            ((float)(end.tv_nsec - start.tv_nsec) / 1000000.0f);
+    }
+    else {
+        return 0.0f;
+    }
+}
+
+// This uses clock function, which does not calculate the time the process slept
+// Used only for getting an accurate busy loop
+static float
+get_clock_delta_millis(clock_t start)
 {
     return 1000.0f * ((float)(clock() - start) / CLOCKS_PER_SEC);
 }
@@ -109,14 +125,14 @@ accurate_delay(float millis)
     float delay;
     clock_t starttime;
     if (millis <= 0)
-        return 0;
+        return 0.0f;
 
     starttime = clock();
     do {
-        delay = millis - get_delta_millis(starttime);
+        delay = millis - get_clock_delta_millis(starttime);
     } while (delay > 0);
 
-    return get_delta_millis(starttime);
+    return get_clock_delta_millis(starttime);
 }
 
 static PyObject *
@@ -274,7 +290,7 @@ time_set_timer(PyObject *self, PyObject *arg)
 typedef struct {
     PyObject_HEAD
     int fps_count;
-    clock_t last_tick;
+    struct timespec last_tick;
     float fps, fps_sum, timepassed, rawpassed;
 } PyClockObject;
 
@@ -288,7 +304,10 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     if (!PyArg_ParseTuple(arg, "|f", &framerate))
         return NULL;
     
-    _clock->rawpassed = get_delta_millis(_clock->last_tick);
+    _clock->rawpassed = get_monotonic_delta_millis(_clock->last_tick);
+    if (!_clock->rawpassed)
+        return NULL;
+    
     if (framerate) {
         delay = ((1.0f / framerate) * 1000.0f) - _clock->rawpassed;
         if (use_accurate_delay)
@@ -311,8 +330,13 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
             }
         }
     }
-    _clock->timepassed = get_delta_millis(_clock->last_tick);
-    _clock->last_tick = clock();
+    _clock->timepassed = get_monotonic_delta_millis(_clock->last_tick);
+    if (!_clock->timepassed)
+        return NULL;
+    
+    if (clock_gettime(CLOCK_MONOTONIC, &_clock->last_tick) == -1) {
+        return NULL;
+    }
     
     _clock->fps_count += 1;
     _clock->fps_sum += _clock->timepassed;
