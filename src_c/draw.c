@@ -1445,13 +1445,11 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2,
          * ends of the line will be flat. */
         xinc = 1;
     }
-    if (width) {
-        dx = abs(x2 - x1);
-        sx = x1 < x2 ? 1 : -1;
-        dy = abs(y2 - y1);
-        sy = y1 < y2 ? 1 : -1;
-        err = (dx > dy ? dx : -dy) / 2;
-    }
+    dx = abs(x2 - x1);
+    sx = x1 < x2 ? 1 : -1;
+    dy = abs(y2 - y1);
+    sy = y1 < y2 ? 1 : -1;
+    err = (dx > dy ? dx : -dy) / 2;
     if (clip_line(surf, &x1, &y1, &x2, &y2)) {
         if (width == 1)
             draw_line(surf, x1, y1, x2, y2, color, drawn_area);
