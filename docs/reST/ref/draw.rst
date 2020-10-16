@@ -419,32 +419,35 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 
          For each endpoint:
 
-            Calculate the position of the nearest point when extending the
-            line in that direction, with a whole number for it's x-coordinate
-            (if ``x``, the endpoint's x-coordinate is already a whole number,
-            use the endpoint's coordinates).
+            If ``x``, the endpoint's x-coordinate, is a whole number find
+            which pixels would be covered by it and draw them.
 
-            Find which pixels would be covered and how much by a point at
-            those coordinates.
+            Otherwise:
 
-            If the endpoint is the left one, multiply the coverage by (1 -
-            the decimal part of ``x``).
+               Calculate the position of the nearest point with a whole number
+               for it's x-coordinate, when extending the line past the
+               endpoint.
 
-            Otherwise multiply the coverage by the decimal part of ``x``.
+               Find which pixels would be covered and how much by that point.
 
-            Then draw those pixels.
+               If the endpoint is the left one, multiply the coverage by (1 -
+               the decimal part of ``x``).
 
-            *e.g.:*
-               | The left endpoint of the line ``((1, 1.3), (5, 3))`` would
-                 cover 70% of the pixel ``(1, 1)`` and 30% of the pixel ``(1,
-                 2)`` while the right one would cover 100% of the pixel ``(5,
-                 3)``.
-               | The left endpoint of the line ``((1.2, 1.4), (4.9, 3.1))`` would
-                 cover 56% *(i.e. 0.8 * 70%)* of the pixel ``(1, 1)`` and 24%
-                 *(i.e. 0.8 * 30%)* of the pixel ``(1, 2)`` while the right
-                 one would cover 63% *(i.e. 0.9 * 70%)* of the pixel ``(5,
-                 3)`` and 28% *(i.e. 0.9 * 30%)* of the pixel ``(5, 4)`` while
-                 the right
+               Otherwise multiply the coverage by the decimal part of ``x``.
+
+               Then draw those pixels.
+
+               *e.g.:*
+                  | The left endpoint of the line ``((1, 1.3), (5, 3))`` would
+                    cover 70% of the pixel ``(1, 1)`` and 30% of the pixel
+                    ``(1, 2)`` while the right one would cover 100% of the
+                    pixel ``(5, 3)``.
+                  | The left endpoint of the line ``((1.2, 1.4), (4.6, 3.1))``
+                    would cover 56% *(i.e. 0.8 * 70%)* of the pixel ``(1, 1)``
+                    and 24% *(i.e. 0.8 * 30%)* of the pixel ``(1, 2)`` while
+                    the right one would cover 42% *(i.e. 0.6 * 70%)* of the
+                    pixel ``(5, 3)`` and 18% *(i.e. 0.6 * 30%)* of the pixel
+                    ``(5, 4)`` while the right
 
          Then for each point between the endpoints, along the line, whose
          x-coordinate is a whole number:
@@ -453,10 +456,16 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
             draw them.
 
             *e.g.:*
-               The points along the line ``((1, 1), (4, 2.5))`` would be ``(2,
-               1.5)`` and ``(3, 2)`` and would cover 50% of the pixel
-               ``(2, 1)``, 50% of the pixel ``(2, 2)`` and 100% of the pixel
-               ``(3, 2)``.
+               | The points along the line ``((1, 1), (4, 2.5))`` would be
+                 ``(2, 1.5)`` and ``(3, 2)`` and would cover 50% of the pixel
+                 ``(2, 1)``, 50% of the pixel ``(2, 2)`` and 100% of the pixel
+                 ``(3, 2)``.
+               | The points along the line ``((1.2, 1.4), (4.6, 3.1))`` would
+                 be ``(2, 1.8)`` (covering 20% of the pixel ``(2, 1)`` and 80%
+                 of the pixel ``(2, 2)``), ``(3, 2.3)`` (covering 70% of the
+                 pixel ``(3, 2)`` and 30% of the pixel ``(3, 3)``) and ``(4,
+                 2.8)`` (covering 20% of the pixel ``(2, 1)`` and 80% of the
+                 pixel ``(2, 2)``)
 
       Otherwise do the same for steep lines as for non-steep lines except
       along the y-axis instead of the x-axis (using ``y`` instead of ``x``,
