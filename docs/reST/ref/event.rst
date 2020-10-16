@@ -86,7 +86,7 @@ specific attributes.
     VIDEOEXPOSE       none
     USEREVENT         code
 
-.. versionchanged:: The ``joy`` attribute was deprecated, ``instance_id`` was added.
+.. versionchanged:: 2.0.0 The ``joy`` attribute was deprecated, ``instance_id`` was added.
 
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
