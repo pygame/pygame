@@ -64,3 +64,11 @@ In order to make a custom package, I started by [setting up bintray](https://doc
 
 Then this one for [uploading packages to remotes](https://docs.conan.io/en/latest/uploading_packages/uploading_to_remotes.html)
 
+
+
+## upload packages to bintray
+
+```
+conan upload portmidi/217 --all -r=pygame-repo
+```
+
