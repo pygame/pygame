@@ -166,7 +166,7 @@ class ClockTypeTest(unittest.TestCase):
         # the small error can happen in either side of the expected value
 
         second_length = 1000
-        delta_error= 10
+        delta_error= 15
         sample_fps = 40
 
         self.assertAlmostEqual(c.tick_busy_loop(sample_fps), second_length/sample_fps, delta=delta_error)
@@ -177,7 +177,7 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(c.tick_busy_loop(sample_fps), 200, delta=delta_error)
 
         high_fps = 500
-        high_fps_delta_error = 1
+        high_fps_delta_error = 3
         self.assertAlmostEqual(c.tick_busy_loop(high_fps), second_length/high_fps, delta=high_fps_delta_error)
 
         low_fps = 1
