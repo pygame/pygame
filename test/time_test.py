@@ -191,12 +191,12 @@ class ClockTypeTest(unittest.TestCase):
         self.assertGreaterEqual(c.tick_busy_loop(high_non_factor_fps), frame_length_without_decimal_places_2 - shortfall_tolerance)
 
         zero_fps = 0
-        self.assertEqual(c.tick_busy_loop(zero_fps), 0)
+        self.assertAlmostEqual(c.tick_busy_loop(zero_fps), 0, delta=0.5)
 
         # Check behaviour of unexpected values
 
         negative_fps = -1
-        self.assertEqual(c.tick_busy_loop(negative_fps), 0)
+        self.assertAlmostEqual(c.tick_busy_loop(negative_fps), 0, delta=0.5)
 
         fractional_fps = 32.75
         frame_length_without_decimal_places_3 = int(second_length/fractional_fps)
