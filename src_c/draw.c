@@ -987,6 +987,12 @@ compare_int(const void *a, const void *b)
     return (*(const int *)a) - (*(const int *)b);
 }
 
+static int
+sign(int x, int y)
+{
+    return (x > 0) ? 1 : ((x < 0) ? -1 : y);
+}
+
 static Uint32
 get_antialiased_color(SDL_Surface *surf, int x, int y, Uint32 original_color,
                       float brightness, int blend)
@@ -1418,11 +1424,20 @@ drawhorzlineclip(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int *p
     drawhorzline(surf, color, x1, y1, x2);
 }
 
+int inside_clip(SDL_Surface *surf, int x, int y) {
+    if (x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
+        y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h)
+        return 0;
+    return 1;
+}
+
 static void
 draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2, int width,
                 int *drawn_area)
 {
-    int dx, dy, err, e2, sx, sy, i;
+    int dx, dy, err, e2, sx, sy, y;
+    int left_top, right_bottom;
+    int end_x = x2; int end_y = y2;
     int xinc = 0;
     /* Decide which direction to grow (width/thickness). */
     if (abs(x1 - x2) <= abs(y1 - y2)) {
@@ -1430,31 +1445,63 @@ draw_line_width(SDL_Surface *surf, Uint32 color, int x1, int y1, int x2, int y2,
          * ends of the line will be flat. */
         xinc = 1;
     }
+    if (width) {
+        dx = abs(x2 - x1);
+        sx = x1 < x2 ? 1 : -1;
+        dy = abs(y2 - y1);
+        sy = y1 < y2 ? 1 : -1;
+        err = (dx > dy ? dx : -dy) / 2;
+    }
     if (clip_line(surf, &x1, &y1, &x2, &y2)) {
         if (width == 1)
             draw_line(surf, x1, y1, x2, y2, color, drawn_area);
         else {
-            dx = abs(x2 - x1);
-            sx = x1 < x2 ? 1 : -1;
-            dy = abs(y2 - y1);
-            sy = y1 < y2 ? 1 : -1;
-            err = (dx > dy ? dx : -dy) / 2;
-            while (x1 != x2 || y1 != y2) {
+            if (xinc) {
+                left_top = x1 - (width - 1) / 2;
+                right_bottom = x1 + width / 2;
+            }
+            else {
+                left_top = y1 -(width - 1) / 2;
+                right_bottom = y1 + width / 2;
+            }
+            while ((sign(x1 - x2, sx) != sx) || (sign(y1 - y2, sy) != sy)) {
                 if (xinc)
-                    drawhorzlineclip(surf, color, x1 - (width - 1) / 2, y1, x1 + width / 2, drawn_area);
+                    drawhorzlineclip(surf, color, left_top, y1, right_bottom, drawn_area);
                 else {
-                    for (i = -(width - 1) / 2; i <= width / 2; i++)
-                        set_and_check_rect(surf, x1, y1 + i, color, drawn_area);
+                    for (y = left_top; y <= right_bottom; y++)
+                        set_and_check_rect(surf, x1, y, color, drawn_area);
                 }
                 e2 = err;
-                if (e2 >-dx) { err -= dy; x1 += sx; }
-                if (e2 < dy) { err += dx; y1 += sy; }
+                if (e2 >-dx) {
+                    err -= dy;
+                    x1 += sx;
+                    if (xinc) { left_top += sx; right_bottom += sx; }
+                }
+                if (e2 < dy) {
+                    err += dx;
+                    y1 += sy;
+                    if (!xinc) { left_top += sy; right_bottom += sy; }
+                }
             }
-            if (xinc)
-                drawhorzlineclip(surf, color, x2 - (width - 1) / 2, y2, x2 + width / 2, drawn_area);
+            if (xinc) {
+                while (y1 != end_y && (inside_clip(surf, left_top, y1) || inside_clip(surf, right_bottom, y1))) {
+                    drawhorzlineclip(surf, color, left_top, y1, right_bottom, drawn_area);
+                    e2 = err;
+                    if (e2 >-dx) { err -= dy; x1 += sx; left_top += sx; right_bottom += sx; }
+                    if (e2 < dy) { err += dx; y1 += sy; }
+                }
+                drawhorzlineclip(surf, color, left_top, y1, right_bottom, drawn_area);
+            }
             else {
-                for (i = -(width - 1) / 2; i <= width / 2; i++)
-                    set_and_check_rect(surf, x2, y2 + i, color, drawn_area);
+                while (x1 != end_x && (inside_clip(surf, x1, left_top) || inside_clip(surf, x1, right_bottom))) {
+                    for (y = left_top; y <= right_bottom; y++)
+                        set_and_check_rect(surf, x1, y, color, drawn_area);
+                    e2 = err;
+                    if (e2 >-dx) { err -= dy; x1 += sx; }
+                    if (e2 < dy) { err += dx; y1 += sy; left_top += sy; right_bottom += sy; }
+                }
+                for (y = left_top; y <= right_bottom; y++)
+                    set_and_check_rect(surf, x1, y, color, drawn_area);
             }
         }
     }
