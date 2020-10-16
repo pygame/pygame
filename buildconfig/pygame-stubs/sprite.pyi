@@ -8,6 +8,7 @@ from typing import (
     Callable,
     SupportsFloat,
     Iterator,
+    Sequence
 )
 
 from pygame.rect import Rect
@@ -60,7 +61,7 @@ class AbstractGroup:
     def empty(self) -> None: ...
 
 class Group(AbstractGroup):
-    def __init__(self, *sprites: Sprite) -> None:
+    def __init__(self, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         AbstractGroup.__init__(self)
     def copy(self) -> Group: ...
 
