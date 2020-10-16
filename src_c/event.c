@@ -132,13 +132,26 @@ static char _pg_last_unicode_char[32] = { 0 };
 static SDL_Event *_pg_last_keydown_event = NULL;
 
 static int SDLCALL
-RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
+_pg_remove_pending_PGS_VIDEORESIZE(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
     if (event->type == SDL_VIDEORESIZE &&
         event->window.windowID == new_event->window.windowID) {
         /* We're about to post a new size event, drop the old one */
+        return 0;
+    }
+    return 1;
+}
+
+static int SDLCALL
+_pg_remove_pending_PGS_VIDEOEXPOSE(void * userdata, SDL_Event *event)
+{
+    SDL_Event *new_event = (SDL_Event *)userdata;
+
+    if (event->type == SDL_VIDEOEXPOSE &&
+        event->window.windowID == new_event->window.windowID) {
+        /* We're about to post a new videoexpose event, drop the old one */
         return 0;
     }
     return 1;
@@ -168,7 +181,7 @@ pg_event_filter(void *_, SDL_Event *event)
                        SDL2 already does this for SDL_WINDOWEVENT_RESIZED,
                        so we only need to filter our own custom event before
                        we push the new one*/
-                    SDL_FilterEvents(RemovePending_PGS_VIDEORESIZE_Events, &newevent);
+                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEORESIZE, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -179,6 +192,8 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_VIDEOEXPOSE;
+                    
+                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEOEXPOSE, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -191,6 +206,7 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_ACTIVEEVENT;
+                    
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
