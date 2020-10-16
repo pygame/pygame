@@ -72,7 +72,7 @@ before_install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update
-      sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
+      sudo apt-get -y install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
         libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev \
         libtiff5-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
         xfonts-cyrillic fluid-soundfont-gm timgm6mb-soundfont \
