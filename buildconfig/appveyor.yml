@@ -192,7 +192,7 @@ install:
   - "%PYTHON% -m ensurepip"
   - "%PYTHON% -m pip install -U wheel pip twine requests"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
-  - "%WITH_COMPILER% %PYTHON% setup.py build %USE_ANALYZE%"
+  - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
 
@@ -209,7 +209,7 @@ skip_branch_with_pr: true
 test_script:
   - "mkdir empty_folder"
   - "cd empty_folder"
-  - "%PYTHON% -m pygame.tests -v --exclude opengl"
+  - "%PYTHON% -m pygame.tests -v --exclude opengl,timing"
 
   # Move back to the project folder
   - "cd .."
