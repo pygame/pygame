@@ -239,6 +239,6 @@
 
       .. versionadded:: 2.0.0
 
-      .. ## Color.lerp ##
+      .. ## Color.premul_alpha ##
 
    .. ## pygame.Color ##
