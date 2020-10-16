@@ -175,7 +175,7 @@ time_delay(PyObject *self, PyObject *arg)
         ticks = (double)PyInt_AsLong(arg0);
         ticks = accurate_delay(ticks);
         if (ticks < 0)
-            return NULL;
+            return RAISE(PyExc_RuntimeError, "internal pygame clock error");
         else
             return PyInt_FromLong((long)ticks);
     } 
@@ -183,7 +183,7 @@ time_delay(PyObject *self, PyObject *arg)
         ticks = PyFloat_AsDouble(arg0);
         ticks = accurate_delay(ticks);
         if (ticks < 0)
-            return NULL;
+            return RAISE(PyExc_RuntimeError, "internal pygame clock error");
         else
             return PyFloat_FromDouble(ticks);
     } 
@@ -333,13 +333,13 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     
     _clock->rawpassed = get_delta_millis(_clock->last_tick);
     if (_clock->rawpassed < 0)
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "internal pygame clock error");
     
     if (framerate) {
         delay = (1000.0 / framerate) - _clock->rawpassed;
         if (use_accurate_delay) {
             if (accurate_delay(delay) < 0) 
-                return NULL;
+                return RAISE(PyExc_RuntimeError, "internal pygame clock error");
         }
         else {
             // just doublecheck that timer is initialized
@@ -361,13 +361,13 @@ clock_tick_base(PyObject *self, PyObject *arg, int use_accurate_delay)
     }
     _clock->timepassed = get_delta_millis(_clock->last_tick);
     if (_clock->timepassed < 0)
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "internal pygame clock error");
 
 #ifdef _WIN32
     _clock->last_tick = clock();
 #else
     if (clock_gettime(CLOCK_MONOTONIC, &_clock->last_tick) == -1) {
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "internal pygame clock error");
     }
 #endif
     
@@ -513,7 +513,7 @@ ClockInit(PyObject *self)
     _clock->last_tick = clock();
 #else
     if (clock_gettime(CLOCK_MONOTONIC, &_clock->last_tick) == -1) {
-        return NULL;
+        return RAISE(PyExc_RuntimeError, "internal pygame clock error");
     }
 #endif
 
