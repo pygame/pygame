@@ -1,21 +1,27 @@
-from typing import Optional, Union, Text, Tuple, List, TypeVar, Sequence, NewType
+from typing import Optional, Union, Text, Tuple, List, TypeVar, Sequence
+from typing_extensions import Protocol
 
 from pygame.math import Vector2
 from pygame.surface import Surface
 from pygame.rect import Rect
 from pygame.color import Color
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _ColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
 _ToSurfaceColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Text, Tuple[int, int, int, int]
 ]
-_RectValue = Union[
+_Coordinate = Union[Tuple[float, float], List[float], Vector2]
+_CanBeRect = Union[
     Rect,
-    Union[Tuple[int, int, int, int], List[int]],
-    Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]],
+    Tuple[int, int, int, int], List[int],
+    Tuple[_Coordinate, _Coordinate], List[_Coordinate]
+]
+class _HasRectAttribute(Protocol):
+    rect: _CanBeRect
+_RectValue = Union[
+    _CanBeRect, _HasRectAttribute
 ]
 _Offset = TypeVar("_Offset", Tuple[int, int], Sequence[int])
 

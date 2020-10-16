@@ -1,4 +1,6 @@
 from typing import Union, Optional, Tuple, List, Sequence
+from typing_extensions import Protocol
+
 from pygame.color import Color
 from pygame.rect import Rect
 from pygame.surface import Surface
@@ -8,10 +10,15 @@ _Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _ColorValue = Union[
     Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
-_RectValue = Union[
+_CanBeRect = Union[
     Rect,
-    Union[Tuple[int, int, int, int], List[int]],
-    Union[Tuple[_Coordinate, _Coordinate], List[_Coordinate]],
+    Tuple[int, int, int, int], List[int],
+    Tuple[_Coordinate, _Coordinate], List[_Coordinate]
+]
+class _HasRectAttribute(Protocol):
+    rect: _CanBeRect
+_RectValue = Union[
+    _CanBeRect, _HasRectAttribute
 ]
 
 def rect(
