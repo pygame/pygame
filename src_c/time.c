@@ -132,7 +132,7 @@ accurate_delay(double millis)
     clock_t starttime;
     starttime = clock();
 #else
-    struct timespec startime;
+    struct timespec starttime;
     if (clock_gettime(CLOCK_MONOTONIC, &starttime) == -1) {
         return -1.0;
     }
