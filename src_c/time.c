@@ -472,10 +472,13 @@ ClockInit(PyObject *self)
     }
     _clock->timepassed = 0.0f;
     _clock->rawpassed = 0.0f;
-    _clock->last_tick = clock();
     _clock->fps_sum = 0.0f;
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
+    
+    if (clock_gettime(CLOCK_MONOTONIC, &_clock->last_tick) == -1) {
+        return NULL;
+    }
 
     return (PyObject *)_clock;
 }
