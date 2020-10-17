@@ -116,6 +116,12 @@ if consume_arg('-pygame-ci'):
               '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
 
+# For python 2 we remove the -j options.
+if sys.version_info[0] < 3:
+    # Used for parallel builds with setuptools. Not supported by py2.
+    [consume_arg('-j%s' % x) for x in range(32)]
+
+
 STRIPPED=False
 
 # STRIPPED builds don't have developer resources like docs or tests
