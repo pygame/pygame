@@ -347,11 +347,13 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(d["data"], (snd._samples_address, False))
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
     def test_newbuf__one_channel(self):
         mixer.init(22050, -16, 1)
         self._NEWBUF_export_check()
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
     def test_newbuf__twho_channel(self):
         mixer.init(22050, -16, 2)
         self._NEWBUF_export_check()
@@ -896,7 +898,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         mixer.quit()
-        
+
     def setUp(cls):
         # This makes sure the mixer is always initialized before each test (in
         # case a test calls pygame.mixer.quit()).
@@ -1033,7 +1035,7 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             pygame.mixer.quit()
             with self.assertRaisesRegex(pygame.error, "mixer not initialized"):
                 sound.get_num_channels()
-    
+
     def test_get_volume(self):
         """Ensure a sound's volume can be retrieved."""
         try:

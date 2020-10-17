@@ -2133,6 +2133,7 @@ class Vector3TypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             v.xyz
 
+    @unittest.skipIf(IS_PYPY, "known pypy failure")
     def test_swizzle_set_oob(self):
         """An out-of-bounds swizzle set raises an AttributeError."""
         v = Vector2(7, 6)
