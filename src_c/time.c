@@ -130,6 +130,12 @@ accurate_delay(int ticks)
 }
 
 static PyObject *
+time_is_preciseclock(PyObject *self)
+{
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
 time_get_ticks(PyObject *self)
 {
     if (!SDL_WasInit(SDL_INIT_TIMER))
@@ -476,6 +482,8 @@ ClockInit(PyObject *self)
 }
 
 static PyMethodDef _time_methods[] = {
+    {"is_preciseclock", (PyCFunction)time_is_preciseclock, METH_NOARGS, 
+     "placeholder"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
     {"delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY},
