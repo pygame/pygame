@@ -786,6 +786,12 @@ PACKAGEDATA = {
        "zip_safe":  False,
 }
 if STRIPPED:
+    pygame_data_files = []
+    data_files = [('pygame', pygame_data_files)]
+    for f in glob.glob(os.path.join('src_py', '*')):
+        if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
+            pygame_data_files.append(f)
+
     PACKAGEDATA = {
     "cmdclass":    cmdclass,
     "packages":    ['pygame',
@@ -796,6 +802,7 @@ if STRIPPED:
                     'pygame.threads': 'src_py/threads'},
     "ext_modules": extensions,
     "zip_safe":  False,
+    "data_files": data_files
 }
 
 PACKAGEDATA.update(METADATA)
