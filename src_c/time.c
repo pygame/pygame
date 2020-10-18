@@ -35,13 +35,6 @@
 
 static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
 
-#ifdef _WIN32
-static int IS_PRECISE_CLOCK = 1;
-#else
-// clock_getres returns 0 if it could access a monotonic clock, -1 on error.
-static int IS_PRECISE_CLOCK = clock_getres(CLOCK_MONOTONIC, NULL) + 1;
-#endif
-
 #if IS_SDLv2
 static size_t
 enumerate_event(Uint32 type)
@@ -122,6 +115,16 @@ get_delta_sdl_millis(int prevtime)
     return SDL_GetTicks() - prevtime;
 }
 
+static int
+is_precise_clock(void){
+#ifdef _WIN32
+    return 1;
+#else
+    // clock_getres returns 0 if it could access a monotonic clock, -1 on error.
+    return clock_getres(CLOCK_MONOTONIC, NULL) + 1;
+#endif
+}
+
 // win32 block also covers win64
 #ifdef _WIN32
     static clock_t
@@ -164,7 +167,7 @@ accurate_delay(double millis)
 #else
     struct timespec starttime;
 #endif
-    if (IS_PRECISE_CLOCK) {
+    if (is_precise_clock()) {
         starttime = get_clock();
     }
     else {
@@ -191,7 +194,7 @@ accurate_delay(double millis)
         Py_END_ALLOW_THREADS;
     }
     
-    if (IS_PRECISE_CLOCK) {
+    if (is_precise_clock()) {
         do {
             delay = millis - get_delta_millis(starttime);
         } while (delay > 0);
@@ -332,7 +335,7 @@ clock_tick(PyObject *self, PyObject *arg)
     if (!is_sdl_time_init())
         return NULL;
     
-    if (IS_PRECISE_CLOCK)
+    if (is_precise_clock())
         _clock->rawpassed = get_delta_millis(_clock->last_tick);
     else
         _clock->rawpassed = (double)get_delta_sdl_millis(_clock->last_sdl_tick);
@@ -344,7 +347,7 @@ clock_tick(PyObject *self, PyObject *arg)
     
     _clock->timepassed = _clock->rawpassed + delay;
 
-    if (IS_PRECISE_CLOCK)
+    if (is_precise_clock())
         _clock->last_tick = get_clock();
     else 
         _clock->last_sdl_tick = SDL_GetTicks();
@@ -469,7 +472,7 @@ ClockInit(PyObject *self)
     _clock->fps = 0.0;
     _clock->fps_count = 0;
  
-    if (IS_PRECISE_CLOCK)
+    if (is_precise_clock())
         _clock->last_tick = get_clock();
     else
         _clock->last_sdl_tick = SDL_GetTicks();
