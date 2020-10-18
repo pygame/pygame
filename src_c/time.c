@@ -116,6 +116,12 @@ is_sdl_time_init(void) {
     return 1;
 }
 
+static int
+get_delta_sdl_millis(int prevtime) 
+{
+    return SDL_GetTicks() - prevtime;
+}
+
 // win32 block also covers win64
 #ifdef _WIN32
     static clock_t
@@ -152,14 +158,12 @@ static double
 accurate_delay(double millis)
 {
     double delay;
-    int sleeptime;
+    int sleeptime, sdlclockticks, sdlclockmillis, sdlclockdelay;
 #ifdef _WIN32
     clock_t starttime;
-    starttime = get_clock();
 #else
     struct timespec starttime;
-    int sdlclockticks, sdlclockmillis, sdlclockdelay;
-    
+#endif
     if (IS_PRECISE_CLOCK) {
         starttime = get_clock();
     }
@@ -167,7 +171,7 @@ accurate_delay(double millis)
         sdlclockticks = SDL_GetTicks();
         sdlclockmillis = (int)millis;
     }
-#endif
+    
     if (millis >= 20)
         sleeptime = (int)millis - 5;
     else if (millis >= 15)
@@ -195,7 +199,7 @@ accurate_delay(double millis)
     }
     else {
         do {
-            sdlclockdelay = sdlclockticks + sdlclockmillis - SDL_GetTicks();
+            sdlclockdelay = sdlclockmillis - get_delta_sdl_millis(sdlclockticks);
         } while (sdlclockdelay > 0);
         return (double)(SDL_GetTicks() - sdlclockticks);
     }
@@ -306,12 +310,11 @@ time_set_timer(PyObject *self, PyObject *arg)
 /*clock object interface*/
 typedef struct {
     PyObject_HEAD
-    int fps_count;
+    int fps_count, last_sdl_tick;
 #ifdef _WIN32
     clock_t last_tick;
 #else
     struct timespec last_tick;
-    int last_sdl_tick;
 #endif
     double fps, fps_sum, timepassed, rawpassed;
 } PyClockObject;
@@ -332,7 +335,7 @@ clock_tick(PyObject *self, PyObject *arg)
     if (IS_PRECISE_CLOCK)
         _clock->rawpassed = get_delta_millis(_clock->last_tick);
     else
-        _clock->rawpassed = (double)(SDL_GetTicks() - _clock->last_sdl_tick);
+        _clock->rawpassed = (double)get_delta_sdl_millis(_clock->last_sdl_tick);
     
     if (framerate)
         delay = accurate_delay((1000.0 / framerate) - _clock->rawpassed);
