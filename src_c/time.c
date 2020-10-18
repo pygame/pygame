@@ -36,10 +36,10 @@
 static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
 
 #ifdef _WIN32
-static const int IS_PRECISE_CLOCK = 1;
+const int IS_PRECISE_CLOCK = 1;
 #else
 // clock_getres returns 0 if it could access a monotonic clock, -1 on error.
-static const int IS_PRECISE_CLOCK = clock_getres(CLOCK_MONOTONIC, NULL) + 1;
+const int IS_PRECISE_CLOCK = clock_getres(CLOCK_MONOTONIC, NULL) + 1;
 #endif
 
 #if IS_SDLv2
@@ -329,19 +329,19 @@ clock_tick(PyObject *self, PyObject *arg)
     if (!is_sdl_time_init())
         return NULL;
     
-    if (IS_ACCURATE_CLOCK)
+    if (IS_PRECISE_CLOCK)
         _clock->rawpassed = get_delta_millis(_clock->last_tick);
     else
         _clock->rawpassed = (double)(SDL_GetTicks() - _clock->last_sdl_tick);
     
     if (framerate)
-        delay = accurate_delay((1000.0 / framerate) - _clock->rawpassed));
+        delay = accurate_delay((1000.0 / framerate) - _clock->rawpassed);
     else
         delay = 0.0;
     
     _clock->timepassed = _clock->rawpassed + delay;
 
-    if (IS_ACCURATE_CLOCK)
+    if (IS_PRECISE_CLOCK)
         _clock->last_tick = get_clock();
     else 
         _clock->last_sdl_tick = SDL_GetTicks();
@@ -466,7 +466,7 @@ ClockInit(PyObject *self)
     _clock->fps = 0.0;
     _clock->fps_count = 0;
  
-    if (IS_ACCURATE_CLOCK)
+    if (IS_PRECISE_CLOCK)
         _clock->last_tick = get_clock();
     else
         _clock->last_sdl_tick = SDL_GetTicks();
