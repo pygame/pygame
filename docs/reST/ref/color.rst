@@ -224,4 +224,21 @@
 
       .. ## Color.lerp ##
 
+   .. method:: premul_alpha
+
+      | :sl:`returns a Color where the r,g,b components have been multiplied by the alpha.`
+      | :sg:`premul_alpha() -> Color`
+
+      Returns a new Color where each of the red, green and blue colour
+      channels have been multiplied by the alpha channel of the original
+      color. The alpha channel remains unchanged.
+
+      This is useful when working with the ``BLEND_PREMULTIPLIED`` blending mode
+      flag for :meth:`pygame.Surface.blit()`, which assumes that all surfaces using
+      it are using pre-multiplied alpha colors.
+
+      .. versionadded:: 2.0.0
+
+      .. ## Color.premul_alpha ##
+
    .. ## pygame.Color ##
