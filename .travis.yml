@@ -107,11 +107,9 @@ install:
     fi
     if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
       $PYTHON_EXE buildconfig/config.py -conan --build
-    fi
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+      cp build/conan/*.dylib .
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
       $PYTHON_EXE buildconfig/config.py -conan --build=missing
-    fi
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       cp build/conan/*.dylib .
     fi
   - |
@@ -128,7 +126,7 @@ env:
     - CIBW_TEST_COMMAND="python -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300"
     - CIBW_BEFORE_BUILD="pip install numpy"
     # skip pypy builds with cibuildwheel
-    - CIBW_SKIP="pp*"
+    - CIBW_SKIP="pp27*"
 
 script:
   # - |
