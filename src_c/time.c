@@ -36,10 +36,10 @@
 static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
 
 #ifdef _WIN32
-const int IS_PRECISE_CLOCK = 1;
+static int IS_PRECISE_CLOCK = 1;
 #else
 // clock_getres returns 0 if it could access a monotonic clock, -1 on error.
-const int IS_PRECISE_CLOCK = clock_getres(CLOCK_MONOTONIC, NULL) + 1;
+static int IS_PRECISE_CLOCK = clock_getres(CLOCK_MONOTONIC, NULL) + 1;
 #endif
 
 #if IS_SDLv2
