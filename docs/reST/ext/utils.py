@@ -20,10 +20,10 @@ def get_descname(desc):
     except IndexError:
         raise GetError("No fullname: missing children in desc")
     try:
-        names = sig['names']
+        names = sig['ids']
     except KeyError:
         raise GetError(
-            "No fullname: missing names attribute in desc's child")
+            "No fullname: missing ids attribute in desc's child")
     try:
         return names[0]
     except IndexError:
