@@ -184,7 +184,7 @@ required).
 
    The display index 0 means the default display is used.
 
-   The display argument is new with pygame 1.9.5.
+   .. versionchanged:: 1.9.5 ``display`` argument added
 
    .. ## pygame.display.set_mode ##
 
@@ -296,7 +296,7 @@ required).
    an empty dictionary will be returned. Most platforms will return a "window"
    key with the value set to the system id for the current display.
 
-   New with pygame 1.7.1
+   .. versionadded:: 1.7.1
 
    .. ## pygame.display.get_wm_info ##
 
@@ -311,13 +311,13 @@ required).
    requested size should work (this is likely the case for windowed
    modes). Mode sizes are sorted from biggest to smallest.
 
-   If depth is 0, ``SDL`` will choose the current/best color depth for the
-   display. The flags defaults to ``pygame.FULLSCREEN``, but you may need to
-   add additional flags for specific fullscreen modes.
+   If depth is 0, the current/best color depth for the display is used. 
+   The flags defaults to ``pygame.FULLSCREEN``, but you may need to add 
+   additional flags for specific fullscreen modes.
 
    The display index 0 means the default display is used.
 
-   The display argument is new with pygame 1.9.5.
+   .. versionchanged:: 1.9.5 ``display`` argument added
 
    .. ## pygame.display.list_modes ##
 
@@ -341,7 +341,7 @@ required).
 
    The display index 0 means the default display is used.
 
-   The display argument is new with pygame 1.9.5.
+   .. versionchanged:: 1.9.5 ``display`` argument added
 
    .. ## pygame.display.mode_ok ##
 
@@ -405,7 +405,7 @@ required).
 
      Minimum bit size of the frame buffer. Defaults to 0.
 
-   .. versionadded:: 2.0 Additional attributes:
+   .. versionadded:: 2.0.0 Additional attributes:
 
    ::
 
@@ -472,11 +472,9 @@ required).
    True if successful.
 
    When the display is iconified ``pygame.display.get_active()`` will return
-   False. When using SDL 1 (usually in pygame versions less than 2.0.0) the
-   event queue should receive a ``ACTIVEEVENT`` event when the window has been
-   iconified. When using SDL 2 (usually in pygame versions greater than 2.0.0)
-   the event queue should receive a ``WINDOWEVENT_MINIMIZED`` event when the
-   window has been iconified.
+   ``False``. The event queue should receive an ``ACTIVEEVENT`` event when the 
+   window has been iconified. Additionally, the event queue also recieves a 
+   ``WINDOWEVENT_MINIMIZED`` event when the window has been iconified on pygame 2.
 
    .. ## pygame.display.iconify ##
 
@@ -590,7 +588,7 @@ required).
    Returns the size of the window initialized with :func:`pygame.display.set_mode()`.
    This may differ from the size of the display surface if ``SCALED`` is used.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0.0
 
    .. ## pygame.display.get_window_size ##
 
@@ -608,7 +606,7 @@ required).
              :func:`pygame.display.set_allow_screensaver()` for
              caveats with screensaver support.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0.0
 
    .. ## pygame.display.get_allow_screensaver ##
 
@@ -637,7 +635,7 @@ required).
              ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER`` is available in SDL 2.0.2 or later.
              SDL1.2 does not implement this.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0.0
 
 
    .. ## pygame.display.set_allow_screensaver ##
