@@ -788,15 +788,52 @@ class ImageModuleTest(unittest.TestCase):
             for item in version:
                 self.assertIsInstance(item, expected_item_type)
 
-    def todo_test_load_basic(self):
-
+    def test_load_basic(self):
         # __doc__ (as of 2008-08-02) for pygame.image.load_basic:
 
         # pygame.image.load(filename): return Surface
         # pygame.image.load(fileobj, namehint=): return Surface
         # load new image from a file
 
-        self.fail()
+        # Creating pixels and surface
+        cyan_pixel = (0, 255, 255, 255)
+        purple_pixel = (255, 0, 255, 255)
+        yellow_pixel = (255, 255, 0, 255)
+        green_pixel = (0, 255, 0, 255)
+        pixel_array = [cyan_pixel + purple_pixel, yellow_pixel + green_pixel]
+
+        surf = pygame.Surface((2, 2))
+
+        surf.set_at((0, 0), cyan_pixel)
+        surf.set_at((1, 0), purple_pixel)
+        surf.set_at((0, 1), yellow_pixel)
+        surf.set_at((1, 1), green_pixel)
+
+        f_descriptor, f_path = tempfile.mkstemp(suffix=".bmp")
+
+        with os.fdopen(f_descriptor, "wb") as f:
+            w = png.Writer(2, 2, alpha=True)
+            w.write(f, pixel_array)
+
+        # Testing width, height and size of surface
+        self.assertEqual(surf.get_size(),
+                         pygame.image.load(f_path).get_size())
+        self.assertEqual(surf.get_width(),
+                         pygame.image.load(f_path).get_width())
+        self.assertEqual(surf.get_height(),
+                         pygame.image.load(f_path).get_height())
+
+        # Testing color of pixels
+        self.assertEqual(surf.get_at((0, 0)),
+                         pygame.image.load(f_path).get_at((0, 0)))
+        self.assertEqual(surf.get_at((1, 0)),
+                         pygame.image.load(f_path).get_at((1, 0)))
+        self.assertEqual(surf.get_at((0, 1)),
+                         pygame.image.load(f_path).get_at((0, 1)))
+        self.assertEqual(surf.get_at((1, 1)),
+                         pygame.image.load(f_path).get_at((1, 1)))
+
+        os.remove(f_path)
 
     def todo_test_load_extended(self):
 
