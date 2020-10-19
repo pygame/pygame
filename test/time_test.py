@@ -318,10 +318,9 @@ class TimeModuleTest(unittest.TestCase):
         self.assertAlmostEqual(duration/iterations, millis, delta=delta)
 
     def _type_error_checks(self, func_to_check):
-        """Checks 3 TypeError (float, tuple, string) for the func_to_check"""
+        """Checks 2 TypeError (tuple, string) for the func_to_check"""
         """Intended for time.delay and time.wait functions"""
         # Those methods throw no exceptions on negative integers
-        self.assertRaises(TypeError, pygame.time.wait, 0.1)  # check float
         self.assertRaises(TypeError, func_to_check, (0, 1))  # check tuple
         self.assertRaises(TypeError, func_to_check, "10")  # check string
 
