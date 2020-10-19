@@ -1192,7 +1192,6 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(surf1.get_at((0, 0)), (255, 255, 255, 100))
         self.assertEqual(surf2.get_at((0, 0)), (255, 255, 255, 100))
 
-    @unittest.expectedFailure
     def test_src_alpha_compatible(self):
         """ "What pygame 1.9.x did". Is the alpha blitter as before?
         """
@@ -1283,16 +1282,19 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         # chosen because they contain edge cases.
         nums = [0, 1, 65, 126, 127, 199, 254, 255]
         results = {}
-        for dest_r, dest_b, dest_a in zip(nums, reversed(nums), reversed(nums)):
+        for dst_r, dst_b, dst_a in zip(nums, reversed(nums), reversed(nums)):
             for src_r, src_b, src_a in zip(nums, reversed(nums), nums):
-                src_surf = pygame.Surface((66, 66), pygame.SRCALPHA, 32)
-                src_surf.fill((src_r, 255, src_b, src_a))
-                dest_surf = pygame.Surface((66, 66), pygame.SRCALPHA, 32)
-                dest_surf.fill((dest_r, 255, dest_b, dest_a))
+                with self.subTest(src_r=src_r, src_b=src_b, src_a=src_a,
+                                  dest_r=dst_r, dest_b=dst_b, dest_a=dst_a):
+                    src_surf = pygame.Surface((66, 66), pygame.SRCALPHA, 32)
+                    src_surf.fill((src_r, 255, src_b, src_a))
+                    dest_surf = pygame.Surface((66, 66), pygame.SRCALPHA, 32)
+                    dest_surf.fill((dst_r, 255, dst_b, dst_a))
 
-                dest_surf.blit(src_surf, (0, 0))
-                key = ((dest_r, dest_b, dest_a), (src_r, src_b, src_a))
-                results[key] = dest_surf.get_at((65, 33))
+                    dest_surf.blit(src_surf, (0, 0))
+                    key = ((dst_r, dst_b, dst_a), (src_r, src_b, src_a))
+                    results[key] = dest_surf.get_at((65, 33))
+                    self.assertEqual(results[key], results_expected[key])
 
         # print("(dest_r, dest_b, dest_a), (src_r, src_b, src_a): color")
         # pprint(results)

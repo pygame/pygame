@@ -4138,7 +4138,7 @@ surface_do_overlap(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     return dstoffset < span || dstoffset > src->pitch - span;
 }
 
-/*this internal blit functpgSurfaceObjection is accessable through the C api*/
+/*this internal blit function is accessible through the C api*/
 int
 pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
                SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args)
@@ -4303,6 +4303,14 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             }
         }
         /* Py_END_ALLOW_THREADS */
+    }
+    else if(dst->format->BytesPerPixel == 4 &&
+            (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
+            (SDL_ISPIXELFORMAT_ALPHA(dst->format->format)))
+    {
+        /* If we have 32bit surfaces with per pixel alpha
+           we'll use pygame_Blit so we can mimic how SDL1 behaved */
+        result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
     }
 #endif /* IS_SDLv2 */
     else {
