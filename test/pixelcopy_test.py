@@ -18,6 +18,7 @@ def unsigned32(i):
     return i & 0xFFFFFFFF
 
 
+@unittest.skipIf(IS_PYPY, "pypy2 having illegal instruction on mac")
 class PixelcopyModuleTest(unittest.TestCase):
 
     bitsizes = [8, 16, 32]
@@ -288,6 +289,7 @@ class PixelcopyModuleTest(unittest.TestCase):
                     self.assertEqual(target.get_at_mapped((x, y)), p)
 
 
+@unittest.skipIf(IS_PYPY, "pypy2 having illegal instruction on mac")
 class PixelCopyTestWithArray(unittest.TestCase):
     try:
         import numpy
@@ -594,6 +596,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
 
 
 @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+@unittest.skipIf(IS_PYPY, "pypy2 having illegal instruction on mac")
 class PixelCopyTestWithArray(unittest.TestCase):
 
     if pygame.HAVE_NEWBUF:

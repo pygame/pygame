@@ -16,7 +16,7 @@ ls -la /io
 for PYVER in $SUPPORTED_PYTHONS; do
     rm -rf /io/Setup /io/build/
     PYBIN="/opt/python/${PYVER}/bin"
-    ${PYBIN}/pip wheel -vvv /io/ -w wheelhouse/
+    ${PYBIN}/pip wheel --global-option="build_ext" --global-option="-j4" -vvv /io/ -w wheelhouse/
 done
 
 # Bundle external shared libraries into the wheels
@@ -32,5 +32,5 @@ export SDL_VIDEODRIVER=dummy
 for PYVER in $SUPPORTED_PYTHONS; do
     PYBIN="/opt/python/${PYVER}/bin"
     ${PYBIN}/pip install pygame --no-index -f /io/buildconfig/manylinux-build/wheelhouse
-    (cd $HOME; ${PYBIN}/python -m pygame.tests --exclude opengl,music)
+    (cd $HOME; ${PYBIN}/python -m pygame.tests --exclude opengl,music,timing)
 done

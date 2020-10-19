@@ -80,6 +80,8 @@ def main(sdl2=True):
         Dependency(conanbuildinfo, "PNG", "libpng"),
         Dependency(conanbuildinfo, "JPEG", "libjpeg"),
         Dependency(conanbuildinfo, "FREETYPE", "freetype"),
+        Dependency(conanbuildinfo, "PORTMIDI", "portmidi"),
+        Dependency(conanbuildinfo, "PORTTIME", "portmidi"),
     ]
 
     return DEPS

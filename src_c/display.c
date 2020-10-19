@@ -111,7 +111,6 @@ _display_state_cleanup(_DisplayState *state)
 
 #endif /* IS_SDLv2 */
 
-#if (!defined(darwin))
 static char *icon_defaultname = "pygame_icon.bmp";
 static char *pkgdatamodule_name = "pygame.pkgdata";
 static char *imagemodule_name = "pygame.image";
@@ -201,7 +200,6 @@ display_resource_end:
 #endif
     return result;
 }
-#endif
 
 /* init routines */
 #if IS_SDLv2
@@ -1411,7 +1409,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             pg_flip_internal(state);
     }
 
-#if !defined(darwin)
     /*set the window icon*/
     if (!state->icon) {
         state->icon = pg_display_resource(icon_defaultname);
@@ -1423,7 +1420,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
     if (state->icon)
         SDL_SetWindowIcon(win, pgSurface_AsSurface(state->icon));
-#endif
 
     /*probably won't do much, but can't hurt, and might help*/
     SDL_PumpEvents();
