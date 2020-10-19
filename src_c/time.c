@@ -169,6 +169,8 @@ accurate_delay(double millis)
 #endif
     if (is_precise_clock()) {
         starttime = get_clock();
+        sdlclockticks = 0;
+        sdlclockmillis = 0;
     }
     else {
         sdlclockticks = SDL_GetTicks();
