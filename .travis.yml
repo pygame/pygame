@@ -108,7 +108,7 @@ install:
     if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
       $PYTHON_EXE buildconfig/config.py -conan --build
       cp build/conan/*.dylib .
-    elif [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       $PYTHON_EXE buildconfig/config.py -conan --build=missing
       cp build/conan/*.dylib .
     fi
