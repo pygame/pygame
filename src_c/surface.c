@@ -4305,7 +4305,8 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         /* Py_END_ALLOW_THREADS */
     }
     else if(the_args != PYGAME_BLEND_SDL2 &&
-            dst->format->BytesPerPixel == 4 &&
+            (dst->format->BytesPerPixel == 4 ||
+             dst->format->BytesPerPixel == 2) &&
             (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
             (SDL_ISPIXELFORMAT_ALPHA(dst->format->format)))
     {
