@@ -228,7 +228,6 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
                         src->format->Ashift == 24 &&
-                        dst->format->Ashift == 24 &&
                         src != dst)
                     {
                     /* If our source and destination are the same ARGB 32bit
@@ -2509,6 +2508,8 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
     Uint32          dst_amask = dstfmt->Amask;
     Uint32          src_amask = srcfmt->Amask;
 
+    int             dst_opaque = (dst_amask ? 0 : 255);
+
     Uint64          rgb_mask;
 
     __m128i src1, dst1, sub_dst, mm_src_alpha;
@@ -2537,7 +2538,7 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
         LOOP_UNROLLED4(
         {
             Uint32 src_alpha = *srcp & src_amask;
-            Uint32 dst_alpha = *dstp & dst_amask;
+            Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
             if ((src_alpha == src_amask) || (dst_alpha == 0))
             {
                 /* 255 src alpha or 0 dst alpha

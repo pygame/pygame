@@ -4305,12 +4305,12 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         /* Py_END_ALLOW_THREADS */
     }
     else if(the_args != PYGAME_BLEND_SDL2 &&
+            SDL_GetColorKey(src, &key) != 0 &&
             (dst->format->BytesPerPixel == 4 ||
              dst->format->BytesPerPixel == 2) &&
-            (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
-            (SDL_ISPIXELFORMAT_ALPHA(dst->format->format)))
+            (SDL_ISPIXELFORMAT_ALPHA(src->format->format)))
     {
-        /* If we have 32bit surfaces with per pixel alpha
+        /* If we have a 32bit source surface with per pixel alpha
            we'll use pygame_Blit so we can mimic how SDL1 behaved */
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
     }
