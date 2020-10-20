@@ -86,12 +86,12 @@ specific attributes.
     VIDEOEXPOSE       none
     USEREVENT         code
 
+.. versionchanged:: 2.0.0 The ``joy`` attribute was deprecated, ``instance_id`` was added.
+
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
 
 |
-
-.. versionadded:: 1.9.2
 
 On MacOSX when a file is opened using a pygame application, a ``USEREVENT``
 with its ``code`` attribute set to ``pygame.USEREVENT_DROPFILE`` is generated.
@@ -102,9 +102,9 @@ being accessed is stored.
 
     USEREVENT         code=pygame.USEREVENT_DROPFILE, filename
 
-|
+.. versionadded:: 1.9.2
 
-.. versionadded:: 1.9.5
+|
 
 When compiled with SDL2, pygame has these additional events and their
 attributes.
@@ -116,13 +116,15 @@ attributes.
     FINGERMOTION       touch_id, finger_id, x, y, dx, dy
     FINGERDOWN         touch_id, finger_id, x, y, dx, dy
     FINGERUP           touch_id, finger_id, x, y, dx, dy
+    MOUSEWHEEL         which, flipped, x, y
     MULTIGESTURE       touch_id, x, y, pinched, rotated, num_fingers
     TEXTEDITING        text, start, length
     TEXTINPUT          text
+    WINDOWEVENT        event
+
+.. versionadded:: 1.9.5
 
 |
-
-.. versionadded:: 2.0.0
 
 pygame can recognize text or files dropped in its window. If a file
 is dropped, ``file`` will be its path. The ``DROPTEXT`` event is only supported
@@ -135,9 +137,9 @@ on X11.
    DROPFILE        file
    DROPTEXT        text
 
-|
-
 .. versionadded:: 2.0.0
+
+|
 
 Events reserved for :mod:`pygame.midi` use.
 
@@ -145,13 +147,10 @@ Events reserved for :mod:`pygame.midi` use.
 
    MIDIIN
    MIDIOUT
-
-|
-
-
-|
-
+   
 .. versionadded:: 2.0.0
+
+|
 
 SDL2 supports controller hotplugging:
 
@@ -165,6 +164,8 @@ SDL2 supports controller hotplugging:
 
 Also in this version, ``instance_id`` attributes were added to joystick events,
 and the ``joy`` attribute was deprecated.
+
+.. versionadded:: 2.0.0
 
 |
 
@@ -274,7 +275,7 @@ and the ``joy`` attribute was deprecated.
 
    If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
 
-   .. versionadded:: 1.9.5 ``pump``
+   .. versionchanged:: 1.9.5 Added ``pump`` argument
 
    .. ## pygame.event.clear ##
 
