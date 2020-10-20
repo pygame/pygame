@@ -114,6 +114,11 @@
       .. versionadded:: 1.9.2
          Optional ``special_flags``: ``BLEND_PREMULTIPLIED``
 
+      .. versionadded:: 2.0.0
+         Optional ``special_flags``: ``BLEND_SDL2`` - Uses the SDL2 blitter for alpha blending,
+         this gives different results than the default blitter modelled after SDL1 due to different
+         approximations used.
+
       The return rectangle is the area of the affected pixels, excluding any
       pixels outside the destination Surface, or outside the clipping area.
 

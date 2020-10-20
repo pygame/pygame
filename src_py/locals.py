@@ -63,6 +63,7 @@ __all__ = [
     'BLEND_MIN',
     'BLEND_MULT',
     'BLEND_PREMULTIPLIED',
+    'BLEND_SDL2',
     'BLEND_RGBA_ADD',
     'BLEND_RGBA_MAX',
     'BLEND_RGBA_MIN',
@@ -569,5 +570,5 @@ __all__ = [
     'WINDOWEVENT_CLOSE',
     'WINDOWEVENT_TAKE_FOCUS',
     'WINDOWEVENT_HIT_TEST',
-    
+
 ]
