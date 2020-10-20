@@ -1301,6 +1301,9 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(results, results_expected)
 
     @unittest.skipIf(pygame.get_sdl_version()[0] == 1, "only works in SDL2")
+    @unittest.skipIf('arm' in platform.machine() or
+                     'aarch64' in platform.machine(),
+                     "sdl2 blitter produces different results on arm")
     def test_src_alpha_sdl2_blitter(self):
         """ Checking that the BLEND_SDL2 flag works """
 
