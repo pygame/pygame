@@ -126,7 +126,7 @@ env:
     - CIBW_TEST_COMMAND="python -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300"
     - CIBW_BEFORE_BUILD="pip install numpy"
     # skip pypy builds with cibuildwheel
-    - CIBW_SKIP="pp*"
+    - CIBW_SKIP="pp27* cp*"
 
 script:
   # - |
