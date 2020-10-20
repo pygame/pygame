@@ -16,42 +16,42 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR 
 
 jobs:
   include:
-    - python: 3.6
-      name: SDL 1.2 sdist
-      env:
-        - UPLOAD_SDIST_PYPI=yes
-        - GITHUB_UPLOAD=yes
-        - RUN_SDIST=yes
-        - WHICH_SDL_BUILD=-sdl1
-    # enable ppc64le closer to release, it is slow.
-    # - os: linux-ppc64le
-    #   python: 3.8
-    #   arch: ppc64le
+    # - python: 3.6
+    #   name: SDL 1.2 sdist
     #   env:
-    #     - PPC=yes
+    #     - UPLOAD_SDIST_PYPI=yes
+    #     - GITHUB_UPLOAD=yes
+    #     - RUN_SDIST=yes
+    #     - WHICH_SDL_BUILD=-sdl1
+    # # enable ppc64le closer to release, it is slow.
+    # # - os: linux-ppc64le
+    # #   python: 3.8
+    # #   arch: ppc64le
+    # #   env:
+    # #     - PPC=yes
 
-    - os: linux
-      dist: xenial
-      python: 3.8
-      arch: arm64
-      env:
-        - ARM64=yes
+    # - os: linux
+    #   dist: xenial
+    #   python: 3.8
+    #   arch: arm64
+    #   env:
+    #     - ARM64=yes
 
 
-    # enable s390x closer to release, it is slow.
+    # # enable s390x closer to release, it is slow.
+    # # - os: linux
+    # #   python: 3.7
+    # #   arch: s390x
     # - os: linux
     #   python: 3.7
-    #   arch: s390x
-    - os: linux
-      python: 3.7
-      name: manylinux x86/amd64 python 2.7, 3.4-3.9.
-      env:
-        - MANYLINUX_WHL=yes
-        - UPLOAD_WHL_PYPI=yes
-        - GITHUB_UPLOAD=yes
-        - PYTHON_EXE=python3
-      services:
-        - docker
+    #   name: manylinux x86/amd64 python 2.7, 3.4-3.9.
+    #   env:
+    #     - MANYLINUX_WHL=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    #     - GITHUB_UPLOAD=yes
+    #     - PYTHON_EXE=python3
+    #   services:
+    #     - docker
     - os: osx
       language: shell
       env:
@@ -126,7 +126,7 @@ env:
     - CIBW_TEST_COMMAND="python -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300"
     - CIBW_BEFORE_BUILD="pip install numpy"
     # skip pypy builds with cibuildwheel
-    - CIBW_SKIP="pp27*"
+    - CIBW_SKIP="pp*"
 
 script:
   # - |
