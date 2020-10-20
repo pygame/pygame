@@ -1300,6 +1300,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         # pprint(results)
         self.assertEqual(results, results_expected)
 
+    @unittest.skipIf(pygame.get_sdl_version()[0] == 1, "only works in SDL2")
     def test_src_alpha_sdl2_blitter(self):
         """ Checking that the BLEND_SDL2 flag works """
 
