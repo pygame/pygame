@@ -316,18 +316,18 @@ static struct PyMethodDef surface_methods[] = {
     {"map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB},
     {"unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACEUNMAPRGB},
 
-    {"get_palette", surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
+    {"get_palette", (PyCFunction)surf_get_palette, METH_NOARGS, DOC_SURFACEGETPALETTE},
     {"get_palette_at", surf_get_palette_at, METH_VARARGS,
      DOC_SURFACEGETPALETTEAT},
     {"set_palette", surf_set_palette, METH_VARARGS, DOC_SURFACESETPALETTE},
     {"set_palette_at", surf_set_palette_at, METH_VARARGS,
      DOC_SURFACESETPALETTEAT},
 
-    {"lock", surf_lock, METH_NOARGS, DOC_SURFACELOCK},
-    {"unlock", surf_unlock, METH_NOARGS, DOC_SURFACEUNLOCK},
-    {"mustlock", surf_mustlock, METH_NOARGS, DOC_SURFACEMUSTLOCK},
-    {"get_locked", surf_get_locked, METH_NOARGS, DOC_SURFACEGETLOCKED},
-    {"get_locks", surf_get_locks, METH_NOARGS, DOC_SURFACEGETLOCKS},
+    {"lock", (PyCFunction)surf_lock, METH_NOARGS, DOC_SURFACELOCK},
+    {"unlock", (PyCFunction)surf_unlock, METH_NOARGS, DOC_SURFACEUNLOCK},
+    {"mustlock", (PyCFunction)surf_mustlock, METH_NOARGS, DOC_SURFACEMUSTLOCK},
+    {"get_locked", (PyCFunction)surf_get_locked, METH_NOARGS, DOC_SURFACEGETLOCKED},
+    {"get_locks", (PyCFunction)surf_get_locks, METH_NOARGS, DOC_SURFACEGETLOCKS},
 
     {"set_colorkey", (PyCFunction)surf_set_colorkey, METH_VARARGS,
      DOC_SURFACESETCOLORKEY},
@@ -338,7 +338,7 @@ static struct PyMethodDef surface_methods[] = {
     {"get_alpha", (PyCFunction)surf_get_alpha, METH_NOARGS,
      DOC_SURFACEGETALPHA},
 #if IS_SDLv2
-    {"get_blendmode", surf_get_blendmode, METH_NOARGS,
+    {"get_blendmode", (PyCFunction)surf_get_blendmode, METH_NOARGS,
      "Return the surface's SDL 2 blend mode"},
 #endif /* IS_SDLv2 */
 
@@ -349,7 +349,7 @@ static struct PyMethodDef surface_methods[] = {
      DOC_SURFACECONVERTALPHA},
 
     {"set_clip", surf_set_clip, METH_VARARGS, DOC_SURFACESETCLIP},
-    {"get_clip", surf_get_clip, METH_NOARGS, DOC_SURFACEGETCLIP},
+    {"get_clip", (PyCFunction)surf_get_clip, METH_NOARGS, DOC_SURFACEGETCLIP},
 
     {"fill", (PyCFunction)surf_fill, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEFILL},
@@ -361,33 +361,33 @@ static struct PyMethodDef surface_methods[] = {
     {"scroll", (PyCFunction)surf_scroll, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACESCROLL},
 
-    {"get_flags", surf_get_flags, METH_NOARGS, DOC_SURFACEGETFLAGS},
-    {"get_size", surf_get_size, METH_NOARGS, DOC_SURFACEGETSIZE},
-    {"get_width", surf_get_width, METH_NOARGS, DOC_SURFACEGETWIDTH},
-    {"get_height", surf_get_height, METH_NOARGS, DOC_SURFACEGETHEIGHT},
+    {"get_flags", (PyCFunction)surf_get_flags, METH_NOARGS, DOC_SURFACEGETFLAGS},
+    {"get_size", (PyCFunction)surf_get_size, METH_NOARGS, DOC_SURFACEGETSIZE},
+    {"get_width", (PyCFunction)surf_get_width, METH_NOARGS, DOC_SURFACEGETWIDTH},
+    {"get_height", (PyCFunction)surf_get_height, METH_NOARGS, DOC_SURFACEGETHEIGHT},
     {"get_rect", (PyCFunction)surf_get_rect, METH_VARARGS | METH_KEYWORDS,
      DOC_SURFACEGETRECT},
-    {"get_pitch", surf_get_pitch, METH_NOARGS, DOC_SURFACEGETPITCH},
-    {"get_bitsize", surf_get_bitsize, METH_NOARGS, DOC_SURFACEGETBITSIZE},
-    {"get_bytesize", surf_get_bytesize, METH_NOARGS, DOC_SURFACEGETBYTESIZE},
-    {"get_masks", surf_get_masks, METH_NOARGS, DOC_SURFACEGETMASKS},
-    {"get_shifts", surf_get_shifts, METH_NOARGS, DOC_SURFACEGETSHIFTS},
+    {"get_pitch", (PyCFunction)surf_get_pitch, METH_NOARGS, DOC_SURFACEGETPITCH},
+    {"get_bitsize", (PyCFunction)surf_get_bitsize, METH_NOARGS, DOC_SURFACEGETBITSIZE},
+    {"get_bytesize", (PyCFunction)surf_get_bytesize, METH_NOARGS, DOC_SURFACEGETBYTESIZE},
+    {"get_masks", (PyCFunction)surf_get_masks, METH_NOARGS, DOC_SURFACEGETMASKS},
+    {"get_shifts", (PyCFunction)surf_get_shifts, METH_NOARGS, DOC_SURFACEGETSHIFTS},
     {"set_masks", surf_set_masks, METH_VARARGS, DOC_SURFACESETMASKS},
     {"set_shifts", surf_set_shifts, METH_VARARGS, DOC_SURFACESETSHIFTS},
 
-    {"get_losses", surf_get_losses, METH_NOARGS, DOC_SURFACEGETLOSSES},
+    {"get_losses", (PyCFunction)surf_get_losses, METH_NOARGS, DOC_SURFACEGETLOSSES},
 
     {"subsurface", surf_subsurface, METH_VARARGS, DOC_SURFACESUBSURFACE},
-    {"get_offset", surf_get_offset, METH_NOARGS, DOC_SURFACEGETOFFSET},
-    {"get_abs_offset", surf_get_abs_offset, METH_NOARGS,
+    {"get_offset", (PyCFunction)surf_get_offset, METH_NOARGS, DOC_SURFACEGETOFFSET},
+    {"get_abs_offset", (PyCFunction)surf_get_abs_offset, METH_NOARGS,
      DOC_SURFACEGETABSOFFSET},
-    {"get_parent", surf_get_parent, METH_NOARGS, DOC_SURFACEGETPARENT},
-    {"get_abs_parent", surf_get_abs_parent, METH_NOARGS,
+    {"get_parent", (PyCFunction)surf_get_parent, METH_NOARGS, DOC_SURFACEGETPARENT},
+    {"get_abs_parent", (PyCFunction)surf_get_abs_parent, METH_NOARGS,
      DOC_SURFACEGETABSPARENT},
     {"get_bounding_rect", (PyCFunction)surf_get_bounding_rect,
      METH_VARARGS | METH_KEYWORDS, DOC_SURFACEGETBOUNDINGRECT},
     {"get_view", surf_get_view, METH_VARARGS, DOC_SURFACEGETVIEW},
-    {"get_buffer", surf_get_buffer, METH_NOARGS, DOC_SURFACEGETBUFFER},
+    {"get_buffer", (PyCFunction)surf_get_buffer, METH_NOARGS, DOC_SURFACEGETBUFFER},
 
     {NULL, NULL, 0, NULL}};
 
