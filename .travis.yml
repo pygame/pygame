@@ -19,9 +19,6 @@ jobs:
     - python: 3.6
       name: SDL 1.2 sdist
       env:
-        - UPLOAD_SDIST_PYPI=yes
-        - GITHUB_UPLOAD=yes
-        - RUN_SDIST=yes
         - WHICH_SDL_BUILD=-sdl1
     # enable ppc64le closer to release, it is slow.
     # - os: linux-ppc64le
@@ -31,11 +28,15 @@ jobs:
     #     - PPC=yes
 
     - os: linux
+      name: arm64 sdist
       dist: xenial
       python: 3.8
       arch: arm64
       env:
         - ARM64=yes
+        - UPLOAD_SDIST_PYPI=yes
+        - GITHUB_UPLOAD=yes
+        - RUN_SDIST=yes
 
 
     # enable s390x closer to release, it is slow.
@@ -129,8 +130,6 @@ env:
     - CIBW_SKIP="pp27*"
 
 script:
-  # - |
-  #   if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       source build/conan/activate_run.sh
@@ -145,19 +144,19 @@ script:
   # to make sure setup.py sdist runs.
   - |
     if [[ "$RUN_SDIST" == "yes" ]]; then
-      $PYTHON_EXE setup.py sdist
+      source buildconfig/ci/travis/build_test_sdist.sh
     fi
 
 
 # Upload dist/*.whl to pypi on tags.
 after_success:
   - |
-    if [[ "${UPLOAD_WHL_PYPI}" = "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+    if [[ "${UPLOAD_WHL_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
       $PYTHON_EXE -m pip install twine
       $PYTHON_EXE -m twine upload dist/*.whl
     fi
   - |
-    if [[ "${UPLOAD_SDIST_PYPI}" = "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+    if [[ "${UPLOAD_SDIST_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
       $PYTHON_EXE -m pip install twine
       $PYTHON_EXE -m twine upload dist/*.tar.gz
     fi

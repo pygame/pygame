@@ -37,13 +37,15 @@ There is proper functionality for mouse wheel behaviour with SDL2's
 ``SDL_MOUSEWHEEL`` events. ``SDL_MOUSEWHEEL`` replaces the old method of treating
 mouse scrolling as a type of button like, as such in SDL1. The new events support
 horizontal and vertical scroll movements, with signed integer values representing
-the amount scrolled, as well as "flipped" direction (the set positive and negative
-values for each axis is flipped). Read more about SDL2 input-related changes `here
-<https://wiki.libsdl.org/MigrationGuide#Input>`_
+the amount scrolled(``x`` and ``y``), as well as ``flipped`` direction (the set 
+positive and negative values for each axis is flipped). Read more about SDL2 
+input-related changes here `<https://wiki.libsdl.org/MigrationGuide#Input>`_
 
-In pygame2, the mouse wheel functionality can be used by listening for the ``pygame.events.MOUSEWHEEL`` EventType.
-When this event is triggered, a developer can access the appropriate ``Event`` object with ``pygame.event.get()``. The object can be used
-to access data about the mouse scroll, such as ``which`` (it will tell you what exact mouse device trigger the event).
+In pygame2, the mouse wheel functionality can be used by listening for the 
+``pygame.MOUSEWHEEL`` type of an event.
+When this event is triggered, a developer can access the appropriate ``Event`` object 
+with ``pygame.event.get()``. The object can be used to access data about the mouse 
+scroll, such as ``which`` (it will tell you what exact mouse device trigger the event).
 
 .. code-block:: python
    :caption: Code example of mouse scroll (tested on 2.0.0.dev7)
@@ -58,13 +60,17 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    
    def main():
       while True:
-         for event_var in pygame.event.get():
-               if event_var.type == QUIT:
+         for event in pygame.event.get():
+               if event.type == QUIT:
                   pygame.quit()
                   return
-               elif event_var.type == MOUSEWHEEL:
-                  print(event_var) # can access properties with prop notation 
-                                   # (ex: event_var.y)
+               elif event.type == MOUSEWHEEL:
+                  print(event) 
+                  print(event.x, event.y)
+                  print(event.flipped)
+                  print(event.which)
+                  # can access properties with 
+                  # proper notation(ex: event.y)
          clock.tick(60)
 
    # Execute game:
@@ -73,31 +79,29 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
 .. function:: get_pressed
 
    | :sl:`get the state of the mouse buttons`
-   | :sg:`get_pressed(num_buttons=3) -> (button1, button2, button3)
+   | :sg:`get_pressed(num_buttons=3) -> (button1, button2, button3)`
    | :sg:`get_pressed(num_buttons=5) -> (button1, button2, button3, button4, button5)`
 
    Returns a sequence of booleans representing the state of all the mouse
    buttons. A true value means the mouse is currently being pressed at the time
    of the call.
 
-   Note, to get all of the mouse events it is better to use either
-
-   ::
-
-    pygame.event.wait() or pygame.event.get() and check all of those events
-
-   to see if they are ``MOUSEBUTTONDOWN``, ``MOUSEBUTTONUP``, or
+   Note, to get all of the mouse events it is better to use either 
+   ``pygame.event.wait()`` or ``pygame.event.get()`` and check all of those 
+   events to see if they are ``MOUSEBUTTONDOWN``, ``MOUSEBUTTONUP``, or
    ``MOUSEMOTION``.
 
    Note, that on ``X11`` some X servers use middle button emulation. When you
    click both buttons 1 and 3 at the same time a 2 button event can be emitted.
 
    Note, remember to call ``pygame.event.get()`` before this function.
-   Otherwise it will not work.
+   Otherwise it will not work as expected.
 
-   To support five button mice, an optional parameter ``num_buttons`` has been added in pygame 2. When this is set to 5
-   ``button4`` & ``button5`` are added to the returned tuple. Only 3 and 5 are valid values for this parameter.
-   .. versionadded:: 2.0.0
+   To support five button mice, an optional parameter ``num_buttons`` has been 
+   added in pygame 2. When this is set to 5 ``button4`` and ``button5`` are added 
+   to the returned tuple. Only 3 and 5 are valid values for this parameter.
+   
+   .. versionchanged:: 2.0.0 ``num_buttons`` argument added
 
    .. ## pygame.mouse.get_pressed ##
 
@@ -151,11 +155,8 @@ to access data about the mouse scroll, such as ``which`` (it will tell you what 
    | :sl:`get the current visibility state of the mouse cursor`
    | :sg:`get_visible() -> bool`
 
-   Get the current visibility state of the mouse cursor.
-
-   :returns: ``True`` if the mouse cursor is currently visible and ``False`` if
-      the mouse cursor is not visible
-   :rtype: bool
+   Get the current visibility state of the mouse cursor. ``True`` if the mouse is
+   visible, ``False`` otherwise.
 
    .. versionadded:: 2.0.0
 
