@@ -315,7 +315,7 @@ clock_tick(PyObject *self, PyObject *arg)
     if (framerate)
         accurate_delay((1000.0 / framerate) - _clock->rawpassed);
     
-    _clock->timepassed = = get_delta_millis(_clock->last_tick);
+    _clock->timepassed = get_delta_millis(_clock->last_tick);
     _clock->last_tick = get_clock();
     
     _clock->fps_count += 1;
