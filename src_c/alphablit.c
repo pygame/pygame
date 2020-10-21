@@ -72,7 +72,8 @@ typedef struct
 static void alphablit_alpha (SDL_BlitInfo * info);
 
 #if IS_SDLv2 && (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
-static void alphablit_alpha_sse2_argb (SDL_BlitInfo * info);
+static void alphablit_alpha_sse2_argb_surf_alpha (SDL_BlitInfo * info);
+static void alphablit_alpha_sse2_argb_no_surf_alpha (SDL_BlitInfo * info);
 #endif /* IS_SDLv2 && (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON)) */
 
 static void alphablit_colorkey (SDL_BlitInfo * info);
@@ -234,13 +235,27 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                        format we can use SSE2 to speed up the blend */
                     #if PG_ENABLE_ARM_NEON
                         if (SDL_HasNEON() == SDL_TRUE){
-                            alphablit_alpha_sse2_argb (&info);
+                            if (info.src_blanket_alpha != 255)
+                            {
+                                alphablit_alpha_sse2_argb_surf_alpha (&info);
+                            }
+                            else
+                            {
+                                alphablit_alpha_sse2_argb_no_surf_alpha (&info);
+                            }
                             break;
                         }
                     #endif /* PG_ENABLE_ARM_NEON */
                     #ifdef __SSE2__
                         if (SDL_HasSSE2()){
-                            alphablit_alpha_sse2_argb (&info);
+                            if (info.src_blanket_alpha != 255)
+                            {
+                                alphablit_alpha_sse2_argb_surf_alpha (&info);
+                            }
+                            else
+                            {
+                                alphablit_alpha_sse2_argb_no_surf_alpha (&info);
+                            }
                             break;
                         }
                     #endif /* __SSE2__*/
@@ -2489,7 +2504,7 @@ blit_blend_max (SDL_BlitInfo * info)
 
 #if IS_SDLv2 && (defined(__SSE2__) || defined(PG_ENABLE_ARM_NEON))
 static void
-alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
+alphablit_alpha_sse2_argb_surf_alpha (SDL_BlitInfo * info)
 {
     int             n;
     int             width = info->width;
@@ -2540,9 +2555,151 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
         LOOP_UNROLLED4(
         {
             Uint32 src_alpha = (*srcp & src_amask);
+
+            /* modulate src_alpha - need to do it here for
+               accurate testing */
+            src_alpha = src_alpha >> 24;
+            src_alpha = (src_alpha * modulateA) / 255;
+            src_alpha = src_alpha << 24;
+
             Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
-            if ((src_alpha == src_amask && modulateA == 255) ||
-                (dst_alpha == 0))
+            if ((src_alpha == src_amask) || (dst_alpha == 0))
+            {
+                /* 255 src alpha or 0 dst alpha
+                   So copy src pixel over dst pixel, also copy
+                   modulated alpha */
+                *dstp = (*srcp & 0x00FFFFFF) | src_alpha;
+            }
+            else
+            {
+                /* Do the actual blend */
+                /* src_alpha -> mm_src_alpha (000000000000A000) */
+                mm_src_alpha = _mm_cvtsi32_si128(src_alpha);
+                /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
+                mm_src_alpha = _mm_srli_si128(mm_src_alpha, 3);
+
+                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
+                /* dst_alpha -> mm_dst_alpha (000000000000A000) */
+                mm_dst_alpha = _mm_cvtsi32_si128(dst_alpha);
+                /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
+                mm_dst_alpha = _mm_srli_si128(mm_dst_alpha, 3);
+
+                /* Calc alpha first */
+
+                /* (srcA * dstA) */
+                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
+                /* (srcA * dstA) / 255 */
+                mm_sub_alpha = _mm_srli_epi16(_mm_mulhi_epu16(mm_sub_alpha,
+                                          _mm_set1_epi16((short)0x8081)), 7);
+                /* srcA + dstA */
+                mm_dst_alpha = _mm_add_epi16(mm_src_alpha, mm_dst_alpha);
+                /* srcA + dstA - ((srcA * dstA) / 255); */
+                mm_dst_alpha = _mm_slli_si128(_mm_sub_epi16(mm_dst_alpha,
+                                             mm_sub_alpha), 3);
+
+                /* Then Calc RGB */
+                /* 0000000000000A0A -> rgb_src_alpha */
+                rgb_src_alpha = _mm_unpacklo_epi16(mm_src_alpha, mm_src_alpha);
+                /* 000000000A0A0A0A -> rgb_src_alpha */
+                rgb_src_alpha = _mm_unpacklo_epi32(rgb_src_alpha,
+                                                   rgb_src_alpha);
+
+                /* src(ARGB) -> src1 (000000000000ARGB) */
+                src1 = _mm_cvtsi32_si128(*srcp);
+                /* 000000000A0R0G0B -> src1 */
+                src1 = _mm_unpacklo_epi8(src1, mm_zero);
+
+                /* dst(ARGB) -> dst1 (000000000000ARGB) */
+                dst1 = _mm_cvtsi32_si128(*dstp);
+                /* 000000000A0R0G0B -> dst1 */
+                dst1 = _mm_unpacklo_epi8(dst1, mm_zero);
+
+                /* (srcRGB - dstRGB) */
+                sub_dst = _mm_sub_epi16(src1, dst1);
+
+                /* (srcRGB - dstRGB) * srcA */
+                sub_dst = _mm_mullo_epi16(sub_dst, rgb_src_alpha);
+
+                /* (srcRGB - dstRGB) * srcA + srcRGB */
+                sub_dst = _mm_add_epi16(sub_dst, src1);
+
+                /* (dstRGB << 8) */
+                dst1 = _mm_slli_epi16(dst1, 8);
+
+                /* ((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) */
+                sub_dst = _mm_add_epi16(sub_dst, dst1);
+
+                /* (((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) >> 8)*/
+                sub_dst = _mm_srli_epi16(sub_dst, 8);
+
+                /* pack everything back into a pixel */
+                sub_dst = _mm_packus_epi16(sub_dst, mm_zero);
+                sub_dst = _mm_and_si128(sub_dst, rgb_mask_128);
+                /* add alpha to RGB */
+                sub_dst = _mm_add_epi16(mm_dst_alpha, sub_dst);
+                *dstp = _mm_cvtsi128_si32(sub_dst);
+
+            }
+            ++srcp;
+            ++dstp;
+        }, n, width);
+        srcp += srcskip;
+        dstp += dstskip;
+    }
+}
+
+static void
+alphablit_alpha_sse2_argb_no_surf_alpha (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->width;
+    int             height = info->height;
+    Uint32          *srcp = (Uint32 *)info->s_pixels;
+    int             srcskip = info->s_skip >> 2;
+    Uint32          *dstp = (Uint32 *)info->d_pixels;
+    int             dstskip = info->d_skip >> 2;
+
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+
+    Uint32          dst_amask = dstfmt->Amask;
+    Uint32          src_amask = srcfmt->Amask;
+
+    int             dst_opaque = (dst_amask ? 0 : 255);
+
+    Uint64          rgb_mask;
+
+    __m128i src1, dst1, sub_dst, mm_src_alpha;
+    __m128i rgb_src_alpha, mm_zero, mm_mod_alpha;
+    __m128i mm_dst_alpha, mm_sub_alpha, rgb_mask_128;
+
+    mm_zero = _mm_setzero_si128();
+
+    rgb_mask = 0x0000000000FFFFFF; // 0F0F0F0F
+    rgb_mask_128 = _mm_loadl_epi64((const __m128i *) & rgb_mask);
+
+
+    /* Original 'Straight Alpha' blending equation:
+       --------------------------------------------
+       dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))
+         dstA = srcA + (dstA * (1-srcA))
+
+       We use something slightly different to simulate
+       SDL1, as follows:
+       dstRGB = (((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) >> 8)
+         dstA = srcA + dstA - ((srcA * dstA) / 255);
+                                                        */
+
+    while (height--)
+    {
+        LOOP_UNROLLED4(
+        {
+            Uint32 src_alpha = (*srcp & src_amask);
+            Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
+            if ((src_alpha == src_amask) || (dst_alpha == 0))
             {
                 /* 255 src alpha or 0 dst alpha
                    So just copy src pixel over dst pixel*/
@@ -2555,12 +2712,6 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
                 mm_src_alpha = _mm_cvtsi32_si128(src_alpha);
                 /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
                 mm_src_alpha = _mm_srli_si128(mm_src_alpha, 3);
-
-                /* modulate src alpha */
-                mm_mod_alpha = _mm_cvtsi32_si128(modulateA);
-                mm_src_alpha = _mm_mullo_epi16(mm_src_alpha, mm_mod_alpha);
-                mm_src_alpha = _mm_srli_epi16(_mm_mulhi_epu16(mm_src_alpha,
-                                          _mm_set1_epi16((short)0x8081)), 7);
 
                 mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
                 /* dst_alpha -> mm_dst_alpha (000000000000A000) */
