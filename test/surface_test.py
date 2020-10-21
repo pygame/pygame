@@ -1502,8 +1502,11 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         # pprint(results)
         self.assertEqual(results, results_expected)
 
+    @unittest.skipIf(pygame.get_sdl_version()[0] == 1, "only works in SDL2")
     def test_sdl1_mimic_blitter_with_set_alpha(self):
-        """ does the SDL 1 style blitter in pygame 2 work with set_alpha()"""
+        """ does the SDL 1 style blitter in pygame 2 work with set_alpha(),
+            this feature only exists in pygame 2/SDL2 SDL1 did not support
+            combining surface and pixel alpha"""
 
         results_expected = {
             ((0, 255, 255), (0, 255, 0)): (0, 255, 255, 255),
