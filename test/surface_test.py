@@ -262,7 +262,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
     @unittest.skipIf(pygame.get_sdl_version()[0] == 1, "only works in SDL2")
     def test_mustlock_surf_alpha_rle(self):
         """Test RLEACCEL flag with mustlock() on a surface
-           with per pixel alpha"""
+           with per pixel alpha - new feature in SDL2"""
         surf = pygame.Surface((100, 100))
         blit_surf = pygame.Surface((100, 100), depth=32, flags=pygame.SRCALPHA)
         blit_surf.set_colorkey((192, 191, 192, 255), pygame.RLEACCEL)
@@ -375,6 +375,8 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     @unittest.skipIf(pygame.get_sdl_version()[0] == 2, "only works in SDL 1")
     def test_set_alpha__rle_state_change(self):
+        """ Likely related to:
+            https://bugzilla.libsdl.org/show_bug.cgi?id=5321 """
         pygame.display.init()
         try:
             pygame.display.set_mode((640, 480))
@@ -1179,7 +1181,6 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
-    @unittest.skip("causes failures in other tests if run, so skip")
     def test_src_alpha_issue_1289(self):
         """blit should be white."""
         surf1 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
@@ -1506,7 +1507,8 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
                      'aarch64' in platform.machine(),
                      "sdl2 blitter produces different results on arm")
     def test_src_alpha_sdl2_blitter(self):
-        """ Checking that the BLEND_SDL2 flag works """
+        """ Checking that the BLEND_SDL2 flag works - this feature
+            only exists when using SDL2"""
 
         results_expected = {
             ((0, 255, 255), (0, 255, 0)): (0, 255, 255, 255),
