@@ -152,12 +152,12 @@ script:
 # Upload dist/*.whl to pypi on tags.
 after_success:
   - |
-    if [[ "${UPLOAD_WHL_PYPI}" = "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+    if [[ "${UPLOAD_WHL_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
       $PYTHON_EXE -m pip install twine
       $PYTHON_EXE -m twine upload dist/*.whl
     fi
   - |
-    if [[ "${UPLOAD_SDIST_PYPI}" = "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+    if [[ "${UPLOAD_SDIST_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
       $PYTHON_EXE -m pip install twine
       $PYTHON_EXE -m twine upload dist/*.tar.gz
     fi
