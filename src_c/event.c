@@ -2081,31 +2081,32 @@ pg_event_custom_type(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef _event_methods[] = {
-    {"__PYGAMEinit__", pgEvent_AutoInit, METH_NOARGS,
+    {"__PYGAMEinit__", (PyCFunction)pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
 #if IS_SDLv2
-    {"_set_gen_videoresize", pg_event_set_gen_videoresize, METH_VARARGS, "enable or disable legacy VIDEORESIZE events"},
+    {"_set_gen_videoresize", (PyCFunction)pg_event_set_gen_videoresize, 
+     METH_VARARGS, "enable or disable legacy VIDEORESIZE events"},
 #endif /* IS_SDLv2 */
 
     {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEEVENTEVENT},
-    {"event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
+    {"event_name", (PyCFunction)event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME},
 
-    {"set_grab", set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
-    {"get_grab", get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
+    {"set_grab", (PyCFunction)set_grab, METH_VARARGS, DOC_PYGAMEEVENTSETGRAB},
+    {"get_grab", (PyCFunction)get_grab, METH_NOARGS, DOC_PYGAMEEVENTGETGRAB},
 
-    {"pump", pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
+    {"pump", (PyCFunction)pg_event_pump, METH_NOARGS, DOC_PYGAMEEVENTPUMP},
     {"wait", (PyCFunction)pg_event_wait, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTWAIT},
-    {"poll", pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
+    {"poll", (PyCFunction)pg_event_poll, METH_NOARGS, DOC_PYGAMEEVENTPOLL},
     {"clear", (PyCFunction)pg_event_clear, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTCLEAR},
     {"get", (PyCFunction)pg_event_get, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTGET},
     {"peek", (PyCFunction)pg_event_peek, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEEVENTPEEK},
-    {"post", pg_event_post, METH_VARARGS, DOC_PYGAMEEVENTPOST},
+    {"post", (PyCFunction)pg_event_post, METH_VARARGS, DOC_PYGAMEEVENTPOST},
 
-    {"set_allowed", pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},
-    {"set_blocked", pg_event_set_blocked, METH_VARARGS, DOC_PYGAMEEVENTSETBLOCKED},
-    {"get_blocked", pg_event_get_blocked, METH_VARARGS, DOC_PYGAMEEVENTGETBLOCKED},
-    {"custom_type", pg_event_custom_type, METH_NOARGS, DOC_PYGAMEEVENTCUSTOMTYPE},
+    {"set_allowed", (PyCFunction)pg_event_set_allowed, METH_VARARGS, DOC_PYGAMEEVENTSETALLOWED},
+    {"set_blocked", (PyCFunction)pg_event_set_blocked, METH_VARARGS, DOC_PYGAMEEVENTSETBLOCKED},
+    {"get_blocked", (PyCFunction)pg_event_get_blocked, METH_VARARGS, DOC_PYGAMEEVENTGETBLOCKED},
+    {"custom_type", (PyCFunction)pg_event_custom_type, METH_NOARGS, DOC_PYGAMEEVENTCUSTOMTYPE},
 
 
     {NULL, NULL, 0, NULL}};
