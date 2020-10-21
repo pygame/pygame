@@ -48,9 +48,9 @@ copyright = u'2011-2019, pygame developers'
 # built documents.
 #
 # The short X.Y version.
-version = '2.0.0.dev17'
+version = '2.0.0.dev18'
 # The full version, including alpha/beta/rc tags.
-release = '2.0.0.dev17'
+release = '2.0.0.dev18'
 
 # Format strings for the version directives
 versionadded_format = 'New in pygame %s'
