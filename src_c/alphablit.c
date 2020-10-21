@@ -2555,14 +2555,13 @@ alphablit_alpha_sse2_argb_surf_alpha (SDL_BlitInfo * info)
         LOOP_UNROLLED4(
         {
             Uint32 src_alpha = (*srcp & src_amask);
-
+            Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
             /* modulate src_alpha - need to do it here for
                accurate testing */
             src_alpha = src_alpha >> 24;
             src_alpha = (src_alpha * modulateA) / 255;
             src_alpha = src_alpha << 24;
 
-            Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
             if ((src_alpha == src_amask) || (dst_alpha == 0))
             {
                 /* 255 src alpha or 0 dst alpha
