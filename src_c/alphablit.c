@@ -2510,10 +2510,12 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
 
     int             dst_opaque = (dst_amask ? 0 : 255);
 
+    Uint32          modulateA = info->src_blanket_alpha;
+
     Uint64          rgb_mask;
 
     __m128i src1, dst1, sub_dst, mm_src_alpha;
-    __m128i rgb_src_alpha, mm_zero;
+    __m128i rgb_src_alpha, mm_zero, mm_mod_alpha;
     __m128i mm_dst_alpha, mm_sub_alpha, rgb_mask_128;
 
     mm_zero = _mm_setzero_si128();
@@ -2537,9 +2539,10 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
     {
         LOOP_UNROLLED4(
         {
-            Uint32 src_alpha = *srcp & src_amask;
+            Uint32 src_alpha = (*srcp & src_amask);
             Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
-            if ((src_alpha == src_amask) || (dst_alpha == 0))
+            if ((src_alpha == src_amask && modulateA == 255) ||
+                (dst_alpha == 0))
             {
                 /* 255 src alpha or 0 dst alpha
                    So just copy src pixel over dst pixel*/
@@ -2552,6 +2555,14 @@ alphablit_alpha_sse2_argb (SDL_BlitInfo * info)
                 mm_src_alpha = _mm_cvtsi32_si128(src_alpha);
                 /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
                 mm_src_alpha = _mm_srli_si128(mm_src_alpha, 3);
+
+                /* modulate src alpha */
+                mm_mod_alpha = _mm_cvtsi32_si128(modulateA);
+                mm_src_alpha = _mm_mullo_epi16(mm_src_alpha, mm_mod_alpha);
+                mm_src_alpha = _mm_srli_epi16(_mm_mulhi_epu16(mm_src_alpha,
+                                          _mm_set1_epi16((short)0x8081)), 7);
+
+                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
                 /* dst_alpha -> mm_dst_alpha (000000000000A000) */
                 mm_dst_alpha = _mm_cvtsi32_si128(dst_alpha);
                 /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
