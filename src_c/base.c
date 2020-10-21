@@ -82,6 +82,7 @@ static int pg_sdl_was_init = 0;
 #if IS_SDLv2
 SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
+static char * pg_env_blend_alpha_SDL2 = NULL;
 #endif /* IS_SDLv2 */
 
 static void
@@ -180,6 +181,8 @@ static pgSurfaceObject *
 pg_GetDefaultWindowSurface(void);
 static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *);
+static char *
+pg_EnvShouldBlendAlphaSDL2(void);
 #endif /* IS_SDLv2 */
 
 static int
@@ -280,6 +283,10 @@ pg_init(PyObject *self, PyObject *args)
 #else
     pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
 #endif
+
+#if IS_SDLv2
+    pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
+#endif /* IS_SDLv2 */
 
     pg_is_init = 1;  // Considered initialized at this point?
 
@@ -1122,8 +1129,8 @@ pgObject_GetBuffer(PyObject *obj, pg_buffer *pg_view_p, int flags)
             return -1;
         }
         success = 1;
-    }    
-    
+    }
+
     if (!success && pgGetArrayStruct(obj, &cobj, &inter_p) == 0) {
         if (pgArrayStruct_AsBuffer(pg_view_p, cobj, inter_p, flags)) {
             Py_DECREF(cobj);
@@ -1944,6 +1951,12 @@ pg_SetDefaultWindowSurface(pgSurfaceObject *screen)
     Py_XDECREF(pg_default_screen);
     pg_default_screen = screen;
 }
+
+static char *
+pg_EnvShouldBlendAlphaSDL2(void)
+{
+    return pg_env_blend_alpha_SDL2;
+}
 #endif /* IS_SDLv2 */
 
 /*error signal handlers(replacing SDL parachute)*/
@@ -2196,7 +2209,8 @@ MODINIT_DEFINE(base)
     c_api[20] = pg_SetDefaultWindow;
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
-#define FILLED_SLOTS 23
+    c_api[23] = pg_EnvShouldBlendAlphaSDL2;
+#define FILLED_SLOTS 24
 #endif /* IS_SDLv2 */
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS

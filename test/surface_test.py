@@ -1597,7 +1597,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
                      'aarch64' in platform.machine(),
                      "sdl2 blitter produces different results on arm")
     def test_src_alpha_sdl2_blitter(self):
-        """ Checking that the BLEND_SDL2 flag works - this feature
+        """ Checking that the BLEND_ALPHA_SDL2 flag works - this feature
             only exists when using SDL2"""
 
         results_expected = {
@@ -1680,7 +1680,7 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
                     dest_surf.fill((dst_r, 255, dst_b, dst_a))
 
                     dest_surf.blit(src_surf, (0, 0),
-                                   special_flags=pygame.BLEND_SDL2)
+                                   special_flags=pygame.BLEND_ALPHA_SDL2)
                     key = ((dst_r, dst_b, dst_a), (src_r, src_b, src_a))
                     results[key] = dest_surf.get_at((65, 33))
                     self.assertEqual(results[key], results_expected[key])

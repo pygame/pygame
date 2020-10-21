@@ -4253,7 +4253,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         /* Py_END_ALLOW_THREADS */
     }
 #else  /* IS_SDLv2 */
-    if ((the_args != 0 && the_args != PYGAME_BLEND_SDL2) ||
+    if ((the_args != 0 && the_args != PYGAME_BLEND_ALPHA_SDL2) ||
         ((SDL_GetColorKey(src, &key) == 0 || _PgSurface_SrcAlpha(src) == 1) &&
          /* This simplification is possible because a source subsurface
             is converted to its owner with a clip rect and a dst
@@ -4304,7 +4304,8 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         }
         /* Py_END_ALLOW_THREADS */
     }
-    else if(the_args != PYGAME_BLEND_SDL2 &&
+    else if(the_args != PYGAME_BLEND_ALPHA_SDL2 &&
+            !(pg_EnvShouldBlendAlphaSDL2()) &&
             SDL_GetColorKey(src, &key) != 0 &&
             (dst->format->BytesPerPixel == 4 ||
              dst->format->BytesPerPixel == 2) &&

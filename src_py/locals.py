@@ -63,7 +63,7 @@ __all__ = [
     'BLEND_MIN',
     'BLEND_MULT',
     'BLEND_PREMULTIPLIED',
-    'BLEND_SDL2',
+    'BLEND_ALPHA_SDL2',
     'BLEND_RGBA_ADD',
     'BLEND_RGBA_MAX',
     'BLEND_RGBA_MIN',
