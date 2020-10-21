@@ -12,14 +12,15 @@ cache:
 # So commits do not get built twice.
 # Only test master and tagged releases on push
 #   always test things that aren't pushes (like PRs)
-if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
+if: type != push OR branch = master OR branch = main OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
 
 jobs:
   include:
     - python: 3.6
-      name: SDL 1.2 sdist
+      name: SDL 1.2
       env:
         - WHICH_SDL_BUILD=-sdl1
+
     # enable ppc64le closer to release, it is slow.
     # - os: linux-ppc64le
     #   python: 3.8
@@ -58,6 +59,19 @@ jobs:
       env:
         - GITHUB_UPLOAD=yes
         - UPLOAD_WHL_PYPI=yes
+      cache:
+        directories:
+          - $HOME/.conan/data
+
+    # only run this on tag posts. We need two mac builds for mac wheels when doing pypy.
+    - os: osx
+      name: mac pypy only
+      if: tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
+      language: shell
+      env:
+        - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
+        - PYPYONLY=yes
       cache:
         directories:
           - $HOME/.conan/data
@@ -126,15 +140,11 @@ env:
     - secure: "EGrZt/2EGOAzwcI69la5RgJ1Fr8uXM0TYarCheBrDVwcESNXccH9myyflN97m/jDrdyJB2fmVgI2WDpFdvnpEXNC7+lTEhApgFx6L1TwE/s5Fj6Kd72cERcPmDwLwzQFChXl2kjPTgu/Qr2u2X3EYCfEd0jRf+TcdHasvOLeGuQu7l0cnyW6WK+xMhF1wV8O9F1IdggyeysYIpP/v8rCtmjd268AqploBJ3cM3qau1F9NYBCSUPhu9eZfB0JRhHzeFDbNxRJtG+WZjk2CuGi1W8BGM/CeJkM/3b7iHMEwCYd8JW4k8ZYLSrPUiHkKxSeL9R12+p9u6AHMlXfEfO96Nt8pQkhVP9BxH374RRvQsIl5OxACTAW9XEiqTP7aRXIBSOxX6p3DxUXl6Ogn0d9U5rIu4SUAiaWW9e0k+Oeo/H3OGuerFlBIh6rW4kzVZ7ftcqzVRz9QgnrSy2r93BYzTWwM3eifkFQwtgnBSvXxM151leHOJ9r3PAiRup7V90WZBD4zytQSMaOc+fcdIWscP88sPcLXZEb6n6y7Ja3t5ASO58dXLw9EvqS4CsRYI08ltH85L/cq37dKgpvu33lsx1ZDksiMKtZW7tXhV1DZ9thl1JH/3f9QLRFz+02mJ6FD4PCJRYQvDDs5J4j7rf76FUlcBr+9bAN0sRnPL6UOms="
     - CIBW_TEST_COMMAND="python -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300"
     - CIBW_BEFORE_BUILD="pip install numpy"
-    # skip pypy builds with cibuildwheel
-    - CIBW_SKIP="pp27*"
 
 script:
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      source build/conan/activate_run.sh
-      $PYTHON_EXE -m cibuildwheel --output-dir dist
-      $PYTHON_EXE buildconfig/ci/travis/.travis_osx_rename_whl.py
+      source buildconfig/ci/travis/cibuildwheel_mac.sh
     fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$MANYLINUX_WHL" != "yes" ]]; then
@@ -176,9 +186,6 @@ deploy:
   draft: true
   on:
     all_branches: true
-    # branches:
-    #   only:
-    #     - master
     tags: true
     repo: pygame/pygame
     condition: $GITHUB_UPLOAD = yes
