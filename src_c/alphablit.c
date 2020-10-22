@@ -2717,7 +2717,7 @@ alphablit_alpha_sse2_argb_surf_alpha_big_end (SDL_BlitInfo * info)
             Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
             /* modulate src_alpha - need to do it here for
                accurate testing */
-            src_alpha = (src_alpha * modulateA) / 255;
+            src_alpha = 128; //(src_alpha * modulateA) / 255;
 
             if ((src_alpha == src_amask) || (dst_alpha == 0))
             {
