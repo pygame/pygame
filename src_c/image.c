@@ -288,7 +288,9 @@ image_save(PyObject *self, PyObject *arg)
                 !strcasecmp(ext, "jpeg")) {
             /* If it is .png .jpg .jpeg use the extended module. */
             /* try to get extended formats */
-            return image_save_extended(self, arg);
+            ret = image_save_extended(self, arg);
+            if (ret == NULL)
+                result = -2;
         }
         else if (oencoded == Py_None) {
             SDL_RWops *rw = pgRWops_FromFileObject(obj);
@@ -353,7 +355,7 @@ image_save(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_extended(PyObject *self, PyObject *arg)
+image_get_extended(PyObject *self)
 {
     if (extverobj == NULL)
         Py_RETURN_FALSE;
@@ -362,12 +364,12 @@ image_get_extended(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-image_get_sdl_image_version(PyObject *self, PyObject *arg)
+image_get_sdl_image_version(PyObject *self)
 {
     if (extverobj == NULL)
         Py_RETURN_NONE;
     else
-        return PyObject_CallObject(extverobj, arg);
+        return PyObject_CallObject(extverobj, NULL);
 }
 
 
