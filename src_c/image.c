@@ -371,7 +371,7 @@ image_get_sdl_image_version(PyObject *self)
         return PyObject_CallObject(extverobj, NULL);
 }
 
-#if PG_COMPILE_SSE4_2 && (SDL_VERSION_ATLEAST(2, 0
+#if PG_COMPILE_SSE4_2 && (SDL_VERSION_ATLEAST(2, 0, 0))
 #define SSE42_ALIGN_NEEDED 16
 #define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
 
@@ -1671,9 +1671,9 @@ static PyMethodDef _image_methods[] = {
     
     {"save_extended", image_save_extended, METH_VARARGS, DOC_PYGAMEIMAGESAVEEXTENDED},
     {"save", image_save, METH_VARARGS, DOC_PYGAMEIMAGESAVE},
-    {"get_extended", image_get_extended, METH_NOARGS,
+    {"get_extended", (PyCFunction)image_get_extended, METH_NOARGS,
      DOC_PYGAMEIMAGEGETEXTENDED},
-    {"get_sdl_image_version", image_get_sdl_image_version, METH_NOARGS,
+    {"get_sdl_image_version", (PyCFunction)image_get_sdl_image_version, METH_NOARGS,
      DOC_PYGAMEIMAGEGETSDLIMAGEVERSION},
 
     {"tostring", image_tostring, METH_VARARGS, DOC_PYGAMEIMAGETOSTRING},
