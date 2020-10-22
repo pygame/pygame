@@ -155,6 +155,7 @@ Getting a shell
 To be able to run bash:
 
     docker run --name test -it pygame/manylinux2010_base_x86_64
+    docker run --name test -it pygame/manylinux2010_base_i686
 
 
 
