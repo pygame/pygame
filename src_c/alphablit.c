@@ -2565,101 +2565,101 @@ alphablit_alpha_sse2_argb_surf_alpha (SDL_BlitInfo * info)
          dstA = srcA + dstA - ((srcA * dstA) / 255);
                                                         */
 
-    while (height--)
-    {
-        LOOP_UNROLLED4(
-        {
-            Uint32 src_alpha = (*srcp & src_amask);
-            Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
-            /* modulate src_alpha - need to do it here for
-               accurate testing */
-            src_alpha = src_alpha >> 24;
-            src_alpha = 128;//(src_alpha * modulateA) / 255;
-            src_alpha = src_alpha << 24;
-
-            if ((src_alpha == src_amask) || (dst_alpha == 0))
-            {
-                /* 255 src alpha or 0 dst alpha
-                   So copy src pixel over dst pixel, also copy
-                   modulated alpha */
-                *dstp = (*srcp & 0x00FFFFFF) | src_alpha;
-            }
-            else
-            {
-                /* Do the actual blend */
-                /* src_alpha -> mm_src_alpha (000000000000A000) */
-                mm_src_alpha = _mm_cvtsi32_si128(src_alpha);
-                /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
-                mm_src_alpha = _mm_srli_si128(mm_src_alpha, 3);
-
-                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
-                /* dst_alpha -> mm_dst_alpha (000000000000A000) */
-                mm_dst_alpha = _mm_cvtsi32_si128(dst_alpha);
-                /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
-                mm_dst_alpha = _mm_srli_si128(mm_dst_alpha, 3);
-
-                /* Calc alpha first */
-
-                /* (srcA * dstA) */
-                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
-                /* (srcA * dstA) / 255 */
-                mm_sub_alpha = _mm_srli_epi16(_mm_mulhi_epu16(mm_sub_alpha,
-                                          _mm_set1_epi16((short)0x8081)), 7);
-                /* srcA + dstA */
-                mm_dst_alpha = _mm_add_epi16(mm_src_alpha, mm_dst_alpha);
-                /* srcA + dstA - ((srcA * dstA) / 255); */
-                mm_dst_alpha = _mm_slli_si128(_mm_sub_epi16(mm_dst_alpha,
-                                             mm_sub_alpha), 3);
-
-                /* Then Calc RGB */
-                /* 0000000000000A0A -> rgb_src_alpha */
-                rgb_src_alpha = _mm_unpacklo_epi16(mm_src_alpha, mm_src_alpha);
-                /* 000000000A0A0A0A -> rgb_src_alpha */
-                rgb_src_alpha = _mm_unpacklo_epi32(rgb_src_alpha,
-                                                   rgb_src_alpha);
-
-                /* src(ARGB) -> src1 (000000000000ARGB) */
-                src1 = _mm_cvtsi32_si128(*srcp);
-                /* 000000000A0R0G0B -> src1 */
-                src1 = _mm_unpacklo_epi8(src1, mm_zero);
-
-                /* dst(ARGB) -> dst1 (000000000000ARGB) */
-                dst1 = _mm_cvtsi32_si128(*dstp);
-                /* 000000000A0R0G0B -> dst1 */
-                dst1 = _mm_unpacklo_epi8(dst1, mm_zero);
-
-                /* (srcRGB - dstRGB) */
-                sub_dst = _mm_sub_epi16(src1, dst1);
-
-                /* (srcRGB - dstRGB) * srcA */
-                sub_dst = _mm_mullo_epi16(sub_dst, rgb_src_alpha);
-
-                /* (srcRGB - dstRGB) * srcA + srcRGB */
-                sub_dst = _mm_add_epi16(sub_dst, src1);
-
-                /* (dstRGB << 8) */
-                dst1 = _mm_slli_epi16(dst1, 8);
-
-                /* ((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) */
-                sub_dst = _mm_add_epi16(sub_dst, dst1);
-
-                /* (((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) >> 8)*/
-                sub_dst = _mm_srli_epi16(sub_dst, 8);
-
-                /* pack everything back into a pixel */
-                sub_dst = _mm_packus_epi16(sub_dst, mm_zero);
-                sub_dst = _mm_and_si128(sub_dst, rgb_mask_128);
-                /* add alpha to RGB */
-                sub_dst = _mm_add_epi16(mm_dst_alpha, sub_dst);
-                *dstp = _mm_cvtsi128_si32(sub_dst);
-
-            }
-            ++srcp;
-            ++dstp;
-        }, n, width);
-        srcp += srcskip;
-        dstp += dstskip;
-    }
+//    while (height--)
+//    {
+//        LOOP_UNROLLED4(
+//        {
+//            Uint32 src_alpha = (*srcp & src_amask);
+//            Uint32 dst_alpha = (*dstp & dst_amask) + dst_opaque;
+//            /* modulate src_alpha - need to do it here for
+//               accurate testing */
+//            src_alpha = src_alpha >> 24;
+//            src_alpha = (src_alpha * modulateA) / 255;
+//            src_alpha = src_alpha << 24;
+//
+//            if ((src_alpha == src_amask) || (dst_alpha == 0))
+//            {
+//                /* 255 src alpha or 0 dst alpha
+//                   So copy src pixel over dst pixel, also copy
+//                   modulated alpha */
+//                *dstp = (*srcp & 0x00FFFFFF) | src_alpha;
+//            }
+//            else
+//            {
+//                /* Do the actual blend */
+//                /* src_alpha -> mm_src_alpha (000000000000A000) */
+//                mm_src_alpha = _mm_cvtsi32_si128(src_alpha);
+//                /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
+//                mm_src_alpha = _mm_srli_si128(mm_src_alpha, 3);
+//
+//                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
+//                /* dst_alpha -> mm_dst_alpha (000000000000A000) */
+//                mm_dst_alpha = _mm_cvtsi32_si128(dst_alpha);
+//                /* mm_src_alpha >> ashift -> rgb_src_alpha(000000000000000A) */
+//                mm_dst_alpha = _mm_srli_si128(mm_dst_alpha, 3);
+//
+//                /* Calc alpha first */
+//
+//                /* (srcA * dstA) */
+//                mm_sub_alpha = _mm_mullo_epi16(mm_src_alpha, mm_dst_alpha);
+//                /* (srcA * dstA) / 255 */
+//                mm_sub_alpha = _mm_srli_epi16(_mm_mulhi_epu16(mm_sub_alpha,
+//                                          _mm_set1_epi16((short)0x8081)), 7);
+//                /* srcA + dstA */
+//                mm_dst_alpha = _mm_add_epi16(mm_src_alpha, mm_dst_alpha);
+//                /* srcA + dstA - ((srcA * dstA) / 255); */
+//                mm_dst_alpha = _mm_slli_si128(_mm_sub_epi16(mm_dst_alpha,
+//                                             mm_sub_alpha), 3);
+//
+//                /* Then Calc RGB */
+//                /* 0000000000000A0A -> rgb_src_alpha */
+//                rgb_src_alpha = _mm_unpacklo_epi16(mm_src_alpha, mm_src_alpha);
+//                /* 000000000A0A0A0A -> rgb_src_alpha */
+//                rgb_src_alpha = _mm_unpacklo_epi32(rgb_src_alpha,
+//                                                   rgb_src_alpha);
+//
+//                /* src(ARGB) -> src1 (000000000000ARGB) */
+//                src1 = _mm_cvtsi32_si128(*srcp);
+//                /* 000000000A0R0G0B -> src1 */
+//                src1 = _mm_unpacklo_epi8(src1, mm_zero);
+//
+//                /* dst(ARGB) -> dst1 (000000000000ARGB) */
+//                dst1 = _mm_cvtsi32_si128(*dstp);
+//                /* 000000000A0R0G0B -> dst1 */
+//                dst1 = _mm_unpacklo_epi8(dst1, mm_zero);
+//
+//                /* (srcRGB - dstRGB) */
+//                sub_dst = _mm_sub_epi16(src1, dst1);
+//
+//                /* (srcRGB - dstRGB) * srcA */
+//                sub_dst = _mm_mullo_epi16(sub_dst, rgb_src_alpha);
+//
+//                /* (srcRGB - dstRGB) * srcA + srcRGB */
+//                sub_dst = _mm_add_epi16(sub_dst, src1);
+//
+//                /* (dstRGB << 8) */
+//                dst1 = _mm_slli_epi16(dst1, 8);
+//
+//                /* ((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) */
+//                sub_dst = _mm_add_epi16(sub_dst, dst1);
+//
+//                /* (((dstRGB << 8) + (srcRGB - dstRGB) * srcA + srcRGB) >> 8)*/
+//                sub_dst = _mm_srli_epi16(sub_dst, 8);
+//
+//                /* pack everything back into a pixel */
+//                sub_dst = _mm_packus_epi16(sub_dst, mm_zero);
+//                sub_dst = _mm_and_si128(sub_dst, rgb_mask_128);
+//                /* add alpha to RGB */
+//                sub_dst = _mm_add_epi16(mm_dst_alpha, sub_dst);
+//                *dstp = _mm_cvtsi128_si32(sub_dst);
+//
+//            }
+//            ++srcp;
+//            ++dstp;
+//        }, n, width);
+//        srcp += srcskip;
+//        dstp += dstskip;
+//    }
 }
 
 static void
