@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e -x
 
-SUPPORTED_PYTHONS="cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
+export SUPPORTED_PYTHONS="cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
 
 if [[ "$1" == "buildpypy" ]]; then
-	SUPPORTED_PYTHONS="${SUPPORTED_PYTHONS} pp27-pypy_73 pp36-pypy36_pp73 pp37-pypy37_pp73"
+	export SUPPORTED_PYTHONS="pp27-pypy_73 pp36-pypy36_pp73 pp37-pypy37_pp73"
 fi
 
 
@@ -21,7 +21,7 @@ fi
 # -msse4 is required by old gcc in centos, for the SSE4.2 used in image.c
 # -g0 removes debugging symbols reducing file size greatly.
 # -03 is full optimization on.
-export CFLAGS="-msse4 -g0 -O3"
+export CFLAGS="-g0 -O3"
 
 ls -la /io
 
