@@ -3062,6 +3062,7 @@ alphablit_alpha (SDL_BlitInfo * info)
 #else /* IS_SDLv2 */
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     int             dRi, dGi, dBi, dAi, sRi, sGi, sBi, sAi;
+    Uint32          modulateA = info->src_blanket_alpha;
 #endif /* IS_SDLv2 */
     Uint32          pixel;
 #if IS_SDLv1
@@ -3069,7 +3070,7 @@ alphablit_alpha (SDL_BlitInfo * info)
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 #endif /* IS_SDLv1 */
 
-    Uint32          modulateA = info->src_blanket_alpha;
+
 
     /*
        printf ("Alpha blit with %d and %d\n", srcbpp, dstbpp);
