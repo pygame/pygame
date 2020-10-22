@@ -290,7 +290,7 @@ image_save(PyObject *self, PyObject *arg)
             SDL_RWops *rw = pgRWops_FromFileObject(obj);
             if (rw != NULL) {
                 if (!strcasecmp(ext, "bmp")) {
-                    /* The SDL documentation didn't specify which negative number 
+                    /* The SDL documentation didn't specify which negative number
                      * is returned upon error. We want to be sure that result is
                      * either 0 or -1: */
                     result = (SDL_SaveBMP_RW(surf, rw, 0) == 0 ? 0 : -1);
@@ -306,7 +306,7 @@ image_save(PyObject *self, PyObject *arg)
         else {
             if (!strcasecmp(ext, "bmp")) {
                 Py_BEGIN_ALLOW_THREADS;
-                /* The SDL documentation didn't specify which negative number 
+                /* The SDL documentation didn't specify which negative number
                  * is returned upon error. We want to be sure that result is
                  * either 0 or -1: */
                 result = (SDL_SaveBMP(surf, name) == 0 ? 0 : -1);
@@ -364,7 +364,7 @@ image_get_extended(PyObject *self, PyObject *arg)
     return PyInt_FromLong(GETSTATE(self)->is_extended);
 }
 
-#if (__SSE4_2__ || PG_COMPILE_SSE4_2) && (SDL_VERSION_ATLEAST(2, 0, 0))
+#if PG_COMPILE_SSE4_2 && (SDL_VERSION_ATLEAST(2, 0, 0))
 #define SSE42_ALIGN_NEEDED 16
 #define SSE42_ALIGN __attribute__((aligned(SSE42_ALIGN_NEEDED)))
 
