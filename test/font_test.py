@@ -139,6 +139,17 @@ class FontModuleTest(unittest.TestCase):
         names = ",".join(["thisisnotafont1", "thisisnotafont2", "thisisnotafont3"])
         self.assertTrue(pygame_font.match_font(names) is None)
 
+
+    def test_issue_742(self):
+        """ that the font background does not crash.
+        """
+        surf = pygame.Surface((320, 240))
+        font = pygame_font.Font(None, 24)
+        image = font.render("Test", 0, (255, 255, 255), (0, 0, 0))
+        self.assertIsNone(image.get_colorkey())
+        image.set_alpha(255)
+        surf.blit(image, (0,0))
+
     def test_quit(self):
         pygame_font.quit()
 
