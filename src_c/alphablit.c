@@ -230,7 +230,6 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                         src->format->Rmask == dst->format->Rmask &&
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
-                        src->format->Ashift == 24 &&
                         src != dst)
                     {
                     /* If our source and destination are the same ARGB 32bit
