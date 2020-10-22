@@ -289,8 +289,7 @@ image_save(PyObject *self, PyObject *arg)
             /* If it is .png .jpg .jpeg use the extended module. */
             /* try to get extended formats */
             ret = image_save_extended(self, arg);
-            if (ret == NULL)
-                result = -2;
+            result = (ret == NULL ? -2 : 0);
         }
         else if (oencoded == Py_None) {
             SDL_RWops *rw = pgRWops_FromFileObject(obj);
