@@ -133,7 +133,7 @@ def output_main(device_id=None):
     start_note = 53  # F3 (white key note), start_note != 0
     n_notes = 24  # Two octaves (14 white keys)
 
-    bg_color = Color("slategray")
+    bg_color = pg.Color("slategray")
 
     key_mapping = make_key_mapping(
         [
