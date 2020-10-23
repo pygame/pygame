@@ -2964,13 +2964,13 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info)
 
     if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
     {
-        rgb_mask = 0x00000FFF;
-        opaque_mask = 0x0000F000;
+        rgb_mask = 0x00FFFFFF;
+        opaque_mask = 0xFF000000;
     }
     else
     {
-        rgb_mask = 0x0000FFF0;
-        opaque_mask = 0x0000000F;
+        rgb_mask = 0xFFFFFF00;
+        opaque_mask = 0x000000FF;
     }
 
 
