@@ -199,6 +199,10 @@ typedef struct pg_bufferinfo_s {
     (*(void (*)(pgSurfaceObject *))       \
         PYGAMEAPI_GET_SLOT(base, 22))
 
+#define pg_EnvShouldBlendAlphaSDL2 \
+    (*(char * (*)(void))       \
+        PYGAMEAPI_GET_SLOT(base, 23))
+
 #endif /* PG_API_VERSION == 2 */
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base)

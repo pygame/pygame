@@ -51,7 +51,7 @@ Header file: src_c/include/pygame.h
    ``PYGAME_BLEND_SUB``, ``PYGAME_BLEND_MULT``, ``PYGAME_BLEND_MIN``,
    ``PYGAME_BLEND_MAX``, ``PYGAME_BLEND_RGBA_ADD``, ``PYGAME_BLEND_RGBA_SUB``,
    ``PYGAME_BLEND_RGBA_MULT``, ``PYGAME_BLEND_RGBA_MIN``,
-   ``PYGAME_BLEND_RGBA_MAX``, and ``PYGAME_BLEND_PREMULTIPLIED``.
+   ``PYGAME_BLEND_RGBA_MAX``, ``PYGAME_BLEND_ALPHA_SDL2`` and ``PYGAME_BLEND_PREMULTIPLIED``.
    Argument *dstrect* is updated to the actual area on *dstobj* affected
    by the blit.
 

@@ -114,6 +114,12 @@
       .. versionadded:: 1.9.2
          Optional ``special_flags``: ``BLEND_PREMULTIPLIED``
 
+      .. versionadded:: 2.0.0
+         Optional ``special_flags``:  ``BLEND_ALPHA_SDL2`` - Uses the SDL2 blitter for alpha blending,
+         this gives different results than the default blitter, which is modelled after SDL1, due to
+         different approximations used for the alpha blending formula. The SDL2 blitter also supports
+         RLE on alpha blended surfaces which the pygame one does not.
+
       The return rectangle is the area of the affected pixels, excluding any
       pixels outside the destination Surface, or outside the clipping area.
 
