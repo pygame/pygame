@@ -1919,7 +1919,7 @@ pg_event_post(PyObject *self, PyObject *args)
             return NULL;
     }
     else {  
-        return RAISE(PgExc_SDLError, "the type attribute exceeded its limit");
+        return RAISE(pgExc_SDLError, "the type attribute exceeded its limit");
     }
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
