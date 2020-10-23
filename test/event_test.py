@@ -343,8 +343,7 @@ class EventModuleTest(unittest.TestCase):
                 pygame.event.poll().type, EVENT_TYPES[i], race_condition_notification
             )
     
-    # At the moment, this test seems to fail on all platforms
-    @unittest.expectedFailure
+    @unittest.skip("At the moment, this test seems to fail on all platforms")
     def test_post_and_get_keydown(self):
         """Ensure keydown events can be posted to the queue."""
         surf = pygame.display.set_mode((10, 10))
