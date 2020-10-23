@@ -2956,7 +2956,6 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info)
     Uint32          src_amask = srcfmt->Amask;
 
     Uint32          rgb_mask;
-    Uint32          opaque_mask;
 
     __m128i src1, dst1, sub_dst, mm_src_alpha, mm_zero;
 
@@ -2965,12 +2964,10 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info)
     if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
     {
         rgb_mask = 0x00FFFFFF;
-        opaque_mask = 0xFF000000;
     }
     else
     {
         rgb_mask = 0xFFFFFF00;
-        opaque_mask = 0x000000FF;
     }
 
 
@@ -2981,7 +2978,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info)
             Uint32 src_alpha = (*srcp & src_amask);
             if ((src_alpha == src_amask))
             {
-                *dstp = *srcp;
+                *dstp = (*srcp) & rgb_mask;
             }
             else
             {
@@ -3028,7 +3025,7 @@ alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst (SDL_BlitInfo * info)
                 /* pack everything back into a pixel */
                 sub_dst = _mm_packus_epi16(sub_dst, mm_zero);
                 /* reset alpha to 255 */
-                *dstp = (_mm_cvtsi128_si32(sub_dst) & rgb_mask) | opaque_mask;
+                *dstp = (_mm_cvtsi128_si32(sub_dst) & rgb_mask);
 
             }
             ++srcp;
