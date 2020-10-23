@@ -150,6 +150,56 @@ class FontModuleTest(unittest.TestCase):
         image.set_alpha(255)
         surf.blit(image, (0,0))
 
+
+    def test_issue_font_alphablit(self):
+        screen = pygame.display.set_mode((600, 400))
+
+        font = pygame_font.Font(None, 24)
+
+        (color, text, center, pos) = ((160, 200, 250), 'Music', (190, 170), 'midright')
+
+        darkcolor = [int(c//2) for c in color]
+
+        img1 = font.render(text, 1, color)
+        img2 = font.render(text, 1, darkcolor)
+        print("img1.get_at((0, 0))", img1.get_at((0, 0)))
+        print("img2.get_at((0, 0))", img2.get_at((0, 0)))
+
+        newsize = img1.get_width() + 2, img1.get_height() + 2
+        img = pygame.Surface(newsize)
+        img.blit(img2, (2, 2))
+        img.blit(img1, (0, 0))
+        img.get_at((0, 0))
+        print("img.get_at((0, 0))", img.get_at((0, 0)))
+
+        img = img.convert()
+        print("img.get_at((0, 0)) after convert", img.get_at((0, 0)))
+        img.set_colorkey((0,0,0), pygame.RLEACCEL)
+        print("img.get_at((0, 0)) after set_color", img.get_at((0, 0)))
+
+
+        # pygame 2.0.0.dev20 alpha-blend-back-compat 0e286281fb4f74af6b9acc1dbe11ef6f3a55b047
+        # img1.get_at((0, 0)) (160, 200, 250, 0)
+        # img2.get_at((0, 0)) (80, 100, 125, 0)
+          # img.get_at((0, 0)) (160, 200, 250, 0)
+        # img.get_at((0, 0)) after convert (160, 200, 250, 0)
+        # img.get_at((0, 0)) after set_color (160, 200, 250, 0)
+
+        # pygame 2.0.0.dev20
+        # img1.get_at((0, 0)) (160, 200, 250, 0)
+        # img2.get_at((0, 0)) (80, 100, 125, 0)
+          # img.get_at((0, 0)) (0, 0, 0, 0)
+        # img.get_at((0, 0)) after convert (0, 0, 0, 0)
+        # img.get_at((0, 0)) after set_color (0, 0, 0, 0)
+
+        # pygame 1.9.6 mac
+        # img1.get_at((0, 0)) (160, 200, 250, 0)
+        # img2.get_at((0, 0)) (80, 100, 125, 0)
+          # img.get_at((0, 0)) (0, 0, 0, 255)
+        # img.get_at((0, 0)) after convert (0, 0, 0, 255)
+        # img.get_at((0, 0)) after set_color (0, 0, 0, 255)
+
+
     def test_quit(self):
         pygame_font.quit()
 
