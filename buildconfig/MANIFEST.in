@@ -8,5 +8,7 @@ recursive-include test *
 recursive-exclude buildconfig/ci *
 recursive-exclude buildconfig/manylinux-build *
 
+include README.rst
+
 exclude buildconfig/appveyor.yml
 exclude .travis.yml

@@ -1,4 +1,5 @@
-FROM quay.io/pypa/manylinux1_i686
+ARG BASE_IMAGE=manylinux1_i686
+FROM quay.io/pypa/$BASE_IMAGE
 ENV MAKEFLAGS="-j 4"
 
 # Set up repoforge
@@ -16,7 +17,7 @@ RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel 
     java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
     giflib-devel mikmod-devel subversion
 RUN linux32 yum install -y libsndfile-devel libsndfile smpeg-devel dbus-devel \
-    pulseaudio-libs-devel cmake
+    pulseaudio-libs-devel cmake dejavu-sans-fonts fontconfig
 
 # Build and install PNG
 ADD libpng /png_build/
@@ -59,3 +60,6 @@ ENV MAKEFLAGS=
 # Build and install SDL and portmidi
 ADD portmidi /portmidi_build/
 RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
+
+ADD pypy /pypy_build/
+RUN if [ "$BASE_IMAGE" = "manylinux2010_base_i686" ] ; then /pypy_build/getpypy32.sh ; else echo "no pypy on manylinux1" ; fi

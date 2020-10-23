@@ -12,7 +12,7 @@ class SysfontModuleTest(unittest.TestCase):
     def test_initsysfonts(self):
         import pygame.sysfont
         pygame.sysfont.initsysfonts()
-        self.assertTrue(len(pygame.sysfont.get_fonts()) > 1)
+        self.assertTrue(len(pygame.sysfont.get_fonts()) > 0)
 
     @unittest.skipIf("Darwin" not in platform.platform(), "Not mac we skip.")
     def test_initsysfonts_darwin(self):
@@ -32,7 +32,7 @@ class SysfontModuleTest(unittest.TestCase):
     def test_initsysfonts_unix(self):
         import pygame.sysfont
 
-        self.assertTrue(len(pygame.sysfont.get_fonts()) > 1)
+        self.assertTrue(len(pygame.sysfont.get_fonts()) > 0)
 
     @unittest.skipIf("Windows" not in platform.platform(),
                      "Not windows we skip.")

@@ -1681,7 +1681,11 @@ internal_error:
 static int
 vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
 {
-    Py_UNICODE *attr;
+#if PY2
+    Py_UNICODE *attr = NULL;
+#else
+    const char *attr = NULL;
+#endif
     PyObject *attr_unicode;
     Py_ssize_t len = PySequence_Length(attr_name);
     double entry[VECTOR_MAX_SIZE];
@@ -1701,7 +1705,12 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
     attr_unicode = PyUnicode_FromObject(attr_name);
     if (attr_unicode == NULL)
         return -1;
+#if PY2
     attr = PyUnicode_AsUnicode(attr_unicode);
+#else
+    attr = PyUnicode_AsUTF8AndSize(attr_unicode, &len);
+#endif
+
     if (attr == NULL) {
         Py_DECREF(attr_unicode);
         return -1;
