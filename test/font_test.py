@@ -161,7 +161,7 @@ class FontModuleTest(unittest.TestCase):
                                       (190, 170), 'midright')
         img1 = font.render(text, True, color)
 
-        img = pygame.Surface(img1.get_size())
+        img = pygame.Surface(img1.get_size(), depth=32)
         pre_blit_corner_pixel = img.get_at((0, 0))
         img.blit(img1, (0, 0))
         post_blit_corner_pixel = img.get_at((0, 0))
