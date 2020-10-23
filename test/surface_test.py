@@ -48,7 +48,7 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         expected_size = (13, 37)
         depth_surface = SurfaceSubclass((11, 21), expected_flags, expected_depth)
 
-        surface = pygame.Surface(expected_size, 0, depth_surface)
+        surface = pygame.Surface(expected_size, expected_flags, depth_surface)
 
         self.assertIsNot(surface, depth_surface)
         self.assertIsInstance(surface, pygame.Surface)

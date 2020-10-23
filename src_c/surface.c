@@ -268,6 +268,7 @@ static SDL_Surface *
 pg_DisplayFormatAlpha(SDL_Surface *surface);
 static SDL_Surface *
 pg_DisplayFormat(SDL_Surface *surface);
+static int _PgSurface_SrcAlpha(SDL_Surface *surf);
 #endif /* IS_SDLv2 */
 
 #if IS_SDLv2 && !SDL_VERSION_ATLEAST(2, 0, 10)
@@ -628,6 +629,7 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
+
 #if IS_SDLv2
     default_format.palette = NULL;
 #endif /* IS_SDLv2 */
@@ -835,6 +837,10 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
     if (!surface) {
         _raise_create_surface_error();
         return -1;
+    }
+    if (!(flags & PGS_SRCALPHA)) {
+        /* We ignore the error if any. */
+        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
     }
 
     if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
@@ -2219,17 +2225,11 @@ surf_fill(pgSurfaceObject *self, PyObject *args, PyObject *keywds)
             sdlrect.h = sdlrect.h + (surf->h - (sdlrect.y + sdlrect.h));
         }
 
-        /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w,
-         * sdlrect.h); */
-
         if (sdlrect.w <= 0 || sdlrect.h <= 0) {
             return pgRect_New(&sdlrect);
         }
 
         if (blendargs != 0) {
-            /*
-            printf ("Using blendargs: %d\n", blendargs);
-            */
             result = surface_fill_blend(surf, &sdlrect, color, blendargs);
         }
         else {
@@ -2731,8 +2731,9 @@ surf_get_flags(PyObject *self, PyObject *args)
     sdl_flags = surf->flags;
     if ((is_alpha = _PgSurface_SrcAlpha(surf)) == -1)
         return NULL;
-    if (is_alpha)
+    if (is_alpha) {
         flags |= PGS_SRCALPHA;
+    }
     if (SDL_GetColorKey(surf, NULL) == 0)
         flags |= PGS_SRCCOLORKEY;
     if (sdl_flags & SDL_PREALLOC)
