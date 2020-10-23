@@ -140,6 +140,23 @@ class SurfaceTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         if surf2.get_bitsize() == 32:
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
+    def test_flags_default0_nodisplay(self):
+        """ is set to zero, and SRCALPH is not set by default with no display initialized.
+        """
+        pygame.display.quit()
+        surf = pygame.Surface((70, 70))
+        self.assertEqual(surf.get_flags() & SRCALPHA, 0)
+
+    def test_flags_default0_display(self):
+        """ is set to zero, and SRCALPH is not set by default even when the display is initialized.
+        """
+        pygame.display.set_mode((320, 200))
+        try:
+            surf = pygame.Surface((70, 70))
+            self.assertEqual(surf.get_flags() & SRCALPHA, 0)
+        finally:
+            pygame.display.quit()
+
     def test_masks(self):
         def make_surf(bpp, flags, masks):
             pygame.Surface((10, 10), flags, bpp, masks)
