@@ -1848,13 +1848,12 @@ pg_event_post(PyObject *self, PyObject *args)
 {
     pgEventObject *e;
     SDL_Event event;
-    int isblocked = 0;
     
-    PyObject *event_key;
-    PyObject *event_scancode;
-    PyObject *event_mod;
+    PyObject *event_key = NULL;
+    PyObject *event_scancode = NULL;
+    PyObject *event_mod = NULL;
 #if IS_SDLv2
-    PyObject *event_window_ID;
+    PyObject *event_window_ID = NULL;
 #endif
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
@@ -1862,24 +1861,19 @@ pg_event_post(PyObject *self, PyObject *args)
 
     VIDEO_INIT_CHECK();
 
-    /* see if the event is blocked before posting it. */
-    isblocked = SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE;
-
-    if (isblocked) {
+    if (SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE) {
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
 
     if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
-        event_key      = PyDict_GetItemString(e->dict, "key");
+        event_key = PyDict_GetItemString(e->dict, "key");
         event_scancode = PyDict_GetItemString(e->dict, "scancode");
-        event_mod      = PyDict_GetItemString(e->dict, "mod");
-#if IS_SDLv1
-        // dont save into a variable, not used anyways
-        PyDict_GetItemString(e->dict, "unicode"); 
-#else  /* IS_SDLv2 */
+        event_mod = PyDict_GetItemString(e->dict, "mod");
+#if IS_SDLv2
+        // do not bother about the unicode attribute of SDL 1
         event_window_ID = PyDict_GetItemString(e->dict, "window");
-#endif /* IS_SDLv2 */
+#endif
         event.type =  e->type;
 
         if (event_key == NULL){
@@ -1925,7 +1919,7 @@ pg_event_post(PyObject *self, PyObject *args)
             return NULL;
     }
     else {  
-        return RAISE(PyExc_ValueError, "the type attribute exceeded its limit");
+        return RAISE(PgExc_SDLError, "the type attribute exceeded its limit");
     }
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
