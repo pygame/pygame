@@ -839,11 +839,8 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
     if (!(flags & PGS_SRCALPHA)) {
-        if (SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND) != 0) {
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            SDL_FreeSurface(surface);
-            return -1;
-        }
+        /* We ignore the error if any. */
+        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
     }
 
     if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
