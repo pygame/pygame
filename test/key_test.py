@@ -1,4 +1,5 @@
 import os
+import time
 import unittest
 import pygame
 import pygame.key
@@ -53,12 +54,14 @@ class KeyModuleTest(unittest.TestCase):
                 pygame.display.iconify()
                 # Apparent need to pump event queue in order to make sure iconify
                 # happens. See display_test.py's test_get_active_iconify
-                for _ in range(5000):
+                for _ in range(50):
+                    time.sleep(0.01)
                     pygame.event.pump()
                 self.assertFalse(pygame.key.get_focused())
                 # Test if focus is returned when iconify is gone
                 pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
-                for i in range(5000):
+                for i in range(50):
+                    time.sleep(0.01)
                     pygame.event.pump()
                 self.assertTrue(pygame.key.get_focused())
         # Test if a quit display raises an error:
