@@ -1890,11 +1890,7 @@ pg_event_post(PyObject *self, PyObject *args)
         
         event.key.keysym.sym = PyLong_AsLong(event_key);
 
-        if (event_scancode == NULL) {
-            // try to post the scancode, incase user has not given it
-            event.key.keysym.scancode = SDL_GetScancodeFromKey(event.key.keysym.sym);
-        }
-        else {
+        if (event_scancode != NULL && event_scancode != Py_None) {
             if (!PyInt_Check(event_scancode)){
                 return RAISE(pgExc_SDLError, "posted event scancode must be int");
             }
