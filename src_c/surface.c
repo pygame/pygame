@@ -1653,6 +1653,11 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     else
         alpha = (Uint8)alphaval;
 
+    if (alpha == 255)
+    {
+        if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+    }
     pgSurface_Prep(self);
     result =
         SDL_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
