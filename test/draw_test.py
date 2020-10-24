@@ -1518,9 +1518,21 @@ class LineMixin(BaseLineMixin):
                     surface.get_at(pos), expected_color, "pos={}".format(pos)
                 )
 
-    def todo_test_line__color_with_thickness(self):
+    def test_line__color_with_thickness(self):
         """Ensures a thick line is drawn using the correct color."""
-        self.fail()
+        from_x = 5
+        to_x = 10
+        y = 5
+        for surface in self._create_surfaces():
+            for expected_color in self.COLORS:
+                self.draw_line(surface, expected_color, (from_x, y),
+                               (to_x, y), 5)
+                for pos in ((x, y + i) for i in (-2, 0, 2)
+                            for x in (from_x, to_x)):
+                    self.assertEqual(
+                        surface.get_at(pos), expected_color,
+                        "pos={}".format(pos)
+                    )
 
     def test_line__gaps(self):
         """Tests if the line drawn contains any gaps."""
