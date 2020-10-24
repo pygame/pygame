@@ -274,7 +274,7 @@ pg_event_filter(void *_, SDL_Event *event)
     }
     else if (type == SDL_MOUSEWHEEL) {
         SDL_Event newdownevent, newupevent;
-        int x, y, numevents;
+        int x, y, i, numevents = 0;
 
         if (event->wheel.x == 0 && event->wheel.y == 0) {
             //#691 We are not moving wheel!
@@ -326,7 +326,7 @@ pg_event_filter(void *_, SDL_Event *event)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
         */
         /* Use a for loop to simulate multiple events, because SDL 1 works that way */
-        for (int i=0; i < numevents; i++) {
+        for (i=0; i < numevents; i++) {
             SDL_PushEvent(&newdownevent);
             SDL_PushEvent(&newupevent);
         }
