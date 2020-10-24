@@ -1864,8 +1864,12 @@ pg_event_post(PyObject *self, PyObject *args)
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
-
-    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
+    
+    /* Handle quit event expicitly */
+    if (e->type == SDL_QUIT) {
+        event.type = SDL_QUIT;
+    }
+    else if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
         event_key = PyDict_GetItemString(e->dict, "key");
         event_scancode = PyDict_GetItemString(e->dict, "scancode");
         event_mod = PyDict_GetItemString(e->dict, "mod");
