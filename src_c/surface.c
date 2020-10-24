@@ -4310,8 +4310,8 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             SDL_GetColorKey(src, &key) != 0 &&
             (dst->format->BytesPerPixel == 4 ||
              dst->format->BytesPerPixel == 2) &&
-            (SDL_ISPIXELFORMAT_ALPHA(src->format->format) ||
-             SDL_GetSurfaceAlphaMod(src, &alpha) == 0) &&
+             _PgSurface_SrcAlpha(src) &&
+            (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
              !pg_HasSurfaceRLE(src) && !pg_HasSurfaceRLE(dst) &&
              !(src->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL))
     {
