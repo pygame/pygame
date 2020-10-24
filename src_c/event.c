@@ -265,40 +265,66 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
     else if (type == SDL_MOUSEWHEEL) {
-        SDL_Event newevent;
+        SDL_Event newdownevent, newupevent;
         int x, y;
 
         if (event->wheel.x == 0 && event->wheel.y == 0) {
             //#691 We are not moving wheel!
             return 1;
         }
+        SDL_GetMouseState(&x, &y);
+        
         // Generate a MouseButtonDown event for compatibility.
         // https://wiki.libsdl.org/SDL_MouseWheelEvent
-        newevent.type = SDL_MOUSEBUTTONDOWN;
+        newdownevent.type = SDL_MOUSEBUTTONDOWN;
+        newdownevent.button.x = x;
+        newdownevent.button.y = y;
 
-        SDL_GetMouseState(&x, &y);
-        newevent.button.x = x;
-        newevent.button.y = y;
-
-        newevent.button.state = SDL_PRESSED;
-        newevent.button.clicks = 1;
+        newdownevent.button.state = SDL_PRESSED;
+        newdownevent.button.clicks = 1;
 
         if (event->wheel.y != 0) {
-            newevent.button.button = (event->wheel.y > 0) ?
+            newdownevent.button.button = (event->wheel.y > 0) ?
                                      PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
         }
         else if (event->wheel.x != 0) {
-            newevent.button.button = (event->wheel.x > 0) ?
+            newdownevent.button.button = (event->wheel.x > 0) ?
                                      PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
         }
-        newevent.button.button |= PGM_BUTTON_KEEP;
+        newdownevent.button.button |= PGM_BUTTON_KEEP;
 
         /* this doesn't work! This is called by SDL, not Python:*/
         /*
-          if (SDL_PushEvent(&newevent) < 0)
+          if (SDL_PushEvent(&newdownevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
         */
-        SDL_PushEvent(&newevent);
+        SDL_PushEvent(&newdownevent);
+        
+        // Generate a MouseButtonUp event for compatibility.
+        // https://wiki.libsdl.org/SDL_MouseWheelEvent
+        newupevent.type = SDL_MOUSEBUTTONUP;
+        newupevent.button.x = x;
+        newupevent.button.y = y;
+
+        newupevent.button.state = SDL_RELEASED;
+        newupevent.button.clicks = 1;
+
+        if (event->wheel.y != 0) {
+            newupevent.button.button = (event->wheel.y > 0) ?
+                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        }
+        else if (event->wheel.x != 0) {
+            newupevent.button.button = (event->wheel.x > 0) ?
+                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        }
+        newupevent.button.button |= PGM_BUTTON_KEEP;
+
+        /* this doesn't work! This is called by SDL, not Python:*/
+        /*
+          if (SDL_PushEvent(&newupevent) < 0)
+            return RAISE(pgExc_SDLError, SDL_GetError()), 0;
+        */
+        SDL_PushEvent(&newupevent);
     }
     return 1;
 }
