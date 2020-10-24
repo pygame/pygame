@@ -1849,10 +1849,10 @@ pg_event_post(PyObject *self, PyObject *args)
     pgEventObject *e;
     SDL_Event event;
     
-    PyObject *event_key;
-    PyObject *event_scancode;
-    PyObject *event_mod;
-    PyObject *event_window_ID;
+    PyObject *event_key = NULL;
+    PyObject *event_scancode = NULL;
+    PyObject *event_mod = NULL;
+    PyObject *event_window_ID = NULL;
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
         return NULL;
@@ -1872,7 +1872,8 @@ pg_event_post(PyObject *self, PyObject *args)
 #if IS_SDLv2
         event_window_ID= PyDict_GetItemString(e->dict, "window");
 #endif /* IS_SDLv2 */
-        event.type =  e->type;
+        event.type = e->type;
+        event.key.type = e->type;
 
         if (event_key == NULL){
             return RAISE(pgExc_SDLError, "key event posted without keycode");
@@ -1882,12 +1883,17 @@ pg_event_post(PyObject *self, PyObject *args)
         }
         
         // This block is where the magic hopefully happens
-        event.state = (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
-        event.repeat = 1;
+        event.key.state = (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
+#if IS_SDLv2
+        event.key.repeat = 0;
+#endif
         
         event.key.keysym.sym = PyLong_AsLong(event_key);
 
-        if (event_scancode != NULL){
+        if (event_scancode == NULL) {
+            // try to post the scancode, incase user has not given it
+            event.key.keysym.scancode = SDL_GetScancodeFromKey(event.key.keysym.sym);
+        else {
             if (!PyInt_Check(event_scancode)){
                 return RAISE(pgExc_SDLError, "posted event scancode must be int");
             }
@@ -1895,7 +1901,7 @@ pg_event_post(PyObject *self, PyObject *args)
         }
 
         if (event_mod != NULL && event_mod != Py_None){
-            if (!PyInt_Check(event_scancode)){
+            if (!PyInt_Check(event_mod)){
                 return RAISE(pgExc_SDLError, "posted event modifiers must be int");
             }
             if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
