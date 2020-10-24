@@ -1868,6 +1868,8 @@ pg_event_post(PyObject *self, PyObject *args)
     /* Handle quit event expicitly */
     if (e->type == SDL_QUIT) {
         event.type = SDL_QUIT;
+        // for extra measures, set event.quit.type too
+        event.quit.type = SDL_QUIT;
     }
     else if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
         event_key = PyDict_GetItemString(e->dict, "key");
