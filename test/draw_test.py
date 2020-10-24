@@ -1560,7 +1560,7 @@ class LineMixin(BaseLineMixin):
 
             for x in range(w + 1):
                 for y in range(3, 8):
-                    pos = (x, y + ((x + 2)//5))
+                    pos = (x, y + ((x + 2) // 5))
                     self.assertEqual(
                         surface.get_at(pos), expected_color, "pos={}".format(pos)
                     )
@@ -2249,14 +2249,14 @@ class LinesMixin(BaseLineMixin):
                 for t in (-1, 0, 1):
                     for x in range(x_left, x_right+1):
                         for y in (y_top, y_bottom):
-                            pos = (x, y+t)
+                            pos = (x, y + t)
                             self.assertEqual(
                                     surface.get_at(pos), expected_color,
                                     "pos={}".format(pos)
                             )
                     for y in range(y_top, y_bottom+1):
                         for x in (x_left, x_right):
-                            pos = (x+t, y)
+                            pos = (x + t, y)
                             self.assertEqual(
                                     surface.get_at(pos), expected_color,
                                     "pos={}".format(pos)
@@ -2275,9 +2275,38 @@ class LinesMixin(BaseLineMixin):
             for pos, color in border_pos_and_color(surface):
                 self.assertEqual(color, expected_color, "pos={}".format(pos))
 
-    def todo_test_lines__gaps_with_thickness(self):
+    def test_lines__gaps_with_thickness(self):
         """Ensures thick lines are drawn without any gaps."""
-        self.fail()
+        expected_color = (255, 255, 255)
+        x_left = y_top = 5
+        for surface in self._create_surfaces():
+            h = (surface.get_width() - 11) // 5
+            w = h * 5
+            x_right = x_left + w
+            y_bottom = y_top + h
+            endpoints = ((x_left, y_top), (x_right, y_top),
+                         (x_right, y_bottom))
+            self.draw_lines(surface, expected_color, True, endpoints, 3)
+
+            for x in range(x_left, x_right+1):
+                for t in (-1, 0, 1):
+                    pos = (x, y_top + t)
+                    self.assertEqual(
+                            surface.get_at(pos), expected_color,
+                            "pos={}".format(pos)
+                    )
+                    pos = (x, y_top + t + ((x - 3) // 5))
+                    self.assertEqual(
+                            surface.get_at(pos), expected_color,
+                            "pos={}".format(pos)
+                    )
+            for y in range(y_top, y_bottom+1):
+                for t in (-1, 0, 1):
+                    pos = (x_right + t, y)
+                    self.assertEqual(
+                            surface.get_at(pos), expected_color,
+                            "pos={}".format(pos)
+                    )
 
     def test_lines__bounding_rect(self):
         """Ensures draw lines returns the correct bounding rect.
