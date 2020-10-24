@@ -1865,7 +1865,7 @@ pg_event_post(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
+    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
         event_key = PyDict_GetItemString(e->dict, "key");
         event_scancode = PyDict_GetItemString(e->dict, "scancode");
         event_mod = PyDict_GetItemString(e->dict, "mod");
@@ -1893,6 +1893,7 @@ pg_event_post(PyObject *self, PyObject *args)
         if (event_scancode == NULL) {
             // try to post the scancode, incase user has not given it
             event.key.keysym.scancode = SDL_GetScancodeFromKey(event.key.keysym.sym);
+        }
         else {
             if (!PyInt_Check(event_scancode)){
                 return RAISE(pgExc_SDLError, "posted event scancode must be int");
