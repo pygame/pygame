@@ -1763,23 +1763,18 @@ class DrawLineTest(LineMixin, DrawTestCase):
 
             for i in range(line_width):
                 p = (p1[0] + xinc * i, p1[1] + yinc * i)
-
                 self.assertEqual(self.surf.get_at(p), (255, 255, 255), msg)
 
                 p = (p2[0] + xinc * i, p2[1] + yinc * i)
-
                 self.assertEqual(self.surf.get_at(p), (255, 255, 255), msg)
 
             p = (plow[0] - 1, plow[1])
-
             self.assertEqual(self.surf.get_at(p), (0, 0, 0), msg)
 
             p = (plow[0] + xinc * line_width, plow[1] + yinc * line_width)
-
             self.assertEqual(self.surf.get_at(p), (0, 0, 0), msg)
 
             p = (phigh[0] + xinc * line_width, phigh[1] + yinc * line_width)
-
             self.assertEqual(self.surf.get_at(p), (0, 0, 0), msg)
 
             if p1[0] < p2[0]:
