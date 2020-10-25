@@ -1848,7 +1848,11 @@ pg_event_post(PyObject *self, PyObject *args)
 {
     pgEventObject *e;
     SDL_Event event;
-    int isblocked = 0;
+    
+    PyObject *event_key = NULL;
+    PyObject *event_scancode = NULL;
+    PyObject *event_mod = NULL;
+    PyObject *event_window_ID = NULL;
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
         return NULL;
@@ -1856,23 +1860,26 @@ pg_event_post(PyObject *self, PyObject *args)
     VIDEO_INIT_CHECK();
 
     /* see if the event is blocked before posting it. */
-    isblocked = SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE;
-
-    if (isblocked) {
+    if (SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE) {
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
-
-    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
-        PyObject *event_key      = PyDict_GetItemString(e->dict, "key");
-        PyObject *event_scancode = PyDict_GetItemString(e->dict, "scancode");
-        PyObject *event_mod      = PyDict_GetItemString(e->dict, "mod");
-#if IS_SDLv1
-        PyObject *event_unicode  = PyDict_GetItemString(e->dict, "unicode");
-#else  /* IS_SDLv2 */
-        PyObject *event_window_ID= PyDict_GetItemString(e->dict, "window");
+    
+    /* Handle quit event expicitly */
+    if (e->type == SDL_QUIT) {
+        event.type = SDL_QUIT;
+        // for extra measures, set event.quit.type too
+        event.quit.type = SDL_QUIT;
+    }
+    else if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
+        event_key = PyDict_GetItemString(e->dict, "key");
+        event_scancode = PyDict_GetItemString(e->dict, "scancode");
+        event_mod = PyDict_GetItemString(e->dict, "mod");
+#if IS_SDLv2
+        event_window_ID= PyDict_GetItemString(e->dict, "window");
 #endif /* IS_SDLv2 */
-        event.type =  e->type;
+        event.type = e->type;
+        event.key.type = e->type;
 
         if (event_key == NULL){
             return RAISE(pgExc_SDLError, "key event posted without keycode");
@@ -1880,9 +1887,16 @@ pg_event_post(PyObject *self, PyObject *args)
         if (!PyInt_Check(event_key)){
             return RAISE(pgExc_SDLError, "posted event keycode must be int");
         }
+        
+        // This block is where the magic hopefully happens
+        event.key.state = (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
+#if IS_SDLv2
+        event.key.repeat = 0;
+#endif
+        
         event.key.keysym.sym = PyLong_AsLong(event_key);
 
-        if (event_scancode != NULL){
+        if (event_scancode != NULL && event_scancode != Py_None) {
             if (!PyInt_Check(event_scancode)){
                 return RAISE(pgExc_SDLError, "posted event scancode must be int");
             }
@@ -1890,7 +1904,7 @@ pg_event_post(PyObject *self, PyObject *args)
         }
 
         if (event_mod != NULL && event_mod != Py_None){
-            if (!PyInt_Check(event_scancode)){
+            if (!PyInt_Check(event_mod)){
                 return RAISE(pgExc_SDLError, "posted event modifiers must be int");
             }
             if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
@@ -1899,9 +1913,8 @@ pg_event_post(PyObject *self, PyObject *args)
             event.key.keysym.mod = (Uint16) PyLong_AsLong(event_mod);
         }
 
-#if IS_SDLv1
-        /*ignore unicode property*/
-#else  /* IS_SDLv2 */
+#if IS_SDLv2
+        /* ignore unicode property of SDL 1*/
         if (event_window_ID != NULL && event_window_ID != Py_None){
             if (!PyInt_Check(event_window_ID)){
                 return RAISE(pgExc_SDLError, "posted event window id must be int");
@@ -1910,16 +1923,15 @@ pg_event_post(PyObject *self, PyObject *args)
         }
 #endif /* IS_SDLv2 */
     }
-    else if (e->type >= PGE_USEREVENT && e->type < PG_NUMEVENTS) {
+    else if (e->type < PG_NUMEVENTS) {
+        /* HACK:
+           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
+           event queue. This needs to be decoded again. */
         if (pgEvent_FillUserEvent(e, &event))
             return NULL;
     }
     else {
-        /* HACK:
-           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
-           event queue. This needs to be decoded again. */
-         if (pgEvent_FillUserEvent(e, &event))
-            return NULL;
+        return RAISE(pgExc_SDLError, "the value of event type is out of range");
     }
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
