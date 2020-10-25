@@ -1653,8 +1653,9 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     else
         alpha = (Uint8)alphaval;
 
-    if (alpha == 255)
+    if (alpha == 255 && (surf->format->BytesPerPixel == 1))
     {
+        /* Can't blend with a surface alpha of 255 and 8bit surfaces */
         if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
