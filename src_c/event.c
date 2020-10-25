@@ -157,6 +157,14 @@ _pg_remove_pending_PGS_VIDEOEXPOSE(void * userdata, SDL_Event *event)
     return 1;
 }
 
+static int
+_modulus(int x) {
+    if (x >= 0)
+        return x;
+    else
+        return -1*x;
+}
+
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
 static int SDLCALL
 pg_event_filter(void *_, SDL_Event *event)
@@ -265,40 +273,49 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
     else if (type == SDL_MOUSEWHEEL) {
-        SDL_Event newevent;
-        int x, y;
+        SDL_Event newdownevent, newupevent;
+        int x, y, i;
 
-        if (event->wheel.x == 0 && event->wheel.y == 0) {
+        if (event->wheel.y == 0) {
             //#691 We are not moving wheel!
             return 1;
         }
-        // Generate a MouseButtonDown event for compatibility.
-        // https://wiki.libsdl.org/SDL_MouseWheelEvent
-        newevent.type = SDL_MOUSEBUTTONDOWN;
-
         SDL_GetMouseState(&x, &y);
-        newevent.button.x = x;
-        newevent.button.y = y;
+        
+        // Generate a MouseButtonDown event and MouseButtonUp for compatibility.
+        // https://wiki.libsdl.org/SDL_MouseWheelEvent
+        newdownevent.type = SDL_MOUSEBUTTONDOWN;
+        newdownevent.button.x = x;
+        newdownevent.button.y = y;
+        
+        newupevent.type = SDL_MOUSEBUTTONUP;
+        newupevent.button.x = x;
+        newupevent.button.y = y;
 
-        newevent.button.state = SDL_PRESSED;
-        newevent.button.clicks = 1;
+        newdownevent.button.state = SDL_PRESSED;
+        newdownevent.button.clicks = 1;
+        
+        newupevent.button.state = SDL_RELEASED;
+        newupevent.button.clicks = 1;
 
-        if (event->wheel.y != 0) {
-            newevent.button.button = (event->wheel.y > 0) ?
-                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        if (event->wheel.y > 0) {
+            newdownevent.button.button =  PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;    
+            newupevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
         }
-        else if (event->wheel.x != 0) {
-            newevent.button.button = (event->wheel.x > 0) ?
-                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        else {
+            newdownevent.button.button =  PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;    
+            newupevent.button.button = PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
         }
-        newevent.button.button |= PGM_BUTTON_KEEP;
-
-        /* this doesn't work! This is called by SDL, not Python:*/
-        /*
-          if (SDL_PushEvent(&newevent) < 0)
+        
+        /* this doesn't work! This is called by SDL, not Python:
+          if (SDL_PushEvent(&newdownevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
         */
-        SDL_PushEvent(&newevent);
+        /* Use a for loop to simulate multiple events, because SDL 1 works that way */
+        for (i = 0; i < _modulus(event->wheel.y); i++) {
+            SDL_PushEvent(&newdownevent);
+            SDL_PushEvent(&newupevent);
+        }
     }
     return 1;
 }
