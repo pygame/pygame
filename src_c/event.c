@@ -124,6 +124,10 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
         _pg_event_is_init = 1;
     }
 
+#if IS_SDLv2
+    SDL_SetEventFilter(pg_event_filter, NULL);
+#endif /* IS_SDLv2 */
+
     return PyInt_FromLong(_pg_event_is_init);
 }
 
@@ -155,14 +159,6 @@ _pg_remove_pending_PGS_VIDEOEXPOSE(void * userdata, SDL_Event *event)
         return 0;
     }
     return 1;
-}
-
-static int
-_modulus(int x) {
-    if (x >= 0)
-        return x;
-    else
-        return -1*x;
 }
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
@@ -312,7 +308,7 @@ pg_event_filter(void *_, SDL_Event *event)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
         */
         /* Use a for loop to simulate multiple events, because SDL 1 works that way */
-        for (i = 0; i < _modulus(event->wheel.y); i++) {
+        for (i = 0; i < abs(event->wheel.y); i++) {
             SDL_PushEvent(&newdownevent);
             SDL_PushEvent(&newupevent);
         }
@@ -1882,10 +1878,12 @@ pg_event_post(PyObject *self, PyObject *args)
     VIDEO_INIT_CHECK();
 
     if (!(e->type > 0 && e->type < PG_NUMEVENTS)) {
-        return RAISE(pgExc_SDLError, "unknown event type\nuse pygame event type constants or pygame.event.custom() to create event types");
+        return RAISE(pgExc_SDLError,
+                     "unknown event type\nuse pygame event type constants or "
+                     "pygame.event.custom() to create event types");
     }
 
-    if (PyDict_GetItemString(e->dict, "type")!=NULL) {
+    if (PyDict_GetItemString(e->dict, "type") != NULL) {
         return RAISE(pgExc_SDLError, "redundant type field in event dict");
     }
 
@@ -1894,72 +1892,81 @@ pg_event_post(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    /* Handle quit event expicitly */
-    if (e->type == SDL_QUIT) {
-        event.type = SDL_QUIT;
-    }
-    /* Handle key events expicitly */
-    else if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
-        PyObject *event_key = PyDict_GetItemString(e->dict, "key");
-        PyObject *event_scancode = PyDict_GetItemString(e->dict, "key");
-        PyObject *event_mod = PyDict_GetItemString(e->dict, "scancode");
-        PyObject *event_window_ID = PyDict_GetItemString(e->dict, "mod");
+    switch (e->type) {
+        case SDL_QUIT: /* Handle quit event expicitly */
+            event.type = SDL_QUIT;
+            break;
+
+        case SDL_KEYDOWN: /* Handle key events expicitly */
+        case SDL_KEYUP: {
+            PyObject *event_key = PyDict_GetItemString(e->dict, "key");
+            PyObject *event_scancode = PyDict_GetItemString(e->dict, "key");
+            PyObject *event_mod = PyDict_GetItemString(e->dict, "scancode");
+            PyObject *event_window_ID = PyDict_GetItemString(e->dict, "mod");
 
 #if IS_SDLv2
-        event_window_ID= PyDict_GetItemString(e->dict, "window");
+            event_window_ID = PyDict_GetItemString(e->dict, "window");
 #endif /* IS_SDLv2 */
-        event.type = e->type;
+            event.type = e->type;
 
-        if (event_key == NULL){
-            return RAISE(pgExc_SDLError, "key event posted without keycode");
-        }
+            if (event_key == NULL) {
+                return RAISE(pgExc_SDLError,
+                             "key event posted without keycode");
+            }
 
-        if (!PyInt_Check(event_key)){
-            return RAISE(pgExc_SDLError, "posted event keycode must be int");
-        }
+            if (!PyInt_Check(event_key)) {
+                return RAISE(pgExc_SDLError,
+                             "posted event keycode must be int");
+            }
 
-        // This block is where the magic hopefully happens
-        event.key.state = (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
+            // This block is where the magic hopefully happens
+            event.key.state =
+                (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
 #if IS_SDLv2
-        event.key.repeat = 0;
+            event.key.repeat = 0;
 #endif
-        event.key.keysym.sym = PyLong_AsLong(event_key);
+            event.key.keysym.sym = PyLong_AsLong(event_key);
 
-        if (event_scancode != NULL && event_scancode != Py_None) {
-            if (!PyInt_Check(event_scancode)){
-                return RAISE(pgExc_SDLError, "posted event scancode must be int");
+            if (event_scancode != NULL && event_scancode != Py_None) {
+                if (!PyInt_Check(event_scancode)) {
+                    return RAISE(pgExc_SDLError,
+                                 "posted event scancode must be int");
+                }
+                event.key.keysym.scancode = PyLong_AsLong(event_scancode);
             }
-            event.key.keysym.scancode = PyLong_AsLong(event_scancode);
-        }
 
-        if (event_mod != NULL && event_mod != Py_None){
-            if (!PyInt_Check(event_mod)){
-                return RAISE(pgExc_SDLError, "posted event modifiers must be int");
+            if (event_mod != NULL && event_mod != Py_None) {
+                if (!PyInt_Check(event_mod)) {
+                    return RAISE(pgExc_SDLError,
+                                 "posted event modifiers must be int");
+                }
+                if (PyLong_AsLong(event_mod) > 65535 ||
+                    PyLong_AsLong(event_mod) < 0) {
+                    return RAISE(pgExc_SDLError, "mods must be 16-bit int");
+                }
+                event.key.keysym.mod = (Uint16)PyLong_AsLong(event_mod);
             }
-            if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
-                return RAISE(pgExc_SDLError, "mods must be 16-bit int");
-            }
-            event.key.keysym.mod = (Uint16) PyLong_AsLong(event_mod);
-        }
 
 #if IS_SDLv2
-        /* ignore unicode property of SDL 1*/
-        if (event_window_ID != NULL && event_window_ID != Py_None){
-            if (!PyInt_Check(event_window_ID)){
-                return RAISE(pgExc_SDLError, "posted event window id must be int");
+            /* ignore unicode property of SDL 1*/
+            if (event_window_ID != NULL && event_window_ID != Py_None) {
+                if (!PyInt_Check(event_window_ID)) {
+                    return RAISE(pgExc_SDLError,
+                                 "posted event window id must be int");
+                }
+                event.key.windowID = PyLong_AsLong(event_window_ID);
             }
-            event.key.windowID = PyLong_AsLong(event_window_ID);
-        }
 #endif /* IS_SDLv2 */
-    }
-    else {
-        /* HACK:
-           A non-USEREVENT type (e->type >= PGE_USEREVENT) is treated like a
-           USEREVENT union in the SDL2 event queue. This needs to be decoded
-           again.
-        */
-        if (pgEvent_FillUserEvent(e, &event))
-            return RAISE(pgExc_SDLError, "error creating event object");
+        } break;
+
+        default:
+            /* HACK:
+               A non-USEREVENT type (e->type >= PGE_USEREVENT) is treated like
+               a USEREVENT union in the SDL2 event queue. This needs to be
+               decoded again.
+            */
+            if (pgEvent_FillUserEvent(e, &event))
+                return RAISE(pgExc_SDLError, "error creating event object");
     }
 
 #if IS_SDLv1
@@ -2227,7 +2234,6 @@ MODINIT_DEFINE(event)
         have_registered_events = 1;
     }
 
-    SDL_SetEventFilter(pg_event_filter, NULL);
 #endif /* IS_SDLv2 */
 
     /* export the c api */
