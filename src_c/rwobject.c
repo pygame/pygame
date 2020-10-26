@@ -539,6 +539,7 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     PyObject *result;
     Sint64 retval;
 #endif /* IS_SDLv2 */
+    printf("seek offset:%zd: whence:%d:\n", offset, pywhence);
 
     if (helper->fileno != -1) {
         printf("helper->fileno != -1\n");
@@ -583,7 +584,7 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 
     if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
     {
-        printf("if (!(offset == 0 && whence == SEEK_CUR))\n");
+        printf("calling pyseek offset:%zd: whence:%d:\n", offset, pywhence);
         result = PyObject_CallFunction(helper->seek, "ii", offset, pywhence);
         if (!result) {
             printf("seek error\n");
@@ -605,13 +606,13 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 
     retval = PyLong_AsSsize_t(result);
     Py_DECREF(result);
-    printf("seek retval:%d:\n", retval);
 
 end:
 #ifdef WITH_THREAD
     PyGILState_Release(state);
 #endif /* ~WITH_THREAD*/
 
+    printf("seek retval:%d:\n", retval);
     return retval;
 }
 
@@ -633,6 +634,8 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 #ifdef WITH_THREAD
     PyGILState_STATE state;
 #endif /* WITH_THREAD */
+
+    printf("read size:%zd: maxnum:%zd:\n", size, maxnum);
 
     // printf("_pg_rw_read top: helper->fileno:%d:\n", helper->fileno);
     if (helper->fileno != -1) {
@@ -683,6 +686,7 @@ end:
     PyGILState_Release(state);
 #endif /* WITH_THREAD */
 
+    printf("read retval:%d:\n", retval);
     return retval;
 }
 
