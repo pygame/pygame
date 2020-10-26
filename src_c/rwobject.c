@@ -331,6 +331,13 @@ end:
 }
 #endif /* IS_SDLv2 */
 
+
+
+
+
+
+
+
 #if IS_SDLv1
 static int
 _pg_rw_write(SDL_RWops *context, const void *ptr, int size, int num)
@@ -454,7 +461,9 @@ pgRWops_FromFileObject(PyObject *obj)
 
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
+    rw->type = SDL_RWOPS_UNKNOWN;
     rw->size = _pg_rw_size;
+    // rw->tell = _pg_rw_tell;
 #endif /* IS_SDLv2 */
     rw->seek = _pg_rw_seek;
     rw->read = _pg_rw_read;
@@ -525,12 +534,11 @@ _pg_rw_seek(SDL_RWops *context, int offset, int whence)
 static Sint64
 _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 {
+    int pywhence;
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     Sint64 retval;
 #endif /* IS_SDLv2 */
-#ifdef WITH_THREAD
-    PyGILState_STATE state;
 
     if (helper->fileno != -1) {
         return lseek(helper->fileno, offset, whence);
@@ -538,20 +546,45 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 
     if (!helper->seek || !helper->tell)
         return -1;
+    /*
+    SDL whence
+        RW_SEEK_SET seek from the beginning of data
+        RW_SEEK_CUR seek relative to current read point
+        RW_SEEK_END seek relative to the end of data
 
-    state = PyGILState_Ensure();
+    Python whence
+        0 absolute file positioning,
+        1 seek relative to the current position and
+        2 seek relative to the file's end.
+    */
 
-    if (!(offset == 0 &&
-          whence == SEEK_CUR)) /* being seek'd, not just tell'd */
-    {
-        result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
-        if (!result) {
-            PyErr_Print();
-            retval = -1;
-            goto end;
-        }
-        Py_DECREF(result);
+    switch (whence) {
+    case RW_SEEK_SET:
+        pywhence = 0;
+        break;
+    case RW_SEEK_CUR:
+        pywhence = 1;
+        break;
+    case RW_SEEK_END:
+        pywhence = 2;
+        break;
+    default:
+        return SDL_SetError("Unknown value for 'whence'");
     }
+
+#ifdef WITH_THREAD
+    PyGILState_STATE state;
+    state = PyGILState_Ensure();
+#endif
+
+    result = PyObject_CallFunction(helper->seek, "ii", offset, pywhence);
+    if (!result) {
+        PyErr_Print();
+        retval = -1;
+        goto end;
+    }
+    Py_DECREF(result);
+
 
     result = PyObject_CallFunction(helper->tell, NULL);
     if (!result) {
@@ -560,38 +593,15 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
         goto end;
     }
 
-    retval = PyInt_AsLong(result);
+    retval = PyLong_AsSsize_t(result);
     Py_DECREF(result);
 
 end:
+#ifdef WITH_THREAD
     PyGILState_Release(state);
-
-    return retval;
-#else /* ~WITH_THREAD */
-    if (helper->fileno != -1) {
-        return lseek(helper->fileno, offset, whence);
-    }
-
-    if (!helper->seek || !helper->tell)
-        return -1;
-
-    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
-    {
-        result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
-        if (!result)
-            return -1;
-        Py_DECREF(result);
-    }
-
-    result = PyObject_CallFunction(helper->tell, NULL);
-    if (!result)
-        return -1;
-
-    retval = PyInt_AsLong(result);
-    Py_DECREF(result);
-
-    return retval;
 #endif /* ~WITH_THREAD*/
+
+    return retval;
 }
 
 #if IS_SDLv1
@@ -649,7 +659,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     }
 
     retval = Bytes_GET_SIZE(result);
-    printf("retval = size:%d: retval:%d: maxnum:%d:\n", size, retval,);
+    printf("retval = size:%d: retval:%d: maxnum:%d:\n", size, retval, maxnum);
     memcpy(ptr, Bytes_AsString(result), retval);
     retval /= size;
 
