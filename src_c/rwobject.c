@@ -613,7 +613,9 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     PyGILState_STATE state;
 #endif /* WITH_THREAD */
 
+    // printf("_pg_rw_read top: helper->fileno:%d:\n", helper->fileno);
     if (helper->fileno != -1) {
+        printf("fileno != -1\n");
         retval = read(helper->fileno, ptr, size * maxnum);
         if (retval == -1) {
             return -1;
@@ -622,20 +624,24 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
         return retval;
     }
 
-    if (!helper->read)
+    if (!helper->read) {
+        printf("!helper->read\n");
         return -1;
+    }
 
 #ifdef WITH_THREAD
     state = PyGILState_Ensure();
 #endif /* WITH_THREAD */
     result = PyObject_CallFunction(helper->read, "i", size * maxnum);
     if (!result) {
+        printf("!result\n");
         PyErr_Print();
         retval = -1;
         goto end;
     }
 
     if (!Bytes_Check(result)) {
+        printf("!Bytes_Check(result)\n");
         Py_DECREF(result);
         PyErr_Print();
         retval = -1;
@@ -643,6 +649,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     }
 
     retval = Bytes_GET_SIZE(result);
+    printf("retval = size:%d: retval:%d: maxnum:%d:\n", size, retval,);
     memcpy(ptr, Bytes_AsString(result), retval);
     retval /= size;
 
