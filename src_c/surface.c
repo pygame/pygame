@@ -1653,6 +1653,12 @@ surf_set_alpha(pgSurfaceObject *self, PyObject *args)
     else
         alpha = (Uint8)alphaval;
 
+    if (alpha == 255 && (surf->format->BytesPerPixel == 1))
+    {
+        /* Can't blend with a surface alpha of 255 and 8bit surfaces */
+        if (SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE) != 0)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+    }
     pgSurface_Prep(self);
     result =
         SDL_SetSurfaceRLE(surf, (flags & PGS_RLEACCEL) ? SDL_TRUE : SDL_FALSE);
@@ -4310,8 +4316,8 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             SDL_GetColorKey(src, &key) != 0 &&
             (dst->format->BytesPerPixel == 4 ||
              dst->format->BytesPerPixel == 2) &&
-            (SDL_ISPIXELFORMAT_ALPHA(src->format->format) ||
-             SDL_GetSurfaceAlphaMod(src, &alpha) == 0) &&
+             _PgSurface_SrcAlpha(src) &&
+            (SDL_ISPIXELFORMAT_ALPHA(src->format->format)) &&
              !pg_HasSurfaceRLE(src) && !pg_HasSurfaceRLE(dst) &&
              !(src->flags & SDL_RLEACCEL) && !(dst->flags & SDL_RLEACCEL))
     {
