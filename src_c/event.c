@@ -72,6 +72,8 @@ static int pg_key_repeat_interval = 0;
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
 static SDL_bool  _pg_event_generate_videoresize = SDL_TRUE;
+static int SDLCALL
+pg_event_filter(void *_, SDL_Event *event);
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
