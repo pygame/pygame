@@ -676,6 +676,13 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 
     retval = Bytes_GET_SIZE(result);
     printf("retval = size:%d: retval:%d: maxnum:%d:\n", size, retval, maxnum);
+    unsigned char * result_string = Bytes_AsString(result);
+    printf("read_data = (");
+    for(int ii=0; ii < retval; ii++) {
+        printf("%u, ", result_string[ii]);
+    }
+    printf(")\n");
+
     memcpy(ptr, Bytes_AsString(result), retval);
     retval /= size;
 
