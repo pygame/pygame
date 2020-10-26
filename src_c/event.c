@@ -1279,6 +1279,11 @@ pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
         }
     }
 
+    if (PyDict_GetItemString(dict, "type")!=NULL) {
+        Py_DECREF(dict);
+        return RAISE(pgExc_SDLError, "redundant type field in event dict");
+    }
+
     event = pgEvent_New2(type, dict);
 
     Py_DECREF(dict);
@@ -1865,52 +1870,59 @@ pg_event_post(PyObject *self, PyObject *args)
 {
     pgEventObject *e;
     SDL_Event event;
-    
-    PyObject *event_key = NULL;
-    PyObject *event_scancode = NULL;
-    PyObject *event_mod = NULL;
-    PyObject *event_window_ID = NULL;
+
+    /* Make sure all fields are zeroed even when we do not use them
+       pygame tries to interpret all events as USEREVENTS, so we can't have
+       any garbage data in there. */
+    SDL_zero(event);
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
         return NULL;
 
     VIDEO_INIT_CHECK();
 
-    /* see if the event is blocked before posting it. */
+    if (!(e->type > 0 && e->type < PG_NUMEVENTS)) {
+        return RAISE(pgExc_SDLError, "unknown event type\nuse pygame event type constants or pygame.event.custom() to create event types");
+    }
+
+    if (PyDict_GetItemString(e->dict, "type")!=NULL) {
+        return RAISE(pgExc_SDLError, "redundant type field in event dict");
+    }
+
     if (SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE) {
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
-    
+
     /* Handle quit event expicitly */
     if (e->type == SDL_QUIT) {
         event.type = SDL_QUIT;
-        // for extra measures, set event.quit.type too
-        event.quit.type = SDL_QUIT;
     }
+    /* Handle key events expicitly */
     else if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
-        event_key = PyDict_GetItemString(e->dict, "key");
-        event_scancode = PyDict_GetItemString(e->dict, "scancode");
-        event_mod = PyDict_GetItemString(e->dict, "mod");
+        PyObject *event_key = PyDict_GetItemString(e->dict, "key");
+        PyObject *event_scancode = PyDict_GetItemString(e->dict, "key");
+        PyObject *event_mod = PyDict_GetItemString(e->dict, "scancode");
+        PyObject *event_window_ID = PyDict_GetItemString(e->dict, "mod");
+
 #if IS_SDLv2
         event_window_ID= PyDict_GetItemString(e->dict, "window");
 #endif /* IS_SDLv2 */
         event.type = e->type;
-        event.key.type = e->type;
 
         if (event_key == NULL){
             return RAISE(pgExc_SDLError, "key event posted without keycode");
         }
+
         if (!PyInt_Check(event_key)){
             return RAISE(pgExc_SDLError, "posted event keycode must be int");
         }
-        
+
         // This block is where the magic hopefully happens
         event.key.state = (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
 #if IS_SDLv2
         event.key.repeat = 0;
 #endif
-        
         event.key.keysym.sym = PyLong_AsLong(event_key);
 
         if (event_scancode != NULL && event_scancode != Py_None) {
@@ -1940,16 +1952,16 @@ pg_event_post(PyObject *self, PyObject *args)
         }
 #endif /* IS_SDLv2 */
     }
-    else if (e->type < PG_NUMEVENTS) {
-        /* HACK:
-           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
-           event queue. This needs to be decoded again. */
-        if (pgEvent_FillUserEvent(e, &event))
-            return NULL;
-    }
     else {
-        return RAISE(pgExc_SDLError, "the value of event type is out of range");
+        /* HACK:
+           A non-USEREVENT type (e->type >= PGE_USEREVENT) is treated like a
+           USEREVENT union in the SDL2 event queue. This needs to be decoded
+           again.
+        */
+        if (pgEvent_FillUserEvent(e, &event))
+            return RAISE(pgExc_SDLError, "error creating event object");
     }
+
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
 #else  /* IS_SDLv2 */
