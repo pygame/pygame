@@ -300,7 +300,7 @@ _pg_rw_size(SDL_RWops *context)
         PyErr_Print();
         goto end;
     }
-    size = PyInt_AsLong(tmp);
+    size = PyLong_AsSsize_t(tmp);
     if (size == -1 && PyErr_Occurred() != NULL) {
         PyErr_Print();
         goto end;
@@ -330,6 +330,13 @@ end:
     return retval;
 }
 #endif /* IS_SDLv2 */
+
+
+
+
+
+
+
 
 #if IS_SDLv1
 static int
@@ -454,7 +461,9 @@ pgRWops_FromFileObject(PyObject *obj)
 
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
+    rw->type = SDL_RWOPS_UNKNOWN;
     rw->size = _pg_rw_size;
+    // rw->tell = _pg_rw_tell;
 #endif /* IS_SDLv2 */
     rw->seek = _pg_rw_seek;
     rw->read = _pg_rw_read;
@@ -525,12 +534,11 @@ _pg_rw_seek(SDL_RWops *context, int offset, int whence)
 static Sint64
 _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 {
+    int pywhence;
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     Sint64 retval;
 #endif /* IS_SDLv2 */
-#ifdef WITH_THREAD
-    PyGILState_STATE state;
 
     if (helper->fileno != -1) {
         return lseek(helper->fileno, offset, whence);
@@ -538,11 +546,39 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 
     if (!helper->seek || !helper->tell)
         return -1;
+    /*
+    SDL whence
+        RW_SEEK_SET seek from the beginning of data
+        RW_SEEK_CUR seek relative to current read point
+        RW_SEEK_END seek relative to the end of data
 
+    Python whence
+        0 absolute file positioning,
+        1 seek relative to the current position and
+        2 seek relative to the file's end.
+    */
+
+    switch (whence) {
+    case RW_SEEK_SET:
+        pywhence = 0;
+        break;
+    case RW_SEEK_CUR:
+        pywhence = 1;
+        break;
+    case RW_SEEK_END:
+        pywhence = 2;
+        break;
+    default:
+        return SDL_SetError("Unknown value for 'whence'");
+    }
+
+#ifdef WITH_THREAD
+    PyGILState_STATE state;
     state = PyGILState_Ensure();
+#endif
 
-    if (!(offset == 0 &&
-          whence == SEEK_CUR)) /* being seek'd, not just tell'd */
+
+    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
     {
         result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
         if (!result) {
@@ -560,38 +596,15 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
         goto end;
     }
 
-    retval = PyInt_AsLong(result);
+    retval = PyLong_AsSsize_t(result);
     Py_DECREF(result);
 
 end:
+#ifdef WITH_THREAD
     PyGILState_Release(state);
-
-    return retval;
-#else /* ~WITH_THREAD */
-    if (helper->fileno != -1) {
-        return lseek(helper->fileno, offset, whence);
-    }
-
-    if (!helper->seek || !helper->tell)
-        return -1;
-
-    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
-    {
-        result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
-        if (!result)
-            return -1;
-        Py_DECREF(result);
-    }
-
-    result = PyObject_CallFunction(helper->tell, NULL);
-    if (!result)
-        return -1;
-
-    retval = PyInt_AsLong(result);
-    Py_DECREF(result);
-
-    return retval;
 #endif /* ~WITH_THREAD*/
+
+    return retval;
 }
 
 #if IS_SDLv1
@@ -618,7 +631,8 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
         printf("fileno != -1\n");
         retval = read(helper->fileno, ptr, size * maxnum);
         if (retval == -1) {
-            return -1;
+            SDL_Error(SDL_EFREAD);
+            return 0;
         }
         retval /= size;
         return retval;
@@ -626,7 +640,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 
     if (!helper->read) {
         printf("!helper->read\n");
-        return -1;
+        return 0;
     }
 
 #ifdef WITH_THREAD
@@ -636,7 +650,8 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     if (!result) {
         printf("!result\n");
         PyErr_Print();
-        retval = -1;
+        SDL_Error(SDL_EFREAD);
+        retval = 0;
         goto end;
     }
 
@@ -644,12 +659,12 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
         printf("!Bytes_Check(result)\n");
         Py_DECREF(result);
         PyErr_Print();
-        retval = -1;
+        retval = 0;
         goto end;
     }
 
     retval = Bytes_GET_SIZE(result);
-    printf("retval = size:%d: retval:%d: maxnum:%d:\n", size, retval,);
+    printf("retval = size:%d: retval:%d: maxnum:%d:\n", size, retval, maxnum);
     memcpy(ptr, Bytes_AsString(result), retval);
     retval /= size;
 
