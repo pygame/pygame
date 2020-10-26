@@ -119,6 +119,10 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
 {
     if (!_pg_event_is_init) {
 #if IS_SDLv2
+        /* if (!pgVideo_AutoInit()) */
+        /*     return RAISE(pgExc_SDLError, SDL_GetError()); */
+        SDL_SetEventFilter(pg_event_filter, NULL);
+
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
 #endif /* IS_SLDv2 */
@@ -170,6 +174,11 @@ pg_event_filter(void *_, SDL_Event *event)
     /* This event filter alters events inplace.
      */
     Uint32 type = event->type;
+
+    if (event->user.code == USEROBJECT_CHECK1 &&
+        event->user.data1 == (void *)USEROBJECT_CHECK2) {
+        return 1;
+    }
 
     if (type == SDL_WINDOWEVENT) {
         switch (event->window.event) {
