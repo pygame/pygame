@@ -13,6 +13,7 @@ these program a more intuitive task.
 
 `We need your help`_ to make pygame the best it can be!
 
+TESTING
 
 Installation
 ------------
