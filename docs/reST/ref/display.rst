@@ -526,9 +526,21 @@ required).
    | :sl:`Switch between fullscreen and windowed displays`
    | :sg:`toggle_fullscreen() -> int`
 
-   Switches the display window between windowed and fullscreen modes. This
-   function only works under the UNIX X11 video driver. For most situations it
-   is better to call ``pygame.display.set_mode()`` with new display flags.
+   Switches the display window between windowed and fullscreen modes.
+   Display driver support is not great when using pygame 1, but with
+   pygame 2 it is the most reliable method to switch to and from fullscreen.
+
+   Supported display drivers in pygame 1:
+
+    * x11 (Linux/Unix)
+    * wayland (Linux/Unix)
+
+   Supported display drivers in pygame 2:
+
+    * windows (Windows)
+    * x11 (Linux/Unix)
+    * wayland (Linux/Unix)
+    * cocoa (OSX/Mac)
 
    .. ## pygame.display.toggle_fullscreen ##
 
