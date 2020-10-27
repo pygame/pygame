@@ -1086,6 +1086,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             else {
                 sdl_flags |= SDL_WINDOW_FULLSCREEN;
             }
+            /* bypass the compositor on x11 if we are full screen */
+            SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "1");
+        }
+        else
+        {
+            SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
         }
 
         if (flags & PGS_SCALED) {
@@ -2582,6 +2588,8 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 
     if (flags & SDL_WINDOW_FULLSCREEN) {
         /* TOGGLE FULLSCREEN OFF */
+        /* stop bypassing the compositor on x11 */
+        SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 
         if (pg_renderer != NULL) {
             int scale = 1;
@@ -2699,6 +2707,8 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
     }
     else {
         /* TOGGLE FULLSCREEN ON */
+        /* start bypassing the compositor on x11 */
+        SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "1");
 
         state->toggle_windowed_w = w;
         state->toggle_windowed_h = h;
