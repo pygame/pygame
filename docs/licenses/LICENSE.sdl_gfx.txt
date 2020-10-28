@@ -1,0 +1,7 @@
+SDL_gfx COPYING
+
+Library is governed under the ZLib license.
+
+http://www.zlib.net/zlib_license.html
+
+(C) A. Schiffler, aschiffler [at] ferzkopp.net 2012-2018, licensed under the zlib license
