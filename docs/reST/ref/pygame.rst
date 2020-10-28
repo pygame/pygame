@@ -289,3 +289,85 @@ check which version of pygame has been imported.
 .. ## pygame.version ##
 
 .. ## pygame ##
+
+.. _environment-variables:
+
+**Setting Environment Variables**
+
+Some aspects of pygame's behaviour can be controlled by setting environment variables, they cover a wide
+range of the library's functionality. Some of the variables are from pygame itself, while others come from
+the underlying C SDL library that pygame uses.
+
+In python environment variables are usually set like this:
+
+    ::
+
+     import os
+     os.environ['NAME_OF_ENVIRONMENT_VARIABLE'] = "value_to_set"
+
+For some variables they need to be set before initialising pygame, some must be set before even importing pygame,
+and others can simply be set right before the area of code they control is run.
+
+Below is a list of environment variables, their settable values, and a brief description of what they do.
+
+**Pygame Variables**
+
+These variables are defined by pygame itself.
+
+    ::
+
+     PYGAME_DISPLAY - Experimental (subject to change)
+
+     Set to the index of the display to use, "0" is the default.
+
+     This sets the display where pygame will open its window
+     or screen. The value set here will be used if set before
+     calling set_mode(), and as long as no 'display' parameter
+     is passed into set_mode().
+
+     PYGAME_FORCE_SCALE -
+
+     Set to "photo" or "default".
+
+     This forces set_mode() to use the SCALED display mode and,
+     if "photo" is set, makes the scaling use the slowest, but
+     highest quality anisotropic scaling algorithm, if it is
+     available. Must be set before calling set_mode().
+
+     PYGAME_BLEND_ALPHA_SDL2 - New in pygame 2.0.0
+
+     Set to "1" to enable the SDL2 blitter.
+
+     This makes pygame use the SDL2 blitter for all alpha
+     blending. The SDL2 blitter is sometimes faster than
+     the default blitter but uses a different formula so
+     the final colours may differ. Must be set before
+     pygame.init() is called.
+
+     PYGAME_HIDE_SUPPORT_PROMPT -
+
+     Set to "1" to hide the prompt.
+
+     This stops the welcome message popping up in the
+     console that tells you which version of python,
+     pygame & SDL you are using. Must be set before
+     importing pygame.
+
+     PYGAME_FREETYPE -
+
+     Set to "1" to enable.
+
+     This switches the pygame.font module to a pure
+     freetype implementation that bypasses SDL_ttf.
+     See the font module for why you might want to
+     do this. Must be set before importing pygame.
+
+
+     PYGAME_CAMERA -
+
+     Set to "opencv" or "vidcapture"
+
+     Forces the library backend used in the camera
+     module, overriding the platform defaults. Must
+     be set before calling init() on the camera module.
+
