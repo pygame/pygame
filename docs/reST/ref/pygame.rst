@@ -469,3 +469,16 @@ calling :func:`pygame.init()` or :func:`pygame.mixer.init()`.
 By default pygame apps disable screensavers while
 they are running. Setting this environment variable allows users or
 developers to change that and make screensavers run again.
+
+|
+
+::
+
+ SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
+ Set to "0" to re-enable the compositor.
+
+By default SDL tries to disable the X11 compositor for all pygame
+apps. This is usually a good thing as it's faster, however if you
+have an app which *doesn't* update every frame and are using linux
+you may want to disable this bypass. The bypass has reported problems
+on KDE linux. This variable is only used on x11/linux platforms.
