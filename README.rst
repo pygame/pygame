@@ -151,6 +151,8 @@ back to the pygame project).  Closed source and commercial games are fine.
 
 The programs in the ``examples`` subdirectory are in the public domain.
 
+See docs/licenses for licenses of dependencies.
+
 
 .. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
    :target: https://travis-ci.org/pygame/pygame
