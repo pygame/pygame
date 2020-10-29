@@ -374,7 +374,7 @@ class Output(object):
 
     """
 
-    def __init__(self, device_id, latency=0, buffer_size=4096):
+    def __init__(self, device_id, latency=0, buffer_size=256):
         """Output(device_id)
         Output(device_id, latency = 0)
         Output(device_id, buffer_size = 4096)
@@ -421,7 +421,8 @@ class Output(object):
             _, _, is_input, is_output, _ = result
             if is_output:
                 try:
-                    self._output = _pypm.Output(device_id, latency)
+                    self._output = _pypm.Output(device_id, latency,
+                                                buffer_size)
                 except TypeError:
                     raise TypeError("an integer is required")
                 self.device_id = device_id
