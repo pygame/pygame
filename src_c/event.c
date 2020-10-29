@@ -130,10 +130,6 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
         _pg_event_is_init = 1;
     }
 
-#if IS_SDLv2
-    SDL_SetEventFilter(pg_event_filter, NULL);
-#endif /* IS_SDLv2 */
-
     return PyInt_FromLong(_pg_event_is_init);
 }
 
