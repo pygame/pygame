@@ -1964,7 +1964,6 @@ pg_event_post(PyObject *self, PyObject *args)
     if (_pg_check_event_in_range(e->type)) {
         if (pgEvent_FillUserEvent(e, &event))
             return NULL;
-        }
     }
     else
         return RAISE(pgExc_SDLError, "type of event out of range")
