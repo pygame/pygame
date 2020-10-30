@@ -1966,7 +1966,7 @@ pg_event_post(PyObject *self, PyObject *args)
             return NULL;
     }
     else
-        return RAISE(pgExc_SDLError, "type of event out of range")
+        return RAISE(pgExc_SDLError, "type of event out of range");
 
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
