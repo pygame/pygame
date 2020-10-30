@@ -1877,7 +1877,7 @@ pg_event_post(PyObject *self, PyObject *args)
     /* Make sure all fields are zeroed even when we do not use them
        pygame tries to interpret all events as USEREVENTS, so we can't have
        any garbage data in there. */
-    SDL_zero(event);
+    SDL_memset(&event, 0, sizeof(event));.
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
         return NULL;
@@ -1907,13 +1907,10 @@ pg_event_post(PyObject *self, PyObject *args)
         case SDL_KEYDOWN: /* Handle key events expicitly */
         case SDL_KEYUP: {
             PyObject *event_key = PyDict_GetItemString(e->dict, "key");
-            PyObject *event_scancode = PyDict_GetItemString(e->dict, "key");
-            PyObject *event_mod = PyDict_GetItemString(e->dict, "scancode");
-            PyObject *event_window_ID = PyDict_GetItemString(e->dict, "mod");
+            PyObject *event_scancode = PyDict_GetItemString(e->dict, "scancode");
+            PyObject *event_mod = PyDict_GetItemString(e->dict, "mod");
+            PyObject *event_window_ID = PyDict_GetItemString(e->dict, "window");
 
-#if IS_SDLv2
-            event_window_ID = PyDict_GetItemString(e->dict, "window");
-#endif /* IS_SDLv2 */
             event.type = e->type;
 
             if (event_key == NULL) {
@@ -1971,6 +1968,8 @@ pg_event_post(PyObject *self, PyObject *args)
                A non-USEREVENT type (e->type >= PGE_USEREVENT) is treated like
                a USEREVENT union in the SDL2 event queue. This needs to be
                decoded again.
+               The event type is set to e->type in FillUserEvent so event
+               blocking works correctly.
             */
             if (pgEvent_FillUserEvent(e, &event))
                 return RAISE(pgExc_SDLError, "error creating event object");
