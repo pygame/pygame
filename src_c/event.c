@@ -1461,8 +1461,8 @@ static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int num;
-    Uint32 loop, val, mask = 0;
+    int loop, num;
+    Uint32 val, mask = 0;
     PyObject *type = NULL;
     int dopump = 1;
 
@@ -1523,9 +1523,9 @@ static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     Py_ssize_t num;
-    Uint32 val, loop;
+    Uint32 val;
     PyObject *type = NULL;
-    int dopump = 1;
+    int loop, dopump = 1;
 
     static char *kwids[] = {
         "eventtype",
@@ -1582,8 +1582,8 @@ static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int num;
-    Uint32 loop, val, mask = 0;
+    int num, loop;
+    Uint32 val, mask = 0;
     PyObject *type = NULL, *list, *e;
     int dopump = 1;
 
@@ -1700,8 +1700,8 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     Py_ssize_t num;
-    int ret, num;
-    Uint32 val, loop;
+    int ret, loop;
+    Uint32 val;
     PyObject *type = NULL, *list;
     int dopump = 1;
 
@@ -1818,9 +1818,9 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int result, noargs = 0;
+    int num, loop, result, noargs = 0;
     PyObject *type = NULL;
-    Uint32 loop, val, mask = 0;
+    Uint32 val, mask = 0;
     int dopump = 1;
 
     static char *kwids[] = {
@@ -1884,9 +1884,9 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     Py_ssize_t num;
-    int result;
+    int result, loop;
     PyObject *type = NULL;
-    Uint32 val, loop;
+    Uint32 val;
     int dopump = 1;
 
     static char *kwids[] = {
@@ -2107,8 +2107,8 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
 {
     Py_ssize_t num;
     PyObject *type;
-    Uint32 loop, val;
-    int isblocked = 0;
+    Uint32 val;
+    int loop, isblocked = 0;
 
     if (PyTuple_Size(args) != 1)
         return RAISE(PyExc_ValueError, "get_blocked requires 1 argument");
