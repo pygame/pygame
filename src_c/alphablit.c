@@ -243,18 +243,17 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                         src->format->Rmask == dst->format->Rmask &&
                         src->format->Gmask == dst->format->Gmask &&
                         src->format->Bmask == dst->format->Bmask &&
-                        src != dst &&
                         SDL_BYTEORDER == SDL_LIL_ENDIAN)
                     {
                     /* If our source and destination are the same ARGB 32bit
                        format we can use SSE2 to speed up the blend */
                     #if PG_ENABLE_ARM_NEON
-                        if (SDL_HasNEON() == SDL_TRUE){
+                        if ((SDL_HasNEON() == SDL_TRUE) && (src != dst)){
                             if (info.src_blanket_alpha != 255)
                             {
                                 alphablit_alpha_sse2_argb_surf_alpha (&info);
                             }
-                            else if (info.dst_blend == SDL_BLENDMODE_NONE)
+                            else if (!SDL_ISPIXELFORMAT_ALPHA(dst->format->format))
                             {
                                 alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(&info);
                             }
@@ -266,12 +265,12 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                         }
                     #endif /* PG_ENABLE_ARM_NEON */
                     #ifdef __SSE2__
-                        if (SDL_HasSSE2()){
+                        if ((SDL_HasSSE2()) && (src != dst)){
                             if (info.src_blanket_alpha != 255)
                             {
                                  alphablit_alpha_sse2_argb_surf_alpha (&info);
                             }
-                            else if (info.dst_blend == SDL_BLENDMODE_NONE)
+                            else if (!SDL_ISPIXELFORMAT_ALPHA(dst->format->format))
                             {
                                 alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(&info);
                             }
