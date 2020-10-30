@@ -160,7 +160,7 @@ mouse_get_pressed(PyObject *self, PyObject *args, PyObject *kwargs)
     PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong((state & SDL_BUTTON_LMASK) != 0));
     PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong((state & SDL_BUTTON_MMASK) != 0));
     PyTuple_SET_ITEM(tuple, 2, PyBool_FromLong((state & SDL_BUTTON_RMASK) != 0));
-    
+
     if (num_buttons == 5) {
         PyTuple_SET_ITEM(tuple, 3, PyBool_FromLong((state & SDL_BUTTON_X1MASK) != 0));
         PyTuple_SET_ITEM(tuple, 4, PyBool_FromLong((state & SDL_BUTTON_X2MASK) != 0));
@@ -176,6 +176,7 @@ mouse_set_visible(PyObject *self, PyObject *args)
     #if IS_SDLv2
         int mode;
         SDL_Window *win = NULL;
+        Uint32 window_flags = 0;
     #endif
 
     if (!PyArg_ParseTuple(args, "i", &toggle))
@@ -190,6 +191,18 @@ mouse_set_visible(PyObject *self, PyObject *args)
                 SDL_SetRelativeMouseMode(1);
             } else {
                 SDL_SetRelativeMouseMode(0);
+            }
+            window_flags = SDL_GetWindowFlags(win);
+            if (!toggle && (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP ||
+                            window_flags & SDL_WINDOW_FULLSCREEN))
+            {
+                SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
+                            "0");
+            }
+            else
+            {
+                SDL_SetHint(SDL_HINT_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN,
+                            "1");
             }
         }
     #endif

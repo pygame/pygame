@@ -1877,7 +1877,7 @@ pg_event_post(PyObject *self, PyObject *args)
     /* Make sure all fields are zeroed even when we do not use them
        pygame tries to interpret all events as USEREVENTS, so we can't have
        any garbage data in there. */
-    SDL_memset(&event, 0, sizeof(event));.
+    SDL_memset(&event, 0, sizeof(event));
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
         return NULL;
