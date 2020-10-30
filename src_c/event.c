@@ -84,7 +84,7 @@ _pg_repeat_callback(Uint32 interval, void *param)
  * directly to be backward compatible with pygame 1.9.x, it was changed to
  * start at one higher.*/
 #define _PGE_CUSTOM_EVENT_INIT PGE_USEREVENT + 1
-static int _custom_event = _PGE_CUSTOM_EVENT_INIT;
+static Uint32 _custom_event = _PGE_CUSTOM_EVENT_INIT;
 
 static int _pg_event_is_init = 0;
 
@@ -410,7 +410,11 @@ pgEvent_FillUserEvent(pgEventObject *e, SDL_Event *event)
 {
     Uint32 eencoded = _pg_event_as_userevent(e->type);
     UserEventObject *userobj = _pg_user_event_addobject(e->dict);
-    if (!userobj || !eencoded)
+    if (!eencoded) {
+        PyErr_SetString(PyExc_ValueError, "type of event out of range");
+        return -1;
+    }
+    if (!userobj)
         return -1;
 
     event->type = eencoded;
@@ -1261,7 +1265,7 @@ pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
     PyObject *dict = NULL;
     PyObject *event;
     Uint32 type;
-    if (!PyArg_ParseTuple(arg, "k|O!", &type, &PyDict_Type, &dict))
+    if (!PyArg_ParseTuple(arg, "I|O!", &type, &PyDict_Type, &dict))
         return NULL;
 
     if (!dict)
@@ -1289,9 +1293,9 @@ pg_Event(PyObject *self, PyObject *arg, PyObject *keywords)
 static PyObject *
 event_name(PyObject *self, PyObject *arg)
 {
-    int type;
+    Uint32 type;
 
-    if (!PyArg_ParseTuple(arg, "i", &type))
+    if (!PyArg_ParseTuple(arg, "I", &type))
         return NULL;
 
     return Text_FromUTF8(_pg_name_from_eventtype(type));
@@ -1416,16 +1420,51 @@ pg_event_poll(PyObject *self, PyObject *args)
     return pgEvent_New(NULL);
 }
 
+static int
+_pg_UIntFromObj(PyObject *obj, Uint32 *val)
+{
+    Uint32 tmp_val;
+
+    if (PyFloat_Check(obj)) {
+        /* Python3.8 complains with deprecation warnings if we pass
+         * floats to PyInt_AsLong.
+         */
+        double dv = PyFloat_AsDouble(obj);
+        tmp_val = (int)dv;
+    } else {
+        tmp_val = PyInt_AsLong(obj);
+    }
+
+    if (tmp_val == -1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        return 0;
+    }
+    *val = tmp_val;
+    return 1;
+}
+
+static int
+_pg_UIntFromObjIndex(PyObject *obj, int _index, Uint32 *val)
+{
+    int result = 0;
+    PyObject *item = PySequence_GetItem(obj, _index);
+
+    if (item) {
+        result = _pg_UIntFromObj(item, val);
+        Py_DECREF(item);
+    }
+    return result;
+}
+
 #if IS_SDLv1
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int mask = 0;
-    int loop, num;
+    int num;
+    Uint32 loop, val, mask = 0;
     PyObject *type = NULL;
     int dopump = 1;
-    int val;
 
     static char *kwids[] = {
         "eventtype",
@@ -1451,7 +1490,7 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
+                if (!_pg_UIntFromObjIndex(type, loop, &val))
                     return RAISE(
                         PyExc_TypeError,
                         "type sequence must contain valid event types");
@@ -1460,7 +1499,7 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
                 mask |= SDL_EVENTMASK(_pg_event_as_userevent(val));
             }
         }
-        else if (pg_IntFromObj(type, &val)) {
+        else if (_pg_UIntFromObj(type, &val)) {
             if (val < PGE_USEREVENT)
                 mask |= SDL_EVENTMASK(val);
             mask |= SDL_EVENTMASK(_pg_event_as_userevent(val));
@@ -1484,10 +1523,9 @@ static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     Py_ssize_t num;
-    int loop;
+    Uint32 val, loop;
     PyObject *type = NULL;
     int dopump = 1;
-    int val;
 
     static char *kwids[] = {
         "eventtype",
@@ -1516,7 +1554,7 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
+                if (!_pg_UIntFromObjIndex(type, loop, &val))
                     return RAISE(
                         PyExc_TypeError,
                         "type sequence must contain valid event types");
@@ -1525,7 +1563,7 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
                 SDL_FlushEvent(_pg_event_as_userevent(val));
             }
         }
-        else if (pg_IntFromObj(type, &val)) {
+        else if (_pg_UIntFromObj(type, &val)) {
             if (val < PGE_USEREVENT)
                 SDL_FlushEvent(val);
             SDL_FlushEvent(_pg_event_as_userevent(val));
@@ -1544,11 +1582,10 @@ static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int mask = 0;
-    int loop, num;
+    int num;
+    Uint32 loop, val, mask = 0;
     PyObject *type = NULL, *list, *e;
     int dopump = 1;
-    int val;
 
     static char *kwids[] = {
         "eventtype",
@@ -1574,7 +1611,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
+                if (!_pg_UIntFromObjIndex(type, loop, &val))
                     return RAISE(
                         PyExc_TypeError,
                         "type sequence must contain valid event types");
@@ -1583,7 +1620,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
                 mask |= SDL_EVENTMASK(_pg_event_as_userevent(val));
             }
         }
-        else if (pg_IntFromObj(type, &val)) {
+        else if (_pg_UIntFromObj(type, &val)) {
             if (val < PGE_USEREVENT)
                 mask |= SDL_EVENTMASK(val);
             mask |= SDL_EVENTMASK(_pg_event_as_userevent(val));
@@ -1663,10 +1700,10 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
     Py_ssize_t num;
-    int loop;
+    int ret, num;
+    Uint32 val, loop;
     PyObject *type = NULL, *list;
     int dopump = 1;
-    int val, ret;
 
     static char *kwids[] = {
         "eventtype",
@@ -1704,7 +1741,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
     if (PySequence_Check(type)) {
         num = PySequence_Size(type);
         for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val)) {
+            if (!_pg_UIntFromObjIndex(type, loop, &val)) {
                 Py_DECREF(list);
                 return RAISE(
                     PyExc_TypeError,
@@ -1739,7 +1776,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
             }
         }
     }
-    else if (pg_IntFromObj(type, &val)) {
+    else if (_pg_UIntFromObj(type, &val)) {
         if (val < PGE_USEREVENT) {
             ret = SDL_PeepEvents(&event, 1, SDL_GETEVENT, val, val);
 
@@ -1781,11 +1818,9 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int result;
-    int mask = 0;
-    int loop, num, noargs = 0;
+    int result, noargs = 0;
     PyObject *type = NULL;
-    int val;
+    Uint32 loop, val, mask = 0;
     int dopump = 1;
 
     static char *kwids[] = {
@@ -1814,7 +1849,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
         if (PySequence_Check(type)) {
             num = PySequence_Size(type);
             for (loop = 0; loop < num; ++loop) {
-                if (!pg_IntFromObjIndex(type, loop, &val))
+                if (!_pg_UIntFromObjIndex(type, loop, &val))
                     return RAISE(
                         PyExc_TypeError,
                         "type sequence must contain valid event types");
@@ -1823,7 +1858,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                 mask |= SDL_EVENTMASK(_pg_event_as_userevent(val));
             }
         }
-        else if (pg_IntFromObj(type, &val)) {
+        else if (_pg_UIntFromObj(type, &val)) {
             if (val < PGE_USEREVENT)
                 mask |= SDL_EVENTMASK(val);
             mask |= SDL_EVENTMASK(_pg_event_as_userevent(val));
@@ -1850,9 +1885,8 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Event event;
     Py_ssize_t num;
     int result;
-    int loop;
     PyObject *type = NULL;
-    int val;
+    Uint32 val, loop;
     int dopump = 1;
 
     static char *kwids[] = {
@@ -1886,7 +1920,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
     if (PySequence_Check(type)) {
         num = PySequence_Size(type);
         for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
+            if (!_pg_UIntFromObjIndex(type, loop, &val))
                 return RAISE(
                     PyExc_TypeError,
                     "type sequence must contain valid event types");
@@ -1909,7 +1943,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 
         return PyInt_FromLong(0); /* No event type match. */
     }
-    else if (pg_IntFromObj(type, &val)) {
+    else if (_pg_UIntFromObj(type, &val)) {
         if (val < PGE_USEREVENT) {
             result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, val, val);
             if (result < 0)
@@ -1928,14 +1962,14 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 #endif /* IS_SDLv2 */
 
 static int
-_pg_check_event_in_range(int evt)
+_pg_check_event_in_range(Uint32 evt)
 {
 // #if IS_SDLv1
 //     return evt >= 0 && evt < PG_NUMEVENTS;
 // #else /* IS_SDLv2 */
 //     return evt >= 0 && evt < PGE_EVENTEND; /* needed for extras */
 // #endif /* IS_S*DLv2 */
-    return evt >= 0 && evt < PG_NUMEVENTS - PGE_USEREVENT;
+    return evt < PG_NUMEVENTS - PGE_USEREVENT;
 }
 
 static PyObject *
@@ -1960,13 +1994,9 @@ pg_event_post(PyObject *self, PyObject *args)
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
-    // TODO: implement checks so that type does not go out of range
-    if (_pg_check_event_in_range(e->type)) {
-        if (pgEvent_FillUserEvent(e, &event))
-            return NULL;
-    }
-    else
-        return RAISE(pgExc_SDLError, "type of event out of range");
+    
+    if (pgEvent_FillUserEvent(e, &event))
+        return NULL;
 
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)
@@ -1982,7 +2012,7 @@ static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *args)
 {
     PyObject *type;
-    int val;
+    Uint32 val, loop;
 
     if (PyTuple_Size(args) != 1)
         return RAISE(PyExc_ValueError, "set_allowed requires 1 argument");
@@ -1992,10 +2022,9 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
     type = PyTuple_GET_ITEM(args, 0);
     if (PySequence_Check(type)) {
         Py_ssize_t num = PySequence_Length(type);
-        int loop;
-
+        
         for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
+            if (!_pg_UIntFromObjIndex(type, loop, &val))
                 return RAISE(PyExc_TypeError,
                              "type sequence must contain valid event types");
             if (!_pg_check_event_in_range(val))
@@ -2007,14 +2036,13 @@ pg_event_set_allowed(PyObject *self, PyObject *args)
     }
     else if (type == Py_None) {
 #if IS_SDLv2
-        int i;
-        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
-            SDL_EventState(i, SDL_ENABLE);
+        for (loop=SDL_FIRSTEVENT; loop<SDL_LASTEVENT; loop++) {
+            SDL_EventState(loop, SDL_ENABLE);
         }
 #else
         SDL_EventState(0xFF, SDL_ENABLE);
 #endif /* IS_SDLv2 */
-    } else if (pg_IntFromObj(type, &val)) {
+    } else if (_pg_UIntFromObj(type, &val)) {
         if (!_pg_check_event_in_range(val))
             return RAISE(PyExc_ValueError, "Invalid event");
         if (val < PGE_USEREVENT)
@@ -2031,7 +2059,7 @@ static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *args)
 {
     PyObject *type;
-    int val;
+    Uint32 val, loop;
 
     if (PyTuple_Size(args) != 1)
         return RAISE(PyExc_ValueError, "set_blocked requires 1 argument");
@@ -2041,10 +2069,9 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
     type = PyTuple_GET_ITEM(args, 0);
     if (PySequence_Check(type)) {
         Py_ssize_t num = PySequence_Length(type);
-        int loop;
 
         for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
+            if (!_pg_UIntFromObjIndex(type, loop, &val))
                 return RAISE(PyExc_TypeError,
                              "type sequence must contain valid event types");
             if (!_pg_check_event_in_range(val))
@@ -2056,14 +2083,13 @@ pg_event_set_blocked(PyObject *self, PyObject *args)
     }
     else if (type == Py_None) {
 #if IS_SDLv2
-        int i;
-        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
-            SDL_EventState(i, SDL_IGNORE);
+        for (loop=SDL_FIRSTEVENT; loop<SDL_LASTEVENT; loop++) {
+            SDL_EventState(loop, SDL_IGNORE);
         }
 #else
         SDL_EventState(0xFF, SDL_IGNORE);
 #endif /* IS_SDLv2 */
-    } else if (pg_IntFromObj(type, &val)) {
+    } else if (_pg_UIntFromObj(type, &val)) {
         if (!_pg_check_event_in_range(val))
             return RAISE(PyExc_ValueError, "Invalid event");
         if (val < PGE_USEREVENT)
@@ -2080,9 +2106,8 @@ static PyObject *
 pg_event_get_blocked(PyObject *self, PyObject *args)
 {
     Py_ssize_t num;
-    int loop;
     PyObject *type;
-    int val;
+    Uint32 loop, val;
     int isblocked = 0;
 
     if (PyTuple_Size(args) != 1)
@@ -2094,7 +2119,7 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
     if (PySequence_Check(type)) {
         num = PySequence_Length(type);
         for (loop = 0; loop < num; ++loop) {
-            if (!pg_IntFromObjIndex(type, loop, &val))
+            if (!_pg_UIntFromObjIndex(type, loop, &val))
                 return RAISE(PyExc_TypeError,
                              "type sequence must contain valid event types");
             if (!_pg_check_event_in_range(val))
@@ -2108,7 +2133,7 @@ pg_event_get_blocked(PyObject *self, PyObject *args)
                 break;
         }
     }
-    else if (pg_IntFromObj(type, &val)) {
+    else if (_pg_UIntFromObj(type, &val)) {
         if (!_pg_check_event_in_range(val))
             return RAISE(PyExc_ValueError, "Invalid event");
         if (val < PGE_USEREVENT)
