@@ -1315,6 +1315,17 @@ class RectTypeTest(unittest.TestCase):
         self.assertEqual(3, rect.width)
         self.assertEqual(4, rect.height)
 
+    def test_update__List(self):
+        """Test update with list"""
+        rect = Rect(0, 0, 1, 1)
+        rect2 = [1, 2, 3, 4]
+        rect.update(rect2)
+
+        self.assertEqual(1, rect.left)
+        self.assertEqual(2, rect.top)
+        self.assertEqual(3, rect.width)
+        self.assertEqual(4, rect.height)
+
     def test_update__RectObject(self):
         """Test update with other rect object"""
         rect = Rect(0, 0, 1, 1)
