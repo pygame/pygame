@@ -1969,7 +1969,7 @@ _pg_check_event_in_range(Uint32 evt)
 // #else /* IS_SDLv2 */
 //     return evt >= 0 && evt < PGE_EVENTEND; /* needed for extras */
 // #endif /* IS_S*DLv2 */
-    return evt < PG_NUMEVENTS - PGE_USEREVENT;
+    return evt < PG_NUMEVENTS;
 }
 
 static PyObject *
