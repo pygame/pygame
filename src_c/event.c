@@ -423,7 +423,7 @@ static PyTypeObject pgEvent_Type;
 static PyObject *
 pgEvent_New(SDL_Event *);
 static PyObject *
-pgEvent_New2(int, PyObject *);
+pgEvent_New2(Uint32, PyObject *);
 #define pgEvent_Check(x) ((x)->ob_type == &pgEvent_Type)
 
 static char *
