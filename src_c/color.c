@@ -946,34 +946,26 @@ _color_update(pgColorObject *self, PyObject *args, PyObject *kwargs)
 
         /* Color(R,G,B[,A]) */
         if (!_get_color(r_or_obj, &color) || color > 255) {
-            PyErr_SetString(PyExc_ValueError, "invalid color argument");
-            return NULL;
+            return RAISE(PyExc_ValueError, "invalid color argument");
         }
         rgba[0] = (Uint8)color;
         if (!_get_color(g, &color) || color > 255) {
-            PyErr_SetString(PyExc_ValueError, "invalid color argument");
-            return NULL;
+            return RAISE(PyExc_ValueError, "invalid color argument");
         }
         rgba[1] = (Uint8)color;
         if (!b || !_get_color(b, &color) || color > 255) {
-            PyErr_SetString(PyExc_ValueError, "invalid color argument");
-            return NULL;
+            return RAISE(PyExc_ValueError, "invalid color argument");
         }
         rgba[2] = (Uint8)color;
 
         if (a) {
             if (!_get_color(a, &color) || color > 255) {
-                PyErr_SetString(PyExc_ValueError, "invalid color argument");
-                return NULL;
+                return RAISE(PyExc_ValueError, "invalid color argument");
             }
+            self->len = 4;
             rgba[3] = (Uint8)color;
         }
-        else { /* No alpha */
-            rgba[3] = 255;
-        }
     }
-
-    self->len = 4;
     Py_RETURN_NONE;
 }
 

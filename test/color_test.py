@@ -1202,6 +1202,17 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(c.b, 0)
         self.assertEqual(c.a, 255)
 
+        c = pygame.color.Color(0, 0, 0, 120)
+        c.set_length(3)
+        c.update(1, 2, 3)
+        self.assertEqual(len(c), 3)
+        c.set_length(4)
+        self.assertEqual(c[3], 120)
+
+        c.set_length(3)
+        c.update(1, 2, 3, 4)
+        self.assertEqual(len(c), 4)
+
 class SubclassTest(unittest.TestCase):
     class MyColor(pygame.Color):
         def __init__(self, *args, **kwds):
