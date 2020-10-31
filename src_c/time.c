@@ -90,7 +90,7 @@ _pg_timer_callback(Uint32 interval, void *param)
 }
 
 static Uint32
-_timer_callback_once(Uint32 interval, void *param)
+_pg_timer_callback_once(Uint32 interval, void *param)
 {
     return _pg_timer_callback(0, param);
 }
