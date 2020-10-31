@@ -348,7 +348,7 @@ mouse_set_color_cursor(PyObject *self, PyObject *args)
 
 #if IS_SDLv2
     surf = pgSurface_AsSurface(surfobj);
-    if (hotx < 0 || hoty < 0 || hotx >= surf->x || hoty >= surf->y) {
+    if (hotx < 0 || hoty < 0 || hotx >= surf->w || hoty >= surf->h) {
         return RAISE(PyExc_ValueError, "values for hotx, hoty are not in range");
     }
     
