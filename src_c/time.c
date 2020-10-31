@@ -425,7 +425,7 @@ pg_ClockInit(PyObject *self)
     _clock->fps_count = 0;
     
     /*just doublecheck that timer is initialized*/
-    if (!_is_sdl_time_init())
+    if (!_pg_is_sdl_time_init())
         return NULL;
  
     _clock->last_tick = _pg_get_clock();
@@ -478,7 +478,7 @@ MODINIT_DEFINE(time)
 #endif /* IS_SDLv2 */
 
     /* type preparation */
-    if (PyType_Ready(pgClock_Type) < 0) {
+    if (PyType_Ready(&pgClock_Type) < 0) {
         MODINIT_ERROR;
     }
 
