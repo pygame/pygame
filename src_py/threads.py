@@ -9,14 +9,14 @@ __author__ = "Rene Dudfield"
 __version__ = "0.3.0"
 __license__ = 'Python license'
 
-import traceback, sys
+import sys
 
 from pygame.compat import geterror
 
 if sys.version_info[0] == 3:
-    from queue import Queue, Empty
+    from queue import Queue
 else:
-    from Queue import Queue, Empty
+    from Queue import Queue
 
 import threading
 Thread = threading.Thread
