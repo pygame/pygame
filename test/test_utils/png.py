@@ -1517,8 +1517,7 @@ class Reader:
 
         def up():
             """Undo up filter."""
-
-            for i in range(len(result)):
+            for i in range(len(result)):  # pylint: disable=consider-using-enumerate
                 x = scanline[i]
                 b = previous[i]
                 result[i] = (x + b) & 0xFF
@@ -1527,7 +1526,7 @@ class Reader:
             """Undo average filter."""
 
             ai = -fu
-            for i in range(len(result)):
+            for i in range(len(result)):  # pylint: disable=consider-using-enumerate
                 x = scanline[i]
                 if ai < 0:
                     a = 0
@@ -1542,7 +1541,7 @@ class Reader:
 
             # Also used for ci.
             ai = -fu
-            for i in range(len(result)):
+            for i in range(len(result)):  # pylint: disable=consider-using-enumerate
                 x = scanline[i]
                 if ai < 0:
                     a = c = 0
