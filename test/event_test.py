@@ -761,7 +761,8 @@ class EventModuleTest(unittest.TestCase):
         'requires the SDL_VIDEODRIVER to be a non "dummy" value',
     )
     def test_get_grab(self):
-        """Ensure get_grab() works as expected"""   
+        """Ensure get_grab() works as expected"""
+        surf = pygame.display.set_mode((10, 10))
         # Test 5 times
         for i in range(5):
             pygame.event.set_grab(i % 2)
