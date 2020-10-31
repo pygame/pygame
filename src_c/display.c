@@ -245,6 +245,17 @@ pg_quit(PyObject *self, PyObject *arg)
 static PyObject *
 pg_init(PyObject *self, PyObject *args)
 {
+
+#if IS_SDLv2
+    /* Compatibility:
+        windib video driver was renamed in SDL2, and we don't want it to fail.
+    */
+    const char *drivername = SDL_getenv("SDL_VIDEODRIVER");
+    if (drivername && SDL_strncasecmp("windb", drivername, SDL_strlen(drivername) == 0)) {
+        SDL_setenv("SDL_VIDEODRIVER", "windows", 1);
+    }
+#endif
+
     if (!pgVideo_AutoInit())
         return RAISE(pgExc_SDLError, SDL_GetError());
     if (!pg_display_autoinit(NULL, NULL))
