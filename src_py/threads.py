@@ -13,10 +13,11 @@ import sys
 
 from pygame.compat import geterror
 
+# we need this import (of Empty), even if this makes LGTM unhappy
 if sys.version_info[0] == 3:
-    from queue import Queue
+    from queue import Queue, Empty 
 else:
-    from Queue import Queue
+    from Queue import Queue, Empty
 
 import threading
 Thread = threading.Thread
