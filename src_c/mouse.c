@@ -332,6 +332,37 @@ mouse_set_system_cursor(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+mouse_set_color_cursor(PyObject *self, PyObject *args)
+{
+    int hotx, hoty;
+    pgSurfaceObject *surfobj;
+    SDL_Surface *surf;
+    SDL_Cursor *lastcursor, *cursor = NULL;
+
+    VIDEO_INIT_CHECK();
+
+    if (!PyArg_ParseTuple(args, "O!(ii)", &pgSurface_Type, &surfobj, &hotx, &hoty)) {
+        return NULL;
+    }
+
+#if IS_SDLv2
+    surf = pgSurface_AsSurface(surfobj);
+    if (hotx < 0 || hoty < 0 || hotx >= surf->x || hoty >= surf->y) {
+        return RAISE(PyExc_ValueError, "values for hotx, hoty are not in range");
+    }
+    
+    cursor = SDL_CreateColorCursor(surf, hotx, hoty);
+    if (!cursor) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    lastcursor = SDL_GetCursor();
+    SDL_SetCursor(cursor);
+    SDL_FreeCursor(lastcursor);
+#endif
+    Py_RETURN_NONE;
+}
+
 
 #if IS_SDLv2
 static PyObject *
@@ -392,6 +423,7 @@ static PyMethodDef _mouse_methods[] = {
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},
     {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETSYSTEMCURSOR},
+    {"set_color_cursor", mouse_set_color_cursor, METH_VARARGS, "Coming soon :)"},
     {"get_cursor", (PyCFunction)mouse_get_cursor, METH_VARARGS,
      DOC_PYGAMEMOUSEGETCURSOR},
 
