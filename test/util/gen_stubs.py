@@ -104,8 +104,8 @@ def get_instance(type_):
 
     try:
         return helper(*arg)
-    except Exception, e:
-        raw_input("FAILED TO CREATE INSTANCE OF %s\n%s\n" 
+    except Exception as e:
+        raw_input("FAILED TO CREATE INSTANCE OF %s\n%s\n"
                   "Press Enter to continue" % (type_, e))
         return type_
 
@@ -342,19 +342,19 @@ if __name__ == "__main__":
         sys.exit(opt_parser.print_help())
 
     docs = options.docs and docs_as_dict() or {}
-    
+
     root = args and args[0] or 'pygame'
     if not root.startswith('pygame'):
         root = '%s.%s' % ('pygame', root)
 
     stubs, tested = get_stubs(root)
-            
+
     for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
         if not fname.startswith(root): continue  # eg. module.Class
         test_name, stub = stubs[fname]
 
-        if options.list: print "%s," % fname
-        elif options.test_names: print test_name
-        else: print stub
+        if options.list: print("%s," % fname)
+        elif options.test_names: print(test_name)
+        else: print(stub)
 
 ################################################################################
