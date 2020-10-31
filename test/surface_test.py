@@ -2130,6 +2130,18 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         with self.assertRaises(AttributeError):
             "DUMMY".get_locks()
 
+        # test multiple locks and unlocks on the same surface
+        surface.lock()
+        surface.lock()
+        surface.lock()
+        self.assertEqual(surface.get_locks(), (surface, surface, surface))
+
+        surface.unlock()
+        surface.unlock()
+        self.assertEqual(surface.get_locks(), (surface,))
+        surface.unlock()
+        self.assertEqual(surface.get_locks(), ())
+
     def test_get_losses(self):
         """Ensure a surface's losses can be retrieved"""
         pygame.display.init()
