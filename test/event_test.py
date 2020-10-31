@@ -756,6 +756,10 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertTrue(blocked)
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires the SDL_VIDEODRIVER to be a non "dummy" value',
+    )
     def test_get_grab(self):
         """Ensure get_grab() works as expected"""   
         # Test 5 times
