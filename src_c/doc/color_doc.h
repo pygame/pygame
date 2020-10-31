@@ -13,6 +13,7 @@
 #define DOC_COLORSETLENGTH "set_length(len) -> None\nSet the number of elements in the Color to 1,2,3, or 4."
 #define DOC_COLORLERP "lerp(Color, float) -> Color\nreturns a linear interpolation to the given Color."
 #define DOC_COLORPREMULALPHA "premul_alpha() -> Color\nreturns a Color where the r,g,b components have been multiplied by the alpha."
+#define DOC_COLORUPDATE "update(r, g, b) -> None\nupdate(r, g, b, a=255) -> None\nupdate(color_value) -> None\nSets the elements of the color"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -76,5 +77,11 @@ returns a linear interpolation to the given Color.
 pygame.Color.premul_alpha
  premul_alpha() -> Color
 returns a Color where the r,g,b components have been multiplied by the alpha.
+
+pygame.Color.update
+ update(r, g, b) -> None
+ update(r, g, b, a=255) -> None
+ update(color_value) -> None
+Sets the elements of the color
 
 */

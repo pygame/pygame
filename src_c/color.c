@@ -205,7 +205,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORLERP},
     {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
      DOC_COLORPREMULALPHA},
-    {"update", (PyCFunction)_color_update, METH_VARARGS, "temp"},
+    {"update", (PyCFunction)_color_update, METH_VARARGS,
+     DOC_COLORUPDATE},
     {NULL, NULL, 0, NULL}};
 
 /**
