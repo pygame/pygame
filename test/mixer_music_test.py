@@ -288,7 +288,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_get_busy(self):
+    def test_get_busy(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_busy:
 
@@ -296,7 +296,12 @@ class MixerMusicModuleTest(unittest.TestCase):
         # music is idle this returns False.
         #
 
-        self.fail()
+        self.music_load("ogg")
+        self.assertFalse(pygame.mixer.music.get_busy())
+        pygame.mixer.music.play()
+        self.assertTrue(pygame.mixer.music.get_busy())
+        pygame.mixer.music.pause()
+        self.assertFalse(pygame.mixer.music.get_busy())
 
     def todo_test_get_endevent(self):
 
