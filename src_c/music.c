@@ -115,7 +115,7 @@ music_get_busy(PyObject *self, PyObject *args)
     MIXER_INIT_CHECK();
 
     Py_BEGIN_ALLOW_THREADS
-    playing = Mix_PlayingMusic();
+    playing = (Mix_PlayingMusic() && !Mix_PausedMusic());
     Py_END_ALLOW_THREADS
 
     return PyInt_FromLong(playing);
