@@ -342,8 +342,7 @@ class EventModuleTest(unittest.TestCase):
             self.assertEqual(
                 pygame.event.poll().type, EVENT_TYPES[i], race_condition_notification
             )
-    
-    # @unittest.skip("At the moment, this test seems to fail on all platforms")
+
     def test_post_and_get_keydown(self):
         """Ensure keydown events can be posted to the queue."""
         surf = pygame.display.set_mode((10, 10))
@@ -695,6 +694,7 @@ class EventModuleTest(unittest.TestCase):
         self.assertFalse(pygame.event.get_grab())
 
     def test_event_equality(self):
+        """Ensure an events can be compared correctly."""
         a = pygame.event.Event(EVENT_TYPES[0], a=1)
         b = pygame.event.Event(EVENT_TYPES[0], a=1)
         c = pygame.event.Event(EVENT_TYPES[1], a=1)
@@ -756,33 +756,37 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertTrue(blocked)
 
-    def todo_test_get_grab(self):
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'requires the SDL_VIDEODRIVER to be a non "dummy" value',
+    )
+    def test_get_grab(self):
+        """Ensure get_grab() works as expected"""
+        surf = pygame.display.set_mode((10, 10))
+        # Test 5 times
+        for i in range(5):
+            pygame.event.set_grab(i % 2)
+            self.assertEqual(pygame.event.get_grab(), i % 2)
 
-        # __doc__ (as of 2008-08-02) for pygame.event.get_grab:
-
-        # pygame.event.get_grab(): return bool
-        # test if the program is sharing input devices
-        #
-        # Returns true when the input events are grabbed for this application.
-        # Use pygame.event.set_grab() to control this state.
-        #
-
-        self.fail()
-
-    def todo_test_poll(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.event.poll:
-
-        # pygame.event.poll(): return Event
-        # get a single event from the queue
-        #
-        # Returns a single event from the queue. If the event queue is empty
-        # an event of type pygame.NOEVENT will be returned immediately. The
-        # returned event is removed from the queue.
-        #
-
-        self.fail()
-
+    def test_poll(self):
+        """Ensure poll() works as expected"""
+        pygame.event.clear()
+        ev = pygame.event.poll()
+        # poll() on empty queue should return NOEVENT
+        self.assertEqual(ev.type, pygame.NOEVENT)
+        
+        # test poll returns stuff in same order
+        e1 = pygame.event.Event(pygame.USEREVENT)
+        e2 = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a)
+        e3 = pygame.event.Event(pygame.KEYUP, key=pygame.K_a)
+        pygame.event.post(e1)
+        pygame.event.post(e2)
+        pygame.event.post(e3)
+        
+        self.assertEqual(pygame.event.poll().type, e1.type)
+        self.assertEqual(pygame.event.poll().type, e2.type)
+        self.assertEqual(pygame.event.poll().type, e3.type)
+        self.assertEqual(pygame.event.poll().type, pygame.NOEVENT)
 
 ################################################################################
 
