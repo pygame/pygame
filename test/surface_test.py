@@ -1709,6 +1709,25 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         # pprint(results)
         self.assertEqual(results, results_expected)
 
+    def test_opaque_destination_blit_with_set_alpha(self):
+        # no set_alpha()
+        src_surf = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
+        src_surf.fill((255, 255, 255, 200))
+        dest_surf = pygame.Surface((32, 32))
+        dest_surf.fill((100, 100, 100))
+
+        dest_surf.blit(src_surf, (0, 0))
+
+        no_surf_alpha_col = dest_surf.get_at((0,0))
+
+        dest_surf.fill((100, 100, 100))
+        dest_surf.set_alpha(200)
+        dest_surf.blit(src_surf, (0, 0))
+
+        surf_alpha_col = dest_surf.get_at((0, 0))
+
+        self.assertEqual(no_surf_alpha_col, surf_alpha_col)
+
     def todo_test_convert(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
@@ -2110,6 +2129,18 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         # AttributeError raised when called on invalid object type (i.e. not a pygame.Surface object)
         with self.assertRaises(AttributeError):
             "DUMMY".get_locks()
+
+        # test multiple locks and unlocks on the same surface
+        surface.lock()
+        surface.lock()
+        surface.lock()
+        self.assertEqual(surface.get_locks(), (surface, surface, surface))
+
+        surface.unlock()
+        surface.unlock()
+        self.assertEqual(surface.get_locks(), (surface,))
+        surface.unlock()
+        self.assertEqual(surface.get_locks(), ())
 
     def test_get_losses(self):
         """Ensure a surface's losses can be retrieved"""

@@ -38,6 +38,11 @@ The ``pygame.KEYDOWN`` event has the additional attributes ``unicode`` and
 The following is a list of all the constants (from :mod:`pygame.locals`) used to
 represent keyboard keys.
 
+Portability note: The integers for key constants differ between pygame 1 and 2.
+Always use key constants (``K_a``) rather than integers directly (``97``) so
+that your key handling code works well on both pygame 1 and pygame 2.
+
+
 ::
 
       pygame

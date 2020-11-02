@@ -131,7 +131,7 @@ midi events to pygame events.
    | :sl:`Output is used to send midi to an output device`
    | :sg:`Output(device_id) -> None`
    | :sg:`Output(device_id, latency=0) -> None`
-   | :sg:`Output(device_id, buffer_size=4096) -> None`
+   | :sg:`Output(device_id, buffer_size=256) -> None`
    | :sg:`Output(device_id, latency, buffer_size) -> None`
 
    The ``buffer_size`` specifies the number of output events to be buffered
