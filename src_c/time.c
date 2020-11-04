@@ -122,8 +122,10 @@ _pg_get_clock_precision(void) {
      * most Unix-based platforms (Linux, Mac, etc) this gives nanosecond
      * precision (fallback to microsecond precision in rare cases)
      * In worst cases (extremely rare) it may fall back to using 
-     * millisecond accuracy */
-    return SDL_GetPerformanceFrequency();
+     * millisecond accuracy.
+     * Here, we divide by 1000 because we want ticks per millisecond, not
+     * ticks per second */
+    return SDL_GetPerformanceFrequency() / 1000;
 }
 
 #else /* IS_SDLv1 */
@@ -134,14 +136,14 @@ _pg_get_clock(void) {
 
 static Uint64
 _pg_get_clock_precision(void) {
-    return 1000;
+    return 1;
 }
 #endif /* IS_SDLv1 */
 
 static double
 _pg_get_delta_millis(Uint64 start)
 {
-    return 1000.0 * ((double)(_pg_get_clock() - start) / _pg_get_clock_precision());
+    return (double)(_pg_get_clock() - start) / _pg_get_clock_precision();
 }
 
 static Uint64
@@ -154,9 +156,12 @@ static double
 _pg_accurate_delay(double millis)
 {
     int sleeptime;
-    Uint64 starttime = _pg_get_clock();
-    Uint64 endtime = starttime + _pg_get_ticks_from_millis(millis);
+    Uint64 endtime, starttime = _pg_get_clock();
     
+    if (millis <= 0)
+        return 0.0;
+    
+    endtime = starttime + _pg_get_ticks_from_millis(millis);  
     if (millis >= 20)
         sleeptime = (int)millis - 5;
     else if (millis >= 15)
