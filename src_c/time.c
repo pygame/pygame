@@ -99,8 +99,8 @@ _pg_timer_callback_once(Uint32 interval, void *param)
 on failure and also set python error */
 static int 
 _pg_is_sdl_time_init(void) {
-   if (!SDL_WasInit(SDL_INIT_TIMER)) {
-       if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
+    if (!SDL_WasInit(SDL_INIT_TIMER)) {
+        if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
             return 0;
         }
@@ -109,7 +109,6 @@ _pg_is_sdl_time_init(void) {
 }
 
 #if IS_SDLv2
-
 static Uint64
 _pg_get_clock(void) {
     return SDL_GetPerformanceCounter();
@@ -119,9 +118,9 @@ static Uint64
 _pg_get_clock_precision(void) {
     /* Get the number of ticks of the precision clock per second.
      * This clock uses the most accurate clock available on the system
-     * On most windows platforms, this has microsecond presicion and on
+     * On most windows platforms, this has microsecond precision and on
      * most Unix-based platforms (Linux, Mac, etc) this gives nanosecond
-     * precison (fallback to microsecond presicion in rare cases)
+     * precision (fallback to microsecond precision in rare cases)
      * In worst cases (extremely rare) it may fall back to using 
      * millisecond accuracy */
     return SDL_GetPerformanceFrequency();
@@ -145,12 +144,18 @@ _pg_get_delta_millis(Uint64 start)
     return 1000.0 * ((double)(_pg_get_clock() - start) / _pg_get_clock_precision());
 }
 
+static Uint64
+_pg_get_ticks_from_millis(double delta_millis)
+{
+    return (Uint64)(delta_millis * _pg_get_clock_precision());
+}
+
 static double
 _pg_accurate_delay(double millis)
 {
-    double delay;
     int sleeptime;
     Uint64 starttime = _pg_get_clock();
+    Uint64 endtime = starttime + _pg_get_ticks_from_millis(millis);
     
     if (millis >= 20)
         sleeptime = (int)millis - 5;
@@ -171,9 +176,7 @@ _pg_accurate_delay(double millis)
         Py_END_ALLOW_THREADS;
     }
     
-    do {
-        delay = millis - _pg_get_delta_millis(starttime);
-    } while (delay > 0);
+    while (_pg_get_clock() < endtime); // wait here
     return _pg_get_delta_millis(starttime);
 }
 
