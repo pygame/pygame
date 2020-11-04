@@ -149,7 +149,7 @@ script:
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$MANYLINUX_WHL" != "yes" ]]; then
       $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
-      $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300
+      $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl --time_out 300
     fi
   # to make sure setup.py sdist runs.
   - |
