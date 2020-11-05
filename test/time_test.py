@@ -4,6 +4,8 @@ import time
 
 Clock = pygame.time.Clock
 
+SDL1 = pygame.get_sdl_version()[0] < 2
+
 # Because timing based tests are twitchy, just test stuff again if they fail,
 # but only upto NUM_TRIES
 NUM_TRIES = 3
@@ -195,7 +197,8 @@ class ClockTypeTest(unittest.TestCase):
                                testing_framerate, delta=epsilon3)
         
         # now call _tick_test(), which are essentially more rigourous tests
-        self._tick_test()
+        if not SDL1:
+            self._tick_test()
 
     def _tick_test(self, reccnt = 0):
         if reccnt >= NUM_TRIES:
