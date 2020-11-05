@@ -37,7 +37,7 @@ class ClockTypeTest(unittest.TestCase):
         if reccnt == NUM_TRIES:
             self.fail("get_fps does not work")
             
-        delta = 0.1
+        delta = 0.2
         delay_per_frame = 1.0/fps
         for f in range(fps // 4):  # For 250ms tick and sleep
             clock.tick()
@@ -174,7 +174,7 @@ class ClockTypeTest(unittest.TestCase):
 
         start = time.time()
 
-        for i in range(testing_framerate):
+        for i in range(testing_framerate // 2):
             collection.append(c.tick(testing_framerate))
 
         # remove the highest and lowest outliers, do that 3 times
@@ -187,8 +187,8 @@ class ClockTypeTest(unittest.TestCase):
 
         # Since calling tick with a desired fps will prevent the program from
         # running at greater than the given fps, 100 iterations at 100 fps
-        # should last no less than 1 second
-        self.assertAlmostEqual(end - start, 1, delta=epsilon2)
+        # should last for about half second
+        self.assertAlmostEqual(end - start, 0.5, delta=epsilon2)
 
         average_tick_time = sum(collection) / len(collection)
         self.assertAlmostEqual(1000/average_tick_time,
@@ -202,7 +202,7 @@ class ClockTypeTest(unittest.TestCase):
             self.fail("clock.tick() failed")
             
         second_len = 1000
-        delta = 0.1
+        delta = 0.2
         fps = 40
         
         c = Clock()
