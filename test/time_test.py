@@ -202,7 +202,7 @@ class ClockTypeTest(unittest.TestCase):
             self.fail("clock.tick() failed")
             
         second_len = 1000.0
-        delta = 0.2
+        delta = 0.3
         fps = 40
         
         c = Clock()
