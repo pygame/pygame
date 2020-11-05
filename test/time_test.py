@@ -201,7 +201,7 @@ class ClockTypeTest(unittest.TestCase):
         if reccnt >= NUM_TRIES:
             self.fail("clock.tick() failed")
             
-        second_len = 1000
+        second_len = 1000.0
         delta = 0.2
         fps = 40
         
