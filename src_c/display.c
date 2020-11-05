@@ -32,6 +32,7 @@
 #include "doc/display_doc.h"
 
 #include <SDL_syswm.h>
+#include <SDL_opengl.h>
 
 static PyTypeObject pgVidInfo_Type;
 
@@ -2400,6 +2401,27 @@ pg_iconify(PyObject *self, PyObject *args)
     return PyBool_FromLong(1);
 }
 
+static PyObject *
+pg_get_gl_info(PyObject *self, PyObject *args)
+{
+    _DisplayState *state = DISPLAY_MOD_STATE(self);
+    SDL_Window *win = pg_GetDefaultWindow();
+
+    if (state->using_gl){
+        const GLubyte *(APIENTRY * p_glGetString)(GLenum);
+        p_glGetString = SDL_GL_GetProcAddress("glGetString");
+        return PyTuple_Pack(5,
+                            PyUnicode_FromString(p_glGetString(GL_VENDOR)),
+                            PyUnicode_FromString(p_glGetString(GL_RENDERER)),
+                            PyUnicode_FromString(p_glGetString(GL_VERSION)),
+                            PyUnicode_FromString(p_glGetString(GL_SHADING_LANGUAGE_VERSION)),
+                            PyUnicode_FromString(p_glGetString(GL_EXTENSIONS)));
+    }
+    else {
+        Py_RETURN_NONE;
+    }
+}
+
 /* This is only here for debugging purposes. Games should not rely on the
  * implementation details of specific renderers, only on the documented
  * behaviour of SDL_Renderer. It's fine to debug-print which renderer a game is
@@ -3076,6 +3098,8 @@ static PyMethodDef _pg_display_methods[] = {
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
      "provisional API, subject to change"},
     {"_get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info,
+     METH_NOARGS, "provisional API, subject to change"},
+    {"_get_gl_info", (PyCFunction)pg_get_gl_info,
      METH_NOARGS, "provisional API, subject to change"},
     {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes,
      METH_NOARGS, "provisional API, subject to change"},
