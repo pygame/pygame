@@ -789,47 +789,26 @@ class ImageModuleTest(unittest.TestCase):
                 self.assertIsInstance(item, expected_item_type)
 
     def test_load_basic(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.image.load_basic:
-
+        """to see if we can load bmp from files and/or file-like objects in memory"""
+        
         # pygame.image.load(filename): return Surface
 
-        # Create a PNG file with known colors
-        reddish_pixel = (210, 0, 0, 255)
-        greenish_pixel = (0, 220, 0, 255)
-        bluish_pixel = (0, 0, 230, 255)
-        greyish_pixel = (110, 120, 130, 140)
-        pixel_array = [reddish_pixel + greenish_pixel, bluish_pixel + greyish_pixel]
-
-        f_descriptor, f_path = tempfile.mkstemp(suffix=".png")
-
-        with os.fdopen(f_descriptor, "wb") as f:
-            w = png.Writer(2, 2, alpha=True)
-            w.write(f, pixel_array)
-
-        # Read the PNG file and verify that pygame interprets it correctly
-        surf = pygame.image.load(f_path)
-
-        self.assertEqual(surf.get_at((0, 0)), reddish_pixel)
-        self.assertEqual(surf.get_at((1, 0)), greenish_pixel)
-        self.assertEqual(surf.get_at((0, 1)), bluish_pixel)
-        self.assertEqual(surf.get_at((1, 1)), greyish_pixel)
-
-        # Read the PNG file obj. and verify that pygame interprets it correctly
-        with open(f_path, "rb") as f:
-            surf = pygame.image.load(f)
-
-        self.assertEqual(surf.get_at((0, 0)), reddish_pixel)
-        self.assertEqual(surf.get_at((1, 0)), greenish_pixel)
-        self.assertEqual(surf.get_at((0, 1)), bluish_pixel)
-        self.assertEqual(surf.get_at((1, 1)), greyish_pixel)
-
-        os.remove(f_path)
-
         
-        # pygame.image.load(fileobj, namehint=): return Surface
-        # load new image from a file
+        # test loading from a file
+        s = pygame.image.load_basic(example_path("data/asprite.bmp"))
+        self.assertEqual(s.get_at((0,0)),(255,255,255,255))
 
+        # test loading from io.BufferedReader
+        f = pygame.pkgdata.getResource("pygame_icon.bmp")
+        self.assertEqual(f.mode, "rb")
+
+        surf = pygame.image.load_basic(f)
+
+        self.assertEqual(surf.get_at((0, 0)), (5, 4, 5, 255))
+        self.assertEqual(surf.get_height(), 32)
+        self.assertEqual(surf.get_width(), 32)
+        
+        f.close()
 
     def todo_test_load_extended(self):
 
