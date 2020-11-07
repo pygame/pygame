@@ -784,15 +784,27 @@ class ImageModuleTest(unittest.TestCase):
             for item in version:
                 self.assertIsInstance(item, expected_item_type)
 
-    def todo_test_load_basic(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.image.load_basic:
-
+    def test_load_basic(self):
+        """to see if we can load bmp from files and/or file-like objects in memory"""
+        
         # pygame.image.load(filename): return Surface
-        # pygame.image.load(fileobj, namehint=): return Surface
-        # load new image from a file
 
-        self.fail()
+        
+        # test loading from a file
+        s = pygame.image.load_basic(example_path("data/asprite.bmp"))
+        self.assertEqual(s.get_at((0,0)),(255,255,255,255))
+
+        # test loading from io.BufferedReader
+        f = pygame.pkgdata.getResource("pygame_icon.bmp")
+        self.assertEqual(f.mode, "rb")
+
+        surf = pygame.image.load_basic(f)
+
+        self.assertEqual(surf.get_at((0, 0)), (5, 4, 5, 255))
+        self.assertEqual(surf.get_height(), 32)
+        self.assertEqual(surf.get_width(), 32)
+        
+        f.close()
 
     def todo_test_load_extended(self):
 
