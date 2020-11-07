@@ -357,6 +357,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
     Uint16 fmt = 0;
     int i;
     PyObject *music;
+    char *drivername;
 
     if (!freq) {
         freq = request_frequency;
@@ -455,6 +456,20 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
                 channeldata[i].endevent = 0;
             }
         }
+
+#if IS_SDLv2
+        /* Compatibility:
+            pulse and dsound audio drivers were renamed in SDL2,
+            and we don't want it to fail.
+        */
+        drivername = SDL_getenv("SDL_AUDIODRIVER");
+        if (drivername && SDL_strncasecmp("pulse", drivername, SDL_strlen(drivername)) == 0) {
+            SDL_setenv("SDL_AUDIODRIVER", "pulseaudio", 1);
+        }
+        else if (drivername && SDL_strncasecmp("dsound", drivername, SDL_strlen(drivername)) == 0) {
+            SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
+        }
+#endif
 
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong(0);
