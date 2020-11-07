@@ -2093,7 +2093,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         ymax = size - 1
         for y in range(size):
             for x in range(size):
-                if x == y or x == ymax - y:
+                if x in [y, ymax - y]:
                     pattern.set_at((x, y))
 
         if inverse:
@@ -2257,7 +2257,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         # in the resulting pattern for this to work properly.
         for y in range(3, p_height):
             for x in range(1, p_width):
-                if x == y or x == y - 3 or x == p_width - 4:
+                if x in [y, y - 3, p_width - 4]:
                     expected_pattern.set_at((x, y), 0)
 
         expected_count = expected_pattern.count()

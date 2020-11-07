@@ -1087,7 +1087,7 @@ class BaseLineMixin(object):
         # Yields pairs of end points and their reverse (to test symmetry).
         # Uses a rect with the points radiating from its midleft.
         for pt in rect_corners_mids_and_center(rect):
-            if pt == rect.midleft or pt == rect.center:
+            if pt in [rect.midleft, rect.center]:
                 # Don't bother with these points.
                 continue
             yield (rect.midleft, pt)
