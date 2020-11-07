@@ -914,11 +914,16 @@ dict_from_event(SDL_Event *event)
             break;
 #else /* IS_SDLv2 */
         case SDL_SYSWMEVENT:
+#ifndef Py_WIN8APP
             _pg_insobj(dict, "hwnd",
                    PyInt_FromLong((long)(event->syswm.msg->msg.win.hwnd)));
             _pg_insobj(dict, "msg", PyInt_FromLong(event->syswm.msg->msg.win.msg));
             _pg_insobj(dict, "wparam", PyInt_FromLong(event->syswm.msg->msg.win.wParam));
             _pg_insobj(dict, "lparam", PyInt_FromLong(event->syswm.msg->msg.win.lParam));
+#else
+            _pg_insobj(dict, "dummy",
+                       PyInt_FromLong(event->syswm.msg->msg.dummy));
+#endif
             break;
 #endif /* IS_SDLv2 */
 #endif /* WIN32 */

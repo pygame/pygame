@@ -39,8 +39,12 @@
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <windows.h>
+
+#ifndef Py_WIN8APP
 extern int
 SDL_RegisterApp(char *, Uint32, void *);
+#endif
+
 #endif
 
 #if defined(macintosh)
@@ -2266,7 +2270,9 @@ MODINIT_DEFINE(base)
 #endif
 
 #ifdef MS_WIN32
+#ifndef Py_WIN8APP
         SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
+#endif
 #endif
 #if defined(macintosh)
 #if (!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
