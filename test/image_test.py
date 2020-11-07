@@ -13,18 +13,14 @@ import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_, unicode_
 
 
-def test_magic(f, magic_hex):
-    """ tests a given file to see if the magic hex matches.
-    """
-    data = f.read(len(magic_hex))
-
-    if len(data) != len(magic_hex):
+def test_magic(f, magic_hexes):
+    """Tests a given file to see if the magic hex matches."""
+    data = f.read(len(magic_hexes))
+    if len(data) != len(magic_hexes):
         return 0
-
-    for i in range(len(magic_hex)):
-        if magic_hex[i] != ord_(data[i]):
+    for i, magic_hex in enumerate(magic_hexes):
+        if magic_hex != ord_(data[i]):
             return 0
-
     return 1
 
 

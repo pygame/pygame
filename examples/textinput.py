@@ -139,11 +139,11 @@ def main():
 
         # Chat List updates
         chat_height = CHATLIST_POS.height / CHATLIST_MAXSIZE
-        for i in range(len(ChatList)):
+        for i, chat in enumerate(ChatList):
             FontSmall.render_to(
                 Screen,
                 (CHATLIST_POS.x, CHATLIST_POS.y + i * chat_height),
-                ChatList[i],
+                chat,
                 TEXTCOLOR,
             )
 
