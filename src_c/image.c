@@ -1731,20 +1731,29 @@ MODINIT_DEFINE(image)
     if (extmodule) {
         extloadobj = PyObject_GetAttrString(extmodule, "load_extended");
         if (!extloadobj) {
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            goto error;
         }
         extsaveobj = PyObject_GetAttrString(extmodule, "save_extended");
         if (!extsaveobj) {
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            goto error;
         }
         extverobj = PyObject_GetAttrString(extmodule, "_get_sdl_image_version");
         if (!extverobj) {
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            goto error;
         }
         Py_DECREF(extmodule);
     }
+    else {
+        // if the module could not be loaded, dont treat it like an error
+        PyErr_Clear();
+    }
     MODINIT_RETURN(module);
+    
+    error:
+        Py_XDECREF(extloadobj);
+        Py_XDECREF(extsaveobj);
+        Py_XDECREF(extverobj);
+        Py_DECREF(extmodule);
+        DECREF_MOD(module);
+        MODINIT_ERROR;
 }
