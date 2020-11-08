@@ -81,4 +81,60 @@ def getResource(identifier, pkgname=__name__):
                 pass
             else:
                 return BytesIO(data)
-    return open(os.path.normpath(path), 'rb')
+    try:
+        file = open(os.path.normpath(path), 'rb')
+        return file
+    except:
+        pass
+
+    def splitall(path):
+        allparts = []
+        while 1:
+            parts = os.path.split(path)
+            if parts[0] == path:  # sentinel for absolute paths
+                allparts.insert(0, parts[0])
+                break
+            elif parts[1] == path: # sentinel for relative paths
+                allparts.insert(0, parts[1])
+                break
+            else:
+                path = parts[0]
+                allparts.insert(0, parts[1])
+        return allparts
+
+    abs_path = path
+     
+    split_path = splitall(abs_path)
+
+    if not split_path:
+        raise IOError("Path is empty")
+
+    reconstructed_path = split_path[0]  
+
+
+    if len(split_path) == 1 or "zip" in split_path[-1]:
+        raise IOError("Must be a valid zip path (example: file.zip/file.txt)")
+
+    if "zip" in reconstructed_path:
+        try:
+            file_path = "/".join(split_path[i:])
+            assets_path = "Assets/" + file_path
+            file = open(os.path.normpath(assets_path), 'rb')
+        except:
+            raise IOError("Invalid zip or file contained by it")        
+
+    file = None
+
+    for i in range(1, len(split_path) + 1):
+        if "zip" in reconstructed_path:
+            try:
+                file_path = "/".join(split_path[i:])
+                assets_path = "Assets/" + file_path
+                file = open(os.path.normpath(assets_path), 'rb')
+                break
+            except:
+                raise IOError("Invalid path")       
+        reconstructed_path = reconstructed_path + "/" + split_path[i]
+
+    return_file = file
+    return return_file

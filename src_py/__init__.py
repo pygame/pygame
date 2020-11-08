@@ -31,13 +31,93 @@ import os
 if os.name == 'nt':
     #pypy does not find the dlls, so we add package folder to PATH.
     pygame_dir = os.path.split(__file__)[0]
-    os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
+    sys.path.append(pygame_dir)
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
-elif 'DISPLAY' in os.environ and 'SDL_VIDEO_X11_WMCLASS' not in os.environ:
-    os.environ['SDL_VIDEO_X11_WMCLASS'] = os.path.basename(sys.argv[0])
+#elif 'DISPLAY' in os.environ and 'SDL_VIDEO_X11_WMCLASS' not in os.environ:
+#    os.environ['SDL_VIDEO_X11_WMCLASS'] = os.path.basename(sys.argv[0])
 
+#import importlib.util
+#import sys
+
+"""def alternative_load_dynamic(name, path, file=None):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return sys.modules[name]
+"""
+
+"""def unbulk_dyn_load(name):
+    alternative_load_dynamic("pygame." + name, name + ".pyd")    
+"""
+
+#import imp
+
+#def unbulk_dyn_load(name):
+#    sys.modules["pygame." + name] = imp.load_dynamic("_pygame." + name, name + ".pyd")    
+
+from importlib.machinery import ExtensionFileLoader
+
+def unbulk_dyn_load(name):
+    foo = ExtensionFileLoader("pygame." + name, name + ".pyd").load_module()
+    sys.modules["pygame." + name] = foo
+    return foo
+
+def unbulk_dyn_load_package_name(module_name, package_name, extension_name):
+    foo = ExtensionFileLoader(package_name, extension_name).load_module()
+    sys.modules[module_name] = foo
+    return foo    
+
+# Mandatory
+base = unbulk_dyn_load("base")
+bufferproxy = unbulk_dyn_load("bufferproxy")
+color = unbulk_dyn_load("color")
+constants = unbulk_dyn_load("constants")
+rect = unbulk_dyn_load("rect")
+surflock = unbulk_dyn_load("surflock")
+surface = unbulk_dyn_load("surface")
+
+display = unbulk_dyn_load("display")
+draw = unbulk_dyn_load("draw")
+event = unbulk_dyn_load("event")
+fastevent = unbulk_dyn_load("fastevent")
+rwobject = unbulk_dyn_load("rwobject")
+
+imageext = unbulk_dyn_load_package_name("imageext", "pygame.imageext", "imageext.pyd")
+
+import pygame.imageext
+
+image = unbulk_dyn_load("image")
+joystick = unbulk_dyn_load("joystick")
+key = unbulk_dyn_load("key")
+mask = unbulk_dyn_load("mask")
+math = unbulk_dyn_load("math")
+mouse = unbulk_dyn_load("mouse")
+newbuffer = unbulk_dyn_load("newbuffer")
+pixelarray = unbulk_dyn_load("pixelarray")
+pixelcopy = unbulk_dyn_load("pixelcopy")
+
+time = unbulk_dyn_load("time")
+transform = unbulk_dyn_load("transform")
+
+
+# Optional extensions
+#alternative_load_dynamic("pygame.ftfont", "_freetype.pyd")
+#alternative_load_dynamic("pygame.sprite", "_sprite.pyd")
+#imp.load_dynamic("pygame.ftfont", "_freetype.pyd")
+#imp.load_dynamic("pygame.sprite", "sprite.pyd")
+
+font = unbulk_dyn_load("font")
+
+#font = unbulk_dyn_load_package_name("pygame.font", "pygame._freetype", "_freetype.pyd")
+
+mixer_music = unbulk_dyn_load("mixer_music")
+mixer = unbulk_dyn_load("mixer")
+
+scrap = unbulk_dyn_load("scrap")
+gfxdraw = unbulk_dyn_load("gfxdraw")
 
 class MissingModule:
     _NOT_IMPLEMENTED_ = True
@@ -85,16 +165,37 @@ from pygame.rect import Rect
 from pygame.compat import PY_MAJOR_VERSION
 from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
-import pygame.color
+import pygame.color 
 Color = color.Color
-import pygame.bufferproxy
+import pygame.bufferproxy 
 BufferProxy = bufferproxy.BufferProxy
-import pygame.math
-Vector2 = pygame.math.Vector2
-Vector3 = pygame.math.Vector3
+import pygame.math 
+
+Vector2 = math.Vector2
+Vector3 = math.Vector3
+
+import pygame.sprite
+
+#import pygame.mixer
 
 __version__ = ver
 
+
+# have dependencies on base import
+
+import _sdl2
+
+sprite = unbulk_dyn_load_package_name("sprite", "pygame._sprite", "_sprite.pyd")
+
+from pygame.surface import Surface, SurfaceType
+
+import pygame.sysfont
+
+font.SysFont = pygame.sysfont.SysFont
+font.get_fonts = pygame.sysfont.get_fonts
+font.match_font = pygame.sysfont.match_font
+
+"""
 # next, the "standard" modules
 # we still allow them to be missing for stripped down pygame distributions
 if get_sdl_version() < (2, 0, 0):
@@ -161,7 +262,7 @@ except (ImportError, IOError):
 
 
 def warn_unwanted_files():
-    """warn about unneeded old files"""
+    #warn about unneeded old files
 
     # a temporary hack to warn about camera.so and camera.pyd.
     install_path = os.path.split(pygame.base.__file__)[0]
@@ -253,14 +354,16 @@ if 'PYGAME_FREETYPE' in os.environ:
         sys.modules['pygame.font'] = font
     except (ImportError, IOError):
         pass
-try:
-    import pygame.font
-    import pygame.sysfont
-    pygame.font.SysFont = pygame.sysfont.SysFont
-    pygame.font.get_fonts = pygame.sysfont.get_fonts
-    pygame.font.match_font = pygame.sysfont.match_font
-except (ImportError, IOError):
-    font = MissingModule("font", urgent=0)
+    try:
+        import pygame.font
+        import pygame.sysfont
+
+        pygame.font.SysFont = pygame.sysfont.SysFont
+        pygame.font.get_fonts = pygame.sysfont.get_fonts
+        pygame.font.match_font = pygame.sysfont.match_font
+    except (ImportError, IOError):
+        font = MissingModule("font", urgent=0)
+
 
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
@@ -316,7 +419,7 @@ except (ImportError, IOError):
 
 
 def packager_imports():
-    """some additional imports that py2app/py2exe will want to see"""
+    #some additional imports that py2app/py2exe will want to see
     import atexit
     import numpy
     import OpenGL.GL
@@ -352,6 +455,7 @@ def __color_reduce(c):
     return __color_constructor, (c.r, c.g, c.b, c.a)
 copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
+"""
 
 # Thanks for supporting pygame. Without support now, there won't be pygame later.
 if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
@@ -360,6 +464,4 @@ if 'PYGAME_HIDE_SUPPORT_PROMPT' not in os.environ:
     ))
     print('Hello from the pygame community. https://www.pygame.org/contribute.html')
 
-
-# cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, PY_MAJOR_VERSION
+del os, sys
