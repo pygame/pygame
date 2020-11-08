@@ -274,22 +274,31 @@ endsound_callback(int channel)
             SDL_PushEvent(&e);
         }
         if (channeldata[channel].queue) {
+#ifndef Py_WIN8APP
             PyGILState_STATE gstate = PyGILState_Ensure();
+#endif
             int channelnum;
             Mix_Chunk *sound = pgSound_AsChunk(channeldata[channel].queue);
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = channeldata[channel].queue;
             channeldata[channel].queue = NULL;
+
+#ifndef Py_WIN8APP
             PyGILState_Release(gstate);
+#endif
             channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
             if (channelnum != -1)
                 Mix_GroupChannel(channelnum, (intptr_t)sound);
         }
         else {
+#ifndef Py_WIN8APP
             PyGILState_STATE gstate = PyGILState_Ensure();
+#endif
             Py_XDECREF(channeldata[channel].sound);
             channeldata[channel].sound = NULL;
+#ifndef Py_WIN8APP
             PyGILState_Release(gstate);
+#endif
             Mix_GroupChannel(channel, -1);
         }
     }
