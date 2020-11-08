@@ -430,6 +430,21 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_rect_update(pgRectObject* self, PyObject* args) {
+    GAME_Rect temp;
+    GAME_Rect *argrect = pgRect_FromObject(args, &temp);
+
+    if (argrect == NULL) {
+        return RAISE(PyExc_TypeError, "Argument must be rect style object");
+    }
+    self->r.x = argrect->x;
+    self->r.y = argrect->y;
+    self->r.w = argrect->w;
+    self->r.h = argrect->h;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 pg_rect_union(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
@@ -1085,6 +1100,7 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
     {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
     {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
+    {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
     {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,

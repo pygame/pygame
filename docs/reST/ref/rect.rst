@@ -126,6 +126,20 @@
 
       .. ## Rect.inflate_ip ##
 
+   .. method:: update
+
+      | :sl:`sets the position and size of the rectangle`
+      | :sg:`update(left, top, width, height) -> None`
+      | :sg:`update((left, top), (width, height)) -> None`
+      | :sg:`update(object) -> None`
+
+      Sets the position and size of the rectangle, in place. See
+      parameters for :meth:`pygame.Rect` for the parameters of this function.
+
+      .. versionadded:: 2.0.1
+
+      .. ## Rect.update ##
+
    .. method:: clamp
 
       | :sl:`moves the rectangle inside another`

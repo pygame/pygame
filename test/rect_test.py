@@ -1295,6 +1295,48 @@ class RectTypeTest(unittest.TestCase):
         expected_r2 = Rect(r.left + move_x, r.top + move_y, r.width, r.height)
         self.assertEqual(expected_r2, r2)
 
+    def test_update_XYWidthHeight(self):
+        """Test update with 4 int values(x, y, w, h)"""
+        rect = Rect(0, 0, 1, 1)
+        rect.update(1, 2, 3, 4)
+
+        self.assertEqual(1, rect.left)
+        self.assertEqual(2, rect.top)
+        self.assertEqual(3, rect.width)
+        self.assertEqual(4, rect.height)
+
+    def test_update__TopLeftSize(self):
+        """Test update with 2 tuples((x, y), (w, h))"""
+        rect = Rect(0, 0, 1, 1)
+        rect.update((1, 2), (3, 4))
+
+        self.assertEqual(1, rect.left)
+        self.assertEqual(2, rect.top)
+        self.assertEqual(3, rect.width)
+        self.assertEqual(4, rect.height)
+
+    def test_update__List(self):
+        """Test update with list"""
+        rect = Rect(0, 0, 1, 1)
+        rect2 = [1, 2, 3, 4]
+        rect.update(rect2)
+
+        self.assertEqual(1, rect.left)
+        self.assertEqual(2, rect.top)
+        self.assertEqual(3, rect.width)
+        self.assertEqual(4, rect.height)
+
+    def test_update__RectObject(self):
+        """Test update with other rect object"""
+        rect = Rect(0, 0, 1, 1)
+        rect2 = Rect(1, 2, 3, 4)
+        rect.update(rect2)
+
+        self.assertEqual(1, rect.left)
+        self.assertEqual(2, rect.top)
+        self.assertEqual(3, rect.width)
+        self.assertEqual(4, rect.height)
+
     def test_union(self):
         r1 = Rect(1, 1, 1, 2)
         r2 = Rect(-2, -2, 1, 2)

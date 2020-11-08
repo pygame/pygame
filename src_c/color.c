@@ -90,6 +90,8 @@ static PyObject *
 _color_lerp(pgColorObject *, PyObject *, PyObject *);
 static PyObject *
 _premul_alpha(pgColorObject *, PyObject *);
+static PyObject *
+_color_update(pgColorObject *, PyObject *, PyObject *);
 
 /* Getters/setters */
 static PyObject *
@@ -203,6 +205,8 @@ static PyMethodDef _color_methods[] = {
      DOC_COLORLERP},
     {"premul_alpha", (PyCFunction)_premul_alpha, METH_NOARGS,
      DOC_COLORPREMULALPHA},
+    {"update", (PyCFunction)_color_update, METH_VARARGS,
+     DOC_COLORUPDATE},
     {NULL, NULL, 0, NULL}};
 
 /**
@@ -918,6 +922,52 @@ _premul_alpha(pgColorObject *color, PyObject *args)
     new_rgba[3] = color->data[3];
 
     return (PyObject *)_color_new_internal(Py_TYPE(color), new_rgba);
+}
+
+static PyObject *
+_color_update(pgColorObject *self, PyObject *args, PyObject *kwargs)
+{
+    Uint8 *rgba = self->data;
+    PyObject *r_or_obj;
+    PyObject *g = NULL;
+    PyObject *b = NULL;
+    PyObject *a = NULL;
+
+    if (!PyArg_ParseTuple(args, "O|OOO", &r_or_obj, &g, &b, &a)) {
+        return NULL;
+    }
+
+    if (!g) {
+        if (_parse_color_from_single_object(r_or_obj, rgba)) {
+            return NULL;
+        }
+    }
+    else {
+        Uint32 color = 0;
+
+        /* Color(R,G,B[,A]) */
+        if (!_get_color(r_or_obj, &color) || color > 255) {
+            return RAISE(PyExc_ValueError, "invalid color argument");
+        }
+        rgba[0] = (Uint8)color;
+        if (!_get_color(g, &color) || color > 255) {
+            return RAISE(PyExc_ValueError, "invalid color argument");
+        }
+        rgba[1] = (Uint8)color;
+        if (!b || !_get_color(b, &color) || color > 255) {
+            return RAISE(PyExc_ValueError, "invalid color argument");
+        }
+        rgba[2] = (Uint8)color;
+
+        if (a) {
+            if (!_get_color(a, &color) || color > 255) {
+                return RAISE(PyExc_ValueError, "invalid color argument");
+            }
+            self->len = 4;
+            rgba[3] = (Uint8)color;
+        }
+    }
+    Py_RETURN_NONE;
 }
 
 /**

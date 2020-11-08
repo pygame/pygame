@@ -1168,6 +1168,50 @@ class ColorTypeTest(unittest.TestCase):
                                            ((b + 1) * a) >> 8,
                                            a))
 
+    def test_update(self):
+        c = pygame.color.Color(0, 0, 0)
+        c.update(1, 2, 3, 4)
+
+        self.assertEqual(c.r, 1)
+        self.assertEqual(c.g, 2)
+        self.assertEqual(c.b, 3)
+        self.assertEqual(c.a, 4)
+
+        c = pygame.color.Color(0, 0, 0)
+        c.update([1, 2, 3, 4])
+
+        self.assertEqual(c.r, 1)
+        self.assertEqual(c.g, 2)
+        self.assertEqual(c.b, 3)
+        self.assertEqual(c.a, 4)
+
+        c = pygame.color.Color(0, 0, 0)
+        c2 = pygame.color.Color(1, 2, 3, 4)
+        c.update(c2)
+
+        self.assertEqual(c.r, 1)
+        self.assertEqual(c.g, 2)
+        self.assertEqual(c.b, 3)
+        self.assertEqual(c.a, 4)
+
+        c = pygame.color.Color(1, 1, 1)
+        c.update("black")
+
+        self.assertEqual(c.r, 0)
+        self.assertEqual(c.g, 0)
+        self.assertEqual(c.b, 0)
+        self.assertEqual(c.a, 255)
+
+        c = pygame.color.Color(0, 0, 0, 120)
+        c.set_length(3)
+        c.update(1, 2, 3)
+        self.assertEqual(len(c), 3)
+        c.set_length(4)
+        self.assertEqual(c[3], 120)
+
+        c.set_length(3)
+        c.update(1, 2, 3, 4)
+        self.assertEqual(len(c), 4)
 
 class SubclassTest(unittest.TestCase):
     class MyColor(pygame.Color):

@@ -241,4 +241,17 @@
 
       .. ## Color.premul_alpha ##
 
+   .. method:: update
+
+      | :sl:`Sets the elements of the color`
+      | :sg:`update(r, g, b) -> None`
+      | :sg:`update(r, g, b, a=255) -> None`
+      | :sg:`update(color_value) -> None`
+
+      Sets the elements of the color. See parameters for :meth:`pygame.Color` for the
+      parameters of this function. If the alpha value was not set it will not change.
+
+      .. versionadded:: 2.0.1
+
+      .. ## Color.update ##
    .. ## pygame.Color ##
