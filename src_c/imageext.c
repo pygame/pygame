@@ -1107,7 +1107,8 @@ MODINIT_DEFINE(imageext)
                         boolean(*)(j_decompress_ptr cinfo, int desired))
         FUNCTION_LOADER(jpeg_start_decompress,
                         boolean(*)(j_decompress_ptr cinfo))
-        FUNCTION_LOADER(
+            // no jpeg writing support :(
+        /*FUNCTION_LOADER(
             jpeg_CreateCompress,
             void (*)(j_compress_ptr cinfo, int version, size_t structsize))
         FUNCTION_LOADER(
@@ -1122,7 +1123,7 @@ MODINIT_DEFINE(imageext)
             JDIMENSION(*)(j_compress_ptr cinfo, JSAMPARRAY scanlines,
                           JDIMENSION num_lines))
         FUNCTION_LOADER(jpeg_finish_compress, void (*)(j_compress_ptr cinfo))
-        FUNCTION_LOADER(jpeg_destroy_compress, void (*)(j_compress_ptr cinfo))
+        FUNCTION_LOADER(jpeg_destroy_compress, void (*)(j_compress_ptr cinfo))*/
         FUNCTION_LOADER(jpeg_std_error, struct jpeg_error_mgr *
                                             (*)(struct jpeg_error_mgr * err))
     }

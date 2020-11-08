@@ -1,8 +1,19 @@
 from cpython cimport PyObject
-from . import error
-from . import error as errorfnc
+
+# cpython does not read from other modules relative to the current module
+#from . import error
+#from . import error as errorfnc
+
 from libc.stdlib cimport free, malloc
 
+# replacement
+class error(RuntimeError):
+    def __init__(self, message=None):
+        if message is None:
+            message = SDL_GetError().decode('utf8')
+        RuntimeError.__init__(self, message)
+
+errorfnc = error
 
 WINDOWPOS_UNDEFINED = _SDL_WINDOWPOS_UNDEFINED
 WINDOWPOS_CENTERED = _SDL_WINDOWPOS_CENTERED
