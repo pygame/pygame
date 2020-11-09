@@ -26,10 +26,10 @@ def _append_to_datas(file_path):
 
 # First append the font file, then based on the OS, append pygame icon file
 _append_to_datas("freesansbold.ttf")
+_append_to_datas("pygame_icon.bmp")
 if platform.system() == "Darwin":
     _append_to_datas("pygame_icon.tiff")
-else:
-    _append_to_datas("pygame_icon.bmp")
+
 
 if platform.system() == "Windows": 
     from PyInstaller.utils.hooks import collect_dynamic_libs
