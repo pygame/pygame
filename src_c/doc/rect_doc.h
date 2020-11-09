@@ -5,6 +5,7 @@
 #define DOC_RECTMOVEIP "move_ip(x, y) -> None\nmoves the rectangle, in place"
 #define DOC_RECTINFLATE "inflate(x, y) -> Rect\ngrow or shrink the rectangle size"
 #define DOC_RECTINFLATEIP "inflate_ip(x, y) -> None\ngrow or shrink the rectangle size, in place"
+#define DOC_RECTUPDATE "update(left, top, width, height) -> None\nupdate((left, top), (width, height)) -> None\nupdate(object) -> None\nsets the position and size of the rectangle"
 #define DOC_RECTCLAMP "clamp(Rect) -> Rect\nmoves the rectangle inside another"
 #define DOC_RECTCLAMPIP "clamp_ip(Rect) -> None\nmoves the rectangle inside another, in place"
 #define DOC_RECTCLIP "clip(Rect) -> Rect\ncrops a rectangle inside another"
@@ -53,6 +54,12 @@ grow or shrink the rectangle size
 pygame.Rect.inflate_ip
  inflate_ip(x, y) -> None
 grow or shrink the rectangle size, in place
+
+pygame.Rect.update
+ update(left, top, width, height) -> None
+ update((left, top), (width, height)) -> None
+ update(object) -> None
+sets the position and size of the rectangle
 
 pygame.Rect.clamp
  clamp(Rect) -> Rect

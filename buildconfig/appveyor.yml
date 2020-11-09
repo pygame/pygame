@@ -16,17 +16,17 @@ environment:
       secure: FtHM0I+wubit/UWOzHsykHayL06KImKRZQznRUHUfzM=
 
   matrix:
-    # - PYTHON: "pypy.exe"
-    #   PYTHON_VERSION: "2.7.13"
-    #   PYTHON_ARCH: "32"
-    #   PYPY_VERSION: "pypy2-v5.10.0-win32"
-    #   PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
+    - PYTHON: "pypy.exe"
+      PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "32"
+      PYPY_VERSION: "pypy2.7-v7.3.2-win32"
+      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
-    # - PYTHON: "pypy3.exe"
-    #   PYTHON_VERSION: "2.7.13"
-    #   PYTHON_ARCH: "32"
-    #   PYPY_VERSION: "pypy3-v5.10.1-win32"
-    #   PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
+    - PYTHON: "pypy3.exe"
+      PYTHON_VERSION: "3.6.0"
+      PYTHON_ARCH: "32"
+      PYPY_VERSION: "pypy3.6-v7.3.2-win32"
+      PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
     - PYTHON: "C:\\Python27\\python"
       PYTHONPATH: "C:\\Python27"
@@ -182,8 +182,11 @@ install:
 
           Write-Host "Installed Python $version" -ForegroundColor Green
       }
-      if (-not (Test-Path $env:PYTHONPATH)) {
-        InstallPythonEXE $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHONPATH
+
+      if (-not (Test-Path env:PYPY_VERSION)) {
+        if (-not (Test-Path $env:PYTHONPATH)) {
+          InstallPythonEXE $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHONPATH
+        }
       }
 
   - "%PYPY_DOWNLOAD%"
@@ -192,7 +195,7 @@ install:
   - "%PYTHON% -m ensurepip"
   - "%PYTHON% -m pip install -U wheel pip twine requests"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
-  - "%WITH_COMPILER% %PYTHON% setup.py build %USE_ANALYZE%"
+  - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
 
@@ -209,7 +212,7 @@ skip_branch_with_pr: true
 test_script:
   - "mkdir empty_folder"
   - "cd empty_folder"
-  - "%PYTHON% -m pygame.tests -v --exclude opengl"
+  - "%PYTHON% -m pygame.tests -v --exclude opengl,timing"
 
   # Move back to the project folder
   - "cd .."

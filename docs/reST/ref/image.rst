@@ -115,9 +115,9 @@ for loading and saving images, respectively.
              the object needs to be flushed after saving to it to make loading
              from it possible.
 
-   .. versionadded:: 1.8 Saving PNG and JPEG files.
+   .. versionchanged:: 1.8 Saving PNG and JPEG files.
    .. versionchanged:: 2.0.0.dev11
-                       The *namehint* parameter was added to make it possible
+                       The ``namehint`` parameter was added to make it possible
                        to save other formats than ``TGA`` to a file-like object.
 
    .. ## pygame.image.save ##

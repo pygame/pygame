@@ -49,23 +49,25 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    This will play the loaded music stream. If the music is already playing it
    will be restarted.
+   
+   ``loops`` is an optional integer argument, which is ``0`` by default, it 
+   tells how many times to repeat the music. The music repeats indefinately if 
+   this argument is set to ``-1``. 
+   
+   ``start`` is an optional float argument, which is ``0.0`` by default, which 
+   denotes the position in time, the music starts playing from. The starting 
+   position depends on the format of the music played. ``MP3`` and ``OGG`` use 
+   the position as time in seconds. For mp3s the start time position selected 
+   may not be accurate as things like variable bit rate encoding and ID3 tags 
+   can throw off the timing calculations. For ``MOD``  music it is the pattern 
+   order number. Passing a start position will raise a NotImplementedError if 
+   the start position cannot be set.
 
-   :param int loops: (optional) How many times to repeat the music. Setting it
-       to 5 will play the music five times. Set to -1 to make the music
-       repeat indefinately.
-
-   :param float start: (optional) The position where the music starts playing
-       from. The starting position depends on the format of the music played.
-       ``MP3`` and ``OGG`` use the position as time in seconds. For mp3s the
-       start time position selected may not be accurate as things like variable
-       bit rate encoding and ID3 tags can throw off the timing calculations.
-       For ``MOD``  music it is the pattern order number. Passing a start
-       position will raise a NotImplementedError if the start position cannot
-       be set.
-
-   :param int fade_ms: (optional) Make the music start playing at 0 volume and
-      fade up to full volume over the given time. The sample may end before
-      the fade-in is complete. Added in pygame 2.0.
+   ``fade_ms`` is an optional integer argument, which is ``0`` by default,
+   makes the music start playing at ``0`` volume and fade up to full volume over 
+   the given time. The sample may end before the fade-in is complete.
+   
+   .. versionchanged:: 2.0.0 Added optional ``fade_ms`` argument
 
    .. ## pygame.mixer.music.play ##
 
@@ -114,12 +116,13 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    Fade out and stop the currently playing music.
 
-   :param int time: Time in milliseconds during which the music volume will
-      fade out before it stops.
+   The ``time`` argument denotes the integer milliseconds for which the 
+   fading effect is generated.
 
-   Note, that this function blocks until the music has faded out. Calls to :func:`fadeout` and 
-      :func:`set_volume` will have no effect during this time. If an event was set using
-      :func:`set_endevent` it will be called after the music has faded.
+   Note, that this function blocks until the music has faded out. Calls 
+   to :func:`fadeout` and :func:`set_volume` will have no effect during 
+   this time. If an event was set using :func:`set_endevent` it will be 
+   called after the music has faded.
 
    .. ## pygame.mixer.music.fadeout ##
 
@@ -130,8 +133,8 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    Set the volume of the music playback.
    
-   :param float volume: The value argument should be between 0.0 and 1.0. When new
-       music is loaded the volume is reset to full volume.
+   The ``volume`` argument is a float between ``0.0`` and ``1.0`` that sets 
+   volume. When new music is loaded the volume is reset to full volume.
 
    .. ## pygame.mixer.music.set_volume ##
 
@@ -140,8 +143,8 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sl:`get the music volume`
    | :sg:`get_volume() -> value`
 
-   Returns the current volume for the mixer. The value will be between 0.0 and
-   1.0.
+   Returns the current volume for the mixer. The value will be between ``0.0`` 
+   and ``1.0``.
 
    .. ## pygame.mixer.music.get_volume ##
 
@@ -151,7 +154,11 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sg:`get_busy() -> bool`
 
    Returns True when the music stream is actively playing. When the music is
-   idle this returns False. It returns True even if the music is paused.
+   idle this returns False. In pygame 2.0.1 and above this function returns
+   False when the music is paused. In pygame 1 it returns True when the music
+   is paused.
+
+   .. versionchanged:: 2.0.1 Returns False when music paused.
 
    .. ## pygame.mixer.music.get_busy ##
 

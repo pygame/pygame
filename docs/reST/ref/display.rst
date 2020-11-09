@@ -42,6 +42,43 @@ user adjusts the window dimensions. Hardware displays that draw direct to the
 screen will get ``pygame.VIDEOEXPOSE`` events when portions of the window must
 be redrawn.
 
+In pygame 2, there is a new type of event called ``pygame.WINDOWEVENT`` that
+is meant to replace all window related events like ``pygame.VIDEORESIZE``,
+``pygame.VIDEOEXPOSE`` and ``pygame.ACTIVEEVENT``.
+
+Note that the WINDOWEVENT API is considered experimental, and may change in
+future releases.
+
+The new events of type ``pygame.WINDOWEVENT`` have an ``event`` attribute that
+can take the following values.
+
+::
+
+   Value of event attribute      Short description
+
+   WINDOWEVENT_SHOWN            Window became shown
+   WINDOWEVENT_HIDDEN           Window became hidden
+   WINDOWEVENT_EXPOSED          Window got updated by some external event
+   WINDOWEVENT_MOVED            Window got moved
+   WINDOWEVENT_RESIZED          Window got resized
+   WINDOWEVENT_SIZE_CHANGED     Window changed it's size
+   WINDOWEVENT_MINIMIZED        Window was minimised
+   WINDOWEVENT_MAXIMIZED        Window was maximised
+   WINDOWEVENT_RESTORED         Window was restored
+   WINDOWEVENT_ENTER            Mouse entered the window
+   WINDOWEVENT_LEAVE            Mouse left the window
+   WINDOWEVENT_FOCUS_GAINED     Window gained focus
+   WINDOWEVENT_FOCUS_LOST       Window lost focus
+   WINDOWEVENT_CLOSE            Window was closed
+   WINDOWEVENT_TAKE_FOCUS       Window was offered focus
+   WINDOWEVENT_HIT_TEST         Window has a special hit test
+
+
+If SDL version used is less than 2.0.5, the last two values ``WINDOWEVENT_TAKE_FOCUS``
+and ``WINDOWEVENT_HIT_TEST`` will not work.
+See the SDL implementation (in C programming) of the same
+`over here. <https://wiki.libsdl.org/SDL_WindowEvent>`_
+
 Some display environments have an option for automatically stretching all
 windows. When this option is enabled, this automatic stretching distorts the
 appearance of the pygame window. In the pygame examples directory, there is
@@ -117,9 +154,9 @@ required).
    The Surface that gets returned can be drawn to like a regular Surface but
    changes will eventually be seen on the monitor.
 
-   If no size is passed or is set to (0, 0) and pygame uses ``SDL``
+   If no size is passed or is set to ``(0, 0)`` and pygame uses ``SDL``
    version 1.2.10 or above, the created Surface will have the same size as the
-   current screen resolution. If only the width or height are set to 0, the
+   current screen resolution. If only the width or height are set to ``0``, the
    Surface will have the same width or height as the screen resolution. Using a
    ``SDL`` version prior to 1.2.10 will raise an exception.
 
@@ -136,11 +173,13 @@ required).
    On high resolution displays(4k, 1080p) and tiny graphics games (640x480)
    show up very small so that they are unplayable. SCALED scales up the window
    for you. The game thinks it's a 640x480 window, but really it can be bigger.
-   Mouse events are scaled for you, so your game doesn't need to do it.
+   Mouse events are scaled for you, so your game doesn't need to do it. Note
+   that SCALED is considered an experimental API and may change in future
+   releases.
 
    The flags argument controls which type of display you want. There are
    several to choose from, and you can even combine multiple types using the
-   bitwise or operator, (the pipe "|" character). If you pass 0 or no flags
+   bitwise or operator, (the pipe "|" character). If you pass ``0`` or no flags
    argument it will default to a software driven window. Here are the display
    flags you will want to choose from:
 
@@ -152,24 +191,34 @@ required).
       pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
+
+
+   Pygame 2 has the following additional flags available.
+
+   ::
+
       pygame.SCALED        resolution depends on desktop size and scale
                            graphics
+      pygame.SHOWN         window is opened in visible mode (default)
+      pygame.HIDDEN        window is opened in hidden mode
 
-   .. versionadded:: 2.0.0 ``SCALED``
 
-   By setting the ``vsync`` parameter to 1, it is possible to get a display
+   .. versionadded:: 2.0.0 ``SCALED``, ``SHOWN`` and ``HIDDEN``
+
+   By setting the ``vsync`` parameter to ``1``, it is possible to get a display
    with vertical sync, but you are not guaranteed to get one. The request only
    works at all for calls to ``set_mode()`` with the ``pygame.OPENGL`` or
    ``pygame.SCALED`` flags set, and is still not guaranteed even with one of
-   those set. What you actually get depends entirely on the hardware and driver
-   configuration of the system pygame is running on. Here is an example usage
-   of a call to ``set_mode()`` that may give you a display with vsync:
+   those set. What you get depends on the hardware and driver configuration
+   of the system pygame is running on. Here is an example usage of a call
+   to ``set_mode()`` that may give you a display with vsync:
 
    ::
 
      flags = pygame.OPENGL | pygame.FULLSCREEN
-     window_surface = pygame.display.set_mode((1920, 1080),
-                                              flags, vsync=1)
+     window_surface = pygame.display.set_mode((1920, 1080), flags, vsync=1)
+
+   Vsync behaviour is considered experimental, and may change in future releases.
 
    .. versionadded:: 2.0.0 ``vsync``
 
@@ -180,11 +229,11 @@ required).
         # Open a window on the screen
         screen_width=700
         screen_height=400
-        screen=pygame.display.set_mode([screen_width,screen_height])
+        screen=pygame.display.set_mode([screen_width, screen_height])
 
-   The display index 0 means the default display is used.
+   The display index ``0`` means the default display is used.
 
-   The display argument is new with pygame 1.9.5.
+   .. versionchanged:: 1.9.5 ``display`` argument added
 
    .. ## pygame.display.set_mode ##
 
@@ -296,7 +345,7 @@ required).
    an empty dictionary will be returned. Most platforms will return a "window"
    key with the value set to the system id for the current display.
 
-   New with pygame 1.7.1
+   .. versionadded:: 1.7.1
 
    .. ## pygame.display.get_wm_info ##
 
@@ -307,17 +356,17 @@ required).
 
    This function returns a list of possible sizes for a specified color
    depth. The return value will be an empty list if no display modes are
-   available with the given arguments. A return value of -1 means that any
-   requested size should work (this is likely the case for windowed
+   available with the given arguments. A return value of ``-1`` means that
+   any requested size should work (this is likely the case for windowed
    modes). Mode sizes are sorted from biggest to smallest.
 
-   If depth is 0, ``SDL`` will choose the current/best color depth for the
-   display. The flags defaults to ``pygame.FULLSCREEN``, but you may need to
-   add additional flags for specific fullscreen modes.
+   If depth is ``0``, the current/best color depth for the display is used.
+   The flags defaults to ``pygame.FULLSCREEN``, but you may need to add
+   additional flags for specific fullscreen modes.
 
-   The display index 0 means the default display is used.
+   The display index ``0`` means the default display is used.
 
-   The display argument is new with pygame 1.9.5.
+   .. versionchanged:: 1.9.5 ``display`` argument added
 
    .. ## pygame.display.list_modes ##
 
@@ -328,8 +377,8 @@ required).
 
    This function uses the same arguments as ``pygame.display.set_mode()``. It
    is used to determine if a requested display mode is available. It will
-   return 0 if the display mode cannot be set. Otherwise it will return a pixel
-   depth that best matches the display asked for.
+   return ``0`` if the display mode cannot be set. Otherwise it will return a
+   pixel depth that best matches the display asked for.
 
    Usually the depth argument is not passed, but some platforms can support
    multiple display depths. If passed it will hint to which depth is a better
@@ -339,9 +388,9 @@ required).
    ``pygame.DOUBLEBUF``, and maybe ``pygame.FULLSCREEN``. The function will
    return 0 if these display flags cannot be set.
 
-   The display index 0 means the default display is used.
+   The display index ``0`` means the default display is used.
 
-   The display argument is new with pygame 1.9.5.
+   .. versionchanged:: 1.9.5 ``display`` argument added
 
    .. ## pygame.display.mode_ok ##
 
@@ -405,7 +454,7 @@ required).
 
      Minimum bit size of the frame buffer. Defaults to 0.
 
-   .. versionadded:: 2.0 Additional attributes:
+   .. versionadded:: 2.0.0 Additional attributes:
 
    ::
 
@@ -472,11 +521,9 @@ required).
    True if successful.
 
    When the display is iconified ``pygame.display.get_active()`` will return
-   False. When using SDL 1 (usually in pygame versions less than 2.0.0) the
-   event queue should receive a ``ACTIVEEVENT`` event when the window has been
-   iconified. When using SDL 2 (usually in pygame versions greater than 2.0.0)
-   the event queue should receive a ``WINDOWEVENT_MINIMIZED`` event when the
-   window has been iconified.
+   ``False``. The event queue should receive an ``ACTIVEEVENT`` event when the
+   window has been iconified. Additionally, the event queue also recieves a
+   ``WINDOWEVENT_MINIMIZED`` event when the window has been iconified on pygame 2.
 
    .. ## pygame.display.iconify ##
 
@@ -485,9 +532,21 @@ required).
    | :sl:`Switch between fullscreen and windowed displays`
    | :sg:`toggle_fullscreen() -> int`
 
-   Switches the display window between windowed and fullscreen modes. This
-   function only works under the UNIX X11 video driver. For most situations it
-   is better to call ``pygame.display.set_mode()`` with new display flags.
+   Switches the display window between windowed and fullscreen modes.
+   Display driver support is not great when using pygame 1, but with
+   pygame 2 it is the most reliable method to switch to and from fullscreen.
+
+   Supported display drivers in pygame 1:
+
+    * x11 (Linux/Unix)
+    * wayland (Linux/Unix)
+
+   Supported display drivers in pygame 2:
+
+    * windows (Windows)
+    * x11 (Linux/Unix)
+    * wayland (Linux/Unix)
+    * cocoa (OSX/Mac)
 
    .. ## pygame.display.toggle_fullscreen ##
 
@@ -499,10 +558,10 @@ required).
    Set the red, green, and blue gamma values on the display hardware. If the
    green and blue arguments are not passed, they will both be the same as red.
    Not all systems and hardware support gamma ramps, if the function succeeds
-   it will return True.
+   it will return ``True``.
 
-   A gamma value of 1.0 creates a linear color table. Lower values will darken
-   the display and higher values will brighten.
+   A gamma value of ``1.0`` creates a linear color table. Lower values will
+   darken the display and higher values will brighten.
 
    .. ## pygame.display.set_gamma ##
 
@@ -513,8 +572,8 @@ required).
 
    Set the red, green, and blue gamma ramps with an explicit lookup table. Each
    argument should be sequence of 256 integers. The integers should range
-   between 0 and 0xffff. Not all systems and hardware support gamma ramps, if
-   the function succeeds it will return True.
+   between ``0`` and ``0xffff``. Not all systems and hardware support gamma
+   ramps, if the function succeeds it will return ``True``.
 
    .. ## pygame.display.set_gamma_ramp ##
 
@@ -590,7 +649,7 @@ required).
    Returns the size of the window initialized with :func:`pygame.display.set_mode()`.
    This may differ from the size of the display surface if ``SCALED`` is used.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0.0
 
    .. ## pygame.display.get_window_size ##
 
@@ -600,7 +659,7 @@ required).
    | :sg:`get_allow_screensaver() -> bool`
 
    Return whether screensaver is allowed to run whilst the app is running.
-   Default is False.
+   Default is ``False``.
    By default pygame does not allow the screensaver during game play.
 
    .. note:: Some platforms do not have a screensaver or support
@@ -608,7 +667,7 @@ required).
              :func:`pygame.display.set_allow_screensaver()` for
              caveats with screensaver support.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0.0
 
    .. ## pygame.display.get_allow_screensaver ##
 
@@ -637,7 +696,7 @@ required).
              ``SDL_HINT_VIDEO_ALLOW_SCREENSAVER`` is available in SDL 2.0.2 or later.
              SDL1.2 does not implement this.
 
-   .. versionadded:: 2.0
+   .. versionadded:: 2.0.0
 
 
    .. ## pygame.display.set_allow_screensaver ##

@@ -132,7 +132,7 @@ static char _pg_last_unicode_char[32] = { 0 };
 static SDL_Event *_pg_last_keydown_event = NULL;
 
 static int SDLCALL
-RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
+_pg_remove_pending_PGS_VIDEORESIZE(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
@@ -142,6 +142,27 @@ RemovePending_PGS_VIDEORESIZE_Events(void * userdata, SDL_Event *event)
         return 0;
     }
     return 1;
+}
+
+static int SDLCALL
+_pg_remove_pending_PGS_VIDEOEXPOSE(void * userdata, SDL_Event *event)
+{
+    SDL_Event *new_event = (SDL_Event *)userdata;
+
+    if (event->type == SDL_VIDEOEXPOSE &&
+        event->window.windowID == new_event->window.windowID) {
+        /* We're about to post a new videoexpose event, drop the old one */
+        return 0;
+    }
+    return 1;
+}
+
+static int
+_modulus(int x) {
+    if (x >= 0)
+        return x;
+    else
+        return -1*x;
 }
 
 /*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
@@ -168,7 +189,7 @@ pg_event_filter(void *_, SDL_Event *event)
                        SDL2 already does this for SDL_WINDOWEVENT_RESIZED,
                        so we only need to filter our own custom event before
                        we push the new one*/
-                    SDL_FilterEvents(RemovePending_PGS_VIDEORESIZE_Events, &newevent);
+                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEORESIZE, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -179,6 +200,8 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_VIDEOEXPOSE;
+                    
+                    SDL_FilterEvents(_pg_remove_pending_PGS_VIDEOEXPOSE, &newevent);
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -191,6 +214,7 @@ pg_event_filter(void *_, SDL_Event *event)
                 {
                     SDL_Event newevent = *event;
                     newevent.type = SDL_ACTIVEEVENT;
+                    
                     SDL_PushEvent(&newevent);
                     return 1;
                 }
@@ -249,40 +273,49 @@ pg_event_filter(void *_, SDL_Event *event)
         }
     }
     else if (type == SDL_MOUSEWHEEL) {
-        SDL_Event newevent;
-        int x, y;
+        SDL_Event newdownevent, newupevent;
+        int x, y, i;
 
-        if (event->wheel.x == 0 && event->wheel.y == 0) {
+        if (event->wheel.y == 0) {
             //#691 We are not moving wheel!
             return 1;
         }
-        // Generate a MouseButtonDown event for compatibility.
-        // https://wiki.libsdl.org/SDL_MouseWheelEvent
-        newevent.type = SDL_MOUSEBUTTONDOWN;
-
         SDL_GetMouseState(&x, &y);
-        newevent.button.x = x;
-        newevent.button.y = y;
+        
+        // Generate a MouseButtonDown event and MouseButtonUp for compatibility.
+        // https://wiki.libsdl.org/SDL_MouseWheelEvent
+        newdownevent.type = SDL_MOUSEBUTTONDOWN;
+        newdownevent.button.x = x;
+        newdownevent.button.y = y;
+        
+        newupevent.type = SDL_MOUSEBUTTONUP;
+        newupevent.button.x = x;
+        newupevent.button.y = y;
 
-        newevent.button.state = SDL_PRESSED;
-        newevent.button.clicks = 1;
+        newdownevent.button.state = SDL_PRESSED;
+        newdownevent.button.clicks = 1;
+        
+        newupevent.button.state = SDL_RELEASED;
+        newupevent.button.clicks = 1;
 
-        if (event->wheel.y != 0) {
-            newevent.button.button = (event->wheel.y > 0) ?
-                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        if (event->wheel.y > 0) {
+            newdownevent.button.button =  PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;    
+            newupevent.button.button = PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;
         }
-        else if (event->wheel.x != 0) {
-            newevent.button.button = (event->wheel.x > 0) ?
-                                     PGM_BUTTON_WHEELUP : PGM_BUTTON_WHEELDOWN;
+        else {
+            newdownevent.button.button =  PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;    
+            newupevent.button.button = PGM_BUTTON_WHEELDOWN | PGM_BUTTON_KEEP;
         }
-        newevent.button.button |= PGM_BUTTON_KEEP;
-
-        /* this doesn't work! This is called by SDL, not Python:*/
-        /*
-          if (SDL_PushEvent(&newevent) < 0)
+        
+        /* this doesn't work! This is called by SDL, not Python:
+          if (SDL_PushEvent(&newdownevent) < 0)
             return RAISE(pgExc_SDLError, SDL_GetError()), 0;
         */
-        SDL_PushEvent(&newevent);
+        /* Use a for loop to simulate multiple events, because SDL 1 works that way */
+        for (i = 0; i < _modulus(event->wheel.y); i++) {
+            SDL_PushEvent(&newdownevent);
+            SDL_PushEvent(&newupevent);
+        }
     }
     return 1;
 }
@@ -1832,7 +1865,11 @@ pg_event_post(PyObject *self, PyObject *args)
 {
     pgEventObject *e;
     SDL_Event event;
-    int isblocked = 0;
+    
+    PyObject *event_key = NULL;
+    PyObject *event_scancode = NULL;
+    PyObject *event_mod = NULL;
+    PyObject *event_window_ID = NULL;
 
     if (!PyArg_ParseTuple(args, "O!", &pgEvent_Type, &e))
         return NULL;
@@ -1840,23 +1877,26 @@ pg_event_post(PyObject *self, PyObject *args)
     VIDEO_INIT_CHECK();
 
     /* see if the event is blocked before posting it. */
-    isblocked = SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE;
-
-    if (isblocked) {
+    if (SDL_EventState(e->type, SDL_QUERY) == SDL_IGNORE) {
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
-
-    if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP){
-        PyObject *event_key      = PyDict_GetItemString(e->dict, "key");
-        PyObject *event_scancode = PyDict_GetItemString(e->dict, "scancode");
-        PyObject *event_mod      = PyDict_GetItemString(e->dict, "mod");
-#if IS_SDLv1
-        PyObject *event_unicode  = PyDict_GetItemString(e->dict, "unicode");
-#else  /* IS_SDLv2 */
-        PyObject *event_window_ID= PyDict_GetItemString(e->dict, "window");
+    
+    /* Handle quit event expicitly */
+    if (e->type == SDL_QUIT) {
+        event.type = SDL_QUIT;
+        // for extra measures, set event.quit.type too
+        event.quit.type = SDL_QUIT;
+    }
+    else if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
+        event_key = PyDict_GetItemString(e->dict, "key");
+        event_scancode = PyDict_GetItemString(e->dict, "scancode");
+        event_mod = PyDict_GetItemString(e->dict, "mod");
+#if IS_SDLv2
+        event_window_ID= PyDict_GetItemString(e->dict, "window");
 #endif /* IS_SDLv2 */
-        event.type =  e->type;
+        event.type = e->type;
+        event.key.type = e->type;
 
         if (event_key == NULL){
             return RAISE(pgExc_SDLError, "key event posted without keycode");
@@ -1864,9 +1904,16 @@ pg_event_post(PyObject *self, PyObject *args)
         if (!PyInt_Check(event_key)){
             return RAISE(pgExc_SDLError, "posted event keycode must be int");
         }
+        
+        // This block is where the magic hopefully happens
+        event.key.state = (e->type == SDL_KEYDOWN) ? SDL_PRESSED : SDL_RELEASED;
+#if IS_SDLv2
+        event.key.repeat = 0;
+#endif
+        
         event.key.keysym.sym = PyLong_AsLong(event_key);
 
-        if (event_scancode != NULL){
+        if (event_scancode != NULL && event_scancode != Py_None) {
             if (!PyInt_Check(event_scancode)){
                 return RAISE(pgExc_SDLError, "posted event scancode must be int");
             }
@@ -1874,7 +1921,7 @@ pg_event_post(PyObject *self, PyObject *args)
         }
 
         if (event_mod != NULL && event_mod != Py_None){
-            if (!PyInt_Check(event_scancode)){
+            if (!PyInt_Check(event_mod)){
                 return RAISE(pgExc_SDLError, "posted event modifiers must be int");
             }
             if (PyLong_AsLong(event_mod) > 65535 || PyLong_AsLong(event_mod) < 0) {
@@ -1883,9 +1930,8 @@ pg_event_post(PyObject *self, PyObject *args)
             event.key.keysym.mod = (Uint16) PyLong_AsLong(event_mod);
         }
 
-#if IS_SDLv1
-        /*ignore unicode property*/
-#else  /* IS_SDLv2 */
+#if IS_SDLv2
+        /* ignore unicode property of SDL 1*/
         if (event_window_ID != NULL && event_window_ID != Py_None){
             if (!PyInt_Check(event_window_ID)){
                 return RAISE(pgExc_SDLError, "posted event window id must be int");
@@ -1894,16 +1940,15 @@ pg_event_post(PyObject *self, PyObject *args)
         }
 #endif /* IS_SDLv2 */
     }
-    else if (e->type >= PGE_USEREVENT && e->type < PG_NUMEVENTS) {
+    else if (e->type < PG_NUMEVENTS) {
+        /* HACK:
+           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
+           event queue. This needs to be decoded again. */
         if (pgEvent_FillUserEvent(e, &event))
             return NULL;
     }
     else {
-        /* HACK:
-           A non-USEREVENT type is treated like a USEREVENT union in the SDL2
-           event queue. This needs to be decoded again. */
-         if (pgEvent_FillUserEvent(e, &event))
-            return NULL;
+        return RAISE(pgExc_SDLError, "the value of event type is out of range");
     }
 #if IS_SDLv1
     if (SDL_PushEvent(&event) == -1)

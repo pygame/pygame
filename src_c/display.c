@@ -111,7 +111,6 @@ _display_state_cleanup(_DisplayState *state)
 
 #endif /* IS_SDLv2 */
 
-#if (!defined(darwin))
 static char *icon_defaultname = "pygame_icon.bmp";
 static char *pkgdatamodule_name = "pygame.pkgdata";
 static char *imagemodule_name = "pygame.image";
@@ -201,7 +200,6 @@ display_resource_end:
 #endif
     return result;
 }
-#endif
 
 /* init routines */
 #if IS_SDLv2
@@ -247,6 +245,17 @@ pg_quit(PyObject *self, PyObject *arg)
 static PyObject *
 pg_init(PyObject *self, PyObject *args)
 {
+
+#if IS_SDLv2
+    /* Compatibility:
+        windib video driver was renamed in SDL2, and we don't want it to fail.
+    */
+    const char *drivername = SDL_getenv("SDL_VIDEODRIVER");
+    if (drivername && SDL_strncasecmp("windb", drivername, SDL_strlen(drivername)) == 0) {
+        SDL_setenv("SDL_VIDEODRIVER", "windows", 1);
+    }
+#endif
+
     if (!pgVideo_AutoInit())
         return RAISE(pgExc_SDLError, SDL_GetError());
     if (!pg_display_autoinit(NULL, NULL))
@@ -1411,7 +1420,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
             pg_flip_internal(state);
     }
 
-#if !defined(darwin)
     /*set the window icon*/
     if (!state->icon) {
         state->icon = pg_display_resource(icon_defaultname);
@@ -1423,7 +1431,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     }
     if (state->icon)
         SDL_SetWindowIcon(win, pgSurface_AsSurface(state->icon));
-#endif
 
     /*probably won't do much, but can't hurt, and might help*/
     SDL_PumpEvents();

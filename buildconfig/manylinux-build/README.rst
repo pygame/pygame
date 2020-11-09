@@ -147,3 +147,15 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     pip install twine
 
     python .travis_osx_upload_whl.py --no-git
+
+
+Getting a shell
+---------------
+
+To be able to run bash:
+
+    docker run --name test -it pygame/manylinux2010_base_x86_64
+    docker run --name test -it pygame/manylinux2010_base_i686
+
+
+

@@ -3,8 +3,7 @@ set -e -x
 
 # build the wheels.
 cd buildconfig/manylinux-build
-make pull
-make wheels
+make pull pull-manylinux wheels wheels-manylinux
 cd ../..
 
 mkdir -p dist/

@@ -516,28 +516,56 @@ class DisplayModuleTest(unittest.TestCase):
                 self.assertEqual((test_surf.get_width(), test_surf.get_height()), \
                 width_height)
 
+
 class DisplayInteractiveTest(unittest.TestCase):
 
     __tags__ = ["interactive"]
 
     def test_set_icon_interactive(self):
 
-        # on my computer, the window was being created off-screen
-        # thus i set the window position manually
         os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
+        pygame.display.quit()
+        pygame.display.init()
 
         test_icon = pygame.Surface((32, 32))
-        test_icon.fill((255,0,0))
+        test_icon.fill((255, 0, 0))
 
         pygame.display.set_icon(test_icon)
-        screen = pygame.display.set_mode((400,100))
+        screen = pygame.display.set_mode((400, 100))
         pygame.display.set_caption(
-        "Is the icon to the left a red square?"
+            "Is the window icon a red square?"
         )
 
         response = question("Is the display icon red square?")
 
         self.assertTrue(response)
+        pygame.display.quit()
+
+    def test_set_gamma_ramp(self):
+
+        os.environ['SDL_VIDEO_WINDOW_POS'] = '100,250'
+        pygame.display.quit()
+        pygame.display.init()
+
+        screen = pygame.display.set_mode((400, 100))
+        screen.fill((100, 100, 100))
+
+        blue_ramp = [x*256 for x in range(0, 256)]
+        blue_ramp[100] = 150*256  # Can't tint too far or gamma ramps fail
+        normal_ramp = [x*256 for x in range(0, 256)]
+        # test to see if this platform supports gamma ramps
+        gamma_success = False
+        if pygame.display.set_gamma_ramp(normal_ramp, normal_ramp, blue_ramp):
+            pygame.display.update()
+            gamma_success = True
+
+        if gamma_success:
+            response = question("Is the window background tinted blue?")
+            self.assertTrue(response)
+            # restore normal ramp
+            pygame.display.set_gamma_ramp(normal_ramp,
+                                          normal_ramp,
+                                          normal_ramp)
 
         pygame.display.quit()
 

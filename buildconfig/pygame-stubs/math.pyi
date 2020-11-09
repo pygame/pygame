@@ -94,6 +94,10 @@ def disable_swizzling() -> None: ...
 class Vector2:
     x: float
     y: float
+    xx: Vector2
+    xy: Vector2
+    yx: Vector2
+    yy: Vector2
     __hash__: None  # type: ignore
     def __init__(
         self,
@@ -150,6 +154,43 @@ class Vector3:
     x: float
     y: float
     z: float
+    xx: Vector2
+    xy: Vector2
+    xz: Vector2
+    yx: Vector2
+    yy: Vector2
+    yz: Vector2
+    zx: Vector2
+    zy: Vector2
+    zz: Vector2
+    xxx: Vector3
+    xxy: Vector3
+    xxz: Vector3
+    xyx: Vector3
+    xyy: Vector3
+    xyz: Vector3
+    xzx: Vector3
+    xzy: Vector3
+    xzz: Vector3
+    yxx: Vector3
+    yxy: Vector3
+    yxz: Vector3
+    yyx: Vector3
+    yyy: Vector3
+    yyz: Vector3
+    yzx: Vector3
+    yzy: Vector3
+    yzz: Vector3
+    zxx: Vector3
+    zxy: Vector3
+    zxz: Vector3
+    zyx: Vector3
+    zyy: Vector3
+    zyz: Vector3
+    zzx: Vector3
+    zzy: Vector3
+    zzz: Vector3
+
     __hash__: None  # type: ignore
     @overload
     def __init__(

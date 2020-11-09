@@ -2,6 +2,3 @@ contact_links:
   - name: 📚 Documentation
     url: https://www.pygame.org/docs/
     about: "If you have a question, please try the documentation first."
-  - name: ❓ Discord
-    url: https://discord.gg/r8yreB6
-    about: "If you can't find the answers you are looking for on the website, try our community Discord."

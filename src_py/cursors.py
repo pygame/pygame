@@ -268,8 +268,8 @@ def compile(strings, black='X', white='.', xor='o'):
     tells which characters will represent black pixels, and which
     characters represent white pixels. All other characters are
     considered clear.
-    
-    Some systems allow you to set a special toggle color for the 
+
+    Some systems allow you to set a special toggle color for the
     system color, this is also called the xor color. If the system
     does not support xor cursors, that color will simply be black.
 
@@ -343,14 +343,14 @@ def load_xbm(curs, mask):
         mask = mask.readlines()
 
     # avoid comments
-    for line in range(len(curs)):
-        if curs[line].startswith("#define"):
-            curs = curs[line:]
+    for i, line in enumerate(curs):
+        if line.startswith("#define"):
+            curs = curs[i:]
             break
 
-    for line in range(len(mask)):
-        if mask[line].startswith("#define"):
-            mask = mask[line:]
+    for i, line in enumerate(mask):
+        if line.startswith("#define"):
+            mask = mask[i:]
             break
 
     # load width,height
@@ -365,22 +365,19 @@ def load_xbm(curs, mask):
 
     info = width, height, hotx, hoty
 
-    for line in range(len(curs)):
-        if curs[line].startswith('static char') or curs[line].startswith('static unsigned char'):
+    possible_starts = ('static char', 'static unsigned char')
+    for i, line in enumerate(curs):
+        if line.startswith(possible_starts):
             break
-
-    data = ' '.join(curs[line+1:]).replace('};', '').replace(',', ' ')
+    data = ' '.join(curs[i+1:]).replace('};', '').replace(',', ' ')
     cursdata = []
     for x in data.split():
         cursdata.append(bitswap(int(x, 16)))
-
     cursdata = tuple(cursdata)
-
-    for line in range(len(mask)):
-        if mask[line].startswith('static char') or mask[line].startswith('static unsigned char'):
+    for i, line in enumerate(mask):
+        if line.startswith(possible_starts):
             break
-
-    data = ' '.join(mask[line+1:]).replace('};', '').replace(',', ' ')
+    data = ' '.join(mask[i+1:]).replace('};', '').replace(',', ' ')
     maskdata = []
     for x in data.split():
         maskdata.append(bitswap(int(x, 16)))

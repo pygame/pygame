@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.0.dev15",
+    "version":          "2.0.1.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -115,6 +115,12 @@ if consume_arg('-pygame-ci'):
               '-Werror=cast-align -Werror=int-conversion ' + \
               '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
+
+# For python 2 we remove the -j options.
+if sys.version_info[0] < 3:
+    # Used for parallel builds with setuptools. Not supported by py2.
+    [consume_arg('-j%s' % x) for x in range(32)]
+
 
 STRIPPED=False
 

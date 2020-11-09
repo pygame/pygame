@@ -7,55 +7,51 @@ cache:
     - $HOME/.cache/pip
     - $HOME/Library/Caches/pip/wheels
     - /Library/Caches/pip/wheels
-    - $HOME/.conan/
 
 
 # So commits do not get built twice.
 # Only test master and tagged releases on push
 #   always test things that aren't pushes (like PRs)
-if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
+if: type != push OR branch = master OR branch = main OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
 
 jobs:
   include:
-    - python: 2.7
-      env:
-        - RUN_SDIST=yes
-    - python: 3.5
+    - python: 3.6
       name: SDL 1.2
       env:
         - WHICH_SDL_BUILD=-sdl1
-        - RUN_SDIST=yes
-    - python: 3.6
-      env:
-        - RUN_SDIST=yes
-    - python: 3.8
-      env:
-        - RUN_SDIST=yes
-    - python: 3.9-dev
-    - os: linux-ppc64le
-      python: 3.8
-      arch: ppc64le
-      env:
-        - PPC=yes
+
+    # enable ppc64le closer to release, it is slow.
+    # - os: linux-ppc64le
+    #   python: 3.8
+    #   arch: ppc64le
+    #   env:
+    #     - PPC=yes
+
     - os: linux
+      name: arm64 sdist
       dist: xenial
       python: 3.8
       arch: arm64
       env:
         - ARM64=yes
+        - UPLOAD_SDIST_PYPI=yes
+        - GITHUB_UPLOAD=yes
+        - RUN_SDIST=yes
+
+
+    # enable s390x closer to release, it is slow.
+    # - os: linux
+    #   python: 3.7
+    #   arch: s390x
     - os: linux
       python: 3.7
-      arch: s390x
-    - os: linux
-      python: 3.7
-      name: manylinux x86/amd64 python 2.7, 3.4-3.8.
+      name: manylinux x86/amd64 python 2.7, 3.4-3.9.
       env:
         - MANYLINUX_WHL=yes
         - UPLOAD_WHL_PYPI=yes
-        - UPLOAD_SDIST_PYPI=yes
         - GITHUB_UPLOAD=yes
         - PYTHON_EXE=python3
-        - RUN_SDIST=yes
       services:
         - docker
     - os: osx
@@ -63,45 +59,78 @@ jobs:
       env:
         - GITHUB_UPLOAD=yes
         - UPLOAD_WHL_PYPI=yes
+      cache:
+        directories:
+          - $HOME/.conan/data
 
-  allow_failures:
-    - arch: s390x
+    # only run this on tag posts. We need two mac builds for mac wheels when doing pypy.
+    - os: osx
+      name: mac pypy only
+      if: tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
+      language: shell
+      env:
+        - GITHUB_UPLOAD=yes
+        - UPLOAD_WHL_PYPI=yes
+        - PYPYONLY=yes
+      cache:
+        directories:
+          - $HOME/.conan/data
+
+  # allow_failures:
+  #   - arch: s390x
     # - python: pypy
 
 before_install:
   - |
-    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$WHICH_SDL_BUILD" == "-sdl1" ]] && [[ "$MANYLINUX_WHL" != "yes" ]]; then
       sudo apt-get update
       sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
         libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev \
+        libtiff5-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
+        xfonts-cyrillic fluid-soundfont-gm timgm6mb-soundfont
+    fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$WHICH_SDL_BUILD" != "-sdl1" ]] && [[ "$MANYLINUX_WHL" != "yes" ]]; then
+      sudo apt-get update
+      sudo apt-get install python-dev python-numpy libportmidi-dev libjpeg-dev \
         libtiff5-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
         xfonts-cyrillic fluid-soundfont-gm timgm6mb-soundfont \
         libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
     fi
 
+
 install:
   - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
   - |
-    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$MANYLINUX_WHL" != "yes" ]]; then
       PYTHON_EXE=python PIP_CMD=pip
       $PIP_CMD install --upgrade pip
       $PIP_CMD install --upgrade numpy
       $PYTHON_EXE setup.py -config -auto $WHICH_SDL_BUILD
-      $PYTHON_EXE setup.py install -pygame-ci -noheaders
+      $PYTHON_EXE setup.py build -j4 install -pygame-ci -noheaders
     fi
   - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       PYTHON_EXE=python3 PIP_CMD="python3 -m pip"
       $PIP_CMD install --upgrade pip
-      $PIP_CMD install conan
-      $PIP_CMD install cibuildwheel==1.3.0
+      $PIP_CMD install conan -U
+      $PIP_CMD install cibuildwheel==1.6.3
+      conan config set storage.download_cache="$HOME/.conan/data/download_cache"
       conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
       conan remote add pygame-repo https://api.bintray.com/conan/pygame/pygame
       # $PYTHON_EXE buildconfig/config.py -conan --build libtiff --build opusfile --build sdl2_image --build sdl2_ttf
+    fi
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
       $PYTHON_EXE buildconfig/config.py -conan --build
       cp build/conan/*.dylib .
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      $PYTHON_EXE buildconfig/config.py -conan --build=missing
+      cp build/conan/*.dylib .
     fi
-  - if [[ "$MANYLINUX_WHL" == "yes" ]]; then source buildconfig/ci/travis/.travis_linux_build_wheels.sh; fi
+  - |
+    if [[ "$MANYLINUX_WHL" == "yes" ]]; then
+      source buildconfig/ci/travis/.travis_linux_build_wheels.sh
+    fi
 
 env:
   global:
@@ -111,37 +140,33 @@ env:
     - secure: "EGrZt/2EGOAzwcI69la5RgJ1Fr8uXM0TYarCheBrDVwcESNXccH9myyflN97m/jDrdyJB2fmVgI2WDpFdvnpEXNC7+lTEhApgFx6L1TwE/s5Fj6Kd72cERcPmDwLwzQFChXl2kjPTgu/Qr2u2X3EYCfEd0jRf+TcdHasvOLeGuQu7l0cnyW6WK+xMhF1wV8O9F1IdggyeysYIpP/v8rCtmjd268AqploBJ3cM3qau1F9NYBCSUPhu9eZfB0JRhHzeFDbNxRJtG+WZjk2CuGi1W8BGM/CeJkM/3b7iHMEwCYd8JW4k8ZYLSrPUiHkKxSeL9R12+p9u6AHMlXfEfO96Nt8pQkhVP9BxH374RRvQsIl5OxACTAW9XEiqTP7aRXIBSOxX6p3DxUXl6Ogn0d9U5rIu4SUAiaWW9e0k+Oeo/H3OGuerFlBIh6rW4kzVZ7ftcqzVRz9QgnrSy2r93BYzTWwM3eifkFQwtgnBSvXxM151leHOJ9r3PAiRup7V90WZBD4zytQSMaOc+fcdIWscP88sPcLXZEb6n6y7Ja3t5ASO58dXLw9EvqS4CsRYI08ltH85L/cq37dKgpvu33lsx1ZDksiMKtZW7tXhV1DZ9thl1JH/3f9QLRFz+02mJ6FD4PCJRYQvDDs5J4j7rf76FUlcBr+9bAN0sRnPL6UOms="
     - CIBW_TEST_COMMAND="python -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300"
     - CIBW_BEFORE_BUILD="pip install numpy"
-    # skip pypy builds with cibuildwheel
-    - CIBW_SKIP="pp*"
 
 script:
   - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && [[ -n "$TRAVIS_TAG" ]]; then
-      source build/conan/activate_run.sh
-      $PYTHON_EXE -m cibuildwheel --output-dir dist
-      $PYTHON_EXE buildconfig/ci/travis/.travis_osx_rename_whl.py
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      source buildconfig/ci/travis/cibuildwheel_mac.sh
     fi
   - |
-    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$MANYLINUX_WHL" != "yes" ]]; then
       $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
-      $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl --time_out 300
+      $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300
     fi
   # to make sure setup.py sdist runs.
   - |
     if [[ "$RUN_SDIST" == "yes" ]]; then
-      $PYTHON_EXE setup.py sdist
+      source buildconfig/ci/travis/build_test_sdist.sh
     fi
 
 
 # Upload dist/*.whl to pypi on tags.
 after_success:
   - |
-    if [[ "${UPLOAD_WHL_PYPI}" = "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+    if [[ "${UPLOAD_WHL_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
       $PYTHON_EXE -m pip install twine
       $PYTHON_EXE -m twine upload dist/*.whl
     fi
   - |
-    if [[ "${UPLOAD_SDIST_PYPI}" = "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" = "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+    if [[ "${UPLOAD_SDIST_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
       $PYTHON_EXE -m pip install twine
       $PYTHON_EXE -m twine upload dist/*.tar.gz
     fi
@@ -161,9 +186,6 @@ deploy:
   draft: true
   on:
     all_branches: true
-    # branches:
-    #   only:
-    #     - master
     tags: true
     repo: pygame/pygame
     condition: $GITHUB_UPLOAD = yes

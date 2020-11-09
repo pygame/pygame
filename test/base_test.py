@@ -236,6 +236,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @unittest.skipIf(IS_PYPY, "pypy2 no likey")
     def test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
@@ -306,6 +307,7 @@ class BaseModuleTest(unittest.TestCase):
             self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
     @unittest.skipIf(not pygame.HAVE_NEWBUF, "newbuf not implemented")
+    @unittest.skipIf(IS_PYPY, "fails on pypy")
     def test_PgDict_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
 

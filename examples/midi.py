@@ -133,7 +133,7 @@ def output_main(device_id=None):
     start_note = 53  # F3 (white key note), start_note != 0
     n_notes = 24  # Two octaves (14 white keys)
 
-    bg_color = Color("slategray")
+    bg_color = pg.Color("slategray")
 
     key_mapping = make_key_mapping(
         [
@@ -247,12 +247,11 @@ def output_main(device_id=None):
         pygame.midi.quit()
 
 
-def make_key_mapping(key_list, start_note):
+def make_key_mapping(keys, start_note):
     """Return a dictionary of (note, velocity) by computer keyboard key code"""
-
     mapping = {}
-    for i in range(len(key_list)):
-        mapping[key_list[i]] = (start_note + i, 127)
+    for i, key in enumerate(keys):
+        mapping[key] = (start_note + i, 127)
     return mapping
 
 

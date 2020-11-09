@@ -82,6 +82,21 @@ class Rect(object):
     @overload
     def inflate_ip(self, inflate_by: _Coordinate) -> None: ...
     @overload
+    def update(
+        self, left: float, top: float, width: float, height: float
+    ) -> None: ...
+    @overload
+    def update(
+        self,
+        left_top: Union[List[float], Tuple[float, float], Vector2],
+        width_height: Union[List[float], Tuple[float, float], Vector2],
+    ) -> None: ...
+    @overload
+    def update(
+        self,
+        left_top_width_height: Union[Rect, Tuple[float, float, float, float], List[float]]
+    ) -> None: ...
+    @overload
     def clamp(self, rect: Union[_RectStyle, Rect]) -> Rect: ...
     @overload
     def clamp(

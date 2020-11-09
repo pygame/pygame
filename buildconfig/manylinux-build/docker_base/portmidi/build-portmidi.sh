@@ -16,13 +16,14 @@ else
     export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk
     JRE_LIB_DIR=i386
 fi
-ls ${JAVA_HOME}
-ls ${JAVA_HOME}/jre
-ls ${JAVA_HOME}/jre/lib
-ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR
-ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR/server
+# ls ${JAVA_HOME}
+# ls ${JAVA_HOME}/jre
+# ls ${JAVA_HOME}/jre/lib
+# ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR
+# ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR/server
 
 cd portmidi/
+patch -p1 < ../no-java.patch
 #cmake -DJAVA_JVM_LIBRARY=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/server/libjvm.so .
 cmake -DCMAKE_BUILD_TYPE=Release .
 make
