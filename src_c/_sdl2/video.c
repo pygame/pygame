@@ -26942,7 +26942,7 @@ ignore:
 
 /* PatchGeneratorABC */
 #ifndef CYTHON_REGISTER_ABCS
-#define CYTHON_REGISTER_ABCS 1
+#define CYTHON_REGISTER_ABCS 0
 #endif
 #if defined(__Pyx_Generator_USED) || defined(__Pyx_Coroutine_USED)
 static PyObject* __Pyx_patch_abc_module(PyObject *module);
