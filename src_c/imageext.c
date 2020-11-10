@@ -192,6 +192,11 @@ image_load_ext(PyObject *self, PyObject *arg)
                 return PyErr_NoMemory();
             }
             strcpy(ext, cext);
+            /* SDL does not accept jpeg extension, since jpg and 
+             * jpeg are the same, do a small replacement */
+            if (ext == "jpeg") {
+                ext = "jpg";
+            }
 #ifdef WITH_THREAD
             lock_mutex = !strcasecmp(ext, "gif");
 #endif /* WITH_THREAD */
