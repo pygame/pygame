@@ -223,5 +223,4 @@ headers_filename_sfx = '_doc'
 smartquotes = False
 
 edit_on_github_project = 'pygame/pygame'
-edit_on_github_branch = 'master'
-
+edit_on_github_branch = 'main'
