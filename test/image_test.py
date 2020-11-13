@@ -806,13 +806,60 @@ class ImageModuleTest(unittest.TestCase):
         
         f.close()
 
-    def todo_test_load_extended(self):
+    def test_load_extended(self):
 
         # __doc__ (as of 2008-08-02) for pygame.image.load_extended:
 
         # pygame module for image transfer
 
-        self.fail()
+        #We test loading the following file types: bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm, pbm
+        #All the loaded images are smaller than 32 x 32 pixels
+
+        #test loading a bmp
+        s1 = pygame.image.load_extended(example_path("data/asprite.bmp"))
+        self.assertEqual(s1.get_at((0,0)),(255,255,255,255))
+
+        #test loading a png
+        s2 = pygame.image.load_extended(example_path("data/laplacian.png"))
+        self.assertEqual(s2.get_at((0,0)),(10,10,70,255))
+
+        #test loading a jpg
+        s3 = pygame.image.load_extended(example_path("data/red.jpg"))
+        self.assertEqual(s3.get_at((0,0)),(254,0,0,255))
+
+        #test loading a gif
+        s4 = pygame.image.load_extended(example_path("data/blue.gif"))
+        self.assertEqual(s4.get_at((0,0)),(0,0,255,255))
+
+        #test loading a pcx
+        s5 = pygame.image.load_extended(example_path("data/green.pcx"))
+        self.assertEqual(s5.get_at((0,0)),(0,255,0,255))
+
+        #test loading a tga (uncompressed)
+        s6 = pygame.image.load_extended(example_path("data/yellow.tga"))
+        self.assertEqual(s6.get_at((0,0)),(255,255,0,255))
+
+        #test loading a tif
+        s7 = pygame.image.load_extended(example_path("data/turquoise.tif"))
+        self.assertEqual(s7.get_at((0,0)),(0,255,255,255))
+
+        #test loading a xpm
+        s8 = pygame.image.load_extended(example_path("data/purple.xpm"))
+        self.assertEqual(s8.get_at((0,0)),(255,0,255,255))
+
+        #test loading a ppm
+        s9 = pygame.image.load_extended(example_path("data/black.ppm"))
+        self.assertEqual(s9.get_at((0,0)),(0,0,0,255))
+
+        #test loading a pgm
+        s10 = pygame.image.load_extended(example_path("data/grey.pgm"))
+        self.assertEqual(s10.get_at((0,0)),(120,120,120,255))
+
+        #test loading a pbm
+        s11 = pygame.image.load_extended(example_path("data/orange.pbm"))
+        self.assertEqual(s11.get_at((0,0)),(255,120,0,255))
+
+
 
     def test_save_extended(self):
         surf = pygame.Surface((5, 5))
