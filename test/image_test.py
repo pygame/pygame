@@ -806,13 +806,33 @@ class ImageModuleTest(unittest.TestCase):
         
         f.close()
 
-    def todo_test_load_extended(self):
+    def test_load_extended(self):
 
         # __doc__ (as of 2008-08-02) for pygame.image.load_extended:
 
         # pygame module for image transfer
 
-        self.fail()
+        #We test loading the following file types: bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm.
+        #All the loaded images are smaller than 32 x 32 pixels.
+
+        #The list of tests that are executed, with filename and expected color.
+        tests = [("asprite.bmp", (255, 255, 255, 255)),
+                 ("laplacian.png", (10, 10, 70, 255)),
+                 ("red.jpg", (254, 0, 0, 255)),
+                 ("blue.gif", (0, 0, 255, 255)),
+                 ("green.pcx", (0, 255, 0, 255)),
+                 ("yellow.tga", (255, 255, 0, 255)),
+                 ("turquoise.tif", (0, 255, 255, 255)),
+                 ("purple.xpm", (255, 0, 255, 255)),
+                 ("black.ppm", (0, 0, 0, 255)),
+                 ("grey.pgm", (120, 120, 120, 255))]
+
+        for test in tests:
+            #We use subTest to make sure all we go through all the tests, even if one fails.
+            with self.subTest("Test loading a " + test[0][-3:], filename="examples/data/" + test[0], expected_color=test[1]):
+                s = pygame.image.load_extended(example_path("data/" + test[0]))
+                self.assertEqual(s.get_at((0, 0)), test[1])
+        
 
     def test_save_extended(self):
         surf = pygame.Surface((5, 5))
