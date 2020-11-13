@@ -812,7 +812,7 @@ class ImageModuleTest(unittest.TestCase):
 
         # pygame module for image transfer
 
-        #We test loading the following file types: bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm, pbm
+        #We test loading the following file types: bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm
         #All the loaded images are smaller than 32 x 32 pixels
 
         #test loading a bmp
@@ -854,11 +854,6 @@ class ImageModuleTest(unittest.TestCase):
         #test loading a pgm
         s10 = pygame.image.load_extended(example_path("data/grey.pgm"))
         self.assertEqual(s10.get_at((0,0)),(120,120,120,255))
-
-        #test loading a pbm
-        s11 = pygame.image.load_extended(example_path("data/orange.pbm"))
-        self.assertEqual(s11.get_at((0,0)),(255,120,0,255))
-
 
 
     def test_save_extended(self):
