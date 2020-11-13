@@ -829,7 +829,7 @@ class ImageModuleTest(unittest.TestCase):
 
         for test in tests:
             #We use subTest to make sure all we go through all the tests, even if one fails.
-            with self.subTest("Test loading a " + test[0][-3:], filename="data/" + test[0], expected_color=test[1]):
+            with self.subTest("Test loading a " + test[0][-3:], filename="examples/data/" + test[0], expected_color=test[1]):
                 s = pygame.image.load_extended(example_path("data/" + test[0]))
                 self.assertEqual(s.get_at((0, 0)), test[1])
         
