@@ -7,9 +7,7 @@
 #define DOC_PYGAMEMOUSESETVISIBLE "set_visible(bool) -> bool\nhide or show the mouse cursor"
 #define DOC_PYGAMEMOUSEGETVISIBLE "get_visible() -> bool\nget the current visibility state of the mouse cursor"
 #define DOC_PYGAMEMOUSEGETFOCUSED "get_focused() -> bool\ncheck if the display is receiving mouse input"
-#define DOC_PYGAMEMOUSESETCURSOR "set_cursor(size, hotspot, xormasks, andmasks) -> None\nset the image for the mouse cursor"
 #define DOC_PYGAMEMOUSESETSYSTEMCURSOR "set_system_cursor(constant) -> None\nset the mouse cursor to a system variant"
-#define DOC_PYGAMEMOUSEGETCURSOR "get_cursor() -> (size, hotspot, xormasks, andmasks)\nget the image of the mouse cursor"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -48,16 +46,8 @@ pygame.mouse.get_focused
  get_focused() -> bool
 check if the display is receiving mouse input
 
-pygame.mouse.set_cursor
- set_cursor(size, hotspot, xormasks, andmasks) -> None
-set the image for the mouse cursor
-
 pygame.mouse.set_system_cursor
  set_system_cursor(constant) -> None
 set the mouse cursor to a system variant
-
-pygame.mouse.get_cursor
- get_cursor() -> (size, hotspot, xormasks, andmasks)
-get the image of the mouse cursor
 
 */

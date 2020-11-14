@@ -238,21 +238,23 @@ mouse_get_focused(PyObject *self)
 #endif /* IS_SDLv2 */
 }
 
-static PyObject *
-mouse_set_cursor(PyObject *self, PyObject *args)
-{
-    int w, h, spotx, spoty;
+struct CursorData {
+    int w;
+    int h;
+    int spotx;
+    int spoty;
     PyObject *xormask, *andmask;
+    pgSurfaceObject *surfobj;
+    int constant;
+    int type;
+} cursor_data;
+
+static PyObject *
+_set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject* xormask, PyObject* andmask) {
     Uint8 *xordata = NULL, *anddata = NULL;
     int xorsize, andsize, loop;
     int val;
     SDL_Cursor *lastcursor, *cursor = NULL;
-
-    if (!PyArg_ParseTuple(args, "(ii)(ii)OO", &w, &h, &spotx, &spoty, &xormask,
-                          &andmask))
-        return NULL;
-
-    VIDEO_INIT_CHECK();
 
     if (!PySequence_Check(xormask) || !PySequence_Check(andmask))
         return RAISE(PyExc_TypeError, "xormask and andmask must be sequences");
@@ -298,6 +300,20 @@ mouse_set_cursor(PyObject *self, PyObject *args)
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
 
+    //To make sure that the mask data sticks around, it has to have its ref count increased
+    //Conversely, the old data stored in cursor_data (if it is there) doesn't need to be around anymore
+    Py_XDECREF(cursor_data.xormask);
+    Py_XDECREF(cursor_data.andmask);
+    Py_INCREF(xormask);
+    Py_INCREF(andmask);
+
+    cursor_data.type = 1;
+    cursor_data.xormask = xormask;
+    cursor_data.andmask = andmask;
+    cursor_data.w = w;
+    cursor_data.h = h;
+    cursor_data.spotx = spotx;
+    cursor_data.spoty = spoty;
     Py_RETURN_NONE;
 
 interror:
@@ -309,73 +325,122 @@ interror:
 }
 
 static PyObject *
-mouse_set_system_cursor(PyObject *self, PyObject *args)
-{
-    int idnum;
+_set_system_cursor(int constant) {
+#if IS_SDLv2
     SDL_Cursor *lastcursor, *cursor = NULL;
 
-    VIDEO_INIT_CHECK();
-
-    if (!PyArg_ParseTuple(args, "i", &idnum)) {
-        return NULL;
+    cursor = SDL_CreateSystemCursor(constant);
+    if (!cursor){
+        //SDL_GetError() wasn't returning relevant stuff when this function fails
+        return RAISE(pgExc_SDLError, "Error while creating system cursor");
     }
 
-#if IS_SDLv2
-    cursor = SDL_CreateSystemCursor(idnum);
-    if (!cursor) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    }
     lastcursor = SDL_GetCursor();
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
-#endif
+
+    cursor_data.type = 0;
+    cursor_data.constant = constant;   
     Py_RETURN_NONE;
+
+#else
+    return RAISE(PyExc_TypeError, "System cursors from constant are unavailable in SDL1");
+#endif
 }
 
-
+static PyObject *
+_set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
 #if IS_SDLv2
-static PyObject *
-mouse_get_cursor(PyObject *self)
-{
-    return RAISE(PyExc_TypeError, "The get_cursor method is unavailable in SDL2");
-}
-#else /* IS_SDLv1*/
-static PyObject *
-mouse_get_cursor(PyObject *self)
-{
-    SDL_Cursor *cursor = NULL;
-    PyObject *xordata, *anddata;
-    int size, loop, w, h, spotx, spoty;
+    SDL_Cursor *lastcursor, *cursor = NULL;
+    SDL_Surface *surf = NULL;
+    surf = pgSurface_AsSurface(surfobj);
 
-    VIDEO_INIT_CHECK();
-
-    cursor = SDL_GetCursor();
+    cursor = SDL_CreateColorCursor(surf, spotx, spoty);
     if (!cursor)
         return RAISE(pgExc_SDLError, SDL_GetError());
 
-    w = cursor->area.w;
-    h = cursor->area.h;
-    spotx = cursor->hot_x;
-    spoty = cursor->hot_y;
+    lastcursor = SDL_GetCursor();
+    SDL_SetCursor(cursor);
+    SDL_FreeCursor(lastcursor);
 
-    size = cursor->area.w * cursor->area.h / 8;
-    xordata = PyTuple_New(size);
-    if (!xordata)
-        return NULL;
-    anddata = PyTuple_New(size);
-    if (!anddata) {
-        Py_DECREF(xordata);
-        return NULL;
-    }
+    cursor_data.type = 2;
+    cursor_data.spotx = spotx;
+    cursor_data.spoty = spoty;
+    cursor_data.surfobj = surfobj;
+    Py_RETURN_NONE;
 
-    for (loop = 0; loop < size; ++loop) {
-        PyTuple_SET_ITEM(xordata, loop, PyInt_FromLong(cursor->data[loop]));
-        PyTuple_SET_ITEM(anddata, loop, PyInt_FromLong(cursor->mask[loop]));
-    }
-
-    return Py_BuildValue("((ii)(ii)NN)", w, h, spotx, spoty, xordata, anddata);
+#else
+    return RAISE(PyExc_TypeError, "Cursors from a surface are unavailable in SDL1");
+#endif
 }
-#endif /* IS_SDLv1 */
+
+static PyObject *
+mouse_set_system_cursor(PyObject *self, PyObject *args)
+{
+    int constant;
+    
+    VIDEO_INIT_CHECK();
+
+    if (!PyArg_ParseTuple(args, "i", &constant)) {
+        return NULL;
+    }
+
+    return _set_system_cursor(constant);
+}
+
+//this function isn't all of mouse.set_cursor, it goes through a python function first
+static PyObject *
+mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    //normal_cursor stuff
+    int w=0, h=0, spotx, spoty;
+    PyObject *xormask, *andmask;
+
+    //system_cursor stuff
+    int constant = -1;
+
+    //color_cursor stuff
+    pgSurfaceObject *surfobj = NULL;
+
+    static char *keywords[] = {"system", "bitmap", "color", NULL};
+
+    VIDEO_INIT_CHECK();
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|(i)((ii)(ii)OO)((ii)O!)", keywords, &constant, &w, &h, &spotx, &spoty, &xormask, &andmask, &spotx, &spoty, &pgSurface_Type, &surfobj)) {
+        return NULL;
+    }
+
+    if (constant > -1) {
+        return _set_system_cursor(constant);
+    }
+    else if (w && h) {
+        return _set_bitmap_cursor(w, h, spotx, spoty, xormask, andmask);
+    }
+    else if (surfobj) {
+        return _set_color_cursor(spotx, spoty, surfobj);
+    }
+    else {
+        RAISE(PyExc_ValueError, "Invalid cursor format: no valid template found");
+    }
+}
+
+//should the buildvalue 'O's be replaced by 'N's?
+static PyObject*
+mouse_get_cursor(PyObject *self)
+{
+    VIDEO_INIT_CHECK();
+
+    if (cursor_data.type == 0) {
+        return Py_BuildValue("(i)", cursor_data.constant);
+    }
+    if (cursor_data.type == 1) {
+        return Py_BuildValue("(ii)(ii)OO", cursor_data.w, cursor_data.h, cursor_data.spotx, cursor_data.spoty, cursor_data.xormask, cursor_data.andmask); 
+    }
+    if (cursor_data.type == 2) {
+        return Py_BuildValue("(ii)O", cursor_data.spotx, cursor_data.spoty, cursor_data.surfobj);
+    }
+    Py_RETURN_NONE; //what happens here? - error? default cursor?
+}
 
 static PyMethodDef _mouse_methods[] = {
     {"set_pos", mouse_set_pos, METH_VARARGS, DOC_PYGAMEMOUSESETPOS},
@@ -390,11 +455,9 @@ static PyMethodDef _mouse_methods[] = {
     {"get_visible", mouse_get_visible, METH_NOARGS, DOC_PYGAMEMOUSEGETVISIBLE},
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
-    {"set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR},
     {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETSYSTEMCURSOR},
-    {"get_cursor", (PyCFunction)mouse_get_cursor, METH_VARARGS,
-     DOC_PYGAMEMOUSEGETCURSOR},
-
+    {"_set_cursor", (PyCFunction)mouse_set_cursor, METH_VARARGS | METH_KEYWORDS, "Internal API for mouse.set_cursor"},
+    {"_get_cursor", mouse_get_cursor, METH_NOARGS, "Internal API for mouse.get_cursor"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(mouse)
@@ -420,6 +483,13 @@ MODINIT_DEFINE(mouse)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
+
+    #if IS_SDLv2 // needed for SDL2 cursor function _set_color_cursor
+    import_pygame_surface();
+    if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
+    #endif
 
     /* create the module */
 #if PY3

@@ -387,3 +387,64 @@ def load_xbm(curs, mask):
 
     maskdata = tuple(maskdata)
     return info[:2], info[2:], cursdata, maskdata
+
+import pygame
+cursor_id_table = {
+    pygame.SYSTEM_CURSOR_ARROW: "SYSTEM_CURSOR_ARROW" ,
+    pygame.SYSTEM_CURSOR_IBEAM: "SYSTEM_CURSOR_IBEAM",
+    pygame.SYSTEM_CURSOR_WAIT: "SYSTEM_CURSOR_WAIT",
+    pygame.SYSTEM_CURSOR_WAITARROW: "SYSTEM_CURSOR_WAITARROW",
+    pygame.SYSTEM_CURSOR_SIZENWSE: "SYSTEM_CURSOR_SIZENWSE",
+    pygame.SYSTEM_CURSOR_SIZENESW: "SYSTEM_CURSOR_SIZENESW",
+    pygame.SYSTEM_CURSOR_SIZEWE: "SYSTEM_CURSOR_SIZEWE",
+    pygame.SYSTEM_CURSOR_SIZENS: "SYSTEM_CURSOR_SIZENS",
+    pygame.SYSTEM_CURSOR_SIZEALL: "SYSTEM_CURSOR_SIZEALL",
+    pygame.SYSTEM_CURSOR_NO: "SYSTEM_CURSOR_NO",
+    pygame.SYSTEM_CURSOR_HAND: "SYSTEM_CURSOR_HAND",
+}
+
+class Cursor(object):
+    def __init__(self, *args):
+        if len(args) == 0:
+            self.type = "system"
+            self.args = (pygame.SYSTEM_CURSOR_ARROW,)
+        elif len(args) == 1 and args[0] in list(cursor_id_table.keys()):
+            self.type = "system"
+            self.args = (args[0],)
+        elif len(args) == 1 and isinstance(args[0], Cursor):
+            self.type = args[0].type
+            self.args = args[0].args
+        elif len(args) == 2 and len(args[0]) == 2 and isinstance(args[1], pygame.Surface):
+            self.type = "color"
+            self.args = tuple(args)
+        elif len(args) == 4 and len(args[0]) == 2 and len(args[1]) == 2:
+            self.type = "bitmap"
+            self.args = tuple([tuple(arg) for arg in args])
+            #self.args = tuple(args)
+        else:
+            raise TypeError("Arguments must match a cursor specification")
+            
+    def __len__(self):
+        return len(self.args)
+
+    def __getitem__(self, index):
+        return self.args[index]
+
+    def __eq__(self, other):
+        #print(other)
+        #print(isinstance(other, Cursor) and self.args == other.args)
+        return isinstance(other, Cursor) and self.args == other.args
+
+    def __repr__(self):
+        if self.type == "system":
+            id_string = cursor_id_table.get(self.args[0], "constant lookup error")
+            return "Cursor<system_cursor(" + id_string +")>"
+        if self.type == "bitmap":
+            size = "size: " + str(self.args[0])
+            hotspot = "hotspot: " + str(self.args[1])
+            return "Cursor<bitmap_cursor(" + size + ", " + hotspot +")>"
+        if self.type == "color":
+            hotspot = "hotspot: " + str(self.args[0])
+            surf = repr(self.args[1])
+            return "Cursor<color_cursor(" + hotspot + ", surf: " + surf +")>"
+        return "Cursor<How did we get here?>"
