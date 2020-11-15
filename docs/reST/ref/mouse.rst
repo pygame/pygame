@@ -183,7 +183,7 @@ scroll, such as ``which`` (it will tell you what exact mouse device trigger the 
 
 .. function:: set_cursor
 
-   | :sl:`set the image for the mouse cursor`
+   | :sl:`set the mouse cursor to a new cursor`
    | :sg:`set_cursor(pygame.cursors.Cursor) -> None`
    | :sg:`set_cursor(arguments to create a pygame.cursors.Cursor) -> None`
 
@@ -192,12 +192,14 @@ scroll, such as ``which`` (it will tell you what exact mouse device trigger the 
 
    See :class:`pygame.cursors.Cursor` for help creating cursors and for examples.
 
+   .. versionchanged:: 2.0.1
+
    .. ## pygame.mouse.set_cursor ##
 
 
 .. function:: get_cursor
 
-   | :sl:`get the image of the mouse cursor`
+   | :sl:`get the current mouse cursor`
    | :sg:`get_cursor() -> pygame.cursors.Cursor`
 
    Get the information about the mouse system cursor. The return value contains

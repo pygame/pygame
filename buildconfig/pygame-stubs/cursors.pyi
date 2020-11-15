@@ -1,5 +1,7 @@
 from typing import Tuple, Sequence, Optional
 
+from pygame.surface import Surface
+
 _Bitmap = Tuple[
     Tuple[int, int],
     Tuple[int, int],
@@ -119,3 +121,19 @@ def compile(
     xor="o",
 ) -> Tuple[Sequence[int], Sequence[int]]: ...
 def load_xbm(cursorfile: str, maskfile: str): ...
+
+
+class Cursor(object):
+    @overload
+    def __init__(constant: int) -> None: ...
+    @overload
+    def __init__(size: Union[Tuple[int, int], List[int]],
+                 hotspot: Union[Tuple[int, int], List[int]],
+                 xormasks: Sequence[int],
+                 andmasks: Sequence[int],
+                 ) -> None: ...
+    @overload
+    def __init__(hotspot: Union[Tuple[int, int], List[int]],
+                 surface: Surface,
+                 ) -> None: ...
+

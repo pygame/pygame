@@ -204,5 +204,8 @@ The following strings can be converted into cursor bitmaps with
 
    .. ## pygame.cursors.Cursor ##
    
-
 .. ## pygame.cursors ##
+
+Example code for creating and settings cursors. (Click the mouse to switch cursor)
+
+.. literalinclude:: code_examples/cursors_module_example.py

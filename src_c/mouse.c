@@ -455,7 +455,7 @@ static PyMethodDef _mouse_methods[] = {
     {"get_visible", mouse_get_visible, METH_NOARGS, DOC_PYGAMEMOUSEGETVISIBLE},
     {"get_focused", (PyCFunction)mouse_get_focused, METH_VARARGS,
      DOC_PYGAMEMOUSEGETFOCUSED},
-    {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETSYSTEMCURSOR},
+    {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, "set_system_cursor(constant) -> None\nset the mouse cursor to a system variant"},
     {"_set_cursor", (PyCFunction)mouse_set_cursor, METH_VARARGS | METH_KEYWORDS, "Internal API for mouse.set_cursor"},
     {"_get_cursor", mouse_get_cursor, METH_NOARGS, "Internal API for mouse.get_cursor"},
     {NULL, NULL, 0, NULL}};
