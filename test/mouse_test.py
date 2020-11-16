@@ -196,31 +196,33 @@ class MouseModuleTest(MouseTests):
         pygame.mouse.set_cursor(size, hotspot, list(xormask), list(andmask))
         self.assertEqual(pygame.mouse.get_cursor(), bitmap_cursor)
 
-        # System: TypeError raised when constant is invalid
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_cursor(-50021232)
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_cursor("yellow")
+        # Skip system cursor and color cursor testing on SDL1
+        if not SDL1:
+            # System: TypeError raised when constant is invalid
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_cursor(-50021232)
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_cursor("yellow")
 
-        # System: Working as intended
-        self.assertEqual(pygame.mouse.set_cursor(constant), None)
-        pygame.mouse.set_cursor(constant)
-        self.assertEqual(pygame.mouse.get_cursor(), system_cursor)
-        pygame.mouse.set_cursor(system_cursor)
-        self.assertEqual(pygame.mouse.get_cursor(), system_cursor)  
+            # System: Working as intended
+            self.assertEqual(pygame.mouse.set_cursor(constant), None)
+            pygame.mouse.set_cursor(constant)
+            self.assertEqual(pygame.mouse.get_cursor(), system_cursor)
+            pygame.mouse.set_cursor(system_cursor)
+            self.assertEqual(pygame.mouse.get_cursor(), system_cursor)  
 
-        # Color: TypeError raised with invalid parameters
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_cursor(("x", "y"), surface)
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_cursor(hotspot, "not_a_surface")
+            # Color: TypeError raised with invalid parameters
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_cursor(("x", "y"), surface)
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_cursor(hotspot, "not_a_surface")
 
-        # Color: Working as intended
-        self.assertEqual(pygame.mouse.set_cursor(hotspot, surface), None)
-        pygame.mouse.set_cursor(hotspot, surface)
-        self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
-        pygame.mouse.set_cursor(color_cursor)
-        self.assertEqual(pygame.mouse.get_cursor(), color_cursor)      
+            # Color: Working as intended
+            self.assertEqual(pygame.mouse.set_cursor(hotspot, surface), None)
+            pygame.mouse.set_cursor(hotspot, surface)
+            self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
+            pygame.mouse.set_cursor(color_cursor)
+            self.assertEqual(pygame.mouse.get_cursor(), color_cursor)      
 
     def test_get_focused(self):
         """Ensures get_focused returns the correct type."""
