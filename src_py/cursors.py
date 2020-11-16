@@ -433,6 +433,9 @@ class Cursor(object):
     def __eq__(self, other):
         return isinstance(other, Cursor) and self.data == other.data
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         if self.type == "system":
             id_string = _cursor_id_table.get(self.data[0], "constant lookup error")

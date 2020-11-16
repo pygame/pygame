@@ -342,10 +342,8 @@ _set_system_cursor(int constant) {
     cursor_data.type = 0;
     cursor_data.constant = constant;   
     Py_RETURN_NONE;
-
-#else
-    return RAISE(PyExc_TypeError, "System cursors from constant are unavailable in SDL1");
 #endif
+return RAISE(PyExc_TypeError, "System cursors from constant are unavailable in SDL1");
 }
 
 static PyObject *
@@ -369,9 +367,8 @@ _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
     cursor_data.surfobj = surfobj;
     Py_RETURN_NONE;
 
-#else
-    return RAISE(PyExc_TypeError, "Cursors from a surface are unavailable in SDL1");
 #endif
+return RAISE(PyExc_TypeError, "Cursors from a surface are unavailable in SDL1");
 }
 
 static PyObject *
@@ -406,7 +403,9 @@ mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
 
     VIDEO_INIT_CHECK();
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|(i)((ii)(ii)OO)((ii)O!)", keywords, &constant, &w, &h, &spotx, &spoty, &xormask, &andmask, &spotx, &spoty, &pgSurface_Type, &surfobj)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|(i)((ii)(ii)OO)((ii)O!)", keywords, &constant,
+                                     &w, &h, &spotx, &spoty, &xormask, &andmask, &spotx, &spoty,
+                                     &pgSurface_Type, &surfobj)) {
         return NULL;
     }
 
@@ -419,9 +418,7 @@ mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
     else if (surfobj) {
         return _set_color_cursor(spotx, spoty, surfobj);
     }
-    else {
-        RAISE(PyExc_ValueError, "Invalid cursor format: no valid template found");
-    }
+    RAISE(PyExc_ValueError, "Invalid cursor format: no valid template found");  
 }
 
 //should the buildvalue 'O's be replaced by 'N's?

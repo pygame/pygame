@@ -123,6 +123,9 @@ class MouseModuleTest(MouseTests):
             pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW), None
         )
 
+    @unittest.skipIf(os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
+        "Cursors not supported on headless test units",
+    )
     def test_set_cursor(self):
         """Ensures set_cursor works correctly."""
 
