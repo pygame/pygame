@@ -148,7 +148,7 @@ def set_cursor(*args):
     """set_cursor(pygame.cursors.Cursor OR args for a pygame.cursors.Cursor) -> None
     set the mouse cursor to a new cursor"""
     cursor = cursors.Cursor(*args)
-    mouse._set_cursor(**{cursor.type:cursor.args})
+    mouse._set_cursor(**{cursor.type:cursor.data})
 mouse.set_cursor = set_cursor
 
 def get_cursor():

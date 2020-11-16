@@ -137,3 +137,11 @@ class Cursor(object):
                  surface: Surface,
                  ) -> None: ...
 
+    type: string
+    data: Union[Tuple[int],
+                Tuple[Union[Tuple[int, int], List[int]],
+                      Union[Tuple[int, int], List[int]],
+                      Sequence[int],
+                      Sequence[int]],
+                Tuple[int, Surface]]
+

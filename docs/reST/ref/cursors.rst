@@ -200,6 +200,24 @@ The following strings can be converted into cursor bitmaps with
    Width and height must be a multiple of 8, and the mask arrays must be the 
    correct size for the given width and height. Otherwise an exception is raised.
 
+   .. attribute:: type
+   
+      | :sl:`Gets the cursor type`
+      | :sg:`type -> string`
+
+      The type will be ``"system"``, ``"bitmap"``, or ``"color"``.
+
+   .. ## pygame.cursors.Cursor.type ##
+
+   .. attribute:: data
+
+      | :sl:`Gets the cursor data`
+      | :sg:`data -> tuple`
+
+      Returns the data that was used to create this cursor object, wrapped up in a tuple.
+
+   .. ## pygame.cursors.Cursor.data ##
+
    .. versionadded:: 2.0.1
 
    .. ## pygame.cursors.Cursor ##
