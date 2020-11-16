@@ -362,6 +362,7 @@ __all__ = [
     'K_7',
     'K_8',
     'K_9',
+    'K_AC_BACK',
     'K_AMPERSAND',
     'K_ASTERISK',
     'K_AT',

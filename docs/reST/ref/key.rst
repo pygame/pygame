@@ -181,6 +181,7 @@ that your key handling code works well on both pygame 1 and pygame 2.
       K_MENU                menu
       K_POWER               power
       K_EURO                Euro
+      K_AC_BACK             Android back button
 
 
 .. _key-modifiers-label:
