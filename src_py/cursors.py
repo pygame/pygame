@@ -436,6 +436,9 @@ class Cursor(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return hash(tuple([self.type] + [data for data in self.data]))
+
     def __repr__(self):
         if self.type == "system":
             id_string = _cursor_id_table.get(self.data[0], "constant lookup error")

@@ -418,7 +418,7 @@ mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
     else if (surfobj) {
         return _set_color_cursor(spotx, spoty, surfobj);
     }
-    RAISE(PyExc_ValueError, "Invalid cursor format: no valid template found");  
+    return RAISE(PyExc_ValueError, "Invalid cursor format: no valid template found");  
 }
 
 //should the buildvalue 'O's be replaced by 'N's?
@@ -454,7 +454,7 @@ static PyMethodDef _mouse_methods[] = {
      DOC_PYGAMEMOUSEGETFOCUSED},
     {"set_system_cursor", mouse_set_system_cursor, METH_VARARGS, "set_system_cursor(constant) -> None\nset the mouse cursor to a system variant"},
     {"_set_cursor", (PyCFunction)mouse_set_cursor, METH_VARARGS | METH_KEYWORDS, "Internal API for mouse.set_cursor"},
-    {"_get_cursor", mouse_get_cursor, METH_NOARGS, "Internal API for mouse.get_cursor"},
+    {"_get_cursor", (PyCFunction)mouse_get_cursor, METH_NOARGS, "Internal API for mouse.get_cursor"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(mouse)
