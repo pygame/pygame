@@ -389,10 +389,11 @@ def load_xbm(curs, mask):
     return info[:2], info[2:], cursdata, maskdata
 
 import pygame
-cursor_id_table = {
-    pygame.SYSTEM_CURSOR_ARROW: "SYSTEM_CURSOR_ARROW" ,
+_cursor_id_table = {
+    pygame.SYSTEM_CURSOR_ARROW: "SYSTEM_CURSOR_ARROW",
     pygame.SYSTEM_CURSOR_IBEAM: "SYSTEM_CURSOR_IBEAM",
     pygame.SYSTEM_CURSOR_WAIT: "SYSTEM_CURSOR_WAIT",
+    pygame.SYSTEM_CURSOR_CROSSHAIR: "SYSTEM_CURSOR_CROSSHAIR",
     pygame.SYSTEM_CURSOR_WAITARROW: "SYSTEM_CURSOR_WAITARROW",
     pygame.SYSTEM_CURSOR_SIZENWSE: "SYSTEM_CURSOR_SIZENWSE",
     pygame.SYSTEM_CURSOR_SIZENESW: "SYSTEM_CURSOR_SIZENESW",
@@ -408,7 +409,7 @@ class Cursor(object):
         if len(args) == 0:
             self.type = "system"
             self.data = (pygame.SYSTEM_CURSOR_ARROW,)
-        elif len(args) == 1 and args[0] in list(cursor_id_table.keys()):
+        elif len(args) == 1 and args[0] in list(_cursor_id_table.keys()):
             self.type = "system"
             self.data = (args[0],)
         elif len(args) == 1 and isinstance(args[0], Cursor):
@@ -434,7 +435,7 @@ class Cursor(object):
 
     def __repr__(self):
         if self.type == "system":
-            id_string = cursor_id_table.get(self.data[0], "constant lookup error")
+            id_string = _cursor_id_table.get(self.data[0], "constant lookup error")
             return "Cursor<system_cursor(" + id_string +")>"
         if self.type == "bitmap":
             size = "size: " + str(self.data[0])
