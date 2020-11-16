@@ -56,6 +56,9 @@ class MouseModuleInteractiveTest(MouseTests):
 
 
 class MouseModuleTest(MouseTests):
+    @unittest.skipIf(os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
+        "Cursors not supported on headless test machines",
+    )    
     def test_get_cursor(self):
         """Ensures get_cursor works correctly."""
 
@@ -94,7 +97,7 @@ class MouseModuleTest(MouseTests):
 
     @unittest.skipIf(
         os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
-        "mouse.set_sytem_cursor only available in SDL2",
+        "mouse.set_system_cursor only available in SDL2",
     )
     def test_set_system_cursor(self):
         """Ensures set_system_cursor works correctly."""
@@ -124,7 +127,7 @@ class MouseModuleTest(MouseTests):
         )
 
     @unittest.skipIf(os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
-        "Cursors not supported on headless test units",
+        "Cursors not supported on headless test machines",
     )
     def test_set_cursor(self):
         """Ensures set_cursor works correctly."""
