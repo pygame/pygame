@@ -60,7 +60,7 @@ class Font:
     resolution: int
     def __init__(
         self,
-        file: Union[str, IO],
+        file: Union[str, IO, None],
         size: Optional[float] = 0,
         font_index: Optional[int] = 0,
         resolution: Optional[int] = 0,
