@@ -93,6 +93,14 @@ from pygame.rect import Rect
 from pygame.time import get_ticks
 from pygame.mask import from_surface
 
+#check if we need to use orderedDict (see #1951)
+import platform
+import sys
+if sys.version_info < (3, 7, 0) and platform.python_implementation() != 'PyPy':
+    from collections import OrderedDict
+    USE_ORDEREDDICT = True
+else:
+    USE_ORDEREDDICT = False
 
 class Sprite(object):
     """simple base class for visible game objects
@@ -354,7 +362,10 @@ class AbstractGroup(object):
     _spritegroup = True
 
     def __init__(self):
-        self.spritedict = {}
+        if USE_ORDEREDDICT:
+            self.spritedict = OrderedDict()
+        else:
+            self.spritedict = {}
         self.lostsprites = []
 
     def sprites(self):
