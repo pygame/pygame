@@ -1,42 +1,44 @@
 # pygame setup
-import pygame
+import pygame as pg
 
-pygame.init()
-screen = pygame.display.set_mode([600, 400])
-pygame.display.set_caption("Example code for the cursors module")
+pg.init()
+screen = pg.display.set_mode([600, 400])
+pg.display.set_caption("Example code for the cursors module")
 
 # create a system cursor
-system = pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_NO)
+system = pg.cursors.Cursor(pg.SYSTEM_CURSOR_NO)
 
 # create bitmap cursors
-bitmap_1 = pygame.cursors.Cursor(*pygame.cursors.arrow)
-bitmap_2 = pygame.cursors.Cursor(
-    (24, 24), (0, 0), *pygame.cursors.compile(pygame.cursors.thickarrow_strings)
+bitmap_1 = pg.cursors.Cursor(*pg.cursors.arrow)
+bitmap_2 = pg.cursors.Cursor(
+    (24, 24), (0, 0), *pg.cursors.compile(pg.cursors.thickarrow_strings)
 )
 
 # create a color cursor
-surf = pygame.Surface((40, 40)) # you could also load an image 
+surf = pg.Surface((40, 40)) # you could also load an image 
 surf.fill((120, 50, 50))        # and use that as your surface
-color = pygame.cursors.Cursor((20, 20), surf)
+color = pg.cursors.Cursor((20, 20), surf)
 
 cursors = [system, bitmap_1, bitmap_2, color]
 cursor_index = 0
 
-pygame.mouse.set_cursor(cursors[cursor_index])
+pg.mouse.set_cursor(cursors[cursor_index])
 
-clock = pygame.time.Clock()
-while True:
+clock = pg.time.Clock()
+going = True
+while going:
     clock.tick(60)
     screen.fill((0, 75, 30))
-    pygame.display.flip()
+    pg.display.flip()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            raise SystemExit
+    for event in pg.event.get():
+        if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+            going = False
 
         # if the mouse is clicked it will switch to a new cursor
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pg.MOUSEBUTTONDOWN:
             cursor_index += 1
             cursor_index %= len(cursors)
-            pygame.mouse.set_cursor(cursors[cursor_index])
+            pg.mouse.set_cursor(cursors[cursor_index])
+
+pg.quit()

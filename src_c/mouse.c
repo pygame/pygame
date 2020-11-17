@@ -249,6 +249,10 @@ struct CursorData {
     int type;
 } cursor_data;
 
+#define BITMAP_CURSOR 1
+#define SYSTEM_CURSOR 0
+#define COLOR_CURSOR 2
+
 static PyObject *
 _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject* xormask, PyObject* andmask) {
     Uint8 *xordata = NULL, *anddata = NULL;
@@ -307,7 +311,7 @@ _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject* xormask, PyObje
     Py_INCREF(xormask);
     Py_INCREF(andmask);
 
-    cursor_data.type = 1;
+    cursor_data.type = BITMAP_CURSOR;
     cursor_data.xormask = xormask;
     cursor_data.andmask = andmask;
     cursor_data.w = w;
@@ -339,7 +343,7 @@ _set_system_cursor(int constant) {
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
 
-    cursor_data.type = 0;
+    cursor_data.type = SYSTEM_CURSOR;
     cursor_data.constant = constant;   
     Py_RETURN_NONE;
 #endif
@@ -361,7 +365,7 @@ _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
 
-    cursor_data.type = 2;
+    cursor_data.type = COLOR_CURSOR;
     cursor_data.spotx = spotx;
     cursor_data.spoty = spoty;
     cursor_data.surfobj = surfobj;
@@ -427,13 +431,13 @@ mouse_get_cursor(PyObject *self)
 {
     VIDEO_INIT_CHECK();
 
-    if (cursor_data.type == 0) {
+    if (cursor_data.type == SYSTEM_CURSOR) {
         return Py_BuildValue("(i)", cursor_data.constant);
     }
-    if (cursor_data.type == 1) {
+    if (cursor_data.type == BITMAP_CURSOR) {
         return Py_BuildValue("(ii)(ii)OO", cursor_data.w, cursor_data.h, cursor_data.spotx, cursor_data.spoty, cursor_data.xormask, cursor_data.andmask); 
     }
-    if (cursor_data.type == 2) {
+    if (cursor_data.type == COLOR_CURSOR) {
         return Py_BuildValue("(ii)O", cursor_data.spotx, cursor_data.spoty, cursor_data.surfobj);
     }
     Py_RETURN_NONE; //what happens here? - error? default cursor?
@@ -480,13 +484,10 @@ MODINIT_DEFINE(mouse)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-
-    #if IS_SDLv2 // needed for SDL2 cursor function _set_color_cursor
     import_pygame_surface();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-    #endif
 
     /* create the module */
 #if PY3
