@@ -365,11 +365,11 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
 .. function:: start_text_input
 
-   | :sl:`start handling IME compositions`
+   | :sl:`start handling Unicode text input events`
    | :sg:`start_text_input() -> None`
 
    Start receiving ``pygame.TEXTEDITING`` and ``pygame.TEXTINPUT``
-   events to handle IME.
+   events.
 
    A ``pygame.TEXTEDITING`` event is received when an IME composition
    is started or changed. It contains the composition ``text``, ``length``,
@@ -378,7 +378,7 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    When the composition is committed (or non-IME input is received),
    a ``pygame.TEXTINPUT`` event is generated.
 
-   Normal ``pygame.TEXTINPUT`` events are not dependent on this.
+   Text input events handling is on by default.
 
    .. versionadded:: 2.0.0
 
@@ -386,13 +386,13 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
 .. function:: stop_text_input
 
-   | :sl:`stop handling IME compositions`
+   | :sl:`stop handling Unicode text input events`
    | :sg:`stop_text_input() -> None`
 
    Stop receiving ``pygame.TEXTEDITING`` and ``pygame.TEXTINPUT``
-   events to handle IME.
+   events.
 
-   Normal ``pygame.TEXTINPUT`` events are not dependent on this.
+   Text input events handling is on by default
 
    .. versionadded:: 2.0.0
 
@@ -405,8 +405,6 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
    This sets the rectangle used for typing with an IME.
    It controls where the candidate list will open, if supported.
-
-   Normal ``pygame.TEXTINPUT`` events are not dependent on this.
 
    .. versionadded:: 2.0.0
 
