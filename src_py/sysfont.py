@@ -372,7 +372,9 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
     gotbold = gotitalic = False
     fontname = None
     if name:
-        for single_name in name.split(','):
+        if isinstance(name, str):
+            name = name.split(',')
+        for single_name in name:
             single_name = _simplename(single_name)
             styles = Sysfonts.get(single_name)
             if not styles:
@@ -438,7 +440,9 @@ def match_font(name, bold=0, italic=0):
         initsysfonts()
 
     fontname = None
-    for single_name in name.split(','):
+    if isinstance(name, str):
+        name = name.split(',')
+    for single_name in name:
         single_name = _simplename(single_name)
         styles = Sysfonts.get(single_name)
         if not styles:
