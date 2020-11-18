@@ -1198,6 +1198,21 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         finally:
             pygame.display.quit()
 
+    def test_convert_get_alpha(self):
+        """ converted()d surfaces loaded from png transparent style surfaces should return 255.
+        """
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((640, 480))
+
+            s1 = pygame.Surface((100, 100), pygame.SRCALPHA, 32)
+            s1_converted = s1.convert()
+            self.assertEqual(s1_converted.get_flags() & SRCALPHA, SRCALPHA)
+            self.assertEqual(s1_converted.get_alpha(), 255)
+        finally:
+            pygame.display.quit()
+
+
     def test_src_alpha_issue_1289(self):
         """blit should be white."""
         surf1 = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
