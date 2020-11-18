@@ -251,7 +251,7 @@ pg_init(PyObject *self, PyObject *args)
         windib video driver was renamed in SDL2, and we don't want it to fail.
     */
     const char *drivername = SDL_getenv("SDL_VIDEODRIVER");
-    if (drivername && SDL_strncasecmp("windb", drivername, SDL_strlen(drivername)) == 0) {
+    if (drivername && SDL_strncasecmp("windib", drivername, SDL_strlen(drivername)) == 0) {
         SDL_setenv("SDL_VIDEODRIVER", "windows", 1);
     }
 #endif
