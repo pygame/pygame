@@ -253,13 +253,18 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                             {
                                 alphablit_alpha_sse2_argb_surf_alpha (&info);
                             }
-                            else if (!SDL_ISPIXELFORMAT_ALPHA(dst->format->format))
-                            {
-                                alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(&info);
-                            }
                             else
                             {
-                                alphablit_alpha_sse2_argb_no_surf_alpha (&info);
+                                if (SDL_ISPIXELFORMAT_ALPHA(dst->format->format) &&
+                                    info.dst_blend != SDL_BLENDMODE_NONE)
+                                {
+                                    alphablit_alpha_sse2_argb_no_surf_alpha (&info);
+
+                                }
+                                else
+                                {
+                                    alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(&info);
+                                }
                             }
                             break;
                         }
@@ -268,15 +273,20 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                         if ((SDL_HasSSE2()) && (src != dst)){
                             if (info.src_blanket_alpha != 255)
                             {
-                                 alphablit_alpha_sse2_argb_surf_alpha (&info);
-                            }
-                            else if (!SDL_ISPIXELFORMAT_ALPHA(dst->format->format))
-                            {
-                                alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(&info);
+                                alphablit_alpha_sse2_argb_surf_alpha (&info);
                             }
                             else
                             {
-                                alphablit_alpha_sse2_argb_no_surf_alpha (&info);
+                                if (SDL_ISPIXELFORMAT_ALPHA(dst->format->format) &&
+                                    info.dst_blend != SDL_BLENDMODE_NONE)
+                                {
+                                    alphablit_alpha_sse2_argb_no_surf_alpha (&info);
+
+                                }
+                                else
+                                {
+                                    alphablit_alpha_sse2_argb_no_surf_alpha_opaque_dst(&info);
+                                }
                             }
                             break;
                         }
