@@ -119,10 +119,6 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
 {
     if (!_pg_event_is_init) {
 #if IS_SDLv2
-        /* if (!pgVideo_AutoInit()) */
-        /*     return RAISE(pgExc_SDLError, SDL_GetError()); */
-        SDL_SetEventFilter(pg_event_filter, NULL);
-
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
 #endif /* IS_SLDv2 */
@@ -2244,6 +2240,7 @@ MODINIT_DEFINE(event)
         have_registered_events = 1;
     }
 
+    SDL_SetEventFilter(pg_event_filter, NULL);
 #endif /* IS_SDLv2 */
 
     /* export the c api */
