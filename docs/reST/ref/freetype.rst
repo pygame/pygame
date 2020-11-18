@@ -158,9 +158,10 @@ loaded. This module must be imported explicitly to be used. ::
    | :sg:`SysFont(name, size, bold=False, italic=False) -> Font`
 
    Return a new Font object that is loaded from the system fonts. The font will
-   match the requested *bold* and *italic* flags. If a suitable system font
-   is not found, a default, Pygame, is returned instead. The font *name*
-   can be a comma separated list of font names to search for.
+   match the requested *bold* and *italic* flags. If a suitable system font is
+   not found this will fall back on loading the default pygame font. The font
+   *name* can also be a list of font names or a string of comma-separated font
+   names to search for.
 
 .. function:: get_default_font
 

@@ -431,8 +431,9 @@ def match_font(name, bold=0, italic=0):
 
        This performs the same font search as the SysFont()
        function, only it returns the path to the TTF file
-       that would be loaded. The font name can be a comma
-       separated list of font names to try.
+       that would be loaded. The font name can also be a
+       list of font names or a string of comma-separated
+       font names to try.
 
        If no match is found, None is returned.
     """
