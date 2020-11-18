@@ -1689,6 +1689,15 @@ class FreeTypeFontTest(unittest.TestCase):
         for test in tests:
             run_test(test["method"], test["value"], test["msg"])
 
+    def test_freetype_SysFont_names(self):
+        """that SysFont accepts a list or a string of comma-separated names
+        """
+        fonts_list = pygame.font.get_fonts()
+        fonts_str = ", ".join(fonts_list)
+        font_list_name = pygame.freetype.SysFont(fonts_list, 12).name
+        font_str_name = pygame.freetype.SysFont(fonts_str, 12).name
+        self.assertEqual(font_list_name, font_str_name)
+
 
 class FreeTypeTest(unittest.TestCase):
     def setUp(self):

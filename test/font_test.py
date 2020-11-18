@@ -128,17 +128,29 @@ class FontModuleTest(unittest.TestCase):
         )
 
     def test_match_font_comma_separated(self):
+        """that match_font accepts a string of comma-separated names
+        """
         fonts = pygame_font.get_fonts()
 
         # Check for not found.
         self.assertTrue(pygame_font.match_font("thisisnotafont") is None)
 
-        # Check comma separated list.
+        # Check string of comma-separated names.
         names = ",".join(["thisisnotafont", fonts[-1], "anothernonfont"])
         self.assertFalse(pygame_font.match_font(names) is None)
         names = ",".join(["thisisnotafont1", "thisisnotafont2", "thisisnotafont3"])
         self.assertTrue(pygame_font.match_font(names) is None)
 
+    def test_match_font_list(self):
+        """that match_font accepts a list of names. See issue 2341.
+        """
+        fonts = pygame_font.get_fonts()
+
+        names = ["thisisnotafont", fonts[-1], "anothernonfont"]
+        self.assertFalse(pygame_font.match_font(names) is None)
+
+        names = ["thisisnotafont1", "thisisnotafont2", "thisisnotafont3"]
+        self.assertTrue(pygame_font.match_font(names) is None)
 
     def test_issue_742(self):
         """ that the font background does not crash.
