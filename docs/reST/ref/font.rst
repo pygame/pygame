@@ -97,9 +97,11 @@ loaded instead.
    Returns the full path to a font file on the system. If bold or italic are
    set to true, this will attempt to find the correct family of font.
 
-   The font name can also be a list of font names or a string of
+   The font name can also be an iterable of font names or a string of
    comma-separated font names to try.
    If none of the given names are found, None is returned.
+
+   .. versionadded:: 2.0.1 Accept an iterable of font names.
 
    Example:
 
@@ -119,8 +121,10 @@ loaded instead.
    Return a new Font object that is loaded from the system fonts. The font will
    match the requested bold and italic flags. If a suitable system font is not
    found this will fall back on loading the default pygame font. The font name
-   can also be a list of font names or a string of comma-separated font names
+   can also be an iterable of font names or a string of comma-separated font names
    to search for.
+
+   .. versionadded:: 2.0.1 Accept an iterable of font names.
 
    .. ## pygame.font.SysFont ##
 

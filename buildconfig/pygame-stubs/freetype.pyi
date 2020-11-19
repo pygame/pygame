@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any
+from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any, Iterable
 
 from pygame.surface import Surface
 from pygame.color import Color
@@ -16,7 +16,7 @@ def get_cache_size() -> int: ...
 def get_default_resolution() -> int: ...
 def set_default_resolution(resolution: int) -> None: ...
 def SysFont(
-    name: Union[str, List[str]],
+    name: Union[str, Iterable[str]],
     size: int,
     bold: Optional[int] = False,
     italic: Optional[int] = False,

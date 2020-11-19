@@ -160,8 +160,10 @@ loaded. This module must be imported explicitly to be used. ::
    Return a new Font object that is loaded from the system fonts. The font will
    match the requested *bold* and *italic* flags. If a suitable system font is
    not found this will fall back on loading the default pygame font. The font
-   *name* can also be a list of font names or a string of comma-separated font
-   names to search for.
+   *name* can also be an iterable of font names or a string of comma-separated
+   font names to search for.
+
+   .. versionadded:: 2.0.1 Accept an iterable of font names.
 
 .. function:: get_default_font
 

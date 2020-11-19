@@ -353,7 +353,7 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
        fallback on the builtin pygame font if the given font
        is not found.
 
-       Name can also be a list of font names or a string of
+       Name can also be an iterable of font names or a string of
        comma-separated font names, in which case the set of names
        will be searched in order. Pygame uses a small set of common
        font aliases. If the specific font you ask for is not available,
@@ -431,8 +431,8 @@ def match_font(name, bold=0, italic=0):
 
        This performs the same font search as the SysFont()
        function, only it returns the path to the TTF file
-       that would be loaded. The font name can also be a
-       list of font names or a string of comma-separated
+       that would be loaded. The font name can also be an
+       iterable of font names or a string of comma-separated
        font names to try.
 
        If no match is found, None is returned.

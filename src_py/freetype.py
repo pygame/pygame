@@ -56,7 +56,7 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
        fallback on the builtin pygame font if the given font
        is not found.
 
-       Name can also be a list of font names or a string of
+       Name can also be an iterable of font names or a string of
        comma-separated font names, in which case the set of names
        will be searched in order. Pygame uses a small set of common
        font aliases. If the specific font you ask for is not available,
