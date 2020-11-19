@@ -13,12 +13,12 @@ def get_init() -> bool: ...
 def get_default_font() -> str: ...
 def get_fonts() -> List[str]: ...
 def match_font(
-    name: Union[str, Iterable[str]],
+    name: Union[str, bytes, Iterable[Union[str, bytes]]],
     bold: Optional[Hashable] = False,
     italic: Optional[Hashable] = False
 ) -> str: ...
 def SysFont(
-    name: Union[str, Iterable[str]],
+    name: Union[str, bytes, Iterable[Union[str, bytes]]],
     size: int,
     bold: Optional[Hashable] = False,
     italic: Optional[Hashable] = False,
