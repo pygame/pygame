@@ -1689,14 +1689,48 @@ class FreeTypeFontTest(unittest.TestCase):
         for test in tests:
             run_test(test["method"], test["value"], test["msg"])
 
-    def test_freetype_SysFont_names(self):
-        """that SysFont accepts a list or a string of comma-separated names
-        """
-        fonts_list = pygame.font.get_fonts()
-        fonts_str = ", ".join(fonts_list)
-        font_list_name = pygame.freetype.SysFont(fonts_list, 12).name
-        font_str_name = pygame.freetype.SysFont(fonts_str, 12).name
-        self.assertEqual(font_list_name, font_str_name)
+    def test_freetype_SysFont_name(self):
+        """that SysFont accepts names of various types"""
+        fonts = pygame.font.get_fonts()
+        size = 12
+
+        # Check single name string:
+        font_name = ft.SysFont(fonts[0], size).name
+        self.assertFalse(font_name is None)
+
+        # Check string of comma-separated names.
+        names = ",".join(fonts)
+        font_name_2 = ft.SysFont(names, size).name
+        self.assertEqual(font_name_2, font_name)
+
+        # Check list of names.
+        font_name_2 = ft.SysFont(fonts, size).name
+        self.assertEqual(font_name_2, font_name)
+
+        # Check generator:
+        names = (name for name in fonts)
+        font_name_2 = ft.SysFont(names, size).name
+        self.assertEqual(font_name_2, font_name)
+
+        fonts_b = [f.encode() for f in fonts]
+
+        # Check single name bytes.
+        font_name_2 = ft.SysFont(fonts_b[0], size).name
+        self.assertEqual(font_name_2, font_name)
+
+        # Check comma-separated bytes.
+        names = b",".join(fonts_b)
+        font_name_2 = ft.SysFont(names, size).name
+        self.assertEqual(font_name_2, font_name)
+
+        # Check list of bytes.
+        font_name_2 = ft.SysFont(fonts_b, size).name
+        self.assertEqual(font_name_2, font_name)
+
+        # Check mixed list of bytes and string.
+        names = [fonts[0], fonts_b[1], fonts[2], fonts_b[3]]
+        font_name_2 = ft.SysFont(names, size).name
+        self.assertEqual(font_name_2, font_name)
 
 
 class FreeTypeTest(unittest.TestCase):

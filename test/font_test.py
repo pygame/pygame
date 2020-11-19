@@ -113,6 +113,68 @@ class FontModuleTest(unittest.TestCase):
             self.assertFalse(path is None)
             self.assertTrue(os.path.isabs(path))
 
+    def test_match_font_name(self):
+        """that match_font accepts names of various types"""
+        font = pygame_font.get_fonts()[0]
+        not_a_font = "thisisnotafont"
+
+        # Check for not found.
+        self.assertTrue(pygame_font.match_font(not_a_font) is None)
+
+        # Check single name string:
+        font_path = pygame_font.match_font(font)
+        self.assertFalse(font_path is None)
+        self.assertTrue(pygame_font.match_font(not_a_font) is None)
+
+        # Check string of comma-separated names.
+        names = ",".join([not_a_font, font, not_a_font])
+        font_path_2 = pygame_font.match_font(names)
+        self.assertEqual(font_path_2, font_path)
+        names = ",".join([not_a_font, not_a_font, not_a_font])
+        self.assertTrue(pygame_font.match_font(names) is None)
+
+        # Check list of names.
+        names = [not_a_font, font, not_a_font]
+        font_path_2 = pygame_font.match_font(names)
+        self.assertEqual(font_path_2, font_path)
+        names = [not_a_font, not_a_font, not_a_font]
+        self.assertTrue(pygame_font.match_font(names) is None)
+
+        # Check generator:
+        names = (name for name in [not_a_font, font, not_a_font])
+        font_path_2 = pygame_font.match_font(names)
+        self.assertEqual(font_path_2, font_path)
+        names = (name for name in [not_a_font, not_a_font, not_a_font])
+        self.assertTrue(pygame_font.match_font(names) is None)
+
+        fonts_b = [f.encode() for f in font]
+        not_a_font_b = b"thisisnotafont"
+
+        # Check single name bytes.
+        self.assertEqual(pygame_font.match_font(fonts_b), font_path)
+        self.assertTrue(pygame_font.match_font(not_a_font_b) is None)
+
+        # Check comma-separated bytes.
+        names = b",".join([not_a_font_b, fonts_b, not_a_font_b])
+        font_path_2 = pygame_font.match_font(names)
+        self.assertEqual(font_path_2, font_path)
+        names = b",".join([not_a_font_b, not_a_font_b, not_a_font_b])
+        self.assertTrue(pygame_font.match_font(names) is None)
+
+        # Check list of bytes.
+        names = [not_a_font_b, fonts_b, not_a_font_b]
+        font_path_2 = pygame_font.match_font(names)
+        self.assertEqual(font_path_2, font_path)
+        names = [not_a_font_b, not_a_font_b, not_a_font_b]
+        self.assertTrue(pygame_font.match_font(names) is None)
+
+        # Check mixed list of bytes and string.
+        names = [font, not_a_font, fonts_b, not_a_font_b]
+        font_path_2 = pygame_font.match_font(names)
+        self.assertEqual(font_path_2, font_path)
+        names = [not_a_font, not_a_font_b, not_a_font]
+        self.assertTrue(pygame_font.match_font(names) is None)
+
     def test_match_font_bold(self):
         fonts = pygame_font.get_fonts()
 
@@ -126,31 +188,6 @@ class FontModuleTest(unittest.TestCase):
         self.assertTrue(
             any(pygame_font.match_font(font, italic=True) for font in fonts)
         )
-
-    def test_match_font_comma_separated(self):
-        """that match_font accepts a string of comma-separated names
-        """
-        fonts = pygame_font.get_fonts()
-
-        # Check for not found.
-        self.assertTrue(pygame_font.match_font("thisisnotafont") is None)
-
-        # Check string of comma-separated names.
-        names = ",".join(["thisisnotafont", fonts[-1], "anothernonfont"])
-        self.assertFalse(pygame_font.match_font(names) is None)
-        names = ",".join(["thisisnotafont1", "thisisnotafont2", "thisisnotafont3"])
-        self.assertTrue(pygame_font.match_font(names) is None)
-
-    def test_match_font_list(self):
-        """that match_font accepts a list of names. See issue 2341.
-        """
-        fonts = pygame_font.get_fonts()
-
-        names = ["thisisnotafont", fonts[-1], "anothernonfont"]
-        self.assertFalse(pygame_font.match_font(names) is None)
-
-        names = ["thisisnotafont1", "thisisnotafont2", "thisisnotafont3"]
-        self.assertTrue(pygame_font.match_font(names) is None)
 
     def test_issue_742(self):
         """ that the font background does not crash.
