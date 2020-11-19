@@ -147,29 +147,29 @@ class FontModuleTest(unittest.TestCase):
         names = (name for name in [not_a_font, not_a_font, not_a_font])
         self.assertTrue(pygame_font.match_font(names) is None)
 
-        fonts_b = [f.encode() for f in font]
+        font_b = font.encode()
         not_a_font_b = b"thisisnotafont"
 
         # Check single name bytes.
-        self.assertEqual(pygame_font.match_font(fonts_b), font_path)
+        self.assertEqual(pygame_font.match_font(font_b), font_path)
         self.assertTrue(pygame_font.match_font(not_a_font_b) is None)
 
         # Check comma-separated bytes.
-        names = b",".join([not_a_font_b, fonts_b, not_a_font_b])
+        names = b",".join([not_a_font_b, font_b, not_a_font_b])
         font_path_2 = pygame_font.match_font(names)
         self.assertEqual(font_path_2, font_path)
         names = b",".join([not_a_font_b, not_a_font_b, not_a_font_b])
         self.assertTrue(pygame_font.match_font(names) is None)
 
         # Check list of bytes.
-        names = [not_a_font_b, fonts_b, not_a_font_b]
+        names = [not_a_font_b, font_b, not_a_font_b]
         font_path_2 = pygame_font.match_font(names)
         self.assertEqual(font_path_2, font_path)
         names = [not_a_font_b, not_a_font_b, not_a_font_b]
         self.assertTrue(pygame_font.match_font(names) is None)
 
         # Check mixed list of bytes and string.
-        names = [font, not_a_font, fonts_b, not_a_font_b]
+        names = [font, not_a_font, font_b, not_a_font_b]
         font_path_2 = pygame_font.match_font(names)
         self.assertEqual(font_path_2, font_path)
         names = [not_a_font, not_a_font_b, not_a_font]
