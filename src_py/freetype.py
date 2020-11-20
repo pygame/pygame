@@ -46,7 +46,7 @@ __all__ = [
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
-       create a pygame Font from system font resources
+       Create a pygame Font from system font resources.
 
        This will search the system fonts for the given font
        name. You can also enable bold or italic styles, and
@@ -56,13 +56,14 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
        fallback on the builtin pygame font if the given font
        is not found.
 
-       Name can also be a comma separated list of names, in
-       which case set of names will be searched in order. Pygame
-       uses a small set of common font aliases, if the specific
-       font you ask for is not available, a reasonable alternative
-       may be used.
+       Name can also be an iterable of font names, a string of
+       comma-separated font names, or a bytes of comma-separated
+       font names, in which case the set of names will be searched
+       in order. Pygame uses a small set of common font aliases. If the
+       specific font you ask for is not available, a reasonable
+       alternative may be used.
 
-       if optional constructor is provided, it must be a function with
+       If optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.freetype.Font object is created.
     """
