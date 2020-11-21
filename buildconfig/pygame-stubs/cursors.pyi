@@ -1,79 +1,7 @@
-from typing import Tuple, Sequence, Optional
+from typing import Tuple, Sequence, Optional, Iterable
 
 from pygame.surface import Surface
 
-_Bitmap = Tuple[
-    Tuple[int, int],
-    Tuple[int, int],
-    Tuple[
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-    ],
-    Tuple[
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-        int,
-    ],
-]
 _Small_string = Tuple[
     str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str
 ]
@@ -104,11 +32,11 @@ _Big_string = Tuple[
     str,
 ]
 
-arrow: _Bitmap
-diamond: _Bitmap
-broken_x: _Bitmap
-tri_left: _Bitmap
-tri_right: _Bitmap
+arrow: Cursor
+diamond: Cursor
+broken_x: Cursor
+tri_left: Cursor
+tri_right: Cursor
 thickarrow_strings: _Big_string
 sizer_x_strings: _Small_string
 sizer_y_strings: _Big_string
@@ -123,7 +51,7 @@ def compile(
 def load_xbm(cursorfile: str, maskfile: str): ...
 
 
-class Cursor(object):
+class Cursor(Iterable):
     @overload
     def __init__(constant: int) -> None: ...
     @overload
@@ -136,6 +64,8 @@ class Cursor(object):
     def __init__(hotspot: Union[Tuple[int, int], List[int]],
                  surface: Surface,
                  ) -> None: ...
+
+    def __iter__() -> Iterator[object]: ...
 
     type: string
     data: Union[Tuple[int],
