@@ -199,6 +199,8 @@ class MouseModuleTest(MouseTests):
         )
         pygame.mouse.set_cursor(size, hotspot, xormask, andmask)
         self.assertEqual(pygame.mouse.get_cursor(), bitmap_cursor)
+
+        # Bitmap: Working as intended + lists + masks with no references
         pygame.mouse.set_cursor(size, hotspot, list(xormask), list(andmask))
         self.assertEqual(pygame.mouse.get_cursor(), bitmap_cursor)
 
@@ -228,7 +230,14 @@ class MouseModuleTest(MouseTests):
             pygame.mouse.set_cursor(hotspot, surface)
             self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
             pygame.mouse.set_cursor(color_cursor)
-            self.assertEqual(pygame.mouse.get_cursor(), color_cursor)      
+            self.assertEqual(pygame.mouse.get_cursor(), color_cursor)
+
+            #Color: Working as intended + Surface with no references is returned okay
+            pygame.mouse.set_cursor((0,0), pygame.Surface((20,20)))
+            cursor = pygame.mouse.get_cursor()
+            self.assertEqual(cursor.type, "color")
+            self.assertEqual(cursor.data[0], (0,0))
+            self.assertEqual(cursor.data[1].get_size(), (20,20))     
 
     def test_get_focused(self):
         """Ensures get_focused returns the correct type."""

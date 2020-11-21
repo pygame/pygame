@@ -142,7 +142,7 @@ The following strings can be converted into cursor bitmaps with
    In pygame 2, there are 3 types of cursors you can create to give your
    game that little bit of extra polish. There's **bitmap** type cursors,
    which existed in pygame 1.x, and are compiled from a string or load from an xbm file.
-   Then there is the **system** type cursors, where you choose a preset that will 
+   Then there are **system** type cursors, where you choose a preset that will 
    convey the same meaning but look native across different operating systems. 
    Finally you can create a **color** cursor, which displays a pygame surface as the cursor.
 

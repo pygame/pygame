@@ -249,9 +249,17 @@ struct CursorData {
     int type;
 } cursor_data;
 
-#define BITMAP_CURSOR 1
-#define SYSTEM_CURSOR 0
+//possible CursorData.type attributes:
 #define COLOR_CURSOR 2
+#define BITMAP_CURSOR 1
+#define SYSTEM_CURSOR 0 
+
+/* Defining SYSTEM_CURSOR as zero does more than it seems.
+Since cursor_data type and constant both initialize to zero, 
+When get_cursor() is called before set_cursor() has set something,
+it sees a type 0 (system cursor) cursor with the constant 0.
+The SDL2 constant SDL_SYSTEM_CURSOR_ARROW is 0, so it wil return the
+default cursor.*/
 
 static PyObject *
 _set_bitmap_cursor(int w, int h, int spotx, int spoty, PyObject* xormask, PyObject* andmask) {
@@ -365,6 +373,11 @@ _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
     SDL_SetCursor(cursor);
     SDL_FreeCursor(lastcursor);
 
+    //To make sure that the surface is stored properly, it has to have its ref count increased
+    //Conversely, the old data stored in cursor_data (if it is there) doesn't need to be around anymore
+    Py_XDECREF(cursor_data.surfobj);
+    Py_INCREF(surfobj);
+
     cursor_data.type = COLOR_CURSOR;
     cursor_data.spotx = spotx;
     cursor_data.spoty = spoty;
@@ -389,7 +402,7 @@ mouse_set_system_cursor(PyObject *self, PyObject *args)
     return _set_system_cursor(constant);
 }
 
-//this function isn't all of mouse.set_cursor, it goes through a python function first
+//mouse.set_cursor goes through a python layer first, see cursors.py
 static PyObject *
 mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -425,7 +438,7 @@ mouse_set_cursor(PyObject *self, PyObject *args, PyObject *kwds)
     return RAISE(PyExc_ValueError, "Invalid cursor format: no valid template found");  
 }
 
-//should the buildvalue 'O's be replaced by 'N's?
+//mouse.get_cursor goes through a python layer first, see cursors.py
 static PyObject*
 mouse_get_cursor(PyObject *self)
 {
@@ -440,7 +453,7 @@ mouse_get_cursor(PyObject *self)
     if (cursor_data.type == COLOR_CURSOR) {
         return Py_BuildValue("(ii)O", cursor_data.spotx, cursor_data.spoty, cursor_data.surfobj);
     }
-    Py_RETURN_NONE; //what happens here? - error? default cursor?
+    return RAISE(pgExc_SDLError, "Cursor not found");
 }
 
 static PyMethodDef _mouse_methods[] = {
