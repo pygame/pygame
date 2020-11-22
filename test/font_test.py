@@ -114,8 +114,10 @@ class FontModuleTest(unittest.TestCase):
             self.assertTrue(os.path.isabs(path))
 
     def test_match_font_name(self):
-        """that match_font accepts names of various types"""
+        """That match_font accepts names of various types"""
         font = pygame_font.get_fonts()[0]
+        font_path = pygame_font.match_font(font)
+        self.assertIsNotNone(font_path)
         font_b = font.encode()
         not_a_font = "thisisnotafont"
         not_a_font_b = b"thisisnotafont"
@@ -135,6 +137,15 @@ class FontModuleTest(unittest.TestCase):
             # Check mixed list of bytes and string.
             [font, not_a_font, font_b, not_a_font_b],
         ]
+        for font_name in good_font_names:
+            self.assertEqual(
+                pygame_font.match_font(font_name), font_path, font_name
+            )
+
+    def test_not_match_font_name(self):
+        """match_font return None when names of various types do not exist"""
+        not_a_font = "thisisnotafont"
+        not_a_font_b = b"thisisnotafont"
         bad_font_names = [
             not_a_font,
             ",".join([not_a_font, not_a_font, not_a_font]),
@@ -145,13 +156,6 @@ class FontModuleTest(unittest.TestCase):
             [not_a_font_b, not_a_font_b, not_a_font_b],
             [not_a_font, not_a_font_b, not_a_font],
         ]
-        # Check single name string.
-        font_path = pygame_font.match_font(font)
-        self.assertIsNotNone(font_path)
-        for font_name in good_font_names:
-            self.assertEqual(
-                pygame_font.match_font(font_name), font_path, font_name
-            )
         for font_name in bad_font_names:
             self.assertIsNone(pygame_font.match_font(font_name), font_name)
 
