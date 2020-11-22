@@ -60,28 +60,19 @@ class Camera:
 
     def get_surface(self, dest_surf=None):
         camera = self.camera
-
         im = highgui.cvQueryFrame(camera)
         #convert Ipl image to PIL image
-        #print type(im)
-        if im:
-            xx = opencv.adaptors.Ipl2NumPy(im)
-            #print type(xx)
-            #print xx.iscontiguous()
-            #print dir(xx)
-            #print xx.shape
-            xxx = numpy.reshape(xx, (numpy.product(xx.shape),))
-
-            if xx.shape[2] != 3:
-                raise ValueError("not sure what to do about this size")
-
-            pg_img = pygame.image.frombuffer(xxx, (xx.shape[1], xx.shape[0]), "RGB")
-
-            # if there is a destination surface given, we blit onto that.
-            if dest_surf:
-                dest_surf.blit(pg_img, (0, 0))
-            return dest_surf
-            #return pg_img
+        if not im:
+            return None
+        xx = opencv.adaptors.Ipl2NumPy(im)
+        xxx = numpy.reshape(xx, (numpy.product(xx.shape),))
+        if xx.shape[2] != 3:
+            raise ValueError("not sure what to do about this size")
+        pg_img = pygame.image.frombuffer(xxx, (xx.shape[1], xx.shape[0]), "RGB")
+        # if there is a destination surface given, we blit onto that.
+        if dest_surf:
+            dest_surf.blit(pg_img, (0, 0))
+        return dest_surf
 
 
 if __name__ == "__main__":
