@@ -185,7 +185,9 @@ scroll, such as ``which`` (it will tell you what exact mouse device trigger the 
 
    | :sl:`set the mouse cursor to a new cursor`
    | :sg:`set_cursor(pygame.cursors.Cursor) -> None`
-   | :sg:`set_cursor(arguments to create a pygame.cursors.Cursor) -> None`
+   | :sg:`set_cursor(size, hotspot, xormasks, andmasks) -> None`
+   | :sg:`set_cursor(hotspot, surface) -> None`
+   | :sg:`set_cursor(constant) -> None`
 
    Set the mouse cursor to something new. This function accepts either an explicit
    ``Cursor`` object or arguments to create a ``Cursor`` object.
