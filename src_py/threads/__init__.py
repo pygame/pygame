@@ -175,13 +175,12 @@ class WorkerQueue(object):
                 self.queue.put(STOP)
                 self.queue.task_done()
                 break
-            else:
-                try:
-                    args[0](*args[1], **args[2])
-                finally:
-                    # clean up the queue, raise the exception.
-                    self.queue.task_done()
-                    #raise
+            try:
+                args[0](*args[1], **args[2])
+            finally:
+                # clean up the queue, raise the exception.
+                self.queue.task_done()
+                #raise
 
     def wait(self):
         """ waits until all tasks are complete.
@@ -283,5 +282,4 @@ def tmap(f, seq_args, num_workers=20, worker_queue=None, wait=True, stop_on_erro
                 raise error_ones[0].exception
 
         return map(lambda x: x.result, results)
-    else:
-        return [wq, results]
+    return [wq, results]
