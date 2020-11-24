@@ -195,35 +195,27 @@ _pg_strip_utf8(char *str)
 {
     char *retptr;
     char ret[UNICODE_LEN] = { 0 };
-    memcpy(&ret, str, UNICODE_LEN);
+    Uint8 firstbyte;
+
+    memcpy(&firstbyte, str, 1);
 
     /* 1111 0000 is 0xF0 */
-    if (ret[0] >= 0xF0) {
-        /* This unicode character is going to take up 4 bytes, we don't
-         * support this, nor we have space for it in memory, so we drop it */
-        memset(&ret, 0, UNICODE_LEN);
-    }
-    /* 1110 0000 is 0xE0 */
-    else if (ret[0] >= 0xE0) {
-        /* Make last byte NULL */
-        ret[3] = 0;
-    }
-    /* 1100 0000 is 0xC0 */
-    else if (ret[0] >= 0xC0) {
-        /* Make last two bytes NULL */
-        ret[2] = 0;
-        ret[3] = 0;
-    }
-    /* 1000 0000 is 0x80 */
-    else if (ret[0] >= 0x80) {
-        /* This is not valid UTF-8, drop the string */
-        memset(&ret, 0, UNICODE_LEN);
-    }
-    else {
-        /* Make last three bytes NULL */
-        ret[1] = 0;
-        ret[2] = 0;
-        ret[3] = 0;
+    if (firstbyte < 0xF0) {
+        /* 1110 0000 is 0xE0 */
+        if (firstbyte >= 0xE0) {
+            /* Copy first 3 bytes */
+            memcpy(&ret, str, 3);
+        }
+        /* 1100 0000 is 0xC0 */
+        else if (firstbyte >= 0xC0) {
+            /* Copy first 2 bytes */
+            memcpy(&ret, str, 2);
+        }
+        /* 1000 0000 is 0x80 */
+        else if (firstbyte < 0x80) {
+            /* Copy first byte */
+            memcpy(&ret, str, 1);
+        }
     }
     retptr = PyMem_New(char, UNICODE_LEN);
     memcpy(retptr, &ret, UNICODE_LEN);
@@ -1774,13 +1766,16 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 #if IS_SDLv1
     if (timeout)
         return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
-#endif
 
+    Py_BEGIN_ALLOW_THREADS;
+    status = SDL_WaitEvent(&event);
+#else /* IS_SDLv2 */
     Py_BEGIN_ALLOW_THREADS;
     if (!timeout)
         status = SDL_WaitEvent(&event);
     else
         status = SDL_WaitEventTimeout(&event, timeout);
+#endif /* IS_SDLv2 */
     Py_END_ALLOW_THREADS;
 
     if (!status) {
@@ -1824,13 +1819,13 @@ _pg_eventtype_from_seq(PyObject *seq, int ind)
 static PyObject *
 _pg_eventtype_as_seq(PyObject *obj, int *len, int *dodecref)
 {
-    *dodecref = 0;
     if (PySequence_Check(obj)) {
+        *dodecref = 0;
         *len = PySequence_Size(obj);
         return obj;
     }
     else {
-        if (!PyLong_Check(obj))
+        if (!PyInt_Check(obj))
             return RAISE(PyExc_TypeError,
                          "event type must be numeric or a sequence");
         *len = 1;
