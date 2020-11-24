@@ -98,19 +98,18 @@ class Camera:
         return self.get_surface(dest_surf)
 
     def get_surface(self, dest_surf=None):
-        """Returns a pygame Surface.
-        """
+        """Returns a pygame Surface."""
         abuffer, width, height = self.get_buffer()
-        if abuffer:
-            surf = pygame.image.frombuffer(abuffer, (width, height), "BGR")
-            surf = pygame.transform.flip(surf, 0, 1)
-
-            # if there is a destination surface given, we blit onto that.
-            if dest_surf:
-                dest_surf.blit(surf, (0, 0))
-            else:
-                dest_surf = surf
-            return dest_surf
+        if not abuffer:
+            return None
+        surf = pygame.image.frombuffer(abuffer, (width, height), "BGR")
+        surf = pygame.transform.flip(surf, 0, 1)
+        # if there is a destination surface given, we blit onto that.
+        if dest_surf:
+            dest_surf.blit(surf, (0, 0))
+        else:
+            dest_surf = surf
+        return dest_surf
 
 if __name__ == "__main__":
     import pygame.examples.camera
