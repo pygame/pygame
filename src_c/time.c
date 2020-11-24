@@ -28,76 +28,136 @@
 
 #define WORST_CLOCK_ACCURACY 12
 
-#if IS_SDLv2
-#define pgNUMEVENTS (16 + (PG_NUMEVENTS - PGE_USEREVENT))
-#else /* IS_SDLv1 */
-#define pgNUMEVENTS PG_NUMEVENTS
-#endif /* IS_SDLv1 */
+typedef struct pgEventTimer {
+    struct pgEventTimer *next;
+    pgEventObject *event;
+    int repeat;
+} pgEventTimer;
 
-static SDL_TimerID event_timers[pgNUMEVENTS] = {0};
+static pgEventTimer *pg_event_timer = NULL;
+static SDL_mutex *timermutex = NULL;
 
-#if IS_SDLv2
-static size_t
-enumerate_event(Uint32 type)
+static int
+_pg_add_event_timer(pgEventObject *ev, int repeat)
 {
-    assert(pgNUMEVENTS == 1 + 15 + (PG_NUMEVENTS - PGE_USEREVENT));
-    switch (type) {
-        case SDL_ACTIVEEVENT:
-            return 1;
-        case SDL_KEYDOWN:
-            return 2;
-        case SDL_KEYUP:
-            return 3;
-        case SDL_MOUSEMOTION:
-            return 4;
-        case SDL_MOUSEBUTTONDOWN:
-            return 5;
-        case SDL_MOUSEBUTTONUP:
-            return 6;
-        case SDL_JOYAXISMOTION:
-            return 7;
-        case SDL_JOYBALLMOTION:
-            return 8;
-        case SDL_JOYHATMOTION:
-            return 9;
-        case SDL_JOYBUTTONDOWN:
-            return 10;
-        case SDL_JOYBUTTONUP:
-            return 11;
-        case SDL_VIDEORESIZE:
-            return 12;
-        case SDL_VIDEOEXPOSE:
-            return 13;
-        case SDL_QUIT:
-            return 14;
-        case SDL_SYSWMEVENT:
-            return 15;
-    }
-    if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
-        return type - PGE_USEREVENT + 16;
-    return 0;
-}
-#endif /* IS_SDLv2 */
+    pgEventTimer *new;
+    SDL_LockMutex(timermutex);
 
+    new = PyMem_New(pgEventTimer, 1);
+    if (!new) {
+        SDL_UnlockMutex(timermutex);
+        return 0;
+    }
+
+    new->next = pg_event_timer;
+    new->event = ev;
+    new->repeat = repeat;
+    pg_event_timer = new;
+
+    SDL_UnlockMutex(timermutex);
+    return 1;
+}
+
+static void
+_pg_remove_event_timer(int type)
+{
+    pgEventTimer *hunt, *prev = NULL;
+
+    SDL_LockMutex(timermutex);
+    if (pg_event_timer) {
+        hunt = pg_event_timer;
+        while (hunt->event->type != type) {
+            prev = hunt;
+            hunt = hunt->next;
+            if (!hunt)
+                break;
+        }
+        if (hunt) {
+            if (prev)
+                prev->next = hunt->next;
+            else
+                pg_event_timer = hunt->next;
+            Py_DECREF(hunt->event);
+            PyMem_Del(hunt);
+        }
+    }
+    SDL_UnlockMutex(timermutex);
+}
+
+static pgEventTimer *
+_pg_get_event_on_timer(int type)
+{
+    pgEventTimer *hunt;
+
+    SDL_LockMutex(timermutex);
+
+    if (pg_event_timer) {
+        hunt = pg_event_timer;
+        do {
+            if (hunt->event->type == type) {
+                if (hunt->repeat >= 0)
+                    hunt->repeat--;
+                SDL_UnlockMutex(timermutex);
+                return hunt;
+            }
+            hunt = hunt->next;
+        } while (hunt);
+    }
+    SDL_UnlockMutex(timermutex);
+    return NULL;
+}
+
+static void
+_pg_event_timer_cleanup(void)
+{
+    pgEventTimer *hunt, *todel;
+    SDL_LockMutex(timermutex);
+    if (pg_event_timer) {
+        hunt = pg_event_timer;
+        while (hunt) {
+            todel = hunt;
+            hunt = hunt->next;
+            Py_DECREF(todel->event);
+            PyMem_Del(todel);
+        }
+        pg_event_timer = NULL;
+    }
+    SDL_UnlockMutex(timermutex);
+    /* After we are done, we can destroy the mutex as well */
+    SDL_DestroyMutex(timermutex);
+    timermutex = NULL;
+}
 
 static Uint32
 timer_callback(Uint32 interval, void *param)
 {
+    pgEventTimer *evtimer;
+    SDL_Event event;
+    PyGILState_STATE gstate;
+
+    evtimer = _pg_get_event_on_timer((intptr_t)param);
+    if (!evtimer)
+        return 0;
+
+    /* This function runs in a seperate thread, so we acquire the GIL,
+     * pgEvent_FillUserEvent and _pg_remove_event_timer do python API calls */
+    gstate = PyGILState_Ensure();
+
     if (SDL_WasInit(SDL_INIT_VIDEO)) {
-        SDL_Event event;
-        memset(&event, 0, sizeof(event));
-        event.type = (intptr_t)param;
-        SDL_PushEvent(&event);
+        pgEvent_FillUserEvent(evtimer->event, &event);
+        if (SDL_PushEvent(&event) <= 0)
+            Py_DECREF(evtimer->event->dict);
     }
+
+    if (!evtimer->repeat) {
+        /* This does memory cleanup */
+        _pg_remove_event_timer(evtimer->event->type);
+        interval = 0;
+    }
+
+    PyGILState_Release(gstate);
     return interval;
 }
-
-static Uint32
-timer_callback_once(Uint32 interval, void *param)
-{
-    return timer_callback(0, param);
-}
-
 
 static int
 accurate_delay(int ticks)
@@ -191,27 +251,41 @@ time_wait(PyObject *self, PyObject *arg)
     return PyInt_FromLong(SDL_GetTicks() - start);
 }
 
-#if IS_SDLv2
 static PyObject *
-time_set_timer(PyObject *self, PyObject *arg)
+time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    SDL_TimerID newtimer;
-    int ticks = 0;
-    int once = 0;
-    SDL_EventType event;
-    size_t index;
-    if (!PyArg_ParseTuple(arg, "ii|i", &event, &ticks, &once))
+    int ticks, once = 0, repeat = 0;
+    PyObject *obj;
+    pgEventObject *e;
+
+    static char *kwids[] = {
+        "event",
+        "millis",
+        "once",
+        "repeat",
+        NULL
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|ii", kwids,
+                                     &obj, &ticks, &once, &repeat))
         return NULL;
 
-    index = enumerate_event(event);
-    if (index == 0)
-        return RAISE(PyExc_ValueError, "Unrecognized event type");
 
-    /*stop original timer*/
-    if (event_timers[index]) {
-        SDL_RemoveTimer(event_timers[index]);
-        event_timers[index] = 0;
+    if (PyInt_Check(obj)) {
+        e = (pgEventObject *)pgEvent_New2(PyInt_AsLong(obj), NULL);
+        if (!e)
+            return NULL;
     }
+    else if (pgEvent_Check(obj)) {
+        Py_INCREF(obj);
+        e = (pgEventObject *)obj;
+    }
+    else
+        return RAISE(PyExc_TypeError,
+            "first argument must be an event type or event object");
+
+    /* stop original timer, if it exists */
+    _pg_remove_event_timer(e->type);
 
     if (ticks <= 0)
         Py_RETURN_NONE;
@@ -222,59 +296,20 @@ time_set_timer(PyObject *self, PyObject *arg)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    if (once) {
-        newtimer = SDL_AddTimer(ticks, timer_callback_once, (void *)event);
-    } else {
-        newtimer = SDL_AddTimer(ticks, timer_callback, (void *)event);
-    }
-    if (!newtimer)
+    /* The repeat argument will determine how many times an event is
+     * posted. If repeat was not passed, we determine the repeat argument
+     * from the once argument */
+    if (!repeat)
+        repeat = once ? 1 : 0;
+
+    if (!_pg_add_event_timer(e, repeat))
+        return PyErr_NoMemory();
+
+    if (!SDL_AddTimer(ticks, timer_callback, (void *)e->type))
         return RAISE(pgExc_SDLError, SDL_GetError());
-    event_timers[index] = newtimer;
 
     Py_RETURN_NONE;
 }
-#else  /* IS_SDLv1 */
-static PyObject *
-time_set_timer(PyObject *self, PyObject *arg)
-{
-    SDL_TimerID newtimer;
-    int ticks = 0;
-    int once = 0;
-    intptr_t event = SDL_NOEVENT;
-    if (!PyArg_ParseTuple(arg, "ii|i", &event, &ticks, &once))
-        return NULL;
-
-    if (event <= SDL_NOEVENT || event >= PG_NUMEVENTS)
-        return RAISE(PyExc_ValueError,
-                     "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
-
-    /*stop original timer*/
-    if (event_timers[event]) {
-        SDL_RemoveTimer(event_timers[event]);
-        event_timers[event] = NULL;
-    }
-
-    if (ticks <= 0)
-        Py_RETURN_NONE;
-
-    /*just doublecheck that timer is initialized*/
-    if (!SDL_WasInit(SDL_INIT_TIMER)) {
-        if (SDL_InitSubSystem(SDL_INIT_TIMER))
-            return RAISE(pgExc_SDLError, SDL_GetError());
-    }
-
-    if (once) {
-        newtimer = SDL_AddTimer(ticks, timer_callback_once, (void *)event);
-    } else {
-        newtimer = SDL_AddTimer(ticks, timer_callback, (void *)event);
-    }
-    if (!newtimer)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-    event_timers[event] = newtimer;
-
-    Py_RETURN_NONE;
-}
-#endif /* IS_SDLv1 */
 
 /*clock object interface*/
 typedef struct {
@@ -480,7 +515,8 @@ static PyMethodDef _time_methods[] = {
      DOC_PYGAMETIMEGETTICKS},
     {"delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY},
     {"wait", time_wait, METH_VARARGS, DOC_PYGAMETIMEWAIT},
-    {"set_timer", time_set_timer, METH_VARARGS, DOC_PYGAMETIMESETTIMER},
+    {"set_timer", (PyCFunction)time_set_timer,
+        METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETIMESETTIMER},
 
     {"Clock", (PyCFunction)ClockInit, METH_NOARGS, DOC_PYGAMETIMECLOCK},
 
@@ -513,16 +549,25 @@ MODINIT_DEFINE(time)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-#if IS_SDLv2
+
     import_pygame_event();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-#endif /* IS_SDLv2 */
 
     /* type preparation */
     if (PyType_Ready(&PyClock_Type) < 0) {
         MODINIT_ERROR;
+    }
+
+    /* register cleanup function for event timer holding structure,
+     * allocate a mutex for this structure too */
+    if (!timermutex && !pg_event_timer) {
+        timermutex = SDL_CreateMutex();
+        if (!timermutex) {
+            MODINIT_ERROR;
+        }
+        pg_RegisterQuit(_pg_event_timer_cleanup);
     }
 
     /* create the module */
