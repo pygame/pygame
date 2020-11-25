@@ -281,7 +281,11 @@ _pg_push_mixer_event(int type, int code)
 
         if (e) {
             pgEvent_FillUserEvent(e, &event);
+#if IS_SDLv1
+            if (SDL_PushEvent(&event) < 0)
+#else
             if (SDL_PushEvent(&event) <= 0)
+#endif
                 Py_DECREF(dict);
             Py_DECREF(e);
         }

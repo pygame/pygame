@@ -834,12 +834,6 @@ _pg_name_from_eventtype(int type)
     switch (type) {
         case SDL_ACTIVEEVENT:
             return "ActiveEvent";
-#ifdef SDL2_AUDIODEVICE_SUPPORTED
-        case SDL_AUDIODEVICEADDED:
-            return "AudioDeviceAdded";
-        case SDL_AUDIODEVICEREMOVED:
-            return "AudioDeviceRemoved";
-#endif /* SDL2_AUDIODEVICE_SUPPORTED */
         case SDL_KEYDOWN:
             return "KeyDown";
         case SDL_KEYUP:
@@ -917,6 +911,13 @@ _pg_name_from_eventtype(int type)
             return "JoyDeviceAdded";
         case SDL_JOYDEVICEREMOVED:
             return "JoyDeviceRemoved";
+
+#ifdef SDL2_AUDIODEVICE_SUPPORTED
+        case SDL_AUDIODEVICEADDED:
+            return "AudioDeviceAdded";
+        case SDL_AUDIODEVICEREMOVED:
+            return "AudioDeviceRemoved";
+#endif /* SDL2_AUDIODEVICE_SUPPORTED */
 
         case PGE_WINDOWSHOWN:
             return "WindowShown";
@@ -1678,7 +1679,6 @@ static PyObject *
 event_name(PyObject *self, PyObject *arg)
 {
     int type;
-
     if (!PyArg_ParseTuple(arg, "i", &type))
         return NULL;
 
@@ -1692,6 +1692,7 @@ set_grab(PyObject *self, PyObject *arg)
 #if IS_SDLv2
     SDL_Window *win = NULL;
 #endif /* IS_SDLv2 */
+
     if (!PyArg_ParseTuple(arg, "i", &doit))
         return NULL;
     VIDEO_INIT_CHECK();
@@ -1708,12 +1709,13 @@ set_grab(PyObject *self, PyObject *arg)
             SDL_SetWindowGrab(win, SDL_TRUE);
             if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE)
                 SDL_SetRelativeMouseMode(1);
-            else SDL_SetRelativeMouseMode(0);
-            }
+            else
+                SDL_SetRelativeMouseMode(0);
+        }
         else {
             SDL_SetWindowGrab(win, SDL_FALSE);
             SDL_SetRelativeMouseMode(0);
-            }
+        }
     }
 #endif /* IS_SDLv2 */
 
@@ -1980,7 +1982,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
                         goto error;
                 }
             } while (ret);
-
+#if IS_SDLv2
             do {
                 ret = PG_PEEP_EVENT(&event, SDL_GETEVENT,
                     _pg_pgevent_proxify(type));
@@ -1993,6 +1995,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
                         goto error;
                 }
             } while (ret);
+#endif /* IS_SDLv2 */
         }
         if (dodecref)
             Py_DECREF(seq);
@@ -2063,7 +2066,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 return PyInt_FromLong(1);
             }
-
+#if IS_SDLv2
             res = PG_PEEP_EVENT(&event, SDL_PEEKEVENT,
                 _pg_pgevent_proxify(type));
             if (res) {
@@ -2074,6 +2077,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 return PyInt_FromLong(1);
             }
+#endif /* IS_SDLv2 */
         }
         if (dodecref)
             Py_DECREF(seq);
@@ -2104,6 +2108,15 @@ pg_event_post(PyObject *self, PyObject *obj)
     pgEvent_FillUserEvent(e, &event);
 
     ret = SDL_PushEvent(&event);
+#if IS_SDLv1
+    if (ret == -1) {
+        Py_DECREF(e->dict);
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+    else {
+        Py_RETURN_TRUE;
+    }
+#else /* IS_SDLv2 */
     if (ret == 1)
         Py_RETURN_TRUE;
     else {
@@ -2113,6 +2126,7 @@ pg_event_post(PyObject *self, PyObject *obj)
         else
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
+#endif /* IS_SDLv2 */
 }
 
 static PyObject *
