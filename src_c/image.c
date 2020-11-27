@@ -79,22 +79,18 @@ find_extension(const char *fullname)
 }
 
 static PyObject *
-image_load_basic(PyObject *self, PyObject *arg)
+image_load_basic(PyObject *self, PyObject *obj)
 {
-    PyObject *obj;
     PyObject *final;
     PyObject *oencoded;
-    const char *name = NULL;
     SDL_Surface *surf;
-
-    if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
-        return NULL;
-    }
-
+    SDL_RWops *rw;
+    
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
+    
     if (oencoded != Py_None) {
         Py_BEGIN_ALLOW_THREADS;
         surf = SDL_LoadBMP(Bytes_AS_STRING(oencoded));
@@ -102,8 +98,6 @@ image_load_basic(PyObject *self, PyObject *arg)
         Py_DECREF(oencoded);
     }
     else {
-        SDL_RWops *rw;
-
         Py_DECREF(oencoded);
         rw = pgRWops_FromFileObject(obj);
         if (rw == NULL) {
@@ -138,8 +132,15 @@ image_load_extended(PyObject *self, PyObject *arg)
 static PyObject *
 image_load(PyObject *self, PyObject *arg)
 {
-    if (extloadobj == NULL)
-        return image_load_basic(self, arg);
+    PyObject *obj;
+    const char *name = NULL;
+    
+    if (extloadobj == NULL) {
+        if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
+            return NULL;
+        }
+        return image_load_basic(self, obj);
+    }
     else
         return image_load_extended(self, arg);
 }
@@ -1665,7 +1666,7 @@ SaveTGA(SDL_Surface *surface, const char *file, int rle)
 }
 
 static PyMethodDef _image_methods[] = {
-    {"load_basic", image_load_basic, METH_VARARGS, DOC_PYGAMEIMAGELOADBASIC},
+    {"load_basic", (PyCFunction)image_load_basic, METH_O, DOC_PYGAMEIMAGELOADBASIC},
     {"load_extended", image_load_extended, METH_VARARGS, DOC_PYGAMEIMAGELOADEXTENDED},
     {"load", image_load, METH_VARARGS, DOC_PYGAMEIMAGELOAD},
     
@@ -1730,20 +1731,29 @@ MODINIT_DEFINE(image)
     if (extmodule) {
         extloadobj = PyObject_GetAttrString(extmodule, "load_extended");
         if (!extloadobj) {
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            goto error;
         }
         extsaveobj = PyObject_GetAttrString(extmodule, "save_extended");
         if (!extsaveobj) {
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            goto error;
         }
         extverobj = PyObject_GetAttrString(extmodule, "_get_sdl_image_version");
         if (!extverobj) {
-            DECREF_MOD(module);
-            MODINIT_ERROR;
+            goto error;
         }
         Py_DECREF(extmodule);
     }
+    else {
+        // if the module could not be loaded, dont treat it like an error
+        PyErr_Clear();
+    }
     MODINIT_RETURN(module);
+    
+    error:
+        Py_XDECREF(extloadobj);
+        Py_XDECREF(extsaveobj);
+        Py_XDECREF(extverobj);
+        Py_DECREF(extmodule);
+        DECREF_MOD(module);
+        MODINIT_ERROR;
 }
