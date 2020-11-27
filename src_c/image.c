@@ -57,11 +57,6 @@ static PyObject *extloadobj = NULL;
 static PyObject *extsaveobj = NULL;
 static PyObject *extverobj = NULL;
 
-/* define docs for undocumented (kinda deprecated) functions */
-#define DOC_PYGAMEIMAGELOADBASIC "internal function to load images, use pygame.image.load() instead of this"
-#define DOC_PYGAMEIMAGELOADEXTENDED DOC_PYGAMEIMAGELOADBASIC
-#define DOC_PYGAMEIMAGESAVEEXTENDED "internal function to save images, use pygame.image.save() instead of this"
-
 static const char *
 find_extension(const char *fullname)
 {

@@ -51,13 +51,21 @@ following formats.
 
    * ``JPEG``
 
+``JPEG`` and ``JPG`` refer to the same file format
+
 .. versionadded:: 1.8 Saving PNG and JPEG files.
 
-There are a three undocumented functions in this module, namely 
-``pygame.image.load_basic()``, ``pygame.image.load_extended()`` and ``pygame.image.save_extended()`` that are meant to be internal functions. 
-The use of these functions is not recommended, as these may get deprecated 
-or removed. Instead, use ``pygame.image.load()`` and ``pygame.image.save()`` 
-for loading and saving images, respectively.
+.. function:: load_basic
+
+   | :sl:`load new BMP image from a file (or file-like object)`
+   | :sg:`load_basic(file) -> Surface`
+
+   Load an image from a file source. You can pass either a filename or a Python
+   file-like object.
+
+   This function only supports loading "basic" image format, ie ``BMP``
+   format.
+   This function is always available, no matter how pygame was built.
 
 .. function:: load
 
@@ -82,7 +90,7 @@ for loading and saving images, respectively.
    For alpha transparency, like in .png images, use the ``convert_alpha()``
    method after loading so that the image has per pixel transparency.
 
-   Pygame may not always be built to support all image formats. At minimum it
+   pygame may not always be built to support all image formats. At minimum it
    will support uncompressed ``BMP``. If ``pygame.image.get_extended()``
    returns 'True', you should be able to load most images (including PNG, JPG
    and GIF).
@@ -94,6 +102,23 @@ for loading and saving images, respectively.
      eg. asurf = pygame.image.load(os.path.join('data', 'bla.png'))
 
    .. ## pygame.image.load ##
+
+.. function:: load_extended
+
+   | :sl:`load an image from a file (or file-like object)`
+   | :sg:`load_extended(filename) -> Surface`
+   | :sg:`load_extended(fileobj, namehint="") -> Surface`
+
+   This function is similar to ``pygame.image.load()``, except that this
+   function can only be used if pygame was built with extended image format
+   support.
+
+   From version 2.0.1, this function is always available, but raises an
+   error if extended image formats are not supported. Previously, this
+   function may or may not be available, depending on the state of
+   extended image format support.
+
+   .. versionchanged:: 2.0.1
 
 .. function:: save
 
@@ -121,6 +146,26 @@ for loading and saving images, respectively.
                        to save other formats than ``TGA`` to a file-like object.
 
    .. ## pygame.image.save ##
+
+.. function:: save_extended
+
+   | :sl:`save a png/jpg image to file (or file-like object)`
+   | :sg:`save_extended(Surface, filename) -> None`
+   | :sg:`save_extended(Surface, fileobj, namehint="") -> None`
+
+   This will save your Surface as either a ``PNG`` or ``JPEG`` image.
+
+   Incase the image is being saved to a file-like object, this function
+   uses the namehint argument to determine the format of the file being
+   saved. Saves to ``JPEG`` incase the namehint was not specified while
+   saving to file-like object.
+
+   From version 2.0.1, this function is always available, but raises an
+   error if extended image formats are not supported. Previously, this
+   function may or may not be available, depending on the state of
+   extended image format support.
+
+   .. versionchanged:: 2.0.1
 
 .. function:: get_sdl_image_version
 
