@@ -762,7 +762,8 @@ static PyNumberMethods buffer_as_number = {
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject Py_buffer_Type = {
-    TYPE_HEAD(NULL, 0) BUFFER_TYPE_FULLNAME, /* tp_name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    BUFFER_TYPE_FULLNAME,                    /* tp_name */
     sizeof(BufferObject),                    /* tp_basicsize */
     0,                                       /* tp_itemsize */
     (destructor)buffer_dealloc,              /* tp_dealloc */
@@ -926,7 +927,8 @@ static PyBufferProcs mixin_bufferprocs = {
 #define BUFFER_MIXIN_TYPE_FULLNAME "newbuffer.BufferMixin"
 
 static PyTypeObject BufferMixin_Type = {
-    TYPE_HEAD(NULL, 0) BUFFER_MIXIN_TYPE_FULLNAME, /* tp_name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    BUFFER_MIXIN_TYPE_FULLNAME,                    /* tp_name */
     sizeof(PyObject),                              /* tp_basicsize */
     0,                                             /* tp_itemsize */
     0,                                             /* tp_dealloc */

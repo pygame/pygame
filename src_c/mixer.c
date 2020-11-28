@@ -990,7 +990,9 @@ sound_dealloc(pgSoundObject *self)
 }
 
 static PyTypeObject pgSound_Type = {
-    TYPE_HEAD(NULL, 0) "Sound", sizeof(pgSoundObject), 0,
+    PyVarObject_HEAD_INIT(NULL,0)
+    "Sound", 
+    sizeof(pgSoundObject), 0,
     (destructor)sound_dealloc, 0, 0, 0, /* setattr */
     0,                                  /* compare */
     0,                                  /* repr */
@@ -1305,7 +1307,8 @@ channel_dealloc(PyObject *self)
 }
 
 static PyTypeObject pgChannel_Type = {
-    TYPE_HEAD(NULL, 0) "Channel", /* name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    "Channel",                    /* name */
     sizeof(pgChannelObject),      /* basic size */
     0,                            /* itemsize */
     channel_dealloc,              /* dealloc */

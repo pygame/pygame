@@ -33,9 +33,6 @@
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC PyInit_##mod_name (void)
 #define DECREF_MOD(mod) Py_DECREF (mod)
 
-/* Type header differs. */
-#define TYPE_HEAD(x,y) PyVarObject_HEAD_INIT(x,y)
-
 /* Text interface. Use unicode strings. */
 #define Text_Type PyUnicode_Type
 #define Text_Check PyUnicode_Check
@@ -93,11 +90,6 @@
 #define MODINIT_RETURN(x) return
 #define MODINIT_DEFINE(mod_name) PyMODINIT_FUNC init##mod_name (void)
 #define DECREF_MOD(mod)
-
-/* Type header differs. */
-#define TYPE_HEAD(x,y)                          \
-    PyObject_HEAD_INIT(x)                       \
-    0,
 
 /* Text interface. Use ascii strings. */
 #define Text_Type PyString_Type

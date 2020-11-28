@@ -127,7 +127,8 @@ pg_scancodewrapper_repr(pgScancodeWrapper *self)
 }
 
 static PyTypeObject pgScancodeWrapper_Type = {
-    TYPE_HEAD(NULL, 0) _PG_SCANCODEWRAPPER_TYPE_FULLNAME, /* name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    _PG_SCANCODEWRAPPER_TYPE_FULLNAME,            /* name */
     0,                                            /* basic size */
     0,                                            /* itemsize */
     0,                                            /* dealloc */

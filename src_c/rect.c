@@ -2037,7 +2037,8 @@ static PyGetSetDef pg_rect_getsets[] = {
 };
 
 static PyTypeObject pgRect_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.Rect", /*name*/
+    PyVarObject_HEAD_INIT(NULL,0)
+    "pygame.Rect",                    /*name*/
     sizeof(pgRectObject),             /*basicsize*/
     0,                                /*itemsize*/
     /* methods */
