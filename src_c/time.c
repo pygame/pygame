@@ -95,9 +95,9 @@ _pg_timer_callback_once(Uint32 interval, void *param)
     return _pg_timer_callback(0, param);
 }
 
-/* check if SDL timer is initialised, if not try to initialize. Return 0 
+/* check if SDL timer is initialised, if not try to initialize. Return 0
 on failure and also set python error */
-static int 
+static int
 _pg_is_sdl_time_init(void) {
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
         if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
@@ -121,7 +121,7 @@ _pg_get_clock_precision(void) {
      * On most windows platforms, this has microsecond precision and on
      * most Unix-based platforms (Linux, Mac, etc) this gives nanosecond
      * precision (fallback to microsecond precision in rare cases)
-     * In worst cases (extremely rare) it may fall back to using 
+     * In worst cases (extremely rare) it may fall back to using
      * millisecond accuracy.
      * Here, we divide by 1000 because we want ticks per millisecond, not
      * ticks per second */
@@ -157,16 +157,19 @@ _pg_accurate_delay(double millis)
 {
     int sleeptime;
     Uint64 endtime, starttime = _pg_get_clock();
-    
+
     if (millis <= 0)
         return 0.0;
-    
-    endtime = starttime + _pg_get_ticks_from_millis(millis);  
-    if (millis >= 20)
-        sleeptime = (int)millis - 5;
-    else if (millis >= 15)
-        sleeptime = (int)millis - 4;
-    else if (millis >= 10)
+
+    endtime = starttime + _pg_get_ticks_from_millis(millis);
+
+    /* We want to strike a good balance between sleeping the processor
+     * and doing a busy loop. This way, our delay is accurate, and we
+     * do not burn the CPU either. The next block of code does just that,
+     * it determines the time this function needs to sleep. Note that
+     * these are just arbitrary values, chosen while trying to keep a
+     * good balance */
+    if (millis >= 12)
         sleeptime = (int)millis - 3;
     else if (millis >= 5)
         sleeptime = (int)millis - 2;
@@ -174,13 +177,13 @@ _pg_accurate_delay(double millis)
         sleeptime = (int)millis - 1;
     else
         sleeptime = 0;
-    
+
     if (sleeptime) {
         Py_BEGIN_ALLOW_THREADS;
         SDL_Delay(sleeptime);
         Py_END_ALLOW_THREADS;
     }
-    
+
     while (_pg_get_clock() < endtime); // wait here
     return _pg_get_delta_millis(starttime);
 }
@@ -199,10 +202,10 @@ pg_time_wait(PyObject *self, PyObject *arg)
     double delay;
     if (!PyArg_ParseTuple(arg, "d", &delay))
         return NULL;
-    
+
     if (!_pg_is_sdl_time_init())
         return NULL;
-    
+
     return PyFloat_FromDouble(_pg_accurate_delay(delay));
 }
 
@@ -303,21 +306,21 @@ pg_clock_tick(PyObject *self, PyObject *arg)
 
     if (!PyArg_ParseTuple(arg, "|d", &framerate))
         return NULL;
-    
+
     /*just doublecheck that timer is initialized*/
     if (!_pg_is_sdl_time_init())
         return NULL;
-    
+
     _clock->rawpassed = _pg_get_delta_millis(_clock->last_tick);
     if (framerate)
         delay = _pg_accurate_delay((1000.0 / framerate) - _clock->rawpassed);
-    
+
     _clock->timepassed = _clock->rawpassed + delay;
     _clock->last_tick = _pg_get_clock();
-    
+
     _clock->fps_count += 1;
     _clock->fps_sum += _clock->timepassed;
-    
+
     if (_clock->fps_count >= 10) {
         _clock->fps = 1000.0 * (_clock->fps_count / _clock->fps_sum);
         _clock->fps_count = 0;
@@ -425,17 +428,17 @@ pg_ClockInit(PyObject *self)
     if (!_clock) {
         return NULL;
     }
-    
+
     _clock->timepassed = 0.0;
     _clock->rawpassed = 0.0;
     _clock->fps_sum = 0.0;
     _clock->fps = 0.0;
     _clock->fps_count = 0;
-    
+
     /*just doublecheck that timer is initialized*/
     if (!_pg_is_sdl_time_init())
         return NULL;
- 
+
     _clock->last_tick = _pg_get_clock();
     return (PyObject *)_clock;
 }

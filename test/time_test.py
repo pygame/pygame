@@ -10,12 +10,15 @@ SDL1 = pygame.get_sdl_version()[0] < 2
 # but only upto NUM_TRIES
 NUM_TRIES = 3
 
+
 # here, delta represents allowable error ratio
 def _is_almost_equal(a, b, delta):
     return b * (1 - delta) <= a <= b * (1 + delta)
 
+
 class ClockTypeTest(unittest.TestCase):
     __tags__ = ['timing']
+
     def test_construction(self):
         """Ensure a Clock object can be created"""
         c = Clock()
@@ -38,13 +41,13 @@ class ClockTypeTest(unittest.TestCase):
         """ticks fps times each second, hence get_fps() should return fps"""
         if reccnt == NUM_TRIES:
             self.fail("get_fps does not work")
-            
+
         delta = 0.2
-        delay_per_frame = 1.0/fps
+        delay_per_frame = 1.0 / fps
         for f in range(fps // 4):  # For 250ms tick and sleep
             clock.tick()
             time.sleep(delay_per_frame)
-        
+
         # We should get around fps (+- fps*delta -- delta % of fps)
         if not _is_almost_equal(clock.get_fps(), fps, delta):
             # recurse on failure
@@ -53,66 +56,65 @@ class ClockTypeTest(unittest.TestCase):
     def test_get_rawtime(self):
         iterations = 5
         delay = 0.02
-        delay_miliseconds = delay * 1000
+        delay_milliseconds = delay * 1000
         framerate_limit = 20
         delta = 0.1
         errcnt = 0
 
-        #Testing Clock Initialization
+        # Testing Clock Initialization
         c = Clock()
         self.assertEqual(c.get_rawtime(), 0)
 
-        #Testing Raw Time with Frame Delay
+        # Testing Raw Time with Frame Delay
         for f in range(iterations):
             time.sleep(delay)
             c.tick(framerate_limit)
             c1 = c.get_rawtime()
-            if not _is_almost_equal(delay_miliseconds, c1, delta):
+            if not _is_almost_equal(delay_milliseconds, c1, delta):
                 errcnt += 1
-        
+
         if errcnt >= NUM_TRIES:
             self.fail("error while doing get_rawtime()")
-            
+
         errcnt = 0
-        
+
         # Testing get_rawtime() = get_time()
         for f in range(iterations):
             time.sleep(delay)
             c.tick()
             c1 = c.get_rawtime()
             c2 = c.get_time()
-            
+
             self.assertEqual(c1, c2)
             if not _is_almost_equal(delay_miliseconds, c1, delta):
                 errcnt += 1
-        
+
         if errcnt >= NUM_TRIES:
             self.fail("error while doing get_rawtime()")
 
-
     def test_get_time(self):
         # Testing parameters
-        delay = 0.1 #seconds
+        delay = 0.1  # seconds
         delay_milliseconds = delay * 1000
         iterations = 5
         delta = 0.1
         errcnt = 0
 
-        #Testing Clock Initialization
+        # Testing Clock Initialization
         c = Clock()
         self.assertEqual(c.get_time(), 0)
 
-        #Testing within delay parameter range
+        # Testing within delay parameter range
         for i in range(iterations):
             time.sleep(delay)
             c.tick()
             c1 = c.get_time()
             if not _is_almost_equal(delay_milliseconds, c1, delta):
                 errcnt += 1
-        
+
         if errcnt >= NUM_TRIES:
             self.fail("error while doing get_time()")
-            
+
         errcnt = 0
 
         # Comparing get_time() results with the 'time' module
@@ -121,11 +123,12 @@ class ClockTypeTest(unittest.TestCase):
             time.sleep(delay)
             c.tick()
             t1 = time.time()
-            c1 = c.get_time() #elapsed time in milliseconds
-            d0 = (t1-t0) * 1000 #'time' module elapsed time converted to millis
+            c1 = c.get_time()  # elapsed time in milliseconds
+            # 'time' module elapsed time converted to millis
+            d0 = (t1 - t0) * 1000
             if not _is_almost_equal(d0, c1, delta):
                 errcnt += 1
-        
+
         if errcnt >= NUM_TRIES:
             self.fail("error while doing get_time()")
 
@@ -153,7 +156,7 @@ class ClockTypeTest(unittest.TestCase):
         # verify time.Clock.tick() will measure the time correctly
         c.tick()
         for i in range(50):
-            time.sleep(milliseconds / 1000) # convert to seconds
+            time.sleep(milliseconds / 1000)  # convert to seconds
             collection.append(c.tick())
 
         # removes the first highest and lowest value
@@ -182,7 +185,7 @@ class ClockTypeTest(unittest.TestCase):
         # remove the highest and lowest outliers, do that 3 times
         for _ in range(3):
             for outlier in [min(collection), max(collection)]:
-                if outlier != round(1000/testing_framerate):
+                if outlier != round(1000 / testing_framerate):
                     collection.remove(outlier)
 
         end = time.time()
@@ -193,48 +196,49 @@ class ClockTypeTest(unittest.TestCase):
         self.assertAlmostEqual(end - start, 0.5, delta=epsilon2)
 
         average_tick_time = sum(collection) / len(collection)
-        self.assertAlmostEqual(1000/average_tick_time,
+        self.assertAlmostEqual(1000 / average_tick_time,
                                testing_framerate, delta=epsilon3)
-        
+
         # now call _tick_test(), which are essentially more rigourous tests
         if not SDL1:
             self._tick_test()
 
-    def _tick_test(self, reccnt = 0):
+    def _tick_test(self, reccnt=0):
         if reccnt >= NUM_TRIES:
             self.fail("clock.tick() failed")
-            
+
         second_len = 1000.0
         delta = 0.3
         fps = 40
-        
+
         c = Clock()
 
-        if not _is_almost_equal(c.tick(fps), second_len/fps, delta):
+        if not _is_almost_equal(c.tick(fps), second_len / fps, delta):
             self._tick_test(reccnt + 1)
-        
-        # incur delay between ticks that's faster than fps 
-        pygame.time.wait(10)  
-        if not _is_almost_equal(c.tick(fps), second_len/fps, delta):
+
+        # incur delay between ticks that's faster than fps
+        pygame.time.wait(10)
+        if not _is_almost_equal(c.tick(fps), second_len / fps, delta):
             self._tick_test(reccnt + 1)
-        
+
         # incur delay between ticks that's slower than fps
-        pygame.time.wait(200)  
+        pygame.time.wait(200)
         # the function must return a value close to 200
         if not _is_almost_equal(c.tick(fps), 200, delta):
             self._tick_test(reccnt + 1)
-        
+
         # Test a wide range of FPS with all kinds of values
         for fps in [500, 1, 35, 600, 32.75]:
             c = Clock()
-            if not _is_almost_equal(c.tick(fps), second_len/fps, delta):
+            if not _is_almost_equal(c.tick(fps), second_len / fps, delta):
                 self._tick_test(reccnt + 1)
-                
+
         zero_fps = 0
         self.assertAlmostEqual(c.tick(zero_fps), 0, delta=0.5)
         negative_fps = -1
         self.assertAlmostEqual(c.tick(negative_fps), 0, delta=0.5)
-            
+
+
 class TimeModuleTest(unittest.TestCase):
     __tags__ = ['timing']
 
@@ -249,20 +253,20 @@ class TimeModuleTest(unittest.TestCase):
         delta = 0.1
         errcnt = 0
         # Assert return type to be int
-        self.assertTrue(type(pygame.time.get_ticks()) == int)
+        self.assertTrue(isinstance(pygame.time.get_ticks(), int))
         for i in range(iterations):
             curr_ticks = pygame.time.get_ticks()  # Save current tick count
             curr_time = time.time()  # Save current time
             pygame.time.wait(millis)  # Delay for millis
-            
+
             # Time and Ticks difference from start of the iteration
-            time_diff = (time.time() - curr_time)*1000
+            time_diff = (time.time() - curr_time) * 1000
             ticks_diff = pygame.time.get_ticks() - curr_ticks
-            
+
             # Assert almost equality of the ticking time and time difference
             if not _is_almost_equal(ticks_diff, time_diff, delta):
                 errcnt += 1
-        
+
         if errcnt >= NUM_TRIES:
             self.fail("get_ticks() failed")
 
@@ -301,7 +305,7 @@ class TimeModuleTest(unittest.TestCase):
         t2 = pygame.time.get_ticks()
         # Is the number ef events and the timing right?
         self.assertEqual(events, test_number)
-        self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
+        self.assertAlmostEqual(timer_delay * test_number, t2 - t1, delta=delta)
 
         # Test that the timer stopped when set with 0ms delay.
         pygame.event.get()
@@ -328,15 +332,18 @@ class TimeModuleTest(unittest.TestCase):
             if not _is_almost_equal(wait_time, millis, delta):
                 errcnt += 1
         stop_time = time.time()
-        
+
         if errcnt >= NUM_TRIES:
             self.fail("wait() failed")
-        
+
         # Cycle duration in millisecond
-        duration = (stop_time - start_time)*1000
+        duration = (stop_time - start_time) * 1000
         # Duration/Iterations should be (almost) equal to predefined millis
-        self.assertAlmostEqual(duration/iterations, millis, delta=millis*delta)
-        
+        self.assertAlmostEqual(
+            duration / iterations,
+            millis,
+            delta=millis * delta)
+
         # After timing behaviour, check argument type exceptions
         self.assertRaises(TypeError, pygame.time.wait, (0, 1))  # check tuple
         self.assertRaises(TypeError, pygame.time.wait, "10")  # check string
