@@ -58,6 +58,8 @@ static int have_registered_events = 0;
 
 #endif /* IS_SLDv1 */
 
+/* These are used for checks. The checks are kinda redundant because we
+ * have proxy events anyways, but this is needed for SDL1 */
 #define USEROBJ_CHECK (Sint32)0xFEEDF00D
 
 #define MAX_UINT32 0xFFFFFFFF
@@ -1693,8 +1695,13 @@ set_grab(PyObject *self, PyObject *arg)
     SDL_Window *win = NULL;
 #endif /* IS_SDLv2 */
 
+#if PY2
     if (!PyArg_ParseTuple(arg, "i", &doit))
         return NULL;
+#else
+    if (!PyArg_ParseTuple(arg, "p", &doit))
+        return NULL;
+#endif
     VIDEO_INIT_CHECK();
 
 #if IS_SDLv1
@@ -1819,22 +1826,20 @@ _pg_eventtype_from_seq(PyObject *seq, int ind)
 }
 
 static PyObject *
-_pg_eventtype_as_seq(PyObject *obj, int *len, int *dodecref)
+_pg_eventtype_as_seq(PyObject *obj, int *len)
 {
+    *len = 1;
     if (PySequence_Check(obj)) {
-        *dodecref = 0;
         *len = PySequence_Size(obj);
+        /* The retuned object gets decref'd later, so incref now */
+        Py_INCREF(obj);
         return obj;
     }
-    else {
-        if (!PyInt_Check(obj))
-            return RAISE(PyExc_TypeError,
-                         "event type must be numeric or a sequence");
-        *len = 1;
-        /* set a flag, to later decref the value returned */
-        *dodecref = 1;
+    else if (PyInt_Check(obj))
         return Py_BuildValue("(O)", obj);
-    }
+    else
+        return RAISE(PyExc_TypeError,
+                         "event type must be numeric or a sequence");
 }
 
 static void
@@ -1858,7 +1863,7 @@ _pg_flush_events(Uint32 type) {
 static PyObject *
 pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int loop, len, type, dodecref;
+    int loop, len, type;
     PyObject *seq, *obj = NULL;
     int dopump = 1;
 
@@ -1886,22 +1891,20 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
         _pg_flush_events(MAX_UINT32);
     }
     else {
-        seq = _pg_eventtype_as_seq(obj, &len, &dodecref);
+        seq = _pg_eventtype_as_seq(obj, &len);
         if (!seq) /* error aldready set */
             return NULL;
 
         for (loop = 0; loop < len; loop++) {
             type = _pg_eventtype_from_seq(seq, loop);
             if (type == -1) {
-                if (dodecref)
-                    Py_DECREF(seq);
+                Py_DECREF(seq);
                 return NULL; /* PyErr aldready set */
             }
             _pg_flush_events(type);
         }
 
-        if (dodecref)
-            Py_DECREF(seq);
+        Py_DECREF(seq);
     }
     Py_RETURN_NONE;
 }
@@ -1926,7 +1929,7 @@ static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int loop, type, len, ret, dodecref;
+    int loop, type, len, ret;
     PyObject *seq = NULL, *list = NULL, *obj = NULL;
     int dopump = 1;
 
@@ -1962,7 +1965,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
         }
     }
     else {
-        seq = _pg_eventtype_as_seq(obj, &len, &dodecref);
+        seq = _pg_eventtype_as_seq(obj, &len);
         if (!seq)
             goto error;
 
@@ -1997,16 +2000,14 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
             } while (ret);
 #endif /* IS_SDLv2 */
         }
-        if (dodecref)
-            Py_DECREF(seq);
+        Py_DECREF(seq);
     }
     return list;
 
 error:
     /* While doing a goto here, PyErr must be set */
     Py_DECREF(list);
-    if (dodecref)
-        Py_XDECREF(seq);
+    Py_XDECREF(seq);
     return NULL;
 }
 
@@ -2014,8 +2015,8 @@ static PyObject *
 pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int len, type, loop, res, dodecref;
-    PyObject *seq = NULL, *obj = NULL;
+    int len, type, loop, res;
+    PyObject *seq, *obj = NULL;
     int dopump = 1;
 
     static char *kwids[] = {
@@ -2046,21 +2047,19 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
         return pgEvent_New(res ? &event : NULL);
     }
     else {
-        seq = _pg_eventtype_as_seq(obj, &len, &dodecref);
+        seq = _pg_eventtype_as_seq(obj, &len);
         if (!seq)
             return NULL;
 
         for (loop = 0; loop < len; loop++) {
             type = _pg_eventtype_from_seq(seq, loop);
             if (type == -1) {
-                if (dodecref)
-                    Py_DECREF(seq);
+                Py_DECREF(seq);
                 return NULL;
             }
             res = PG_PEEP_EVENT(&event, SDL_PEEKEVENT, type);
             if (res) {
-                if (dodecref)
-                    Py_DECREF(seq);
+                Py_DECREF(seq);
 
                 if (res < 0)
                     return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2070,8 +2069,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
             res = PG_PEEP_EVENT(&event, SDL_PEEKEVENT,
                 _pg_pgevent_proxify(type));
             if (res) {
-                if (dodecref)
-                    Py_DECREF(seq);
+                Py_DECREF(seq);
 
                 if (res < 0)
                     return RAISE(pgExc_SDLError, SDL_GetError());
@@ -2079,8 +2077,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
             }
 #endif /* IS_SDLv2 */
         }
-        if (dodecref)
-            Py_DECREF(seq);
+        Py_DECREF(seq);
         return PyInt_FromLong(0); /* No event type match. */
     }
 }
@@ -2132,7 +2129,7 @@ pg_event_post(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_set_allowed(PyObject *self, PyObject *obj)
 {
-    int len, loop, type, dodecref;
+    int len, loop, type;
     PyObject *seq;
     VIDEO_INIT_CHECK();
 
@@ -2147,22 +2144,20 @@ pg_event_set_allowed(PyObject *self, PyObject *obj)
 #endif /* IS_SDLv2 */
     }
     else {
-        seq = _pg_eventtype_as_seq(obj, &len, &dodecref);
+        seq = _pg_eventtype_as_seq(obj, &len);
         if (!seq)
             return NULL;
 
         for (loop = 0; loop < len; loop++) {
             type = _pg_eventtype_from_seq(seq, loop);
             if (type == -1) {
-                if (dodecref)
-                    Py_DECREF(seq);
+                Py_DECREF(seq);
                 return NULL;
             }
             SDL_EventState(_pg_pgevent_proxify(type), SDL_ENABLE);
         }
 
-        if (dodecref)
-            Py_DECREF(seq);
+        Py_DECREF(seq);
     }
     Py_RETURN_NONE;
 }
@@ -2170,7 +2165,7 @@ pg_event_set_allowed(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_set_blocked(PyObject *self, PyObject *obj)
 {
-    int len, loop, type, dodecref;
+    int len, loop, type;
     PyObject *seq;
     VIDEO_INIT_CHECK();
 
@@ -2185,22 +2180,20 @@ pg_event_set_blocked(PyObject *self, PyObject *obj)
 #endif /* IS_SDLv2 */
     }
     else {
-        seq = _pg_eventtype_as_seq(obj, &len, &dodecref);
+        seq = _pg_eventtype_as_seq(obj, &len);
         if (!seq)
             return NULL;
 
         for (loop = 0; loop < len; loop++) {
             type = _pg_eventtype_from_seq(seq, loop);
             if (type == -1) {
-                if (dodecref)
-                    Py_DECREF(seq);
+                Py_DECREF(seq);
                 return NULL;
             }
             SDL_EventState(_pg_pgevent_proxify(type), SDL_IGNORE);
         }
 
-        if (dodecref)
-            Py_DECREF(seq);
+        Py_DECREF(seq);
     }
     Py_RETURN_NONE;
 }
@@ -2208,20 +2201,19 @@ pg_event_set_blocked(PyObject *self, PyObject *obj)
 static PyObject *
 pg_event_get_blocked(PyObject *self, PyObject *obj)
 {
-    int loop, type, len, dodecref, isblocked = 0;
+    int loop, type, len, isblocked = 0;
     PyObject *seq;
 
     VIDEO_INIT_CHECK();
 
-    seq = _pg_eventtype_as_seq(obj, &len, &dodecref);
+    seq = _pg_eventtype_as_seq(obj, &len);
     if (!seq)
         return NULL;
 
     for (loop = 0; loop < len; loop++) {
         type = _pg_eventtype_from_seq(seq, loop);
         if (type == -1) {
-            if (dodecref)
-                Py_DECREF(seq);
+            Py_DECREF(seq);
             return NULL;
         }
         if (SDL_EventState(_pg_pgevent_proxify(type), SDL_QUERY) ==
@@ -2231,9 +2223,7 @@ pg_event_get_blocked(PyObject *self, PyObject *obj)
         }
     }
 
-    if (dodecref)
-        Py_DECREF(seq);
-
+    Py_DECREF(seq);
     return PyInt_FromLong(isblocked);
 }
 

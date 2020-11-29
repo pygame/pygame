@@ -243,23 +243,21 @@ class TimeModuleTest(unittest.TestCase):
         """Tests time.set_timer()"""
         """
         Tests if a timer will post the correct amount of eventid events in
-        the specified delay.
+        the specified delay. Test is posting event objects work.
         Also tests if setting milliseconds to 0 stops the timer and if
-        the once argument works.
+        the once argument and repeat arguments work.
         """
         pygame.display.init()
         TIMER_EVENT_TYPE = pygame.event.custom_type()
-        timer_event = pygame.event.Event(TIMER_EVENT_TYPE, {'code': 0})
-        delta = 400
-        timer_delay = 250
+        timer_event = pygame.event.Event(TIMER_EVENT_TYPE)
+        delta = 50
+        timer_delay = 100
         test_number = 8  # Number of events to read for the test
         events = 0  # Events read
-        # Get the events a few times. The time SDL_PumpEvents takes
-        # for the first 2-3 calls is longer and less stable...
-        for _ in range(5):
-            pygame.event.get()
 
+        pygame.event.clear()
         pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+
         # Test that 'test_number' events are posted in the right amount of time
         t1 = pygame.time.get_ticks()
         max_test_time = t1 + timer_delay * test_number + delta
@@ -267,6 +265,7 @@ class TimeModuleTest(unittest.TestCase):
             for event in pygame.event.get():
                 if event == timer_event:
                     events += 1
+
             # The test takes too much time
             if pygame.time.get_ticks() > max_test_time:
                 break
@@ -277,14 +276,27 @@ class TimeModuleTest(unittest.TestCase):
         self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
 
         # Test that the timer stopped when set with 0ms delay.
-        pygame.event.get()
-        pygame.time.delay(500)
+        pygame.time.delay(200)
         self.assertNotIn(timer_event, pygame.event.get())
 
         # Test that the once argument works
         pygame.time.set_timer(TIMER_EVENT_TYPE, 10, True)
-        pygame.time.delay(100)
+        pygame.time.delay(40)
         self.assertEqual(pygame.event.get().count(timer_event), 1)
+
+        # Test a variety of event objects, test repeat argument
+        events_to_test = [
+            pygame.event.Event(TIMER_EVENT_TYPE),
+            pygame.event.Event(TIMER_EVENT_TYPE, foo="9gwz5", baz=12,
+                               lol=[124, (34, "")]),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a, unicode="a")
+        ]
+        repeat = 3
+        millis = 50
+        for e in events_to_test:
+            pygame.time.set_timer(e, millis, repeat=repeat)
+            pygame.time.delay(2 * millis * repeat)
+            self.assertEqual(pygame.event.get().count(e), repeat)
 
     def test_wait(self):
         """Tests time.wait() function."""

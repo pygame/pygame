@@ -41,11 +41,17 @@ static int
 _pg_add_event_timer(pgEventObject *ev, int repeat)
 {
     pgEventTimer *new;
-    SDL_LockMutex(timermutex);
+
+    if (SDL_LockMutex(timermutex) < 0) {
+        /* this case will almost never happen, but still handle it */
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return 0;
+    }
 
     new = PyMem_New(pgEventTimer, 1);
     if (!new) {
         SDL_UnlockMutex(timermutex);
+        PyErr_NoMemory();
         return 0;
     }
 
@@ -54,19 +60,22 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
     new->repeat = repeat;
     pg_event_timer = new;
 
+    /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
     return 1;
 }
 
 static void
-_pg_remove_event_timer(int type)
+_pg_remove_event_timer(pgEventObject *ev)
 {
     pgEventTimer *hunt, *prev = NULL;
 
-    SDL_LockMutex(timermutex);
+    if (SDL_LockMutex(timermutex) < 0)
+        return;
+
     if (pg_event_timer) {
         hunt = pg_event_timer;
-        while (hunt->event->type != type) {
+        while (hunt->event->type != ev->type) {
             prev = hunt;
             hunt = hunt->next;
             if (!hunt)
@@ -81,36 +90,42 @@ _pg_remove_event_timer(int type)
             PyMem_Del(hunt);
         }
     }
+    /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
 }
 
 static pgEventTimer *
-_pg_get_event_on_timer(int type)
+_pg_get_event_on_timer(pgEventObject *ev)
 {
-    pgEventTimer *hunt;
+    pgEventTimer *hunt, *ret = NULL;
 
-    SDL_LockMutex(timermutex);
+    if (SDL_LockMutex(timermutex) < 0)
+        return NULL;
 
     if (pg_event_timer) {
         hunt = pg_event_timer;
         do {
-            if (hunt->event->type == type) {
+            if (hunt->event->type == ev->type) {
                 if (hunt->repeat >= 0)
                     hunt->repeat--;
-                SDL_UnlockMutex(timermutex);
-                return hunt;
+                ret = hunt;
+                break;
             }
             hunt = hunt->next;
         } while (hunt);
     }
+    /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
-    return NULL;
+    return ret;
 }
 
 static void
 _pg_event_timer_cleanup(void)
 {
     pgEventTimer *hunt, *todel;
+
+    /* We can let errors silently pass in this function, because this
+     * needs to run */
     SDL_LockMutex(timermutex);
     if (pg_event_timer) {
         hunt = pg_event_timer;
@@ -135,7 +150,7 @@ timer_callback(Uint32 interval, void *param)
     SDL_Event event;
     PyGILState_STATE gstate;
 
-    evtimer = _pg_get_event_on_timer((intptr_t)param);
+    evtimer = _pg_get_event_on_timer((pgEventObject *)param);
     if (!evtimer)
         return 0;
 
@@ -155,7 +170,7 @@ timer_callback(Uint32 interval, void *param)
 
     if (!evtimer->repeat) {
         /* This does memory cleanup */
-        _pg_remove_event_timer(evtimer->event->type);
+        _pg_remove_event_timer(evtimer->event);
         interval = 0;
     }
 
@@ -289,15 +304,19 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
             "first argument must be an event type or event object");
 
     /* stop original timer, if it exists */
-    _pg_remove_event_timer(e->type);
+    _pg_remove_event_timer(e);
 
-    if (ticks <= 0)
+    if (ticks <= 0) {
+        Py_DECREF(e);
         Py_RETURN_NONE;
+    }
 
     /*just doublecheck that timer is initialized*/
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
-        if (SDL_InitSubSystem(SDL_INIT_TIMER))
+        if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
+            Py_DECREF(e);
             return RAISE(pgExc_SDLError, SDL_GetError());
+        }
     }
 
     /* The repeat argument will determine how many times an event is
@@ -306,11 +325,15 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!repeat)
         repeat = once ? 1 : 0;
 
-    if (!_pg_add_event_timer(e, repeat))
-        return PyErr_NoMemory();
+    if (!_pg_add_event_timer(e, repeat)) {
+        Py_DECREF(e);
+        return NULL;
+    }
 
-    if (!SDL_AddTimer(ticks, timer_callback, (void *)e->type))
+    if (!SDL_AddTimer(ticks, timer_callback, (void *)e)) {
+        _pg_remove_event_timer(e); /* Does cleanup */
         return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
     Py_RETURN_NONE;
 }
@@ -569,6 +592,7 @@ MODINIT_DEFINE(time)
     if (!timermutex && !pg_event_timer) {
         timermutex = SDL_CreateMutex();
         if (!timermutex) {
+            PyErr_SetString(PyExc_ImportError, SDL_GetError());
             MODINIT_ERROR;
         }
         pg_RegisterQuit(_pg_event_timer_cleanup);
