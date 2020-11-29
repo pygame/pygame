@@ -22,6 +22,7 @@ import weakref
 import ctypes
 
 IS_PYPY = "PyPy" == platform.python_implementation()
+IS_ARM64 = "aarch64" in platform.machine()
 SDL1 = pygame.get_sdl_version()[0] < 2
 
 
@@ -2130,7 +2131,11 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
         with self.assertRaises(AttributeError):
             "DUMMY".get_locks()
 
-        # test multiple locks and unlocks on the same surface
+    # skip added for https://github.com/pygame/pygame/issues/2367
+    @unittest.skipIf(IS_ARM64, "Can sometimes fail on arm64.")
+    def test_get_locks_multiple(self):
+        """Multiple locks and unlocks on the same surface."""
+        surface = pygame.Surface((100, 100))
         surface.lock()
         surface.lock()
         surface.lock()
