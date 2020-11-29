@@ -25,6 +25,8 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 IS_ARM64 = "aarch64" in platform.machine()
 SDL1 = pygame.get_sdl_version()[0] < 2
 
+print("platform.machine()", platform.machine())
+
 
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
