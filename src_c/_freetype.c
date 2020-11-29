@@ -647,7 +647,7 @@ static PyGetSetDef _ftfont_getsets[] = {
 #define FULL_TYPE_NAME MODULE_NAME "." FONT_TYPE_NAME
 
 PyTypeObject pgFont_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
+    PyVarObject_HEAD_INIT(0,0)
     FULL_TYPE_NAME,                           /* tp_name */
     sizeof(pgFontObject),                     /* tp_basicsize */
     0,                                        /* tp_itemsize */
