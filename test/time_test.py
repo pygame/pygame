@@ -86,7 +86,7 @@ class ClockTypeTest(unittest.TestCase):
             c2 = c.get_time()
 
             self.assertEqual(c1, c2)
-            if not _is_almost_equal(delay_miliseconds, c1, delta):
+            if not _is_almost_equal(delay_milliseconds, c1, delta):
                 errcnt += 1
 
         if errcnt >= NUM_TRIES:
