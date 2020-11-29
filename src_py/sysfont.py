@@ -25,7 +25,7 @@ import sys
 from os.path import basename, dirname, exists, join, splitext
 
 from pygame.font import Font
-from pygame.compat import xrange_, PY_MAJOR_VERSION
+from pygame.compat import xrange_, PY_MAJOR_VERSION, unicode_
 
 if sys.platform == 'darwin':
     import xml.etree.ElementTree as ET
@@ -373,15 +373,12 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
     gotbold = gotitalic = False
     fontname = None
     if name:
-        if isinstance(name, str):
-            name = name.split(',')
-        elif isinstance(name, bytes):
-            # Splitting bytes in Python 3 requires a split separator
-            # of type bytes.
-            name = name.split(b',')
+        if isinstance(name, (str, bytes, unicode_)):
+            name = name.split(b',' if str != bytes and isinstance(name, bytes) else ',')
         for single_name in name:
-            if isinstance(single_name, bytes):
+            if str != bytes and isinstance(single_name, bytes):
                 single_name = single_name.decode()
+
             single_name = _simplename(single_name)
             styles = Sysfonts.get(single_name)
             if not styles:
@@ -448,15 +445,13 @@ def match_font(name, bold=0, italic=0):
         initsysfonts()
 
     fontname = None
-    if isinstance(name, str):
-        name = name.split(',')
-    elif isinstance(name, bytes):
-        # Splitting bytes in Python 3 requires a split separator
-        # of type bytes.
-        name = name.split(b',')
+    if isinstance(name, (str, bytes, unicode_)):
+        name = name.split(b',' if str != bytes and isinstance(name, bytes) else ',')
+
     for single_name in name:
-        if isinstance(single_name, bytes):
+        if str != bytes and isinstance(single_name, bytes):
             single_name = single_name.decode()
+
         single_name = _simplename(single_name)
         styles = Sysfonts.get(single_name)
         if not styles:

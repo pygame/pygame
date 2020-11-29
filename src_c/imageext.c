@@ -858,6 +858,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     else {
         name = Bytes_AS_STRING(oencoded);
     }
+
     if (result > 0) {
         const char *ext = find_extension(name);
         if (!strcasecmp(ext, "jpeg") || !strcasecmp(ext, "jpg")) {
@@ -868,7 +869,7 @@ image_save_ext(PyObject *self, PyObject *arg)
              */
             if (rw != NULL) {
                 PyErr_SetString(pgExc_SDLError,
-                        "SDL_Image 2.0.2 or newer nedded to save "
+                        "SDL_Image 2.0.2 or newer needed to save "
                         "jpeg to a fileobject.");
                 result = -2;
             }
