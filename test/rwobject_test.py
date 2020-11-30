@@ -4,6 +4,11 @@ import unittest
 from pygame import encode_string, encode_file_path
 from pygame.compat import bytes_, as_bytes, as_unicode
 
+PY2 = sys.version_info[0] == 2
+
+if not PY2:
+    import pathlib
+
 
 class RWopsEncodeStringTest(unittest.TestCase):
     global getrefcount
@@ -54,7 +59,13 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_etype(self):
         u = as_unicode(r"a\x80b")
-        self.assertRaises(SyntaxError, encode_string, u, "ascii", "strict", SyntaxError)
+        self.assertRaises(
+            SyntaxError,
+            encode_string,
+            u,
+            "ascii",
+            "strict",
+            SyntaxError)
 
     def test_etype__invalid(self):
         """Ensures invalid etypes are properly handled."""
@@ -97,6 +108,21 @@ class RWopsEncodeStringTest(unittest.TestCase):
         ##u = as_unicode(r"a\uD80C\uDCA7b")
         ##b = encode_string(u, 'utf-8', 'strict', AssertionError)
         ##self.assertEqual(b, utf_8)
+
+    @unittest.skipIf(PY2, "pathlib module is not in python 2")
+    def test_pathlib_obj(self):
+        """Test loading string representation of pathlib object"""
+        """
+        We do this because pygame functions internally use pg_EncodeString
+        to decode the filenames passed to them. So if we test that here, we
+        can safely assume that all those functions do not have any issues
+        with pathlib objects
+        """
+        encoded = encode_string(pathlib.PurePath("foo"), "utf-8")
+        self.assertEqual(encoded, b"foo")
+
+        encoded = encode_string(pathlib.Path("baz"))
+        self.assertEqual(encoded, b"baz")
 
 
 class RWopsEncodeFilePathTest(unittest.TestCase):
