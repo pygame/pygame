@@ -4311,6 +4311,9 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
         }
         /* Py_END_ALLOW_THREADS */
     }
+/* disable alpha blitters on arm for now because we can't use NEON by
+   default in case it isn't available*/
+#ifndef __arm__
     else if(the_args != PYGAME_BLEND_ALPHA_SDL2 &&
             !(pg_EnvShouldBlendAlphaSDL2()) &&
             SDL_GetColorKey(src, &key) != 0 &&
@@ -4326,6 +4329,7 @@ pgSurface_Blit(pgSurfaceObject *dstobj, pgSurfaceObject *srcobj,
             behaved */
         result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
     }
+#endif /* __arm__ */
 #endif /* IS_SDLv2 */
     else {
         /* Py_BEGIN_ALLOW_THREADS */
