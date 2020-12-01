@@ -1743,32 +1743,58 @@ class GeneralSurfaceTests(AssertRaisesRegexMixin, unittest.TestCase):
 
         self.assertEqual(no_surf_alpha_col, surf_alpha_col)
 
-    def todo_test_convert(self):
+    def test_convert(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
+        """Ensure surfaces returned from Surface.convert()
+        have the correct pixel formats"""
 
-        # Surface.convert(Surface): return Surface
-        # Surface.convert(depth, flags=0): return Surface
-        # Surface.convert(masks, flags=0): return Surface
-        # Surface.convert(): return Surface
-        # change the pixel format of an image
-        #
-        # Creates a new copy of the Surface with the pixel format changed. The
-        # new pixel format can be determined from another existing Surface.
-        # Otherwise depth, flags, and masks arguments can be used, similar to
-        # the pygame.Surface() call.
-        #
-        # If no arguments are passed the new Surface will have the same pixel
-        # format as the display Surface. This is always the fastest format for
-        # blitting. It is a good idea to convert all Surfaces before they are
-        # blitted many times.
-        #
-        # The converted Surface will have no pixel alphas. They will be
-        # stripped if the original had them. See Surface.convert_alpha() for
-        # preserving or creating per-pixel alphas.
-        #
+        pygame.display.init()
+        try:
+            
+            pygame.display.set_mode((640, 480))
 
-        self.fail()
+            s1 = pygame.Surface((100, 100), 2, 32)
+            s1c = s1.convert()
+
+            s2 = pygame.Surface((100, 100), 0, 32)
+            s2c = s2.convert()
+
+            s3 = pygame.Surface((100, 100), 0, 8)
+            s3c = s3.convert()
+
+            s4 = pygame.Surface((100, 100), 0, 12)
+            s4c = s4.convert()
+
+            self.assertEqual(s1c.get_bitsize(), 32)
+            self.assertEqual(s2c.get_bitsize(), 32)
+            self.assertEqual(s3c.get_bitsize(), 32)
+            self.assertEqual(s4c.get_bitsize(), 32)
+
+            #testing the code with no keyword arguments
+
+
+            s5 = pygame.Surface((100, 100), 0, 15)
+            s5c = s5.convert(s3)
+
+            s6 = pygame.Surface((100, 100), 0, 32)
+            s6c = s6.convert(16,0)
+
+            s7 = pygame.Surface((100, 100), 0, 24)
+            s7c = s7.convert(s1)
+                        
+            self.assertEqual(s5c.get_bitsize(), 8)
+            self.assertEqual(s6c.get_bitsize(), 16)
+            self.assertEqual(s7c.get_bitsize(), 32)
+            
+            #testing if we can convert to keyword-specified pixel formats
+
+            with self.assertRaises(pygame.error):
+                surface = pygame.display.set_mode()
+                pygame.display.quit()
+                surface.convert()
+
+        finally:
+            pygame.display.quit()
 
     def test_convert__pixel_format_as_surface_subclass(self):
         """Ensure convert accepts a Surface subclass argument."""
