@@ -63,7 +63,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(mixer_conf[0], CONFIG["frequency"])
         # Not all "sizes" are supported on all systems,  hence "abs".
         self.assertEqual(abs(mixer_conf[1]), abs(CONFIG["size"]))
-        self.assertEqual(mixer_conf[2], CONFIG["channels"])
+        self.assertGreaterEqual(mixer_conf[2], CONFIG["channels"])
 
     def test_pre_init__keyword_args(self):
         # note: this test used to loop over all CONFIGS, but it's very slow..
@@ -75,7 +75,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertEqual(mixer_conf[0], CONFIG["frequency"])
         # Not all "sizes" are supported on all systems,  hence "abs".
         self.assertEqual(abs(mixer_conf[1]), abs(CONFIG["size"]))
-        self.assertEqual(mixer_conf[2], CONFIG["channels"])
+        self.assertGreaterEqual(mixer_conf[2], CONFIG["channels"])
 
     def test_pre_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
@@ -83,7 +83,9 @@ class MixerModuleTest(unittest.TestCase):
         mixer.pre_init(22050, -8, 1)  # Non default values
         mixer.pre_init(0, 0, 0)  # Should reset to default values
         mixer.init()
-        self.assertEqual(mixer.get_init(), (44100, -16, 2))
+        self.assertEqual(mixer.get_init()[0], 44100)
+        self.assertEqual(mixer.get_init()[1], -16)
+        self.assertGreaterEqual(mixer.get_init()[2], 2)
 
     def test_init__zero_values(self):
         # Ensure that argument values of 0 are replaced with
