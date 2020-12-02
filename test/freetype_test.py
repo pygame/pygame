@@ -880,9 +880,6 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.antialiased = save_antialiased
 
-    @unittest.skipIf(
-        pygame.get_sdl_version()[0] == 2, "skipping due to blending issue (#864)"
-    )
     def test_freetype_Font_render_to_mono(self):
         # Blitting is done in two stages. First the target is alpha filled
         # with the background color, if any. Second, the foreground
