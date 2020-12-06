@@ -5,7 +5,7 @@ from pygame.bufferproxy import BufferProxy
 
 _BufferStyle = Union[BufferProxy, bytes, bytearray, memoryview]
 _to_string_format = Literal['p', 'RGB', 'RGBX', 'RGBA', 'ARGB', 'RGBA_PREMULT', 'ARGB_PREMULT']
-_from_buffer_format = Literal['p', 'RGB', 'BRG', 'RGBX', 'RGBA', 'ARGB']
+_from_buffer_format = Literal['p', 'RGB', 'BGR', 'RGBX', 'RGBA', 'ARGB']
 _from_string_format = Literal['p', 'RGB', 'RGBX', 'RGBA', 'ARGB']
 
 def load(filename: Union[str, IO], namehint: Optional[str] = "") -> Surface: ...
