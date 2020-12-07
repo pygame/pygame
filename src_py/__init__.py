@@ -323,7 +323,6 @@ def packager_imports():
     import pygame.macosx
     import pygame.bufferproxy
     import pygame.colordict
-    import pygame._view
 
 # make Rects pickleable
 if PY_MAJOR_VERSION >= 3:
