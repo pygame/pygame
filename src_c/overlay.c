@@ -173,7 +173,8 @@ static PyMethodDef Overlay_methods[] = {
 };
 
 PyTypeObject PyOverlay_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.overlay",      /*tp_name*/
+    PyVarObject_HEAD_INIT(NULL,0)
+    "pygame.overlay",                         /*tp_name*/
     sizeof(PyGameOverlay),                    /*tp_basicsize*/
     0,                                        /*tp_itemsize*/
     (destructor)overlay_dealloc,              /*tp_dealloc*/

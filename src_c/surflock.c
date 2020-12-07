@@ -170,7 +170,8 @@ pgSurface_UnlockBy(pgSurfaceObject *surfobj, PyObject *lockobj)
 }
 
 static PyTypeObject pgLifetimeLock_Type = {
-    TYPE_HEAD(NULL, 0) "SurfLifeLock", /* name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    "SurfLifeLock",                    /* name */
     sizeof(pgLifetimeLockObject),      /* basic size */
     0,                                 /* tp_itemsize */
     _lifelock_dealloc,                 /* tp_dealloc*/

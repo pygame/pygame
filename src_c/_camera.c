@@ -1745,7 +1745,8 @@ PyObject* camera_getattr(PyObject* self, char* attrname) {
 }
 */
 PyTypeObject pgCamera_Type = {
-    TYPE_HEAD(NULL, 0) "Camera",
+    PyVarObject_HEAD_INIT(NULL,0)
+    "Camera",
     sizeof(pgCameraObject),
     0,
     camera_dealloc,

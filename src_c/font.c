@@ -940,7 +940,8 @@ error:
 }
 
 static PyTypeObject PyFont_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.font.Font",
+    PyVarObject_HEAD_INIT(NULL,0)
+    "pygame.font.Font",
     sizeof(PyFontObject),
     0,
     (destructor)font_dealloc,

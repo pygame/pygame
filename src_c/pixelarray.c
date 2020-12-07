@@ -288,7 +288,8 @@ static PyBufferProcs _pxarray_bufferprocs = {
 #endif
 
 static PyTypeObject pgPixelArray_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.PixelArray", /* tp_name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    "pygame.PixelArray",                    /* tp_name */
     sizeof(pgPixelArrayObject),             /* tp_basicsize */
     0,                                      /* tp_itemsize */
     (destructor)_pxarray_dealloc,           /* tp_dealloc */

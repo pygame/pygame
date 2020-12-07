@@ -1170,7 +1170,8 @@ Unimplemented:
 }
 
 static PyTypeObject pgEvent_Type = {
-    TYPE_HEAD(NULL, 0) "Event", /*name*/
+    PyVarObject_HEAD_INIT(NULL,0)
+    "Event",                    /*name*/
     sizeof(pgEventObject),      /*basic size*/
     0,                          /*itemsize*/
     pg_event_dealloc,              /*dealloc*/

@@ -525,7 +525,8 @@ static PyMethodDef cd_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgCD_Type = {
-    TYPE_HEAD(NULL, 0) "CD", /* name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    "CD",                    /* name */
     sizeof(pgCDObject),      /* basic size */
     0,                       /* itemsize */
     cd_dealloc,              /* dealloc */

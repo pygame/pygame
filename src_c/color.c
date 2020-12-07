@@ -326,7 +326,8 @@ static PyBufferProcs _color_as_buffer = {
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject pgColor_Type = {
-    TYPE_HEAD(NULL, 0) "pygame.Color", /* tp_name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    "pygame.Color",                    /* tp_name */
     sizeof(pgColorObject),             /* tp_basicsize */
     0,                                 /* tp_itemsize */
     (destructor)_color_dealloc,        /* tp_dealloc */

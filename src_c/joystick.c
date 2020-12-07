@@ -504,7 +504,8 @@ static PyMethodDef joy_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject pgJoystick_Type = {
-    TYPE_HEAD(NULL, 0) "Joystick", /* name */
+    PyVarObject_HEAD_INIT(NULL,0)
+    "Joystick",                    /* name */
     sizeof(pgJoystickObject),      /* basic size */
     0,                             /* itemsize */
     joy_dealloc,                   /* dealloc */

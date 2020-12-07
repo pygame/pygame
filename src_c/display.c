@@ -399,7 +399,8 @@ pg_vidinfo_str(PyObject *self)
 }
 
 static PyTypeObject pgVidInfo_Type = {
-    TYPE_HEAD(NULL, 0) "VidInfo", /*name*/
+    PyVarObject_HEAD_INIT(NULL,0)
+    "VidInfo",                    /*name*/
     sizeof(pgVidInfoObject),      /*basic size*/
     0,                            /*itemsize*/
     pg_vidinfo_dealloc,           /*dealloc*/
