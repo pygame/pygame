@@ -12,7 +12,6 @@
 /* Define some aliases for the removed PyInt_* functions */
 #define PyInt_Check(op) PyLong_Check(op)
 #define PyInt_FromString PyLong_FromString
-#define PyInt_FromUnicode PyLong_FromUnicode
 #define PyInt_FromLong PyLong_FromLong
 #define PyInt_FromSize_t PyLong_FromSize_t
 #define PyInt_FromSsize_t PyLong_FromSsize_t
