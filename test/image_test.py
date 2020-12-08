@@ -284,6 +284,21 @@ class ImageModuleTest(unittest.TestCase):
             # clean up the temp file, even if test fails
             os.remove(temp_filename)
 
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_save_pathlib(self):
+        surf = pygame.Surface((1, 1))
+        surf.fill((23, 23, 23))
+        with tempfile.NamedTemporaryFile(suffix=".tga", delete=False) as f:
+            temp_filename = f.name
+
+        path = pathlib.Path(temp_filename)
+        try:
+            pygame.image.save(surf, path)
+            s2 = pygame.image.load(path)
+            self.assertEqual(s2.get_at((0, 0)), surf.get_at((0, 0)))
+        finally:
+            os.remove(temp_filename)
+
     def test_save__to_fileobject_w_namehint_argument(self):
         s = pygame.Surface((10, 10))
         s.fill((23, 23, 23))
