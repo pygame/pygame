@@ -1,5 +1,11 @@
 from typing import Optional, Union, Tuple, Any, overload, IO
 
+if sys.version_info >= (3, 6):
+    from os import PathLike
+    AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
+else:
+    AnyPath = Union[Text, bytes]
+
 from pygame.event import Event
 from . import music as music
 import numpy
@@ -34,7 +40,7 @@ def get_sdl_mixer_version(linked: bool) -> Tuple[int, int, int]: ...
 
 class Sound:
     @overload
-    def __init__(self, file: IO) -> None: ...
+    def __init__(self, file: Union[AnyPath, IO]) -> None: ...
     @overload
     def __init__(self, buffer: Any) -> None: ...  # Buffer protocol is still not implemented in typing
     @overload

@@ -1,5 +1,11 @@
 from typing import List, Optional, Union, Tuple, IO, Hashable, Iterable
 
+if sys.version_info >= (3, 6):
+    from os import PathLike
+    AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
+else:
+    AnyPath = Union[Text, bytes]
+
 from pygame.color import Color
 from pygame.surface import Surface
 
@@ -30,7 +36,7 @@ class Font(object):
     italic: bool
     underline: bool
 
-    def __init__(self, name: Union[str, IO, None], size: int) -> None: ...
+    def __init__(self, name: Union[AnyPath, IO, None], size: int) -> None: ...
     def render(
         self,
         text: str,

@@ -1,5 +1,11 @@
 from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any, Iterable
 
+if sys.version_info >= (3, 6):
+    from os import PathLike
+    AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
+else:
+    AnyPath = Union[Text, bytes]
+
 from pygame.surface import Surface
 from pygame.color import Color
 from pygame.rect import Rect
@@ -60,7 +66,7 @@ class Font:
     resolution: int
     def __init__(
         self,
-        file: Union[str, IO, None],
+        file: Union[AnyPath, IO, None],
         size: Optional[float] = 0,
         font_index: Optional[int] = 0,
         resolution: Optional[int] = 0,
