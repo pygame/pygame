@@ -237,20 +237,113 @@ class DisplayModuleTest(unittest.TestCase):
         # contain unexpected dict keys)
         self.assertFalse(wm_info_remaining_keys)
 
-    def todo_test_gl_get_attribute(self):
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',)
+    def test_gl_get_attribute(self):
 
         # __doc__ (as of 2008-08-02) for pygame.display.gl_get_attribute:
 
-        # pygame.display.gl_get_attribute(flag): return value
-        # get the value for an opengl flag for the current display
-        #
-        # After calling pygame.display.set_mode() with the pygame.OPENGL flag,
-        # it is a good idea to check the value of any requested OpenGL
+        #@@ -200,9 +206,65 @@ def todo_test_gl_get_attribute(self):
         # attributes. See pygame.display.gl_set_attribute() for a list of
         # valid flags.
         #
+        # call set_mode with OPENGL flag
+        screen = display.set_mode((0,0), pygame.OPENGL)
 
-        self.fail()
+        # We create a list where we store the original values of the flags before setting them with a different value
+        original_values=[]
+
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_STENCIL_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_RED_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_GREEN_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_BLUE_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_ALPHA_SIZE))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES))
+        original_values.append(pygame.display.gl_get_attribute(pygame.GL_STEREO))
+
+
+        if(SDL2):
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_RELEASE_BEHAVIOR))
+            original_values.append(pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE))
+
+
+        # Setting the flags with values supposedly different from the original values
+
+        # assign SDL1-supported values with gl_set_attribute
+        pygame.display.gl_set_attribute(pygame.GL_ALPHA_SIZE,8)
+        pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,24)
+        pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE,8)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE,16)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS,1)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES,1)
+        pygame.display.gl_set_attribute(pygame.GL_STEREO,0)
+
+        # assign SDL2-supported values with gl_set_attribute (if applicable)
+        if(SDL2):
+            pygame.display.gl_set_attribute(pygame.GL_ACCELERATED_VISUAL,0)
+            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION,1)
+            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION,1)
+            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FLAGS, 0)
+            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK,0)
+            pygame.display.gl_set_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT,0)
+            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_RELEASE_BEHAVIOR,1)
+            pygame.display.gl_set_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE,0)
+
+        # We create a list where we store the values that we set each flag to
+        set_values=[8,24,8,16,16,16,16,1,1,0,0,1,1,0,0,0,1,0]
+
+
+        # We create a list where we store the values after getting them
+        get_values=[]
+
+
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ALPHA_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_DEPTH_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_STENCIL_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_RED_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_GREEN_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_BLUE_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCUM_ALPHA_SIZE))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES))
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_STEREO))
+
+
+        if(SDL2):
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_RELEASE_BEHAVIOR))
+            get_values.append(pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE))
+
+
+        # We check to see if the values that we get correspond to the values that we set them to or to the original values
+        for i in range(len(original_values)):
+            self.assertTrue((get_values[i]==original_values[i]) or (get_values[i]==set_values[i]))
+
+        # test using dummy flag argument
+        with self.assertRaises(AttributeError):
+            pygame.display.gl_get_attribute(pygame.DUMMY)
+
+        # test using non-flag argument
+        with self.assertRaises(TypeError):
+            pygame.display.gl_get_attribute("DUMMY")
 
     def todo_test_gl_set_attribute(self):
 
