@@ -3,7 +3,8 @@ set -e -x
 
 cd /sdl_build/
 
-SDL2="SDL2-2.0.14"
+SDL2="SDL2-2.0.12"
+# SDL2="SDL2-2.0.14"
 IMG2="SDL2_image-2.0.5"
 TTF2="SDL2_ttf-2.0.15"
 MIX2="SDL2_mixer-2.0.4"
@@ -11,14 +12,20 @@ MIX2="SDL2_mixer-2.0.4"
 
 # Download
 # curl -sL https://www.libsdl.org/release/${SDL2}.tar.gz > ${SDL2}.tar.gz
-curl -sL https://www.libsdl.org/tmp/release/${SDL2}.tar.gz > ${SDL2}.tar.gz
+# curl -sL https://www.libsdl.org/tmp/release/SDL2-2.0.14.tar.gz > SDL2-2.0.14.tar.gz
+curl -sL https://hg.libsdl.org/SDL/archive/tip.tar.gz > ${SDL2}.tar.gz
+
 curl -sL https://www.libsdl.org/projects/SDL_image/release/${IMG2}.tar.gz > ${IMG2}.tar.gz
 curl -sL https://www.libsdl.org/projects/SDL_ttf/release/${TTF2}.tar.gz > ${TTF2}.tar.gz
 curl -sL https://www.libsdl.org/projects/SDL_mixer/release/${MIX2}.tar.gz > ${MIX2}.tar.gz
-sha512sum -c sdl2.sha512
+# sha512sum -c sdl2.sha512
+
+
 
 # Build SDL
 tar xzf ${SDL2}.tar.gz
+mv SDL-* ${SDL2}
+
 cd $SDL2
 ./configure --disable-video-vulkan
 make

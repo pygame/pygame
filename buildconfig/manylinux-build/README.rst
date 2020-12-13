@@ -146,7 +146,7 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
 
     pip install twine
 
-    python .travis_osx_upload_whl.py --no-git
+    twine upload dist/*.whl --user=pygameci
 
 
 Getting a shell
@@ -154,8 +154,28 @@ Getting a shell
 
 To be able to run bash:
 
-    docker run --name test -it pygame/manylinux2010_base_x86_64
-    docker run --name test -it pygame/manylinux2010_base_i686
+    docker run --name manylinux2010_base_x86_64 -it pygame/manylinux2010_base_x86_64
+    docker run --name manylinux2010_base_i686 -it pygame/manylinux2010_base_i686
+
+    docker run --name manylinux1_base_x86_64 -it pygame/manylinux1_base_x86_64
+    docker run --name manylinux1_base_i686 -it pygame/manylinux1_base_i686
 
 
+To copy the config.log file off there into a SDL2-2.0.12/config.log locally:
+
+    docker run pygame/manylinux1_base_i686 tar -c -C /sdl_build SDL2-2.0.12/config.log | tar x
+
+
+
+TODO
+----
+
+Maybe these need adding?
+
+- opusfile, http://opus-codec.org/
+- modplug, http://modplug-xmms.sourceforge.net/
+- wayland, https://wayland.freedesktop.org/building.html
+- vulkan, via mesa?
+- xinput,
+- xrandr,
 

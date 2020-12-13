@@ -16,8 +16,11 @@ RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel 
     mesa-libGLU-devel audiofile-devel \
     java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
     giflib-devel mikmod-devel subversion
-RUN linux32 yum install -y libsndfile-devel libsndfile smpeg-devel dbus-devel \
-    pulseaudio-libs-devel cmake dejavu-sans-fonts fontconfig
+RUN linux32 yum install -y smpeg-devel dbus-devel \
+    pulseaudio-libs-devel cmake dejavu-sans-fonts fontconfig libXrandr-devel \
+    libXcursor-devel libXi-devel libXxf86vm-devel \
+    libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
+RUN linux32 yum install -y libcap-devel
 
 # Build and install PNG
 ADD libpng /png_build/
@@ -31,12 +34,20 @@ RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
 ADD freetype /freetype_build/
 RUN ["linux32", "bash", "/freetype_build/build-freetype.sh"]
 
+# Build and install sndfile
+ADD sndfile /sndfile_build/
+RUN ["bash", "/sndfile_build/build-sndfile.sh"]
+
 # Build and install ALSA library
 ADD alsa /alsa_build/
 RUN ["linux32", "bash", "/alsa_build/build-alsa.sh"]
 # Replace yum-installed libasound with the one we just compiled.
 RUN ["rm", "/lib/libasound.so.2.0.0"]
 RUN ["ln", "-s", "/usr/lib/libasound.so.2.0.0", "/lib/"]
+
+# Build and install pulseaudio
+ADD pulseaudio /pulseaudio_build/
+RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
 
 # Build and install fluidsynth
 ADD fluidsynth /fluidsynth_build/

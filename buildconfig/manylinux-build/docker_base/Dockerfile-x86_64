@@ -15,8 +15,11 @@ RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
     mesa-libGLU-devel audiofile-devel \
     cmake java-1.7.0-openjdk-devel jpackage-utils libtiff-devel \
-    mikmod-devel smpeg-devel giflib-devel libsndfile-devel dbus-devel \
-    pulseaudio-libs-devel xz subversion dejavu-sans-fonts fontconfig
+    mikmod-devel smpeg-devel giflib-devel dbus-devel \
+    pulseaudio-libs-devel xz subversion dejavu-sans-fonts fontconfig \
+    libXcursor-devel libXi-devel libXxf86vm-devel \
+    libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
+RUN yum install -y libcap-devel
 
 # Build and install PNG
 ADD libpng /png_build/
@@ -30,12 +33,20 @@ RUN ["bash", "/webp_build/build-webp.sh"]
 ADD freetype /freetype_build/
 RUN ["bash", "/freetype_build/build-freetype.sh"]
 
+# Build and install sndfile
+ADD sndfile /sndfile_build/
+RUN ["bash", "/sndfile_build/build-sndfile.sh"]
+
 # Build and install ALSA library
 ADD alsa /alsa_build/
 RUN ["bash", "/alsa_build/build-alsa.sh"]
 # Replace yum-installed libasound with the one we just compiled.
 RUN ["rm", "/lib64/libasound.so.2.0.0"]
 RUN ["ln", "-s", "/usr/lib/libasound.so.2.0.0", "/lib64/"]
+
+# Build and install pulseaudio
+ADD pulseaudio /pulseaudio_build/
+RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
 
 # Build and install fluidsynth
 ADD fluidsynth /fluidsynth_build/
