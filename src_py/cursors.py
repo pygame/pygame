@@ -31,8 +31,90 @@ There is also a sample string cursor named 'thickarrow_strings'.
 The compile() function can convert these string cursors into cursor byte data.
 """
 
-# default pygame black arrow
-arrow = (
+import pygame
+_cursor_id_table = {
+    pygame.SYSTEM_CURSOR_ARROW: "SYSTEM_CURSOR_ARROW",
+    pygame.SYSTEM_CURSOR_IBEAM: "SYSTEM_CURSOR_IBEAM",
+    pygame.SYSTEM_CURSOR_WAIT: "SYSTEM_CURSOR_WAIT",
+    pygame.SYSTEM_CURSOR_CROSSHAIR: "SYSTEM_CURSOR_CROSSHAIR",
+    pygame.SYSTEM_CURSOR_WAITARROW: "SYSTEM_CURSOR_WAITARROW",
+    pygame.SYSTEM_CURSOR_SIZENWSE: "SYSTEM_CURSOR_SIZENWSE",
+    pygame.SYSTEM_CURSOR_SIZENESW: "SYSTEM_CURSOR_SIZENESW",
+    pygame.SYSTEM_CURSOR_SIZEWE: "SYSTEM_CURSOR_SIZEWE",
+    pygame.SYSTEM_CURSOR_SIZENS: "SYSTEM_CURSOR_SIZENS",
+    pygame.SYSTEM_CURSOR_SIZEALL: "SYSTEM_CURSOR_SIZEALL",
+    pygame.SYSTEM_CURSOR_NO: "SYSTEM_CURSOR_NO",
+    pygame.SYSTEM_CURSOR_HAND: "SYSTEM_CURSOR_HAND",
+}
+
+class Cursor(object):
+    def __init__(self, *args):
+        if len(args) == 0:
+            self.type = "system"
+            self.data = (pygame.SYSTEM_CURSOR_ARROW,)
+        elif len(args) == 1 and args[0] in list(_cursor_id_table.keys()):
+            self.type = "system"
+            self.data = (args[0],)
+        elif len(args) == 1 and isinstance(args[0], Cursor):
+            self.type = args[0].type
+            self.data = args[0].data
+        elif len(args) == 2 and len(args[0]) == 2 and isinstance(args[1], pygame.Surface):
+            self.type = "color"
+            self.data = tuple(args)
+        elif len(args) == 4 and len(args[0]) == 2 and len(args[1]) == 2:
+            self.type = "bitmap"
+            self.data = tuple([tuple(arg) for arg in args])
+        else:
+            raise TypeError("Arguments must match a cursor specification")
+            
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __eq__(self, other):
+        return isinstance(other, Cursor) and self.data == other.data
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(tuple([self.type] + [data for data in self.data]))
+
+    def __repr__(self):
+        if self.type == "system":
+            id_string = _cursor_id_table.get(self.data[0], "constant lookup error")
+            return "<Cursor(type: system, constant: " + id_string +")>"
+        if self.type == "bitmap":
+            size = "size: " + str(self.data[0])
+            hotspot = "hotspot: " + str(self.data[1])
+            return "<Cursor(type: bitmap, " + size + ", " + hotspot +")>"
+        if self.type == "color":
+            hotspot = "hotspot: " + str(self.data[0])
+            surf = repr(self.data[1])
+            return "<Cursor(type: color, " + hotspot + ", surf: " + surf +")>"
+        raise TypeError("Invalid Cursor")
+
+
+# Python side of the set_cursor function: C side in mouse.c
+def set_cursor(*args):
+    """set_cursor(pygame.cursors.Cursor OR args for a pygame.cursors.Cursor) -> None
+    set the mouse cursor to a new cursor"""
+    cursor = Cursor(*args)
+    pygame.mouse._set_cursor(**{cursor.type:cursor.data})
+pygame.mouse.set_cursor = set_cursor
+del set_cursor # cleanup namespace
+
+# Python side of the get_cursor function: C side in mouse.c
+def get_cursor():
+    """get_cursor() -> pygame.cursors.Cursor
+    get the current mouse cursor"""
+    return Cursor(*pygame.mouse._get_cursor())
+pygame.mouse.get_cursor = get_cursor
+del get_cursor # cleanup namespace
+
+arrow = Cursor(
     (16, 16),
     (0, 0),
     (
@@ -49,7 +131,7 @@ arrow = (
     ),
 )
 
-diamond = (
+diamond = Cursor(
     (16, 16),
     (7, 7),
     (
@@ -66,7 +148,7 @@ diamond = (
     ),
 )
 
-ball = (
+ball = Cursor(
     (16, 16),
     (7, 7),
     (
@@ -83,7 +165,7 @@ ball = (
     ),
 )
 
-broken_x = (
+broken_x = Cursor(
     (16, 16),
     (7, 7),
     (
@@ -100,7 +182,7 @@ broken_x = (
     ),
 )
 
-tri_left = (
+tri_left = Cursor(
     (16, 16),
     (1, 1),
     (
@@ -117,7 +199,7 @@ tri_left = (
     ),
 )
 
-tri_right = (
+tri_right = Cursor(
     (16, 16),
     (14, 1),
     (

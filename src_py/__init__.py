@@ -105,11 +105,6 @@ if get_sdl_version() < (2, 0, 0):
         cdrom = MissingModule("cdrom", urgent=1)
 
 try:
-    import pygame.cursors
-except (ImportError, IOError):
-    cursors = MissingModule("cursors", urgent=1)
-
-try:
     import pygame.display
 except (ImportError, IOError):
     display = MissingModule("display", urgent=1)
@@ -143,6 +138,11 @@ try:
     import pygame.mouse
 except (ImportError, IOError):
     mouse = MissingModule("mouse", urgent=1)
+
+try:
+    import pygame.cursors
+except (ImportError, IOError):
+    cursors = MissingModule("cursors", urgent=1)
 
 try:
     import pygame.sprite

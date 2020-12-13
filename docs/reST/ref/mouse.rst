@@ -183,77 +183,35 @@ scroll, such as ``which`` (it will tell you what exact mouse device trigger the 
 
 .. function:: set_cursor
 
-   | :sl:`set the image for the mouse cursor`
+   | :sl:`set the mouse cursor to a new cursor`
+   | :sg:`set_cursor(pygame.cursors.Cursor) -> None`
    | :sg:`set_cursor(size, hotspot, xormasks, andmasks) -> None`
+   | :sg:`set_cursor(hotspot, surface) -> None`
+   | :sg:`set_cursor(constant) -> None`
 
-   When the mouse cursor is visible, it will be displayed as a black and white
-   bitmap using the given bitmask arrays. The ``size`` is a sequence containing 
-   the cursor width and height. ``hotspot`` is a sequence containing the cursor 
-   hotspot position. 
-   
-   A cursor has a width and height, but a mouse position is represented by a 
-   set of point coordinates. So the value passed into the cursor ``hotspot`` 
-   variable helps pygame to actually determine at what exact point the cursor 
-   is at.
-   
-   ``xormasks`` is a sequence of bytes containing the cursor xor data masks. 
-   Lastly ``andmasks``, a sequence of bytes containing the cursor bitmask data.
-   To create these variables, we can make use of the 
-   :func:`pygame.cursors.compile()` function.
+   Set the mouse cursor to something new. This function accepts either an explicit
+   ``Cursor`` object or arguments to create a ``Cursor`` object.
 
-   Width and height must be a multiple of 8, and the mask arrays must be the 
-   correct size for the given width and height. Otherwise an exception is raised.
+   See :class:`pygame.cursors.Cursor` for help creating cursors and for examples.
 
-   See the ``pygame.cursor`` module for help creating default and custom masks
-   for the mouse cursor and also for more examples related to cursors.
+   .. versionchanged:: 2.0.1
 
    .. ## pygame.mouse.set_cursor ##
 
-.. function:: set_system_cursor
-
-   | :sl:`set the mouse cursor to a system variant`
-   | :sg:`set_system_cursor(constant) -> None`
-
-   When the mouse cursor is visible, it will displayed as a operating system
-   specific variant of the options below.
-
-   ::
-
-      Pygame Cursor Constant           Description
-      --------------------------------------------
-      pygame.SYSTEM_CURSOR_ARROW       arrow
-      pygame.SYSTEM_CURSOR_IBEAM       i-beam
-      pygame.SYSTEM_CURSOR_WAIT        wait
-      pygame.SYSTEM_CURSOR_CROSSHAIR   crosshair
-      pygame.SYSTEM_CURSOR_WAITARROW   small wait cursor 
-                                       (or wait if not available)
-      pygame.SYSTEM_CURSOR_SIZENWSE    double arrow pointing 
-                                       northwest and southeast
-      pygame.SYSTEM_CURSOR_SIZENESW    double arrow pointing
-                                       northeast and southwest
-      pygame.SYSTEM_CURSOR_SIZEWE      double arrow pointing
-                                       west and east
-      pygame.SYSTEM_CURSOR_SIZENS      double arrow pointing 
-                                       north and south
-      pygame.SYSTEM_CURSOR_SIZEALL     four pointed arrow pointing
-                                       north, south, east, and west
-      pygame.SYSTEM_CURSOR_NO          slashed circle or crossbones
-      pygame.SYSTEM_CURSOR_HAND        hand
-
-   .. versionadded:: 2.0.0
-
-   .. ## pygame.mouse.set_system_cursor ##
 
 .. function:: get_cursor
 
-   | :sl:`get the image of the mouse cursor`
-   | :sg:`get_cursor() -> (size, hotspot, xormasks, andmasks)`
+   | :sl:`get the current mouse cursor`
+   | :sg:`get_cursor() -> pygame.cursors.Cursor`
 
-   Get the information about the mouse system cursor. The return value is the
-   same data as the arguments passed into ``pygame.mouse.set_cursor()``.
+   Get the information about the mouse system cursor. The return value contains
+   the same data as the arguments passed into :func:`pygame.mouse.set_cursor()`.
 
-   .. note:: This method is unavailable with pygame 2, as SDL2 does not provide
-             the underlying code to implement this method.
+   .. note:: Code that unpacked a get_cursor() call into 
+             ``size, hotspot, xormasks, andmasks`` will still work,
+	     assuming the call returns an old school type cursor.
+
+   .. versionchanged:: 2.0.1
 
    .. ## pygame.mouse.get_cursor ##
 
