@@ -5,13 +5,14 @@ pygame
 |PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
 |LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |Coverity|
 
-pygame_ is a Free and Open Source cross-platform library
-for the development of multimedia applications like video games on Python.
+pygame_ is a free and open-source cross-platform library
+for the development of multimedia applications like video games using Python.
 It uses the `Simple DirectMedia Layer library`_ and several other
-popular libraries to abstract most common functions and makes writing
-these program a more intuitive task.
+popular libraries to abstract the most common functions, making writing
+these programs a more intuitive task.
 
 `We need your help`_ to make pygame the best it can be!
+New contributors are welcome.
 
 
 Installation
@@ -21,20 +22,6 @@ Installation
 
    pip install pygame
 
-You should definitely begin by installing a binary package for your
-system.  The binary packages usually come with or give the
-information needed for dependencies.  Choose an appropriate
-installer for your system and version of Python from the pygame
-`downloads page`_.
-
-Installing from source is fairly automated.  The most work will
-involve compiling and installing all the pygame dependencies.  Once
-that is done, run the ``setup.py`` script which will attempt to
-auto-configure, build, and install pygame.
-
-Much more information about installing and compiling is available
-on the `Getting Started wiki page`_.
-
 
 Help
 ----
@@ -42,16 +29,31 @@ Help
 If you are just getting started with pygame, you should be able to
 get started fairly quickly.  Pygame comes with many tutorials and
 introductions.  There is also full reference documentation for the
-entire library.  Browse the documentation from the documentation
-index: docs/index.html.
+entire library. Browse the documentation on the `docs page`_.
 
-On the pygame website, there is also an online copy of this
-documentation.  You should know that the online documentation stays
-up to date with the development version of pygame in hg.  This may
-be a bit newer than the version of pygame you are using.
+The online documentation stays up to date with the development version
+of pygame on github.  This may be a bit newer than the version of pygame
+you are using. To upgrade to the latest full release, run 
+``pip install pygame --upgrade`` in your terminal.
 
 Best of all, the examples directory has many playable small programs
 which can get you started playing with the code right away.
+
+
+Building From Source
+--------------------
+
+If you want to use features that are currently in development,
+or you want to contribute to pygame, you will need to build pygame
+locally from its source code, rather than pip installing it.
+
+Installing from source is fairly automated. The most work will
+involve compiling and installing all the pygame dependencies.  Once
+that is done, run the ``setup.py`` script which will attempt to
+auto-configure, build, and install pygame.
+
+Much more information about installing and compiling is available
+on the `Compilation wiki page`_.
 
 
 Credits
@@ -131,12 +133,6 @@ Dependency versions:
 * NumPy >= 1.6.2 (optional)
 
 
-Contribute
-----------
-
-Please see https://www.pygame.org/contribute.html
-
-
 License
 -------
 
@@ -172,8 +168,8 @@ See docs/licenses for licenses of dependencies.
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/1.9.6.svg
-   :target: https://github.com/pygame/pygame/compare/1.9.6...master
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.0.svg
+   :target: https://github.com/pygame/pygame/compare/2.0.0...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/
@@ -190,6 +186,6 @@ See docs/licenses for licenses of dependencies.
 .. _pygame: https://www.pygame.org
 .. _Simple DirectMedia Layer library: https://www.libsdl.org
 .. _We need your help: https://www.pygame.org/contribute.html
-.. _downloads page: https://www.pygame.org/download.shtml
-.. _Getting Started wiki page: https://www.pygame.org/wiki/Compilation
+.. _Compilation wiki page: https://www.pygame.org/wiki/Compilation
+.. _docs page: https://www.pygame.org/docs/
 .. _GNU LGPL version 2.1: https://www.gnu.org/copyleft/lesser.html
