@@ -37,6 +37,51 @@ typedef struct pgEventTimer {
 static pgEventTimer *pg_event_timer = NULL;
 static SDL_mutex *timermutex = NULL;
 
+static void
+_pg_event_timer_cleanup(void)
+{
+    pgEventTimer *hunt, *todel;
+    /* We can let errors silently pass in this function, because this
+     * needs to run */
+    SDL_LockMutex(timermutex);
+    if (pg_event_timer) {
+        hunt = pg_event_timer;
+        while (hunt) {
+            todel = hunt;
+            hunt = hunt->next;
+            Py_DECREF(todel->event);
+            PyMem_Del(todel);
+        }
+        pg_event_timer = NULL;
+    }
+    SDL_UnlockMutex(timermutex);
+    /* After we are done, we can destroy the mutex as well */
+    SDL_DestroyMutex(timermutex);
+    timermutex = NULL;
+}
+
+static int
+_pg_time_autoinit()
+{
+    /* register cleanup function for event timer holding structure,
+     * allocate a mutex for this structure too */
+    if (!timermutex && !pg_event_timer) {
+        timermutex = SDL_CreateMutex();
+        if (!timermutex) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            return 0;
+        }
+        pg_RegisterQuit(_pg_event_timer_cleanup);
+    }
+    return 1;
+}
+
+static PyObject *
+pg_time_autoinit(PyObject *self)
+{
+    return PyInt_FromLong(_pg_time_autoinit());
+}
+
 static int
 _pg_add_event_timer(pgEventObject *ev, int repeat)
 {
@@ -70,9 +115,7 @@ _pg_remove_event_timer(pgEventObject *ev)
 {
     pgEventTimer *hunt, *prev = NULL;
 
-    if (SDL_LockMutex(timermutex) < 0)
-        return;
-
+    SDL_LockMutex(timermutex);
     if (pg_event_timer) {
         hunt = pg_event_timer;
         while (hunt->event->type != ev->type) {
@@ -117,30 +160,6 @@ _pg_get_event_on_timer(pgEventObject *ev)
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
     return ret;
-}
-
-static void
-_pg_event_timer_cleanup(void)
-{
-    pgEventTimer *hunt, *todel;
-
-    /* We can let errors silently pass in this function, because this
-     * needs to run */
-    SDL_LockMutex(timermutex);
-    if (pg_event_timer) {
-        hunt = pg_event_timer;
-        while (hunt) {
-            todel = hunt;
-            hunt = hunt->next;
-            Py_DECREF(todel->event);
-            PyMem_Del(todel);
-        }
-        pg_event_timer = NULL;
-    }
-    SDL_UnlockMutex(timermutex);
-    /* After we are done, we can destroy the mutex as well */
-    SDL_DestroyMutex(timermutex);
-    timermutex = NULL;
 }
 
 static Uint32
@@ -288,6 +307,9 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|ii", kwids,
                                      &obj, &ticks, &once, &repeat))
         return NULL;
+
+    if (!timermutex)
+        return RAISE(pgExc_SDLError, "pygame is not initialized");
 
 
     if (PyInt_Check(obj)) {
@@ -538,6 +560,8 @@ ClockInit(PyObject *self)
 }
 
 static PyMethodDef _time_methods[] = {
+    {"__PYGAMEinit__", (PyCFunction)pg_time_autoinit, METH_NOARGS,
+        "auto initialize function for time"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
     {"delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY},
@@ -587,16 +611,9 @@ MODINIT_DEFINE(time)
         MODINIT_ERROR;
     }
 
-    /* register cleanup function for event timer holding structure,
-     * allocate a mutex for this structure too */
-    if (!timermutex && !pg_event_timer) {
-        timermutex = SDL_CreateMutex();
-        if (!timermutex) {
-            PyErr_SetString(PyExc_ImportError, SDL_GetError());
-            MODINIT_ERROR;
-        }
-        pg_RegisterQuit(_pg_event_timer_cleanup);
-    }
+    if(!_pg_time_autoinit())
+        MODINIT_ERROR;
+
 
     /* create the module */
 #if PY3

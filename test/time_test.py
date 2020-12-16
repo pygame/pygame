@@ -247,7 +247,7 @@ class TimeModuleTest(unittest.TestCase):
         Also tests if setting milliseconds to 0 stops the timer and if
         the once argument and repeat arguments work.
         """
-        pygame.display.init()
+        pygame.init()
         TIMER_EVENT_TYPE = pygame.event.custom_type()
         timer_event = pygame.event.Event(TIMER_EVENT_TYPE)
         delta = 50
@@ -297,6 +297,7 @@ class TimeModuleTest(unittest.TestCase):
             pygame.time.set_timer(e, millis, repeat=repeat)
             pygame.time.delay(2 * millis * repeat)
             self.assertEqual(pygame.event.get().count(e), repeat)
+        pygame.quit()
 
     def test_wait(self):
         """Tests time.wait() function."""
