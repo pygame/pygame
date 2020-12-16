@@ -8,6 +8,15 @@
 
 | :sl:`pygame module for monitoring time`
 
+Times in pygame are represented in milliseconds (1/1000 seconds). Most
+platforms have a limited time resolution of around 10 milliseconds. This
+resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
+
+In pygame v2.0.1, a new experimental module called _time has been introduced, 
+with support for extended accuracy. The API of that module is the same as 
+this module, but many functions in that module can accept and return 
+``time`` as ``float``s
+
 .. function:: get_ticks
 
    | :sl:`get the time in milliseconds`
@@ -25,16 +34,10 @@
 
    Will pause for a given number of milliseconds. This function sleeps the
    process to share the processor with other programs. A program that waits for
-   even a few milliseconds will consume very little processor time.
-
-   Since v2.0.1, this function accepts the ``milliseconds`` argument as a
-   ``float`` too, and also returns a ``float`` instead of ``int``. The
-   timing accuracy of this function is much better than it used to be in
-   previous versions.
+   even a few milliseconds will consume very little processor time. It is
+   slightly less accurate than the ``pygame.time.delay()`` function.
 
    This returns the actual number of milliseconds used.
-
-   .. versionchanged:: 2.0.1 made this function more accurate
 
    .. ## pygame.time.wait ##
 
@@ -43,14 +46,11 @@
    | :sl:`pause the program for an amount of time`
    | :sg:`delay(milliseconds) -> time`
 
-   Will pause for a given number of milliseconds.
-   Since v2.0.1, this function is merely an alias for ``pygame.time.wait()``
-   Previously, this function used the processor (rather than sleeping)
-   in order to make the delay more accurate.
+   Will pause for a given number of milliseconds. This function will use the
+   processor (rather than sleeping) in order to make the delay more accurate
+   than ``pygame.time.wait()``.
 
    This returns the actual number of milliseconds used.
-
-   .. versionchanged:: 2.0.1 aliased this to ``pygame.time.wait()``
 
    .. ## pygame.time.delay ##
 
@@ -97,10 +97,9 @@
       ``Clock.tick(40)`` once per frame, the program will never run at more
       than 40 frames per second.
 
-      Since v2.0.1, this function accepts the ``framerate`` argument as a
-      float too, and returns ``float`` instead of ``int``
-
-      .. versionchanged:: 2.0.1 made this function more accurate
+      Note that this function uses SDL_Delay function which is not accurate on
+      every platform, but does not use much CPU. Use tick_busy_loop if you want
+      an accurate timer, and don't mind chewing CPU.
 
       .. ## Clock.tick ##
 
@@ -109,12 +108,19 @@
       | :sl:`update the clock`
       | :sg:`tick_busy_loop(framerate=0) -> milliseconds`
 
-      This method used to provide a way to get more accurate ticks in old
-      versions, but has been aliased to ``clock.tick`` since v2.0.1 because
-      ``clock.tick`` is very accurate now.
+      This method should be called once per frame. It will compute how many
+      milliseconds have passed since the previous call.
+
+      If you pass the optional framerate argument the function will delay to
+      keep the game running slower than the given ticks per second. This can be
+      used to help limit the runtime speed of a game. By calling
+      ``Clock.tick_busy_loop(40)`` once per frame, the program will never run at
+      more than 40 frames per second.
+
+      Note that this function uses :func:`pygame.time.delay`, which uses lots
+      of CPU in a busy loop to make sure that timing is more accurate.
 
       .. versionadded:: 1.8
-      .. versionchanged:: 2.0.1 aliased this to ``clock.tick``
 
       .. ## Clock.tick_busy_loop ##
 
@@ -126,9 +132,6 @@
       The number of milliseconds that passed between the previous two calls to
       ``Clock.tick()``.
 
-      .. versionchanged:: 2.0.1 returns ``float`` instead of ``int`` for
-                           extended accuracy
-
       .. ## Clock.get_time ##
 
    .. method:: get_rawtime
@@ -138,9 +141,6 @@
 
       Similar to ``Clock.get_time()``, but does not include any time used
       while ``Clock.tick()`` was delaying to limit the framerate.
-
-      .. versionchanged:: 2.0.1 returns ``float`` instead of ``int`` for
-                           extended accuracy
 
       .. ## Clock.get_rawtime ##
 

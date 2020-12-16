@@ -212,7 +212,7 @@ skip_branch_with_pr: true
 test_script:
   - "mkdir empty_folder"
   - "cd empty_folder"
-  - "%PYTHON% -m pygame.tests -v --exclude opengl"
+  - "%PYTHON% -m pygame.tests -v --exclude opengl,timing"
 
   # Move back to the project folder
   - "cd .."

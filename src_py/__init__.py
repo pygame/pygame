@@ -242,6 +242,11 @@ except (ImportError, IOError):
     time = MissingModule("time", urgent=1)
 
 try:
+    import pygame._time
+except (ImportError, IOError):
+    time = MissingModule("_time", urgent=1)
+
+try:
     import pygame.transform
 except (ImportError, IOError):
     transform = MissingModule("transform", urgent=1)
