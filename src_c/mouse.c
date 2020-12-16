@@ -392,6 +392,10 @@ static PyObject *
 mouse_set_system_cursor(PyObject *self, PyObject *args)
 {
     int constant;
+
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "set_cursor() now has all the functionality of set_system_cursor(), so set_system_cursor() will be deprecated in pygame 2.1", 1) == -1) {
+        return NULL;
+    }
     
     VIDEO_INIT_CHECK();
 
