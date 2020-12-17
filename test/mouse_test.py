@@ -1,6 +1,7 @@
 import unittest
 import os
 import platform
+import warnings
 import pygame
 
 SDL1 = pygame.get_sdl_version()[0] < 2
@@ -102,29 +103,38 @@ class MouseModuleTest(MouseTests):
     def test_set_system_cursor(self):
         """Ensures set_system_cursor works correctly."""
 
-        # Error should be raised when the display is uninitialized
-        with self.assertRaises(pygame.error):
-            pygame.display.quit()
-            pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_HAND)
+        with warnings.catch_warnings(record=True) as w:
+            """From Pygame 2.0.1, set_system_cursor() should raise a deprecation warning"""
+            #Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
 
-        pygame.display.init()
+            # Error should be raised when the display is uninitialized
+            with self.assertRaises(pygame.error):
+                pygame.display.quit()
+                pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_HAND)
 
-        # TypeError raised when PyArg_ParseTuple fails to parse parameters
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_system_cursor("b")
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_system_cursor(None)
-        with self.assertRaises(TypeError):
-            pygame.mouse.set_system_cursor((8, 8), (0, 0))
+            pygame.display.init()
 
-        # Right type, invalid value
-        with self.assertRaises(pygame.error):
-            pygame.mouse.set_system_cursor(2000)
+            # TypeError raised when PyArg_ParseTuple fails to parse parameters
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_system_cursor("b")
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_system_cursor(None)
+            with self.assertRaises(TypeError):
+                pygame.mouse.set_system_cursor((8, 8), (0, 0))
 
-        # Working as intended
-        self.assertEqual(
-            pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW), None
-        )
+            # Right type, invalid value
+            with self.assertRaises(pygame.error):
+                pygame.mouse.set_system_cursor(2000)
+
+            # Working as intended
+            self.assertEqual(
+                pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_ARROW), None
+            )
+
+            #Making sure the warnings are working properly
+            self.assertEqual(len(w), 6)
+            self.assertTrue(all([issubclass(warn.category, DeprecationWarning) for warn in w]))
 
     @unittest.skipIf(os.environ.get("SDL_VIDEODRIVER", "") == "dummy",
         "Cursors not supported on headless test machines",
