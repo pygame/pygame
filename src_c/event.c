@@ -1912,31 +1912,6 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-_pg_get_all_events(void) {
-    SDL_Event eventbuf[PG_GET_LIST_LEN];
-    PyObject *list, *event;
-    int len, loop;
-
-    len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
-    if (len == -1)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-
-    list = PyList_New(len);
-    if (!list)
-        return PyErr_NoMemory();
-
-    for (loop = 0; loop < len; loop++) {
-        event = pgEvent_New(&eventbuf[loop]);
-        if (!event) {
-            Py_DECREF(list);
-            return NULL;
-        }
-        PyList_SET_ITEM(list, loop, event);
-    }
-    return list;
-}
-
 static int
 _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 {
@@ -1951,6 +1926,35 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
     }
     Py_DECREF(e);
     return 1;
+}
+
+static PyObject *
+_pg_get_all_events(void) {
+    SDL_Event eventbuf[PG_GET_LIST_LEN];
+    PyObject *list;
+    int loop, len = PG_GET_LIST_LEN;
+
+    list = PyList_New(0);
+    if (!list)
+        return PyErr_NoMemory();
+
+    while (len == PG_GET_LIST_LEN) {
+        len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
+        if (len == -1) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            goto error;
+        }
+
+        for (loop = 0; loop < len; loop++) {
+            if (!_pg_event_append_to_list(list, &eventbuf[loop]))
+                goto error;
+        }
+    }
+    return list;
+
+error:
+    Py_DECREF(list);
+    return NULL;
 }
 
 static PyObject *
