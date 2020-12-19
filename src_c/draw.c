@@ -115,6 +115,15 @@ aaline(PyObject *self, PyObject *arg, PyObject *kwargs)
         return NULL; /* Exception already set. */
     }
 
+    if (!blend) {
+        if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                "blend=False will be deprecated in pygame 2.2 and will "
+                "default to True",
+                1) == -1) {
+            return NULL;
+        }
+    }
+
     surf = pgSurface_AsSurface(surfobj);
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4) {
@@ -262,6 +271,16 @@ aalines(PyObject *self, PyObject *arg, PyObject *kwargs)
         return PyErr_Format(PyExc_ValueError,
                             "unsupported surface bit depth (%d) for drawing",
                             surf->format->BytesPerPixel);
+    }
+
+    if (!blend) {
+        if (PyErr_WarnEx(
+                PyExc_DeprecationWarning,
+                "blend=False will be deprecated in pygame 2.2 and will "
+                "default to True",
+                1) == -1) {
+            return NULL;
+        }
     }
 
     CHECK_LOAD_COLOR(colorobj)
