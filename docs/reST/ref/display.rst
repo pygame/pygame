@@ -42,42 +42,8 @@ user adjusts the window dimensions. Hardware displays that draw direct to the
 screen will get ``pygame.VIDEOEXPOSE`` events when portions of the window must
 be redrawn.
 
-In pygame 2, there is a new type of event called ``pygame.WINDOWEVENT`` that
-is meant to replace all window related events like ``pygame.VIDEORESIZE``,
-``pygame.VIDEOEXPOSE`` and ``pygame.ACTIVEEVENT``.
-
-Note that the WINDOWEVENT API is considered experimental, and may change in
-future releases.
-
-The new events of type ``pygame.WINDOWEVENT`` have an ``event`` attribute that
-can take the following values.
-
-::
-
-   Value of event attribute      Short description
-
-   WINDOWEVENT_SHOWN            Window became shown
-   WINDOWEVENT_HIDDEN           Window became hidden
-   WINDOWEVENT_EXPOSED          Window got updated by some external event
-   WINDOWEVENT_MOVED            Window got moved
-   WINDOWEVENT_RESIZED          Window got resized
-   WINDOWEVENT_SIZE_CHANGED     Window changed it's size
-   WINDOWEVENT_MINIMIZED        Window was minimised
-   WINDOWEVENT_MAXIMIZED        Window was maximised
-   WINDOWEVENT_RESTORED         Window was restored
-   WINDOWEVENT_ENTER            Mouse entered the window
-   WINDOWEVENT_LEAVE            Mouse left the window
-   WINDOWEVENT_FOCUS_GAINED     Window gained focus
-   WINDOWEVENT_FOCUS_LOST       Window lost focus
-   WINDOWEVENT_CLOSE            Window was closed
-   WINDOWEVENT_TAKE_FOCUS       Window was offered focus
-   WINDOWEVENT_HIT_TEST         Window has a special hit test
-
-
-If SDL version used is less than 2.0.5, the last two values ``WINDOWEVENT_TAKE_FOCUS``
-and ``WINDOWEVENT_HIT_TEST`` will not work.
-See the SDL implementation (in C programming) of the same
-`over here. <https://wiki.libsdl.org/SDL_WindowEvent>`_
+A new windowevent API was introduced in pygame 2.0.1. Check event module docs
+for more information on that
 
 Some display environments have an option for automatically stretching all
 windows. When this option is enabled, this automatic stretching distorts the
