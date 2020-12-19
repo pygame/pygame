@@ -435,10 +435,10 @@ _pg_pgevent_proxify(Uint32 type)
             return PGPOST_WINDOWRESIZED;
         case PGE_WINDOWSIZECHANGED:
             return PGPOST_WINDOWSIZECHANGED;
-        case PGE_WINDOWMINIMISED:
-            return PGPOST_WINDOWMINIMISED;
-        case PGE_WINDOWMAXIMISED:
-            return PGPOST_WINDOWMAXIMISED;
+        case PGE_WINDOWMINIMIZED:
+            return PGPOST_WINDOWMINIMIZED;
+        case PGE_WINDOWMAXIMIZED:
+            return PGPOST_WINDOWMAXIMIZED;
         case PGE_WINDOWRESTORED:
             return PGPOST_WINDOWRESTORED;
         case PGE_WINDOWENTER:
@@ -569,10 +569,10 @@ _pg_pgevent_deproxify(Uint32 type)
             return PGE_WINDOWRESIZED;
         case PGPOST_WINDOWSIZECHANGED:
             return PGE_WINDOWSIZECHANGED;
-        case PGPOST_WINDOWMINIMISED:
-            return PGE_WINDOWMINIMISED;
-        case PGPOST_WINDOWMAXIMISED:
-            return PGE_WINDOWMAXIMISED;
+        case PGPOST_WINDOWMINIMIZED:
+            return PGE_WINDOWMINIMIZED;
+        case PGPOST_WINDOWMAXIMIZED:
+            return PGE_WINDOWMAXIMIZED;
         case PGPOST_WINDOWRESTORED:
             return PGE_WINDOWRESTORED;
         case PGPOST_WINDOWENTER:
@@ -936,10 +936,10 @@ _pg_name_from_eventtype(int type)
             return "WindowResized";
         case PGE_WINDOWSIZECHANGED:
             return "WindowSizeChanged";
-        case PGE_WINDOWMINIMISED:
-            return "WindowMinimised";
-        case PGE_WINDOWMAXIMISED:
-            return "WindowMaximised";
+        case PGE_WINDOWMINIMIZED:
+            return "WindowMinimized";
+        case PGE_WINDOWMAXIMIZED:
+            return "WindowMaximized";
         case PGE_WINDOWRESTORED:
             return "WindowRestored";
         case PGE_WINDOWENTER:
