@@ -74,4 +74,6 @@ RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
 
 ENV base_image=$BASE_IMAGE
 ADD pypy /pypy_build/
+RUN echo "$base_image"
+RUN echo "$BASE_IMAGE"
 RUN if [ "$base_image" = "manylinux2010_base_i686" ] ; then /pypy_build/getpypy32.sh ; else echo "no pypy on manylinux1" ; fi

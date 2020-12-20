@@ -71,6 +71,8 @@ ADD portmidi /portmidi_build/
 RUN ["bash", "/portmidi_build/build-portmidi.sh"]
 
 ENV base_image=$BASE_IMAGE
+RUN echo "$base_image"
+RUN echo "$BASE_IMAGE"
 
 ADD pypy /pypy_build/
 RUN if [ "$BASE_IMAGE" = "manylinux2010_x86_64" ] ; then /pypy_build/getpypy64.sh ; else echo "no pypy on manylinux1" ; fi
