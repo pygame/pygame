@@ -292,20 +292,19 @@ time_wait(PyObject *self, PyObject *arg)
 static PyObject *
 time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    int ticks, once = 0, repeat = 0;
+    int ticks, loops = 0;
     PyObject *obj;
     pgEventObject *e;
 
     static char *kwids[] = {
         "event",
         "millis",
-        "once",
-        "repeat",
+        "loops",
         NULL
     };
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|ii", kwids,
-                                     &obj, &ticks, &once, &repeat))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|i", kwids,
+                                     &obj, &ticks, &loops))
         return NULL;
 
     if (!timermutex)
@@ -341,13 +340,7 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
         }
     }
 
-    /* The repeat argument will determine how many times an event is
-     * posted. If repeat was not passed, we determine the repeat argument
-     * from the once argument */
-    if (!repeat)
-        repeat = once ? 1 : 0;
-
-    if (!_pg_add_event_timer(e, repeat)) {
+    if (!_pg_add_event_timer(e, loops)) {
         Py_DECREF(e);
         return NULL;
     }
