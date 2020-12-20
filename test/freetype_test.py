@@ -10,6 +10,11 @@ import weakref
 import gc
 import platform
 
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
+
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 
@@ -1728,6 +1733,10 @@ class FreeTypeFontTest(unittest.TestCase):
         names = [fonts[0], fonts_b[1], fonts[2], fonts_b[3]]
         font_name_2 = ft.SysFont(names, size).name
         self.assertEqual(font_name_2, font_name)
+
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_pathlib(self):
+        f = ft.Font(pathlib.Path(self._fixed_path), 20)
 
 
 class FreeTypeTest(unittest.TestCase):

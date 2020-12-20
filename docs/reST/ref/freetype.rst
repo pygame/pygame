@@ -182,6 +182,7 @@ loaded. This module must be imported explicitly to be used. ::
 
    | :sl:`Create a new Font instance from a supported font file.`
    | :sg:`Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font`
+   | :sg:`Font(pathlib.Path) -> Font`
 
    Argument *file* can be either a string representing the font's filename, a
    file-like object containing the font, or None; if None, a default,
@@ -293,7 +294,7 @@ loaded. This module must be imported explicitly to be used. ::
           (min_x, max_x, min_y, max_y, horizontal_advance_x, horizontal_advance_y)
 
       The bounding box min_x, max_x, min_y, and max_y values are returned as
-      grid-fitted pixel coordinates of type int. The advance values are 
+      grid-fitted pixel coordinates of type int. The advance values are
       float values.
 
       The calculations are done using the font's default size in points.
@@ -616,7 +617,7 @@ loaded. This module must be imported explicitly to be used. ::
       | :sg:`fixed_sizes -> int`
 
       Read only. Returns the number of point sizes for which the font contains
-      bitmap character images. If zero then the font is not a bitmap font. 
+      bitmap character images. If zero then the font is not a bitmap font.
       A scalable font may contain pre-rendered point sizes as strikes.
 
    .. attribute:: scalable

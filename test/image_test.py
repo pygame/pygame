@@ -13,6 +13,12 @@ import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_, unicode_
 
 
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
+
+
 def test_magic(f, magic_hexes):
     """Tests a given file to see if the magic hex matches."""
     data = f.read(len(magic_hexes))
@@ -276,6 +282,21 @@ class ImageModuleTest(unittest.TestCase):
             self.assertEqual(s2.get_at((0, 0)), s.get_at((0, 0)))
         finally:
             # clean up the temp file, even if test fails
+            os.remove(temp_filename)
+
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_save_pathlib(self):
+        surf = pygame.Surface((1, 1))
+        surf.fill((23, 23, 23))
+        with tempfile.NamedTemporaryFile(suffix=".tga", delete=False) as f:
+            temp_filename = f.name
+
+        path = pathlib.Path(temp_filename)
+        try:
+            pygame.image.save(surf, path)
+            s2 = pygame.image.load(path)
+            self.assertEqual(s2.get_at((0, 0)), surf.get_at((0, 0)))
+        finally:
             os.remove(temp_filename)
 
     def test_save__to_fileobject_w_namehint_argument(self):
@@ -786,10 +807,10 @@ class ImageModuleTest(unittest.TestCase):
 
     def test_load_basic(self):
         """to see if we can load bmp from files and/or file-like objects in memory"""
-        
+
         # pygame.image.load(filename): return Surface
 
-        
+
         # test loading from a file
         s = pygame.image.load_basic(example_path("data/asprite.bmp"))
         self.assertEqual(s.get_at((0,0)),(255,255,255,255))
@@ -803,36 +824,46 @@ class ImageModuleTest(unittest.TestCase):
         self.assertEqual(surf.get_at((0, 0)), (5, 4, 5, 255))
         self.assertEqual(surf.get_height(), 32)
         self.assertEqual(surf.get_width(), 32)
-        
+
         f.close()
 
     def test_load_extended(self):
+        """can load different format images.
 
-        # __doc__ (as of 2008-08-02) for pygame.image.load_extended:
+        We test loading the following file types:
+            bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm.
+        All the loaded images are smaller than 32 x 32 pixels.
+        """
 
-        # pygame module for image transfer
+        filename_expected_color = [
+            ("asprite.bmp", (255, 255, 255, 255)),
+             ("laplacian.png", (10, 10, 70, 255)),
+             ("red.jpg", (254, 0, 0, 255)),
+             ("blue.gif", (0, 0, 255, 255)),
+             ("green.pcx", (0, 255, 0, 255)),
+             ("yellow.tga", (255, 255, 0, 255)),
+             ("turquoise.tif", (0, 255, 255, 255)),
+             ("purple.xpm", (255, 0, 255, 255)),
+             ("black.ppm", (0, 0, 0, 255)),
+             ("grey.pgm", (120, 120, 120, 255))
+        ]
 
-        #We test loading the following file types: bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm.
-        #All the loaded images are smaller than 32 x 32 pixels.
+        for filename, expected_color in filename_expected_color:
+            with self.subTest(
+                "Test loading a " + filename[-3:],
+                filename="examples/data/" + filename,
+                expected_color=expected_color
+            ):
+                surf = pygame.image.load_extended(example_path("data/" + filename))
+                self.assertEqual(surf.get_at((0, 0)), expected_color)
 
-        #The list of tests that are executed, with filename and expected color.
-        tests = [("asprite.bmp", (255, 255, 255, 255)),
-                 ("laplacian.png", (10, 10, 70, 255)),
-                 ("red.jpg", (254, 0, 0, 255)),
-                 ("blue.gif", (0, 0, 255, 255)),
-                 ("green.pcx", (0, 255, 0, 255)),
-                 ("yellow.tga", (255, 255, 0, 255)),
-                 ("turquoise.tif", (0, 255, 255, 255)),
-                 ("purple.xpm", (255, 0, 255, 255)),
-                 ("black.ppm", (0, 0, 0, 255)),
-                 ("grey.pgm", (120, 120, 120, 255))]
-
-        for test in tests:
-            #We use subTest to make sure all we go through all the tests, even if one fails.
-            with self.subTest("Test loading a " + test[0][-3:], filename="examples/data/" + test[0], expected_color=test[1]):
-                s = pygame.image.load_extended(example_path("data/" + test[0]))
-                self.assertEqual(s.get_at((0, 0)), test[1])
-        
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_load_pathlib(self):
+        """ works loading using a Path argument.
+        """
+        path = pathlib.Path(example_path("data/asprite.bmp"))
+        surf = pygame.image.load_extended(path)
+        self.assertEqual(surf.get_at((0, 0)), (255, 255, 255, 255))
 
     def test_save_extended(self):
         surf = pygame.Surface((5, 5))

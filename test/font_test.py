@@ -5,6 +5,11 @@ import os
 import unittest
 import platform
 
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
+
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, unicode_, as_bytes, xrange_, filesystem_errors
@@ -483,6 +488,14 @@ class FontTypeTest(unittest.TestCase):
             os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
         )
         f = pygame_font.Font(font_path, 20)
+
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_load_from_pathlib(self):
+        font_name = pygame_font.get_default_font()
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
+        f = pygame_font.Font(pathlib.Path(font_path), 20)
 
     def test_load_from_file_obj(self):
         font_name = pygame_font.get_default_font()

@@ -14,7 +14,7 @@
 #define DOC_PYGAMEMIXERFINDCHANNEL "find_channel(force=False) -> Channel\nfind an unused channel"
 #define DOC_PYGAMEMIXERGETBUSY "get_busy() -> bool\ntest if any sound is being mixed"
 #define DOC_PYGAMEMIXERGETSDLMIXERVERSION "get_sdl_mixer_version() -> (major, minor, patch)\nget_sdl_mixer_version(linked=True) -> (major, minor, patch)\nget the mixer's SDL version"
-#define DOC_PYGAMEMIXERSOUND "Sound(filename) -> Sound\nSound(file=filename) -> Sound\nSound(buffer) -> Sound\nSound(buffer=buffer) -> Sound\nSound(object) -> Sound\nSound(file=object) -> Sound\nSound(array=object) -> Sound\nCreate a new Sound object from a file or buffer object"
+#define DOC_PYGAMEMIXERSOUND "Sound(filename) -> Sound\nSound(file=filename) -> Sound\nSound(file=pathlib_path) -> Sound\nSound(buffer) -> Sound\nSound(buffer=buffer) -> Sound\nSound(object) -> Sound\nSound(file=object) -> Sound\nSound(array=object) -> Sound\nCreate a new Sound object from a file or buffer object"
 #define DOC_SOUNDPLAY "play(loops=0, maxtime=0, fade_ms=0) -> Channel\nbegin sound playback"
 #define DOC_SOUNDSTOP "stop() -> None\nstop sound playback"
 #define DOC_SOUNDFADEOUT "fadeout(time) -> None\nstop sound playback after fading out"
@@ -106,6 +106,7 @@ get the mixer's SDL version
 pygame.mixer.Sound
  Sound(filename) -> Sound
  Sound(file=filename) -> Sound
+ Sound(file=pathlib_path) -> Sound
  Sound(buffer) -> Sound
  Sound(buffer=buffer) -> Sound
  Sound(object) -> Sound

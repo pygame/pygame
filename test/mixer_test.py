@@ -11,6 +11,10 @@ import pygame
 from pygame import mixer
 from pygame.compat import unicode_, as_bytes, bytes_
 
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
 
 IS_PYPY = "PyPy" == platform.python_implementation()
 
@@ -936,6 +940,15 @@ class SoundTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         sound = mixer.Sound(sound_obj)
 
         self.assertIsInstance(sound, mixer.Sound)
+
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_sound__from_pathlib(self):
+        """Ensure Sound() creation with a pathlib.Path object works."""
+        path = pathlib.Path(example_path(os.path.join("data", "house_lo.wav")))
+        sound1 = mixer.Sound(path)
+        sound2 = mixer.Sound(file=path)
+        self.assertIsInstance(sound1, mixer.Sound)
+        self.assertIsInstance(sound2, mixer.Sound)
 
     def todo_test_sound__from_buffer(self):
         """Ensure Sound() creation with a buffer works."""

@@ -265,6 +265,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    | :sl:`Create a new Sound object from a file or buffer object`
    | :sg:`Sound(filename) -> Sound`
    | :sg:`Sound(file=filename) -> Sound`
+   | :sg:`Sound(file=pathlib_path) -> Sound`
    | :sg:`Sound(buffer) -> Sound`
    | :sg:`Sound(buffer=buffer) -> Sound`
    | :sg:`Sound(object) -> Sound`
@@ -299,9 +300,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    audio sample size. This will not change.
 
    .. versionadded:: 1.8 ``pygame.mixer.Sound(buffer)``
-
    .. versionadded:: 1.9.2
       :class:`pygame.mixer.Sound` keyword arguments and array interface support
+   .. versionadded:: 2.0.1 pathlib.Path support on Python 3.
 
    .. method:: play
 

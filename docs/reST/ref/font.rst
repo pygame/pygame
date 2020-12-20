@@ -137,6 +137,7 @@ loaded instead.
 
    | :sl:`create a new Font object from a file`
    | :sg:`Font(filename, size) -> Font`
+   | :sg:`Font(pathlib.Path, size) -> Font`
    | :sg:`Font(object, size) -> Font`
 
    Load a new font from a given filename or a python file object. The size is
