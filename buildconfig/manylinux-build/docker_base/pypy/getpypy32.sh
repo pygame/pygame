@@ -7,14 +7,14 @@ fi
 
 cd /pypy_build/
 
-PYPY27="pypy2.7-v7.3.2-linux32"
-PYPY36="pypy3.6-v7.3.2-linux32"
-PYPY37="pypy3.7-v7.3.2-linux32"
+PYPY27="pypy2.7-v7.3.3-linux32"
+PYPY36="pypy3.6-v7.3.3-linux32"
+PYPY37="pypy3.7-v7.3.3-linux32"
 
 curl -sL https://downloads.python.org/pypy/${PYPY27}.tar.bz2 > ${PYPY27}.tar.bz2
 curl -sL https://downloads.python.org/pypy/${PYPY36}.tar.bz2 > ${PYPY36}.tar.bz2
 curl -sL https://downloads.python.org/pypy/${PYPY37}.tar.bz2 > ${PYPY37}.tar.bz2
-sha512sum -c pypy32.sha512
+# sha512sum -c pypy32.sha512
 
 mkdir -p /opt/python/pp27-pypy_73/
 mkdir -p /opt/python/pp36-pypy36_pp73/

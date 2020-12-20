@@ -30,7 +30,7 @@ for PYVER in $SUPPORTED_PYTHONS; do
     rm -rf /io/Setup /io/build/
     PYBIN="/opt/python/${PYVER}/bin"
     PYTHON="/opt/python/${PYVER}/bin/python"
-	if [ ! -f ${PYBIN}/python ]; then
+	if [ ! -f "${PYBIN}/python" ]; then
 	    PYTHON="/opt/python/${PYVER}/bin/pypy"
 	fi
 
@@ -50,10 +50,10 @@ export SDL_VIDEODRIVER=dummy
 for PYVER in $SUPPORTED_PYTHONS; do
     PYBIN="/opt/python/${PYVER}/bin"
     PYTHON="/opt/python/${PYVER}/bin/python"
-	if [ ! -f ${PYBIN}/python ]; then
+	if [ ! -f "${PYBIN}/python" ]; then
 	    PYTHON="/opt/python/${PYVER}/bin/pypy"
 	fi
 
     ${PYTHON} -m pip install pygame --no-index -f /io/buildconfig/manylinux-build/wheelhouse
-    (cd $HOME; ${PYTHON} -m pygame.tests --exclude opengl,music,timing)
+    (cd $HOME; ${PYTHON} -m pygame.tests --exclude opengl,timing)
 done
