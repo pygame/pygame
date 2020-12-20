@@ -72,6 +72,7 @@ static int pg_key_repeat_interval = 0;
 static SDL_TimerID _pg_repeat_timer = 0;
 static SDL_Event _pg_repeat_event;
 static SDL_bool  _pg_event_generate_videoresize = SDL_TRUE;
+static SDL_bool  _pg_event_emulate_quit = SDL_FALSE;
 
 static Uint32
 _pg_repeat_callback(Uint32 interval, void *param)
@@ -122,6 +123,10 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
 #endif /* IS_SLDv2 */
         pg_RegisterQuit(_pg_event_cleanup);
         _pg_event_is_init = 1;
+    }
+
+    if (SDL_getenv("PYGAME_EMULATE_QUIT")){
+        _pg_event_emulate_quit=SDL_TRUE;
     }
 
     return PyInt_FromLong(_pg_event_is_init);
@@ -231,6 +236,13 @@ pg_event_filter(void *_, SDL_Event *event)
 #pragma PG_WARN(Add event blocking here.)
 
     else if (type == SDL_KEYDOWN) {
+
+        if(_pg_event_emulate_quit && event->key.keysym.sym==SDLK_F4
+           && (event->key.keysym.mod  & KMOD_ALT)) {
+            SDL_Event quit_event;
+            quit_event.type = SDL_QUIT;
+            SDL_PushEvent(&quit_event);
+        }
 
         if (event->key.repeat) {
             return 0;
