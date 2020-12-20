@@ -20,7 +20,7 @@ RUN linux32 yum install -y smpeg-devel dbus-devel \
     pulseaudio-libs-devel cmake dejavu-sans-fonts fontconfig libXrandr-devel \
     libXcursor-devel libXi-devel libXxf86vm-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
-RUN linux32 yum install -y libcap-devel
+RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
 # Build and install PNG
 ADD libpng /png_build/

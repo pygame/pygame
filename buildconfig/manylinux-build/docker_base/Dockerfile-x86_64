@@ -19,7 +19,7 @@ RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
     pulseaudio-libs-devel xz subversion dejavu-sans-fonts fontconfig \
     libXcursor-devel libXi-devel libXxf86vm-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
-RUN yum install -y libcap-devel
+RUN yum install -y libcap-devel libxkbcommon-devel
 
 # Build and install PNG
 ADD libpng /png_build/
