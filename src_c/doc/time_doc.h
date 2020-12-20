@@ -3,7 +3,7 @@
 #define DOC_PYGAMETIMEGETTICKS "get_ticks() -> milliseconds\nget the time in milliseconds"
 #define DOC_PYGAMETIMEWAIT "wait(milliseconds) -> time\npause the program for an amount of time"
 #define DOC_PYGAMETIMEDELAY "delay(milliseconds) -> time\npause the program for an amount of time"
-#define DOC_PYGAMETIMESETTIMER "set_timer(eventid, milliseconds) -> None\nset_timer(eventid, milliseconds, once) -> None\nrepeatedly create an event on the event queue"
+#define DOC_PYGAMETIMESETTIMER "set_timer(event, millis) -> None\nset_timer(event, millis, loops=0) -> None\nrepeatedly create an event on the event queue"
 #define DOC_PYGAMETIMECLOCK "Clock() -> Clock\ncreate an object to help track time"
 #define DOC_CLOCKTICK "tick(framerate=0) -> milliseconds\nupdate the clock"
 #define DOC_CLOCKTICKBUSYLOOP "tick_busy_loop(framerate=0) -> milliseconds\nupdate the clock"
@@ -32,8 +32,8 @@ pygame.time.delay
 pause the program for an amount of time
 
 pygame.time.set_timer
- set_timer(eventid, milliseconds) -> None
- set_timer(eventid, milliseconds, once) -> None
+ set_timer(event, millis) -> None
+ set_timer(event, millis, loops=0) -> None
 repeatedly create an event on the event queue
 
 pygame.time.Clock

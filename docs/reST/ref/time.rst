@@ -52,21 +52,32 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
 .. function:: set_timer
 
    | :sl:`repeatedly create an event on the event queue`
-   | :sg:`set_timer(eventid, milliseconds) -> None`
-   | :sg:`set_timer(eventid, milliseconds, once) -> None`
+   | :sg:`set_timer(event, millis) -> None`
+   | :sg:`set_timer(event, millis, loops=0) -> None`
 
-   Set an event type to appear on the event queue every given number of
-   milliseconds. The first event will not appear until the amount of time has
-   passed.
+   Set an event to appear on the event queue every given number of milliseconds.
+   The first event will not appear until the amount of time has passed.
 
-   Every event type can have a separate timer attached to it. It is best to use
-   the value between ``pygame.USEREVENT`` and ``pygame.NUMEVENTS``.
+   The ``event`` attribute can be a ``pygame.event.Event`` object or an integer
+   type that denotes an event.
 
-   To disable the timer for an event, set the milliseconds argument to 0.
+   ``loops`` is an integer that denotes the number of events posted. If 0 (default)
+   then the events will keep getting posted, unless explicitly stopped.
 
-   If the once argument is True, then only send the timer once.
+   To disable the timer for such an event, call the function again with the same
+   event argument with ``millis`` argument set to 0.
+
+   It is also worth mentioning that a particular event type can only be put on a
+   timer once. In other words, there cannot be two timers for the same event type.
+   Setting an event timer for a particular event discards the old one for that
+   event type.
+
+   ``loops`` replaces the ``once`` argument, and this does not break backward
+   compatability
 
    .. versionadded:: 2.0.0.dev3 once argument added.
+   .. versionchanged:: 2.0.1 event argument supports ``pygame.event.Event`` object
+   .. versionadded:: 2.0.1 added loops argument to replace once argument
 
    .. ## pygame.time.set_timer ##
 

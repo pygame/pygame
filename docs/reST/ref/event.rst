@@ -169,8 +169,8 @@ Here is a list of all window events, along with a short description
    WINDOWMOVED            Window got moved
    WINDOWRESIZED          Window got resized
    WINDOWSIZECHANGED      Window changed it's size
-   WINDOWMINIMIZED        Window was minimised
-   WINDOWMAXIMIZED        Window was maximised
+   WINDOWMINIMIZED        Window was minimized
+   WINDOWMAXIMIZED        Window was maximized
    WINDOWRESTORED         Window was restored
    WINDOWENTER            Mouse entered the window
    WINDOWLEAVE            Mouse left the window
