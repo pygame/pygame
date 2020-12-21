@@ -430,6 +430,37 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_rect_scale(pgRectObject *self, PyObject *args)
+{
+    float scale;
+
+    if (!PyArg_ParseTuple(args, "f", &scale))
+        return RAISE(PyExc_TypeError, "argument must contain one number");
+
+    return _pg_rect_subtype_new4(
+			Py_TYPE(self),
+            self->r.x  + (self->r.w / 2) - (self->r.w * scale / 2),
+            self->r.y  + (self->r.h / 2) - (self->r.h * scale / 2),
+			self->r.w * scale,
+			self->r.h * scale);
+}
+
+static PyObject *
+pg_rect_scale_ip(pgRectObject *self, PyObject *args)
+{
+    float scale;
+
+    if (!PyArg_ParseTuple(args, "f", &scale))
+        return RAISE(PyExc_TypeError, "argument must contain one number");
+
+    self->r.x += (self->r.w / 2) - (self->r.w * scale / 2);
+    self->r.y += (self->r.h / 2) - (self->r.h * scale / 2);
+    self->r.w *= scale;
+    self->r.h *= scale;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 pg_rect_update(pgRectObject* self, PyObject* args) {
     GAME_Rect temp;
     GAME_Rect *argrect = pgRect_FromObject(args, &temp);
@@ -1102,11 +1133,14 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
     {"update", (PyCFunction)pg_rect_update, METH_VARARGS, DOC_RECTUPDATE},
     {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
+    {"scale", (PyCFunction)pg_rect_scale, METH_VARARGS, DOC_RECTINFLATE},
     {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
     {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
      DOC_RECTUNIONALL},
     {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
     {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
+     DOC_RECTINFLATEIP},
+    {"scale_ip", (PyCFunction)pg_rect_scale_ip, METH_VARARGS,
      DOC_RECTINFLATEIP},
     {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
     {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
