@@ -753,6 +753,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTS(K_PERCENT, -1);
     DEC_CONSTS(K_PRINTSCREEN, -1);
     DEC_CONSTS(K_SCROLLLOCK, -1);
+    DEC_CONSTS(K_AC_BACK, -1);
 
     // scan code key codes (also not supported in SDL1)
     DEC_CONSTS(KSCAN_0, -1);
@@ -914,6 +915,7 @@ MODINIT_DEFINE(constants)
 #else  /* IS_SDLv2 */
     /* Keyboard key codes: Pygame K_ constants. Scan codes: KSCAN_ constants.
      */
+    DEC_CONSTK_AND_SC(AC_BACK);
     DEC_CONSTK_AND_SC(UNKNOWN);
     DEC_CONSTK_AND_SC(BACKSPACE);
     DEC_CONSTK_AND_SC(TAB);

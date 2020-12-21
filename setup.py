@@ -753,8 +753,7 @@ class DocsCommand(Command):
             raise
 
 # Prune empty file lists.
-date_files = [(path, files) for path, files in data_files if files]
-
+data_files = [(path, files) for path, files in data_files if files]
 
 #finally,
 #call distutils with all needed info
@@ -793,10 +792,13 @@ PACKAGEDATA = {
 }
 if STRIPPED:
     pygame_data_files = []
-    data_files = [('pygame', pygame_data_files)]
-    for f in glob.glob(os.path.join('src_py', '*')):
-        if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
-            pygame_data_files.append(f)
+    data_files = [('pygame', ["src_py/freesansbold.ttf",
+                              "src_py/pygame.ico",
+                              "src_py/pygame_icon.icns",
+                              "src_py/pygame_icon.svg",
+                              "src_py/pygame_icon.bmp",
+                              "src_py/pygame_icon.tiff"])]
+    
 
     PACKAGEDATA = {
     "cmdclass":    cmdclass,

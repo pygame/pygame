@@ -346,6 +346,7 @@ K_6: int
 K_7: int
 K_8: int
 K_9: int
+K_AC_BACK: int
 K_AMPERSAND: int
 K_ASTERISK: int
 K_AT: int
