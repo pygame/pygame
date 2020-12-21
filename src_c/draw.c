@@ -862,6 +862,7 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     Uint8 rgba[4];
     Uint32 color;
     int t, l, b, r, width = 0, radius = 0; /* Default values. */
+    int x, y, w, h; /* Fields for the rounded rect draw to "normalize" into */
     int top_left_radius = -1, top_right_radius = -1, bottom_left_radius = -1,
         bottom_right_radius = -1;
 #if IS_SDLv2
@@ -905,12 +906,13 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
     if (width < 0) {
         return pgRect_New4(rect->x, rect->y, 0, 0);
     }
-    if (width > rect->w / 2 || width > rect->h / 2) {
-        width = MAX(rect->w / 2, rect->h / 2);
-    }
 
-    if (radius <= 0 && top_left_radius <= 0 && top_right_radius <= 0 &&
-        bottom_left_radius <= 0 && bottom_right_radius <= 0) {
+    /* If there isn't any rounded rect-ness OR the rect is really thin in one direction.
+       The "really thin in one direction" check is necessary because draw_round_rect
+       fails (draws something bad) on rects with a dimension that is 0 or 1 pixels across.*/
+    if ((radius <= 0 && top_left_radius <= 0 && top_right_radius <= 0 &&
+        bottom_left_radius <= 0 && bottom_right_radius <= 0) || 
+        abs(rect->w) < 2 || abs(rect->h) < 2) {
 #if IS_SDLv2
         if(width > 0){
             l = rect->x;
@@ -972,8 +974,29 @@ rect(PyObject *self, PyObject *args, PyObject *kwargs)
         if (!pgSurface_Lock(surfobj)) {
             return RAISE(PyExc_RuntimeError, "error locking surface");
         }
-        draw_round_rect(surf, rect->x, rect->y, rect->x + rect->w - 1,
-                        rect->y + rect->h - 1, radius, width, color,
+
+        /* Little bit to normalize the rect: this matters for the rounded
+           rects, despite not mattering for the normal rects. */
+        x = rect->x;
+        y = rect->y;
+        w = rect->w;
+        h = rect->h;
+
+        if (w < 0) {
+            x += w;
+            w = -w;
+        }
+
+        if (h < 0) {
+            y += h;
+            h = -h;
+        }
+
+        if (width > w / 2 || width > h / 2) {
+            width = MAX(w / 2, h / 2);
+        }
+
+        draw_round_rect(surf, x, y, x + w - 1, y + h - 1, radius, width, color,
                         top_left_radius, top_right_radius, bottom_left_radius,
                         bottom_right_radius, drawn_area);
         if (!pgSurface_Unlock(surfobj)) {
