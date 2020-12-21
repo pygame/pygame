@@ -60,8 +60,8 @@ _pg_event_timer_cleanup(void)
     timermutex = NULL;
 }
 
-static int
-_pg_time_autoinit()
+static PyObject *
+pg_time_autoinit(PyObject *self)
 {
     /* register cleanup function for event timer holding structure,
      * allocate a mutex for this structure too */
@@ -69,17 +69,11 @@ _pg_time_autoinit()
         timermutex = SDL_CreateMutex();
         if (!timermutex) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            return 0;
+            return PyInt_FromLong(0);
         }
         pg_RegisterQuit(_pg_event_timer_cleanup);
     }
-    return 1;
-}
-
-static PyObject *
-pg_time_autoinit(PyObject *self)
-{
-    return PyInt_FromLong(_pg_time_autoinit());
+    return PyInt_FromLong(1);
 }
 
 static int
@@ -87,16 +81,16 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
 {
     pgEventTimer *new;
 
-    if (SDL_LockMutex(timermutex) < 0) {
-        /* this case will almost never happen, but still handle it */
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+    new = PyMem_New(pgEventTimer, 1);
+    if (!new) {
+        PyErr_NoMemory();
         return 0;
     }
 
-    new = PyMem_New(pgEventTimer, 1);
-    if (!new) {
-        SDL_UnlockMutex(timermutex);
-        PyErr_NoMemory();
+    if (SDL_LockMutex(timermutex) < 0) {
+        /* this case will almost never happen, but still handle it */
+        PyMem_Del(new);
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return 0;
     }
 
@@ -140,26 +134,25 @@ _pg_remove_event_timer(pgEventObject *ev)
 static pgEventTimer *
 _pg_get_event_on_timer(pgEventObject *ev)
 {
-    pgEventTimer *hunt, *ret = NULL;
+    pgEventTimer *hunt;
 
     if (SDL_LockMutex(timermutex) < 0)
         return NULL;
 
-    if (pg_event_timer) {
-        hunt = pg_event_timer;
-        do {
-            if (hunt->event->type == ev->type) {
-                if (hunt->repeat >= 0)
-                    hunt->repeat--;
-                ret = hunt;
-                break;
+    hunt = pg_event_timer;
+    while (hunt) {
+        if (hunt->event->type == ev->type) {
+            if (hunt->repeat >= 0) {
+                hunt->repeat--;
             }
-            hunt = hunt->next;
-        } while (hunt);
+            break;
+        }
+        hunt = hunt->next;
     }
+
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
-    return ret;
+    return hunt;
 }
 
 static Uint32
@@ -186,6 +179,9 @@ timer_callback(Uint32 interval, void *param)
 #endif
             Py_DECREF(evtimer->event->dict);
     }
+    else
+        evtimer->repeat = 0;
+
 
     if (!evtimer->repeat) {
         /* This does memory cleanup */
@@ -309,7 +305,6 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!timermutex)
         return RAISE(pgExc_SDLError, "pygame is not initialized");
-
 
     if (PyInt_Check(obj)) {
         e = (pgEventObject *)pgEvent_New2(PyInt_AsLong(obj), NULL);
@@ -603,10 +598,6 @@ MODINIT_DEFINE(time)
     if (PyType_Ready(&PyClock_Type) < 0) {
         MODINIT_ERROR;
     }
-
-    if(!_pg_time_autoinit())
-        MODINIT_ERROR;
-
 
     /* create the module */
 #if PY3

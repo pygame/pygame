@@ -471,6 +471,7 @@ pgRWops_FromFileObject(PyObject *obj)
 static int
 pgRWops_ReleaseObject(SDL_RWops *context)
 {
+    int ret = 0;
     if (pgRWops_IsFileObject(context)) {
 #ifdef WITH_THREAD
         PyGILState_STATE state = PyGILState_Ensure();
@@ -492,11 +493,10 @@ pgRWops_ReleaseObject(SDL_RWops *context)
             SDL_FreeRW(context);
         }
         else {
-            int ret;
-            if ((ret = SDL_RWclose(context)) < 0) {
+            ret = SDL_RWclose(context);
+            if (ret < 0) {
                 PyErr_SetString(PyExc_IOError, SDL_GetError());
                 Py_DECREF(fileobj);
-                return ret;
             }
         }
 
@@ -505,13 +505,11 @@ pgRWops_ReleaseObject(SDL_RWops *context)
 #endif /* WITH_THREAD */
     }
     else {
-        int ret;
-        if ((ret = SDL_RWclose(context)) < 0) {
+        ret = SDL_RWclose(context);
+        if (ret < 0)
             PyErr_SetString(PyExc_IOError, SDL_GetError());
-            return ret;
-        }
     }
-    return 0;
+    return ret;
 }
 
 #if IS_SDLv1
