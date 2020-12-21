@@ -262,17 +262,44 @@ _format_view_to_audio(Py_buffer *view)
 }
 
 static void
+_pg_push_mixer_event(int type, int code)
+{
+    pgEventObject *e;
+    PyObject *dict, *dictcode;
+    SDL_Event event;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
+    dict = PyDict_New();
+    if (dict) {
+        if (type >= PGE_USEREVENT && type < PG_NUMEVENTS) {
+            dictcode = PyInt_FromLong(code);
+            PyDict_SetItemString(dict, "code", dictcode);
+            Py_DECREF(dictcode);
+        }
+        e = (pgEventObject *)pgEvent_New2(type, dict);
+        Py_DECREF(dict);
+
+        if (e) {
+            pgEvent_FillUserEvent(e, &event);
+#if IS_SDLv1
+            if (SDL_PushEvent(&event) < 0)
+#else
+            if (SDL_PushEvent(&event) <= 0)
+#endif
+                Py_DECREF(dict);
+            Py_DECREF(e);
+        }
+    }
+    PyGILState_Release(gstate);
+}
+
+static void
 endsound_callback(int channel)
 {
     if (channeldata) {
-        if (channeldata[channel].endevent && SDL_WasInit(SDL_INIT_VIDEO)) {
-            SDL_Event e;
-            memset(&e, 0, sizeof(e));
-            e.type = channeldata[channel].endevent;
-            if (e.type >= PGE_USEREVENT && e.type < PG_NUMEVENTS)
-                e.user.code = channel;
-            SDL_PushEvent(&e);
-        }
+        if (channeldata[channel].endevent && SDL_WasInit(SDL_INIT_VIDEO))
+            _pg_push_mixer_event(channeldata[channel].endevent, channel);
+
         if (channeldata[channel].queue) {
             PyGILState_STATE gstate = PyGILState_Ensure();
             int channelnum;
@@ -2001,6 +2028,10 @@ MODINIT_DEFINE(mixer)
         MODINIT_ERROR;
     }
     import_pygame_rwobject();
+    if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
+    import_pygame_event();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }

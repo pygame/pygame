@@ -51,14 +51,32 @@ mixmusic_callback(void *udata, Uint8 *stream, int len)
 }
 
 static void
+_pg_push_music_event(int type)
+{
+    pgEventObject *e;
+    SDL_Event event;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
+    e = (pgEventObject *)pgEvent_New2(type, NULL);
+    if (e) {
+        pgEvent_FillUserEvent(e, &event);
+#if IS_SDLv1
+        if (SDL_PushEvent(&event) < 0)
+#else
+        if (SDL_PushEvent(&event) <= 0)
+#endif
+            Py_DECREF(e->dict);
+        Py_DECREF(e);
+    }
+    PyGILState_Release(gstate);
+}
+
+static void
 endmusic_callback(void)
 {
-    if (endmusic_event && SDL_WasInit(SDL_INIT_VIDEO)) {
-        SDL_Event e;
-        memset(&e, 0, sizeof(e));
-        e.type = endmusic_event;
-        SDL_PushEvent(&e);
-    }
+    if (endmusic_event && SDL_WasInit(SDL_INIT_VIDEO))
+        _pg_push_music_event(endmusic_event);
+
     if (queue_music) {
         if (current_music)
             Mix_FreeMusic(current_music);
@@ -476,6 +494,10 @@ MODINIT_DEFINE(mixer_music)
         MODINIT_ERROR;
     }
     import_pygame_rwobject();
+    if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
+    import_pygame_event();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
