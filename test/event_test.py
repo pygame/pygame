@@ -284,7 +284,7 @@ class EventModuleTest(unittest.TestCase):
         """Ensures NUMEVENTS does not exceed the maximum SDL number of events.
         """
         # Ref: https://www.libsdl.org/tmp/SDL/include/SDL_events.h
-        MAX_SDL_EVENTS = 0xFFFF + 1  # SDL_LASTEVENT = 0xFFFF
+        MAX_SDL_EVENTS = 0xFFFF  # SDL_LASTEVENT = 0xFFFF
 
         self.assertLessEqual(pygame.NUMEVENTS, MAX_SDL_EVENTS)
 
@@ -345,25 +345,21 @@ class EventModuleTest(unittest.TestCase):
 
     def test_post_and_get_keydown(self):
         """Ensure keydown events can be posted to the queue."""
-        surf = pygame.display.set_mode((10, 10))
-        pygame.event.get()
         activemodkeys = pygame.key.get_mods()
         
-        events = []
-        events.append(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_p))
-        events.append(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_y, mod=activemodkeys))
-        events.append(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_g, unicode="g"))
-        events.append(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a, unicode=None))
-        events.append(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_m, mod=None, window=None))
-        events.append(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_e, mod=activemodkeys, unicode="e"))
+        events = [
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_p),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_y, mod=activemodkeys),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_g, unicode="g"),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a, unicode=None),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_m, mod=None, window=None),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_e, mod=activemodkeys, unicode="e")
+        ]
         
         for e in events:
-            pygame.event.clear()
             pygame.event.post(e)
             posted_event = pygame.event.poll()
-            self.assertEqual(e.type, posted_event.type, race_condition_notification)
-            self.assertEqual(e.type, pygame.KEYDOWN, race_condition_notification)
-            self.assertEqual(e.key, posted_event.key, race_condition_notification)
+            self.assertEqual(e, posted_event, race_condition_notification)
 
     def test_post_large_user_event(self):
         pygame.event.post(pygame.event.Event(pygame.USEREVENT, {"a": "a" * 1024}))
@@ -371,6 +367,18 @@ class EventModuleTest(unittest.TestCase):
 
         self.assertEqual(e.type, pygame.USEREVENT)
         self.assertEqual(e.a, "a" * 1024)
+
+    def test_post_blocked(self):
+        """
+        Test blocked events are not posted. Also test whether post()
+        returns a boolean correctly
+        """
+        pygame.event.set_blocked(pygame.USEREVENT)
+        self.assertFalse(pygame.event.post(pygame.event.Event(pygame.USEREVENT)))
+        self.assertFalse(pygame.event.poll())
+        pygame.event.set_allowed(pygame.USEREVENT)
+        self.assertTrue(pygame.event.post(pygame.event.Event(pygame.USEREVENT)))
+        self.assertEqual(pygame.event.poll(), pygame.event.Event(pygame.USEREVENT))
 
     def test_get(self):
         """Ensure get() retrieves all the events on the queue."""
@@ -389,6 +397,14 @@ class EventModuleTest(unittest.TestCase):
         queue = pygame.event.get(pygame.USEREVENT)
         self.assertEqual(len(queue), 1)
         self.assertEqual(queue[0].type, pygame.USEREVENT)
+
+        TESTEVENTS = 10
+        for _ in range(TESTEVENTS):
+            pygame.event.post(ev)
+        q = pygame.event.get([pygame.USEREVENT])
+        self.assertEqual(len(q), TESTEVENTS)
+        for event in q:
+            self.assertEqual(event, ev)
 
     def test_get__empty_queue(self):
         """Ensure get() works correctly on an empty queue."""

@@ -45,16 +45,17 @@ static int have_registered_events = 0;
 #define JOYEVENT_DEVICE_INDEX "device_index"
 
 /* Define custom functions for peep events, for SDL1/2 compat */
-#define PG_PEEP_EVENT(x, y, z) SDL_PeepEvents(x, 1, y, z, z)
-#define PG_PEEP_EVENT_ALL(x, y) SDL_PeepEvents(x, 1, y, SDL_FIRSTEVENT, SDL_LASTEVENT)
+#define PG_PEEP_EVENT(a, b, c, d) SDL_PeepEvents(a, b, c, d, d)
+#define PG_PEEP_EVENT_ALL(x, y, z) \
+    SDL_PeepEvents(x, y, z, SDL_FIRSTEVENT, SDL_LASTEVENT)
 
 #else /* IS_SLDv1 */
 
 #define JOYEVENT_INSTANCE_ID "joy"
 #define JOYEVENT_DEVICE_INDEX "joy"
 
-#define PG_PEEP_EVENT(x, y, z) SDL_PeepEvents(x, 1, y, SDL_EVENTMASK(z))
-#define PG_PEEP_EVENT_ALL(x, y) SDL_PeepEvents(x, 1, y, SDL_ALLEVENTS)
+#define PG_PEEP_EVENT(a, b, c, d) SDL_PeepEvents(a, b, c, SDL_EVENTMASK(d))
+#define PG_PEEP_EVENT_ALL(x, y, z) SDL_PeepEvents(x, y, z, SDL_ALLEVENTS)
 
 #endif /* IS_SLDv1 */
 
@@ -63,6 +64,8 @@ static int have_registered_events = 0;
 #define USEROBJ_CHECK (Sint32)0xFEEDF00D
 
 #define MAX_UINT32 0xFFFFFFFF
+
+#define PG_GET_LIST_LEN 128
 
 // Map joystick instance IDs to device ids for partial backwards compatibility
 static PyObject *joy_instance_map = NULL;
@@ -432,10 +435,10 @@ _pg_pgevent_proxify(Uint32 type)
             return PGPOST_WINDOWRESIZED;
         case PGE_WINDOWSIZECHANGED:
             return PGPOST_WINDOWSIZECHANGED;
-        case PGE_WINDOWMINIMISED:
-            return PGPOST_WINDOWMINIMISED;
-        case PGE_WINDOWMAXIMISED:
-            return PGPOST_WINDOWMAXIMISED;
+        case PGE_WINDOWMINIMIZED:
+            return PGPOST_WINDOWMINIMIZED;
+        case PGE_WINDOWMAXIMIZED:
+            return PGPOST_WINDOWMAXIMIZED;
         case PGE_WINDOWRESTORED:
             return PGPOST_WINDOWRESTORED;
         case PGE_WINDOWENTER:
@@ -566,10 +569,10 @@ _pg_pgevent_deproxify(Uint32 type)
             return PGE_WINDOWRESIZED;
         case PGPOST_WINDOWSIZECHANGED:
             return PGE_WINDOWSIZECHANGED;
-        case PGPOST_WINDOWMINIMISED:
-            return PGE_WINDOWMINIMISED;
-        case PGPOST_WINDOWMAXIMISED:
-            return PGE_WINDOWMAXIMISED;
+        case PGPOST_WINDOWMINIMIZED:
+            return PGE_WINDOWMINIMIZED;
+        case PGPOST_WINDOWMAXIMIZED:
+            return PGE_WINDOWMAXIMIZED;
         case PGPOST_WINDOWRESTORED:
             return PGE_WINDOWRESTORED;
         case PGPOST_WINDOWENTER:
@@ -933,10 +936,10 @@ _pg_name_from_eventtype(int type)
             return "WindowResized";
         case PGE_WINDOWSIZECHANGED:
             return "WindowSizeChanged";
-        case PGE_WINDOWMINIMISED:
-            return "WindowMinimised";
-        case PGE_WINDOWMAXIMISED:
-            return "WindowMaximised";
+        case PGE_WINDOWMINIMIZED:
+            return "WindowMinimized";
+        case PGE_WINDOWMAXIMIZED:
+            return "WindowMaximized";
         case PGE_WINDOWRESTORED:
             return "WindowRestored";
         case PGE_WINDOWENTER:
@@ -1832,7 +1835,7 @@ _pg_eventtype_as_seq(PyObject *obj, int *len)
     *len = 1;
     if (PySequence_Check(obj)) {
         *len = PySequence_Size(obj);
-        /* The retuned object gets decref'd later, so incref now */
+        /* The returned object gets decref'd later, so incref now */
         Py_INCREF(obj);
         return obj;
     }
@@ -1848,9 +1851,9 @@ _pg_flush_events(Uint32 type) {
 #if IS_SDLv1
     SDL_Event event;
     if (type == MAX_UINT32)
-        while (PG_PEEP_EVENT_ALL(&event, SDL_GETEVENT) == 1);
+        while (PG_PEEP_EVENT_ALL(&event, 1, SDL_GETEVENT) == 1);
     else
-        while (PG_PEEP_EVENT(&event, SDL_GETEVENT, type) == 1);
+        while (PG_PEEP_EVENT(&event, 1, SDL_GETEVENT, type) == 1);
 #else /* IS_SDLv2 */
     if (type == MAX_UINT32)
         SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
@@ -1927,11 +1930,93 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
-pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
-{
+_pg_get_all_events(void) {
+    SDL_Event eventbuf[PG_GET_LIST_LEN];
+    PyObject *list;
+    int loop, len = PG_GET_LIST_LEN;
+
+    list = PyList_New(0);
+    if (!list)
+        return PyErr_NoMemory();
+
+    while (len == PG_GET_LIST_LEN) {
+        len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
+        if (len == -1) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            goto error;
+        }
+
+        for (loop = 0; loop < len; loop++) {
+            if (!_pg_event_append_to_list(list, &eventbuf[loop]))
+                goto error;
+        }
+    }
+    return list;
+
+error:
+    Py_DECREF(list);
+    return NULL;
+}
+
+static PyObject *
+_pg_get_seq_events(PyObject *obj) {
     SDL_Event event;
     int loop, type, len, ret;
-    PyObject *seq = NULL, *list = NULL, *obj = NULL;
+    PyObject *seq, *list;
+
+    list = PyList_New(0);
+    if (!list)
+        return PyErr_NoMemory();
+
+    seq = _pg_eventtype_as_seq(obj, &len);
+    if (!seq)
+        goto error;
+
+    for (loop = 0; loop < len; loop++) {
+        type = _pg_eventtype_from_seq(seq, loop);
+        if (type == -1)
+            goto error;
+
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT, type);
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (!_pg_event_append_to_list(list, &event))
+                    goto error;
+            }
+        } while (ret);
+#if IS_SDLv2
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT,
+                _pg_pgevent_proxify(type));
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (!_pg_event_append_to_list(list, &event))
+                    goto error;
+            }
+        } while (ret);
+#endif /* IS_SDLv2 */
+    }
+    Py_DECREF(seq);
+    return list;
+
+error:
+    /* While doing a goto here, PyErr must be set */
+    Py_DECREF(list);
+    Py_XDECREF(seq);
+    return NULL;
+}
+
+static PyObject *
+pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *obj = NULL;
     int dopump = 1;
 
     static char *kwids[] = {
@@ -1952,64 +2037,13 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 
     VIDEO_INIT_CHECK();
 
-    list = PyList_New(0);
-    if (!list)
-        return PyErr_NoMemory();
-
     if (dopump)
         SDL_PumpEvents();
 
-    if (obj == NULL || obj == Py_None) {
-        while (PG_PEEP_EVENT_ALL(&event, SDL_GETEVENT) == 1) {
-            if(!_pg_event_append_to_list(list, &event))
-                goto error;
-        }
-    }
-    else {
-        seq = _pg_eventtype_as_seq(obj, &len);
-        if (!seq)
-            goto error;
-
-        for (loop = 0; loop < len; loop++) {
-            type = _pg_eventtype_from_seq(seq, loop);
-            if (type == -1)
-                goto error;
-
-            do {
-                ret = PG_PEEP_EVENT(&event, SDL_GETEVENT, type);
-                if (ret < 0) {
-                    PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                    goto error;
-                }
-                else if (ret > 0) {
-                    if (!_pg_event_append_to_list(list, &event))
-                        goto error;
-                }
-            } while (ret);
-#if IS_SDLv2
-            do {
-                ret = PG_PEEP_EVENT(&event, SDL_GETEVENT,
-                    _pg_pgevent_proxify(type));
-                if (ret < 0) {
-                    PyErr_SetString(pgExc_SDLError, SDL_GetError());
-                    goto error;
-                }
-                else if (ret > 0) {
-                    if (!_pg_event_append_to_list(list, &event))
-                        goto error;
-                }
-            } while (ret);
-#endif /* IS_SDLv2 */
-        }
-        Py_DECREF(seq);
-    }
-    return list;
-
-error:
-    /* While doing a goto here, PyErr must be set */
-    Py_DECREF(list);
-    Py_XDECREF(seq);
-    return NULL;
+    if (obj == NULL || obj == Py_None)
+        return _pg_get_all_events();
+    else
+        return _pg_get_seq_events(obj);
 }
 
 static PyObject *
@@ -2042,7 +2076,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
         SDL_PumpEvents();
 
     if (obj == NULL || obj == Py_None) {
-        res = PG_PEEP_EVENT_ALL(&event, SDL_PEEKEVENT);
+        res = PG_PEEP_EVENT_ALL(&event, 1, SDL_PEEKEVENT);
         if (res < 0)
             return RAISE(pgExc_SDLError, SDL_GetError());
         return pgEvent_New(res ? &event : NULL);
@@ -2058,7 +2092,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                 Py_DECREF(seq);
                 return NULL;
             }
-            res = PG_PEEP_EVENT(&event, SDL_PEEKEVENT, type);
+            res = PG_PEEP_EVENT(&event, 1, SDL_PEEKEVENT, type);
             if (res) {
                 Py_DECREF(seq);
 
@@ -2067,8 +2101,8 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
                 return PyInt_FromLong(1);
             }
 #if IS_SDLv2
-            res = PG_PEEP_EVENT(&event, SDL_PEEKEVENT,
-                _pg_pgevent_proxify(type));
+            res = PG_PEEP_EVENT(&event, 1, SDL_PEEKEVENT,
+                                _pg_pgevent_proxify(type));
             if (res) {
                 Py_DECREF(seq);
 
