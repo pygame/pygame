@@ -673,8 +673,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
         rrect = font.render_to(surf, (32, 32), "FoobarBaz", color, None, size=24)
         self.assertIsInstance(rrect, pygame.Rect)
-        self.assertEqual(rrect.top, rrect.height)
-        ## self.assertEqual(rrect.left, something or other)
+        self.assertEqual(rrect.topleft, (32, 32))
+        self.assertNotEqual(rrect.bottomright, (32, 32))
 
         rcopy = rrect.copy()
         rcopy.topleft = (32, 32)
@@ -682,10 +682,9 @@ class FreeTypeFontTest(unittest.TestCase):
 
         rect = pygame.Rect(20, 20, 2, 2)
         rrect = font.render_to(surf, rect, "FoobarBax", color, None, size=24)
-        self.assertEqual(rrect.top, rrect.height)
+        self.assertEqual(rect.topleft, rrect.topleft)
         self.assertNotEqual(rrect.size, rect.size)
         rrect = font.render_to(surf, (20.1, 18.9), "FoobarBax", color, None, size=24)
-        ## self.assertEqual(tuple(rend[1].topleft), (20, 18))
 
         rrect = font.render_to(surf, rect, "", color, None, size=24)
         self.assertFalse(rrect)

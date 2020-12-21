@@ -393,8 +393,8 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, pgFontObject *fontobj,
     render(ft, font_text, mode, fgcolor, &font_surf,
            width, height, &surf_offset, underline_top, underline_size);
 
-    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
-    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
+    r->x = (Sint16)x;
+    r->y = (Sint16)y;
     r->w = (Uint16)width;
     r->h = (Uint16)height;
 
