@@ -245,7 +245,7 @@ class TimeModuleTest(unittest.TestCase):
         Tests if a timer will post the correct amount of eventid events in
         the specified delay. Test is posting event objects work.
         Also tests if setting milliseconds to 0 stops the timer and if
-        the once argument and repeat arguments work.
+        the loops arguments work.
         """
         pygame.init()
         TIMER_EVENT_TYPE = pygame.event.custom_type()

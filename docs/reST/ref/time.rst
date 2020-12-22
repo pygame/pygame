@@ -8,6 +8,11 @@
 
 | :sl:`pygame module for monitoring time`
 
+In pygame v2.0.1, a new experimental module called ``pygame._time`` has been
+introduced, with support for clocks of much better accuracy. The API of that
+module is the similar to this module, but many functions in that module can
+accept and return ``time`` as ``float``
+
 Times in pygame are represented in milliseconds (1/1000 seconds). Most
 platforms have a limited time resolution of around 10 milliseconds. This
 resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
