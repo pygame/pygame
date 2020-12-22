@@ -287,10 +287,10 @@ class TimeModuleTest(unittest.TestCase):
         events = 0  # Events read
 
         pygame.event.clear()
-        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+        pygame._time.set_timer(TIMER_EVENT_TYPE, timer_delay)
 
         # Test that 'test_number' events are posted in the right amount of time
-        t1 = pygame.time.get_ticks()
+        t1 = pygame._time.get_ticks()
         max_test_time = t1 + timer_delay * test_number + delta
         while events < test_number:
             for event in pygame.event.get():
@@ -298,21 +298,21 @@ class TimeModuleTest(unittest.TestCase):
                     events += 1
 
             # The test takes too much time
-            if pygame.time.get_ticks() > max_test_time:
+            if pygame._time.get_ticks() > max_test_time:
                 break
-        pygame.time.set_timer(TIMER_EVENT_TYPE, 0)
-        t2 = pygame.time.get_ticks()
+        pygame._time.set_timer(TIMER_EVENT_TYPE, 0)
+        t2 = pygame._time.get_ticks()
         # Is the number ef events and the timing right?
         self.assertEqual(events, test_number)
         self.assertAlmostEqual(timer_delay * test_number, t2-t1, delta=delta)
 
         # Test that the timer stopped when set with 0ms delay.
-        pygame.time.delay(200)
+        pygame._time.delay(200)
         self.assertNotIn(timer_event, pygame.event.get())
 
         # Test that the loops=True works
-        pygame.time.set_timer(TIMER_EVENT_TYPE, 10, True)
-        pygame.time.delay(40)
+        pygame._time.set_timer(TIMER_EVENT_TYPE, 10, True)
+        pygame._time.delay(40)
         self.assertEqual(pygame.event.get().count(timer_event), 1)
 
         # Test a variety of event objects, test loops argument
@@ -325,8 +325,8 @@ class TimeModuleTest(unittest.TestCase):
         repeat = 3
         millis = 50
         for e in events_to_test:
-            pygame.time.set_timer(e, millis, loops=repeat)
-            pygame.time.delay(2 * millis * repeat)
+            pygame._time.set_timer(e, millis, loops=repeat)
+            pygame._time.delay(2 * millis * repeat)
             self.assertEqual(pygame.event.get().count(e), repeat)
         pygame.quit()
 
