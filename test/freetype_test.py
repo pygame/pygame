@@ -1651,12 +1651,12 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertEqual(getrefcount(font.render_raw_to(array, text)), 1)
             o = font.get_metrics("AB")
             self.assertEqual(getrefcount(o), 2)
-            for i, item in enumerate(o):
-                self.assertEqual(getrefcount(item), 2, "refcount fail for item %d" % i)
+            for i in range(len(o)):
+                 self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
             o = font.get_sizes()
             self.assertEqual(getrefcount(o), 2)
-            for i, item in enumerate(o):
-                self.assertEqual(getrefcount(item), 2, "refcount fail for item %d" % i)
+            for i in range(len(o)):
+                self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
 
     def test_display_surface_quit(self):
         """Font.render_to() on a closed display surface"""
