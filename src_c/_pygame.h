@@ -94,9 +94,7 @@ typedef enum {
     PGE_MIDIOUT,
     PGE_KEYREPEAT, /* Special internal pygame event, for managing key-presses */
 
-    /* EXPERIMENTAL: Each subevent of SDL_WINDOWEVENT gets a dedicated
-     * event in pygame.
-     * DO NOT CHANGE THE ORDER OF EVENTS HERE */
+    /* DO NOT CHANGE THE ORDER OF EVENTS HERE */
     PGE_WINDOWSHOWN,
     PGE_WINDOWHIDDEN,
     PGE_WINDOWEXPOSED,
@@ -167,8 +165,6 @@ typedef enum {
     PGPOST_TEXTINPUT,
     PGPOST_VIDEORESIZE,
     PGPOST_VIDEOEXPOSE,
-    PGPOST_WINDOWEVENT,
-    /* This block below is kinda experimental */
     PGPOST_WINDOWSHOWN,
     PGPOST_WINDOWHIDDEN,
     PGPOST_WINDOWEXPOSED,
