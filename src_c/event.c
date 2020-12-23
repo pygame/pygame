@@ -420,8 +420,6 @@ _pg_pgevent_proxify(Uint32 type)
             return PGPOST_VIDEORESIZE;
         case SDL_VIDEOEXPOSE:
             return PGPOST_VIDEOEXPOSE;
-        case SDL_WINDOWEVENT:
-            return PGPOST_WINDOWEVENT;
 
         case PGE_WINDOWSHOWN:
             return PGPOST_WINDOWSHOWN;
@@ -554,8 +552,6 @@ _pg_pgevent_deproxify(Uint32 type)
             return SDL_VIDEORESIZE;
         case PGPOST_VIDEOEXPOSE:
             return SDL_VIDEOEXPOSE;
-        case PGPOST_WINDOWEVENT:
-            return SDL_WINDOWEVENT;
 
         case PGPOST_WINDOWSHOWN:
             return PGE_WINDOWSHOWN;
@@ -598,12 +594,22 @@ _pg_pgevent_deproxify(Uint32 type)
 #if IS_SDLv2
 static SDL_Event *_pg_last_keydown_event = NULL;
 
+static int
+_pg_translate_windowevent(void *_, SDL_Event *event)
+{
+    if (event->type == SDL_WINDOWEVENT) {
+        event->type = PGE_WINDOWSHOWN + event->window.event - 1;
+        return SDL_EventState(_pg_pgevent_proxify(event->type), SDL_QUERY);
+    }
+    return 1;
+}
+
 static int SDLCALL
-_pg_remove_pending_WINDOWRESIZE(void * userdata, SDL_Event *event)
+_pg_remove_pending_VIDEORESIZE(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
-    if ((event->type == SDL_VIDEORESIZE || event->type == PGE_WINDOWRESIZED)
+    if (event->type == SDL_VIDEORESIZE
         && event->window.windowID == new_event->window.windowID) {
         /* We're about to post a new size event, drop the old ones */
         return 0;
@@ -612,11 +618,11 @@ _pg_remove_pending_WINDOWRESIZE(void * userdata, SDL_Event *event)
 }
 
 static int SDLCALL
-_pg_remove_pending_WINDOWEXPOSE(void * userdata, SDL_Event *event)
+_pg_remove_pending_VIDEOEXPOSE(void * userdata, SDL_Event *event)
 {
     SDL_Event *new_event = (SDL_Event *)userdata;
 
-    if ((event->type == SDL_VIDEOEXPOSE || event->type == PGE_WINDOWEXPOSED)
+    if (event->type == SDL_VIDEOEXPOSE
         && event->window.windowID == new_event->window.windowID) {
         /* We're about to post a new videoexpose event, drop the old ones */
         return 0;
@@ -633,26 +639,19 @@ pg_event_filter(void *_, SDL_Event *event)
     int x, y, i;
 
     if (event->type == SDL_WINDOWEVENT) {
-        /* DON'T ignore SDL_WINDOWEVENTs. If we delete events, they
-         * won't be available to low-level SDL2 either. For the python
-         * side, it's better to omit events in pygame.event.get(). */
+        /* DON'T filter SDL_WINDOWEVENTs here. If we delete events, they
+         * won't be available to low-level SDL2 either.*/
         switch (event->window.event) {
             case SDL_WINDOWEVENT_RESIZED:
-                SDL_FilterEvents(_pg_remove_pending_WINDOWRESIZE, &newevent);
+                SDL_FilterEvents(_pg_remove_pending_VIDEORESIZE, &newevent);
 
                 newevent.type = SDL_VIDEORESIZE;
                 SDL_PushEvent(&newevent);
-
-                newevent.type = PGE_WINDOWRESIZED;
-                SDL_PushEvent(&newevent);
                 break;
             case SDL_WINDOWEVENT_EXPOSED:
-                SDL_FilterEvents(_pg_remove_pending_WINDOWEXPOSE, &newevent);
+                SDL_FilterEvents(_pg_remove_pending_VIDEOEXPOSE, &newevent);
 
                 newevent.type = SDL_VIDEOEXPOSE;
-                SDL_PushEvent(&newevent);
-
-                newevent.type = PGE_WINDOWEXPOSED;
                 SDL_PushEvent(&newevent);
                 break;
             case SDL_WINDOWEVENT_ENTER:
@@ -662,10 +661,6 @@ pg_event_filter(void *_, SDL_Event *event)
             case SDL_WINDOWEVENT_MINIMIZED:
             case SDL_WINDOWEVENT_RESTORED:
                 newevent.type = SDL_ACTIVEEVENT;
-                SDL_PushEvent(&newevent);
-                /* Fall through to default */
-            default:
-                newevent.type = PGE_WINDOWSHOWN + event->window.event - 1;
                 SDL_PushEvent(&newevent);
         }
     }
@@ -874,8 +869,6 @@ _pg_name_from_eventtype(int type)
         case SDL_NOEVENT:
             return "NoEvent";
 #if IS_SDLv2
-        case SDL_WINDOWEVENT:
-            return "WindowEvent";
         case SDL_FINGERMOTION:
             return "FingerMotion";
         case SDL_FINGERDOWN:
@@ -956,7 +949,7 @@ _pg_name_from_eventtype(int type)
             return "WindowTakeFocus";
         case PGE_WINDOWHITTEST:
             return "WindowHitTest";
-#endif
+#endif /* IS_SDLv2 */
 
     }
     if (type >= PGE_USEREVENT && type < PG_NUMEVENTS)
@@ -1173,18 +1166,12 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
             break;
 #if IS_SDLv2
-        case SDL_WINDOWEVENT:
-            _pg_insobj(dict, "event", PyInt_FromLong(event->window.event));
-            /* Fall through */
         case PGE_WINDOWMOVED:
         case PGE_WINDOWRESIZED:
         case PGE_WINDOWSIZECHANGED:
             /*other PGE_WINDOW* events do not have attributes */
-            if (SDL_WINDOWEVENT_MOVED <= event->window.event &&
-                event->window.event <= SDL_WINDOWEVENT_SIZE_CHANGED) {
-                _pg_insobj(dict, "x", PyInt_FromLong(event->window.data1));
-                _pg_insobj(dict, "y", PyInt_FromLong(event->window.data2));
-            }
+            _pg_insobj(dict, "x", PyInt_FromLong(event->window.data1));
+            _pg_insobj(dict, "y", PyInt_FromLong(event->window.data2));
             break;
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
@@ -1330,7 +1317,22 @@ dict_from_event(SDL_Event *event)
 
     switch (event->type) {
 #if IS_SDLv2
-        case SDL_WINDOWEVENT:
+        case PGE_WINDOWSHOWN:
+        case PGE_WINDOWHIDDEN:
+        case PGE_WINDOWEXPOSED:
+        case PGE_WINDOWMOVED:
+        case PGE_WINDOWRESIZED:
+        case PGE_WINDOWSIZECHANGED:
+        case PGE_WINDOWMINIMIZED:
+        case PGE_WINDOWMAXIMIZED:
+        case PGE_WINDOWRESTORED:
+        case PGE_WINDOWENTER:
+        case PGE_WINDOWLEAVE:
+        case PGE_WINDOWFOCUSGAINED:
+        case PGE_WINDOWFOCUSLOST:
+        case PGE_WINDOWCLOSE:
+        case PGE_WINDOWTAKEFOCUS:
+        case PGE_WINDOWHITTEST:
         case SDL_TEXTEDITING:
         case SDL_TEXTINPUT:
         case SDL_MOUSEWHEEL:
@@ -1751,20 +1753,75 @@ get_grab(PyObject *self)
 #endif /* IS_SDLv2 */
 }
 
+static void
+_pg_event_pump(int dopump)
+{
+    if (dopump) {
+        SDL_PumpEvents();
+    }
+#if IS_SDLv2
+    /* We need to translate WINDOWEVENTS. But if we do that from the
+     * from event filter, internal SDL stuff that rely on WINDOWEVENT
+     * might break. So after every event pump, we translate events from
+     * here */
+    SDL_FilterEvents(_pg_translate_windowevent, NULL);
+#endif
+}
+
+static int
+_pg_event_wait(SDL_Event *event, int timeout)
+{
+    /* Custom re-implementation of SDL_WaitEventTimeout, doing this has
+     * many advantages. This is copied from SDL source code, with a few
+     * minor modifications */
+    Uint32 finish = 0;
+
+    if (timeout > 0)
+        finish = SDL_GetTicks() + timeout;
+
+    while (1) {
+        _pg_event_pump(1); /* Use our custom pump here */
+        switch (PG_PEEP_EVENT_ALL(event, 1, SDL_GETEVENT)) {
+            case -1:
+                return 0; /* Because this never happens, SDL does it too*/
+            case 1:
+                return 1;
+
+            default:
+                if (timeout >= 0 && SDL_GetTicks() >= finish) {
+                    /* no events */
+                    return 0;
+                }
+                SDL_Delay(1);
+        }
+    }
+}
+
 static PyObject *
 pg_event_pump(PyObject *self)
 {
     VIDEO_INIT_CHECK();
-    SDL_PumpEvents();
+    _pg_event_pump(1);
     Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_event_poll(PyObject *self)
+{
+    SDL_Event event;
+    VIDEO_INIT_CHECK();
+
+    /* polling is just waiting for 0 timeout */
+    if (!_pg_event_wait(&event, 0))
+        return pgEvent_New(NULL);
+    return pgEvent_New(&event);
 }
 
 static PyObject *
 pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Event event;
-    int status;
-    int timeout = 0;
+    int status, timeout = 0;
     static char *kwids[] = {
         "timeout",
         NULL
@@ -1776,41 +1833,16 @@ pg_event_wait(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-#if IS_SDLv1
-    if (timeout)
-        return RAISE(PyExc_TypeError, "The timeout argument is unavailable in SDL1");
+    if (!timeout)
+        timeout = -1;
 
     Py_BEGIN_ALLOW_THREADS;
-    status = SDL_WaitEvent(&event);
-#else /* IS_SDLv2 */
-    Py_BEGIN_ALLOW_THREADS;
-    if (!timeout)
-        status = SDL_WaitEvent(&event);
-    else
-        status = SDL_WaitEventTimeout(&event, timeout);
-#endif /* IS_SDLv2 */
+    status = _pg_event_wait(&event, timeout);
     Py_END_ALLOW_THREADS;
 
-    if (!status) {
-        /* status 0 means an error normally, but it can also be timeout */
-        if (timeout)
-            return pgEvent_New(NULL);
-        else
-            return RAISE(pgExc_SDLError, SDL_GetError());
-    }
+    if (!status)
+        return pgEvent_New(NULL);
     return pgEvent_New(&event);
-}
-
-static PyObject *
-pg_event_poll(PyObject *self)
-{
-    SDL_Event event;
-
-    VIDEO_INIT_CHECK();
-
-    if (SDL_PollEvent(&event))
-        return pgEvent_New(&event);
-    return pgEvent_New(NULL);
 }
 
 static int
@@ -1847,7 +1879,8 @@ _pg_eventtype_as_seq(PyObject *obj, int *len)
 }
 
 static void
-_pg_flush_events(Uint32 type) {
+_pg_flush_events(Uint32 type)
+{
 #if IS_SDLv1
     SDL_Event event;
     if (type == MAX_UINT32)
@@ -1888,8 +1921,7 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 #endif
 
     VIDEO_INIT_CHECK();
-    if (dopump)
-        SDL_PumpEvents();
+    _pg_event_pump(dopump);
 
     if (obj == NULL || obj == Py_None) {
         _pg_flush_events(MAX_UINT32);
@@ -1907,7 +1939,6 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
             }
             _pg_flush_events(type);
         }
-
         Py_DECREF(seq);
     }
     Py_RETURN_NONE;
@@ -1930,7 +1961,8 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
-_pg_get_all_events(void) {
+_pg_get_all_events(void)
+{
     SDL_Event eventbuf[PG_GET_LIST_LEN];
     PyObject *list;
     int loop, len = PG_GET_LIST_LEN;
@@ -1959,7 +1991,8 @@ error:
 }
 
 static PyObject *
-_pg_get_seq_events(PyObject *obj) {
+_pg_get_seq_events(PyObject *obj)
+{
     SDL_Event event;
     int loop, type, len, ret;
     PyObject *seq, *list;
@@ -2037,8 +2070,7 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 
     VIDEO_INIT_CHECK();
 
-    if (dopump)
-        SDL_PumpEvents();
+    _pg_event_pump(dopump);
 
     if (obj == NULL || obj == Py_None)
         return _pg_get_all_events();
@@ -2072,8 +2104,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 
     VIDEO_INIT_CHECK();
 
-    if (dopump)
-        SDL_PumpEvents();
+    _pg_event_pump(dopump);
 
     if (obj == NULL || obj == Py_None) {
         res = PG_PEEP_EVENT_ALL(&event, 1, SDL_PEEKEVENT);
@@ -2191,7 +2222,6 @@ pg_event_set_allowed(PyObject *self, PyObject *obj)
             }
             SDL_EventState(_pg_pgevent_proxify(type), SDL_ENABLE);
         }
-
         Py_DECREF(seq);
     }
     Py_RETURN_NONE;
@@ -2207,7 +2237,8 @@ pg_event_set_blocked(PyObject *self, PyObject *obj)
     if (obj == Py_None) {
 #if IS_SDLv2
         int i;
-        for (i=SDL_FIRSTEVENT; i<SDL_LASTEVENT; i++) {
+        /* Start at PGPOST_EVENTBEGIN */
+        for (i=PGPOST_EVENTBEGIN; i<SDL_LASTEVENT; i++) {
             SDL_EventState(i, SDL_IGNORE);
         }
 #else
@@ -2227,9 +2258,14 @@ pg_event_set_blocked(PyObject *self, PyObject *obj)
             }
             SDL_EventState(_pg_pgevent_proxify(type), SDL_IGNORE);
         }
-
         Py_DECREF(seq);
     }
+#if IS_SDLv2
+    /* Never block SDL_WINDOWEVENT, we need them for translation */
+    SDL_EventState(SDL_WINDOWEVENT, SDL_ENABLE);
+    /* Never block PGE_KEYREPEAT too, its needed for pygame internal use */
+    SDL_EventState(PGE_KEYREPEAT, SDL_ENABLE);
+#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 

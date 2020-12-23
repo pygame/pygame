@@ -398,7 +398,7 @@ class DisplayModuleTest(unittest.TestCase):
         'iconify is only supported on some video drivers/platforms'
     )
     def test_iconify(self):
-        _ = pygame.display.set_mode((640, 480))
+        pygame.display.set_mode((640, 480))
 
         self.assertEqual(pygame.display.get_active(), True)
 
@@ -408,17 +408,15 @@ class DisplayModuleTest(unittest.TestCase):
             minimized_event = False
             # make sure we cycle the event loop enough to get the display
             # hidden
-            for _ in range(100):
-                time.sleep(0.01)
-                for event in pygame.event.get():
-                    if SDL2:
-                        if (event.type == pygame.WINDOWEVENT and
-                                event.event == pygame.WINDOWEVENT_MINIMIZED):
+            if SDL2:
+                for _ in range(100):
+                    time.sleep(0.01)
+                    for event in pygame.event.get():
+                        if event.type == pygame.WINDOWMINIMIZED:
                             minimized_event = True
 
-            if SDL2:
-                self.assertEqual(minimized_event, True)
-                self.assertEqual(pygame.display.get_active(), False)
+                self.assertTrue(minimized_event)
+                self.assertFalse(pygame.display.get_active())
 
         else:
             self.fail('Iconify not supported on this platform, please skip')

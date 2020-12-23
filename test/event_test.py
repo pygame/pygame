@@ -76,7 +76,6 @@ if pygame.get_sdl_version()[0] >= 2:
         ("MouseWheel", pygame.MOUSEWHEEL),
         ("TextInput", pygame.TEXTINPUT),
         ("TextEditing", pygame.TEXTEDITING),
-        ("WindowEvent", pygame.WINDOWEVENT),
         ("ControllerAxisMotion", pygame.CONTROLLERAXISMOTION),
         ("ControllerButtonDown", pygame.CONTROLLERBUTTONDOWN),
         ("ControllerButtonUp", pygame.CONTROLLERBUTTONUP),
@@ -559,23 +558,15 @@ class EventModuleTest(unittest.TestCase):
         self.assertEqual(wait_event.type, event.type)
 
         # Test case with timeout and no event in the queue.
-        if SDL1:
-            with self.assertRaises(TypeError):
-                pygame.event.wait(250)
-        else:
-            wait_event = pygame.event.wait(250)
-            self.assertEqual(wait_event.type, pygame.NOEVENT)
+        wait_event = pygame.event.wait(250)
+        self.assertEqual(wait_event.type, pygame.NOEVENT)
 
         # Test case with timeout and an event in the queue.
-        if SDL1:
-            with self.assertRaises(TypeError):
-                pygame.event.wait(250)
-        else:
-            event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
-            pygame.event.post(event)
-            wait_event = pygame.event.wait(250)
+        event = pygame.event.Event(EVENT_TYPES[0], **EVENT_TEST_PARAMS[EVENT_TYPES[0]])
+        pygame.event.post(event)
+        wait_event = pygame.event.wait(250)
 
-            self.assertEqual(wait_event.type, event.type)
+        self.assertEqual(wait_event.type, event.type)
 
     def test_peek(self):
         """Ensure queued events can be peeked at."""

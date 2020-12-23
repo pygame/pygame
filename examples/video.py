@@ -89,8 +89,7 @@ while running:
             if (
                 event.type == pg.KEYDOWN
                 and event.key == pg.K_ESCAPE
-                or event.type == pg.WINDOWEVENT
-                and event.event == pg.WINDOWEVENT_CLOSE
+                or event.type == pg.WINDOWCLOSE
             ):
                 win2.destroy()
         elif event.type == pg.KEYDOWN:
