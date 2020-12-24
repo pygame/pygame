@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.1.dev1",
+    "version":          "2.0.1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -798,7 +798,7 @@ if STRIPPED:
                               "src_py/pygame_icon.svg",
                               "src_py/pygame_icon.bmp",
                               "src_py/pygame_icon.tiff"])]
-    
+
 
     PACKAGEDATA = {
     "cmdclass":    cmdclass,
