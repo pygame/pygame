@@ -291,7 +291,6 @@ check which version of pygame has been imported.
 .. ## pygame ##
 
 .. _environment-variables:
-.. |br| raw:: html
 
 **Setting Environment Variables**
 
