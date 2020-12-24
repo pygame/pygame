@@ -22,7 +22,7 @@ Header file: src_c/include/pygame.h
 
       The event type code.
 
-.. c:var:: pgEvent_Type
+.. c:type:: pgEvent_Type
 
    The pygame event object type :py:class:`pygame.event.EventType`.
 

@@ -110,7 +110,7 @@ C header: src_c/include/pygame.h
 
       A buffer release callback.
 
-.. c:var:: PyObject \*pgExc_BufferError
+.. c:var:: PyObject *pgExc_BufferError
 
    Python exception type raised for any pg_buffer related errors.
 
