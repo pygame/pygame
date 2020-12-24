@@ -21,11 +21,11 @@ Version information can be retrieved at compile-time using these macros.
 
 .. c:macro:: PG_PATCH_VERSION
 
-.. c:function:: PG_VERSIONNUM(MAJOR, MINOR, PATCH)
+.. c:macro:: PG_VERSIONNUM(MAJOR, MINOR, PATCH)
 
    Returns an integer representing the given version.
 
-.. c:function:: PG_VERSION_ATLEAST(MAJOR, MINOR, PATCH)
+.. c:macro:: PG_VERSION_ATLEAST(MAJOR, MINOR, PATCH)
 
    Returns true if the current version is at least equal
    to the specified version.

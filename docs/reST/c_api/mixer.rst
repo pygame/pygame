@@ -28,7 +28,7 @@ Header file: src_c/include/pygame_mixer.h
    Return a new :py:class:`pygame.mixer.Sound` instance for the SDL mixer chunk *chunk*.
    On failure, raise a Python exception and return ``NULL``.
 
-.. c:function:: int pgSound_Check(PyObject \*obj)
+.. c:function:: int pgSound_Check(PyObject *obj)
 
    Return true if *obj* is an instance of type :c:data:`pgSound_Type`,
    but not a :c:data:`pgSound_Type` subclass instance.
@@ -54,13 +54,13 @@ Header file: src_c/include/pygame_mixer.h
    channel *channelnum*.
    On failure, raise a Python exception and return ``NULL``.
 
-.. c:function:: int pgChannel_Check(PyObject \*obj)
+.. c:function:: int pgChannel_Check(PyObject *obj)
 
    Return true if *obj* is an instance of type :c:data:`pgChannel_Type`,
    but not a :c:data:`pgChannel_Type` subclass instance.
    A macro.
 
-.. c:function:: Mix_Chunk \*pgChannel_AsInt(PyObject \*x)
+.. c:function:: int pgChannel_AsInt(PyObject *x)
 
    Return the SDL mixer music channel number associated with :c:type:`pgChannel_Type` instance *x*.
    A macro that does no ``NULL`` or Python type check on *x*.
