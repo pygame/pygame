@@ -83,7 +83,8 @@ Tutorials
   Getting a display surface for the screen.
 
 :doc:`한국어 튜토리얼 (Korean Tutorial) <tut/ko/빨간블록 검은블록/overview>`
-  빨간블록 검은블록 
+  빨간블록 검은블록
+
 Reference
 ---------
 
