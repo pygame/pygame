@@ -9,7 +9,7 @@ cdef extern from "pygame.h" nogil:
 
 cdef extern from "SDL.h" nogil:
     void SDL_free(void *mem)
- 
+
 import_pygame_joystick()
 
 def GAMECONTROLLER_INIT_CHECK():
@@ -36,7 +36,6 @@ cdef void _controller_autoquit():
     if SDL_WasInit(_SDL_INIT_GAMECONTROLLER):
         SDL_QuitSubSystem(_SDL_INIT_GAMECONTROLLER)
 
-    
 # not automatically initialize controller at this moment.
 
 def __PYGAMEinit__(**kwargs):
@@ -55,7 +54,11 @@ def quit():
         
 def set_eventstate(state):
     GAMECONTROLLER_INIT_CHECK()
-    return SDL_GameControllerEventState(state)
+    SDL_GameControllerEventState(int(state))
+
+def get_eventstate():
+    GAMECONTROLLER_INIT_CHECK()
+    return SDL_GameControllerEventState(-1) == 1
 
 def get_count():
     """ Returns the number of attached joysticks.
@@ -80,7 +83,7 @@ def is_controller(index):
     :return: 1 if supported, 0 if unsupported or invalid index.
     """
     GAMECONTROLLER_INIT_CHECK()
-    return SDL_IsGameController(index)
+    return SDL_IsGameController(index) == 1
 
 def name_forindex(index):
     """ Returns the name of controller,
@@ -115,6 +118,7 @@ cdef class Controller:
     def _CLOSEDCHECK(self):
         if not self._controller:
             raise error('called on a closed controller')
+
     def init(self):
         self.__init__(self._index)
 
@@ -174,18 +178,32 @@ cdef class Controller:
         # https://wiki.libsdl.org/SDL_GameControllerGetButton
         GAMECONTROLLER_INIT_CHECK()
         self._CLOSEDCHECK()
-        return SDL_GameControllerGetButton(self._controller, button)
+        return SDL_GameControllerGetButton(self._controller, button) == 1
         
     def get_mapping(self):
         #https://wiki.libsdl.org/SDL_GameControllerMapping
         # TODO: mapping should be a readable dict instead of a string.
         GAMECONTROLLER_INIT_CHECK()
         self._CLOSEDCHECK()
-        mapping = SDL_GameControllerMapping(self._controller)
-        SDL_free(mapping)
+        raw_mapping = SDL_GameControllerMapping(self._controller)
+        mapping = str(raw_mapping)
+        SDL_free(raw_mapping)
+
+        # split mapping, cut off guid, name and last (empty) comma
+        mapping = mapping.split(",")[2:-1]
+        keys = []
+        values = []
+
+        for obj in mapping:
+            a = obj.split(':')
+            keys.append(a[0])
+            values.append(a[1])
+
+        #create and return the dict
+        mapping = dict(zip(keys, values))
         return mapping
-        
-    def add_mapping(self, mapping):
+
+    def set_mapping(self, mapping):
         # https://wiki.libsdl.org/SDL_GameControllerAddMapping
         # TODO: mapping should be a readable dict instead of a string.
         GAMECONTROLLER_INIT_CHECK()
@@ -198,8 +216,12 @@ cdef class Controller:
         guid = SDL_JoystickGetGUID(joy)
         name = SDL_GameControllerName(self._controller)
         SDL_JoystickGetGUIDString(guid, pszGUID, 63)
-        
-        mapstring = "%s,%s,%s" % (pszGUID, name, mapping)
+
+        str_map = ""
+        for key, value in mapping.items():
+            str_map += "{}:{},".format(key, value)
+
+        mapstring = b"%s,%s,%s" % (pszGUID, name, str_map.encode('utf-8'))
         res = SDL_GameControllerAddMapping(mapstring)
         if res < 0:
             raise error()
