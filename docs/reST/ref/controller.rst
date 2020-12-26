@@ -14,7 +14,7 @@ a dpad, 4 buttons on the side, 2 (or 3) buttons in the middle.
 
 Pygame uses xbox controllers naming conventions (like a, b, x, y for buttons) but
 they always refer to the same buttons. For example ``CONTROLLER_BUTTON_X`` is
-always the leftmost button of the 4 buttons on the rigth.
+always the leftmost button of the 4 buttons on the right.
 
 Controllers can generate the following events::
 
@@ -135,7 +135,7 @@ events related to controllers.
       | :sl:`check if the Controller is initialized`
       | :sg:`get_init() -> bool`
 
-      Return True if the Controller object is currently initialised.
+      Returns True if the Controller object is currently initialised.
 
       .. ## Controller.get_init ##
 
@@ -153,16 +153,16 @@ events related to controllers.
       | :sl:`Check if the Controller has been opened and is currently connected.`
       | :sg:`attached() -> bool`
 
-      Return True if the Controller object is opened and connected.
+      Returns True if the Controller object is opened and connected.
 
       .. ## Controller.attached ##
 
    .. method:: as_joystick
 
-      | :sl:`Return a pygame.joystick.Joystick() object`
+      | :sl:`Returns a pygame.joystick.Joystick() object`
       | :sg:`as_joystick() -> Joystick object`
 
-      Return a pygame.joystick.Joystick() object created from this controller's index
+      Returns a pygame.joystick.Joystick() object created from this controller's index
 
       .. ## Controller.as_joystick ##
 
@@ -178,8 +178,8 @@ events related to controllers.
          CONTROLLER_AXIS_RIGHTX, CONTROLLER_AXIS_RIGHTY,
          CONTROLLER_AXIS_TRIGGERLEFT, CONTROLLER_AXIS_TRIGGERRIGHT
 
-      The returned value for triggers is between 0 and 32767 while Joysticks
-      can return a value between -32768 and 32767.
+      Joysticks can return a value between -32768 and 32767. Triggers however
+      can only return a value between 0 and 32768.
 
       .. ## Controller.get_axis ##
 
@@ -188,7 +188,7 @@ events related to controllers.
       | :sl:`Get the current state of a button`
       | :sg:`get_button(button) -> bool`
 
-      Get the current state of a button, True meaining it is pressed down.
+      Get the current state of a button, True meaning it is pressed down.
       The button argument must be one of the following constants::
 
          CONTROLLER_BUTTON_A, CONTROLLER_BUTTON_B,
@@ -218,14 +218,14 @@ events related to controllers.
       | :sl:`Assign a mapping to the controller`
       | :sg:`set_mapping(mapping) -> int`
 
-      Rebind buttons, axes, triggers and Dpads. The mapping should be a 
+      Rebind buttons, axes, triggers and dpads. The mapping should be a 
       dict containing all buttons, hats and axes. The easiest way to get this
       is to use the dict returned by :meth:`Controller.get_mapping`. To edit
-      this mapping set the value of the dictionary to the button hat or axis in
-      the following way:
+      this mapping assign a value to the original button. The value of the
+      dictionary must be a button, hat or axis represented in the following way:
 
       * For a button use: bX where X is the index of the button.
-      * For a hat use: hX.Y where X is the index and the Y is the direction.
+      * For a hat use: hX.Y where X is the index and the Y is the direction (up: 1, right: 2, down: 3, left: 4).
       * For an axis use: aX where x is the index of the axis.
 
       An example of mapping::
@@ -241,4 +241,4 @@ events related to controllers.
       .. ## Contorller.set_mapping ##
 
 
-.. ## pygame._sdl2.touch ##
+.. ## pygame._sdl2.controller ##

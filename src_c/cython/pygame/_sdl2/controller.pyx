@@ -153,7 +153,7 @@ cdef class Controller:
         # https://wiki.libsdl.org/SDL_GameControllerName
         GAMECONTROLLER_INIT_CHECK()
         self._CLOSEDCHECK()
-        return SDL_GameControllerName(self._controller)
+        return SDL_GameControllerName(self._controller).decode('utf-8')
             
     def attached(self):
         # https://wiki.libsdl.org/SDL_GameControllerGetAttached
@@ -186,7 +186,7 @@ cdef class Controller:
         GAMECONTROLLER_INIT_CHECK()
         self._CLOSEDCHECK()
         raw_mapping = SDL_GameControllerMapping(self._controller)
-        mapping = str(raw_mapping)
+        mapping = raw_mapping.decode('utf-8')
         SDL_free(raw_mapping)
 
         # split mapping, cut off guid, name and last (empty) comma
