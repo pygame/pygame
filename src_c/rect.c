@@ -432,31 +432,33 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 static PyObject *
 pg_rect_scale(pgRectObject *self, PyObject *args)
 {
-    float scale;
+    float width, height=0;
 
-    if (!PyArg_ParseTuple(args, "f", &scale))
-        return RAISE(PyExc_TypeError, "argument must contain one number");
+    if (!PyArg_ParseTuple(args, "f|f", &width, &height))
+        return RAISE(PyExc_TypeError, "argument must contain at least one number");
+    height = (height > 0) ? height : width;
 
     return _pg_rect_subtype_new4(
 			Py_TYPE(self),
-            self->r.x  + (self->r.w / 2) - (self->r.w * scale / 2),
-            self->r.y  + (self->r.h / 2) - (self->r.h * scale / 2),
-			self->r.w * scale,
-			self->r.h * scale);
+            self->r.x  + (self->r.w / 2) - (self->r.w * width / 2),
+            self->r.y  + (self->r.h / 2) - (self->r.h * height/ 2),
+			self->r.w * width,
+			self->r.h * height);
 }
 
 static PyObject *
 pg_rect_scale_ip(pgRectObject *self, PyObject *args)
 {
-    float scale;
+    float width, height=0;
 
-    if (!PyArg_ParseTuple(args, "f", &scale))
-        return RAISE(PyExc_TypeError, "argument must contain one number");
+    if (!PyArg_ParseTuple(args, "f|f", &width, &height))
+        return RAISE(PyExc_TypeError, "argument must contain at least one number");
+    height = (height > 0) ? height : width;
 
-    self->r.x += (self->r.w / 2) - (self->r.w * scale / 2);
-    self->r.y += (self->r.h / 2) - (self->r.h * scale / 2);
-    self->r.w *= scale;
-    self->r.h *= scale;
+    self->r.x += (self->r.w / 2) - (self->r.w * width / 2);
+    self->r.y += (self->r.h / 2) - (self->r.h * height / 2);
+    self->r.w *= width;
+    self->r.h *= height;
     Py_RETURN_NONE;
 }
 
