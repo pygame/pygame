@@ -7,7 +7,7 @@ def unbulk_dyn_load_package_name(module_name, package_name, extension_name):
     sys.modules[module_name] = foo
     return foo    
 
-sdl2 = unbulk_dyn_load_package_name("_sdl2.sdl2", "_sdl2.sdl2", "_sdl2.pyd")
+sdl2 = unbulk_dyn_load_package_name("_sdl2.sdl2", "_sdl2.sdl2", "__sdl2.pyd")
 video = unbulk_dyn_load_package_name("_sdl2.video", "_sdl2.video", "_video.pyd")
 
 
