@@ -552,7 +552,7 @@ cdef Uint32 format_from_depth(int depth):
 
 cdef class Texture:
     def __cinit__(self):
-        cdef Uint8[3] defaultColor = [255, 255, 255]
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._color = pgColor_NewLength(defaultColor, 3)
 
     def __init__(self,
@@ -806,7 +806,7 @@ cdef class Image:
         self.flipY = False
 
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
-        self.color = pgColor_NewLength(defaultColor, 3)
+        self._color = pgColor_NewLength(defaultColor, 3)
         self.alpha = 255
 
     def __init__(self, textureOrImage, srcrect=None):
@@ -819,6 +819,7 @@ cdef class Image:
         else:
             self.texture = textureOrImage
             self.srcrect = textureOrImage.get_rect()
+        self.blend_mode = textureOrImage.blend_mode
 
         if srcrect is not None:
             rectptr = pgRect_FromObject(srcrect, &temp)
@@ -840,6 +841,14 @@ cdef class Image:
 
         self.origin[0] = self.srcrect.w / 2
         self.origin[1] = self.srcrect.h / 2
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color[:3] = new_color[:3]
 
     def get_rect(self):
         return pgRect_New(&self.srcrect.r)
@@ -889,8 +898,9 @@ cdef class Image:
                 else:
                     raise TypeError('dstrect must be a position, rect, or None')
 
-        self.texture.color = self.color
+        self.texture.color = self._color
         self.texture.alpha = self.alpha
+        self.texture.blend_mode = self.blend_mode
 
         origin.x = <int>self.origin[0]
         origin.y = <int>self.origin[1]

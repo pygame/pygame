@@ -402,8 +402,9 @@ cdef class Image:
     cdef public float origin[2]
     cdef public bint flipX
     cdef public bint flipY
-    cdef public Color color
+    cdef public Color _color
     cdef public float alpha
+    cdef public SDL_BlendMode blend_mode
 
     cdef public Texture texture
     cdef public Rect srcrect
