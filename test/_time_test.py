@@ -142,9 +142,9 @@ class ClockTypeTest(unittest.TestCase):
         """
 
         # Adjust this value to increase the acceptable sleep jitter
-        epsilon = 2
+        epsilon = 0.2
         # Adjust this value to increase the acceptable locked frame-rate jitter
-        epsilon2 = 0.5
+        epsilon2 = 0.4
         # adjust this value to increase the acceptable frame-rate margin
         epsilon3 = 25
         testing_framerate = 60
@@ -234,9 +234,9 @@ class ClockTypeTest(unittest.TestCase):
                 self._tick_test(reccnt + 1)
 
         zero_fps = 0
-        self.assertAlmostEqual(c.tick(zero_fps), 0, delta=0.5)
+        self.assertAlmostEqual(c.tick(zero_fps), 0, delta=0.2)
         negative_fps = -1
-        self.assertAlmostEqual(c.tick(negative_fps), 0, delta=0.5)
+        self.assertAlmostEqual(c.tick(negative_fps), 0, delta=0.2)
 
 
 class TimeModuleTest(unittest.TestCase):
