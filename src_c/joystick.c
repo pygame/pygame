@@ -34,8 +34,19 @@ static PyObject *pgJoystick_New(int);
 static int _joy_map_insert(pgJoystickObject *jstick);
 #define pgJoystick_Check(x) ((x)->ob_type == &pgJoystick_Type)
 
-static void
-joy_autoquit(void)
+static PyObject *
+init(PyObject *self)
+{
+    if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
+        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK))
+            return RAISE(pgExc_SDLError, SDL_GetError());
+        SDL_JoystickEventState(SDL_ENABLE);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+quit(PyObject *self)
 {
     /* Walk joystick objects to deallocate the stick objects. */
     pgJoystickObject *cur = joylist_head;
@@ -50,41 +61,6 @@ joy_autoquit(void)
     if (SDL_WasInit(SDL_INIT_JOYSTICK)) {
         SDL_JoystickEventState(SDL_ENABLE);
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-    }
-
-}
-
-static PyObject *
-joy_autoinit(PyObject *self)
-{
-    if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-        if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-            return PyInt_FromLong(0);
-        }
-        SDL_JoystickEventState(SDL_ENABLE);
-        pg_RegisterQuit(joy_autoquit);
-    }
-    return PyInt_FromLong(1);
-}
-
-static PyObject *
-quit(PyObject *self)
-{
-    joy_autoquit();
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-init(PyObject *self)
-{
-    PyObject *result;
-    int istrue;
-
-    result = joy_autoinit(self);
-    istrue = PyObject_IsTrue(result);
-    Py_DECREF(result);
-    if (!istrue) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_NONE;
 }
@@ -594,8 +570,6 @@ pgJoystick_New(int id)
 }
 
 static PyMethodDef _joystick_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)joy_autoinit, METH_NOARGS,
-     "auto initialize function for joystick"},
     {"init", (PyCFunction)init, METH_NOARGS, DOC_PYGAMEJOYSTICKINIT},
     {"quit", (PyCFunction)quit, METH_NOARGS, DOC_PYGAMEJOYSTICKQUIT},
     {"get_init", (PyCFunction)get_init, METH_NOARGS,

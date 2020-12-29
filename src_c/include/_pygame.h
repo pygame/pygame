@@ -146,12 +146,12 @@ typedef struct pg_bufferinfo_s {
     (*(int (*)(PyObject *, int, Uint32 *)) \
         PYGAMEAPI_GET_SLOT(base, 9))
 
-#define pgVideo_AutoQuit \
-    (*(void (*)(void)) \
+#define pg_mod_autoinit \
+    (*(int (*)(const char *)) \
         PYGAMEAPI_GET_SLOT(base, 10))
 
-#define pgVideo_AutoInit \
-    (*(int (*)(void))    \
+#define pg_mod_autoquit \
+    (*(void (*)(const char *))    \
         PYGAMEAPI_GET_SLOT(base, 11))
 
 #define pg_RGBAFromObj               \

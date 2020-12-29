@@ -118,11 +118,13 @@ typedef enum {
      * proxy for SDL events (and some extra events too!), the proxy is used
      * internally when pygame users use event.post()
      *
-     * Thankfully, SDL2 provides over 8000 userevents, so theres no need
-     * to worry about wasting userevent space.
+     * At a first glance, these may look redundant, but they are really
+     * important, especially with event blocking. If proxy events are
+     * not there, blocked events dont make it to our event filter, and
+     * that can break a lot of stuff.
      *
      * IMPORTANT NOTE: Do not post events directly with these proxy types,
-     * use the appropriate functions in event.c, that handle these proxy
+     * use the appropriate functions from event.c, that handle these proxy
      * events for you.
      * Proxy events are for internal use only */
     PGPOST_EVENTBEGIN, /* mark start of proxy-events */

@@ -38,8 +38,6 @@
 #include <SDL_syswm.h>
 
 #if IS_SDLv2
-/*only register one block of user events.*/
-static int have_registered_events = 0;
 
 #define JOYEVENT_INSTANCE_ID "instance_id"
 #define JOYEVENT_DEVICE_INDEX "device_index"
@@ -785,37 +783,38 @@ pg_GetKeyRepeat(int *delay, int *interval)
 }
 #endif /* IS_SDLv2 */
 
-static void
-_pg_event_cleanup(void)
+static PyObject *
+pgEvent_AutoQuit(PyObject *self)
 {
+    if (_pg_event_is_init) {
 #if IS_SDLv2
-    if (_pg_repeat_timer) {
-        SDL_RemoveTimer(_pg_repeat_timer);
-        _pg_repeat_timer = 0;
-    }
+        if (_pg_repeat_timer) {
+            SDL_RemoveTimer(_pg_repeat_timer);
+            _pg_repeat_timer = 0;
+        }
 #endif /* IS_SLDv2 */
-    /* The main reason for _custom_event to be reset here is so we can have a
-     * unit test that checks if pygame.event.custom_type() stops returning new
-     * types when they are finished, without that test preventing further
-     * tests from getting a custom event type.*/
-    _custom_event = _PGE_CUSTOM_EVENT_INIT;
+        /* The main reason for _custom_event to be reset here is so we
+         * can have a unit test that checks if pygame.event.custom_type()
+         * stops returning new types when they are finished, without that
+         * test preventing further tests from getting a custom event type.*/
+        _custom_event = _PGE_CUSTOM_EVENT_INIT;
+    }
     _pg_event_is_init = 0;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
-pgEvent_AutoInit(PyObject *self, PyObject *args)
+pgEvent_AutoInit(PyObject *self)
 {
-    if (!_pg_event_is_init) {
 #if IS_SDLv2
+    if (!_pg_event_is_init) {
         pg_key_repeat_delay = 0;
         pg_key_repeat_interval = 0;
-#endif /* IS_SLDv2 */
-
-        pg_RegisterQuit(_pg_event_cleanup);
-        _pg_event_is_init = 1;
+        SDL_SetEventFilter(pg_event_filter, NULL);
     }
-
-    return PyInt_FromLong(_pg_event_is_init);
+#endif /* IS_SDLv2 */
+    _pg_event_is_init = 1;
+    Py_RETURN_NONE;
 }
 
 /* This function can fill an SDL event from pygame event */
@@ -2275,6 +2274,8 @@ pg_event_custom_type(PyObject *self)
 static PyMethodDef _event_methods[] = {
     {"__PYGAMEinit__", (PyCFunction)pgEvent_AutoInit, METH_NOARGS,
      "auto initialize for event module"},
+    {"__PYGAMEquit__", (PyCFunction)pgEvent_AutoQuit, METH_NOARGS,
+     "auto quit for event module"},
 
     {"Event", (PyCFunction)pg_Event, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEEVENTEVENT},
@@ -2330,6 +2331,10 @@ MODINIT_DEFINE(event)
         MODINIT_ERROR;
     }
 
+#if IS_SDLv2
+    SDL_RegisterEvents(PG_NUMEVENTS - SDL_USEREVENT);
+#endif
+
     /* create the module */
 #if PY3
     module = PyModule_Create(&_module);
@@ -2354,24 +2359,6 @@ MODINIT_DEFINE(event)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-
-#if IS_SDLv2
-    if (!have_registered_events) {
-        int numevents = PG_NUMEVENTS - SDL_USEREVENT;
-        Uint32 user_event = SDL_RegisterEvents(numevents);
-
-        if (user_event != SDL_USEREVENT) {
-            PyErr_SetString(PyExc_ImportError,
-                            "Unable to create another module instance");
-            DECREF_MOD(module);
-            MODINIT_ERROR;
-        }
-
-        have_registered_events = 1;
-    }
-
-    SDL_SetEventFilter(pg_event_filter, NULL);
-#endif /* IS_SDLv2 */
 
     /* export the c api */
 #if IS_SDLv2

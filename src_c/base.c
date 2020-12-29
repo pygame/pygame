@@ -90,13 +90,7 @@ pg_install_parachute(void);
 static void
 pg_uninstall_parachute(void);
 static void
-_pg_quit(void);
-static void
 pg_atexit_quit(void);
-static int
-pgVideo_AutoInit(void);
-static void
-pgVideo_AutoQuit(void);
 static int
 pgGetArrayStruct(PyObject *, PyObject **, PyArrayInterface **);
 static PyObject *
@@ -264,13 +258,86 @@ pg_register_quit(PyObject *self, PyObject *value)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-pg_init(PyObject *self, PyObject *args)
+/* init pygame modules, returns 1 if successful, 0 if fail, with PyErr set*/
+static int
+pg_mod_autoinit(const char *modname)
 {
-    PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
-    Py_ssize_t loop, num;
+    PyObject *module, *funcobj, *temp;
+    int ret = 0;
 
-    int success = 0, fail = 0;
+    module = PyImport_ImportModule(modname);
+    if (!module)
+        return 0;
+
+    funcobj = PyObject_GetAttrString(module, "__PYGAMEinit__");
+
+    /* If we could not load __PYGAMEinit__, load init function */
+    if (!funcobj) {
+        PyErr_Clear();
+        funcobj = PyObject_GetAttrString(module, "init");
+    }
+
+    if (funcobj) {
+        temp = PyObject_CallObject(funcobj, NULL);
+        if (temp) {
+            Py_DECREF(temp);
+            ret = 1;
+        }
+    }
+
+    Py_DECREF(module);
+    Py_XDECREF(funcobj);
+    return ret;
+}
+
+/* try to quit pygame modules, errors silenced */
+static void
+pg_mod_autoquit(const char *modname)
+{
+    PyObject *module, *funcobj;
+
+    module = PyImport_ImportModule(modname);
+    if (!module) {
+        PyErr_Clear();
+        return;
+    }
+
+    funcobj = PyObject_GetAttrString(module, "__PYGAMEquit__");
+
+    /* If we could not load __PYGAMEquit__, load quit function */
+    if (!funcobj)
+        funcobj = PyObject_GetAttrString(module, "quit");
+
+    if (funcobj)
+        Py_XDECREF(PyObject_CallObject(funcobj, NULL));
+
+    /* Silence errors */
+    if (PyErr_Occurred())
+        PyErr_Clear();
+
+    Py_DECREF(module);
+    Py_XDECREF(funcobj);
+}
+
+static PyObject *
+pg_init(PyObject *self)
+{
+    int i = 0, success = 0, fail = 0;
+
+    /* Put all the module names we want to init in this array */
+    const char *modnames[] = {
+        IMPPREFIX "display", /* Display first, this also inits event,time */
+        IMPPREFIX "joystick",
+        IMPPREFIX "font",
+        IMPPREFIX "freetype",
+        IMPPREFIX "mixer",
+#if IS_SDLv2
+        /* IMPPREFIX "_sdl2.controller", Is this required? Comment for now*/
+#else
+        IMPPREFIX "cdrom",
+#endif
+        NULL
+    };
 
     if (!pg_CheckSDLVersions()) {
         return NULL;
@@ -288,52 +355,28 @@ pg_init(PyObject *self, PyObject *args)
     pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
 #endif /* IS_SDLv2 */
 
-    pg_is_init = 1;  // Considered initialized at this point?
-
     /* initialize all pygame modules */
-    allmodules = PyImport_GetModuleDict();
-    moduleslist = PyDict_Values(allmodules);
-    if (!allmodules || !moduleslist) {
-        return Py_BuildValue("(ii)", 0, 0);
-    }
-
-    if (pgVideo_AutoInit()) {
-        ++success;
-    }
-    else {
-        ++fail;
-    }
-
-    num = PyList_Size(moduleslist);
-    for (loop = 0; loop < num; ++loop) {
-        mod = PyList_GET_ITEM(moduleslist, loop);
-        if (!mod || !PyModule_Check(mod)) {
-            continue;
-        }
-        dict = PyModule_GetDict(mod);
-        func = PyDict_GetItemString(dict, "__PYGAMEinit__");
-        if (func && PyCallable_Check(func)) {
-            result = PyObject_CallObject(func, NULL);
-            if (result && PyObject_IsTrue(result)) {
-                ++success;
-            }
-            else {
-                PyErr_Clear();
-                ++fail;
-            }
-            Py_XDECREF(result);
+    for (i = 0; modnames[i]; i++) {
+        if (pg_mod_autoinit(modnames[i]))
+            success++;
+        else {
+            /* ImportError is neither counted as success nor failure */
+            if (!PyErr_ExceptionMatches(PyExc_ImportError))
+                fail++;
         }
     }
-    Py_DECREF(moduleslist);
 
+    /* Because pygame.init never errors */
+    if (PyErr_Occurred())
+        PyErr_Clear();
+
+    pg_is_init = 1;
     return Py_BuildValue("(ii)", success, fail);
 }
 
 static void
 pg_atexit_quit(void)
 {
-    pgVideo_AutoQuit();
-
     /* Maybe it is safe to call SDL_quit more than once after an SDL_Init,
        but this is undocumented. So play it safe and only call after a
        successful SDL_Init.
@@ -345,7 +388,7 @@ pg_atexit_quit(void)
 }
 
 static PyObject *
-pg_get_sdl_version(PyObject *self, PyObject *args)
+pg_get_sdl_version(PyObject *self)
 {
 #if IS_SDLv1
     const SDL_version *v;
@@ -361,51 +404,72 @@ pg_get_sdl_version(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_get_sdl_byteorder(PyObject *self, PyObject *args)
+pg_get_sdl_byteorder(PyObject *self)
 {
     return PyLong_FromLong(SDL_BYTEORDER);
-}
-
-static PyObject *
-pg_quit(PyObject *self, PyObject *args)
-{
-    _pg_quit();
-    Py_RETURN_NONE;
 }
 
 static void
 _pg_quit(void)
 {
-    PyObject *quit;
-    PyObject *privatefuncs;
-    Py_ssize_t num;
+    int num, i;
+    PyObject *quit, *privatefuncs;
 
-    pg_is_init = 0;  // Considered uninitialized at this point?
+    /* Put all the module names we want to quit in this array */
+    const char *modnames[] = {
+#if IS_SDLv2
+        /* IMPPREFIX "_sdl2.controller", Is this required?, comment for now */
+#else
+        IMPPREFIX "cdrom"
+#endif
+        IMPPREFIX "mixer",
+        IMPPREFIX "freetype",
+        IMPPREFIX "font",
+        IMPPREFIX "joystick",
+        IMPPREFIX "display", /* Display last, this also quits event,time */
+        NULL
+    };
 
-    if (!pg_quit_functions) {
-        return;
+    if (pg_quit_functions) {
+        privatefuncs = pg_quit_functions;
+        pg_quit_functions = NULL;
+
+        pg_uninstall_parachute(); /* Is this done here, or can it be done below? */
+        num = PyList_Size(privatefuncs);
+
+        /*quit funcs in reverse order*/
+        while (num--) {
+            quit = PyList_GET_ITEM(privatefuncs, num);
+            if (PyCallable_Check(quit)) {
+                Py_XDECREF(PyObject_CallObject(quit, NULL));
+            }
+            else if (PyCapsule_CheckExact(quit)) {
+                void *ptr = PyCapsule_GetPointer(quit, "quit");
+                (*(void (*)(void))ptr)();
+            }
+        }
+        Py_DECREF(privatefuncs);
     }
 
-    privatefuncs = pg_quit_functions;
-    pg_quit_functions = NULL;
-
-    pg_uninstall_parachute();
-    num = PyList_Size(privatefuncs);
-
-    /*quit in reverse order*/
-    while (num--) {
-        quit = PyList_GET_ITEM(privatefuncs, num);
-        if (PyCallable_Check(quit)) {
-            PyObject_CallObject(quit, NULL);
-        }
-        else if (PyCapsule_CheckExact(quit)) {
-            void *ptr = PyCapsule_GetPointer(quit, "quit");
-            (*(void (*)(void))ptr)();
-        }
+    /* quit all pygame modules */
+    for (i = 0; modnames[i]; i++) {
+        pg_mod_autoquit(modnames[i]);
     }
-    Py_DECREF(privatefuncs);
+
+    /* Because quit never errors */
+    if (PyErr_Occurred())
+        PyErr_Clear();
+
+    pg_is_init = 0;
 
     pg_atexit_quit();
+}
+
+static PyObject *
+pg_quit(PyObject *self)
+{
+    _pg_quit();
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -580,7 +644,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 }
 
 static PyObject *
-pg_get_error(PyObject *self, PyObject *args)
+pg_get_error(PyObject *self)
 {
 #if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
     /* SDL 1's encoding is ambiguous */
@@ -600,11 +664,9 @@ pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
 #if PY2 || defined(PYPY_VERSION)
-    if (!PyArg_ParseTuple(args, "es",
-                          "UTF-8", &errstring))
-    {
+    if (!PyArg_ParseTuple(args, "es", "UTF-8", &errstring))
         return NULL;
-    }
+
     SDL_SetError("%s", errstring);
     PyMem_Free(errstring);
 #else /* PY3 */
@@ -614,59 +676,6 @@ pg_set_error(PyObject *s, PyObject *args)
     SDL_SetError("%s", errstring);
 #endif /* PY3 */
     Py_RETURN_NONE;
-}
-
-/*video init needs to be here, because of it's
- *important init order priority
- */
-static void
-pgVideo_AutoQuit(void)
-{
-    if (SDL_WasInit(SDL_INIT_VIDEO)) {
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);
-    }
-}
-
-static int
-pgVideo_AutoInit(void)
-{
-    if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-        int status;
-#if defined(__APPLE__) && defined(darwin)
-        PyObject *module = PyImport_ImportModule("pygame.macosx");
-        PyObject *rval;
-
-        if (!module) {
-            printf("ERROR: pygame.macosx import FAILED\n");
-            return -1;
-        }
-
-        rval = PyObject_CallMethod(module, "Video_AutoInit", "");
-        Py_DECREF(module);
-        if (!rval) {
-            printf("ERROR: pygame.macosx.Video_AutoInit() call FAILED\n");
-            return -1;
-        }
-
-        status = PyObject_IsTrue(rval);
-        Py_DECREF(rval);
-        if (status != 1) {
-            return 0;
-        }
-#endif
-        status = SDL_InitSubSystem(SDL_INIT_VIDEO);
-        if (status) {
-            return 0;
-        }
-
-#if IS_SDLv1
-        SDL_EnableUNICODE(1);
-#endif /* IS_SDLv1 */
-
-        /*we special case the video quit to last now*/
-        /*pg_RegisterQuit(pgVideo_AutoQuit);*/
-    }
-    return 1;
 }
 
 /*array interface*/
@@ -2085,21 +2094,21 @@ pg_do_segfault(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef _base_methods[] = {
-    {"init", pg_init, METH_NOARGS, DOC_PYGAMEINIT},
-    {"quit", pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
-    {"get_init", pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
-    {"register_quit", pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
-    {"get_error", pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
+    {"init", (PyCFunction)pg_init, METH_NOARGS, DOC_PYGAMEINIT},
+    {"quit", (PyCFunction)pg_quit, METH_NOARGS, DOC_PYGAMEQUIT},
+    {"get_init", (PyCFunction)pg_get_init, METH_NOARGS, DOC_PYGAMEGETINIT},
+    {"register_quit", (PyCFunction)pg_register_quit, METH_O, DOC_PYGAMEREGISTERQUIT},
+    {"get_error", (PyCFunction)pg_get_error, METH_NOARGS, DOC_PYGAMEGETERROR},
     {"set_error", pg_set_error, METH_VARARGS, DOC_PYGAMESETERROR},
-    {"get_sdl_version", pg_get_sdl_version, METH_NOARGS,
+    {"get_sdl_version", (PyCFunction)pg_get_sdl_version, METH_NOARGS,
      DOC_PYGAMEGETSDLVERSION},
-    {"get_sdl_byteorder", pg_get_sdl_byteorder, METH_NOARGS,
+    {"get_sdl_byteorder", (PyCFunction)pg_get_sdl_byteorder, METH_NOARGS,
      DOC_PYGAMEGETSDLBYTEORDER},
 
-    {"get_array_interface", pg_get_array_interface, METH_O,
+    {"get_array_interface", (PyCFunction)pg_get_array_interface, METH_O,
      "return an array struct interface as an interface dictionary"},
 
-    {"segfault", pg_do_segfault, METH_NOARGS, "crash"},
+    {"segfault", (PyCFunction)pg_do_segfault, METH_NOARGS, "crash"},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(base)
@@ -2193,8 +2202,8 @@ MODINIT_DEFINE(base)
     c_api[7] = pg_TwoFloatsFromObj;
     c_api[8] = pg_UintFromObj;
     c_api[9] = pg_UintFromObjIndex;
-    c_api[10] = pgVideo_AutoQuit;
-    c_api[11] = pgVideo_AutoInit;
+    c_api[10] = pg_mod_autoinit;
+    c_api[11] = pg_mod_autoquit;
     c_api[12] = pg_RGBAFromObj;
     c_api[13] = pgBuffer_AsArrayInterface;
     c_api[14] = pgBuffer_AsArrayStruct;
