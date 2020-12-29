@@ -142,7 +142,7 @@ class ClockTypeTest(unittest.TestCase):
         """
 
         # Adjust this value to increase the acceptable sleep jitter
-        epsilon = 0.2
+        epsilon = 1.5
         # Adjust this value to increase the acceptable locked frame-rate jitter
         epsilon2 = 0.4
         # adjust this value to increase the acceptable frame-rate margin
