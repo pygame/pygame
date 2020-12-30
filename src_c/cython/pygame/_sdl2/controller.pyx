@@ -21,7 +21,6 @@ cdef bint _controller_autoinit():
         if SDL_InitSubSystem(_SDL_INIT_GAMECONTROLLER):
             return False
         #pg_RegisterQuit(_controller_autoquit)
-
     return True
     
 cdef void _controller_autoquit():
@@ -90,7 +89,11 @@ def name_forindex(index):
         or NULL if there's no name or the index is invalid.
     """
     GAMECONTROLLER_INIT_CHECK()
-    return SDL_GameControllerNameForIndex(index)
+    result = SDL_GameControllerNameForIndex(index)
+    if result:
+        return result.decode('utf-8')
+    else:
+        return None
 
 cdef class Controller:
     _controllers = []
@@ -112,7 +115,11 @@ cdef class Controller:
         Controller._controllers.append(self)
         
     def __dealloc__(self):
-        Controller._controllers.remove(self)
+        try:
+            Controller._controllers.remove(self)
+        except ValueError:
+            pass # Controller is not in list.
+
         self.quit()
     
     def _CLOSEDCHECK(self):

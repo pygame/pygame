@@ -29,7 +29,7 @@ Keyboard Joystick Controls
 
 import pygame as pg
 import pygame._sdl2.controller
-pg._sdl2.controller.init()
+pygame._sdl2.controller.init()
 
 
 img_on_off = []
