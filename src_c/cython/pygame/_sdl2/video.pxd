@@ -400,7 +400,8 @@ cdef class Texture:
 cdef class Image:
     cdef Color _color
     cdef public float angle
-    cdef public float origin[2]
+    cdef SDL_Point _origin
+    cdef SDL_Point* _originptr
     cdef public bint flipX
     cdef public bint flipY
     cdef public float alpha
