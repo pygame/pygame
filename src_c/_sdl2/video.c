@@ -963,17 +963,17 @@ struct __pyx_obj_6pygame_5_sdl2_5video_Texture {
  *                     bint flipX=*, bint flipY=*)
  * 
  * cdef class Image:             # <<<<<<<<<<<<<<
+ *     cdef Color _color
  *     cdef public float angle
- *     cdef public float origin[2]
  */
 struct __pyx_obj_6pygame_5_sdl2_5video_Image {
   PyObject_HEAD
   struct __pyx_vtabstruct_6pygame_5_sdl2_5video_Image *__pyx_vtab;
+  pgColorObject *_color;
   float angle;
   float origin[2];
   int flipX;
   int flipY;
-  pgColorObject *_color;
   float alpha;
   SDL_BlendMode blend_mode;
   struct __pyx_obj_6pygame_5_sdl2_5video_Texture *texture;
@@ -2389,9 +2389,6 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX___get__(struct __p
 static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX_2__set__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY___get__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self); /* proto */
 static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY_2__set__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6_color___get__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self); /* proto */
-static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color_2__set__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color_4__del__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5alpha___get__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self); /* proto */
 static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5alpha_2__set__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_10blend_mode___get__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self); /* proto */
@@ -13209,9 +13206,9 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6draw(struct __pyx_obj_6p
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":401
- * 
+/* "pygame/_sdl2/video.pxd":402
  * cdef class Image:
+ *     cdef Color _color
  *     cdef public float angle             # <<<<<<<<<<<<<<
  *     cdef public float origin[2]
  *     cdef public bint flipX
@@ -13239,7 +13236,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5angle___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->angle); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 401, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->angle); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 402, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13277,7 +13274,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5angle_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 401, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(2, 402, __pyx_L1_error)
   __pyx_v_self->angle = __pyx_t_1;
 
   /* function exit code */
@@ -13291,8 +13288,8 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5angle_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":402
- * cdef class Image:
+/* "pygame/_sdl2/video.pxd":403
+ *     cdef Color _color
  *     cdef public float angle
  *     cdef public float origin[2]             # <<<<<<<<<<<<<<
  *     cdef public bint flipX
@@ -13321,7 +13318,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6origin___get__(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_float(__pyx_v_self->origin, 2); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 402, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_float(__pyx_v_self->origin, 2); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 403, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13359,7 +13356,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (unlikely(__Pyx_carray_from_py_float(__pyx_v_value, __pyx_t_1, 2) < 0)) __PYX_ERR(2, 402, __pyx_L1_error)
+  if (unlikely(__Pyx_carray_from_py_float(__pyx_v_value, __pyx_t_1, 2) < 0)) __PYX_ERR(2, 403, __pyx_L1_error)
   memcpy(&(__pyx_v_self->origin[0]), __pyx_t_1, sizeof(__pyx_v_self->origin[0]) * (2));
 
   /* function exit code */
@@ -13373,12 +13370,12 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6origin_2__set__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":403
+/* "pygame/_sdl2/video.pxd":404
  *     cdef public float angle
  *     cdef public float origin[2]
  *     cdef public bint flipX             # <<<<<<<<<<<<<<
  *     cdef public bint flipY
- *     cdef public Color _color
+ *     cdef public float alpha
  */
 
 /* Python wrapper */
@@ -13403,7 +13400,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipX); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 403, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipX); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 404, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13441,7 +13438,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 403, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 404, __pyx_L1_error)
   __pyx_v_self->flipX = __pyx_t_1;
 
   /* function exit code */
@@ -13455,12 +13452,12 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipX_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":404
+/* "pygame/_sdl2/video.pxd":405
  *     cdef public float origin[2]
  *     cdef public bint flipX
  *     cdef public bint flipY             # <<<<<<<<<<<<<<
- *     cdef public Color _color
  *     cdef public float alpha
+ *     cdef public SDL_BlendMode blend_mode
  */
 
 /* Python wrapper */
@@ -13485,7 +13482,7 @@ static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY___get__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipY); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 404, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->flipY); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -13523,7 +13520,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY_2__set__(struct __pyx_ob
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 404, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 405, __pyx_L1_error)
   __pyx_v_self->flipY = __pyx_t_1;
 
   /* function exit code */
@@ -13537,117 +13534,9 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5flipY_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pygame/_sdl2/video.pxd":405
+/* "pygame/_sdl2/video.pxd":406
  *     cdef public bint flipX
  *     cdef public bint flipY
- *     cdef public Color _color             # <<<<<<<<<<<<<<
- *     cdef public float alpha
- *     cdef public SDL_BlendMode blend_mode
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_1__get__(PyObject *__pyx_v_self) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color___get__(((struct __pyx_obj_6pygame_5_sdl2_5video_Image *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6pygame_5_sdl2_5video_5Image_6_color___get__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(((PyObject *)__pyx_v_self->_color));
-  __pyx_r = ((PyObject *)__pyx_v_self->_color);
-  goto __pyx_L0;
-
-  /* function exit code */
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* Python wrapper */
-static int __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color_2__set__(((struct __pyx_obj_6pygame_5_sdl2_5video_Image *)__pyx_v_self), ((PyObject *)__pyx_v_value));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color_2__set__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self, PyObject *__pyx_v_value) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_6pygame_5_sdl2_5video_Color))))) __PYX_ERR(2, 405, __pyx_L1_error)
-  __pyx_t_1 = __pyx_v_value;
-  __Pyx_INCREF(__pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v_self->_color);
-  __Pyx_DECREF(((PyObject *)__pyx_v_self->_color));
-  __pyx_v_self->_color = ((pgColorObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* function exit code */
-  __pyx_r = 0;
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pygame._sdl2.video.Image._color.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = -1;
-  __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* Python wrapper */
-static int __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_5__del__(PyObject *__pyx_v_self) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color_4__del__(((struct __pyx_obj_6pygame_5_sdl2_5video_Image *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static int __pyx_pf_6pygame_5_sdl2_5video_5Image_6_color_4__del__(struct __pyx_obj_6pygame_5_sdl2_5video_Image *__pyx_v_self) {
-  int __pyx_r;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_INCREF(Py_None);
-  __Pyx_GIVEREF(Py_None);
-  __Pyx_GOTREF(__pyx_v_self->_color);
-  __Pyx_DECREF(((PyObject *)__pyx_v_self->_color));
-  __pyx_v_self->_color = ((pgColorObject *)Py_None);
-
-  /* function exit code */
-  __pyx_r = 0;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "pygame/_sdl2/video.pxd":406
- *     cdef public bint flipY
- *     cdef public Color _color
  *     cdef public float alpha             # <<<<<<<<<<<<<<
  *     cdef public SDL_BlendMode blend_mode
  * 
@@ -13728,7 +13617,7 @@ static int __pyx_pf_6pygame_5_sdl2_5video_5Image_5alpha_2__set__(struct __pyx_ob
 }
 
 /* "pygame/_sdl2/video.pxd":407
- *     cdef public Color _color
+ *     cdef public bint flipY
  *     cdef public float alpha
  *     cdef public SDL_BlendMode blend_mode             # <<<<<<<<<<<<<<
  * 
@@ -19683,19 +19572,6 @@ static int __pyx_setprop_6pygame_5_sdl2_5video_5Image_flipY(PyObject *o, PyObjec
   }
 }
 
-static PyObject *__pyx_getprop_6pygame_5_sdl2_5video_5Image__color(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_1__get__(o);
-}
-
-static int __pyx_setprop_6pygame_5_sdl2_5video_5Image__color(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
-  if (v) {
-    return __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_3__set__(o, v);
-  }
-  else {
-    return __pyx_pw_6pygame_5_sdl2_5video_5Image_6_color_5__del__(o);
-  }
-}
-
 static PyObject *__pyx_getprop_6pygame_5_sdl2_5video_5Image_alpha(PyObject *o, CYTHON_UNUSED void *x) {
   return __pyx_pw_6pygame_5_sdl2_5video_5Image_5alpha_1__get__(o);
 }
@@ -19764,7 +19640,6 @@ static struct PyGetSetDef __pyx_getsets_6pygame_5_sdl2_5video_Image[] = {
   {(char *)"origin", __pyx_getprop_6pygame_5_sdl2_5video_5Image_origin, __pyx_setprop_6pygame_5_sdl2_5video_5Image_origin, (char *)0, 0},
   {(char *)"flipX", __pyx_getprop_6pygame_5_sdl2_5video_5Image_flipX, __pyx_setprop_6pygame_5_sdl2_5video_5Image_flipX, (char *)0, 0},
   {(char *)"flipY", __pyx_getprop_6pygame_5_sdl2_5video_5Image_flipY, __pyx_setprop_6pygame_5_sdl2_5video_5Image_flipY, (char *)0, 0},
-  {(char *)"_color", __pyx_getprop_6pygame_5_sdl2_5video_5Image__color, __pyx_setprop_6pygame_5_sdl2_5video_5Image__color, (char *)0, 0},
   {(char *)"alpha", __pyx_getprop_6pygame_5_sdl2_5video_5Image_alpha, __pyx_setprop_6pygame_5_sdl2_5video_5Image_alpha, (char *)0, 0},
   {(char *)"blend_mode", __pyx_getprop_6pygame_5_sdl2_5video_5Image_blend_mode, __pyx_setprop_6pygame_5_sdl2_5video_5Image_blend_mode, (char *)0, 0},
   {(char *)"texture", __pyx_getprop_6pygame_5_sdl2_5video_5Image_texture, __pyx_setprop_6pygame_5_sdl2_5video_5Image_texture, (char *)0, 0},
