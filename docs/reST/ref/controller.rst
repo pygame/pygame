@@ -212,7 +212,7 @@ events related to controllers.
       information see :meth:`Controller.set_mapping()`
 
       .. ## Contorller.get_mapping ##
-   
+
    .. method:: set_mapping
 
       | :sl:`Assign a mapping to the controller`
