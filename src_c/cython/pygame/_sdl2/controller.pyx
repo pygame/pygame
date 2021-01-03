@@ -89,11 +89,14 @@ def name_forindex(index):
         or NULL if there's no name or the index is invalid.
     """
     GAMECONTROLLER_INIT_CHECK()
-    result = SDL_GameControllerNameForIndex(index)
-    if result:
-        return result.decode('utf-8')
-    else:
-        return None
+    max_controllers = SDL_NumJoysticks()
+    if max_controllers < 0:
+        raise error()
+
+    if 0 <= index < max_controllers:
+        return SDL_GameControllerNameForIndex(index).decode('utf-8')
+
+    return None
 
 cdef class Controller:
     _controllers = []
