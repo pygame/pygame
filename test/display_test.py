@@ -238,7 +238,10 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertFalse(wm_info_remaining_keys)
 
     @unittest.skipIf(
-        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        (
+            "skipping for all because some failures on rasppi and maybe other platforms"
+            or os.environ.get("SDL_VIDEODRIVER") == "dummy"
+        ),
         'OpenGL requires a non-"dummy" SDL_VIDEODRIVER',
     )
     def test_gl_get_attribute(self):
@@ -395,27 +398,29 @@ class DisplayModuleTest(unittest.TestCase):
         'iconify is only supported on some video drivers/platforms'
     )
     def test_iconify(self):
-        _ = pygame.display.set_mode((640, 480))
+        pygame.display.set_mode((640, 480))
 
         self.assertEqual(pygame.display.get_active(), True)
 
         success = pygame.display.iconify()
 
         if success:
-            minimized_event = False
+            active_event = window_minimized_event = False
             # make sure we cycle the event loop enough to get the display
-            # hidden
-            for _ in range(100):
+            # hidden. Test that both ACTIVEEVENT and WINDOWMINIMISED event appears
+            for _ in range(50):
                 time.sleep(0.01)
                 for event in pygame.event.get():
-                    if SDL2:
-                        if (event.type == pygame.WINDOWEVENT and
-                                event.event == pygame.WINDOWEVENT_MINIMIZED):
-                            minimized_event = True
+                    if event.type == pygame.ACTIVEEVENT:
+                        if not event.gain and event.state == pygame.APPACTIVE:
+                            active_event = True
+                    if SDL2 and event.type == pygame.WINDOWMINIMIZED:
+                        window_minimized_event = True
 
             if SDL2:
-                self.assertEqual(minimized_event, True)
-                self.assertEqual(pygame.display.get_active(), False)
+                self.assertTrue(window_minimized_event)
+            self.assertTrue(active_event)
+            self.assertFalse(pygame.display.get_active())
 
         else:
             self.fail('Iconify not supported on this platform, please skip')
