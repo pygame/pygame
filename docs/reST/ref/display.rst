@@ -113,6 +113,9 @@ required).
    requests for a display type. The actual created display will be the best
    possible match supported by the system.
 
+   Note that calling this function implicitly initializes ``pygame.display``, if
+   it was not initialized before.
+
    The size argument is a pair of numbers representing the width and
    height. The flags argument is a collection of additional options. The depth
    argument represents the number of bits to use for color.
@@ -550,6 +553,9 @@ required).
 
    Sets the runtime icon the system will use to represent the display window.
    All windows default to a simple pygame logo for the window icon.
+
+   Note that calling this function implicitly initializes ``pygame.display``, if
+   it was not initialized before.
 
    You can pass any surface, but most systems want a smaller image around
    32x32. The image can have colorkey transparency which will be passed to the
