@@ -258,16 +258,16 @@ Most of the time you will just want to use the ``RenderUpdates`` class here.
 Since you will also want to pass this list of changes to the
 ``display.update()`` function.
 
-The ``RenderUpdates`` class also does a good job an minimizing overlapping
+The ``RenderUpdates`` class also does a good job at minimizing overlapping
 areas in the list of updated rectangles. If the previous position and current
 position of an object overlap, it will merge them into a single rectangle.
-Combine this with the fact that is properly handles deleted objects and this is
+Combined with the fact that it properly handles deleted objects, this is
 one powerful ``Group`` class. If you've written a game that manages the changed
 rectangles for the objects in a game, you know this the cause for a lot of
 messy code in your game. Especially once you start to throw in objects that can
-be deleted at any time. All this work is reduced down to a ``clear()`` and
+be deleted at any time. All this work is reduced to a ``clear()`` and
 ``draw()`` method with this monster class. Plus with the overlap checking, it
-is likely faster than if you did it yourself.
+is likely faster than when you did it manually.
 
 Also note that there's nothing stopping you from mixing and matching these
 render groups in your game. You should definitely use multiple rendering groups
@@ -409,7 +409,7 @@ ordinary python container. (This is important, because several sprite methods
 can take an argument of a single group, or a sequence of groups. Since they
 both look similar, this is the most flexible way to "see" the difference.)
 
-You should through the code for the sprite module. While the code is a bit
+You should go through the code for the sprite module. While the code is a bit
 "tuned", it's got enough comments to help you follow along.  There's even a
 TODO section in the source if you feel like contributing.
 
