@@ -59,8 +59,6 @@ class ControllerModuleTest(unittest.TestCase):
 
     def test_name_forindex(self):
         self.assertIsNone(controller.name_forindex(-1))
-        with self.assertRaises(TypeError):
-            controller.name_forindex('Test')
 
 
 class ControllerTypeTest(unittest.TestCase):
