@@ -1,6 +1,6 @@
 .. image:: pygamelogo.png
   :width: 200
-  :height: 50
+  :height: 70
   :alt: pygame
 
 
