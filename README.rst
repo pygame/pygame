@@ -1,4 +1,4 @@
-.. image:: pygamelogo.png
+.. image:: docs/pygame_logo.gif
   :width: 200
   :height: 70
   :alt: pygame
