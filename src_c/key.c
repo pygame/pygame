@@ -815,16 +815,20 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
         return RAISE(PyExc_TypeError, "Invalid rect argument");
 
     if (sdlRenderer!=NULL){
-        SDL_Rect vprect;
+        SDL_Rect vprect, rect2;
+	/* new rect so we do not overwrite the input rect */
 	float scalex, scaley;
 
 	SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
 	SDL_RenderGetViewport(sdlRenderer, &vprect);
 
-	rect->x = (int)(rect->x * scalex + vprect.x);
-	rect->y = (int)(rect->y * scaley + vprect.y);
-	rect->w = (int)(rect->w * scalex);
-	rect->h = (int)(rect->h * scaley);
+	rect2.x = (int)(rect->x * scalex + vprect.x);
+	rect2.y = (int)(rect->y * scaley + vprect.y);
+	rect2.w = (int)(rect->w * scalex);
+	rect2.h = (int)(rect->h * scaley);
+
+	SDL_SetTextInputRect(&rect2);
+	Py_RETURN_NONE;
     }
 
     SDL_SetTextInputRect(rect);
