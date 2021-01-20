@@ -370,7 +370,17 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    | :sg:`start_text_input() -> None`
 
    Start receiving ``pygame.TEXTEDITING`` and ``pygame.TEXTINPUT``
-   events.
+   events. If applicable, show the on-screen keyboard or IME editor.
+
+   For many languages, key presses will automatically generate a
+   corresponding ``pygame.TEXTINPUT`` event. Special keys like
+   escape or function keys, and certain key combinations will not
+   generate ``pygame.TEXTINPUT`` events.
+
+   In other languages, entering a single symbol may require multiple
+   key presses, or a language-specific user interface. In this case,
+   ``pygame.TEXTINPUT`` events are preferable to ``pygame.KEYDOWN``
+   events for text input.
 
    A ``pygame.TEXTEDITING`` event is received when an IME composition
    is started or changed. It contains the composition ``text``, ``length``,
@@ -391,9 +401,15 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
    | :sg:`stop_text_input() -> None`
 
    Stop receiving ``pygame.TEXTEDITING`` and ``pygame.TEXTINPUT``
-   events.
+   events. If an on-screen keyboard or IME editor was shown with
+   ``pygame.key.start_text_input()``, hide it again.
 
-   Text input events handling is on by default
+   Text input events handling is on by default.
+
+   To avoid triggering the IME editor or the on-screen keyboard
+   when the user is holding down a key during gameplay, text input
+   should be disabled once text entry is finished, or when the user
+   clicks outside of a text box.
 
    .. versionadded:: 2.0.0
 
