@@ -1218,6 +1218,13 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
             }
 
+            // SDL doesn't preserve window position in fullscreen mode
+            // However, windows coming out of fullscreen need these to go back into the correct position
+            if (sdl_flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+                state->fullscreen_backup_x = x;
+                state->fullscreen_backup_y = y;
+            }
+
             if (!win) {
                 /*open window*/
                 win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
@@ -1247,13 +1254,6 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                         win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
                                           SDL_WINDOW_FULLSCREEN_DESKTOP))) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                }
-
-                // SDL doesn't preserve window position in fullscreen mode
-                // However, windows coming out of fullscreen need these to go back into the correct position
-                if (sdl_flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) {
-                    state->fullscreen_backup_x = x;
-                    state->fullscreen_backup_y = y;
                 }
 
                 assert(surface);
