@@ -1150,10 +1150,17 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (win) {
                 if (SDL_GetWindowDisplayIndex(win) == display) {
-                    //fullscreen windows don't hold window x and y as needed
+                    // fullscreen windows don't hold window x and y as needed
                     if (SDL_GetWindowFlags(win) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) { 
                         x = state->fullscreen_backup_x;
                         y = state->fullscreen_backup_y;
+
+                        // if the program goes into fullscreen first the "saved x and y" are "undefined position"
+                        // that should be interpreted as a cue to center the window
+                        if (x == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                            x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+                        if (y == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                            y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
                     }
                     else {
                         SDL_GetWindowPosition(win, &x, &y);
@@ -1248,13 +1255,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 else if (flags & PGS_HIDDEN)
                     SDL_HideWindow(win);
 
-                SDL_SetWindowPosition(win, x, y);
                 if (0 !=
                     SDL_SetWindowFullscreen(
                         win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
                                           SDL_WINDOW_FULLSCREEN_DESKTOP))) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
+
+                SDL_SetWindowPosition(win, x, y);
 
                 assert(surface);
             }
