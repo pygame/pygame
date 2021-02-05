@@ -1122,6 +1122,13 @@ _color_get_hsva(pgColorObject *color, void *closure)
     /* Calculate S */
     hsv[1] = 100. * (maxv - minv) / maxv;
 
+    /* Clamp S, needed on some but not all FPUs */
+    if (hsv[1] < 0) {
+        hsv[1] = 0.f;
+    } else if (hsv[1] > 100) {
+        hsv[1] = 100.f;
+    }
+
     /* Calculate H */
     if (maxv == frgb[0]) {
         hsv[0] = fmod((60 * ((frgb[1] - frgb[2]) / diff)), 360.f);
