@@ -446,6 +446,7 @@ class DisplayModuleTest(unittest.TestCase):
         if modes != -1:
             self.assertEqual(len(modes[0]), 2)
             self.assertEqual(type(modes[0][0]), int)
+            self.assertEqual(len(modes), len(set(modes)))
 
         modes = pygame.display.list_modes(depth=0, flags=0, display=0)
         if modes != -1:
