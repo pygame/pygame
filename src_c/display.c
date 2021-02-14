@@ -65,6 +65,8 @@ typedef struct _display_state_s {
     Uint8 scaled_gl;
     int scaled_gl_w;
     int scaled_gl_h;
+    int fullscreen_backup_x;
+    int fullscreen_backup_y;
     SDL_bool auto_resize;
 } _DisplayState;
 
@@ -1148,7 +1150,22 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
             if (win) {
                 if (SDL_GetWindowDisplayIndex(win) == display) {
-                    SDL_GetWindowPosition(win, &x, &y);
+                    // fullscreen windows don't hold window x and y as needed
+                    if (SDL_GetWindowFlags(win) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) { 
+                        x = state->fullscreen_backup_x;
+                        y = state->fullscreen_backup_y;
+
+                        // if the program goes into fullscreen first the "saved x and y" are "undefined position"
+                        // that should be interpreted as a cue to center the window
+                        if (x == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                            x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+                        if (y == SDL_WINDOWPOS_UNDEFINED_DISPLAY(display))
+                            y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+                    }
+                    else {
+                        SDL_GetWindowPosition(win, &x, &y);
+                    }
+                    
                 }
                 if (!(flags & PGS_OPENGL) !=
                     !(SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)) {
@@ -1208,6 +1225,13 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 }
             }
 
+            // SDL doesn't preserve window position in fullscreen mode
+            // However, windows coming out of fullscreen need these to go back into the correct position
+            if (sdl_flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+                state->fullscreen_backup_x = x;
+                state->fullscreen_backup_y = y;
+            }
+
             if (!win) {
                 /*open window*/
                 win = SDL_CreateWindow(title, x, y, w_1, h_1, sdl_flags);
@@ -1231,13 +1255,14 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 else if (flags & PGS_HIDDEN)
                     SDL_HideWindow(win);
 
-                SDL_SetWindowPosition(win, x, y);
                 if (0 !=
                     SDL_SetWindowFullscreen(
                         win, sdl_flags & (SDL_WINDOW_FULLSCREEN |
                                           SDL_WINDOW_FULLSCREEN_DESKTOP))) {
                     return RAISE(pgExc_SDLError, SDL_GetError());
                 }
+
+                SDL_SetWindowPosition(win, x, y);
 
                 assert(surface);
             }
