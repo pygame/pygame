@@ -41,9 +41,10 @@
 
    Use ``int(color)`` to return the immutable integer value of the color,
    usable as a ``dict`` key. This integer value differs from the mapped
-   pixel values of :meth:`Surface.get_at_mapped()`, :meth:`Surface.map_rgb()`
-   and :meth:`Surface.unmap_rgb()`. It can be passed as a ``color_value``
-   argument to :class:`Color` (useful with sets).
+   pixel values of :meth:`pygame.Surface.get_at_mapped`,
+   :meth:`pygame.Surface.map_rgb` and :meth:`pygame.Surface.unmap_rgb`.
+   It can be passed as a ``color_value`` argument to :class:`Color`
+   (useful with sets).
 
    :param int r: red value in the range of 0 to 255 inclusive
    :param int g: green value in the range of 0 to 255 inclusive
