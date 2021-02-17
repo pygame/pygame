@@ -1018,7 +1018,7 @@ sound_dealloc(pgSoundObject *self)
 
 static PyTypeObject pgSound_Type = {
     PyVarObject_HEAD_INIT(NULL,0)
-    "Sound", 
+    "Sound",
     sizeof(pgSoundObject), 0,
     (destructor)sound_dealloc, 0, 0, 0, /* setattr */
     0,                                  /* compare */
@@ -1448,11 +1448,14 @@ Channel(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mixer_find_channel(PyObject *self, PyObject *args)
+mixer_find_channel(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int chan, force = 0;
-    if (!PyArg_ParseTuple(args, "|i", &force))
+    static char *keywords[] = {"force", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &force)) {
         return NULL;
+    }
 
     MIXER_INIT_CHECK();
 
@@ -1954,7 +1957,8 @@ static PyMethodDef _mixer_methods[] = {
 
     {"get_busy", (PyCFunction)get_busy, METH_NOARGS, DOC_PYGAMEMIXERGETBUSY},
     {"Channel", Channel, METH_VARARGS, DOC_PYGAMEMIXERCHANNEL},
-    {"find_channel", mixer_find_channel, METH_VARARGS,
+    {"find_channel", (PyCFunction)mixer_find_channel,
+     METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERFINDCHANNEL},
     {"fadeout", mixer_fadeout, METH_VARARGS, DOC_PYGAMEMIXERFADEOUT},
     {"stop", (PyCFunction)mixer_stop, METH_NOARGS, DOC_PYGAMEMIXERSTOP},

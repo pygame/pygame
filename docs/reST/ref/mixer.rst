@@ -220,9 +220,6 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    inactive channels and the force argument is ``True``, this will find the
    Channel with the longest running Sound and return it.
 
-   If the mixer has reserved channels from ``pygame.mixer.set_reserved()`` then
-   those channels will not be returned here.
-
    .. ## pygame.mixer.find_channel ##
 
 .. function:: get_busy
