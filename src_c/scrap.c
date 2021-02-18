@@ -37,8 +37,6 @@
 
 #include "doc/scrap_doc.h"
 
-
-
 /**
  * Indicates, whether pygame.scrap was initialized or not.
  */
@@ -66,7 +64,7 @@ static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args);
 
 /* Determine what type of clipboard we are using */
-#if IS_SDLv2
+#if IS_SDLv2 && !defined(__WIN32__)
 #define SDL2_SCRAP
 #include "scrap_sdl2.c"
 
