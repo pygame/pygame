@@ -354,6 +354,14 @@ _pg_pgevent_proxify(Uint32 type)
             return PGPOST_CONTROLLERDEVICEREMOVED;
         case SDL_CONTROLLERDEVICEREMAPPED:
             return PGPOST_CONTROLLERDEVICEREMAPPED;
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_CONTROLLERTOUCHPADDOWN:
+            return PGPOST_CONTROLLERTOUCHPADDOWN;
+        case SDL_CONTROLLERTOUCHPADMOTION:
+            return PGPOST_CONTROLLERTOUCHPADMOTION;
+        case SDL_CONTROLLERTOUCHPADUP:
+            return PGPOST_CONTROLLERTOUCHPADUP;
+#endif
         case SDL_DOLLARGESTURE:
             return PGPOST_DOLLARGESTURE;
         case SDL_DOLLARRECORD:
@@ -486,6 +494,14 @@ _pg_pgevent_deproxify(Uint32 type)
             return SDL_CONTROLLERDEVICEREMOVED;
         case PGPOST_CONTROLLERDEVICEREMAPPED:
             return SDL_CONTROLLERDEVICEREMAPPED;
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case PGPOST_CONTROLLERTOUCHPADDOWN:
+            return SDL_CONTROLLERTOUCHPADDOWN;
+        case PGPOST_CONTROLLERTOUCHPADMOTION:
+            return SDL_CONTROLLERTOUCHPADMOTION;
+        case PGPOST_CONTROLLERTOUCHPADUP:
+            return SDL_CONTROLLERTOUCHPADUP;
+#endif
         case PGPOST_DOLLARGESTURE:
             return SDL_DOLLARGESTURE;
         case PGPOST_DOLLARRECORD:
@@ -909,7 +925,14 @@ _pg_name_from_eventtype(int type)
             return "JoyDeviceAdded";
         case SDL_JOYDEVICEREMOVED:
             return "JoyDeviceRemoved";
-
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_CONTROLLERTOUCHPADDOWN:
+            return "ControllerTouchpadDown";
+        case SDL_CONTROLLERTOUCHPADMOTION:
+            return "ControllerTouchpadMotion";
+        case SDL_CONTROLLERTOUCHPADUP:
+            return "ControllerTouchpadUp";
+#endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
             return "AudioDeviceAdded";
@@ -1268,6 +1291,18 @@ dict_from_event(SDL_Event *event)
             _joy_map_discard(event->jdevice.which);
             _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jdevice.which));
             break;
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+        case SDL_CONTROLLERTOUCHPADDOWN:
+        case SDL_CONTROLLERTOUCHPADMOTION:
+        case SDL_CONTROLLERTOUCHPADUP:
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->ctouchpad.which));
+            _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->ctouchpad.touchpad));
+            _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->ctouchpad.finger));
+            _pg_insobj(dict, "x", PyFloat_FromDouble(event->ctouchpad.x));
+            _pg_insobj(dict, "y", PyFloat_FromDouble(event->ctouchpad.y));
+            _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->ctouchpad.pressure));
+            break;
+#endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
 #endif
 
 #ifdef WIN32

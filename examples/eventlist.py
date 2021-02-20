@@ -134,7 +134,7 @@ def main():
     for x in range(pg.joystick.get_count()):
         if pg._sdl2.controller.is_controller(x):
             c = pg._sdl2.controller.Controller(x)
-            txt = "Enabled contorller: " + c.name
+            txt = "Enabled controller: " + c.name
         else:
             j = pg.joystick.Joystick(x)
             txt = "Enabled joystick: " + j.get_name()

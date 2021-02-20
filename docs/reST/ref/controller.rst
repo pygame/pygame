@@ -21,6 +21,11 @@ Controllers can generate the following events::
    CONTROLLERAXISMOTION, CONTROLLERBUTTONDOWN, CONTROLLERBUTTONUP,
    CONTROLLERDEVICEREMAPPED, CONTROLLERDEVICEADDED, CONTROLLERDEVICEREMOVED
 
+Additionally if pygame is built with SDL 2.0.14 or higher the following events can also be generated
+(to get the version of sdl pygame is built with use :meth:`pygame.version.SDL`)::
+
+   CONTROLLERTOUCHPADDOWN, CONTROLLERTOUCHPADMOTION, CONTROLLERTOUCHPADUP
+
 These events can be enabled/disabled by :meth:`pygame._sdl2.controller.set_eventstate`
 Note that controllers can generate joystick events as well. This function only toggles
 events related to controllers.
@@ -65,7 +70,9 @@ events related to controllers.
     Enable or disable events connected to controllers.
 
     .. note::
-        This will not turn on or off events related to joysticks.
+        Controllers can still generate joystick events, which will not be toggled by this function.
+
+    .. versionchanged:: 2.0.2: Changed return type from int to None
 
     .. ## pygame._sdl2.controller.set_eventstate ##
 
@@ -76,6 +83,8 @@ events related to controllers.
 
     Returns the current state of events related to controllers, True meaning
     events will be posted.
+
+    .. versionadded:: 2.0.2
 
     .. ## pygame._sdl2.controller.get_eventstate ##
 
@@ -211,6 +220,8 @@ events related to controllers.
       Returns a dict containing the mapping of the Controller. For more
       information see :meth:`Controller.set_mapping()`
 
+      .. versionchanged:: 2.0.2: Return type changed from ``str`` to ``dict``
+
       .. ## Contorller.get_mapping ##
 
    .. method:: set_mapping
@@ -237,6 +248,9 @@ events related to controllers.
 
 
       The function will return 1 if a new mapping is added or 0 if an existing one is updated.
+
+      .. versionchanged:: 2.0.2: Renamed from ``add_mapping`` to ``set_mapping``
+      .. versionchanged:: 2.0.2: Argument type changed from ``str`` to ``dict``
 
       .. ## Contorller.set_mapping ##
 

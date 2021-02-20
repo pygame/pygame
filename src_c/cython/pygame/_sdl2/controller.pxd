@@ -7,7 +7,7 @@ from sdl2 cimport *
 
 cdef extern from "SDL.h" nogil:
     ctypedef enum SDL_GameControllerAxis:
-        SDL_CONTROLLER_AXIS_INVALID = -1,    
+        SDL_CONTROLLER_AXIS_INVALID = -1,
         SDL_CONTROLLER_AXIS_LEFTX,
         SDL_CONTROLLER_AXIS_LEFTY,
         SDL_CONTROLLER_AXIS_RIGHTX,
