@@ -25,7 +25,7 @@
 #define CF_DIBV5 17
 #endif
 
-static HWND handle;
+static HWND window_handle;
 #define MAX_CHUNK_SIZE INT_MAX
 
 static UINT _format_MIME_PLAIN;
@@ -164,13 +164,13 @@ pygame_scrap_init(void)
 #if IS_SDLv1
     if (SDL_GetWMInfo(&info)) {
         /* Save the information for later use */
-        handle = info.window;
+        window_handle = info.window;
         retval = 1;
     }
 #else
     if (SDL_GetWindowWMInfo(pg_GetDefaultWindow(), &info)) {
         /* Save the information for later use */
-        handle = info.info.win.window;
+        window_handle = info.info.win.window;
         retval = 1;
     }
 #endif
@@ -189,7 +189,7 @@ pygame_scrap_lost(void)
         PyErr_SetString(pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
-    return (GetClipboardOwner() != handle);
+    return (GetClipboardOwner() != window_handle);
 }
 
 int
@@ -208,7 +208,7 @@ pygame_scrap_put(char *type, int srclen, char *src)
     if (format == -1)
         format = _convert_format(type);
 
-    if (!OpenClipboard(handle))
+    if (!OpenClipboard(window_handle))
         return 0; /* Could not open the clipboard. */
 
     if (format == CF_DIB || format == CF_DIBV5)
@@ -257,7 +257,7 @@ pygame_scrap_get(char *type, unsigned long *count)
     if (!pygame_scrap_lost())
         return Bytes_AsString(PyDict_GetItemString(_clipdata, type));
 
-    if (!OpenClipboard(handle))
+    if (!OpenClipboard(window_handle))
         return NULL;
 
     if (!IsClipboardFormatAvailable(format)) {
@@ -329,7 +329,7 @@ pygame_scrap_get_types(void)
     char tmp[100] = {'\0'};
     int size = 0;
 
-    if (!OpenClipboard(handle))
+    if (!OpenClipboard(window_handle))
         return NULL;
 
     size = CountClipboardFormats();
