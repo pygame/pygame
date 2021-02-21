@@ -20,22 +20,20 @@
 */
 
 /* Handle clipboard text and data in arbitrary formats */
-#include "pgcompat.h"
-
 #include <limits.h>
 #include <stdio.h>
-
-#include "pgcompat.h"
 
 #include "SDL.h"
 
 #include "SDL_syswm.h"
 
-#include "scrap.h"
-
 #include "pygame.h"
 
+#include "pgcompat.h"
+
 #include "doc/scrap_doc.h"
+
+#include "scrap.h"
 
 /**
  * Indicates, whether pygame.scrap was initialized or not.
@@ -293,7 +291,7 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
 static PyObject *
 _scrap_put_scrap(PyObject *self, PyObject *args)
 {
-    int scraplen;
+    Py_ssize_t scraplen;
     char *scrap = NULL;
     char *scrap_type;
     PyObject *tmp;
