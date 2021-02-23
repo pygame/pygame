@@ -297,8 +297,10 @@ music_get_endevent(PyObject *self, PyObject *args)
 Mix_MusicType
 _get_type_from_hint(char *namehint)
 {
-    // Adjusts namehint into a mere file extension component
+    Mix_MusicType type = MUS_NONE;
     const char *dot;
+
+    // Adjusts namehint into a mere file extension component
     if (namehint != NULL) {
         dot = strrchr(namehint, '.');
         if (dot != NULL) {
@@ -309,7 +311,6 @@ _get_type_from_hint(char *namehint)
     /* Copied almost directly from SDL_mixer. Originally meant to check file extensions
     * to get a hint of what music type it should be.
     * https://github.com/libsdl-org/SDL_mixer/blob/master/src/music.c#L586-L631 */
-    Mix_MusicType type = MUS_NONE;
     if (SDL_strcasecmp(namehint, "WAV") == 0) {
         type = MUS_WAV;
     }
