@@ -3086,11 +3086,11 @@ static PyMethodDef _pg_display_methods[] = {
     {"_set_autoresize", (PyCFunction)pg_display_set_autoresize
      , METH_VARARGS, "provisional API, subject to change"},
     {"_resize_event", (PyCFunction)pg_display_resize_event, METH_O,
-     "provisional API, subject to change"},
+     "DEPRECATED, never officially supported, kept only for compatibility with release candidate"},
     {"_get_renderer_info", (PyCFunction)pg_get_scaled_renderer_info,
      METH_NOARGS, "provisional API, subject to change"},
     {"get_desktop_sizes", (PyCFunction)pg_get_desktop_screen_sizes,
-     METH_NOARGS, "provisional API, subject to change"},
+     METH_NOARGS, DOC_PYGAMEDISPLAYGETDESKTOPSIZES},
     {"is_fullscreen", (PyCFunction)pg_is_fullscreen, METH_NOARGS,
      "provisional API, subject to change"},
 #endif
