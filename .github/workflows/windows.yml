@@ -1,0 +1,106 @@
+name: Windows
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/linux.yml'
+    - '.github/workflows/macos.yml'
+    - '.github/workflows/sdl1-sdist.yml'
+  pull_request:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/linux.yml'
+    - '.github/workflows/macos.yml'
+    - '.github/workflows/sdl1-sdist.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        pyversion: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9', 'pypy-2.7', 'pypy-3.6', 'pypy-3.7']
+        arch: ['x64', 'x86']
+        # excludes x64 builds on pypy windows for now, remove this block when PyPy has better
+        # x64 support on windows
+        exclude:
+        - pyversion: 'pypy-2.7'
+          arch: 'x64'
+        - pyversion: 'pypy-3.6'
+          arch: 'x64'
+        - pyversion: 'pypy-3.7'
+          arch: 'x64'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # python 2.7 needs special treatment because it needs an old compiler to work
+    - name: Setup MSBuild with MSVC v9.0
+      if: matrix.pyversion == '2.7'
+      run: |
+        Invoke-WebRequest https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi -OutFile C:\VCForPython27.msi
+        msiexec.exe /i "C:\VCForPython27.msi" /qn ALLUSERS=1
+
+    - name: Setup MSBuild with MSVC latest version
+      if: matrix.pyversion != '2.7'
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Set up Python ${{ matrix.pyversion }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.pyversion }}
+        architecture: ${{ matrix.arch }}
+
+    - name: Install deps
+      run: |
+        python -m pip install -U pip
+        python -m pip install -U wheel requests numpy
+
+    - name: Build the wheel and install it
+      run: |
+        python setup.py build -j4 bdist_wheel
+        python -m pip install --ignore-installed --pre --no-index --find-links=dist/ pygame
+
+    - name: Run tests
+      env:
+        SDL_VIDEODRIVER: "dummy"
+        SDL_AUDIODRIVER: "disk"
+      run: python -m pygame.tests -v --exclude opengl,timing --time_out 300
+
+    # We upload the generated files under github actions assets
+    - name: Upload dist
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/*.whl
+
+    - name: Upload binaries to Github Releases
+      if: github.event_name == 'release'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: dist/*.whl
+        tag: ${{ github.ref }}
+
+    - name: Upload binaries to PyPI
+      if: github.event_name == 'release'
+      # TODO: Uncomment this block when PyPI username and passwords are put in secrets
+      #env:
+      # TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      # TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python -m pip install twine
+        twine upload dist/*.whl
