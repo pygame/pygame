@@ -63,7 +63,9 @@ class Cursor(object):
             self.data = tuple(args)
         elif len(args) == 4 and len(args[0]) == 2 and len(args[1]) == 2:
             self.type = "bitmap"
-            self.data = tuple(tuple(arg) for arg in args)
+            # pylint: disable=consider-using-generator
+            # See https://github.com/pygame/pygame/pull/2509 for analysis
+            self.data = tuple([tuple(arg) for arg in args])
         else:
             raise TypeError("Arguments must match a cursor specification")
 
