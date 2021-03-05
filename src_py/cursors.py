@@ -63,10 +63,10 @@ class Cursor(object):
             self.data = tuple(args)
         elif len(args) == 4 and len(args[0]) == 2 and len(args[1]) == 2:
             self.type = "bitmap"
-            self.data = tuple([tuple(arg) for arg in args])
+            self.data = tuple(tuple(arg) for arg in args)
         else:
             raise TypeError("Arguments must match a cursor specification")
-            
+
     def __len__(self):
         return len(self.data)
 
