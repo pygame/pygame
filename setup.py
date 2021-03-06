@@ -734,7 +734,7 @@ class DocsCommand(Command):
 
     def run(self):
         '''
-        runs the tests with default options.
+        runs sphinx to build the docs.
         '''
         docs_help = (
             "Building docs requires Python version 3.6 or above, and sphinx."
@@ -744,6 +744,7 @@ class DocsCommand(Command):
 
         import subprocess
         try:
+            print("using python:", sys.executable)
             return subprocess.call([
                 sys.executable, os.path.join('buildconfig', 'makeref.py')]
             )

@@ -14,7 +14,9 @@ c_header_dir = os.path.join('src_c', 'doc')
 
 def Run():
     try:
-        return subprocess.run(['sphinx-build',
+        path_to_sphinx_build = os.path.join(os.path.dirname(sys.executable), "Scripts", "sphinx-build")
+        print("executing sphinx-build:", path_to_sphinx_build)
+        return subprocess.run([path_to_sphinx_build,
                             '-b', 'html',
                             '-d', rst_doctree_dir,
                             '-D', 'headers_dest=%s' % (c_header_dir,),
