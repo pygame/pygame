@@ -229,6 +229,15 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector2.elementwise ##
 
+   .. method:: project
+
+      | :sl:`projects a vector onto another.`
+      | :sg:`project(Vector2) -> Vector2`
+
+      Returns the projected vector.
+
+      .. ## Vector2.project ##
+
    .. method:: rotate
 
       | :sl:`rotates a vector by a given angle in degrees.`
@@ -707,6 +716,15 @@ Multiple coordinates can be set using slices or swizzling
       distance, theta is the inclination angle and phi is the azimuthal angle.
 
       .. ## Vector3.from_spherical ##
+
+   .. method:: project
+
+      | :sl:`projects a vector onto another.`
+      | :sg:`project(Vector3) -> Vector3`
+
+      Returns the projected vector.
+
+      .. ## Vector3.project ##
 
    .. method:: update
 

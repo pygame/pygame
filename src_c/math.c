@@ -235,6 +235,9 @@ static PyObject *
 vector_repr(pgVector *self);
 static PyObject *
 vector_str(pgVector *self);
+static PyObject *
+vector_project_onto(pgVector *self, PyObject *other);
+
 /*
 static Py_ssize_t vector_readbuffer(pgVector *self, Py_ssize_t segment, void
 **ptrptr); static Py_ssize_t vector_writebuffer(pgVector *self, Py_ssize_t
@@ -1574,6 +1577,44 @@ vector_str(pgVector *self)
     return Text_FromUTF8(buffer[bufferIdx % 2]);
 }
 
+static PyObject *
+vector_project_onto(pgVector *self, PyObject *other)
+{
+    Py_ssize_t i;
+    pgVector *ret;
+    double other_coords[VECTOR_MAX_SIZE];
+    double factor;
+    double a_dot_b;
+    double b_dot_b;
+
+    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+
+    ret = (pgVector *)pgVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    a_dot_b = _scalar_product(self->coords, other_coords, self->dim);
+    b_dot_b = _scalar_product(other_coords, other_coords, self->dim);
+
+    if (b_dot_b < self->epsilon) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Cannot project onto a vector with zero length");
+        return NULL;
+    }
+
+    factor = a_dot_b / b_dot_b;
+
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = other_coords[i] * factor;
+
+    return (PyObject *)ret;
+}
+
+
 /* This method first tries normal attribute access. If successful we're
  * done. If not we try swizzling. Here we have 3 different outcomes:
  *  1) swizzling works. we return the result as a tuple
@@ -2104,6 +2145,12 @@ vector2_cross(pgVector *self, PyObject *other)
 }
 
 static PyObject *
+vector2_project(pgVector *self, PyObject *other)
+{
+    return (PyObject *)vector_project_onto(self, other);
+}
+
+static PyObject *
 vector2_angle_to(pgVector *self, PyObject *other)
 {
     double angle;
@@ -2169,7 +2216,7 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2MAGNITUDESQUARED},
     {"rotate", (PyCFunction)vector2_rotate, METH_O, DOC_VECTOR2ROTATE},
     {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_O,
-     DOC_VECTOR2ROTATEIP},
+    DOC_VECTOR2ROTATEIP},
     {"rotate_rad", (PyCFunction)vector2_rotate_rad, METH_O, DOC_VECTOR2ROTATERAD},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
      DOC_VECTOR2ROTATEIPRAD},
@@ -2201,6 +2248,8 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2ASPOLAR},
     {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
      DOC_VECTOR2FROMPOLAR},
+    {"project", (PyCFunction)vector2_project, METH_O,
+     DOC_VECTOR2PROJECT},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
@@ -3011,6 +3060,12 @@ vector3_from_spherical(pgVector *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+vector3_project(pgVector *self, PyObject *other)
+{
+    return (PyObject *)vector_project_onto(self, other);
+}
+
 /* For pickling. */
 static PyObject *
 vector3_reduce(PyObject *oself, PyObject *args)
@@ -3080,6 +3135,7 @@ static PyMethodDef vector3_methods[] = {
      DOC_VECTOR3ASSPHERICAL},
     {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
      DOC_VECTOR3FROMSPHERICAL},
+    {"project", (PyCFunction)vector3_project, METH_O, DOC_VECTOR3PROJECT},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector3_reduce, METH_NOARGS, NULL},
