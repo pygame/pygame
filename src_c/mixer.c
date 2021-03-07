@@ -575,7 +575,7 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
 
     static char *kwids[] = {"frequency", "size",       "channels",
                             "buffer",    "devicename", "allowedchanges", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiisi", kwids, &freq,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiizi", kwids, &freq,
                                      &size, &channels, &chunk, &devicename,
                                      &allowedchanges)) {
         return NULL;
@@ -614,7 +614,6 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     static char *kwids[] = {"frequency", "size",       "channels",
                             "buffer",    "devicename", "allowedchanges", NULL};
-    int dname_size = 0;
 
     request_frequency = 0;
     request_size = 0;
@@ -623,8 +622,8 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
     request_devicename = NULL;
     request_allowedchanges = -1;
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "|iiiiz#i", kwids, &request_frequency, &request_size,
-            &request_channels, &request_chunksize, &request_devicename, &dname_size,
+            args, keywds, "|iiiizi", kwids, &request_frequency, &request_size,
+            &request_channels, &request_chunksize, &request_devicename,
             &request_allowedchanges))
         return NULL;
     if (!request_frequency) {
