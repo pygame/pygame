@@ -14,15 +14,15 @@ c_header_dir = os.path.join('src_c', 'doc')
 
 def Run():
     try:
-        path_to_sphinx_build = os.path.join(os.path.dirname(sys.executable), "Scripts", "sphinx-build")
-        print("executing sphinx-build:", path_to_sphinx_build)
-        return subprocess.run([path_to_sphinx_build,
+        subprocess_args = [sys.executable, '-m', 'sphinx',
                             '-b', 'html',
                             '-d', rst_doctree_dir,
                             '-D', 'headers_dest=%s' % (c_header_dir,),
                             '-D', 'headers_mkdirs=0',
                             rst_source_dir,
-                            html_dir,]).returncode
+                            html_dir,]
+        print("executing sphinx in subprocess with args:", subprocess_args)
+        return subprocess.run(subprocess_args).returncode
     except:
         print('---')
         print('Have you installed sphinx?')
