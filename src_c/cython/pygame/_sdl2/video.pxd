@@ -398,12 +398,14 @@ cdef class Texture:
                     bint flipX=*, bint flipY=*)
 
 cdef class Image:
+    cdef Color _color
     cdef public float angle
-    cdef public float origin[2]
+    cdef SDL_Point _origin
+    cdef SDL_Point* _originptr
     cdef public bint flipX
     cdef public bint flipY
-    cdef public Color color
     cdef public float alpha
+    cdef public SDL_BlendMode blend_mode
 
     cdef public Texture texture
     cdef public Rect srcrect
