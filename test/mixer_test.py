@@ -490,23 +490,48 @@ class MixerModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_find_channel(self):
-
+    def test_find_channel(self):
         # __doc__ (as of 2008-08-02) for pygame.mixer.find_channel:
 
         # pygame.mixer.find_channel(force=False): return Channel
         # find an unused channel
-        #
-        # This will find and return an inactive Channel object. If there are
-        # no inactive Channels this function will return None. If there are no
-        # inactive channels and the force argument is True, this will find the
-        # Channel with the longest running Sound and return it.
-        #
-        # If the mixer has reserved channels from pygame.mixer.set_reserved()
-        # then those channels will not be returned here.
-        #
+        mixer.init()
 
-        self.fail()
+        filename = example_path(os.path.join("data", "house_lo.wav"))
+        sound = mixer.Sound(file=filename)
+
+        num_channels = mixer.get_num_channels()
+
+        if num_channels > 0:
+            found_channel = mixer.find_channel()
+            self.assertIsNotNone(found_channel)
+
+            # try playing on all channels
+            channels = []
+            for channel_id in range(0, num_channels):
+                channel = mixer.Channel(channel_id)
+                channel.play(sound)
+                channels.append(channel)
+
+            # should fail without being forceful
+            found_channel = mixer.find_channel()
+            self.assertIsNone(found_channel)
+
+            # try forcing without keyword
+            found_channel = mixer.find_channel(True)
+            self.assertIsNotNone(found_channel)
+
+            # try forcing with keyword
+            found_channel = mixer.find_channel(force=True)
+            self.assertIsNotNone(found_channel)
+
+            for channel in channels:
+                channel.stop()
+            found_channel = mixer.find_channel()
+            self.assertIsNotNone(found_channel)
+
+
+
 
     def todo_test_get_busy(self):
 
