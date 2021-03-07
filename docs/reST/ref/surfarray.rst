@@ -22,6 +22,12 @@ This module can also separate the red, green, and blue color values into
 separate indices. These types of arrays are referred to as 3D arrays, and the
 last index is 0 for red, 1 for green, and 2 for blue.
 
+The pixels of a 2D array as returned by :func:`array2d` and :func:`pixels2d`
+are mapped to the specific surface. Use :meth:`pygame.Surface.unmap_rgb`
+to convert to a color, and :meth:`pygame.Surface.map_rgb` to get the surface
+specific pixel value of a color. Integer pixel values can only be used directly
+between surfaces with matching pixel layouts (see :class:`pygame.Surface`).
+
 .. function:: array2d
 
    | :sl:`Copy pixels into a 2d array`
