@@ -535,23 +535,32 @@ class MixerModuleTest(unittest.TestCase):
 
         self.fail()
 
-    def todo_test_set_reserved(self):
+    def test_set_reserved(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.set_reserved:
 
-        # pygame.mixer.set_reserved(count): return None
-        # reserve channels from being automatically used
-        #
-        # The mixer can reserve any number of channels that will not be
-        # automatically selected for playback by Sounds. If sounds are
-        # currently playing on the reserved channels they will not be stopped.
-        #
-        # This allows the application to reserve a specific number of channels
-        # for important sounds that must not be dropped or have a guaranteed
-        # channel to play on.
-        #
+        # pygame.mixer.set_reserved(count): return count
+        mixer.init()
+        default_num_channels = mixer.get_num_channels()
 
-        self.fail()
+        # try reserving all the channels
+        result = mixer.set_reserved(default_num_channels)
+        self.assertEqual(result, default_num_channels)
+
+        # try reserving all the channels + 1
+        result = mixer.set_reserved(default_num_channels + 1)
+        # should still be default
+        self.assertEqual(result, default_num_channels)
+
+        # try unreserving all
+        result = mixer.set_reserved(0)
+        # should still be default
+        self.assertEqual(result, 0)
+
+        # try reserving half
+        result = mixer.set_reserved(int(default_num_channels/2))
+        # should still be default
+        self.assertEqual(result, int(default_num_channels/2))
 
     def todo_test_stop(self):
 

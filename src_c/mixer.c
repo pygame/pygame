@@ -1018,7 +1018,7 @@ sound_dealloc(pgSoundObject *self)
 
 static PyTypeObject pgSound_Type = {
     PyVarObject_HEAD_INIT(NULL,0)
-    "Sound", 
+    "Sound",
     sizeof(pgSoundObject), 0,
     (destructor)sound_dealloc, 0, 0, 0, /* setattr */
     0,                                  /* compare */
@@ -1417,14 +1417,15 @@ set_num_channels(PyObject *self, PyObject *args)
 static PyObject *
 set_reserved(PyObject *self, PyObject *args)
 {
-    int numchans;
-    if (!PyArg_ParseTuple(args, "i", &numchans))
+    int numchans_requested;
+    int numchans_reserved;
+    if (!PyArg_ParseTuple(args, "i", &numchans_requested))
         return NULL;
 
     MIXER_INIT_CHECK();
 
-    Mix_ReserveChannels(numchans);
-    Py_RETURN_NONE;
+    numchans_reserved = Mix_ReserveChannels(numchans_requested);
+    return PyInt_FromLong(numchans_reserved);
 }
 
 static PyObject *
