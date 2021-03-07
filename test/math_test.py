@@ -961,6 +961,101 @@ class Vector2TypeTest(unittest.TestCase):
         vec_a + vec_b
         vec_a *= 2
 
+    def test_project_v2_onto_x_axis(self):
+        """Project onto x-axis, e.g. get the component pointing in the x-axis direction."""
+        # arrange
+        v = Vector2(2, 2)
+        x_axis = Vector2(10, 0)
+
+        # act
+        actual = v.project(x_axis)
+
+        # assert
+        self.assertEqual(v.x, actual.x)
+        self.assertEqual(0, actual.y)
+
+    def test_project_v2_onto_y_axis(self):
+        """Project onto y-axis, e.g. get the component pointing in the y-axis direction."""
+        # arrange
+        v = Vector2(2, 2)
+        y_axis = Vector2(0, 100)
+
+        # act
+        actual = v.project(y_axis)
+
+        # assert
+        self.assertEqual(0, actual.x)
+        self.assertEqual(v.y, actual.y)
+
+    def test_project_v2_onto_other(self):
+        """Project onto other vector."""
+        # arrange
+        v = Vector2(2, 3)
+        other = Vector2(3, 5)
+
+        # act
+        actual = v.project(other)
+
+        # assert
+        expected = v.dot(other) / other.dot(other) * other
+        self.assertEqual(expected.x, actual.x)
+        self.assertEqual(expected.y, actual.y)
+
+    def test_project_v2_raises_if_other_has_zero_length(self):
+        """Check if exception is raise when projected on vector has zero length."""
+        # arrange
+        v = Vector2(2, 3)
+        other = Vector2(0, 0)
+
+        # act / assert
+        self.assertRaises(ValueError,  v.project, other)
+
+    def test_project_v2_onto_other_as_tuple(self):
+        """Project onto other tuple as vector."""
+        # arrange
+        v = Vector2(2, 3)
+        other = Vector2(3, 5)
+
+        # act
+        actual = v.project(tuple(other))
+
+        # assert
+        expected = v.dot(other) / other.dot(other) * other
+        self.assertEqual(expected.x, actual.x)
+        self.assertEqual(expected.y, actual.y)
+
+    def test_project_v2_onto_other_as_list(self):
+        """Project onto other list as vector."""
+        # arrange
+        v = Vector2(2, 3)
+        other = Vector2(3, 5)
+
+        # act
+        actual = v.project(list(other))
+
+        # assert
+        expected = v.dot(other) / other.dot(other) * other
+        self.assertEqual(expected.x, actual.x)
+        self.assertEqual(expected.y, actual.y)
+
+    def test_project_v2_raises_if_other_has_zero_length(self):
+        """Check if exception is raise when projected on vector has zero length."""
+        # arrange
+        v = Vector2(2, 3)
+        other = Vector2(0, 0)
+
+        # act / assert
+        self.assertRaises(ValueError,  v.project, other)
+
+    def test_project_v2_raises_if_other_is_not_iterable(self):
+        """Check if exception is raise when projected on vector is not iterable."""
+        # arrange
+        v = Vector2(2, 3)
+        other = 10
+
+        # act / assert
+        self.assertRaises(TypeError,  v.project, other)
+
 
 class Vector3TypeTest(unittest.TestCase):
     def setUp(self):
@@ -2140,46 +2235,6 @@ class Vector3TypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             v.xz = (1, 1)
 
-    def test_project_v2_onto_x_axis(self):
-        """Project onto x-axis, e.g. get the component pointing in the x-axis direction."""
-        # arrange
-        v = Vector2(2, 2)
-        x_axis = Vector2(10, 0)
-
-        # act
-        actual = v.project(x_axis)
-
-        # assert
-        self.assertEqual(v.x, actual.x)
-        self.assertEqual(0, actual.y)
-
-    def test_project_v2_onto_y_axis(self):
-        """Project onto y-axis, e.g. get the component pointing in the y-axis direction."""
-        # arrange
-        v = Vector2(2, 2)
-        y_axis = Vector2(0, 100)
-
-        # act
-        actual = v.project(y_axis)
-
-        # assert
-        self.assertEqual(0, actual.x)
-        self.assertEqual(v.y, actual.y)
-
-    def test_project_v2_onto_other(self):
-        """Project onto other vector."""
-        # arrange
-        v = Vector2(2, 3)
-        other = Vector2(3, 5)
-
-        # act
-        actual = v.project(other)
-
-        # assert
-        expected = v.dot(other) / other.dot(other) * other
-        self.assertEqual(expected.x, actual.x)
-        self.assertEqual(expected.y, actual.y)
-        
     def test_project_v3_onto_x_axis(self):
         """Project onto x-axis, e.g. get the component pointing in the x-axis direction."""
         # arrange
@@ -2236,6 +2291,55 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(expected.x, actual.x)
         self.assertEqual(expected.y, actual.y)
         self.assertEqual(expected.z, actual.z)
+
+    def test_project_v3_onto_other_as_tuple(self):
+        """Project onto other tuple as vector."""
+        # arrange
+        v = Vector3(2, 3, 4)
+        other = Vector3(3, 5, 7)
+
+        # act
+        actual = v.project(tuple(other))
+
+        # assert
+        expected = v.dot(other) / other.dot(other) * other
+        self.assertEqual(expected.x, actual.x)
+        self.assertEqual(expected.y, actual.y)
+        self.assertEqual(expected.z, actual.z)
+
+    def test_project_v3_onto_other_as_list(self):
+        """Project onto other list as vector."""
+        # arrange
+        v = Vector3(2, 3, 4)
+        other = Vector3(3, 5, 7)
+
+        # act
+        actual = v.project(list(other))
+
+        # assert
+        expected = v.dot(other) / other.dot(other) * other
+        self.assertEqual(expected.x, actual.x)
+        self.assertEqual(expected.y, actual.y)
+        self.assertEqual(expected.z, actual.z)
+
+    def test_project_v3_raises_if_other_has_zero_length(self):
+        """Check if exception is raise when projected on vector has zero length."""
+        # arrange
+        v = Vector3(2, 3, 4)
+        other = Vector3(0, 0, 0)
+
+        # act / assert
+        self.assertRaises(ValueError,  v.project, other)
+
+    def test_project_v3_raises_if_other_is_not_iterable(self):
+        """Check if exception is raise when projected on vector is not iterable."""
+        # arrange
+        v = Vector3(2, 3, 4)
+        other = 10
+
+        # act / assert
+        self.assertRaises(TypeError,  v.project, other)
+
 
 if __name__ == "__main__":
     unittest.main()
