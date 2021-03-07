@@ -408,7 +408,7 @@ add_datafiles(data_files, 'pygame/examples',
 
 # docs
 add_datafiles(data_files, 'pygame/docs',
-              ['docs',
+              ['docs/generated',
                   ['*.html',             # Navigation and help pages
                    '*.gif',              # pygame logos
                    '*.js',               # For doc search
