@@ -1604,12 +1604,12 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
             mode.h = 480;
         if (SDL_BITSPERPIXEL(mode.format) != bpp)
             continue;
+        if (last_width == mode.w && last_height == mode.h && last_width != -1) {
+            continue;
+        }
         if (!(size = Py_BuildValue("(ii)", mode.w, mode.h))) {
             Py_DECREF(list);
             return NULL;
-        }
-        if (last_width == mode.w && last_height == mode.h && last_width != -1) {
-            continue;
         }
         last_width = mode.w;
         last_height = mode.h;
