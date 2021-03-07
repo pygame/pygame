@@ -18,7 +18,6 @@
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
 #define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
-#define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2ROTATE "rotate(angle) -> Vector2\nrotates a vector by a given angle in degrees."
 #define DOC_VECTOR2ROTATERAD "rotate_rad(angle) -> Vector2\nrotates a vector by a given angle in radians."
 #define DOC_VECTOR2ROTATEIP "rotate_ip(angle) -> None\nrotates the vector by a given angle in degrees in place."
@@ -26,6 +25,7 @@
 #define DOC_VECTOR2ANGLETO "angle_to(Vector2) -> float\ncalculates the angle to a given vector in degrees."
 #define DOC_VECTOR2ASPOLAR "as_polar() -> (r, phi)\nreturns a tuple with radial distance and azimuthal angle."
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
+#define DOC_VECTOR2PROJECT "project(Vector2) -> Vector2\nprojects a vector onto another."
 #define DOC_VECTOR2UPDATE "update() -> None\nupdate(int) -> None\nupdate(float) -> None\nupdate(Vector2) -> None\nupdate(x, y) -> None\nupdate((x, y)) -> None\nSets the coordinates of the vector."
 #define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector3\nVector3(float) -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
@@ -154,10 +154,6 @@ pygame.math.Vector2.elementwise
  elementwise() -> VectorElementwiseProxy
 The next operation will be performed elementwise.
 
-pygame.math.Vector2.project
- project(Vector2) -> Vector2
-projects a vector onto another.
-
 pygame.math.Vector2.rotate
  rotate(angle) -> Vector2
 rotates a vector by a given angle in degrees.
@@ -185,6 +181,10 @@ returns a tuple with radial distance and azimuthal angle.
 pygame.math.Vector2.from_polar
  from_polar((r, phi)) -> None
 Sets x and y from a polar coordinates tuple.
+
+pygame.math.Vector2.project
+ project(Vector2) -> Vector2
+projects a vector onto another.
 
 pygame.math.Vector2.update
  update() -> None
