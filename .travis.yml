@@ -1,0 +1,49 @@
+os: linux
+dist: bionic  # focal
+language: python
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/Library/Caches/pip/wheels
+    - /Library/Caches/pip/wheels
+
+
+# So commits do not get built twice.
+# Only test master and tagged releases on push
+#   always test things that aren't pushes (like PRs)
+if: type != push OR branch = master OR branch = main OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
+
+jobs:
+  include:
+    - os: linux
+      name: arm64
+      python: 3.8
+      arch: arm64
+
+before_install:
+  - |
+    sudo apt-get update
+    sudo apt-get install python-dev python-numpy libportmidi-dev libjpeg-dev \
+      libtiff5-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
+      xfonts-cyrillic fluid-soundfont-gm timgm6mb-soundfont \
+      libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+install:
+  - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
+  - |
+    PYTHON_EXE=python PIP_CMD=pip
+    $PIP_CMD install --upgrade pip
+    $PIP_CMD install --upgrade numpy
+    $PYTHON_EXE setup.py -config -auto
+    $PYTHON_EXE setup.py build -j4 install -pygame-ci -noheaders
+
+env:
+  global:
+    - SDL_VIDEODRIVER=dummy
+    - SDL_AUDIODRIVER=disk
+
+script:
+  - |
+    $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
+    $PYTHON_EXE -m pygame.tests.__main__ -v --exclude opengl,timing --time_out 300
