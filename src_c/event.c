@@ -715,7 +715,7 @@ pg_event_filter(void *_, SDL_Event *event)
 
     else if (event->type == SDL_MOUSEWHEEL) {
         //#691 We are not moving wheel!
-        if (!event->wheel.y)
+        if (!event->wheel.y && !event->wheel.x)
             return 0;
 
         SDL_GetMouseState(&x, &y);
@@ -725,18 +725,17 @@ pg_event_filter(void *_, SDL_Event *event)
         newdownevent.type = SDL_MOUSEBUTTONDOWN;
         newdownevent.button.x = x;
         newdownevent.button.y = y;
+        newdownevent.button.state = SDL_PRESSED;
+        newdownevent.button.clicks = 1;
         newdownevent.button.which = event->button.which;
 
         newupevent.type = SDL_MOUSEBUTTONUP;
         newupevent.button.x = x;
         newupevent.button.y = y;
-        newupevent.button.which = event->button.which;
-
-        newdownevent.button.state = SDL_PRESSED;
-        newdownevent.button.clicks = 1;
-
         newupevent.button.state = SDL_RELEASED;
         newupevent.button.clicks = 1;
+        newupevent.button.which = event->button.which;
+
 
         if (event->wheel.y > 0) {
             newdownevent.button.button =  PGM_BUTTON_WHEELUP | PGM_BUTTON_KEEP;

@@ -128,7 +128,7 @@ attributes.
 
 .. versionadded:: 1.9.5
 
-.. versionadded:: 2.0.2 The ``instance_id`` attribute was added to ``MOUSEWHEEL`` event.
+.. versionadded:: 2.0.2 The ``instance_id`` attribute was added to ``MOUSEWHEEL`` event, fixed amount horizontal scroll (x, positive to the right and negative to the left).
 
 |
 
