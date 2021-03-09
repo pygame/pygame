@@ -725,10 +725,12 @@ pg_event_filter(void *_, SDL_Event *event)
         newdownevent.type = SDL_MOUSEBUTTONDOWN;
         newdownevent.button.x = x;
         newdownevent.button.y = y;
+        newdownevent.button.which = event->button.which;
 
         newupevent.type = SDL_MOUSEBUTTONUP;
         newupevent.button.x = x;
         newupevent.button.y = y;
+        newupevent.button.which = event->button.which;
 
         newdownevent.button.state = SDL_PRESSED;
         newdownevent.button.clicks = 1;
@@ -1106,6 +1108,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
         case SDL_MOUSEMOTION:
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->motion.which));  // The mouse instance id, or SDL_TOUCH_MOUSEID
             obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
             _pg_insobj(dict, "pos", obj);
             obj =
@@ -1126,6 +1129,7 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
+            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->button.which));  // The mouse instance id, or SDL_TOUCH_MOUSEID
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
@@ -1176,7 +1180,7 @@ dict_from_event(SDL_Event *event)
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));
+            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event 
             _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
             break;
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
@@ -1210,7 +1214,7 @@ dict_from_event(SDL_Event *event)
 #endif
             _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
             _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
-            _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));
+            _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));  // The mouse instance id, or SDL_TOUCH_MOUSEID
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
