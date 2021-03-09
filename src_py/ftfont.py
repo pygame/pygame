@@ -154,7 +154,13 @@ def get_init():
 
     return _get_init()
 
+# This sysfont module import must follow the Font class declaration
+#
+# In the case that the SDL(2)_ttf pygame.font extension module is not built, pygame.ftfont is
+# used as a replacement for backwards compatibility. Since module sysfont itself imports Font
+# from pygame.font placing the import statement here prevents a circular import failure. 
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
+
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
        Create a pygame Font from system font resources.
