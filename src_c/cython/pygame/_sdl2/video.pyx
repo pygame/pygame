@@ -982,6 +982,23 @@ cdef class Renderer:
             SDL_DestroyRenderer(self._renderer)
 
     @property
+    def draw_blend_mode(self):
+        # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
+        cdef SDL_BlendMode blendMode
+        res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
+        if res < 0:
+            raise error()
+
+        return blendMode
+
+    @draw_blend_mode.setter
+    def draw_blend_mode(self, blendMode):
+        # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
+        res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
+        if res < 0:
+            raise error()
+
+    @property
     def draw_color(self):
         """ Color used by the drawing functions.
         """
