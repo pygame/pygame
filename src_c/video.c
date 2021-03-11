@@ -166,12 +166,83 @@ pg_renderer_set_viewport(pgRendererObject *self, PyObject *area)
     Py_RETURN_NONE;
 }
 
+/*
+IMPORTANT!
+
+Renderer needs to add
+
+def draw_line(self, p1, p2):
+    # https://wiki.libsdl.org/SDL_RenderDrawLine
+    res = SDL_RenderDrawLine(self._renderer,
+                                p1[0], p1[1],
+                                p2[0], p2[1])
+    if res < 0:
+        raise error()
+
+def draw_point(self, point):
+    # https://wiki.libsdl.org/SDL_RenderDrawPoint
+    res = SDL_RenderDrawPoint(self._renderer,
+                                point[0], point[1])
+    if res < 0:
+        raise error()
+
+def draw_rect(self, rect):
+    # https://wiki.libsdl.org/SDL_RenderDrawRect
+    cdef SDL_Rect _rect
+    cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
+    if rectptr == NULL:
+        raise TypeError('expected a rectangle')
+    res = SDL_RenderDrawRect(self._renderer, rectptr)
+    if res < 0:
+        raise error()
+*/
+
+static PyObject *
+pg_renderer_draw_line(pgRendererObject *self, PyObject *args, PyObject *kw) {}
+
+static PyObject *
+pg_renderer_draw_point(pgRendererObject *self, PyObject *args, PyObject *kw) {}
+
+static PyObject *
+pg_renderer_draw_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {}
+
+static PyObject *
+pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
+    // https://wiki.libsdl.org/SDL_RenderFillRect
+    static char *keywords[] = {
+        "rect",
+        NULL
+    };
+
+    PyObject *area = NULL;
+    SDL_Rect rect;
+    SDL_Rect *rectptr = NULL;
+
+    if(!PyArg_ParseTupleAndKeywords(args, kw, "O", keywords, &area)) {
+        return NULL;
+    }
+    
+    rectptr = pgRect_FromObject(area, &rect);
+    if (rectptr == NULL)
+        return RAISE(PyExc_TypeError, "expected a rectangle");
+
+    if (SDL_RenderFillRect(self->renderer, rectptr) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef pg_renderer_methods[] = {
     { "clear", (PyCFunction)pg_renderer_clear, METH_NOARGS, NULL /* TODO */ },
     { "present", (PyCFunction)pg_renderer_present, METH_NOARGS, NULL /* TODO */ },
     { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, NULL /* TODO */ },
     { "set_viewport", (PyCFunction)pg_renderer_set_viewport, METH_O, NULL /* TODO */ },
+    { "draw_line", (PyCFunction)pg_renderer_draw_line, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "draw_point", (PyCFunction)pg_renderer_draw_point, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "draw_rect", (PyCFunction)pg_renderer_draw_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "fill_rect", (PyCFunction)pg_renderer_fill_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { NULL }
 };
 
@@ -200,8 +271,38 @@ pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
     return 0;
 }
 
+static PyObject *
+pg_renderer_get_target(pgRendererObject *self, void *closure)
+{
+    //TODO
+}
+
+static PyObject *
+pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
+{
+    pgTextureObject* newtarget = NULL;
+
+    if(PyObject_IsInstance(val, (PyObject*)&pgTexture_Type))
+        newtarget = val;
+
+    else if (val == Py_None) {}
+
+    else {
+        return NULL; //TODO: raise TypeError('target must be a Texture or None')
+    }
+        
+    self->target = newtarget;
+
+    //TODO: error checking SDL_SetRendererTarget calls
+    if (self->target)
+        SDL_SetRenderTarget(self->renderer, self->target->texture);
+    else //target is NULL
+        SDL_SetRenderTarget(self->renderer, NULL);
+}
+
 static PyGetSetDef pg_renderer_getset[] = {
     { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, NULL /*TODO*/, NULL },
+    { "target", (getter)pg_renderer_get_target, (setter)pg_renderer_set_target, NULL /*TODO*/, NULL },
     { NULL }
 };
 
@@ -506,10 +607,49 @@ pg_texture_draw(pgTextureObject *self, PyObject *args, PyObject *kw)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_texture_update(pgTextureObject *self, PyObject *args, PyObject *kw) 
+{
+    static char *keywords[] = {
+        "surface",
+        "area",
+        NULL
+    };
+
+    pgSurfaceObject *surfobj = NULL;
+    SDL_Surface *surf = NULL;
+    PyObject *area = Py_None;
+    SDL_Rect rect;
+    SDL_Rect *rectptr = NULL;
+
+    if(!PyArg_ParseTupleAndKeywords(args, kw, "O!|O", keywords, &pgSurface_Type, &surfobj, &area)) {
+        return NULL;
+    }
+
+    if (!pgSurface_Check(surfobj)) {
+        RAISE(PyExc_TypeError, "not a surface");
+        return NULL;
+    }
+
+    surf = pgSurface_AsSurface(surfobj);
+
+    rectptr = pgRect_FromObject(area, &rect);
+    if (rectptr == NULL && area != Py_None) {
+        return RAISE(PyExc_TypeError, "area must be a rectangle or None");
+    }
+
+    if (SDL_UpdateTexture(self->texture, rectptr, surf->pixels, surf->pitch) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;       
+    }
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef pg_texture_methods[] = {
     { "from_surface", (PyCFunction)pg_texture_from_surface, METH_VARARGS | METH_KEYWORDS | METH_STATIC, NULL /* TODO */ },
     { "get_rect", (PyCFunction)pg_texture_get_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "draw", (PyCFunction)pg_texture_draw, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "update", (PyCFunction)pg_texture_update, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { NULL }
 };
 
@@ -608,12 +748,14 @@ format_from_depth(int depth)
         Gmask = 0xF << 4;
         Bmask = 0xF;
         Amask = 0xF << 12;
+        break;
     case 0:
     case 32:
         Rmask = 0xF << 16;
         Gmask = 0xF << 8;
         Bmask = 0xF;
         Amask = 0xF << 24;
+        break;
     default:
         RAISE(PyExc_ValueError,
               "no standard masks exist for given bitdepth with alpha");
@@ -636,8 +778,8 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
     };
     PyObject *sizeobj;
     PyObject *renderobj;
-    int depth;
-    int static_ = 1;
+    int depth = 0;
+    int static_ = 0;
     int streaming = 0;
     int target = 0;
     int format;
@@ -674,6 +816,10 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
               "width and height must be positive");
         return -1;
     }
+
+    //implementing the default of "static"
+    if (!static_ && !target && !streaming)
+        static_ = 1;
 
     if (static_) {
         if (streaming || target) {
@@ -835,8 +981,221 @@ static PyTypeObject pgTexture_Type = {
     pg_texture_new /* tp_new */
 };
 
+/*
+ * WINDOW
+ */
+
+static PyObject *
+pg_window_maximize(pgWindowObject *self)
+{
+    SDL_MaximizeWindow(self->_win);
+}
+
+static PyObject *
+pg_window_minimize(pgWindowObject *self)
+{
+    SDL_MinimizeWindow(self->_win);
+}
+
+static PyObject *
+pg_window_set_icon(pgWindowObject *self, PyObject *args)
+{
+    PyObject *surface;
+    if (!PyArg_ParseTuple(args, "O!", &pgSurface_Type, &surface))
+        return NULL;
+
+    //if (!pgSurface_Check(surface))
+    //    raise TypeError('surface must be a Surface object');
+
+    SDL_SetWindowIcon(self->_win, pgSurface_AsSurface(surface));
+}
+
+static PyMethodDef pg_window_methods[] = {
+    { "maximize", (PyCFunction)pg_window_maximize, METH_NOARGS, "TODO"},
+    { "minimize", (PyCFunction)pg_window_minimize, METH_NOARGS, "TODO"},
+    { "set_icon", (PyCFunction)pg_window_set_icon, METH_VARARGS, "TODO"},
+    { NULL }
+};
+
+static PyObject *
+pg_window_get_size(pgWindowObject *self) 
+{
+    int w, h;
+    SDL_GetWindowSize(self->_win, &w, &h);
+    return Py_BuildValue("(ii)", w, h);
+}
+
+static PyObject *
+pg_window_set_size(pgWindowObject *self, PyObject *val, void *closure) 
+{
+    int w, h;
+    if (!pg_TwoIntsFromObj(val, &w, &h)) {
+        RAISE(PyExc_TypeError,
+            "size should be a sequence of two elements");
+        return -1;
+    }
+    SDL_SetWindowSize(self->_win, w, h);
+}
+
+static PyGetSetDef pg_window_getset[] = {
+    { "size", (getter)pg_window_get_size, (setter)pg_window_set_size, NULL /*TODO*/, NULL },
+    { NULL }
+};
+
+/*
+    char* keywords[] = {
+        "renderer",
+        "size",
+        "depth",
+        "static",
+        "streaming",
+        "target",
+        NULL
+    };
+    PyObject *sizeobj;
+    PyObject *renderobj;
+    int depth;
+    int static_ = 1;
+    int streaming = 0;
+    int target = 0;
+    int format;
+    int access;
+
+#if PY3
+    const char *formatstr = "OO|Ippp";
+#else
+    const char *formatstr = "OO|Iiii";
+#endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords,
+                                     &renderobj,
+                                     &sizeobj,
+                                     &depth,
+                                     &static_, &streaming, &target)) {
+        return -1;
+*/
+
+static int
+pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
 
 
+    //def __init__(self, title='pygame',
+    //             size=DEFAULT_SIZE,
+    //             position=WINDOWPOS_UNDEFINED,
+    //             bint fullscreen=False,
+    //             bint fullscreen_desktop=False, **kwargs):
+
+
+    // ignoring extensive keyword arguments for now - and fullscreen flags
+
+    char* title = "pygame";
+    int x = SDL_WINDOWPOS_UNDEFINED;
+    int y = SDL_WINDOWPOS_UNDEFINED;
+    int w = 640;
+    int h = 480;
+
+    char* keywords[] = {
+        "title",
+        "size",
+        "position",
+        NULL
+    };
+
+    PyObject *sizeobj = NULL;
+    PyObject *positionobj = NULL;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "|sOO", keywords, &title, &sizeobj, &positionobj))
+        return -1;
+
+    //UNSUPPORTED: previous flags to SIZE and POSITION
+
+    if (sizeobj && !pg_TwoIntsFromObj(sizeobj, &w, &h)) {
+        RAISE(PyExc_TypeError,
+            "size should be a sequence of two elements");
+        return -1;
+    }
+
+    if (positionobj && !pg_TwoIntsFromObj(positionobj, &x, &y)) {
+        RAISE(PyExc_TypeError,
+            "position should be a sequence of two elements");
+        return -1;
+    }
+
+    //https://wiki.libsdl.org/SDL_CreateWindow
+    //https://wiki.libsdl.org/SDL_WindowFlags
+    self->_win = SDL_CreateWindow(title, x, y, w, h, 0);
+    //self->_is_borrowed=0
+    if (!self->_win)
+        return -1;
+    SDL_SetWindowData(self->_win, "pg_window", self);
+
+    
+    //import pygame.pkgdata
+    //surf = pygame.image.load(pygame.pkgdata.getResource(
+    //                         'pygame_icon.bmp'))
+    //surf.set_colorkey(0)
+    //self.set_icon(surf)
+    
+}
+
+static PyObject *
+pg_window_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    pgWindowObject *obj;
+    obj = (pgWindowObject*) type->tp_alloc(type, 0);
+    return (PyObject*)obj;
+}
+
+static void
+pg_window_dealloc(pgWindowObject *self)
+{
+    if (self->_win) {
+        SDL_DestroyWindow(self->_win);
+        self->_win = NULL;
+    }
+}
+
+
+static PyTypeObject pgWindow_Type = {
+    PyVarObject_HEAD_INIT(NULL,0)
+    "pygame.Window", /*name*/
+    sizeof(pgWindowObject), /*basicsize*/
+    0, /*itemsize*/
+    (destructor)pg_window_dealloc, /*dealloc*/
+    NULL, /*print*/
+    NULL, /*getattr*/
+    NULL, /*setattr*/
+    NULL, /*compare/reserved*/
+    NULL, /*repr*/
+    NULL, /*as_number*/
+    NULL, /*as_sequence*/
+    NULL, /*as_mapping*/
+    NULL, /*hash*/
+    NULL, /*call*/
+    NULL, /*str*/
+    0L,
+    0L,
+    0L,
+    Py_TPFLAGS_DEFAULT, /* tp_flags */
+    NULL, /* TODO: docstring */
+    NULL, /* tp_traverse */
+    NULL, /* tp_clear */
+    NULL, /* tp_richcompare */
+    NULL, /* tp_weaklistoffset */
+    NULL, /* tp_iter */
+    NULL, /* tp_iternext */
+    pg_window_methods, /* tp_methods */
+    NULL, /* tp_members */ /*pg_texture_members*/
+    pg_window_getset, /* tp_getset */
+    NULL, /* tp_base */
+    NULL, /* tp_dict */
+    NULL, /* tp_descr_get */
+    NULL, /* tp_descr_set */
+    0, /* tp_dictoffset */
+    (initproc)pg_window_init, /* tp_init */
+    NULL, /* tp_alloc */
+    pg_window_new /* tp_new */                  /*texture uses this, does window need to?*/
+};
 
 
 MODINIT_DEFINE(video)
@@ -867,6 +1226,9 @@ MODINIT_DEFINE(video)
     if (PyType_Ready(&pgTexture_Type) < 0) {
         MODINIT_ERROR;
     }
+    if (PyType_Ready(&pgWindow_Type) < 0) {
+        MODINIT_ERROR;
+    }
 
 #if PY3
     module = PyModule_Create(&_module);
@@ -893,6 +1255,11 @@ MODINIT_DEFINE(video)
     }
 
     if (PyDict_SetItemString(dict, "Texture", (PyObject *)&pgTexture_Type)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
+    if (PyDict_SetItemString(dict, "Window", (PyObject *)&pgWindow_Type)) {
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
