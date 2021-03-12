@@ -37,6 +37,7 @@ class Dependency:
 
             for incname in incnames:
                 path = os.path.join(dir, incname)
+                path = os.path.realpath(path)
                 if os.path.isfile(path):
                     self.inc_dir = os.path.dirname(path)
                     break
@@ -44,8 +45,9 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
+                path = os.path.realpath(path)
                 if os.path.isfile(path):
-                    self.lib_dir = dir
+                    self.lib_dir = os.path.dirname(path)
                     break
         if self.lib_dir and self.inc_dir:
             print (self.name + '        '[len(self.name):] + ': found')
