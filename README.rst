@@ -1,3 +1,5 @@
+Minor fork for M1 Macs. If you're having trouble using, e.g., pygame_font or the extended image library and you installed SDL2 and companion libraries with Homebrew, this might work for you.
+
 .. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
   :width: 200
   :height: 70
