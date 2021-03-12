@@ -112,8 +112,6 @@ pgTexture_DrawObj(pgTextureObject *self, PyObject *srcrect, PyObject *dstrect)
 static PyObject *
 pg_texture_draw(pgTextureObject *self, PyObject *args, PyObject *kw)
 {
-
-    printf("drawing a texture get hyped!\n");
     static char *keywords[] = {
         "srcrect",
         "dstrect",

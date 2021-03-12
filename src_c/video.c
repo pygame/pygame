@@ -22,11 +22,14 @@
 
 static PyTypeObject pgRenderer_Type;
 static PyTypeObject pgTexture_Type;
+static PyTypeObject pgWindow_Type;
 
 typedef struct pgRendererObject pgRendererObject;
 
 #define pgRenderer_Check(x) (((PyObject*)(x))->ob_type == &pgRenderer_Type)
 #define pgTexture_Check(x) (((PyObject*)(x))->ob_type == &pgTexture_Type)
+#define pgWindow_Check(x) (((PyObject*)(x))->ob_type == &pgWindow_Type)
+
 
 static PyObject *drawfnc_str = NULL;
 
