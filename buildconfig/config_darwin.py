@@ -198,6 +198,5 @@ def main(sdl2=False):
 
 
 if __name__ == '__main__':
-    main(sdl2=True)
     print ("""This is the configuration subscript for OSX Darwin.
              Please run "config.py" for full configuration.""")
