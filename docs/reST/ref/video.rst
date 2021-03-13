@@ -135,6 +135,21 @@
       | :sl:`Create a texture from an existing surface.`
       | :sg:`from_surface(renderer, surface) -> Texture`
 
+   .. attribute:: renderer
+
+      | :sl:`Gets the renderer associated with the Texture. *Read-only*`
+      | :sg:`renderer -> Renderer`
+
+   .. attribute:: width
+
+      | :sl:`Gets the width of the Texture. *Read-only*`
+      | :sg:`width -> int`
+
+   .. attribute:: height
+
+      | :sl:`Gets the height of the Texture. *Read-only*`
+      | :sg:`height -> int`
+
    .. attribute:: alpha
 
       | :sl:`Gets and sets an additional alpha value multiplied into render copy operations.`
@@ -233,12 +248,12 @@
    .. method:: draw_rect
 
       | :sl:`Draws a rectangle.`
-      | :sg:`draw_rect(Rect)-> None`
+      | :sg:`draw_rect(rect)-> None`
 
    .. method:: fill_rect
 
       | :sl:`Fills a rectangle.`
-      | :sg:`fill_rect(Rect)-> None`
+      | :sg:`fill_rect(rect)-> None`
 
    .. method:: to_surface
 

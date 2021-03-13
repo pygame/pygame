@@ -3,7 +3,42 @@
  */
 
 static PyObject *
-pg_renderer_clear(pgRendererObject *self, PyObject *args)
+pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
+    // TODO: implement this function properly
+    // From reading the code in video.pyx, I don't understand how is supposed to operate
+
+    char* keywords[] = {
+        "window",
+        NULL
+    };
+
+    PyObject* window;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "O", keywords,
+                                     &window)) {
+        return NULL;
+    }
+
+    if(!pgWindow_Check(window)) {
+        RAISE(PyExc_TypeError, "window must be a Window object");
+        return NULL;
+    }
+
+    // TODO: manage window object lifecycle? Increase refcount, decrease on dealloc?
+
+    pgRendererObject* renderer = pg_renderer_new(cls, NULL, NULL);
+    renderer->window = (pgWindowObject *) window;
+    renderer->renderer = SDL_GetRenderer(renderer->window->_win);
+    if (!renderer->renderer) {
+        RAISE(pgExc_SDLError, "I'm confused about what this function is supposed to do");
+        return NULL;
+    }
+
+    return renderer;
+}
+
+static PyObject *
+pg_renderer_clear(pgRendererObject *self)
 {
     if (SDL_RenderClear(self->renderer) < 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
@@ -12,7 +47,7 @@ pg_renderer_clear(pgRendererObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_renderer_present(pgRendererObject *self, PyObject *args)
+pg_renderer_present(pgRendererObject *self)
 {
     SDL_RenderPresent(self->renderer);
     Py_RETURN_NONE;
@@ -97,49 +132,69 @@ pg_renderer_set_viewport(pgRendererObject *self, PyObject *area)
     Py_RETURN_NONE;
 }
 
-/*
-IMPORTANT!
+static PyObject *
+pg_renderer_draw_line(pgRendererObject *self, PyObject *args, PyObject *kw) {
+    //https://wiki.libsdl.org/SDL_RenderDrawLine
+    static char *keywords[] = {
+        "p1",
+        "p2",
+        NULL
+    };
 
-Renderer needs to add
+    PyObject *p1 = NULL, *p2 = NULL;
+    int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
-def draw_line(self, p1, p2):
-    # https://wiki.libsdl.org/SDL_RenderDrawLine
-    res = SDL_RenderDrawLine(self._renderer,
-                                p1[0], p1[1],
-                                p2[0], p2[1])
-    if res < 0:
-        raise error()
+    if(!PyArg_ParseTupleAndKeywords(args, kw, "OO", keywords, &p1, &p2)) {
+        return NULL;
+    }
+    
+    if (!pg_TwoIntsFromObj(p1, &x1, &y1)) {
+        RAISE(PyExc_TypeError, "Point 1 must be a sequence of two numbers.");
+        return -1;
+    }
 
-def draw_point(self, point):
-    # https://wiki.libsdl.org/SDL_RenderDrawPoint
-    res = SDL_RenderDrawPoint(self._renderer,
-                                point[0], point[1])
-    if res < 0:
-        raise error()
+    if (!pg_TwoIntsFromObj(p2, &x2, &y2)) {
+        RAISE(PyExc_TypeError, "Point 2 must be a sequence of two numbers.");
+        return -1;       
+    }
 
-def draw_rect(self, rect):
-    # https://wiki.libsdl.org/SDL_RenderDrawRect
-    cdef SDL_Rect _rect
-    cdef SDL_Rect *rectptr = pgRect_FromObject(rect, &_rect)
-    if rectptr == NULL:
-        raise TypeError('expected a rectangle')
-    res = SDL_RenderDrawRect(self._renderer, rectptr)
-    if res < 0:
-        raise error()
-*/
+    if (SDL_RenderDrawLine(self->renderer, x1, y1, x2, y2) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    Py_RETURN_NONE;  
+}
 
 static PyObject *
-pg_renderer_draw_line(pgRendererObject *self, PyObject *args, PyObject *kw) {}
+pg_renderer_draw_point(pgRendererObject *self, PyObject *args, PyObject *kw) {
+    //https://wiki.libsdl.org/SDL_RenderDrawPoint
+    static char *keywords[] = {
+        "point",
+        NULL
+    };
+
+    PyObject *point = NULL;
+    int x = 0, y = 0;
+
+    if(!PyArg_ParseTupleAndKeywords(args, kw, "O", keywords, &point)) {
+        return NULL;
+    }
+    
+    if (!pg_TwoIntsFromObj(point, &x, &y)) {
+        RAISE(PyExc_TypeError, "Point must be a sequence of two numbers.");
+        return -1;       
+    }
+
+    if (SDL_RenderDrawPoint(self->renderer, x, y) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    Py_RETURN_NONE;   
+}
 
 static PyObject *
-pg_renderer_draw_point(pgRendererObject *self, PyObject *args, PyObject *kw) {}
-
-static PyObject *
-pg_renderer_draw_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {}
-
-static PyObject *
-pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
-    // https://wiki.libsdl.org/SDL_RenderFillRect
+pg_renderer_draw_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
+    //https://wiki.libsdl.org/SDL_RenderDrawRect
     static char *keywords[] = {
         "rect",
         NULL
@@ -154,8 +209,39 @@ pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
     }
     
     rectptr = pgRect_FromObject(area, &rect);
-    if (rectptr == NULL)
-        return RAISE(PyExc_TypeError, "expected a rectangle");
+    if (rectptr == NULL) {
+        RAISE(PyExc_TypeError, "expected a rectangle");
+        return -1;
+    }
+
+    if (SDL_RenderDrawRect(self->renderer, rectptr) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    Py_RETURN_NONE;    
+}
+
+static PyObject *
+pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
+    //https://wiki.libsdl.org/SDL_RenderFillRect
+    static char *keywords[] = {
+        "rect",
+        NULL
+    };
+
+    PyObject *area = NULL;
+    SDL_Rect rect;
+    SDL_Rect *rectptr = NULL;
+
+    if(!PyArg_ParseTupleAndKeywords(args, kw, "O", keywords, &area)) {
+        return NULL;
+    }
+    
+    rectptr = pgRect_FromObject(area, &rect);
+    if (rectptr == NULL) {
+        RAISE(PyExc_TypeError, "expected a rectangle");
+        return -1;
+    }
 
     if (SDL_RenderFillRect(self->renderer, rectptr) < 0) {
         RAISE(pgExc_SDLError, SDL_GetError());
@@ -164,18 +250,81 @@ pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
+    //TODO: implement
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef pg_renderer_methods[] = {
+    { "from_window", (PyCFunction)pg_renderer_from_window, METH_VARARGS | METH_KEYWORDS | METH_CLASS, NULL /* TODO */ },
     { "clear", (PyCFunction)pg_renderer_clear, METH_NOARGS, NULL /* TODO */ },
     { "present", (PyCFunction)pg_renderer_present, METH_NOARGS, NULL /* TODO */ },
-    { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, NULL /* TODO */ },
+    { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, NULL /* TODO */ },
+    { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "set_viewport", (PyCFunction)pg_renderer_set_viewport, METH_O, NULL /* TODO */ },
     { "draw_line", (PyCFunction)pg_renderer_draw_line, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "draw_point", (PyCFunction)pg_renderer_draw_point, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "draw_rect", (PyCFunction)pg_renderer_draw_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { "fill_rect", (PyCFunction)pg_renderer_fill_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "to_surface", (PyCFunction)pg_renderer_to_surface, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
     { NULL }
 };
+
+static PyObject *
+pg_renderer_get_logical_size(pgRendererObject *self, void *closure)
+{
+    //https://wiki.libsdl.org/SDL_RenderGetLogicalSize
+    int w, h;
+    SDL_RenderGetLogicalSize(self->renderer, &w, &h);
+    return Py_BuildValue("(ii)", w, h);
+}
+
+static int
+pg_renderer_set_logical_size(pgRendererObject *self, PyObject *val, void *closure)
+{
+    //https://wiki.libsdl.org/SDL_RenderSetLogicalSize
+    int w, h;
+    if (!pg_TwoIntsFromObj(val, &w, &h)) {
+        RAISE(PyExc_TypeError,
+            "logical_size should be a sequence of two ints.");
+        return -1;
+    }
+
+    if(SDL_RenderSetLogicalSize(self->renderer, w, h) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
+}
+
+static PyObject *
+pg_renderer_get_scale(pgRendererObject *self, void *closure)
+{
+    //https://wiki.libsdl.org/SDL_RenderGetScale
+    float x, y;
+    SDL_RenderGetScale(self->renderer, &x, &y);
+    return Py_BuildValue("(ff)", x, y);
+}
+
+static int
+pg_renderer_set_scale(pgRendererObject *self, PyObject *val, void *closure)
+{
+    //https://wiki.libsdl.org/SDL_RenderSetScale
+    float x, y;
+    if (!pg_TwoFloatsFromObj(val, &x, &y)) {
+        RAISE(PyExc_TypeError,
+            "scale should be a sequence of two floats.");
+        return -1;
+    }
+
+    if(SDL_RenderSetScale(self->renderer, x, y) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;
+    }
+    return 0;
+}
 
 static PyObject *
 pg_renderer_get_color(pgRendererObject *self, void *closure)
@@ -205,34 +354,41 @@ pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
 static PyObject *
 pg_renderer_get_target(pgRendererObject *self, void *closure)
 {
-    //TODO
+    //Uses stored value rather than SDL_GetRenderTarget, since we can keep PyObject Target objects this way.
+    if(self->target) {
+        return Py_BuildValue("O", self->target);
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
 {
+    //https://wiki.libsdl.org/SDL_SetRenderTarget
     pgTextureObject* newtarget = NULL;
 
-    if(PyObject_IsInstance(val, (PyObject*)&pgTexture_Type))
+    if(PyObject_IsInstance(val, (PyObject*)&pgTexture_Type)) {
         newtarget = val;
-
+    }
     else if (val == Py_None) {}
-
     else {
-        return NULL; //TODO: raise TypeError('target must be a Texture or None')
+        RAISE(PyExc_TypeError, "Target must be a Texture or None.");
+        return -1;
     }
         
     self->target = newtarget;
 
-    //TODO: error checking SDL_SetRendererTarget calls
-    if (self->target)
-        SDL_SetRenderTarget(self->renderer, self->target->texture);
-    else //target is NULL
-        SDL_SetRenderTarget(self->renderer, NULL);
+    if(SDL_SetRenderTarget(self->renderer, self->target? self->target->texture: NULL) < 0) {
+        RAISE(pgExc_SDLError, SDL_GetError());
+        return -1;            
+    }
+    return 0;
 }
 
 static PyGetSetDef pg_renderer_getset[] = {
     { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, NULL /*TODO*/, NULL },
+    { "logical_size", (getter)pg_renderer_get_logical_size, (setter)pg_renderer_set_logical_size, NULL /*TODO*/, NULL },
+    { "scale", (getter)pg_renderer_get_scale, (setter)pg_renderer_set_scale, NULL /*TODO*/, NULL },
     { "target", (getter)pg_renderer_get_target, (setter)pg_renderer_set_target, NULL /*TODO*/, NULL },
     { NULL }
 };
@@ -287,7 +443,6 @@ pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
         RAISE(pgExc_SDLError, SDL_GetError());
         return 0;
     }
-
     return 0;
 }
 

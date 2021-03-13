@@ -2,10 +2,6 @@
  * TEXTURE
  */
 
-
-static pgTextureObject *
-pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw);
-
 static PyMemberDef pg_texture_members[] = {
     { "renderer", T_OBJECT_EX, offsetof(pgTextureObject, renderer), READONLY, NULL /* TODO */ },
     { "width", T_INT, offsetof(pgTextureObject, width), READONLY, NULL /* TODO */ },

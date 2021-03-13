@@ -351,7 +351,8 @@ pg_window_set_size(pgWindowObject *self, PyObject *val, void *closure)
 static PyObject *
 pg_window_get_position(pgWindowObject *self) 
 {
-    // Window's screen coordinates, or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED
+    //Window's screen coordinates, or WINDOWPOS_CENTERED or WINDOWPOS_UNDEFINED.
+    //https://wiki.libsdl.org/SDL_GetWindowPosition
     int x, y;
     SDL_GetWindowPosition(self->_win, &x, &y);
     return Py_BuildValue("(ii)", x, y);
@@ -360,6 +361,7 @@ pg_window_get_position(pgWindowObject *self)
 static PyObject *
 pg_window_set_position(pgWindowObject *self, PyObject *val, void *closure) 
 {
+    //https://wiki.libsdl.org/SDL_SetWindowPosition
     int x, y, parsed = 0;
     if (pg_IntFromObj(val, &x)) {
         if (x == SDL_WINDOWPOS_UNDEFINED) {
@@ -464,39 +466,6 @@ static PyGetSetDef pg_window_getset[] = {
     { NULL }
 };
 
-/*
-    char* keywords[] = {
-        "renderer",
-        "size",
-        "depth",
-        "static",
-        "streaming",
-        "target",
-        NULL
-    };
-    PyObject *sizeobj;
-    PyObject *renderobj;
-    int depth;
-    int static_ = 1;
-    int streaming = 0;
-    int target = 0;
-    int format;
-    int access;
-
-#if PY3
-    const char *formatstr = "OO|Ippp";
-#else
-    const char *formatstr = "OO|Iiii";
-#endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords,
-                                     &renderobj,
-                                     &sizeobj,
-                                     &depth,
-                                     &static_, &streaming, &target)) {
-        return -1;
-*/
-
 static int
 pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
 
@@ -571,12 +540,12 @@ pg_window_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pg_window_dealloc(pgWindowObject *self)
 {
+    //https://wiki.libsdl.org/SDL_DestroyWindow
     if (self->_win) {
         SDL_DestroyWindow(self->_win);
         self->_win = NULL;
     }
 }
-
 
 static PyTypeObject pgWindow_Type = {
     PyVarObject_HEAD_INIT(NULL,0)

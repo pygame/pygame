@@ -57,6 +57,7 @@ struct pgRendererObject {
     pgTextureObject *target;
 };
 
+/* forward declarations */
 static int
 pgTexture_DrawObj(pgTextureObject *self, PyObject *srcrect, PyObject *dstrect);
 
@@ -66,8 +67,14 @@ pgTexture_Draw(pgTextureObject *self,
                float angle, const int * origin,
                int flipX, int flipY);
 
+static pgTextureObject *
+pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw);
+
 static PyObject *
 pg_renderer_get_viewport(pgRendererObject *self, PyObject *args);
+
+static PyObject *
+pg_renderer_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 static PyObject *
 pg_window_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
