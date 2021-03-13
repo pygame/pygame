@@ -1107,7 +1107,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
         case SDL_MOUSEMOTION:
-            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->motion.which));  // The mouse instance id, or SDL_TOUCH_MOUSEID
             obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
             _pg_insobj(dict, "pos", obj);
             obj =
@@ -1125,13 +1124,18 @@ dict_from_event(SDL_Event *event)
                                                  SDL_BUTTON(3)) != 0));
                 _pg_insobj(dict, "buttons", tuple);
             }
+            _pg_insobj(
+                dict, "touch",
+                PyBool_FromLong((event->motion.which == SDL_TOUCH_MOUSEID)));
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            _pg_insobj(dict, "instance_id", PyLong_FromLong(event->button.which));  // The mouse instance id, or SDL_TOUCH_MOUSEID
             obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
             _pg_insobj(dict, "pos", obj);
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
+            _pg_insobj(
+                dict, "touch",
+                PyBool_FromLong((event->button.which == SDL_TOUCH_MOUSEID)));
             break;
         case SDL_JOYAXISMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
@@ -1213,7 +1217,8 @@ dict_from_event(SDL_Event *event)
 #endif
             _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
             _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
-            _pg_insobj(dict, "which", PyInt_FromLong(event->wheel.which));  // The mouse instance id, or SDL_TOUCH_MOUSEID
+            _pg_insobj(dict, "touch", PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
+
             break;
         case SDL_TEXTINPUT:
             /* https://wiki.libsdl.org/SDL_TextInputEvent */
