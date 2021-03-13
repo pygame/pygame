@@ -46,6 +46,7 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SDL_Window *_win;
+    int _is_borrowed;
 } pgWindowObject;
 
 struct pgRendererObject {
@@ -67,6 +68,9 @@ pgTexture_Draw(pgTextureObject *self,
 
 static PyObject *
 pg_renderer_get_viewport(pgRendererObject *self, PyObject *args);
+
+static PyObject *
+pg_window_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 #include "video_renderer.c"
 #include "video_texture.c"

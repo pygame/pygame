@@ -3,6 +3,65 @@
  */
 
 static PyObject *
+pg_window_from_display_module(pgWindowObject *cls) {
+    SDL_Window* window = pg_GetDefaultWindow();
+    if (!window) {
+        return RAISE(pgExc_SDLError, "The display module has no window to be found! Are you sure you've called set_mode()?");
+    }
+
+    pgWindowObject* window_obj = pg_window_new(cls, NULL, NULL);
+    window_obj->_win = window;
+    window_obj->_is_borrowed = 1;
+    return window_obj;
+}
+
+static PyObject *
+pg_window_set_windowed(pgWindowObject *self)
+{
+    //Enable windowed mode. (Exit fullscreen)
+    //https://wiki.libsdl.org/SDL_SetWindowFullscreen
+    if (SDL_SetWindowFullscreen(self->_win, 0) < 0)
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_window_set_fullscreen(pgWindowObject *self, PyObject* args, PyObject* kw)
+{
+    //Enable fullscreen for the window.
+    //param bool desktop: If ``True``: use the current desktop resolution. If ``False``: change the fullscreen resolution to the window size.
+    //https://wiki.libsdl.org/SDL_SetWindowFullscreen
+
+    char* keywords[] = {
+        "desktop",
+        NULL
+    };
+
+    int desktop = 0;
+    int flags = 0;
+
+#if PY3
+    const char *formatstr = "|p";
+#else
+    const char *formatstr = "|i";
+#endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords, &desktop))
+        return NULL;
+
+    if (desktop)
+        flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+    else
+        flags = SDL_WINDOW_FULLSCREEN;
+
+    if (SDL_SetWindowFullscreen(self->_win, flags) < 0) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 pg_window_destroy(pgWindowObject *self)
 {
     //https://wiki.libsdl.org/SDL_DestroyWindow
@@ -88,6 +147,8 @@ pg_window_minimize(pgWindowObject *self)
 static PyObject *
 pg_window_set_icon(pgWindowObject *self, PyObject *args, PyObject *kw)
 {
+    //https://wiki.libsdl.org/SDL_SetWindowIcon
+
     char* keywords[] = {
         "surface",
         NULL
@@ -103,7 +164,7 @@ pg_window_set_icon(pgWindowObject *self, PyObject *args, PyObject *kw)
         RAISE(PyExc_TypeError, "surface must be a Surface object");
         return NULL;
     }
-    surf = pgSurface_AsSurface((pgSurfaceObject*) surfaceobj);
+    surf = pgSurface_AsSurface(surfaceobj);
 
     // For some reason I can't compare output of this function for error checking
     SDL_SetWindowIcon(self->_win, surf);
@@ -134,6 +195,9 @@ pg_window_set_modal_for(pgWindowObject *self, PyObject *args, PyObject *kw)
 }
 
 static PyMethodDef pg_window_methods[] = {
+    { "from_display_module", (PyCFunction)pg_window_from_display_module, METH_CLASS | METH_NOARGS, "TODO"},
+    { "set_windowed", (PyCFunction)pg_window_set_windowed, METH_NOARGS, "TODO"},
+    { "set_fullscreen", (PyCFunction)pg_window_set_fullscreen, METH_VARARGS | METH_KEYWORDS, "TODO"},
     { "destroy", (PyCFunction)pg_window_destroy, METH_NOARGS, "TODO"},
     { "hide", (PyCFunction)pg_window_hide, METH_NOARGS, "TODO"},
     { "show", (PyCFunction)pg_window_show, METH_NOARGS, "TODO"},
@@ -145,6 +209,73 @@ static PyMethodDef pg_window_methods[] = {
     { "set_modal_for", (PyCFunction)pg_window_set_modal_for, METH_VARARGS | METH_KEYWORDS, "TODO"},
     { NULL }
 };
+
+static PyObject *
+pg_window_get_grab(pgWindowObject *self) 
+{
+    // Window's input grab state (``True`` or ``False``).
+    // https://wiki.libsdl.org/SDL_GetWindowGrab
+    int grab = SDL_GetWindowGrab(self->_win);
+    if (grab) // TODO: does this work on python 2?
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+pg_window_set_grab(pgWindowObject *self, PyObject *val, void *closure) 
+{
+    // https://wiki.libsdl.org/SDL_SetWindowGrab
+    int grab = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `window.grab = "wow"`
+    SDL_SetWindowGrab(self->_win, grab);
+    return 0;
+}
+
+static PyObject *
+pg_window_get_relative_mouse(pgWindowObject *self) 
+{
+    // Window's relative mouse motion state (``True`` or ``False``).
+    // https://wiki.libsdl.org/SDL_GetRelativeMouseMode
+    int relative = SDL_GetRelativeMouseMode();
+    if (relative) // TODO: does this work on python 2?
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+pg_window_set_relative_mouse(pgWindowObject *self, PyObject *val, void *closure) 
+{
+    // https://wiki.libsdl.org/SDL_SetRelativeMouseMode
+    int relative = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `window.relative_mouse = "wow"`
+    SDL_SetRelativeMouseMode(relative);
+    return 0;
+}
+
+static PyObject *
+pg_window_get_title(pgWindowObject *self) 
+{
+    // The title of the window or u"" if there is none.
+    // https://wiki.libsdl.org/SDL_GetWindowTitle
+    char* title = SDL_GetWindowTitle(self->_win);
+    return Py_BuildValue("s", title);
+}
+
+static PyObject *
+pg_window_set_title(pgWindowObject *self, PyObject *val, void *closure) 
+{
+    // Set the window title.
+    // https://wiki.libsdl.org/SDL_SetWindowTitle
+
+    // This might be a dumb way of getting a char* from a single PyObject, but it seems to work
+    PyObject* args = Py_BuildValue("(O)", val);
+    char* title = NULL;
+    if(!PyArg_ParseTuple(args, "es", "UTF-8", &title)) {
+        return -1;
+    }
+    SDL_SetWindowTitle(self->_win, title);
+    Py_DECREF(args);
+    PyMem_Free(title);
+    return 0;
+}
 
 static PyObject *
 pg_window_get_resizable(pgWindowObject *self) 
@@ -319,6 +450,9 @@ pg_window_get_display_index(pgWindowObject *self)
 }
 
 static PyGetSetDef pg_window_getset[] = {
+    { "grab", (getter)pg_window_get_grab, (setter)pg_window_set_grab, NULL /*TODO*/, NULL },
+    { "relative_mouse", (getter)pg_window_get_relative_mouse, (setter)pg_window_set_relative_mouse, NULL /*TODO*/, NULL },
+    { "title", (getter)pg_window_get_title, (setter)pg_window_set_title, NULL /*TODO*/, NULL },
     { "resizable", (getter)pg_window_get_resizable, (setter)pg_window_set_resizable, NULL /*TODO*/, NULL },
     { "borderless", (getter)pg_window_get_borderless, (setter)pg_window_set_borderless, NULL /*TODO*/, NULL },
     { "id", (getter)pg_window_get_id, NULL, NULL /*TODO*/, NULL },
@@ -473,7 +607,7 @@ static PyTypeObject pgWindow_Type = {
     NULL, /* tp_iter */
     NULL, /* tp_iternext */
     pg_window_methods, /* tp_methods */
-    NULL, /* tp_members */ /*pg_texture_members*/
+    NULL, /* tp_members */
     pg_window_getset, /* tp_getset */
     NULL, /* tp_base */
     NULL, /* tp_dict */
@@ -482,5 +616,5 @@ static PyTypeObject pgWindow_Type = {
     0, /* tp_dictoffset */
     (initproc)pg_window_init, /* tp_init */
     NULL, /* tp_alloc */
-    pg_window_new /* tp_new */                  /*texture uses this, does window need to?*/
+    pg_window_new /* tp_new */
 };
