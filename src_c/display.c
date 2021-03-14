@@ -2189,7 +2189,7 @@ pg_set_gamma(PyObject *self, PyObject *arg)
         return PyErr_NoMemory();
     SDL_CalculateGammaRamp(r, gamma_ramp);
     SDL_CalculateGammaRamp(g, gamma_ramp + 256);
-    SDL_CalculateGammaRamp(b, gamma_ramp + 256);
+    SDL_CalculateGammaRamp(b, gamma_ramp + 512);
     if (win) {
         result = SDL_SetWindowGammaRamp(win, gamma_ramp, gamma_ramp + 256,
                                         gamma_ramp + 512);
