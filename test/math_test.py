@@ -2262,7 +2262,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(0, actual.x)
         self.assertEqual(v.y, actual.y)
         self.assertEqual(0, actual.z)
-        
+
     def test_project_v3_onto_z_axis(self):
         """Project onto z-axis, e.g. get the component pointing in the z-axis direction."""
         # arrange
@@ -2288,9 +2288,9 @@ class Vector3TypeTest(unittest.TestCase):
 
         # assert
         expected = v.dot(other) / other.dot(other) * other
-        self.assertEqual(expected.x, actual.x)
-        self.assertEqual(expected.y, actual.y)
-        self.assertEqual(expected.z, actual.z)
+        self.assertAlmostEqual(expected.x, actual.x)
+        self.assertAlmostEqual(expected.y, actual.y)
+        self.assertAlmostEqual(expected.z, actual.z)
 
     def test_project_v3_onto_other_as_tuple(self):
         """Project onto other tuple as vector."""
@@ -2303,9 +2303,9 @@ class Vector3TypeTest(unittest.TestCase):
 
         # assert
         expected = v.dot(other) / other.dot(other) * other
-        self.assertEqual(expected.x, actual.x)
-        self.assertEqual(expected.y, actual.y)
-        self.assertEqual(expected.z, actual.z)
+        self.assertAlmostEqual(expected.x, actual.x)
+        self.assertAlmostEqual(expected.y, actual.y)
+        self.assertAlmostEqual(expected.z, actual.z)
 
     def test_project_v3_onto_other_as_list(self):
         """Project onto other list as vector."""
@@ -2318,9 +2318,9 @@ class Vector3TypeTest(unittest.TestCase):
 
         # assert
         expected = v.dot(other) / other.dot(other) * other
-        self.assertEqual(expected.x, actual.x)
-        self.assertEqual(expected.y, actual.y)
-        self.assertEqual(expected.z, actual.z)
+        self.assertAlmostEqual(expected.x, actual.x)
+        self.assertAlmostEqual(expected.y, actual.y)
+        self.assertAlmostEqual(expected.z, actual.z)
 
     def test_project_v3_raises_if_other_has_zero_length(self):
         """Check if exception is raise when projected on vector has zero length."""
