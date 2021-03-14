@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pygame'
-copyright = u'2000-2020, pygame developers'
+copyright = u'2000-2021, pygame developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

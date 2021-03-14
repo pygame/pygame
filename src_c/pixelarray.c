@@ -1383,6 +1383,7 @@ _pxarray_ass_item(pgPixelArrayObject *array, Py_ssize_t index, PyObject *value)
     }
     if (index >= dim0) {
         PyErr_SetString(PyExc_IndexError, "array index out of range");
+        return -1;
     }
     pixels += index * stride0;
 

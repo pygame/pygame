@@ -94,9 +94,6 @@ Reference
 :doc:`ref/bufferproxy`
   An array protocol view of surface pixels
 
-:doc:`ref/cdrom`
-  How to access and control the CD audio devices.
-
 :doc:`ref/color`
   Color representation.
 
@@ -144,9 +141,6 @@ Reference
 
 :doc:`ref/music`
   Play streaming music tracks.
-
-:doc:`ref/overlay`
-  Access advanced video overlays.
 
 :doc:`ref/pygame`
   Top level functions to manage pygame.

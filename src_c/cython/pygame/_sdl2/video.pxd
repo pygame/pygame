@@ -36,6 +36,12 @@ cdef extern from "SDL.h" nogil:
         SDL_FLIP_NONE,
         SDL_FLIP_HORIZONTAL,
         SDL_FLIP_VERTICAL
+    ctypedef enum SDL_BlendMode:
+        SDL_BLENDMODE_NONE = 0x00000000,
+        SDL_BLENDMODE_BLEND = 0x00000001,
+        SDL_BLENDMODE_ADD = 0x00000002,
+        SDL_BLENDMODE_MOD = 0x00000004,
+        SDL_BLENDMODE_INVALID = 0x7FFFFFFF
 
     # https://wiki.libsdl.org/SDL_MessageBoxData
     # https://wiki.libsdl.org/SDL_ShowMessageBox
@@ -69,6 +75,8 @@ cdef extern from "SDL.h" nogil:
     cdef Uint32 _SDL_RENDERER_TARGETTEXTURE "SDL_RENDERER_TARGETTEXTURE"
 
     # https://wiki.libsdl.org/SDL_SetRenderDrawColor
+    # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
+    # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
     # https://wiki.libsdl.org/SDL_CreateRenderer
     # https://wiki.libsdl.org/SDL_DestroyRenderer
     # https://wiki.libsdl.org/SDL_RenderClear
@@ -80,6 +88,10 @@ cdef extern from "SDL.h" nogil:
                                Uint8         g,
                                Uint8         b,
                                Uint8         a)
+    int SDL_GetRenderDrawBlendMode(SDL_Renderer*   renderer,
+                                   SDL_BlendMode* blendMode)
+    int SDL_SetRenderDrawBlendMode(SDL_Renderer*  renderer,
+                                   SDL_BlendMode blendMode)
     SDL_Renderer* SDL_CreateRenderer(SDL_Window* window,
                                      int         index,
                                      Uint32      flags)
@@ -277,12 +289,6 @@ cdef extern from "SDL.h" nogil:
                                Uint8*       alpha)
     int SDL_SetTextureAlphaMod(SDL_Texture* texture,
                                Uint8        alpha)
-    ctypedef enum SDL_BlendMode:
-        SDL_BLENDMODE_NONE = 0x00000000,
-        SDL_BLENDMODE_BLEND = 0x00000001,
-        SDL_BLENDMODE_ADD = 0x00000002,
-        SDL_BLENDMODE_MOD = 0x00000004,
-        SDL_BLENDMODE_INVALID = 0x7FFFFFFF
 
     int SDL_GetTextureBlendMode(SDL_Texture*   texture,
                                 SDL_BlendMode* blendMode)
@@ -398,12 +404,14 @@ cdef class Texture:
                     bint flipX=*, bint flipY=*)
 
 cdef class Image:
+    cdef Color _color
     cdef public float angle
-    cdef public float origin[2]
+    cdef SDL_Point _origin
+    cdef SDL_Point* _originptr
     cdef public bint flipX
     cdef public bint flipY
-    cdef public Color color
     cdef public float alpha
+    cdef public SDL_BlendMode blend_mode
 
     cdef public Texture texture
     cdef public Rect srcrect

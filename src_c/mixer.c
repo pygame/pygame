@@ -557,8 +557,7 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
         "allowedchanges",
         NULL
     };
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiisi", kwids, &freq,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiizi", kwids, &freq,
                                      &size, &channels, &chunk, &devicename,
                                      &allowedchanges)) {
         return NULL;
@@ -589,7 +588,6 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     static char *kwids[] = {"frequency", "size",       "channels",
                             "buffer",    "devicename", "allowedchanges", NULL};
-    int dname_size = 0;
 
     request_frequency = 0;
     request_size = 0;
@@ -598,8 +596,8 @@ pre_init(PyObject *self, PyObject *args, PyObject *keywds)
     request_devicename = NULL;
     request_allowedchanges = -1;
     if (!PyArg_ParseTupleAndKeywords(
-            args, keywds, "|iiiiz#i", kwids, &request_frequency, &request_size,
-            &request_channels, &request_chunksize, &request_devicename, &dname_size,
+            args, keywds, "|iiiizi", kwids, &request_frequency, &request_size,
+            &request_channels, &request_chunksize, &request_devicename,
             &request_allowedchanges))
         return NULL;
     if (!request_frequency) {
@@ -1392,14 +1390,15 @@ set_num_channels(PyObject *self, PyObject *args)
 static PyObject *
 set_reserved(PyObject *self, PyObject *args)
 {
-    int numchans;
-    if (!PyArg_ParseTuple(args, "i", &numchans))
+    int numchans_requested;
+    int numchans_reserved;
+    if (!PyArg_ParseTuple(args, "i", &numchans_requested))
         return NULL;
 
     MIXER_INIT_CHECK();
 
-    Mix_ReserveChannels(numchans);
-    Py_RETURN_NONE;
+    numchans_reserved = Mix_ReserveChannels(numchans_requested);
+    return PyInt_FromLong(numchans_reserved);
 }
 
 static PyObject *
@@ -1423,11 +1422,14 @@ Channel(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mixer_find_channel(PyObject *self, PyObject *args)
+mixer_find_channel(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int chan, force = 0;
-    if (!PyArg_ParseTuple(args, "|i", &force))
+    static char *keywords[] = {"force", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &force)) {
         return NULL;
+    }
 
     MIXER_INIT_CHECK();
 
@@ -1929,7 +1931,8 @@ static PyMethodDef _mixer_methods[] = {
 
     {"get_busy", (PyCFunction)get_busy, METH_NOARGS, DOC_PYGAMEMIXERGETBUSY},
     {"Channel", Channel, METH_VARARGS, DOC_PYGAMEMIXERCHANNEL},
-    {"find_channel", mixer_find_channel, METH_VARARGS,
+    {"find_channel", (PyCFunction)mixer_find_channel,
+     METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERFINDCHANNEL},
     {"fadeout", mixer_fadeout, METH_VARARGS, DOC_PYGAMEMIXERFADEOUT},
     {"stop", (PyCFunction)mixer_stop, METH_NOARGS, DOC_PYGAMEMIXERSTOP},

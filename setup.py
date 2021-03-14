@@ -85,7 +85,7 @@ def consume_arg(name):
         return True
     return False
 
-#get us to the correct directory
+# get us to the correct directory
 path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 os.chdir(path)
 #os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
@@ -125,7 +125,6 @@ if sys.version_info[0] < 3:
 STRIPPED=False
 
 # STRIPPED builds don't have developer resources like docs or tests
-
 if "PYGAME_ANDROID" in os.environ:
     # test cases and docs are useless inside an APK
     STRIPPED=True
@@ -267,7 +266,7 @@ else:
         #'dependency_links': ['http://rene.f0o.com/~rene/stuff/macosx/']
     })
 
-#headers to install
+# headers to install
 headers = glob.glob(os.path.join('src_c', '*.h'))
 headers.remove(os.path.join('src_c', 'scale.h'))
 headers.append(os.path.join('src_c', 'include'))
@@ -300,7 +299,7 @@ distutils.command.install_headers.install_headers.run = run_install_headers
 if consume_arg("-noheaders"):
     headers = []
 
-#sanity check for any arguments
+# sanity check for any arguments
 if len(sys.argv) == 1 and sys.stdout.isatty():
     if sys.version_info[0] >= 3:
         reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
@@ -310,7 +309,7 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
         sys.argv.append('install')
 
 
-#make sure there is a Setup file
+# make sure there is a Setup file
 if AUTO_CONFIG or not os.path.isfile('Setup'):
     print ('\n\nWARNING, No "Setup" File Exists, Running "buildconfig/config.py"')
     import buildconfig.config
@@ -362,12 +361,12 @@ for e in extensions:
 if not have_font and have_freetype:
     shutil.copyfile(os.path.join('src_py', 'ftfont.py'), alternate_font)
 
-#extra files to install
+# extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
 
-#add files in distribution directory
+# add files in distribution directory
 # pygame_data_files.append('LGPL')
 # pygame_data_files.append('readme.html')
 # pygame_data_files.append('install.html')
@@ -387,14 +386,14 @@ if add_stubs:
             _sdl2_data_files.append(type_file)
 
 
-#add non .py files in lib directory
+# add non .py files in lib directory
 for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         pygame_data_files.append(f)
 
 # We don't need to deploy tests, example code, or docs inside a game
 
-#tests/fixtures
+# tests/fixtures
 add_datafiles(data_files, 'pygame/tests',
               ['test',
                   [['fixtures',
@@ -403,11 +402,11 @@ add_datafiles(data_files, 'pygame/tests',
                        ['fonts',
                           ['*.ttf', '*.otf', '*.bdf', '*.png']]]]]])
 
-#examples
+# examples
 add_datafiles(data_files, 'pygame/examples',
               ['examples', ['README.rst', ['data', ['*']]]])
 
-#docs
+# docs
 add_datafiles(data_files, 'pygame/docs',
               ['docs',
                   ['*.html',             # Navigation and help pages
@@ -438,7 +437,7 @@ add_datafiles(data_files, 'pygame/docs',
                          ['ref',
                             ['*.txt']]]]]])
 
-#generate the version module
+# generate the version module
 def parse_version(ver):
     return ', '.join(s for s in re.findall(r'\d+', ver)[0:3])
 
@@ -486,7 +485,7 @@ def write_version_module(pygame_version, revision):
 
 write_version_module(METADATA['version'], revision)
 
-#required. This will be filled if doing a Windows build.
+# required. This will be filled if doing a Windows build.
 cmdclass = {}
 
 def add_command(name):
@@ -496,12 +495,12 @@ def add_command(name):
         return command
     return decorator
 
-#try to find DLLs and copy them too  (only on windows)
+# try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
 
     from distutils.command.build_ext import build_ext
 
-    #add dependency DLLs to the project
+    # add dependency DLLs to the project
     lib_dependencies = {}
     for e in extensions:
         if e.name.startswith('COPYLIB_'):
@@ -633,7 +632,7 @@ if sys.platform == 'win32':
     replace_scale_mmx()
 
 
-#clean up the list of extensions
+# clean up the list of extensions
 for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
         extensions.remove(e) #don't compile the COPYLIBs, just clean them
@@ -641,9 +640,9 @@ for e in extensions[:]:
         e.name = 'pygame.' + e.name #prepend package name on modules
 
 
-#data installer with improved intelligence over distutils
-#data files are copied into the project directory instead
-#of willy-nilly
+# data installer with improved intelligence over distutils
+# data files are copied into the project directory instead
+# of willy-nilly
 @add_command('install_data')
 class smart_install_data(install_data):
     def run(self):
@@ -738,7 +737,7 @@ class DocsCommand(Command):
         runs the tests with default options.
         '''
         docs_help = (
-            "Building docs requires Python version 3.6 or above, and sphinx."
+            "Building docs requires Python version 3.6 or above, and sphinx 2 or above."
         )
         if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
             raise SystemExit(docs_help)
@@ -755,8 +754,8 @@ class DocsCommand(Command):
 # Prune empty file lists.
 data_files = [(path, files) for path, files in data_files if files]
 
-#finally,
-#call distutils with all needed info
+# finally,
+# call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
        "packages":    ['pygame',

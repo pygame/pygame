@@ -198,7 +198,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 .. function:: set_reserved
 
    | :sl:`reserve channels from being automatically used`
-   | :sg:`set_reserved(count) -> None`
+   | :sg:`set_reserved(count) -> count`
 
    The mixer can reserve any number of channels that will not be automatically
    selected for playback by Sounds. If sounds are currently playing on the
@@ -207,6 +207,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    This allows the application to reserve a specific number of channels for
    important sounds that must not be dropped or have a guaranteed channel to
    play on.
+
+   Will return number of channels actually reserved, this may be less than requested
+   depending on the number of channels previously allocated.
 
    .. ## pygame.mixer.set_reserved ##
 
@@ -219,9 +222,6 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    inactive Channels this function will return ``None``. If there are no
    inactive channels and the force argument is ``True``, this will find the
    Channel with the longest running Sound and return it.
-
-   If the mixer has reserved channels from ``pygame.mixer.set_reserved()`` then
-   those channels will not be returned here.
 
    .. ## pygame.mixer.find_channel ##
 

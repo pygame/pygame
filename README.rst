@@ -1,5 +1,8 @@
-pygame
-======
+.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
+  :width: 200
+  :height: 70
+  :alt: pygame
+
 
 |TravisBuild| |AppVeyorBuild| |LaunchpadBuild|
 |PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
