@@ -69,7 +69,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 1.2)
         self.assertEqual(v.y, 3.4)
 
-    def testAttributAccess(self):
+    def testAttributeAccess(self):
         tmp = self.v1.x
         self.assertEqual(tmp, self.v1.x)
         self.assertEqual(tmp, self.v1[0])
@@ -1131,7 +1131,7 @@ class Vector3TypeTest(unittest.TestCase):
 
         self.assertRaises(ValueError, assign_missing_value)
 
-    def testAttributAccess(self):
+    def testAttributeAccess(self):
         tmp = self.v1.x
         self.assertEqual(tmp, self.v1.x)
         self.assertEqual(tmp, self.v1[0])
