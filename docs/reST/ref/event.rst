@@ -131,7 +131,7 @@ attributes.
 
 |
 
-Many new events were intoduced in pygame 2.
+Many new events were introduced in pygame 2.
 
 pygame can recognize text or files dropped in its window. If a file
 is dropped, ``DROPFILE`` event will be sent, ``file`` will be its path.
@@ -139,7 +139,7 @@ The ``DROPTEXT`` event is only supported on X11.
 
 ``MIDIIN`` and ``MIDIOUT`` are events reserved for :mod:`pygame.midi` use.
 
-pygame 2 also supports controller hotplugging
+pygame 2 also supports controller hot-plugging
 
 ::
 
@@ -160,7 +160,7 @@ and the ``joy`` attribute was deprecated.
 
 .. versionadded:: 2.0.0
 
-Since pygame 2.0.1, there are a new set of events, called windowevents.
+Since pygame 2.0.1, there are a new set of events, called window events.
 Here is a list of all window events, along with a short description
 
 ::
