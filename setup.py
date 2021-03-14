@@ -737,7 +737,7 @@ class DocsCommand(Command):
         runs the tests with default options.
         '''
         docs_help = (
-            "Building docs requires Python version 3.6 or above, and sphinx."
+            "Building docs requires Python version 3.6 or above, and sphinx 2 or above."
         )
         if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
             raise SystemExit(docs_help)

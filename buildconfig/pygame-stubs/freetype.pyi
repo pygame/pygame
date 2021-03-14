@@ -10,7 +10,9 @@ from pygame.surface import Surface
 from pygame.color import Color
 from pygame.rect import Rect
 
-_ColorValue = Union[Color, Tuple[int, int, int], List[int], int]
+_ColorValue = Union[
+    Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
+]
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...

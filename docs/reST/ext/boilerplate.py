@@ -14,7 +14,7 @@ from sphinx.domains.python import PyClasslike
 from docutils.nodes import (section, literal, reference, paragraph, title,
                             document, Text, TextElement, inline,
                             table, tgroup, colspec, tbody, row, entry,
-                            whitespace_normalize_name, SkipNode)
+                            whitespace_normalize_name, SkipNode, line)
 import os
 import re
 from collections import deque
@@ -194,6 +194,7 @@ def get_target_summary(reference_node, env):
     except KeyError:
         raise GetError("reference has no refid")
 
+# Calls build_toc, which builds the seciton at the top where it lists the functions
 def add_toc(desc_node, env, section_node=None):
     """Add a table of contents to a desc node"""
 
@@ -211,6 +212,7 @@ def add_toc(desc_node, env, section_node=None):
         insert_at += 1
     content_node.insert(insert_at, toc)
 
+# Builds the section at the top of the module where it lists the functions
 def build_toc(descinfo, env):
     """Return a desc table of contents node tree"""
 
@@ -225,9 +227,9 @@ def build_toc(descinfo, env):
         max_fullname_len = max(max_fullname_len, len(fullname))
         max_summary_len = max(max_summary_len, len(summary))
         reference_node = toc_ref(fullname, refid)
-        ref_entry_node = entry('', paragraph('', '', reference_node))
-        sep_entry_node = entry('', paragraph('', separator))
-        sum_entry_node = entry('', paragraph('', summary))
+        ref_entry_node = entry('', line('', '', reference_node))
+        sep_entry_node = entry('', Text(separator, ''))
+        sum_entry_node = entry('', Text(summary, ''))
         row_node = row('', ref_entry_node, sep_entry_node, sum_entry_node)
         rows.append(row_node)
     col0_len = max_fullname_len + 2   # add error margin
@@ -255,8 +257,6 @@ def toc_ref(fullname, refid):
     return TocRef('', fullname,
                   name=name, refuri=as_refuri(refid), classes=['toc'])
 
-
-#>>===================================================
 def decorate_signatures(desc, classname):
     prefix = classname + DOT
     for child in desc.children:
@@ -264,8 +264,6 @@ def decorate_signatures(desc, classname):
             isinstance(child[0], sphinx.addnodes.desc_name)       ):
             new_desc_classname = sphinx.addnodes.desc_classname('', prefix)
             child.insert(0, new_desc_classname)
-
-#<<==================================================================
 
 def inject_template_globals(app, pagename, templatename, context, doctree):
     def lowercase_name(d):

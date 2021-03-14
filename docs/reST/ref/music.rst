@@ -22,11 +22,14 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    | :sl:`Load a music file for playback`
    | :sg:`load(filename) -> None`
-   | :sg:`load(object) -> None`
+   | :sg:`load(fileobj, namehint="") -> None`
 
    This will load a music filename/file object and prepare it for playback. If
    a music stream is already playing it will be stopped. This does not start
    the music playing.
+
+   If you are loading from a file object, the namehint parameter can be used to specify
+   the type of music data in the object. For example: :code:`load(fileobj, "mp3")`.
 
    .. ## pygame.mixer.music.load ##
 

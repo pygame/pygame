@@ -1616,10 +1616,10 @@ draw_arc(SDL_Surface *surf, int x, int y, int radius1, int radius2,
 
     x_last = (int)(x + cos(angle_start) * radius1);
     y_last = (int)(y - sin(angle_start) * radius2);
-    for (a = angle_start + aStep; a <= angle_stop; a += aStep) {
+    for (a = angle_start + aStep; a < aStep + angle_stop; a += aStep) {
         int points[4];
-        x_next = (int)(x + cos(a) * radius1);
-        y_next = (int)(y - sin(a) * radius2);
+        x_next = (int)(x + cos(MIN(a,angle_stop)) * radius1);
+        y_next = (int)(y - sin(MIN(a,angle_stop)) * radius2);
         points[0] = x_last;
         points[1] = y_last;
         points[2] = x_next;
