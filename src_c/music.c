@@ -322,9 +322,11 @@ _get_type_from_hint(char *namehint)
     else if (SDL_strcasecmp(namehint, "OGG") == 0) {
         type = MUS_OGG;
     }
+#ifdef MUS_OPUS
     else if (SDL_strcasecmp(namehint, "OPUS") == 0) {
         type = MUS_OPUS;
     }
+#endif
     else if (SDL_strcasecmp(namehint, "FLAC") == 0) {
         type = MUS_FLAC;
     }
