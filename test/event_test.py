@@ -405,6 +405,23 @@ class EventModuleTest(unittest.TestCase):
         for event in q:
             self.assertEqual(event, ev)
 
+    def test_get_exclude(self):
+        pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN))
+
+        queue = pygame.event.get(exclude=pygame.KEYDOWN)
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, pygame.USEREVENT)
+
+        pygame.event.post(pygame.event.Event(pygame.KEYUP))
+        pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+        queue = pygame.event.get(exclude=(pygame.KEYDOWN, pygame.KEYUP))
+        self.assertEqual(len(queue), 1)
+        self.assertEqual(queue[0].type, pygame.USEREVENT)
+
+        queue = pygame.event.get()
+        self.assertEqual(len(queue), 2)
+
     def test_get__empty_queue(self):
         """Ensure get() works correctly on an empty queue."""
         expected_events = []
