@@ -20,6 +20,11 @@ The array struct interface, on the other hand, is stable and works with earlier
 Python versions. So for now the array struct interface is the predominate way
 pygame handles array introspection.
 
+For 2d arrays of integer pixel values, the values are mapped to the
+pixel format of the related surface. To get the actual color of a pixel
+value use :meth:`pygame.Surface.unmap_rgb`. 2d arrays can only be used
+directly between surfaces having the same pixel layout.
+
 New in pygame 1.9.2.
 
 .. function:: surface_to_array

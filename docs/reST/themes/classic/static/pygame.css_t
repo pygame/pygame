@@ -462,10 +462,6 @@ table.toc td {
     padding-right: 10px;
 }
 
-dt.module {
-    margin-bottom: 1em;
-}
-
 span.summaryline {
     font-style: italic;
 }
@@ -651,7 +647,6 @@ table.highlighttable pre {
 
 ul.simple {
     list-style-type: circle;
-    list-style-position: inside;
     margin-bottom: 1em;
 }
 

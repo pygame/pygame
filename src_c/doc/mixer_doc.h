@@ -10,7 +10,7 @@
 #define DOC_PYGAMEMIXERFADEOUT "fadeout(time) -> None\nfade out the volume on all sounds before stopping"
 #define DOC_PYGAMEMIXERSETNUMCHANNELS "set_num_channels(count) -> None\nset the total number of playback channels"
 #define DOC_PYGAMEMIXERGETNUMCHANNELS "get_num_channels() -> count\nget the total number of playback channels"
-#define DOC_PYGAMEMIXERSETRESERVED "set_reserved(count) -> None\nreserve channels from being automatically used"
+#define DOC_PYGAMEMIXERSETRESERVED "set_reserved(count) -> count\nreserve channels from being automatically used"
 #define DOC_PYGAMEMIXERFINDCHANNEL "find_channel(force=False) -> Channel\nfind an unused channel"
 #define DOC_PYGAMEMIXERGETBUSY "get_busy() -> bool\ntest if any sound is being mixed"
 #define DOC_PYGAMEMIXERGETSDLMIXERVERSION "get_sdl_mixer_version() -> (major, minor, patch)\nget_sdl_mixer_version(linked=True) -> (major, minor, patch)\nget the mixer's SDL version"
@@ -87,7 +87,7 @@ pygame.mixer.get_num_channels
 get the total number of playback channels
 
 pygame.mixer.set_reserved
- set_reserved(count) -> None
+ set_reserved(count) -> count
 reserve channels from being automatically used
 
 pygame.mixer.find_channel

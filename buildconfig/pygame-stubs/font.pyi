@@ -10,7 +10,7 @@ from pygame.color import Color
 from pygame.surface import Surface
 
 _ColorValue = Union[
-    Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
+    Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
 
 def init() -> None: ...

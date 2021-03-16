@@ -48,7 +48,12 @@ class Surface(object):
         special_flags: int = ...,
     ) -> Rect: ...
     def blits(
-        self, sequence: Sequence[Union[Surface, Rect]], doreturn: Union[int, bool]
+        self,
+        sequence: Sequence[Union[Tuple[Surface, Rect],
+                                 Tuple[Surface, Rect, Rect],
+                                 Tuple[Surface, Rect, int],
+                                 Tuple[Surface, Rect, Rect, int]]],
+        doreturn: Union[int, bool]
     ) -> Union[List[Rect], None]: ...
     @overload
     def convert(self, surface: Surface) -> Surface: ...

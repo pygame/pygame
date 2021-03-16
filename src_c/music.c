@@ -294,6 +294,74 @@ music_get_endevent(PyObject *self, PyObject *args)
     return PyInt_FromLong(endmusic_event);
 }
 
+Mix_MusicType
+_get_type_from_hint(char *namehint)
+{
+    Mix_MusicType type = MUS_NONE;
+    const char *dot;
+
+    // Adjusts namehint into a mere file extension component
+    if (namehint != NULL) {
+        dot = strrchr(namehint, '.');
+        if (dot != NULL) {
+            namehint = dot + 1;
+        }
+    }
+
+    /* Copied almost directly from SDL_mixer. Originally meant to check file extensions
+    * to get a hint of what music type it should be.
+    * https://github.com/libsdl-org/SDL_mixer/blob/master/src/music.c#L586-L631 */
+    if (SDL_strcasecmp(namehint, "WAV") == 0) {
+        type = MUS_WAV;
+    }
+    else if (SDL_strcasecmp(namehint, "MID") == 0 ||
+             SDL_strcasecmp(namehint, "MIDI") == 0 ||
+             SDL_strcasecmp(namehint, "KAR") == 0) {
+        type = MUS_MID;
+    }
+    else if (SDL_strcasecmp(namehint, "OGG") == 0) {
+        type = MUS_OGG;
+    }
+#ifdef MUS_OPUS
+    else if (SDL_strcasecmp(namehint, "OPUS") == 0) {
+        type = MUS_OPUS;
+    }
+#endif
+    else if (SDL_strcasecmp(namehint, "FLAC") == 0) {
+        type = MUS_FLAC;
+    }
+    else if (SDL_strcasecmp(namehint, "MPG") == 0 ||
+             SDL_strcasecmp(namehint, "MPEG") == 0 ||
+             SDL_strcasecmp(namehint, "MP3") == 0 ||
+             SDL_strcasecmp(namehint, "MAD") == 0) {
+        type = MUS_MP3;
+    }
+    else if (SDL_strcasecmp(namehint, "669") == 0 ||
+             SDL_strcasecmp(namehint, "AMF") == 0 ||
+             SDL_strcasecmp(namehint, "AMS") == 0 ||
+             SDL_strcasecmp(namehint, "DBM") == 0 ||
+             SDL_strcasecmp(namehint, "DSM") == 0 ||
+             SDL_strcasecmp(namehint, "FAR") == 0 ||
+             SDL_strcasecmp(namehint, "IT") == 0 ||
+             SDL_strcasecmp(namehint, "MED") == 0 ||
+             SDL_strcasecmp(namehint, "MDL") == 0 ||
+             SDL_strcasecmp(namehint, "MOD") == 0 ||
+             SDL_strcasecmp(namehint, "MOL") == 0 ||
+             SDL_strcasecmp(namehint, "MTM") == 0 ||
+             SDL_strcasecmp(namehint, "NST") == 0 ||
+             SDL_strcasecmp(namehint, "OKT") == 0 ||
+             SDL_strcasecmp(namehint, "PTM") == 0 ||
+             SDL_strcasecmp(namehint, "S3M") == 0 ||
+             SDL_strcasecmp(namehint, "STM") == 0 ||
+             SDL_strcasecmp(namehint, "ULT") == 0 ||
+             SDL_strcasecmp(namehint, "UMX") == 0 ||
+             SDL_strcasecmp(namehint, "WOW") == 0 ||
+             SDL_strcasecmp(namehint, "XM") == 0) {
+        type = MUS_MOD;
+    }
+    return type;
+}
+
 static PyObject *
 music_load(PyObject *self, PyObject *args)
 {
@@ -301,8 +369,9 @@ music_load(PyObject *self, PyObject *args)
     PyObject *oencoded;
     Mix_Music *new_music = NULL;
     const char *name;
+    char *namehint = NULL;
 
-    if (!PyArg_ParseTuple(args, "O", &obj)) {
+    if (!PyArg_ParseTuple(args, "O|s", &obj, &namehint)) {
         return NULL;
     }
 
@@ -323,7 +392,10 @@ music_load(PyObject *self, PyObject *args)
 #if IS_SDLv1
             new_music = Mix_LoadMUS_RW(rw);
 #else  /* IS_SDLv2 */
-            new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
+            if (namehint)
+                new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(namehint), SDL_TRUE);
+            else
+                new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
 #endif /* IS_SDLv2 */
         Py_END_ALLOW_THREADS
     }
