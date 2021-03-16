@@ -173,6 +173,23 @@ pg_texture_draw(pgTextureObject *self, PyObject *args, PyObject *kw)
     Py_RETURN_NONE;
 }
 
+// for Image
+void texture_draw_internal(pgTextureObject* self, SDL_Rect *csrcrect, SDL_Rect *cdstrect, 
+                           float angle, SDL_Point *originptr, int flipX, int flipY)
+{
+    //https://wiki.libsdl.org/SDL_RenderCopyEx
+    //https://wiki.libsdl.org/SDL_RendererFlip
+
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
+    if (flipX)
+        flip |= SDL_FLIP_HORIZONTAL;
+    if (flipY)
+        flip |= SDL_FLIP_VERTICAL;
+
+    SDL_RenderCopyEx(self->renderer->renderer, self->texture, csrcrect, cdstrect,
+                     angle, originptr, flip);
+}
+
 static PyObject *
 pg_texture_update(pgTextureObject *self, PyObject *args, PyObject *kw) 
 {

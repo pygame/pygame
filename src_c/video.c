@@ -23,13 +23,14 @@
 static PyTypeObject pgRenderer_Type;
 static PyTypeObject pgTexture_Type;
 static PyTypeObject pgWindow_Type;
+static PyTypeObject pgImage_Type;
 
 typedef struct pgRendererObject pgRendererObject;
 
 #define pgRenderer_Check(x) (((PyObject*)(x))->ob_type == &pgRenderer_Type)
 #define pgTexture_Check(x) (((PyObject*)(x))->ob_type == &pgTexture_Type)
 #define pgWindow_Check(x) (((PyObject*)(x))->ob_type == &pgWindow_Type)
-
+#define pgImage_Check(x) (((PyObject*)(x))->ob_type == &pgImage_Type)
 
 static PyObject *drawfnc_str = NULL;
 
@@ -48,6 +49,19 @@ typedef struct {
     SDL_Window *_win;
     int _is_borrowed;
 } pgWindowObject;
+
+typedef struct {
+    PyObject_HEAD
+    pgTextureObject *texture;
+    pgColorObject *color;
+    float alpha;
+    float originx;
+    float originy;
+    float angle;
+    int flipX;
+    int flipY;
+    pgRectObject *srcrect;
+} pgImageObject;
 
 struct pgRendererObject {
     PyObject_HEAD
@@ -82,6 +96,7 @@ pg_window_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 #include "video_renderer.c"
 #include "video_texture.c"
 #include "video_window.c"
+#include "video_image.c"
 
 MODINIT_DEFINE(video)
 {
@@ -112,6 +127,9 @@ MODINIT_DEFINE(video)
         MODINIT_ERROR;
     }
     if (PyType_Ready(&pgWindow_Type) < 0) {
+        MODINIT_ERROR;
+    }
+    if (PyType_Ready(&pgImage_Type) < 0) {
         MODINIT_ERROR;
     }
 
@@ -145,6 +163,11 @@ MODINIT_DEFINE(video)
     }
 
     if (PyDict_SetItemString(dict, "Window", (PyObject *)&pgWindow_Type)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
+    if (PyDict_SetItemString(dict, "Image", (PyObject *)&pgImage_Type)) {
         DECREF_MOD(module);
         MODINIT_ERROR;
     }

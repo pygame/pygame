@@ -526,7 +526,7 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
     //                         'pygame_icon.bmp'))
     //surf.set_colorkey(0)
     //self.set_icon(surf)
-    
+    return 0;
 }
 
 static PyObject *

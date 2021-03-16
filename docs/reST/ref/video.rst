@@ -180,6 +180,61 @@
       | :sl:`Update the texture with a Surface. WARNING: Slow operation, use sparingly.`
       | :sg:`update(surface, area=None) -> None`
 
+.. class:: Image
+
+   | :sl:`Easy way to use a portion of a Texture without worrying about srcrect all the time.`
+   | :sg:`Image(textureOrImage, srcrect=None) -> Image`
+
+   .. method:: get_rect
+
+      | :sl:`Get the rectangular area of the Image.`
+      | :sg:`get_rect() -> Rect`
+
+   .. method:: draw
+
+      | :sl:`Copy a portion of the Image to the rendering target.`
+      | :sg:`draw(srcrect=None, dstrect=None) -> None`
+
+   .. attribute:: angle
+
+      | :sl:`Gets and sets the angle the Image draws itself with.`
+      | :sg:`angle -> float`
+
+   .. attribute:: origin
+
+      | :sl:`Gets and sets the origin.`
+      | :sg:`origin -> (float, float)`
+
+   .. attribute:: flipX
+
+      | :sl:`Gets and sets whether the Image is flipped on the x axis.`
+      | :sg:`flipX -> bool`
+
+   .. attribute:: flipY
+
+      | :sl:`Gets and sets whether the Image is flipped on the y axis.`
+      | :sg:`flipY -> bool`
+
+   .. attribute:: color
+
+      | :sl:`Gets and sets the Image color modifier.`
+      | :sg:`color -> Color`
+
+   .. attribute:: alpha
+
+      | :sl:`Gets and sets the Image alpha modifier.`
+      | :sg:`alpha -> float`
+
+   .. attribute:: texture
+
+      | :sl:`Gets and sets the Texture the Image is based on.`
+      | :sg:`texture -> Texture`
+
+   .. attribute:: srcrect
+
+      | :sl:`Gets and sets the Rect the Image is based on.`
+      | :sg:`srcrect -> Rect`
+
 .. class:: Renderer
 
    | :sl:`Create a 2D rendering context for a window.`
