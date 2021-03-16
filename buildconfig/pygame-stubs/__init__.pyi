@@ -69,3 +69,29 @@ def encode_file_path(
 ) -> bytes: ...
 def register_quit(callable: Callable) -> None: ...
 def __getattr__(name) -> Any: ...  # don't error on missing stubs
+
+surface = pygame.surface
+rect = pygame.rect
+color = pygame.color
+event = pygame.event
+bufferproxy = pygame.bufferproxy
+draw = pygame.draw
+display = pygame.display
+font = pygame.font
+image = pygame.image
+key = pygame.key
+mixer = pygame.mixer
+mouse = pygame.mouse
+time = pygame.time
+version = pygame.version
+cursors = pygame.cursors
+joystick = pygame.joystick
+mask = pygame.mask
+sprite = pygame.sprite
+transform = pygame.transform
+pixelarray = pygame.pixelarray
+sndarray = pygame.sndarray
+surfarray = pygame.surfarray
+math = pygame.math
+fastevent = pygame.fastevent
+scrap = pygame.scrap
