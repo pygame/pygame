@@ -4,7 +4,9 @@
 
 static PyObject *
 pg_image_get_rect(pgImageObject *self) {
-    return Py_BuildValue("O", self->srcrect);
+    SDL_Rect r = self->srcrect->r;
+    pgRectObject* ret = pgRect_New(&r);
+    return Py_BuildValue("O", ret);
 }
 
 static PyObject *
@@ -49,7 +51,7 @@ pg_image_draw(pgImageObject *self, PyObject *args, PyObject *kw) {
         csrcrect = &src;      
     }
 
-    //TODO: what if dstrect is None?
+    //If dstrect isn't set, cdstrect is NULL, which makes the texture draw to the entire context.
     if (dstrect) {
         cdstrect = pgRect_FromObject(dstrect, &dst);
         if (!cdstrect) {
@@ -134,6 +136,7 @@ pg_image_set_flipX(pgImageObject *self, PyObject *val, void *closure)
 {
     int flipX = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `Image.flipX = "wow"`
     self->flipX = flipX;
+    return 0;
 }
 
 static PyObject *
@@ -149,6 +152,7 @@ pg_image_set_flipY(pgImageObject *self, PyObject *val, void *closure)
 {
     int flipY = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `Image.flipY = "wow"`
     self->flipY = flipY;
+    return 0;
 }
 
 static PyObject *
@@ -210,7 +214,7 @@ static PyObject *
 pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure) 
 {
     //TODO: check if it is valid
-    self->srcrect = val;
+    self->srcrect = (pgRectObject*) val;
     Py_INCREF(self->srcrect);
     return 0;
 }
@@ -230,40 +234,6 @@ static PyGetSetDef pg_image_getset[] = {
 static int
 pg_image_init(pgImageObject *self, PyObject *args, PyObject *kw) 
 {
-
-    /*
-        cdef SDL_Rect temp
-        cdef SDL_Rect *rectptr
-
-        if isinstance(textureOrImage, Image):
-            self.texture = textureOrImage.texture
-            self.srcrect = pgRect_New(&(<Rect>textureOrImage.srcrect).r)
-        else:
-            self.texture = textureOrImage
-            self.srcrect = textureOrImage.get_rect()
-
-        if srcrect is not None:
-            rectptr = pgRect_FromObject(srcrect, &temp)
-            if rectptr == NULL:
-                raise TypeError('srcrect must be None or a rectangle')
-            temp.x = rectptr.x
-            temp.y = rectptr.y
-            temp.w = rectptr.w
-            temp.h = rectptr.h
-
-            if temp.x < 0 or temp.y < 0 or \
-                temp.w < 0 or temp.h < 0 or \
-                temp.x + temp.w > self.srcrect.w or \
-                temp.y + temp.h > self.srcrect.h:
-                raise ValueError('rect values are out of range')
-            temp.x += self.srcrect.x
-            temp.y += self.srcrect.y
-            self.srcrect = pgRect_New(&temp)
-
-        self.origin[0] = self.srcrect.w / 2
-        self.origin[1] = self.srcrect.h / 2
-    */
-
     SDL_Rect temp;
     SDL_Rect *rectptr;
     PyObject *srcrect = NULL;
@@ -305,13 +275,13 @@ pg_image_init(pgImageObject *self, PyObject *args, PyObject *kw)
         temp.h = rectptr->h;
 
         if (temp.x < 0 || temp.y < 0 || temp.w < 0 || temp.h < 0 ||
-            temp.x + temp.w > rectptr->w || temp.y + temp.h > rectptr->h) {
+            temp.x + temp.w > self->srcrect->r.w || temp.y + temp.h > self->srcrect->r.h) {
             RAISE(PyExc_ValueError, "rect values are out of range");
             return -1;
         }
 
-        temp.x += rectptr->x;
-        temp.y += rectptr->y;
+        temp.x += self->srcrect->r.x;
+        temp.y += self->srcrect->r.y;
         self->srcrect = pgRect_New(&temp);
     }
 
