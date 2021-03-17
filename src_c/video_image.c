@@ -122,6 +122,36 @@ pg_image_set_origin(pgImageObject *self, PyObject *val, void *closure)
 }
 
 static PyObject *
+pg_image_get_flipX(pgImageObject *self) 
+{
+    if (self->flipX)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+pg_image_set_flipX(pgImageObject *self, PyObject *val, void *closure) 
+{
+    int flipX = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `Image.flipX = "wow"`
+    self->flipX = flipX;
+}
+
+static PyObject *
+pg_image_get_flipY(pgImageObject *self) 
+{
+    if (self->flipY)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+pg_image_set_flipY(pgImageObject *self, PyObject *val, void *closure) 
+{
+    int flipY = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `Image.flipY = "wow"`
+    self->flipY = flipY;
+}
+
+static PyObject *
 pg_image_get_color(pgImageObject *self) 
 {
     return Py_BuildValue("O", self->color);
@@ -155,6 +185,22 @@ pg_image_set_alpha(pgImageObject *self, PyObject *val, void *closure)
 }
 
 static PyObject *
+pg_image_get_texture(pgImageObject *self) 
+{
+    return Py_BuildValue("O", self->texture);
+}
+
+static PyObject *
+pg_image_set_texture(pgImageObject *self, PyObject *val, void *closure) 
+{
+    //TODO: check if it is valid
+    //TODO: manage life cycle
+    self->texture = val;
+    Py_INCREF(self->texture);
+    return 0;
+}
+
+static PyObject *
 pg_image_get_srcrect(pgImageObject *self) 
 {
     return Py_BuildValue("O", self->srcrect);
@@ -172,8 +218,11 @@ pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure)
 static PyGetSetDef pg_image_getset[] = {
     { "angle", (getter)pg_image_get_angle, (setter)pg_image_set_angle, NULL /*TODO*/, NULL },
     { "origin", (getter)pg_image_get_origin, (setter)pg_image_set_origin, NULL /*TODO*/, NULL },
+    { "flipX", (getter)pg_image_get_flipX, (setter)pg_image_set_flipX, NULL /*TODO*/, NULL },
+    { "flipY", (getter)pg_image_get_flipY, (setter)pg_image_set_flipY, NULL /*TODO*/, NULL },
     { "color", (getter)pg_image_get_color, (setter)pg_image_set_color, NULL /*TODO*/, NULL },
     { "alpha", (getter)pg_image_get_alpha, (setter)pg_image_set_alpha, NULL /*TODO*/, NULL },
+    { "texture", (getter)pg_image_get_texture, (setter)pg_image_set_texture, NULL /*TODO*/, NULL },
     { "srcrect", (getter)pg_image_get_srcrect, (setter)pg_image_set_srcrect, NULL /*TODO*/, NULL },
     { NULL }
 };
