@@ -151,8 +151,8 @@ mask_get_at(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, val;
+    PyObject* pos = NULL; 
     static char *keywords[] = {"pos", NULL};
-    PyObject* pos = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &pos))
         return NULL;
@@ -178,8 +178,8 @@ mask_set_at(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, value = 1;
-    static char *keywords[] = {"pos", "value", NULL};
     PyObject* pos = NULL;
+    static char *keywords[] = {"pos", "value", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", keywords, &pos, &value))
         return NULL;
@@ -213,8 +213,8 @@ mask_overlap(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *maskobj;
     int x, y, val;
     int xp, yp;
-    static char *keywords[] = {"othermask", "offset", NULL};
     PyObject* offset = NULL;
+    static char *keywords[] = {"othermask", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset))
         return NULL;
@@ -243,8 +243,8 @@ mask_overlap_area(PyObject *self, PyObject *args, PyObject *kwargs)
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y, val;
-    static char *keywords[] = {"othermask", "offset", NULL};
     PyObject* offset = NULL;
+    static char *keywords[] = {"othermask", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
@@ -268,8 +268,8 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
     bitmask_t *bitmask = pgMask_AsBitmap(self);
     PyObject *maskobj = NULL;
     pgMaskObject *output_maskobj = NULL;
-    static char *keywords[] = {"othermask", "offset", NULL};
     PyObject* offset = NULL;
+    static char *keywords[] = {"othermask", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL; /* Exception already set. */
@@ -359,8 +359,8 @@ mask_draw(PyObject *self, PyObject *args, PyObject *kwargs)
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y;
-    static char *keywords[] = {"othermask", "offset", NULL};
     PyObject* offset = NULL;
+    static char *keywords[] = {"othermask", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
@@ -385,8 +385,8 @@ mask_erase(PyObject *self, PyObject *args, PyObject *kwargs)
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y;
-    static char *keywords[] = {"othermask", "offset", NULL};
     PyObject* offset = NULL;
+    static char *keywords[] = {"othermask", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
@@ -487,11 +487,11 @@ mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
     bitmask_t *m = NULL;
     PyObject *plist = NULL;
     PyObject *value = NULL;
-    static char *keywords[] = {"every", NULL};
     int x, y, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
     int e, every = 1;
     int a[] = {1, 1, 0, -1, -1, -1,  0,  1, 1, 1, 0, -1, -1, -1};
     int b[] = {0, 1, 1,  1,  0, -1, -1, -1, 0, 1, 1,  1,  0, -1};
+    static char *keywords[] = {"every", NULL};
 
     n = firstx = firsty = secx = x = 0;
 
@@ -655,8 +655,8 @@ mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
     PyObject *oobj = Py_None;
     bitmask_t *a = NULL, *b = NULL;
     int xoffset = 0, yoffset = 0;
-    static char *keywords[] = {"othermask", "outputmask", "offset", NULL};
     PyObject* offset = NULL;
+    static char *keywords[] = {"othermask", "outputmask", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|OO", keywords, &pgMask_Type, &bobj, &oobj,
                           &offset)) {
@@ -1828,8 +1828,8 @@ mask_connected_component(PyObject *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t args_exist = PyTuple_Size(args);
     if (kwargs)
         args_exist += PyDict_Size(kwargs);
-    static char *keywords[] = {"pos", NULL};
     PyObject* pos = NULL;
+    static char *keywords[] = {"pos", NULL};
 
     if (args_exist) {
         if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords, &pos)) {
