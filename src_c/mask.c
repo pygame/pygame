@@ -1826,10 +1826,11 @@ mask_connected_component(PyObject *self, PyObject *args, PyObject *kwargs)
     pgMaskObject *output_maskobj = NULL;
     int x = -1, y = -1;
     Py_ssize_t args_exist = PyTuple_Size(args);
-    if (kwargs)
-        args_exist += PyDict_Size(kwargs);
     PyObject* pos = NULL;
     static char *keywords[] = {"pos", NULL};
+
+    if (kwargs)
+        args_exist += PyDict_Size(kwargs);
 
     if (args_exist) {
         if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords, &pos)) {
