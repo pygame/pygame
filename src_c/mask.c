@@ -2462,7 +2462,7 @@ mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!pg_TwoIntsFromObj(size, &w, &h)) {
-        RAISE(PyExc_TypeError, "size must be two numbers");
+        PyErr_SetString(PyExc_TypeError, "size must be two numbers");
         return -1;
     }
 
