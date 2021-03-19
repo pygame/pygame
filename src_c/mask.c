@@ -158,8 +158,7 @@ mask_get_at(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     if (!pg_TwoIntsFromObj(pos, &x, &y)) {
-        RAISE(PyExc_TypeError, "pos must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "pos must be two numbers");
     }
 
     if (x >= 0 && x < mask->w && y >= 0 && y < mask->h) {
@@ -185,8 +184,7 @@ mask_set_at(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     if (!pg_TwoIntsFromObj(pos, &x, &y)) {
-        RAISE(PyExc_TypeError, "pos must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "pos must be two numbers");
     }
 
     if (x >= 0 && x < mask->w && y >= 0 && y < mask->h) {
@@ -222,8 +220,7 @@ mask_overlap(PyObject *self, PyObject *args, PyObject *kwargs)
     othermask = pgMask_AsBitmap(maskobj);
 
     if (!pg_TwoIntsFromObj(offset, &x, &y)) {
-        RAISE(PyExc_TypeError, "offset must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     val = bitmask_overlap_pos(mask, othermask, x, y, &xp, &yp);
@@ -253,8 +250,7 @@ mask_overlap_area(PyObject *self, PyObject *args, PyObject *kwargs)
     othermask = pgMask_AsBitmap(maskobj);
 
     if (!pg_TwoIntsFromObj(offset, &x, &y)) {
-        RAISE(PyExc_TypeError, "offset must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     val = bitmask_overlap_area(mask, othermask, x, y);
@@ -278,8 +274,7 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
     output_maskobj = CREATE_MASK_OBJ(bitmask->w, bitmask->h, 0);
 
     if (!pg_TwoIntsFromObj(offset, &x, &y)) {
-        RAISE(PyExc_TypeError, "offset must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     if (NULL == output_maskobj) {
@@ -335,8 +330,7 @@ mask_scale(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!pg_TwoIntsFromObj(scale, &x, &y)) {
-        RAISE(PyExc_TypeError, "scale must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "scale must be two numbers");
     }
 
     if (x < 0 || y < 0) {
@@ -367,8 +361,7 @@ mask_draw(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!pg_TwoIntsFromObj(offset, &x, &y)) {
-        RAISE(PyExc_TypeError, "offset must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     othermask = pgMask_AsBitmap(maskobj);
@@ -393,8 +386,7 @@ mask_erase(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!pg_TwoIntsFromObj(offset, &x, &y)) {
-        RAISE(PyExc_TypeError, "offset must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     othermask = pgMask_AsBitmap(maskobj);
@@ -664,8 +656,7 @@ mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
     }
 
     if (offset && !pg_TwoIntsFromObj(offset, &xoffset, &yoffset)) {
-        RAISE(PyExc_TypeError, "offset must be two numbers");
-        return NULL;
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     a = pgMask_AsBitmap(aobj);
@@ -1838,8 +1829,7 @@ mask_connected_component(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (!pg_TwoIntsFromObj(pos, &x, &y)) {
-            RAISE(PyExc_TypeError, "pos must be two numbers");
-            return NULL;
+            return RAISE(PyExc_TypeError, "pos must be two numbers");
         }
 
         if (x < 0 || x >= input->w || y < 0 || y >= input->h) {
