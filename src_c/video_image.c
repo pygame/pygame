@@ -70,8 +70,8 @@ pg_image_draw(pgImageObject *self, PyObject *args, PyObject *kw) {
     }
 
     //TODO: bad to circumvent getters and setters? Especially when obj life cycles are being managed.
-    self->texture->color = self->color;
-    self->texture->alpha = self->alpha;
+    pg_texture_set_color(self->texture, self->color, NULL);
+    pg_texture_set_alpha(self->texture, Py_BuildValue("f", self->alpha), NULL);
 
     origin.x = self->originx;
     origin.y = self->originy;
