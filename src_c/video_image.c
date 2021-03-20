@@ -153,14 +153,22 @@ pg_image_set_flipY(pgImageObject *self, PyObject *val, void *closure)
 static PyObject *
 pg_image_get_color(pgImageObject *self) 
 {
-    return Py_BuildValue("O", self->color);
+    // Error checking *shouldn't* be necessary because self->color should always be legit
+    Uint8 *colarray = pgColor_AsArray(self->color);
+    return Py_BuildValue("O", pgColor_New(colarray));
 }
 
 static PyObject *
 pg_image_set_color(pgImageObject *self, PyObject *val, void *closure) 
 {
-    //TODO: life cycle management and checking its a color object
-    self->color = (pgColorObject*) val;
+    Uint8 *colarray = pgColor_AsArray(self->color);
+    if (!pg_RGBAFromColorObj(val, colarray)) {
+        RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
+        return -1;
+    }
+
+    Py_DECREF(self->color);
+    self->color = (pgColorObject*)pgColor_New(colarray);
     Py_INCREF(self->color);
     return 0;
 }
@@ -194,6 +202,7 @@ pg_image_set_texture(pgImageObject *self, PyObject *val, void *closure)
     if (!pgTexture_Check(val)) {
         return RAISE(PyExc_TypeError, "texture must be a texture.");
     }
+    Py_DECREF(self->texture);
     self->texture = (pgTextureObject*)val;
     Py_INCREF(self->texture);
     return 0;
@@ -209,6 +218,7 @@ static PyObject *
 pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure) 
 {
     //TODO: check if it is valid
+    //TODO: make a new rect, rather than using the same one
     self->srcrect = (pgRectObject*) val;
     Py_INCREF(self->srcrect);
     return 0;
@@ -297,12 +307,18 @@ pg_image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pgImageObject *obj;
     obj = (pgImageObject*) type->tp_alloc(type, 0);
     obj->color = col;
+    Py_INCREF(obj->color); //TODO: Why is this necessary for it not to fail later?
     obj->alpha = 255;
     return (PyObject*)obj;
 }
 
 static void
-pg_image_dealloc(pgImageObject *self) {} // TODO: doesn't need one?
+pg_image_dealloc(pgImageObject *self) {
+    Py_DECREF(self->texture);
+    Py_DECREF(self->srcrect);
+    Py_DECREF(self->color);
+    Py_TYPE(self)->tp_free((PyObject *)self);
+}
 
 static PyTypeObject pgImage_Type = {
     PyVarObject_HEAD_INIT(NULL,0)

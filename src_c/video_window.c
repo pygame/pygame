@@ -9,10 +9,10 @@ pg_window_from_display_module(pgWindowObject *cls) {
         return RAISE(pgExc_SDLError, "The display module has no window to be found! Are you sure you've called set_mode()?");
     }
 
-    pgWindowObject* window_obj = pg_window_new(cls, NULL, NULL);
+    pgWindowObject* window_obj = (pgWindowObject*)pg_window_new((PyTypeObject*)cls, NULL, NULL);
     window_obj->_win = window;
     window_obj->_is_borrowed = 1;
-    return window_obj;
+    return (PyObject*)window_obj;
 }
 
 static PyObject *
@@ -112,8 +112,7 @@ pg_window_focus(pgWindowObject *self, PyObject *args, PyObject *kw)
 
     if (input_only) {
         if (SDL_SetWindowInputFocus(self->_win) < 0) {
-            RAISE(pgExc_SDLError, SDL_GetError());
-            return -1;
+            return RAISE(pgExc_SDLError, SDL_GetError());
         }
     }
     else {
@@ -186,8 +185,7 @@ pg_window_set_modal_for(pgWindowObject *self, PyObject *args, PyObject *kw)
 
     //https://wiki.libsdl.org/SDL_SetWindowModalFor
     if (SDL_SetWindowModalFor(self->_win, win->_win) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     // TODO: this should exit gracefully if not supported, why does it segfault?
@@ -269,7 +267,7 @@ pg_window_set_title(pgWindowObject *self, PyObject *val, void *closure)
     PyObject* args = Py_BuildValue("(O)", val);
     char* title = NULL;
     if(!PyArg_ParseTuple(args, "es", "UTF-8", &title)) {
-        return -1;
+        return NULL;
     }
     SDL_SetWindowTitle(self->_win, title);
     Py_DECREF(args);
@@ -337,9 +335,8 @@ pg_window_set_size(pgWindowObject *self, PyObject *val, void *closure)
 {
     int w, h;
     if (!pg_TwoIntsFromObj(val, &w, &h)) {
-        RAISE(PyExc_TypeError,
+        return RAISE(PyExc_TypeError,
             "size should be a sequence of two elements");
-        return -1;
     }
     SDL_SetWindowSize(self->_win, w, h);
     return 0;
@@ -377,8 +374,7 @@ pg_window_set_position(pgWindowObject *self, PyObject *val, void *closure)
         parsed = 1;
     }
     if (!parsed) {
-        RAISE(PyExc_TypeError, "position should be (x,y) or POS_UNDEFINED or POS_CENTERED");
-        return -1;       
+        return RAISE(PyExc_TypeError, "position should be (x,y) or POS_UNDEFINED or POS_CENTERED");      
     }
     SDL_SetWindowPosition(self->_win, x, y);
     return 0;
@@ -392,8 +388,7 @@ pg_window_get_opacity(pgWindowObject *self)
     // https://wiki.libsdl.org/SDL_GetWindowOpacity
     float opacity;
     if (SDL_GetWindowOpacity(self->_win, &opacity) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     return Py_BuildValue("f", opacity);
 }
@@ -403,12 +398,10 @@ pg_window_set_opacity(pgWindowObject *self, PyObject *val, void *closure)
 {
     float opacity;
     if(!pg_FloatFromObj(val, &opacity)) {
-        RAISE(PyExc_TypeError, "opacity should be a float between 0 and 1.");
-        return -1;         
+        return RAISE(PyExc_TypeError, "opacity should be a float between 0 and 1.");        
     }
     if (SDL_SetWindowOpacity(self->_win, opacity) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;        
+        return RAISE(pgExc_SDLError, SDL_GetError());       
     }
     return 0;
 }
@@ -429,12 +422,10 @@ pg_window_set_brightness(pgWindowObject *self, PyObject *val, void *closure)
     // https://wiki.libsdl.org/SDL_SetWindowBrightness
     float brightness;
     if(!pg_FloatFromObj(val, &brightness)) {
-        RAISE(PyExc_TypeError, "brightness should be a float.");
-        return -1;         
+        return RAISE(PyExc_TypeError, "brightness should be a float.");       
     }
     if (SDL_SetWindowBrightness(self->_win, brightness) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;        
+        return RAISE(pgExc_SDLError, SDL_GetError());       
     }
     return 0;
 }
@@ -445,8 +436,7 @@ pg_window_get_display_index(pgWindowObject *self)
     // https://wiki.libsdl.org/SDL_GetWindowDisplayIndex
     int index = SDL_GetWindowDisplayIndex(self->_win);
     if (index < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;           
+        return RAISE(pgExc_SDLError, SDL_GetError());          
     }
     return Py_BuildValue("i", index);
 }
@@ -545,6 +535,7 @@ pg_window_dealloc(pgWindowObject *self)
         SDL_DestroyWindow(self->_win);
         self->_win = NULL;
     }
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyTypeObject pgWindow_Type = {

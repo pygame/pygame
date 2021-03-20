@@ -26,7 +26,7 @@ pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
 
     // TODO: manage window object lifecycle? Increase refcount, decrease on dealloc?
 
-    pgRendererObject* renderer = pg_renderer_new(cls, NULL, NULL);
+    pgRendererObject* renderer = pg_renderer_new((PyTypeObject*)cls, NULL, NULL);
     renderer->window = (pgWindowObject *) window;
     renderer->renderer = SDL_GetRenderer(renderer->window->_win);
     if (!renderer->renderer) {
@@ -34,7 +34,7 @@ pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
         return NULL;
     }
 
-    return renderer;
+    return (PyObject*)renderer;
 }
 
 static PyObject *
@@ -149,18 +149,15 @@ pg_renderer_draw_line(pgRendererObject *self, PyObject *args, PyObject *kw) {
     }
     
     if (!pg_TwoIntsFromObj(p1, &x1, &y1)) {
-        RAISE(PyExc_TypeError, "Point 1 must be a sequence of two numbers.");
-        return -1;
+        return RAISE(PyExc_TypeError, "Point 1 must be a sequence of two numbers.");
     }
 
     if (!pg_TwoIntsFromObj(p2, &x2, &y2)) {
-        RAISE(PyExc_TypeError, "Point 2 must be a sequence of two numbers.");
-        return -1;       
+        return RAISE(PyExc_TypeError, "Point 2 must be a sequence of two numbers.");     
     }
 
     if (SDL_RenderDrawLine(self->renderer, x1, y1, x2, y2) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_NONE;  
 }
@@ -181,13 +178,11 @@ pg_renderer_draw_point(pgRendererObject *self, PyObject *args, PyObject *kw) {
     }
     
     if (!pg_TwoIntsFromObj(point, &x, &y)) {
-        RAISE(PyExc_TypeError, "Point must be a sequence of two numbers.");
-        return -1;       
+        return RAISE(PyExc_TypeError, "Point must be a sequence of two numbers.");     
     }
 
     if (SDL_RenderDrawPoint(self->renderer, x, y) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_NONE;   
 }
@@ -210,13 +205,11 @@ pg_renderer_draw_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
     
     rectptr = pgRect_FromObject(area, &rect);
     if (rectptr == NULL) {
-        RAISE(PyExc_TypeError, "expected a rectangle");
-        return -1;
+        return RAISE(PyExc_TypeError, "expected a rectangle");
     }
 
     if (SDL_RenderDrawRect(self->renderer, rectptr) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_NONE;    
 }
@@ -239,13 +232,11 @@ pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
     
     rectptr = pgRect_FromObject(area, &rect);
     if (rectptr == NULL) {
-        RAISE(PyExc_TypeError, "expected a rectangle");
-        return -1;
+        return RAISE(PyExc_TypeError, "expected a rectangle");
     }
 
     if (SDL_RenderFillRect(self->renderer, rectptr) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_NONE;
 }
@@ -367,20 +358,18 @@ pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
     //https://wiki.libsdl.org/SDL_SetRenderTarget
     pgTextureObject* newtarget = NULL;
 
-    if(PyObject_IsInstance(val, (PyObject*)&pgTexture_Type)) {
-        newtarget = val;
+    if(pgTexture_Check(val)) {
+        newtarget = (pgTextureObject*)val;
     }
     else if (val == Py_None) {}
     else {
-        RAISE(PyExc_TypeError, "Target must be a Texture or None.");
-        return -1;
+        return RAISE(PyExc_TypeError, "Target must be a Texture or None.");
     }
         
     self->target = newtarget;
 
     if(SDL_SetRenderTarget(self->renderer, self->target? self->target->texture: NULL) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;            
+        return RAISE(pgExc_SDLError, SDL_GetError());          
     }
     return 0;
 }

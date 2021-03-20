@@ -209,9 +209,8 @@ pg_texture_update(pgTextureObject *self, PyObject *args, PyObject *kw)
         return NULL;
     }
 
-    if (!pgSurface_Check(surfobj)) {
-        RAISE(PyExc_TypeError, "not a surface");
-        return NULL;
+    if (!pgSurface_Check(surfobj)) { // TODO: Necessary? since it's being parsed as a pgSurface_Type, it might not be.
+        return RAISE(PyExc_TypeError, "not a surface");
     }
 
     surf = pgSurface_AsSurface(surfobj);
@@ -222,8 +221,7 @@ pg_texture_update(pgTextureObject *self, PyObject *args, PyObject *kw)
     }
 
     if (SDL_UpdateTexture(self->texture, rectptr, surf->pixels, surf->pitch) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return -1;       
+        return RAISE(pgExc_SDLError, SDL_GetError());      
     }
     Py_RETURN_NONE;
 }
