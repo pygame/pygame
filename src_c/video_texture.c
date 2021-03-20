@@ -237,7 +237,6 @@ static PyMethodDef pg_texture_methods[] = {
 static PyObject *
 pg_texture_get_color(pgTextureObject *self, void *closure)
 {
-    Py_INCREF(self->color);
     return (PyObject*) self->color;
 }
 
@@ -470,6 +469,7 @@ pg_texture_dealloc(pgTextureObject *self)
         self->texture = NULL;
     }
     Py_XDECREF(self->renderer);
+    Py_DECREF(self->color);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 

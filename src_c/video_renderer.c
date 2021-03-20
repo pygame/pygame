@@ -320,7 +320,7 @@ pg_renderer_set_scale(pgRendererObject *self, PyObject *val, void *closure)
 static PyObject *
 pg_renderer_get_color(pgRendererObject *self, void *closure)
 {
-    Py_INCREF(self->drawcolor);
+    //TODO: return copy of color so it can't be modified externally
     return (PyObject*)self->drawcolor;
 }
 
@@ -367,6 +367,7 @@ pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
     }
         
     self->target = newtarget;
+    Py_XINCREF(self->target);
 
     if(SDL_SetRenderTarget(self->renderer, self->target? self->target->texture: NULL) < 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());          
@@ -457,6 +458,8 @@ pg_renderer_dealloc(pgRendererObject *self)
         self->renderer = NULL;
     }
     Py_XDECREF(self->window);
+    Py_XDECREF(self->target);
+    Py_DECREF(self->drawcolor);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
