@@ -5,7 +5,7 @@
 static PyObject *
 pg_image_get_rect(pgImageObject *self) {
     SDL_Rect r = self->srcrect->r;
-    pgRectObject* ret = pgRect_New(&r);
+    PyObject* ret = pgRect_New(&r);
     return Py_BuildValue("O", ret);
 }
 
@@ -38,8 +38,7 @@ pg_image_draw(pgImageObject *self, PyObject *args, PyObject *kw) {
     else {
         rectptr = pgRect_FromObject(srcrect, &src);
         if (!rectptr) {
-            RAISE(PyExc_TypeError, "srcrect must be a rect or None.");
-            return -1;
+            return RAISE(PyExc_TypeError, "srcrect must be a rect or None.");
         }
         src.x = rectptr->x;
         src.y = rectptr->y;
@@ -63,18 +62,16 @@ pg_image_draw(pgImageObject *self, PyObject *args, PyObject *kw) {
                 cdstrect = &dst;
             }
             else {
-                RAISE(PyExc_TypeError, "dstrect must be a position, rect, or None.");
-                return -1;                
+                return RAISE(PyExc_TypeError, "dstrect must be a position, rect, or None.");               
             }
         }
     }
 
-    //TODO: bad to circumvent getters and setters? Especially when obj life cycles are being managed.
-    pg_texture_set_color(self->texture, self->color, NULL);
-    pg_texture_set_alpha(self->texture, Py_BuildValue("f", self->alpha), NULL);
+    pg_texture_set_color(self->texture, (PyObject*)self->color, NULL);
+    pg_texture_set_alpha(self->texture, Py_BuildValue("i", (int)self->alpha), NULL);
 
-    origin.x = self->originx;
-    origin.y = self->originy;
+    origin.x = (int)self->originx;
+    origin.y = (int)self->originy;
 
     texture_draw_internal(self->texture, csrcrect, cdstrect, self->angle, &origin, self->flipX, self->flipY);
     Py_RETURN_NONE;
@@ -97,8 +94,7 @@ pg_image_set_angle(pgImageObject *self, PyObject *val, void *closure)
 {
     float angle;
     if(!pg_FloatFromObj(val, &angle)) {
-        RAISE(PyExc_TypeError, "angle should be a float.");
-        return -1;         
+        return RAISE(PyExc_TypeError, "angle should be a float.");        
     }
     self->angle = angle;
     return 0;
@@ -115,8 +111,7 @@ pg_image_set_origin(pgImageObject *self, PyObject *val, void *closure)
 {
     float x, y;
     if(!pg_TwoFloatsFromObj(val, &x, &y)) {
-        RAISE(PyExc_TypeError, "Origin should be a sequence or two floats or ints.");
-        return -1;         
+        return RAISE(PyExc_TypeError, "Origin should be a sequence or two floats or ints.");        
     }
     self->originx = x;
     self->originy = y;
@@ -181,8 +176,7 @@ pg_image_set_alpha(pgImageObject *self, PyObject *val, void *closure)
 {
     float alpha;
     if(!pg_FloatFromObj(val, &alpha)) {
-        RAISE(PyExc_TypeError, "brightness should be a float.");
-        return -1;         
+        return RAISE(PyExc_TypeError, "brightness should be a float.");      
     }
     self->alpha = alpha;
     return 0;
@@ -197,9 +191,10 @@ pg_image_get_texture(pgImageObject *self)
 static PyObject *
 pg_image_set_texture(pgImageObject *self, PyObject *val, void *closure) 
 {
-    //TODO: check if it is valid
-    //TODO: manage life cycle
-    self->texture = val;
+    if (!pgTexture_Check(val)) {
+        return RAISE(PyExc_TypeError, "texture must be a texture.");
+    }
+    self->texture = (pgTextureObject*)val;
     Py_INCREF(self->texture);
     return 0;
 }
@@ -247,26 +242,27 @@ pg_image_init(pgImageObject *self, PyObject *args, PyObject *kw)
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, "O|O", keywords,
                                      &textureOrImage, &srcrect)) {
-        return NULL;
+        return -1;
     }
 
     if (pgTexture_Check(textureOrImage)) {
-        self->texture = textureOrImage;
-        self->srcrect = pg_texture_get_rect(textureOrImage, NULL, NULL);
+        self->texture = (pgTextureObject*)textureOrImage;
+        self->srcrect = (pgRectObject*)pg_texture_get_rect(self->texture, NULL, NULL);
     }
     else if (pgImage_Check(textureOrImage)) {
         self->texture = ((pgImageObject*) textureOrImage)->texture;
         self->srcrect = ((pgImageObject*) textureOrImage)->srcrect;
     }
     else {
-        return RAISE(PyExc_TypeError, "textureOrImage... must be a Texture or an Image.");
+        PyErr_SetString(PyExc_TypeError, "textureOrImage... must be a Texture or an Image.");
+        return -1;
     }
     Py_INCREF(self->texture);
 
     if (srcrect) {
         rectptr = pgRect_FromObject(srcrect, &temp);
         if (!rectptr) {
-            RAISE(PyExc_TypeError, "srcrect must a rectangle or None");
+            PyErr_SetString(PyExc_TypeError, "srcrect must a rectangle or None");
             return -1;
         }
         temp.x = rectptr->x;
@@ -282,11 +278,11 @@ pg_image_init(pgImageObject *self, PyObject *args, PyObject *kw)
 
         temp.x += self->srcrect->r.x;
         temp.y += self->srcrect->r.y;
-        self->srcrect = pgRect_New(&temp);
+        self->srcrect = (pgRectObject*)pgRect_New(&temp);
     }
 
-    self->originx = temp.w / 2;
-    self->originy = temp.h / 2;
+    self->originx = temp.w / 2.0f;
+    self->originy = temp.h / 2.0f;
     return 0;
 }
 
