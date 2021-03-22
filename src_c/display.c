@@ -3112,6 +3112,7 @@ static PyMethodDef _pg_display_methods[] = {
     {"Info", pgInfo, METH_NOARGS, DOC_PYGAMEDISPLAYINFO},
     {"get_surface", pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
     {"get_window_size", pg_window_size, METH_NOARGS,
+     DOC_PYGAMEDISPLAYGETWINDOWSIZE},
     {"get_window_handles", pg_get_window_handles, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETWINDOWHANDLES},
 
