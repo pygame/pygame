@@ -233,7 +233,7 @@ static PyObject *
 pg_display_autoinit(PyObject *self, PyObject *arg)
 {
     pg_RegisterQuit(pg_display_autoquit);
-    return PyInt_FromLong(1);
+    Py_RETURN_TRUE;
 }
 
 static PyObject *
@@ -1557,19 +1557,19 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
         Uint32 Rmask, Gmask, Bmask;
         if (_pg_get_default_display_masks(bpp, &Rmask, &Gmask, &Bmask)) {
             PyErr_Clear();
-            return PyInt_FromLong((long)0);
+            Py_RETURN_FALSE;
         }
         desired.format =
             SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, 0);
     }
     if (!SDL_GetClosestDisplayMode(display_index, &desired, &closest)) {
         if (flags & PGS_FULLSCREEN)
-            return PyInt_FromLong((long)0);
+            Py_RETURN_FALSE;
         closest.format = desired.format;
     }
     if ((flags & PGS_FULLSCREEN) &&
         (closest.w != desired.w || closest.h != desired.h))
-        return PyInt_FromLong((long)0);
+        Py_RETURN_FALSE;
     return PyInt_FromLong(SDL_BITSPERPIXEL(closest.format));
 }
 
@@ -2914,7 +2914,7 @@ pg_display_resize_event(PyObject *self, PyObject *event)
         /* do not do anything that would invalidate a display surface! */
         return PyInt_FromLong(-1);
     }
-    return PyInt_FromLong(0);
+    Py_RETURN_FALSE;
 }
 
 #else  /* IS_SDLv1 */
@@ -3012,7 +3012,7 @@ pg_iconify(PyObject *self, PyObject *args)
        the application will receive a SDL_APPACTIVE loss event (see
        SDL_ActiveEvent).
     */
-    return PyInt_FromLong(result != 0);
+    return PyBool_FromLong(result != 0);
 }
 
 static PyObject *

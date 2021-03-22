@@ -59,12 +59,12 @@ joy_autoinit(PyObject *self)
 {
     if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
         if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-            return PyInt_FromLong(0);
+            Py_RETURN_FALSE;
         }
         SDL_JoystickEventState(SDL_ENABLE);
         pg_RegisterQuit(joy_autoquit);
     }
-    return PyInt_FromLong(1);
+    Py_RETURN_TRUE;
 }
 
 static PyObject *

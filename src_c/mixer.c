@@ -499,7 +499,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
 #endif
 
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
-            return PyInt_FromLong(0);
+            Py_RETURN_FALSE;
 
 #if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 0 && SDL_MIXER_PATCHLEVEL >= 2
         if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
@@ -509,12 +509,12 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
                 SDL_Log("Failed to open devicename:%s: with error :%s:", devicename, SDL_GetError());
             }
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            return PyInt_FromLong(0);
+            Py_RETURN_FALSE;
         }
 #else
         if (Mix_OpenAudio(freq, fmt, channels, chunk) == -1) {
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            return PyInt_FromLong(0);
+            Py_RETURN_FALSE;
         }
 #endif
         Mix_ChannelFinished(endsound_callback);
@@ -543,7 +543,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         PyErr_Clear();
     }
 
-    return PyInt_FromLong(1);
+    Py_RETURN_TRUE;
 }
 
 static PyObject *
@@ -1128,7 +1128,7 @@ chan_get_busy(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
-    return PyInt_FromLong(Mix_Playing(channelnum));
+    return PyBool_FromLong(Mix_Playing(channelnum));
 }
 
 static PyObject *
@@ -1431,9 +1431,9 @@ static PyObject *
 get_busy(PyObject *self)
 {
     if (!SDL_WasInit(SDL_INIT_AUDIO))
-        return PyInt_FromLong(0);
+        return PyBool_FromLong(0);
 
-    return PyInt_FromLong(Mix_Playing(-1));
+    return PyBool_FromLong(Mix_Playing(-1));
 }
 
 static PyObject *

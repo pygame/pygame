@@ -810,7 +810,7 @@ pgEvent_AutoInit(PyObject *self, PyObject *args)
         _pg_event_is_init = 1;
     }
 
-    return PyInt_FromLong(_pg_event_is_init);
+    return PyBool_FromLong(_pg_event_is_init);
 }
 
 /* This function can fill an SDL event from pygame event */
@@ -1740,7 +1740,7 @@ get_grab(PyObject *self)
 {
 #if IS_SDLv1
     VIDEO_INIT_CHECK();
-    return PyInt_FromLong(SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON);
+    return PyBool_FromLong(SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON);
 #else  /* IS_SDLv2 */
     SDL_Window *win;
     SDL_bool mode = SDL_FALSE;
@@ -1749,7 +1749,7 @@ get_grab(PyObject *self)
     win = pg_GetDefaultWindow();
     if (win)
         mode = SDL_GetWindowGrab(win);
-    return PyInt_FromLong(mode);
+    return PyBool_FromLong(mode);
 #endif /* IS_SDLv2 */
 }
 
@@ -2129,7 +2129,7 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 
                 if (res < 0)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                return PyInt_FromLong(1);
+                Py_RETURN_TRUE;
             }
 #if IS_SDLv2
             res = PG_PEEP_EVENT(&event, 1, SDL_PEEKEVENT,
@@ -2139,12 +2139,12 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
 
                 if (res < 0)
                     return RAISE(pgExc_SDLError, SDL_GetError());
-                return PyInt_FromLong(1);
+                Py_RETURN_TRUE;
             }
 #endif /* IS_SDLv2 */
         }
         Py_DECREF(seq);
-        return PyInt_FromLong(0); /* No event type match. */
+        Py_RETURN_FALSE; /* No event type match. */
     }
 }
 
@@ -2295,7 +2295,7 @@ pg_event_get_blocked(PyObject *self, PyObject *obj)
     }
 
     Py_DECREF(seq);
-    return PyInt_FromLong(isblocked);
+    return PyBool_FromLong(isblocked);
 }
 
 

@@ -1179,7 +1179,7 @@ static PyObject *
 surf_mustlock(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    return PyInt_FromLong(SDL_MUSTLOCK(surf) ||
+    return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
                           ((pgSurfaceObject *)self)->subsurface);
 }
 
