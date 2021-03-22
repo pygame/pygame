@@ -39,6 +39,13 @@
        Color(255, 255, 255, 255) // Color(0, 64, 64, 64) == Color(0, 3, 3, 3)
        Color(255, 255, 255, 255) % Color(64, 64, 64, 0) == Color(63, 63, 63, 0)
 
+   Use ``int(color)`` to return the immutable integer value of the color,
+   usable as a ``dict`` key. This integer value differs from the mapped
+   pixel values of :meth:`pygame.Surface.get_at_mapped`,
+   :meth:`pygame.Surface.map_rgb` and :meth:`pygame.Surface.unmap_rgb`.
+   It can be passed as a ``color_value`` argument to :class:`Color`
+   (useful with sets).
+
    :param int r: red value in the range of 0 to 255 inclusive
    :param int g: green value in the range of 0 to 255 inclusive
    :param int b: blue value in the range of 0 to 255 inclusive

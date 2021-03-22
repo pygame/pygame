@@ -8,6 +8,11 @@
 
 | :sl:`pygame module for audio cdrom control`
 
+.. warning::
+	This module is non functional in pygame 2.0 and above, unless you have manually compiled pygame with SDL1.
+	This module will not be supported in the future.
+	One alternative for python cdrom functionality is `pycdio <https://pypi.org/project/pycdio/>`_.
+	
 The cdrom module manages the ``CD`` and ``DVD`` drives on a computer. It can
 also control the playback of audio CDs. This module needs to be initialized
 before it can do anything. Each ``CD`` object you create represents a cdrom

@@ -8,6 +8,9 @@
 /prebuilt-x??
 /prebuilt_downloads
 
+# macOS generated files
+.DS_Store
+
 # Sphinx generated files: makeref.py
 /docs/\.buildinfo
 /docs/objects.inv

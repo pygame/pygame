@@ -37,7 +37,6 @@ We render three sets of items based on how useful to most apps.
 {%- set basic = ['Color', 'display', 'draw', 'event', 'font', 'image', 'key', 'locals', 'mixer', 'mouse', 'music', 'pygame', 'Rect', 'Surface', 'time'] %}
 {%- set advanced = ['BufferProxy', 'freetype', 'gfxdraw', 'midi', 'PixelArray', 'pixelcopy', 'sndarray', 'surfarray', 'cursors', 'joystick', 'mask', 'math', 'sprite', 'transform'] %}
 {%- set hidden = ['Overlay', 'cdrom', 'sdl2_video'] %}
->>>>>>> SDL2 video docs
 {%-   if pyg_sections %}
 	  <p class="bottom"><b>Most useful stuff</b>:
 {%      set sep = joiner(" | \n") %}
@@ -81,7 +80,7 @@ We render three sets of items based on how useful to most apps.
 {%-       if name|lower != simpledocname %}
 {%-         set uri = uri + '#' + section['refid'] %}
 {%-       endif %}
-{%-       if name not in basic and name not in advanced %}
+{%-       if name not in basic and name not in advanced and name not in hidden %}
 {{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
 {%-       endif %}
 {%-     endfor %}

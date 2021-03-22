@@ -552,7 +552,7 @@ cdef Uint32 format_from_depth(int depth):
 
 cdef class Texture:
     def __cinit__(self):
-        cdef Uint8[3] defaultColor = [255, 255, 255]
+        cdef Uint8[4] defaultColor = [255, 255, 255, 255]
         self._color = pgColor_NewLength(defaultColor, 3)
 
     def __init__(self,
@@ -800,13 +800,14 @@ cdef class Image:
 
     def __cinit__(self):
         self.angle = 0
-        self.origin[0] = 0
-        self.origin[1] = 0
+        self._origin.x = 0
+        self._origin.y = 0
+        self._originptr = NULL
         self.flipX = False
         self.flipY = False
 
         cdef Uint8[4] defaultColor = [255, 255, 255, 255]
-        self.color = pgColor_NewLength(defaultColor, 3)
+        self._color = pgColor_NewLength(defaultColor, 3)
         self.alpha = 255
 
     def __init__(self, textureOrImage, srcrect=None):
@@ -819,6 +820,7 @@ cdef class Image:
         else:
             self.texture = textureOrImage
             self.srcrect = textureOrImage.get_rect()
+        self.blend_mode = textureOrImage.blend_mode
 
         if srcrect is not None:
             rectptr = pgRect_FromObject(srcrect, &temp)
@@ -838,8 +840,29 @@ cdef class Image:
             temp.y += self.srcrect.y
             self.srcrect = pgRect_New(&temp)
 
-        self.origin[0] = self.srcrect.w / 2
-        self.origin[1] = self.srcrect.h / 2
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color[:3] = new_color[:3]
+
+    @property
+    def origin(self):
+        if self._originptr == NULL:
+            return None
+        else:
+            return (self._origin.x, self._origin.y)
+
+    @origin.setter
+    def origin(self, new_origin):
+        if new_origin:
+            self._origin.x = <int>new_origin[0]
+            self._origin.y = <int>new_origin[1]
+            self._originptr = &self._origin
+        else:
+            self._originptr = NULL
 
     def get_rect(self):
         return pgRect_New(&self.srcrect.r)
@@ -855,7 +878,6 @@ cdef class Image:
         cdef SDL_Rect dst
         cdef SDL_Rect *csrcrect = NULL
         cdef SDL_Rect *cdstrect = NULL
-        cdef SDL_Point origin
         cdef SDL_Rect *rectptr
 
         if srcrect is None:
@@ -889,14 +911,12 @@ cdef class Image:
                 else:
                     raise TypeError('dstrect must be a position, rect, or None')
 
-        self.texture.color = self.color
+        self.texture.color = self._color
         self.texture.alpha = self.alpha
-
-        origin.x = <int>self.origin[0]
-        origin.y = <int>self.origin[1]
+        self.texture.blend_mode = self.blend_mode
 
         self.texture.draw_internal(csrcrect, cdstrect, self.angle,
-                                   &origin, self.flipX, self.flipY)
+                                   self._originptr, self.flipX, self.flipY)
 
 
 cdef class Renderer:
@@ -960,6 +980,23 @@ cdef class Renderer:
             return
         if self._renderer:
             SDL_DestroyRenderer(self._renderer)
+
+    @property
+    def draw_blend_mode(self):
+        # https://wiki.libsdl.org/SDL_GetRenderDrawBlendMode
+        cdef SDL_BlendMode blendMode
+        res = SDL_GetRenderDrawBlendMode(self._renderer, &blendMode)
+        if res < 0:
+            raise error()
+
+        return blendMode
+
+    @draw_blend_mode.setter
+    def draw_blend_mode(self, blendMode):
+        # https://wiki.libsdl.org/SDL_SetRenderDrawBlendMode
+        res = SDL_SetRenderDrawBlendMode(self._renderer, blendMode)
+        if res < 0:
+            raise error()
 
     @property
     def draw_color(self):
