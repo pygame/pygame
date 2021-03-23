@@ -212,7 +212,7 @@ mask_overlap(PyObject *self, PyObject *args, PyObject *kwargs)
     int x, y, val;
     int xp, yp;
     PyObject* offset = NULL;
-    static char *keywords[] = {"othermask", "offset", NULL};
+    static char *keywords[] = {"other", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset))
         return NULL;
@@ -241,7 +241,7 @@ mask_overlap_area(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *maskobj;
     int x, y, val;
     PyObject* offset = NULL;
-    static char *keywords[] = {"othermask", "offset", NULL};
+    static char *keywords[] = {"other", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
@@ -265,7 +265,7 @@ mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *maskobj = NULL;
     pgMaskObject *output_maskobj = NULL;
     PyObject* offset = NULL;
-    static char *keywords[] = {"othermask", "offset", NULL};
+    static char *keywords[] = {"other", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL; /* Exception already set. */
@@ -354,7 +354,7 @@ mask_draw(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *maskobj;
     int x, y;
     PyObject* offset = NULL;
-    static char *keywords[] = {"othermask", "offset", NULL};
+    static char *keywords[] = {"other", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
@@ -379,7 +379,7 @@ mask_erase(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *maskobj;
     int x, y;
     PyObject* offset = NULL;
-    static char *keywords[] = {"othermask", "offset", NULL};
+    static char *keywords[] = {"other", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
@@ -648,7 +648,7 @@ mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
     bitmask_t *a = NULL, *b = NULL;
     int xoffset = 0, yoffset = 0;
     PyObject* offset = NULL;
-    static char *keywords[] = {"othermask", "outputmask", "offset", NULL};
+    static char *keywords[] = {"other", "output", "offset", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|OO", keywords, &pgMask_Type, &bobj, &oobj,
                           &offset)) {

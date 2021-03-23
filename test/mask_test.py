@@ -602,7 +602,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             msg = "offset={}".format(offset)
             expected_pos = (max(offset[0], 0), max(offset[1], 0))
 
-            overlap_pos = mask1.overlap(othermask=mask2, offset=offset)
+            overlap_pos = mask1.overlap(other=mask2, offset=offset)
 
             self.assertEqual(overlap_pos, expected_pos, msg)
 
@@ -813,7 +813,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             overlap_rect = rect1.clip(rect2)
             expected_count = overlap_rect.w * overlap_rect.h
 
-            overlap_count = mask1.overlap_area(othermask=mask2, offset=offset)
+            overlap_count = mask1.overlap_area(other=mask2, offset=offset)
 
             self.assertEqual(overlap_count, expected_count, msg)
 
@@ -935,7 +935,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 mask1_count = mask1.count()
                 expected_mask = expected_masks.get(key, expected_default)
 
-                overlap_mask = mask1.overlap_mask(othermask=mask2, offset=offset)
+                overlap_mask = mask1.overlap_mask(other=mask2, offset=offset)
 
                 self.assertIsInstance(overlap_mask, pygame.mask.Mask, msg)
                 assertMaskEqual(self, overlap_mask, expected_mask, msg)
@@ -1392,7 +1392,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     expected_mask.set_at((x, y))
             mask1.clear()  # Ensure it's empty for testing each offset.
 
-            mask1.draw(othermask=mask2, offset=offset)
+            mask1.draw(other=mask2, offset=offset)
 
             assertMaskEqual(self, mask1, expected_mask, msg)
 
@@ -1586,7 +1586,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     expected_mask.set_at((x, y), 0)
             mask1.fill()  # Ensure it's filled for testing each offset.
 
-            mask1.erase(othermask=mask2, offset=offset)
+            mask1.erase(other=mask2, offset=offset)
 
             assertMaskEqual(self, mask1, expected_mask, msg)
 
@@ -2031,7 +2031,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         o.clear()
         test.clear()
 
-        m.convolve(othermask=k, outputmask=o, offset=Vector2(10, 10))
+        m.convolve(other=k, output=o, offset=Vector2(10, 10))
         test.draw(m, (11, 11))
 
         self.assertIsInstance(o, pygame.mask.Mask)

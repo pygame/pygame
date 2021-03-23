@@ -243,11 +243,11 @@ to store which parts collide.
    .. method:: overlap
 
       | :sl:`Returns the point of intersection`
-      | :sg:`overlap(othermask, offset) -> (x, y)`
-      | :sg:`overlap(othermask, offset) -> None`
+      | :sg:`overlap(other, offset) -> (x, y)`
+      | :sg:`overlap(other, offset) -> None`
 
       Returns the first point of intersection encountered between this mask and
-      ``othermask``. A point of intersection is 2 overlapping set bits.
+      ``other``. A point of intersection is 2 overlapping set bits.
 
       The current algorithm searches the overlapping area in
       ``sizeof(unsigned long int) * CHAR_BIT`` bit wide column blocks (the value
@@ -259,8 +259,8 @@ to store which parts collide.
       the next one (``W`` to ``2 * W - 1``). This is repeated until it finds a
       point of intersection or the entire overlapping area is checked.
 
-      :param Mask othermask: the other mask to overlap with this mask
-      :param offset: the offset of ``othermask`` from this mask, for more
+      :param Mask other: the other mask to overlap with this mask
+      :param offset: the offset of ``other`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
 
       :returns: point of intersection or ``None`` if no intersection
@@ -271,10 +271,10 @@ to store which parts collide.
    .. method:: overlap_area
 
       | :sl:`Returns the number of overlapping set bits`
-      | :sg:`overlap_area(othermask, offset) -> numbits`
+      | :sg:`overlap_area(other, offset) -> numbits`
 
       Returns the number of overlapping set bits between between this mask and
-      ``othermask``.
+      ``other``.
 
       This can be useful for collision detection. An approximate collision
       normal can be found by calculating the gradient of the overlapping area
@@ -282,11 +282,11 @@ to store which parts collide.
 
       ::
 
-         dx = mask.overlap_area(othermask, (x + 1, y)) - mask.overlap_area(othermask, (x - 1, y))
-         dy = mask.overlap_area(othermask, (x, y + 1)) - mask.overlap_area(othermask, (x, y - 1))
+         dx = mask.overlap_area(other, (x + 1, y)) - mask.overlap_area(other, (x - 1, y))
+         dy = mask.overlap_area(other, (x, y + 1)) - mask.overlap_area(other, (x, y - 1))
 
-      :param Mask othermask: the other mask to overlap with this mask
-      :param offset: the offset of ``othermask`` from this mask, for more
+      :param Mask other: the other mask to overlap with this mask
+      :param offset: the offset of ``other`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
 
       :returns: the number of overlapping set bits
@@ -297,13 +297,13 @@ to store which parts collide.
    .. method:: overlap_mask
 
       | :sl:`Returns a mask of the overlapping set bits`
-      | :sg:`overlap_mask(othermask, offset) -> Mask`
+      | :sg:`overlap_mask(other, offset) -> Mask`
 
       Returns a :class:`Mask`, the same size as this mask, containing the
-      overlapping set bits between this mask and ``othermask``.
+      overlapping set bits between this mask and ``other``.
 
-      :param Mask othermask: the other mask to overlap with this mask
-      :param offset: the offset of ``othermask`` from this mask, for more
+      :param Mask other: the other mask to overlap with this mask
+      :param offset: the offset of ``other`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
 
       :returns: a newly created :class:`Mask` with the overlapping bits set
@@ -368,12 +368,12 @@ to store which parts collide.
    .. method:: draw
 
       | :sl:`Draws a mask onto another`
-      | :sg:`draw(othermask, offset) -> None`
+      | :sg:`draw(other, offset) -> None`
 
       Performs a bitwise OR, drawing ``othermask`` onto this mask.
 
-      :param Mask othermask: the mask to draw onto this mask
-      :param offset: the offset of ``othermask`` from this mask, for more
+      :param Mask other: the mask to draw onto this mask
+      :param offset: the offset of ``other`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
 
       :returns: ``None``
@@ -384,12 +384,12 @@ to store which parts collide.
    .. method:: erase
 
       | :sl:`Erases a mask from another`
-      | :sg:`erase(othermask, offset) -> None`
+      | :sg:`erase(other, offset) -> None`
 
-      Erases (clears) all bits set in ``othermask`` from this mask.
+      Erases (clears) all bits set in ``other`` from this mask.
 
-      :param Mask othermask: the mask to erase from this mask
-      :param offset: the offset of ``othermask`` from this mask, for more
+      :param Mask other: the mask to erase from this mask
+      :param offset: the offset of ``other`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
 
       :returns: ``None``
@@ -469,24 +469,24 @@ to store which parts collide.
    .. method:: convolve
 
       | :sl:`Returns the convolution of this mask with another mask`
-      | :sg:`convolve(othermask) -> Mask`
-      | :sg:`convolve(othermask, outputmask=None, offset=(0, 0)) -> Mask`
+      | :sg:`convolve(other) -> Mask`
+      | :sg:`convolve(other, output=None, offset=(0, 0)) -> Mask`
 
-      Convolve this mask with the given ``othermask``.
+      Convolve this mask with the given ``other`` Mask.
 
-      :param Mask othermask: mask to convolve this mask with
-      :param outputmask: (optional) mask for output (default is ``None``)
-      :type outputmask: Mask or NoneType
-      :param offset: the offset of ``othermask`` from this mask, (default is
+      :param Mask other: mask to convolve this mask with
+      :param output: (optional) mask for output (default is ``None``)
+      :type output: Mask or NoneType
+      :param offset: the offset of ``other`` from this mask, (default is
          ``(0, 0)``)
 
       :returns: a :class:`Mask` with the ``(i - offset[0], j - offset[1])`` bit
-         set, if shifting ``othermask`` (such that its bottom right corner is at
+         set, if shifting ``other`` (such that its bottom right corner is at
          ``(i, j)``) causes it to overlap with this mask
 
-         If an ``outputmask`` is specified, the output is drawn onto it and
-         it is returned. Otherwise a mask of size ``(MAX(0, width + othermask's
-         width - 1), MAX(0, height + othermask's height - 1))`` is created and
+         If an ``output`` Mask is specified, the output is drawn onto it and
+         it is returned. Otherwise a mask of size ``(MAX(0, width + other mask's
+         width - 1), MAX(0, height + other mask's height - 1))`` is created and
          returned.
       :rtype: Mask
 
