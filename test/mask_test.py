@@ -97,8 +97,8 @@ def off_corners(rect):
 def assertSurfaceFilled(testcase, surface, expected_color, area_rect=None):
     """Checks to see if the given surface is filled with the given color.
 
-        If an area_rect is provided, only check that area of the surface.
-        """
+    If an area_rect is provided, only check that area of the surface.
+    """
     if area_rect is None:
         x_range = range(surface.get_width())
         y_range = range(surface.get_height())
@@ -116,8 +116,8 @@ def assertSurfaceFilled(testcase, surface, expected_color, area_rect=None):
 
 def assertSurfaceFilledIgnoreArea(testcase, surface, expected_color, ignore_rect):
     """Checks if the surface is filled with the given color. The
-        ignore_rect area is not checked.
-        """
+    ignore_rect area is not checked.
+    """
     x_range = range(surface.get_width())
     y_range = range(surface.get_height())
     ignore_rect.normalize()
@@ -462,9 +462,9 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
         # Check twice to make sure bits aren't toggled.
         self.assertEqual(mask0.get_at(pos), mask0_expected_bit)
-        self.assertEqual(mask0.get_at(pos), mask0_expected_bit)
-        self.assertEqual(mask1.get_at(pos), mask1_expected_bit)
-        self.assertEqual(mask1.get_at(pos), mask1_expected_bit)
+        self.assertEqual(mask0.get_at(pos=pos), mask0_expected_bit)
+        self.assertEqual(mask1.get_at(Vector2(pos)), mask1_expected_bit)
+        self.assertEqual(mask1.get_at(pos=Vector2(pos)), mask1_expected_bit)
 
     def test_get_at__out_of_bounds(self):
         """Ensure get_at() checks bounds."""
@@ -494,7 +494,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         pos = (width - 1, height - 1)
 
         mask0.set_at(pos, expected_bit)  # set 0 to 1
-        mask1.set_at(pos, expected_bit)  # set 1 to 1
+        mask1.set_at(pos=Vector2(pos), value=expected_bit)  # set 1 to 1
 
         self.assertEqual(mask0.get_at(pos), expected_bit)
         self.assertEqual(mask0.count(), mask0_expected_count)
@@ -602,7 +602,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             msg = "offset={}".format(offset)
             expected_pos = (max(offset[0], 0), max(offset[1], 0))
 
-            overlap_pos = mask1.overlap(mask2, offset)
+            overlap_pos = mask1.overlap(othermask=mask2, offset=offset)
 
             self.assertEqual(overlap_pos, expected_pos, msg)
 
@@ -636,7 +636,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             else:
                 expected_x = max(x, 1)
 
-            overlap_pos = mask1.overlap(mask2, offset)
+            overlap_pos = mask1.overlap(mask2, Vector2(offset))
 
             self.assertEqual(overlap_pos, (expected_x, expected_y), msg)
 
@@ -813,7 +813,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             overlap_rect = rect1.clip(rect2)
             expected_count = overlap_rect.w * overlap_rect.h
 
-            overlap_count = mask1.overlap_area(mask2, offset)
+            overlap_count = mask1.overlap_area(othermask=mask2, offset=offset)
 
             self.assertEqual(overlap_count, expected_count, msg)
 
@@ -844,7 +844,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         for offset in offsets:
             msg = "offset={}".format(offset)
 
-            overlap_count = mask1.overlap_area(mask2, offset)
+            overlap_count = mask1.overlap_area(mask2, Vector2(offset))
 
             self.assertEqual(overlap_count, expected_count, msg)
 
@@ -935,7 +935,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 mask1_count = mask1.count()
                 expected_mask = expected_masks.get(key, expected_default)
 
-                overlap_mask = mask1.overlap_mask(mask2, offset)
+                overlap_mask = mask1.overlap_mask(othermask=mask2, offset=offset)
 
                 self.assertIsInstance(overlap_mask, pygame.mask.Mask, msg)
                 assertMaskEqual(self, overlap_mask, expected_mask, msg)
@@ -1138,8 +1138,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             overlap_mask = mask1.overlap_mask(mask2, offset)
 
     def test_mask_access(self):
-        """ do the set_at, and get_at parts work correctly?
-        """
+        """do the set_at, and get_at parts work correctly?"""
         m = pygame.Mask((10, 10))
         m.set_at((0, 0), 1)
         self.assertEqual(m.get_at((0, 0)), 1)
@@ -1313,7 +1312,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     expected_count = new_w * new_h if fill else 0
                     msg = "size={}".format(expected_size)
 
-                    mask = original_mask.scale(expected_size)
+                    mask = original_mask.scale(scale=expected_size)
 
                     self.assertIsInstance(mask, pygame.mask.Mask, msg)
                     self.assertEqual(mask.count(), expected_count, msg)
@@ -1331,7 +1330,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             mask.scale((-1, -1))
 
         with self.assertRaises(ValueError):
-            mask.scale((-1, 10))
+            mask.scale(Vector2(-1, 10))
 
         with self.assertRaises(ValueError):
             mask.scale((10, -1))
@@ -1393,7 +1392,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     expected_mask.set_at((x, y))
             mask1.clear()  # Ensure it's empty for testing each offset.
 
-            mask1.draw(mask2, offset)
+            mask1.draw(othermask=mask2, offset=offset)
 
             assertMaskEqual(self, mask1, expected_mask, msg)
 
@@ -1587,7 +1586,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     expected_mask.set_at((x, y), 0)
             mask1.fill()  # Ensure it's filled for testing each offset.
 
-            mask1.erase(mask2, offset)
+            mask1.erase(othermask=mask2, offset=offset)
 
             assertMaskEqual(self, mask1, expected_mask, msg)
 
@@ -1629,7 +1628,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     expected_mask.set_at((x, y), 0)
             mask1.fill()  # Ensure it's filled for testing each offset.
 
-            mask1.erase(mask2, offset)
+            mask1.erase(mask2, Vector2(offset))
 
             assertMaskEqual(self, mask1, expected_mask, msg)
 
@@ -1942,8 +1941,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(mask.get_size(), expected_size)
 
     def test_drawing(self):
-        """ Test fill, clear, invert, draw, erase
-        """
+        """Test fill, clear, invert, draw, erase"""
         m = pygame.Mask((100, 100))
         self.assertEqual(m.count(), 0)
 
@@ -1964,8 +1962,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(m.count(), 0)
 
     def test_outline(self):
-        """
-        """
+        """"""
 
         m = pygame.Mask((20, 20))
         self.assertEqual(m.outline(), [])
@@ -1980,7 +1977,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertEqual(
             m.outline(), [(10, 10), (11, 11), (10, 12), (11, 11), (10, 10)]
         )
-        self.assertEqual(m.outline(2), [(10, 10), (10, 12), (10, 10)])
+        self.assertEqual(m.outline(every=2), [(10, 10), (10, 12), (10, 10)])
 
         # TODO: Test more corner case outlines.
 
@@ -2034,7 +2031,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         o.clear()
         test.clear()
 
-        m.convolve(k, o, (10, 10))
+        m.convolve(othermask=k, outputmask=o, offset=Vector2(10, 10))
         test.draw(m, (11, 11))
 
         self.assertIsInstance(o, pygame.mask.Mask)
@@ -2319,8 +2316,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.assertEqual(original_mask.get_size(), original_size)
 
     def test_connected_components(self):
-        """
-        """
+        """"""
         m = pygame.Mask((10, 10))
 
         self.assertListEqual(m.connected_components(), [])
@@ -2348,7 +2344,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
         comp2 = m.connected_component((2, 2))
         comps = m.connected_components()
         comps1 = m.connected_components(1)
-        comps2 = m.connected_components(2)
+        comps2 = m.connected_components(minimum=2)
         comps3 = m.connected_components(3)
 
         self.assertEqual(comp.count(), 2)
@@ -4432,8 +4428,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
 
     @unittest.skipIf(IS_PYPY, "Segfaults on pypy")
     def test_to_surface__all_surfaces_different_sizes_than_mask(self):
-        """Ensures that all the surface parameters can be of different sizes.
-        """
+        """Ensures that all the surface parameters can be of different sizes."""
         default_setcolor = pygame.Color("white")
         default_unsetcolor = pygame.Color("black")
         surface_color = pygame.Color("red")
@@ -4672,8 +4667,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                     )
 
     def test_to_surface__surface_color_alphas(self):
-        """Ensures the setsurface/unsetsurface color alpha values are respected.
-        """
+        """Ensures the setsurface/unsetsurface color alpha values are respected."""
         size = (13, 17)
         setsurface_color = pygame.Color("green")
         setsurface_color.a = 53
@@ -4748,8 +4742,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 assertSurfaceFilled(self, to_surface, expected_color)
 
     def test_to_surface__different_depths(self):
-        """Ensures an exception is raised when surfaces have different depths.
-        """
+        """Ensures an exception is raised when surfaces have different depths."""
         size = (13, 17)
         surface_color = pygame.Color("red")
         setsurface_color = pygame.Color("green")
@@ -4814,8 +4807,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
                 mask.to_surface(setsurface=setsurface, unsetsurface=unsetsurface)
 
     def test_to_surface__same_srcalphas(self):
-        """Ensures to_surface works correctly when the SRCALPHA flag is set or not.
-        """
+        """Ensures to_surface works correctly when the SRCALPHA flag is set or not."""
         size = (13, 17)
         surface_color = pygame.Color("red")
         setsurface_color = pygame.Color("green")
@@ -5646,8 +5638,7 @@ class MaskTypeTest(AssertRaisesRegexMixin, unittest.TestCase):
             )
 
     def test_zero_mask_to_surface(self):
-        """Ensures to_surface correctly handles zero sized masks and surfaces.
-        """
+        """Ensures to_surface correctly handles zero sized masks and surfaces."""
         mask_color = pygame.Color("blue")
         surf_color = pygame.Color("red")
 
@@ -6116,7 +6107,9 @@ class MaskModuleTest(unittest.TestCase):
                     else:
                         expected_count = none_set_count
 
-                    mask = pygame.mask.from_surface(surface, threshold)
+                    mask = pygame.mask.from_surface(
+                        surface=surface, threshold=threshold
+                    )
 
                     self.assertIsInstance(mask, pygame.mask.Mask, msg)
                     self.assertEqual(mask.get_size(), expected_size, msg)
@@ -6338,8 +6331,7 @@ class MaskModuleTest(unittest.TestCase):
             )
 
     def test_from_threshold(self):
-        """ Does mask.from_threshold() work correctly?
-        """
+        """Does mask.from_threshold() work correctly?"""
 
         a = [16, 24, 32]
 
@@ -6362,7 +6354,10 @@ class MaskModuleTest(unittest.TestCase):
             surf2.fill((150, 150, 150))
             surf2.fill((100, 100, 100), (40, 40, 10, 10))
             mask = pygame.mask.from_threshold(
-                surf, (0, 0, 0, 0), (10, 10, 10, 255), surf2
+                surface=surf,
+                color=(0, 0, 0, 0),
+                threshold=(10, 10, 10, 255),
+                othersurface=surf2,
             )
 
             self.assertIsInstance(mask, pygame.mask.Mask)

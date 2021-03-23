@@ -13,12 +13,17 @@ to store which parts collide.
 
 .. versionadded:: 1.8
 
+.. versionchanged:: 2.0.2 Mask functions now support keyword arguments.
+
+.. versionchanged:: 2.0.2 Mask functions that take positions or offsets now
+                    support :class:`pygame.math.Vector2` arguments.
+
 
 .. function:: from_surface
 
    | :sl:`Creates a Mask from the given surface`
-   | :sg:`from_surface(Surface) -> Mask`
-   | :sg:`from_surface(Surface, threshold=127) -> Mask`
+   | :sg:`from_surface(surface) -> Mask`
+   | :sg:`from_surface(surface, threshold=127) -> Mask`
 
    Creates a :class:`Mask` object from the given surface by setting all the
    opaque pixels and not setting the transparent pixels.
@@ -50,8 +55,8 @@ to store which parts collide.
 .. function:: from_threshold
 
    | :sl:`Creates a mask by thresholding Surfaces`
-   | :sg:`from_threshold(Surface, color) -> Mask`
-   | :sg:`from_threshold(Surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask`
+   | :sg:`from_threshold(surface, color) -> Mask`
+   | :sg:`from_threshold(surface, color, threshold=(0, 0, 0, 255), othersurface=None, palette_colors=1) -> Mask`
 
    This is a more featureful method of getting a :class:`Mask` from a surface.
 
@@ -110,7 +115,7 @@ to store which parts collide.
    :meth:`draw`, :meth:`erase`, and :meth:`convolve` use an offset parameter
    to indicate the offset of another mask's top left corner from the calling
    mask's top left corner. The calling mask's top left corner is considered to
-   be the origin ``(0, 0)``. Offsets are a tuple or list of 2 integer values
+   be the origin ``(0, 0)``. Offsets are a sequence of two values
    ``(x_offset, y_offset)``. Positive and negative offset values are supported.
 
    ::
@@ -126,7 +131,6 @@ to store which parts collide.
                  +--------------+
 
    :param size: the dimensions of the mask (width and height)
-   :type size: tuple(int, int) or list[int, int]
    :param bool fill: (optional) create an unfilled mask (default: ``False``) or
       filled mask (``True``)
 
@@ -208,10 +212,9 @@ to store which parts collide.
    .. method:: get_at
 
       | :sl:`Gets the bit at the given position`
-      | :sg:`get_at((x, y)) -> int`
+      | :sg:`get_at(pos) -> int`
 
-      :param pos: the position of the bit to get
-      :type pos: tuple(int, int) or list[int, int]
+      :param pos: the position of the bit to get (x, y)
 
       :returns: 1 if the bit is set, 0 if the bit is not set
       :rtype: int
@@ -223,11 +226,10 @@ to store which parts collide.
    .. method:: set_at
 
       | :sl:`Sets the bit at the given position`
-      | :sg:`set_at((x, y)) -> None`
-      | :sg:`set_at((x, y), value=1) -> None`
+      | :sg:`set_at(pos) -> None`
+      | :sg:`set_at(pos, value=1) -> None`
 
-      :param pos: the position of the bit to set
-      :type pos: tuple(int, int) or list[int, int]
+      :param pos: the position of the bit to set (x, y)
       :param int value: any nonzero int will set the bit to 1, 0 will set the
          bit to 0 (default is 1)
 
@@ -260,7 +262,6 @@ to store which parts collide.
       :param Mask othermask: the other mask to overlap with this mask
       :param offset: the offset of ``othermask`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
-      :type offset: tuple(int, int) or list[int, int]
 
       :returns: point of intersection or ``None`` if no intersection
       :rtype: tuple(int, int) or NoneType
@@ -287,7 +288,6 @@ to store which parts collide.
       :param Mask othermask: the other mask to overlap with this mask
       :param offset: the offset of ``othermask`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
-      :type offset: tuple(int, int) or list[int, int]
 
       :returns: the number of overlapping set bits
       :rtype: int
@@ -305,7 +305,6 @@ to store which parts collide.
       :param Mask othermask: the other mask to overlap with this mask
       :param offset: the offset of ``othermask`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
-      :type offset: tuple(int, int) or list[int, int]
 
       :returns: a newly created :class:`Mask` with the overlapping bits set
       :rtype: Mask
@@ -358,7 +357,6 @@ to store which parts collide.
       from this mask.
 
       :param size: the width and height (size) of the mask to create
-      :type size: tuple(int, int) or list[int, int]
 
       :returns: a new :class:`Mask` object with its bits scaled from this mask
       :rtype: Mask
@@ -377,7 +375,6 @@ to store which parts collide.
       :param Mask othermask: the mask to draw onto this mask
       :param offset: the offset of ``othermask`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
-      :type offset: tuple(int, int) or list[int, int]
 
       :returns: ``None``
       :rtype: NoneType
@@ -394,7 +391,6 @@ to store which parts collide.
       :param Mask othermask: the mask to erase from this mask
       :param offset: the offset of ``othermask`` from this mask, for more
          details refer to the :ref:`Mask offset notes <mask-offset-label>`
-      :type offset: tuple(int, int) or list[int, int]
 
       :returns: ``None``
       :rtype: NoneType
@@ -483,7 +479,6 @@ to store which parts collide.
       :type outputmask: Mask or NoneType
       :param offset: the offset of ``othermask`` from this mask, (default is
          ``(0, 0)``)
-      :type offset: tuple(int, int) or list[int, int]
 
       :returns: a :class:`Mask` with the ``(i - offset[0], j - offset[1])`` bit
          set, if shifting ``othermask`` (such that its bottom right corner is at
@@ -501,7 +496,7 @@ to store which parts collide.
 
       | :sl:`Returns a mask containing a connected component`
       | :sg:`connected_component() -> Mask`
-      | :sg:`connected_component((x, y)) -> Mask`
+      | :sg:`connected_component(pos) -> Mask`
 
       A connected component is a group (1 or more) of connected set bits
       (orthogonally and diagonally). The SAUF algorithm, which checks 8 point
@@ -515,7 +510,6 @@ to store which parts collide.
 
       :param pos: (optional) selects the connected component that contains the
          bit at this position
-      :type pos: tuple(int, int) or list[int, int]
 
       :returns: a :class:`Mask` object (same size as this mask) with the largest
          connected component from this mask, if this mask has no bits set then
@@ -535,14 +529,14 @@ to store which parts collide.
 
       | :sl:`Returns a list of masks of connected components`
       | :sg:`connected_components() -> [Mask, ...]`
-      | :sg:`connected_components(min=0) -> [Mask, ...]`
+      | :sg:`connected_components(minimum=0) -> [Mask, ...]`
 
       Provides a list containing a :class:`Mask` object for each connected
       component.
 
-      :param int min: (optional) indicates the minimum number of bits (to filter
-         out noise) per connected component (default is 0, which equates to
-         no minimum and is equivalent to setting it to 1, as a connected
+      :param int minimum: (optional) indicates the minimum number of bits (to
+	 filter out noise) per connected component (default is 0, which equates
+ 	 to no minimum and is equivalent to setting it to 1, as a connected
          component must have at least 1 bit set)
 
       :returns: a list containing a :class:`Mask` object for each connected
