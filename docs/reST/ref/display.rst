@@ -516,7 +516,8 @@ required).
     * cocoa (OSX/Mac)
 
    .. Note:: :func:`toggle_fullscreen` doesn't work on Windows
-             unless the window size is in :func:`pygame.display.list_modes()`.
+             unless the window size is in :func:`pygame.display.list_modes()` or
+             the window is created with the flag ``pygame.SCALED``.
              See `issue #2380 <https://github.com/pygame/pygame/issues/2380>`_.
 
    .. ## pygame.display.toggle_fullscreen ##

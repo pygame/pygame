@@ -284,7 +284,7 @@ static PyObject *
 pg_get_active(PyObject *self, PyObject *args)
 {
   if (!pgDisplaySurfaceObject)
-       return PyBool_FromLong(0);
+       Py_RETURN_FALSE;
   return PyBool_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
 #endif /* IS_SDLv1 */
@@ -1557,19 +1557,19 @@ pg_mode_ok(PyObject *self, PyObject *args, PyObject *kwds)
         Uint32 Rmask, Gmask, Bmask;
         if (_pg_get_default_display_masks(bpp, &Rmask, &Gmask, &Bmask)) {
             PyErr_Clear();
-            Py_RETURN_FALSE;
+            return PyInt_FromLong((long)0);
         }
         desired.format =
             SDL_MasksToPixelFormatEnum(bpp, Rmask, Gmask, Bmask, 0);
     }
     if (!SDL_GetClosestDisplayMode(display_index, &desired, &closest)) {
         if (flags & PGS_FULLSCREEN)
-            Py_RETURN_FALSE;
+            return PyInt_FromLong((long)0);
         closest.format = desired.format;
     }
     if ((flags & PGS_FULLSCREEN) &&
         (closest.w != desired.w || closest.h != desired.h))
-        Py_RETURN_FALSE;
+        return PyInt_FromLong((long)0);
     return PyInt_FromLong(SDL_BITSPERPIXEL(closest.format));
 }
 
