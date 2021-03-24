@@ -2571,7 +2571,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 #if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
 #endif
-            Py_RETURN_FALSE;
+            Py_RETURN_FALSE; //unsupported
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
@@ -2586,7 +2586,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                              1) != 0) {
                 return NULL;
             }
-            Py_RETURN_FALSE;
+            Py_RETURN_FALSE; //unsupported
 
             // Untested and unsupported platforms
 #if SDL_VERSION_ATLEAST(2, 0, 2)
