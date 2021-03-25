@@ -374,7 +374,8 @@ pg_window_set_position(pgWindowObject *self, PyObject *val, void *closure)
         parsed = 1;
     }
     if (!parsed) {
-        return RAISE(PyExc_TypeError, "position should be (x,y) or POS_UNDEFINED or POS_CENTERED");      
+        return RAISE(PyExc_TypeError, 
+        "position should be (x,y) or WINDOWPOS_UNDEFINED or WINDOWPOS_CENTERED");      
     }
     SDL_SetWindowPosition(self->_win, x, y);
     return 0;
@@ -467,45 +468,71 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
     //             bint fullscreen_desktop=False, **kwargs):
 
 
-    // ignoring extensive keyword arguments for now - and fullscreen flags
+    // ignoring extensive keyword arguments for now
 
     char* title = "pygame";
     int x = SDL_WINDOWPOS_UNDEFINED;
     int y = SDL_WINDOWPOS_UNDEFINED;
     int w = 640;
     int h = 480;
+    int flags = 0;
+    int fullscreen = 0, fullscreen_desktop = 0;
 
     char* keywords[] = {
         "title",
         "size",
         "position",
+        "fullscreen",
+        "fullscreen_desktop",
         NULL
     };
 
     PyObject *sizeobj = NULL;
     PyObject *positionobj = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kw, "|sOO", keywords, &title, &sizeobj, &positionobj))
-        return -1;
+#if PY3
+    const char *formatstr = "|sOOpp";
+#else
+    const char *formatstr = "|sOOii";
+#endif
 
-    //UNSUPPORTED: previous flags to SIZE and POSITION
+    if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords, &title, &sizeobj, 
+                                     &positionobj, &fullscreen, &fullscreen_desktop)) {
+        return -1;
+    }
 
     if (sizeobj && !pg_TwoIntsFromObj(sizeobj, &w, &h)) {
-        RAISE(PyExc_TypeError,
-            "size should be a sequence of two elements");
+        PyErr_SetString(PyExc_TypeError,
+                        "size should be a sequence of two elements");
         return -1;
     }
 
-    if (positionobj && !pg_TwoIntsFromObj(positionobj, &x, &y)) {
-        RAISE(PyExc_TypeError,
-            "position should be a sequence of two elements");
+    if (positionobj && pg_IntFromObj(positionobj, &x)) {
+        if (x == SDL_WINDOWPOS_UNDEFINED)
+            y = SDL_WINDOWPOS_UNDEFINED;
+        if (x == SDL_WINDOWPOS_CENTERED)
+            y = SDL_WINDOWPOS_CENTERED;
+    }
+    else if (positionobj && !pg_TwoIntsFromObj(positionobj, &x, &y)) {
+        PyErr_SetString(PyExc_TypeError, 
+                        "position should be (x,y) or WINDOWPOS_UNDEFINED or WINDOWPOS_CENTERED");
         return -1;
     }
+
+    if (fullscreen && fullscreen_desktop) {
+        PyErr_SetString(PyExc_ValueError,
+                        "fullscreen and fullscreen_desktop cannot be used at the same time.");
+        return -1;
+    }
+    if (fullscreen)
+        flags |= SDL_WINDOW_FULLSCREEN;
+    else if (fullscreen_desktop)
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
     //https://wiki.libsdl.org/SDL_CreateWindow
     //https://wiki.libsdl.org/SDL_WindowFlags
-    self->_win = SDL_CreateWindow(title, x, y, w, h, 0);
-    //self->_is_borrowed=0
+    self->_win = SDL_CreateWindow(title, x, y, w, h, flags);
+    self->_is_borrowed=0;
     if (!self->_win)
         return -1;
     SDL_SetWindowData(self->_win, "pg_window", self);
@@ -531,9 +558,11 @@ static void
 pg_window_dealloc(pgWindowObject *self)
 {
     //https://wiki.libsdl.org/SDL_DestroyWindow
-    if (self->_win) {
-        SDL_DestroyWindow(self->_win);
-        self->_win = NULL;
+    if (!self->_is_borrowed) {
+        if (self->_win) {
+            SDL_DestroyWindow(self->_win);
+            self->_win = NULL;
+        }
     }
     Py_TYPE(self)->tp_free((PyObject *)self);
 }

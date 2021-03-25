@@ -432,6 +432,8 @@ pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
     if (target_texture)
         flags |= SDL_RENDERER_TARGETTEXTURE;
 
+    self->_is_borrowed = 0;
+
     self->renderer =
         SDL_CreateRenderer(self->window->_win, index, flags);
     if (self->renderer == NULL) {
@@ -458,9 +460,11 @@ pg_renderer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pg_renderer_dealloc(pgRendererObject *self)
 {
-    if (self->renderer) {
-        SDL_DestroyRenderer(self->renderer);
-        self->renderer = NULL;
+    if (!self->_is_borrowed) {
+        if (self->renderer) {
+            SDL_DestroyRenderer(self->renderer);
+            self->renderer = NULL;
+        }
     }
     Py_XDECREF(self->window);
     Py_XDECREF(self->target);

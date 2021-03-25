@@ -69,6 +69,7 @@ struct pgRendererObject {
     SDL_Renderer *renderer;
     pgColorObject *drawcolor;
     pgTextureObject *target;
+    int _is_borrowed;
 };
 
 /* forward declarations */
@@ -171,6 +172,18 @@ MODINIT_DEFINE(video)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+    PyObject* centered = PyInt_FromLong(SDL_WINDOWPOS_CENTERED);
+    if (PyDict_SetItemString(dict, "WINDOWPOS_CENTERED", centered)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+
+    PyObject* undefined = PyInt_FromLong(SDL_WINDOWPOS_UNDEFINED);
+    if (PyDict_SetItemString(dict, "WINDOWPOS_UNDEFINED", undefined)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }   
 
     MODINIT_RETURN(module);
 }
