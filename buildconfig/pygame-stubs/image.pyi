@@ -1,3 +1,4 @@
+import sys
 from typing import Optional, Tuple, List, Union, IO, Literal
 
 from pygame.surface import Surface

@@ -1,3 +1,4 @@
+import sys
 from typing import List, Optional, Union, Tuple, IO, Hashable, Iterable
 
 if sys.version_info >= (3, 6):

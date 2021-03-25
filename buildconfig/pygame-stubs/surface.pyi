@@ -5,6 +5,7 @@ from pygame.color import Color
 from pygame.rect import Rect
 
 from pygame.math import Vector2
+from pygame.sprite import _RectStyle
 
 _ColorInput = Union[
     Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]
