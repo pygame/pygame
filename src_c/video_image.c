@@ -155,7 +155,7 @@ pg_image_get_color(pgImageObject *self)
 {
     // Error checking *shouldn't* be necessary because self->color should always be legit
     Uint8 *colarray = pgColor_AsArray(self->color);
-    return Py_BuildValue("O", pgColor_New(colarray));
+    return pgColor_New(colarray);
 }
 
 static PyObject *
@@ -169,7 +169,6 @@ pg_image_set_color(pgImageObject *self, PyObject *val, void *closure)
 
     Py_DECREF(self->color);
     self->color = (pgColorObject*)pgColor_New(colarray);
-    Py_INCREF(self->color);
     return 0;
 }
 
@@ -307,7 +306,6 @@ pg_image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pgImageObject *obj;
     obj = (pgImageObject*) type->tp_alloc(type, 0);
     obj->color = col;
-    Py_INCREF(obj->color); //TODO: Why is this necessary for it not to fail later?
     obj->alpha = 255;
     return (PyObject*)obj;
 }

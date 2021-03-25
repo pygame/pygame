@@ -320,8 +320,9 @@ pg_renderer_set_scale(pgRendererObject *self, PyObject *val, void *closure)
 static PyObject *
 pg_renderer_get_color(pgRendererObject *self, void *closure)
 {
-    //TODO: return copy of color so it can't be modified externally
-    return (PyObject*)self->drawcolor;
+    // Error checking *shouldn't* be necessary because self->color should always be legit
+    Uint8 *colarray = pgColor_AsArray(self->drawcolor);
+    return pgColor_New(colarray);
 }
 
 static int
@@ -339,6 +340,10 @@ pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
         RAISE(pgExc_SDLError, SDL_GetError());
         return -1;
     }
+
+    Py_DECREF(self->drawcolor);
+    self->drawcolor = (pgColorObject*)pgColor_New(colarray);
+
     return 0;
 }
 

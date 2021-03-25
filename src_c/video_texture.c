@@ -237,7 +237,9 @@ static PyMethodDef pg_texture_methods[] = {
 static PyObject *
 pg_texture_get_color(pgTextureObject *self, void *closure)
 {
-    return (PyObject*) self->color;
+    // Error checking *shouldn't* be necessary because self->color should always be legit
+    Uint8 *colarray = pgColor_AsArray(self->color);
+    return pgColor_New(colarray);
 }
 
 static int
@@ -254,6 +256,10 @@ pg_texture_set_color(pgTextureObject *self, PyObject *val, void *closure)
         RAISE(pgExc_SDLError, SDL_GetError());
         return -1;
     }
+
+    Py_DECREF(self->color);
+    self->color = (pgColorObject*)pgColor_New(colarray);
+
     return 0;
 }
 
