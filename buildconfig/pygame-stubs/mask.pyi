@@ -1,4 +1,4 @@
-from typing import Optional, Union, Text, Tuple, List, TypeVar, Sequence
+from typing import Any, Optional, Union, Text, Tuple, List, TypeVar, Sequence
 from typing_extensions import Protocol
 
 from pygame.math import Vector2
@@ -40,7 +40,7 @@ class Mask:
     ) -> None: ...
     def copy(self) -> Mask: ...
     def get_size(self) -> Tuple[int, int]: ...
-    def get_rect(self, **kwargs) -> Rect: ...  # Dict type needs to be completed
+    def get_rect(self, **kwargs: Any) -> Rect: ...  # Dict type needs to be completed
     def get_at(self, pos: Union[List[int], Tuple[int, int]]) -> int: ...
     def set_at(
         self, pos: Union[List[int], Tuple[int, int]], value: Optional[int] = 1

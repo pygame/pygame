@@ -48,7 +48,14 @@ def compile(
     white: Optional[str] = ".",
     xor: Optional[str] = "o",
 ) -> Tuple[Sequence[int], Sequence[int]]: ...
-def load_xbm(cursorfile: str, maskfile: str): ...
+
+
+def load_xbm(cursorfile: str, maskfile: str) -> Tuple[
+    List[int],
+    List[int],
+    Tuple[int, ...],
+    Tuple[int, ...]
+]: ...
 
 
 class Cursor(Iterable[object]):
