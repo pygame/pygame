@@ -328,7 +328,7 @@ pg_renderer_get_color(pgRendererObject *self, void *closure)
 static int
 pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
 {
-    Uint8 *colarray = pgColor_AsArray(self->drawcolor);
+    Uint8 *colarray = pgColor_AsArray(val);
     if (!pg_RGBAFromColorObj(val, colarray)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;

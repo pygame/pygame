@@ -161,7 +161,7 @@ pg_image_get_color(pgImageObject *self)
 static PyObject *
 pg_image_set_color(pgImageObject *self, PyObject *val, void *closure) 
 {
-    Uint8 *colarray = pgColor_AsArray(self->color);
+    Uint8 *colarray = pgColor_AsArray(val);
     if (!pg_RGBAFromColorObj(val, colarray)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;

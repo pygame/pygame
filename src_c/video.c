@@ -99,6 +99,27 @@ pg_window_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 #include "video_window.c"
 #include "video_image.c"
 
+static PyObject * 
+pg_video_get_grabbed_window(PyObject *args) {
+    // return the Window with input grab enabled,
+    // or None if input isn't grabbed.
+    SDL_Window *win = SDL_GetGrabbedWindow();
+    void* ptr = NULL;
+
+    if (win) {
+        ptr = SDL_GetWindowData(win, "pg_window");
+        if (!ptr) {
+            Py_RETURN_NONE;
+        }
+        return (PyObject *)ptr;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyMethodDef _pg_video_methods[] = {
+    {"get_grabbed_window", pg_video_get_grabbed_window, METH_NOARGS, NULL /* TODO */},
+    {NULL, NULL, 0, NULL}};
+
 MODINIT_DEFINE(video)
 {
     PyObject *module;
@@ -108,7 +129,7 @@ MODINIT_DEFINE(video)
                                          "video",
                                          NULL /* TODO */,
                                          -1,
-                                         NULL,
+                                         _pg_video_methods,
                                          NULL,
                                          NULL,
                                          NULL,
@@ -137,7 +158,7 @@ MODINIT_DEFINE(video)
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "video", NULL,
+    module = Py_InitModule3(MODPREFIX "video", _pg_video_methods,
                             NULL /* TODO: docstring */);
 #endif
     if (module == NULL) {

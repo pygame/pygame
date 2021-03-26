@@ -12,6 +12,7 @@ pg_window_from_display_module(pgWindowObject *cls) {
     pgWindowObject* window_obj = (pgWindowObject*)pg_window_new((PyTypeObject*)cls, NULL, NULL);
     window_obj->_win = window;
     window_obj->_is_borrowed = 1;
+    SDL_SetWindowData(window_obj->_win, "pg_window", window_obj);
     return (PyObject*)window_obj;
 }
 
