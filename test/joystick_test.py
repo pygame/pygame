@@ -2,7 +2,11 @@ import unittest
 from pygame.tests.test_utils import question, prompt
 
 import pygame
-
+try:
+    import pygame._sdl2.controller
+    SDL2 = True
+except ImportError:
+    SDL2 = False
 
 class JoystickTypeTest(unittest.TestCase):
     def todo_test_Joystick(self):
@@ -80,6 +84,10 @@ class JoystickModuleTest(unittest.TestCase):
         #test that pygame.init automatically calls joystick.init
         pygame.init()
         self.assertEqual(pygame.joystick.get_init(), True)
+
+        if SDL2:
+            # Controller module interferes with the joystick module.
+            pygame._sdl2.controller.quit()
 
         #test that get_count doesn't work w/o joystick init
         #this is done before and after an init to test
