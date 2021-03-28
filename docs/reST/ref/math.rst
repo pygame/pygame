@@ -302,6 +302,18 @@ Multiple coordinates can be set using slices or swizzling
 
       .. ## Vector2.from_polar ##
 
+   .. method:: project
+
+      | :sl:`projects a vector onto another.`
+      | :sg:`project(Vector2) -> Vector2`
+
+      Returns the projected vector. This is useful for collision detection in finding the components in a certain direction (e.g. in direction of the wall). 
+      For a more detailed explanation see `Wikipedia <https://en.wikipedia.org/wiki/Vector_projection>`_.
+
+      .. versionadded:: 2.0.2
+
+      .. ## Vector2.project ##
+
    .. method:: update
 
       | :sl:`Sets the coordinates of the vector.`
@@ -707,6 +719,18 @@ Multiple coordinates can be set using slices or swizzling
       distance, theta is the inclination angle and phi is the azimuthal angle.
 
       .. ## Vector3.from_spherical ##
+
+   .. method:: project
+
+      | :sl:`projects a vector onto another.`
+      | :sg:`project(Vector3) -> Vector3`
+
+      Returns the projected vector. This is useful for collision detection in finding the components in a certain direction (e.g. in direction of the wall). 
+      For a more detailed explanation see `Wikipedia <https://en.wikipedia.org/wiki/Vector_projection>`_.
+
+      .. versionadded:: 2.0.2
+
+      .. ## Vector3.project ##
 
    .. method:: update
 
