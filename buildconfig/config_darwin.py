@@ -37,6 +37,7 @@ class Dependency:
 
             for incname in incnames:
                 path = os.path.join(dir, incname)
+                path = os.path.realpath(path)
                 if os.path.isfile(path):
                     self.inc_dir = os.path.dirname(path)
                     break
@@ -44,8 +45,9 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
+                path = os.path.realpath(path)
                 if os.path.isfile(path):
-                    self.lib_dir = dir
+                    self.lib_dir = os.path.dirname(path)
                     break
         if self.lib_dir and self.inc_dir:
             print (self.name + '        '[len(self.name):] + ': found')
@@ -158,19 +160,20 @@ def main(sdl2=False):
     ])
 
     print ('Hunting dependencies...')
-    incdirs = ['/usr/local/include']
+    incdirs = ['/usr/local/include', '/opt/homebrew/include']
     if sdl2:
-        incdirs.append('/usr/local/include/SDL2')
+        incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2'])
     else:
-        incdirs.append('/usr/local/include/SDL')
+        incdirs.extend(['/usr/local/include/SDL', '/opt/homebrew/include/SDL'])
 
     incdirs.extend([
        #'/usr/X11/include',
        '/opt/local/include',
+       '/opt/homebrew/include/freetype2/freetype'
        '/opt/local/include/freetype2/freetype']
     )
     #libdirs = ['/usr/local/lib', '/usr/X11/lib', '/opt/local/lib']
-    libdirs = ['/usr/local/lib', '/opt/local/lib']
+    libdirs = ['/usr/local/lib', '/opt/local/lib', '/opt/homebrew/lib']
 
     for d in DEPS:
         if isinstance(d, (list, tuple)):

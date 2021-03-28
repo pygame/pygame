@@ -1,3 +1,5 @@
+Minor fork for M1 Macs. If you installed SDL2 and companion libraries with Homebrew and Pygame is giving you errors when you use, i.e., pygame_font, this might work for you.
+
 .. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
   :width: 200
   :height: 70

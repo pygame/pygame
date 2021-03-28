@@ -56,3 +56,4 @@ dist
 .vagrant
 *.egg-info/
 *.so
+Setup.bak
