@@ -18,6 +18,14 @@ these programs a more intuitive task.
 New contributors are welcome.
 
 
+Contributing
+------------
+
+Please open an issue or answer an existing issue first to discuss contributions to avoid rework.
+
+If you are just beginning with contributions take a look at contribution-guide.org and Python Code of Conduct for details on what is expected from contributors.
+
+
 Installation
 ------------
 
@@ -57,6 +65,16 @@ auto-configure, build, and install pygame.
 
 Much more information about installing and compiling is available
 on the `Compilation wiki page`_.
+
+
+Compiling the Docs
+--------------------
+
+To compile the docs,  you just need the command: 
+
+``python setup.py docs`` 
+
+and the 'sphinx' documentation library.
 
 
 Credits
