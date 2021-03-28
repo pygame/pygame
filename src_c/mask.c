@@ -147,13 +147,20 @@ mask_get_rect(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-mask_get_at(PyObject *self, PyObject *args)
+mask_get_at(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, val;
+    PyObject* pos = NULL; 
+    static char *keywords[] = {"pos", NULL};
 
-    if (!PyArg_ParseTuple(args, "(ii)", &x, &y))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &pos))
         return NULL;
+
+    if (!pg_TwoIntsFromObj(pos, &x, &y)) {
+        return RAISE(PyExc_TypeError, "pos must be two numbers");
+    }
+
     if (x >= 0 && x < mask->w && y >= 0 && y < mask->h) {
         val = bitmask_getbit(mask, x, y);
     }
@@ -166,13 +173,20 @@ mask_get_at(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_set_at(PyObject *self, PyObject *args)
+mask_set_at(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, value = 1;
+    PyObject* pos = NULL;
+    static char *keywords[] = {"pos", "value", NULL};
 
-    if (!PyArg_ParseTuple(args, "(ii)|i", &x, &y, &value))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", keywords, &pos, &value))
         return NULL;
+
+    if (!pg_TwoIntsFromObj(pos, &x, &y)) {
+        return RAISE(PyExc_TypeError, "pos must be two numbers");
+    }
+
     if (x >= 0 && x < mask->w && y >= 0 && y < mask->h) {
         if (value) {
             bitmask_setbit(mask, x, y);
@@ -190,17 +204,24 @@ mask_set_at(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_overlap(PyObject *self, PyObject *args)
+mask_overlap(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y, val;
     int xp, yp;
+    PyObject* offset = NULL;
+    static char *keywords[] = {"other", "offset", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset))
         return NULL;
+
     othermask = pgMask_AsBitmap(maskobj);
+
+    if (!pg_TwoIntsFromObj(offset, &x, &y)) {
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
+    }
 
     val = bitmask_overlap_pos(mask, othermask, x, y, &xp, &yp);
     if (val) {
@@ -213,35 +234,48 @@ mask_overlap(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_overlap_area(PyObject *self, PyObject *args)
+mask_overlap_area(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y, val;
+    PyObject* offset = NULL;
+    static char *keywords[] = {"other", "offset", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
     }
+
     othermask = pgMask_AsBitmap(maskobj);
+
+    if (!pg_TwoIntsFromObj(offset, &x, &y)) {
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
+    }
 
     val = bitmask_overlap_area(mask, othermask, x, y);
     return PyInt_FromLong(val);
 }
 
 static PyObject *
-mask_overlap_mask(PyObject *self, PyObject *args)
+mask_overlap_mask(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int x, y;
     bitmask_t *bitmask = pgMask_AsBitmap(self);
     PyObject *maskobj = NULL;
     pgMaskObject *output_maskobj = NULL;
+    PyObject* offset = NULL;
+    static char *keywords[] = {"other", "offset", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL; /* Exception already set. */
     }
 
     output_maskobj = CREATE_MASK_OBJ(bitmask->w, bitmask->h, 0);
+
+    if (!pg_TwoIntsFromObj(offset, &x, &y)) {
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
+    }
 
     if (NULL == output_maskobj) {
         return NULL; /* Exception already set. */
@@ -284,13 +318,19 @@ mask_invert(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_scale(PyObject *self, PyObject *args)
+mask_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int x, y;
     bitmask_t *bitmask = NULL;
+    PyObject* scale = NULL;
+    static char *keywords[] = {"scale", NULL};
 
-    if (!PyArg_ParseTuple(args, "(ii)", &x, &y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", keywords, &scale)) {
         return NULL; /* Exception already set. */
+    }
+
+    if (!pg_TwoIntsFromObj(scale, &x, &y)) {
+        return RAISE(PyExc_TypeError, "scale must be two numbers");
     }
 
     if (x < 0 || y < 0) {
@@ -307,16 +347,23 @@ mask_scale(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_draw(PyObject *self, PyObject *args)
+mask_draw(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y;
+    PyObject* offset = NULL;
+    static char *keywords[] = {"other", "offset", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
     }
+
+    if (!pg_TwoIntsFromObj(offset, &x, &y)) {
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
+    }
+
     othermask = pgMask_AsBitmap(maskobj);
 
     bitmask_draw(mask, othermask, x, y);
@@ -325,16 +372,23 @@ mask_draw(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_erase(PyObject *self, PyObject *args)
+mask_erase(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y;
+    PyObject* offset = NULL;
+    static char *keywords[] = {"other", "offset", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords, &pgMask_Type, &maskobj, &offset)) {
         return NULL;
     }
+
+    if (!pg_TwoIntsFromObj(offset, &x, &y)) {
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
+    }
+
     othermask = pgMask_AsBitmap(maskobj);
 
     bitmask_erase(mask, othermask, x, y);
@@ -419,7 +473,7 @@ mask_angle(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_outline(PyObject *self, PyObject *args)
+mask_outline(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *c = pgMask_AsBitmap(self);
     bitmask_t *m = NULL;
@@ -429,10 +483,11 @@ mask_outline(PyObject *self, PyObject *args)
     int e, every = 1;
     int a[] = {1, 1, 0, -1, -1, -1,  0,  1, 1, 1, 0, -1, -1, -1};
     int b[] = {0, 1, 1,  1,  0, -1, -1, -1, 0, 1, 1,  1,  0, -1};
+    static char *keywords[] = {"every", NULL};
 
     n = firstx = firsty = secx = x = 0;
 
-    if (!PyArg_ParseTuple(args, "|i", &every)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &every)) {
         return NULL;
     }
 
@@ -586,16 +641,22 @@ mask_outline(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-mask_convolve(PyObject *aobj, PyObject *args)
+mask_convolve(PyObject *aobj, PyObject *args, PyObject *kwargs)
 {
     PyObject *bobj = NULL;
     PyObject *oobj = Py_None;
     bitmask_t *a = NULL, *b = NULL;
     int xoffset = 0, yoffset = 0;
+    PyObject* offset = NULL;
+    static char *keywords[] = {"other", "output", "offset", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!|O(ii)", &pgMask_Type, &bobj, &oobj,
-                          &xoffset, &yoffset)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|OO", keywords, &pgMask_Type, &bobj, &oobj,
+                          &offset)) {
         return NULL; /* Exception already set. */
+    }
+
+    if (offset && !pg_TwoIntsFromObj(offset, &xoffset, &yoffset)) {
+        return RAISE(PyExc_TypeError, "offset must be two numbers");
     }
 
     a = pgMask_AsBitmap(aobj);
@@ -758,7 +819,7 @@ set_from_colorkey(SDL_Surface *surf, bitmask_t *bitmask, Uint32 colorkey)
  *     Mask object or NULL to indicate a fail
  */
 static PyObject *
-mask_from_surface(PyObject *self, PyObject *args)
+mask_from_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     SDL_Surface *surf = NULL;
     pgSurfaceObject *surfobj = NULL;
@@ -766,8 +827,9 @@ mask_from_surface(PyObject *self, PyObject *args)
     Uint32 colorkey;
     int threshold = 127; /* default value */
     int use_thresh = 1;
+    static char *keywords[] = {"surface", "threshold", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!|i", &pgSurface_Type, &surfobj,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|i", keywords, &pgSurface_Type, &surfobj,
                           &threshold)) {
         return NULL; /* Exception already set. */
     }
@@ -989,7 +1051,7 @@ bitmask_threshold(bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 }
 
 static PyObject *
-mask_from_threshold(PyObject *self, PyObject *args)
+mask_from_threshold(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     pgSurfaceObject *surfobj2 = NULL;
@@ -1001,10 +1063,12 @@ mask_from_threshold(PyObject *self, PyObject *args)
     Uint32 color;
     Uint32 color_threshold;
     int palette_colors = 1;
+    static char* keywords[] = {"surface", "color", "threshold", "othersurface", 
+                               "palette_colors", NULL};
 
-    if (!PyArg_ParseTuple(args, "O!O|OO!i", &pgSurface_Type, &surfobj,
-                          &rgba_obj_color, &rgba_obj_threshold,
-                          &pgSurface_Type, &surfobj2, &palette_colors))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O|OO!i", keywords, &pgSurface_Type,
+                                     &surfobj, &rgba_obj_color, &rgba_obj_threshold,
+                                     &pgSurface_Type, &surfobj2, &palette_colors))
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
@@ -1592,15 +1656,16 @@ get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 }
 
 static PyObject *
-mask_connected_components(PyObject *self, PyObject *args)
+mask_connected_components(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *mask_list = NULL;
     pgMaskObject *maskobj = NULL;
     bitmask_t **components = NULL;
     bitmask_t *mask = pgMask_AsBitmap(self);
     int i, m, num_components, min = 0; /* Default min value. */
+    static char *keywords[] = {"minimum", NULL};
 
-    if (!PyArg_ParseTuple(args, "|i", &min)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", keywords, &min)) {
         return NULL; /* Exception already set. */
     }
 
@@ -1746,16 +1811,25 @@ largest_connected_comp(bitmask_t *input, bitmask_t *output, int ccx, int ccy)
 }
 
 static PyObject *
-mask_connected_component(PyObject *self, PyObject *args)
+mask_connected_component(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *input = pgMask_AsBitmap(self);
     pgMaskObject *output_maskobj = NULL;
     int x = -1, y = -1;
     Py_ssize_t args_exist = PyTuple_Size(args);
+    PyObject* pos = NULL;
+    static char *keywords[] = {"pos", NULL};
+
+    if (kwargs)
+        args_exist += PyDict_Size(kwargs);
 
     if (args_exist) {
-        if (!PyArg_ParseTuple(args, "|(ii)", &x, &y)) {
+        if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", keywords, &pos)) {
             return NULL; /* Exception already set. */
+        }
+
+        if (!pg_TwoIntsFromObj(pos, &x, &y)) {
+            return RAISE(PyExc_TypeError, "pos must be two numbers");
         }
 
         if (x < 0 || x >= input->w || y < 0 || y >= input->h) {
@@ -2254,25 +2328,35 @@ static PyMethodDef mask_methods[] = {
     {"get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
     {"get_rect", (PyCFunction)mask_get_rect, METH_VARARGS | METH_KEYWORDS,
      DOC_MASKGETRECT},
-    {"get_at", mask_get_at, METH_VARARGS, DOC_MASKGETAT},
-    {"set_at", mask_set_at, METH_VARARGS, DOC_MASKSETAT},
-    {"overlap", mask_overlap, METH_VARARGS, DOC_MASKOVERLAP},
-    {"overlap_area", mask_overlap_area, METH_VARARGS, DOC_MASKOVERLAPAREA},
-    {"overlap_mask", mask_overlap_mask, METH_VARARGS, DOC_MASKOVERLAPMASK},
+    {"get_at", (PyCFunction)mask_get_at, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKGETAT},
+    {"set_at", (PyCFunction)mask_set_at, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKSETAT},
+    {"overlap", (PyCFunction)mask_overlap, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKOVERLAP},
+    {"overlap_area", (PyCFunction)mask_overlap_area, METH_VARARGS | METH_KEYWORDS,
+     DOC_MASKOVERLAPAREA},
+    {"overlap_mask", (PyCFunction)mask_overlap_mask, METH_VARARGS | METH_KEYWORDS,
+     DOC_MASKOVERLAPMASK},
     {"fill", mask_fill, METH_NOARGS, DOC_MASKFILL},
     {"clear", mask_clear, METH_NOARGS, DOC_MASKCLEAR},
     {"invert", mask_invert, METH_NOARGS, DOC_MASKINVERT},
-    {"scale", mask_scale, METH_VARARGS, DOC_MASKSCALE},
-    {"draw", mask_draw, METH_VARARGS, DOC_MASKDRAW},
-    {"erase", mask_erase, METH_VARARGS, DOC_MASKERASE},
+    {"scale", (PyCFunction)mask_scale, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKSCALE},
+    {"draw", (PyCFunction)mask_draw, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKDRAW},
+    {"erase", (PyCFunction)mask_erase, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKERASE},
     {"count", mask_count, METH_NOARGS, DOC_MASKCOUNT},
     {"centroid", mask_centroid, METH_NOARGS, DOC_MASKCENTROID},
     {"angle", mask_angle, METH_NOARGS, DOC_MASKANGLE},
-    {"outline", mask_outline, METH_VARARGS, DOC_MASKOUTLINE},
-    {"convolve", mask_convolve, METH_VARARGS, DOC_MASKCONVOLVE},
-    {"connected_component", mask_connected_component, METH_VARARGS,
+    {"outline", (PyCFunction)mask_outline, METH_VARARGS | METH_KEYWORDS,
+     DOC_MASKOUTLINE},
+    {"convolve", (PyCFunction)mask_convolve, METH_VARARGS | METH_KEYWORDS, 
+    DOC_MASKCONVOLVE},
+    {"connected_component", (PyCFunction)mask_connected_component, METH_VARARGS | METH_KEYWORDS,
      DOC_MASKCONNECTEDCOMPONENT},
-    {"connected_components", mask_connected_components, METH_VARARGS,
+    {"connected_components", (PyCFunction)mask_connected_components, METH_VARARGS | METH_KEYWORDS,
      DOC_MASKCONNECTEDCOMPONENTS},
     {"get_bounding_rects", mask_get_bounding_rects, METH_NOARGS,
      DOC_MASKGETBOUNDINGRECTS},
@@ -2362,17 +2446,23 @@ static int
 mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     bitmask_t *bitmask = NULL;
+    PyObject* size = NULL;
     int w, h;
     int fill = 0; /* Default is false. */
     char *keywords[] = {"size", "fill", NULL};
 #if PY3
-    const char *format = "(ii)|p";
+    const char *format = "O|p";
 #else
-    const char *format = "(ii)|i";
+    const char *format = "O|i";
 #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &w, &h,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &size,
                                      &fill)) {
+        return -1;
+    }
+
+    if (!pg_TwoIntsFromObj(size, &w, &h)) {
+        PyErr_SetString(PyExc_TypeError, "size must be two numbers");
         return -1;
     }
 
@@ -2520,9 +2610,9 @@ static PyTypeObject pgMask_Type = {
 
 /*mask module methods*/
 static PyMethodDef _mask_methods[] = {
-    {"from_surface", mask_from_surface, METH_VARARGS,
+    {"from_surface", (PyCFunction)mask_from_surface, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMASKFROMSURFACE},
-    {"from_threshold", mask_from_threshold, METH_VARARGS,
+    {"from_threshold", (PyCFunction)mask_from_threshold, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMASKFROMTHRESHOLD},
     {NULL, NULL, 0, NULL}};
 
