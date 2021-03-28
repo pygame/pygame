@@ -72,9 +72,7 @@ Compiling the Docs
 
 To compile the docs,  you just need the command: 
 
-::
-
-python setup.py docs 
+``python setup.py docs`` 
 
 and the 'sphinx' documentation library.
 
