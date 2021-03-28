@@ -218,10 +218,16 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
    | :sl:`get events from the queue`
    | :sg:`get(eventtype=None) -> Eventlist`
    | :sg:`get(eventtype=None, pump=True) -> Eventlist`
+   | :sg:`get(eventtype=None, pump=True, exclude=None) -> Eventlist`
 
    This will get all the messages and remove them from the queue. If a type or
    sequence of types is given only those messages will be removed from the
-   queue.
+   queue and returned.
+
+   If a type or sequence of types is passed in the ``exclude`` argument
+   instead, then all only *other* messages will be removed from the queue. If
+   an ``exclude`` parameter is passed, the ``eventtype`` parameter *must* be
+   None.
 
    If you are only taking specific events from the queue, be aware that the
    queue could eventually fill up with the events you are not interested.
@@ -229,6 +235,7 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
    If ``pump`` is ``True`` (the default), then :func:`pygame.event.pump()` will be called.
 
    .. versionchanged:: 1.9.5 Added ``pump`` argument
+   .. versionchanged:: 2.0.2 Added ``exclude`` argument
 
    .. ## pygame.event.get ##
 

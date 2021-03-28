@@ -1961,6 +1961,112 @@ _pg_event_append_to_list(PyObject *list, SDL_Event *event)
 }
 
 static PyObject *
+_pg_get_all_events_except(PyObject *obj)
+{
+    SDL_Event event;
+    int loop, type, len, ret;
+    PyObject *seq, *list;
+
+    SDL_Event *filtered_events;
+    int filtered_index = 0;
+    int filtered_events_len = 16;
+
+    SDL_Event eventbuf[PG_GET_LIST_LEN];
+
+    filtered_events=malloc(sizeof(SDL_Event)*filtered_events_len);
+    if (!filtered_events)
+        return PyErr_NoMemory();
+
+    list = PyList_New(0);
+    if (!list)
+        return PyErr_NoMemory();
+
+    seq = _pg_eventtype_as_seq(obj, &len);
+    if (!seq)
+        goto error;
+
+    for (loop = 0; loop < len; loop++) {
+        type = _pg_eventtype_from_seq(seq, loop);
+        if (type == -1)
+            goto error;
+
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT, type);
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (filtered_index==filtered_events_len) {
+                    SDL_Event *new_filtered_events = malloc(sizeof(SDL_Event)*filtered_events_len*4);
+                    if (new_filtered_events==NULL) {
+                        goto error;
+                    }
+                    memcpy(new_filtered_events, filtered_events, sizeof(SDL_Event)*filtered_events_len);
+                    filtered_events_len*=4;
+                    free(filtered_events);
+                    filtered_events=new_filtered_events;
+                }
+                filtered_events[filtered_index]=event;
+                filtered_index++;
+            }
+        } while (ret);
+#if IS_SDLv2
+        do {
+            ret = PG_PEEP_EVENT(&event, 1, SDL_GETEVENT,
+                _pg_pgevent_proxify(type));
+            if (ret < 0) {
+                PyErr_SetString(pgExc_SDLError, SDL_GetError());
+                goto error;
+            }
+            else if (ret > 0) {
+                if (filtered_index==filtered_events_len) {
+                    SDL_Event *new_filtered_events = malloc(sizeof(SDL_Event)*filtered_events_len*4);
+                    if (new_filtered_events==NULL) {
+                        free(filtered_events);
+                        goto error;
+                    }
+                    memcpy(new_filtered_events, filtered_events, sizeof(SDL_Event)*filtered_events_len);
+                    filtered_events_len*=4;
+                    free(filtered_events);
+                    filtered_events=new_filtered_events;
+                }
+                filtered_events[filtered_index]=event;
+                filtered_index++;
+            }
+        } while (ret);
+#endif
+    }
+
+    do {
+        len = PG_PEEP_EVENT_ALL(eventbuf, PG_GET_LIST_LEN, SDL_GETEVENT);
+        if (len == -1) {
+            PyErr_SetString(pgExc_SDLError, SDL_GetError());
+            goto error;
+        }
+
+        for (loop = 0; loop < len; loop++) {
+            if (!_pg_event_append_to_list(list, &eventbuf[loop]))
+                goto error;
+        }
+    }
+    while (len == PG_GET_LIST_LEN);
+
+    PG_PEEP_EVENT_ALL(filtered_events, filtered_index, SDL_ADDEVENT);
+
+    free(filtered_events);
+    Py_DECREF(seq);
+    return list;
+
+error:
+    /* While doing a goto here, PyErr must be set */
+    free(filtered_events);
+    Py_DECREF(list);
+    Py_XDECREF(seq);
+    return NULL;
+}
+
+static PyObject *
 _pg_get_all_events(void)
 {
     SDL_Event eventbuf[PG_GET_LIST_LEN];
@@ -2049,22 +2155,24 @@ error:
 static PyObject *
 pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *obj = NULL;
+    PyObject *obj_evtype = NULL;
+    PyObject *obj_exclude = NULL;
     int dopump = 1;
 
     static char *kwids[] = {
         "eventtype",
         "pump",
+        "exclude",
         NULL
     };
 
 #if PY3
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
-                                     &obj, &dopump))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OpO", kwids,
+                                     &obj_evtype, &dopump, &obj_exclude))
         return NULL;
 #else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &obj, &dopump))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OiO", kwids,
+                                      &obj_evtype, &dopump, &obj_exclude))
         return NULL;
 #endif
 
@@ -2072,10 +2180,18 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
 
     _pg_event_pump(dopump);
 
-    if (obj == NULL || obj == Py_None)
+    if (obj_evtype == NULL || obj_evtype == Py_None) {
+        if (obj_exclude != NULL && obj_exclude != Py_None) {
+            return _pg_get_all_events_except(obj_exclude);
+        }
         return _pg_get_all_events();
-    else
-        return _pg_get_seq_events(obj);
+    }
+    else {
+        if (obj_exclude != NULL && obj_exclude != Py_None) {
+            return RAISE(pgExc_SDLError, "Invalid combination of excluded and included event type");
+        }
+        return _pg_get_seq_events(obj_evtype);
+    }
 }
 
 static PyObject *

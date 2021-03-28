@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEEVENT "pygame module for interacting with events and queues"
 #define DOC_PYGAMEEVENTPUMP "pump() -> None\ninternally process pygame event handlers"
-#define DOC_PYGAMEEVENTGET "get(eventtype=None) -> Eventlist\nget(eventtype=None, pump=True) -> Eventlist\nget events from the queue"
+#define DOC_PYGAMEEVENTGET "get(eventtype=None) -> Eventlist\nget(eventtype=None, pump=True) -> Eventlist\nget(eventtype=None, pump=True, exclude=None) -> Eventlist\nget events from the queue"
 #define DOC_PYGAMEEVENTPOLL "poll() -> EventType instance\nget a single event from the queue"
 #define DOC_PYGAMEEVENTWAIT "wait() -> EventType instance\nwait(timeout) -> EventType instance\nwait for a single event from the queue"
 #define DOC_PYGAMEEVENTPEEK "peek(eventtype=None) -> bool\npeek(eventtype=None, pump=True) -> bool\ntest if event types are waiting on the queue"
@@ -34,6 +34,7 @@ internally process pygame event handlers
 pygame.event.get
  get(eventtype=None) -> Eventlist
  get(eventtype=None, pump=True) -> Eventlist
+ get(eventtype=None, pump=True, exclude=None) -> Eventlist
 get events from the queue
 
 pygame.event.poll
