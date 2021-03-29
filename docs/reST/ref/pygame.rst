@@ -411,7 +411,7 @@ These variables are defined by SDL.
 
 For documentation on the environment variables available in
 pygame 1 try `here
-<https://www.libsdl.org/release/SDL-1.2.15/docs/html/sdlenvvars.html>`_.
+<https://www.libsdl.org/release/SDL-1.2.15/docs/html/sdlenvvars.html>`__.
 For Pygame 2, some selected environment variables are listed below.
 
 |
@@ -443,7 +443,7 @@ the display. Must be set before calling :func:`pygame.display.set_mode()`.
 
 On some platforms there are multiple video drivers available and
 this allows users to pick between them. More information is available
-`here <https://wiki.libsdl.org/FAQUsingSDL>`_. Must be set before
+`here <https://wiki.libsdl.org/FAQUsingSDL>`__. Must be set before
 calling :func:`pygame.init()` or :func:`pygame.display.init()`.
 
 |
@@ -455,7 +455,7 @@ calling :func:`pygame.init()` or :func:`pygame.display.init()`.
 
 On some platforms there are multiple audio drivers available and
 this allows users to pick between them. More information is available
-`here <https://wiki.libsdl.org/FAQUsingSDL>`_. Must be set before
+`here <https://wiki.libsdl.org/FAQUsingSDL>`__. Must be set before
 calling :func:`pygame.init()` or :func:`pygame.mixer.init()`.
 
 |
