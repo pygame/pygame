@@ -23,10 +23,16 @@ special modules like hardware acceleration and OpenGL support. These are
 controlled by flags passed to ``pygame.display.set_mode()``.
 
 Pygame can only have a single display active at any time. Creating a new one
-with ``pygame.display.set_mode()`` will close the previous display. If precise
-control is needed over the pixel format or display resolutions, use the
+with ``pygame.display.set_mode()`` will close the previous display. To detect
+the number and size of attached screens, you can use
+``pygame.display.get_desktop_sizes`` and then select appropriate window size
+and display index to pass to ``pygame.display.set_mode()``.
+
+For backward compatibility ``pygame.display`` allows precise control over
+the pixel format or display resolutions. This used to be necessary with old
+grahics cards and CRT screens, but is usually not needed any more. Use the
 functions ``pygame.display.mode_ok()``, ``pygame.display.list_modes()``, and
-``pygame.display.Info()`` to query information about the display.
+``pygame.display.Info()`` to query detailed information about the display.
 
 Once the display Surface is created, the functions from this module affect the
 single existing display. The Surface becomes invalid if the module is
@@ -197,7 +203,10 @@ required).
         screen_height=400
         screen=pygame.display.set_mode([screen_width, screen_height])
 
-   The display index ``0`` means the default display is used.
+   The display index ``0`` means the default display is used. If no display
+   index argument is provided, the default display can be overridden with an
+   environment variable.
+
 
    .. versionchanged:: 1.9.5 ``display`` argument added
 
@@ -333,7 +342,7 @@ required).
    mode, this function *should* be used to replace many use cases of
    ``pygame.display.list_modes()`` whenever applicable.
 
-   .. versionchanged:: 2.0.0
+   .. versionadded:: 2.0.0
 
 .. function:: list_modes
 
