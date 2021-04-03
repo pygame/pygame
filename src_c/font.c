@@ -65,7 +65,7 @@ PyFont_New(TTF_Font *);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static uint current_ttf_generation = 0;
+static unsigned int current_ttf_generation = 0;
 static const char font_defaultname[] = "freesansbold.ttf";
 static const char pkgdatamodule_name[] = "pygame.pkgdata";
 static const char resourcefunc_name[] = "getResource";
