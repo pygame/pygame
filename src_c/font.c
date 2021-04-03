@@ -772,6 +772,7 @@ font_dealloc(PyFontObject *self)
             *face_pp = NULL;
         }
         TTF_CloseFont(font);
+        self->font = NULL;
     }
 
     if (self->weakreflist)
