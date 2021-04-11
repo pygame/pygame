@@ -47,13 +47,15 @@
    It can be passed as a ``color_value`` argument to :class:`Color`
    (useful with sets).
 
+   See :doc:`color_list` for samples of the available named colors.
+
    :param int r: red value in the range of 0 to 255 inclusive
    :param int g: green value in the range of 0 to 255 inclusive
    :param int b: blue value in the range of 0 to 255 inclusive
    :param int a: (optional) alpha value in the range of 0 to 255 inclusive,
       default is 255
    :param color_value: color value (see note below for the supported formats)
-   :param color_name: name of the color to use, e.g. ``'red'``
+   :param color_name str: name of the color to use, e.g. ``'red'``
       (all the supported name strings can be found in the the
       `colordict module <https://github.com/pygame/pygame/blob/master/src_py/colordict.py>`_)
 
