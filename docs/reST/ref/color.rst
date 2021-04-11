@@ -11,6 +11,7 @@
    | :sg:`Color(r, g, b) -> Color`
    | :sg:`Color(r, g, b, a=255) -> Color`
    | :sg:`Color(color_value) -> Color`
+   | :sg:`Color(color_name) -> Color`
 
    The ``Color`` class represents ``RGBA`` color values using a value range of
    0 to 255 inclusive. It allows basic arithmetic operations — binary
@@ -52,13 +53,13 @@
    :param int a: (optional) alpha value in the range of 0 to 255 inclusive,
       default is 255
    :param color_value: color value (see note below for the supported formats)
+   :param color_name: name of the color to use, e.g. ``'red'``
+      (all the supported name strings can be found in the the
+      `colordict module <https://github.com/pygame/pygame/blob/master/src_py/colordict.py>`_)
 
       .. note::
          Supported ``color_value`` formats:
             | - **Color object:** clones the given :class:`Color` object
-            | - **color name str:** name of the color to use, e.g. ``'red'``
-              (all the supported name strings can be found in the
-              `colordict module <https://github.com/pygame/pygame/blob/master/src_py/colordict.py>`_)
             | - **HTML color format str:** ``'#rrggbbaa'`` or ``'#rrggbb'``,
               where rr, gg, bb, and aa are 2-digit hex numbers in the range
               of 0 to 0xFF inclusive, the aa (alpha) value defaults to 0xFF
