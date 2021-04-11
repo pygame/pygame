@@ -125,8 +125,10 @@ class TransformModuleTest(unittest.TestCase):
     def test_scale__vector2(self):
         s = pygame.Surface((32, 32))
         s2 = pygame.transform.scale(s, pygame.Vector2(64, 64))
+        s3 = pygame.transform.smoothscale(s, pygame.Vector2(64, 64))
 
         self.assertEqual((64,64), s2.get_size())
+        self.assertEqual((64,64), s3.get_size())
 
     def test_scale__zero_surface_transform(self):
         tmp_surface = pygame.transform.scale(pygame.Surface((128, 128)), (0, 0))
