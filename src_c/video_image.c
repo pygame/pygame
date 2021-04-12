@@ -161,7 +161,7 @@ pg_image_get_color(pgImageObject *self)
 static PyObject *
 pg_image_set_color(pgImageObject *self, PyObject *val, void *closure) 
 {
-    Uint8 *colarray = pgColor_AsArray(val);
+    Uint8 *colarray[4] = {0, 0, 0, 255}; 
     if (!pg_RGBAFromColorObj(val, colarray)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
@@ -169,6 +169,7 @@ pg_image_set_color(pgImageObject *self, PyObject *val, void *closure)
 
     Py_DECREF(self->color);
     self->color = (pgColorObject*)pgColor_New(colarray);
+
     return 0;
 }
 
@@ -210,16 +211,31 @@ pg_image_set_texture(pgImageObject *self, PyObject *val, void *closure)
 static PyObject *
 pg_image_get_srcrect(pgImageObject *self) 
 {
-    return Py_BuildValue("O", self->srcrect);
+    GAME_Rect *rect = NULL, temp;
+    PyObject* ret;
+
+    if (!(rect = pgRect_FromObject(self->srcrect, &temp))) {
+        return RAISE(pgExc_SDLError, "Wow... this error shouldn't happen");
+    }
+
+    ret = pgRect_New4(rect->x, rect->y, rect->w, rect->h);
+    return ret;
 }
 
 static PyObject *
 pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure) 
 {
-    //TODO: check if it is valid
-    //TODO: make a new rect, rather than using the same one
-    self->srcrect = (pgRectObject*) val;
-    Py_INCREF(self->srcrect);
+    GAME_Rect *rect = NULL, temp;
+    PyObject* newrect;
+
+    if (!(rect = pgRect_FromObject(val, &temp))) {
+        return RAISE(PyExc_TypeError, "rect argument is invalid");
+    }
+
+    Py_DECREF(self->srcrect);
+    newrect = pgRect_New4(rect->x, rect->y, rect->w, rect->h);
+    self->srcrect = newrect;
+
     return 0;
 }
 

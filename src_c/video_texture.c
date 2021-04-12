@@ -245,7 +245,7 @@ pg_texture_get_color(pgTextureObject *self, void *closure)
 static int
 pg_texture_set_color(pgTextureObject *self, PyObject *val, void *closure)
 {
-    Uint8 *colarray = pgColor_AsArray(val);
+    Uint8 *colarray = pgColor_AsArray(self->color);
     if (!pg_RGBAFromColorObj(val, colarray)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;

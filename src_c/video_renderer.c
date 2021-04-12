@@ -6,6 +6,7 @@ static PyObject *
 pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
     // TODO: implement this function properly
     // From reading the code in video.pyx, I don't understand how is supposed to operate
+    // Update: I think it's supposed to be the complement to Window.from_display_module() for renderers
 
     char* keywords[] = {
         "window",
@@ -328,7 +329,7 @@ pg_renderer_get_color(pgRendererObject *self, void *closure)
 static int
 pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
 {
-    Uint8 *colarray = pgColor_AsArray(val);
+    Uint8 *colarray = pgColor_AsArray(self->drawcolor); 
     if (!pg_RGBAFromColorObj(val, colarray)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
