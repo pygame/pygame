@@ -78,6 +78,8 @@
       | :sl:`Maximize the window.`
       | :sg:`maximize() -> None`
 
+      .. Note:: The window must be ``RESIZABLE`` for this to work
+
    .. method:: minimize
 
       | :sl:`Minimize the window.`
