@@ -1,9 +1,17 @@
 .. include:: common.txt
 
-:mod:`pygame.video`
-===================
+:mod:`pygame.sdl2_video`
+========================
 
-.. currentmodule:: pygame
+.. module:: pygame._sdl2.video
+   :synopsis: Experimental pygame module for porting new SDL video systems
+
+.. warning::
+	This module isn't ready for prime time yet, it's still in development.
+        These docs are primarily meant to help the pygame developers and super-early adopters
+        who are in communication with the developers. This API will change.
+
+| :sl:`Experimental pygame module for porting new SDL video systems`
 
 .. class:: Window
 
@@ -202,8 +210,8 @@
 
    .. attribute:: origin
 
-      | :sl:`Gets and sets the origin.`
-      | :sg:`origin -> (float, float)`
+      | :sl:`Gets and sets the origin. Origin=None means the Image will be rotated around its center.`
+      | :sg:`origin -> (float, float) or None.`
 
    .. attribute:: flipX
 
@@ -225,6 +233,11 @@
       | :sl:`Gets and sets the Image alpha modifier.`
       | :sg:`alpha -> float`
 
+   .. attribute:: blend_mode
+
+      | :sl:`Gets and sets the blend mode for the Image.`
+      | :sg:`blend_mode -> int`
+
    .. attribute:: texture
 
       | :sl:`Gets and sets the Texture the Image is based on.`
@@ -245,10 +258,15 @@
       | :sl:`Easy way to create a Renderer.`
       | :sg:`from_window(window) -> Renderer`
 
+   .. attribute:: draw_blend_mode
+
+      | :sl:`Gets and sets the blend mode used by the drawing functions.`
+      | :sg:`draw_blend_mode -> int`   
+
    .. attribute:: draw_color
 
       | :sl:`Gets and sets the color used by the drawing functions.`
-      | :sg:`draw_color -> color`
+      | :sg:`draw_color -> Color`
 
    .. method:: clear
 
