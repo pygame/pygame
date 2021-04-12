@@ -1,5 +1,10 @@
 .. include:: common.txt
 
+Named Colors
+============
+
+.. currentmodule:: pygame
+
 .. raw:: html
 
     <style>
@@ -662,11 +667,9 @@
     .yellowgreen {background-color: #9acd32; color: #9acd32;}
     </style>
 
-Named Colors
-===================
-
 :doc:`color` lets you specify any of these named colors when creating a new
-``pygame.Color``:
+``pygame.Color`` (taken from the
+`colordict module <https://github.com/pygame/pygame/blob/master/src_py/colordict.py>`_).
 
 .. role:: aliceblue
 .. role:: antiquewhite
@@ -821,8 +824,15 @@ Named Colors
 .. role:: gray
 .. role:: gray0
 .. role:: gray1
+.. role:: gray2
+.. role:: gray3
+.. role:: gray4
+.. role:: gray5
+.. role:: gray6
+.. role:: gray7
+.. role:: gray8
+.. role:: gray9
 .. role:: gray10
-.. role:: gray100
 .. role:: gray11
 .. role:: gray12
 .. role:: gray13
@@ -832,7 +842,6 @@ Named Colors
 .. role:: gray17
 .. role:: gray18
 .. role:: gray19
-.. role:: gray2
 .. role:: gray20
 .. role:: gray21
 .. role:: gray22
@@ -843,7 +852,6 @@ Named Colors
 .. role:: gray27
 .. role:: gray28
 .. role:: gray29
-.. role:: gray3
 .. role:: gray30
 .. role:: gray31
 .. role:: gray32
@@ -854,7 +862,6 @@ Named Colors
 .. role:: gray37
 .. role:: gray38
 .. role:: gray39
-.. role:: gray4
 .. role:: gray40
 .. role:: gray41
 .. role:: gray42
@@ -865,7 +872,6 @@ Named Colors
 .. role:: gray47
 .. role:: gray48
 .. role:: gray49
-.. role:: gray5
 .. role:: gray50
 .. role:: gray51
 .. role:: gray52
@@ -876,7 +882,6 @@ Named Colors
 .. role:: gray57
 .. role:: gray58
 .. role:: gray59
-.. role:: gray6
 .. role:: gray60
 .. role:: gray61
 .. role:: gray62
@@ -887,7 +892,6 @@ Named Colors
 .. role:: gray67
 .. role:: gray68
 .. role:: gray69
-.. role:: gray7
 .. role:: gray70
 .. role:: gray71
 .. role:: gray72
@@ -898,7 +902,6 @@ Named Colors
 .. role:: gray77
 .. role:: gray78
 .. role:: gray79
-.. role:: gray8
 .. role:: gray80
 .. role:: gray81
 .. role:: gray82
@@ -909,7 +912,6 @@ Named Colors
 .. role:: gray87
 .. role:: gray88
 .. role:: gray89
-.. role:: gray9
 .. role:: gray90
 .. role:: gray91
 .. role:: gray92
@@ -920,6 +922,7 @@ Named Colors
 .. role:: gray97
 .. role:: gray98
 .. role:: gray99
+.. role:: gray100
 .. role:: green
 .. role:: green1
 .. role:: green2
@@ -929,8 +932,15 @@ Named Colors
 .. role:: grey
 .. role:: grey0
 .. role:: grey1
+.. role:: grey2
+.. role:: grey3
+.. role:: grey4
+.. role:: grey5
+.. role:: grey6
+.. role:: grey7
+.. role:: grey8
+.. role:: grey9
 .. role:: grey10
-.. role:: grey100
 .. role:: grey11
 .. role:: grey12
 .. role:: grey13
@@ -940,7 +950,6 @@ Named Colors
 .. role:: grey17
 .. role:: grey18
 .. role:: grey19
-.. role:: grey2
 .. role:: grey20
 .. role:: grey21
 .. role:: grey22
@@ -951,7 +960,6 @@ Named Colors
 .. role:: grey27
 .. role:: grey28
 .. role:: grey29
-.. role:: grey3
 .. role:: grey30
 .. role:: grey31
 .. role:: grey32
@@ -962,7 +970,6 @@ Named Colors
 .. role:: grey37
 .. role:: grey38
 .. role:: grey39
-.. role:: grey4
 .. role:: grey40
 .. role:: grey41
 .. role:: grey42
@@ -973,7 +980,6 @@ Named Colors
 .. role:: grey47
 .. role:: grey48
 .. role:: grey49
-.. role:: grey5
 .. role:: grey50
 .. role:: grey51
 .. role:: grey52
@@ -984,7 +990,6 @@ Named Colors
 .. role:: grey57
 .. role:: grey58
 .. role:: grey59
-.. role:: grey6
 .. role:: grey60
 .. role:: grey61
 .. role:: grey62
@@ -995,7 +1000,6 @@ Named Colors
 .. role:: grey67
 .. role:: grey68
 .. role:: grey69
-.. role:: grey7
 .. role:: grey70
 .. role:: grey71
 .. role:: grey72
@@ -1006,7 +1010,6 @@ Named Colors
 .. role:: grey77
 .. role:: grey78
 .. role:: grey79
-.. role:: grey8
 .. role:: grey80
 .. role:: grey81
 .. role:: grey82
@@ -1017,7 +1020,6 @@ Named Colors
 .. role:: grey87
 .. role:: grey88
 .. role:: grey89
-.. role:: grey9
 .. role:: grey90
 .. role:: grey91
 .. role:: grey92
@@ -1028,6 +1030,7 @@ Named Colors
 .. role:: grey97
 .. role:: grey98
 .. role:: grey99
+.. role:: grey100
 .. role:: honeydew
 .. role:: honeydew1
 .. role:: honeydew2
@@ -1482,8 +1485,15 @@ Name                        Color
 ``gray``                    :gray:`████████`
 ``gray0``                   :gray0:`████████`
 ``gray1``                   :gray1:`████████`
+``gray2``                   :gray2:`████████`
+``gray3``                   :gray3:`████████`
+``gray4``                   :gray4:`████████`
+``gray5``                   :gray5:`████████`
+``gray6``                   :gray6:`████████`
+``gray7``                   :gray7:`████████`
+``gray8``                   :gray8:`████████`
+``gray9``                   :gray9:`████████`
 ``gray10``                  :gray10:`████████`
-``gray100``                 :gray100:`████████`
 ``gray11``                  :gray11:`████████`
 ``gray12``                  :gray12:`████████`
 ``gray13``                  :gray13:`████████`
@@ -1493,7 +1503,6 @@ Name                        Color
 ``gray17``                  :gray17:`████████`
 ``gray18``                  :gray18:`████████`
 ``gray19``                  :gray19:`████████`
-``gray2``                   :gray2:`████████`
 ``gray20``                  :gray20:`████████`
 ``gray21``                  :gray21:`████████`
 ``gray22``                  :gray22:`████████`
@@ -1504,7 +1513,6 @@ Name                        Color
 ``gray27``                  :gray27:`████████`
 ``gray28``                  :gray28:`████████`
 ``gray29``                  :gray29:`████████`
-``gray3``                   :gray3:`████████`
 ``gray30``                  :gray30:`████████`
 ``gray31``                  :gray31:`████████`
 ``gray32``                  :gray32:`████████`
@@ -1515,7 +1523,6 @@ Name                        Color
 ``gray37``                  :gray37:`████████`
 ``gray38``                  :gray38:`████████`
 ``gray39``                  :gray39:`████████`
-``gray4``                   :gray4:`████████`
 ``gray40``                  :gray40:`████████`
 ``gray41``                  :gray41:`████████`
 ``gray42``                  :gray42:`████████`
@@ -1526,7 +1533,6 @@ Name                        Color
 ``gray47``                  :gray47:`████████`
 ``gray48``                  :gray48:`████████`
 ``gray49``                  :gray49:`████████`
-``gray5``                   :gray5:`████████`
 ``gray50``                  :gray50:`████████`
 ``gray51``                  :gray51:`████████`
 ``gray52``                  :gray52:`████████`
@@ -1537,7 +1543,6 @@ Name                        Color
 ``gray57``                  :gray57:`████████`
 ``gray58``                  :gray58:`████████`
 ``gray59``                  :gray59:`████████`
-``gray6``                   :gray6:`████████`
 ``gray60``                  :gray60:`████████`
 ``gray61``                  :gray61:`████████`
 ``gray62``                  :gray62:`████████`
@@ -1548,7 +1553,6 @@ Name                        Color
 ``gray67``                  :gray67:`████████`
 ``gray68``                  :gray68:`████████`
 ``gray69``                  :gray69:`████████`
-``gray7``                   :gray7:`████████`
 ``gray70``                  :gray70:`████████`
 ``gray71``                  :gray71:`████████`
 ``gray72``                  :gray72:`████████`
@@ -1559,7 +1563,6 @@ Name                        Color
 ``gray77``                  :gray77:`████████`
 ``gray78``                  :gray78:`████████`
 ``gray79``                  :gray79:`████████`
-``gray8``                   :gray8:`████████`
 ``gray80``                  :gray80:`████████`
 ``gray81``                  :gray81:`████████`
 ``gray82``                  :gray82:`████████`
@@ -1570,7 +1573,6 @@ Name                        Color
 ``gray87``                  :gray87:`████████`
 ``gray88``                  :gray88:`████████`
 ``gray89``                  :gray89:`████████`
-``gray9``                   :gray9:`████████`
 ``gray90``                  :gray90:`████████`
 ``gray91``                  :gray91:`████████`
 ``gray92``                  :gray92:`████████`
@@ -1581,6 +1583,7 @@ Name                        Color
 ``gray97``                  :gray97:`████████`
 ``gray98``                  :gray98:`████████`
 ``gray99``                  :gray99:`████████`
+``gray100``                 :gray100:`████████`
 ``green``                   :green:`████████`
 ``green1``                  :green1:`████████`
 ``green2``                  :green2:`████████`
@@ -1590,8 +1593,15 @@ Name                        Color
 ``grey``                    :grey:`████████`
 ``grey0``                   :grey0:`████████`
 ``grey1``                   :grey1:`████████`
+``grey2``                   :grey2:`████████`
+``grey3``                   :grey3:`████████`
+``grey4``                   :grey4:`████████`
+``grey5``                   :grey5:`████████`
+``grey6``                   :grey6:`████████`
+``grey7``                   :grey7:`████████`
+``grey8``                   :grey8:`████████`
+``grey9``                   :grey9:`████████`
 ``grey10``                  :grey10:`████████`
-``grey100``                 :grey100:`████████`
 ``grey11``                  :grey11:`████████`
 ``grey12``                  :grey12:`████████`
 ``grey13``                  :grey13:`████████`
@@ -1601,7 +1611,6 @@ Name                        Color
 ``grey17``                  :grey17:`████████`
 ``grey18``                  :grey18:`████████`
 ``grey19``                  :grey19:`████████`
-``grey2``                   :grey2:`████████`
 ``grey20``                  :grey20:`████████`
 ``grey21``                  :grey21:`████████`
 ``grey22``                  :grey22:`████████`
@@ -1612,7 +1621,6 @@ Name                        Color
 ``grey27``                  :grey27:`████████`
 ``grey28``                  :grey28:`████████`
 ``grey29``                  :grey29:`████████`
-``grey3``                   :grey3:`████████`
 ``grey30``                  :grey30:`████████`
 ``grey31``                  :grey31:`████████`
 ``grey32``                  :grey32:`████████`
@@ -1623,7 +1631,6 @@ Name                        Color
 ``grey37``                  :grey37:`████████`
 ``grey38``                  :grey38:`████████`
 ``grey39``                  :grey39:`████████`
-``grey4``                   :grey4:`████████`
 ``grey40``                  :grey40:`████████`
 ``grey41``                  :grey41:`████████`
 ``grey42``                  :grey42:`████████`
@@ -1634,7 +1641,6 @@ Name                        Color
 ``grey47``                  :grey47:`████████`
 ``grey48``                  :grey48:`████████`
 ``grey49``                  :grey49:`████████`
-``grey5``                   :grey5:`████████`
 ``grey50``                  :grey50:`████████`
 ``grey51``                  :grey51:`████████`
 ``grey52``                  :grey52:`████████`
@@ -1645,7 +1651,6 @@ Name                        Color
 ``grey57``                  :grey57:`████████`
 ``grey58``                  :grey58:`████████`
 ``grey59``                  :grey59:`████████`
-``grey6``                   :grey6:`████████`
 ``grey60``                  :grey60:`████████`
 ``grey61``                  :grey61:`████████`
 ``grey62``                  :grey62:`████████`
@@ -1656,7 +1661,6 @@ Name                        Color
 ``grey67``                  :grey67:`████████`
 ``grey68``                  :grey68:`████████`
 ``grey69``                  :grey69:`████████`
-``grey7``                   :grey7:`████████`
 ``grey70``                  :grey70:`████████`
 ``grey71``                  :grey71:`████████`
 ``grey72``                  :grey72:`████████`
@@ -1667,7 +1671,6 @@ Name                        Color
 ``grey77``                  :grey77:`████████`
 ``grey78``                  :grey78:`████████`
 ``grey79``                  :grey79:`████████`
-``grey8``                   :grey8:`████████`
 ``grey80``                  :grey80:`████████`
 ``grey81``                  :grey81:`████████`
 ``grey82``                  :grey82:`████████`
@@ -1678,7 +1681,6 @@ Name                        Color
 ``grey87``                  :grey87:`████████`
 ``grey88``                  :grey88:`████████`
 ``grey89``                  :grey89:`████████`
-``grey9``                   :grey9:`████████`
 ``grey90``                  :grey90:`████████`
 ``grey91``                  :grey91:`████████`
 ``grey92``                  :grey92:`████████`
@@ -1689,6 +1691,7 @@ Name                        Color
 ``grey97``                  :grey97:`████████`
 ``grey98``                  :grey98:`████████`
 ``grey99``                  :grey99:`████████`
+``grey100``                 :grey100:`████████`
 ``honeydew``                :honeydew:`████████`
 ``honeydew1``               :honeydew1:`████████`
 ``honeydew2``               :honeydew2:`████████`
