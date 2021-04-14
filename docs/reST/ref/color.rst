@@ -58,7 +58,7 @@
       .. note::
          Supported ``color_value`` formats:
             | - **Color object:** clones the given :class:`Color` object
-            | - name of the color to use, e.g. ``'red'``
+            | - **Color name: str:** name of the color to use, e.g. ``'red'``
               (all the supported name strings can be found in the
                :doc:`color_list`, with sample swatches)
             | - **HTML color format str:** ``'#rrggbbaa'`` or ``'#rrggbb'``,
