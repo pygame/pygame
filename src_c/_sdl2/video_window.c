@@ -193,6 +193,11 @@ pg_window_set_modal_for(pgWindowObject *self, PyObject *args, PyObject *kw)
     Py_RETURN_NONE;
 }
 
+static SDL_Window*
+pg_window_get_pointer(pgWindowObject *self) {
+    return self->_win;
+}
+
 static PyMethodDef pg_window_methods[] = {
     { "from_display_module", (PyCFunction)pg_window_from_display_module, METH_CLASS | METH_NOARGS, "TODO"},
     { "set_windowed", (PyCFunction)pg_window_set_windowed, METH_NOARGS, "TODO"},
