@@ -65,7 +65,7 @@
 
    .. method:: focus
 
-      | :sl:`Raise the window above other windows and set the input focus. The "input_only" argument is only supported on X11.`
+      | :sl:`Raise the window above other windows and set the input focus. The input_only argument is only supported on X11.`
       | :sg:`focus(input_only=False) -> None`
 
    .. method:: restore
@@ -83,7 +83,7 @@
    .. method:: minimize
 
       | :sl:`Minimize the window.`
-      | :sg:`maximize() -> None`
+      | :sg:`minimize() -> None`
 
    .. attribute:: resizable
 

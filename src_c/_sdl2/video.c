@@ -18,6 +18,7 @@
 
 #include "../pygame.h"
 #include "../pgcompat.h"
+#include "../doc/sdl2_video_doc.h"
 #include <structmember.h>
 
 static PyTypeObject pgRenderer_Type;

@@ -199,18 +199,18 @@ pg_window_get_pointer(pgWindowObject *self) {
 }
 
 static PyMethodDef pg_window_methods[] = {
-    { "from_display_module", (PyCFunction)pg_window_from_display_module, METH_CLASS | METH_NOARGS, "TODO"},
-    { "set_windowed", (PyCFunction)pg_window_set_windowed, METH_NOARGS, "TODO"},
-    { "set_fullscreen", (PyCFunction)pg_window_set_fullscreen, METH_VARARGS | METH_KEYWORDS, "TODO"},
-    { "destroy", (PyCFunction)pg_window_destroy, METH_NOARGS, "TODO"},
-    { "hide", (PyCFunction)pg_window_hide, METH_NOARGS, "TODO"},
-    { "show", (PyCFunction)pg_window_show, METH_NOARGS, "TODO"},
-    { "focus", (PyCFunction)pg_window_focus, METH_VARARGS | METH_KEYWORDS, "TODO"},
-    { "restore", (PyCFunction)pg_window_restore, METH_NOARGS, "TODO"},
-    { "maximize", (PyCFunction)pg_window_maximize, METH_NOARGS, "TODO"},
-    { "minimize", (PyCFunction)pg_window_minimize, METH_NOARGS, "TODO"},
-    { "set_icon", (PyCFunction)pg_window_set_icon, METH_VARARGS | METH_KEYWORDS, "TODO"},
-    { "set_modal_for", (PyCFunction)pg_window_set_modal_for, METH_VARARGS | METH_KEYWORDS, "TODO"},
+    { "from_display_module", (PyCFunction)pg_window_from_display_module, METH_CLASS | METH_NOARGS, DOC_WINDOWFROMDISPLAYMODULE},
+    { "set_windowed", (PyCFunction)pg_window_set_windowed, METH_NOARGS, DOC_WINDOWSETWINDOWED},
+    { "set_fullscreen", (PyCFunction)pg_window_set_fullscreen, METH_VARARGS | METH_KEYWORDS, DOC_WINDOWSETFULLSCREEN},
+    { "destroy", (PyCFunction)pg_window_destroy, METH_NOARGS, DOC_WINDOWDESTROY},
+    { "hide", (PyCFunction)pg_window_hide, METH_NOARGS, DOC_WINDOWHIDE},
+    { "show", (PyCFunction)pg_window_show, METH_NOARGS, DOC_WINDOWSHOW},
+    { "focus", (PyCFunction)pg_window_focus, METH_VARARGS | METH_KEYWORDS, DOC_WINDOWFOCUS},
+    { "restore", (PyCFunction)pg_window_restore, METH_NOARGS, DOC_WINDOWRESTORE},
+    { "maximize", (PyCFunction)pg_window_maximize, METH_NOARGS, DOC_WINDOWMAXIMIZE},
+    { "minimize", (PyCFunction)pg_window_minimize, METH_NOARGS, DOC_WINDOWMINIMIZE},
+    { "set_icon", (PyCFunction)pg_window_set_icon, METH_VARARGS | METH_KEYWORDS, DOC_WINDOWSETICON},
+    { "set_modal_for", (PyCFunction)pg_window_set_modal_for, METH_VARARGS | METH_KEYWORDS, DOC_WINDOWSETMODALFOR},
     { NULL }
 };
 
@@ -449,17 +449,17 @@ pg_window_get_display_index(pgWindowObject *self)
 }
 
 static PyGetSetDef pg_window_getset[] = {
-    { "grab", (getter)pg_window_get_grab, (setter)pg_window_set_grab, NULL /*TODO*/, NULL },
-    { "relative_mouse", (getter)pg_window_get_relative_mouse, (setter)pg_window_set_relative_mouse, NULL /*TODO*/, NULL },
-    { "title", (getter)pg_window_get_title, (setter)pg_window_set_title, NULL /*TODO*/, NULL },
-    { "resizable", (getter)pg_window_get_resizable, (setter)pg_window_set_resizable, NULL /*TODO*/, NULL },
-    { "borderless", (getter)pg_window_get_borderless, (setter)pg_window_set_borderless, NULL /*TODO*/, NULL },
-    { "id", (getter)pg_window_get_id, NULL, NULL /*TODO*/, NULL },
-    { "size", (getter)pg_window_get_size, (setter)pg_window_set_size, NULL /*TODO*/, NULL },
-    { "position", (getter)pg_window_get_position, (setter)pg_window_set_position, NULL /*TODO*/, NULL },
-    { "opacity", (getter)pg_window_get_opacity, (setter)pg_window_set_opacity, NULL /*TODO*/, NULL },
-    { "brightness", (getter)pg_window_get_brightness, (setter)pg_window_set_brightness, NULL /*TODO*/, NULL },
-    { "display_index", (getter)pg_window_get_display_index, NULL, NULL /*TODO*/, NULL },
+    { "grab", (getter)pg_window_get_grab, (setter)pg_window_set_grab, NULL, NULL },
+    { "relative_mouse", (getter)pg_window_get_relative_mouse, (setter)pg_window_set_relative_mouse, NULL, NULL },
+    { "title", (getter)pg_window_get_title, (setter)pg_window_set_title, NULL, NULL },
+    { "resizable", (getter)pg_window_get_resizable, (setter)pg_window_set_resizable, NULL, NULL },
+    { "borderless", (getter)pg_window_get_borderless, (setter)pg_window_set_borderless, NULL, NULL },
+    { "id", (getter)pg_window_get_id, NULL, NULL, NULL },
+    { "size", (getter)pg_window_get_size, (setter)pg_window_set_size, NULL, NULL },
+    { "position", (getter)pg_window_get_position, (setter)pg_window_set_position, NULL, NULL },
+    { "opacity", (getter)pg_window_get_opacity, (setter)pg_window_set_opacity, NULL, NULL },
+    { "brightness", (getter)pg_window_get_brightness, (setter)pg_window_set_brightness, NULL, NULL },
+    { "display_index", (getter)pg_window_get_display_index, NULL, NULL, NULL },
     { NULL }
 };
 

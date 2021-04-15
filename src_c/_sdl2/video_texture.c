@@ -227,10 +227,10 @@ pg_texture_update(pgTextureObject *self, PyObject *args, PyObject *kw)
 }
 
 static PyMethodDef pg_texture_methods[] = {
-    { "from_surface", (PyCFunction)pg_texture_from_surface, METH_VARARGS | METH_KEYWORDS | METH_STATIC, NULL /* TODO */ },
-    { "get_rect", (PyCFunction)pg_texture_get_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "draw", (PyCFunction)pg_texture_draw, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "update", (PyCFunction)pg_texture_update, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "from_surface", (PyCFunction)pg_texture_from_surface, METH_VARARGS | METH_KEYWORDS | METH_STATIC, DOC_TEXTUREFROMSURFACE},
+    { "get_rect", (PyCFunction)pg_texture_get_rect, METH_VARARGS | METH_KEYWORDS, DOC_TEXTUREGETRECT},
+    { "draw", (PyCFunction)pg_texture_draw, METH_VARARGS | METH_KEYWORDS, DOC_TEXTUREDRAW},
+    { "update", (PyCFunction)pg_texture_update, METH_VARARGS | METH_KEYWORDS, DOC_TEXTUREUPDATE},
     { NULL }
 };
 
@@ -318,9 +318,9 @@ pg_texture_set_mode(pgTextureObject *self, PyObject *val, void *closure)
 }
 
 static PyGetSetDef pg_texture_getset[] = {
-    { "color", (getter)pg_texture_get_color, (setter)pg_texture_set_color, NULL /*TODO*/, NULL },
-    { "alpha", (getter)pg_texture_get_alpha, (setter)pg_texture_set_alpha, NULL /*TODO*/, NULL },
-    { "blend_mode", (getter)pg_texture_get_mode, (setter)pg_texture_set_mode, NULL /*TODO*/, NULL },
+    { "color", (getter)pg_texture_get_color, (setter)pg_texture_set_color, NULL, NULL },
+    { "alpha", (getter)pg_texture_get_alpha, (setter)pg_texture_set_alpha, NULL, NULL },
+    { "blend_mode", (getter)pg_texture_get_mode, (setter)pg_texture_set_mode, NULL, NULL },
     { NULL }
 };
 

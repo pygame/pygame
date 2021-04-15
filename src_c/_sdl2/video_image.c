@@ -78,8 +78,8 @@ pg_image_draw(pgImageObject *self, PyObject *args, PyObject *kw) {
 }
 
 static PyMethodDef pg_image_methods[] = {
-    { "get_rect", (PyCFunction)pg_image_get_rect, METH_NOARGS, "TODO"},
-    { "draw", (PyCFunction)pg_image_draw, METH_VARARGS | METH_KEYWORDS, "TODO"},
+    { "get_rect", (PyCFunction)pg_image_get_rect, METH_NOARGS, DOC_IMAGEGETRECT},
+    { "draw", (PyCFunction)pg_image_draw, METH_VARARGS | METH_KEYWORDS, DOC_IMAGEDRAW},
     { NULL }
 };
 
@@ -240,14 +240,14 @@ pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure)
 }
 
 static PyGetSetDef pg_image_getset[] = {
-    { "angle", (getter)pg_image_get_angle, (setter)pg_image_set_angle, NULL /*TODO*/, NULL },
-    { "origin", (getter)pg_image_get_origin, (setter)pg_image_set_origin, NULL /*TODO*/, NULL },
-    { "flipX", (getter)pg_image_get_flipX, (setter)pg_image_set_flipX, NULL /*TODO*/, NULL },
-    { "flipY", (getter)pg_image_get_flipY, (setter)pg_image_set_flipY, NULL /*TODO*/, NULL },
-    { "color", (getter)pg_image_get_color, (setter)pg_image_set_color, NULL /*TODO*/, NULL },
-    { "alpha", (getter)pg_image_get_alpha, (setter)pg_image_set_alpha, NULL /*TODO*/, NULL },
-    { "texture", (getter)pg_image_get_texture, (setter)pg_image_set_texture, NULL /*TODO*/, NULL },
-    { "srcrect", (getter)pg_image_get_srcrect, (setter)pg_image_set_srcrect, NULL /*TODO*/, NULL },
+    { "angle", (getter)pg_image_get_angle, (setter)pg_image_set_angle, NULL, NULL },
+    { "origin", (getter)pg_image_get_origin, (setter)pg_image_set_origin, NULL, NULL },
+    { "flipX", (getter)pg_image_get_flipX, (setter)pg_image_set_flipX, NULL, NULL },
+    { "flipY", (getter)pg_image_get_flipY, (setter)pg_image_set_flipY, NULL, NULL },
+    { "color", (getter)pg_image_get_color, (setter)pg_image_set_color, NULL, NULL },
+    { "alpha", (getter)pg_image_get_alpha, (setter)pg_image_set_alpha, NULL, NULL },
+    { "texture", (getter)pg_image_get_texture, (setter)pg_image_set_texture, NULL, NULL },
+    { "srcrect", (getter)pg_image_get_srcrect, (setter)pg_image_set_srcrect, NULL, NULL },
     { NULL }
 };
 

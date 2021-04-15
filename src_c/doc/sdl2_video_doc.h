@@ -10,10 +10,10 @@
 #define DOC_WINDOWDESTROY "destroy() -> None\nDestroys the window."
 #define DOC_WINDOWHIDE "hide() -> None\nHide the window."
 #define DOC_WINDOWSHOW "show() -> None\nShow the window."
-#define DOC_WINDOWFOCUS "focus(input_only=False) -> None\nRaise the window above other windows and set the input focus. The "input_only" argument is only supported on X11."
+#define DOC_WINDOWFOCUS "focus(input_only=False) -> None\nRaise the window above other windows and set the input focus. The input_only argument is only supported on X11."
 #define DOC_WINDOWRESTORE "restore() -> None\nRestore the size and position of a minimized or maximized window."
 #define DOC_WINDOWMAXIMIZE "maximize() -> None\nMaximize the window."
-#define DOC_WINDOWMINIMIZE "maximize() -> None\nMinimize the window."
+#define DOC_WINDOWMINIMIZE "minimize() -> None\nMinimize the window."
 #define DOC_WINDOWRESIZABLE "resizable -> bool\nGets and sets whether the window is resizable."
 #define DOC_WINDOWBORDERLESS "borderless -> bool\nAdd or remove the border from the window."
 #define DOC_WINDOWSETICON "set_icon(surface) -> None\nSet the icon for the window."
@@ -115,7 +115,7 @@ Show the window.
 
 pygame._sdl2.video.Window.focus
  focus(input_only=False) -> None
-Raise the window above other windows and set the input focus. The "input_only" argument is only supported on X11.
+Raise the window above other windows and set the input focus. The input_only argument is only supported on X11.
 
 pygame._sdl2.video.Window.restore
  restore() -> None
@@ -126,7 +126,7 @@ pygame._sdl2.video.Window.maximize
 Maximize the window.
 
 pygame._sdl2.video.Window.minimize
- maximize() -> None
+ minimize() -> None
 Minimize the window.
 
 pygame._sdl2.video.Window.resizable

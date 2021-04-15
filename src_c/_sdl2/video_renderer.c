@@ -249,18 +249,17 @@ pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
 }
 
 static PyMethodDef pg_renderer_methods[] = {
-    { "from_window", (PyCFunction)pg_renderer_from_window, METH_VARARGS | METH_KEYWORDS | METH_CLASS, NULL /* TODO */ },
-    { "clear", (PyCFunction)pg_renderer_clear, METH_NOARGS, NULL /* TODO */ },
-    { "present", (PyCFunction)pg_renderer_present, METH_NOARGS, NULL /* TODO */ },
-    { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, NULL /* TODO */ },
-    { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, NULL /* TODO */ },
-    { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "set_viewport", (PyCFunction)pg_renderer_set_viewport, METH_O, NULL /* TODO */ },
-    { "draw_line", (PyCFunction)pg_renderer_draw_line, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "draw_point", (PyCFunction)pg_renderer_draw_point, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "draw_rect", (PyCFunction)pg_renderer_draw_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "fill_rect", (PyCFunction)pg_renderer_fill_rect, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
-    { "to_surface", (PyCFunction)pg_renderer_to_surface, METH_VARARGS | METH_KEYWORDS, NULL /* TODO */ },
+    { "from_window", (PyCFunction)pg_renderer_from_window, METH_VARARGS | METH_KEYWORDS | METH_CLASS, DOC_RENDERERFROMWINDOW},
+    { "clear", (PyCFunction)pg_renderer_clear, METH_NOARGS, DOC_RENDERERCLEAR},
+    { "present", (PyCFunction)pg_renderer_present, METH_NOARGS, DOC_RENDERERPRESENT},
+    { "get_viewport", (PyCFunction)pg_renderer_get_viewport, METH_NOARGS, DOC_RENDERERGETVIEWPORT},
+    { "set_viewport", (PyCFunction)pg_renderer_set_viewport, METH_O, DOC_RENDERERSETVIEWPORT},
+    { "blit", (PyCFunction)pg_renderer_blit, METH_VARARGS | METH_KEYWORDS, DOC_RENDERERBLIT},
+    { "draw_line", (PyCFunction)pg_renderer_draw_line, METH_VARARGS | METH_KEYWORDS, DOC_RENDERERDRAWLINE},
+    { "draw_point", (PyCFunction)pg_renderer_draw_point, METH_VARARGS | METH_KEYWORDS, DOC_RENDERERDRAWPOINT},
+    { "draw_rect", (PyCFunction)pg_renderer_draw_rect, METH_VARARGS | METH_KEYWORDS, DOC_RENDERERDRAWRECT},
+    { "fill_rect", (PyCFunction)pg_renderer_fill_rect, METH_VARARGS | METH_KEYWORDS, DOC_RENDERERFILLRECT},
+    { "to_surface", (PyCFunction)pg_renderer_to_surface, METH_VARARGS | METH_KEYWORDS, DOC_RENDERERTOSURFACE},
     { NULL }
 };
 
@@ -382,10 +381,10 @@ pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
 }
 
 static PyGetSetDef pg_renderer_getset[] = {
-    { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, NULL /*TODO*/, NULL },
-    { "logical_size", (getter)pg_renderer_get_logical_size, (setter)pg_renderer_set_logical_size, NULL /*TODO*/, NULL },
-    { "scale", (getter)pg_renderer_get_scale, (setter)pg_renderer_set_scale, NULL /*TODO*/, NULL },
-    { "target", (getter)pg_renderer_get_target, (setter)pg_renderer_set_target, NULL /*TODO*/, NULL },
+    { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, NULL, NULL },
+    { "logical_size", (getter)pg_renderer_get_logical_size, (setter)pg_renderer_set_logical_size, NULL, NULL },
+    { "scale", (getter)pg_renderer_get_scale, (setter)pg_renderer_set_scale, NULL, NULL },
+    { "target", (getter)pg_renderer_get_target, (setter)pg_renderer_set_target, NULL, NULL },
     { NULL }
 };
 
