@@ -492,7 +492,7 @@ static PyTypeObject pgRenderer_Type = {
     0L,
     0L,
     Py_TPFLAGS_DEFAULT, /* tp_flags */
-    NULL, /* TODO: docstring */
+    DOC_PYGAMESDL2VIDEORENDERER, /* docstring */
     NULL, /* tp_traverse */
     NULL, /* tp_clear */
     NULL, /* tp_richcompare */

@@ -1,6 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMESDL2VIDEO "Experimental pygame module for porting new SDL video systems"
-#define DOC_PYGAMESDL2VIDEOWINDOW "Window(title="pygame", size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window\npygame object that represents a window"
+#define DOC_PYGAMESDL2VIDEOWINDOW "Window(title='pygame', size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window\npygame object that represents a window"
 #define DOC_WINDOWFROMDISPLAYMODULE "from_display_module() -> Window\nCreates window using window created by pygame.display.set_mode()."
 #define DOC_WINDOWGRAB "grab -> bool\nGets or sets whether the mouse is confined to the window."
 #define DOC_WINDOWRELATIVEMOUSE "relative_mouse -> bool\nGets or sets the window's relative mouse motion state."
@@ -74,7 +74,7 @@ pygame.sdl2_video
 Experimental pygame module for porting new SDL video systems
 
 pygame._sdl2.video.Window
- Window(title="pygame", size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window
+ Window(title='pygame', size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window
 pygame object that represents a window
 
 pygame._sdl2.video.Window.from_display_module

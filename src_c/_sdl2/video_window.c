@@ -189,7 +189,6 @@ pg_window_set_modal_for(pgWindowObject *self, PyObject *args, PyObject *kw)
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    // TODO: this should exit gracefully if not supported, why does it segfault?
     Py_RETURN_NONE;
 }
 
@@ -220,7 +219,7 @@ pg_window_get_grab(pgWindowObject *self)
     // Window's input grab state (``True`` or ``False``).
     // https://wiki.libsdl.org/SDL_GetWindowGrab
     int grab = SDL_GetWindowGrab(self->_win);
-    if (grab) // TODO: does this work on python 2?
+    if (grab)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
@@ -240,7 +239,7 @@ pg_window_get_relative_mouse(pgWindowObject *self)
     // Window's relative mouse motion state (``True`` or ``False``).
     // https://wiki.libsdl.org/SDL_GetRelativeMouseMode
     int relative = SDL_GetRelativeMouseMode();
-    if (relative) // TODO: does this work on python 2?
+    if (relative)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
@@ -286,7 +285,7 @@ pg_window_get_resizable(pgWindowObject *self)
 {
     // Sets whether the window is resizable.
     int resizable = SDL_GetWindowFlags(self->_win) & SDL_WINDOW_RESIZABLE;
-    if (resizable) // TODO: does this work on python 2?
+    if (resizable)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
@@ -307,7 +306,7 @@ pg_window_get_borderless(pgWindowObject *self)
     // .. note:: You can't change the border state of a fullscreen window.
 
     int borderless = SDL_GetWindowFlags(self->_win) & SDL_WINDOW_BORDERLESS;
-    if (borderless) // TODO: does this work on python 2?
+    if (borderless)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
@@ -347,9 +346,6 @@ pg_window_set_size(pgWindowObject *self, PyObject *val, void *closure)
     SDL_SetWindowSize(self->_win, w, h);
     return 0;
 }
-
-// TODO: deal with this whole position system (exposing WINDOWPOS_CENTERED, UNDEFINED)
-// You could set position with one number and get position as two...
 
 static PyObject *
 pg_window_get_position(pgWindowObject *self) 
@@ -646,7 +642,7 @@ static PyTypeObject pgWindow_Type = {
     0L,
     0L,
     Py_TPFLAGS_DEFAULT, /* tp_flags */
-    NULL, /* TODO: docstring */
+    DOC_PYGAMESDL2VIDEOWINDOW, /* docstring */
     NULL, /* tp_traverse */
     NULL, /* tp_clear */
     NULL, /* tp_richcompare */

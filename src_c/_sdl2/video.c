@@ -161,7 +161,7 @@ MODINIT_DEFINE(video)
     module = PyModule_Create(&_module);
 #else
     module = Py_InitModule3(MODPREFIX "video", _pg_video_methods,
-                            NULL /* TODO: docstring */);
+                            DOC_PYGAMESDL2VIDEO);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
