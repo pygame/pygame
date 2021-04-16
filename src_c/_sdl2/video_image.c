@@ -6,7 +6,7 @@ static PyObject *
 pg_image_get_rect(pgImageObject *self) {
     SDL_Rect r = self->srcrect->r;
     PyObject* ret = pgRect_New(&r);
-    return Py_BuildValue("O", ret);
+    return ret;
 }
 
 static PyObject *
@@ -231,8 +231,10 @@ pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure)
     if (!(rect = pgRect_FromObject(val, &temp))) {
         return RAISE(PyExc_TypeError, "rect argument is invalid");
     }
-
-    Py_DECREF(self->srcrect);
+    
+    // XDECREF because it may have to handle unset srcrect = NULL
+    // when this function is called in Image init
+    Py_XDECREF(self->srcrect); 
     newrect = pgRect_New4(rect->x, rect->y, rect->w, rect->h);
     self->srcrect = newrect;
 
@@ -276,7 +278,7 @@ pg_image_init(pgImageObject *self, PyObject *args, PyObject *kw)
     }
     else if (pgImage_Check(textureOrImage)) {
         self->texture = ((pgImageObject*) textureOrImage)->texture;
-        self->srcrect = ((pgImageObject*) textureOrImage)->srcrect;
+        pg_image_set_srcrect(self, ((pgImageObject*) textureOrImage)->srcrect, NULL);
     }
     else {
         PyErr_SetString(PyExc_TypeError, "textureOrImage... must be a Texture or an Image.");
@@ -329,7 +331,7 @@ pg_image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pg_image_dealloc(pgImageObject *self) {
     Py_DECREF(self->texture);
-    //Py_DECREF(self->srcrect);
+    Py_DECREF(self->srcrect);
     Py_DECREF(self->color);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
