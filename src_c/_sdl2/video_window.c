@@ -464,18 +464,8 @@ static PyGetSetDef pg_window_getset[] = {
 };
 
 static int
-pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
-
-
-    //def __init__(self, title='pygame',
-    //             size=DEFAULT_SIZE,
-    //             position=WINDOWPOS_UNDEFINED,
-    //             bint fullscreen=False,
-    //             bint fullscreen_desktop=False, **kwargs):
-
-
-    // ignoring extensive keyword arguments for now
-
+pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw)
+ {
     char* title = "pygame";
     int x = SDL_WINDOWPOS_UNDEFINED;
     int y = SDL_WINDOWPOS_UNDEFINED;
@@ -483,6 +473,11 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
     int h = 480;
     int flags = 0;
     int fullscreen = 0, fullscreen_desktop = 0;
+    int opengl = 0, vulkan = 0, hidden = 0, borderless = 0, resizable = 0,
+    minimized = 0, maximized = 0, input_grabbed = 0, input_focus = 0,
+    mouse_focus = 0, foreign = 0, allow_highdpi = 0, mouse_capture = 0,
+    always_on_top = 0, skip_taskbar = 0, utility = 0, tooltip = 0,
+    popup_menu = 0;
 
     char* keywords[] = {
         "title",
@@ -490,6 +485,24 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
         "position",
         "fullscreen",
         "fullscreen_desktop",
+        "opengl",
+        "vulkan",
+        "hidden",
+        "borderless",
+        "resizable",
+        "minimized",
+        "maximized",
+        "input_grabbed",
+        "input_focus",
+        "mouse_focus",
+        "foreign",
+        "allow_highdpi",
+        "mouse_capture",
+        "always_on_top",
+        "skip_taskbar",
+        "utility",
+        "tooltip",
+        "popup_menu",
         NULL
     };
 
@@ -497,13 +510,18 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
     PyObject *positionobj = NULL;
 
 #if PY3
-    const char *formatstr = "|sOOpp";
+    const char *formatstr = "|sOOppppppppppppppppppp";
 #else
-    const char *formatstr = "|sOOii";
+    const char *formatstr = "|sOOiiiiiiiiiiiiiiiiiii";
 #endif
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, formatstr, keywords, &title, &sizeobj, 
-                                     &positionobj, &fullscreen, &fullscreen_desktop)) {
+                                     &positionobj, &fullscreen, &fullscreen_desktop,
+                                     &opengl, &vulkan, &hidden, &borderless, &resizable,
+                                     &minimized, &maximized, &input_grabbed, &input_focus,
+                                     &mouse_focus, &foreign, &allow_highdpi, &mouse_capture,
+                                     &always_on_top, &skip_taskbar, &utility, &tooltip,
+                                     &popup_menu)) {
         return -1;
     }
 
@@ -535,6 +553,41 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
     else if (fullscreen_desktop)
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
+    if (opengl)
+        flags |= SDL_WINDOW_OPENGL;
+    if (vulkan)
+        flags |= SDL_WINDOW_VULKAN;
+    if (hidden)
+        flags |= SDL_WINDOW_HIDDEN;
+    if (borderless)
+        flags |= SDL_WINDOW_BORDERLESS;
+    if (resizable)
+        flags |= SDL_WINDOW_RESIZABLE;
+    if (minimized)
+        flags |= SDL_WINDOW_MINIMIZED;
+    if (input_grabbed)
+        flags |= SDL_WINDOW_INPUT_GRABBED;
+    if (input_focus)
+        flags |= SDL_WINDOW_INPUT_FOCUS;
+    if (mouse_focus)
+        flags |= SDL_WINDOW_MOUSE_FOCUS;
+    if (allow_highdpi)
+        flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    if (foreign)
+        flags |= SDL_WINDOW_FOREIGN;
+    if (mouse_capture)
+        flags |= SDL_WINDOW_MOUSE_CAPTURE;
+    if (always_on_top)
+        flags |= SDL_WINDOW_ALWAYS_ON_TOP;
+    if (skip_taskbar)
+        flags |= SDL_WINDOW_SKIP_TASKBAR;
+    if (utility)
+        flags |= SDL_WINDOW_UTILITY;
+    if (tooltip)
+        flags |= SDL_WINDOW_TOOLTIP;
+    if (popup_menu)
+        flags |= SDL_WINDOW_POPUP_MENU;
+
     //https://wiki.libsdl.org/SDL_CreateWindow
     //https://wiki.libsdl.org/SDL_WindowFlags
     self->_win = SDL_CreateWindow(title, x, y, w, h, flags);
@@ -543,7 +596,6 @@ pg_window_init(pgWindowObject *self, PyObject *args, PyObject *kw) {
         return -1;
     SDL_SetWindowData(self->_win, "pg_window", self);
 
-    
     //import pygame.pkgdata
     //surf = pygame.image.load(pygame.pkgdata.getResource(
     //                         'pygame_icon.bmp'))
