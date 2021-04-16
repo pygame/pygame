@@ -3,9 +3,9 @@
  */
 
 static PyMemberDef pg_texture_members[] = {
-    { "renderer", T_OBJECT_EX, offsetof(pgTextureObject, renderer), READONLY, NULL /* TODO */ },
-    { "width", T_INT, offsetof(pgTextureObject, width), READONLY, NULL /* TODO */ },
-    { "height", T_INT, offsetof(pgTextureObject, height), READONLY, NULL /* TODO */ },
+    { "renderer", T_OBJECT_EX, offsetof(pgTextureObject, renderer), READONLY, DOC_TEXTURERENDERER},
+    { "width", T_INT, offsetof(pgTextureObject, width), READONLY, DOC_TEXTUREWIDTH},
+    { "height", T_INT, offsetof(pgTextureObject, height), READONLY, DOC_TEXTUREHEIGHT},
     { NULL }
 };
 
@@ -318,9 +318,12 @@ pg_texture_set_mode(pgTextureObject *self, PyObject *val, void *closure)
 }
 
 static PyGetSetDef pg_texture_getset[] = {
-    { "color", (getter)pg_texture_get_color, (setter)pg_texture_set_color, NULL, NULL },
-    { "alpha", (getter)pg_texture_get_alpha, (setter)pg_texture_set_alpha, NULL, NULL },
-    { "blend_mode", (getter)pg_texture_get_mode, (setter)pg_texture_set_mode, NULL, NULL },
+    { "color", (getter)pg_texture_get_color, (setter)pg_texture_set_color, 
+    DOC_TEXTURECOLOR, NULL },
+    { "alpha", (getter)pg_texture_get_alpha, (setter)pg_texture_set_alpha, 
+    DOC_TEXTUREALPHA, NULL },
+    { "blend_mode", (getter)pg_texture_get_mode, (setter)pg_texture_set_mode, 
+    DOC_TEXTUREBLENDMODE, NULL },
     { NULL }
 };
 

@@ -228,7 +228,16 @@ static PyObject *
 pg_window_set_grab(pgWindowObject *self, PyObject *val, void *closure) 
 {
     // https://wiki.libsdl.org/SDL_SetWindowGrab
-    int grab = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `window.grab = "wow"`
+
+    // This should be in the final release, but it's incompatible with Cython _sdl2.video
+    /*
+    if (!PyBool_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "The grab value must be a boolean");
+        return -1;
+    }
+    */
+
+    int grab = PyObject_IsTrue(val);
     SDL_SetWindowGrab(self->_win, grab);
     return 0;
 }
@@ -248,7 +257,16 @@ static PyObject *
 pg_window_set_relative_mouse(pgWindowObject *self, PyObject *val, void *closure) 
 {
     // https://wiki.libsdl.org/SDL_SetRelativeMouseMode
-    int relative = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `window.relative_mouse = "wow"`
+
+    // This should be in the final release, but it's incompatible with Cython _sdl2.video
+    /*
+    if (!PyBool_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "The relative_mouse value must be a boolean");
+        return -1;
+    }
+    */
+
+    int relative = PyObject_IsTrue(val);
     SDL_SetRelativeMouseMode(relative);
     return 0;
 }
@@ -294,7 +312,16 @@ static PyObject *
 pg_window_set_resizable(pgWindowObject *self, PyObject *val, void *closure) 
 {
     // https://wiki.libsdl.org/SDL_SetWindowResizable
-    int resizable = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `window.borderless = "wow"`
+
+    // This should be in the final release, but it's incompatible with Cython _sdl2.video
+    /*
+    if (!PyBool_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "The resizable value must be a boolean");
+        return -1;
+    }
+    */
+
+    int resizable = PyObject_IsTrue(val);
     SDL_SetWindowResizable(self->_win, resizable);
     return 0;
 }
@@ -315,7 +342,16 @@ static PyObject *
 pg_window_set_borderless(pgWindowObject *self, PyObject *val, void *closure) 
 {
     // https://wiki.libsdl.org/SDL_SetWindowBordered
-    int borderless = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `window.borderless = "wow"`
+
+    // This should be in the final release, but it's incompatible with Cython _sdl2.video
+    /*
+    if (!PyBool_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "The borderless value must be a boolean");
+        return -1;
+    }
+    */
+
+    int borderless = PyObject_IsTrue(val);
     SDL_SetWindowBordered(self->_win, 1-borderless);
     return 0;
 }
@@ -445,17 +481,28 @@ pg_window_get_display_index(pgWindowObject *self)
 }
 
 static PyGetSetDef pg_window_getset[] = {
-    { "grab", (getter)pg_window_get_grab, (setter)pg_window_set_grab, NULL, NULL },
-    { "relative_mouse", (getter)pg_window_get_relative_mouse, (setter)pg_window_set_relative_mouse, NULL, NULL },
-    { "title", (getter)pg_window_get_title, (setter)pg_window_set_title, NULL, NULL },
-    { "resizable", (getter)pg_window_get_resizable, (setter)pg_window_set_resizable, NULL, NULL },
-    { "borderless", (getter)pg_window_get_borderless, (setter)pg_window_set_borderless, NULL, NULL },
-    { "id", (getter)pg_window_get_id, NULL, NULL, NULL },
-    { "size", (getter)pg_window_get_size, (setter)pg_window_set_size, NULL, NULL },
-    { "position", (getter)pg_window_get_position, (setter)pg_window_set_position, NULL, NULL },
-    { "opacity", (getter)pg_window_get_opacity, (setter)pg_window_set_opacity, NULL, NULL },
-    { "brightness", (getter)pg_window_get_brightness, (setter)pg_window_set_brightness, NULL, NULL },
-    { "display_index", (getter)pg_window_get_display_index, NULL, NULL, NULL },
+    { "grab", (getter)pg_window_get_grab, (setter)pg_window_set_grab, 
+    DOC_WINDOWGRAB, NULL },
+    { "relative_mouse", (getter)pg_window_get_relative_mouse, (setter)pg_window_set_relative_mouse, 
+    DOC_WINDOWRELATIVEMOUSE, NULL },
+    { "title", (getter)pg_window_get_title, (setter)pg_window_set_title,
+    DOC_WINDOWTITLE, NULL },
+    { "resizable", (getter)pg_window_get_resizable, (setter)pg_window_set_resizable, 
+    DOC_WINDOWRESIZABLE, NULL },
+    { "borderless", (getter)pg_window_get_borderless, (setter)pg_window_set_borderless, 
+    DOC_WINDOWBORDERLESS, NULL },
+    { "id", (getter)pg_window_get_id, NULL, 
+    DOC_WINDOWID, NULL },
+    { "size", (getter)pg_window_get_size, (setter)pg_window_set_size, 
+    DOC_WINDOWSIZE, NULL },
+    { "position", (getter)pg_window_get_position, (setter)pg_window_set_position, 
+    DOC_WINDOWPOSITION, NULL },
+    { "opacity", (getter)pg_window_get_opacity, (setter)pg_window_set_opacity, 
+    DOC_WINDOWOPACITY, NULL },
+    { "brightness", (getter)pg_window_get_brightness, (setter)pg_window_set_brightness, 
+    DOC_WINDOWBRIGHTNESS, NULL },
+    { "display_index", (getter)pg_window_get_display_index, NULL, 
+    DOC_WINDOWDISPLAYINDEX, NULL },
     { NULL }
 };
 

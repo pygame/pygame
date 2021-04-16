@@ -455,10 +455,14 @@ pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
 }
 
 static PyGetSetDef pg_renderer_getset[] = {
-    { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, NULL, NULL },
-    { "logical_size", (getter)pg_renderer_get_logical_size, (setter)pg_renderer_set_logical_size, NULL, NULL },
-    { "scale", (getter)pg_renderer_get_scale, (setter)pg_renderer_set_scale, NULL, NULL },
-    { "target", (getter)pg_renderer_get_target, (setter)pg_renderer_set_target, NULL, NULL },
+    { "draw_color", (getter)pg_renderer_get_color, (setter)pg_renderer_set_color, 
+    DOC_RENDERERDRAWCOLOR, NULL },
+    { "logical_size", (getter)pg_renderer_get_logical_size, (setter)pg_renderer_set_logical_size, 
+    DOC_RENDERERLOGICALSIZE, NULL },
+    { "scale", (getter)pg_renderer_get_scale, (setter)pg_renderer_set_scale, 
+    DOC_RENDERERSCALE, NULL },
+    { "target", (getter)pg_renderer_get_target, (setter)pg_renderer_set_target, 
+    DOC_RENDERERTARGET, NULL },
     { NULL }
 };
 
@@ -493,7 +497,8 @@ pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
         return -1;
     }
 
-    /* TODO: check window */
+    if (!pgWindow_Check(winobj))
+        return RAISE(PyExc_TypeError, "window must be a Window");
     Py_INCREF(winobj);
     self->window = (pgWindowObject*)winobj;
 

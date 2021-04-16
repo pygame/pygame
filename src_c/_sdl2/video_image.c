@@ -129,7 +129,15 @@ pg_image_get_flipX(pgImageObject *self)
 static PyObject *
 pg_image_set_flipX(pgImageObject *self, PyObject *val, void *closure) 
 {
-    int flipX = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `Image.flipX = "wow"`
+    // This should be in the final release, but it's incompatible with Cython _sdl2.video
+    /*
+    if (!PyBool_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "The flipX value must be a boolean");
+        return -1;
+    }
+    */
+
+    int flipX = PyObject_IsTrue(val);
     self->flipX = flipX;
     return 0;
 }
@@ -145,7 +153,15 @@ pg_image_get_flipY(pgImageObject *self)
 static PyObject *
 pg_image_set_flipY(pgImageObject *self, PyObject *val, void *closure) 
 {
-    int flipY = PyObject_IsTrue(val); // TODO: is this crazy? allows stuff like `Image.flipY = "wow"`
+    // This should be in the final release, but it's incompatible with Cython _sdl2.video
+    /*
+    if (!PyBool_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "The flipY value must be a boolean");
+        return -1;
+    }
+    */
+
+    int flipY = PyObject_IsTrue(val);
     self->flipY = flipY;
     return 0;
 }
@@ -242,14 +258,22 @@ pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure)
 }
 
 static PyGetSetDef pg_image_getset[] = {
-    { "angle", (getter)pg_image_get_angle, (setter)pg_image_set_angle, NULL, NULL },
-    { "origin", (getter)pg_image_get_origin, (setter)pg_image_set_origin, NULL, NULL },
-    { "flipX", (getter)pg_image_get_flipX, (setter)pg_image_set_flipX, NULL, NULL },
-    { "flipY", (getter)pg_image_get_flipY, (setter)pg_image_set_flipY, NULL, NULL },
-    { "color", (getter)pg_image_get_color, (setter)pg_image_set_color, NULL, NULL },
-    { "alpha", (getter)pg_image_get_alpha, (setter)pg_image_set_alpha, NULL, NULL },
-    { "texture", (getter)pg_image_get_texture, (setter)pg_image_set_texture, NULL, NULL },
-    { "srcrect", (getter)pg_image_get_srcrect, (setter)pg_image_set_srcrect, NULL, NULL },
+    { "angle", (getter)pg_image_get_angle, (setter)pg_image_set_angle, 
+    DOC_IMAGEANGLE, NULL },
+    { "origin", (getter)pg_image_get_origin, (setter)pg_image_set_origin, 
+    DOC_IMAGEORIGIN, NULL },
+    { "flipX", (getter)pg_image_get_flipX, (setter)pg_image_set_flipX, 
+    DOC_IMAGEFLIPX, NULL },
+    { "flipY", (getter)pg_image_get_flipY, (setter)pg_image_set_flipY, 
+    DOC_IMAGEFLIPY, NULL },
+    { "color", (getter)pg_image_get_color, (setter)pg_image_set_color, 
+    DOC_IMAGECOLOR, NULL },
+    { "alpha", (getter)pg_image_get_alpha, (setter)pg_image_set_alpha, 
+    DOC_IMAGEALPHA, NULL },
+    { "texture", (getter)pg_image_get_texture, (setter)pg_image_set_texture, 
+    DOC_IMAGETEXTURE, NULL },
+    { "srcrect", (getter)pg_image_get_srcrect, (setter)pg_image_set_srcrect, 
+    DOC_IMAGESRCRECT, NULL },
     { NULL }
 };
 
