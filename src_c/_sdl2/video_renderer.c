@@ -244,8 +244,83 @@ pg_renderer_fill_rect(pgRendererObject *self, PyObject *args, PyObject *kw) {
 
 static PyObject *
 pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
-    //TODO: implement
-    Py_RETURN_NONE;
+    // https://wiki.libsdl.org/SDL_RenderReadPixels
+
+    Uint32 format;
+    SDL_Rect rarea;
+    SDL_Rect tempviewport;
+    SDL_Rect *areaparam;
+    SDL_Surface *surf;
+    SDL_Rect *rectptr;
+
+    PyObject *surfaceobj = NULL;
+    PyObject *area = NULL;
+
+    PyObject *surface;
+
+    static char *keywords[] = {
+        "surface",
+        "area",
+        NULL
+    };
+
+    if(!PyArg_ParseTupleAndKeywords(args, kw, "|OO", keywords,
+                                    &surfaceobj, &area)) {
+        return NULL;
+    }
+
+    // obtain area to use
+    if (area) {
+        rectptr = pgRect_FromObject(area, &rarea);
+        if (!rectptr)
+            return RAISE(PyExc_TypeError, "area must be None or a Rect");
+
+        SDL_RenderGetViewport(self->renderer, &tempviewport);
+        SDL_IntersectRect(rectptr, &tempviewport, rectptr);
+
+        areaparam = rectptr;
+        rarea.x = rectptr->x;
+        rarea.y = rectptr->y;
+        rarea.w = rectptr->w;
+        rarea.h = rectptr->h;
+    }
+    else {
+        SDL_RenderGetViewport(self->renderer, &rarea);
+        areaparam = NULL;
+    }
+
+    // prepare surface
+    if (!surfaceobj) {
+        // create a new surface
+        format = SDL_GetWindowPixelFormat(self->window->_win);
+        if (format == SDL_PIXELFORMAT_UNKNOWN)
+            return RAISE(pgExc_SDLError, SDL_GetError());
+
+        surf = SDL_CreateRGBSurfaceWithFormat(0, rarea.w, 
+                                              rarea.h,
+                                              SDL_BITSPERPIXEL(format),
+                                              format);
+        if (!surf)
+            return RAISE(PyExc_MemoryError, "not enough memory for the surface");
+
+        surface = (PyObject*)pgSurface_New2(surf, 1);
+    }
+    else if (pgSurface_Check(surfaceobj)) {
+        surf = pgSurface_AsSurface(surfaceobj);
+        if (surf->w < rarea.w || surf->h < rarea.h)
+            return RAISE(PyExc_ValueError, "the surface is too small");
+        format = surf->format->format;
+    }
+    else {
+        return RAISE(PyExc_TypeError, "surface must be a Surface or None");
+    }
+
+    if (SDL_RenderReadPixels(self->renderer,
+                            areaparam,
+                            format, surf->pixels, surf->pitch) < 0)
+        return RAISE(pgExc_SDLError, SDL_GetError());
+
+    return surface;
 }
 
 static PyMethodDef pg_renderer_methods[] = {
