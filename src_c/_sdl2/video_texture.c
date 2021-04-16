@@ -245,20 +245,20 @@ pg_texture_get_color(pgTextureObject *self, void *closure)
 static int
 pg_texture_set_color(pgTextureObject *self, PyObject *val, void *closure)
 {
-    Uint8 *colarray = pgColor_AsArray(self->color);
-    if (!pg_RGBAFromColorObj(val, colarray)) {
+    Uint8 rgba[4] = {0, 0, 0, 0};
+    if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
     }
 
     if (SDL_SetTextureColorMod(self->texture,
-                               colarray[0], colarray[1], colarray[2]) < 0) {
+                               rgba[0], rgba[1], rgba[2]) < 0) {
         RAISE(pgExc_SDLError, SDL_GetError());
         return -1;
     }
 
     Py_DECREF(self->color);
-    self->color = (pgColorObject*)pgColor_New(colarray);
+    self->color = (pgColorObject*)pgColor_New(rgba);
 
     return 0;
 }

@@ -161,14 +161,14 @@ pg_image_get_color(pgImageObject *self)
 static PyObject *
 pg_image_set_color(pgImageObject *self, PyObject *val, void *closure) 
 {
-    Uint8 *colarray[4] = {0, 0, 0, 255}; 
-    if (!pg_RGBAFromColorObj(val, colarray)) {
+    Uint8 rgba[4] = {0, 0, 0, 0};
+    if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
     }
 
     Py_DECREF(self->color);
-    self->color = (pgColorObject*)pgColor_New(colarray);
+    self->color = (pgColorObject*)pgColor_New(rgba);
 
     return 0;
 }
@@ -329,7 +329,7 @@ pg_image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pg_image_dealloc(pgImageObject *self) {
     Py_DECREF(self->texture);
-    Py_DECREF(self->srcrect);
+    //Py_DECREF(self->srcrect);
     Py_DECREF(self->color);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }

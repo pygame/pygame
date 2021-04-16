@@ -328,21 +328,20 @@ pg_renderer_get_color(pgRendererObject *self, void *closure)
 static int
 pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
 {
-    Uint8 *colarray = pgColor_AsArray(self->drawcolor); 
-    if (!pg_RGBAFromColorObj(val, colarray)) {
+    Uint8 rgba[4] = {0, 0, 0, 0};
+    if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
         RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
     }
 
     if (SDL_SetRenderDrawColor(self->renderer,
-                               colarray[0], colarray[1],
-                               colarray[2], colarray[3]) < 0) {
+                               rgba[0], rgba[1], rgba[2], rgba[3]) < 0) {
         RAISE(pgExc_SDLError, SDL_GetError());
         return -1;
     }
 
     Py_DECREF(self->drawcolor);
-    self->drawcolor = (pgColorObject*)pgColor_New(colarray);
+    self->drawcolor = (pgColorObject*)pgColor_New(rgba);
 
     return 0;
 }
