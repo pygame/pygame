@@ -1,4 +1,5 @@
 from cpython cimport PyObject
+from cpython.pycapsule cimport PyCapsule_GetPointer
 from . import error
 from . import error as errorfnc
 from libc.stdlib cimport free, malloc
@@ -104,14 +105,12 @@ def messagebox(title, message,
     if info:
         data.flags |= _SDL_MESSAGEBOX_INFORMATION
 
-    # What it used to be
-    """
     if not window:
         data.window = NULL
     else:
-        data.window = # somehow get window pointer
-    """
-    data.window = NULL
+        x = window._get_cpointer()
+        # what does the window field of MessageBoxData do?
+        data.window = <SDL_Window *>PyCapsule_GetPointer(x, NULL)
 
     if title is not None:
         title = title.encode('utf8')

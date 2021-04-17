@@ -192,9 +192,9 @@ pg_window_set_modal_for(pgWindowObject *self, PyObject *args, PyObject *kw)
     Py_RETURN_NONE;
 }
 
-static SDL_Window*
-pg_window_get_pointer(pgWindowObject *self) {
-    return self->_win;
+static PyObject*
+pg_window_get_cpointer(pgWindowObject *self) {
+    return PyCapsule_New(self->_win, NULL, NULL);
 }
 
 static PyMethodDef pg_window_methods[] = {
@@ -210,6 +210,7 @@ static PyMethodDef pg_window_methods[] = {
     { "minimize", (PyCFunction)pg_window_minimize, METH_NOARGS, DOC_WINDOWMINIMIZE},
     { "set_icon", (PyCFunction)pg_window_set_icon, METH_VARARGS | METH_KEYWORDS, DOC_WINDOWSETICON},
     { "set_modal_for", (PyCFunction)pg_window_set_modal_for, METH_VARARGS | METH_KEYWORDS, DOC_WINDOWSETMODALFOR},
+    { "_get_cpointer", (PyCFunction)pg_window_get_cpointer, METH_NOARGS, NULL},
     { NULL }
 };
 
