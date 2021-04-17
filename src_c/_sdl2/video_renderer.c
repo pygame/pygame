@@ -4,9 +4,7 @@
 
 static PyObject *
 pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
-    // TODO: implement this function properly
-    // From reading the code in video.pyx, I don't understand how is supposed to operate
-    // Update: I think it's supposed to be the complement to Window.from_display_module() for renderers
+    // What is the purpose of this function? I don't understand it from the Cython.
 
     char* keywords[] = {
         "window",
@@ -25,15 +23,20 @@ pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
         return NULL;
     }
 
-    // TODO: manage window object lifecycle? Increase refcount, decrease on dealloc?
-
     pgRendererObject* renderer = pg_renderer_new((PyTypeObject*)cls, NULL, NULL);
     renderer->window = (pgWindowObject *) window;
+
+    if (renderer->window->_is_borrowed)
+        renderer->_is_borrowed = 1;
+    else //what is the meaning of this? I just copied it from the Cython
+        return RAISE(pgExc_SDLError, "Cython translation error");
+
     renderer->renderer = SDL_GetRenderer(renderer->window->_win);
     if (!renderer->renderer) {
-        RAISE(pgExc_SDLError, "I'm confused about what this function is supposed to do");
-        return NULL;
+        return RAISE(pgExc_SDLError, "Couldn't get Renderer from this Window");
     }
+
+    Py_INCREF(renderer->window);
 
     return (PyObject*)renderer;
 }

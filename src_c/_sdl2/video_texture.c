@@ -209,10 +209,6 @@ pg_texture_update(pgTextureObject *self, PyObject *args, PyObject *kw)
         return NULL;
     }
 
-    if (!pgSurface_Check(surfobj)) { // TODO: Necessary? since it's being parsed as a pgSurface_Type, it might not be.
-        return RAISE(PyExc_TypeError, "not a surface");
-    }
-
     surf = pgSurface_AsSurface(surfobj);
 
     rectptr = pgRect_FromObject(area, &rect);

@@ -144,6 +144,7 @@ pg_window_minimize(pgWindowObject *self)
 }
 
 // TODO: make this function actually work
+// It doesn't work in Cython implementation either
 static PyObject *
 pg_window_set_icon(pgWindowObject *self, PyObject *args, PyObject *kw)
 {
