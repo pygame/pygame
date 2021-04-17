@@ -16,7 +16,7 @@
 .. class:: Window
 
    | :sl:`pygame object that represents a window`
-   | :sg:`Window(title="pygame", size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window`
+   | :sg:`Window(title='pygame', size=(640, 480), position=None, fullscreen=False, fullscreen_desktop=False, keywords) -> Window`
 
    .. classmethod:: from_display_module
    
@@ -65,7 +65,7 @@
 
    .. method:: focus
 
-      | :sl:`Raise the window above other windows and set the input focus. The "input_only" argument is only supported on X11.`
+      | :sl:`Raise the window above other windows and set the input focus. The input_only argument is only supported on X11.`
       | :sg:`focus(input_only=False) -> None`
 
    .. method:: restore
@@ -78,10 +78,12 @@
       | :sl:`Maximize the window.`
       | :sg:`maximize() -> None`
 
+      .. Note:: The window must be ``RESIZABLE`` for this to work
+
    .. method:: minimize
 
       | :sl:`Minimize the window.`
-      | :sg:`maximize() -> None`
+      | :sg:`minimize() -> None`
 
    .. attribute:: resizable
 

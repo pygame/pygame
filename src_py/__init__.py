@@ -305,6 +305,11 @@ try:
 except (ImportError, IOError):
     fastevent = MissingModule("fastevent", urgent=0)
 
+try:
+    import pygame.video
+except:
+    video = MissingModule("video", urgent=0)
+
 # there's also a couple "internal" modules not needed
 # by users, but putting them here helps "dependency finder"
 # programs get everything they need (like py2exe)

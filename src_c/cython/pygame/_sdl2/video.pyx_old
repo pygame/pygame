@@ -223,7 +223,7 @@ cdef class Window:
 
         :param str title: the title of the window, in UTF-8 encoding
         :param tuple size: the size of the window, in screen coordinates (width, height)
-        :param position: a tuple specifying the window position, WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
+        :param tuple position: the window position (x,y), WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
         :param bool fullscreen: fullscreen window using the window size as the resolution (videomode change)
         :param bool fullscreen_desktop: fullscreen window using the current desktop resolution
         :param bool opengl: Usable with OpenGL context. You will still need to create an OpenGL context.
@@ -1044,6 +1044,27 @@ cdef class Renderer:
         SDL_RenderGetViewport(self._renderer, &rect)
         return pgRect_New(&rect)
 
+    def set_viewport(self, area):
+        """ Set the drawing area on the target.
+        If this is set to ``None``, the entire target will be used.
+
+        :param area: A ``pygame.Rect`` or tuple representing the
+                     drawing area on the target, or None.
+        """
+        # https://wiki.libsdl.org/SDL_RenderSetViewport
+        if area is None:
+            if SDL_RenderSetViewport(self._renderer, NULL) < 0:
+                raise error()
+            return
+
+        cdef SDL_Rect tmprect
+        cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
+        if rectptr == NULL:
+            raise TypeError('expected a rectangle')
+
+        if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
+            raise error()
+
     @property
     def logical_size(self):
         cdef int w
@@ -1075,28 +1096,6 @@ cdef class Renderer:
     # TODO ifdef
     # def is_integer_scale(self):
     #     return SDL_RenderGetIntegerScale(self._renderer)
-
-    def set_viewport(self, area):
-        """ Set the drawing area on the target.
-        If this is set to ``None``, the entire target will be used.
-
-        :param area: A ``pygame.Rect`` or tuple representing the
-                     drawing area on the target, or None.
-        """
-        # https://wiki.libsdl.org/SDL_RenderSetViewport
-        if area is None:
-            if SDL_RenderSetViewport(self._renderer, NULL) < 0:
-                raise error()
-            return
-
-        cdef SDL_Rect tmprect
-        cdef SDL_Rect *rectptr = pgRect_FromObject(area, &tmprect)
-        if rectptr == NULL:
-            raise TypeError('expected a rectangle')
-
-        if SDL_RenderSetViewport(self._renderer, rectptr) < 0:
-            raise error()
-
 
     @property
     def target(self):

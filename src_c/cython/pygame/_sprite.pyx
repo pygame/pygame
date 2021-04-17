@@ -120,7 +120,9 @@ cdef extern from "_pygame.h" nogil:
 
 #import_pygame_rect()
 
-from ._sdl2.video cimport *
+#from ._sdl2.video cimport *
+
+from pygame._sdl2.video import Renderer
 
 cdef class AbstractGroup
 
@@ -510,7 +512,7 @@ cdef class AbstractGroup:
 
         if isinstance(surface, Renderer):
             for spr in sprites:
-                ret = (<Renderer>surface).blit(spr.image, spr.rect)
+                ret = Renderer.blit(spr.image, spr.rect)
                 PyDict_SetItem(spritedict, spr, ret)
         else:
             surface_blit = surface.blit
