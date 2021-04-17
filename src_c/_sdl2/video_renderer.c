@@ -116,7 +116,8 @@ pg_renderer_get_viewport(pgRendererObject *self, PyObject *args)
 static PyObject *
 pg_renderer_set_viewport(pgRendererObject *self, PyObject *area)
 {
-    SDL_Rect rect;
+    SDL_Rect tmprect;
+    SDL_Rect *rectptr;
 
     if (area == NULL || area == Py_None) {
         if (SDL_RenderSetViewport(self->renderer, NULL) < 0) {
@@ -125,11 +126,12 @@ pg_renderer_set_viewport(pgRendererObject *self, PyObject *area)
         Py_RETURN_NONE;
     }
 
-    if (pgRect_FromObject(area, &rect) == NULL) {
+    rectptr = pgRect_FromObject(area, &tmprect);
+    if (rectptr == NULL)
         return RAISE(PyExc_TypeError, "the argument must be a rectangle "
                                       "or None");
-    }
-    if (SDL_RenderSetViewport(self->renderer, &rect) < 0) {
+
+    if (SDL_RenderSetViewport(self->renderer, rectptr) < 0) {
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
