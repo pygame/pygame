@@ -12,6 +12,7 @@ pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
     };
 
     PyObject* window;
+    pgRendererObject* renderer;
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, "O", keywords,
                                      &window)) {
@@ -23,7 +24,7 @@ pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
         return NULL;
     }
 
-    pgRendererObject* renderer = pg_renderer_new((PyTypeObject*)cls, NULL, NULL);
+    renderer = (pgRendererObject*)pg_renderer_new((PyTypeObject*)cls, NULL, NULL);
     renderer->window = (pgWindowObject *) window;
 
     if (renderer->window->_is_borrowed)
@@ -358,13 +359,13 @@ pg_renderer_set_logical_size(pgRendererObject *self, PyObject *val, void *closur
     //https://wiki.libsdl.org/SDL_RenderSetLogicalSize
     int w, h;
     if (!pg_TwoIntsFromObj(val, &w, &h)) {
-        RAISE(PyExc_TypeError,
-            "logical_size should be a sequence of two ints.");
+        PyErr_SetString(PyExc_TypeError, 
+                        "logical_size should be a sequence of two ints.");
         return -1;
     }
 
     if(SDL_RenderSetLogicalSize(self->renderer, w, h) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     return 0;
@@ -385,13 +386,13 @@ pg_renderer_set_scale(pgRendererObject *self, PyObject *val, void *closure)
     //https://wiki.libsdl.org/SDL_RenderSetScale
     float x, y;
     if (!pg_TwoFloatsFromObj(val, &x, &y)) {
-        RAISE(PyExc_TypeError,
+        PyErr_SetString(PyExc_TypeError,
             "scale should be a sequence of two floats.");
         return -1;
     }
 
     if(SDL_RenderSetScale(self->renderer, x, y) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     return 0;
@@ -410,13 +411,13 @@ pg_renderer_set_color(pgRendererObject *self, PyObject *val, void *closure)
 {
     Uint8 rgba[4] = {0, 0, 0, 0};
     if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
-        RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
+        PyErr_SetString(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
     }
 
     if (SDL_SetRenderDrawColor(self->renderer,
                                rgba[0], rgba[1], rgba[2], rgba[3]) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
 
@@ -445,8 +446,7 @@ pg_renderer_set_target(pgRendererObject *self, PyObject *val, void *closure)
     if(pgTexture_Check(val)) {
         newtarget = (pgTextureObject*)val;
     }
-    else if (val == Py_None) {}
-    else {
+    else if (val != Py_None) {
         return RAISE(PyExc_TypeError, "Target must be a Texture or None.");
     }
         
@@ -502,8 +502,11 @@ pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
         return -1;
     }
 
-    if (!pgWindow_Check(winobj))
-        return RAISE(PyExc_TypeError, "window must be a Window");
+    if (!pgWindow_Check(winobj)) {
+        PyErr_SetString(PyExc_TypeError, "window must be a Window");
+        return -1;
+    }
+
     Py_INCREF(winobj);
     self->window = (pgWindowObject*)winobj;
 
@@ -521,8 +524,8 @@ pg_renderer_init(pgRendererObject *self, PyObject *args, PyObject *kw)
     self->renderer =
         SDL_CreateRenderer(self->window->_win, index, flags);
     if (self->renderer == NULL) {
-        RAISE(pgExc_SDLError, SDL_GetError());
-        return 0;
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
     }
     return 0;
 }

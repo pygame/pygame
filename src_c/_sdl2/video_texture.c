@@ -60,7 +60,7 @@ pgTexture_Draw(pgTextureObject *self,
                          srcrect, dstrect,
                          angle, origin ? &pointorigin : NULL,
                          flip) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     return 0;
@@ -76,7 +76,7 @@ pgTexture_DrawObj(pgTextureObject *self, PyObject *srcrect, PyObject *dstrect)
 
     if (srcrect && srcrect != Py_None) {
         if (!(srcptr = pgRect_FromObject(srcrect, &src))) {
-            RAISE(PyExc_TypeError, "srcrect must be a rectangle");
+            PyErr_SetString(PyExc_TypeError, "srcrect must be a rectangle");
             return -1;
         }
     }
@@ -88,8 +88,8 @@ pgTexture_DrawObj(pgTextureObject *self, PyObject *srcrect, PyObject *dstrect)
                 dstptr = &dst;
             }
             else {
-                RAISE(PyExc_TypeError, "dstrect must be a rectangle or "
-                                       "a position");
+                PyErr_SetString(PyExc_TypeError, "dstrect must be a rectangle or "
+                                "a position");
                 return -1;
             }
         }
@@ -243,13 +243,13 @@ pg_texture_set_color(pgTextureObject *self, PyObject *val, void *closure)
 {
     Uint8 rgba[4] = {0, 0, 0, 0};
     if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
-        RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
+        PyErr_SetString(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
     }
 
     if (SDL_SetTextureColorMod(self->texture,
                                rgba[0], rgba[1], rgba[2]) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
 
@@ -270,17 +270,17 @@ pg_texture_set_alpha(pgTextureObject *self, PyObject *val, void *closure)
 {
     int alpha;
     if ((alpha = PyLong_AsLong(val)) == -1 && PyErr_Occurred()) {
-        RAISE(PyExc_TypeError, "alpha should be an integer");
+        PyErr_SetString(PyExc_TypeError, "alpha should be an integer");
         return -1;
     }
     if (alpha < 0 || alpha > 255) {
-        RAISE(PyExc_ValueError, "alpha should be between 0 and 255 (inclusive)");
+        PyErr_SetString(PyExc_ValueError, "alpha should be between 0 and 255 (inclusive)");
         return -1;
     }
 
     self->alpha = (Uint8)alpha;
     if (SDL_SetTextureAlphaMod(self->texture, self->alpha) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     return 0;
@@ -291,7 +291,8 @@ pg_texture_get_mode(pgTextureObject *self, void *closure)
 {
     SDL_BlendMode mode;
     if (SDL_GetTextureBlendMode(self->texture, &mode) < 0) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return -1;
     }
     return PyLong_FromLong(mode);
 }
@@ -301,13 +302,13 @@ pg_texture_set_mode(pgTextureObject *self, PyObject *val, void *closure)
 {
     int mode;
     if ((mode = PyLong_AsLong(val)) == -1 && PyErr_Occurred()) {
-        RAISE(PyExc_TypeError, "mode should be an integer");
+        PyErr_SetString(PyExc_TypeError, "mode should be an integer");
         return -1;
     }
     /* TODO: check values */
 
     if (SDL_SetTextureBlendMode(self->texture, (SDL_BlendMode)mode) < 0) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
     return 0;
@@ -342,8 +343,8 @@ format_from_depth(int depth)
         Amask = 0xF << 24;
         break;
     default:
-        RAISE(PyExc_ValueError,
-              "no standard masks exist for given bitdepth with alpha");
+        PyErr_SetString(PyExc_ValueError,
+                        "no standard masks exist for given bitdepth with alpha");
         return 0;
     }
     return SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
@@ -385,19 +386,19 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
     }
 
     if (!pgRenderer_Check(renderobj)) {
-        RAISE(PyExc_TypeError, "not a renderer object");
+        PyErr_SetString(PyExc_TypeError, "not a renderer object");
         return -1;
     }
     self->renderer = (pgRendererObject*) renderobj;
     Py_INCREF(renderobj);
 
     if (!pg_TwoIntsFromObj(sizeobj, &self->width, &self->height)) {
-        RAISE(PyExc_TypeError,
+        PyErr_SetString(PyExc_TypeError,
               "size should be a sequence of two elements");
         return -1;
     }
     if (self->width <= 0 || self->height <= 0) {
-        RAISE(PyExc_ValueError,
+        PyErr_SetString(PyExc_ValueError,
               "width and height must be positive");
         return -1;
     }
@@ -438,7 +439,7 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
         self->width, self->height);
 
     if (!self->texture) {
-        RAISE(pgExc_SDLError, SDL_GetError());
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
 
@@ -446,7 +447,7 @@ pg_texture_init(pgTextureObject *self, PyObject *args, PyObject *kw)
 
 ACCESS_ERROR:
 
-    RAISE(PyExc_ValueError, "only one of static, streaming, "
+    PyErr_SetString(PyExc_ValueError, "only one of static, streaming, "
                             "or target can be true");
     return -1;
 }
@@ -501,15 +502,13 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
 
     Py_INCREF(textureobj->renderer);
     if (!pgRenderer_Check(textureobj->renderer)) {
-        RAISE(PyExc_TypeError, "not a renderer object");
         pg_texture_dealloc(textureobj);
-        return NULL;
+        return RAISE(PyExc_TypeError, "not a renderer object");
     }
 
     if (!pgSurface_Check(surfaceobj)) {
-        RAISE(PyExc_TypeError, "not a surface");
         pg_texture_dealloc(textureobj);
-        return NULL;
+        return RAISE(PyExc_TypeError, "not a surface");
     }
     surf = pgSurface_AsSurface((pgSurfaceObject*) surfaceobj);
 
@@ -518,9 +517,8 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
     textureobj->texture = SDL_CreateTextureFromSurface(
         textureobj->renderer->renderer, surf);
     if (!textureobj->texture) {
-        RAISE(pgExc_SDLError, SDL_GetError());
         pg_texture_dealloc(textureobj);
-        return NULL;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     return textureobj;

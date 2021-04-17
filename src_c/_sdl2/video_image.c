@@ -179,7 +179,7 @@ pg_image_set_color(pgImageObject *self, PyObject *val, void *closure)
 {
     Uint8 rgba[4] = {0, 0, 0, 0};
     if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
-        RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
+        PyErr_SetString(PyExc_TypeError, "expected a color (sequence of color object)");
         return -1;
     }
 
@@ -230,7 +230,7 @@ pg_image_get_srcrect(pgImageObject *self)
     GAME_Rect *rect = NULL, temp;
     PyObject* ret;
 
-    if (!(rect = pgRect_FromObject(self->srcrect, &temp))) {
+    if (!(rect = pgRect_FromObject((PyObject*)self->srcrect, &temp))) {
         return RAISE(pgExc_SDLError, "Wow... this error shouldn't happen");
     }
 
@@ -342,10 +342,10 @@ pg_image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Uint8 rgba[] = { 255, 255, 255 };
     pgColorObject *col = (pgColorObject*) pgColor_NewLength(rgba, 3);
+    pgImageObject *obj;
     if (!col) {
         return NULL;
     }
-    pgImageObject *obj;
     obj = (pgImageObject*) type->tp_alloc(type, 0);
     obj->color = col;
     obj->alpha = 255;

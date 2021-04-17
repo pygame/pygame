@@ -4,12 +4,13 @@
 
 static PyObject *
 pg_window_from_display_module(pgWindowObject *cls) {
+    pgWindowObject* window_obj;
     SDL_Window* window = pg_GetDefaultWindow();
     if (!window) {
         return RAISE(pgExc_SDLError, "The display module has no window to be found! Are you sure you've called set_mode()?");
     }
 
-    pgWindowObject* window_obj = (pgWindowObject*)pg_window_new((PyTypeObject*)cls, NULL, NULL);
+    window_obj = (pgWindowObject*)pg_window_new((PyTypeObject*)cls, NULL, NULL);
     window_obj->_win = window;
     window_obj->_is_borrowed = 1;
     SDL_SetWindowData(window_obj->_win, "pg_window", window_obj);
@@ -162,8 +163,7 @@ pg_window_set_icon(pgWindowObject *self, PyObject *args, PyObject *kw)
         return NULL;
 
     if (!pgSurface_Check(surfaceobj)) {
-        RAISE(PyExc_TypeError, "surface must be a Surface object");
-        return NULL;
+        return RAISE(PyExc_TypeError, "surface must be a Surface object");
     }
     surf = pgSurface_AsSurface(surfaceobj);
 

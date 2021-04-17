@@ -123,7 +123,7 @@ static PyMethodDef _pg_video_methods[] = {
 
 MODINIT_DEFINE(video)
 {
-    PyObject *module, *dict, *apiobj;
+    PyObject *module, *dict, *apiobj, *centered, *undefined;
     int ecode;
     static void *c_api[PYGAMEAPI_VIDEO_NUMSLOTS];
 #if PY3
@@ -196,13 +196,13 @@ MODINIT_DEFINE(video)
         MODINIT_ERROR;
     }
 
-    PyObject* centered = PyInt_FromLong(SDL_WINDOWPOS_CENTERED);
+    centered = PyInt_FromLong(SDL_WINDOWPOS_CENTERED);
     if (PyDict_SetItemString(dict, "WINDOWPOS_CENTERED", centered)) {
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
 
-    PyObject* undefined = PyInt_FromLong(SDL_WINDOWPOS_UNDEFINED);
+    undefined = PyInt_FromLong(SDL_WINDOWPOS_UNDEFINED);
     if (PyDict_SetItemString(dict, "WINDOWPOS_UNDEFINED", undefined)) {
         DECREF_MOD(module);
         MODINIT_ERROR;
