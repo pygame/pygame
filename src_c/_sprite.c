@@ -6,7 +6,7 @@
         "depends": [],
         "name": "pygame._sprite",
         "sources": [
-            "src_c\\cython\\pygame\\_sprite.pyx"
+            "src_c/cython/pygame/_sprite.pyx"
         ]
     },
     "module_name": "pygame._sprite"
@@ -832,7 +832,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src_c\\cython\\pygame\\_sprite.pyx",
+  "src_c/cython/pygame/_sprite.pyx",
   "stringsource",
   "type.pxd",
   "bool.pxd",
@@ -2114,7 +2114,7 @@ static const char __pyx_k_collide_rect_ratio___init[] = "collide_rect_ratio.__in
 static const char __pyx_k_s_DirtySprite_in_d_groups[] = "<%s DirtySprite(in %d groups)>";
 static const char __pyx_k_collide_circle_ratio___call[] = "collide_circle_ratio.__call__";
 static const char __pyx_k_collide_circle_ratio___init[] = "collide_circle_ratio.__init__";
-static const char __pyx_k_src_c_cython_pygame__sprite_pyx[] = "src_c\\cython\\pygame\\_sprite.pyx";
+static const char __pyx_k_src_c_cython_pygame__sprite_pyx[] = "src_c/cython/pygame/_sprite.pyx";
 static const char __pyx_k_A_callable_class_that_checks_for[] = "A callable class that checks for collisions using scaled rects\n\n    The class checks for collisions between two sprites using a scaled version\n    of the sprites' rects. Is created with a ratio; the instance is then\n    intended to be passed as a collided callback function to the *collide\n    functions.\n\n    New in pygame 1.8.1\n\n    ";
 static const char __pyx_k_The_sprite_contained_in_this_gro[] = "The sprite contained in this group";
 static const char __pyx_k_a_more_featureful_subclass_of_Sp[] = "a more featureful subclass of Sprite with more attributes\n\n    pygame.sprite.DirtySprite(*groups): return DirtySprite\n\n    Extra DirtySprite attributes with their default values:\n\n    dirty = 1\n        If set to 1, it is repainted and then set to 0 again.\n        If set to 2, it is always dirty (repainted each frame;\n        flag is not reset).\n        If set to 0, it is not dirty and therefore not repainted again.\n\n    blendmode = 0\n        It's the special_flags argument of Surface.blit; see the blendmodes in\n        the Surface.blit documentation\n\n    source_rect = None\n        This is the source rect to use. Remember that it is relative to the top\n        left corner (0, 0) of self.image.\n\n    visible = 1\n        Normally this is 1. If set to 0, it will not be repainted. (If you\n        change visible to 1, you must set dirty to 1 for it to be erased from\n        the screen.)\n\n    _layer = 0\n        0 is the default value but this is able to be set differently\n        when subclassing.\n\n    ";

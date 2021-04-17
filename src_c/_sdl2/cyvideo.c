@@ -6,7 +6,7 @@
         "depends": [],
         "name": "pygame._sdl2.cyvideo",
         "sources": [
-            "src_c\\cython\\pygame\\_sdl2\\cyvideo.pyx"
+            "src_c/cython/pygame/_sdl2/cyvideo.pyx"
         ]
     },
     "module_name": "pygame._sdl2.cyvideo"
@@ -835,7 +835,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "src_c\\cython\\pygame\\_sdl2\\cyvideo.pyx",
+  "src_c/cython/pygame/_sdl2/cyvideo.pyx",
   "type.pxd",
   "bool.pxd",
   "complex.pxd",
@@ -1569,7 +1569,7 @@ static const char __pyx_k_pygame__sdl2_cyvideo[] = "pygame._sdl2.cyvideo";
 static const char __pyx_k_MESSAGEBOX_INFORMATION[] = "MESSAGEBOX_INFORMATION";
 static const char __pyx_k_RendererDriverInfo___repr[] = "RendererDriverInfo.__repr__";
 static const char __pyx_k_s_name_s_flags_0x_02x_num_textu[] = "<%s(name: %s, flags: 0x%02x, num_texture_formats: %d, max_texture_width: %d, max_texture_height: %d)>";
-static const char __pyx_k_src_c_cython_pygame__sdl2_cyvide[] = "src_c\\cython\\pygame\\_sdl2\\cyvideo.pyx";
+static const char __pyx_k_src_c_cython_pygame__sdl2_cyvide[] = "src_c/cython/pygame/_sdl2/cyvideo.pyx";
 static PyObject *__pyx_n_s_MESSAGEBOX_ERROR;
 static PyObject *__pyx_n_s_MESSAGEBOX_INFORMATION;
 static PyObject *__pyx_n_s_MESSAGEBOX_WARNING;
