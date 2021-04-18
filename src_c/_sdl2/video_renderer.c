@@ -20,8 +20,7 @@ pg_renderer_from_window(pgRendererObject *cls, PyObject* args, PyObject *kw) {
     }
 
     if(!pgWindow_Check(window)) {
-        RAISE(PyExc_TypeError, "window must be a Window object");
-        return NULL;
+        return RAISE(PyExc_TypeError, "window must be a Window object");
     }
 
     renderer = (pgRendererObject*)pg_renderer_new((PyTypeObject*)cls, NULL, NULL);
@@ -313,6 +312,8 @@ pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
     }
     else if (pgSurface_Check(surfaceobj)) {
         surf = pgSurface_AsSurface(surfaceobj);
+        printf("made it here\n");
+        surf = pgSurface_AsSurface(surface);
         if (surf->w < rarea.w || surf->h < rarea.h)
             return RAISE(PyExc_ValueError, "the surface is too small");
         format = surf->format->format;
@@ -565,7 +566,7 @@ static PyTypeObject pgRenderer_Type = {
     sizeof(pgRendererObject), /*basicsize*/
     0, /*itemsize*/
     (destructor)pg_renderer_dealloc, /*dealloc*/
-    NULL, /*print*/
+    (printfunc)NULL, /*print*/
     NULL, /*getattr*/
     NULL, /*setattr*/
     NULL, /*compare/reserved*/

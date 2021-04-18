@@ -118,7 +118,7 @@ pg_video_get_grabbed_window(PyObject *args) {
 }
 
 static PyMethodDef _pg_video_methods[] = {
-    {"get_grabbed_window", pg_video_get_grabbed_window, METH_NOARGS, NULL /* TODO */},
+    {"get_grabbed_window", (PyCFunction)pg_video_get_grabbed_window, METH_NOARGS, NULL /* TODO */},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(video)

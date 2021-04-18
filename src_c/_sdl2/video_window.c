@@ -676,7 +676,7 @@ static PyTypeObject pgWindow_Type = {
     sizeof(pgWindowObject), /*basicsize*/
     0, /*itemsize*/
     (destructor)pg_window_dealloc, /*dealloc*/
-    NULL, /*print*/
+    (printfunc)NULL, /*print*/
     NULL, /*getattr*/
     NULL, /*setattr*/
     NULL, /*compare/reserved*/

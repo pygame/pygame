@@ -179,8 +179,7 @@ pg_image_set_color(pgImageObject *self, PyObject *val, void *closure)
 {
     Uint8 rgba[4] = {0, 0, 0, 0};
     if (!pg_RGBAFromFuzzyColorObj(val, rgba)) {
-        PyErr_SetString(PyExc_TypeError, "expected a color (sequence of color object)");
-        return -1;
+        return RAISE(PyExc_TypeError, "expected a color (sequence of color object)");
     }
 
     Py_DECREF(self->color);
@@ -252,7 +251,7 @@ pg_image_set_srcrect(pgImageObject *self, PyObject *val, void *closure)
     // when this function is called in Image init
     Py_XDECREF(self->srcrect); 
     newrect = pgRect_New4(rect->x, rect->y, rect->w, rect->h);
-    self->srcrect = newrect;
+    self->srcrect = (pgRectObject*)newrect;
 
     return 0;
 }
@@ -323,7 +322,7 @@ pg_image_init(pgImageObject *self, PyObject *args, PyObject *kw)
 
         if (temp.x < 0 || temp.y < 0 || temp.w < 0 || temp.h < 0 ||
             temp.x + temp.w > self->srcrect->r.w || temp.y + temp.h > self->srcrect->r.h) {
-            RAISE(PyExc_ValueError, "rect values are out of range");
+            PyErr_SetString(PyExc_ValueError, "rect values are out of range");
             return -1;
         }
 
@@ -366,7 +365,7 @@ static PyTypeObject pgImage_Type = {
     sizeof(pgImageObject), /*basicsize*/
     0, /*itemsize*/
     (destructor)pg_image_dealloc, /*dealloc*/
-    NULL, /*print*/
+    (printfunc)NULL, /*print*/
     NULL, /*getattr*/
     NULL, /*setattr*/
     NULL, /*compare/reserved*/

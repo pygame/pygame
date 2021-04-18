@@ -21,15 +21,10 @@ pg_texture_get_rect(pgTextureObject *self, PyObject *args, PyObject *kw)
         return NULL;
 
     if (kw) {
-#if PY3
-        if (PyArg_ValidateKeywordArguments(kw)) {
-            Py_DECREF(rectobj);
-            return NULL;
-        }
-#endif /* PY3 */
         while (PyDict_Next(kw, &pos, &key, &value)) {
             if (PyObject_SetAttr(rectobj, key, value)) {
                 Py_DECREF(rectobj);
+                printf("ERR\n");
                 return NULL;
             }
         }
@@ -291,8 +286,7 @@ pg_texture_get_mode(pgTextureObject *self, void *closure)
 {
     SDL_BlendMode mode;
     if (SDL_GetTextureBlendMode(self->texture, &mode) < 0) {
-        PyErr_SetString(pgExc_SDLError, SDL_GetError());
-        return -1;
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     return PyLong_FromLong(mode);
 }
@@ -508,7 +502,7 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
 
     if (!pgSurface_Check(surfaceobj)) {
         pg_texture_dealloc(textureobj);
-        return RAISE(PyExc_TypeError, "not a surface");
+        return (pgTextureObject*)RAISE(PyExc_TypeError, "not a surface");
     }
     surf = pgSurface_AsSurface((pgSurfaceObject*) surfaceobj);
 
@@ -518,7 +512,7 @@ pg_texture_from_surface(PyObject *self, PyObject *args, PyObject *kw)
         textureobj->renderer->renderer, surf);
     if (!textureobj->texture) {
         pg_texture_dealloc(textureobj);
-        return RAISE(pgExc_SDLError, SDL_GetError());
+        return (pgTextureObject*)RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     return textureobj;
@@ -530,7 +524,7 @@ static PyTypeObject pgTexture_Type = {
     sizeof(pgTextureObject), /*basicsize*/
     0, /*itemsize*/
     (destructor)pg_texture_dealloc, /*dealloc*/
-    NULL, /*print*/
+    (printfunc)NULL, /*print*/
     NULL, /*getattr*/
     NULL, /*setattr*/
     NULL, /*compare/reserved*/
