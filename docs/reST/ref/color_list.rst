@@ -28,13 +28,13 @@ Named Colors
     .bisque2 {background-color: #eed5b7; color: #eed5b7;}
     .bisque3 {background-color: #cdb79e; color: #cdb79e;}
     .bisque4 {background-color: #8b7d6b; color: #8b7d6b;}
-    .black {background-color: #000;}
+    .black {background-color: #000000; color: #000000;}
     .blanchedalmond {background-color: #ffebcd; color: #ffebcd;}
-    .blue {background-color: #00ff;}
-    .blue1 {background-color: #00ff;}
-    .blue2 {background-color: #00ee;}
-    .blue3 {background-color: #00cd;}
-    .blue4 {background-color: #008b;}
+    .blue {background-color: #0000ff; color: #0000ff;}
+    .blue1 {background-color: #0000ff; color: #0000ff;}
+    .blue2 {background-color: #0000ee; color: #0000ee;}
+    .blue3 {background-color: #0000cd; color: #0000cd;}
+    .blue4 {background-color: #00008b; color: #00008b;}
     .blueviolet {background-color: #8a2be2; color: #8a2be2;}
     .brown {background-color: #a52a2a; color: #a52a2a;}
     .brown1 {background-color: #ff4040; color: #ff4040;}
@@ -51,11 +51,11 @@ Named Colors
     .cadetblue2 {background-color: #8ee5ee; color: #8ee5ee;}
     .cadetblue3 {background-color: #7ac5cd; color: #7ac5cd;}
     .cadetblue4 {background-color: #53868b; color: #53868b;}
-    .chartreuse {background-color: #7fff0;}
-    .chartreuse1 {background-color: #7fff0;}
-    .chartreuse2 {background-color: #76ee0;}
-    .chartreuse3 {background-color: #66cd0;}
-    .chartreuse4 {background-color: #458b0;}
+    .chartreuse {background-color: #7fff00; color: #7fff00;}
+    .chartreuse1 {background-color: #7fff00; color: #7fff00;}
+    .chartreuse2 {background-color: #76ee00; color: #76ee00;}
+    .chartreuse3 {background-color: #66cd00; color: #66cd00;}
+    .chartreuse4 {background-color: #458b00; color: #458b00;}
     .chocolate {background-color: #d2691e; color: #d2691e;}
     .chocolate1 {background-color: #ff7f24; color: #ff7f24;}
     .chocolate2 {background-color: #ee7621; color: #ee7621;}
@@ -72,39 +72,39 @@ Named Colors
     .cornsilk2 {background-color: #eee8cd; color: #eee8cd;}
     .cornsilk3 {background-color: #cdc8b1; color: #cdc8b1;}
     .cornsilk4 {background-color: #8b8878; color: #8b8878;}
-    .cyan {background-color: #0ffff;}
-    .cyan1 {background-color: #0ffff;}
-    .cyan2 {background-color: #0eeee;}
-    .cyan3 {background-color: #0cdcd;}
-    .cyan4 {background-color: #08b8b;}
-    .darkblue {background-color: #008b;}
-    .darkcyan {background-color: #08b8b;}
-    .darkgoldenrod {background-color: #b886b;}
-    .darkgoldenrod1 {background-color: #ffb9f;}
-    .darkgoldenrod2 {background-color: #eeade;}
-    .darkgoldenrod3 {background-color: #cd95c;}
-    .darkgoldenrod4 {background-color: #8b658;}
+    .cyan {background-color: #00ffff; color: #00ffff;}
+    .cyan1 {background-color: #00ffff; color: #00ffff;}
+    .cyan2 {background-color: #00eeee; color: #00eeee;}
+    .cyan3 {background-color: #00cdcd; color: #00cdcd;}
+    .cyan4 {background-color: #008b8b; color: #008b8b;}
+    .darkblue {background-color: #00008b; color: #00008b;}
+    .darkcyan {background-color: #008b8b; color: #008b8b;}
+    .darkgoldenrod {background-color: #b8860b; color: #b8860b;}
+    .darkgoldenrod1 {background-color: #ffb90f; color: #ffb90f;}
+    .darkgoldenrod2 {background-color: #eead0e; color: #eead0e;}
+    .darkgoldenrod3 {background-color: #cd950c; color: #cd950c;}
+    .darkgoldenrod4 {background-color: #8b6508; color: #8b6508;}
     .darkgray {background-color: #a9a9a9; color: #a9a9a9;}
-    .darkgreen {background-color: #0640;}
+    .darkgreen {background-color: #006400; color: #006400;}
     .darkgrey {background-color: #a9a9a9; color: #a9a9a9;}
     .darkkhaki {background-color: #bdb76b; color: #bdb76b;}
-    .darkmagenta {background-color: #8b08b;}
+    .darkmagenta {background-color: #8b008b; color: #8b008b;}
     .darkolivegreen {background-color: #556b2f; color: #556b2f;}
     .darkolivegreen1 {background-color: #caff70; color: #caff70;}
     .darkolivegreen2 {background-color: #bcee68; color: #bcee68;}
     .darkolivegreen3 {background-color: #a2cd5a; color: #a2cd5a;}
     .darkolivegreen4 {background-color: #6e8b3d; color: #6e8b3d;}
-    .darkorange {background-color: #ff8c0;}
-    .darkorange1 {background-color: #ff7f0;}
-    .darkorange2 {background-color: #ee760;}
-    .darkorange3 {background-color: #cd660;}
-    .darkorange4 {background-color: #8b450;}
+    .darkorange {background-color: #ff8c00; color: #ff8c00;}
+    .darkorange1 {background-color: #ff7f00; color: #ff7f00;}
+    .darkorange2 {background-color: #ee7600; color: #ee7600;}
+    .darkorange3 {background-color: #cd6600; color: #cd6600;}
+    .darkorange4 {background-color: #8b4500; color: #8b4500;}
     .darkorchid {background-color: #9932cc; color: #9932cc;}
     .darkorchid1 {background-color: #bf3eff; color: #bf3eff;}
     .darkorchid2 {background-color: #b23aee; color: #b23aee;}
     .darkorchid3 {background-color: #9a32cd; color: #9a32cd;}
     .darkorchid4 {background-color: #68228b; color: #68228b;}
-    .darkred {background-color: #8b00;}
+    .darkred {background-color: #8b0000; color: #8b0000;}
     .darksalmon {background-color: #e9967a; color: #e9967a;}
     .darkseagreen {background-color: #8fbc8f; color: #8fbc8f;}
     .darkseagreen1 {background-color: #c1ffc1; color: #c1ffc1;}
@@ -118,18 +118,18 @@ Named Colors
     .darkslategray3 {background-color: #79cdcd; color: #79cdcd;}
     .darkslategray4 {background-color: #528b8b; color: #528b8b;}
     .darkslategrey {background-color: #2f4f4f; color: #2f4f4f;}
-    .darkturquoise {background-color: #0ced1;}
-    .darkviolet {background-color: #940d3;}
+    .darkturquoise {background-color: #00ced1; color: #00ced1;}
+    .darkviolet {background-color: #9400d3; color: #9400d3;}
     .deeppink {background-color: #ff1493; color: #ff1493;}
     .deeppink1 {background-color: #ff1493; color: #ff1493;}
     .deeppink2 {background-color: #ee1289; color: #ee1289;}
     .deeppink3 {background-color: #cd1076; color: #cd1076;}
-    .deeppink4 {background-color: #8ba50;}
-    .deepskyblue {background-color: #0bfff;}
-    .deepskyblue1 {background-color: #0bfff;}
-    .deepskyblue2 {background-color: #0b2ee;}
-    .deepskyblue3 {background-color: #09acd;}
-    .deepskyblue4 {background-color: #0688b;}
+    .deeppink4 {background-color: #8b0a50; color: #8b0a50;}
+    .deepskyblue {background-color: #00bfff; color: #00bfff;}
+    .deepskyblue1 {background-color: #00bfff; color: #00bfff;}
+    .deepskyblue2 {background-color: #00b2ee; color: #00b2ee;}
+    .deepskyblue3 {background-color: #009acd; color: #009acd;}
+    .deepskyblue4 {background-color: #00688b; color: #00688b;}
     .dimgray {background-color: #696969; color: #696969;}
     .dimgrey {background-color: #696969; color: #696969;}
     .dodgerblue {background-color: #1e90ff; color: #1e90ff;}
@@ -146,24 +146,24 @@ Named Colors
     .forestgreen {background-color: #228b22; color: #228b22;}
     .gainsboro {background-color: #dcdcdc; color: #dcdcdc;}
     .ghostwhite {background-color: #f8f8ff; color: #f8f8ff;}
-    .gold {background-color: #ffd70;}
-    .gold1 {background-color: #ffd70;}
-    .gold2 {background-color: #eec90;}
-    .gold3 {background-color: #cdad0;}
-    .gold4 {background-color: #8b750;}
+    .gold {background-color: #ffd700; color: #ffd700;}
+    .gold1 {background-color: #ffd700; color: #ffd700;}
+    .gold2 {background-color: #eec900; color: #eec900;}
+    .gold3 {background-color: #cdad00; color: #cdad00;}
+    .gold4 {background-color: #8b7500; color: #8b7500;}
     .goldenrod {background-color: #daa520; color: #daa520;}
     .goldenrod1 {background-color: #ffc125; color: #ffc125;}
     .goldenrod2 {background-color: #eeb422; color: #eeb422;}
     .goldenrod3 {background-color: #cd9b1d; color: #cd9b1d;}
     .goldenrod4 {background-color: #8b6914; color: #8b6914;}
     .gray {background-color: #bebebe; color: #bebebe;}
-    .gray0 {background-color: #000;}
-    .gray1 {background-color: #333;}
-    .gray2 {background-color: #555;}
-    .gray3 {background-color: #888;}
-    .gray4 {background-color: #aaa;}
-    .gray5 {background-color: #ddd;}
-    .gray6 {background-color: #fff;}
+    .gray0 {background-color: #000000; color: #000000;}
+    .gray1 {background-color: #030303; color: #030303;}
+    .gray2 {background-color: #050505; color: #050505;}
+    .gray3 {background-color: #080808; color: #080808;}
+    .gray4 {background-color: #0a0a0a; color: #0a0a0a;}
+    .gray5 {background-color: #0d0d0d; color: #0d0d0d;}
+    .gray6 {background-color: #0f0f0f; color: #0f0f0f;}
     .gray7 {background-color: #121212; color: #121212;}
     .gray8 {background-color: #141414; color: #141414;}
     .gray9 {background-color: #171717; color: #171717;}
@@ -258,20 +258,20 @@ Named Colors
     .gray98 {background-color: #fafafa; color: #fafafa;}
     .gray99 {background-color: #fcfcfc; color: #fcfcfc;}
     .gray100 {background-color: #ffffff; color: #ffffff;}
-    .green {background-color: #0ff0;}
-    .green1 {background-color: #0ff0;}
-    .green2 {background-color: #0ee0;}
-    .green3 {background-color: #0cd0;}
-    .green4 {background-color: #08b0;}
+    .green {background-color: #00ff00; color: #00ff00;}
+    .green1 {background-color: #00ff00; color: #00ff00;}
+    .green2 {background-color: #00ee00; color: #00ee00;}
+    .green3 {background-color: #00cd00; color: #00cd00;}
+    .green4 {background-color: #008b00; color: #008b00;}
     .greenyellow {background-color: #adff2f; color: #adff2f;}
     .grey {background-color: #bebebe; color: #bebebe;}
-    .grey0 {background-color: #000;}
-    .grey1 {background-color: #333;}
-    .grey2 {background-color: #555;}
-    .grey3 {background-color: #888;}
-    .grey4 {background-color: #aaa;}
-    .grey5 {background-color: #ddd;}
-    .grey6 {background-color: #fff;}
+    .grey0 {background-color: #000000; color: #000000;}
+    .grey1 {background-color: #030303; color: #030303;}
+    .grey2 {background-color: #050505; color: #050505;}
+    .grey3 {background-color: #080808; color: #080808;}
+    .grey4 {background-color: #0a0a0a; color: #0a0a0a;}
+    .grey5 {background-color: #0d0d0d; color: #0d0d0d;}
+    .grey6 {background-color: #0f0f0f; color: #0f0f0f;}
     .grey7 {background-color: #121212; color: #121212;}
     .grey8 {background-color: #141414; color: #141414;}
     .grey9 {background-color: #171717; color: #171717;}
@@ -397,7 +397,7 @@ Named Colors
     .lavenderblush2 {background-color: #eee0e5; color: #eee0e5;}
     .lavenderblush3 {background-color: #cdc1c5; color: #cdc1c5;}
     .lavenderblush4 {background-color: #8b8386; color: #8b8386;}
-    .lawngreen {background-color: #7cfc0;}
+    .lawngreen {background-color: #7cfc00; color: #7cfc00;}
     .lemonchiffon {background-color: #fffacd; color: #fffacd;}
     .lemonchiffon1 {background-color: #fffacd; color: #fffacd;}
     .lemonchiffon2 {background-color: #eee9bf; color: #eee9bf;}
@@ -454,18 +454,18 @@ Named Colors
     .lightyellow4 {background-color: #8b8b7a; color: #8b8b7a;}
     .linen {background-color: #faf0e6; color: #faf0e6;}
     .limegreen {background-color: #32cd32; color: #32cd32;}
-    .magenta {background-color: #ff0ff;}
-    .magenta1 {background-color: #ff0ff;}
-    .magenta2 {background-color: #ee0ee;}
-    .magenta3 {background-color: #cd0cd;}
-    .magenta4 {background-color: #8b08b;}
+    .magenta {background-color: #ff00ff; color: #ff00ff;}
+    .magenta1 {background-color: #ff00ff; color: #ff00ff;}
+    .magenta2 {background-color: #ee00ee; color: #ee00ee;}
+    .magenta3 {background-color: #cd00cd; color: #cd00cd;}
+    .magenta4 {background-color: #8b008b; color: #8b008b;}
     .maroon {background-color: #b03060; color: #b03060;}
     .maroon1 {background-color: #ff34b3; color: #ff34b3;}
     .maroon2 {background-color: #ee30a7; color: #ee30a7;}
     .maroon3 {background-color: #cd2990; color: #cd2990;}
     .maroon4 {background-color: #8b1c62; color: #8b1c62;}
     .mediumaquamarine {background-color: #66cdaa; color: #66cdaa;}
-    .mediumblue {background-color: #00cd;}
+    .mediumblue {background-color: #0000cd; color: #0000cd;}
     .mediumorchid {background-color: #ba55d3; color: #ba55d3;}
     .mediumorchid1 {background-color: #e066ff; color: #e066ff;}
     .mediumorchid2 {background-color: #d15fee; color: #d15fee;}
@@ -478,7 +478,7 @@ Named Colors
     .mediumpurple4 {background-color: #5d478b; color: #5d478b;}
     .mediumseagreen {background-color: #3cb371; color: #3cb371;}
     .mediumslateblue {background-color: #7b68ee; color: #7b68ee;}
-    .mediumspringgreen {background-color: #0fa9a;}
+    .mediumspringgreen {background-color: #00fa9a; color: #00fa9a;}
     .mediumturquoise {background-color: #48d1cc; color: #48d1cc;}
     .mediumvioletred {background-color: #c71585; color: #c71585;}
     .midnightblue {background-color: #191970; color: #191970;}
@@ -494,24 +494,24 @@ Named Colors
     .navajowhite2 {background-color: #eecfa1; color: #eecfa1;}
     .navajowhite3 {background-color: #cdb38b; color: #cdb38b;}
     .navajowhite4 {background-color: #8b795e; color: #8b795e;}
-    .navy {background-color: #0080;}
-    .navyblue {background-color: #0080;}
+    .navy {background-color: #000080; color: #000080;}
+    .navyblue {background-color: #000080; color: #000080;}
     .oldlace {background-color: #fdf5e6; color: #fdf5e6;}
     .olivedrab {background-color: #6b8e23; color: #6b8e23;}
     .olivedrab1 {background-color: #c0ff3e; color: #c0ff3e;}
     .olivedrab2 {background-color: #b3ee3a; color: #b3ee3a;}
     .olivedrab3 {background-color: #9acd32; color: #9acd32;}
     .olivedrab4 {background-color: #698b22; color: #698b22;}
-    .orange {background-color: #ffa50;}
-    .orange1 {background-color: #ffa50;}
-    .orange2 {background-color: #ee9a0;}
-    .orange3 {background-color: #cd850;}
-    .orange4 {background-color: #8b5a0;}
-    .orangered {background-color: #ff450;}
-    .orangered1 {background-color: #ff450;}
-    .orangered2 {background-color: #ee400;}
-    .orangered3 {background-color: #cd370;}
-    .orangered4 {background-color: #8b250;}
+    .orange {background-color: #ffa500; color: #ffa500;}
+    .orange1 {background-color: #ffa500; color: #ffa500;}
+    .orange2 {background-color: #ee9a00; color: #ee9a00;}
+    .orange3 {background-color: #cd8500; color: #cd8500;}
+    .orange4 {background-color: #8b5a00; color: #8b5a00;}
+    .orangered {background-color: #ff4500; color: #ff4500;}
+    .orangered1 {background-color: #ff4500; color: #ff4500;}
+    .orangered2 {background-color: #ee4000; color: #ee4000;}
+    .orangered3 {background-color: #cd3700; color: #cd3700;}
+    .orangered4 {background-color: #8b2500; color: #8b2500;}
     .orchid {background-color: #da70d6; color: #da70d6;}
     .orchid1 {background-color: #ff83fa; color: #ff83fa;}
     .orchid2 {background-color: #ee7ae9; color: #ee7ae9;}
@@ -556,11 +556,11 @@ Named Colors
     .purple2 {background-color: #912cee; color: #912cee;}
     .purple3 {background-color: #7d26cd; color: #7d26cd;}
     .purple4 {background-color: #551a8b; color: #551a8b;}
-    .red {background-color: #ff00;}
-    .red1 {background-color: #ff00;}
-    .red2 {background-color: #ee00;}
-    .red3 {background-color: #cd00;}
-    .red4 {background-color: #8b00;}
+    .red {background-color: #ff0000; color: #ff0000;}
+    .red1 {background-color: #ff0000; color: #ff0000;}
+    .red2 {background-color: #ee0000; color: #ee0000;}
+    .red3 {background-color: #cd0000; color: #cd0000;}
+    .red4 {background-color: #8b0000; color: #8b0000;}
     .rosybrown {background-color: #bc8f8f; color: #bc8f8f;}
     .rosybrown1 {background-color: #ffc1c1; color: #ffc1c1;}
     .rosybrown2 {background-color: #eeb4b4; color: #eeb4b4;}
@@ -614,11 +614,11 @@ Named Colors
     .snow2 {background-color: #eee9e9; color: #eee9e9;}
     .snow3 {background-color: #cdc9c9; color: #cdc9c9;}
     .snow4 {background-color: #8b8989; color: #8b8989;}
-    .springgreen {background-color: #0ff7f;}
-    .springgreen1 {background-color: #0ff7f;}
-    .springgreen2 {background-color: #0ee76;}
-    .springgreen3 {background-color: #0cd66;}
-    .springgreen4 {background-color: #08b45;}
+    .springgreen {background-color: #00ff7f; color: #00ff7f;}
+    .springgreen1 {background-color: #00ff7f; color: #00ff7f;}
+    .springgreen2 {background-color: #00ee76; color: #00ee76;}
+    .springgreen3 {background-color: #00cd66; color: #00cd66;}
+    .springgreen4 {background-color: #008b45; color: #008b45;}
     .steelblue {background-color: #4682b4; color: #4682b4;}
     .steelblue1 {background-color: #63b8ff; color: #63b8ff;}
     .steelblue2 {background-color: #5cacee; color: #5cacee;}
@@ -640,10 +640,10 @@ Named Colors
     .tomato3 {background-color: #cd4f39; color: #cd4f39;}
     .tomato4 {background-color: #8b3626; color: #8b3626;}
     .turquoise {background-color: #40e0d0; color: #40e0d0;}
-    .turquoise1 {background-color: #0f5ff;}
-    .turquoise2 {background-color: #0e5ee;}
-    .turquoise3 {background-color: #0c5cd;}
-    .turquoise4 {background-color: #0868b;}
+    .turquoise1 {background-color: #00f5ff; color: #00f5ff;}
+    .turquoise2 {background-color: #00e5ee; color: #00e5ee;}
+    .turquoise3 {background-color: #00c5cd; color: #00c5cd;}
+    .turquoise4 {background-color: #00868b; color: #00868b;}
     .violet {background-color: #ee82ee; color: #ee82ee;}
     .violetred {background-color: #d02090; color: #d02090;}
     .violetred1 {background-color: #ff3e96; color: #ff3e96;}
@@ -657,11 +657,11 @@ Named Colors
     .wheat4 {background-color: #8b7e66; color: #8b7e66;}
     .white {background-color: #ffffff; color: #ffffff;}
     .whitesmoke {background-color: #f5f5f5; color: #f5f5f5;}
-    .yellow {background-color: #ffff0;}
-    .yellow1 {background-color: #ffff0;}
-    .yellow2 {background-color: #eeee0;}
-    .yellow3 {background-color: #cdcd0;}
-    .yellow4 {background-color: #8b8b0;}
+    .yellow {background-color: #ffff00; color: #ffff00;}
+    .yellow1 {background-color: #ffff00; color: #ffff00;}
+    .yellow2 {background-color: #eeee00; color: #eeee00;}
+    .yellow3 {background-color: #cdcd00; color: #cdcd00;}
+    .yellow4 {background-color: #8b8b00; color: #8b8b00;}
     .yellowgreen {background-color: #9acd32; color: #9acd32;}
     </style>
 
