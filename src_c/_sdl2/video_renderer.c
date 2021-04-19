@@ -258,10 +258,8 @@ pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
     SDL_Surface *surf;
     SDL_Rect *rectptr;
 
-    PyObject *surfaceobj = NULL;
+    PyObject *surface = NULL;
     PyObject *area = NULL;
-
-    PyObject *surface;
 
     static char *keywords[] = {
         "surface",
@@ -270,7 +268,7 @@ pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
     };
 
     if(!PyArg_ParseTupleAndKeywords(args, kw, "|OO", keywords,
-                                    &surfaceobj, &area)) {
+                                    &surface, &area)) {
         return NULL;
     }
 
@@ -295,7 +293,7 @@ pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
     }
 
     // prepare surface
-    if (!surfaceobj) {
+    if (!surface) {
         // create a new surface
         format = SDL_GetWindowPixelFormat(self->window->_win);
         if (format == SDL_PIXELFORMAT_UNKNOWN)
@@ -310,13 +308,12 @@ pg_renderer_to_surface(pgRendererObject *self, PyObject *args, PyObject *kw) {
 
         surface = (PyObject*)pgSurface_New2(surf, 1);
     }
-    else if (pgSurface_Check(surfaceobj)) {
-        surf = pgSurface_AsSurface(surfaceobj);
-        printf("made it here\n");
+    else if (pgSurface_Check(surface)) {
         surf = pgSurface_AsSurface(surface);
         if (surf->w < rarea.w || surf->h < rarea.h)
             return RAISE(PyExc_ValueError, "the surface is too small");
         format = surf->format->format;
+        Py_INCREF(surface); // why is this necessary?
     }
     else {
         return RAISE(PyExc_TypeError, "surface must be a Surface or None");
