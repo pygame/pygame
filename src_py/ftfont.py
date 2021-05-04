@@ -28,8 +28,7 @@ class Font(_Font):
     __bnull = as_bytes("\x00")
 
     def __init__(self, file, size=-1):
-        if size <= 1:
-            size = 1
+        size = max(size, 1)
         if isinstance(file, unicode_):
             try:
                 bfile = self.__encode_file_path(file, ValueError)
