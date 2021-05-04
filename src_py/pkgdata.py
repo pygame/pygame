@@ -59,8 +59,9 @@ def getResource(identifier, pkgname=__name__):
     rather than use it as a file-like object.  For example, you may
     be handing data off to a C API.
     """
-    
-    # When pyinstaller (or similar tools) are used, resource_exists may raise NotImplemented error
+
+    # When pyinstaller (or similar tools) are used, resource_exists may raise
+    # NotImplemented error
     try:
         if resource_exists(pkgname, identifier):
             return resource_stream(pkgname, identifier)
@@ -81,4 +82,5 @@ def getResource(identifier, pkgname=__name__):
                 pass
             else:
                 return BytesIO(data)
+    # pylint: disable=consider-using-with
     return open(os.path.normpath(path), 'rb')
