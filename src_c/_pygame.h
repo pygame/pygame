@@ -33,6 +33,9 @@
 */
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#if defined(GRAALVM_PYTHON) && defined(PYPY_VERSION)
+#undef PYPY_VERSION
+#endif
 #include <SDL.h>
 
 /* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
