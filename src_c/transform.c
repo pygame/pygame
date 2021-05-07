@@ -1434,12 +1434,16 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf, *newsurf;
     int width, height, bpp;
     surfobj2 = NULL;
+    PyObject *size;
     static char *keywords[] = {"surface", "size", "dest_surface", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!(ii)|O!", keywords,
-                                     &pgSurface_Type, &surfobj, &width,
-                                     &height, &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O|O!", keywords,
+                                     &pgSurface_Type, &surfobj, &size,
+                                     &pgSurface_Type, &surfobj2))
         return NULL;
+
+    if (!pg_TwoIntsFromObj(size, &width, &height))
+        return RAISE(PyExc_TypeError, "size must be two numbers");
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");
