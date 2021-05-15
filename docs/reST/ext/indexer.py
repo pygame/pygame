@@ -68,18 +68,16 @@ class CollectInfo(Visitor):
 
     """Records the information for a document"""
 
-    desctypes = set(
-        [
-            "data",
-            "function",
-            "exception",
-            "class",
-            "attribute",
-            "method",
-            "staticmethod",
-            "classmethod",
-        ]
-    )
+    desctypes = {
+        "data",
+        "function",
+        "exception",
+        "class",
+        "attribute",
+        "method",
+        "staticmethod",
+        "classmethod",
+    }
 
     def __init__(self, app, document_node):
         super(CollectInfo, self).__init__(app, document_node)
