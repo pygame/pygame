@@ -177,7 +177,7 @@ def _add_font_paths(sub_elements, fonts):
 def _system_profiler_darwin():
     fonts = {}
     flout, _ = subprocess.Popen(
-        ' '.join(['system_profiler', '-xml', 'SPFontsDataType']),
+        ' '.join(['/usr/sbin/system_profiler', '-xml', 'SPFontsDataType']),
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
