@@ -1240,6 +1240,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 init_flip = 1;
             }
             else {
+                /* set min size to (1,1) to erase any previously set min size
+                 * relevant for windows leaving SCALED, which sets a min size
+                 * only relevant on Windows, I believe.
+                 * See https://github.com/pygame/pygame/issues/2327 */
+                SDL_SetWindowMinimumSize(win, 1, 1);
+
                 /* change existing window.
                  this invalidates the display surface*/
                 SDL_SetWindowTitle(win, title);
