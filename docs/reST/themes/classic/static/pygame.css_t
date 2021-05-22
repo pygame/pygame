@@ -182,7 +182,7 @@ body {
 div.header {
     padding: 0.5em;
     background-color: {{ theme_bgcolor }};
-    color: {{ them_textcolor }};
+    color: {{ theme_textcolor }};
     line-height: 1.2em;
 }
 
@@ -310,7 +310,7 @@ div.footer {
 }
 
 div.footer a {
-    background-color: {{ theme_footerbgcolor }}
+    background-color: {{ theme_footerbgcolor }};
     color: {{ theme_footertextcolor }};
     text-decoration: underline;
 }
@@ -759,6 +759,78 @@ div.example div.break {
     height: 0;
 }
 
+/* -- parameters returns table style ---------------------------------------- */
+
+:not(li) > ol > li:first-child > :first-child,
+:not(li) > ul > li:first-child > :first-child {
+    margin-top: 0px;
+}
+
+:not(li) > ol > li:last-child > :last-child,
+:not(li) > ul > li:last-child > :last-child {
+    margin-bottom: 0px;
+}
+
+ol.simple ol p,
+ol.simple ul p,
+ul.simple ol p,
+ul.simple ul p {
+    margin-top: 0;
+}
+
+ol.simple > li:not(:first-child) > p,
+ul.simple > li:not(:first-child) > p {
+    margin-top: 0;
+}
+
+ol.simple p,
+ul.simple p {
+    margin-bottom: 0;
+}
+
+dl.footnote > dt,
+dl.citation > dt {
+    float: left;
+    margin-right: 0.5em;
+}
+
+dl.footnote > dd,
+dl.citation > dd {
+    margin-bottom: 0em;
+}
+
+dl.footnote > dd:after,
+dl.citation > dd:after {
+    content: "";
+    clear: both;
+}
+
+dl.field-list {
+    display: grid;
+    grid-template-columns: fit-content(30%) auto;
+}
+
+dl.field-list > dt {
+    word-break: break-word;
+    padding-right: 10px;
+}
+
+dl.field-list > dt:after {
+    content: ":";
+}
+
+dl.field-list > dd {
+    padding-left: 0.5em;
+    margin-top: 0em;
+    margin-left: 0em;
+    margin-bottom: 0em;
+}
+
+dd > :first-child {
+    margin-top: 0px;
+}
+
+
 /* -- tooltip style --------------------------------------------------------- */
 
 a.tooltip {
@@ -823,7 +895,7 @@ header.commentHeading {
 }
 pre.commentContent {
     overflow: auto;
-    max-width; 800px;
+    max-width: 800px;
     margin-left:0px;
     border: 0;
     white-space: pre-wrap;
