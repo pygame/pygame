@@ -559,6 +559,9 @@ class DisplayModuleTest(unittest.TestCase):
             winsize[0] / surf.get_size()[0], winsize[1] / surf.get_size()[1]
         )
 
+    def test_set_mode_vector2(self):
+        pygame.display.set_mode(pygame.Vector2(1,1))
+
     def test_set_mode_unscaled(self):
         """ Ensures a window created with SCALED can become smaller. """
         # see https://github.com/pygame/pygame/issues/2327

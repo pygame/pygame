@@ -533,14 +533,19 @@ surf_scale(PyObject *self, PyObject *arg)
 {
     pgSurfaceObject *surfobj;
     PyObject *surfobj2;
+    PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height;
     surfobj2 = NULL;
 
     /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!(ii)|O!", &pgSurface_Type, &surfobj, &width,
-                          &height, &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTuple(arg, "O!O|O!", &pgSurface_Type, &surfobj, &size,
+                          &pgSurface_Type, &surfobj2))
         return NULL;
+
+    if (!pg_TwoIntsFromObj(size, &width, &height)) {
+        return RAISE(PyExc_TypeError, "size must be two numbers");
+    }
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");
@@ -1419,14 +1424,19 @@ surf_scalesmooth(PyObject *self, PyObject *arg)
 {
     pgSurfaceObject *surfobj;
     PyObject *surfobj2;
+    PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height, bpp;
     surfobj2 = NULL;
 
     /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!(ii)|O!", &pgSurface_Type, &surfobj, &width,
-                          &height, &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTuple(arg, "O!O|O!", &pgSurface_Type, &surfobj, &size,
+                          &pgSurface_Type, &surfobj2))
         return NULL;
+
+    if (!pg_TwoIntsFromObj(size, &width, &height)) {
+        return RAISE(PyExc_TypeError, "size must be two numbers");
+    }
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");
