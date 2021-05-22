@@ -1,11 +1,15 @@
-from typing import Any, overload, Optional, TypeVar, Text
-
-AnyStr = TypeVar("AnyStr", Text, bytes)
+import sys
+from typing import Any, overload, Optional
 
 class BufferProxy(object):
     parent: Any
     length: int
-    raw: AnyStr
+
+    if sys.version_info > (3,):
+        raw: bytes
+    else:
+        raw: str
+
     @overload
     def __init__(self) -> None: ...
     @overload

@@ -1,6 +1,5 @@
 from typing import Optional, List, Tuple, Union, Sequence
 
-import pygame.locals
 from pygame.event import Event
 
 MIDIIN: int
