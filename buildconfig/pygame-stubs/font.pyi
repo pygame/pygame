@@ -1,4 +1,5 @@
-from typing import List, Optional, Union, Tuple, IO, Hashable, Iterable
+import sys
+from typing import Any, List, Optional, Union, Tuple, IO, Hashable, Iterable
 
 if sys.version_info >= (3, 6):
     from os import PathLike
@@ -36,7 +37,7 @@ class Font(object):
     italic: bool
     underline: bool
 
-    def __init__(self, name: Union[AnyPath, IO, None], size: int) -> None: ...
+    def __init__(self, name: Union[AnyPath, IO[Any], None], size: int) -> None: ...
     def render(
         self,
         text: str,

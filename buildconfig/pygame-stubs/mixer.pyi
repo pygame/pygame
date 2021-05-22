@@ -1,3 +1,4 @@
+import sys
 from typing import Optional, Union, Tuple, Any, overload, IO
 
 if sys.version_info >= (3, 6):
@@ -40,7 +41,7 @@ def get_sdl_mixer_version(linked: bool) -> Tuple[int, int, int]: ...
 
 class Sound:
     @overload
-    def __init__(self, file: Union[AnyPath, IO]) -> None: ...
+    def __init__(self, file: Union[AnyPath, IO[Any]]) -> None: ...
     @overload
     def __init__(self, buffer: Any) -> None: ...  # Buffer protocol is still not implemented in typing
     @overload

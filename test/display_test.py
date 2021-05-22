@@ -562,6 +562,16 @@ class DisplayModuleTest(unittest.TestCase):
     def test_set_mode_vector2(self):
         pygame.display.set_mode(pygame.Vector2(1,1))
 
+    def test_set_mode_unscaled(self):
+        """ Ensures a window created with SCALED can become smaller. """
+        # see https://github.com/pygame/pygame/issues/2327
+
+        screen = pygame.display.set_mode((300,300), pygame.SCALED)
+        self.assertEqual(screen.get_size(), (300,300))
+
+        screen = pygame.display.set_mode((200,200))
+        self.assertEqual(screen.get_size(), (200,200))
+
     def test_screensaver_support(self):
         pygame.display.set_allow_screensaver(True)
         self.assertTrue(pygame.display.get_allow_screensaver())
