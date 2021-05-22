@@ -54,7 +54,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    will be restarted.
    
    ``loops`` is an optional integer argument, which is ``0`` by default, it 
-   tells how many times to repeat the music. The music repeats indefinately if 
+   tells how many times to repeat the music. The music repeats indefinitely if 
    this argument is set to ``-1``. 
    
    ``start`` is an optional float argument, which is ``0.0`` by default, which 
