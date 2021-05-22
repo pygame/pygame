@@ -29,7 +29,7 @@ on:
 
 # TODO: Parallelize this build
 jobs:
-  build:
+  build-manylinux:
     runs-on: ubuntu-18.04
 
     steps:

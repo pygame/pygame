@@ -28,7 +28,7 @@ on:
     - '.github/workflows/manylinux.yml'
 
 jobs:
-  build:
+  build-sdl1-sdist:
     runs-on: ubuntu-18.04
 
     steps:

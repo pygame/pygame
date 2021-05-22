@@ -28,7 +28,7 @@ on:
     - '.github/workflows/sdl1-sdist.yml'
 
 jobs:
-  build:
+  build-macos:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
