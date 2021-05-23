@@ -533,6 +533,7 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
     PyObject *surfobj2;
+    PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height;
     PyObject *size;
@@ -1431,6 +1432,7 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
     PyObject *surfobj2;
+    PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height, bpp;
     surfobj2 = NULL;

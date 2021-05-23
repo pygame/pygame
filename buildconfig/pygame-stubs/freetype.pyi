@@ -1,3 +1,4 @@
+import sys
 from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any, Iterable
 
 if sys.version_info >= (3, 6):
@@ -9,6 +10,7 @@ else:
 from pygame.surface import Surface
 from pygame.color import Color
 from pygame.rect import Rect
+from pygame.font import Font
 
 _ColorValue = Union[
     Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
@@ -16,8 +18,8 @@ _ColorValue = Union[
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...
-def init(cache_size: Optional[int] = 64, resolution: Optional[int] = 72): ...
-def quit(): ...
+def init(cache_size: Optional[int] = 64, resolution: Optional[int] = 72) -> None: ...
+def quit() -> None: ...
 def get_init() -> bool: ...
 def was_init() -> bool: ...
 def get_cache_size() -> int: ...
@@ -28,7 +30,7 @@ def SysFont(
     size: int,
     bold: Optional[int] = False,
     italic: Optional[int] = False,
-): ...
+) -> Font: ...
 def get_default_font() -> str: ...
 
 STYLE_NORMAL: int
@@ -68,7 +70,7 @@ class Font:
     resolution: int
     def __init__(
         self,
-        file: Union[AnyPath, IO, None],
+        file: Union[AnyPath, IO[Any], None],
         size: Optional[float] = 0,
         font_index: Optional[int] = 0,
         resolution: Optional[int] = 0,

@@ -996,8 +996,8 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     SDL_Surface *newownedsurf = NULL;
     int depth = 0;
     int flags = 0;
-    int w = 0;
-    int h = 0;
+    int w, h;
+    PyObject *size = NULL;
     int vsync = SDL_FALSE;
     /* display will get overwritten by ParseTupleAndKeywords only if display
        parameter is given. By default, put the new window on the same
@@ -1011,7 +1011,7 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
 
     scale_env = SDL_getenv("PYGAME_FORCE_SCALE");
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iiii", keywords, &w, &h,
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|Oiiii", keywords, &size,
                                      &flags, &depth, &display, &vsync))
         return NULL;
 
@@ -1023,8 +1023,16 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
         }
     }
 
-    if (w < 0 || h < 0)
-        return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
+    if (size != NULL) {
+        if (!pg_TwoIntsFromObj(size, &w, &h))
+            return RAISE(PyExc_TypeError, "size must be two numbers");
+        if (w < 0 || h < 0)
+            return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
+    }
+    else {
+        w = 0;
+        h = 0;
+    }
 
     if (!SDL_WasInit(SDL_INIT_VIDEO)) {
         /*note SDL works special like this too*/
@@ -1240,6 +1248,12 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
                 init_flip = 1;
             }
             else {
+                /* set min size to (1,1) to erase any previously set min size
+                 * relevant for windows leaving SCALED, which sets a min size
+                 * only relevant on Windows, I believe.
+                 * See https://github.com/pygame/pygame/issues/2327 */
+                SDL_SetWindowMinimumSize(win, 1, 1);
+
                 /* change existing window.
                  this invalidates the display surface*/
                 SDL_SetWindowTitle(win, title);
@@ -1732,20 +1746,28 @@ pg_set_mode(PyObject *self, PyObject *arg, PyObject *kwds)
     SDL_Surface *surf;
     int depth = 0;
     int flags = SDL_SWSURFACE;
-    int w = 0;
-    int h = 0;
+    int w, h;
+    PyObject *size = NULL;
     int display = 0;
     int hasbuf;
     char *title, *icontitle;
 
     char *keywords[] = {"size", "flags", "depth", "display", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|(ii)iii", keywords, &w, &h,
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|Oiii", keywords, &size,
                                      &flags, &depth, &display))
         return NULL;
 
-    if (w < 0 || h < 0)
-        return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
+    if (size != NULL) {
+        if (!pg_TwoIntsFromObj(size, &w, &h))
+            return RAISE(PyExc_TypeError, "size must be two numbers");
+        if (w < 0 || h < 0)
+            return RAISE(pgExc_SDLError, "Cannot set negative sized display mode");
+    }
+    else {
+        w = 0;
+        h = 0;
+    }
 
     if (w == 0 || h == 0) {
         SDL_version versioninfo;

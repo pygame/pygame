@@ -33,6 +33,12 @@
 */
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+
+/* Ensure PyPy-specific code is not in use when running on GraalPython (PR #2580) */
+#if defined(GRAALVM_PYTHON) && defined(PYPY_VERSION)
+#undef PYPY_VERSION
+#endif
+
 #include <SDL.h>
 
 /* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
