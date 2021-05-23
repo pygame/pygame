@@ -596,10 +596,9 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj, *surfobj2;
+    PyObject *surfobj, *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
-    surfobj2 = NULL;
     static char *keywords[] = {"surface", "dest_surface", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O!", keywords,
@@ -2208,10 +2207,9 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
 static PyObject *
 surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj, *surfobj2;
+    PyObject *surfobj, *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
-    surfobj2 = NULL;
     static char *keywords[] = {"surface", "dest_surface", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O!", keywords, 
