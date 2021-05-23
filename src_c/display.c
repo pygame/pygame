@@ -2571,7 +2571,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 #if SDL_VERSION_ATLEAST(2, 0, 3)
         case SDL_SYSWM_WINRT:  // currently not supported by pygame?
 #endif
-            Py_RETURN_FALSE; //unsupported
+            return PyInt_FromLong(-1);
 
         // On these platforms, everything is fullscreen at all times anyway
         // So we silently fail
@@ -2586,7 +2586,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                              1) != 0) {
                 return NULL;
             }
-            Py_RETURN_FALSE; //unsupported
+            return PyInt_FromLong(-1);
 
             // Untested and unsupported platforms
 #if SDL_VERSION_ATLEAST(2, 0, 2)
@@ -2815,7 +2815,7 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                              1) != 0) {
                 return NULL;
             }
-            Py_RETURN_FALSE;
+            return PyInt_FromLong(-1);
         }
         else {
             result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
@@ -2838,11 +2838,11 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
                                  1) != 0) {
                     return NULL;
                 }
-                Py_RETURN_FALSE;
+                return PyInt_FromLong(-1);
             }
         }
     }
-    return PyBool_FromLong(result == 0);
+    return PyInt_FromLong(result != 0);
 }
 
 /* This API is provisional, and, not finalised, and should not be documented
@@ -3020,11 +3020,14 @@ pg_toggle_fullscreen(PyObject *self, PyObject *args)
 {
     //https://sdl.beuc.net/sdl.wiki/SDL_WM_ToggleFullScreen
     SDL_Surface *screen;
+    int result;
     VIDEO_INIT_CHECK();
     screen = SDL_GetVideoSurface();
     if (!screen)
         return RAISE(pgExc_SDLError, SDL_GetError());
-    return PyBool_FromLong(SDL_WM_ToggleFullScreen(screen));
+
+    result = SDL_WM_ToggleFullScreen(screen);
+    return PyInt_FromLong(result != 0);
 }
 #endif /* IS_SDLv1 */
 

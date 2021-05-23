@@ -16,7 +16,7 @@
 #define DOC_PYGAMEDISPLAYGLSETATTRIBUTE "gl_set_attribute(flag, value) -> None\nRequest an OpenGL display attribute for the display mode"
 #define DOC_PYGAMEDISPLAYGETACTIVE "get_active() -> bool\nReturns True when the display is active on the screen"
 #define DOC_PYGAMEDISPLAYICONIFY "iconify() -> bool\nIconify the display surface"
-#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "toggle_fullscreen() -> bool\nSwitch between fullscreen and windowed displays"
+#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "toggle_fullscreen() -> int\nSwitch between fullscreen and windowed displays"
 #define DOC_PYGAMEDISPLAYSETGAMMA "set_gamma(red, green=None, blue=None) -> bool\nChange the hardware gamma ramps"
 #define DOC_PYGAMEDISPLAYSETGAMMARAMP "set_gamma_ramp(red, green, blue) -> bool\nChange the hardware gamma ramps with a custom lookup"
 #define DOC_PYGAMEDISPLAYSETICON "set_icon(Surface) -> None\nChange the system image for the display window"
@@ -102,7 +102,7 @@ pygame.display.iconify
 Iconify the display surface
 
 pygame.display.toggle_fullscreen
- toggle_fullscreen() -> bool
+ toggle_fullscreen() -> int
 Switch between fullscreen and windowed displays
 
 pygame.display.set_gamma
