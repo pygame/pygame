@@ -68,7 +68,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
     def test_object_namehint(self):
         """test loading & queuing music from file-like objects with namehint argument."""
-        formats = ["mp3", "wav", "ogg"]
+        formats = ["wav", "ogg"]
         data_fname = example_path("data")
         for f in formats:
             path = os.path.join(data_fname, "house_lo.%s" % f)
