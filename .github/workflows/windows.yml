@@ -33,11 +33,11 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       # PyPy 7.3.3 has only win32 builds available (python 2.7, 3.6, and 3.7)
-      # PyPy 7.3.4 does not have 32-bit builds, only 64-bit ones (python 2.7 and 3.7)
+      # PyPy 7.3.4 does not have 32-bit builds, only 64-bit ones (python 3.7)
       # So we build with 7.3.3 for 32-bit builds, and 7.3.4 for 64-bit builds
       matrix:
         # pyversion: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9', 'pypy-2.7', 'pypy-3.6', 'pypy-3.7']
-        pyversion: ['3.5', '3.6', '3.7', '3.8', '3.9', 'pypy-2.7-v7.3.3', 'pypy-3.6-v7.3.3', 'pypy-3.7-v7.3.3', 'pypy-2.7-v7.3.4', 'pypy-3.7-v7.3.4']
+        pyversion: ['3.5', '3.6', '3.7', '3.8', '3.9', 'pypy-2.7-v7.3.3', 'pypy-3.6-v7.3.3', 'pypy-3.7-v7.3.3', 'pypy-3.7-v7.3.4']
         arch: ['x64', 'x86']
         
         exclude:
@@ -47,8 +47,6 @@ jobs:
             arch: 'x64'
           - pyversion: 'pypy-3.7-v7.3.3'
             arch: 'x64'
-          - pyversion: 'pypy-2.7-v7.3.4'
-            arch: 'x86'
           - pyversion: 'pypy-3.7-v7.3.4'
             arch: 'x86'
 
