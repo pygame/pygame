@@ -518,9 +518,14 @@ pgRWops_FromFileObject(PyObject *obj)
     rw->write = _pg_rw_write;
     rw->close = _pg_rw_close;
 
+/* https://docs.python.org/3/c-api/init.html#c.PyEval_InitThreads */
+/* ^ in Python >= 3.7, we don't have to call this function, and in 3.11 
+ * it will be removed */
+#if PY_VERSION_HEX < 0x03070000
 #ifdef WITH_THREAD
     PyEval_InitThreads();
 #endif /* WITH_THREAD */
+#endif
 
     return rw;
 }
@@ -662,7 +667,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
-    ssize_t retval;
+    Py_ssize_t retval;
 #endif /* IS_SDLv2 */
 #ifdef WITH_THREAD
     PyGILState_STATE state;
