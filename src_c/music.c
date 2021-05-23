@@ -420,8 +420,10 @@ _load_music(PyObject *args) {
 static PyObject *
 music_load(PyObject *self, PyObject *args)
 {
+    Mix_Music *new_music = NULL;
     MIXER_INIT_CHECK();
-    Mix_Music *new_music = _load_music(args);
+
+    new_music = _load_music(args);
     if (new_music == NULL) // meaning it has an error to return
         return NULL;
 
@@ -462,8 +464,10 @@ music_unload(PyObject *self, PyObject *noarg)
 static PyObject *
 music_queue(PyObject *self, PyObject *args)
 {
+    Mix_Music *local_queue_music = NULL;
     MIXER_INIT_CHECK();
-    Mix_Music *local_queue_music = _load_music(args);
+    
+    local_queue_music = _load_music(args);
     if (local_queue_music == NULL) // meaning it has an error to return
         return NULL;
 
