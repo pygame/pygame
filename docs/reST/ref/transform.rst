@@ -119,7 +119,7 @@ Instead, always begin with the original image and scale to the desired size.)
 .. function:: get_smoothscale_backend
 
    | :sl:`return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'`
-   | :sg:`get_smoothscale_backend() -> String`
+   | :sg:`get_smoothscale_backend() -> string`
 
    Shows whether or not smoothscale is using ``MMX`` or ``SSE`` acceleration.
    If no acceleration is available then "GENERIC" is returned. For a x86

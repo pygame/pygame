@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMETRANSFORM "pygame module to transform surfaces"
 #define DOC_PYGAMETRANSFORMFLIP "flip(surface, flip_x, flip_y) -> Surface\nflip vertically and horizontally"
-#define DOC_PYGAMETRANSFORMSCALE "scale(surface, size, dest_surface = None) -> Surface\nresize to new resolution"
+#define DOC_PYGAMETRANSFORMSCALE "scale(surface, size, dest_surface=None) -> Surface\nresize to new resolution"
 #define DOC_PYGAMETRANSFORMROTATE "rotate(surface, angle) -> Surface\nrotate an image"
 #define DOC_PYGAMETRANSFORMROTOZOOM "rotozoom(surface, angle, scale) -> Surface\nfiltered scale and rotation"
 #define DOC_PYGAMETRANSFORMSCALE2X "scale2x(surface, dest_surface=None) -> Surface\nspecialized image doubler"
@@ -27,7 +27,7 @@ pygame.transform.flip
 flip vertically and horizontally
 
 pygame.transform.scale
- scale(surface, size, dest_surface = None) -> Surface
+ scale(surface, size, dest_surface=None) -> Surface
 resize to new resolution
 
 pygame.transform.rotate

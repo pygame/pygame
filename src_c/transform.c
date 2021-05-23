@@ -536,7 +536,6 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height;
-    PyObject *size;
     surfobj2 = NULL;
     static char *keywords[] = {"surface", "size", "dest_surface", NULL};
 
@@ -1436,7 +1435,6 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf, *newsurf;
     int width, height, bpp;
     surfobj2 = NULL;
-    PyObject *size;
     static char *keywords[] = {"surface", "size", "dest_surface", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O|O!", keywords,
