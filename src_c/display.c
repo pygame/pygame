@@ -1595,7 +1595,7 @@ pg_list_modes(PyObject *self, PyObject *args, PyObject *kwds)
     int bpp = 0;
     int flags = PGS_FULLSCREEN;
     int display_index = 0;
-    int last_width = -1, last_height;
+    int last_width = -1, last_height = -1;
     PyObject *list, *size;
     int i;
 
