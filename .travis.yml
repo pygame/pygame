@@ -16,10 +16,10 @@ if: type != push OR branch = master OR branch = main OR branch =~ /^\d+\.\d+(\.\
 
 jobs:
   include:
-    - python: 3.6
-      name: SDL 1.2
-      env:
-        - WHICH_SDL_BUILD=-sdl1
+    # - python: 3.6
+    #   name: SDL 1.2
+    #   env:
+    #     - WHICH_SDL_BUILD=-sdl1
 
     # enable ppc64le closer to release, it is slow.
     # - os: linux-ppc64le
@@ -44,41 +44,44 @@ jobs:
     # - os: linux
     #   python: 3.7
     #   arch: s390x
-    - os: linux
-      python: 3.7
-      name: manylinux x86/amd64 python 2.7, 3.4-3.9.
-      env:
-        - MANYLINUX_WHL=yes
-        - UPLOAD_WHL_PYPI=yes
-        - GITHUB_UPLOAD=yes
-        - PYTHON_EXE=python3
-      services:
-        - docker
-    - os: osx
-      language: shell
-      env:
-        - GITHUB_UPLOAD=yes
-        - UPLOAD_WHL_PYPI=yes
-      cache:
-        directories:
-          - $HOME/.conan/data
+    # - os: linux
+    #   python: 3.7
+    #   name: manylinux x86/amd64 python 2.7, 3.4-3.9.
+    #   env:
+    #     - MANYLINUX_WHL=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    #     - GITHUB_UPLOAD=yes
+    #     - PYTHON_EXE=python3
+    #   services:
+    #     - docker
+    # - os: osx
+    #   language: shell
+    #   env:
+    #     - GITHUB_UPLOAD=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    #   cache:
+    #     directories:
+    #       - $HOME/.conan/data
 
     # only run this on tag posts. We need two mac builds for mac wheels when doing pypy.
-    - os: osx
-      name: mac pypy only
-      if: tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
-      language: shell
-      env:
-        - GITHUB_UPLOAD=yes
-        - UPLOAD_WHL_PYPI=yes
-        - PYPYONLY=yes
-      cache:
-        directories:
-          - $HOME/.conan/data
+    # - os: osx
+    #   name: mac pypy only
+    #   if: tag ~= /^\d+\.\d+(\.\d+)?(.\S*)?$/
+    #   language: shell
+    #   env:
+    #     - GITHUB_UPLOAD=yes
+    #     - UPLOAD_WHL_PYPI=yes
+    #     - PYPYONLY=yes
+    #   cache:
+    #     directories:
+    #       - $HOME/.conan/data
 
   # allow_failures:
   #   - arch: s390x
     # - python: pypy
+
+  allow_failures:
+    - arch: arm64
 
 before_install:
   - |
