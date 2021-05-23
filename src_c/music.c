@@ -374,8 +374,6 @@ _load_music(PyObject *args) {
         return NULL;
     }
 
-    MIXER_INIT_CHECK();
-
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
         SDL_RWops *rw;
@@ -411,8 +409,9 @@ _load_music(PyObject *args) {
         return NULL;
     }
 
-    if (new_music == NULL) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
+    if (!new_music) {
+        PyErr_SetString(pgExc_SDLError, SDL_GetError());
+        return NULL;
     }
     
     return new_music;
@@ -421,6 +420,7 @@ _load_music(PyObject *args) {
 static PyObject *
 music_load(PyObject *self, PyObject *args)
 {
+    MIXER_INIT_CHECK();
     Mix_Music *new_music = _load_music(args);
     if (new_music == NULL) // meaning it has an error to return
         return NULL;
@@ -462,6 +462,7 @@ music_unload(PyObject *self, PyObject *noarg)
 static PyObject *
 music_queue(PyObject *self, PyObject *args)
 {
+    MIXER_INIT_CHECK();
     Mix_Music *local_queue_music = _load_music(args);
     if (local_queue_music == NULL) // meaning it has an error to return
         return NULL;
