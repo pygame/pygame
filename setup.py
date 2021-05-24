@@ -54,11 +54,10 @@ def compilation_help():
         'Darwin': 'https://www.pygame.org/wiki/MacCompile',
         'RedHat': 'https://www.pygame.org/wiki/CompileRedHat',
         # TODO There is nothing in the following pages yet
-        # 'Suse': 'https://www.pygame.org/wiki/CompileSuse',
-        # 'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
-        # 'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
-        # TODO This page does not exists yet:
-        # 'Debian': 'https://www.pygame.org/wiki/CompileDebian',
+        'Suse': 'https://www.pygame.org/wiki/CompileSuse',
+        'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
+        'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
