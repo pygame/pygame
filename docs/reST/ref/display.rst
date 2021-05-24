@@ -19,7 +19,7 @@ screen. Both axes increase positively towards the bottom right of the screen.
 
 The pygame display can actually be initialized in one of several modes. By
 default, the display is a basic software driven framebuffer. You can request
-special modules like hardware acceleration and OpenGL support. These are
+special modules like automatic scaling or OpenGL support. These are
 controlled by flags passed to ``pygame.display.set_mode()``.
 
 Pygame can only have a single display active at any time. Creating a new one
