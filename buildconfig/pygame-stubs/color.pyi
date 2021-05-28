@@ -1,4 +1,4 @@
-from typing import Text, Tuple, Union, overload, List, Optional
+from typing import Tuple, Union, overload, List, Optional
 
 _ColorValue = Union[
     "Color", str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]

@@ -418,7 +418,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
     /*make chunk a power of 2*/
     for (i = 0; 1 << i < chunk; ++i)
         ;                     /*yes, semicolon on for loop*/
-    chunk = MAX(1 << i, 256); /*do this after foo loop exits*/
+    chunk = MAX(1 << i, 256); /*do this after for loop exits*/
 
     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
         if (!channeldata) { /*should always be null*/

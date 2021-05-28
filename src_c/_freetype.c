@@ -316,23 +316,14 @@ parse_dest(PyObject *dest, int *x, int *y)
         Py_DECREF(oj);
         return -1;
     }
-    if (!pg_IntFromObj(oi, &i)){
-        i = -1;
-    }
-    Py_DECREF(oi);
-    if (i == -1 ) {
+    if (!pg_IntFromObj(oi, &i) || !pg_IntFromObj(oj, &j)){
+        Py_DECREF(oi);
         Py_DECREF(oj);
         PyErr_SetString(PyExc_TypeError, "dest expects a pair of numbers");
         return -1;
     }
-    if (!pg_IntFromObj(oj, &j)){
-        j = -1;
-    }
+    Py_DECREF(oi);
     Py_DECREF(oj);
-    if (j == -1 ) {
-        PyErr_SetString(PyExc_TypeError, "dest expects a pair of numbers");
-        return -1;
-    }
     *x = i;
     *y = j;
     return 0;

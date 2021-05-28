@@ -46,8 +46,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 
    Initialize the mixer module for Sound loading and playback. The default
    arguments can be overridden to provide specific audio mixing. Keyword
-   arguments are accepted. For backward compatibility where an argument is set
-   zero the default value is used (possible changed by a pre_init call).
+   arguments are accepted. For backwards compatibility, argument values of 
+   0 are replaced with the startup defaults, except for ``allowedchanges``,
+   where -1 is used. (startup defaults may be changed by a :func:`pre_init` call).
 
    The size argument represents how many bits are used for each audio sample.
    If the value is negative then signed sample values will be used. Positive
@@ -100,14 +101,14 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 .. function:: pre_init
 
    | :sl:`preset the mixer init arguments`
-   | :sg:`pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None) -> None`
+   | :sg:`pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None`
 
    Call pre_init to change the defaults used when the real
    ``pygame.mixer.init()`` is called. Keyword arguments are accepted. The best
    way to set custom mixer playback values is to call
    ``pygame.mixer.pre_init()`` before calling the top level ``pygame.init()``.
-   For backward compatibility argument values of zero are replaced with the
-   startup defaults.
+   For backwards compatibility, argument values of 0 are replaced with the
+   startup defaults, except for ``allowedchanges``, where -1 is used.
 
    .. versionchanged:: 1.8 The default ``buffersize`` changed from 1024 to 3072.
    .. versionchanged:: 1.9.1 The default ``buffersize`` changed from 3072 to 4096.

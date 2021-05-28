@@ -1,0 +1,87 @@
+name: MacOS
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/linux.yml'
+    - '.github/workflows/windows.yml'
+    - '.github/workflows/sdl1-sdist.yml'
+  pull_request:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/manylinux.yml'
+    - '.github/workflows/windows.yml'
+    - '.github/workflows/sdl1-sdist.yml'
+
+jobs:
+  build-macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        # TODO: when Github actions supports M1 Mac, add `macos-11.0` to this
+        os: [macos-10.15]
+        pyversion: ['pypy-3.7', 'pypy-2.7', '2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+    
+    - name: Set up Python ${{ matrix.pyversion }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.pyversion }}
+
+    - name: Install deps
+      run: |
+        brew install sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi openblas
+        python -m pip install -U pip
+        python -m pip install -U wheel requests
+        OPENBLAS="$(brew --prefix openblas)" python -m pip install -U numpy
+
+    - name: Build the wheel and install it
+      run: |
+        python setup.py build -j4 bdist_wheel
+        python -m pip install --ignore-installed --pre --no-index --find-links=dist/ pygame
+    
+    - name: Run tests
+      env:
+        SDL_VIDEODRIVER: "dummy"
+        SDL_AUDIODRIVER: "disk"
+      run: python -m pygame.tests -v --exclude opengl,timing --time_out 300
+
+    # We upload the generated files under github actions assets
+    - name: Upload dist
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/*.whl
+
+#   - name: Upload binaries to Github Releases
+#     if: github.event_name == 'release'
+#     uses: svenstaro/upload-release-action@v2
+#     with:
+#       repo_token: ${{ secrets.GITHUB_TOKEN }}
+#       file: dist/*.whl
+#       tag: ${{ github.ref }}
+#
+#   - name: Upload binaries to PyPI
+#     if: github.event_name == 'release'
+#     env:
+#      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python3 -m pip install twine
+#       twine upload dist/*.whl

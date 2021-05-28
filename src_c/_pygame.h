@@ -33,6 +33,12 @@
 */
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+
+/* Ensure PyPy-specific code is not in use when running on GraalPython (PR #2580) */
+#if defined(GRAALVM_PYTHON) && defined(PYPY_VERSION)
+#undef PYPY_VERSION
+#endif
+
 #include <SDL.h>
 
 /* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
@@ -135,6 +141,9 @@ typedef enum {
     PGPOST_CONTROLLERDEVICEADDED,
     PGPOST_CONTROLLERDEVICEREMOVED,
     PGPOST_CONTROLLERDEVICEREMAPPED,
+    PGPOST_CONTROLLERTOUCHPADDOWN,
+    PGPOST_CONTROLLERTOUCHPADMOTION,
+    PGPOST_CONTROLLERTOUCHPADUP,
     PGPOST_DOLLARGESTURE,
     PGPOST_DOLLARRECORD,
     PGPOST_DROPFILE,

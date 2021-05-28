@@ -14,6 +14,14 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
     Does not download again if the file is there.
     Does not unzip again if the file is there.
     """
+    # requests does connection retrying, but people might not have it installed.
+    use_requests = True
+
+    try:
+        import requests
+    except ImportError:
+        use_requests = False
+
     try:
         import urllib.request as urllib
     except ImportError:
@@ -34,17 +42,27 @@ def download_sha1_unzip(url, checksum, save_to_directory, unzip=True):
                 print("Skipping download url:%s: save_to:%s:" % (url, save_to))
     else:
         print("Downloading...", url, checksum)
-        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, '
-                                 'like Gecko) Chrome/35.0.1916.47 Safari/537.36'}
-        request = urllib.Request(url, headers=headers)
-        response = urllib.urlopen(request).read()
-        cont_checksum = hashlib.sha1(response).hexdigest()
+
+        if use_requests:
+            response = requests.get(url)
+            cont_checksum = hashlib.sha1(response.content).hexdigest()
+        else:
+
+            headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, '
+                                     'like Gecko) Chrome/35.0.1916.47 Safari/537.36'}
+            request = urllib.Request(url, headers=headers)
+            response = urllib.urlopen(request).read()
+            cont_checksum = hashlib.sha1(response).hexdigest()
+
         if checksum != cont_checksum:
             raise ValueError(
                 'url:%s should have checksum:%s: Has:%s: ' % (url, checksum, cont_checksum)
             )
         with open(save_to, 'wb') as f:
-            f.write(response)
+            if use_requests:
+                f.write(response.content)
+            else:
+                f.write(response)
 
     if unzip and filename.endswith('.zip'):
         print("Unzipping :%s:" % save_to)

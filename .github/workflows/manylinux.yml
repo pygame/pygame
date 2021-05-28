@@ -1,0 +1,67 @@
+name: ManyLinux
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/macos.yml'
+    - '.github/workflows/windows.yml'
+    - '.github/workflows/sdl1-sdist.yml'
+  pull_request:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/macos.yml'
+    - '.github/workflows/windows.yml'
+    - '.github/workflows/sdl1-sdist.yml'
+
+# TODO: Parallelize this build
+jobs:
+  build-manylinux:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Build manylinux wheels
+      run: |
+        cd buildconfig/manylinux-build
+        make pull pull-manylinux wheels wheels-manylinux
+        cd ../..
+        mkdir -p dist/
+        cp buildconfig/manylinux-build/wheelhouse/*.whl dist/
+
+    # We upload the generated files under github actions assets
+    - name: Upload dist
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/*.whl
+
+#   - name: Upload binaries to Github Releases
+#     if: github.event_name == 'release'
+#     uses: svenstaro/upload-release-action@v2
+#     with:
+#       repo_token: ${{ secrets.GITHUB_TOKEN }}
+#       file: dist/*.whl
+#       tag: ${{ github.ref }}
+#
+#   - name: Upload binaries to PyPI
+#     if: github.event_name == 'release'
+#     env:
+#      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python3 -m pip install twine
+#       twine upload dist/*.whl

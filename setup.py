@@ -408,7 +408,7 @@ add_datafiles(data_files, 'pygame/examples',
 
 # docs
 add_datafiles(data_files, 'pygame/docs',
-              ['docs',
+              ['docs/generated',
                   ['*.html',             # Navigation and help pages
                    '*.gif',              # pygame logos
                    '*.js',               # For doc search
@@ -734,16 +734,19 @@ class DocsCommand(Command):
 
     def run(self):
         '''
-        runs the tests with default options.
+        runs Sphinx to build the docs.
         '''
+
+        # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
         docs_help = (
-            "Building docs requires Python version 3.6 or above, and sphinx 2 or above."
+            "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3." 
         )
         if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
             raise SystemExit(docs_help)
 
         import subprocess
         try:
+            print("using python:", sys.executable)
             return subprocess.call([
                 sys.executable, os.path.join('buildconfig', 'makeref.py')]
             )

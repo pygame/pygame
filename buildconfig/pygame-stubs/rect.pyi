@@ -1,6 +1,7 @@
 from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Iterable
 from typing_extensions import Protocol
 from pygame.math import Vector2
+from pygame.sprite import _RectStyle
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
