@@ -308,6 +308,10 @@ pg_mod_autoquit(const char *modname)
     if (!funcobj)
         funcobj = PyObject_GetAttrString(module, "quit");
 
+    /* Silence errors */
+    if (PyErr_Occurred())
+        PyErr_Clear();
+
     if (funcobj)
         Py_XDECREF(PyObject_CallObject(funcobj, NULL));
 
