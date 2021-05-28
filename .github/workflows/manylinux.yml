@@ -49,6 +49,43 @@ jobs:
       with:
         path: dist/*.whl
 
+  build-aarch64:
+    name: "Build aarch64 wheel"
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    env:
+      img: quay.io/pypa/manylinux2014_aarch64
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+    - uses: actions/setup-python@v2
+      name: Install Python
+      with:
+         python-version: '3.7'    
+    - name: Build and test wheel
+      run: |
+            docker run --rm -v ${{ github.workspace }}:/io:rw --workdir=/io \
+            ${{ env.img }} \
+            bash -exc 'yum install -y sudo && \
+            export PYTHON_EXE=python3 && \
+            sudo yum install -y epel-release dnf && \
+            sudo yum-config-manager --enable epel && \
+            sudo yum install -y SDL2-devel freetype-devel libjpeg-turbo SDL2_mixer-devel portmidi-devel SDL2_ttf-devel SDL2_image-devel && \
+            sudo dnf install -y libjpeg-turbo-devel libvorbis && \
+            cd buildconfig/manylinux-build && \
+            source build-wheels.sh && \
+            cd ../.. && \
+            mkdir -p dist/ && \
+            cp buildconfig/manylinux-build/wheelhouse/*.whl dist/'
+    - name: Upload dist
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/*.whl
+
 #   - name: Upload binaries to Github Releases
 #     if: github.event_name == 'release'
 #     uses: svenstaro/upload-release-action@v2
