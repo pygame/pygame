@@ -198,10 +198,10 @@ font_autoinit(PyObject *self)
         pg_RegisterQuit(font_autoquit);
 
         if (TTF_Init())
-            return PyInt_FromLong(0);
+            Py_RETURN_FALSE;
         font_initialized = 1;
     }
-    return PyInt_FromLong(font_initialized);
+    return PyBool_FromLong(font_initialized);
 }
 
 static PyObject *

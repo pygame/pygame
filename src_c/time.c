@@ -69,11 +69,11 @@ pg_time_autoinit(PyObject *self)
         timermutex = SDL_CreateMutex();
         if (!timermutex) {
             PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            return PyInt_FromLong(0);
+            Py_RETURN_FALSE;
         }
         pg_RegisterQuit(_pg_event_timer_cleanup);
     }
-    return PyInt_FromLong(1);
+    Py_RETURN_TRUE;
 }
 
 static int

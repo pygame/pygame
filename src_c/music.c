@@ -136,7 +136,7 @@ music_get_busy(PyObject *self, PyObject *args)
     playing = (Mix_PlayingMusic() && !Mix_PausedMusic());
     Py_END_ALLOW_THREADS
 
-    return PyInt_FromLong(playing);
+    return PyBool_FromLong(playing);
 }
 
 static PyObject *
