@@ -133,6 +133,7 @@ def main(*args):
     if len(args) == 0:
         raise ValueError("Require at least one image file name: non given")
     print("Press any key to quit")
+    pg.init()
     screen = pg.display.set_mode((640, 480))
     if any("fist.bmp" in x for x in args):
         pg.display.set_caption("Punch Nazis")
