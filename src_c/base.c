@@ -294,7 +294,7 @@ pg_mod_autoinit(const char *modname)
 static void
 pg_mod_autoquit(const char *modname)
 {
-    PyObject *module, *funcobj;
+    PyObject *module, *funcobj, *temp;
 
     module = PyImport_ImportModule(modname);
     if (!module) {
@@ -312,8 +312,10 @@ pg_mod_autoquit(const char *modname)
     if (PyErr_Occurred())
         PyErr_Clear();
 
-    if (funcobj)
-        Py_XDECREF(PyObject_CallObject(funcobj, NULL));
+    if (funcobj) {
+        temp = PyObject_CallObject(funcobj, NULL);
+        Py_XDECREF(temp);
+    }
 
     /* Silence errors */
     if (PyErr_Occurred())
@@ -367,12 +369,9 @@ pg_init(PyObject *self)
             /* ImportError is neither counted as success nor failure */
             if (!PyErr_ExceptionMatches(PyExc_ImportError))
                 fail++;
+            PyErr_Clear();
         }
     }
-
-    /* Because pygame.init never errors */
-    if (PyErr_Occurred())
-        PyErr_Clear();
 
     pg_is_init = 1;
     return Py_BuildValue("(ii)", success, fail);
@@ -417,7 +416,7 @@ static void
 _pg_quit(void)
 {
     int num, i;
-    PyObject *quit, *privatefuncs;
+    PyObject *quit, *privatefuncs, *temp;
 
     /* Put all the module names we want to quit in this array */
     const char *modnames[] = {
@@ -444,8 +443,17 @@ _pg_quit(void)
         /*quit funcs in reverse order*/
         while (num--) {
             quit = PyList_GET_ITEM(privatefuncs, num);
+            if (!quit) {
+                PyErr_Clear();
+                continue;
+            }
+
             if (PyCallable_Check(quit)) {
-                Py_XDECREF(PyObject_CallObject(quit, NULL));
+                temp = PyObject_CallObject(quit, NULL);
+                if (temp)
+                    Py_DECREF(temp);
+                else
+                    PyErr_Clear();
             }
             else if (PyCapsule_CheckExact(quit)) {
                 void *ptr = PyCapsule_GetPointer(quit, "quit");
