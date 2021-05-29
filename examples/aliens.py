@@ -378,7 +378,7 @@ def main(winstyle=0):
             player.kill()
 
         # See if shots hit the aliens.
-        for alien in pg.sprite.groupcollide(shots, aliens, 1, 1).keys():
+        for alien in pg.sprite.groupcollide(aliens, shots, 1, 1).keys():
             if pg.mixer:
                 boom_sound.play()
             Explosion(alien)
