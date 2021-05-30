@@ -182,24 +182,14 @@ font_resource(const char *filename)
     return result;
 }
 
-static void
-font_autoquit(void)
-{
-    if (font_initialized) {
-        font_initialized = 0;
-        TTF_Quit();
-    }
-}
-
 static PyObject *
-font_autoinit(PyObject *self)
+fontmodule_init(PyObject *self)
 {
     if (!font_initialized) {
-        pg_RegisterQuit(font_autoquit);
-
         if (TTF_Init())
-            Py_RETURN_FALSE;
-        font_initialized = 1;
+            return RAISE(pgExc_SDLError, SDL_GetError());
+
+      font_initialized = 1;
     }
     return PyBool_FromLong(font_initialized);
 }
@@ -207,23 +197,10 @@ font_autoinit(PyObject *self)
 static PyObject *
 fontmodule_quit(PyObject *self)
 {
-    font_autoquit();
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-fontmodule_init(PyObject *self)
-{
-    PyObject *result;
-    int istrue;
-
-    result = font_autoinit(self);
-    if (result == NULL)
-        return NULL;
-    istrue = PyObject_IsTrue(result);
-    Py_DECREF(result);
-    if (!istrue)
-        return RAISE(pgExc_SDLError, SDL_GetError());
+    if (font_initialized) {
+        TTF_Quit();
+        font_initialized = 0;
+    }
     Py_RETURN_NONE;
 }
 
@@ -990,8 +967,6 @@ get_default_font(PyObject *self)
 }
 
 static PyMethodDef _font_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)font_autoinit, METH_NOARGS,
-     "auto initialize function for font"},
     {"init", (PyCFunction)fontmodule_init, METH_NOARGS, DOC_PYGAMEFONTINIT},
     {"quit", (PyCFunction)fontmodule_quit, METH_NOARGS, DOC_PYGAMEFONTQUIT},
     {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMEFONTGETINIT},

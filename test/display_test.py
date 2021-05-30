@@ -405,18 +405,22 @@ class DisplayModuleTest(unittest.TestCase):
         success = pygame.display.iconify()
 
         if success:
-            minimized_event = False
+            active_event = window_minimized_event = False
             # make sure we cycle the event loop enough to get the display
-            # hidden
-            if SDL2:
-                for _ in range(100):
-                    time.sleep(0.01)
-                    for event in pygame.event.get():
-                        if event.type == pygame.WINDOWMINIMIZED:
-                            minimized_event = True
+            # hidden. Test that both ACTIVEEVENT and WINDOWMINIMISED event appears
+            for _ in range(50):
+                time.sleep(0.01)
+                for event in pygame.event.get():
+                    if event.type == pygame.ACTIVEEVENT:
+                        if not event.gain and event.state == pygame.APPACTIVE:
+                            active_event = True
+                    if SDL2 and event.type == pygame.WINDOWMINIMIZED:
+                        window_minimized_event = True
 
-                self.assertTrue(minimized_event)
-                self.assertFalse(pygame.display.get_active())
+            if SDL2:
+                self.assertTrue(window_minimized_event)
+            self.assertTrue(active_event)
+            self.assertFalse(pygame.display.get_active())
 
         else:
             self.fail('Iconify not supported on this platform, please skip')

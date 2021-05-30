@@ -37,8 +37,8 @@ typedef struct pgEventTimer {
 static pgEventTimer *pg_event_timer = NULL;
 static SDL_mutex *timermutex = NULL;
 
-static void
-_pg_event_timer_cleanup(void)
+static PyObject *
+pg_time_autoquit(PyObject *self)
 {
     pgEventTimer *hunt, *todel;
     /* We can let errors silently pass in this function, because this
@@ -58,20 +58,17 @@ _pg_event_timer_cleanup(void)
     /* After we are done, we can destroy the mutex as well */
     SDL_DestroyMutex(timermutex);
     timermutex = NULL;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_time_autoinit(PyObject *self)
 {
-    /* register cleanup function for event timer holding structure,
-     * allocate a mutex for this structure too */
-    if (!timermutex && !pg_event_timer) {
+    /* allocate a mutex for timer data holding struct*/
+    if (!timermutex) {
         timermutex = SDL_CreateMutex();
-        if (!timermutex) {
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            Py_RETURN_FALSE;
-        }
-        pg_RegisterQuit(_pg_event_timer_cleanup);
+        if (!timermutex)
+            return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_TRUE;
 }
@@ -551,6 +548,8 @@ ClockInit(PyObject *self)
 static PyMethodDef _time_methods[] = {
     {"__PYGAMEinit__", (PyCFunction)pg_time_autoinit, METH_NOARGS,
         "auto initialize function for time"},
+    {"__PYGAMEquit__", (PyCFunction)pg_time_autoquit, METH_NOARGS,
+        "auto quit function for time"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
     {"delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY},

@@ -69,12 +69,6 @@ PYGAMEAPI_DEFINE_SLOTS(mixer);
 #define pgChannel_New (*(PyObject*(*)(int)) \
     PYGAMEAPI_GET_SLOT(mixer, 4))
 
-#define pgMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*)) \
-    PYGAMEAPI_GET_SLOT(mixer, 5))
-
-#define pgMixer_AutoQuit (*(void(*)(void)) \
-    PYGAMEAPI_GET_SLOT(mixer, 6))
-
 #define import_pygame_mixer() _IMPORT_PYGAME_MODULE(mixer)
 
 #endif /* PYGAMEAPI_MIXER_INTERNAL */

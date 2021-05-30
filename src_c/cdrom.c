@@ -33,8 +33,8 @@ static PyObject *
 pgCD_New(int id);
 #define pgCD_Check(x) ((x)->ob_type == &pgCD_Type)
 
-static void
-cdrom_autoquit(void)
+static PyObject *
+cdrom_quit(PyObject *self)
 {
     int loop;
     for (loop = 0; loop < CDROM_MAXDRIVES; ++loop) {
@@ -47,38 +47,15 @@ cdrom_autoquit(void)
     if (SDL_WasInit(SDL_INIT_CDROM)) {
         SDL_QuitSubSystem(SDL_INIT_CDROM);
     }
-}
-
-static PyObject *
-cdrom_autoinit(PyObject *self)
-{
-    if (!SDL_WasInit(SDL_INIT_CDROM)) {
-        if (SDL_InitSubSystem(SDL_INIT_CDROM)) {
-            return PyInt_FromLong(0);
-        }
-        pg_RegisterQuit(cdrom_autoquit);
-    }
-    return PyInt_FromLong(1);
-}
-
-static PyObject *
-cdrom_quit(PyObject *self)
-{
-    cdrom_autoquit();
     Py_RETURN_NONE;
 }
 
 static PyObject *
 cdrom_init(PyObject *self)
 {
-    PyObject *result;
-    int istrue;
-
-    result = cdrom_autoinit(self);
-    istrue = PyObject_IsTrue(result);
-    Py_DECREF(result);
-    if (!istrue) {
-        return RAISE(pgExc_SDLError, SDL_GetError());
+    if (!SDL_WasInit(SDL_INIT_CDROM)) {
+        if (SDL_InitSubSystem(SDL_INIT_CDROM))
+            return RAISE(pgExc_SDLError, SDL_GetError());
     }
     Py_RETURN_NONE;
 }
@@ -585,8 +562,6 @@ pgCD_New(int id)
 }
 
 static PyMethodDef _cdrom_methods[] = {
-    {"__PYGAMEinit__", (PyCFunction)cdrom_autoinit, METH_NOARGS,
-     "auto initialize function"},
     {"init", (PyCFunction)cdrom_init, METH_NOARGS, DOC_PYGAMECDROMINIT},
     {"quit", (PyCFunction)cdrom_quit, METH_NOARGS, DOC_PYGAMECDROMQUIT},
     {"get_init", (PyCFunction)get_init, METH_NOARGS, DOC_PYGAMECDROMGETINIT},

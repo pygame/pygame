@@ -14,42 +14,18 @@ except NameError:
 import pygame
 
 
-init_called = quit_called = 0
-
-
-def __PYGAMEinit__():  # called automatically by pygame.init()
-    global init_called
-    init_called = init_called + 1
-    pygame.register_quit(pygame_quit)
-
-    # Returning False indicates that the initialization has failed. It is
-    # purposely done here to test that failing modules are reported.
-    return False
-
-
-def pygame_quit():
-    global quit_called
-    quit_called = quit_called + 1
-
-
-quit_hook_ran = 0
+quit_count = 0
 
 
 def quit_hook():
-    global quit_hook_ran
-    quit_hook_ran = 1
+    global quit_count
+    quit_count += 1
 
 
 class BaseModuleTest(unittest.TestCase):
     def tearDown(self):
         # Clean up after each test method.
         pygame.quit()
-
-    def testAutoInit(self):
-        pygame.init()
-        pygame.quit()
-        self.assertEqual(init_called, 1)
-        self.assertEqual(quit_called, 1)
 
     def test_get_sdl_byteorder(self):
         """Ensure the SDL byte order is valid"""
@@ -572,13 +548,13 @@ class BaseModuleTest(unittest.TestCase):
 
     def test_register_quit(self):
         """Ensure that a registered function is called on quit()"""
-        self.assertFalse(quit_hook_ran)
+        self.assertEqual(quit_count, 0)
 
         pygame.init()
         pygame.register_quit(quit_hook)
         pygame.quit()
 
-        self.assertTrue(quit_hook_ran)
+        self.assertEqual(quit_count, 1)
 
     def test_get_error(self):
 
@@ -623,12 +599,11 @@ class BaseModuleTest(unittest.TestCase):
         # Make sure nothing initialized.
         self.not_init_assertions()
 
-        # The exact number of modules can change, but it should never be < 0.
-        expected_min_passes = 0
+        # display and joystick must init, at minimum
+        expected_min_passes = 2
 
-        # The __PYGAMEinit__ function in this module returns False, so this
-        # should give a fail count of 1. All other modules should pass.
-        expected_fails = 1
+        # All modules should pass.
+        expected_fails = 0
 
         passes, fails = pygame.init()
 
