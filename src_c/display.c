@@ -233,13 +233,6 @@ pg_display_quit(PyObject *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-pg_display_autoinit(PyObject *self, PyObject *arg)
-{
-    pg_RegisterQuit(pg_display_autoquit);
-    Py_RETURN_TRUE;
-}
-
 static int
 _pg_mac_display_init(void)
 {

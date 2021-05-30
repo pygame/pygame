@@ -2090,7 +2090,7 @@ _ft_autoinit(PyObject *self)
         FREETYPE_MOD_STATE(self)->cache_size = cache_size;
     }
 
-    return PyBool_FromLong(result);
+    Py_RETURN_TRUE;
 }
 
 static PyObject *
