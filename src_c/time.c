@@ -70,7 +70,7 @@ pg_time_autoinit(PyObject *self)
         if (!timermutex)
             return RAISE(pgExc_SDLError, SDL_GetError());
     }
-    Py_RETURN_NONE;
+    Py_RETURN_TRUE;
 }
 
 static int

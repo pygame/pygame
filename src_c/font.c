@@ -189,9 +189,9 @@ fontmodule_init(PyObject *self)
         if (TTF_Init())
             return RAISE(pgExc_SDLError, SDL_GetError());
 
-        font_initialized = 1;
+      font_initialized = 1;
     }
-    Py_RETURN_NONE;
+    return PyBool_FromLong(font_initialized);
 }
 
 static PyObject *

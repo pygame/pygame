@@ -198,7 +198,7 @@ key_get_pressed(PyObject *self, PyObject *args)
 
     for (i = 0; i < num_keys; i++) {
         PyObject *key_elem;
-        key_elem = PyInt_FromLong(key_state[i]);
+        key_elem = PyBool_FromLong(key_state[i]);
         if (!key_elem) {
             Py_DECREF(key_tuple);
             return NULL;
@@ -772,9 +772,9 @@ key_get_focused(PyObject *self, PyObject *args)
     VIDEO_INIT_CHECK();
 
 #if IS_SDLv1
-    return PyInt_FromLong((SDL_GetAppState() & SDL_APPINPUTFOCUS) != 0);
+    return PyBool_FromLong((SDL_GetAppState() & SDL_APPINPUTFOCUS) != 0);
 #else  /* IS_SDLv2 */
-    return PyInt_FromLong(SDL_GetKeyboardFocus() != NULL);
+    return PyBool_FromLong(SDL_GetKeyboardFocus() != NULL);
 #endif /* IS_SDLv2 */
 }
 

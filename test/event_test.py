@@ -405,6 +405,9 @@ class EventModuleTest(unittest.TestCase):
         for event in q:
             self.assertEqual(event, ev)
 
+    def test_get_exclude_throw(self):
+        self.assertRaises(pygame.error, pygame.event.get, pygame.KEYDOWN, False, pygame.KEYUP)
+
     def test_get_exclude(self):
         pygame.event.post(pygame.event.Event(pygame.USEREVENT))
         pygame.event.post(pygame.event.Event(pygame.KEYDOWN))

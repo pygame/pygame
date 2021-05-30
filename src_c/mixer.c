@@ -486,7 +486,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         PyErr_Clear();
     }
 
-    Py_RETURN_NONE;
+    Py_RETURN_TRUE;
 }
 
 static PyObject *
@@ -1102,7 +1102,7 @@ chan_get_busy(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
-    return PyInt_FromLong(Mix_Playing(channelnum));
+    return PyBool_FromLong(Mix_Playing(channelnum));
 }
 
 static PyObject *
@@ -1405,9 +1405,9 @@ static PyObject *
 get_busy(PyObject *self)
 {
     if (!SDL_WasInit(SDL_INIT_AUDIO))
-        return PyInt_FromLong(0);
+        return PyBool_FromLong(0);
 
-    return PyInt_FromLong(Mix_Playing(-1));
+    return PyBool_FromLong(Mix_Playing(-1));
 }
 
 static PyObject *

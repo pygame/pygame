@@ -233,6 +233,13 @@ pg_display_quit(PyObject *self)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_display_autoinit(PyObject *self, PyObject *arg)
+{
+    pg_RegisterQuit(pg_display_autoquit);
+    Py_RETURN_TRUE;
+}
+
 static int
 _pg_mac_display_init(void)
 {
@@ -310,7 +317,7 @@ static PyObject *
 pg_get_active(PyObject *self)
 {
   if (!pgDisplaySurfaceObject)
-       return PyBool_FromLong(0);
+       Py_RETURN_FALSE;
   return PyBool_FromLong((SDL_GetAppState() & SDL_APPACTIVE) != 0);
 }
 #endif /* IS_SDLv1 */
@@ -2964,7 +2971,7 @@ pg_display_resize_event(PyObject *self, PyObject *event)
         /* do not do anything that would invalidate a display surface! */
         return PyInt_FromLong(-1);
     }
-    return PyInt_FromLong(0);
+    Py_RETURN_FALSE;
 }
 
 #else  /* IS_SDLv1 */
@@ -3065,12 +3072,13 @@ pg_iconify(PyObject *self)
        the application will receive a SDL_APPACTIVE loss event (see
        SDL_ActiveEvent).
     */
-    return PyInt_FromLong(result != 0);
+    return PyBool_FromLong(result != 0);
 }
 
 static PyObject *
 pg_toggle_fullscreen(PyObject *self)
 {
+    //https://sdl.beuc.net/sdl.wiki/SDL_WM_ToggleFullScreen
     SDL_Surface *screen;
     int result;
     VIDEO_INIT_CHECK();

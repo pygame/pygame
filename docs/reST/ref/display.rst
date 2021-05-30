@@ -19,7 +19,7 @@ screen. Both axes increase positively towards the bottom right of the screen.
 
 The pygame display can actually be initialized in one of several modes. By
 default, the display is a basic software driven framebuffer. You can request
-special modules like hardware acceleration and OpenGL support. These are
+special modules like automatic scaling or OpenGL support. These are
 controlled by flags passed to ``pygame.display.set_mode()``.
 
 Pygame can only have a single display active at any time. Creating a new one
@@ -516,6 +516,11 @@ required).
     * x11 (Linux/Unix)
     * wayland (Linux/Unix)
     * cocoa (OSX/Mac)
+
+   .. Note:: :func:`toggle_fullscreen` doesn't work on Windows
+             unless the window size is in :func:`pygame.display.list_modes()` or
+             the window is created with the flag ``pygame.SCALED``.
+             See `issue #2380 <https://github.com/pygame/pygame/issues/2380>`_.
 
    .. ## pygame.display.toggle_fullscreen ##
 

@@ -591,7 +591,7 @@ pg_rect_collidepoint(pgRectObject *self, PyObject *args)
     inside = x >= self->r.x && x < self->r.x + self->r.w && y >= self->r.y &&
              y < self->r.y + self->r.h;
 
-    return PyInt_FromLong(inside);
+    return PyBool_FromLong(inside);
 }
 
 static PyObject *
@@ -602,7 +602,7 @@ pg_rect_colliderect(pgRectObject *self, PyObject *args)
     if (!(argrect = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
-    return PyInt_FromLong(_pg_do_rects_intersect(&self->r, argrect));
+    return PyBool_FromLong(_pg_do_rects_intersect(&self->r, argrect));
 }
 
 static PyObject *
@@ -976,7 +976,7 @@ pg_rect_contains(pgRectObject *self, PyObject *args)
                 (self->r.x + self->r.w > argrect->x) &&
                 (self->r.y + self->r.h > argrect->y);
 
-    return PyInt_FromLong(contained);
+    return PyBool_FromLong(contained);
 }
 
 static PyObject *
