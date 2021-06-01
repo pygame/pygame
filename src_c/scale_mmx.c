@@ -34,8 +34,8 @@
 #   elif defined(__i386__)
 #       include "scale_mmx32.c"
 #   endif
-#endif
-
+#else
 #if defined(_M_X64) && !defined(_NO_MMX_FOR_X86_64)
 #include "scale_mmx64_msvc.c"
+#endif
 #endif

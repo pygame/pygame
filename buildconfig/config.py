@@ -33,6 +33,12 @@ def print_(*args, **kwds):
     msysio.print_(*args, **kwds)
 
 
+def is_msys2():
+    """Return true if this in an MSYS2 build"""
+    return ('MSYSTEM' in os.environ and
+            re.match(r'MSYS|MINGW.*|CLANG.*|UCRT.*', os.environ['MSYSTEM']))
+
+
 def is_msys_mingw():
     """Return true if this in an MinGW/MSYS build
 
@@ -175,6 +181,14 @@ def main(auto=False):
             import config_conan as CFG
         except ImportError:
             import buildconfig.config_conan as CFG
+
+    elif (sys.platform == 'win32' and
+        (sys.version_info >= (3, 8) and is_msys2())):
+        print_('Using WINDOWS MSYS2 configuration...\n')
+        try:
+            import config_msys2 as CFG
+        except ImportError:
+            import buildconfig.config_msys2 as CFG
 
     elif (sys.platform == 'win32' and
         # Note that msys builds supported for 2.6 and greater. Use prebuilt.
