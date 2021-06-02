@@ -5,86 +5,9 @@
 
 @import url("reset.css");
 @import url("tooltip.css");
-
-/* -- main layout ----------------------------------------------------------- */
-
-div.clearer {
-    clear: both;
-}
-
-/* -- relbar ---------------------------------------------------------------- */
-
-div.related {
-    width: 100%;
-    font-size: 90%;
-}
-
-div.related h3 {
-    display: none;
-}
-
-div.related ul {
-    margin: 0;
-    padding: 0 0 0 10px;
-    list-style: none;
-}
-
-div.related li {
-    display: inline;
-}
-
-div.related li.right {
-    float: right;
-    margin-right: 5px;
-}
-
-/* -- search page ----------------------------------------------------------- */
-
-ul.search {
-    margin: 10px 0 0 20px;
-    padding: 0;
-}
-
-ul.search li {
-    padding: 5px 0 5px 20px;
-    background-image: url(file.png);
-    background-repeat: no-repeat;
-    background-position: 0 7px;
-}
-
-ul.search li a {
-    font-weight: bold;
-}
-
-ul.search li div.context {
-    color: #888;
-    margin: 2px 0 0 30px;
-    text-align: left;
-}
-
-ul.keywordmatches li.goodmatch a {
-    font-weight: bold;
-}
+@import url("basic.css");
 
 /* -- index page ------------------------------------------------------------ */
-
-table.contentstable {
-    width: 90%;
-}
-
-table.contentstable p.biglink {
-    line-height: 150%;
-}
-
-a.biglink {
-    font-size: 1.3em;
-}
-
-span.linkdescr {
-    font-style: italic;
-    padding-top: 5px;
-    font-size: 90%;
-}
 
 #pygame-front-page dt {
     padding-top: 1em;
@@ -139,33 +62,6 @@ div.body table.matrix td {
 
 div.body table.matrix th.stub {
     text-align: left;
-}
-
-/* -- general index --------------------------------------------------------- */
-
-table.indextable td {
-    text-align: left;
-    vertical-align: top;
-}
-
-table.indextable dl, table.indextable dd {
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-table.indextable tr.pcap {
-    height: 10px;
-}
-
-table.indextable tr.cap {
-    margin-top: 10px;
-    background-color: #f2f2f2;
-}
-
-img.toggler {
-    margin-right: 3px;
-    margin-top: 3px;
-    cursor: pointer;
 }
 
 /* -- page layout ----------------------------------------------------------- */
@@ -262,19 +158,18 @@ div.document {
     }
 }
 
-
-/* */
 .toc td {
     display:block;
     width: 200%;
 }
+
 .toc td:last-child {
     padding-bottom: 20px;
 }
+
 table.toc td:nth-child(2) {
     display: none;
 }
-
 
 div.bodywrapper {
     margin: 0 0 0 230px;
@@ -286,9 +181,6 @@ div.body {
 
 div.heading {
     padding: 0 0 0 0.5em;
-}
-
-div.sectionwrapper {
 }
 
 {% if theme_rightsidebar|tobool %}
@@ -439,10 +331,6 @@ dt.title {
     font-family: monospace;
 }
 
-dd {
-    margin-left: 30px;
-}
-
 dt tt {
     font-weight: bold;
     font-size: 1.1em;
@@ -531,19 +419,6 @@ a.headerlink:hover {
     color: white;
 }
 
-a.headerlink {
-    visibility: hidden;
-}
-
-dt:hover > a.headerlink {
-    visibility: visible;
-}
-
-div.body p, div.body dd, div.body li {
-    text-align: left;
-    line-height: 130%;
-}
-
 blockquote {
     margin-left: 2em;
 }
@@ -562,6 +437,14 @@ div.admonition pre {
 
 div.admonition ul, div.admonition ol {
     margin-bottom: 5px;
+}
+
+p.admonition-title {
+    display: inline;
+}
+
+p.admonition-title:after {
+    content: ":";
 }
 
 dl.definition div.note, dl.definition div.seealso {
@@ -599,14 +482,6 @@ div.caution {
 div.warning {
     background-color: #ffe4e4;
     border: 1px solid #f66;
-}
-
-p.admonition-title {
-    display: inline;
-}
-
-p.admonition-title:after {
-    content: ":";
 }
 
 p.linklist {
@@ -648,10 +523,6 @@ table.highlighttable pre {
 ul.simple {
     list-style-type: circle;
     margin-bottom: 1em;
-}
-
-.versionmodified {
-    font-style: italic;
 }
 
 /* Top level section title format */
@@ -703,7 +574,6 @@ table.more-to-explore td {
     padding: 0.2em 2em 0.3em 0.5em;
 }
 
-/* */
 div.body p.small-heading {
     margin-bottom: 0.2em;
     font-size: small;
@@ -716,7 +586,6 @@ div.body img.inlined-right {
     float: right;
 }
 
-/* */
 div.body .inset {
     margin-left: 2em;
 }
@@ -761,75 +630,9 @@ div.example div.break {
 
 /* -- parameters returns table style ---------------------------------------- */
 
-:not(li) > ol > li:first-child > :first-child,
-:not(li) > ul > li:first-child > :first-child {
-    margin-top: 0px;
-}
-
-:not(li) > ol > li:last-child > :last-child,
-:not(li) > ul > li:last-child > :last-child {
-    margin-bottom: 0px;
-}
-
-ol.simple ol p,
-ol.simple ul p,
-ul.simple ol p,
-ul.simple ul p {
-    margin-top: 0;
-}
-
-ol.simple > li:not(:first-child) > p,
-ul.simple > li:not(:first-child) > p {
-    margin-top: 0;
-}
-
-ol.simple p,
-ul.simple p {
-    margin-bottom: 0;
-}
-
-dl.footnote > dt,
-dl.citation > dt {
-    float: left;
-    margin-right: 0.5em;
-}
-
-dl.footnote > dd,
-dl.citation > dd {
-    margin-bottom: 0em;
-}
-
-dl.footnote > dd:after,
-dl.citation > dd:after {
-    content: "";
-    clear: both;
-}
-
-dl.field-list {
-    display: grid;
-    grid-template-columns: fit-content(30%) auto;
-}
-
 dl.field-list > dt {
-    word-break: break-word;
     padding-right: 10px;
 }
-
-dl.field-list > dt:after {
-    content: ":";
-}
-
-dl.field-list > dd {
-    padding-left: 0.5em;
-    margin-top: 0em;
-    margin-left: 0em;
-    margin-bottom: 0em;
-}
-
-dd > :first-child {
-    margin-top: 0px;
-}
-
 
 /* -- tooltip style --------------------------------------------------------- */
 
@@ -854,13 +657,12 @@ a.tooltip:hover {
     -moz-box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
 }
 
-
-
 /* -- comments style --------------------------------------------------------- */
 
 form.addcomment {
     display:inline;
 }
+
 .addcomment input,
 a.commentButton {
     background-color: #6AEE28;
@@ -886,13 +688,11 @@ article.hidden {
     display:none;
 }
 
-section.commentPart {
-}
-
 header.commentHeading {
     background: none repeat scroll 0 0 #FDE42D;
     text-align: center;
 }
+
 pre.commentContent {
     overflow: auto;
     max-width: 800px;
