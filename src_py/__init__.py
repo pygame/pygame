@@ -237,6 +237,11 @@ except (ImportError, IOError):
     Overlay = lambda: Missing_Function
 
 try:
+    import pygame._time
+except (ImportError, IOError):
+    time = MissingModule("_time", urgent=1)
+
+try:
     import pygame.time
 except (ImportError, IOError):
     time = MissingModule("time", urgent=1)
