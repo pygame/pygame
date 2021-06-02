@@ -64,6 +64,12 @@ div.body table.matrix th.stub {
     text-align: left;
 }
 
+/* Let a float element be beside a code block */
+div.highlight-python.notranslate {
+    margin: 0;
+    clear: none;
+}
+
 /* -- page layout ----------------------------------------------------------- */
 
 body {
@@ -146,7 +152,7 @@ div.document {
     div.documentwrapper {
         float: initial;
         width: 100%;
-        max-width: 600px;
+        max-width: 700px;
         margin: 0 auto;
     }
 }
@@ -176,6 +182,7 @@ div.bodywrapper {
 }
 
 div.body {
+    min-width: auto;
     padding: 0.5em;
 }
 
@@ -506,6 +513,16 @@ div.highlight pre {
     border: none;
 }
 
+table.highlighttable {
+    display: table;
+}
+
+@media only screen and (max-width: 680px) {
+    table.highlighttable {
+        display: block;
+    }
+}
+
 table.highlighttable,
 table.highlighttable pre {
     border: none;
@@ -582,7 +599,6 @@ div.body p.small-heading {
 /* Inlined element float right */
 div.body div.inlined,
 div.body img.inlined-right {
-    display: inlined-right;
     float: right;
 }
 
