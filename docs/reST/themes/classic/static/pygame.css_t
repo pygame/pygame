@@ -9,16 +9,12 @@
 
 /* -- index page ------------------------------------------------------------ */
 
-#pygame-front-page dt {
+#pygame-front-page dt, #pygame-front-page h2 {
     padding-top: 1em;
 }
 
 #pygame-front-page dl {
-    padding: 0 0 0 1em;
-}
-
-#pygame-front-page h2 {
-    padding: 1em 0 0 0;
+    padding-left: 1em;
 }
 
 /* -- tutorial page --------------------------------------------------------- */
@@ -83,8 +79,6 @@ body {
 
 div.header {
     padding: 0.5em;
-    background-color: {{ theme_bgcolor }};
-    color: {{ theme_textcolor }};
     line-height: 1.2em;
 }
 
@@ -109,14 +103,6 @@ div.header .logo img {
     min-width: 200px;
     min-height: 60px;
     border-style: none;
-}
-
-div.header .logo strong {
-    weight: bold;
-}
-
-dev.header .logo a {
-    visibility: hidden;
 }
 
 div.header .pagelinks {
@@ -203,7 +189,7 @@ div.footer {
 {%- endif %}
     color: {{ theme_footertextcolor }};
     width: 100%;
-    padding: 9px 0 9px 0;
+    padding: 9px 0;
     text-align: center;
     font-size: 75%;
 }
@@ -242,20 +228,6 @@ div.sphinxsidebar {
     {%- endif %}
     {%- endif %}
 }
-
-{%- if theme_stickysidebar|tobool %}
-/* this is nice, but it it leads to hidden headings when jumping
-   to an anchor */
-/*
-div.related {
-    position: fixed;
-}
-
-div.documentwrapper {
-    margin-top: 30px;
-}
-*/
-{%- endif %}
 
 div.sphinxsidebar h3 {
     font-family: {{ theme_headfont }};
@@ -374,14 +346,6 @@ table.docutils td.toc {
     border-style: none;
 }
 
-dl.class em.property {
-/*    display: none;*/
-}
-
-dl.argsig tt.descclassname {
-/*    display: none;*/
-}
-
 div.body p, div.body dd, div.body li {
     text-align: left;
     line-height: 130%;
@@ -434,15 +398,10 @@ div.admonition p.admonition-title + p {
     display: inline;
 }
 
-div.admonition p {
-    margin-bottom: 5px;
-}
-
-div.admonition pre {
-    margin-bottom: 5px;
-}
-
-div.admonition ul, div.admonition ol {
+div.admonition p,
+div.admonition pre,
+div.admonition ul,
+div.admonition ol {
     margin-bottom: 5px;
 }
 
@@ -505,8 +464,7 @@ pre {
     font-family: monospace;
     line-height: 120%;
     margin-bottom: 1em;
-    padding: 5px;
-    padding-left: 15px;
+    padding: 5px 5px 5px 15px;
 }
 
 div.highlight pre {
@@ -683,7 +641,6 @@ form.addcomment {
 a.commentButton {
     background-color: #6AEE28;
     border: 1px solid #000000;
-    color: #000000;
     font-family: Arial,Helvetica,sans-serif;
     font-size: 12px;
     font-weight: bold;
@@ -712,7 +669,7 @@ header.commentHeading {
 pre.commentContent {
     overflow: auto;
     max-width: 800px;
-    margin-left:0px;
+    margin-left:0;
     border: 0;
     white-space: pre-wrap;
 }
