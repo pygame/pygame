@@ -39,6 +39,8 @@ function can support the following formats.
    * ``PBM`` (and ``PGM``, ``PPM``)
 
    * ``XPM``
+   
+   * ``SVG`` (limited support, using Nano SVG)
 
 Saving images only supports a limited set of formats. You can save to the
 following formats.
