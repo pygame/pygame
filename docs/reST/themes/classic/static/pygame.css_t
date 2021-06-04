@@ -427,8 +427,12 @@ dl.definition .admonition-title {
 }
 
 div.note {
-    background-color: #eee;
+    background-color: {{ theme_notebgcolor }};
     border: 1px solid #ccc;
+}
+
+.note tt {
+    background: #d6d6d6;
 }
 
 div.seealso {
@@ -441,7 +445,7 @@ div.topic {
 }
 
 div.caution {
-    background-color: #eeffcc;
+    background-color: {{ theme_cautionbgcolor }};
     border: 1px solid #aabb88;
 }
 
@@ -450,12 +454,16 @@ div.warning {
     border: 1px solid #f66;
 }
 
+.warning tt {
+    background: #efc2c2;
+}
+
 p.linklist {
     text-align: center;
 }
 
 pre {
-    background-color: #eeffcc;
+    background-color: {{ theme_codebgcolor }};
     border: 1px solid #ac9;
     border-left: none;
     border-right: none;
@@ -485,14 +493,6 @@ table.highlighttable,
 table.highlighttable pre {
     border: none;
     background-color: #eeffcc;
-}
-
-.warning tt {
-    background: #efc2c2;
-}
-
-.note tt {
-    background: #d6d6d6;
 }
 
 ul.simple {
@@ -573,7 +573,7 @@ div.body span.codelineref {
 .py-class .pre,
 .reference.internal em {
     font-weight: bold;
-    background-color: lightgreen;
+    background-color: {{ theme_keywordbgcolor }};
 }
 
 /* Examples section: contains one or more example subsections */
@@ -588,7 +588,6 @@ div.example img {
     float: left;
     padding-right: 0.3em;
     padding-bottom: 0.1em;
-    background-color: {{ theme_bgcolor }};
 }
 
 div.example p,
@@ -639,7 +638,7 @@ form.addcomment {
 
 .addcomment input,
 a.commentButton {
-    background-color: #6AEE28;
+    background-color: {{ theme_examplebgcolor }};
     border: 1px solid #000000;
     font-family: Arial,Helvetica,sans-serif;
     font-size: 12px;
