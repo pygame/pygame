@@ -29,7 +29,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    the music playing.
 
    If you are loading from a file object, the namehint parameter can be used to specify
-   the type of music data in the object. For example: :code:`load(fileobj, "mp3")`.
+   the type of music data in the object. For example: :code:`load(fileobj, "ogg")`.
 
    .. versionchanged:: 2.0.2 Added optional ``namehint`` argument
 
@@ -218,7 +218,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    stopped or changed, the queued sound will be lost.
 
    If you are loading from a file object, the namehint parameter can be used to specify
-   the type of music data in the object. For example: :code:`queue(fileobj, "mp3")`.
+   the type of music data in the object. For example: :code:`queue(fileobj, "ogg")`.
 
    The following example will play music by Bach six times, then play music by
    Mozart once:
