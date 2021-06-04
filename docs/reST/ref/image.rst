@@ -20,40 +20,50 @@ supports any extended file formats. By default it can only load uncompressed
 ``BMP`` images. When built with full image support, the ``pygame.image.load()``
 function can support the following formats.
 
-   * ``JPG``
-
-   * ``PNG``
+   * ``BMP``
 
    * ``GIF`` (non-animated)
 
-   * ``BMP``
+   * ``JPEG``
+
+   * ``LBM`` (and ``PBM``, ``PGM``, ``PPM``)
 
    * ``PCX``
 
+   * ``PNG``
+   
+   * ``PNM``
+
+   * ``SVG`` (limited support, using Nano SVG)
+
    * ``TGA`` (uncompressed)
 
-   * ``TIF``
+   * ``TIFF``
 
-   * ``LBM`` (and ``PBM``)
-
-   * ``PBM`` (and ``PGM``, ``PPM``)
+   * ``WEBP``
+   
+   * ``XCF``
 
    * ``XPM``
    
-   * ``SVG`` (limited support, using Nano SVG)
+   * ``XV``
+   
+   
+.. versionadded:: 2.0 Loading SVG, WebP, PNM, XCF, XV
 
 Saving images only supports a limited set of formats. You can save to the
 following formats.
 
    * ``BMP``
 
-   * ``TGA``
+   * ``JPEG``
 
    * ``PNG``
 
-   * ``JPEG``
+   * ``TGA``
+   
 
-``JPEG`` and ``JPG`` refer to the same file format
+``JPEG`` and ``JPG``, as well as ``TIF`` and ``TIFF`` refer to the same file format
 
 .. versionadded:: 1.8 Saving PNG and JPEG files.
 
