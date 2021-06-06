@@ -9,7 +9,11 @@
 
 /* -- index page ------------------------------------------------------------ */
 
-#pygame-front-page dt, #pygame-front-page h2 {
+#pygame-front-page h2 {
+    margin-top: 2em;
+}
+
+#pygame-front-page dt {
     padding-top: 1em;
 }
 
@@ -460,6 +464,14 @@ div.warning {
 
 p.linklist {
     text-align: center;
+}
+
+.section:target > h2,
+.section:target > h3,
+.section:target > h4,
+dt:target,
+span.highlighted {
+    background-color: {{ theme_highlightbgcolor }};
 }
 
 pre {
