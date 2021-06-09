@@ -512,10 +512,6 @@ ul.simple {
     margin-bottom: 1em;
 }
 
-.definition .toc.docutils .line {
-    font-weight: bold;
-}
-
 code.descclassname, code.descname {
     font-size: 1.3em;
     font-weight: bold;
