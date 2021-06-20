@@ -44,6 +44,13 @@
 #define FONT_HAVE_RWOPS 0
 #endif
 
+#ifndef SDL_TTF_VERSION_ATLEAST
+#define SDL_TTF_COMPILEDVERSION \
+    SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL)
+#define SDL_TTF_VERSION_ATLEAST(X, Y, Z) \
+    (SDL_TTF_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
+#endif
+
 #if PY3
 #define RAISE_TEXT_TYPE_ERROR() \
     RAISE(PyExc_TypeError, "text must be a unicode or bytes");
@@ -511,12 +518,14 @@ font_render(PyObject *self, PyObject *args)
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
+#if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
         if (utf_8_needs_UCS_4(astring)) {
             Py_DECREF(bytes);
             return RAISE(PyExc_UnicodeError,
                          "A Unicode character above '\\uFFFF' was found;"
-                         " not supported");
+                         " not supported with SDL_ttf version below 2.0.15");
         }
+#endif
         if (aa) {
             if (bg_rgba_obj == NULL) {
                 surf = TTF_RenderUTF8_Blended(font, astring, foreg);
