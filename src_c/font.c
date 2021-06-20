@@ -514,12 +514,6 @@ font_render(PyObject *self, PyObject *args)
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
-        if (utf_8_needs_UCS_4(astring)) {
-            Py_DECREF(bytes);
-            return RAISE(PyExc_UnicodeError,
-                         "A Unicode character above '\\uFFFF' was found;"
-                         " not supported");
-        }
         if (aa) {
             if (bg_rgba_obj == NULL) {
                 surf = TTF_RenderUTF8_Blended(font, astring, foreg);
