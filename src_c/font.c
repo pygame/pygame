@@ -514,12 +514,12 @@ font_render(PyObject *self, PyObject *args)
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
-#if !SDL_VERSION_ATLEAST(2, 0, 15)
+#if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
         if (utf_8_needs_UCS_4(astring)) {
             Py_DECREF(bytes);
             return RAISE(PyExc_UnicodeError,
                          "A Unicode character above '\\uFFFF' was found;"
-                         " not supported with SDL version below 2.0.15");
+                         " not supported with SDL_ttf version below 2.0.15");
         }
 #endif
         if (aa) {
