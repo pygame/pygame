@@ -206,11 +206,11 @@ def main(auto=False):
 
 
     if sys.platform == 'win32':
-        pass
+        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Win.in")).readlines()
     elif sys.platform == 'darwin':
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
+        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in")).readlines()
     else:
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
+        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in")).readlines()
 
 
     if os.path.isfile('Setup'):

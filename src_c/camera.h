@@ -53,9 +53,20 @@
 #endif
 
 #if defined(PYGAME_MAC_CAMERA_OLD)
-        #include <QuickTime/QuickTime.h>
-        #include <QuickTime/Movies.h>
-        #include <QuickTime/ImageCompression.h>
+    #include <QuickTime/QuickTime.h>
+    #include <QuickTime/Movies.h>
+    #include <QuickTime/ImageCompression.h>
+#endif
+
+#if defined(__WIN32__)
+    #include <mfapi.h>
+    #include <mfobjects.h>
+    #include <mfidl.h>
+    #include <mfreadwrite.h>
+    #include <combaseapi.h>
+    #include <mftransform.h>
+
+    #define PYGAME_WINDOWS_CAMERA 1
 #endif
 
 /* some constants used which are not defined on non-v4l machines. */
@@ -67,6 +78,9 @@
 #endif
 #ifndef V4L2_PIX_FMT_YUYV
     #define V4L2_PIX_FMT_YUYV 'YUYV'
+#endif
+#ifndef V4L2_PIX_FMT_XBGR32
+    #define V4L2_PIX_FMT_XBGR32 'XR24'
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -119,6 +133,28 @@ typedef struct pgCameraObject {
     struct buffer pixels;
     //struct buffer tmp_pixels        /* place where the flipped image in temporarily stored if hflip or vflip is true.*/
 } pgCameraObject;
+#elif defined(PYGAME_WINDOWS_CAMERA)
+typedef struct pgCameraObject {
+    PyObject_HEAD
+    WCHAR* device_name;
+    IMFActivate* activate;
+    IMFMediaSource* source;
+    IMFSourceReader* reader;
+    IMFTransform* transform;
+    IMFVideoProcessorControl* control;
+    IMFMediaBuffer* buf;
+    IMFMediaBuffer* raw_buf;
+    int buffer_ready;
+    int open; /* used to signal the update_function to exit */
+    HANDLE t_handle;
+    int width;
+    int height;
+    int hflip;
+    int vflip;
+    int last_vflip;
+    int color_out;
+    unsigned long pixelformat;
+} pgCameraObject;
 
 #else
 /* generic definition.
@@ -145,6 +181,7 @@ typedef struct pgCameraObject {
 /* internal functions for colorspace conversion */
 void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace);
 void rgb24_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
+void bgr32_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void rgb_to_yuv (const void* src, void* dst, int length,
                  unsigned long source, SDL_PixelFormat* format);
@@ -199,6 +236,19 @@ int mac_copy_gworld_to_surface(pgCameraObject* self, SDL_Surface* surf);
 
 void flip_image(const void* image, void* flipped_image, int width, int height,
                 short depth, int hflip, int vflip);
+
+#elif defined(PYGAME_WINDOWS_CAMERA)
+/* internal functions specific to WINDOWS */
+WCHAR** windows_list_cameras(int* num_devices);
+int windows_init_device(pgCameraObject* self);
+int windows_open_device(pgCameraObject* self);
+IMFActivate* windows_device_from_name(WCHAR* device_name);
+int windows_close_device(pgCameraObject* self);
+int windows_read_frame(pgCameraObject* self, SDL_Surface* surf);
+int windows_frame_ready(pgCameraObject* self);
+PyObject* windows_read_raw(pgCameraObject* self);
+int windows_process_image(pgCameraObject *self, BYTE* data, DWORD buffer_size,
+                          SDL_Surface *surf);
 
 #endif
 
