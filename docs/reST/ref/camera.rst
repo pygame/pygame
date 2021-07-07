@@ -168,7 +168,8 @@ New in pygame 1.9.0.
 
       Pulls an image off of the buffer as an ``RGB`` Surface. It can optionally
       reuse an existing Surface to save time. The bit-depth of the surface is
-      either 24 bits or the same as the optionally supplied Surface.
+      24 bits on Linux, 32 bits on Windows, or the same as the optionally
+      supplied Surface.
 
       .. ## Camera.get_image ##
 
