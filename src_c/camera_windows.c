@@ -76,8 +76,6 @@ _check_integrity(pgCameraObject* self)
 
 #define DISTANCE(x, y) (int)pow(x, 2) + (int)pow(y, 2)
 
-//TODO: fix up get_raw() docs and stubs. It returns bytes
-
 /* These are the only supported input types
  * (TODO?) broaden in the future by enumerating MFTs to find decoders?
  * drawn from:
