@@ -171,10 +171,10 @@ defined(PYGAME_WINDOWS_CAMERA)
     devices = windows_list_cameras(&num_devices);
 #endif
     for (i = 0; i < num_devices; i++) {
-#if !defined(PYGAME_WINDOWS_CAMERA)
-        string = Text_FromUTF8(devices[i]);
-#else
+#if defined(PYGAME_WINDOWS_CAMERA)
         string = PyUnicode_FromWideChar(devices[i], -1);
+#else
+        string = Text_FromUTF8(devices[i]);  
 #endif
         if (0 != PyList_Append(ret_list, string)) {
             /* Append failed; clean up and return */
@@ -224,7 +224,12 @@ camera_start(pgCameraObject *self, PyObject *args)
         return NULL;
     }
 #elif defined(PYGAME_WINDOWS_CAMERA)
+    if (self->open) { /* camera already started */
+        Py_RETURN_NONE;
+    }
+
     if (!windows_open_device(self)) {
+        windows_close_device(self);
         return NULL;
     }   
 #endif
@@ -248,8 +253,10 @@ camera_stop(pgCameraObject *self, PyObject *args)
     if (mac_close_device(self) == 0)
         return NULL;
 #elif defined(PYGAME_WINDOWS_CAMERA)
-    if (!windows_close_device(self))
-        return NULL;
+    if (self->open) { /* camera started */
+        if (!windows_close_device(self))
+            return NULL;
+    }
 #endif
     Py_RETURN_NONE;
 }
@@ -352,7 +359,11 @@ camera_query_image(pgCameraObject *self, PyObject *args)
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
 #elif defined(PYGAME_WINDOWS_CAMERA)
-    return PyBool_FromLong(windows_frame_ready(self));
+    int ready;
+    if (!windows_frame_ready(self, &ready))
+        return NULL;
+
+    return PyBool_FromLong(ready);
 #endif
     Py_RETURN_TRUE;
 }
@@ -458,9 +469,19 @@ camera_get_image(pgCameraObject *self, PyObject *arg)
         surf = pgSurface_AsSurface(surfobj);
     }
 
-    if(!windows_read_frame(self, surf)) {
+    if (!surf)
         return NULL;
+
+    if (surf->w != self->width || surf->h != self->height) {
+        return RAISE(PyExc_ValueError,
+                     "Destination surface not the correct width or height.");
     }
+
+    if (!windows_read_frame(self, surf))
+        return NULL;
+
+    if (!surf)
+        return NULL;
 
     if (surfobj) {
         Py_INCREF(surfobj);
@@ -1802,7 +1823,14 @@ PyMethodDef cameraobj_builtins[] = {
 void
 camera_dealloc(PyObject *self)
 {
+#if defined(PYGAME_WINDOWS_CAMERA)
+    if (((pgCameraObject *)self)->open) {
+        windows_close_device((pgCameraObject *)self);  
+    }
+    windows_dealloc_device((pgCameraObject *)self);
+#else
     free(((pgCameraObject *)self)->device_name);
+#endif
     PyObject_DEL(self);
 }
 /*
@@ -1969,7 +1997,7 @@ Camera(pgCameraObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "O|(ii)s", &name_obj, &w, &h, &color))
         return NULL;
 
-    //needs to be freed with PyMem_Free later
+    /* needs to be freed with PyMem_Free later */
     dev_name = PyUnicode_AsWideCharString(name_obj, NULL);
 
     p = windows_device_from_name(dev_name);
@@ -1996,15 +2024,18 @@ Camera(pgCameraObject *self, PyObject *arg)
     }
 
     cameraobj->device_name = dev_name;
-    cameraobj->activate = p;
     cameraobj->width = w;
     cameraobj->height = h;
-    cameraobj->open = 1;
+    cameraobj->open = 0;
     cameraobj->hflip = 0;
     cameraobj->vflip = 0;
     cameraobj->last_vflip = 0;
+    
     cameraobj->raw_buf = NULL;
     cameraobj->buf = NULL;
+    cameraobj->t_handle = NULL;
+
+    windows_init_device(self);
 
     return (PyObject *)cameraobj;
 #endif
