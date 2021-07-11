@@ -1988,7 +1988,7 @@ Camera(pgCameraObject *self, PyObject *arg)
     PyObject* name_obj = NULL;
     WCHAR* dev_name = NULL;
     int w, h;
-    char* color;
+    char* color = NULL;
     IMFActivate* p = NULL;
 
     w = DEFAULT_WIDTH;

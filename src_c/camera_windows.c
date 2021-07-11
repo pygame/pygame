@@ -216,7 +216,7 @@ windows_device_from_name(WCHAR* device_name)
             free(_device_name);
             for (int j=0; j<(int)count; j++) {
                 if (i != j) {
-                    RELEASE(ppDevices[i]);
+                    RELEASE(ppDevices[j]);
                 }
             }
             CoTaskMemFree(ppDevices);
