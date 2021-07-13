@@ -8,8 +8,9 @@
 
 | :sl:`pygame module for camera use`
 
-Pygame currently supports Linux (v4l2) cameras, and Windows cameras through
-Micrsoft Media Foundation.
+Pygame currently supports Linux (v4l2) and Windows (MSMF) cameras.
+
+Windows cameras are only supported on Python 3 and on Windows 8 and above.
 
 .. versionadded:: 2.0.2 Windows camera support
 

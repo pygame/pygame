@@ -205,9 +205,9 @@ def main(auto=False):
             import buildconfig.config_unix as CFG
 
 
-    if sys.platform == 'win32':
+    if sys.platform == 'win32' and sys.version_info > (3,):
         additional_platform_setup = open(
-            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win.in"), "r"
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
         ).readlines()
     elif sys.platform == 'darwin':
         additional_platform_setup = open(

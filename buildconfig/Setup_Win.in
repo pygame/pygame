@@ -1,1 +1,0 @@
-_camera src_c/_camera.c src_c/camera_windows.c -lMfplat -lMf -lMfuuid -lMfreadwrite -lOle32 $(SDL) $(DEBUG)
