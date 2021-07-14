@@ -738,12 +738,14 @@ class LintCommand(Command):
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        isort = "isort"
-        check_linter_exists(isort)
-        subprocess.run([isort, "."])
-        black = "black"
-        check_linter_exists(black)
-        subprocess.run([black, "."])
+        python_directories = ["src_py", "test"]
+        linters = {
+            "isort": python_directories,
+            "black": python_directories,
+        }
+        for linter, option in linters.items():
+            check_linter_exists(linter)
+            subprocess.run([linter] + option)
 
 
 @add_command('docs')
