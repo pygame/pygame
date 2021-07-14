@@ -738,8 +738,10 @@ class LintCommand(Command):
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
+        c_directories = ["src_c"]
         python_directories = ["src_py", "test"]
         linters = {
+            "clang-format": c_directories,
             "isort": python_directories,
             "black": python_directories,
             # Test directory has too much pylint warning for now
