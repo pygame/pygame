@@ -741,7 +741,9 @@ class LintCommand(Command):
         python_directories = ["src_py", "test"]
         linters = {
             "isort": python_directories,
-            # "black": python_directories,
+            "black": python_directories,
+            # Test directory has too much pylint warning for now
+            "pylint": ["src_py"],
         }
         for linter, option in linters.items():
             check_linter_exists(linter)
