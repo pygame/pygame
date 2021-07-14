@@ -231,16 +231,17 @@ def initsysfonts_unix(path="fc-list"):
     fonts = {}
 
     try:
+        # pylint: disable=consider-using-with
+        # subprocess.Popen is not a context manager in all of
+        # pygame's supported python versions.
+
         # note, we capture stderr so if fc-list isn't there to stop stderr
         # printing.
-        with subprocess.Popen(
-            '%s : file family style' % path,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            close_fds=True
-        ) as proc:
-            flout, _ = proc.communicate()
+        flout, _ = subprocess.Popen('%s : file family style' % path,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    close_fds=True).communicate()
     except (OSError, ValueError):
         return fonts
 
