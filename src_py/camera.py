@@ -1,4 +1,3 @@
-import sys
 
 _is_init = 0
 

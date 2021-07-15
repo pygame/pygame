@@ -20,6 +20,7 @@
 */
 
 #include "pygame.h"
+#include "pgcompat.h"
 #include "doc/camera_doc.h"
 
 #if defined(__unix__)
@@ -58,15 +59,17 @@
     #include <QuickTime/ImageCompression.h>
 #endif
 
-#if defined(__WIN32__)
+#if defined(__WIN32__) && PY3
+    #define PYGAME_WINDOWS_CAMERA 1
+#endif
+
+#if defined(PYGAME_WINDOWS_CAMERA)
     #include <mfapi.h>
     #include <mfobjects.h>
     #include <mfidl.h>
     #include <mfreadwrite.h>
     #include <combaseapi.h>
     #include <mftransform.h>
-
-    #define PYGAME_WINDOWS_CAMERA 1
 #endif
 
 /* some constants used which are not defined on non-v4l machines. */
