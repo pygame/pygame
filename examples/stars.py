@@ -91,6 +91,7 @@ def main():
             elif e.type == pg.MOUSEBUTTONDOWN and e.button == 1:
                 WINCENTER[:] = list(e.pos)
         clock.tick(50)
+    pg.quit()
 
 
 # if python says run, then we should run
