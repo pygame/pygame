@@ -10,6 +10,7 @@
 #define DOC_PYGAMEDISPLAYGETDRIVER "get_driver() -> name\nGet the name of the pygame display backend"
 #define DOC_PYGAMEDISPLAYINFO "Info() -> VideoInfo\nCreate a video display information object"
 #define DOC_PYGAMEDISPLAYGETWMINFO "get_wm_info() -> dict\nGet information about the current windowing system"
+#define DOC_PYGAMEDISPLAYGETDESKTOPSIZES "get_desktop_sizes() -> list\nGet sizes of active desktops"
 #define DOC_PYGAMEDISPLAYLISTMODES "list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list\nGet list of available fullscreen modes"
 #define DOC_PYGAMEDISPLAYMODEOK "mode_ok(size, flags=0, depth=0, display=0) -> depth\nPick the best color depth for a display mode"
 #define DOC_PYGAMEDISPLAYGLGETATTRIBUTE "gl_get_attribute(flag) -> value\nGet the value for an OpenGL flag for the current display"
@@ -76,6 +77,10 @@ Create a video display information object
 pygame.display.get_wm_info
  get_wm_info() -> dict
 Get information about the current windowing system
+
+pygame.display.get_desktop_sizes
+ get_desktop_sizes() -> list
+Get sizes of active desktops
 
 pygame.display.list_modes
  list_modes(depth=0, flags=pygame.FULLSCREEN, display=0) -> list
