@@ -66,6 +66,23 @@ class MixerMusicModuleTest(unittest.TestCase):
             with open(bmusfn, "rb") as musf:
                 pygame.mixer.music.load(musf)
 
+    def test_object_namehint(self):
+        """test loading & queuing music from file-like objects with namehint argument."""
+        formats = ["wav", "ogg"]
+        data_fname = example_path("data")
+        for f in formats:
+            path = os.path.join(data_fname, "house_lo.%s" % f)
+            if os.sep == "\\":
+                path = path.replace("\\", "\\\\")
+            bmusfn = filesystem_encode(path)
+
+            # these two "with open" blocks need to be separate, which is kinda weird
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.load(musf, f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.queue(musf, f)
+
     def test_load_unicode(self):
         """test non-ASCII unicode path"""
         import shutil
