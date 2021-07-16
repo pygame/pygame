@@ -173,7 +173,7 @@ def _parse_font_entry_darwin(name, filepath, fonts):
     if "italic" in name:
         name = name.replace("italic", "")
         italic = True
-    
+
     _addfont(name, bold, italic, filepath, fonts)
 
 
@@ -205,7 +205,7 @@ def _font_finder_darwin():
                 _parse_font_entry_darwin(name, join(location, file), fonts)
 
     return fonts
-    
+
 
 def initsysfonts_darwin():
     """ Read the fonts on MacOS, and OS X.
@@ -220,7 +220,7 @@ def initsysfonts_darwin():
         fonts = initsysfonts_unix('/usr/X11R6/bin/fc-list')
     else:
         # eventually this should probably be the preferred solution
-        fonts = _font_finder_darwin() 
+        fonts = _font_finder_darwin()
 
     return fonts
 
@@ -231,6 +231,10 @@ def initsysfonts_unix(path="fc-list"):
     fonts = {}
 
     try:
+        # pylint: disable=consider-using-with
+        # subprocess.Popen is not a context manager in all of
+        # pygame's supported python versions.
+
         # note, we capture stderr so if fc-list isn't there to stop stderr
         # printing.
         flout, _ = subprocess.Popen('%s : file family style' % path,

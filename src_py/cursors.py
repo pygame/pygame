@@ -82,7 +82,7 @@ class Cursor(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash(tuple([self.type] + [data for data in self.data]))
+        return hash(tuple([self.type] + list(self.data)))
 
     def __repr__(self):
         if self.type == "system":
