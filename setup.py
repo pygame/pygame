@@ -716,6 +716,40 @@ class TestCommand(Command):
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
 
+@add_command("lint")
+class LintCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """Check the existence and launch linters."""
+        import subprocess
+        import sys
+        import warnings
+
+        def check_linter_exists(linter):
+            if shutil.which(linter) is None:
+                msg = "Please install '%s' in your environment. (hint: 'pip install %s')"
+                warnings.warn(msg % (linter, linter))
+                sys.exit(1)
+
+        c_directories = ["src_c"]
+        python_directories = ["src_py", "test"]
+        linters = {
+            "clang-format": c_directories,
+            "isort": python_directories,
+            "black": python_directories,
+            # Test directory has too much pylint warning for now
+            "pylint": ["src_py"],
+        }
+        for linter, option in linters.items():
+            check_linter_exists(linter)
+            subprocess.run([linter] + option)
 
 
 @add_command('docs')
