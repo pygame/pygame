@@ -162,33 +162,33 @@ script:
 
 
 # Upload dist/*.whl to pypi on tags.
-after_success:
-  - |
-    if [[ "${UPLOAD_WHL_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
-      $PYTHON_EXE -m pip install twine
-      $PYTHON_EXE -m twine upload dist/*.whl
-    fi
-  - |
-    if [[ "${UPLOAD_SDIST_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
-      $PYTHON_EXE -m pip install twine
-      $PYTHON_EXE -m twine upload dist/*.tar.gz
-    fi
+# after_success:
+# - |
+#   if [[ "${UPLOAD_WHL_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+#     $PYTHON_EXE -m pip install twine
+#     $PYTHON_EXE -m twine upload dist/*.whl
+#   fi
+# - |
+#   if [[ "${UPLOAD_SDIST_PYPI}" == "yes" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ -n "${TRAVIS_TAG}" ]]; then
+#     $PYTHON_EXE -m pip install twine
+#     $PYTHON_EXE -m twine upload dist/*.tar.gz
+#   fi
 
 
 
-deploy:
-  # https://docs.travis-ci.com/user/deployment/releases/
-  provider: releases
-  token:
-    secure: MzyOmZ6HU16YGuiT66kuTDeGO7Ue+fKCf7HBztuxiHGyVVYdYpDgMIgEKqZ7vAQy9KfdXMzlGkwGesMnOm+i6eU0/USG19yP11ABWJhXe7mv0sGXvQpbMnARARyj73+bSZuNfXrYWOQI9R87LIGqFC3ZEKSgdNdaUQevwW5VG0tEHIeA1FUEL9OTDKsK1KdiG8dwhABZRoC4zak200DwD+1wVyBNSmVBNRa9qRuDeN/MTguqWNLyh1vXSYGB1sl2j0YVWz3uvn/Og0f9tZjcYTZ8/l38Qqvs5EPWmTm8WEtrbYFbPcoctiz1HfQ7ZWi9exJXnNVjguUknJfIsUERZKhqLzR961WI/NRaWtTvKd6RcTYERr+BfvP5nbKryEiifTJKP3OUMKzMAhPPxCp8WPk02lnDAjaxUg6TZ8/lzt6ntDfSfM/50vsN/BRInXU6G4sNb6feklFSpgoqatSKk45V+7jXnCXMmiPbSAdYAcZn/PllFdob7wYOfOED2ynKubZiSI1fRQTdMsUZP0H1Ax5zQpUtEbaXnD1DQRv+UlE0TyQxV4w2D8ZAFKBPxOqDKzODCbJ7fVvUR0SSO0+a8w2rWp2h3MIs+HGDdYII28cM1CHRyqnlMjo6o9eEd/Wi/f5hoL5RkN8OuLUHBLp4mC2D69XI8XzHreigqs1lJgg=
-  file_glob: true
-  file:
-    - dist/*.whl
-    - dist/*.tar.gz
-  skip_cleanup: true
-  draft: true
-  on:
-    all_branches: true
-    tags: true
-    repo: pygame/pygame
-    condition: $GITHUB_UPLOAD = yes
+# deploy:
+# # https://docs.travis-ci.com/user/deployment/releases/
+# provider: releases
+# token:
+#   secure: MzyOmZ6HU16YGuiT66kuTDeGO7Ue+fKCf7HBztuxiHGyVVYdYpDgMIgEKqZ7vAQy9KfdXMzlGkwGesMnOm+i6eU0/USG19yP11ABWJhXe7mv0sGXvQpbMnARARyj73+bSZuNfXrYWOQI9R87LIGqFC3ZEKSgdNdaUQevwW5VG0tEHIeA1FUEL9OTDKsK1KdiG8dwhABZRoC4zak200DwD+1wVyBNSmVBNRa9qRuDeN/MTguqWNLyh1vXSYGB1sl2j0YVWz3uvn/Og0f9tZjcYTZ8/l38Qqvs5EPWmTm8WEtrbYFbPcoctiz1HfQ7ZWi9exJXnNVjguUknJfIsUERZKhqLzR961WI/NRaWtTvKd6RcTYERr+BfvP5nbKryEiifTJKP3OUMKzMAhPPxCp8WPk02lnDAjaxUg6TZ8/lzt6ntDfSfM/50vsN/BRInXU6G4sNb6feklFSpgoqatSKk45V+7jXnCXMmiPbSAdYAcZn/PllFdob7wYOfOED2ynKubZiSI1fRQTdMsUZP0H1Ax5zQpUtEbaXnD1DQRv+UlE0TyQxV4w2D8ZAFKBPxOqDKzODCbJ7fVvUR0SSO0+a8w2rWp2h3MIs+HGDdYII28cM1CHRyqnlMjo6o9eEd/Wi/f5hoL5RkN8OuLUHBLp4mC2D69XI8XzHreigqs1lJgg=
+# file_glob: true
+# file:
+#   - dist/*.whl
+#   - dist/*.tar.gz
+# skip_cleanup: true
+# draft: true
+# on:
+#   all_branches: true
+#   tags: true
+#   repo: pygame/pygame
+#   condition: $GITHUB_UPLOAD = yes

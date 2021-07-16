@@ -44,6 +44,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.pyversion }}
+    
+    - name: Get pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-${{ matrix.pyversion }}-pip-cache
 
     - name: Install deps
       run: |
@@ -67,6 +73,7 @@ jobs:
     - name: Upload dist
       uses: actions/upload-artifact@v2
       with:
+        name: pygame-mac-wheels
         path: dist/*.whl
 
 #   - name: Upload binaries to Github Releases
