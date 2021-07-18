@@ -46,6 +46,8 @@ def surfdemo_show(array_img, name):
             # pg.image.save(s, name+'.tga')
             pg.image.save(screen, name + ".png")
         elif e.type == pg.QUIT:
+            #quit
+            pg.quit()
             raise SystemExit()
 
 

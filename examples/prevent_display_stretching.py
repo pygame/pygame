@@ -86,3 +86,5 @@ while running:
     counter += 1
     if counter == RESOLUTION[0]:
         counter = 0
+#quit
+pg.quit()

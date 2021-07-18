@@ -29,6 +29,7 @@ def show(image):
     while 1:
         event = pg.event.wait()
         if event.type == pg.QUIT:
+            pg.quit()
             raise SystemExit
         if event.type in [pg.MOUSEBUTTONDOWN, pg.KEYDOWN]:
             break
@@ -136,5 +137,8 @@ def main():
     show(sf3)
 
 
+
 if __name__ == "__main__":
     main()
+    #quit
+    pg.quit()

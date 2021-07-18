@@ -208,5 +208,9 @@ if __name__ == "__main__":
         main_dir = os.path.split(os.path.abspath(__file__))[0]
         imagename = os.path.join(main_dir, "data", "fist.bmp")
         main(imagename)
+        
     else:
         main(*sys.argv[1:])
+    #quit
+    pg.quit()
+    

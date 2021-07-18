@@ -78,3 +78,5 @@ sound = pg.mixer.Sound(buffer=b"".join(sound_chunks))
 print("playing back recorded sound")
 sound.play()
 time.sleep(5)
+#quit
+pg.quit()

@@ -584,6 +584,8 @@ def main():
         pg.display.flip()
         pg.time.wait(10)
 
+    #quit
+    pg.quit()
 
 if __name__ == "__main__":
     main()

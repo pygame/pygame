@@ -41,3 +41,5 @@ while not done:
 
     pg.display.flip()
     clock.tick(FPS)
+#quit
+pg.quit()
