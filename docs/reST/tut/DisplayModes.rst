@@ -41,7 +41,7 @@ There are advantages and disadvantages to setting the display mode in this
 manner.
 The advantage is that if your game requires a specific display mode,
 your game will run on platforms that do not support your requirements.
-It also makes life easier when your getting something started,
+It also makes life easier when you're getting something started,
 it is always easy to go back later and make the mode selection a little more
 particular.
 The disadvantage is that what you request is not always what you will get.
