@@ -113,7 +113,10 @@ def initsysfonts_win32():
         if not dirname(font):
             font = join(fontdir, font)
 
-        _parse_font_entry_win(name, font, fonts)
+        # Some are named A & B, both names should be processed separately
+        # Ex: the main Cambria file is marked as "Cambria & Cambria Math"
+        for name in name.split("&"):
+            _parse_font_entry_win(name, font, fonts)
 
     return fonts
 
@@ -303,6 +306,7 @@ def create_aliases():
          'georgia', 'cambria', 'constantia', 'dejavuserif',
          'liberationserif'),
         ('wingdings', 'wingbats'),
+        ('comicsansms', 'comicsans'),
     )
     for alias_set in alias_groups:
         for name in alias_set:
