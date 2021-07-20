@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e -x
 
-export SUPPORTED_PYTHONS="cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
+if [ `uname -m` == "aarch64" ]; then
+   export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39" 
+else
+   export SUPPORTED_PYTHONS="cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39" 
+fi
 
 if [[ "$1" == "buildpypy" ]]; then
 	export SUPPORTED_PYTHONS="pp27-pypy_73 pp36-pypy36_pp73 pp37-pypy37_pp73"
