@@ -67,7 +67,6 @@ _scrap_set_mode(PyObject *self, PyObject *args);
 #include "scrap_sdl2.c"
 
 #elif defined(__unix__) && defined(SDL_VIDEO_DRIVER_X11)
-/*!defined(__QNXNTO__) &&*/
 #define X11_SCRAP
 #include <time.h> /* Needed for clipboard timeouts. */
 #include "scrap_x11.c"
@@ -373,8 +372,8 @@ static PyMethodDef scrap_builtins[] = {
  *
  * Note, the macosx stuff is done in sdlosx_main.m
  */
-#if (defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) || \
-     defined(MAC_SCRAP) || defined(SDL2_SCRAP))
+#if (defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(MAC_SCRAP) || \
+     defined(SDL2_SCRAP))
 
     {"init", _scrap_init, 1, DOC_PYGAMESCRAPINIT},
     {"get_init", _scrap_get_init, METH_NOARGS, DOC_PYGAMESCRAPGETINIT},
