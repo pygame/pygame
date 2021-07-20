@@ -1685,7 +1685,6 @@ pg_flip_internal(_DisplayState *state)
         SDL_GL_SwapWindow(win);
     }
     else {
-#if IS_SDLv2
         if (pg_renderer != NULL) {
             SDL_Surface *screen =
                 pgSurface_AsSurface(pg_GetDefaultWindowSurface());
@@ -1707,9 +1706,6 @@ pg_flip_internal(_DisplayState *state)
             }
             status = SDL_UpdateWindowSurface(win);
         }
-#else
-        status = SDL_UpdateWindowSurface(win);
-#endif
     }
     Py_END_ALLOW_THREADS;
 
