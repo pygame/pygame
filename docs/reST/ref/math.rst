@@ -236,6 +236,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector2.rotate ##
 
@@ -246,6 +248,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in radians.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -258,6 +262,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise by the given angle in degrees. The
       length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector2.rotate_ip ##
 
@@ -268,6 +274,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise by the given angle in radians. The
       length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -524,6 +532,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in degrees around the given axis.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate ##
 
@@ -534,6 +544,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise by the given angle in radians around the given axis.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -546,6 +558,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in degrees. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_ip ##
 
@@ -556,6 +570,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the given axis by the given
       angle in radians. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -568,6 +584,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the x-axis by the given angle in degrees.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_x ##
 
@@ -578,6 +596,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the x-axis by the given angle in radians.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -590,6 +610,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the x-axis by the given angle
       in degrees. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_x_ip ##
 
@@ -600,6 +622,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the x-axis by the given angle
       in radians. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -612,6 +636,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the y-axis by the given angle in degrees.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_y ##
 
@@ -622,6 +648,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the y-axis by the given angle in radians.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -634,6 +662,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the y-axis by the given angle
       in degrees. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_y_ip ##
 
@@ -644,6 +674,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the y-axis by the given angle
       in radians. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -656,6 +688,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the z-axis by the given angle in degrees.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_z ##
 
@@ -666,6 +700,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Returns a vector which has the same length as self but is rotated
       counterclockwise around the z-axis by the given angle in radians.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. versionadded:: 2.0.0
 
@@ -678,6 +714,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the z-axis by the given angle
       in degrees. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_z_ip ##
 
@@ -688,6 +726,8 @@ Multiple coordinates can be set using slices or swizzling
 
       Rotates the vector counterclockwise around the z-axis by the given angle
       in radians. The length of the vector is not changed.
+      (Note that due to pygame's inverted y coordinate system, the rotation
+      will look clockwise if displayed).
 
       .. ## Vector3.rotate_z_ip_rad ##
 

@@ -41,7 +41,8 @@ negative values for each axis is flipped). Read more about SDL2
 input-related changes here `<https://wiki.libsdl.org/MigrationGuide#Input>`_
 
 In pygame 2, the mouse wheel functionality can be used by listening for the 
-``pygame.MOUSEWHEEL`` type of an event.
+``pygame.MOUSEWHEEL`` type of an event (Bear in mind they still emit 
+``pygame.MOUSEBUTTONDOWN`` events like in pygame 1.x, as well).
 When this event is triggered, a developer can access the appropriate ``Event`` object 
 with ``pygame.event.get()``. The object can be used to access data about the mouse 
 scroll, such as ``which`` (it will tell you what exact mouse device trigger the event).
