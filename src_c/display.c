@@ -734,6 +734,32 @@ pg_get_wm_info(PyObject *self)
     return dict;
 }
 
+
+static PyObject *
+pg_get_window_handles(PyObject *self, PyObject *args)
+{
+    PyObject * tmp;
+    PyObject * display;
+    PyObject * window;
+    PyObject * zero;
+
+    tmp = PyObject_CallFunction(self, "get_wm_info");
+    if (!tmp)
+        return NULL;
+
+    display = PyDict_GetItemString(tmp, "display");
+    if (!display)
+        display = PyDict_GetItemString(tmp, "hinstance");
+    if (!display)
+        display = Py_None;
+
+    window = PyDict_GetItemString(tmp, "window");
+    if (!display)
+        window = Py_None;
+
+    return Py_BuildValue("(OO)", display, window);
+}
+
 /* display functions */
 #if IS_SDLv2
 static PyObject *
@@ -3141,6 +3167,8 @@ static PyMethodDef _pg_display_methods[] = {
     {"get_surface", (PyCFunction)pg_get_surface, METH_NOARGS, DOC_PYGAMEDISPLAYGETSURFACE},
     {"get_window_size", (PyCFunction)pg_window_size, METH_NOARGS,
      DOC_PYGAMEDISPLAYGETWINDOWSIZE},
+    {"get_window_handles", pg_get_window_handles, METH_NOARGS,
+     DOC_PYGAMEDISPLAYGETWINDOWHANDLES},
 
     {"set_mode", (PyCFunction)pg_set_mode, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEDISPLAYSETMODE},
