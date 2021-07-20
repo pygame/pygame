@@ -299,6 +299,18 @@ class ImageModuleTest(unittest.TestCase):
         finally:
             os.remove(temp_filename)
 
+    def test_load_BytesIO(self):
+        """ see if we can load a images with BytesIO.
+        """
+        files = ["data/alien1.png", "data/alien1.jpg", "data/alien1.gif", "data/fist.bmp"]
+
+        for fname in files:
+            with self.subTest(fname=fname):
+                with open(example_path(fname), "rb") as f:
+                    img_bytes = f.read()
+                    img_file = io.BytesIO(img_bytes)
+                    image = pygame.image.load(img_file)
+
     def test_save__to_fileobject_w_namehint_argument(self):
         s = pygame.Surface((10, 10))
         s.fill((23, 23, 23))

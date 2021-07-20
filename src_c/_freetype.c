@@ -735,7 +735,7 @@ _ftfont_dealloc(pgFontObject *self)
     _PGFT_UnloadFont(self->freetype, self);
 #ifdef HAVE_PYGAME_SDL_RWOPS
     if (src) {
-        pgRWops_ReleaseObject(src);
+        SDL_RWclose(src);
     }
 #endif
     _PGFT_Quit(self->freetype);
