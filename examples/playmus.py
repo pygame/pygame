@@ -142,7 +142,8 @@ def main(file_path):
             pg.time.set_timer(pg.USEREVENT, 0)
         finally:
             pg.mixer.quit()
-    pg.quit()        
+    pg.quit()
+
 
 if __name__ == "__main__":
     # Check the only command line argument, a file path

@@ -95,8 +95,8 @@ def main():
         elif event.type == pg.USEREVENT:
             DisplayGradient(screen)
 
-    #quit
     pg.quit()
+
 
 if __name__ == "__main__":
     main()

@@ -137,8 +137,6 @@ def main():
     show(sf3)
 
 
-
 if __name__ == "__main__":
     main()
-    #quit
     pg.quit()

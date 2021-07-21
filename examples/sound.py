@@ -35,7 +35,6 @@ def main(file_path=None):
         print("  ...still going...")
         pg.time.wait(1000)
     print("...Finished")
-    pg.mixer.quit()
     pg.quit()
 
 

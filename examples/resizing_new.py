@@ -23,10 +23,10 @@ while not done:
             done = True
         if event.type == pg.QUIT:
             done = True
-        #if event.type==pg.WINDOWRESIZED:
+        # if event.type==pg.WINDOWRESIZED:
         #    screen=pg.display.get_surface()
-        if event.type==pg.VIDEORESIZE:
-            screen=pg.display.get_surface()
+        if event.type == pg.VIDEORESIZE:
+            screen = pg.display.get_surface()
     i += 1
     i = i % screen.get_width()
     j += i % 2
@@ -41,5 +41,4 @@ while not done:
 
     pg.display.flip()
     clock.tick(FPS)
-#quit
 pg.quit()

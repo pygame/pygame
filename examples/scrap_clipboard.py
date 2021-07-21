@@ -92,5 +92,4 @@ while going:
             usage()
     pg.display.flip()
     c.tick(40)
-#quit
 pg.quit()

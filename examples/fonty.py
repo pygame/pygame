@@ -91,10 +91,8 @@ def main():
         # use event.wait to keep from polling 100% cpu
         if pg.event.wait().type in (pg.QUIT, pg.KEYDOWN, pg.MOUSEBUTTONDOWN):
             break
-    #quit
     pg.quit()
+
 
 if __name__ == "__main__":
     main()
-    
-    
