@@ -13,8 +13,10 @@ def init():
     use__camera = True
 
     if sys.platform == 'win32':
-        use_vidcapture = True
-        use__camera = False
+        if sys.version_info > (3,):
+            use__camera = True
+        else:
+            use_vidcapture = True
     elif "linux" in sys.platform:
         use__camera = True
     elif "darwin" in sys.platform:
