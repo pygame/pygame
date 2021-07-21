@@ -60,6 +60,11 @@ _check_integrity(pgCameraObject* self)
             PyErr_SetString(PyExc_SystemError,
                             "Camera already in use (Capture Thread Quit)");
         }
+        /* MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED */
+        else if (self->t_error == -1072873822) {
+            PyErr_SetString(PyExc_SystemError,
+                            "Camera disconnected (Capture Thread Quit)");            
+        }
         else {
             T_FORMATHR(self->t_error, self->t_error_line)
         }
