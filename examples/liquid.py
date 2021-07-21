@@ -63,6 +63,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    pg.quit()
 
 
 """BTW, here is the code from the BlitzBasic example this was derived

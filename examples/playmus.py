@@ -142,6 +142,7 @@ def main(file_path):
             pg.time.set_timer(pg.USEREVENT, 0)
         finally:
             pg.mixer.quit()
+    pg.quit()
 
 
 if __name__ == "__main__":

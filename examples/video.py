@@ -158,3 +158,5 @@ while running:
 
     clock.tick(60)
     win.title = str("FPS: {}".format(clock.get_fps()))
+
+pg.quit()

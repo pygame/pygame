@@ -30,8 +30,8 @@ def vPlayer(fName):
     u = bytes()
     v = bytes()
     for _ in xrange_(0, int(h / 2)):
-        u += (f.read(int(w / 2)))
-        v += (f.read(int(w / 2)))
+        u += f.read(int(w / 2))
+        v += f.read(int(w / 2))
 
     # Open overlay with the resolution specified
     ovl = pg.Overlay(pg.YV12_OVERLAY, (w, h))
