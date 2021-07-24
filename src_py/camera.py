@@ -6,7 +6,7 @@ _is_init = 0
 def init():
     global list_cameras, Camera, colorspace, _is_init
 
-    import os, sys
+    import os, sys, platform
 
     use_opencv = False
     use_vidcapture = False
@@ -14,7 +14,10 @@ def init():
 
     if sys.platform == 'win32':
         if sys.version_info > (3,):
-            use__camera = True
+            if int(platform.win32_ver()[0]) > 8:
+                use__camera = True
+            else:
+                use_opencv = True
         else:
             use_vidcapture = True
     elif "linux" in sys.platform:
