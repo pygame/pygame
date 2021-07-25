@@ -169,8 +169,8 @@ def main():
 
     pg.scrap.init()
     pg.SCRAP_TEXT = pg.scrap.get_types()[0]  # TODO remove when scrap module is fixed
-    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode(
-        "UTF-8")  # store the current text from the clipboard TODO remove decode
+    clipped = pg.scrap.get(pg.SCRAP_TEXT).decode("UTF-8") 
+    # store the current text from the clipboard TODO remove decode
 
     # add the command line arguments to the  music_file_list
     for arg in sys.argv[1:]:
