@@ -1,6 +1,6 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001  Pete Shinners
+  Copyright (C) 2021 Charlie Hayden
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -15,9 +15,6 @@
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-  Pete Shinners
-  pete@shinners.org
 */
 
 /*
