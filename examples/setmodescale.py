@@ -9,6 +9,7 @@ Mouse events are scaled for you, so your game doesn't need to do it.
 Passing SCALED to pygame.display.set_mode means the resolution depends
 on desktop size and the graphics are scaled.
 """
+from __future__ import print_function
 import pygame as pg
 
 pg.init()

@@ -46,8 +46,7 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 
 def load_image(file):
-    """ loads an image, prepares it for play
-    """
+    """loads an image, prepares it for play"""
     file = os.path.join(main_dir, "data", file)
     try:
         surface = pg.image.load(file)
@@ -57,8 +56,7 @@ def load_image(file):
 
 
 def load_sound(file):
-    """ because pygame can be be compiled without mixer.
-    """
+    """because pygame can be be compiled without mixer."""
     if not pg.mixer:
         return None
     file = os.path.join(main_dir, "data", file)
@@ -79,8 +77,7 @@ def load_sound(file):
 
 
 class Player(pg.sprite.Sprite):
-    """ Representing the player as a moon buggy type car.
-    """
+    """Representing the player as a moon buggy type car."""
 
     speed = 10
     bounce = 24
@@ -112,8 +109,7 @@ class Player(pg.sprite.Sprite):
 
 
 class Alien(pg.sprite.Sprite):
-    """ An alien space ship. That slowly moves down the screen.
-    """
+    """An alien space ship. That slowly moves down the screen."""
 
     speed = 13
     animcycle = 12
@@ -139,8 +135,7 @@ class Alien(pg.sprite.Sprite):
 
 
 class Explosion(pg.sprite.Sprite):
-    """ An explosion. Hopefully the Alien and not the player!
-    """
+    """An explosion. Hopefully the Alien and not the player!"""
 
     defaultlife = 12
     animcycle = 3
@@ -153,7 +148,7 @@ class Explosion(pg.sprite.Sprite):
         self.life = self.defaultlife
 
     def update(self):
-        """ called every time around the game loop.
+        """called every time around the game loop.
 
         Show the explosion surface for 'defaultlife'.
         Every game tick(update), we decrease the 'life'.
@@ -167,8 +162,7 @@ class Explosion(pg.sprite.Sprite):
 
 
 class Shot(pg.sprite.Sprite):
-    """ a bullet the Player sprite fires.
-    """
+    """a bullet the Player sprite fires."""
 
     speed = -11
     images = []
@@ -179,7 +173,7 @@ class Shot(pg.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=pos)
 
     def update(self):
-        """ called every time around the game loop.
+        """called every time around the game loop.
 
         Every tick we move the shot upwards.
         """
@@ -189,8 +183,7 @@ class Shot(pg.sprite.Sprite):
 
 
 class Bomb(pg.sprite.Sprite):
-    """ A bomb the aliens drop.
-    """
+    """A bomb the aliens drop."""
 
     speed = 9
     images = []
@@ -201,7 +194,7 @@ class Bomb(pg.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=alien.rect.move(0, 5).midbottom)
 
     def update(self):
-        """ called every time around the game loop.
+        """called every time around the game loop.
 
         Every frame we move the sprite 'rect' down.
         When it reaches the bottom we:
@@ -216,8 +209,7 @@ class Bomb(pg.sprite.Sprite):
 
 
 class Score(pg.sprite.Sprite):
-    """ to keep track of the score.
-    """
+    """to keep track of the score."""
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
@@ -229,8 +221,7 @@ class Score(pg.sprite.Sprite):
         self.rect = self.image.get_rect().move(10, 450)
 
     def update(self):
-        """ We only update the score in update() when it has changed.
-        """
+        """We only update the score in update() when it has changed."""
         if SCORE != self.lastscore:
             self.lastscore = SCORE
             msg = "Score: %d" % SCORE
@@ -402,9 +393,9 @@ def main(winstyle=0):
     if pg.mixer:
         pg.mixer.music.fadeout(1000)
     pg.time.wait(1000)
-    pg.quit()
 
 
 # call the "main" function if running this script
 if __name__ == "__main__":
     main()
+    pg.quit()
