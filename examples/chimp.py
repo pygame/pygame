@@ -66,14 +66,14 @@ class Fist(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)  # call Sprite initializer
         self.image, self.rect = load_image("fist.bmp", -1)
-        self.fist_center = (-475 / 2, -165 / 2)
+        self.fist_offset = (-235, -80)
         self.punching = False
 
     def update(self):
         """move the fist based on the mouse position"""
         pos = pg.mouse.get_pos()
         self.rect.topleft = pos
-        self.rect.move_ip(self.fist_center)
+        self.rect.move_ip(self.fist_offset)
         if self.punching:
             self.rect.move_ip(15, 25)
 
