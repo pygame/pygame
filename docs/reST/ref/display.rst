@@ -148,26 +148,18 @@ required).
 
    The flags argument controls which type of display you want. There are
    several to choose from, and you can even combine multiple types using the
-   bitwise or operator, (the pipe "|" character). If you pass ``0`` or no flags
-   argument it will default to a software driven window. Here are the display
+   bitwise or operator, (the pipe "|" character). Here are the display
    flags you will want to choose from:
 
    ::
 
       pygame.FULLSCREEN    create a fullscreen display
-      pygame.DOUBLEBUF     recommended for HWSURFACE or OPENGL
-      pygame.HWSURFACE     hardware accelerated, only in FULLSCREEN
+      pygame.DOUBLEBUF     (obsolete in pygame 2) recommended for HWSURFACE or OPENGL
+      pygame.HWSURFACE     (obsolete in pygame 2) hardware accelerated, only in FULLSCREEN
       pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
-
-
-   Pygame 2 has the following additional flags available.
-
-   ::
-
-      pygame.SCALED        resolution depends on desktop size and scale
-                           graphics
+      pygame.SCALED        resolution depends on desktop size and scale graphics
       pygame.SHOWN         window is opened in visible mode (default)
       pygame.HIDDEN        window is opened in hidden mode
 
@@ -222,10 +214,8 @@ required).
    | :sg:`flip() -> None`
 
    This will update the contents of the entire display. If your display mode is
-   using the flags ``pygame.HWSURFACE`` and ``pygame.DOUBLEBUF``, this will
-   wait for a vertical retrace and swap the surfaces. If you are using a
-   different type of display mode, it will simply update the entire contents of
-   the surface.
+   using the flags ``pygame.HWSURFACE`` and ``pygame.DOUBLEBUF`` on pygame 1,
+   this will wait for a vertical retrace and swap the surfaces.
 
    When using an ``pygame.OPENGL`` display mode this will perform a gl buffer
    swap.
@@ -353,9 +343,7 @@ required).
    multiple display depths. If passed it will hint to which depth is a better
    match.
 
-   The most useful flags to pass will be ``pygame.HWSURFACE``,
-   ``pygame.DOUBLEBUF``, and maybe ``pygame.FULLSCREEN``. The function will
-   return 0 if these display flags cannot be set.
+   The function will return ``0`` if the passed display flags cannot be set.
 
    The display index ``0`` means the default display is used.
 
