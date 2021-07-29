@@ -98,6 +98,10 @@ pygame_scrap_lost (void);
  *       PYGAME_SCRAP_TEXT ("text/plain") will also automatically set
  *       the Win32 type "TEXT" (CF_TEXT).
  *
+ *       For QNX the following notes are important: Setting
+ *       PYGAME_SCRAP_TEXT ("text/plain") will also automatically set
+ *       the QNX type "TEXT" (Ph_CL_TEXT).
+ *
  * \param type The type of the content.
  * \param srclen The length of the content.
  * \param src The NULL terminated content.
