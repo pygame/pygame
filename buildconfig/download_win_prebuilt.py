@@ -117,10 +117,9 @@ def get_urls(x86=True, x64=True, sdl2=True):
 def download_prebuilts(temp_dir, x86=True, x64=True, sdl2=True):
     """ For downloading prebuilt dependencies.
     """
-    from distutils.dir_util import mkpath
     if not os.path.exists(temp_dir):
         print("Making dir :%s:" % temp_dir)
-        mkpath(temp_dir)
+        os.makedirs(temp_dir)
     for url, checksum in get_urls(x86=x86, x64=x64, sdl2=sdl2):
         download_sha1_unzip(url, checksum, temp_dir, 1)
 
