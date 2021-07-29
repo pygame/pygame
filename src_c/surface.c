@@ -590,7 +590,7 @@ surface_str(PyObject *self)
                            surf->format->BitsPerPixel,
                            (surf->flags & SDL_HWSURFACE) ? "HW" : "SW");
 #else  /* IS_SDLv2 */
-    return Text_FromFormat("<Surface(%dx%dx%d)>", surf->w, surf->h,
+    return Text_FromFormat("<Surface(%dx%dx%d)> SW", surf->w, surf->h,
                            surf->format->BitsPerPixel);
 #endif /* IS_SDLv2 */
 }
