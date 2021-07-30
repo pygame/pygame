@@ -25,17 +25,13 @@ data_dir = os.path.join(main_dir, "data")
 # functions to create our resources
 def load_image(name, colorkey=None, scale=1):
     fullname = os.path.join(data_dir, name)
-    try:
-        image = pg.image.load(fullname)
-    except pg.error:
-        print("Cannot load image:", fullname)
-        raise SystemExit(str(geterror()))
+    image = pg.image.load(fullname)
+    image = image.convert()
 
     size = image.get_size()
     size = (size[0] * scale, size[1] * scale)
     image = pg.transform.scale(image, size)
 
-    image = image.convert()
     if colorkey is not None:
         if colorkey == -1:
             colorkey = image.get_at((0, 0))
@@ -50,12 +46,10 @@ def load_sound(name):
 
     if not pg.mixer or not pg.mixer.get_init():
         return NoneSound()
+
     fullname = os.path.join(data_dir, name)
-    try:
-        sound = pg.mixer.Sound(fullname)
-    except pg.error:
-        print("Cannot load sound: %s" % fullname)
-        raise SystemExit(str(geterror()))
+    sound = pg.mixer.Sound(fullname)
+
     return sound
 
 
@@ -151,7 +145,6 @@ def main():
     # Create The Backgound
     background = pg.Surface(screen.get_size())
     background = background.convert()
-    # background.fill((220, 220, 220))
     background.fill((170, 238, 187))
 
     # Put Text On The Background, Centered
@@ -166,12 +159,12 @@ def main():
     pg.display.flip()
 
     # Prepare Game Objects
-    clock = pg.time.Clock()
     whiff_sound = load_sound("whiff.wav")
     punch_sound = load_sound("punch.wav")
     chimp = Chimp()
     fist = Fist()
     allsprites = pg.sprite.RenderPlain((fist, chimp))
+    clock = pg.time.Clock()
 
     # Main Loop
     going = True
