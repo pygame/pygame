@@ -5,6 +5,7 @@ Scroll through your system fonts from a list of surfaces or one huge buffer.
 This example exhibits:
 * iterate over available fonts using font.get_fonts and font.SysFont()
 * click and drag using mouse input
+* scrolling with the scroll wheel
 * save a surface to disk
 * work with a very large surface
 * simple mouse and keyboard scroll speed acceleration
