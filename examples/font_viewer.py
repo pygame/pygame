@@ -246,7 +246,6 @@ class FontViewer:
                     return False
             elif e.type == pg.MOUSEWHEEL:
                 self.y_offset += e.y * self.MOUSE_SCROLL_SPEED * -1
-                # self.y_offset = max((min((self.y_offset + amount, self.max_y)), 0))
             elif e.type == pg.MOUSEBUTTONDOWN or e.type == pg.MOUSEBUTTONUP:
                 # enter or exit virtual mouse mode for click and drag
                 self.grabbed = not self.grabbed
@@ -266,7 +265,7 @@ class FontViewer:
         # set the y_offset for scrolling and keep it between 0 and max_y
         y = pg.mouse.get_rel()[1]
         if y and self.grabbed:
-            self.y_offset += -y  # (y / 2) ** 2 * (y / abs(y))
+            self.y_offset -= y
 
         self.y_offset = min((max(self.y_offset, 0), self.max_y))
         return True
