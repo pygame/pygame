@@ -64,7 +64,6 @@ It also checks for the availability of some of the optional pygame modules. ::
     # Import Modules
     import os
     import pygame as pg
-    from pygame.compat import geterror
 
     if not pg.font:
         print("Warning, fonts disabled")

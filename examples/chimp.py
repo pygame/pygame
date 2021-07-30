@@ -11,7 +11,6 @@ follow along in the tutorial.
 # Import Modules
 import os
 import pygame as pg
-from pygame.compat import geterror
 
 if not pg.font:
     print("Warning, fonts disabled")
