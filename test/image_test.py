@@ -831,7 +831,9 @@ class ImageModuleTest(unittest.TestCase):
         """can load different format images.
 
         We test loading the following file types:
-            bmp, png, jpg, gif (non-animated), tga (uncompressed), tif, xpm, ppm, pgm.
+            bmp, png, jpg, gif (non-animated), pcx, tga (uncompressed), tif, xpm, ppm, pgm
+        Following file types are tested when using SDL 2
+            svg, pnm, webp
         All the loaded images are smaller than 32 x 32 pixels.
         """
 
@@ -848,9 +850,16 @@ class ImageModuleTest(unittest.TestCase):
              ("grey.pgm", (120, 120, 120, 255))
         ]
 
+        if pygame.get_sdl_version()[0] >= 2:
+            filename_expected_color += [
+                ("teal.svg", (0, 128, 128, 255)),
+                ("crimson.pnm", (220, 20, 60, 255)),
+                ("scarlet.webp", (	252, 14, 53, 255))
+            ]
+
         for filename, expected_color in filename_expected_color:
             with self.subTest(
-                "Test loading a " + filename[-3:],
+                "Test loading a " + filename.split(".")[-1],
                 filename="examples/data/" + filename,
                 expected_color=expected_color
             ):
