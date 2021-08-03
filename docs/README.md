@@ -26,7 +26,7 @@ If you didn't generate the documentation first, this command opens the **online*
 
 ## Contribute to docs
 
-We strongly advice you to check the [Sphinx documentation](https://www.sphinx-doc.org/)
+We strongly advise you to check the [Sphinx documentation](https://www.sphinx-doc.org/)
 before making any change on this module.
 
 ### Editing theme
