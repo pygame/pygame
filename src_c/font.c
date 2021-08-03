@@ -784,6 +784,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
+    /* Incref obj, needs to be decref'd later */
     Py_INCREF(obj);
 
     if (fontsize <= 1) {
@@ -791,6 +792,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (obj == Py_None) {
+        /* default font */
         Py_DECREF(obj);
         obj = font_resource(font_defaultname);
         if (obj == NULL) {
@@ -809,6 +811,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     /* SDL accepts UTF8 */
     oencoded = pg_EncodeString(obj, "UTF8", NULL, NULL);
     if (!oencoded || oencoded == Py_None) {
+        /* got a file object, or an error */
         Py_XDECREF(oencoded);
         oencoded = NULL;
         PyErr_Clear();
