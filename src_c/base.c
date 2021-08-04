@@ -215,6 +215,13 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      compiled.major, compiled.minor, compiled.patch,
                      linked.major, linked.minor, linked.patch);
         return 0;
+    } else if (linked.major == 2 && linked.minor == 0 && linked.patch < 14 && compiled.patch >= 14) {  // major and minor versions match, check edge case
+        /* SDL 2.0.14 replaces some macros with symbols, see https://github.com/libsdl-org/SDL/commit/316ff3847b4d9d87d9b0aab15321461db0e8ae0b */
+        PyErr_Format(PyExc_RuntimeError,
+                     "Known SDL incompatibility detected! (compiled with version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
     }
 #endif /* IS_SDLv2 */
 
@@ -2295,6 +2302,11 @@ MODINIT_DEFINE(base)
 #endif
 #endif
     }
+
+    if (!pg_CheckSDLVersions()) {
+        MODINIT_ERROR;
+    }
+
     is_loaded = 1;
     MODINIT_RETURN(module);
 }
