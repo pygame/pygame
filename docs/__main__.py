@@ -19,7 +19,7 @@ def iterpath(path):
 
 
 pkg_dir = os.path.dirname(os.path.abspath(__file__))
-main_page = os.path.join(pkg_dir, 'generated/index.html')
+main_page = os.path.join(pkg_dir, 'generated', 'index.html')
 if os.path.exists(main_page):
     url_path = quote('/'.join(iterpath(main_page)))
     drive, rest = os.path.splitdrive(__file__)
