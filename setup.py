@@ -729,10 +729,13 @@ class DocsCommand(Command):
 
     This generates html, and documentation .h header files.
     """
-    user_options = [ ]
+    user_options = [
+        ('fullgeneration', None, 'Specify that the docs must be fully regenerated')
+    ]
 
     def initialize_options(self):
         self._dir = os.getcwd()
+        self.fullgeneration = False
 
     def finalize_options(self):
         pass
@@ -752,8 +755,13 @@ class DocsCommand(Command):
         import subprocess
         try:
             print("using python:", sys.executable)
-            return subprocess.call([
-                sys.executable, os.path.join('buildconfig', 'makeref.py')]
+            command_line = [
+                sys.executable, os.path.join('buildconfig', 'makeref.py')
+            ]
+            if self.fullgeneration:
+                command_line.append('full_generation')
+            return subprocess.call(
+                command_line
             )
         except:
             print(docs_help)
