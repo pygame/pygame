@@ -50,9 +50,14 @@ def compilation_help():
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
         'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
-        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
         'Windows': 'https://www.pygame.org/wiki/CompileWindows',
         'Darwin': 'https://www.pygame.org/wiki/MacCompile',
+        'RedHat': 'https://www.pygame.org/wiki/CompileRedHat',
+        # TODO There is nothing in the following pages yet
+        'Suse': 'https://www.pygame.org/wiki/CompileSuse',
+        'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
+        'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'

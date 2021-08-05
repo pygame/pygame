@@ -212,6 +212,8 @@ def main():
     while pg.mixer.get_busy():
         pg.time.wait(200)
 
+    pg.quit()
+
 
 if __name__ == "__main__":
     main()

@@ -2,11 +2,11 @@
 _is_init = 0
 
 
-
 def init():
     global list_cameras, Camera, colorspace, _is_init
 
-    import os, sys
+    import os
+    import sys
 
     use_opencv = False
     use_vidcapture = False

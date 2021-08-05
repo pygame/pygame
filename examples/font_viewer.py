@@ -267,3 +267,4 @@ class FontViewer:
 
 
 viewer = FontViewer()
+pg.quit()

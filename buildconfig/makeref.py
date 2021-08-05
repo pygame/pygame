@@ -4,14 +4,13 @@ import sys
 import os
 import subprocess
 
-
 rst_dir = 'docs'
 rst_source_dir = os.path.join(rst_dir, 'reST')
 rst_build_dir = os.path.join('docs', 'generated')
 rst_doctree_dir = os.path.join(rst_build_dir, 'doctrees')
 c_header_dir = os.path.join('src_c', 'doc')
 
-def Run():
+def run():
     full_generation_flag = False
     for argument in sys.argv[1:]:
         if argument == 'full_generation':
@@ -33,5 +32,7 @@ def Run():
         print('Have you installed sphinx?')
         print('---')
         raise
+
+
 if __name__ == '__main__':
-    sys.exit(Run())
+    sys.exit(run())
