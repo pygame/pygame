@@ -246,10 +246,14 @@ class FontViewer:
                     return False
             elif e.type == pg.MOUSEWHEEL:
                 self.y_offset += e.y * self.MOUSE_SCROLL_SPEED * -1
-            elif e.type == pg.MOUSEBUTTONDOWN or e.type == pg.MOUSEBUTTONUP:
-                # enter or exit virtual mouse mode for click and drag
-                self.grabbed = not self.grabbed
-                pg.event.set_grab(self.grabbed)
+            elif e.type == pg.MOUSEBUTTONDOWN:
+                # enter dragging mode on mouse down
+                self.grabbed = True
+                pg.event.set_grab(True)
+            elif e.type == pg.MOUSEBUTTONUP:
+                # exit drag mode on mouse up
+                self.grabbed = False
+                pg.event.set_grab(False)
 
         # allow simple accelerated scrolling with the keyboard
         keys = pg.key.get_pressed()
