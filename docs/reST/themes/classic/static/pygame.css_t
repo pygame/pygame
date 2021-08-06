@@ -491,22 +491,6 @@ div.highlight pre {
     border: none;
 }
 
-table.highlighttable {
-    display: table;
-}
-
-@media only screen and (max-width: 680px) {
-    table.highlighttable {
-        display: block;
-    }
-}
-
-table.highlighttable,
-table.highlighttable pre {
-    border: none;
-    background-color: #eeffcc;
-}
-
 ul.simple {
     list-style-type: circle;
     margin-bottom: 1em;
