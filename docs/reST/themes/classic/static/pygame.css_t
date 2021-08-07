@@ -146,13 +146,6 @@ div.document {
     }
 }
 
-/* Make tables be responsive-ish. */
-@media only screen and (max-width: 680px) {
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
-}
-
 .toc td {
     display:block;
     width: 200%;
@@ -484,6 +477,9 @@ pre {
     line-height: 120%;
     margin-bottom: 1em;
     padding: 5px 5px 5px 15px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: justify;
 }
 
 div.highlight pre {
@@ -672,4 +668,19 @@ pre.commentContent {
     margin-left:0;
     border: 0;
     white-space: pre-wrap;
+}
+
+/* -- responsive design --------------------------------------------------------- */
+
+@media only screen and (max-width: 680px) {
+    /* Make tables be responsive-ish. */
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    div.body img.inlined-right {
+        float: none;
+        display: block;
+        margin: auto
+    }
 }
