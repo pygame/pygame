@@ -66,8 +66,7 @@ div.body table.matrix th.stub {
 
 /* Let a float element be beside a code block */
 div.highlight-python.notranslate {
-    margin: 0;
-    clear: none;
+    display: inline-block;
 }
 
 /* -- page layout ----------------------------------------------------------- */
@@ -559,6 +558,7 @@ div.body p.small-heading {
 div.body div.inlined,
 div.body img.inlined-right {
     float: right;
+    margin: 1em 0;
 }
 
 div.body .inset {
