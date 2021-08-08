@@ -573,6 +573,10 @@ div.body span.codelineref {
     background-color: {{ theme_keywordbgcolor }};
 }
 
+span.linenos {
+    margin-right: 15px;
+}
+
 /* Examples section: contains one or more example subsections */
 div.examples > div.example {
     clear: both;
@@ -682,5 +686,9 @@ pre.commentContent {
         float: none;
         display: block;
         margin: auto
+    }
+
+    span.linenos {
+        margin-right: 10px;
     }
 }
