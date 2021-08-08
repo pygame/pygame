@@ -148,7 +148,6 @@ div.document {
 
 .toc td {
     display:block;
-    width: 200%;
 }
 
 .toc td:last-child {
@@ -690,5 +689,9 @@ pre.commentContent {
 
     span.linenos {
         margin-right: 10px;
+    }
+
+    .addcomment input, a.commentButton {
+        font-size: 10px;
     }
 }
