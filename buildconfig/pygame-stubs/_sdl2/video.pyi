@@ -7,11 +7,11 @@ from pygame.math import Vector2
 from pygame.color import Color
 
 _ColorValue = Union[
-    "Color", str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
+    Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
 
 _CanBeRect = Union[
-    "Rect",
+    Rect,
     Tuple[float, float, float, float],
     Tuple[Tuple[float, float], Tuple[float, float]],
     List[float],
@@ -96,12 +96,12 @@ class Texture:
     height: int
     alpha: int
     blend_mode: int
-    color: _ColorValue
-    def get_rect(self, kwargs: Any) -> Rect: ...
+    color: Color
+    def get_rect(self, **kwargs: Any) -> Rect: ...
     def draw(
         self,
         srcrect: Optional[_CanBeRect] = None,
-        dstrect: Union[NoneType, _CanBeRect, Iterable[int, int]] = None,
+        dstrect: Optional[Union[_CanBeRect, Iterable[int, int]]] = None,
         angle: int = 0,
         origin: Optional[Iterable[int, int]] = None,
         flipX: bool = False,
@@ -115,7 +115,7 @@ class Image:
         textureOrImage: Union[Texture, Image],
         srcrect: Optional[_CanBeRect] = None,
     ) -> None: ...
-    def get_rect(self, kwargs: Any) -> Rect: ...
+    def get_rect(self, **kwargs: Any) -> Rect: ...
     def draw(
         srcrect: Optional[_CanBeRect] = None, dstrect: Optional[_CanBeRect] = None
     ) -> None: ...
@@ -123,7 +123,7 @@ class Image:
     origin: Optional[Iterable[float, float]]
     flipX: bool
     flipY: bool
-    color: _ColorValue
+    color: Color
     alpha: float
     blend_mode: int
     texture: Texture
@@ -140,7 +140,7 @@ class Renderer:
     ) -> None: ...
     def from_window(window: Window) -> Renderer: ...
     draw_blend_mode: int
-    draw_color: _ColorValue
+    draw_color: Color
     def clear(self) -> None: ...
     def present(self) -> None: ...
     def get_viewport(self) -> Rect: ...
