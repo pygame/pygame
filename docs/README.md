@@ -49,7 +49,7 @@ OR
 - Download the pygame source from Github locally.  
      ^ One way to do this is to fork and use a Git client to make that a local repository
 - Implement your idea.
-- Follow the steps in [Generating the Documentation]("#generating-the-documentation")  
+- Follow the steps in "Generating the Documentation"
      ^ This is important to test your changes work well
 - Commit your changes, create a pull request
 
