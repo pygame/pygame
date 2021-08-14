@@ -41,7 +41,8 @@ CONFIGS = [
 
 CONFIG = {"frequency": 22050, "size": -16, "channels": 2}  # base config
 if pygame.get_sdl_version()[0] >= 2:
-    CONFIG = {"frequency": 44100, "size": 32, "channels": 2}  # base config
+    # base config
+    CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}  
 
 
 class InvalidBool(object):
@@ -61,7 +62,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_init__keyword_args(self):
         # note: this test used to loop over all CONFIGS, but it's very slow..
-        mixer.init(**CONFIG, allowedchanges=0)
+        mixer.init(**CONFIG)
         mixer_conf = mixer.get_init()
 
         self.assertEqual(mixer_conf[0], CONFIG["frequency"])
@@ -71,7 +72,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_pre_init__keyword_args(self):
         # note: this test used to loop over all CONFIGS, but it's very slow..
-        mixer.pre_init(**CONFIG, allowedchanges=0)
+        mixer.pre_init(**CONFIG)
         mixer.init()
 
         mixer_conf = mixer.get_init()
