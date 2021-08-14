@@ -61,7 +61,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_init__keyword_args(self):
         # note: this test used to loop over all CONFIGS, but it's very slow..
-        mixer.init(**CONFIG)
+        mixer.init(**CONFIG, allowedchanges=0)
         mixer_conf = mixer.get_init()
 
         self.assertEqual(mixer_conf[0], CONFIG["frequency"])
@@ -71,7 +71,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_pre_init__keyword_args(self):
         # note: this test used to loop over all CONFIGS, but it's very slow..
-        mixer.pre_init(**CONFIG)
+        mixer.pre_init(**CONFIG, allowedchanges=0)
         mixer.init()
 
         mixer_conf = mixer.get_init()
@@ -86,7 +86,7 @@ class MixerModuleTest(unittest.TestCase):
         # default values. No way to check buffer size though.
         mixer.pre_init(22050, -8, 1)  # Non default values
         mixer.pre_init(0, 0, 0)  # Should reset to default values
-        mixer.init()
+        mixer.init(allowedchanges=0)
         self.assertEqual(mixer.get_init()[0], 44100)
         self.assertEqual(mixer.get_init()[1], -16)
         self.assertGreaterEqual(mixer.get_init()[2], 2)
