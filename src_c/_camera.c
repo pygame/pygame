@@ -2033,7 +2033,9 @@ Camera(pgCameraObject *self, PyObject *arg)
     cameraobj->buf = NULL;
     cameraobj->t_handle = NULL;
 
-    windows_init_device(self);
+    if (!windows_init_device(self)) {
+        return NULL;
+    }
 
     return (PyObject *)cameraobj;
 #endif

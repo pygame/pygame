@@ -225,6 +225,9 @@ cleanup:
             free(devices);
             return NULL;
         }
+        else {
+            return NULL;
+        }
     }
     else {
         return devices;
@@ -476,7 +479,7 @@ _select_conversion_type(pgCameraObject *self, IMFMediaType **mp)
 
         hr = transform->lpVtbl->SetOutputType(transform, 0, conv_type,
                                               MFT_SET_TYPE_TEST_ONLY);
-        if (hr == -1072875852) {  // MF_E_INVALIDMEDIATYPE
+        if (hr == (HRESULT)-1072875852) {  // MF_E_INVALIDMEDIATYPE
             hr = conv_type->lpVtbl->SetGUID(conv_type, &MF_MT_SUBTYPE,
                                             &MFVideoFormat_RGB32);
             HANDLEHR(hr);
@@ -724,7 +727,7 @@ windows_init_device(pgCameraObject *self)
     CHECKHR(hr);
 }
 
-int
+void
 windows_dealloc_device(pgCameraObject *self)
 {
     PyMem_Free(self->device_name);

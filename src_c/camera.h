@@ -252,7 +252,7 @@ int windows_frame_ready(pgCameraObject* self, int* result);
 PyObject* windows_read_raw(pgCameraObject* self);
 int windows_process_image(pgCameraObject *self, BYTE* data, DWORD buffer_size,
                           SDL_Surface *surf);
-int windows_dealloc_device(pgCameraObject* self);
+void windows_dealloc_device(pgCameraObject* self);
 int windows_init_device(pgCameraObject* self);
 
 #endif
