@@ -518,7 +518,7 @@ def draw_cube_modern(shader_data, filled_cube_indices, outline_cube_indices, rot
 
 
 def main():
-    """run the demo """
+    """run the demo"""
 
     # initialize pygame and setup an opengl display
     pg.init()
