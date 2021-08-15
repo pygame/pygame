@@ -19,7 +19,6 @@
 */
 
 #include "pygame.h"
-#include <Python.h>
 
 #include "pgcompat.h"
 
