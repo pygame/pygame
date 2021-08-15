@@ -35,7 +35,7 @@ jobs:
       matrix:
         # TODO: when Github actions supports M1 Mac, add `macos-11.0` to this
         os: [macos-10.15]
-        pyversion: ['pypy-3.7', 'pypy-2.7', '2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+        pyversion: ['pypy-3.7', 'pypy-2.7', '2.7', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10.0-rc.1']
 
     steps:
     - uses: actions/checkout@v2.3.4
@@ -44,6 +44,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.pyversion }}
+    
+    - name: Get pip cache
+      uses: actions/cache@v2
+      with:
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-${{ matrix.pyversion }}-pip-cache
 
     - name: Install deps
       run: |
@@ -67,6 +73,7 @@ jobs:
     - name: Upload dist
       uses: actions/upload-artifact@v2
       with:
+        name: pygame-mac-wheels
         path: dist/*.whl
 
 #   - name: Upload binaries to Github Releases

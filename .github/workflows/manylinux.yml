@@ -27,22 +27,33 @@ on:
     - '.github/workflows/windows.yml'
     - '.github/workflows/sdl1-sdist.yml'
 
-# TODO: Parallelize this build
 jobs:
   build-manylinux:
     runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        arch: ['x64', 'x86', 'aarch64']
+        tag: ['-', '-manylinux-'] # one tag for CPython builds, and another for PyPy
+
+        exclude:
+          # no pypy builds on aarch64 for now
+          - arch: 'aarch64'
+            tag: '-manylinux-'
 
     steps:
     - uses: actions/checkout@v2.3.4
 
+    # setup QEMU only on aarch64 matrix
     - name: Set up QEMU
+      if: ${{ matrix.arch == 'aarch64' }}
       id: qemu
       uses: docker/setup-qemu-action@v1
       
     - name: Build manylinux wheels
       run: |
         cd buildconfig/manylinux-build
-        make pull pull-manylinux wheels wheels-manylinux
+        make pull${{ matrix.tag }}${{ matrix.arch }} wheels${{ matrix.tag }}${{ matrix.arch }}
         cd ../..
         mkdir -p dist/
         cp buildconfig/manylinux-build/wheelhouse/*.whl dist/
@@ -51,6 +62,7 @@ jobs:
     - name: Upload dist
       uses: actions/upload-artifact@v2
       with:
+        name: pygame-manylinux-wheels
         path: dist/*.whl
 
 #   - name: Upload binaries to Github Releases
