@@ -6,7 +6,7 @@
 #define DOC_PYGAMETRANSFORMROTOZOOM "rotozoom(surface, angle, scale) -> Surface\nfiltered scale and rotation"
 #define DOC_PYGAMETRANSFORMSCALE2X "scale2x(surface, dest_surface=None) -> Surface\nspecialized image doubler"
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "smoothscale(surface, size, dest_surface=None) -> Surface\nscale a surface to an arbitrary size smoothly"
-#define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "get_smoothscale_backend() -> String\nreturn smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'"
+#define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "get_smoothscale_backend() -> string\nreturn smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'"
 #define DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND "set_smoothscale_backend(backend) -> None\nset smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'"
 #define DOC_PYGAMETRANSFORMCHOP "chop(surface, rect) -> Surface\ngets a copy of an image with an interior area removed"
 #define DOC_PYGAMETRANSFORMLAPLACIAN "laplacian(surface, dest_surface=None) -> Surface\nfind edges in a surface"
@@ -47,7 +47,7 @@ pygame.transform.smoothscale
 scale a surface to an arbitrary size smoothly
 
 pygame.transform.get_smoothscale_backend
- get_smoothscale_backend() -> String
+ get_smoothscale_backend() -> string
 return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'
 
 pygame.transform.set_smoothscale_backend

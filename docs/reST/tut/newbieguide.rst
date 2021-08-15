@@ -184,6 +184,8 @@ There is NO rule six.
 Hardware surfaces are more trouble than they're worth.
 ------------------------------------------------------
 
+**Especially in pygame 2, because HWSURFACE now does nothing**
+
 If you've been looking at the various flags you can use with
 ``pygame.display.set_mode()``, you may have thought like this: `Hey,
 HWSURFACE! Well, I want that -- who doesn't like hardware acceleration. Ooo...
