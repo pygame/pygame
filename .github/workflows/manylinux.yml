@@ -42,7 +42,7 @@ jobs:
     - name: Build manylinux wheels
       run: |
         cd buildconfig/manylinux-build
-        make base-image-aarch64 pull pull-manylinux wheels wheels-manylinux
+        make pull pull-manylinux wheels wheels-manylinux
         cd ../..
         mkdir -p dist/
         cp buildconfig/manylinux-build/wheelhouse/*.whl dist/
