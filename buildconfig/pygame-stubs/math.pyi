@@ -99,10 +99,16 @@ class Vector2:
     yx: Vector2
     yy: Vector2
     __hash__: None  # type: ignore
+    @overload
     def __init__(
         self,
-        x: Optional[Union[float, Vector2, Tuple[float, float], List[float]]] = 0,
-        y: Optional[float] = 0,
+        x: Union[float, Tuple[float, float, float], List[float], Vector2] = 0,
+    ) -> None: ...
+    @overload
+    def __init__(
+            self,
+            x: float,
+            y: float,
     ) -> None: ...
     def __setitem__(self, key: int, value: float) -> None: ...
     @overload
@@ -194,9 +200,7 @@ class Vector3:
     @overload
     def __init__(
         self,
-        xyz: Optional[
-            Union[float, Tuple[float, float, float], List[float], Vector3]
-        ] = 0,
+        xyz: Union[float, Tuple[float, float, float], List[float], Vector3] = 0,
     ) -> None: ...
     @overload
     def __init__(
