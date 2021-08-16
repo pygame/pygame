@@ -13,9 +13,9 @@ _kind = Literal["P", "p", "R", "r", "G", "g", "B", "b", "A", "a", "C", "c"]
 def surface_to_array(
     array: numpy.ndarray,
     surface: Surface,
-    kind: Optional[_kind] = "P",
-    opaque: Optional[int] = 255,
-    clear: Optional[int] = 0,
+    kind: _kind = "P",
+    opaque: int = 255,
+    clear: int = 0,
 ) -> None: ...
 def array_to_surface(surface: Surface, array: numpy.ndarray) -> None: ...
 def map_to_array(
