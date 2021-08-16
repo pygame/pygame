@@ -190,7 +190,6 @@ class Vector3:
     zzx: Vector3
     zzy: Vector3
     zzz: Vector3
-
     __hash__: None  # type: ignore
     @overload
     def __init__(
