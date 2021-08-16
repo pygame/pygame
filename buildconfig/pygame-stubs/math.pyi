@@ -202,9 +202,9 @@ class Vector3:
     @overload
     def __init__(
             self,
-            x: Union[int, float],
-            y: Union[int, float],
-            z: Union[int, float],
+            x: float,
+            y: float,
+            z: float,
     ) -> None: ...
     def __setitem__(self, key: int, value: float) -> None: ...
     @overload
