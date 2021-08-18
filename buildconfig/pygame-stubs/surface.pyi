@@ -25,7 +25,7 @@ class _HasRectAttribute(Protocol):
 _RectValue = Union[
     _CanBeRect, _HasRectAttribute
 ]
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
+_Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
 class Surface(object):
     _pixels_address: int
