@@ -11,20 +11,7 @@ _ColorInput = Union[
     Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]
 ]
 _RgbaOutput = Tuple[int, int, int, int]
-_CanBeRect = Union[
-    Rect,
-    Tuple[float, float, float, float],
-    Tuple[Tuple[float, float], Tuple[float, float]],
-    List[float],
-    List[Vector2],
-    Tuple[Vector2, Vector2],
-    Iterable[Vector2],
-]
-class _HasRectAttribute(Protocol):
-    rect: _CanBeRect
-_RectValue = Union[
-    _CanBeRect, _HasRectAttribute
-]
+
 _Coordinate = Union[Tuple[float, float], List[float], Vector2]
 
 class Surface(object):
@@ -45,7 +32,7 @@ class Surface(object):
         self,
         source: Surface,
         dest: Union[Sequence[float], Rect],
-        area: Optional[Rect] = ...,
+        area: Optional[_RectStyle] = ...,
         special_flags: int = ...,
     ) -> Rect: ...
     def blits(
