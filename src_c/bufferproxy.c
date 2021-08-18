@@ -426,12 +426,10 @@ proxy_write(pgBufproxyObject *self, PyObject *args, PyObject *kwds)
     Py_ssize_t offset = 0;
     char *keywords[] = {"buffer", "offset", 0};
 
-#define ARG_FORMAT "s#|n"
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, ARG_FORMAT, keywords, &buf,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s#|n", keywords, &buf,
                                      &buflen, &offset)) {
         return 0;
     }
-#undef ARG_FORMAT
 
     if (proxy_getbuffer(self, &view, PyBUF_PG_VIEW)) {
         return 0;
@@ -636,9 +634,7 @@ static PyBufferProcs proxy_bufferprocs = {
     ,
 #endif
     (getbufferproc)proxy_getbuffer,
-    (releasebufferproc)proxy_releasebuffer
-};
-
+    (releasebufferproc)proxy_releasebuffer};
 
 #if !defined(PROXY_BUFFERPROCS)
 #define PROXY_BUFFERPROCS 0
@@ -654,26 +650,25 @@ static PyBufferProcs proxy_bufferprocs = {
 #endif
 
 static PyTypeObject pgBufproxy_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    PROXY_TYPE_FULLNAME,                    /* tp_name */
-    sizeof(pgBufproxyObject),               /* tp_basicsize */
-    0,                                      /* tp_itemsize */
-    (destructor)proxy_dealloc,              /* tp_dealloc */
-    0,                                      /* tp_print */
-    0,                                      /* tp_getattr */
-    0,                                      /* tp_setattr */
-    0,                                      /* tp_compare */
-    (reprfunc)proxy_repr,                   /* tp_repr */
-    0,                                      /* tp_as_number */
-    0,                                      /* tp_as_sequence */
-    0,                                      /* tp_as_mapping */
-    0,                                      /* tp_hash */
-    0,                                      /* tp_call */
-    0,                                      /* tp_str */
-    0,                                      /* tp_getattro */
-    0,                                      /* tp_setattro */
-    PROXY_BUFFERPROCS,                      /* tp_as_buffer */
-    PROXY_TPFLAGS,                          /* tp_flags */
+    PyVarObject_HEAD_INIT(NULL, 0) PROXY_TYPE_FULLNAME, /* tp_name */
+    sizeof(pgBufproxyObject),                           /* tp_basicsize */
+    0,                                                  /* tp_itemsize */
+    (destructor)proxy_dealloc,                          /* tp_dealloc */
+    0,                                                  /* tp_print */
+    0,                                                  /* tp_getattr */
+    0,                                                  /* tp_setattr */
+    0,                                                  /* tp_compare */
+    (reprfunc)proxy_repr,                               /* tp_repr */
+    0,                                                  /* tp_as_number */
+    0,                                                  /* tp_as_sequence */
+    0,                                                  /* tp_as_mapping */
+    0,                                                  /* tp_hash */
+    0,                                                  /* tp_call */
+    0,                                                  /* tp_str */
+    0,                                                  /* tp_getattro */
+    0,                                                  /* tp_setattro */
+    PROXY_BUFFERPROCS,                                  /* tp_as_buffer */
+    PROXY_TPFLAGS,                                      /* tp_flags */
     DOC_PYGAMEBUFFERPROXY,
     (traverseproc)proxy_traverse,         /* tp_traverse */
     0,                                    /* tp_clear */
