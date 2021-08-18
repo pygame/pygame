@@ -1,5 +1,4 @@
 import unittest
-import platform
 import sys
 import pygame
 
@@ -12,8 +11,8 @@ if SDL2:
         default_caption = "pygame window"
 
         @unittest.skipIf(
-            ("Windows" in platform.platform() and not (sys.maxsize > 2 ** 32)),
-            "Windows 32 bit SDL 2.0.16 has an issue.",
+            not (sys.maxsize > 2 ** 32),
+            "32 bit SDL 2.0.16 has an issue.",
         )
         def test_renderer_set_viewport(self):
             """works."""
