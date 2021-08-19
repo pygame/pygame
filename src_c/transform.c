@@ -529,23 +529,22 @@ stretch(SDL_Surface *src, SDL_Surface *dst)
 }
 
 static PyObject *
-surf_scale(PyObject *self, PyObject *arg)
+surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
-    PyObject *surfobj2;
+    PyObject *surfobj2 = NULL;
     PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height;
-    surfobj2 = NULL;
+    static char *keywords[] = {"surface", "size", "dest_surface", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!O|O!", &pgSurface_Type, &surfobj, &size,
-                          &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O|O!", keywords, 
+                                     &pgSurface_Type, &surfobj, &size,
+                                     &pgSurface_Type, &surfobj2))
         return NULL;
 
-    if (!pg_TwoIntsFromObj(size, &width, &height)) {
+    if (!pg_TwoIntsFromObj(size, &width, &height))
         return RAISE(PyExc_TypeError, "size must be two numbers");
-    }
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");
@@ -595,16 +594,16 @@ surf_scale(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_scale2x(PyObject *self, PyObject *arg)
+surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj, *surfobj2;
+    PyObject *surfobj, *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
-    surfobj2 = NULL;
+    static char *keywords[] = {"surface", "dest_surface", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!|O!", &pgSurface_Type, &surfobj,
-                          &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O!", keywords,
+                                     &pgSurface_Type, &surfobj, 
+                                     &pgSurface_Type, &surfobj2))
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
@@ -651,7 +650,7 @@ surf_scale2x(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_rotate(PyObject *self, PyObject *arg)
+surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
@@ -661,9 +660,10 @@ surf_rotate(PyObject *self, PyObject *arg)
     double x, y, cx, cy, sx, sy;
     int nxmax, nymax;
     Uint32 bgcolor;
+    static char *keywords[] = {"surface", "angle", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!f", &pgSurface_Type, &surfobj, &angle))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!f", keywords,
+                                     &pgSurface_Type, &surfobj, &angle))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
 
@@ -752,7 +752,7 @@ surf_rotate(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_flip(PyObject *self, PyObject *arg)
+surf_flip(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf;
@@ -760,10 +760,11 @@ surf_flip(PyObject *self, PyObject *arg)
     int loopx, loopy;
     int srcpitch, dstpitch;
     Uint8 *srcpix, *dstpix;
+    static char *keywords[] = {"surface", "flip_x", "flip_y", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!ii", &pgSurface_Type, &surfobj, &xaxis,
-                          &yaxis))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!ii", keywords,
+                                     &pgSurface_Type, &surfobj, &xaxis,
+                                     &yaxis))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
 
@@ -904,15 +905,16 @@ surf_flip(PyObject *self, PyObject *arg)
 }
 
 static PyObject *
-surf_rotozoom(PyObject *self, PyObject *arg)
+surf_rotozoom(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
     SDL_Surface *surf, *newsurf, *surf32;
     float scale, angle;
+    static char *keywords[] = {"surface", "angle", "scale", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!ff", &pgSurface_Type, &surfobj, &angle,
-                          &scale))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!ff", keywords,
+                                     &pgSurface_Type, &surfobj, &angle,
+                                     &scale))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
     if (scale == 0.0 || surf->w == 0 || surf->h ==0) {
@@ -1014,14 +1016,17 @@ chop(SDL_Surface *src, int x, int y, int width, int height)
 }
 
 static PyObject *
-surf_chop(PyObject *self, PyObject *arg)
+surf_chop(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *surfobj, *rectobj;
     SDL_Surface *surf, *newsurf;
     GAME_Rect *rect, temp;
+    static char *keywords[] = {"surface", "rect", NULL};
 
-    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &rectobj))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O", keywords,
+                                     &pgSurface_Type, &surfobj, &rectobj))
         return NULL;
+
     if (!(rect = pgRect_FromObject(rectobj, &temp)))
         return RAISE(PyExc_TypeError, "Rect argument is invalid");
 
@@ -1420,23 +1425,22 @@ scalesmooth(SDL_Surface *src, SDL_Surface *dst, struct _module_state *st)
 }
 
 static PyObject *
-surf_scalesmooth(PyObject *self, PyObject *arg)
+surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj;
-    PyObject *surfobj2;
+    PyObject *surfobj2 = NULL;
     PyObject *size;
     SDL_Surface *surf, *newsurf;
     int width, height, bpp;
-    surfobj2 = NULL;
+    static char *keywords[] = {"surface", "size", "dest_surface", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!O|O!", &pgSurface_Type, &surfobj, &size,
-                          &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!O|O!", keywords,
+                                     &pgSurface_Type, &surfobj, &size,
+                                     &pgSurface_Type, &surfobj2))
         return NULL;
 
-    if (!pg_TwoIntsFromObj(size, &width, &height)) {
+    if (!pg_TwoIntsFromObj(size, &width, &height))
         return RAISE(PyExc_TypeError, "size must be two numbers");
-    }
 
     if (width < 0 || height < 0)
         return RAISE(PyExc_ValueError, "Cannot scale to negative size");
@@ -1506,16 +1510,14 @@ surf_get_smoothscale_backend(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwds)
+surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     struct _module_state *st = GETSTATE(self);
-    char *keywords[] = {"type", NULL};
+    char *keywords[] = {"backend", NULL};
     const char *type;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s:set_smoothscale_backend",
-                                     keywords, &type)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", keywords, &type))
         return NULL;
-    }
 
 #if defined(SCALE_MMX_SUPPORT)
     if (strcmp(type, "GENERIC") == 0) {
@@ -1783,10 +1785,10 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     Returns the number of pixels within the threshold.
     */
     static char *kwlist[] = {
-        "dest_surf",    /* Surface we are changing. See 'set_behavior'.
+        "dest_surface",    /* Surface we are changing. See 'set_behavior'.
                              None - if counting (set_behavior is 0),
                                     don't need 'dest_surf'. */
-        "surf",         /* Surface we are looking at. */
+        "surface",         /* Surface we are looking at. */
         "search_color", /* Color we are searching for. */
         "threshold",    /* =(0,0,0,0)  Within this distance from
                                        search_color (or search_surf). */
@@ -2203,16 +2205,16 @@ laplacian(SDL_Surface *surf, SDL_Surface *destsurf)
 }
 
 static PyObject *
-surf_laplacian(PyObject *self, PyObject *arg)
+surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj, *surfobj2;
+    PyObject *surfobj, *surfobj2 = NULL;
     SDL_Surface *surf;
     SDL_Surface *newsurf;
-    surfobj2 = NULL;
+    static char *keywords[] = {"surface", "dest_surface", NULL};
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple(arg, "O!|O!", &pgSurface_Type, &surfobj,
-                          &pgSurface_Type, &surfobj2))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O!", keywords, 
+                                     &pgSurface_Type, &surfobj,
+                                     &pgSurface_Type, &surfobj2))
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
@@ -2440,27 +2442,24 @@ average_surfaces(SDL_Surface **surfaces, int num_surfaces,
 
 */
 static PyObject *
-surf_average_surfaces(PyObject *self, PyObject *arg)
+surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PyObject *surfobj2;
+    PyObject *surfobj2 = NULL;
     SDL_Surface *surf;
-    SDL_Surface *newsurf;
+    SDL_Surface *newsurf = NULL;
     SDL_Surface **surfaces;
     int width, height;
-    int an_error;
+    int an_error = 0;
     size_t size, loop, loop_up_to;
     int palette_colors = 1;
-
     PyObject *list, *obj;
     PyObject *ret = NULL;
+    static char *keywords[] = {"surfaces", "dest_surface", 
+                               "palette_colors", NULL};
 
-    an_error = 0;
-
-    surfobj2 = NULL;
-    newsurf = NULL;
-
-    if (!PyArg_ParseTuple(arg, "O|O!i", &list, &pgSurface_Type, &surfobj2,
-                          &palette_colors))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O!i", keywords, &list,
+                                     &pgSurface_Type, &surfobj2, 
+                                     &palette_colors))
         return NULL;
 
     if (!PySequence_Check(list))
@@ -2723,7 +2722,7 @@ average_color(SDL_Surface *surf, int x, int y, int width, int height, Uint8 *r,
 #endif
 
 static PyObject *
-surf_average_color(PyObject *self, PyObject *arg)
+surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     pgSurfaceObject *surfobj = NULL;
     PyObject *rectobj = NULL;
@@ -2731,8 +2730,10 @@ surf_average_color(PyObject *self, PyObject *arg)
     GAME_Rect *rect, temp;
     Uint8 r, g, b, a;
     int x, y, w, h;
+    static char *keywords[] = {"surface", "rect", NULL};
 
-    if (!PyArg_ParseTuple(arg, "O!|O", &pgSurface_Type, &surfobj, &rectobj))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|O", keywords, 
+                                     &pgSurface_Type, &surfobj, &rectobj))
         return NULL;
 
     surf = pgSurface_AsSurface(surfobj);
@@ -2762,26 +2763,32 @@ surf_average_color(PyObject *self, PyObject *arg)
 }
 
 static PyMethodDef _transform_methods[] = {
-    {"scale", surf_scale, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE},
-    {"rotate", surf_rotate, METH_VARARGS, DOC_PYGAMETRANSFORMROTATE},
-    {"flip", surf_flip, METH_VARARGS, DOC_PYGAMETRANSFORMFLIP},
-    {"rotozoom", surf_rotozoom, METH_VARARGS, DOC_PYGAMETRANSFORMROTOZOOM},
-    {"chop", surf_chop, METH_VARARGS, DOC_PYGAMETRANSFORMCHOP},
-    {"scale2x", surf_scale2x, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE2X},
-    {"smoothscale", surf_scalesmooth, METH_VARARGS,
-     DOC_PYGAMETRANSFORMSMOOTHSCALE},
+    {"scale", (PyCFunction)surf_scale, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMSCALE},
+    {"rotate", (PyCFunction)surf_rotate, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMROTATE},
+    {"flip", (PyCFunction)surf_flip, METH_VARARGS | METH_KEYWORDS, 
+     DOC_PYGAMETRANSFORMFLIP},
+    {"rotozoom", (PyCFunction)surf_rotozoom, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMROTOZOOM},
+    {"chop", (PyCFunction)surf_chop, METH_VARARGS | METH_KEYWORDS, 
+     DOC_PYGAMETRANSFORMCHOP},
+    {"scale2x", (PyCFunction)surf_scale2x, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMSCALE2X},
+    {"smoothscale", (PyCFunction)surf_scalesmooth,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSMOOTHSCALE},
     {"get_smoothscale_backend", surf_get_smoothscale_backend,
      METH_NOARGS, DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND},
     {"set_smoothscale_backend", (PyCFunction)surf_set_smoothscale_backend,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND},
     {"threshold", (PyCFunction)surf_threshold, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETRANSFORMTHRESHOLD},
-    {"laplacian", surf_laplacian, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD},
-    {"average_surfaces", surf_average_surfaces, METH_VARARGS,
-     DOC_PYGAMETRANSFORMAVERAGESURFACES},
-    {"average_color", surf_average_color, METH_VARARGS,
-     DOC_PYGAMETRANSFORMAVERAGECOLOR},
-
+    {"laplacian", (PyCFunction)surf_laplacian, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMTHRESHOLD},
+    {"average_surfaces", (PyCFunction)surf_average_surfaces,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGESURFACES},
+    {"average_color", (PyCFunction)surf_average_color,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMAVERAGECOLOR},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(transform)

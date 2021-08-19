@@ -35,6 +35,7 @@ def main(file_path=None):
         print("  ...still going...")
         pg.time.wait(1000)
     print("...Finished")
+    pg.quit()
 
 
 if __name__ == "__main__":

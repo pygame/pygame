@@ -50,9 +50,14 @@ def compilation_help():
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
         'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
-        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
         'Windows': 'https://www.pygame.org/wiki/CompileWindows',
         'Darwin': 'https://www.pygame.org/wiki/MacCompile',
+        'RedHat': 'https://www.pygame.org/wiki/CompileRedHat',
+        # TODO There is nothing in the following pages yet
+        'Suse': 'https://www.pygame.org/wiki/CompileSuse',
+        'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
+        'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
@@ -724,10 +729,13 @@ class DocsCommand(Command):
 
     This generates html, and documentation .h header files.
     """
-    user_options = [ ]
+    user_options = [
+        ('fullgeneration', None, 'Specify that the docs must be fully regenerated')
+    ]
 
     def initialize_options(self):
         self._dir = os.getcwd()
+        self.fullgeneration = False
 
     def finalize_options(self):
         pass
@@ -747,8 +755,13 @@ class DocsCommand(Command):
         import subprocess
         try:
             print("using python:", sys.executable)
-            return subprocess.call([
-                sys.executable, os.path.join('buildconfig', 'makeref.py')]
+            command_line = [
+                sys.executable, os.path.join('buildconfig', 'makeref.py')
+            ]
+            if self.fullgeneration:
+                command_line.append('full_generation')
+            return subprocess.call(
+                command_line
             )
         except:
             print(docs_help)

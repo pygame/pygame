@@ -44,41 +44,40 @@ sizer_xy_strings: _Small_string
 
 def compile(
     strings: Sequence[str],
-    black: Optional[str] = "X",
-    white: Optional[str] = ".",
-    xor: Optional[str] = "o",
+    black: str = "X",
+    white: str = ".",
+    xor: str = "o",
 ) -> Tuple[Sequence[int], Sequence[int]]: ...
-
-
-def load_xbm(cursorfile: str, maskfile: str) -> Tuple[
-    List[int],
-    List[int],
-    Tuple[int, ...],
-    Tuple[int, ...]
-]: ...
-
+def load_xbm(
+    cursorfile: str, maskfile: str
+) -> Tuple[List[int], List[int], Tuple[int, ...], Tuple[int, ...]]: ...
 
 class Cursor(Iterable[object]):
     @overload
     def __init__(self, constant: int) -> None: ...
     @overload
-    def __init__(self, size: Union[Tuple[int, int], List[int]],
-                 hotspot: Union[Tuple[int, int], List[int]],
-                 xormasks: Sequence[int],
-                 andmasks: Sequence[int],
-                 ) -> None: ...
+    def __init__(
+        self,
+        size: Union[Tuple[int, int], List[int]],
+        hotspot: Union[Tuple[int, int], List[int]],
+        xormasks: Sequence[int],
+        andmasks: Sequence[int],
+    ) -> None: ...
     @overload
-    def __init__(self, hotspot: Union[Tuple[int, int], List[int]],
-                 surface: Surface,
-                 ) -> None: ...
-
+    def __init__(
+        self,
+        hotspot: Union[Tuple[int, int], List[int]],
+        surface: Surface,
+    ) -> None: ...
     def __iter__(self) -> Iterator[object]: ...
-
     type: str
-    data: Union[Tuple[int],
-                Tuple[Union[Tuple[int, int], List[int]],
-                      Union[Tuple[int, int], List[int]],
-                      Sequence[int],
-                      Sequence[int]],
-                Tuple[int, Surface]]
-
+    data: Union[
+        Tuple[int],
+        Tuple[
+            Union[Tuple[int, int], List[int]],
+            Union[Tuple[int, int], List[int]],
+            Sequence[int],
+            Sequence[int],
+        ],
+        Tuple[int, Surface],
+    ]

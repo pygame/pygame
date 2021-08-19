@@ -82,8 +82,8 @@ def get_urls(x86=True, x64=True, sdl2=True):
     if sdl2:
         url_sha1.extend([
             [
-            'https://www.libsdl.org/release/SDL2-devel-2.0.14-VC.zip',
-            '48d5dcd4a445410301f5575219cffb6de654edb8',
+            'https://www.libsdl.org/release/SDL2-devel-2.0.16-VC.zip',
+            '13d952c333f3c2ebe9b7bc0075b4ad2f784e7584',
             ],
             [
             'https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip',
@@ -117,10 +117,9 @@ def get_urls(x86=True, x64=True, sdl2=True):
 def download_prebuilts(temp_dir, x86=True, x64=True, sdl2=True):
     """ For downloading prebuilt dependencies.
     """
-    from distutils.dir_util import mkpath
     if not os.path.exists(temp_dir):
         print("Making dir :%s:" % temp_dir)
-        mkpath(temp_dir)
+        os.makedirs(temp_dir)
     for url, checksum in get_urls(x86=x86, x64=x64, sdl2=sdl2):
         download_sha1_unzip(url, checksum, temp_dir, 1)
 
@@ -262,12 +261,12 @@ def place_downloaded_prebuilts(temp_dir, move_to_dir, x86=True, x64=True, sdl2=T
         copy(
             os.path.join(
                 temp_dir,
-                'SDL2-devel-2.0.14-VC/SDL2-2.0.14'
+                'SDL2-devel-2.0.16-VC/SDL2-2.0.16'
             ),
             os.path.join(
                 move_to_dir,
                 prebuilt_dir,
-                'SDL2-2.0.14'
+                'SDL2-2.0.16'
             )
         )
 

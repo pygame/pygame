@@ -94,7 +94,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    .. versionchanged:: 2.0.0 The default ``frequency`` changed from 22050 to 44100.
    .. versionchanged:: 2.0.0 ``size`` can be 32 (32-bit floats).
    .. versionchanged:: 2.0.0 ``channels`` can also be 4 or 6.
-   .. versionadded:: 2.0.0 ``allowedchanges`` argument added
+   .. versionadded:: 2.0.0 ``allowedchanges``, ``devicename`` arguments added
 
    .. ## pygame.mixer.init ##
 
@@ -114,6 +114,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    .. versionchanged:: 1.9.1 The default ``buffersize`` changed from 3072 to 4096.
    .. versionchanged:: 2.0.0 The default ``buffersize`` changed from 4096 to 512. 
    .. versionchanged:: 2.0.0 The default ``frequency`` changed from 22050 to 44100.
+   .. versionadded:: 2.0.0 ``allowedchanges``, ``devicename`` arguments added
 
    .. ## pygame.mixer.pre_init ##
 
