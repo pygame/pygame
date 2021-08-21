@@ -1443,7 +1443,7 @@ pg_rect_repr(pgRectObject *self)
 {
     char string[256];
 
-    sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w,
+    sprintf(string, "Rect(%d, %d, %d, %d)", self->r.x, self->r.y, self->r.w,
             self->r.h);
     return Text_FromUTF8(string);
 }

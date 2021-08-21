@@ -13,7 +13,6 @@ PY3 = sys.version_info.major == 3
 
 class Vector2TypeTest(unittest.TestCase):
     def setUp(self):
-        pygame.math.enable_swizzling()
         self.zeroVec = Vector2()
         self.e1 = Vector2(1, 0)
         self.e2 = Vector2(0, 1)
@@ -25,9 +24,6 @@ class Vector2TypeTest(unittest.TestCase):
         self.v2 = Vector2(self.t2)
         self.s1 = 5.6
         self.s2 = 7.8
-
-    def tearDown(self):
-        pygame.math.enable_swizzling()
 
     def testConstructionDefault(self):
         v = Vector2()
@@ -485,13 +481,6 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertNotEqual(v, Vector2((5, 1)))
 
     def test_swizzle(self):
-        self.assertTrue(hasattr(pygame.math, "enable_swizzling"))
-        self.assertTrue(hasattr(pygame.math, "disable_swizzling"))
-        # swizzling not disabled by default
-        pygame.math.disable_swizzling()
-        self.assertRaises(AttributeError, lambda: self.v1.yx)
-        pygame.math.enable_swizzling()
-
         self.assertEqual(self.v1.yx, (self.v1.y, self.v1.x))
         self.assertEqual(
             self.v1.xxyyxy,
@@ -1747,13 +1736,6 @@ class Vector3TypeTest(unittest.TestCase):
         )
 
     def test_swizzle(self):
-        self.assertTrue(hasattr(pygame.math, "enable_swizzling"))
-        self.assertTrue(hasattr(pygame.math, "disable_swizzling"))
-        # swizzling enabled by default
-        pygame.math.disable_swizzling()
-        self.assertRaises(AttributeError, lambda: self.v1.yx)
-        pygame.math.enable_swizzling()
-
         self.assertEqual(self.v1.yxz, (self.v1.y, self.v1.x, self.v1.z))
         self.assertEqual(
             self.v1.xxyyzzxyz,

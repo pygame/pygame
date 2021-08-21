@@ -331,8 +331,6 @@ vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self);
 static PyObject *
 vector_elementwise(pgVector *vec, PyObject *args);
 
-static int swizzling_enabled = 1;
-
 /********************************
  * Global helper functions
  ********************************/
@@ -1534,7 +1532,7 @@ vector_repr(pgVector *self)
     char buffer[2][STRING_BUF_SIZE];
 
     bufferIdx = 1;
-    tmp = PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "<Vector%ld(", self->dim);
+    tmp = PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "Vector%ld(", self->dim);
     if (!_vector_check_snprintf_success(tmp))
         return NULL;
     for (i = 0; i < self->dim - 1; ++i) {
@@ -1544,7 +1542,7 @@ vector_repr(pgVector *self)
         if (!_vector_check_snprintf_success(tmp))
             return NULL;
     }
-    tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)>",
+    tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)",
                         buffer[(bufferIdx + 1) % 2], self->coords[i]);
     if (!_vector_check_snprintf_success(tmp))
         return NULL;
@@ -1638,7 +1636,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
 
     len = PySequence_Length(attr_name);
 
-    if (len == 1 || !swizzling_enabled) {
+    if (len == 1) {
         return PyObject_GenericGetAttr((PyObject *)self, attr_name);
     }
 
@@ -1734,11 +1732,11 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
     int swizzle_err = SWIZZLE_ERR_NO_ERR;
     Py_ssize_t i;
 
-    /* if swizzling is disabled always default to generic implementation */
-    if (!swizzling_enabled || len == 1)
+    /* generic implementation */
+    if (len == 1)
         return PyObject_GenericSetAttr((PyObject *)self, attr_name, val);
 
-    /* if swizzling is enabled first try swizzle */
+    /* first try swizzle */
     for (i = 0; i < self->dim; ++i)
         entry_was_set[i] = 0;
 
@@ -1808,7 +1806,7 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
             /* this should NEVER happen and means a bug in the code */
             PyErr_SetString(PyExc_RuntimeError,
                             "Unhandled error in swizzle code. Please report "
-                            "this bug to pygame-users@seul.org");
+                            "this bug to github.com/pygame/pygame/issues");
             return -1;
     }
 }
@@ -4013,14 +4011,18 @@ vector_elementwise(pgVector *vec, PyObject *args)
 static PyObject *
 math_enable_swizzling(pgVector *self)
 {
-    swizzling_enabled = 1;
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "pygame.math.enable_swizzling() is deprecated, functionality has been removed, and will be removed", 1) == -1) {
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
 math_disable_swizzling(pgVector *self)
 {
-    swizzling_enabled = 0;
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, "pygame.math.disable_swizzling() is deprecated, functionality has been removed, and will be removed", 1) == -1) {
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
