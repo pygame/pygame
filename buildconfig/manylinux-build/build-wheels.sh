@@ -8,7 +8,7 @@ else
 fi
 
 if [[ "$1" == "buildpypy" ]]; then
-	export SUPPORTED_PYTHONS="pp27-pypy_73 pp36-pypy36_pp73 pp37-pypy37_pp73"
+	export SUPPORTED_PYTHONS="pp27-pypy_75 pp37-pypy37_pp75"
 fi
 
 
@@ -28,6 +28,7 @@ fi
 export CFLAGS="-g0 -O3"
 
 ls -la /io
+ls -la /opt/python/
 
 # Compile wheels
 for PYVER in $SUPPORTED_PYTHONS; do
