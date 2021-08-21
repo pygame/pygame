@@ -497,7 +497,7 @@ class ColorTypeTest(unittest.TestCase):
 
     def test_repr(self):
         c = pygame.Color(68, 38, 26, 69)
-        t = "(68, 38, 26, 69)"
+        t = "Color(68, 38, 26, 69)"
         self.assertEqual(repr(c), t)
 
     def test_add(self):

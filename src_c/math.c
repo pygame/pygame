@@ -234,8 +234,6 @@ _vector_check_snprintf_success(int return_code);
 static PyObject *
 vector_repr(pgVector *self);
 static PyObject *
-vector_str(pgVector *self);
-static PyObject *
 vector_project_onto(pgVector *self, PyObject *other);
 
 /*
@@ -1550,32 +1548,6 @@ vector_repr(pgVector *self)
 }
 
 static PyObject *
-vector_str(pgVector *self)
-{
-    Py_ssize_t i;
-    int tmp;
-    int bufferIdx;
-    char buffer[2][STRING_BUF_SIZE];
-
-    bufferIdx = 1;
-    tmp = PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[");
-    if (!_vector_check_snprintf_success(tmp))
-        return NULL;
-    for (i = 0; i < self->dim - 1; ++i) {
-        tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ",
-                            buffer[(bufferIdx + 1) % 2], self->coords[i]);
-        bufferIdx++;
-        if (!_vector_check_snprintf_success(tmp))
-            return NULL;
-    }
-    tmp = PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g]",
-                        buffer[(bufferIdx + 1) % 2], self->coords[i]);
-    if (!_vector_check_snprintf_success(tmp))
-        return NULL;
-    return Text_FromUTF8(buffer[bufferIdx % 2]);
-}
-
-static PyObject *
 vector_project_onto(pgVector *self, PyObject *other)
 {
     Py_ssize_t i;
@@ -1924,7 +1896,7 @@ _vector2_set(pgVector *self, PyObject *xOrSequence, PyObject *y)
 #else
         else if (PyUnicode_Check(xOrSequence) || PyString_Check(xOrSequence)) {
 #endif
-            char *delimiter[3] = {"<Vector2(", ", ", ")>"};
+            char *delimiter[3] = {"Vector2(", ", ", ")"};
             Py_ssize_t error_code;
             error_code = _vector_coords_from_string(xOrSequence, delimiter,
                                                     self->coords, self->dim);
@@ -2282,7 +2254,7 @@ static PyTypeObject pgVector2_Type = {
     /* More standard operations (here for binary compatibility) */
     0,                                    /* tp_hash */
     0,                                    /* tp_call */
-    (reprfunc)vector_str,                 /* tp_str */
+    (reprfunc)NULL,                       /* tp_str */
     (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
     (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
     /* Functions to access object as input/output buffer */
@@ -2380,7 +2352,7 @@ _vector3_set(pgVector *self, PyObject *xOrSequence, PyObject *y, PyObject *z)
 #else
         else if (PyUnicode_Check(xOrSequence) || PyString_Check(xOrSequence)) {
 #endif
-            char *delimiter[4] = {"<Vector3(", ", ", ", ", ")>"};
+            char *delimiter[4] = {"Vector3(", ", ", ", ", ")"};
             Py_ssize_t error_code;
             error_code = _vector_coords_from_string(xOrSequence, delimiter,
                                                     self->coords, self->dim);
@@ -3172,7 +3144,7 @@ static PyTypeObject pgVector3_Type = {
     /* More standard operations (here for binary compatibility) */
     0,                                    /* tp_hash */
     0,                                    /* tp_call */
-    (reprfunc)vector_str,                 /* tp_str */
+    (reprfunc)NULL,                       /* tp_str */
     (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
     (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
     /* Functions to access object as input/output buffer */

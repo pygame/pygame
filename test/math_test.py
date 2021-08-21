@@ -261,11 +261,11 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testStr(self):
         v = Vector2(1.2, 3.4)
-        self.assertEqual(str(v), "[1.2, 3.4]")
+        self.assertEqual(str(v), "Vector2(1.2, 3.4)")
 
     def testRepr(self):
         v = Vector2(1.2, 3.4)
-        self.assertEqual(v.__repr__(), "<Vector2(1.2, 3.4)>")
+        self.assertEqual(v.__repr__(), "Vector2(1.2, 3.4)")
         self.assertEqual(v, Vector2(v.__repr__()))
 
     def testIter(self):
@@ -1343,11 +1343,11 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testStr(self):
         v = Vector3(1.2, 3.4, 5.6)
-        self.assertEqual(str(v), "[1.2, 3.4, 5.6]")
+        self.assertEqual(str(v), "Vector3(1.2, 3.4, 5.6)")
 
     def testRepr(self):
         v = Vector3(1.2, 3.4, -9.6)
-        self.assertEqual(v.__repr__(), "<Vector3(1.2, 3.4, -9.6)>")
+        self.assertEqual(v.__repr__(), "Vector3(1.2, 3.4, -9.6)")
         self.assertEqual(v, Vector3(v.__repr__()))
 
     def testIter(self):
