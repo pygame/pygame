@@ -1612,7 +1612,6 @@ vector_project_onto(pgVector *self, PyObject *other)
     return (PyObject *)ret;
 }
 
-
 /* This method first tries normal attribute access. If successful we're
  * done. If not we try swizzling. Here we have 3 different outcomes:
  *  1) swizzling works. we return the result as a tuple
@@ -1678,7 +1677,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
             case 'w':
                 idx = 3;
 
-        swizzle_idx:
+            swizzle_idx:
                 if (idx >= self->dim) {
                     goto swizzle_failed;
                 };
@@ -1697,7 +1696,8 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
         }
         if (len == 2 || len == 3) {
             ((pgVector *)res)->coords[i] = value;
-        } else {
+        }
+        else {
             if (PyTuple_SetItem(res, i, PyFloat_FromDouble(value)) != 0)
                 goto internal_error;
         }
@@ -1978,7 +1978,7 @@ vector2_init(pgVector *self, PyObject *args, PyObject *kwds)
     return _vector2_set(self, xOrSequence, y);
 }
 
-static PyObject*
+static PyObject *
 vector2_update(pgVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence = NULL, *y = NULL;
@@ -2213,9 +2213,9 @@ static PyMethodDef vector2_methods[] = {
     {"magnitude_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
      DOC_VECTOR2MAGNITUDESQUARED},
     {"rotate", (PyCFunction)vector2_rotate, METH_O, DOC_VECTOR2ROTATE},
-    {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_O,
-    DOC_VECTOR2ROTATEIP},
-    {"rotate_rad", (PyCFunction)vector2_rotate_rad, METH_O, DOC_VECTOR2ROTATERAD},
+    {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_O, DOC_VECTOR2ROTATEIP},
+    {"rotate_rad", (PyCFunction)vector2_rotate_rad, METH_O,
+     DOC_VECTOR2ROTATERAD},
     {"rotate_ip_rad", (PyCFunction)vector2_rotate_ip_rad, METH_O,
      DOC_VECTOR2ROTATEIPRAD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR2SLERP},
@@ -2246,8 +2246,7 @@ static PyMethodDef vector2_methods[] = {
      DOC_VECTOR2ASPOLAR},
     {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
      DOC_VECTOR2FROMPOLAR},
-    {"project", (PyCFunction)vector2_project, METH_O,
-     DOC_VECTOR2PROJECT},
+    {"project", (PyCFunction)vector2_project, METH_O, DOC_VECTOR2PROJECT},
     {"__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS,
      NULL},
     {"__reduce__", (PyCFunction)vector2_reduce, METH_NOARGS, NULL},
@@ -2266,10 +2265,9 @@ static PyGetSetDef vector2_getsets[] = {
  ********************************/
 
 static PyTypeObject pgVector2_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.math.Vector2",                    /* tp_name */
-    sizeof(pgVector),                         /* tp_basicsize */
-    0,                                        /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.math.Vector2", /* tp_name */
+    sizeof(pgVector),                                     /* tp_basicsize */
+    0,                                                    /* tp_itemsize */
     /* Methods to implement standard operations */
     (destructor)vector_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -2439,7 +2437,7 @@ vector3_init(pgVector *self, PyObject *args, PyObject *kwds)
     return _vector3_set(self, xOrSequence, y, z);
 }
 
-static PyObject*
+static PyObject *
 vector3_update(pgVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence = NULL, *y = NULL, *z = NULL;
@@ -3084,25 +3082,29 @@ static PyMethodDef vector3_methods[] = {
     {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS, DOC_VECTOR3ROTATE},
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
      DOC_VECTOR3ROTATEIP},
-    {"rotate_rad", (PyCFunction)vector3_rotate_rad, METH_VARARGS, DOC_VECTOR3ROTATERAD},
+    {"rotate_rad", (PyCFunction)vector3_rotate_rad, METH_VARARGS,
+     DOC_VECTOR3ROTATERAD},
     {"rotate_ip_rad", (PyCFunction)vector3_rotate_ip_rad, METH_VARARGS,
      DOC_VECTOR3ROTATEIPRAD},
     {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O, DOC_VECTOR3ROTATEX},
     {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
      DOC_VECTOR3ROTATEXIP},
-    {"rotate_x_rad", (PyCFunction)vector3_rotate_x_rad, METH_O, DOC_VECTOR3ROTATEXRAD},
+    {"rotate_x_rad", (PyCFunction)vector3_rotate_x_rad, METH_O,
+     DOC_VECTOR3ROTATEXRAD},
     {"rotate_x_ip_rad", (PyCFunction)vector3_rotate_x_ip_rad, METH_O,
      DOC_VECTOR3ROTATEXIPRAD},
     {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O, DOC_VECTOR3ROTATEY},
     {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
      DOC_VECTOR3ROTATEYIP},
-    {"rotate_y_rad", (PyCFunction)vector3_rotate_y_rad, METH_O, DOC_VECTOR3ROTATEYRAD},
+    {"rotate_y_rad", (PyCFunction)vector3_rotate_y_rad, METH_O,
+     DOC_VECTOR3ROTATEYRAD},
     {"rotate_y_ip_rad", (PyCFunction)vector3_rotate_y_ip_rad, METH_O,
      DOC_VECTOR3ROTATEYIPRAD},
     {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O, DOC_VECTOR3ROTATEZ},
     {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
      DOC_VECTOR3ROTATEZIP},
-    {"rotate_z_rad", (PyCFunction)vector3_rotate_z_rad, METH_O, DOC_VECTOR3ROTATEZRAD},
+    {"rotate_z_rad", (PyCFunction)vector3_rotate_z_rad, METH_O,
+     DOC_VECTOR3ROTATEZRAD},
     {"rotate_z_ip_rad", (PyCFunction)vector3_rotate_z_ip_rad, METH_O,
      DOC_VECTOR3ROTATEZIPRAD},
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS, DOC_VECTOR3SLERP},
@@ -3153,10 +3155,9 @@ static PyGetSetDef vector3_getsets[] = {
  ********************************/
 
 static PyTypeObject pgVector3_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.math.Vector3",                    /* tp_name */
-    sizeof(pgVector),                         /* tp_basicsize */
-    0,                                        /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.math.Vector3", /* tp_name */
+    sizeof(pgVector),                                     /* tp_basicsize */
+    0,                                                    /* tp_itemsize */
     /* Methods to implement standard operations */
     (destructor)vector_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -3181,7 +3182,7 @@ static PyTypeObject pgVector3_Type = {
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 #else
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
-        Py_TPFLAGS_CHECKTYPES, /* tp_flags */
+        Py_TPFLAGS_CHECKTYPES,                  /* tp_flags */
 #endif
     /* Documentation string */
     DOC_PYGAMEMATHVECTOR3, /* tp_doc */
@@ -3273,35 +3274,34 @@ static PyMethodDef vectoriter_methods[] = {
 };
 
 static PyTypeObject pgVectorIter_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.math.VectorIterator",                    /* tp_name */
-    sizeof(vectoriter),                              /* tp_basicsize */
-    0,                                               /* tp_itemsize */
-    (destructor)vectoriter_dealloc,                  /* tp_dealloc */
-    0,                                               /* tp_print */
-    0,                                               /* tp_getattr */
-    0,                                               /* tp_setattr */
-    0,                                               /* tp_compare */
-    0,                                               /* tp_repr */
-    0,                                               /* tp_as_number */
-    0,                                               /* tp_as_sequence */
-    0,                                               /* tp_as_mapping */
-    0,                                               /* tp_hash */
-    0,                                               /* tp_call */
-    0,                                               /* tp_str */
-    PyObject_GenericGetAttr,                         /* tp_getattro */
-    0,                                               /* tp_setattro */
-    0,                                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,                              /* tp_flags */
-    0,                                               /* tp_doc */
-    0,                                               /* tp_traverse */
-    0,                                               /* tp_clear */
-    0,                                               /* tp_richcompare */
-    0,                                               /* tp_weaklistoffset */
-    PyObject_SelfIter,                               /* tp_iter */
-    (iternextfunc)vectoriter_next,                   /* tp_iternext */
-    vectoriter_methods,                              /* tp_methods */
-    0,                                               /* tp_members */
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.math.VectorIterator", /* tp_name */
+    sizeof(vectoriter),             /* tp_basicsize */
+    0,                              /* tp_itemsize */
+    (destructor)vectoriter_dealloc, /* tp_dealloc */
+    0,                              /* tp_print */
+    0,                              /* tp_getattr */
+    0,                              /* tp_setattr */
+    0,                              /* tp_compare */
+    0,                              /* tp_repr */
+    0,                              /* tp_as_number */
+    0,                              /* tp_as_sequence */
+    0,                              /* tp_as_mapping */
+    0,                              /* tp_hash */
+    0,                              /* tp_call */
+    0,                              /* tp_str */
+    PyObject_GenericGetAttr,        /* tp_getattro */
+    0,                              /* tp_setattro */
+    0,                              /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,             /* tp_flags */
+    0,                              /* tp_doc */
+    0,                              /* tp_traverse */
+    0,                              /* tp_clear */
+    0,                              /* tp_richcompare */
+    0,                              /* tp_weaklistoffset */
+    PyObject_SelfIter,              /* tp_iter */
+    (iternextfunc)vectoriter_next,  /* tp_iternext */
+    vectoriter_methods,             /* tp_methods */
+    0,                              /* tp_members */
 };
 
 static PyObject *
@@ -3921,10 +3921,10 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
 };
 
 static PyTypeObject pgVectorElementwiseProxy_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.math.VectorElementwiseProxy",                    /* tp_name */
-    sizeof(vector_elementwiseproxy),                         /* tp_basicsize */
-    0,                                                       /* tp_itemsize */
+    PyVarObject_HEAD_INIT(
+        NULL, 0) "pygame.math.VectorElementwiseProxy", /* tp_name */
+    sizeof(vector_elementwiseproxy),                   /* tp_basicsize */
+    0,                                                 /* tp_itemsize */
     /* Methods to implement standard operations */
     (destructor)vector_elementwiseproxy_dealloc, /* tp_dealloc */
     0,                                           /* tp_print */
@@ -4011,7 +4011,10 @@ vector_elementwise(pgVector *vec, PyObject *args)
 static PyObject *
 math_enable_swizzling(pgVector *self)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, "pygame.math.enable_swizzling() is deprecated, functionality has been removed, and will be removed", 1) == -1) {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.math.enable_swizzling() is deprecated, "
+                     "functionality has been removed, and will be removed",
+                     1) == -1) {
         return NULL;
     }
     Py_RETURN_NONE;
@@ -4020,7 +4023,10 @@ math_enable_swizzling(pgVector *self)
 static PyObject *
 math_disable_swizzling(pgVector *self)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, "pygame.math.disable_swizzling() is deprecated, functionality has been removed, and will be removed", 1) == -1) {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "pygame.math.disable_swizzling() is deprecated, "
+                     "functionality has been removed, and will be removed",
+                     1) == -1) {
         return NULL;
     }
     Py_RETURN_NONE;
