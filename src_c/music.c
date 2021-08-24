@@ -60,11 +60,7 @@ _pg_push_music_event(int type)
     e = (pgEventObject *)pgEvent_New2(type, NULL);
     if (e) {
         pgEvent_FillUserEvent(e, &event);
-#if IS_SDLv1
-        if (SDL_PushEvent(&event) < 0)
-#else
         if (SDL_PushEvent(&event) <= 0)
-#endif
             Py_DECREF(e->dict);
         Py_DECREF(e);
     }
@@ -389,14 +385,10 @@ music_load(PyObject *self, PyObject *args)
             return NULL;
         }
         Py_BEGIN_ALLOW_THREADS
-#if IS_SDLv1
-            new_music = Mix_LoadMUS_RW(rw);
-#else  /* IS_SDLv2 */
             if (namehint)
                 new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(namehint), SDL_TRUE);
             else
                 new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
-#endif /* IS_SDLv2 */
         Py_END_ALLOW_THREADS
     }
     else if (oencoded != NULL) {
@@ -472,11 +464,7 @@ music_queue(PyObject *self, PyObject *args)
         }
 
         Py_BEGIN_ALLOW_THREADS
-#if IS_SDLv1
-        local_queue_music = Mix_LoadMUS_RW(rw);
-#else  /* IS_SDLv2 */
         local_queue_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
-#endif /* IS_SDLv2 */
         Py_END_ALLOW_THREADS
     }
     else if (oencoded != NULL) {

@@ -55,7 +55,6 @@
 #error pygame 2 requires SDL 2
 #endif*/
 
-#if IS_SDLv2
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {
     SDL_HWSURFACE = 0,
@@ -231,18 +230,6 @@ typedef enum {
     PGS_PREALLOC = 0x01000000
 } PygameSurfaceFlags;
 
-#else /* IS_SDLv2 */
-
-/* To maintain SDL 1.2 build support. */
-#define PGE_USEREVENT SDL_USEREVENT
-#define PG_NUMEVENTS SDL_NUMEVENTS
-#define PGPOST_EVENTBEGIN 0
-/* These midi events were originally defined in midi.py.
- * Note: They are outside the SDL_USEREVENT/SDL_NUMEVENTS event range for
- * SDL 1.2. */
-#define PGE_MIDIIN PGE_USEREVENT + 10
-#define PGE_MIDIOUT PGE_USEREVENT + 11
-#endif /* IS_SDLv1 */
 
 //TODO Implement check below in a way that does not break CI
 /* New buffer protocol (PEP 3118) implemented on all supported Py versions.

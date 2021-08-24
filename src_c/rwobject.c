@@ -49,16 +49,6 @@ static const char pg_default_errors[] = "backslashreplace";
 #define PATHLIB "pathlib"
 #define PUREPATH "PurePath"
 
-#if IS_SDLv1
-static int
-_pg_rw_seek(SDL_RWops *, int, int);
-static int
-_pg_rw_read(SDL_RWops *, void *, int, int);
-static int
-_pg_rw_write(SDL_RWops *, const void *, int, int);
-static int
-_pg_rw_close(SDL_RWops *);
-#else /* IS_SDLv2 */
 static Sint64
 _pg_rw_size(SDL_RWops *);
 static Sint64
@@ -69,7 +59,6 @@ static size_t
 _pg_rw_write(SDL_RWops *, const void *, size_t, size_t);
 static int
 _pg_rw_close(SDL_RWops *);
-#endif /* IS_SDLv2 */
 
 /* Converter function used by PyArg_ParseTupleAndKeywords with the "O&" format.
  *
@@ -314,7 +303,6 @@ pgRWops_IsFileObject(SDL_RWops *rw)
     return rw->close == _pg_rw_close;
 }
 
-#if IS_SDLv2
 static Sint64
 _pg_rw_size(SDL_RWops *context)
 {
@@ -386,15 +374,9 @@ end:
 #endif
     return retval;
 }
-#endif /* IS_SDLv2 */
 
-#if IS_SDLv1
-static int
-_pg_rw_write(SDL_RWops *context, const void *ptr, int size, int num)
-#else  /* IS_SDLv2 */
 static size_t
 _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
-#endif /* IS_SDLv2 */
 {
 #ifndef WITH_THREAD
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
@@ -510,9 +492,7 @@ pgRWops_FromFileObject(PyObject *obj)
     Py_INCREF(obj);
 
     rw->hidden.unknown.data1 = (void *)helper;
-#if IS_SDLv2
     rw->size = _pg_rw_size;
-#endif /* IS_SDLv2 */
     rw->seek = _pg_rw_seek;
     rw->read = _pg_rw_read;
     rw->write = _pg_rw_write;
@@ -574,21 +554,12 @@ pgRWops_ReleaseObject(SDL_RWops *context)
     return ret;
 }
 
-#if IS_SDLv1
-static int
-_pg_rw_seek(SDL_RWops *context, int offset, int whence)
-{
-    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
-    PyObject *result;
-    int retval;
-#else  /* IS_SDLv2 */
 static Sint64
 _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 {
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     Sint64 retval;
-#endif /* IS_SDLv2 */
 #ifdef WITH_THREAD
     PyGILState_STATE state;
 
@@ -654,21 +625,12 @@ end:
 #endif /* ~WITH_THREAD*/
 }
 
-#if IS_SDLv1
-static int
-_pg_rw_read(SDL_RWops *context, void *ptr, int size, int maxnum)
-{
-    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
-    PyObject *result;
-    int retval;
-#else  /* IS_SDLv2 */
 static size_t
 _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     Py_ssize_t retval;
-#endif /* IS_SDLv2 */
 #ifdef WITH_THREAD
     PyGILState_STATE state;
 #endif /* WITH_THREAD */
