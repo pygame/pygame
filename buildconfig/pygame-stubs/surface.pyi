@@ -6,6 +6,7 @@ from pygame.rect import Rect
 
 from pygame.math import Vector2
 from pygame.sprite import _RectStyle
+from pygame._common import _Coordinate
 
 _ColorInput = Union[
     Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]
@@ -25,7 +26,6 @@ class _HasRectAttribute(Protocol):
 _RectValue = Union[
     _CanBeRect, _HasRectAttribute
 ]
-_Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
 class Surface(object):
     _pixels_address: int
