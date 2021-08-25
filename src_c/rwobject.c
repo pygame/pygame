@@ -46,6 +46,8 @@ typedef struct {
 static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
+static PyObject* os_module = NULL;
+
 #define PATHLIB "pathlib"
 #define PUREPATH "PurePath"
 
@@ -736,8 +738,47 @@ _rwops_from_pystr(PyObject *obj)
 #if PY3
             if (PyUnicode_Check(obj)) {
                 SDL_ClearError();
-                PyErr_SetString(PyExc_FileNotFoundError,
-                                "No such file or directory.");
+
+                if (os_module) {
+                    PyObject* cwd = PyObject_CallMethod(os_module, "getcwd",
+                                                        NULL);
+                    if (cwd == NULL) {
+                        PyErr_SetString(PyExc_FileNotFoundError, 
+                                        "No such file or directory.");
+                        return NULL;
+                    }
+
+                    PyObject* path = PyObject_GetAttrString(os_module, "path");
+                    if (path == NULL) {
+                        Py_DECREF(cwd);
+                        PyErr_SetString(PyExc_FileNotFoundError,
+                                        "No such file or directory.");
+                        return NULL;                        
+                    }
+
+                    PyObject* abs = PyObject_CallMethod(path, "isabs", "O", obj);
+                    if (abs == NULL) {
+                        Py_DECREF(cwd);
+                        Py_DECREF(path);
+                        PyErr_SetString(PyExc_FileNotFoundError,
+                                        "No such file or directory.");
+                        return NULL;
+                    }
+
+                    if (abs == Py_False) {
+                        PyErr_Format(PyExc_FileNotFoundError,
+                                     "No file '%S' found in working directory"
+                                     " '%S'.", obj, cwd);                       
+                    }
+                    else {
+                        PyErr_SetString(PyExc_FileNotFoundError, 
+                                        "No such file or directory.");
+                    }
+                }
+                else {
+                    PyErr_SetString(PyExc_FileNotFoundError,
+                                    "No such file or directory.");
+                }
 #else
             if (PyUnicode_Check(obj) || PyString_Check(obj)) {
                 SDL_ClearError();
@@ -861,5 +902,11 @@ MODINIT_DEFINE(rwobject)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+    /* import os, don't sweat if it errors, it will be checked before use */
+    os_module = PyImport_ImportModule("os");
+    if (os_module == NULL)
+        PyErr_Clear();
+
     MODINIT_RETURN(module);
 }
