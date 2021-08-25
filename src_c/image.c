@@ -79,29 +79,14 @@ image_load_basic(PyObject *self, PyObject *obj)
     PyObject *final;
     PyObject *oencoded;
     SDL_Surface *surf;
-    SDL_RWops *rw;
     
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == NULL) {
+    SDL_RWops *rw = pgRWops_FromObject(obj);
+    if (rw == NULL) {
         return NULL;
     }
-    
-    if (oencoded != Py_None) {
-        Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_LoadBMP(Bytes_AS_STRING(oencoded));
-        Py_END_ALLOW_THREADS;
-        Py_DECREF(oencoded);
-    }
-    else {
-        Py_DECREF(oencoded);
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            return NULL;
-        }
-        Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_LoadBMP_RW(rw, 1);
-        Py_END_ALLOW_THREADS;
-    }
+    Py_BEGIN_ALLOW_THREADS;
+    surf = SDL_LoadBMP_RW(rw, 1);
+    Py_END_ALLOW_THREADS;
 
     if (surf == NULL) {
         return RAISE(pgExc_SDLError, SDL_GetError());
