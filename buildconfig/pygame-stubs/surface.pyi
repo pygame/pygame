@@ -50,10 +50,10 @@ class Surface(object):
     ) -> Rect: ...
     def blits(
         self,
-        blit_sequence: Sequence[Union[Tuple[Surface, Tuple[int, int]],
-                                 Tuple[Surface, Tuple[int, int], Rect],
-                                 Tuple[Surface, Tuple[int, int], int],
-                                 Tuple[Surface, Tuple[int, int], Rect, int]]],
+        blit_sequence: Sequence[Union[Tuple[Surface, Union[Tuple[int, int], Rect]],
+                                 Tuple[Surface, Union[Tuple[int, int], Rect], Rect],
+                                 Tuple[Surface, Union[Tuple[int, int], Rect], int],
+                                 Tuple[Surface, Union[Tuple[int, int], Rect], Rect, int]]],
         doreturn: Union[int, bool]
     ) -> Union[List[Rect], None]: ...
     @overload
