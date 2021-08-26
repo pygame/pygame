@@ -55,7 +55,7 @@ their own new events with the :func:`pygame.event.Event()` function.
 The event type identifier is in between the values of ``NOEVENT`` and
 ``NUMEVENTS``. User defined events should have a value in the inclusive range
 of ``USEREVENT`` to ``NUMEVENTS - 1``. User defined events can get a custom
-event number with :func:`pygame.event.custom_type()`. 
+event number with :func:`pygame.event.custom_type()`.
 It is recommended all user events follow this system.
 
 Events support equality and inequality comparisons. Two events are equal if
@@ -75,11 +75,11 @@ specific attributes.
     ACTIVEEVENT       gain, state
     KEYDOWN           key, mod, unicode, scancode
     KEYUP             key, mod, unicode, scancode
-    MOUSEMOTION       pos, rel, buttons, touch
-    MOUSEBUTTONUP     pos, button, touch
-    MOUSEBUTTONDOWN   pos, button, touch
+    MOUSEMOTION       pos, x, y, rel, dx, dy, buttons, touch
+    MOUSEBUTTONUP     pos, x, y, button, touch
+    MOUSEBUTTONDOWN   pos, x, y, button, touch
     JOYAXISMOTION     joy (deprecated), instance_id, axis, value
-    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
+    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel, dx, dy
     JOYHATMOTION      joy (deprecated), instance_id, hat, value
     JOYBUTTONUP       joy (deprecated), instance_id, button
     JOYBUTTONDOWN     joy (deprecated), instance_id, button
@@ -90,6 +90,8 @@ specific attributes.
 .. versionchanged:: 2.0.0 The ``joy`` attribute was deprecated, ``instance_id`` was added.
 
 .. versionchanged:: 2.0.1 The ``unicode`` attribute was added to ``KEYUP`` event.
+
+.. versionchanged:: 2.0.2 The ``x, y, dx, dy`` attributes were added to all ``MOUSE`` events.
 
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
@@ -116,11 +118,11 @@ attributes.
 
     AUDIODEVICEADDED   which, iscapture
     AUDIODEVICEREMOVED which, iscapture
-    FINGERMOTION       touch_id, finger_id, x, y, dx, dy
-    FINGERDOWN         touch_id, finger_id, x, y, dx, dy
-    FINGERUP           touch_id, finger_id, x, y, dx, dy
-    MOUSEWHEEL         which, flipped, x, y, touch
-    MULTIGESTURE       touch_id, x, y, pinched, rotated, num_fingers
+    FINGERMOTION       touch_id, finger_id, pos, x, y, rel, dx, dy
+    FINGERDOWN         touch_id, finger_id, pos, x, y, rel, dx, dy
+    FINGERUP           touch_id, finger_id, pos, x, y, rel, dx, dy
+    MOUSEWHEEL         which, flipped, pos, x, y, touch
+    MULTIGESTURE       touch_id, pos, x, y, pinched, rotated, num_fingers
     TEXTEDITING        text, start, length
     TEXTINPUT          text
 
@@ -129,6 +131,8 @@ attributes.
 .. versionchanged:: 2.0.2 Fixed amount horizontal scroll (x, positive to the right and negative to the left).
 
 .. versionchanged:: 2.0.2 The ``touch`` attribute was added to all the ``MOUSE`` events.
+
+.. versionchanged:: 2.0.2 The ``pos, rel`` attributes were added to all the ``FINGER`` events.
 
 The ``touch`` attribute of ``MOUSE`` events indicates whether or not the events were generated
 by  a touch input device, and not a real mouse. You might want to ignore such events, if your application
@@ -270,7 +274,7 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
 
    Returns a single event from the queue. If the queue is empty this function
    will wait until one is created. From pygame 2.0.0, if a ``timeout`` argument
-   is given, the function will return an event of type ``pygame.NOEVENT`` 
+   is given, the function will return an event of type ``pygame.NOEVENT``
    if no events enter the queue in ``timeout`` milliseconds. The event is removed
    from the queue once it has been returned. While the program is waiting it will
    sleep in an idle state. This is important for programs that want to share the

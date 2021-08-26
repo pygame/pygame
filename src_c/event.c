@@ -991,6 +991,18 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
     }
 }
 
+/* Helper for adding a tuple of values as both a tuple and separate values
+   (This is common on events like with pos vs x,y  or size vs w,h */
+static void
+_pg_insobj_tupvals(PyObject *dict, char *tupname,
+    char* xname, char* yname, int xval, int yval)
+{
+    PyObject* obj = Py_BuildValue("(ii)", xval, yval);
+    _pg_insobj(dict, tupname, obj);
+    _pg_insobj(dict, xname, PyInt_FromLong(xval));
+    _pg_insobj(dict, yname, PyInt_FromLong(yval));
+}
+
 #if IS_SDLv2
 static PyObject *
 get_joy_guid(int device_index) {
@@ -1068,10 +1080,8 @@ dict_from_event(SDL_Event *event)
     switch (event->type) {
 #if IS_SDLv1
         case SDL_VIDEORESIZE:
-            obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
-            _pg_insobj(dict, "size", obj);
-            _pg_insobj(dict, "w", PyInt_FromLong(event->resize.w));
-            _pg_insobj(dict, "h", PyInt_FromLong(event->resize.h));
+            _pg_insobj_tupvals(dict, "size", "w", "h",
+                event->resize.w, event->resize.h);
             break;
         case SDL_ACTIVEEVENT:
             _pg_insobj(dict, "gain", PyInt_FromLong(event->active.gain));
@@ -1079,11 +1089,8 @@ dict_from_event(SDL_Event *event)
             break;
 #else /* IS_SDLv2 */
         case SDL_VIDEORESIZE:
-            obj = Py_BuildValue("(ii)", event->window.data1,
-                                event->window.data2);
-            _pg_insobj(dict, "size", obj);
-            _pg_insobj(dict, "w", PyInt_FromLong(event->window.data1));
-            _pg_insobj(dict, "h", PyInt_FromLong(event->window.data2));
+            _pg_insobj_tupvals(dict, "size", "w", "h",
+                event->window.data1, event->window.data2);
             break;
         case SDL_ACTIVEEVENT:
             switch (event->window.event) {
@@ -1129,11 +1136,10 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
         case SDL_MOUSEMOTION:
-            obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
-            _pg_insobj(dict, "pos", obj);
-            obj =
-                Py_BuildValue("(ii)", event->motion.xrel, event->motion.yrel);
-            _pg_insobj(dict, "rel", obj);
+            _pg_insobj_tupvals(dict, "pos", "x", "y",
+                event->motion.x, event->motion.y);
+            _pg_insobj_tupvals(dict, "rel", "dx", "dy",
+                event->motion.xrel, event->motion.yrel);
             if ((tuple = PyTuple_New(3))) {
                 PyTuple_SET_ITEM(tuple, 0,
                                  PyInt_FromLong((event->motion.state &
@@ -1154,8 +1160,8 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
-            _pg_insobj(dict, "pos", obj);
+            _pg_insobj_tupvals(dict, "pos", "x", "y",
+                event->button.x, event->button.y);
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
 #if !IS_SDLv1
             _pg_insobj(
@@ -1174,8 +1180,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
             _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jball.which));
             _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
-            obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
-            _pg_insobj(dict, "rel", obj);
+            _pg_insobj_tupvals(dict, "rel", "dx", "dy",
+                event->jball.xrel, event->jball.yrel);
             break;
         case SDL_JOYHATMOTION:
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
@@ -1209,7 +1215,7 @@ dict_from_event(SDL_Event *event)
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event 
+            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event
             _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
             break;
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
@@ -1219,17 +1225,16 @@ dict_from_event(SDL_Event *event)
             /* https://wiki.libsdl.org/SDL_TouchFingerEvent */
             _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->tfinger.touchId));
             _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->tfinger.fingerId));
-            _pg_insobj(dict, "x", PyFloat_FromDouble(event->tfinger.x));
-            _pg_insobj(dict, "y", PyFloat_FromDouble(event->tfinger.y));
-            _pg_insobj(dict, "dx", PyFloat_FromDouble(event->tfinger.dx));
-            _pg_insobj(dict, "dy", PyFloat_FromDouble(event->tfinger.dy));
+            _pg_insobj_tupvals(dict, "pos", "x", "y",
+                event->tfinger.x, event->tfinger.y);
+            _pg_insobj_tupvals(dict, "rel", "dx", "dy",
+                event->tfinger.dx, event->tfinger.dy);
             _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->tfinger.dy));
             break;
         case SDL_MULTIGESTURE:
             /* https://wiki.libsdl.org/SDL_MultiGestureEvent */
             _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->mgesture.touchId));
-            _pg_insobj(dict, "x", PyFloat_FromDouble(event->mgesture.x));
-            _pg_insobj(dict, "y", PyFloat_FromDouble(event->mgesture.y));
+            _pg_insobj_tupvals(dict, "pos", "x", "y", event->mgesture.x, event->mgesture.y);
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
@@ -1241,8 +1246,8 @@ dict_from_event(SDL_Event *event)
 #else
             _pg_insobj(dict, "flipped", PyBool_FromLong(0));
 #endif
-            _pg_insobj(dict, "y", PyInt_FromLong(event->wheel.y));
-            _pg_insobj(dict, "x", PyInt_FromLong(event->wheel.x));
+            _pg_insobj_tupvals(dict, "pos", "x", "y",
+                event->wheel.x, event->wheel.y);
             _pg_insobj(dict, "touch", PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
 
             break;
@@ -1309,6 +1314,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "instance_id", PyLong_FromLong(event->ctouchpad.which));
             _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->ctouchpad.touchpad));
             _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->ctouchpad.finger));
+            _pg_insobj(dict, "pos", Py_BuildValue("(ff)", event->ctouchpad.x, event->ctouchpad.y));
             _pg_insobj(dict, "x", PyFloat_FromDouble(event->ctouchpad.x));
             _pg_insobj(dict, "y", PyFloat_FromDouble(event->ctouchpad.y));
             _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->ctouchpad.pressure));
