@@ -774,6 +774,9 @@ _rwops_from_pystr(PyObject *obj)
                         PyErr_SetString(PyExc_FileNotFoundError, 
                                         "No such file or directory.");
                     }
+                    Py_DECREF(cwd);
+                    Py_DECREF(path);
+                    Py_DECREF(abs);
                 }
                 else {
                     PyErr_SetString(PyExc_FileNotFoundError,
