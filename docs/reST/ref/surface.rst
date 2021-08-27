@@ -134,8 +134,8 @@
 
       | :sl:`draw many images onto another`
       | :sg:`blits(blit_sequence=(source, dest), ...), doreturn=1) -> [Rect, ...] or None`
-      | :sg:`blits((source, dest, area), ...)) -> [Rect, ...]`
-      | :sg:`blits((source, dest, area, special_flags), ...)) -> [Rect, ...]`
+      | :sg:`blits((source, dest, area), ...) -> [Rect, ...]`
+      | :sg:`blits((source, dest, area, special_flags), ...) -> [Rect, ...]`
 
       Draws many surfaces onto this Surface. It takes a sequence as input,
       with each of the elements corresponding to the ones of :meth:`blit()`.

@@ -44,16 +44,16 @@ class Surface(object):
     def blit(
         self,
         source: Surface,
-        dest: Union[Sequence[float], Rect],
-        area: Optional[Rect] = ...,
+        dest: Union[_Coordinate, _CanBeRect],
+        area: Optional[_CanBeRect] = ...,
         special_flags: int = ...,
     ) -> Rect: ...
     def blits(
         self,
-        blit_sequence: Sequence[Union[Tuple[Surface, Union[Tuple[int, int], Rect]],
-                                 Tuple[Surface, Union[Tuple[int, int], Rect], Rect],
-                                 Tuple[Surface, Union[Tuple[int, int], Rect], int],
-                                 Tuple[Surface, Union[Tuple[int, int], Rect], Rect, int]]],
+        blit_sequence: Sequence[Union[Tuple[Surface, Union[_Coordinate, _CanBeRect]],
+                                 Tuple[Surface, Union[_Coordinate, _CanBeRect], _CanBeRect],
+                                 Tuple[Surface, Union[_Coordinate, _CanBeRect], int],
+                                 Tuple[Surface, Union[_Coordinate, _CanBeRect], _CanBeRect, int]]],
         doreturn: Union[int, bool]
     ) -> Union[List[Rect], None]: ...
     @overload
