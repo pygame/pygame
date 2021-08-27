@@ -13,9 +13,9 @@ on:
     - 'examples/**'
     - '.gitignore'
     - 'README.rst'
-    - '.github/workflows/macos.yml'
-    - '.github/workflows/windows.yml'
+    - '.github/workflows/build.yml'
     - '.github/workflows/sdl1-sdist.yml'
+
   pull_request:
     branches: main
     paths-ignore:
@@ -23,8 +23,7 @@ on:
     - 'examples/**'
     - '.gitignore'
     - 'README.rst'
-    - '.github/workflows/macos.yml'
-    - '.github/workflows/windows.yml'
+    - '.github/workflows/build.yml'
     - '.github/workflows/sdl1-sdist.yml'
 
 jobs:
