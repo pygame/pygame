@@ -77,7 +77,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    If AUDIO_ALLOW_FORMAT_CHANGE is supplied, then the requested format will
    change to the closest that SDL2 supports.
 
-   Apart from 0, allowedchanged accepts the following constants ORed together:
+   Apart from 0, allowedchanges accepts the following constants ORed together:
 
       - AUDIO_ALLOW_FREQUENCY_CHANGE
       - AUDIO_ALLOW_FORMAT_CHANGE
@@ -252,7 +252,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    :rtype: tuple
 
    .. note::
-      The linked and compile version numbers should be the same.
+      The linked and compiled version numbers should be the same.
 
    .. versionadded:: 2.0.0
 
