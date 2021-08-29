@@ -148,6 +148,7 @@ div.document {
 
 .toc td {
     display:block;
+    width: 200%;
 }
 
 .toc td:last-child {
@@ -696,5 +697,9 @@ pre.commentContent {
     pre {
         white-space: pre-wrap;
         word-wrap: break-word;
+    }
+
+    .toc td {
+        width: 100%;
     }
 }
