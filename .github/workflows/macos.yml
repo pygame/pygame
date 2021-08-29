@@ -61,7 +61,7 @@ jobs:
           # CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
 
           # Install some dependencies
-          CIBW_BEFORE_BUILD: export MACOSX_DEPLOYMENT_TARGET=10.13 && pip install wheel requests numpy && brew install sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi
+          CIBW_BEFORE_BUILD: export MACOSX_DEPLOYMENT_TARGET=10.13 && pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi
 
           CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
 
