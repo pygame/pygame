@@ -476,8 +476,6 @@ pre {
     line-height: 120%;
     margin-bottom: 1em;
     padding: 5px 5px 5px 15px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
     text-align: justify;
 }
 
@@ -693,5 +691,10 @@ pre.commentContent {
 
     .addcomment input, a.commentButton {
         font-size: 10px;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
 }
