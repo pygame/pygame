@@ -133,7 +133,7 @@
    .. method:: blits
 
       | :sl:`draw many images onto another`
-      | :sg:`blits(blit_sequence=(source, dest), ...), doreturn=1) -> [Rect, ...] or None`
+      | :sg:`blits(blit_sequence=((source, dest), ...), doreturn=1) -> [Rect, ...] or None`
       | :sg:`blits(((source, dest, area), ...)) -> [Rect, ...]`
       | :sg:`blits(((source, dest, area, special_flags), ...)) -> [Rect, ...]`
 
