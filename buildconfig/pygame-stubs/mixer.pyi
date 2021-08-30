@@ -19,7 +19,7 @@ def init(
     buffer: int = 512,
     devicename: Optional[str] = None,
     allowedchanges: int = 5,
-) -> bool: ...
+) -> True: ...
 def pre_init(
     frequency: int = 44100,
     size: int = -16,
