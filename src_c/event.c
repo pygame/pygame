@@ -994,13 +994,23 @@ _pg_insobj(PyObject *dict, char *name, PyObject *v)
 /* Helper for adding a tuple of values as both a tuple and separate values
    (This is common on events like with pos vs x,y  or size vs w,h */
 static void
-_pg_insobj_tupvals(PyObject *dict, char *tupname,
+_pg_insobj_tupvals_int(PyObject *dict, char *tupname,
     char* xname, char* yname, int xval, int yval)
 {
     PyObject* obj = Py_BuildValue("(ii)", xval, yval);
     _pg_insobj(dict, tupname, obj);
     _pg_insobj(dict, xname, PyInt_FromLong(xval));
     _pg_insobj(dict, yname, PyInt_FromLong(yval));
+}
+
+static void
+_pg_insobj_tupvals_float(PyObject *dict, char *tupname,
+    char* xname, char* yname, double xval, double yval)
+{
+    PyObject* obj = Py_BuildValue("(dd)", xval, yval);
+    _pg_insobj(dict, tupname, obj);
+    _pg_insobj(dict, xname, PyFloat_FromDouble(xval));
+    _pg_insobj(dict, yname, PyFloat_FromDouble(yval));
 }
 
 #if IS_SDLv2
@@ -1080,7 +1090,7 @@ dict_from_event(SDL_Event *event)
     switch (event->type) {
 #if IS_SDLv1
         case SDL_VIDEORESIZE:
-            _pg_insobj_tupvals(dict, "size", "w", "h",
+            _pg_insobj_tupvals_int(dict, "size", "w", "h",
                 event->resize.w, event->resize.h);
             break;
         case SDL_ACTIVEEVENT:
@@ -1089,7 +1099,7 @@ dict_from_event(SDL_Event *event)
             break;
 #else /* IS_SDLv2 */
         case SDL_VIDEORESIZE:
-            _pg_insobj_tupvals(dict, "size", "w", "h",
+            _pg_insobj_tupvals_int(dict, "size", "w", "h",
                 event->window.data1, event->window.data2);
             break;
         case SDL_ACTIVEEVENT:
@@ -1136,9 +1146,9 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
             break;
         case SDL_MOUSEMOTION:
-            _pg_insobj_tupvals(dict, "pos", "x", "y",
+            _pg_insobj_tupvals_int(dict, "pos", "x", "y",
                 event->motion.x, event->motion.y);
-            _pg_insobj_tupvals(dict, "rel", "dx", "dy",
+            _pg_insobj_tupvals_int(dict, "rel", "dx", "dy",
                 event->motion.xrel, event->motion.yrel);
             if ((tuple = PyTuple_New(3))) {
                 PyTuple_SET_ITEM(tuple, 0,
@@ -1160,7 +1170,7 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            _pg_insobj_tupvals(dict, "pos", "x", "y",
+            _pg_insobj_tupvals_int(dict, "pos", "x", "y",
                 event->button.x, event->button.y);
             _pg_insobj(dict, "button", PyInt_FromLong(event->button.button));
 #if !IS_SDLv1
@@ -1180,7 +1190,7 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
             _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jball.which));
             _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
-            _pg_insobj_tupvals(dict, "rel", "dx", "dy",
+            _pg_insobj_tupvals_int(dict, "rel", "dx", "dy",
                 event->jball.xrel, event->jball.yrel);
             break;
         case SDL_JOYHATMOTION:
@@ -1225,16 +1235,16 @@ dict_from_event(SDL_Event *event)
             /* https://wiki.libsdl.org/SDL_TouchFingerEvent */
             _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->tfinger.touchId));
             _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->tfinger.fingerId));
-            _pg_insobj_tupvals(dict, "pos", "x", "y",
+            _pg_insobj_tupvals_float(dict, "pos", "x", "y",
                 event->tfinger.x, event->tfinger.y);
-            _pg_insobj_tupvals(dict, "rel", "dx", "dy",
+            _pg_insobj_tupvals_float(dict, "rel", "dx", "dy",
                 event->tfinger.dx, event->tfinger.dy);
             _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->tfinger.dy));
             break;
         case SDL_MULTIGESTURE:
             /* https://wiki.libsdl.org/SDL_MultiGestureEvent */
             _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->mgesture.touchId));
-            _pg_insobj_tupvals(dict, "pos", "x", "y", event->mgesture.x, event->mgesture.y);
+            _pg_insobj_tupvals_float(dict, "pos", "x", "y", event->mgesture.x, event->mgesture.y);
             _pg_insobj(dict, "rotated", PyFloat_FromDouble(event->mgesture.dTheta));
             _pg_insobj(dict, "pinched", PyFloat_FromDouble(event->mgesture.dDist));
             _pg_insobj(dict, "num_fingers", PyInt_FromLong(event->mgesture.numFingers));
@@ -1246,7 +1256,7 @@ dict_from_event(SDL_Event *event)
 #else
             _pg_insobj(dict, "flipped", PyBool_FromLong(0));
 #endif
-            _pg_insobj_tupvals(dict, "pos", "x", "y",
+            _pg_insobj_tupvals_int(dict, "pos", "x", "y",
                 event->wheel.x, event->wheel.y);
             _pg_insobj(dict, "touch", PyBool_FromLong((event->wheel.which == SDL_TOUCH_MOUSEID)));
 
@@ -1314,9 +1324,8 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "instance_id", PyLong_FromLong(event->ctouchpad.which));
             _pg_insobj(dict, "touch_id", PyLong_FromLongLong(event->ctouchpad.touchpad));
             _pg_insobj(dict, "finger_id", PyLong_FromLongLong(event->ctouchpad.finger));
-            _pg_insobj(dict, "pos", Py_BuildValue("(ff)", event->ctouchpad.x, event->ctouchpad.y));
-            _pg_insobj(dict, "x", PyFloat_FromDouble(event->ctouchpad.x));
-            _pg_insobj(dict, "y", PyFloat_FromDouble(event->ctouchpad.y));
+            _pg_insobj_tupvals_float(dict, "pos", "x", "y",
+               event->ctouchpad.x, event->ctouchpad.y);
             _pg_insobj(dict, "pressure", PyFloat_FromDouble(event->ctouchpad.pressure));
             break;
 #endif /*SDL_VERSION_ATLEAST(2, 0, 14)*/
