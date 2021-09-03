@@ -48,9 +48,9 @@ from pygame.pixelcopy import array_to_surface, surface_to_array, \
     map_array as pix_map_array, make_surface as pix_make_surface
 import numpy
 from numpy import array as numpy_array, empty as numpy_empty, \
-                  uint32 as numpy_uint32, ndarray as numpy_ndarray
+    uint32 as numpy_uint32, ndarray as numpy_ndarray
 
-#float96 not available on all numpy versions.
+# float96 not available on all numpy versions.
 numpy_floats = []
 for type_name in "float float32 float64 float96".split():
     if hasattr(numpy, type_name):
@@ -78,6 +78,7 @@ def blit_array(surface, array):
         array = array.round(0).astype(numpy_uint32)
     return array_to_surface(surface, array)
 
+
 def make_surface(array):
     """pygame.surfarray.make_surface (array): return Surface
 
@@ -89,6 +90,7 @@ def make_surface(array):
     if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
         array = array.round(0).astype(numpy_uint32)
     return pix_make_surface(array)
+
 
 def array2d(surface):
     """pygame.numpyarray.array2d(Surface): return array
@@ -112,6 +114,7 @@ def array2d(surface):
     array = numpy.empty(size, dtype)
     surface_to_array(array, surface)
     return array
+
 
 def pixels2d(surface):
     """pygame.numpyarray.pixels2d(Surface): return array
@@ -137,6 +140,7 @@ def pixels2d(surface):
         raise ValueError("bit depth %i unsupported for 2D reference array" %
                          (surface.get_bitsize(),))
 
+
 def array3d(surface):
     """pygame.numpyarray.array3d(Surface): return array
 
@@ -155,6 +159,7 @@ def array3d(surface):
     surface_to_array(array, surface)
     return array
 
+
 def pixels3d(surface):
     """pygame.numpyarray.pixels3d(Surface): return array
 
@@ -172,6 +177,7 @@ def pixels3d(surface):
     access method).
     """
     return numpy_array(surface.get_view('3'), copy=False)
+
 
 def array_alpha(surface):
     """pygame.numpyarray.array_alpha(Surface): return array
@@ -192,6 +198,7 @@ def array_alpha(surface):
     surface_to_array(array, surface, 'A')
     return array
 
+
 def pixels_alpha(surface):
     """pygame.numpyarray.pixels_alpha(Surface): return array
 
@@ -209,6 +216,7 @@ def pixels_alpha(surface):
     """
     return numpy.array(surface.get_view('A'), copy=False)
 
+
 def pixels_red(surface):
     """pygame.surfarray.pixels_red(Surface): return array
 
@@ -224,6 +232,7 @@ def pixels_red(surface):
     lifetime of the array.
     """
     return numpy.array(surface.get_view('R'), copy=False)
+
 
 def array_red(surface):
     """pygame.numpyarray.array_red(Surface): return array
@@ -242,6 +251,7 @@ def array_red(surface):
     surface_to_array(array, surface, 'R')
     return array
 
+
 def pixels_green(surface):
     """pygame.surfarray.pixels_green(Surface): return array
 
@@ -257,6 +267,7 @@ def pixels_green(surface):
     lifetime of the array.
     """
     return numpy.array(surface.get_view('G'), copy=False)
+
 
 def array_green(surface):
     """pygame.numpyarray.array_green(Surface): return array
@@ -275,6 +286,7 @@ def array_green(surface):
     surface_to_array(array, surface, 'G')
     return array
 
+
 def pixels_blue(surface):
     """pygame.surfarray.pixels_blue(Surface): return array
 
@@ -290,6 +302,7 @@ def pixels_blue(surface):
     lifetime of the array.
     """
     return numpy.array(surface.get_view('B'), copy=False)
+
 
 def array_blue(surface):
     """pygame.numpyarray.array_blue(Surface): return array
@@ -307,6 +320,7 @@ def array_blue(surface):
     array = numpy.empty(size, numpy.uint8)
     surface_to_array(array, surface, 'B')
     return array
+
 
 def array_colorkey(surface):
     """pygame.numpyarray.array_colorkey(Surface): return array
@@ -327,6 +341,7 @@ def array_colorkey(surface):
     array = numpy.empty(size, numpy.uint8)
     surface_to_array(array, surface, 'C')
     return array
+
 
 def map_array(surface, array):
     """pygame.numpyarray.map_array(Surface, array3d): return array2d
