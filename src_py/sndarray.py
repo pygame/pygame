@@ -46,6 +46,12 @@ import numpy
 import warnings
 
 
+__all__ = [
+    "array", "samples", "make_sound", "use_arraytype", "get_arraytype",
+    "get_arraytypes"
+]
+
+
 def array(sound):
     """pygame.sndarray.array(Sound): return array
 

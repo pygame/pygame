@@ -61,6 +61,15 @@ for type_name in "float float32 float64 float96".split():
 _pixel2d_bitdepths = {8, 16, 32}
 
 
+__all__ = [
+    "array2d", "array3d", "array_alpha", "array_blue", "array_colorkey",
+    "array_green", "array_red", "array_to_surface", "blit_array",
+    "get_arraytype", "get_arraytypes", "make_surface", "map_array", "pixels2d",
+    "pixels3d", "pixels_alpha", "pixels_blue", "pixels_green", "pixels_red",
+    "surface_to_array", "use_arraytype"
+]
+
+
 def blit_array(surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
 
