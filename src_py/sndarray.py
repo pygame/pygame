@@ -33,15 +33,11 @@ Each sample is an 8-bit or 16-bit integer, depending on the data format.
 A stereo sound file has two values per sample, while a mono sound file
 only has one.
 
-Supported array systems are
-
-  numpy
-
-The array type to use can be changed at runtime using the use_arraytype()
-method, which requires one of the above types as string.
-
 Sounds with 16-bit data will be treated as unsigned integers,
 if the sound sample type requests this.
+
+The only supported array type is numpy. If numpy is not installed, the
+module will raise an ImportError
 """
 
 from pygame import mixer
