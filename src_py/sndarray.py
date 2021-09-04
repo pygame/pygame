@@ -51,7 +51,7 @@ import warnings
 
 
 def array(sound):
-    """pygame._numpysndarray.array(Sound): return array
+    """pygame.sndarray.array(Sound): return array
 
     Copy Sound samples into an array.
 
@@ -64,7 +64,7 @@ def array(sound):
 
 
 def samples(sound):
-    """pygame._numpysndarray.samples(Sound): return array
+    """pygame.sndarray.samples(Sound): return array
 
     Reference Sound samples into an array.
 
@@ -77,7 +77,7 @@ def samples(sound):
 
 
 def make_sound(array):
-    """pygame._numpysndarray.make_sound(array): return Sound
+    """pygame.sndarray.make_sound(array): return Sound
 
     Convert an array into a Sound object.
 
