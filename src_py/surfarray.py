@@ -36,38 +36,28 @@ color values into separate indices. These types of arrays are referred
 to as 3D arrays, and the last index is 0 for red, 1 for green, and 2 for
 blue.
 
-Supported array types are
-
-  numpy
-  numeric (deprecated; will be removed in Pygame 1.9.3.)
-
-The default will be numpy, if installed. Otherwise, Numeric will be set
-as default if installed, and a deprecation warning will be issued. If
-neither numpy nor Numeric are installed, the module will raise an
-ImportError.
-
-The array type to use can be changed at runtime using the use_arraytype()
-method, which requires one of the above types as string.
-
-Note: numpy and Numeric are not completely compatible. Certain array
-manipulations, which work for one type, might behave differently or even
-completely break for the other.
-
-Additionally, in contrast to Numeric, numpy does use unsigned 16-bit
-integers. Images with 16-bit data will be treated as unsigned
-integers. Numeric instead uses signed integers for the representation,
-which is important to keep in mind, if you use the module's functions
-and wonder about the values.
+The only supported array type is numpy. If numpy is not installed, the
+module will raise an ImportError
 """
 
-# Try to import the necessary modules.
-# import pygame._numpysurfarray as numpysf
-numpysf = None
 
+import warnings
+from pygame.pixelcopy import array_to_surface, surface_to_array, \
+    map_array as pix_map_array, make_surface as pix_make_surface
+import numpy
+from numpy import array as numpy_array, empty as numpy_empty, \
+    uint32 as numpy_uint32, ndarray as numpy_ndarray
 
-from pygame.pixelcopy import array_to_surface, make_surface as pc_make_surface
+# float96 not available on all numpy versions.
+numpy_floats = []
+for type_name in "float float32 float64 float96".split():
+    if hasattr(numpy, type_name):
+        numpy_floats.append(getattr(numpy, type_name))
 
-__all__ = ["array_to_surface", "pc_make_surface"]
+# Pixel sizes corresponding to NumPy supported integer sizes, and therefore
+# permissible for 2D reference arrays.
+_pixel2d_bitdepths = {8, 16, 32}
+
 
 def blit_array(surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
@@ -82,18 +72,28 @@ def blit_array(surface, array):
     This function will temporarily lock the Surface as the new values are
     copied.
     """
-    global numpysf
-    try:
-        return numpysf.blit_array(surface, array)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.blit_array(surface, array)
+    if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
+        array = array.round(0).astype(numpy_uint32)
+    return array_to_surface(surface, array)
+
+
+def make_surface(array):
+    """pygame.surfarray.make_surface (array): return Surface
+
+    Copy an array to a new surface.
+
+    Create a new Surface that best resembles the data and format on the
+    array. The array can be 2D or 3D with any sized integer values.
+    """
+    if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
+        array = array.round(0).astype(numpy_uint32)
+    return pix_make_surface(array)
 
 
 def array2d(surface):
     """pygame.surfarray.array2d(Surface): return array
 
-    Copy pixels into a 2d array.
+    copy pixels into a 2d array
 
     Copy the pixels from a Surface into a 2D array. The bit depth of the
     surface will control the size of the integer values, and will work
@@ -103,18 +103,21 @@ def array2d(surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    global numpysf
+    bpp = surface.get_bytesize()
     try:
-        return numpysf.array2d(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.array2d(surface)
+        dtype = (numpy.uint8, numpy.uint16, numpy.int32, numpy.int32)[bpp - 1]
+    except IndexError:
+        raise ValueError("unsupported bit depth %i for 2D array" % (bpp * 8,))
+    size = surface.get_size()
+    array = numpy.empty(size, dtype)
+    surface_to_array(array, surface)
+    return array
 
 
 def pixels2d(surface):
     """pygame.surfarray.pixels2d(Surface): return array
 
-    Reference pixels into a 2d array.
+    reference pixels into a 2d array
 
     Create a new 2D array that directly references the pixel values in a
     Surface. Any changes to the array will affect the pixels in the
@@ -127,18 +130,19 @@ def pixels2d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    global numpysf
+    if surface.get_bitsize() not in _pixel2d_bitdepths:
+        raise ValueError("unsupport bit depth for 2D reference array")
     try:
-        return numpysf.pixels2d(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.pixels2d(surface)
+        return numpy_array(surface.get_view('2'), copy=False)
+    except (ValueError, TypeError):
+        raise ValueError("bit depth %i unsupported for 2D reference array" %
+                         (surface.get_bitsize(),))
 
 
 def array3d(surface):
     """pygame.surfarray.array3d(Surface): return array
 
-    Copy pixels into a 3d array.
+    copy pixels into a 3d array
 
     Copy the pixels from a Surface into a 3D array. The bit depth of the
     surface will control the size of the integer values, and will work
@@ -148,18 +152,16 @@ def array3d(surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    global numpysf
-    try:
-        return numpysf.array3d(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.array3d(surface)
+    width, height = surface.get_size()
+    array = numpy.empty((width, height, 3), numpy.uint8)
+    surface_to_array(array, surface)
+    return array
 
 
 def pixels3d(surface):
     """pygame.surfarray.pixels3d(Surface): return array
 
-    Reference pixels into a 3d array.
+    reference pixels into a 3d array
 
     Create a new 3D array that directly references the pixel values in a
     Surface. Any changes to the array will affect the pixels in the
@@ -172,18 +174,13 @@ def pixels3d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    global numpysf
-    try:
-        return numpysf.pixels3d(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.pixels3d(surface)
+    return numpy_array(surface.get_view('3'), copy=False)
 
 
 def array_alpha(surface):
     """pygame.surfarray.array_alpha(Surface): return array
 
-    Copy pixel alphas into a 2d array.
+    copy pixel alphas into a 2d array
 
     Copy the pixel alpha values (degree of transparency) from a Surface
     into a 2D array. This will work for any type of Surface
@@ -194,18 +191,16 @@ def array_alpha(surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    global numpysf
-    try:
-        return numpysf.array_alpha(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.array_alpha(surface)
+    size = surface.get_size()
+    array = numpy.empty(size, numpy.uint8)
+    surface_to_array(array, surface, 'A')
+    return array
 
 
 def pixels_alpha(surface):
     """pygame.surfarray.pixels_alpha(Surface): return array
 
-    Reference pixel alphas into a 2d array.
+    reference pixel alphas into a 2d array
 
     Create a new 2D array that directly references the alpha values
     (degree of transparency) in a Surface. Any changes to the array will
@@ -217,12 +212,7 @@ def pixels_alpha(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    global numpysf
-    try:
-        return numpysf.pixels_alpha(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.pixels_alpha(surface)
+    return numpy.array(surface.get_view('A'), copy=False)
 
 
 def pixels_red(surface):
@@ -239,12 +229,25 @@ def pixels_red(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    global numpysf
-    try:
-        return numpysf.pixels_red(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.pixels_red(surface)
+    return numpy.array(surface.get_view('R'), copy=False)
+
+
+def array_red(surface):
+    """pygame.surfarray.array_red(Surface): return array
+
+    copy pixel red into a 2d array
+
+    Copy the pixel red values from a Surface into a 2D array. This will work
+    for any type of Surface format.
+
+    This function will temporarily lock the Surface as pixels are copied
+    (see the Surface.lock - lock the Surface memory for pixel access
+    method).
+    """
+    size = surface.get_size()
+    array = numpy.empty(size, numpy.uint8)
+    surface_to_array(array, surface, 'R')
+    return array
 
 
 def pixels_green(surface):
@@ -261,12 +264,25 @@ def pixels_green(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    global numpysf
-    try:
-        return numpysf.pixels_green(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.pixels_green(surface)
+    return numpy.array(surface.get_view('G'), copy=False)
+
+
+def array_green(surface):
+    """pygame.surfarray.array_green(Surface): return array
+
+    copy pixel green into a 2d array
+
+    Copy the pixel green values from a Surface into a 2D array. This will work
+    for any type of Surface format.
+
+    This function will temporarily lock the Surface as pixels are copied
+    (see the Surface.lock - lock the Surface memory for pixel access
+    method).
+    """
+    size = surface.get_size()
+    array = numpy.empty(size, numpy.uint8)
+    surface_to_array(array, surface, 'G')
+    return array
 
 
 def pixels_blue(surface):
@@ -283,18 +299,31 @@ def pixels_blue(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    global numpysf
-    try:
-        return numpysf.pixels_blue(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.pixels_blue(surface)
+    return numpy.array(surface.get_view('B'), copy=False)
+
+
+def array_blue(surface):
+    """pygame.surfarray.array_blue(Surface): return array
+
+    copy pixel blue into a 2d array
+
+    Copy the pixel blue values from a Surface into a 2D array. This will work
+    for any type of Surface format.
+
+    This function will temporarily lock the Surface as pixels are copied
+    (see the Surface.lock - lock the Surface memory for pixel access
+    method).
+    """
+    size = surface.get_size()
+    array = numpy.empty(size, numpy.uint8)
+    surface_to_array(array, surface, 'B')
+    return array
 
 
 def array_colorkey(surface):
     """pygame.surfarray.array_colorkey(Surface): return array
 
-    Copy the colorkey values into a 2d array.
+    copy the colorkey values into a 2d array
 
     Create a new array with the colorkey transparency value from each
     pixel. If the pixel matches the colorkey it will be fully
@@ -306,45 +335,34 @@ def array_colorkey(surface):
     This function will temporarily lock the Surface as pixels are
     copied.
     """
-    global numpysf
-    try:
-        return numpysf.array_colorkey(surface)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.array_colorkey(surface)
-
-
-def make_surface(array):
-    """pygame.surfarray.make_surface(array): return Surface
-
-    Copy an array to a new surface.
-
-    Create a new Surface that best resembles the data and format on the
-    array. The array can be 2D or 3D with any sized integer values.
-    """
-    global numpysf
-    try:
-        return numpysf.make_surface(array)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.make_surface(array)
+    size = surface.get_size()
+    array = numpy.empty(size, numpy.uint8)
+    surface_to_array(array, surface, 'C')
+    return array
 
 
 def map_array(surface, array):
     """pygame.surfarray.map_array(Surface, array3d): return array2d
 
-    Map a 3D array into a 2D array.
+    map a 3d array into a 2d array
 
     Convert a 3D array into a 2D array. This will use the given Surface
-    format to control the conversion. Palette surface formats are not
-    supported.
+    format to control the conversion.
+
+    Note: arrays do not need to be 3D, as long as the minor axis has
+    three elements giving the component colours, any array shape can be
+    used (for example, a single colour can be mapped, or an array of
+    colours). The array shape is limited to eleven dimensions maximum,
+    including the three element minor axis.
     """
-    global numpysf
-    try:
-        return numpysf.map_array(surface, array)
-    except AttributeError:
-        import pygame._numpysurfarray as numpysf
-        return numpysf.map_array(surface, array)
+    if array.ndim == 0:
+        raise ValueError("array must have at least 1 dimension")
+    shape = array.shape
+    if shape[-1] != 3:
+        raise ValueError("array must be a 3d array of 3-value color data")
+    target = numpy_empty(shape[:-1], numpy.int32)
+    pix_map_array(target, array, surface)
+    return target
 
 
 def use_arraytype(arraytype):
@@ -352,20 +370,31 @@ def use_arraytype(arraytype):
 
     DEPRECATED - only numpy arrays are now supported.
     """
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
     arraytype = arraytype.lower()
     if arraytype != "numpy":
         raise ValueError("invalid array type")
+
 
 def get_arraytype():
     """pygame.surfarray.get_arraytype(): return str
 
     DEPRECATED - only numpy arrays are now supported.
     """
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
     return "numpy"
+
 
 def get_arraytypes():
     """pygame.surfarray.get_arraytypes(): return tuple
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    return ("numpy",)
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
+    return "numpy",
