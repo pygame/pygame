@@ -126,6 +126,20 @@ between surfaces with matching pixel layouts (see :class:`pygame.Surface`).
 
    .. ## pygame.surfarray.pixels_alpha ##
 
+.. function:: array_red
+
+   | :sl:`Copy red pixels into a 2d array`
+   | :sg:`array_red(Surface) -> array`
+
+   Copy the pixel red values from a Surface into a 2D array. This will work
+   for any type of Surface format.
+
+   This function will temporarily lock the Surface as pixels are copied (see
+   the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
+
+   .. ## pygame.surfarray.array_red ##
+
 .. function:: pixels_red
 
    | :sl:`Reference pixel red into a 2d array.`
@@ -142,6 +156,20 @@ between surfaces with matching pixel layouts (see :class:`pygame.Surface`).
 
    .. ## pygame.surfarray.pixels_red ##
 
+.. function:: array_green
+
+   | :sl:`Copy green pixels into a 2d array`
+   | :sg:`array_green(Surface) -> array`
+
+   Copy the pixel green values from a Surface into a 2D array. This will work
+   for any type of Surface format.
+
+   This function will temporarily lock the Surface as pixels are copied (see
+   the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
+
+   .. ## pygame.surfarray.array_green ##
+
 .. function:: pixels_green
 
    | :sl:`Reference pixel green into a 2d array.`
@@ -157,6 +185,20 @@ between surfaces with matching pixel layouts (see :class:`pygame.Surface`).
    array.
 
    .. ## pygame.surfarray.pixels_green ##
+
+.. function:: array_blue
+
+   | :sl:`Copy blue pixels into a 2d array`
+   | :sg:`array_blue(Surface) -> array`
+
+   Copy the pixel blue values from a Surface into a 2D array. This will work
+   for any type of Surface format.
+
+   This function will temporarily lock the Surface as pixels are copied (see
+   the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
+
+   .. ## pygame.surfarray.array_blue ##
 
 .. function:: pixels_blue
 
