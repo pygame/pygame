@@ -20,9 +20,9 @@
 
 """pygame module for accessing sound sample data
 
-Functions to convert between numpy arrays and Sound
-objects. This module will only be available when pygame can use the
-external numpy package.
+Functions to convert between NumPy arrays and Sound objects. This module
+will only be functional when pygame can use the external NumPy package.
+If NumPy can't be imported, surfarray becomes a MissingModule object.
 
 Sound data is made of thousands of samples per second, and each sample
 is the amplitude of the wave at a particular moment in time. For
@@ -35,9 +35,6 @@ only has one.
 
 Sounds with 16-bit data will be treated as unsigned integers,
 if the sound sample type requests this.
-
-The only supported array type is numpy. If numpy is not installed, the
-module will raise an ImportError
 """
 
 from pygame import mixer
