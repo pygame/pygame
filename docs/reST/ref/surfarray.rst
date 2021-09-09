@@ -149,6 +149,8 @@ will be locked during the lifetime of the array.
    the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
    access method).
 
+   .. versionadded:: 2.0.2
+
    .. ## pygame.surfarray.array_red ##
 
 .. function:: pixels_red
@@ -181,6 +183,8 @@ will be locked during the lifetime of the array.
    the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
    access method).
 
+   .. versionadded:: 2.0.2
+
    .. ## pygame.surfarray.array_green ##
 
 .. function:: pixels_green
@@ -212,6 +216,8 @@ will be locked during the lifetime of the array.
    This function will temporarily lock the Surface as pixels are copied (see
    the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
    access method).
+
+   .. versionadded:: 2.0.2
 
    .. ## pygame.surfarray.array_blue ##
 
