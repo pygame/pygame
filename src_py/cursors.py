@@ -29,6 +29,8 @@ Here is a list of available cursors:
 
 There is also a sample string cursor named 'thickarrow_strings'.
 The compile() function can convert these string cursors into cursor byte data.
+
+Alternately, you can also use Cursor objects to use colored images ingame.
 """
 
 import pygame
@@ -49,6 +51,17 @@ _cursor_id_table = {
 
 class Cursor(object):
     def __init__(self, *args):
+        """Cursor()->Cursor
+        Cursor(constant)->Cursor
+        Cursor(Cursor)->copies the Cursor object passed as an argument
+        Cursor(hotspot, Surface)->Cursor
+        
+        pygame object for representing cursors
+        
+        You can initialize a cursor from a system cursor or use the constructor on an existing Cursor object,
+        which will copy it. 
+        Providing a Surface instance will transform the cursor image into the Surface.
+        Said Surfaces may use other colors than black and white."""
         if len(args) == 0:
             self.type = "system"
             self.data = (pygame.SYSTEM_CURSOR_ARROW,)
@@ -222,6 +235,7 @@ tri_right = Cursor(
 # Here is an example string resource cursor. To use this:
 #    curs, mask = pygame.cursors.compile_cursor(pygame.cursors.thickarrow_strings, 'X', '.')
 #    pygame.mouse.set_cursor((24, 24), (0, 0), curs, mask)
+# Be warned, though, that cursors created from compiled strings do not support colors.
 
 # sized 24x24
 thickarrow_strings = (
