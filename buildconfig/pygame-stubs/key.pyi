@@ -1,9 +1,8 @@
 from typing import Sequence, Optional, Tuple, Union, List
 from typing_extensions import Protocol
-from pygame.math import Vector2
 from pygame.rect import Rect
+from pygame._common import _Coordinate
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _CanBeRect = Union[
     Rect,
     Tuple[int, int, int, int],

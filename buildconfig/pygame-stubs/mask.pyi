@@ -1,10 +1,10 @@
 from typing import Any, Optional, Union, Text, Tuple, List, TypeVar, Sequence
 from typing_extensions import Protocol
 
-from pygame.math import Vector2
 from pygame.surface import Surface
 from pygame.rect import Rect
 from pygame.color import Color
+from pygame._common import _Coordinate
 
 _ColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
@@ -12,7 +12,6 @@ _ColorValue = Union[
 _ToSurfaceColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Text, Tuple[int, int, int, int]
 ]
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _CanBeRect = Union[
     Rect,
     Tuple[int, int, int, int],

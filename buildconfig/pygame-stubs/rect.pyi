@@ -2,11 +2,11 @@ from typing import Dict, List, Sequence, Tuple, TypeVar, Union, overload, Iterab
 from typing_extensions import Protocol
 from pygame.math import Vector2
 from pygame.sprite import _RectStyle
+from pygame._common import _Coordinate
 
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _CanBeRect = Union[
     "Rect",
     Tuple[float, float, float, float],
