@@ -138,6 +138,8 @@ The following strings can be converted into cursor bitmaps with
    | :sg:`Cursor(size, hotspot, xormasks, andmasks) -> Cursor`
    | :sg:`Cursor(hotspot, surface) -> Cursor`
    | :sg:`Cursor(constant) -> Cursor`
+   | :sg:`Cursor(Cursor) -> copies the Cursor object as a parameter`
+   | :sg:`Cursor() -> Cursor`
 
    In pygame 2, there are 3 types of cursors you can create to give your
    game that little bit of extra polish. There's **bitmap** type cursors,
@@ -173,6 +175,12 @@ The following strings can be converted into cursor bitmaps with
                                        north, south, east, and west
       pygame.SYSTEM_CURSOR_NO          slashed circle or crossbones
       pygame.SYSTEM_CURSOR_HAND        hand
+
+   **Creating a cursor without passing arguments**
+   
+   In addition to the cursor constants available and described above,
+   you can also call ``pygame.cursors.Cursor()``, and your cursor is ready.
+   Doing this call actually creates a system cursor using the default native image.
 
    **Creating a color cursor**
 
