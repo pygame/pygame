@@ -51,10 +51,11 @@ _cursor_id_table = {
 
 class Cursor(object):
     def __init__(self, *args):
-        """Cursor()->Cursor
-        Cursor(constant)->Cursor
-        Cursor(Cursor)->copies the Cursor object passed as an argument
-        Cursor(hotspot, Surface)->Cursor
+        """Cursor() -> Cursor
+        Cursor(constant) -> Cursor
+        Cursor(Cursor) -> copies the Cursor object passed as an argument
+        Cursor(hotspot, Surface) -> Cursor
+        Cursor(size, hotspot, xormasks, andmasks) -> Cursor
         
         pygame object for representing cursors
         
@@ -93,6 +94,11 @@ class Cursor(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+    
+    def __copy__(self):
+        return self.__class__(self)
+    
+    copy=__copy__
 
     def __hash__(self):
         return hash(tuple([self.type] + list(self.data)))
