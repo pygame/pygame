@@ -1,4 +1,4 @@
-.. image:: docs/pygame_logo_large.svg
+.. image:: docs/pygame_logo.svg
   :alt: pygame
 
 
