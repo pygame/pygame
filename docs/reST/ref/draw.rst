@@ -551,7 +551,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. ## pygame.draw ##
 
 .. figure:: code_examples/draw_module_example.png
-   :scale: 50 %
    :alt: draw module example
 
    Example code for draw module.
