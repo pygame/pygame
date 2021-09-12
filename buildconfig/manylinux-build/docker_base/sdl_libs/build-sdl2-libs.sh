@@ -74,6 +74,7 @@ cd $MIX2
       --enable-music-mod-modplug \
       --enable-music-ogg \
       --enable-music-flac \
+      --enable-music-mp3 \
       --enable-music-mp3-mpg123 \
       --enable-music-mod \
 
