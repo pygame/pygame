@@ -68,14 +68,13 @@ cd $MIX2
       --disable-music-midi-fluidsynth-shared \
       --disable-music-mod-mikmod-shared \
       --disable-music-mod-modplug-shared \
-      --disable-music-mp3-mpg123 \
       --disable-music-mp3-mpg123-shared \
       --disable-music-ogg-shared \
       --enable-music-mod-mikmod \
       --enable-music-mod-modplug \
       --enable-music-ogg \
       --enable-music-flac \
-      --enable-music-mp3 \
+      --enable-music-mp3-mpg123 \
       --enable-music-mod \
 
 make
