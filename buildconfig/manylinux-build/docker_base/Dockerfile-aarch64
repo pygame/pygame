@@ -56,6 +56,9 @@ RUN ["bash", "/fluidsynth_build/build-fluidsynth.sh"]
 ADD ogg /ogg_build/
 RUN ["bash", "/ogg_build/build-ogg.sh"]
 
+ADD mp3 /mpg123_build/
+RUN ["bash", "/mpg123_build/build-mpg123.sh"]
+
 # Build and install flac
 ADD flac /flac_build/
 RUN ["bash", "/flac_build/build-flac.sh"]
