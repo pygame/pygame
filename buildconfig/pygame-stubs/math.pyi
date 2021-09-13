@@ -102,7 +102,7 @@ class Vector2:
     @overload
     def __init__(
         self,
-        x: Union[float, Tuple[float, float, float], List[float], Vector2] = 0,
+        x: Union[float, Tuple[float, float], List[float], Vector2] = 0,
     ) -> None: ...
     @overload
     def __init__(
