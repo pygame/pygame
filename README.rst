@@ -1,6 +1,4 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
-  :width: 200
-  :height: 70
+.. image:: docs/pygame_logo.svg
   :alt: pygame
 
 
