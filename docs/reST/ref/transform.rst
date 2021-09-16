@@ -60,9 +60,6 @@ Instead, always begin with the original image and scale to the desired size.)
    transparent. Otherwise pygame will pick a color that matches the Surface
    colorkey or the topleft pixel value.
 
-   If the width or the height of the surface is 0, this function won't do
-   anything
-
    .. ## pygame.transform.rotate ##
 
 .. function:: rotozoom
