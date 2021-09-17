@@ -49,6 +49,22 @@ Instead, always begin with the original image and scale to the desired size.)
 
    .. ## pygame.transform.scale ##
 
+.. function:: scale_by
+
+   | :sl:`resize to new resolution, using scalar(s)`
+   | :sg:`scale_by(surface, scale, scale_y=None, dest_surface=None) -> Surface`
+
+   Same as :func:`scale()`, but takes a scalar instead of the new size itself.
+   For example, :code:`transform.scale_by(surf, 3)` will triple the size of
+   the surface in both dimensions. Optionally, a ``scale_y`` argument can be
+   specified, which allows scaling a Surface separately in two dimensions.
+
+   `scale` and `scale_y` can be floats.
+
+   .. versionadded:: 2.0.2
+
+   .. ## pygame.transform.scale_by ##
+
 .. function:: rotate
 
    | :sl:`rotate an image`
@@ -115,6 +131,23 @@ Instead, always begin with the original image and scale to the desired size.)
    .. versionadded:: 1.8
 
    .. ## pygame.transform.smoothscale ##
+
+.. function:: smoothscale_by
+
+   | :sl:`resize to new resolution, using scalar(s)`
+   | :sg:`smoothscale_by(surface, scale, scale_y=None, dest_surface=None) -> Surface`
+
+   Same as :func:`smoothscale()`, but takes a scalar instead of the new size
+   itself. For example, :code:`transform.scale_by(surf, 3)` will triple the
+   size of the surface in both dimensions. Optionally, a ``scale_y`` argument
+   can be specified, which allows scaling a Surface separately in two
+   dimensions.
+
+   `scale` and `scale_y` can be floats.
+
+   .. versionadded:: 2.0.2
+
+   .. ## pygame.transform.smoothscale_by ##
 
 .. function:: get_smoothscale_backend
 

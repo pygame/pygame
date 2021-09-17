@@ -515,7 +515,6 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
     else
         newsurf = pgSurface_AsSurface(surfobj2);
 
-    /* check to see if the size is twice as big. */
     if (newsurf->w != width || newsurf->h != height)
         return RAISE(PyExc_ValueError,
                      "Destination surface not the given width or height.");
@@ -548,6 +547,53 @@ surf_scale(PyObject *self, PyObject *args, PyObject *kwargs)
     }
     else
         return (PyObject *)pgSurface_New(newsurf);
+}
+
+static PyObject*
+surf_scale_by(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *surfobj;
+    PyObject *surfobj2 = NULL;
+    PyObject *new_args = NULL;
+    PyObject *scale_obj = NULL;
+    PyObject *scaley_obj = Py_None;
+    float scale, scaley;
+    SDL_Surface *surf;
+    int width, height;
+    static char *keywords[] = {"surface", "scale", "scale_y", "dest_surface", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OO", keywords, 
+                                     &surfobj, &scale_obj, &scaley_obj, &surfobj2))
+        return NULL;
+
+    surf = pgSurface_AsSurface(surfobj);
+
+    if (!pg_FloatFromObj(scale_obj, &scale)) {
+        return RAISE(PyExc_TypeError, "'scale' argument must be a number");
+    }
+
+    width = (int)(surf->w * scale);
+    if (scaley_obj != Py_None) {
+        if (!pg_FloatFromObj(scaley_obj, &scaley)) {
+            return RAISE(PyExc_TypeError, "'scale_y' argument must be a number");
+        }
+        height = (int)(surf->h * scaley);
+    }
+    else {
+        height = (int)(surf->h * scale);
+    }
+
+    if (width < 0 || height < 0)
+        return RAISE(PyExc_ValueError, "Cannot scale to negative size");
+
+    if (surfobj2)
+        new_args = Py_BuildValue("O(ii)O", surfobj, width, height, surfobj2);
+    else
+        new_args = Py_BuildValue("O(ii)", surfobj, width, height);
+    if (new_args == NULL)
+        return NULL;
+
+    return surf_scale(self, new_args, NULL);
 }
 
 static PyObject *
@@ -1430,7 +1476,6 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
     else
         newsurf = pgSurface_AsSurface(surfobj2);
 
-    /* check to see if the size is twice as big. */
     if (newsurf->w != width || newsurf->h != height)
         return RAISE(PyExc_ValueError,
                      "Destination surface not the given width or height.");
@@ -1471,6 +1516,53 @@ surf_scalesmooth(PyObject *self, PyObject *args, PyObject *kwargs)
     }
     else
         return (PyObject *)pgSurface_New(newsurf);
+}
+
+static PyObject*
+surf_scalesmooth_by(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *surfobj;
+    PyObject *surfobj2 = NULL;
+    PyObject *new_args = NULL;
+    PyObject *scale_obj = NULL;
+    PyObject *scaley_obj = Py_None;
+    float scale, scaley;
+    SDL_Surface *surf;
+    int width, height;
+    static char *keywords[] = {"surface", "scale", "scale_y", "dest_surface", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OO", keywords, 
+                                     &surfobj, &scale_obj, &scaley_obj, &surfobj2))
+        return NULL;
+
+    surf = pgSurface_AsSurface(surfobj);
+
+    if (!pg_FloatFromObj(scale_obj, &scale)) {
+        return RAISE(PyExc_TypeError, "'scale' argument must be a number");
+    }
+
+    width = (int)(surf->w * scale);
+    if (scaley_obj != Py_None) {
+        if (!pg_FloatFromObj(scaley_obj, &scaley)) {
+            return RAISE(PyExc_TypeError, "'scale_y' argument must be a number");
+        }
+        height = (int)(surf->h * scaley);
+    }
+    else {
+        height = (int)(surf->h * scale);
+    }
+
+    if (width < 0 || height < 0)
+        return RAISE(PyExc_ValueError, "Cannot scale to negative size");
+
+    if (surfobj2)
+        new_args = Py_BuildValue("O(ii)O", surfobj, width, height, surfobj2);
+    else
+        new_args = Py_BuildValue("O(ii)", surfobj, width, height);
+    if (new_args == NULL)
+        return NULL;
+
+    return surf_scalesmooth(self, new_args, NULL);
 }
 
 static PyObject *
@@ -2750,6 +2842,8 @@ surf_average_color(PyObject *self, PyObject *args, PyObject *kwargs)
 static PyMethodDef _transform_methods[] = {
     {"scale", (PyCFunction)surf_scale, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETRANSFORMSCALE},
+    {"scale_by", (PyCFunction)surf_scale_by, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMSCALEBY},
     {"rotate", (PyCFunction)surf_rotate, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMETRANSFORMROTATE},
     {"flip", (PyCFunction)surf_flip, METH_VARARGS | METH_KEYWORDS,
@@ -2762,6 +2856,8 @@ static PyMethodDef _transform_methods[] = {
      DOC_PYGAMETRANSFORMSCALE2X},
     {"smoothscale", (PyCFunction)surf_scalesmooth,
      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETRANSFORMSMOOTHSCALE},
+    {"smoothscale_by", (PyCFunction)surf_scalesmooth_by, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETRANSFORMSMOOTHSCALEBY},
     {"get_smoothscale_backend", surf_get_smoothscale_backend, METH_NOARGS,
      DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND},
     {"set_smoothscale_backend", (PyCFunction)surf_set_smoothscale_backend,
