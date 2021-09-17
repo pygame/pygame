@@ -28,9 +28,8 @@ Here is a list of available cursors:
     arrow, diamond, ball, broken_x, tri_left, tri_right
 
 There is also a sample string cursor named 'thickarrow_strings'.
-The compile() function can convert these string cursors into cursor byte data.
-
-Alternately, you can also use Cursor objects to use colored images ingame.
+The compile() function can convert these string cursors into cursor byte data that can be used to
+create Cursor objects (which can also be instantiated from surfaces).
 """
 
 import pygame
@@ -51,11 +50,11 @@ _cursor_id_table = {
 
 class Cursor(object):
     def __init__(self, *args):
-        """Cursor() -> Cursor
+        """Cursor(size, hotspot, xormasks, andmasks) -> Cursor
+        Cursor(hotspot, Surface) -> Cursor
         Cursor(constant) -> Cursor
         Cursor(Cursor) -> copies the Cursor object passed as an argument
-        Cursor(hotspot, Surface) -> Cursor
-        Cursor(size, hotspot, xormasks, andmasks) -> Cursor
+        Cursor() -> Cursor
         
         pygame object for representing cursors
         
@@ -96,6 +95,8 @@ class Cursor(object):
         return not self.__eq__(other)
     
     def __copy__(self):
+        '''Clone the current Cursor object. 
+        You can do the same thing by doing Cursor(Cursor).'''
         return self.__class__(self)
     
     copy=__copy__
