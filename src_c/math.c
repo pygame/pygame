@@ -262,6 +262,8 @@ vector2_cross(pgVector *self, PyObject *other);
 static PyObject *
 vector2_angle_to(pgVector *self, PyObject *other);
 static PyObject *
+vector2_angle_between(pgVector *self, PyObject *other);
+static PyObject *
 vector2_as_polar(pgVector *self, PyObject *args);
 static PyObject *
 vector2_from_polar(pgVector *self, PyObject *args);
@@ -2165,6 +2167,26 @@ vector2_angle_to(pgVector *self, PyObject *other)
         return NULL;
     }
 
+    angle = (atan2(other_coords[1] - self->coords[1],
+                   other_coords[0] - self->coords[0]));
+    return PyFloat_FromDouble(RAD2DEG(angle));
+}
+
+static PyObject *
+vector2_angle_between(pgVector *self, PyObject *other)
+{
+    double angle;
+    double other_coords[2];
+
+    if (!pgVectorCompatible_Check(other, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "expected an vector.");
+        return NULL;
+    }
+
+    if (!PySequence_AsVectorCoords(other, other_coords, 2)) {
+        return NULL;
+    }
+
     angle = (atan2(other_coords[1], other_coords[0]) -
              atan2(self->coords[1], self->coords[0]));
     return PyFloat_FromDouble(RAD2DEG(angle));
@@ -2231,6 +2253,7 @@ static PyMethodDef vector2_methods[] = {
     {"cross", (PyCFunction)vector2_cross, METH_O, DOC_VECTOR2CROSS},
     {"dot", (PyCFunction)vector_dot, METH_O, DOC_VECTOR2DOT},
     {"angle_to", (PyCFunction)vector2_angle_to, METH_O, DOC_VECTOR2ANGLETO},
+    {"angle_between", (PyCFunction)vector2_angle_between, METH_O, DOC_VECTOR2ANGLEBETWEEN},
     {"update", (PyCFunction)vector2_update, METH_VARARGS | METH_KEYWORDS,
      DOC_VECTOR2UPDATE},
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
