@@ -208,11 +208,13 @@ The following strings can be converted into cursor bitmaps with
    Width and height must be a multiple of 8, and the mask arrays must be the 
    correct size for the given width and height. Otherwise an exception is raised.
    
-   **Copying a Cursor**
+   .. method::copy
+      | :sl:`copy the current cursor`
+      | :sg:`copy() -> Cursor`
+      
+      Returns a new Cursor object with the same data and hotspot as the original.
+   .. ## pygame.cursors.Cursor.copy ##
    
-   There are two ways of copying a Cursor object : 
-      - you can use the Cursor constructor on the existing object ;
-      - oy you can also call Cursor.copy .
 
    .. attribute:: type
    
