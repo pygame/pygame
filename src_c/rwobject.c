@@ -756,8 +756,8 @@ _rwops_from_pystr(PyObject *obj)
                         return NULL;                        
                     }
 
-                    PyObject* abs = PyObject_CallMethod(path, "isabs", "O", obj);
-                    if (abs == NULL) {
+                    PyObject* isabs = PyObject_CallMethod(path, "isabs", "O", obj);
+                    if (isabs == NULL) {
                         Py_DECREF(cwd);
                         Py_DECREF(path);
                         PyErr_SetString(PyExc_FileNotFoundError,
@@ -765,22 +765,22 @@ _rwops_from_pystr(PyObject *obj)
                         return NULL;
                     }
 
-                    if (abs == Py_False) {
+                    if (isabs == Py_False) {
                         PyErr_Format(PyExc_FileNotFoundError,
                                      "No file '%S' found in working directory"
                                      " '%S'.", obj, cwd);                       
                     }
                     else {
-                        PyErr_SetString(PyExc_FileNotFoundError, 
-                                        "No such file or directory.");
+                        PyErr_Format(PyExc_FileNotFoundError, 
+                                     "No such file or directory: '%S'.", obj);
                     }
                     Py_DECREF(cwd);
                     Py_DECREF(path);
-                    Py_DECREF(abs);
+                    Py_DECREF(isabs);
                 }
                 else {
-                    PyErr_SetString(PyExc_FileNotFoundError,
-                                    "No such file or directory.");
+                    PyErr_Format(PyExc_FileNotFoundError, 
+                                 "No such file or directory: '%S'.", obj);
                 }
 #else
             if (PyUnicode_Check(obj) || PyString_Check(obj)) {
