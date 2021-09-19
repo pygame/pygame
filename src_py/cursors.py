@@ -60,7 +60,7 @@ class Cursor(object):
         
         You can initialize a cursor from a system cursor or use the constructor on an existing Cursor object,
         which will copy it. 
-        Providing a Surface instance will transform the cursor image into the Surface.
+        Providing a Surface instance will render the cursor displayed as that Surface when used.
         Said Surfaces may use other colors than black and white."""
         if len(args) == 0:
             self.type = "system"
