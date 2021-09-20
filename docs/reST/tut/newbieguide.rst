@@ -19,7 +19,7 @@ or **How I learned to stop worrying and love the blit.**
 Pygame_ is a python wrapper for SDL_, written by Pete Shinners.  What this
 means is that, using pygame, you can write games or other multimedia
 applications in Python that will run unaltered on any of SDL's supported
-platforms (Windows, Unix, Mac, BeOS and others).
+platforms (Windows, Linux, Mac, and others).
 
 Pygame may be easy to learn, but the world of graphics programming can be
 pretty confusing to the newcomer.  I wrote this to try to distill the practical
@@ -43,7 +43,10 @@ several source files.  Write your own functions, and practice manipulating
 numbers and characters; know how to convert between the two.  Get to the point
 where the syntax for using lists and dictionaries is second-nature -- you don't
 want to have to run to the documentation every time you need to slice a list or
-sort a set of keys.  Resist the temptation to ask for direct help online when 
+sort a set of keys.  Get comfortable using file paths -- this will come in handy
+later when you start loading assets and creating save files.
+
+Resist the temptation to ask for direct help online when 
 you run into trouble.  Instead, fire up the interpreter and play with the 
 problem for a few hours, or use print statements and debugging tools to find out
 what's going wrong in your code.  Get into the habit of looking things up in the 
@@ -59,7 +62,7 @@ compared to the time you'll save when you're writing real code.
 Recognize which parts of pygame you really need.
 ------------------------------------------------
 
-Looking at the jumble of classes at the top of the pygame Documentation index
+Looking at the jumble of classes at the top of the pygame documentation index
 may be confusing.  The important thing is to realize that you can do a great
 deal with only a tiny subset of functions.  Many classes you'll probably never
 use -- in a year, I haven't touched the ``Channel``, ``Joystick``, ``cursors``, 
@@ -346,6 +349,68 @@ editor with a special *alpha channel*.  It's complicated -- don't use it
 yet.
 
 
+Software architecture, design patterns, and games
+------------------------------------------------
+
+You may reach a point where you're comfortable writing code, you're able to solve
+complex problems without assistance, you understand how to use most of pygame's 
+modules, and yet, as you work on larger projects they tend to get messier and harder
+to continue as time goes on.  Fixing bugs in one place causes new bugs to appear 
+elsewhere, figuring out *where* code should go becomes a reoccurring issue, and
+adding new things often requires you to rework many other things, and so on. 
+Finally, you decide to cut your losses and start fresh on something new.  This is 
+a common issue and it can be frustrating -- on the one hand, your skills are 
+improving, and yet you aren't able to finish the games you start due to a 
+somewhat invisible problem.
+
+This brings us to the concept of software architecture and design patterns. You 
+may be familiar with pygame's "standard" base template (there are many equivalent
+variations of this, so don't stress about the small details too much):
+
+    import pygame
+
+    pygame.init()
+
+    screen = pygame.display.set_mode((1280,720))
+
+    clock = pygame.time.Clock()
+
+    while True:
+        # Process player inputs.
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                raise SystemExit
+                
+        # Do logical updates here.
+        # ...
+        
+        screen.fill("purple")  # Clear the last frame's graphics
+        
+        # Render the graphics here.
+        # ...
+
+        pygame.display.flip()  # Refresh on-screen display
+        clock.tick(60)         # wait until next frame (at 60 FPS)
+        
+It does some initial setup, starts a loop, and then proceeds to repeatedly 
+collect input, handle the game's logic, and draw the current frame forever until 
+the program ends.  The update, render, wait loop shown here is actually a design 
+pattern that serves as the skeleton of most games -- it's prolific because it's 
+clean, it's organized, and it works.  (There's also an important but easy-to-miss
+design feature here in the form of a strict division between the game's logic 
+and rendering routines.  This decision alone prevents a whole category of potential 
+bugs related to objects updating and rendering concurrently, which is nice).
+
+It turns out that there are many design patterns like this that are used frequently 
+in games and in software development at large.  For a great resource on this 
+specifically for games, I highly recommend Game Programming Patterns_, a short 
+free, e-book on the topic.  It covers a bunch of useful patterns and concrete situations
+where you might want to employ them.  It won't instantly make you a better coder,
+but learning some theory about software architecture can go a long way towards 
+helping you escape plateaus and tackle larger projects more confidently.
+
+
 Do things the pythony way.
 --------------------------
 
@@ -359,11 +424,12 @@ Luckily, python is a very clear language -- if a piece of code looks awkward or
 unwieldy, chances are its speed can be improved, too.  Read over `Why Pygame is 
 Slow`_ for some deeper insight into why pygame might be considered slower than 
 other frameworks/engines, and what that actually means in practice.  
-And if you're truly stumped by performance problems, profilers like cProfile_ or 
-SnakeViz_ can help identify bottlenecks (they'll tell you which parts of the 
-code are taking the longest to execute). That said, premature optimisation is 
-the root of all evil; if it's already fast enough, don't torture the code trying 
-to make it faster.  If it's fast enough, let it be :)
+And if you're truly stumped by performance problems, profilers like cProfile_ 
+(or SnakeViz_, a visualizer for cProfile) can help identify bottlenecks (they'll 
+tell you which parts of the code are taking the longest to execute). That said, 
+premature optimisation is the root of all evil; if it's already fast enough, 
+don't torture the code trying to make it faster.  If it's fast enough, let it 
+be :)
 
 
 There you go. Now you know practically everything I know about using pygame.
@@ -379,6 +445,7 @@ the author of Twitch, an entirely average pygame arcade game.*
 .. _SDL: http://libsdl.org
 .. _Python Documentation: https://docs.python.org/3/
 .. _SolarWolf: https://www.pygame.org/shredwheat/solarwolf/index.shtml
+.. _Game Programming Patterns: https://gameprogrammingpatterns.com/contents.html
 .. _Why Pygame is Slow: https://blubberquark.tumblr.com/post/630054903238262784/why-pygame-is-slow
 .. _cProfile: https://docs.python.org/3/library/profile.html
 .. _SnakeViz: https://jiffyclub.github.io/snakeviz/
