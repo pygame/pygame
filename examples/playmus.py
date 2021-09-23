@@ -39,6 +39,7 @@ class Window(object):
         if Window.instance is not None:
             return Window.instance
         self = object.__new__(cls)
+        pg.init()
         pg.display.init()
         self.screen = pg.display.set_mode((600, 400))
         Window.instance = self
