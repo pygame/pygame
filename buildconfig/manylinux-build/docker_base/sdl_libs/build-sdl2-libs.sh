@@ -3,7 +3,7 @@ set -e -x
 
 cd /sdl_build/
 
-SDL2="SDL2-2.0.14"
+SDL2="SDL2-2.0.16"
 IMG2="SDL2_image-2.0.5"
 TTF2="SDL2_ttf-2.0.15"
 MIX2="SDL2_mixer-2.0.4"

@@ -16,8 +16,8 @@ pygame.locals import *``.
 Detailed descriptions of the various constants can be found throughout the
 pygame documentation. Here are the locations of some of them.
 
-   - The :mod:`pygame.display` module contains flags like ``HWSURFACE`` used by
-     :func:`pygame.display.set_mode`.
+   - The :mod:`pygame.display` module contains flags like ``FULLSCREEN`` used
+     by :func:`pygame.display.set_mode`.
    - The :mod:`pygame.event` module contains the various event types.
    - The :mod:`pygame.key` module lists the keyboard constants and modifiers
      (``K_``\* and ``MOD_``\*) relating to the ``key`` and ``mod`` attributes of

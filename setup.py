@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.2.dev1",
+    "version":          "2.0.2.dev3",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -217,6 +217,35 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
+if consume_arg('docs'):
+    fullgeneration = consume_arg('--fullgeneration') or consume_arg('--f')
+
+    # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
+    docs_help = (
+        "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3."
+    )
+    if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
+        raise SystemExit(docs_help)
+
+    import subprocess
+
+    try:
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if fullgeneration:
+            command_line.append('full_generation')
+        subprocess.call(
+            command_line
+        )
+    except:
+        print(docs_help)
+        raise
+
+    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
+    if len(sys.argv) == 1:
+        sys.exit()
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):
@@ -720,52 +749,6 @@ class TestCommand(Command):
         '''
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
-
-
-
-@add_command('docs')
-class DocsCommand(Command):
-    """ For building the pygame documentation with `python setup.py docs`.
-
-    This generates html, and documentation .h header files.
-    """
-    user_options = [
-        ('fullgeneration', None, 'Specify that the docs must be fully regenerated')
-    ]
-
-    def initialize_options(self):
-        self._dir = os.getcwd()
-        self.fullgeneration = False
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        '''
-        runs Sphinx to build the docs.
-        '''
-
-        # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
-        docs_help = (
-            "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3." 
-        )
-        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
-            raise SystemExit(docs_help)
-
-        import subprocess
-        try:
-            print("using python:", sys.executable)
-            command_line = [
-                sys.executable, os.path.join('buildconfig', 'makeref.py')
-            ]
-            if self.fullgeneration:
-                command_line.append('full_generation')
-            return subprocess.call(
-                command_line
-            )
-        except:
-            print(docs_help)
-            raise
 
 # Prune empty file lists.
 data_files = [(path, files) for path, files in data_files if files]

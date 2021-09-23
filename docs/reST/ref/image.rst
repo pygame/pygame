@@ -41,15 +41,11 @@ function can support the following formats.
    * ``TIFF``
 
    * ``WEBP``
-   
-   * ``XCF``
 
    * ``XPM``
    
-   * ``XV``
    
-   
-.. versionadded:: 2.0 Loading SVG, WebP, PNM, XCF, XV
+.. versionadded:: 2.0 Loading SVG, WebP, PNM
 
 Saving images only supports a limited set of formats. You can save to the
 following formats.

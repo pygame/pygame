@@ -41,7 +41,8 @@ CONFIGS = [
 
 CONFIG = {"frequency": 22050, "size": -16, "channels": 2}  # base config
 if pygame.get_sdl_version()[0] >= 2:
-    CONFIG = {"frequency": 44100, "size": 32, "channels": 2}  # base config
+    # base config
+    CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}  
 
 
 class InvalidBool(object):
@@ -86,7 +87,7 @@ class MixerModuleTest(unittest.TestCase):
         # default values. No way to check buffer size though.
         mixer.pre_init(22050, -8, 1)  # Non default values
         mixer.pre_init(0, 0, 0)  # Should reset to default values
-        mixer.init()
+        mixer.init(allowedchanges=0)
         self.assertEqual(mixer.get_init()[0], 44100)
         self.assertEqual(mixer.get_init()[1], -16)
         self.assertGreaterEqual(mixer.get_init()[2], 2)

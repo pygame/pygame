@@ -1,10 +1,9 @@
 from typing import Tuple, List, Union, Optional, Sequence
 from pygame.surface import Surface
-from pygame.math import Vector2
 from pygame.color import Color
 from pygame.rect import Rect
+from pygame._common import _Coordinate
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _ColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
@@ -35,7 +34,7 @@ def laplacian(surface: Surface, dest_surface: Surface) -> Surface: ...
 def average_surfaces(
     surfaces: Sequence[Surface],
     dest_surface: Optional[Surface] = None,
-    palette_colors: Optional[Union[bool, int]] = 1,
+    palette_colors: Union[bool, int] = 1,
 ) -> Surface: ...
 def average_color(surface: Surface, rect: Optional[_RectValue]) -> Color: ...
 def threshold(

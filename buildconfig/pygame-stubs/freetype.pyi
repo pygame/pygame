@@ -3,6 +3,7 @@ from typing import Tuple, Optional, Union, List, Text, IO, Sequence, Any, Iterab
 
 if sys.version_info >= (3, 6):
     from os import PathLike
+
     AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
 else:
     AnyPath = Union[Text, bytes]
@@ -18,7 +19,7 @@ _ColorValue = Union[
 
 def get_error() -> str: ...
 def get_version() -> Tuple[int, int, int]: ...
-def init(cache_size: Optional[int] = 64, resolution: Optional[int] = 72) -> None: ...
+def init(cache_size: int = 64, resolution: int = 72) -> None: ...
 def quit() -> None: ...
 def get_init() -> bool: ...
 def was_init() -> bool: ...
@@ -28,8 +29,8 @@ def set_default_resolution(resolution: int) -> None: ...
 def SysFont(
     name: Union[str, bytes, Iterable[Union[str, bytes]]],
     size: int,
-    bold: Optional[int] = False,
-    italic: Optional[int] = False,
+    bold: int = False,
+    italic: int = False,
 ) -> Font: ...
 def get_default_font() -> str: ...
 
@@ -71,20 +72,20 @@ class Font:
     def __init__(
         self,
         file: Union[AnyPath, IO[Any], None],
-        size: Optional[float] = 0,
-        font_index: Optional[int] = 0,
-        resolution: Optional[int] = 0,
-        ucs4: Optional[int] = False,
+        size: float = 0,
+        font_index: int = 0,
+        resolution: int = 0,
+        ucs4: int = False,
     ) -> None: ...
     def get_rect(
         self,
         text: str,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
+        style: int = STYLE_DEFAULT,
+        rotation: int = 0,
+        size: float = 0,
     ) -> Rect: ...
     def get_metrics(
-        self, text: str, size: Optional[float] = 0
+        self, text: str, size: float = 0
     ) -> List[Tuple[int, int, int, int, float, float]]: ...
     def get_sized_ascender(self, size: float) -> int: ...
     def get_sized_descender(self, size: float) -> int: ...
@@ -96,9 +97,9 @@ class Font:
         text: str,
         fgcolor: Optional[_ColorValue] = None,
         bgcolor: Optional[_ColorValue] = None,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
+        style: int = STYLE_DEFAULT,
+        rotation: int = 0,
+        size: float = 0,
     ) -> Tuple[Surface, Rect]: ...
     def render_to(
         self,
@@ -107,25 +108,25 @@ class Font:
         text: str,
         fgcolor: Optional[_ColorValue] = None,
         bgcolor: Optional[_ColorValue] = None,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
+        style: int = STYLE_DEFAULT,
+        rotation: int = 0,
+        size: float = 0,
     ) -> Rect: ...
     def render_raw(
         self,
         text: str,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
-        invert: Optional[bool] = False,
+        style: int = STYLE_DEFAULT,
+        rotation: int = 0,
+        size: float = 0,
+        invert: bool = False,
     ) -> Tuple[bytes, Tuple[int, int]]: ...
     def render_raw_to(
         self,
         array: Any,
         text: str,
         dest: Optional[Union[Tuple[int, int], List[int]]] = None,
-        style: Optional[int] = STYLE_DEFAULT,
-        rotation: Optional[int] = 0,
-        size: Optional[float] = 0,
-        invert: Optional[bool] = False,
+        style: int = STYLE_DEFAULT,
+        rotation: int = 0,
+        size: float = 0,
+        invert: bool = False,
     ) -> Rect: ...

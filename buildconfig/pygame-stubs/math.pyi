@@ -99,10 +99,16 @@ class Vector2:
     yx: Vector2
     yy: Vector2
     __hash__: None  # type: ignore
+    @overload
     def __init__(
         self,
-        x: Optional[Union[float, Vector2, Tuple[float, float], List[float]]] = 0,
-        y: Optional[float] = 0,
+        x: Union[float, Tuple[float, float], List[float], Vector2] = 0,
+    ) -> None: ...
+    @overload
+    def __init__(
+            self,
+            x: float,
+            y: float,
     ) -> None: ...
     def __setitem__(self, key: int, value: float) -> None: ...
     @overload
@@ -146,8 +152,8 @@ class Vector2:
     ) -> None: ...
     def update(
         self,
-        x: Optional[Union[float, Vector2, Tuple[float, float], List[float]]] = 0,
-        y: Optional[float] = 0,
+        x: Union[float, Vector2, Tuple[float, float], List[float]] = 0,
+        y: float = 0,
     ) -> None: ...
 
 class Vector3:
@@ -190,17 +196,19 @@ class Vector3:
     zzx: Vector3
     zzy: Vector3
     zzz: Vector3
-
     __hash__: None  # type: ignore
     @overload
     def __init__(
         self,
-        xyz: Optional[
-            Union[float, Tuple[float, float, float], List[float], Vector3]
-        ] = 0,
+        xyz: Union[float, Tuple[float, float, float], List[float], Vector3] = 0,
     ) -> None: ...
     @overload
-    def __init__(self, x: int, y: int, z: int) -> None: ...
+    def __init__(
+            self,
+            x: float,
+            y: float,
+            z: float,
+    ) -> None: ...
     def __setitem__(self, key: int, value: float) -> None: ...
     @overload
     def __getitem__(self, i: int) -> float: ...
@@ -254,9 +262,7 @@ class Vector3:
     @overload
     def update(
         self,
-        xyz: Optional[
-            Union[float, Tuple[float, float, float], List[float], Vector3]
-        ] = 0,
+        xyz: Union[float, Tuple[float, float, float], List[float], Vector3] = 0,
     ) -> None: ...
     @overload
     def update(self, x: int, y: int, z: int) -> None: ...
