@@ -494,8 +494,12 @@ code.descclassname, code.descname {
     font-weight: bold;
 }
 
-/* Top level section title format */
-div.body > div.section > dl > dt.title {
+/*
+    Top level section title format
+    section tag has been introduced in docutils 0.17 as a replacement for div.section
+    Both rule variations are kept to support old versions of docutils
+ */
+div.body > section > dl > dt.title, div.body > div.section > dl > dt.title {
     font-size: 120%;
     font-weight: bold;
     margin-bottom: 1em;
