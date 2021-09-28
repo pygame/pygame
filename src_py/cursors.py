@@ -29,7 +29,10 @@ Here is a list of available cursors:
 
 There is also a sample string cursor named 'thickarrow_strings'.
 The compile() function can convert these string cursors into cursor byte data that can be used to
-create Cursor objects (which can also be instantiated from surfaces).
+create Cursor objects.
+
+Alternately, you can also create Cursor objects using surfaces or cursors constants,
+such as pygame.SYSTEM_CURSOR_ARROW.
 """
 
 import pygame
