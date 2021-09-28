@@ -57,10 +57,11 @@ class Window(object):
         self.line_height = self.ascender - self.descender
 
         self.write_lines(
-            "'q', ESCAPE or close this window to quit\n"
-            "SPACE to play/pause\n"
-            "'r' to rewind\n"
-            "'f' to faid out over 5 seconds\n",
+            "Press 'q' or 'ESCAPE' or close this window to quit\n"
+            "Press 'SPACE' to play / pause\n"
+            "Press 'r' to rewind (restart from the beginning)\n"
+            "Press 'f' to fade music out over 5 seconds\n\n"
+            "Window will quit automatically when music ends\n",
             0,
         )
 
@@ -112,7 +113,7 @@ def main(file_path):
             pg.mixer.music.play()
             win.write_lines("Playing ...\n", -1)
 
-            while pg.mixer.music.get_busy():
+            while pg.mixer.music.get_busy() or paused:
                 e = pg.event.wait()
                 if e.type == pg.KEYDOWN:
                     key = e.key
