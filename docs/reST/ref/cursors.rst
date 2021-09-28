@@ -179,8 +179,9 @@ The following strings can be converted into cursor bitmaps with
    **Creating a cursor without passing arguments**
    
    In addition to the cursor constants available and described above,
-   you can also call ``pygame.cursors.Cursor()``, and your cursor is ready.
-   Doing this call actually creates a system cursor using the default native image.
+   you can also call ``pygame.cursors.Cursor()``, and your cursor is ready (doing that is the same as
+   calling ``pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW)``.
+   Doing one of thoses calls actually creates a system cursor using the default native image.
 
    **Creating a color cursor**
 
@@ -208,7 +209,7 @@ The following strings can be converted into cursor bitmaps with
    Width and height must be a multiple of 8, and the mask arrays must be the 
    correct size for the given width and height. Otherwise an exception is raised.
    
-   .. method::copy
+   .. method:: copy
       | :sl:`copy the current cursor`
       | :sg:`copy() -> Cursor`
       
