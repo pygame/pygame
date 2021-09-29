@@ -46,7 +46,9 @@ class Window(object):
 
     def __init__(self, title):
         pg.display.set_caption(title)
-        self.screen.fill(pg.Color("white"))
+        self.text_color = (254, 231, 21, 255)
+        self.background_color = (16, 24, 32, 255)
+        self.screen.fill(self.background_color)
         pg.display.flip()
 
         pygame.freetype.init()
@@ -57,7 +59,7 @@ class Window(object):
         self.line_height = self.ascender - self.descender
 
         self.write_lines(
-            "Press 'q' or 'ESCAPE' or close this window to quit\n"
+            "\nPress 'q' or 'ESCAPE' or close this window to quit\n"
             "Press 'SPACE' to play / pause\n"
             "Press 'r' to rewind (restart from the beginning)\n"
             "Press 'f' to fade music out over 5 seconds\n\n"
@@ -85,10 +87,11 @@ class Window(object):
         for i, text_line in enumerate(text.split("\n"), line):
             y = i * line_height + self.ascender
             # Clear the line first.
-            self.screen.fill(pg.Color("white"), (0, i * line_height, w, line_height))
-
+            self.screen.fill(
+                self.background_color, (0, i * line_height, w, line_height)
+            )
             # Write new text.
-            self.font.render_to(self.screen, (15, y), text_line, pg.Color("blue"))
+            self.font.render_to(self.screen, (15, y), text_line, self.text_color)
         pg.display.flip()
 
 
@@ -136,9 +139,11 @@ def main(file_path):
                         # when finished get_busy() will return 0.
                     elif key in [pg.K_q, pg.K_ESCAPE]:
                         pg.mixer.music.stop()
+                        paused = False
                         # get_busy() will now return 0.
                 elif e.type == pg.QUIT:
                     pg.mixer.music.stop()
+                    paused = False
                     # get_busy() will now return 0.
             pg.time.set_timer(pg.USEREVENT, 0)
         finally:
