@@ -61,7 +61,7 @@ class Window(object):
         self.write_lines(
             "\nPress 'q' or 'ESCAPE' or close this window to quit\n"
             "Press 'SPACE' to play / pause\n"
-            "Press 'r' to rewind (restart from the beginning)\n"
+            "Press 'r' to rewind to the beginning (restart)\n"
             "Press 'f' to fade music out over 5 seconds\n\n"
             "Window will quit automatically when music ends\n",
             0,
@@ -130,21 +130,27 @@ def main(file_path):
                             paused = True
                             win.write_lines("Paused ...\n", -1)
                     elif key == pg.K_r:
-                        pg.mixer.music.rewind()
+                        if file_path[-3:].lower() in ("ogg", "mp3", "mod"):
+                            status = "Rewound."
+                            pg.mixer.music.rewind()
+                        else:
+                            status = "Restarted."
+                            pg.mixer.music.play()
                         if paused:
-                            win.write_lines("Rewound.", -1)
+                            pg.mixer.music.pause()
+                            win.write_lines(status, -1)
                     elif key == pg.K_f:
                         win.write_lines("Fading out ...\n", -1)
                         pg.mixer.music.fadeout(5000)
-                        # when finished get_busy() will return 0.
+                        # when finished get_busy() will return False.
                     elif key in [pg.K_q, pg.K_ESCAPE]:
-                        pg.mixer.music.stop()
                         paused = False
-                        # get_busy() will now return 0.
+                        pg.mixer.music.stop()
+                        # get_busy() will now return False.
                 elif e.type == pg.QUIT:
-                    pg.mixer.music.stop()
                     paused = False
-                    # get_busy() will now return 0.
+                    pg.mixer.music.stop()
+                    # get_busy() will now return False.
             pg.time.set_timer(pg.USEREVENT, 0)
         finally:
             pg.mixer.quit()

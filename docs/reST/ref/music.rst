@@ -80,6 +80,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sg:`rewind() -> None`
 
    Resets playback of the current music to the beginning.
+   .. note:: rewind does not support all music file formats. This is a limitation in the SDL_mixer, which states rewind only supports ``MOD``, ``OGG``, ``MP3`` and Native MIDI files. 
 
    .. ## pygame.mixer.music.rewind ##
 
