@@ -50,8 +50,8 @@ Resist the temptation to ask for direct help online when
 you run into trouble.  Instead, fire up the interpreter and play with the 
 problem for a few hours, or use print statements and debugging tools to find out
 what's going wrong in your code.  Get into the habit of looking things up in the 
-official _Python Docs, and Googling error messages to figure out what they 
-mean.
+official `Python documentation`_, and Googling error messages to figure out what 
+they mean.
 
 This may sound incredibly dull, but the confidence you'll gain through your
 familiarity with python will work wonders when it comes time to write your
@@ -78,29 +78,28 @@ draw lines on it, fill parts of it with color, copy images to and from it, and
 set or read individual pixel colors on it.  A surface can be any size (within
 reason) and you can have as many of them as you like (again, within reason).
 One surface is special -- the one you create with
-``pygame.display.set_mode()``.  This 'display surface' represents the screen;
-whatever you do to it will appear on the user's screen.  You can only have one
-of these -- that's an SDL limitation, not a pygame one.
+:func:`pygame.display.set_mode()`.  This 'display surface' represents the screen;
+whatever you do to it will appear on the user's screen.
 
 So how do you create surfaces?  As mentioned above, you create the special
 'display surface' with ``pygame.display.set_mode()``.  You can create a surface
-that contains an image by using ``image.load()``, or you can make a surface
-that contains text with ``font.render()``.  You can even create a surface that
-contains nothing at all with ``Surface()``.
+that contains an image by using :func:`pygame.image.load()`, or you can make a surface
+that contains text with :func:`pygame.font.Font.render()`.  You can even create a surface that
+contains nothing at all with :func:`pygame.Surface()`.
 
-Most of the surface functions are not critical. Just learn ``blit()``,
-``fill()``, ``set_at()`` and ``get_at()``, and you'll be fine.
+Most of the surface functions are not critical. Just learn :meth:`.Surface.blit()`,
+:meth:`.Surface.fill()`, :meth:`.Surface.set_at()` and :meth:`.Surface.get_at()`, and you'll be fine.
 
 
-Use surface.convert().
+Use Surface.convert().
 ----------------------
 
-When I first read the documentation for ``surface.convert()``, I didn't think
+When I first read the documentation for :meth:`.Surface.convert()`, I didn't think
 it was something I had to worry about. 'I only use PNGs, therefore everything I
 do will be in the same format. So I don't need ``convert()``';. It turns out I
 was very, very wrong.
 
-The 'format' that ``convert()`` refers to isn't the *file* format (ie PNG,
+The 'format' that ``convert()`` refers to isn't the *file* format (i.e. PNG,
 JPEG, GIF), it's what's called the 'pixel format'.  This refers to the
 particular way that a surface records individual colors in a specific pixel.
 If the surface format isn't the same as the display format, SDL will have to
@@ -109,7 +108,7 @@ worry too much about the explanation; just note that ``convert()`` is necessary
 if you want to get any kind of speed out of your blits.
 
 How do you use convert? Just call it after creating a surface with the
-``image.load()`` function. Instead of just doing::
+:func:`.image.load()` function. Instead of just doing::
 
     surface = pygame.image.load('foo.png')
 
@@ -128,27 +127,33 @@ output file had the same pixel format as the input file.  If you're writing a
 game, you need speed.  Use ``convert()``.
 
 
-Some advice you'll encounter is outdated, obsolete, or optional.
-----------------------------------------------------------------
+Be wary of outdated, obsolete, and optional advice.
+---------------------------------------------------
 
- **Dirty Rects**
+Pygame has been around since the early 2000s, and a lot has changed since then --
+both within the framework itself and within the broader computing landscape as a 
+whole. Make sure to check the dates on materials you read (including this guide!), 
+and take older advice with a grain of salt. Here are some common things that 
+stick out to me:
+
+**Dirty Rects**
 
 When you read older bits of pygame documentation or guides online, you may see 
-some emphasis on only updating portions of the screen that are dirty for the 
+some emphasis on only updating portions of the screen that are dirty, for the 
 sake of performance (in this context, "dirty" means the region has changed since 
 the previous frame was drawn).  
 
-Generally this entails calling ``display.update(dirty_rects)`` instead of 
-``display.flip()``, not having scrolling backgrounds, or even not clearing the 
-screen every frame because otherwise pygame supposedly can't handle it.  Some of 
-pygame's API is designed to support this paradigm as well (e.g. 
-``pygame.sprite.RenderUpdates``), which made a lot of sense in the early 2000s 
-when pygame was first released.
+Generally this entails calling :func:`pygame.display.update()` (with a list of 
+rects) instead of :func:`pygame.display.flip()`, not having scrolling backgrounds, 
+or even not filling the screen with a background color every frame because pygame 
+supposedly can't handle it.  Some of pygame's API is designed to support this 
+paradigm as well (e.g. :func:`pygame.sprite.RenderUpdates`), which made a lot of 
+sense in the early years of pygame.
 
-In the current year though, even modest computers are powerful enough to refresh 
+In the present day though, even modest computers are powerful enough to refresh 
 the entire display once per frame at 60 FPS and beyond.  You can have a moving 
 camera, or dynamic backgrounds and your game should run totally fine.  CPUs are 
-more powerful nowadays, and you can use `display.flip()` without fear.
+more powerful nowadays, and you can use ``display.flip()`` without fear.
 
 That being said though, there are still plenty of ways to accidentally tank your 
 game's performance with poorly optimized rendering logic.  For example, even on 
@@ -156,19 +161,23 @@ modern hardware it's probably too slow to call ``set_at`` once per pixel on the
 display surface.  Being mindful of performance is still something you'll have to 
 do.
 
- **HWSURFACE and DOUBLEBUF** 
+**HWSURFACE and DOUBLEBUF** 
 
-These ``display.set_mode()`` flags do nothing in pygame 2.  There's no reason to 
-use them anymore.
+These :func:`.display.set_mode()` flags do nothing in pygame versions 2.0.0 and 
+later (you can check the docs if you don't believe me)!  There's no reason to 
+use them anymore.  Even in pygame 1, their effects were pretty nuanced and 
+generally misunderstood by most pygame users.  They were never magic speed-up 
+flags, unfortunately. 
 
- ** The Sprite class**
+**The Sprite class**
  
-You don't need to use the built-in Sprite or Group classes if you don't want to.  
-If you watch a lot of tutorials it may seem like Sprite is the fundamental 
-"GameObject" of pygame, from which all other objects must derive, but in reality 
-it's pretty much just a wrapper around a rect and a surface, with some 
-convenience methods.  You may find it more intuitive (and fun) to design your 
-game's core classes from scratch.
+You don't need to use the built-in :class:`.Sprite` or :class:`.Group` classes 
+if you don't want to.  In a lot of tutorials, it may seem like ``Sprite`` is the 
+fundamental "GameObject" of pygame, from which all other objects must derive, 
+but in reality it's pretty much just a wrapper around a ``Rect`` and a 
+``Surface``, with some additional convenience methods.  You may find it 
+more intuitive (and fun) to write your game's core logic and classes from 
+scratch.
 
 
 There is NO rule six.
@@ -200,8 +209,8 @@ Rects are your friends.
 -----------------------
 
 Pete Shinners' wrapper may have cool alpha effects and fast blitting speeds,
-but I have to admit my favorite part of pygame is the lowly ``Rect`` class.  A
-rect is simply a rectangle -- defined only by the position of its top left
+but I have to admit my favorite part of pygame is the lowly :class:`.Rect` class.  
+A rect is simply a rectangle -- defined only by the position of its top left
 corner, its width, and its height.  Many pygame functions take rects as
 arguments, and they also take 'rectstyles', a sequence that has the same values
 as a rect. So if I need a rectangle that defines the area between 10, 20 and
@@ -256,7 +265,7 @@ Pygame's event system is kind of tricky.  There are actually two different ways
 to find out what an input device (keyboard, mouse or joystick) is doing.
 
 The first is by directly checking the state of the device.  You do this by
-calling, say, ``pygame.mouse.get_pos()`` or ``pygame.key.get_pressed()``.
+calling, say, :func:`pygame.mouse.get_pos()` or :func:`pygame.key.get_pressed()`.
 This will tell you the state of that device *at the moment you call the
 function.*
 
@@ -319,15 +328,16 @@ will avoid this.
 Colorkey vs. Alpha.
 -------------------
 
-There's a lot of confusion around these two techniques, and much of it comes from the terminology used.
+There's a lot of confusion around these two techniques, and much of it comes 
+from the terminology used.
 
 'Colorkey blitting' involves telling pygame that all pixels of a certain color
 in a certain image are transparent instead of whatever color they happen to be.
 These transparent pixels are not blitted when the rest of the image is blitted,
 and so don't obscure the background.  This is how we make sprites that aren't
-rectangular in shape.  Simply call ``surface.set_colorkey(color)``, where
-color is an RGB tuple -- say (0,0,0). This would make every pixel in the source
-image transparent instead of black.
+rectangular in shape.  Simply call :meth:`.Surface.set_colorkey()`, and pass in 
+an RGB tuple -- say (0,0,0). This would make every pixel in the source image 
+transparent instead of black.
 
 'Alpha' is different, and it comes in two flavors. 'Image alpha' applies to the
 whole image, and is probably what you want.  Properly known as 'translucency',
@@ -349,23 +359,25 @@ editor with a special *alpha channel*.  It's complicated -- don't use it
 yet.
 
 
-Software architecture, design patterns, and games
-------------------------------------------------
+Software architecture, design patterns, and games.
+--------------------------------------------------
 
 You may reach a point where you're comfortable writing code, you're able to solve
 complex problems without assistance, you understand how to use most of pygame's 
-modules, and yet, as you work on larger projects they tend to get messier and harder
-to continue as time goes on.  Fixing bugs in one place causes new bugs to appear 
-elsewhere, figuring out *where* code should go becomes a reoccurring issue, and
-adding new things often requires you to rework many other things, and so on. 
-Finally, you decide to cut your losses and start fresh on something new.  This is 
-a common issue and it can be frustrating -- on the one hand, your skills are 
-improving, and yet you aren't able to finish the games you start due to a 
-somewhat invisible problem.
+modules, and yet, as you work on larger projects they always seem to get messier 
+and harder to maintain as time goes on.  This can manifest in many ways -- for 
+example, fixing bugs in one place might always seem to create new bugs elsewhere, 
+figuring out *where* code should go might become a challenge, adding new 
+things might frequently require you to rewrite many other things, and so on. 
+Finally, you decide to cut your losses and start fresh on something new.  
+
+This is a common issue and it can be frustrating -- on the one hand, your 
+programming skills are improving, and yet you aren't able to finish the games 
+you start due to somewhat nebulous organizational problems. 
 
 This brings us to the concept of software architecture and design patterns. You 
 may be familiar with pygame's "standard" base template (there are many equivalent
-variations of this, so don't stress about the small details too much):
+variations of this, so don't stress about the small details too much)::
 
     import pygame
 
@@ -385,7 +397,7 @@ variations of this, so don't stress about the small details too much):
         # Do logical updates here.
         # ...
         
-        screen.fill("purple")  # Clear the last frame's graphics
+        screen.fill("purple")  # Fill the display with a solid color
         
         # Render the graphics here.
         # ...
@@ -404,7 +416,7 @@ bugs related to objects updating and rendering concurrently, which is nice).
 
 It turns out that there are many design patterns like this that are used frequently 
 in games and in software development at large.  For a great resource on this 
-specifically for games, I highly recommend Game Programming Patterns_, a short 
+specifically for games, I highly recommend `Game Programming Patterns`_, a short 
 free, e-book on the topic.  It covers a bunch of useful patterns and concrete situations
 where you might want to employ them.  It won't instantly make you a better coder,
 but learning some theory about software architecture can go a long way towards 
@@ -441,10 +453,11 @@ Now, go write that game!
 Repository, a showcase for community-submitted python game code.  He is also
 the author of Twitch, an entirely average pygame arcade game.*
 
+*This guide was substantially updated in October 2021.*
+
 .. _Pygame: https://www.pygame.org/
 .. _SDL: http://libsdl.org
-.. _Python Documentation: https://docs.python.org/3/
-.. _SolarWolf: https://www.pygame.org/shredwheat/solarwolf/index.shtml
+.. _Python documentation: https://docs.python.org/3/
 .. _Game Programming Patterns: https://gameprogrammingpatterns.com/contents.html
 .. _Why Pygame is Slow: https://blubberquark.tumblr.com/post/630054903238262784/why-pygame-is-slow
 .. _cProfile: https://docs.python.org/3/library/profile.html
