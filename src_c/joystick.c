@@ -261,8 +261,72 @@ joy_get_power_level(PyObject *self, PyObject *args)
     return Text_FromUTF8(leveltext);
 }
 
-#endif
+static PyObject *
+joy_rumble(pgJoystickObject *self, PyObject *args, PyObject *kwargs)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 9)
 
+    SDL_Joystick *joy = self->joy;
+    float low;
+    float high;
+    uint32_t duration;
+    int res;
+
+    char *keywords[] = {
+        "low_frequency",
+        "high_frequency",
+        "duration",
+        NULL,
+    };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "ffI", keywords, &low,
+                                     &high, &duration)) {
+        return NULL;
+    }
+
+    JOYSTICK_INIT_CHECK();
+    if (!joy) {
+        return RAISE(pgExc_SDLError, "Joystick not initialized");
+    }
+
+    if (low < 0) {
+        low = 0.f;
+    }
+    else if (low > 1.f) {
+        low = 1.f;
+    }
+
+    if (high < 0) {
+        high = 0.f;
+    }
+    else if (high > 1.f) {
+        high = 1.f;
+    }
+    low *= 0xFFFF;
+    high *= 0xFFFF;
+
+    res = SDL_JoystickRumble(joy, low, high, duration);
+    if (res == -1) {
+        Py_RETURN_FALSE;
+    }
+    Py_RETURN_TRUE;
+
+#else
+    Py_RETURN_FALSE;
+#endif
+}
+
+static PyObject *
+joy_stop_rumble(pgJoystickObject *self)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 9)
+    SDL_Joystick *joy = self->joy;
+    SDL_JoystickRumble(joy, 0, 0, 1);
+#endif
+    Py_RETURN_NONE;
+}
+
+#endif /*if IS_SDLv2*/
 
 static PyObject *
 joy_get_name(PyObject *self, PyObject *args)
@@ -461,6 +525,8 @@ static PyMethodDef joy_methods[] = {
     {"get_instance_id", joy_get_instance_id, METH_NOARGS, DOC_JOYSTICKGETINSTANCEID},
     {"get_guid", joy_get_guid, METH_NOARGS, DOC_JOYSTICKGETGUID},
     {"get_power_level", joy_get_power_level, METH_NOARGS, DOC_JOYSTICKGETPOWERLEVEL},
+    {"rumble", (PyCFunction)joy_rumble, METH_VARARGS | METH_KEYWORDS, DOC_JOYSTICKRUMBLE},
+    {"stop_rumble", (PyCFunction)joy_stop_rumble, METH_NOARGS, DOC_JOYSTICKSTOPRUMBLE},
 #endif
     {"get_name", joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
 
