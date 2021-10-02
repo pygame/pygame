@@ -97,10 +97,10 @@ def get_urls(x86=True, x64=True, sdl2=True):
             'https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip',
             '9097148f4529cf19f805ccd007618dec280f0ecc',
             ],
-            [
-            'https://www.ijg.org/files/jpegsr9d.zip',
-            'ed10aa2b5a0fcfe74f8a6f7611aeb346b06a1f99',
-            ],
+            #[
+            #'https://www.ijg.org/files/jpegsr9d.zip',
+            #'ed10aa2b5a0fcfe74f8a6f7611aeb346b06a1f99',
+            #],
         ])
     if x86:
         url_sha1.append([
