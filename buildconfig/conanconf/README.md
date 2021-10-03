@@ -21,9 +21,6 @@ A config script which uses the cross platform "conan" package manager for managi
 # install conan
 python3 -m pip install conan
 
-# add the bincrafters conan repository.
-conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-
 # add the pygame conan repository.
 conan remote add pygame-repo https://api.bintray.com/conan/pygame/pygame
 

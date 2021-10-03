@@ -73,10 +73,10 @@ def main(sdl2=True):
     conanbuildinfo = json.load(open(conanbuildinfo_json))
 
     DEPS = [
-        Dependency(conanbuildinfo, "SDL", "sdl2"),
-        Dependency(conanbuildinfo, "FONT", "sdl2_ttf"),
-        Dependency(conanbuildinfo, "IMAGE", "sdl2_image"),
-        Dependency(conanbuildinfo, "MIXER", "sdl2_mixer"),
+        Dependency(conanbuildinfo, "SDL", "sdl"),
+        Dependency(conanbuildinfo, "FONT", "sdl_ttf"),
+        Dependency(conanbuildinfo, "IMAGE", "sdl_image"),
+        # Dependency(conanbuildinfo, "MIXER", "sdl_mixer"),
         Dependency(conanbuildinfo, "PNG", "libpng"),
         Dependency(conanbuildinfo, "JPEG", "libjpeg"),
         Dependency(conanbuildinfo, "FREETYPE", "freetype"),
