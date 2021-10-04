@@ -1,3 +1,5 @@
 setuptools
 wheel
 numpy >= 1.6.2
+requests
+Sphinx
