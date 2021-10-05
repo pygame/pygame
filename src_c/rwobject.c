@@ -741,12 +741,6 @@ _rwops_from_pystr(PyObject *obj)
         char* ext = NULL;
         char* extension = NULL;
 
-        //longest extension is 4 chars, plus NULL at end
-        extension = malloc(sizeof(char)*5);
-        if (extension == NULL) {
-            return (SDL_RWops*)PyErr_NoMemory();
-        }
-
         oencoded = pg_EncodeString(obj, "UTF-8", NULL, NULL);
         if (oencoded == NULL) {
             return NULL;
@@ -754,9 +748,13 @@ _rwops_from_pystr(PyObject *obj)
         if (oencoded != Py_None) {
             encoded = Bytes_AS_STRING(oencoded);
             rw = SDL_RWFromFile(encoded, "rb");
-            ext = strrchr(encoded, '.');
-            if (ext) {
+            ext = strrchr(encoded, '.');        
+            if (ext && strlen(ext) > 1) {
                 ext++;
+                extension = malloc(strlen(ext)+1);
+                if (extension == NULL) {
+                    return (SDL_RWops*)PyErr_NoMemory();
+                }
                 strcpy(extension, ext);
             }
         }
