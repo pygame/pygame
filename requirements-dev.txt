@@ -1,6 +1,6 @@
-setuptools
-wheel
-numpy >= 1.6.2
-requests
-Sphinx==3.5.4
-cython
+setuptools      # needed to setup
+wheel           # needed to build wheels
+numpy >= 1.6.2  # optional in a basic pygame install, probably needed for development
+requests        # might be needed to download some stuff
+Sphinx==3.5.4   # needed to build docs
+cython          # needed to build pygame
