@@ -3,3 +3,4 @@ wheel
 numpy >= 1.6.2
 requests
 Sphinx==3.5.4
+cython
