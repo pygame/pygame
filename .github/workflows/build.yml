@@ -70,6 +70,17 @@ jobs:
             tar xvzf mac_bundled.tar.gz
             rm mac_bundled.tar.gz
             sudo cp ./local_redist2/bin/sdl2-config /usr/local/bin/sdl2-config
+            sudo cp ./local_redist2/bin/pkg-config /usr/local/bin/pkg-config
+            sudo cp ./local_redist2/bin/libpng* /usr/local/bin
+            sudo cp ./local_redist2/bin/tiff* /usr/local/bin
+            sudo cp ./local_redist2/bin/png* /usr/local/bin
+            sudo cp ./local_redist2/bin/mpg* /usr/local/bin
+            sudo cp ./local_redist2/bin/lz* /usr/local/bin
+            sudo cp ./local_redist2/bin/jpeg* /usr/local/bin
+            sudo cp ./local_redist2/bin/d* /usr/local/bin
+            sudo cp ./local_redist2/bin/fax* /usr/local/bin
+            sudo cp ./local_redist2/bin/flac* /usr/local/bin
+            sudo cp -R ./local_redist2/opt /opt
             sudo cp -R ./local_redist2/lib /usr/local/lib
             sudo cp -R ./local_redist2/include /usr/local/include
             sudo cp -R ./local_redist2/Cellar /usr/local/Cellar
@@ -108,6 +119,17 @@ jobs:
             tar xvzf mac_bundled.tar.gz
             rm mac_bundled.tar.gz
             sudo cp ./local_redist2/bin/sdl2-config /usr/local/bin/sdl2-config
+            sudo cp ./local_redist2/bin/pkg-config /usr/local/bin/pkg-config
+            sudo cp ./local_redist2/bin/libpng* /usr/local/bin
+            sudo cp ./local_redist2/bin/tiff* /usr/local/bin
+            sudo cp ./local_redist2/bin/png* /usr/local/bin
+            sudo cp ./local_redist2/bin/mpg* /usr/local/bin
+            sudo cp ./local_redist2/bin/lz* /usr/local/bin
+            sudo cp ./local_redist2/bin/jpeg* /usr/local/bin
+            sudo cp ./local_redist2/bin/d* /usr/local/bin
+            sudo cp ./local_redist2/bin/fax* /usr/local/bin
+            sudo cp ./local_redist2/bin/flac* /usr/local/bin
+            sudo cp -R ./local_redist2/opt /opt
             sudo cp -R ./local_redist2/lib /usr/local/lib
             sudo cp -R ./local_redist2/include /usr/local/include
             sudo cp -R ./local_redist2/Cellar /usr/local/Cellar
