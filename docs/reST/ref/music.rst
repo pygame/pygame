@@ -50,27 +50,29 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 .. function:: play
 
    | :sl:`Start the playback of the music stream`
-   | :sg:`play(loops=0, start=0.0, fade_ms = 0) -> None`
+   | :sg:`play(loops=0, start=0.0, fade_ms=0) -> None`
 
    This will play the loaded music stream. If the music is already playing it
    will be restarted.
    
-   ``loops`` is an optional integer argument, which is ``0`` by default, it 
-   tells how many times to repeat the music. The music repeats indefinitely if 
+   ``loops`` is an optional integer argument, which is ``0`` by default, which 
+   indicates how many times to repeat the music. The music repeats indefinitely if 
    this argument is set to ``-1``. 
    
    ``start`` is an optional float argument, which is ``0.0`` by default, which 
-   denotes the position in time, the music starts playing from. The starting 
+   denotes the position in time from which the music starts playing. The starting 
    position depends on the format of the music played. ``MP3`` and ``OGG`` use 
-   the position as time in seconds. For mp3s the start time position selected 
-   may not be accurate as things like variable bit rate encoding and ID3 tags 
-   can throw off the timing calculations. For ``MOD``  music it is the pattern 
+   the position as time in seconds. For ``MP3`` files the start time position
+   selected may not be accurate as things like variable bit rate encoding and ID3
+   tags can throw off the timing calculations. For ``MOD``  music it is the pattern 
    order number. Passing a start position will raise a NotImplementedError if 
    the start position cannot be set.
 
    ``fade_ms`` is an optional integer argument, which is ``0`` by default,
-   makes the music start playing at ``0`` volume and fade up to full volume over 
-   the given time. The sample may end before the fade-in is complete.
+   which denotes the period of time (in milliseconds) over which the music
+   will fade up from volume level ``0.0`` to full volume (or the volume level
+   previously set by :func:`set_volume`). The sample may end before the fade-in
+   is complete. If the music is already streaming ``fade_ms`` is ignored.
    
    .. versionchanged:: 2.0.0 Added optional ``fade_ms`` argument
 
@@ -81,11 +83,13 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sl:`restart music`
    | :sg:`rewind() -> None`
 
-   Resets playback of the current music to the beginning.
+   Resets playback of the current music to the beginning. If :func:`pause` has
+   previoulsy been used to pause the music, the music will remain paused.
    
    .. note:: :func:`rewind` supports a limited number of file types and notably
              ``WAV`` files are NOT supported. For unsupported file types use :func:`play`
-             which will restart the music if it's already playing.
+             which will restart the music that's already playing (note that this
+             will start the music playing again even if previously paused).
 
    .. ## pygame.mixer.music.rewind ##
 
@@ -106,7 +110,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sg:`pause() -> None`
 
    Temporarily stop playback of the music stream. It can be resumed with the
-   ``pygame.mixer.music.unpause()`` function.
+   :func:`unpause` function.
 
    .. ## pygame.mixer.music.pause ##
 
@@ -144,7 +148,10 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    Set the volume of the music playback.
    
    The ``volume`` argument is a float between ``0.0`` and ``1.0`` that sets 
-   volume. When new music is loaded the volume is reset to full volume.
+   the volume level. When new music is loaded the volume is reset to full
+   volume. If ``volume`` is a negative value it will be ignored and the
+   volume will remain set at the current level. If the ``volume`` argument
+   is greater than ``1.0``, the volume will be set to ``1.0``.
 
    .. ## pygame.mixer.music.set_volume ##
 

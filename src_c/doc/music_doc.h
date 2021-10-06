@@ -2,7 +2,7 @@
 #define DOC_PYGAMEMIXERMUSIC "pygame module for controlling streamed audio"
 #define DOC_PYGAMEMIXERMUSICLOAD "load(filename) -> None\nload(fileobj, namehint="") -> None\nLoad a music file for playback"
 #define DOC_PYGAMEMIXERMUSICUNLOAD "unload() -> None\nUnload the currently loaded music to free up resources"
-#define DOC_PYGAMEMIXERMUSICPLAY "play(loops=0, start=0.0, fade_ms = 0) -> None\nStart the playback of the music stream"
+#define DOC_PYGAMEMIXERMUSICPLAY "play(loops=0, start=0.0, fade_ms=0) -> None\nStart the playback of the music stream"
 #define DOC_PYGAMEMIXERMUSICREWIND "rewind() -> None\nrestart music"
 #define DOC_PYGAMEMIXERMUSICSTOP "stop() -> None\nstop the music playback"
 #define DOC_PYGAMEMIXERMUSICPAUSE "pause() -> None\ntemporarily stop music playback"
@@ -35,7 +35,7 @@ pygame.mixer.music.unload
 Unload the currently loaded music to free up resources
 
 pygame.mixer.music.play
- play(loops=0, start=0.0, fade_ms = 0) -> None
+ play(loops=0, start=0.0, fade_ms=0) -> None
 Start the playback of the music stream
 
 pygame.mixer.music.rewind
