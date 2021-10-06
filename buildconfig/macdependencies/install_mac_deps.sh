@@ -58,6 +58,8 @@ bash sndfile/build-sndfile.sh
 # bash fluidsynth/build-fluidsynth.sh
 bash sdl_libs/build-sdl2-libs.sh
 
+bash harfbuzz/build-harfbuzz.sh
+
 bash portmidi/build-portmidi.sh
 # strangely somehow the built pygame links against the libportmidi.dylib here:
 cp /usr/local/lib/libportmidi.dylib /Users/runner/work/pygame/pygame/libportmidi.dylib
