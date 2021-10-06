@@ -29,7 +29,9 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    the music playing.
 
    If you are loading from a file object, the namehint parameter can be used to specify
-   the type of music data in the object. For example: :code:`load(fileobj, "mp3")`.
+   the type of music data in the object. For example: :code:`load(fileobj, "ogg")`.
+
+   .. versionchanged:: 2.0.2 Added optional ``namehint`` argument
 
    .. ## pygame.mixer.music.load ##
 
@@ -211,12 +213,16 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    | :sl:`queue a sound file to follow the current`
    | :sg:`queue(filename) -> None`
+   | :sg:`queue(fileobj, namehint="") -> None`
 
    This will load a sound file and queue it. A queued sound file will begin as
    soon as the current sound naturally ends. Only one sound can be queued at a
    time. Queuing a new sound while another sound is queued will result in the
    new sound becoming the queued sound. Also, if the current sound is ever
    stopped or changed, the queued sound will be lost.
+
+   If you are loading from a file object, the namehint parameter can be used to specify
+   the type of music data in the object. For example: :code:`queue(fileobj, "ogg")`.
 
    The following example will play music by Bach six times, then play music by
    Mozart once:
@@ -226,6 +232,8 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
        pygame.mixer.music.load('bach.ogg')
        pygame.mixer.music.play(5)        # Plays six times, not five!
        pygame.mixer.music.queue('mozart.ogg')
+
+   .. versionchanged:: 2.0.2 Added optional ``namehint`` argument
 
    .. ## pygame.mixer.music.queue ##
 
