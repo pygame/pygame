@@ -10,6 +10,6 @@ sha512sum -c png.sha512
 
 tar xzf ${PNG}.tar.gz
 cd $PNG
-./configure
+./configure --with-zlib-prefix=/usr/local/
 make
 make install

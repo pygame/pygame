@@ -32,36 +32,49 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        os: [windows-latest, macos-10.15]
+        # windows is covered by appveyor for now
+        os: [macos-10.15]
+        # os: [windows-latest, macos-10.15]
+
+        # separate versions of cibuildwheel
+        cibuildver: ['CIBuildWheel v1', 'CIBuildWheel v2']
 
         # seperate into matrix for concurrency. 
-        pyver: ['cp27', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'pp27', 'pp36', 'pp37']
+        # pyver: ['cp27', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'pp27', 'pp36', 'pp37']
 
         # exclude py2 builds on windows, because they don't work due to the
         # fact that py2 builds use old compiler. There is a workaround for this
         # but is not implemented here because Appveyor can already handle py2
         # on windows
-        exclude:
-          - os: windows-latest
-            pyver: 'cp27'
-          - os: windows-latest
-            pyver: 'pp27'
+        # exclude:
+        #   - os: windows-latest
+        #     pyver: 'cp27'
+        #   - os: windows-latest
+        #     pyver: 'pp27'
 
     steps:
       - uses: actions/checkout@v2
 
       # use cibuildwheel v1 to build on older python versions
       - name: Build wheels with CIBuildWheel v1
-        if: matrix.pyver == 'cp27' || matrix.pyver == 'cp35' || matrix.pyver == 'pp27' || matrix.pyver == 'pp36'
+        # if: matrix.pyver == 'cp27' || matrix.pyver == 'cp35' || matrix.pyver == 'pp27' || matrix.pyver == 'pp36'
+        if: matrix.cibuildver == 'CIBuildWheel v1'
         uses: pypa/cibuildwheel@v1.12.0
         env:
           SDL_VIDEODRIVER: "dummy"
           SDL_AUDIODRIVER: "disk"
 
-          CIBW_BUILD: ${{ matrix.pyver }}-*
+          # CIBW_BUILD: ${{ matrix.pyver }}-*
+          CIBW_BUILD: cp27-* cp35-* pp27-* pp36-*
 
           # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install requests numpy && brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf zlib freetype portmidi
+          CIBW_BEFORE_BUILD_MACOS: |
+            brew install coreutils
+            cd buildconfig/macdependencies
+            ./install_mac_deps.sh
+            cd ../..
+            pip install requests numpy
+
           CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
 
           CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
@@ -71,13 +84,15 @@ jobs:
 
       # use latest cibuildwheel for newer python versions
       - name: Build wheels with CIBuildWheel v2
-        if: matrix.pyver != 'cp27' && matrix.pyver != 'cp35' && matrix.pyver != 'pp27' && matrix.pyver != 'pp36'
+        # if: matrix.pyver != 'cp27' && matrix.pyver != 'cp35' && matrix.pyver != 'pp27' && matrix.pyver != 'pp36'
+        if: matrix.cibuildver == 'CIBuildWheel v2'
         uses: pypa/cibuildwheel@v2.1.2
         env:
           SDL_VIDEODRIVER: "dummy"
           SDL_AUDIODRIVER: "disk"
 
-          CIBW_BUILD: ${{ matrix.pyver }}-*
+          # CIBW_BUILD: ${{ matrix.pyver }}-*
+          CIBW_BUILD: cp36-* cp37-* cp38-* cp39-* cp310-* pp37-*
 
           # Build universal2 wheels too on an Intel runner.
           # Note that the `arm64` part of the `universal2` wheel cannot be 
@@ -86,7 +101,13 @@ jobs:
           # CIBW_ARCHS_MACOS: "x86_64 universal2"
 
           # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install requests numpy && brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf zlib freetype portmidi
+          CIBW_BEFORE_BUILD_MACOS: |
+            brew install coreutils
+            cd buildconfig/macdependencies
+            ./install_mac_deps.sh
+            cd ../..
+            pip install requests numpy
+
           CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
 
           CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
