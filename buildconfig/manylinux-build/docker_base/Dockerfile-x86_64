@@ -67,6 +67,10 @@ ADD sdl_libs /sdl_build/
 #RUN ["bash", "/sdl_build/build-sdl-libs.sh"]
 RUN ["bash", "/sdl_build/build-sdl2-libs.sh"]
 
+# Build and install libmodplug
+ADD libmodplug /libmodplug_build/
+RUN ["bash", "/libmodplug_build/build-libmodplug.sh"]
+
 ENV MAKEFLAGS=
 
 # Build and install SDL and portmidi

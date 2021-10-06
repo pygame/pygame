@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-cd /portmidi_build/
+cd $(dirname `readlink -f "$0"`)
 
 SRC_ZIP="portmidi-src-217.zip"
 
@@ -24,7 +24,10 @@ fi
 
 cd portmidi/
 patch -p1 < ../no-java.patch
+patch -p1 < ../mac.patch
 #cmake -DJAVA_JVM_LIBRARY=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/server/libjvm.so .
-cmake -DCMAKE_BUILD_TYPE=Release .
+mkdir buildportmidi
+cd buildportmidi
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 make install

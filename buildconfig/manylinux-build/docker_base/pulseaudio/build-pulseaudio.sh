@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-cd /pulseaudio_build/
+cd $(dirname `readlink -f "$0"`)
 PULSEFILE="pulseaudio-14.0"
 
 curl -sL https://www.freedesktop.org/software/pulseaudio/releases/${PULSEFILE}.tar.xz > ${PULSEFILE}.tar.xz
