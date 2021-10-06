@@ -189,9 +189,9 @@ fontmodule_init(PyObject *self)
         if (TTF_Init())
             return RAISE(pgExc_SDLError, SDL_GetError());
 
-      font_initialized = 1;
+        font_initialized = 1;
     }
-    return PyBool_FromLong(font_initialized);
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -282,7 +282,6 @@ font_setter_bold(PyObject *self, PyObject *value, void *closure)
     return 0;
 }
 
-
 /* Implements get_bold() */
 static PyObject *
 font_get_bold(PyObject *self, PyObject *args)
@@ -359,7 +358,6 @@ font_set_italic(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-
 /* Implements getter for the underline attribute */
 static PyObject *
 font_getter_underline(PyObject *self, void *closure)
@@ -391,7 +389,6 @@ font_get_underline(PyObject *self, PyObject *args)
 {
     return _font_get_style_flag_as_py_bool(self, TTF_STYLE_UNDERLINE);
 }
-
 
 /* Implements set_underline(bool) */
 static PyObject *
@@ -436,7 +433,6 @@ font_render(PyObject *self, PyObject *args)
     }
 #endif /* PY3 */
 
-
     if (!pg_RGBAFromFuzzyColorObj(fg_rgba_obj, rgba)) {
         /* Exception already set for us */
         return NULL;
@@ -457,7 +453,8 @@ font_render(PyObject *self, PyObject *args)
         if (!pg_RGBAFromFuzzyColorObj(bg_rgba_obj, rgba)) {
             /* Exception already set for us */
             return NULL;
-        } else {
+        }
+        else {
             backg.r = rgba[0];
             backg.g = rgba[1];
             backg.b = rgba[2];
@@ -625,7 +622,7 @@ font_metrics(PyObject *self, PyObject *args)
     int advance;
     PyObject *obj;
     PyObject *listitem;
-    Uint16* buffer;
+    Uint16 *buffer;
     Uint16 ch;
     PyObject *temp;
     int surrogate;
@@ -701,8 +698,8 @@ font_metrics(PyObject *self, PyObject *args)
  * Getters and setters for the pgFontObject.
  */
 static PyGetSetDef font_getsets[] = {
-    {"bold", (getter)font_getter_bold, (setter)font_setter_bold,
-     DOC_FONTBOLD, NULL},
+    {"bold", (getter)font_getter_bold, (setter)font_setter_bold, DOC_FONTBOLD,
+     NULL},
     {"italic", (getter)font_getter_italic, (setter)font_setter_italic,
      DOC_FONTITALIC, NULL},
     {"underline", (getter)font_getter_underline, (setter)font_setter_underline,
@@ -710,22 +707,16 @@ static PyGetSetDef font_getsets[] = {
     {NULL, NULL, NULL, NULL, NULL}};
 
 static PyMethodDef font_methods[] = {
-    {"get_height", font_get_height, METH_NOARGS,
-     DOC_FONTGETHEIGHT},
-    {"get_descent", font_get_descent, METH_NOARGS,
-     DOC_FONTGETDESCENT},
-    {"get_ascent", font_get_ascent, METH_NOARGS,
-     DOC_FONTGETASCENT},
-    {"get_linesize", font_get_linesize, METH_NOARGS,
-     DOC_FONTGETLINESIZE},
+    {"get_height", font_get_height, METH_NOARGS, DOC_FONTGETHEIGHT},
+    {"get_descent", font_get_descent, METH_NOARGS, DOC_FONTGETDESCENT},
+    {"get_ascent", font_get_ascent, METH_NOARGS, DOC_FONTGETASCENT},
+    {"get_linesize", font_get_linesize, METH_NOARGS, DOC_FONTGETLINESIZE},
 
     {"get_bold", font_get_bold, METH_NOARGS, DOC_FONTGETBOLD},
     {"set_bold", font_set_bold, METH_VARARGS, DOC_FONTSETBOLD},
-    {"get_italic", font_get_italic, METH_NOARGS,
-     DOC_FONTGETITALIC},
+    {"get_italic", font_get_italic, METH_NOARGS, DOC_FONTGETITALIC},
     {"set_italic", font_set_italic, METH_VARARGS, DOC_FONTSETITALIC},
-    {"get_underline", font_get_underline, METH_NOARGS,
-     DOC_FONTGETUNDERLINE},
+    {"get_underline", font_get_underline, METH_NOARGS, DOC_FONTGETUNDERLINE},
     {"set_underline", font_set_underline, METH_VARARGS, DOC_FONTSETUNDERLINE},
 
     {"metrics", font_metrics, METH_VARARGS, DOC_FONTMETRICS},
@@ -770,6 +761,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
+    /* Incref obj, needs to be decref'd later */
     Py_INCREF(obj);
 
     if (fontsize <= 1) {
@@ -777,6 +769,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (obj == Py_None) {
+        /* default font */
         Py_DECREF(obj);
         obj = font_resource(font_defaultname);
         if (obj == NULL) {
@@ -788,24 +781,20 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             goto error;
         }
         fontsize = (int)(fontsize * .6875);
-        if (fontsize <= 1) {
+        if (fontsize <= 1)
             fontsize = 1;
-        }
-
-        oencoded = obj;
-        Py_INCREF(oencoded);
-        filename = Bytes_AS_STRING(oencoded);
-    } else {
-        /* SDL accepts UTF8 */
-        oencoded = pg_EncodeString(obj, "UTF8", NULL, NULL);
-        if (!oencoded || oencoded == Py_None) {
-            Py_XDECREF(oencoded);
-            oencoded = NULL;
-            PyErr_Clear();
-            goto fileobject;
-        }
-        filename = Bytes_AS_STRING(oencoded);
     }
+
+    /* SDL accepts UTF8 */
+    oencoded = pg_EncodeString(obj, "UTF8", NULL, NULL);
+    if (!oencoded || oencoded == Py_None) {
+        /* got a file object, or an error */
+        Py_XDECREF(oencoded);
+        oencoded = NULL;
+        PyErr_Clear();
+        goto fileobject;
+    }
+    filename = Bytes_AS_STRING(oencoded);
 
 #if FONT_HAVE_RWOPS
     /* Try opening the path through RWops first */
@@ -815,7 +804,8 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             Py_BEGIN_ALLOW_THREADS;
             font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
             Py_END_ALLOW_THREADS;
-        } else {
+        }
+        else {
             /*
             PyErr_Format(PyExc_IOError,
                                  "unable to read font file '%.1024s'",
@@ -828,12 +818,12 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
                RWops can open assets bundled with P4A on Android, but not
                font_resource() paths */
         }
-        if(font!=NULL)
+        if (font != NULL)
             goto success;
     }
 #endif
 
-    if(font==NULL) {
+    if (font == NULL) {
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = pg_open_obj(obj, "rb");
         if (test == NULL) {
@@ -917,8 +907,7 @@ error:
 }
 
 static PyTypeObject PyFont_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "pygame.font.Font",
+    PyVarObject_HEAD_INIT(NULL, 0) "pygame.font.Font",
     sizeof(PyFontObject),
     0,
     (destructor)font_dealloc,

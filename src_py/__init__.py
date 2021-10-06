@@ -141,8 +141,10 @@ except (ImportError, IOError):
 
 try:
     import pygame.cursors
+    from pygame.cursors import Cursor
 except (ImportError, IOError):
     cursors = MissingModule("cursors", urgent=1)
+    Cursor = lambda: Missing_Function
 
 try:
     import pygame.sprite
@@ -219,11 +221,11 @@ try:
 except (ImportError, IOError):
     Surface = lambda: Missing_Function
 
-
 try:
     import pygame.mask
     from pygame.mask import Mask
 except (ImportError, IOError):
+    mask = MissingModule("mask", urgent=0)
     Mask = lambda: Missing_Function
 
 try:
@@ -275,15 +277,11 @@ try:
 except (ImportError, IOError):
     mixer = MissingModule("mixer", urgent=0)
 
+# always fails, but MissingModule needs an exception to process
 try:
     import pygame.movie
 except (ImportError, IOError):
     movie = MissingModule("movie", urgent=0)
-
-# try:
-#     import pygame.movieext
-# except (ImportError,IOError):
-#     movieext=MissingModule("movieext", urgent=0)
 
 try:
     import pygame.scrap

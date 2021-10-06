@@ -158,11 +158,11 @@ def main(sdl2=False):
     ])
 
     print ('Hunting dependencies...')
-    incdirs = ['/usr/local/include']
+    incdirs = ['/usr/local/include', '/opt/homebrew/include']
     if sdl2:
-        incdirs.append('/usr/local/include/SDL2')
+        incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2', '/opt/local/include/SDL2'])
     else:
-        incdirs.append('/usr/local/include/SDL')
+        incdirs.extend(['/usr/local/include/SDL', '/opt/homebrew/include/SDL', '/opt/local/include/SDL'])
 
     incdirs.extend([
        #'/usr/X11/include',
@@ -170,7 +170,7 @@ def main(sdl2=False):
        '/opt/local/include/freetype2/freetype']
     )
     #libdirs = ['/usr/local/lib', '/usr/X11/lib', '/opt/local/lib']
-    libdirs = ['/usr/local/lib', '/opt/local/lib']
+    libdirs = ['/usr/local/lib', '/opt/local/lib', '/opt/homebrew/lib']
 
     for d in DEPS:
         if isinstance(d, (list, tuple)):

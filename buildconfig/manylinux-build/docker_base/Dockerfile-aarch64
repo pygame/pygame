@@ -1,0 +1,76 @@
+ARG BASE_IMAGE=manylinux2014_aarch64
+FROM quay.io/pypa/$BASE_IMAGE
+ENV MAKEFLAGS="-j 8"
+
+
+# Set up repoforge
+COPY RPM-GPG-KEY.dag.txt /tmp/
+RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
+
+#ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.rf.src.rpm"
+#ADD "https://repoforge.cu.be/redhat/el5/en/source/rpmforge-release-0.5.3-1.rf.src.rpm" /tmp/${RPMFORGE_FILE}
+
+#RUN rpm -i /tmp/${RPMFORGE_FILE}
+
+# Install SDL and portmidi dependencies
+RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
+    mesa-libGLU-devel audiofile-devel \
+    cmake java-1.7.0-openjdk-devel jpackage-utils libtiff-devel \
+    giflib-devel dbus-devel \
+    pulseaudio-libs-devel xz subversion dejavu-sans-fonts fontconfig \
+    libXcursor-devel libXi-devel libXxf86vm-devel \
+    libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
+RUN yum install -y libcap-devel libxkbcommon-devel
+
+# Build and install PNG
+ADD libpng /png_build/
+RUN ["bash", "/png_build/build-png.sh"]
+
+# Build and install WEBP
+ADD libwebp /webp_build/
+RUN ["bash", "/webp_build/build-webp.sh"]
+
+# Build and install freetype
+ADD freetype /freetype_build/
+RUN ["bash", "/freetype_build/build-freetype.sh"]
+
+# Build and install sndfile
+ADD sndfile /sndfile_build/
+RUN ["bash", "/sndfile_build/build-sndfile.sh"]
+
+# Build and install ALSA library
+ADD alsa /alsa_build/
+RUN ["bash", "/alsa_build/build-alsa.sh"]
+# Replace yum-installed libasound with the one we just compiled.
+RUN ["rm", "/lib64/libasound.so.2.0.0"]
+RUN ["ln", "-s", "/usr/lib/libasound.so.2.0.0", "/lib64/"]
+
+# Build and install pulseaudio
+ADD pulseaudio /pulseaudio_build/
+RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
+
+# Build and install fluidsynth
+ADD fluidsynth /fluidsynth_build/
+RUN ["bash", "/fluidsynth_build/build-fluidsynth.sh"]
+
+ADD ogg /ogg_build/
+RUN ["bash", "/ogg_build/build-ogg.sh"]
+
+# Build and install flac
+ADD flac /flac_build/
+RUN ["bash", "/flac_build/build-flac.sh"]
+
+# Build and install SDL
+ADD sdl_libs /sdl_build/
+#RUN ["bash", "/sdl_build/build-sdl-libs.sh"]
+RUN ["bash", "/sdl_build/build-sdl2-libs.sh"]
+
+ENV MAKEFLAGS=
+
+# Build and install SDL and portmidi
+ADD portmidi /portmidi_build/
+RUN ["bash", "/portmidi_build/build-portmidi.sh"]
+
+ENV base_image=$BASE_IMAGE
+RUN echo "$base_image"
+RUN echo "$BASE_IMAGE"

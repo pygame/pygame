@@ -85,7 +85,7 @@ loaded. This module must be imported explicitly to be used. ::
 .. function:: init
 
    | :sl:`Initialize the underlying FreeType library.`
-   | :sg:`init(cache_size=64, resolution=72)`
+   | :sg:`init(cache_size=64, resolution=72) -> None`
 
    This function initializes the underlying FreeType library and must be
    called before trying to use any of the functionality of the ``freetype``
@@ -104,7 +104,7 @@ loaded. This module must be imported explicitly to be used. ::
 .. function:: quit
 
    | :sl:`Shut down the underlying FreeType library.`
-   | :sg:`quit()`
+   | :sg:`quit() -> None`
 
    This function closes the ``freetype`` module. After calling this
    function, you should not invoke any class, method or function related to the

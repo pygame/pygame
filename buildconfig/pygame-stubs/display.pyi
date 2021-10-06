@@ -4,20 +4,21 @@ from typing_extensions import Protocol
 from pygame.color import Color
 from pygame.surface import Surface
 from pygame.rect import Rect
-from pygame.math import Vector2
 from pygame.constants import FULLSCREEN
+from pygame._common import _Coordinate
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _CanBeRect = Union[
     Rect,
-    Tuple[int, int, int, int], List[int],
-    Tuple[_Coordinate, _Coordinate], List[_Coordinate]
+    Tuple[int, int, int, int],
+    List[int],
+    Tuple[_Coordinate, _Coordinate],
+    List[_Coordinate],
 ]
+
 class _HasRectAttribute(Protocol):
     rect: _CanBeRect
-_RectValue = Union[
-    _CanBeRect, _HasRectAttribute
-]
+
+_RectValue = Union[_CanBeRect, _HasRectAttribute]
 _ColorValue = Union[
     Color, int, Tuple[int, int, int], Tuple[int, int, int, int], List[int]
 ]
@@ -44,11 +45,11 @@ def init() -> None: ...
 def quit() -> None: ...
 def get_init() -> bool: ...
 def set_mode(
-    size: Optional[_Coordinate],
-    flags: Optional[int] = 0,
-    depth: Optional[int] = 0,
-    display: Optional[int] = 0,
-    vsync: Optional[int] = 0
+    size: _Coordinate = (0, 0),
+    flags: int = 0,
+    depth: int = 0,
+    display: int = 0,
+    vsync: int = 0,
 ) -> Surface: ...
 def get_surface() -> Surface: ...
 def flip() -> None: ...
@@ -57,24 +58,22 @@ def get_driver() -> str: ...
 def Info() -> _VidInfo: ...
 def get_wm_info() -> Dict[str, int]: ...
 def list_modes(
-    depth: Optional[int] = 0,
-    flags: Optional[int] = FULLSCREEN,
-    display: Optional[int] = 0,
+    depth: int = 0,
+    flags: int = FULLSCREEN,
+    display: int = 0,
 ) -> List[Tuple[int, int]]: ...
 def mode_ok(
     size: Union[Sequence[int], Tuple[int, int]],
-    flags: Optional[int] = 0,
-    depth: Optional[int] = 0,
-    display: Optional[int] = 0,
+    flags: int = 0,
+    depth: int = 0,
+    display: int = 0,
 ) -> int: ...
 def gl_get_attribute(flag: int) -> int: ...
 def gl_set_attribute(flag: int, value: int) -> None: ...
 def get_active() -> bool: ...
 def iconify() -> bool: ...
 def toggle_fullscreen() -> int: ...
-def set_gamma(
-    red: float, green: Optional[float] = None, blue: Optional[float] = None
-) -> int: ...
+def set_gamma(red: float, green: float = ..., blue: float = ...) -> int: ...
 def set_gamma_ramp(
     red: Sequence[int], green: Sequence[int], blue: Sequence[int]
 ) -> int: ...

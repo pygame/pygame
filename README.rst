@@ -1,12 +1,10 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
-  :width: 200
-  :height: 70
+.. image:: docs/pygame_logo.svg
   :alt: pygame
 
 
-|TravisBuild| |AppVeyorBuild| |LaunchpadBuild|
-|PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
-|LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |Coverity|
+|AppVeyorBuild| |LaunchpadBuild| |PyPiVersion| |PyPiLicense| |Python2|
+|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC|
+|Coverity|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -153,9 +151,6 @@ The programs in the ``examples`` subdirectory are in the public domain.
 See docs/licenses for licenses of dependencies.
 
 
-.. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
-   :target: https://travis-ci.org/pygame/pygame
-
 .. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
    :target: https://ci.appveyor.com/project/pygame/pygame
 
@@ -171,8 +166,8 @@ See docs/licenses for licenses of dependencies.
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.0.svg
-   :target: https://github.com/pygame/pygame/compare/2.0.0...main
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.1.svg
+   :target: https://github.com/pygame/pygame/compare/2.0.1...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/

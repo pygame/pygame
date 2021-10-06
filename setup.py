@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.2.dev1",
+    "version":          "2.0.2.dev3",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -50,9 +50,14 @@ def compilation_help():
     help_urls = {
         'Linux': 'https://www.pygame.org/wiki/Compilation',
         'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
-        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
         'Windows': 'https://www.pygame.org/wiki/CompileWindows',
         'Darwin': 'https://www.pygame.org/wiki/MacCompile',
+        'RedHat': 'https://www.pygame.org/wiki/CompileRedHat',
+        # TODO There is nothing in the following pages yet
+        'Suse': 'https://www.pygame.org/wiki/CompileSuse',
+        'Python (from pypy.org)': 'https://www.pygame.org/wiki/CompilePyPy',
+        'Free BSD': 'https://www.pygame.org/wiki/CompileFreeBSD',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
     }
 
     default = 'https://www.pygame.org/wiki/Compilation'
@@ -212,6 +217,35 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
+if consume_arg('docs'):
+    fullgeneration = consume_arg('--fullgeneration') or consume_arg('--f')
+
+    # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
+    docs_help = (
+        "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3."
+    )
+    if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
+        raise SystemExit(docs_help)
+
+    import subprocess
+
+    try:
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if fullgeneration:
+            command_line.append('full_generation')
+        subprocess.call(
+            command_line
+        )
+    except:
+        print(docs_help)
+        raise
+
+    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
+    if len(sys.argv) == 1:
+        sys.exit()
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):

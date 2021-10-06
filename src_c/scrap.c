@@ -75,12 +75,7 @@ _scrap_set_mode(PyObject *self, PyObject *args);
 #elif defined(__WIN32__)
 #define WIN_SCRAP
 #include "scrap_win.c"
-/*
-#elif defined(__QNXNTO__)
-    #define QNX_SCRAP
-static uint32_t _cliptype = 0;
-    #include "scrap_qnx.c"
-*/
+
 #elif defined(__APPLE__)
 #define MAC_SCRAP
 #include "scrap_mac.c"

@@ -7,15 +7,16 @@ import opencv
 from opencv import highgui
 
 
-
 def list_cameras():
     """
     """
     # -1 for opencv means get any of them.
     return [-1]
 
+
 def init():
     pass
+
 
 def quit():
     pass
@@ -35,10 +36,8 @@ class Camera:
         """
 
     def set_resolution(self, width, height):
-        """Sets the capture resolution. (without dialog)
-        """
+        """Sets the capture resolution. (without dialog)"""
         # nothing to do here.
-        pass
 
     def query_image(self):
         return True
@@ -61,7 +60,7 @@ class Camera:
     def get_surface(self, dest_surf=None):
         camera = self.camera
         im = highgui.cvQueryFrame(camera)
-        #convert Ipl image to PIL image
+        # convert Ipl image to PIL image
         if not im:
             return None
         xx = opencv.adaptors.Ipl2NumPy(im)

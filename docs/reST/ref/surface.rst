@@ -26,7 +26,7 @@
 
    ::
 
-     HWSURFACE    creates the image in video memory
+     HWSURFACE    (obsolete in pygame 2) creates the image in video memory
      SRCALPHA     the pixel format will include a per-pixel alpha
 
    Both flags are only a request, and may not be possible for all displays and
@@ -133,9 +133,9 @@
    .. method:: blits
 
       | :sl:`draw many images onto another`
-      | :sg:`blits(blit_sequence=(source, dest), ...), doreturn=1) -> [Rect, ...] or None`
-      | :sg:`blits((source, dest, area), ...)) -> [Rect, ...]`
-      | :sg:`blits((source, dest, area, special_flags), ...)) -> [Rect, ...]`
+      | :sg:`blits(blit_sequence=((source, dest), ...), doreturn=1) -> [Rect, ...] or None`
+      | :sg:`blits(((source, dest, area), ...)) -> [Rect, ...]`
+      | :sg:`blits(((source, dest, area, special_flags), ...)) -> [Rect, ...]`
 
       Draws many surfaces onto this Surface. It takes a sequence as input,
       with each of the elements corresponding to the ones of :meth:`blit()`.
@@ -707,8 +707,8 @@
       | :sg:`get_flags() -> int`
 
       Returns a set of current Surface features. Each feature is a bit in the
-      flags bitmask. Typical flags are ``HWSURFACE``, ``RLEACCEL``,
-      ``SRCALPHA``, and ``SRCCOLORKEY``.
+      flags bitmask. Typical flags are ``RLEACCEL``, ``SRCALPHA``, and
+      ``SRCCOLORKEY``.
 
       Here is a more complete list of flags. A full list can be found in
       ``SDL_video.h``
@@ -716,21 +716,11 @@
       ::
 
         SWSURFACE      0x00000000    # Surface is in system memory
-        HWSURFACE      0x00000001    # Surface is in video memory
-        ASYNCBLIT      0x00000004    # Use asynchronous blits if possible
+        HWSURFACE      0x00000001    # (obsolete in pygame 2) Surface is in video memory
+        ASYNCBLIT      0x00000004    # (obsolete in pygame 2) Use asynchronous blits if possible
 
-      Available for :func:`pygame.display.set_mode()`
-
-      ::
-
-        ANYFORMAT      0x10000000    # Allow any video depth/pixel-format
-        HWPALETTE      0x20000000    # Surface has exclusive palette
-        DOUBLEBUF      0x40000000    # Set up double-buffered video mode
-        FULLSCREEN     0x80000000    # Surface is a full screen display
-        OPENGL         0x00000002    # Create an OpenGL rendering context
-        OPENGLBLIT     0x0000000A    # OBSOLETE. Create an OpenGL rendering context and use it for blitting.
-        RESIZABLE      0x00000010    # This video mode may be resized
-        NOFRAME        0x00000020    # No window caption or edge frame
+      See :func:`pygame.display.set_mode()` for flags exclusive to the
+      display surface.
 
       Used internally (read-only)
 

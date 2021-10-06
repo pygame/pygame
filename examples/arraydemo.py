@@ -46,12 +46,12 @@ def surfdemo_show(array_img, name):
             # pg.image.save(s, name+'.tga')
             pg.image.save(screen, name + ".png")
         elif e.type == pg.QUIT:
+            pg.quit()
             raise SystemExit()
 
 
 def main():
-    """show various surfarray effects
-    """
+    """show various surfarray effects"""
     import numpy as N
     from numpy import int32, uint8, uint
 
