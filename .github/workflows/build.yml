@@ -60,8 +60,21 @@ jobs:
 
           CIBW_BUILD: ${{ matrix.pyver }}-*
 
-          # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install requests numpy && brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf zlib freetype portmidi
+          MACOSX_DEPLOYMENT_TARGET: 10.13
+
+          # Install some dependencies in hacky style
+          # IMPORTANT WARNING: Don't try this at home, on your mac machine unless you want a serious mess-up
+          CIBW_BEFORE_BUILD_MACOS: |
+            pip install requests numpy
+            wget -O mac_bundled.tar.gz https://github.com/Starbuck5/pg_mac_binaries/raw/main/bundled_local.tar.gz
+            tar xvzf mac_bundled.tar.gz
+            rm mac_bundled.tar.gz
+            sudo cp ./local_redist2/bin/sdl2-config /usr/local/bin/sdl2-config
+            sudo cp -R ./local_redist2/lib /usr/local/lib
+            sudo cp -R ./local_redist2/include /usr/local/include
+            sudo cp -R ./local_redist2/Cellar /usr/local/Cellar
+            rm -rf ./local_redist2
+
           CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
 
           CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
@@ -85,8 +98,21 @@ jobs:
           # uncomment when arm builds are working
           # CIBW_ARCHS_MACOS: "x86_64 universal2"
 
-          # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install requests numpy && brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf zlib freetype portmidi
+          MACOSX_DEPLOYMENT_TARGET: 10.13
+
+          # Install some dependencies in hacky style
+          # IMPORTANT WARNING: Don't try this at home, on your mac machine unless you want a serious mess-up
+          CIBW_BEFORE_BUILD_MACOS: |
+            pip install requests numpy
+            wget -O mac_bundled.tar.gz https://github.com/Starbuck5/pg_mac_binaries/raw/main/bundled_local.tar.gz
+            tar xvzf mac_bundled.tar.gz
+            rm mac_bundled.tar.gz
+            sudo cp ./local_redist2/bin/sdl2-config /usr/local/bin/sdl2-config
+            sudo cp -R ./local_redist2/lib /usr/local/lib
+            sudo cp -R ./local_redist2/include /usr/local/include
+            sudo cp -R ./local_redist2/Cellar /usr/local/Cellar
+            rm -rf ./local_redist2
+
           CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
 
           CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
