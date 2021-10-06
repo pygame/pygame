@@ -72,8 +72,8 @@ jobs:
             sudo cp ./local_redist2/bin/sdl2-config /usr/local/bin/sdl2-config
             sudo cp ./local_redist2/bin/pkg-config /usr/local/bin/pkg-config
             sudo cp -R ./local_redist2/opt ./local_redist2/lib ./local_redist2/include ./local_redist2/Cellar /usr/local
-            cp ./local_redist2/lib/libportmidi.1.dylib .
             rm -rf ./local_redist2
+            export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
           CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
 
@@ -110,8 +110,8 @@ jobs:
             sudo cp ./local_redist2/bin/sdl2-config /usr/local/bin/sdl2-config
             sudo cp ./local_redist2/bin/pkg-config /usr/local/bin/pkg-config
             sudo cp -R ./local_redist2/opt ./local_redist2/lib ./local_redist2/include ./local_redist2/Cellar /usr/local
-            cp ./local_redist2/lib/libportmidi.1.dylib .
             rm -rf ./local_redist2
+            export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
           CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
 
