@@ -219,12 +219,18 @@ def main(auto=False):
             import buildconfig.config_unix as CFG
 
 
-    if sys.platform == 'win32':
-        pass
+    if sys.platform == 'win32' and sys.version_info > (3,):
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
+        ).readlines()
     elif sys.platform == 'darwin':
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
+        ).readlines()
     else:
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r"
+        ).readlines()
 
 
     if os.path.isfile('Setup'):
