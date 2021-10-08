@@ -160,9 +160,9 @@ def main(sdl2=False):
     print ('Hunting dependencies...')
     incdirs = ['/usr/local/include', '/opt/homebrew/include']
     if sdl2:
-        incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2'])
+        incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2', '/opt/local/include/SDL2'])
     else:
-        incdirs.extend(['/usr/local/include/SDL', '/opt/homebrew/include/SDL'])
+        incdirs.extend(['/usr/local/include/SDL', '/opt/homebrew/include/SDL', '/opt/local/include/SDL'])
 
     incdirs.extend([
        #'/usr/X11/include',

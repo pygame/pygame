@@ -10,7 +10,7 @@
 #define DOC_CAMERAGETSIZE "get_size() -> (width, height)\nreturns the dimensions of the images being recorded"
 #define DOC_CAMERAQUERYIMAGE "query_image() -> bool\nchecks if a frame is ready"
 #define DOC_CAMERAGETIMAGE "get_image(Surface = None) -> Surface\ncaptures an image as a Surface"
-#define DOC_CAMERAGETRAW "get_raw() -> string\nreturns an unmodified image as a string"
+#define DOC_CAMERAGETRAW "get_raw() -> bytes\nreturns an unmodified image as bytes"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -61,7 +61,7 @@ pygame.camera.Camera.get_image
 captures an image as a Surface
 
 pygame.camera.Camera.get_raw
- get_raw() -> string
-returns an unmodified image as a string
+ get_raw() -> bytes
+returns an unmodified image as bytes
 
 */

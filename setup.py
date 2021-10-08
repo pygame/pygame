@@ -530,7 +530,7 @@ def add_command(name):
     return decorator
 
 # try to find DLLs and copy them too  (only on windows)
-if sys.platform == 'win32':
+if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 
     from distutils.command.build_ext import build_ext
 
@@ -629,41 +629,43 @@ if sys.platform == 'win32':
     def flag_filter(compiler, *flags):
         return [flag for flag in flags if has_flag(compiler, flag)]
 
-    @add_command('build_ext')
-    class WinBuildExt(build_ext):
-        """This build_ext sets necessary environment variables for MinGW"""
+    # Only on win32, not MSYS2
+    if 'MSYSTEM' not in os.environ:
+        @add_command('build_ext')
+        class WinBuildExt(build_ext):
+            """This build_ext sets necessary environment variables for MinGW"""
 
-        # __sdl_lib_dir is possible location of msvcrt replacement import
-        # libraries, if they exist. Pygame module base only links to SDL so
-        # should have the SDL library directory as its only -L option.
-        for e in extensions:
-            if e.name == 'base':
-                __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
-                break
+            # __sdl_lib_dir is possible location of msvcrt replacement import
+            # libraries, if they exist. Pygame module base only links to SDL so
+            # should have the SDL library directory as its only -L option.
+            for e in extensions:
+                if e.name == 'base':
+                    __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
+                    break
 
-        def build_extensions(self):
-            # Add supported optimisations flags to reduce code size with MSVC
-            opts = flag_filter(self.compiler, "/GF", "/Gy")
-            for extension in extensions:
-                extension.extra_compile_args += opts
+            def build_extensions(self):
+                # Add supported optimisations flags to reduce code size with MSVC
+                opts = flag_filter(self.compiler, "/GF", "/Gy")
+                for extension in extensions:
+                    extension.extra_compile_args += opts
 
-            build_ext.build_extensions(self)
+                build_ext.build_extensions(self)
 
-    # Add the precompiled smooth scale MMX functions to transform.
-    def replace_scale_mmx():
-        for e in extensions:
-            if e.name == 'transform':
-                if '64 bit' in sys.version:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
-                else:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
-                for i in range(len(e.sources)):
-                    if e.sources[i].endswith('scale_mmx.c'):
-                        del e.sources[i]
-                        return
-    replace_scale_mmx()
+        # Add the precompiled smooth scale MMX functions to transform.
+        def replace_scale_mmx():
+            for e in extensions:
+                if e.name == 'transform':
+                    if '64 bit' in sys.version:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
+                    else:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
+                    for i in range(len(e.sources)):
+                        if e.sources[i].endswith('scale_mmx.c'):
+                            del e.sources[i]
+                            return
+        replace_scale_mmx()
 
 
 # clean up the list of extensions
