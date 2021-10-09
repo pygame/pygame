@@ -1,0 +1,39 @@
+diff -crB portmidi/CMakeLists.txt portmidi-mac/CMakeLists.txt
+*** portmidi/CMakeLists.txt	2010-09-20 21:57:48.000000000 +0200
+--- portmidi-mac/CMakeLists.txt	2021-10-03 12:36:41.000000000 +0200
+***************
+*** 36,42 ****
+  set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "" CACHE INTERNAL "Unused")
+  set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "" CACHE INTERNAL "Unused")
+  
+! set(CMAKE_OSX_ARCHITECTURES i386 ppc x86_64 CACHE STRING "change to needed architecture for a smaller library" FORCE)
+  
+  PROJECT(portmidi)
+  
+--- 36,42 ----
+  set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "" CACHE INTERNAL "Unused")
+  set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "" CACHE INTERNAL "Unused")
+  
+! set(CMAKE_OSX_ARCHITECTURES x86_64 CACHE STRING "change to needed architecture for a smaller library" FORCE)
+  
+  PROJECT(portmidi)
+  
+diff -crB portmidi/pm_common/CMakeLists.txt portmidi-mac/pm_common/CMakeLists.txt
+*** portmidi/pm_common/CMakeLists.txt	2010-09-20 21:57:48.000000000 +0200
+--- portmidi-mac/pm_common/CMakeLists.txt	2021-10-03 12:36:46.000000000 +0200
+***************
+*** 21,33 ****
+    set(LINUX_FLAGS "-DPMALSA")
+  endif(APPLE OR WIN32)
+  
+- if(APPLE)
+-   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk CACHE 
+-       PATH "-isysroot parameter for compiler" FORCE)
+-   set(CMAKE_C_FLAGS "-mmacosx-version-min=10.5" CACHE 
+-       STRING "needed in conjunction with CMAKE_OSX_SYSROOT" FORCE)
+- endif(APPLE)
+- 
+  macro(prepend_path RESULT PATH)
+    set(${RESULT})
+    foreach(FILE ${ARGN})
+--- 21,26 ----

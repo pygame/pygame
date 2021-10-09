@@ -21,6 +21,8 @@
 #define DOC_JOYSTICKGETBUTTON "get_button(button) -> bool\nget the current button state"
 #define DOC_JOYSTICKGETNUMHATS "get_numhats() -> int\nget the number of hat controls on a Joystick"
 #define DOC_JOYSTICKGETHAT "get_hat(hat_number) -> x, y\nget the position of a joystick hat"
+#define DOC_JOYSTICKRUMBLE "rumble(low_frequency, high_frequency, duration) -> bool\nStart a rumbling effect"
+#define DOC_JOYSTICKSTOPRUMBLE "stop_rumble() -> None\nStop any rumble effect playing"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -113,5 +115,13 @@ get the number of hat controls on a Joystick
 pygame.joystick.Joystick.get_hat
  get_hat(hat_number) -> x, y
 get the position of a joystick hat
+
+pygame.joystick.Joystick.rumble
+ rumble(low_frequency, high_frequency, duration) -> bool
+Start a rumbling effect
+
+pygame.joystick.Joystick.stop_rumble
+ stop_rumble() -> None
+Stop any rumble effect playing
 
 */

@@ -345,6 +345,17 @@ pygame much earlier.
 
    .. ## pygame.examples.overlay.main ##
 
+.. function:: joystick.main
+
+   | :sl:`access the clipboard`
+   | :sg:`joystick.main() -> None`
+
+   A demo showing full joystick support.
+
+   .. versionadded:: 2.0.2
+
+   .. ## pygame.examples.joystick.main ##
+
 .. function:: blend_fill.main
 
    | :sl:`demonstrate the various surface.fill method blend options`

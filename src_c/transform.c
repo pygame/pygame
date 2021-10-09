@@ -666,6 +666,10 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &pgSurface_Type, &surfobj, &angle))
         return NULL;
     surf = pgSurface_AsSurface(surfobj);
+    if (surf->w < 1 || surf->h < 1) {
+        Py_INCREF(surfobj);
+        return surfobj;
+    }
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError,

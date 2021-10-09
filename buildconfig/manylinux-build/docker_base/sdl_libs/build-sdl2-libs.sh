@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-cd /sdl_build/
+cd $(dirname `readlink -f "$0"`)
 
 SDL2="SDL2-2.0.16"
 IMG2="SDL2_image-2.0.5"
@@ -40,8 +40,18 @@ cd $IMG2
 # The --disable-x-shared flags make it use standard dynamic linking rather than
 # dlopen-ing the library itself. This is important for when auditwheel moves
 # libraries into the wheel.
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      # linux
+      export SDL_IMAGE_CONFIGURE=
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+      # Mac OSX
+      # --disable-imageio is so it doesn't use the built in mac image loading.
+      #     Since it is not as compatible with some jpg/png files.
+      export SDL_IMAGE_CONFIGURE=--disable-imageio
+fi
+
 ./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared \
-        --enable-tif --disable-tif-shared --enable-webp --disable-webp-shared
+        --enable-tif --disable-tif-shared --enable-webp --disable-webp-shared $SDL_IMAGE_CONFIGURE
 make
 make install
 cd ..
@@ -68,7 +78,6 @@ cd $MIX2
       --disable-music-midi-fluidsynth-shared \
       --disable-music-mod-mikmod-shared \
       --disable-music-mod-modplug-shared \
-      --disable-music-mp3-mpg123 \
       --disable-music-mp3-mpg123-shared \
       --disable-music-ogg-shared \
       --enable-music-mod-mikmod \
@@ -76,6 +85,7 @@ cd $MIX2
       --enable-music-ogg \
       --enable-music-flac \
       --enable-music-mp3 \
+      --enable-music-mp3-mpg123 \
       --enable-music-mod \
 
 make
