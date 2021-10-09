@@ -12,56 +12,66 @@ RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 #RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
-RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel \
+RUN linux32 yum install -y zlib-devel libX11-devel \
     mesa-libGLU-devel audiofile-devel \
-    java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
-    giflib-devel mikmod-devel subversion
-RUN linux32 yum install -y smpeg-devel dbus-devel \
-    pulseaudio-libs-devel cmake dejavu-sans-fonts fontconfig libXrandr-devel \
+    java-1.7.0-openjdk-devel jpackage-utils \
+    giflib-devel
+RUN linux32 yum install -y dbus-devel \
+    dejavu-sans-fonts fontconfig libXrandr-devel \
     libXcursor-devel libXi-devel libXxf86vm-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
-# Build and install PNG
-ADD libpng /png_build/
-RUN ["linux32", "bash", "/png_build/build-png.sh"]
+#ADD zlib /zlib_build/
+#RUN ["linux32", "bash", "/zlib_build/build-zlib.sh"]
 
-# Build and install WEBP
+ADD libjpeg /libjpeg_build/
+RUN ["linux32", "bash", "/libjpeg_build/build-jpeg.sh"]
+
+ADD libpng /libpng_build/
+RUN ["linux32", "bash", "/libpng_build/build-png.sh"]
+
 ADD libwebp /webp_build/
 RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
 
-# Build and install freetype
+ADD libtiff /libtiff_build/
+RUN ["linux32", "bash", "/libtiff_build/build-tiff.sh"]
+
+#ADD harfbuzz /harfbuzz_build/
+#RUN ["linux32", "bash", "/harfbuzz_build/build-harfbuzz.sh"]
+
 ADD freetype /freetype_build/
 RUN ["linux32", "bash", "/freetype_build/build-freetype.sh"]
 
-# Build and install sndfile
-ADD sndfile /sndfile_build/
-RUN ["bash", "/sndfile_build/build-sndfile.sh"]
-
-# Build and install ALSA library
 ADD alsa /alsa_build/
 RUN ["linux32", "bash", "/alsa_build/build-alsa.sh"]
 # Replace yum-installed libasound with the one we just compiled.
 RUN ["rm", "/lib/libasound.so.2.0.0"]
 RUN ["ln", "-s", "/usr/lib/libasound.so.2.0.0", "/lib/"]
 
-# Build and install pulseaudio
-ADD pulseaudio /pulseaudio_build/
-RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
-
-# Build and install fluidsynth
-ADD fluidsynth /fluidsynth_build/
-RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
-
 ADD ogg /ogg_build/
 RUN ["linux32", "bash", "/ogg_build/build-ogg.sh"]
 
-ADD mp3 /mpg123_build/
-RUN ["bash", "/mpg123_build/build-mpg123.sh"]
+ADD mpg123 /mpg123_build/
+RUN ["linux32", "bash", "/mpg123_build/build-mpg123.sh"]
 
-# Build and install flac
 ADD flac /flac_build/
 RUN ["linux32", "bash", "/flac_build/build-flac.sh"]
+
+ADD sndfile /sndfile_build/
+RUN ["linux32", "bash", "/sndfile_build/build-sndfile.sh"]
+
+ADD pulseaudio /pulseaudio_build/
+RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
+
+ADD libmodplug /libmodplug_build/
+RUN ["linux32", "bash", "/libmodplug_build/build-libmodplug.sh"]
+
+ADD cmake /cmake_build/
+RUN ["bash", "/cmake_build/build-cmake.sh"]
+
+ADD fluidsynth /fluidsynth_build/
+RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
 # Build and install SDL
 ADD sdl_libs /sdl_build/
@@ -71,7 +81,6 @@ RUN ["linux32", "bash", "/sdl_build/build-sdl2-libs.sh"]
 
 ENV MAKEFLAGS=
 
-# Build and install SDL and portmidi
 ADD portmidi /portmidi_build/
 RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
 
