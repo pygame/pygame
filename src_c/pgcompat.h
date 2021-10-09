@@ -194,6 +194,11 @@ int SDL_SetWindowInputFocus(SDL_Window *window);
 SDL_Surface * SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
                                Uint32 format);
 #endif
+#if (SDL_VERSION_ATLEAST(2, 0, 0)) && !(SDL_VERSION_ATLEAST(2, 0, 9))
+int SDL_GameControllerRumble(SDL_GameController *gamecontroller,
+                         Uint16 low_frequency_rumble, Uint16 high_frequency_rumble,
+                         Uint32 duration_ms);
+#endif
 #endif /* defined(SDL_VERSION_ATLEAST) */
 
 // Currently needed to build scrap.c, event.c, display.c
