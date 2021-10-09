@@ -104,10 +104,7 @@ def main():
                 elif event.key == pg.K_RIGHT:
                     _IMETextPos = min(len(_IMEText), _IMETextPos + 1)
                 # Handle ENTER key
-                elif (
-                    event.key in [pg.K_RETURN, pg.K_KP_ENTER]
-                    and len(event.unicode) == 1
-                ):
+                elif event.key in [pg.K_RETURN, pg.K_KP_ENTER]:
                     # Block if we have no text to append
                     if len(_IMEText) == 0:
                         continue
