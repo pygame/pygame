@@ -59,7 +59,7 @@ class FrameworkDependency(Dependency):
         for n in BASE_DIRS:
             n += 'Library/Frameworks/'
             fmwk = n + self.libs + '.framework/Versions/Current/'
-            if os.path.isfile(fmwk + self.libs):
+            if os.path.isdir(fmwk):
                 print ('Framework ' + self.libs + ' found')
                 self.found = 1
                 self.inc_dir = fmwk + 'Headers'
