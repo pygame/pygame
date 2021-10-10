@@ -10,7 +10,12 @@ sha512sum -c tiff.sha512
 
 tar xzf ${TIFF}.tar.gz
 cd $TIFF
-./configure --disable-lzma --disable-webp --disable-zstd
 
+./configure --disable-lzma --disable-webp --disable-zstd
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
