@@ -33,6 +33,12 @@ def print_(*args, **kwds):
     msysio.print_(*args, **kwds)
 
 
+def is_msys2():
+    """Return true if this in an MSYS2 build"""
+    return ('MSYSTEM' in os.environ and
+            re.match(r'MSYS|MINGW.*|CLANG.*|UCRT.*', os.environ['MSYSTEM']))
+
+
 def is_msys_mingw():
     """Return true if this in an MinGW/MSYS build
 
@@ -177,6 +183,14 @@ def main(auto=False):
             import buildconfig.config_conan as CFG
 
     elif (sys.platform == 'win32' and
+        (sys.version_info >= (3, 8) and is_msys2())):
+        print_('Using WINDOWS MSYS2 configuration...\n')
+        try:
+            import config_msys2 as CFG
+        except ImportError:
+            import buildconfig.config_msys2 as CFG
+
+    elif (sys.platform == 'win32' and
         # Note that msys builds supported for 2.6 and greater. Use prebuilt.
         (sys.version_info >= (2, 6) or not is_msys_mingw())):
         print_('Using WINDOWS configuration...\n')
@@ -205,12 +219,18 @@ def main(auto=False):
             import buildconfig.config_unix as CFG
 
 
-    if sys.platform == 'win32':
-        pass
+    if sys.platform == 'win32' and sys.version_info > (3,):
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Win_Camera.in"), "r"
+        ).readlines()
     elif sys.platform == 'darwin':
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r"
+        ).readlines()
     else:
-        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
+        additional_platform_setup = open(
+            os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r"
+        ).readlines()
 
 
     if os.path.isfile('Setup'):

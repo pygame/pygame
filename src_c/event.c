@@ -756,7 +756,7 @@ pgEvent_AutoInit(PyObject *self)
         SDL_SetEventFilter(pg_event_filter, NULL);
     }
     _pg_event_is_init = 1;
-    return PyBool_FromLong(_pg_event_is_init);
+    Py_RETURN_NONE;
 }
 
 /* This function can fill an SDL event from pygame event */

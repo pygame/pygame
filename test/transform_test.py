@@ -1001,6 +1001,13 @@ class TransformModuleTest(unittest.TestCase):
 
         self.assertEqual(canvas.get_at((0, 0)), black)
 
+    def test_rotate_of_0_sized_surface(self):
+        # This function just tests possible Segmentation Fault
+        canvas1 = pygame.Surface((0, 1))
+        canvas2 = pygame.Surface((1, 0))
+        pygame.transform.rotate(canvas1, 42)
+        pygame.transform.rotate(canvas2, 42)
+
     def test_rotate__lossless_at_90_degrees(self):
         w, h = 32, 32
         s = pygame.Surface((w, h), pygame.SRCALPHA)

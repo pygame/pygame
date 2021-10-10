@@ -468,7 +468,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         PyErr_Clear();
     }
 
-    Py_RETURN_TRUE;
+    Py_RETURN_NONE;
 }
 
 static PyObject *

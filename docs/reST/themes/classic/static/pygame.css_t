@@ -66,8 +66,7 @@ div.body table.matrix th.stub {
 
 /* Let a float element be beside a code block */
 div.highlight-python.notranslate {
-    margin: 0;
-    clear: none;
+    display: inline-block;
 }
 
 /* -- page layout ----------------------------------------------------------- */
@@ -144,13 +143,6 @@ div.document {
         width: 100%;
         max-width: 700px;
         margin: 0 auto;
-    }
-}
-
-/* Make tables be responsive-ish. */
-@media only screen and (max-width: 680px) {
-    table, thead, tbody, th, td, tr {
-        display: block;
     }
 }
 
@@ -485,26 +477,11 @@ pre {
     line-height: 120%;
     margin-bottom: 1em;
     padding: 5px 5px 5px 15px;
+    text-align: justify;
 }
 
 div.highlight pre {
     border: none;
-}
-
-table.highlighttable {
-    display: table;
-}
-
-@media only screen and (max-width: 680px) {
-    table.highlighttable {
-        display: block;
-    }
-}
-
-table.highlighttable,
-table.highlighttable pre {
-    border: none;
-    background-color: #eeffcc;
 }
 
 ul.simple {
@@ -517,8 +494,12 @@ code.descclassname, code.descname {
     font-weight: bold;
 }
 
-/* Top level section title format */
-div.body > div.section > dl > dt.title {
+/*
+    Top level section title format
+    section tag has been introduced in docutils 0.17 as a replacement for div.section
+    Both rule variations are kept to support old versions of docutils
+ */
+div.body > section > dl > dt.title, div.body > div.section > dl > dt.title {
     font-size: 120%;
     font-weight: bold;
     margin-bottom: 1em;
@@ -575,6 +556,7 @@ div.body p.small-heading {
 div.body div.inlined,
 div.body img.inlined-right {
     float: right;
+    margin: 1em 0;
 }
 
 div.body .inset {
@@ -591,6 +573,10 @@ div.body span.codelineref {
 .reference.internal em {
     font-weight: bold;
     background-color: {{ theme_keywordbgcolor }};
+}
+
+span.linenos {
+    margin-right: 15px;
 }
 
 /* Examples section: contains one or more example subsections */
@@ -616,12 +602,6 @@ div.example pre {
 div.example div.break {
     clear: both;
     height: 0;
-}
-
-/* -- parameters returns table style ---------------------------------------- */
-
-dl.field-list > dt {
-    padding-right: 10px;
 }
 
 /* -- tooltip style --------------------------------------------------------- */
@@ -688,4 +668,36 @@ pre.commentContent {
     margin-left:0;
     border: 0;
     white-space: pre-wrap;
+}
+
+/* -- responsive design --------------------------------------------------------- */
+
+@media only screen and (max-width: 680px) {
+    /* Make tables be responsive-ish. */
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    div.body img.inlined-right {
+        float: none;
+        display: block;
+        margin: auto
+    }
+
+    span.linenos {
+        margin-right: 10px;
+    }
+
+    .addcomment input, a.commentButton {
+        font-size: 10px;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .toc td {
+        width: 100%;
+    }
 }
