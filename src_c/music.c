@@ -419,14 +419,14 @@ static PyObject *
 music_load(PyObject *self, PyObject *args, PyObject *keywds)
 {
     Mix_Music *new_music = NULL;
-    MIXER_INIT_CHECK();
-
     PyObject *obj;
     char *namehint = NULL;
-
     static char *kwids[] = {"filename", "namehint", NULL};
+
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|s", kwids, &obj, &namehint))
         return NULL;
+
+    MIXER_INIT_CHECK();
 
     new_music = _load_music(obj, namehint);
     if (new_music == NULL) // meaning it has an error to return
@@ -472,16 +472,15 @@ static PyObject *
 music_queue(PyObject *self, PyObject *args, PyObject *keywds)
 {
     Mix_Music *local_queue_music = NULL;
-    MIXER_INIT_CHECK();
-
     PyObject *obj;
     int loops = 0;
     char *namehint = NULL;
-
     static char *kwids[] = {"filename", "namehint", "loops", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|si", kwids, &obj, &namehint, &loops))
         return NULL;
+
+    MIXER_INIT_CHECK();
 
     queue_music_loops = loops;
     
