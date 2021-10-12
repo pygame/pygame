@@ -24,7 +24,8 @@ def init():
     elif "linux" in sys.platform:
         use__camera = True
     elif "darwin" in sys.platform:
-        use__camera = True
+        use_opencv = True
+        use__camera = False
     else:
         use_opencv = True
 
@@ -48,15 +49,13 @@ def init():
 
     if use_opencv:
         try:
-            from pygame import _camera_opencv_highgui
+            from pygame import _camera_opencv
         except ImportError:
-            _camera_opencv_highgui = None
+            _camera_opencv = None
 
-        if _camera_opencv_highgui:
-            _camera_opencv_highgui.init()
-
-            list_cameras = _camera_opencv_highgui.list_cameras
-            Camera = _camera_opencv_highgui.Camera
+        if _camera_opencv:
+            list_cameras = _camera_opencv.list_cameras_darwin
+            Camera = _camera_opencv.Camera
 
     if use_vidcapture:
         try:
