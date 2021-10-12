@@ -34,6 +34,7 @@
 
 static Mix_Music *current_music = NULL;
 static Mix_Music *queue_music = NULL;
+static int queue_music_loops = 0;
 static int endmusic_event = SDL_NOEVENT;
 static Uint64 music_pos = 0;
 static long music_pos_time = -1;
@@ -84,7 +85,8 @@ endmusic_callback(void)
         queue_music = NULL;
         Mix_HookMusicFinished(endmusic_callback);
         music_pos = 0;
-        Mix_PlayMusic(current_music, 0);
+        Mix_PlayMusic(current_music, queue_music_loops);
+        queue_music_loops = 0;
     }
     else {
         music_pos_time = -1;
@@ -153,6 +155,7 @@ music_fadeout(PyObject *self, PyObject *args)
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
 
     Mix_FadeOutMusic(_time);
@@ -171,6 +174,7 @@ music_stop(PyObject *self, PyObject *args)
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
 
     Mix_HaltMusic();
@@ -363,16 +367,10 @@ _get_type_from_hint(char *namehint)
 }
 
 Mix_Music * 
-_load_music(PyObject *args) {
-    PyObject *obj;
+_load_music(PyObject *obj, char *namehint) {
     PyObject *oencoded;
     Mix_Music *new_music = NULL;
     const char *name;
-    char *namehint = NULL;
-
-    if (!PyArg_ParseTuple(args, "O|s", &obj, &namehint)) {
-        return NULL;
-    }
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == Py_None) {
@@ -418,12 +416,19 @@ _load_music(PyObject *args) {
 }
 
 static PyObject *
-music_load(PyObject *self, PyObject *args)
+music_load(PyObject *self, PyObject *args, PyObject *keywds)
 {
     Mix_Music *new_music = NULL;
     MIXER_INIT_CHECK();
 
-    new_music = _load_music(args);
+    PyObject *obj;
+    char *namehint = NULL;
+
+    static char *kwids[] = {"filename", "namehint", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|s", kwids, &obj, &namehint))
+        return NULL;
+
+    new_music = _load_music(obj, namehint);
     if (new_music == NULL) // meaning it has an error to return
         return NULL;
 
@@ -434,6 +439,7 @@ music_load(PyObject *self, PyObject *args)
     if (queue_music != NULL) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
     Py_END_ALLOW_THREADS
 
@@ -455,6 +461,7 @@ music_unload(PyObject *self, PyObject *noarg)
     if (queue_music) {
         Mix_FreeMusic(queue_music);
         queue_music = NULL;
+        queue_music_loops = 0;
     }
     Py_END_ALLOW_THREADS
 
@@ -462,12 +469,23 @@ music_unload(PyObject *self, PyObject *noarg)
 }
 
 static PyObject *
-music_queue(PyObject *self, PyObject *args)
+music_queue(PyObject *self, PyObject *args, PyObject *keywds)
 {
     Mix_Music *local_queue_music = NULL;
     MIXER_INIT_CHECK();
+
+    PyObject *obj;
+    int loops = 0;
+    char *namehint = NULL;
+
+    static char *kwids[] = {"filename", "namehint", "loops", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|si", kwids, &obj, &namehint, &loops))
+        return NULL;
+
+    queue_music_loops = loops;
     
-    local_queue_music = _load_music(args);
+    local_queue_music = _load_music(obj, namehint);
     if (local_queue_music == NULL) // meaning it has an error to return
         return NULL;
 
@@ -510,9 +528,9 @@ static PyMethodDef _music_methods[] = {
     {"get_pos", music_get_pos, METH_NOARGS,
      DOC_PYGAMEMIXERMUSICGETPOS},
 
-    {"load", music_load, METH_VARARGS, DOC_PYGAMEMIXERMUSICLOAD},
+    {"load", (PyCFunction)music_load, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERMUSICLOAD},
     {"unload", music_unload, METH_NOARGS, DOC_PYGAMEMIXERMUSICUNLOAD},
-    {"queue", music_queue, METH_VARARGS, DOC_PYGAMEMIXERMUSICQUEUE},
+    {"queue", (PyCFunction)music_queue, METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEMIXERMUSICQUEUE},
 
     {NULL, NULL, 0, NULL}};
 
