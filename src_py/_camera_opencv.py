@@ -26,10 +26,7 @@ def list_cameras_darwin():
 
 class Camera(object):
     def __init__(self, device=0, size=(640, 480), mode="RGB"):
-        if isinstance(device, int):
-            self._device_index = device
-        if isinstance(device, str):
-            self._device_index = list_cameras_darwin().index(device)
+        self._device_index = device
         self._size = size
         
         if mode == "RGB":
@@ -154,3 +151,14 @@ class Camera(object):
 
         return image.tobytes()
 
+
+class CameraMac(Camera):
+    def __init__(self, device=0, *args, **kwargs):
+        if isinstance(device, int):
+            _dev = device
+        elif isinstance(device, str):
+            _dev = list_cameras_darwin().index(device)
+        else:
+            raise TypeError("OpenCV-Mac backend can take device indices or names, ints or strings, not ", str(type(device)))
+        
+        super().__init__(_dev, *args, **kwargs)

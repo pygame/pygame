@@ -1,75 +1,105 @@
+import os
+import sys
+import platform
 
 _is_init = 0
 
+def setup_opencv_mac():
+    global list_cameras, Camera, colorspace
 
-def init():
-    global list_cameras, Camera, colorspace, _is_init
+    from pygame import _camera_opencv
 
-    import os
-    import sys
-    import platform
+    list_cameras = _camera_opencv.list_cameras_darwin
+    Camera = _camera_opencv.CameraMac
 
-    use_opencv = False
-    use_vidcapture = False
-    use__camera = True
+def setup_opencv():
+    global list_cameras, Camera, colorspace
+
+    from pygame import _camera_opencv
+
+    list_cameras = _camera_opencv.list_cameras
+    Camera = _camera_opencv.Camera
+
+def setup_opencv_legacy():
+    global list_cameras, Camera, colorspace
+
+    from pygame import _camera_opencv_highgui
+
+    list_cameras = _camera_opencv_highgui.list_cameras
+    Camera = _camera_opencv_highgui.Camera
+
+def setup__camera():
+    global list_cameras, Camera, colorspace
+
+    from pygame import _camera
+    
+    list_cameras = _camera.list_cameras
+    Camera = _camera.Camera
+    colorspace = _camera.colorspace
+
+def setup_vidcapture():
+    global list_cameras, Camera, colorspace
+
+    from pygame import _camera_vidcapture
+
+    _camera_vidcapture.init()
+    list_cameras = _camera_vidcapture.list_cameras
+    Camera = _camera_vidcapture.Camera
+
+def get_backends():
+    possible_backends = []
+
+    if sys.platform == 'win32' and sys.version_info > (3,) and int(platform.win32_ver()[0]) > 8:
+        possible_backends.append("_camera (MSMF)")
+    
+    if "linux" in sys.platform:
+        possible_backends.append("_camera (V4L2)")
+
+    if "darwin" in sys.platform:
+        possible_backends.append("OpenCV-Mac")
+
+    possible_backends.append("OpenCV")
 
     if sys.platform == 'win32':
-        if sys.version_info > (3,):
-            if int(platform.win32_ver()[0]) > 8:
-                use__camera = True
-            else:
-                use_opencv = True
-        else:
-            use_vidcapture = True
-    elif "linux" in sys.platform:
-        use__camera = True
-    elif "darwin" in sys.platform:
-        use_opencv = True
-        use__camera = False
-    else:
-        use_opencv = True
+        possible_backends.append("VidCapture")
+
+    possible_backends.append("OpenCV-Legacy")
 
     # see if we have any user specified defaults in environments.
     camera_env = os.environ.get("PYGAME_CAMERA", "")
-    if camera_env == "opencv":
-        use_opencv = True
+    if camera_env == "opencv": # prioritize opencv legacy
+        if "OpenCV-Legacy" in possible_backends:
+            possible_backends.remove("OpenCV-Legacy")
+        possible_backends = ["OpenCV-Legacy"] + possible_backends
     if camera_env == "vidcapture":
-        use_vidcapture = True
+        if "VidCapture" in possible_backends:
+            possible_backends.remove("VidCapture")
+        possible_backends = ["VidCapture"] + possible_backends
 
+    return possible_backends
+
+backend_table = {"OpenCV-Mac": setup_opencv_mac,
+                 "OpenCV": setup_opencv,
+                 "OpenCV-Legacy": setup_opencv_legacy,
+                 "_camera (MSMF)": setup__camera,
+                 "_camera (V4l2)": setup__camera,
+                 "VidCapture": setup_vidcapture}
+
+def set_backend(backend):
+    if backend not in backend_table:
+        raise ValueError("unrecognized backend name")
+
+    backend_table[backend]()
+
+def init():
+    global _is_init
     # select the camera module to import here.
 
-    # the _camera module has some code which can be reused by other modules.
-    #  it will also be the default one.
-    if use__camera:
-        from pygame import _camera
-        colorspace = _camera.colorspace
-
-        list_cameras = _camera.list_cameras
-        Camera = _camera.Camera
-
-    if use_opencv:
-        try:
-            from pygame import _camera_opencv
-        except ImportError:
-            _camera_opencv = None
-
-        if _camera_opencv:
-            list_cameras = _camera_opencv.list_cameras_darwin
-            Camera = _camera_opencv.Camera
-
-    if use_vidcapture:
-        try:
-            from pygame import _camera_vidcapture
-        except ImportError:
-            _camera_vidcapture = None
-
-        if _camera_vidcapture:
-            _camera_vidcapture.init()
-            list_cameras = _camera_vidcapture.list_cameras
-            Camera = _camera_vidcapture.Camera
+    backends = get_backends()
+    if backends:
+        set_backend(backends[0])
 
     _is_init = 1
-
 
 def quit():
     global _is_init
