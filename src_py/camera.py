@@ -8,9 +8,11 @@ def setup_opencv_mac():
     global list_cameras, Camera, colorspace
 
     from pygame import _camera_opencv
+    from pygame import _camera
 
     list_cameras = _camera_opencv.list_cameras_darwin
     Camera = _camera_opencv.CameraMac
+    colorspace = _camera.colorspace
 
 def setup_opencv():
     global list_cameras, Camera, colorspace
