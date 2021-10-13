@@ -402,6 +402,11 @@ Forces the library backend used in the camera
 module, overriding the platform defaults. Must
 be set before calling :func:`pygame.camera.init()`.
 
+In pygame 2.0.3, backends can be set programmatically instead. These
+two environment variables point to older webcam backends that may be
+removed. There is a newer OpenCV backend and newer Windows camera
+backend available, check those out.
+
 |
 |
 
