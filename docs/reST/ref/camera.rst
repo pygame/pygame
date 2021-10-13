@@ -8,9 +8,8 @@
 
 | :sl:`pygame module for camera use`
 
-Pygame currently supports Linux (v4l2) and Windows (MSMF) cameras.
-
-Windows cameras are only supported on Python 3 and on Windows 8 and above.
+Pygame currently supports Linux (v4l2) and Windows (MSMF) cameras natively,
+with integration with libraries like OpenCV to expand coverage.
 
 .. versionadded:: 2.0.2 Windows camera support
 
@@ -45,6 +44,58 @@ The Bayer to ``RGB`` function is based on:
 
 New in pygame 1.9.0.
 
+.. function:: init
+
+   | :sl:`Module init`
+   | :sg:`init(backend = None) -> None`
+
+   This function starts up the camera module, choosing the best webcam backend
+   it can find for your system. This is not guaranteed to succeed, and may even
+   attempt to import third party modules, like `OpenCV`. If you want to
+   override it's backend choice, you can call pass the name of the backend you
+   want into this function. More about backends in
+   :func:`pygame.camera.get_backends()`.
+
+   .. versionchanged:: 2.0.3 Option to explicitly select backend
+
+   .. ## pygame.camera.init ##
+
+.. function:: get_backends
+
+   | :sl:`Get the backends supported on this system`
+   | :sg:`get_backends() -> [str]`
+
+   This function returns every backend it thinks has a possibility of working
+   on your system, in order of priority.
+
+   pygame.camera Backends:
+   ::
+
+      Backend           OS        Description
+      ---------------------------------------------------------------------------------
+      _camera (MSMF)    Windows   Builtin, works on Windows 8+ Python3
+      _camera (V4L2)    Linux     Builtin
+      OpenCV            Any       Uses `opencv-python` module, can't enumerate cameras
+      OpenCV-Mac        Mac       Same as OpenCV, but has camera enumeration
+      OpenCV-Legacy     ?         Uses an older port of OpenCV, may be removed
+      VideoCapture      Windows   Uses abandoned `VideoCapture` module, may be removed
+
+   There are two main differences among backends.
+
+   The _camera backends are built in to pygame itself, and require no third
+   party imports. All the other backends do.
+
+   The other big difference is "camera enumeration." Some backends don't have
+   a way to list out camera names, or even the number of cameras on the
+   system. In these cases, :func:`pygame.camera.list_cameras()` will return
+   something like ``[0]``. If you know you have multiple cameras on the 
+   system, these backend ports will pass through a "camera index number" 
+   through if you use that as the ``device`` parameter.
+
+   .. versionadded:: 2.0.3
+
+   .. ## pygame.camera.get_backends ##
+
 .. function:: colorspace
 
    | :sl:`Surface colorspace conversion`
@@ -66,6 +117,10 @@ New in pygame 1.9.0.
 
    Checks the computer for available cameras and returns a list of strings of
    camera names, ready to be fed into :class:`pygame.camera.Camera`.
+
+   If the camera backend doesn't support webcam enumeration, this will return
+   something like ``[0]``. See :func:`pygame.camera.get_backends()` for much
+   more information.
 
    .. ## pygame.camera.list_cameras ##
 

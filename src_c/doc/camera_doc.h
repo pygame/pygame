@@ -1,5 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMECAMERA "pygame module for camera use"
+#define DOC_PYGAMECAMERAINIT "init(backend = None) -> None\nModule init"
+#define DOC_PYGAMECAMERAGETBACKENDS "get_backends() -> [str]\nGet the backends supported on this system"
 #define DOC_PYGAMECAMERACOLORSPACE "colorspace(Surface, format, DestSurface = None) -> Surface\nSurface colorspace conversion"
 #define DOC_PYGAMECAMERALISTCAMERAS "list_cameras() -> [cameras]\nreturns a list of available cameras"
 #define DOC_PYGAMECAMERACAMERA "Camera(device, (width, height), format) -> Camera\nload a camera"
@@ -19,6 +21,14 @@
 
 pygame.camera
 pygame module for camera use
+
+pygame.camera.init
+ init(backend = None) -> None
+Module init
+
+pygame.camera.get_backends
+ get_backends() -> [str]
+Get the backends supported on this system
 
 pygame.camera.colorspace
  colorspace(Surface, format, DestSurface = None) -> Surface
