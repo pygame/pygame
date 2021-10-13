@@ -27,7 +27,7 @@ pygame module for controlling streamed audio
 
 pygame.mixer.music.load
  load(filename) -> None
- load(fileobj, namehint="", loops=0) -> None
+ load(fileobj, namehint="") -> None
 Load a music file for playback
 
 pygame.mixer.music.unload
