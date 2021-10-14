@@ -11,7 +11,7 @@ def _setup_opencv_mac():
     from pygame import _camera_opencv
     try:
         from pygame import _camera
-    except:
+    except ImportError:
         _camera = None
 
     list_cameras = _camera_opencv.list_cameras_darwin
@@ -25,7 +25,7 @@ def _setup_opencv():
     from pygame import _camera_opencv
     try:
         from pygame import _camera
-    except:
+    except ImportError:
         _camera = None
 
     list_cameras = _camera_opencv.list_cameras
@@ -39,7 +39,7 @@ def _setup_opencv_legacy():
     from pygame import _camera_opencv_highgui
     try:
         from pygame import _camera
-    except:
+    except ImportError:
         _camera = None
 
     warnings.warn("This is the OpenCV legacy backend and may be removed."
@@ -66,7 +66,7 @@ def _setup_vidcapture():
     from pygame import _camera_vidcapture
     try:
         from pygame import _camera
-    except:
+    except ImportError:
         _camera = None
 
     warnings.warn("The VideoCapture backend is not recommended and may be removed."
