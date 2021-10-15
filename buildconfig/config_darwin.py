@@ -24,7 +24,9 @@ class Dependency:
         self.lib_dir = None
         self.libs = libs
         self.found = 0
-        self.checklib = checklib + self.libext
+        self.checklib = checklib
+        if self.checklib:
+            self.checklib += self.libext
         self.checkhead = checkhead
         self.cflags = ''
 
@@ -47,7 +49,7 @@ class Dependency:
                 if os.path.isfile(path):
                     self.lib_dir = dir
                     break
-        if self.lib_dir and self.inc_dir:
+        if self.inc_dir and (self.lib_dir or not self.checklib):
             print (self.name + '        '[len(self.name):] + ': found')
             self.found = 1
         else:
@@ -147,11 +149,10 @@ def main(sdl2=False):
 
 
     DEPS.extend([
-        FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMIDI'),
-        FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
         Dependency('PNG', 'png.h', 'libpng', ['png']),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
+        Dependency('PORTTIME', 'porttime.h', '', []),
         find_freetype(),
         # Scrap is included in sdlmain_osx, there is nothing to look at.
         # Dependency('SCRAP', '','',[]),
