@@ -11,7 +11,13 @@ sha512sum -c harfbuzz.sha512
 unxz -xf ${HARFBUZZ_NAME}.tar.xz
 tar -xf ${HARFBUZZ_NAME}.tar
 cd ${HARFBUZZ_NAME}
+
 # To avoid a circular dependency on freetype
 ./configure --with-freetype=no --with-fontconfig=no
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

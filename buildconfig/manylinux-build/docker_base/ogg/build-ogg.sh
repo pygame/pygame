@@ -12,14 +12,27 @@ sha512sum -c ogg.sha512
 
 tar xzf ${OGG}.tar.gz
 cd $OGG
+
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 tar xzf ${VORBIS}.tar.gz
 cd $VORBIS
+
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..

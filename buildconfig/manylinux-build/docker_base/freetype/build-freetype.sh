@@ -13,6 +13,12 @@ if [ ! -d $FREETYPE ]; then
 	tar xzf ${FREETYPE}.tar.gz
 fi
 cd $FREETYPE
+
 ./configure $EXTRA_CONFIG_FREETYPE
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
