@@ -365,7 +365,7 @@
 
       .. note ::
          Rect objects cannot be used as keys in a dictionary (they are not
-         hashable), so they must be converted to a tuple/list.
+         hashable), so they must be converted to a tuple.
          e.g. ``rect.collidedict({tuple(key_rect) : value})``
 
       .. ## Rect.collidedict ##
@@ -383,7 +383,7 @@
 
       .. note ::
          Rect objects cannot be used as keys in a dictionary (they are not
-         hashable), so they must be converted to a tuple/list.
+         hashable), so they must be converted to a tuple.
          e.g. ``rect.collidedictall({tuple(key_rect) : value})``
 
       .. ## Rect.collidedictall ##

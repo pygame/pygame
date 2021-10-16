@@ -18,6 +18,8 @@
 #define DOC_CONTROLLERGETBUTTON "get_button(button) -> bool\nGet the current state of a button"
 #define DOC_CONTROLLERGETMAPPING "get_mapping() -> mapping\nGet the mapping assigned to the controller"
 #define DOC_CONTROLLERSETMAPPING "set_mapping(mapping) -> int\nAssign a mapping to the controller"
+#define DOC_CONTROLLERRUMBLE "rumble(low_frequency, high_frequency, duration) -> bool\nStart a rumbling effect"
+#define DOC_CONTROLLERSTOPRUMBLE "stop_rumble() -> None\nStop any rumble effect playing"
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -98,5 +100,13 @@ Get the mapping assigned to the controller
 pygame._sdl2.controller.Controller.set_mapping
  set_mapping(mapping) -> int
 Assign a mapping to the controller
+
+pygame._sdl2.controller.Controller.rumble
+ rumble(low_frequency, high_frequency, duration) -> bool
+Start a rumbling effect
+
+pygame._sdl2.controller.Controller.stop_rumble
+ stop_rumble() -> None
+Stop any rumble effect playing
 
 */

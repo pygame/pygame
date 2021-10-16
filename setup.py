@@ -15,13 +15,54 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.2.dev3",
+    "version":          "2.0.3.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
     "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
     "long_description": LONG_DESCRIPTION,
+    "long_description_content_type": "text/x-rst",
+    "project_urls": {
+        "Documentation": "https://pygame.org/docs",
+        "Bug Tracker": "https://github.com/pygame/pygame/issues",
+        "Source": "https://github.com/pygame/pygame",
+        "Twitter": "https://twitter.com/pygame_org",
+    },
+    "classifiers": [
+        "Development Status :: 6 - Mature",
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "Programming Language :: Assembly",
+        "Programming Language :: C",
+        "Programming Language :: Cython",
+        "Programming Language :: Objective C",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Games/Entertainment",
+        "Topic :: Multimedia :: Sound/Audio",
+        "Topic :: Multimedia :: Sound/Audio :: MIDI",
+        "Topic :: Multimedia :: Sound/Audio :: Players",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Multimedia :: Graphics :: Capture :: Digital Camera",
+        "Topic :: Multimedia :: Graphics :: Capture :: Screen Capture",
+        "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+        "Topic :: Multimedia :: Graphics :: Viewers",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+    ],
+    "python_requires": '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
 }
 
 import re
@@ -217,6 +258,35 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
+if consume_arg('docs'):
+    fullgeneration = consume_arg('--fullgeneration') or consume_arg('--f')
+
+    # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
+    docs_help = (
+        "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3."
+    )
+    if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
+        raise SystemExit(docs_help)
+
+    import subprocess
+
+    try:
+        print("Using python:", sys.executable)
+        command_line = [
+            sys.executable, os.path.join('buildconfig', 'makeref.py')
+        ]
+        if fullgeneration:
+            command_line.append('full_generation')
+        subprocess.call(
+            command_line
+        )
+    except:
+        print(docs_help)
+        raise
+
+    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
+    if len(sys.argv) == 1:
+        sys.exit()
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):
@@ -501,7 +571,7 @@ def add_command(name):
     return decorator
 
 # try to find DLLs and copy them too  (only on windows)
-if sys.platform == 'win32':
+if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 
     from distutils.command.build_ext import build_ext
 
@@ -600,41 +670,43 @@ if sys.platform == 'win32':
     def flag_filter(compiler, *flags):
         return [flag for flag in flags if has_flag(compiler, flag)]
 
-    @add_command('build_ext')
-    class WinBuildExt(build_ext):
-        """This build_ext sets necessary environment variables for MinGW"""
+    # Only on win32, not MSYS2
+    if 'MSYSTEM' not in os.environ:
+        @add_command('build_ext')
+        class WinBuildExt(build_ext):
+            """This build_ext sets necessary environment variables for MinGW"""
 
-        # __sdl_lib_dir is possible location of msvcrt replacement import
-        # libraries, if they exist. Pygame module base only links to SDL so
-        # should have the SDL library directory as its only -L option.
-        for e in extensions:
-            if e.name == 'base':
-                __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
-                break
+            # __sdl_lib_dir is possible location of msvcrt replacement import
+            # libraries, if they exist. Pygame module base only links to SDL so
+            # should have the SDL library directory as its only -L option.
+            for e in extensions:
+                if e.name == 'base':
+                    __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
+                    break
 
-        def build_extensions(self):
-            # Add supported optimisations flags to reduce code size with MSVC
-            opts = flag_filter(self.compiler, "/GF", "/Gy")
-            for extension in extensions:
-                extension.extra_compile_args += opts
+            def build_extensions(self):
+                # Add supported optimisations flags to reduce code size with MSVC
+                opts = flag_filter(self.compiler, "/GF", "/Gy")
+                for extension in extensions:
+                    extension.extra_compile_args += opts
 
-            build_ext.build_extensions(self)
+                build_ext.build_extensions(self)
 
-    # Add the precompiled smooth scale MMX functions to transform.
-    def replace_scale_mmx():
-        for e in extensions:
-            if e.name == 'transform':
-                if '64 bit' in sys.version:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
-                else:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
-                for i in range(len(e.sources)):
-                    if e.sources[i].endswith('scale_mmx.c'):
-                        del e.sources[i]
-                        return
-    replace_scale_mmx()
+        # Add the precompiled smooth scale MMX functions to transform.
+        def replace_scale_mmx():
+            for e in extensions:
+                if e.name == 'transform':
+                    if '64 bit' in sys.version:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
+                    else:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
+                    for i in range(len(e.sources)):
+                        if e.sources[i].endswith('scale_mmx.c'):
+                            del e.sources[i]
+                            return
+        replace_scale_mmx()
 
 
 # clean up the list of extensions
@@ -720,52 +792,6 @@ class TestCommand(Command):
         '''
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
-
-
-
-@add_command('docs')
-class DocsCommand(Command):
-    """ For building the pygame documentation with `python setup.py docs`.
-
-    This generates html, and documentation .h header files.
-    """
-    user_options = [
-        ('fullgeneration', None, 'Specify that the docs must be fully regenerated')
-    ]
-
-    def initialize_options(self):
-        self._dir = os.getcwd()
-        self.fullgeneration = False
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        '''
-        runs Sphinx to build the docs.
-        '''
-
-        # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
-        docs_help = (
-            "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3." 
-        )
-        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
-            raise SystemExit(docs_help)
-
-        import subprocess
-        try:
-            print("using python:", sys.executable)
-            command_line = [
-                sys.executable, os.path.join('buildconfig', 'makeref.py')
-            ]
-            if self.fullgeneration:
-                command_line.append('full_generation')
-            return subprocess.call(
-                command_line
-            )
-        except:
-            print(docs_help)
-            raise
 
 # Prune empty file lists.
 data_files = [(path, files) for path, files in data_files if files]

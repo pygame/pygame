@@ -1,10 +1,9 @@
 from typing import Tuple, List, Union, Optional, Sequence
 from pygame.surface import Surface
-from pygame.math import Vector2
 from pygame.color import Color
 from pygame.rect import Rect
+from pygame._common import _Coordinate
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _ColorValue = Union[
     Color, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]

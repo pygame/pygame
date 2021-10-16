@@ -9,14 +9,16 @@
 | :sl:`pygame module for accessing sound sample data`
 
 Functions to convert between NumPy arrays and Sound objects. This
-module will only be available when pygame can use the external NumPy
-package.
+module will only be functional when pygame can use the external NumPy
+package. If NumPy can't be imported, ``surfarray`` becomes a ``MissingModule``
+object.
 
 Sound data is made of thousands of samples per second, and each sample is the
 amplitude of the wave at a particular moment in time. For example, in 22-kHz
 format, element number 5 of the array is the amplitude of the wave after
 5/22000 seconds.
 
+The arrays are indexed by the ``X`` axis first, followed by the ``Y`` axis.
 Each sample is an 8-bit or 16-bit integer, depending on the data format. A
 stereo sound file has two values per sample, while a mono sound file only has
 one.
@@ -59,7 +61,7 @@ one.
 
    DEPRECATED: Uses the requested array type for the module functions. The
    only supported arraytype is ``'numpy'``. Other values will raise ValueError.
-
+   Using this function will raise a ``DeprecationWarning``.
    .. ## pygame.sndarray.use_arraytype ##
 
 .. function:: get_arraytype
@@ -69,7 +71,7 @@ one.
 
    DEPRECATED: Returns the currently active array type. This will be a value of the
    ``get_arraytypes()`` tuple and indicates which type of array module is used
-   for the array creation.
+   for the array creation. Using this function will raise a ``DeprecationWarning``.
 
    .. versionadded:: 1.8
 
@@ -83,7 +85,8 @@ one.
    DEPRECATED: Checks, which array systems are available and returns them as a tuple of
    strings. The values of the tuple can be used directly in the
    :func:`pygame.sndarray.use_arraytype` () method. If no supported array
-   system could be found, None will be returned.
+   system could be found, None will be returned.  Using this function will raise a
+   ``DeprecationWarning``.
 
    .. versionadded:: 1.8
 

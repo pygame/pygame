@@ -7,14 +7,20 @@ def init():
 
     import os
     import sys
+    import platform
 
     use_opencv = False
     use_vidcapture = False
     use__camera = True
 
     if sys.platform == 'win32':
-        use_vidcapture = True
-        use__camera = False
+        if sys.version_info > (3,):
+            if int(platform.win32_ver()[0]) > 8:
+                use__camera = True
+            else:
+                use_opencv = True
+        else:
+            use_vidcapture = True
     elif "linux" in sys.platform:
         use__camera = True
     elif "darwin" in sys.platform:

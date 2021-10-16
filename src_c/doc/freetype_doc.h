@@ -2,8 +2,8 @@
 #define DOC_PYGAMEFREETYPE "Enhanced pygame module for loading and rendering computer fonts"
 #define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nget_error() -> None\nReturn the latest FreeType error"
 #define DOC_PYGAMEFREETYPEGETVERSION "get_version() -> (int, int, int)\nReturn the FreeType version"
-#define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72)\nInitialize the underlying FreeType library."
-#define DOC_PYGAMEFREETYPEQUIT "quit()\nShut down the underlying FreeType library."
+#define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72) -> None\nInitialize the underlying FreeType library."
+#define DOC_PYGAMEFREETYPEQUIT "quit() -> None\nShut down the underlying FreeType library."
 #define DOC_PYGAMEFREETYPEGETINIT "get_init() -> bool\nReturns True if the FreeType module is currently initialized."
 #define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nDEPRECATED: Use get_init() instead."
 #define DOC_PYGAMEFREETYPEGETCACHESIZE "get_cache_size() -> long\nReturn the glyph case size"
@@ -69,11 +69,11 @@ pygame.freetype.get_version
 Return the FreeType version
 
 pygame.freetype.init
- init(cache_size=64, resolution=72)
+ init(cache_size=64, resolution=72) -> None
 Initialize the underlying FreeType library.
 
 pygame.freetype.quit
- quit()
+ quit() -> None
 Shut down the underlying FreeType library.
 
 pygame.freetype.get_init

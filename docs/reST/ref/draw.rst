@@ -302,7 +302,7 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. function:: line
 
    | :sl:`draw a straight line`
-   | :sg:`line(surface, color, start_pos, end_pos, width) -> Rect`
+   | :sg:`line(surface, color, start_pos, end_pos) -> Rect`
    | :sg:`line(surface, color, start_pos, end_pos, width=1) -> Rect`
 
    Draws a straight line on the given surface. There are no endcaps. For thick
@@ -551,7 +551,6 @@ object around the draw calls (see :func:`pygame.Surface.lock` and
 .. ## pygame.draw ##
 
 .. figure:: code_examples/draw_module_example.png
-   :scale: 50 %
    :alt: draw module example
 
    Example code for draw module.
