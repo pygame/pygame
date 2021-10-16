@@ -167,7 +167,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
     def test_queue__invalid_filename(self):
         """Ensures queue() correctly handles invalid filenames."""
-        with self.assertRaises(pygame.error):
+        with self.assertRaises(IOError):
             pygame.mixer.music.queue("")
 
     def todo_test_stop(self):
