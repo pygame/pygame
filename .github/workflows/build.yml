@@ -57,17 +57,23 @@ jobs:
       #     path: ${{ github.workspace }}/pygame_mac_deps
 
   build:
+    name: ${{ matrix.name }}
     needs: deps
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-10.15 # ${{ matrix.os }}
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         # windows is covered by appveyor for now
-        os: [macos-10.15]
         # os: [windows-latest, macos-10.15]
 
-        # separate versions of cibuildwheel
-        cibuildver: ['CIBuildWheel v1', 'CIBuildWheel v2']
+        # Split job into 5 matrix builds, because GH actions provides 5 concurrent
+        # builds on macOS
+        include:
+          - { name: "MacOS (cp27 & pp27)", cibuildver: 1, pyversions: cp27-* pp27-* }
+          - { name: "MacOS (cp35 & pp36)", cibuildver: 1, pyversions: cp35-* pp36-* }
+          - { name: "MacOS (cp36 & cp37)", cibuildver: 2, pyversions: cp36-* cp37-* }
+          - { name: "MacOS (cp38 & cp39)", cibuildver: 2, pyversions: cp38-* cp39-* }
+          - { name: "MacOS (cp310 & pp37)", cibuildver: 2, pyversions: cp310-* pp37-* }
 
         # seperate into matrix for concurrency. 
         # pyver: ['cp27', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'pp27', 'pp36', 'pp37']
@@ -86,6 +92,8 @@ jobs:
       SDL_VIDEODRIVER: "dummy"
       SDL_AUDIODRIVER: "disk"
 
+      CIBW_BUILD: ${{ matrix.pyversions }}
+
       CIBW_BEFORE_ALL_MACOS: cd buildconfig/macdependencies && bash ./install_mac_deps.sh
 
       CIBW_BEFORE_BUILD: pip install requests numpy
@@ -97,6 +105,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ~/Library/Caches/pip  # This cache path is only right on mac
+          key: pip-cache-${{ matrix.name }}
+
       - name: Fetch Mac deps
         id: macdep-cache
         uses: actions/cache@v2
@@ -106,27 +120,20 @@ jobs:
 
       # use cibuildwheel v1 to build on older python versions
       - name: Build wheels with CIBuildWheel v1
-        # if: matrix.pyver == 'cp27' || matrix.pyver == 'cp35' || matrix.pyver == 'pp27' || matrix.pyver == 'pp36'
-        if: matrix.cibuildver == 'CIBuildWheel v1'
+        if: matrix.cibuildver == 1
         uses: pypa/cibuildwheel@v1.12.0
-        env:
-          # CIBW_BUILD: ${{ matrix.pyver }}-*
-          CIBW_BUILD: cp27-* cp35-* pp27-* pp36-*
 
       # use latest cibuildwheel for newer python versions
       - name: Build wheels with CIBuildWheel v2
-        # if: matrix.pyver != 'cp27' && matrix.pyver != 'cp35' && matrix.pyver != 'pp27' && matrix.pyver != 'pp36'
-        if: matrix.cibuildver == 'CIBuildWheel v2'
+        if: matrix.cibuildver == 2
         uses: pypa/cibuildwheel@v2.1.3
-        env:
-          # CIBW_BUILD: ${{ matrix.pyver }}-*
-          CIBW_BUILD: cp36-* cp37-* cp38-* cp39-* cp310-* pp37-*
 
-          # Build universal2 wheels too on an Intel runner.
-          # Note that the `arm64` part of the `universal2` wheel cannot be 
-          # tested in this configuration.
-          # uncomment when arm builds are working
-          # CIBW_ARCHS_MACOS: "x86_64 universal2"
+        # Build universal2 wheels too on an Intel runner.
+        # Note that the `arm64` part of the `universal2` wheel cannot be 
+        # tested in this configuration.
+        # uncomment when arm builds are working
+        # env:
+        #   CIBW_ARCHS_MACOS: "x86_64 universal2"
 
       - uses: actions/upload-artifact@v2
         with:
