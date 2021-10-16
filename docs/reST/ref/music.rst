@@ -220,7 +220,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
 
    | :sl:`queue a sound file to follow the current`
    | :sg:`queue(filename) -> None`
-   | :sg:`queue(fileobj, namehint="") -> None`
+   | :sg:`queue(fileobj, namehint="", loops=0) -> None`
 
    This will load a sound file and queue it. A queued sound file will begin as
    soon as the current sound naturally ends. Only one sound can be queued at a
