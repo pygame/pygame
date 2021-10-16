@@ -73,6 +73,14 @@ import os
 import distutils
 from setuptools import setup
 
+
+# A (bit hacky) fix for https://github.com/pygame/pygame/issues/2613
+# This is due to the fact that distutils uses command line args to 
+# export PyInit_* functions on windows, but those functions are already exported
+# and that is why compiler gives warnings
+from distutils.command.build_ext import build_ext
+build_ext.get_export_symbols = lambda self, ext: []
+
 IS_PYPY = '__pypy__' in sys.builtin_module_names
 
 def compilation_help():
