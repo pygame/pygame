@@ -357,7 +357,8 @@ _pg_rw_size(SDL_RWops *context)
         PyErr_Print();
         goto end;
     }
-    size = PyInt_AsLong(tmp);
+
+    size = PyLong_AsLongLong(tmp);
     if (size == -1 && PyErr_Occurred() != NULL) {
         PyErr_Print();
         goto end;
@@ -404,9 +405,11 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
         return -1;
 
 #if PY3
-    result = PyObject_CallFunction(helper->write, "y#", ptr, size * num);
+    result = PyObject_CallFunction(helper->write, "y#", (const char *)ptr,
+                                    (Py_ssize_t)size * num);
 #else  /* PY2 */
-    result = PyObject_CallFunction(helper->write, "s#", ptr, size * num);
+    result = PyObject_CallFunction(helper->write, "s#", (const char *)ptr,
+                                    (Py_ssize_t)size * num);
 #endif  /* PY2 */
     if (!result)
         return -1;
@@ -424,9 +427,11 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
     state = PyGILState_Ensure();
 
 #if PY3
-    result = PyObject_CallFunction(helper->write, "y#", ptr, size * num);
+    result = PyObject_CallFunction(helper->write, "y#", (const char *)ptr,
+                                    (Py_ssize_t)size * num);
 #else  /* PY2 */
-    result = PyObject_CallFunction(helper->write, "s#", ptr, size * num);
+    result = PyObject_CallFunction(helper->write, "s#", (const char *)ptr,
+                                    (Py_ssize_t)size * num);
 #endif  /* PY2 */
     if (!result) {
         PyErr_Print();
@@ -604,7 +609,8 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     if (!(offset == 0 &&
           whence == SEEK_CUR)) /* being seek'd, not just tell'd */
     {
-        result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
+        result = PyObject_CallFunction(helper->seek, "Li",
+                                    (long long)offset, whence);
         if (!result) {
             PyErr_Print();
             retval = -1;
@@ -620,7 +626,10 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
         goto end;
     }
 
-    retval = PyInt_AsLong(result);
+    retval = PyLong_AsLongLong(result);
+    if (retval == -1 && PyErr_Occurred())
+        PyErr_Clear();
+
     Py_DECREF(result);
 
 end:
@@ -637,7 +646,8 @@ end:
 
     if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
     {
-        result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
+        result = PyObject_CallFunction(helper->seek, "Li",
+                                    (long long)offset, whence);
         if (!result)
             return -1;
         Py_DECREF(result);
@@ -647,7 +657,10 @@ end:
     if (!result)
         return -1;
 
-    retval = PyInt_AsLong(result);
+    retval = PyLong_AsLongLong(result);
+    if (retval == -1 && PyErr_Occurred())
+        PyErr_Clear();
+
     Py_DECREF(result);
 
     return retval;
@@ -688,7 +701,8 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 #ifdef WITH_THREAD
     state = PyGILState_Ensure();
 #endif /* WITH_THREAD */
-    result = PyObject_CallFunction(helper->read, "i", size * maxnum);
+    result = PyObject_CallFunction(helper->read, "K",
+                                    (unsigned long long)size * maxnum);
     if (!result) {
         PyErr_Print();
         retval = -1;
@@ -703,8 +717,10 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     }
 
     retval = Bytes_GET_SIZE(result);
-    memcpy(ptr, Bytes_AsString(result), retval);
-    retval /= size;
+    if (retval) {
+        memcpy(ptr, Bytes_AsString(result), retval);
+        retval /= size;
+    }
 
     Py_DECREF(result);
 
