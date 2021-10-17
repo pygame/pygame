@@ -8,10 +8,11 @@
 
 | :sl:`pygame module for camera use`
 
-Pygame currently supports Linux (v4l2) and Windows (MSMF) cameras natively,
-with integration with libraries like OpenCV to expand coverage.
+Pygame currently supports Linux (V4L2) and Windows (MSMF) cameras natively,
+with wider platform support available via an integrated OpenCV backend.
 
-.. versionadded:: 2.0.2 Windows camera support
+.. versionadded:: 2.0.2 Windows native camera support
+.. versionadded:: 2.0.3 New OpenCV backends
 
 EXPERIMENTAL!: This API may change or disappear in later pygame releases. If
 you use this, your code will very likely break with the next pygame release.
@@ -77,13 +78,14 @@ New in pygame 1.9.0.
       _camera (V4L2)    Linux     Builtin
       OpenCV            Any       Uses `opencv-python` module, can't enumerate cameras
       OpenCV-Mac        Mac       Same as OpenCV, but has camera enumeration
-      OpenCV-Legacy     ?         Uses an older port of OpenCV, may be removed
-      VideoCapture      Windows   Uses abandoned `VideoCapture` module, may be removed
+      VideoCapture      Windows   Uses abandoned `VideoCapture` module, can't enumerate
+                                  cameras, may be removed in the future
 
    There are two main differences among backends.
 
    The _camera backends are built in to pygame itself, and require no third
-   party imports. All the other backends do.
+   party imports. All the other backends do. For the OpenCV and VideoCapture
+   backends, those modules need to be installed on your system.
 
    The other big difference is "camera enumeration." Some backends don't have
    a way to list out camera names, or even the number of cameras on the

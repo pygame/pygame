@@ -74,15 +74,17 @@ class Camera(object):
             self._cam = None
             self._open = False
 
-    def get_size(self):
+    def _check_open(self):
         if not self._open:
-            raise pygame.error("Camera needs to be started first")
+            raise pygame.error("Camera must be started")        
+
+    def get_size(self):
+        self._check_open()
         
         return self._size
 
     def set_controls(self, hflip = None, vflip = None, brightness = None):
-        if not self._open:
-            raise pygame.error("Camera needs to be started first")
+        self._check_open()
         
         if hflip is not None:
             self._flipx = bool(hflip)
@@ -94,14 +96,12 @@ class Camera(object):
         return self.get_controls()
         
     def get_controls(self):
-        if not self._open:
-            raise pygame.error("Camera needs to be started first")
+        self._check_open()
         
         return (self._flipx, self._flipy, self._cam.get(cv2.CAP_PROP_BRIGHTNESS))
 
     def query_image(self):
-        if not self._open:
-            raise pygame.error("Camera needs to be started to read data")
+        self._check_open()
         
         current_time = time.time()
         if current_time - self._last_frame_time > self._frametime:
@@ -109,8 +109,7 @@ class Camera(object):
         return False
 
     def get_image(self, dest_surf=None):
-        if not self._open:
-            raise pygame.error("Camera needs to be started to read data")
+        self._check_open()
         
         self._last_frame_time = time.time()
         
@@ -142,8 +141,7 @@ class Camera(object):
         return surf
 
     def get_raw(self):
-        if not self._open:
-            raise pygame.error("Camera needs to be started to read data")
+        self._check_open()
 
         self._last_frame_time = time.time()
 

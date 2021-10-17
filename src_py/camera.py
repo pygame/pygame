@@ -33,24 +33,6 @@ def _setup_opencv():
     if _camera:
         colorspace = _camera.colorspace
 
-def _setup_opencv_legacy():
-    global list_cameras, Camera, colorspace
-
-    from pygame import _camera_opencv_highgui
-    try:
-        from pygame import _camera
-    except ImportError:
-        _camera = None
-
-    warnings.warn("This is the OpenCV legacy backend and may be removed."
-                  "A newer OpenCV backend exists, based on `cv2`, but the PYGAME_CAMERA environment variable directs here for backwards compatibility.",
-                  DeprecationWarning, stacklevel=2)
-
-    list_cameras = _camera_opencv_highgui.list_cameras
-    Camera = _camera_opencv_highgui.Camera
-    if _camera:
-        colorspace = _camera.colorspace
-
 def _setup__camera():
     global list_cameras, Camera, colorspace
 
@@ -96,15 +78,13 @@ def get_backends():
     if sys.platform == 'win32':
         possible_backends.append("VidCapture")
 
-    possible_backends.append("OpenCV-Legacy")
-
     # see if we have any user specified defaults in environments.
     camera_env = os.environ.get("PYGAME_CAMERA", "")
-    if camera_env == "opencv": # prioritize opencv legacy
-        if "OpenCV-Legacy" in possible_backends:
-            possible_backends.remove("OpenCV-Legacy")
-        possible_backends = ["OpenCV-Legacy"] + possible_backends
-    if camera_env == "vidcapture":
+    if camera_env == "opencv": # prioritize opencv
+        if "OpenCV" in possible_backends:
+            possible_backends.remove("OpenCV")
+        possible_backends = ["OpenCV"] + possible_backends
+    if camera_env == "vidcapture": # prioritize vidcapture
         if "VideoCapture" in possible_backends:
             possible_backends.remove("VideoCapture")
         possible_backends = ["VideoCapture"] + possible_backends
@@ -113,7 +93,6 @@ def get_backends():
 
 backend_table = {"opencv-mac": _setup_opencv_mac,
                  "opencv": _setup_opencv,
-                 "opencv-legacy": _setup_opencv_legacy,
                  "_camera (msmf)": _setup__camera,
                  "_camera (v4l2)": _setup__camera,
                  "videocapture": _setup_vidcapture}
