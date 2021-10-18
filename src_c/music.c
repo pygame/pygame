@@ -370,22 +370,24 @@ _get_type_from_hint(char *namehint)
 }
 
 Mix_Music * 
-_load_music(PyObject *args) {
-    PyObject *obj;
+_load_music(PyObject *obj, char *namehint) {
     Mix_Music *new_music = NULL;
     char* ext = NULL;
-    char *namehint = NULL;
     SDL_RWops *rw = NULL;
-
-    if (!PyArg_ParseTuple(args, "O|s", &obj, &namehint)) {
-        return NULL;
-    }
+    PyObject* _type = NULL;
+    PyObject* error = NULL;
+    PyObject* _traceback = NULL;
 
     MIXER_INIT_CHECK();
 
     rw = pgRWops_FromObject(obj);
-    if (rw == NULL) /* stop on NULL, error already set */
+    if (rw == NULL) { /* stop on NULL, error already set is what we SHOULD do */
+        PyErr_Fetch(&_type, &error, &_traceback);
+        PyErr_SetObject(pgExc_SDLError, error);
+        Py_XDECREF(_type);
+        Py_XDECREF(_traceback);
         return NULL;
+    } 
     if (namehint) {
         ext = namehint;
     } else {

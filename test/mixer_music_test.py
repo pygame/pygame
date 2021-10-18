@@ -26,9 +26,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         if pygame.mixer.get_init() is None:
             pygame.mixer.init()
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer not loading mp3 on travisci"
-    )
     def test_load_mp3(self):
         "|tags:music|"
         self.music_load("mp3")
@@ -182,7 +179,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
     def test_queue__invalid_filename(self):
         """Ensures queue() correctly handles invalid filenames."""
-        with self.assertRaises(IOError):
+        with self.assertRaises(pygame.error):
             pygame.mixer.music.queue("")
 
     def todo_test_stop(self):
