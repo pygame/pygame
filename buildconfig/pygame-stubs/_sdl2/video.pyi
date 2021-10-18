@@ -52,12 +52,14 @@ class Window:
     def __init__(
         self,
         title: str = "pygame",
-        size: Iterable[int, int] = (640, 480),
-        position: Optional[Iterable[int, int]] = None,
+        size: Iterable[int] = (640, 480),
+        position: Optional[Iterable[int]] = None,
         fullscreen: bool = False,
-        fullscreen_desktop=False,
-        **kwargs: Any
+        fullscreen_desktop: bool = False,
+        **kwargs: bool
     ) -> None: ...
+    @staticmethod
+    def from_display_module() -> Window: ...
     grab: bool
     relative_mouse: bool
     def set_windowed(self) -> None: ...
@@ -74,22 +76,23 @@ class Window:
     borderless: bool
     def set_icon(self, surface: Surface) -> None: ...
     id: int
-    size: Iterable[int, int]
-    position: Union[int, Iterable[int, int]]
+    size: Iterable[int]
+    position: Union[int, Iterable[int]]
     opacity: float
     brightness: float
     display_index: int
-    def set_modal_for(Window) -> None: ...
+    def set_modal_for(self, Window) -> None: ...
 
 class Texture:
     def __init__(
         self,
         renderer: Renderer,
-        size: Iterable[int, int],
+        size: Iterable[int],
         static: bool = False,
         streaming: bool = False,
         target: bool = False,
     ) -> None: ...
+    @staticmethod
     def from_surface(renderer: Renderer, surface: Surface) -> Texture: ...
     renderer: Renderer
     width: int
@@ -101,9 +104,9 @@ class Texture:
     def draw(
         self,
         srcrect: Optional[_CanBeRect] = None,
-        dstrect: Optional[Union[_CanBeRect, Iterable[int, int]]] = None,
+        dstrect: Optional[Union[_CanBeRect, Iterable[int]]] = None,
         angle: int = 0,
-        origin: Optional[Iterable[int, int]] = None,
+        origin: Optional[Iterable[int]] = None,
         flipX: bool = False,
         flipY: bool = False,
     ) -> None: ...
@@ -120,7 +123,7 @@ class Image:
         srcrect: Optional[_CanBeRect] = None, dstrect: Optional[_CanBeRect] = None
     ) -> None: ...
     angle: float
-    origin: Optional[Iterable[float, float]]
+    origin: Optional[Iterable[float]]
     flipX: bool
     flipY: bool
     color: Color
@@ -138,6 +141,7 @@ class Renderer:
         vsync: bool = False,
         target_texture: bool = False,
     ) -> None: ...
+    @staticmethod
     def from_window(window: Window) -> Renderer: ...
     draw_blend_mode: int
     draw_color: Color
@@ -145,8 +149,8 @@ class Renderer:
     def present(self) -> None: ...
     def get_viewport(self) -> Rect: ...
     def set_viewport(self, area: Optional[_CanBeRect]) -> None: ...
-    logical_size: Iterable[int, int]
-    scale: Iterable[float, float]
+    logical_size: Iterable[int]
+    scale: Iterable[float]
     target: Union[Texture, None]
     def blit(
         self,
@@ -155,8 +159,8 @@ class Renderer:
         area: Optional[_CanBeRect] = None,
         special_flags: int = 0,
     ) -> Rect: ...
-    def draw_line(self, p1: Iterable[int, int], p2: Iterable[int, int]) -> None: ...
-    def draw_point(self, point: Iterable[int, int]) -> None: ...
+    def draw_line(self, p1: Iterable[int], p2: Iterable[int]) -> None: ...
+    def draw_point(self, point: Iterable[int]) -> None: ...
     def draw_rect(self, rect: _CanBeRect) -> None: ...
     def fill_rect(self, rect: _CanBeRect) -> None: ...
     def to_surface(
