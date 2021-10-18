@@ -27,7 +27,37 @@ on:
     - '.github/workflows/sdl1-sdist.yml'
 
 jobs:
+  deps:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test for Mac Deps cache hit
+        id: macdep-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/pygame_mac_deps
+          # The hash of all files in buildconfig manylinux-build and macdependencies is 
+          # the key to the cache. If anything changes here, the deps are built again
+          key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}
+
+      # build mac deps on cache miss
+      - name: Build Mac Deps
+        if: steps.macdep-cache.outputs.cache-hit != 'true'
+        run: |
+          brew install coreutils
+          cd buildconfig/macdependencies
+          bash ./build_mac_deps.sh
+
+      # Uncomment when you want to manually verify the deps by downloading them
+      # - name: Upload Mac deps
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: pygame-mac-deps
+      #     path: ${{ github.workspace }}/pygame_mac_deps
+
   build:
+    needs: deps
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
@@ -52,8 +82,27 @@ jobs:
         #   - os: windows-latest
         #     pyver: 'pp27'
 
+    env:
+      SDL_VIDEODRIVER: "dummy"
+      SDL_AUDIODRIVER: "disk"
+
+      CIBW_BEFORE_ALL_MACOS: cd buildconfig/macdependencies && bash ./install_mac_deps.sh
+
+      CIBW_BEFORE_BUILD: pip install requests numpy
+      CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
+
+      # Increase pip debugging output
+      CIBW_BUILD_VERBOSITY: 2
+
     steps:
       - uses: actions/checkout@v2
+
+      - name: Fetch Mac deps
+        id: macdep-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/pygame_mac_deps
+          key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}
 
       # use cibuildwheel v1 to build on older python versions
       - name: Build wheels with CIBuildWheel v1
@@ -61,36 +110,15 @@ jobs:
         if: matrix.cibuildver == 'CIBuildWheel v1'
         uses: pypa/cibuildwheel@v1.12.0
         env:
-          SDL_VIDEODRIVER: "dummy"
-          SDL_AUDIODRIVER: "disk"
-
           # CIBW_BUILD: ${{ matrix.pyver }}-*
           CIBW_BUILD: cp27-* cp35-* pp27-* pp36-*
-
-          # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: |
-            brew install coreutils
-            cd buildconfig/macdependencies
-            ./install_mac_deps.sh
-            cd ../..
-            pip install requests numpy
-
-          CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
-
-          CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
-
-          # Increase pip debugging output
-          CIBW_BUILD_VERBOSITY: 2
 
       # use latest cibuildwheel for newer python versions
       - name: Build wheels with CIBuildWheel v2
         # if: matrix.pyver != 'cp27' && matrix.pyver != 'cp35' && matrix.pyver != 'pp27' && matrix.pyver != 'pp36'
         if: matrix.cibuildver == 'CIBuildWheel v2'
-        uses: pypa/cibuildwheel@v2.1.2
+        uses: pypa/cibuildwheel@v2.1.3
         env:
-          SDL_VIDEODRIVER: "dummy"
-          SDL_AUDIODRIVER: "disk"
-
           # CIBW_BUILD: ${{ matrix.pyver }}-*
           CIBW_BUILD: cp36-* cp37-* cp38-* cp39-* cp310-* pp37-*
 
@@ -99,21 +127,6 @@ jobs:
           # tested in this configuration.
           # uncomment when arm builds are working
           # CIBW_ARCHS_MACOS: "x86_64 universal2"
-
-          # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: |
-            brew install coreutils
-            cd buildconfig/macdependencies
-            ./install_mac_deps.sh
-            cd ../..
-            pip install requests numpy
-
-          CIBW_BEFORE_BUILD_WINDOWS: pip install requests numpy
-
-          CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
-
-          # Increase pip debugging output
-          CIBW_BUILD_VERBOSITY: 2
 
       - uses: actions/upload-artifact@v2
         with:

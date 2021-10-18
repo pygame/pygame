@@ -10,6 +10,12 @@ curl -sL https://www.zlib.net/${ZLIB_NAME}.tar.gz > ${ZLIB_NAME}.tar.gz
 sha512sum -c zlib.sha512
 tar -xf ${ZLIB_NAME}.tar.gz
 cd ${ZLIB_NAME}
+
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

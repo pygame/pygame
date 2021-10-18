@@ -83,6 +83,12 @@ class MixerMusicModuleTest(unittest.TestCase):
             with open(bmusfn, "rb") as musf:
                 pygame.mixer.music.queue(musf, f)
 
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.load(musf, namehint=f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.queue(musf, namehint=f)
+
     def test_load_unicode(self):
         """test non-ASCII unicode path"""
         import shutil
@@ -152,6 +158,15 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         pygame.mixer.music.queue(ogg_file)
         pygame.mixer.music.queue(wav_file)
+
+    def test_queue__arguments(self):
+        """Ensures queue() can be called with proper arguments."""
+        wav_file = example_path(os.path.join("data", "house_lo.wav"))
+
+        pygame.mixer.music.queue(wav_file, loops=2)
+        pygame.mixer.music.queue(wav_file, namehint="")
+        pygame.mixer.music.queue(wav_file, "")
+        pygame.mixer.music.queue(wav_file, "", 2)
 
     def test_queue__no_file(self):
         """Ensures queue() correctly handles missing the file argument."""

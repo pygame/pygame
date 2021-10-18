@@ -18,6 +18,7 @@ fi
 
 tar xzf ${GETTEXT}.tar.gz
 cd $GETTEXT
+
 ./configure $GETTEXT_CONFIGURE --disable-dependency-tracking \
 --disable-silent-rules \
 --disable-debug \
@@ -34,3 +35,8 @@ cd $GETTEXT
 
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

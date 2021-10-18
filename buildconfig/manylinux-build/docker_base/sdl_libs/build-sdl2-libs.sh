@@ -31,6 +31,12 @@ cd $SDL2
 ./configure --disable-video-vulkan
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 
@@ -54,6 +60,12 @@ fi
         --enable-tif --disable-tif-shared --enable-webp --disable-webp-shared $SDL_IMAGE_CONFIGURE
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 # Build SDL_ttf
@@ -62,6 +74,12 @@ cd $TTF2
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 
@@ -90,4 +108,10 @@ cd $MIX2
 
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
