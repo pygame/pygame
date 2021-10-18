@@ -10,6 +10,12 @@ curl -sL https://sourceforge.net/projects/modplug-xmms/files/libmodplug/${MODPLU
 sha512sum -c libmodplug.sha512
 tar -xf ${MODPLUG_NAME}.tar.gz
 cd ${MODPLUG_NAME}
+
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

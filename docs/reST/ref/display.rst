@@ -23,10 +23,16 @@ special modules like automatic scaling or OpenGL support. These are
 controlled by flags passed to ``pygame.display.set_mode()``.
 
 Pygame can only have a single display active at any time. Creating a new one
-with ``pygame.display.set_mode()`` will close the previous display. If precise
-control is needed over the pixel format or display resolutions, use the
+with ``pygame.display.set_mode()`` will close the previous display. To detect
+the number and size of attached screens, you can use
+``pygame.display.get_desktop_sizes`` and then select appropriate window size
+and display index to pass to ``pygame.display.set_mode()``.
+
+For backward compatibility ``pygame.display`` allows precise control over
+the pixel format or display resolutions. This used to be necessary with old
+grahics cards and CRT screens, but is usually not needed any more. Use the
 functions ``pygame.display.mode_ok()``, ``pygame.display.list_modes()``, and
-``pygame.display.Info()`` to query information about the display.
+``pygame.display.Info()`` to query detailed information about the display.
 
 Once the display Surface is created, the functions from this module affect the
 single existing display. The Surface becomes invalid if the module is
@@ -192,7 +198,10 @@ required).
         screen_height=400
         screen=pygame.display.set_mode([screen_width, screen_height])
 
-   The display index ``0`` means the default display is used.
+   The display index ``0`` means the default display is used. If no display
+   index argument is provided, the default display can be overridden with an
+   environment variable.
+
 
    .. versionchanged:: 1.9.5 ``display`` argument added
 
@@ -308,6 +317,26 @@ required).
 
    .. ## pygame.display.get_wm_info ##
 
+.. function:: get_desktop_sizes
+
+   | :sl:`Get sizes of active desktops`
+   | :sg:`get_desktop_sizes() -> list`
+
+   This function returns the sizes of the currrently configured
+   virtual desktops as a list of (x, y) tuples of integers.
+
+   The length of the list is not the same as the number of attached monitors,
+   as a desktop can be mirrored across multiple monitors. The desktop sizes
+   do not indicate the maximum monitor resolutions supported by the hardware,
+   but the desktop size configured in the operating system.
+
+   In order to fit windows into the desktop as it is currently configured, and
+   to respect the resolution configured by the operating system in fullscreen
+   mode, this function *should* be used to replace many use cases of
+   ``pygame.display.list_modes()`` whenever applicable.
+
+   .. versionadded:: 2.0.0
+
 .. function:: list_modes
 
    | :sl:`Get list of available fullscreen modes`
@@ -324,6 +353,21 @@ required).
    additional flags for specific fullscreen modes.
 
    The display index ``0`` means the default display is used.
+
+   Since pygame 2.0, ``pygame.display.get_desktop_sizes()`` has taken over
+   some use cases from ``pygame.display.list_modes()``:
+
+   To find a suitable size for non-fullscreen windows, it is preferable to
+   use ``pygame.display.get_desktop_sizes()`` to get the size of the *current*
+   desktop, and to then choose a smaller window size. This way, the window is
+   guaranteed to fit, even when the monitor is configured to a lower resolution
+   than the maximum supported by the hardware.
+
+   To avoid changing the physical monitor resolution, it is also preferable to
+   use ``pygame.display.get_desktop_sizes()`` to determine the fullscreen
+   resolution. Developers are strongly advised to default to the current
+   physical monitor resolution unless the user explicitly requests a different
+   one (e.g. in an options menu or configuration file).
 
    .. versionchanged:: 1.9.5 ``display`` argument added
 

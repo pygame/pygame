@@ -13,6 +13,12 @@ tar xzf ${FSYNTH}.tar.gz
 cd $FSYNTH
 mkdir build
 cd build
+
 cmake .. -Denable-readline=OFF
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

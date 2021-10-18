@@ -10,6 +10,12 @@ sha512sum -c jpeg.sha512
 
 tar xzf ${JPEG}.tar.gz
 cd jpeg-*
+
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
