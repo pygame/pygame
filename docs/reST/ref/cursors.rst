@@ -181,7 +181,7 @@ The following strings can be converted into cursor bitmaps with
    In addition to the cursor constants available and described above,
    you can also call ``pygame.cursors.Cursor()``, and your cursor is ready (doing that is the same as
    calling ``pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW)``.
-   Doing one of thoses calls actually creates a system cursor using the default native image.
+   Doing one of those calls actually creates a system cursor using the default native image.
 
    **Creating a color cursor**
 
