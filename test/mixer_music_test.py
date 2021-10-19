@@ -26,9 +26,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         if pygame.mixer.get_init() is None:
             pygame.mixer.init()
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer not loading mp3 on travisci"
-    )
     def test_load_mp3(self):
         "|tags:music|"
         self.music_load("mp3")
@@ -124,9 +121,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(tmppath)
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer issue with mp3 files on Travis CI"
-    )
     def test_queue_mp3(self):
         """Ensures queue() accepts mp3 files.
 
@@ -224,8 +218,10 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    @unittest.skipIf(os.environ.get("SDL_AUDIODRIVER")  == 'disk',
-                     'disk audio driver "playback" writing to disk is slow')
+    @unittest.skipIf(
+        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        'disk audio driver "playback" writing to disk is slow',
+    )
     def test_play__start_time(self):
 
         pygame.display.init()
