@@ -20,6 +20,7 @@
 #define DOC_PYGAMEEXAMPLESHEADLESSNOWINDOWSNEEDEDMAIN "headless_no_windows_needed.main(fin, fout, w, h) -> None\nwrite an image file that is smoothscaled copy of an input file"
 #define DOC_PYGAMEEXAMPLESFASTEVENTSMAIN "fastevents.main() -> None\nstress test the fastevents module"
 #define DOC_PYGAMEEXAMPLESOVERLAYMAIN "overlay.main(fname) -> None\nplay a .pgm video using overlays"
+#define DOC_PYGAMEEXAMPLESJOYSTICKMAIN "joystick.main() -> None\naccess the clipboard"
 #define DOC_PYGAMEEXAMPLESBLENDFILLMAIN "blend_fill.main() -> None\ndemonstrate the various surface.fill method blend options"
 #define DOC_PYGAMEEXAMPLESBLITBLENDSMAIN "blit_blends.main() -> None\nuses alternative additive fill to that of surface.fill"
 #define DOC_PYGAMEEXAMPLESCURSORSMAIN "cursors.main() -> None\ndisplay two different custom cursors"
@@ -117,6 +118,10 @@ stress test the fastevents module
 pygame.examples.overlay.main
  overlay.main(fname) -> None
 play a .pgm video using overlays
+
+pygame.examples.joystick.main
+ joystick.main() -> None
+access the clipboard
 
 pygame.examples.blend_fill.main
  blend_fill.main() -> None
