@@ -1,7 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEEXAMPLES "module of example programs"
 #define DOC_PYGAMEEXAMPLESALIENSMAIN "aliens.main() -> None\nplay the full aliens example"
-#define DOC_PYGAMEEXAMPLESOLDALIENMAIN "oldalien.main() -> None\nplay the original aliens example"
 #define DOC_PYGAMEEXAMPLESSTARSMAIN "stars.main() -> None\nrun a simple starfield example"
 #define DOC_PYGAMEEXAMPLESCHIMPMAIN "chimp.main() -> None\nhit the moving chimp"
 #define DOC_PYGAMEEXAMPLESMOVEITMAIN "moveit.main() -> None\ndisplay animated objects on the screen"
@@ -19,8 +18,7 @@
 #define DOC_PYGAMEEXAMPLESTESTSPRITEMAIN "testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0) -> None\nshow lots of sprites moving around"
 #define DOC_PYGAMEEXAMPLESHEADLESSNOWINDOWSNEEDEDMAIN "headless_no_windows_needed.main(fin, fout, w, h) -> None\nwrite an image file that is smoothscaled copy of an input file"
 #define DOC_PYGAMEEXAMPLESFASTEVENTSMAIN "fastevents.main() -> None\nstress test the fastevents module"
-#define DOC_PYGAMEEXAMPLESOVERLAYMAIN "overlay.main(fname) -> None\nplay a .pgm video using overlays"
-#define DOC_PYGAMEEXAMPLESJOYSTICKMAIN "joystick.main() -> None\naccess the clipboard"
+#define DOC_PYGAMEEXAMPLESJOYSTICKMAIN "joystick.main() -> None\ndemonstrate joystick functionality"
 #define DOC_PYGAMEEXAMPLESBLENDFILLMAIN "blend_fill.main() -> None\ndemonstrate the various surface.fill method blend options"
 #define DOC_PYGAMEEXAMPLESBLITBLENDSMAIN "blit_blends.main() -> None\nuses alternative additive fill to that of surface.fill"
 #define DOC_PYGAMEEXAMPLESCURSORSMAIN "cursors.main() -> None\ndisplay two different custom cursors"
@@ -42,10 +40,6 @@ module of example programs
 pygame.examples.aliens.main
  aliens.main() -> None
 play the full aliens example
-
-pygame.examples.oldalien.main
- oldalien.main() -> None
-play the original aliens example
 
 pygame.examples.stars.main
  stars.main() -> None
@@ -115,13 +109,9 @@ pygame.examples.fastevents.main
  fastevents.main() -> None
 stress test the fastevents module
 
-pygame.examples.overlay.main
- overlay.main(fname) -> None
-play a .pgm video using overlays
-
 pygame.examples.joystick.main
  joystick.main() -> None
-access the clipboard
+demonstrate joystick functionality
 
 pygame.examples.blend_fill.main
  blend_fill.main() -> None
