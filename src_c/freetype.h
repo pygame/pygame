@@ -26,7 +26,6 @@
 
 #include "pgcompat.h"
 #include "pgplatform.h"
-#include <Python.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

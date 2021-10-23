@@ -269,6 +269,7 @@ class TimeModuleTest(unittest.TestCase):
             # The test takes too much time
             if pygame.time.get_ticks() > max_test_time:
                 break
+
         pygame.time.set_timer(TIMER_EVENT_TYPE, 0)
         t2 = pygame.time.get_ticks()
         # Is the number ef events and the timing right?
@@ -278,6 +279,20 @@ class TimeModuleTest(unittest.TestCase):
         # Test that the timer stopped when set with 0ms delay.
         pygame.time.delay(200)
         self.assertNotIn(timer_event, pygame.event.get())
+
+        # Test that the old timer for an event is deleted when a new timer is set
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+        pygame.time.delay(int(timer_delay * 3.5))
+        self.assertEqual(pygame.event.get().count(timer_event), 3)
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay * 10) # long wait time
+        pygame.time.delay(timer_delay * 5)
+        self.assertNotIn(timer_event, pygame.event.get())
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay * 3)
+        pygame.time.delay(timer_delay * 7)
+        self.assertEqual(pygame.event.get().count(timer_event), 2)
+        pygame.time.set_timer(TIMER_EVENT_TYPE, timer_delay)
+        pygame.time.delay(int(timer_delay * 5.5))
+        self.assertEqual(pygame.event.get().count(timer_event), 5)
 
         # Test that the loops=True works
         pygame.time.set_timer(TIMER_EVENT_TYPE, 10, True)

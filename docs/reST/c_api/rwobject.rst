@@ -31,10 +31,16 @@ Header file: src_c/include/pygame.h
    If threads are available, the Python GIL is acquired before calling any of the *obj* methods.
    On error raise a Python exception and return ``NULL``.
 
-.. c:function:: int pgRWops_CheckObject(SDL_RWops *rw)
+.. c:function:: int pgRWops_IsFileObject(SDL_RWops *rw)
 
    Return true if *rw* is a Python file-like object wrapper returned by :c:func:`pgRWops_FromObject`
    or :c:func:`pgRWops_FromFileObject`.
+
+.. c:function:: char* pgRWops_GetFileExtension(SDL_RWops *rw)
+
+   Return a string that contains the file extension of the original file
+   loaded into the SDL_RWops object, or NULL if the SDL_RWops object comes
+   from a file object.
 
 .. c:function:: int pgRWops_ReleaseObject(SDL_RWops *context)
 

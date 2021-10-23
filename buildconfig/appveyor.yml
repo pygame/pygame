@@ -70,6 +70,13 @@ environment:
       USE_SDL2: "-sdl2"
       USE_ANALYZE: ""
 
+    - PYTHON: "C:\\Python310\\python"
+      PYTHONPATH: "C:\\Python310"
+      PYTHON_VERSION: "3.10.0"
+      PYTHON_ARCH: "32"
+      USE_SDL2: "-sdl2"
+      USE_ANALYZE: ""
+
     - PYTHON: "C:\\Python27-x64\\python"
       PYTHONPATH: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.13"
@@ -112,45 +119,12 @@ environment:
       USE_SDL2: "-sdl2"
       USE_ANALYZE: ""
 
-#     - PYTHON: "C:\\Python27\\python"
-#       PYTHON_VERSION: "2.7.13"
-#       PYTHON_ARCH: "32"
-
-#     - PYTHON: "C:\\Python34\\python"
-#       PYTHON_VERSION: "3.4.4"
-#       PYTHON_ARCH: "32"
-
-#     - PYTHON: "C:\\Python35\\python"
-#       PYTHON_VERSION: "3.5.2"
-#       PYTHON_ARCH: "32"
-
-#     - PYTHON: "C:\\Python36\\python"
-#       PYTHON_VERSION: "3.6.0"
-#       PYTHON_ARCH: "32"
-
-#     - PYTHON: "C:\\Python37\\python"
-#       PYTHON_VERSION: "3.7.0"
-#       PYTHON_ARCH: "32"
-
-#     - PYTHON: "C:\\Python27-x64\\python"
-#       PYTHON_VERSION: "2.7.13"
-#       PYTHON_ARCH: "64"
-
-#     - PYTHON: "C:\\Python34-x64\\python"
-#       PYTHON_VERSION: "3.4.4"
-#       PYTHON_ARCH: "64"
-
-#     - PYTHON: "C:\\Python35-x64\\python"
-#       PYTHON_VERSION: "3.5.2"
-#       PYTHON_ARCH: "64"
-
-#     - PYTHON: "C:\\Python36-x64\\python"
-#       PYTHON_VERSION: "3.6.0"
-#       PYTHON_ARCH: "64"
-
-#     - PYTHON: "C:\\Python37-x64\\python"
-#       PYTHON_VERSION: "3.7.0"
-#       PYTHON_ARCH: "64"
+    - PYTHON: "C:\\Python310-x64\\python"
+      PYTHONPATH: "C:\\Python310-x64"
+      PYTHON_VERSION: "3.10.0"
+      PYTHON_ARCH: "64"
+      USE_SDL2: "-sdl2"
+      USE_ANALYZE: ""
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"

@@ -1001,6 +1001,13 @@ class TransformModuleTest(unittest.TestCase):
 
         self.assertEqual(canvas.get_at((0, 0)), black)
 
+    def test_rotate_of_0_sized_surface(self):
+        # This function just tests possible Segmentation Fault
+        canvas1 = pygame.Surface((0, 1))
+        canvas2 = pygame.Surface((1, 0))
+        pygame.transform.rotate(canvas1, 42)
+        pygame.transform.rotate(canvas2, 42)
+
     def test_rotate__lossless_at_90_degrees(self):
         w, h = 32, 32
         s = pygame.Surface((w, h), pygame.SRCALPHA)
@@ -1246,7 +1253,7 @@ class TransformDisplayModuleTest(unittest.TestCase):
     def test_flip(self):
         """ honors the set_color key on the returned surface from flip.
         """
-        image_loaded = pygame.image.load(example_path("data/chimp.bmp"))
+        image_loaded = pygame.image.load(example_path("data/chimp.png"))
 
         image = pygame.Surface(image_loaded.get_size(), 0, 32)
         image.blit(image_loaded, (0, 0))
@@ -1291,7 +1298,7 @@ class TransformDisplayModuleTest(unittest.TestCase):
     def test_flip_alpha(self):
         """ returns a surface with the same properties as the input.
         """
-        image_loaded = pygame.image.load(example_path("data/chimp.bmp"))
+        image_loaded = pygame.image.load(example_path("data/chimp.png"))
 
         image_alpha = pygame.Surface(image_loaded.get_size(), pygame.SRCALPHA, 32)
         image_alpha.blit(image_loaded, (0, 0))

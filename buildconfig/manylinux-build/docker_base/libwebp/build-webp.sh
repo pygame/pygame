@@ -10,6 +10,12 @@ sha512sum -c webp.sha512
 
 tar xzf ${WEBP}.tar.gz
 cd $WEBP
+
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

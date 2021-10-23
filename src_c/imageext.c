@@ -108,127 +108,44 @@ image_load_ext(PyObject *self, PyObject *arg)
 {
     PyObject *obj;
     PyObject *final;
-    PyObject *oencoded;
-    PyObject *oname;
-    size_t namelen;
     const char *name = NULL;
-    const char *cext;
     char *ext = NULL;
     SDL_Surface *surf;
-    SDL_RWops *rw;
+    SDL_RWops *rw = NULL;
+    int lock_mutex = 0;
 
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
     }
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == NULL) {
+    rw = pgRWops_FromObject(obj);
+    if (rw == NULL) /* stop on NULL, error already set */
         return NULL;
-    }
-    if (oencoded != Py_None) {
-        name = Bytes_AS_STRING(oencoded);
+    ext = pgRWops_GetFileExtension(rw);
+    if (name) /* override extension with namehint if given */
+        ext = find_extension(name);
+
 #ifdef WITH_THREAD
-        namelen = Bytes_GET_SIZE(oencoded);
-        Py_BEGIN_ALLOW_THREADS;
-        if (namelen > 4 && !strcasecmp(name + namelen - 4, ".gif")) {
-            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
-            SDL_LockMutex(_pg_img_mutex);
-            surf = IMG_Load(name);
-            SDL_UnlockMutex(_pg_img_mutex);
-        }
-        else {
-            surf = IMG_Load(name);
-        }
-        Py_END_ALLOW_THREADS;
-#else /* ~WITH_THREAD */
-        surf = IMG_Load(name);
-#endif /* WITH_THREAD */
-        Py_DECREF(oencoded);
+    if (ext)
+        lock_mutex = !strcasecmp(ext, "gif");
+    Py_BEGIN_ALLOW_THREADS;
+    if (0) {
+        /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+        SDL_LockMutex(_pg_img_mutex);
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        SDL_UnlockMutex(_pg_img_mutex);
     }
     else {
-#ifdef WITH_THREAD
-        int lock_mutex = 0;
-#endif /* WITH_THREAD */
-        Py_DECREF(oencoded);
-        oencoded = NULL;
-#if PY2
-        if (name == NULL && PyFile_Check(obj)) {
-            oencoded = PyFile_Name(obj);
-            if (oencoded == NULL) {
-                /* This should never happen */
-                return NULL;
-            }
-            Py_INCREF(oencoded);
-            name = Bytes_AS_STRING(oencoded);
-        }
-#endif
-        if (name == NULL) {
-            oname = PyObject_GetAttrString(obj, "name");
-            if (oname != NULL) {
-                oencoded = pg_EncodeString(oname, "UTF-8", NULL, NULL);
-                Py_DECREF(oname);
-                if (oencoded == NULL) {
-                    return NULL;
-                }
-                if (oencoded != Py_None) {
-                    name = Bytes_AS_STRING(oencoded);
-                }
-            }
-            else {
-                PyErr_Clear();
-            }
-        }
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            Py_XDECREF(oencoded);
-            return NULL;
-        }
-
-        cext = find_extension(name);
-        if (cext != NULL) {
-            ext = (char *)PyMem_Malloc(strlen(cext) + 1);
-            if (ext == NULL) {
-                Py_XDECREF(oencoded);
-                return PyErr_NoMemory();
-            }
-            strcpy(ext, cext);
-#ifdef WITH_THREAD
-            lock_mutex = !strcasecmp(ext, "gif");
-#endif /* WITH_THREAD */
-        }
-        Py_XDECREF(oencoded);
-#ifdef WITH_THREAD
-        Py_BEGIN_ALLOW_THREADS;
-        if (lock_mutex) {
-            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
-            SDL_LockMutex(_pg_img_mutex);
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
-            SDL_UnlockMutex(_pg_img_mutex);
-        }
-        else {
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
-        }
-        Py_END_ALLOW_THREADS;
-#else /* ~WITH_THREAD */
         surf = IMG_LoadTyped_RW(rw, 1, ext);
+    }
+    Py_END_ALLOW_THREADS;
+#else /* ~WITH_THREAD */
+    surf = IMG_LoadTyped_RW(rw, 1, ext);
 #endif /* ~WITH_THREAD */
-        PyMem_Free(ext);
-    }
 
-    if (surf == NULL){
-        if (!strncmp(IMG_GetError(), "Couldn't open", 12)){
-            SDL_ClearError();
-#if PY3
-            PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
-#else
-            PyErr_SetString(PyExc_IOError, "No such file or directory.");
-#endif
-            return NULL;
-        }
-        else{
-            return RAISE(pgExc_SDLError, IMG_GetError());
-        }
-    }
+    if (surf == NULL)
+        return RAISE(pgExc_SDLError, IMG_GetError());
+
     final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);

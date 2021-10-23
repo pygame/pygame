@@ -254,5 +254,34 @@ events related to controllers.
 
       .. ## Contorller.set_mapping ##
 
+   .. method:: rumble
+
+      | :sl:`Start a rumbling effect`
+      | :sg:`rumble(low_frequency, high_frequency, duration) -> bool`
+
+      Start a rumble effect on the controller, with the specified strength ranging
+      from 0 to 1. Duration is length of the effect, in ms. Setting the duration
+      to 0 will play the effect until another one overwrites it or
+      :meth:`Controller.stop_rumble` is called. If an effect is already
+      playing, then it will be overwritten.
+
+      Returns True if the rumble was played successfully or False if the
+      controller does not support it or :meth:`pygame.version.SDL` is below 2.0.9.
+
+      .. versionadded:: 2.0.2
+
+      .. ## Contorller.rumble ##
+
+   .. method:: stop_rumble
+
+      | :sl:`Stop any rumble effect playing`
+      | :sg:`stop_rumble() -> None`
+
+      Stops any rumble effect playing on the controller. See
+      :meth:`Controller.rumble` for more information.
+
+      .. versionadded:: 2.0.2
+
+      .. ## Contorller.stop_rumble ##
 
 .. ## pygame._sdl2.controller ##

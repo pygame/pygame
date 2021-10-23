@@ -4,9 +4,8 @@ from typing_extensions import Protocol
 from pygame.color import Color
 from pygame.rect import Rect
 from pygame.surface import Surface
-from pygame.math import Vector2
+from pygame._common import _Coordinate
 
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 _ColorValue = Union[
     Color, str, Tuple[int, int, int], List[int], int, Tuple[int, int, int, int]
 ]
