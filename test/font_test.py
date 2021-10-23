@@ -206,6 +206,16 @@ class FontModuleTest(unittest.TestCase):
 
         self.assertEqual(pre_blit_corner_pixel, post_blit_corner_pixel)
 
+    def test_segfault_after_reinit(self):
+        """ Reinitialization of font module should not cause
+            segmentation fault """
+        import gc
+        font = pygame_font.Font(None, 20)
+        pygame_font.quit()
+        pygame_font.init()
+        del font
+        gc.collect()
+
     def test_quit(self):
         pygame_font.quit()
 

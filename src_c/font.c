@@ -65,6 +65,7 @@ PyFont_New(TTF_Font *);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
+static unsigned int current_ttf_generation = 0;
 static const char font_defaultname[] = "freesansbold.ttf";
 static const char pkgdatamodule_name[] = "pygame.pkgdata";
 static const char resourcefunc_name[] = "getResource";
@@ -200,6 +201,7 @@ fontmodule_quit(PyObject *self)
     if (font_initialized) {
         TTF_Quit();
         font_initialized = 0;
+        current_ttf_generation++;
     }
     Py_RETURN_NONE;
 }
@@ -730,9 +732,16 @@ static void
 font_dealloc(PyFontObject *self)
 {
     TTF_Font *font = PyFont_AsFont(self);
-
-    if (font && font_initialized)
+    if (font && font_initialized) {
+        if (self->ttf_init_generation != current_ttf_generation) {
+            // Since TTF_Font is a private structure
+            // it's impossible to access face field in a common way.
+            int** face_pp = font;
+            *face_pp = NULL;
+        }
         TTF_CloseFont(font);
+        self->font = NULL;
+    }
 
     if (self->weakreflist)
         PyObject_ClearWeakRefs((PyObject *)self);
@@ -898,6 +907,7 @@ success:
     Py_XDECREF(oencoded);
     Py_DECREF(obj);
     self->font = font;
+    self->ttf_init_generation = current_ttf_generation;
     return 0;
 
 error:
