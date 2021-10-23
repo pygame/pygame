@@ -46,6 +46,8 @@ typedef struct {
 static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
+static PyObject* os_module = NULL;
+
 #define PATHLIB "pathlib"
 #define PUREPATH "PurePath"
 
@@ -314,6 +316,17 @@ pgRWops_IsFileObject(SDL_RWops *rw)
     return rw->close == _pg_rw_close;
 }
 
+char*
+pgRWops_GetFileExtension(SDL_RWops* rw)
+{
+    if (pgRWops_IsFileObject(rw)) {
+        return NULL;
+    }
+    else {
+        return rw->hidden.unknown.data1;
+    }
+}
+
 #if IS_SDLv2
 static Sint64
 _pg_rw_size(SDL_RWops *context)
@@ -509,6 +522,9 @@ pgRWops_FromFileObject(PyObject *obj)
     helper->file = obj;
     Py_INCREF(obj);
 
+    /* Adding a helper to the hidden data to support file-like object RWops
+     * RWops from actual files use this space to store the file extension
+     * for later use */
     rw->hidden.unknown.data1 = (void *)helper;
 #if IS_SDLv2
     rw->size = _pg_rw_size;
@@ -518,9 +534,14 @@ pgRWops_FromFileObject(PyObject *obj)
     rw->write = _pg_rw_write;
     rw->close = _pg_rw_close;
 
+/* https://docs.python.org/3/c-api/init.html#c.PyEval_InitThreads */
+/* ^ in Python >= 3.7, we don't have to call this function, and in 3.11 
+ * it will be removed */
+#if PY_VERSION_HEX < 0x03070000
 #ifdef WITH_THREAD
     PyEval_InitThreads();
 #endif /* WITH_THREAD */
+#endif
 
     return rw;
 }
@@ -562,6 +583,7 @@ pgRWops_ReleaseObject(SDL_RWops *context)
 #endif /* WITH_THREAD */
     }
     else {
+        free(context->hidden.unknown.data1);
         ret = SDL_RWclose(context);
         if (ret < 0)
             PyErr_SetString(PyExc_IOError, SDL_GetError());
@@ -662,7 +684,7 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
     pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
-    ssize_t retval;
+    Py_ssize_t retval;
 #endif /* IS_SDLv2 */
 #ifdef WITH_THREAD
     PyGILState_STATE state;
@@ -717,22 +739,83 @@ _rwops_from_pystr(PyObject *obj)
     if (obj != NULL) {
         SDL_RWops *rw = NULL;
         PyObject *oencoded;
+        char* encoded = NULL;
+        char* ext = NULL;
+        char* extension = NULL;
+
         oencoded = pg_EncodeString(obj, "UTF-8", NULL, NULL);
         if (oencoded == NULL) {
             return NULL;
         }
         if (oencoded != Py_None) {
-            rw = SDL_RWFromFile(Bytes_AS_STRING(oencoded), "rb");
+            encoded = Bytes_AS_STRING(oencoded);
+            rw = SDL_RWFromFile(encoded, "rb");
+            ext = strrchr(encoded, '.');        
+            if (ext && strlen(ext) > 1) {
+                ext++;
+                extension = malloc(strlen(ext)+1);
+                if (extension == NULL) {
+                    return (SDL_RWops*)PyErr_NoMemory();
+                }
+                strcpy(extension, ext);
+            }
         }
         Py_DECREF(oencoded);
         if (rw) {
+            /* adding the extension to the hidden data for RWops from files */
+            /* this is necessary to support loading functions that rely on
+             * file extensions in a convenient way. File-like objects use this
+             * field for a helper object. */
+            rw->hidden.unknown.data1 = (void *)extension;
             return rw;
         } else {
 #if PY3
             if (PyUnicode_Check(obj)) {
                 SDL_ClearError();
-                PyErr_SetString(PyExc_FileNotFoundError,
-                                "No such file or directory.");
+
+                if (os_module) {
+                    PyObject* cwd = PyObject_CallMethod(os_module, "getcwd",
+                                                        NULL);
+                    if (cwd == NULL) {
+                        PyErr_SetString(PyExc_FileNotFoundError, 
+                                        "No such file or directory.");
+                        return NULL;
+                    }
+
+                    PyObject* path = PyObject_GetAttrString(os_module, "path");
+                    if (path == NULL) {
+                        Py_DECREF(cwd);
+                        PyErr_SetString(PyExc_FileNotFoundError,
+                                        "No such file or directory.");
+                        return NULL;                        
+                    }
+
+                    PyObject* isabs = PyObject_CallMethod(path, "isabs", "O", obj);
+                    if (isabs == NULL) {
+                        Py_DECREF(cwd);
+                        Py_DECREF(path);
+                        PyErr_SetString(PyExc_FileNotFoundError,
+                                        "No such file or directory.");
+                        return NULL;
+                    }
+
+                    if (isabs == Py_False) {
+                        PyErr_Format(PyExc_FileNotFoundError,
+                                     "No file '%S' found in working directory"
+                                     " '%S'.", obj, cwd);                       
+                    }
+                    else {
+                        PyErr_Format(PyExc_FileNotFoundError, 
+                                     "No such file or directory: '%S'.", obj);
+                    }
+                    Py_DECREF(cwd);
+                    Py_DECREF(path);
+                    Py_DECREF(isabs);
+                }
+                else {
+                    PyErr_Format(PyExc_FileNotFoundError, 
+                                 "No such file or directory: '%S'.", obj);
+                }
 #else
             if (PyUnicode_Check(obj) || PyString_Check(obj)) {
                 SDL_ClearError();
@@ -845,6 +928,7 @@ MODINIT_DEFINE(rwobject)
     c_api[3] = pg_EncodeString;
     c_api[4] = pgRWops_FromFileObject;
     c_api[5] = pgRWops_ReleaseObject;
+    c_api[6] = pgRWops_GetFileExtension;
     apiobj = encapsulate_api(c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD(module);
@@ -856,5 +940,11 @@ MODINIT_DEFINE(rwobject)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+    /* import os, don't sweat if it errors, it will be checked before use */
+    os_module = PyImport_ImportModule("os");
+    if (os_module == NULL)
+        PyErr_Clear();
+
     MODINIT_RETURN(module);
 }

@@ -35,7 +35,7 @@ sound_chunks = []
 
 
 def callback(audiodevice, audiomemoryview):
-    """ This is called in the sound thread.
+    """This is called in the sound thread.
 
     Note, that the frequency and such you request may not be what you get.
     """
@@ -45,7 +45,7 @@ def callback(audiodevice, audiomemoryview):
 
 
 def postmix_callback(postmix, audiomemoryview):
-    """ This is called in the sound thread.
+    """This is called in the sound thread.
 
     At the end of mixing we get this data.
     """
@@ -78,3 +78,4 @@ sound = pg.mixer.Sound(buffer=b"".join(sound_chunks))
 print("playing back recorded sound")
 sound.play()
 time.sleep(5)
+pg.quit()

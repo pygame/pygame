@@ -18,7 +18,10 @@
 #    Pete Shinners
 #    pete@shinners.org
 
-""" A dictionary of RGBA tuples indexed by color names."""
+""" A dictionary of RGBA tuples indexed by color names.
+
+See https://www.pygame.org/docs/ref/color_list.html for sample swatches.
+"""
 
 from pygame.compat import unicode_
 

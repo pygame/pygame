@@ -78,8 +78,6 @@ For an example of how the scrap module works refer to the examples page
 
    :raises pygame.error: if unable to initialize scrap module
 
-   |
-
    .. note:: The scrap module requires :func:`pygame.display.set_mode()` be
       called before being initialized.
 

@@ -43,7 +43,7 @@ _ft_clear(PyObject *);
 #endif
 
 static PyObject *
-_ft_quit(PyObject *, PyObject *);
+_ft_quit(PyObject *);
 static PyObject *
 _ft_init(PyObject *, PyObject *, PyObject *);
 static PyObject *
@@ -53,9 +53,7 @@ _ft_get_error(PyObject *, PyObject *);
 static PyObject *
 _ft_get_init(PyObject *, PyObject *);
 static PyObject *
-_ft_autoinit(PyObject *, PyObject *);
-static void
-_ft_autoquit(void);
+_ft_autoinit(PyObject *);
 static PyObject *
 _ft_get_cache_size(PyObject *, PyObject *);
 static PyObject *
@@ -318,23 +316,14 @@ parse_dest(PyObject *dest, int *x, int *y)
         Py_DECREF(oj);
         return -1;
     }
-    if (!pg_IntFromObj(oi, &i)){
-        i = -1;
-    }
-    Py_DECREF(oi);
-    if (i == -1 ) {
+    if (!pg_IntFromObj(oi, &i) || !pg_IntFromObj(oj, &j)){
+        Py_DECREF(oi);
         Py_DECREF(oj);
         PyErr_SetString(PyExc_TypeError, "dest expects a pair of numbers");
         return -1;
     }
-    if (!pg_IntFromObj(oj, &j)){
-        j = -1;
-    }
+    Py_DECREF(oi);
     Py_DECREF(oj);
-    if (j == -1 ) {
-        PyErr_SetString(PyExc_TypeError, "dest expects a pair of numbers");
-        return -1;
-    }
     *x = i;
     *y = j;
     return 0;
@@ -526,11 +515,11 @@ free_string(PGFT_String *p)
  * FREETYPE MODULE METHODS TABLE
  */
 static PyMethodDef _ft_methods[] = {
-    {"__PYGAMEinit__", _ft_autoinit, METH_NOARGS,
+    {"__PYGAMEinit__", (PyCFunction)_ft_autoinit, METH_NOARGS,
      "auto initialize function for _freetype"},
     {"init", (PyCFunction)_ft_init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEFREETYPEINIT},
-    {"quit", _ft_quit, METH_NOARGS, DOC_PYGAMEFREETYPEQUIT},
+    {"quit", (PyCFunction)_ft_quit, METH_NOARGS, DOC_PYGAMEFREETYPEQUIT},
     {"get_init", _ft_get_init, METH_NOARGS,
      DOC_PYGAMEFREETYPEGETINIT},
     {"was_init", _ft_get_init, METH_NOARGS,
@@ -2086,28 +2075,26 @@ pgFont_New(const char *filename, long font_index)
  ***************************************************************/
 
 static PyObject *
-_ft_autoinit(PyObject *self, PyObject *args)
+_ft_autoinit(PyObject *self)
 {
     int cache_size = FREETYPE_MOD_STATE(self)->cache_size;
-    FT_Error result = 1;
 
     if (!FREETYPE_MOD_STATE(self)->freetype) {
-        pg_RegisterQuit(_ft_autoquit);
-
-        if (cache_size == 0) {
+        if (cache_size == 0)
             cache_size = PGFT_DEFAULT_CACHE_SIZE;
-        }
-        if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), cache_size)) {
-            return 0;
-        }
+
+        if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), cache_size))
+            return RAISE(PyExc_RuntimeError,
+                            "Failed to initialize freetype library");
+
         FREETYPE_MOD_STATE(self)->cache_size = cache_size;
     }
 
-    return PyInt_FromLong(result);
+    Py_RETURN_NONE;
 }
 
-static void
-_ft_autoquit(void)
+static PyObject *
+_ft_quit(PyObject *self)
 {
     _FreeTypeState *state = FREETYPE_STATE;
 
@@ -2116,12 +2103,7 @@ _ft_autoquit(void)
         state->cache_size = 0;
         state->freetype = 0;
     }
-}
 
-static PyObject *
-_ft_quit(PyObject *self, PyObject *args)
-{
-    _ft_autoquit();
     Py_RETURN_NONE;
 }
 
@@ -2136,24 +2118,14 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|II", kwlist, &cache_size,
                                      &resolution)) {
-        return 0;
+        return NULL;
     }
 
     if (!state->freetype) {
-        PyObject *result;
-
         state->cache_size = cache_size;
         state->resolution =
             (resolution ? (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
-        result = _ft_autoinit(self, NULL);
-
-        if (!result) {
-            PyErr_Clear();
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Failed to initialize the FreeType2 library");
-            return 0;
-        }
-        Py_DECREF(result);
+        return _ft_autoinit(self);
     }
 
     Py_RETURN_NONE;

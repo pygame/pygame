@@ -198,7 +198,7 @@ key_get_pressed(PyObject *self, PyObject *args)
 
     for (i = 0; i < num_keys; i++) {
         PyObject *key_elem;
-        key_elem = PyInt_FromLong(key_state[i]);
+        key_elem = PyBool_FromLong(key_state[i]);
         if (!key_elem) {
             Py_DECREF(key_tuple);
             return NULL;
@@ -772,9 +772,9 @@ key_get_focused(PyObject *self, PyObject *args)
     VIDEO_INIT_CHECK();
 
 #if IS_SDLv1
-    return PyInt_FromLong((SDL_GetAppState() & SDL_APPINPUTFOCUS) != 0);
+    return PyBool_FromLong((SDL_GetAppState() & SDL_APPINPUTFOCUS) != 0);
 #else  /* IS_SDLv2 */
-    return PyInt_FromLong(SDL_GetKeyboardFocus() != NULL);
+    return PyBool_FromLong(SDL_GetKeyboardFocus() != NULL);
 #endif /* IS_SDLv2 */
 }
 
@@ -804,13 +804,35 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
     /* https://wiki.libsdl.org/SDL_SetTextInputRect */
 #if IS_SDLv2
     SDL_Rect *rect, temp;
+    SDL_Window *sdlWindow = pg_GetDefaultWindow();
+    SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
+
     if (obj == Py_None) {
         Py_RETURN_NONE;
     }
     rect = pgRect_FromObject(obj, &temp);
     if (!rect)
         return RAISE(PyExc_TypeError, "Invalid rect argument");
+
+    if (sdlRenderer != NULL) {
+        SDL_Rect vprect, rect2;
+        /* new rect so we do not overwrite the input rect */
+        float scalex, scaley;
+
+        SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+        SDL_RenderGetViewport(sdlRenderer, &vprect);
+
+        rect2.x = (int)(rect->x * scalex + vprect.x);
+        rect2.y = (int)(rect->y * scaley + vprect.y);
+        rect2.w = (int)(rect->w * scalex);
+        rect2.h = (int)(rect->h * scaley);
+
+        SDL_SetTextInputRect(&rect2);
+        Py_RETURN_NONE;
+    }
+
     SDL_SetTextInputRect(rect);
+
 #endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }

@@ -18,23 +18,21 @@ C header: src_c/include/pygame.h
 
    This is :py:exc:`pygame.error`, the exception type used to raise SDL errors.
 
-.. c:function:: int pgVideo_AutoInit()
+.. c:function:: int pg_mod_autoinit(const char* modname)
 
-   Initialize the SDL video subsystem.
-   Return ``1`` on success, ``0`` for an SDL error,
-   ``-1`` if a Python exception is raised.
-   It is safe to call this function more than once.
+   Inits a pygame module, which has the name ``modname``
+   Return ``1`` on success, ``0`` on error, with python
+   error set.
 
-.. c:function:: void pgVideo_AutoQuit()
+.. c:function:: void pg_mod_autoquit(const char* modname)
 
-   Close the SDL video subsysytem.
-   It is safe to call this function more than once.
+   Quits a pygame module, which has the name ``modname``
 
 .. c:function:: void pg_RegisterQuit(void (*f)(void))
 
    Register function *f* as a callback on Pygame termination.
    Multiple functions can be registered.
-   Functions are called in the order they were registered.
+   Functions are called in the reverse order they were registered.
 
 .. c:function:: int pg_IntFromObj(PyObject *obj, int *val)
 

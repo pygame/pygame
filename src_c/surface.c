@@ -615,13 +615,13 @@ surface_init(pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         if ((!pg_IntFromObjIndex(size, 0, &width)) ||
             (!pg_IntFromObjIndex(size, 1, &height))) {
             PyErr_SetString(PyExc_ValueError,
-                            "size needs to be (int width, int height)");
+                            "size needs to be (number width, number height)");
             return -1;
         }
     }
     else {
         PyErr_SetString(PyExc_ValueError,
-                        "size needs to be (int width, int height)");
+                        "size needs to be (number width, number height)");
         return -1;
     }
 
@@ -1179,7 +1179,7 @@ static PyObject *
 surf_mustlock(PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = pgSurface_AsSurface(self);
-    return PyInt_FromLong(SDL_MUSTLOCK(surf) ||
+    return PyBool_FromLong(SDL_MUSTLOCK(surf) ||
                           ((pgSurfaceObject *)self)->subsurface);
 }
 

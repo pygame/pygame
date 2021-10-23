@@ -33,16 +33,22 @@
 */
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+
+/* Ensure PyPy-specific code is not in use when running on GraalPython (PR #2580) */
+#if defined(GRAALVM_PYTHON) && defined(PYPY_VERSION)
+#undef PYPY_VERSION
+#endif
+
 #include <SDL.h>
 
 /* IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise */
 /* IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise */
-#if (SDL_VERSION_ATLEAST(2, 0, 0))
-#define IS_SDLv2 1
-#define IS_SDLv1 0
-#else
+#if !(SDL_VERSION_ATLEAST(2, 0, 0))
 #define IS_SDLv2 0
 #define IS_SDLv1 1
+#else
+#define IS_SDLv2 1
+#define IS_SDLv1 0
 #endif
 
 /*#if IS_SDLv1 && PG_MAJOR_VERSION >= 2
@@ -116,11 +122,13 @@ typedef enum {
      * proxy for SDL events (and some extra events too!), the proxy is used
      * internally when pygame users use event.post()
      *
-     * Thankfully, SDL2 provides over 8000 userevents, so theres no need
-     * to worry about wasting userevent space.
+     * At a first glance, these may look redundant, but they are really
+     * important, especially with event blocking. If proxy events are
+     * not there, blocked events dont make it to our event filter, and
+     * that can break a lot of stuff.
      *
      * IMPORTANT NOTE: Do not post events directly with these proxy types,
-     * use the appropriate functions in event.c, that handle these proxy
+     * use the appropriate functions from event.c, that handle these proxy
      * events for you.
      * Proxy events are for internal use only */
     PGPOST_EVENTBEGIN, /* mark start of proxy-events */
@@ -336,7 +344,7 @@ struct pgColorObject {
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 #define PYGAMEAPI_SURFACE_NUMSLOTS 4
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
-#define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 7
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
 #define PYGAMEAPI_COLOR_NUMSLOTS 5
 #define PYGAMEAPI_MATH_NUMSLOTS 2

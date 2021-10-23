@@ -28,7 +28,11 @@ Here is a list of available cursors:
     arrow, diamond, ball, broken_x, tri_left, tri_right
 
 There is also a sample string cursor named 'thickarrow_strings'.
-The compile() function can convert these string cursors into cursor byte data.
+The compile() function can convert these string cursors into cursor byte data that can be used to
+create Cursor objects.
+
+Alternately, you can also create Cursor objects using surfaces or cursors constants,
+such as pygame.SYSTEM_CURSOR_ARROW.
 """
 
 import pygame
@@ -49,6 +53,18 @@ _cursor_id_table = {
 
 class Cursor(object):
     def __init__(self, *args):
+        """Cursor(size, hotspot, xormasks, andmasks) -> Cursor
+        Cursor(hotspot, Surface) -> Cursor
+        Cursor(constant) -> Cursor
+        Cursor(Cursor) -> copies the Cursor object passed as an argument
+        Cursor() -> Cursor
+        
+        pygame object for representing cursors
+        
+        You can initialize a cursor from a system cursor or use the constructor on an existing Cursor object,
+        which will copy it. 
+        Providing a Surface instance will render the cursor displayed as that Surface when used.
+        Said Surfaces may use other colors than black and white."""
         if len(args) == 0:
             self.type = "system"
             self.data = (pygame.SYSTEM_CURSOR_ARROW,)
@@ -80,9 +96,16 @@ class Cursor(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+    
+    def __copy__(self):
+        '''Clone the current Cursor object. 
+        You can do the same thing by doing Cursor(Cursor).'''
+        return self.__class__(self)
+    
+    copy=__copy__
 
     def __hash__(self):
-        return hash(tuple([self.type] + [data for data in self.data]))
+        return hash(tuple([self.type] + list(self.data)))
 
     def __repr__(self):
         if self.type == "system":
@@ -222,6 +245,7 @@ tri_right = Cursor(
 # Here is an example string resource cursor. To use this:
 #    curs, mask = pygame.cursors.compile_cursor(pygame.cursors.thickarrow_strings, 'X', '.')
 #    pygame.mouse.set_cursor((24, 24), (0, 0), curs, mask)
+# Be warned, though, that cursors created from compiled strings do not support colors.
 
 # sized 24x24
 thickarrow_strings = (

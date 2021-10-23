@@ -20,9 +20,9 @@
 
 """pygame module for accessing sound sample data
 
-Functions to convert between numpy arrays and Sound
-objects. This module will only be available when pygame can use the
-external numpy package.
+Functions to convert between NumPy arrays and Sound objects. This module
+will only be functional when pygame can use the external NumPy package.
+If NumPy can't be imported, surfarray becomes a MissingModule object.
 
 Sound data is made of thousands of samples per second, and each sample
 is the amplitude of the wave at a particular moment in time. For
@@ -33,19 +33,21 @@ Each sample is an 8-bit or 16-bit integer, depending on the data format.
 A stereo sound file has two values per sample, while a mono sound file
 only has one.
 
-Supported array systems are
-
-  numpy
-
-The array type to use can be changed at runtime using the use_arraytype()
-method, which requires one of the above types as string.
-
 Sounds with 16-bit data will be treated as unsigned integers,
 if the sound sample type requests this.
 """
 
-# import pygame._numpysndarray as numpysnd
-numpysnd = None
+from pygame import mixer
+import numpy
+
+import warnings
+
+
+__all__ = [
+    "array", "samples", "make_sound", "use_arraytype", "get_arraytype",
+    "get_arraytypes"
+]
+
 
 def array(sound):
     """pygame.sndarray.array(Sound): return array
@@ -56,12 +58,8 @@ def array(sound):
     array will always be in the format returned from
     pygame.mixer.get_init().
     """
-    global numpysnd
-    try:
-        return numpysnd.array(sound)
-    except AttributeError:
-        import pygame._numpysndarray as numpysnd
-        return numpysnd.array(sound)
+
+    return numpy.array(sound, copy=True)
 
 
 def samples(sound):
@@ -73,12 +71,9 @@ def samples(sound):
     object. Modifying the array will change the Sound. The array will
     always be in the format returned from pygame.mixer.get_init().
     """
-    global numpysnd
-    try:
-        return numpysnd.samples(sound)
-    except AttributeError:
-        import pygame._numpysndarray as numpysnd
-        return numpysnd.samples(sound)
+
+    return numpy.array(sound, copy=False)
+
 
 def make_sound(array):
     """pygame.sndarray.make_sound(array): return Sound
@@ -89,32 +84,40 @@ def make_sound(array):
     must be initialized and the array format must be similar to the mixer
     audio format.
     """
-    global numpysnd
-    try:
-        return numpysnd.make_sound(array)
-    except AttributeError:
-        import pygame._numpysndarray as numpysnd
-        return numpysnd.make_sound(array)
+
+    return mixer.Sound(array=array)
+
 
 def use_arraytype(arraytype):
     """pygame.sndarray.use_arraytype(arraytype): return None
 
     DEPRECATED - only numpy arrays are now supported.
     """
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
     arraytype = arraytype.lower()
     if arraytype != 'numpy':
         raise ValueError("invalid array type")
+
 
 def get_arraytype():
     """pygame.sndarray.get_arraytype(): return str
 
     DEPRECATED - only numpy arrays are now supported.
     """
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
     return 'numpy'
+
 
 def get_arraytypes():
     """pygame.sndarray.get_arraytypes(): return tuple
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    return ('numpy',)
+    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
+                                     "this function will be removed in a "
+                                     "future version of the module"))
+    return 'numpy',

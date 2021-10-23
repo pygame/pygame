@@ -28,8 +28,10 @@ Keyboard Joystick Controls
 """
 
 import pygame as pg
+
 try:
     import pygame._sdl2.controller
+
     pygame._sdl2.controller.init()
     SDL2 = True
 except ImportError:
@@ -131,7 +133,6 @@ def main():
 
     # stores surfaces of text representing what has gone through the event queue
     history = []
-
 
     # let's turn on the joysticks just so we can play with em
     for x in range(pg.joystick.get_count()):

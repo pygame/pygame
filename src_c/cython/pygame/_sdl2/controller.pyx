@@ -237,3 +237,24 @@ cdef class Controller:
             raise error()
 
         return res
+
+    def rumble(self, low_frequency, high_frequency, duration):
+        """
+        Play a rumble effect on the controller, with set power (0-1 range) and
+        duration (in ms). Returns True if the effect was played successfully,
+        False otherwise.
+        """
+        self._CLOSEDCHECK()
+        duration = max(duration, 0)
+        low = min(max(low_frequency, 0.0), 1.0)
+        high = min(max(high_frequency, 0.0), 1.0)
+
+        res = SDL_GameControllerRumble(self._controller, low * 0xFFFF, high * 0xFFFF, duration)
+        return bool(res)
+
+    def stop_rumble(self):
+        """
+        Stop any rumble effect playing on the controller.
+        """
+        self._CLOSEDCHECK()
+        SDL_GameControllerRumble(self._controller, 0, 0, 1)

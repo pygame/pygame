@@ -8,7 +8,11 @@
 
 | :sl:`pygame module for camera use`
 
-Pygame currently supports only Linux and v4l2 cameras.
+Pygame currently supports Linux (V4L2) and Windows (MSMF) cameras natively,
+with wider platform support available via an integrated OpenCV backend.
+
+.. versionadded:: 2.0.2 Windows native camera support
+.. versionadded:: 2.0.3 New OpenCV backends
 
 EXPERIMENTAL!: This API may change or disappear in later pygame releases. If
 you use this, your code will very likely break with the next pygame release.
@@ -41,6 +45,59 @@ The Bayer to ``RGB`` function is based on:
 
 New in pygame 1.9.0.
 
+.. function:: init
+
+   | :sl:`Module init`
+   | :sg:`init(backend = None) -> None`
+
+   This function starts up the camera module, choosing the best webcam backend
+   it can find for your system. This is not guaranteed to succeed, and may even
+   attempt to import third party modules, like `OpenCV`. If you want to
+   override it's backend choice, you can call pass the name of the backend you
+   want into this function. More about backends in
+   :func:`get_backends()`.
+
+   .. versionchanged:: 2.0.3 Option to explicitly select backend
+
+   .. ## pygame.camera.init ##
+
+.. function:: get_backends
+
+   | :sl:`Get the backends supported on this system`
+   | :sg:`get_backends() -> [str]`
+
+   This function returns every backend it thinks has a possibility of working
+   on your system, in order of priority.
+
+   pygame.camera Backends:
+   ::
+
+      Backend           OS        Description
+      ---------------------------------------------------------------------------------
+      _camera (MSMF)    Windows   Builtin, works on Windows 8+ Python3
+      _camera (V4L2)    Linux     Builtin
+      OpenCV            Any       Uses `opencv-python` module, can't enumerate cameras
+      OpenCV-Mac        Mac       Same as OpenCV, but has camera enumeration
+      VideoCapture      Windows   Uses abandoned `VideoCapture` module, can't enumerate
+                                  cameras, may be removed in the future
+
+   There are two main differences among backends.
+
+   The _camera backends are built in to pygame itself, and require no third
+   party imports. All the other backends do. For the OpenCV and VideoCapture
+   backends, those modules need to be installed on your system.
+
+   The other big difference is "camera enumeration." Some backends don't have
+   a way to list out camera names, or even the number of cameras on the
+   system. In these cases, :func:`list_cameras()` will return
+   something like ``[0]``. If you know you have multiple cameras on the 
+   system, these backend ports will pass through a "camera index number" 
+   through if you use that as the ``device`` parameter.
+
+   .. versionadded:: 2.0.3
+
+   .. ## pygame.camera.get_backends ##
+
 .. function:: colorspace
 
    | :sl:`Surface colorspace conversion`
@@ -63,6 +120,10 @@ New in pygame 1.9.0.
    Checks the computer for available cameras and returns a list of strings of
    camera names, ready to be fed into :class:`pygame.camera.Camera`.
 
+   If the camera backend doesn't support webcam enumeration, this will return
+   something like ``[0]``. See :func:`get_backends()` for much more
+   information.
+
    .. ## pygame.camera.list_cameras ##
 
 .. class:: Camera
@@ -70,9 +131,10 @@ New in pygame 1.9.0.
    | :sl:`load a camera`
    | :sg:`Camera(device, (width, height), format) -> Camera`
 
-   Loads a v4l2 camera. The device is typically something like "/dev/video0".
-   Default width and height are 640 by 480. Format is the desired colorspace of
-   the output. This is useful for computer vision purposes. The default is
+   Loads a camera. On Linux, the device is typically something like
+   "/dev/video0". Default width and height are 640 by 480. 
+   Format is the desired colorspace of the output. 
+   This is useful for computer vision purposes. The default is
    ``RGB``. The following are supported:
 
       * ``RGB`` - Red, Green, Blue
@@ -125,7 +187,9 @@ New in pygame 1.9.0.
       or the values previously in use if not. Each argument is optional, and
       the desired one can be chosen by supplying the keyword, like hflip. Note
       that the actual settings being used by the camera may not be the same as
-      those returned by set_controls.
+      those returned by set_controls. On Windows, :code:`hflip` and :code:`vflip` are
+      implemented by pygame, not by the Camera, so they should always work, but
+      :code:`brightness` is unsupported.
 
       .. ## Camera.set_controls ##
 
@@ -148,9 +212,10 @@ New in pygame 1.9.0.
 
       If an image is ready to get, it returns true. Otherwise it returns false.
       Note that some webcams will always return False and will only queue a
-      frame when called with a blocking function like ``get_image()``. This is
-      useful to separate the framerate of the game from that of the camera
-      without having to use threading.
+      frame when called with a blocking function like :func:`get_image()`.
+      On Windows (MSMF), and the  OpenCV backends, :func:`query_image()`
+      should be reliable, though. This is useful to separate the framerate of
+      the game from that of the camera without having to use threading. 
 
       .. ## Camera.query_image ##
 
@@ -161,17 +226,19 @@ New in pygame 1.9.0.
 
       Pulls an image off of the buffer as an ``RGB`` Surface. It can optionally
       reuse an existing Surface to save time. The bit-depth of the surface is
-      either 24 bits or the same as the optionally supplied Surface.
+      24 bits on Linux, 32 bits on Windows, or the same as the optionally
+      supplied Surface.
 
       .. ## Camera.get_image ##
 
    .. method:: get_raw
 
-      | :sl:`returns an unmodified image as a string`
-      | :sg:`get_raw() -> string`
+      | :sl:`returns an unmodified image as bytes`
+      | :sg:`get_raw() -> bytes`
 
       Gets an image from a camera as a string in the native pixelformat of the
-      camera. Useful for integration with other libraries.
+      camera. Useful for integration with other libraries. This returns bytes
+      in Python 3, but a string in Python 2.
 
       .. ## Camera.get_raw ##
 

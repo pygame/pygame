@@ -58,7 +58,7 @@
 #define DOC_RENDERERLOGICALSIZE "logical_size -> (int width, int height)\nGets and sets the logical size."
 #define DOC_RENDERERSCALE "scale -> (float x_scale, float y_scale)\nGets and sets the scale."
 #define DOC_RENDERERTARGET "target -> Texture or None\nGets and sets the render target. None represents the default target (the renderer)."
-#define DOC_RENDERERBLIT "blit(soure, dest, area=None, special_flags=0)-> None\nFor compatibility purposes. Textures created by different Renderers cannot be shared!"
+#define DOC_RENDERERBLIT "blit(soure, dest, area=None, special_flags=0)-> Rect\nFor compatibility purposes. Textures created by different Renderers cannot be shared!"
 #define DOC_RENDERERDRAWLINE "draw_line(p1, p2) -> None\nDraws a line."
 #define DOC_RENDERERDRAWPOINT "draw_point(point) -> None\nDraws a point."
 #define DOC_RENDERERDRAWRECT "draw_rect(rect)-> None\nDraws a rectangle."
@@ -306,7 +306,7 @@ pygame._sdl2.video.Renderer.target
 Gets and sets the render target. None represents the default target (the renderer).
 
 pygame._sdl2.video.Renderer.blit
- blit(soure, dest, area=None, special_flags=0)-> None
+ blit(soure, dest, area=None, special_flags=0)-> Rect
 For compatibility purposes. Textures created by different Renderers cannot be shared!
 
 pygame._sdl2.video.Renderer.draw_line

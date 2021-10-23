@@ -208,7 +208,7 @@ mouse_set_visible(PyObject *self, PyObject *args)
     #endif
 
     toggle = SDL_ShowCursor(toggle);
-    return PyInt_FromLong(toggle);
+    return PyBool_FromLong(toggle);
 }
 
 static PyObject *
@@ -232,9 +232,9 @@ mouse_get_focused(PyObject *self)
 {
     VIDEO_INIT_CHECK();
 #if IS_SDLv1
-    return PyInt_FromLong((SDL_GetAppState() & SDL_APPMOUSEFOCUS) != 0);
+    return PyBool_FromLong((SDL_GetAppState() & SDL_APPMOUSEFOCUS) != 0);
 #else  /* IS_SDLv2 */
-    return PyInt_FromLong(SDL_GetMouseFocus() != NULL);
+    return PyBool_FromLong(SDL_GetMouseFocus() != NULL);
 #endif /* IS_SDLv2 */
 }
 

@@ -5,6 +5,8 @@ from pygame.color import Color
 from pygame.rect import Rect
 
 from pygame.math import Vector2
+from pygame.sprite import _RectStyle
+from pygame._common import _Coordinate
 
 _ColorInput = Union[
     Color, str, List[int], Tuple[int, int, int], Tuple[int, int, int, int]
@@ -24,7 +26,6 @@ class _HasRectAttribute(Protocol):
 _RectValue = Union[
     _CanBeRect, _HasRectAttribute
 ]
-_Coordinate = Union[Tuple[float, float], List[float], Vector2]
 
 class Surface(object):
     _pixels_address: int
@@ -43,16 +44,16 @@ class Surface(object):
     def blit(
         self,
         source: Surface,
-        dest: Union[Sequence[float], Rect],
-        area: Optional[Rect] = ...,
+        dest: Union[_Coordinate, _CanBeRect],
+        area: Optional[_CanBeRect] = ...,
         special_flags: int = ...,
     ) -> Rect: ...
     def blits(
         self,
-        sequence: Sequence[Union[Tuple[Surface, Rect],
-                                 Tuple[Surface, Rect, Rect],
-                                 Tuple[Surface, Rect, int],
-                                 Tuple[Surface, Rect, Rect, int]]],
+        blit_sequence: Sequence[Union[Tuple[Surface, Union[_Coordinate, _CanBeRect]],
+                                 Tuple[Surface, Union[_Coordinate, _CanBeRect], _CanBeRect],
+                                 Tuple[Surface, Union[_Coordinate, _CanBeRect], int],
+                                 Tuple[Surface, Union[_Coordinate, _CanBeRect], _CanBeRect, int]]],
         doreturn: Union[int, bool]
     ) -> Union[List[Rect], None]: ...
     @overload
@@ -120,7 +121,7 @@ class Surface(object):
     def get_size(self) -> Tuple[int, int]: ...
     def get_width(self) -> int: ...
     def get_height(self) -> int: ...
-    def get_rect(self, **kwargs) -> Rect: ...
+    def get_rect(self, **kwargs: Any) -> Rect: ...
     def get_bitsize(self) -> int: ...
     def get_bytesize(self) -> int: ...
     def get_flags(self) -> int: ...

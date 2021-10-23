@@ -21,6 +21,12 @@ cd $SDL
 ./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 # Link sdl-config into /usr/bin so that smpeg-config can find it
@@ -37,6 +43,12 @@ cd release_0_4_5
 ./configure --disable-dependency-tracking --disable-debug --disable-gtk-player --disable-gtktest --disable-opengl-player --disable-sdltest
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 # Build SDL_image
@@ -49,6 +61,12 @@ cd $IMG
         --enable-tif --disable-tif-shared --enable-webp --disable-webp-shared
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 # Build SDL_ttf
@@ -57,6 +75,12 @@ cd $TTF
 ./configure
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..
 
 # Build SDL_mixer
@@ -72,4 +96,10 @@ cd $MIX
             --enable-music-mp3  --disable-music-mp3-shared
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi
+
 cd ..

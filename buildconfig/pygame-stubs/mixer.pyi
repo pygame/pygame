@@ -1,7 +1,9 @@
+import sys
 from typing import Optional, Union, Tuple, Any, overload, IO
 
 if sys.version_info >= (3, 6):
     from os import PathLike
+
     AnyPath = Union[str, bytes, PathLike[str], PathLike[bytes]]
 else:
     AnyPath = Union[Text, bytes]
@@ -11,19 +13,20 @@ from . import music as music
 import numpy
 
 def init(
-    frequency: Optional[int] = 44100,
-    size: Optional[int] = -16,
-    channels: Optional[int] = 2,
-    buffer: Optional[int] = 512,
-    devicename: Optional[Union[str, None]] = None,
-    allowedchanges: Optional[int] = 5,
+    frequency: int = 44100,
+    size: int = -16,
+    channels: int = 2,
+    buffer: int = 512,
+    devicename: Optional[str] = None,
+    allowedchanges: int = 5,
 ) -> None: ...
 def pre_init(
-    frequency: Optional[int] = 44100,
-    size: Optional[int] = -16,
-    channels: Optional[int] = 2,
-    buffer: Optional[int] = 512,
-    devicename: Optional[Union[str, None]] = None,
+    frequency: int = 44100,
+    size: int = -16,
+    channels: int = 2,
+    buffer: int = 512,
+    devicename: Optional[str] = None,
+    allowedchanges: int = 5,
 ) -> None: ...
 def quit() -> None: ...
 def get_init() -> Tuple[int, int, int]: ...
@@ -40,16 +43,20 @@ def get_sdl_mixer_version(linked: bool) -> Tuple[int, int, int]: ...
 
 class Sound:
     @overload
-    def __init__(self, file: Union[AnyPath, IO]) -> None: ...
+    def __init__(self, file: Union[AnyPath, IO[Any]]) -> None: ...
     @overload
-    def __init__(self, buffer: Any) -> None: ...  # Buffer protocol is still not implemented in typing
+    def __init__(
+        self, buffer: Any
+    ) -> None: ...  # Buffer protocol is still not implemented in typing
     @overload
-    def __init__(self, array: numpy.ndarray) -> None: ...  # Buffer protocol is still not implemented in typing
+    def __init__(
+        self, array: numpy.ndarray
+    ) -> None: ...  # Buffer protocol is still not implemented in typing
     def play(
         self,
-        loops: Optional[int] = 0,
-        maxtime: Optional[int] = 0,
-        fade_ms: Optional[int] = 0,
+        loops: int = 0,
+        maxtime: int = 0,
+        fade_ms: int = 0,
     ) -> Channel: ...
     def stop(self) -> None: ...
     def fadeout(self, time: int) -> None: ...
@@ -64,9 +71,9 @@ class Channel:
     def play(
         self,
         sound: Sound,
-        loops: Optional[int] = 0,
-        maxtime: Optional[int] = 0,
-        fade_ms: Optional[int] = 0,
+        loops: int = 0,
+        maxtime: int = 0,
+        fade_ms: int = 0,
     ) -> None: ...
     def stop(self) -> None: ...
     def pause(self) -> None: ...
@@ -80,5 +87,5 @@ class Channel:
     def get_busy(self) -> bool: ...
     def get_sound(self) -> Sound: ...
     def get_queue(self) -> Sound: ...
-    def set_endevent(self, type: Optional[Union[int, Event]] = None) -> None: ...
+    def set_endevent(self, type: Union[int, Event] = 0) -> None: ...
     def get_endevent(self) -> int: ...

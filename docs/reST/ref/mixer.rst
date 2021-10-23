@@ -24,7 +24,9 @@ Sound object, it will return immediately while the sound continues to play. A
 single Sound object can also be actively played back multiple times.
 
 The mixer also has a special streaming channel. This is for music playback and
-is accessed through the :mod:`pygame.mixer.music` module.
+is accessed through the :mod:`pygame.mixer.music` module. Consider using this
+module for playing long running music. Unlike mixer module, the music module
+streams the music from the files without loading music at once into memory.
 
 The mixer module must be initialized like other pygame modules, but it has some
 extra conditions. The ``pygame.mixer.init()`` function takes several optional
@@ -46,8 +48,9 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 
    Initialize the mixer module for Sound loading and playback. The default
    arguments can be overridden to provide specific audio mixing. Keyword
-   arguments are accepted. For backward compatibility where an argument is set
-   zero the default value is used (possible changed by a pre_init call).
+   arguments are accepted. For backwards compatibility, argument values of 
+   0 are replaced with the startup defaults, except for ``allowedchanges``,
+   where -1 is used. (startup defaults may be changed by a :func:`pre_init` call).
 
    The size argument represents how many bits are used for each audio sample.
    If the value is negative then signed sample values will be used. Positive
@@ -93,26 +96,27 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
    .. versionchanged:: 2.0.0 The default ``frequency`` changed from 22050 to 44100.
    .. versionchanged:: 2.0.0 ``size`` can be 32 (32-bit floats).
    .. versionchanged:: 2.0.0 ``channels`` can also be 4 or 6.
-   .. versionadded:: 2.0.0 ``allowedchanges`` argument added
+   .. versionadded:: 2.0.0 ``allowedchanges``, ``devicename`` arguments added
 
    .. ## pygame.mixer.init ##
 
 .. function:: pre_init
 
    | :sl:`preset the mixer init arguments`
-   | :sg:`pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None) -> None`
+   | :sg:`pre_init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None, allowedchanges=AUDIO_ALLOW_FREQUENCY_CHANGE | AUDIO_ALLOW_CHANNELS_CHANGE) -> None`
 
    Call pre_init to change the defaults used when the real
    ``pygame.mixer.init()`` is called. Keyword arguments are accepted. The best
    way to set custom mixer playback values is to call
    ``pygame.mixer.pre_init()`` before calling the top level ``pygame.init()``.
-   For backward compatibility argument values of zero are replaced with the
-   startup defaults.
+   For backwards compatibility, argument values of 0 are replaced with the
+   startup defaults, except for ``allowedchanges``, where -1 is used.
 
    .. versionchanged:: 1.8 The default ``buffersize`` changed from 1024 to 3072.
    .. versionchanged:: 1.9.1 The default ``buffersize`` changed from 3072 to 4096.
    .. versionchanged:: 2.0.0 The default ``buffersize`` changed from 4096 to 512. 
    .. versionchanged:: 2.0.0 The default ``frequency`` changed from 22050 to 44100.
+   .. versionadded:: 2.0.0 ``allowedchanges``, ``devicename`` arguments added
 
    .. ## pygame.mixer.pre_init ##
 

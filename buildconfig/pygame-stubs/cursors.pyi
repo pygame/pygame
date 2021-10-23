@@ -1,4 +1,4 @@
-from typing import Tuple, Sequence, Optional, Iterable
+from typing import Iterator, List, Tuple, Sequence, Optional, Iterable, Union, overload
 
 from pygame.surface import Surface
 
@@ -44,34 +44,40 @@ sizer_xy_strings: _Small_string
 
 def compile(
     strings: Sequence[str],
-    black: Optional[str] = "X",
-    white: Optional[str] = ".",
-    xor="o",
+    black: str = "X",
+    white: str = ".",
+    xor: str = "o",
 ) -> Tuple[Sequence[int], Sequence[int]]: ...
-def load_xbm(cursorfile: str, maskfile: str): ...
+def load_xbm(
+    cursorfile: str, maskfile: str
+) -> Tuple[List[int], List[int], Tuple[int, ...], Tuple[int, ...]]: ...
 
-
-class Cursor(Iterable):
+class Cursor(Iterable[object]):
     @overload
-    def __init__(constant: int) -> None: ...
+    def __init__(self, constant: int) -> None: ...
     @overload
-    def __init__(size: Union[Tuple[int, int], List[int]],
-                 hotspot: Union[Tuple[int, int], List[int]],
-                 xormasks: Sequence[int],
-                 andmasks: Sequence[int],
-                 ) -> None: ...
+    def __init__(
+        self,
+        size: Union[Tuple[int, int], List[int]],
+        hotspot: Union[Tuple[int, int], List[int]],
+        xormasks: Sequence[int],
+        andmasks: Sequence[int],
+    ) -> None: ...
     @overload
-    def __init__(hotspot: Union[Tuple[int, int], List[int]],
-                 surface: Surface,
-                 ) -> None: ...
-
-    def __iter__() -> Iterator[object]: ...
-
-    type: string
-    data: Union[Tuple[int],
-                Tuple[Union[Tuple[int, int], List[int]],
-                      Union[Tuple[int, int], List[int]],
-                      Sequence[int],
-                      Sequence[int]],
-                Tuple[int, Surface]]
-
+    def __init__(
+        self,
+        hotspot: Union[Tuple[int, int], List[int]],
+        surface: Surface,
+    ) -> None: ...
+    def __iter__(self) -> Iterator[object]: ...
+    type: str
+    data: Union[
+        Tuple[int],
+        Tuple[
+            Union[Tuple[int, int], List[int]],
+            Union[Tuple[int, int], List[int]],
+            Sequence[int],
+            Sequence[int],
+        ],
+        Tuple[int, Surface],
+    ]

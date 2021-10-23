@@ -1,12 +1,10 @@
-.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.gif
-  :width: 200
-  :height: 70
+.. image:: docs/pygame_logo.svg
   :alt: pygame
 
 
-|TravisBuild| |AppVeyorBuild| |LaunchpadBuild|
-|PyPiVersion| |PyPiLicense| |Python2| |Python3| |GithubCommits|
-|LGTMAlerts| |LGTMGradePython| |LGTMGradeC| |Coverity|
+|AppVeyorBuild| |LaunchpadBuild| |PyPiVersion| |PyPiLicense| |Python2|
+|Python3| |GithubCommits| |LGTMAlerts| |LGTMGradePython| |LGTMGradeC|
+|Coverity|
 
 pygame_ is a free and open-source cross-platform library
 for the development of multimedia applications like video games using Python.
@@ -119,7 +117,7 @@ Dependencies
 
 Pygame is obviously strongly dependent on SDL and Python.  It also
 links to and embeds several other smaller libraries.  The font
-module relies on SDL_tff, which is dependent on freetype.  The mixer
+module relies on SDL_ttf, which is dependent on freetype.  The mixer
 (and mixer.music) modules depend on SDL_mixer.  The image module
 depends on SDL_image, which also can use libjpeg and libpng.  The
 transform module has an embedded version of SDL_rotozoom for its
@@ -131,7 +129,7 @@ Dependency versions:
 * SDL >= 1.2.15
 * SDL_mixer >= 1.2.13
 * SDL_image >= 1.2.12
-* SDL_tff >= 2.0.11
+* SDL_ttf >= 2.0.11
 * SDL_gfx (optional, vendored in)
 * NumPy >= 1.6.2 (optional)
 
@@ -153,9 +151,6 @@ The programs in the ``examples`` subdirectory are in the public domain.
 See docs/licenses for licenses of dependencies.
 
 
-.. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
-   :target: https://travis-ci.org/pygame/pygame
-
 .. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
    :target: https://ci.appveyor.com/project/pygame/pygame
 
@@ -171,8 +166,8 @@ See docs/licenses for licenses of dependencies.
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.0.svg
-   :target: https://github.com/pygame/pygame/compare/2.0.0...main
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.2.svg
+   :target: https://github.com/pygame/pygame/compare/2.0.2...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/

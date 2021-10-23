@@ -306,7 +306,7 @@
    .. method:: blit
 
       | :sl:`For compatibility purposes. Textures created by different Renderers cannot be shared!`
-      | :sg:`blit(soure, dest, area=None, special_flags=0)-> None`
+      | :sg:`blit(soure, dest, area=None, special_flags=0)-> Rect`
 
    .. method:: draw_line
 

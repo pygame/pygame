@@ -405,18 +405,22 @@ class DisplayModuleTest(unittest.TestCase):
         success = pygame.display.iconify()
 
         if success:
-            minimized_event = False
+            active_event = window_minimized_event = False
             # make sure we cycle the event loop enough to get the display
-            # hidden
-            if SDL2:
-                for _ in range(100):
-                    time.sleep(0.01)
-                    for event in pygame.event.get():
-                        if event.type == pygame.WINDOWMINIMIZED:
-                            minimized_event = True
+            # hidden. Test that both ACTIVEEVENT and WINDOWMINIMISED event appears
+            for _ in range(50):
+                time.sleep(0.01)
+                for event in pygame.event.get():
+                    if event.type == pygame.ACTIVEEVENT:
+                        if not event.gain and event.state == pygame.APPACTIVE:
+                            active_event = True
+                    if SDL2 and event.type == pygame.WINDOWMINIMIZED:
+                        window_minimized_event = True
 
-                self.assertTrue(minimized_event)
-                self.assertFalse(pygame.display.get_active())
+            if SDL2:
+                self.assertTrue(window_minimized_event)
+            self.assertTrue(active_event)
+            self.assertFalse(pygame.display.get_active())
 
         else:
             self.fail('Iconify not supported on this platform, please skip')
@@ -558,6 +562,19 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertEqual(
             winsize[0] / surf.get_size()[0], winsize[1] / surf.get_size()[1]
         )
+
+    def test_set_mode_vector2(self):
+        pygame.display.set_mode(pygame.Vector2(1,1))
+
+    def test_set_mode_unscaled(self):
+        """ Ensures a window created with SCALED can become smaller. """
+        # see https://github.com/pygame/pygame/issues/2327
+
+        screen = pygame.display.set_mode((300,300), pygame.SCALED)
+        self.assertEqual(screen.get_size(), (300,300))
+
+        screen = pygame.display.set_mode((200,200))
+        self.assertEqual(screen.get_size(), (200,200))
 
     def test_screensaver_support(self):
         pygame.display.set_allow_screensaver(True)

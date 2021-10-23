@@ -72,6 +72,9 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES -1
 #endif
 
+static int
+sound_init(PyObject *, PyObject *, PyObject *);
+
 static PyTypeObject pgSound_Type;
 static PyTypeObject pgChannel_Type;
 static PyObject *
@@ -92,9 +95,6 @@ static int request_channels = PYGAME_MIXER_DEFAULT_CHANNELS;
 static int request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
 static int request_allowedchanges = PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES;
 static char *request_devicename = NULL;
-
-static int
-sound_init(PyObject *self, PyObject *arg, PyObject *kwarg);
 
 struct ChannelData {
     PyObject *sound;
@@ -322,51 +322,6 @@ endsound_callback(int channel)
     }
 }
 
-static void
-pgMixer_AutoQuit(void)
-{
-    int i;
-    if (SDL_WasInit(SDL_INIT_AUDIO)) {
-        Py_BEGIN_ALLOW_THREADS;
-        Mix_HaltMusic();
-        Py_END_ALLOW_THREADS;
-
-        if (channeldata) {
-            for (i = 0; i < numchanneldata; ++i) {
-                Py_XDECREF(channeldata[i].sound);
-                Py_XDECREF(channeldata[i].queue);
-            }
-            free(channeldata);
-            channeldata = NULL;
-            numchanneldata = 0;
-        }
-
-        if (current_music) {
-            if (*current_music) {
-                Py_BEGIN_ALLOW_THREADS;
-                Mix_FreeMusic(*current_music);
-                Py_END_ALLOW_THREADS;
-                *current_music = NULL;
-            }
-            current_music = NULL;
-        }
-        if (queue_music) {
-            if (*queue_music) {
-                Py_BEGIN_ALLOW_THREADS;
-                Mix_FreeMusic(*queue_music);
-                Py_END_ALLOW_THREADS;
-                *queue_music = NULL;
-            }
-            queue_music = NULL;
-        }
-
-        Py_BEGIN_ALLOW_THREADS;
-        Mix_CloseAudio();
-        Py_END_ALLOW_THREADS;
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    }
-}
-
 static PyObject*
 import_music(void)
 {
@@ -420,8 +375,7 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
             case 6:
                 break;
             default:
-                PyErr_SetString(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
-                return NULL;
+                return RAISE(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
         }
     }
 #endif /* IS_SDLv2 */
@@ -464,13 +418,10 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
     /*make chunk a power of 2*/
     for (i = 0; 1 << i < chunk; ++i)
         ;                     /*yes, semicolon on for loop*/
-    chunk = MAX(1 << i, 256); /*do this after foo loop exits*/
+    chunk = MAX(1 << i, 256); /*do this after for loop exits*/
 
     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
-        pg_RegisterQuit(pgMixer_AutoQuit);
-
-        if (!channeldata) /*should always be null*/
-        {
+        if (!channeldata) { /*should always be null*/
             channeldata = (struct ChannelData *)malloc(
                 sizeof(struct ChannelData) * MIX_CHANNELS);
             if (!channeldata) {
@@ -498,27 +449,19 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         }
 #endif
 
-        if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
-            return PyInt_FromLong(0);
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO))
+            return RAISE(pgExc_SDLError, SDL_GetError());
 
 #if SDL_MIXER_MAJOR_VERSION >= 2 && SDL_MIXER_MINOR_VERSION >= 0 && SDL_MIXER_PATCHLEVEL >= 2
         if (Mix_OpenAudioDevice(freq, fmt, channels, chunk, devicename,
                                 allowedchanges) == -1) {
-            /* mixer.init swallows errors, tell user a reason via a log. */
-            if(devicename) {
-                SDL_Log("Failed to open devicename:%s: with error :%s:", devicename, SDL_GetError());
-            }
-            SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            return PyInt_FromLong(0);
-        }
 #else
         if (Mix_OpenAudio(freq, fmt, channels, chunk) == -1) {
-            SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            return PyInt_FromLong(0);
-        }
 #endif
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            return RAISE(pgExc_SDLError, SDL_GetError());;
+        }
         Mix_ChannelFinished(endsound_callback);
-
         Mix_VolumeMusic(127);
     }
 
@@ -543,25 +486,59 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         PyErr_Clear();
     }
 
-    return PyInt_FromLong(1);
+    Py_RETURN_NONE;
 }
 
 static PyObject *
-pgMixer_AutoInit(PyObject *self, PyObject *arg)
+pgMixer_AutoInit(PyObject *self)
 {
-    int freq = 0, size = 0, channels = 0, chunk = 0;
-    int allowedchanges = -1;
-
-    if (!PyArg_ParseTuple(arg, "|iiiii", &freq, &size, &channels, &chunk, &allowedchanges))
-        return NULL;
-
-    return _init(freq, size, channels, chunk, NULL, allowedchanges);
+    /* Return init with defaults */
+    return _init(0, 0, 0, 0, NULL, -1);
 }
 
 static PyObject *
 quit(PyObject *self)
 {
-    pgMixer_AutoQuit();
+    int i;
+    if (SDL_WasInit(SDL_INIT_AUDIO)) {
+        Py_BEGIN_ALLOW_THREADS;
+        Mix_HaltMusic();
+        Py_END_ALLOW_THREADS;
+
+        if (channeldata) {
+            for (i = 0; i < numchanneldata; ++i) {
+                Py_XDECREF(channeldata[i].sound);
+                Py_XDECREF(channeldata[i].queue);
+            }
+            free(channeldata);
+            channeldata = NULL;
+            numchanneldata = 0;
+        }
+
+        if (current_music) {
+            if (*current_music) {
+                Py_BEGIN_ALLOW_THREADS;
+                Mix_FreeMusic(*current_music);
+                Py_END_ALLOW_THREADS;
+                *current_music = NULL;
+            }
+            current_music = NULL;
+        }
+        if (queue_music) {
+            if (*queue_music) {
+                Py_BEGIN_ALLOW_THREADS;
+                Mix_FreeMusic(*queue_music);
+                Py_END_ALLOW_THREADS;
+                *queue_music = NULL;
+            }
+            queue_music = NULL;
+        }
+
+        Py_BEGIN_ALLOW_THREADS;
+        Mix_CloseAudio();
+        Py_END_ALLOW_THREADS;
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    }
     Py_RETURN_NONE;
 }
 
@@ -570,25 +547,22 @@ init(PyObject *self, PyObject *args, PyObject *keywds)
 {
     int freq = 0, size = 0, channels = 0, chunk = 0, allowedchanges = -1;
     char *devicename = NULL;
-    PyObject *result;
-    int value;
 
-    static char *kwids[] = {"frequency", "size",       "channels",
-                            "buffer",    "devicename", "allowedchanges", NULL};
+    static char *kwids[] = {
+        "frequency",
+        "size",
+        "channels",
+        "buffer",
+        "devicename",
+        "allowedchanges",
+        NULL
+    };
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiizi", kwids, &freq,
                                      &size, &channels, &chunk, &devicename,
                                      &allowedchanges)) {
         return NULL;
     }
-    result = _init(freq, size, channels, chunk, devicename, allowedchanges);
-    if (!result)
-        return NULL;
-    value = PyObject_IsTrue(result);
-    Py_DECREF(result);
-    if (!value)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-
-    Py_RETURN_NONE;
+    return _init(freq, size, channels, chunk, devicename, allowedchanges);
 }
 
 static PyObject *
@@ -1128,7 +1102,7 @@ chan_get_busy(PyObject *self)
     int channelnum = pgChannel_AsInt(self);
     MIXER_INIT_CHECK();
 
-    return PyInt_FromLong(Mix_Playing(channelnum));
+    return PyBool_FromLong(Mix_Playing(channelnum));
 }
 
 static PyObject *
@@ -1431,9 +1405,9 @@ static PyObject *
 get_busy(PyObject *self)
 {
     if (!SDL_WasInit(SDL_INIT_AUDIO))
-        return PyInt_FromLong(0);
+        return PyBool_FromLong(0);
 
-    return PyInt_FromLong(Mix_Playing(-1));
+    return PyBool_FromLong(Mix_Playing(-1));
 }
 
 static PyObject *
@@ -1941,7 +1915,7 @@ LOAD_BUFFER:
 }
 
 static PyMethodDef _mixer_methods[] = {
-    {"__PYGAMEinit__", pgMixer_AutoInit, METH_VARARGS,
+    {"__PYGAMEinit__", (PyCFunction)pgMixer_AutoInit, METH_NOARGS,
      "auto initialize for mixer"},
     {"init", (PyCFunction)init, METH_VARARGS | METH_KEYWORDS,
      DOC_PYGAMEMIXERINIT},
@@ -2082,8 +2056,6 @@ MODINIT_DEFINE(mixer)
     c_api[2] = pgSound_Play;
     c_api[3] = &pgChannel_Type;
     c_api[4] = pgChannel_New;
-    c_api[5] = pgMixer_AutoInit;
-    c_api[6] = pgMixer_AutoQuit;
     apiobj = encapsulate_api(c_api, "mixer");
     if (apiobj == NULL) {
         DECREF_MOD(module);

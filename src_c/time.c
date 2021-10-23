@@ -30,15 +30,17 @@
 
 typedef struct pgEventTimer {
     struct pgEventTimer *next;
+    long timer_id;
     pgEventObject *event;
     int repeat;
 } pgEventTimer;
 
 static pgEventTimer *pg_event_timer = NULL;
 static SDL_mutex *timermutex = NULL;
+static long pg_timer_id = 0;
 
-static void
-_pg_event_timer_cleanup(void)
+static PyObject *
+pg_time_autoquit(PyObject *self)
 {
     pgEventTimer *hunt, *todel;
     /* We can let errors silently pass in this function, because this
@@ -53,27 +55,25 @@ _pg_event_timer_cleanup(void)
             PyMem_Del(todel);
         }
         pg_event_timer = NULL;
+        pg_timer_id = 0;
     }
     SDL_UnlockMutex(timermutex);
     /* After we are done, we can destroy the mutex as well */
     SDL_DestroyMutex(timermutex);
     timermutex = NULL;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_time_autoinit(PyObject *self)
 {
-    /* register cleanup function for event timer holding structure,
-     * allocate a mutex for this structure too */
-    if (!timermutex && !pg_event_timer) {
+    /* allocate a mutex for timer data holding struct*/
+    if (!timermutex) {
         timermutex = SDL_CreateMutex();
-        if (!timermutex) {
-            PyErr_SetString(pgExc_SDLError, SDL_GetError());
-            return PyInt_FromLong(0);
-        }
-        pg_RegisterQuit(_pg_event_timer_cleanup);
+        if (!timermutex)
+            return RAISE(pgExc_SDLError, SDL_GetError());
     }
-    return PyInt_FromLong(1);
+    Py_RETURN_NONE;
 }
 
 static int
@@ -94,14 +94,17 @@ _pg_add_event_timer(pgEventObject *ev, int repeat)
         return 0;
     }
 
+    pg_timer_id++;
+
     new->next = pg_event_timer;
+    new->timer_id = pg_timer_id;
     new->event = ev;
     new->repeat = repeat;
     pg_event_timer = new;
 
     /* Chances of it failing here are next to zero, dont do anything */
     SDL_UnlockMutex(timermutex);
-    return 1;
+    return new->timer_id;
 }
 
 static void
@@ -132,7 +135,7 @@ _pg_remove_event_timer(pgEventObject *ev)
 }
 
 static pgEventTimer *
-_pg_get_event_on_timer(pgEventObject *ev)
+_pg_get_event_on_timer(long timer_id)
 {
     pgEventTimer *hunt;
 
@@ -141,7 +144,7 @@ _pg_get_event_on_timer(pgEventObject *ev)
 
     hunt = pg_event_timer;
     while (hunt) {
-        if (hunt->event->type == ev->type) {
+        if (hunt->timer_id == timer_id) {
             if (hunt->repeat >= 0) {
                 hunt->repeat--;
             }
@@ -162,7 +165,7 @@ timer_callback(Uint32 interval, void *param)
     SDL_Event event;
     PyGILState_STATE gstate;
 
-    evtimer = _pg_get_event_on_timer((pgEventObject *)param);
+    evtimer = _pg_get_event_on_timer((long)param);
     if (!evtimer)
         return 0;
 
@@ -181,7 +184,6 @@ timer_callback(Uint32 interval, void *param)
     }
     else
         evtimer->repeat = 0;
-
 
     if (!evtimer->repeat) {
         /* This does memory cleanup */
@@ -289,18 +291,14 @@ static PyObject *
 time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     int ticks, loops = 0;
+    long timer_id;
     PyObject *obj;
     pgEventObject *e;
 
-    static char *kwids[] = {
-        "event",
-        "millis",
-        "loops",
-        NULL
-    };
+    static char *kwids[] = {"event", "millis", "loops", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|i", kwids,
-                                     &obj, &ticks, &loops))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi|i", kwids, &obj, &ticks,
+                                     &loops))
         return NULL;
 
     if (!timermutex)
@@ -317,7 +315,7 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
     }
     else
         return RAISE(PyExc_TypeError,
-            "first argument must be an event type or event object");
+                     "first argument must be an event type or event object");
 
     /* stop original timer, if it exists */
     _pg_remove_event_timer(e);
@@ -327,7 +325,7 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_RETURN_NONE;
     }
 
-    /*just doublecheck that timer is initialized*/
+    /* just doublecheck that timer is initialized */
     if (!SDL_WasInit(SDL_INIT_TIMER)) {
         if (SDL_InitSubSystem(SDL_INIT_TIMER)) {
             Py_DECREF(e);
@@ -335,12 +333,13 @@ time_set_timer(PyObject *self, PyObject *args, PyObject *kwargs)
         }
     }
 
-    if (!_pg_add_event_timer(e, loops)) {
+    timer_id = _pg_add_event_timer(e, loops);
+    if (!timer_id) {
         Py_DECREF(e);
         return NULL;
     }
 
-    if (!SDL_AddTimer(ticks, timer_callback, (void *)e)) {
+    if (!SDL_AddTimer(ticks, timer_callback, (void *)timer_id)) {
         _pg_remove_event_timer(e); /* Does cleanup */
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
@@ -456,8 +455,7 @@ static struct PyMethodDef clock_methods[] = {
     {"tick", clock_tick, METH_VARARGS, DOC_CLOCKTICK},
     {"get_fps", clock_get_fps, METH_NOARGS, DOC_CLOCKGETFPS},
     {"get_time", clock_get_time, METH_NOARGS, DOC_CLOCKGETTIME},
-    {"get_rawtime", clock_get_rawtime, METH_NOARGS,
-     DOC_CLOCKGETRAWTIME},
+    {"get_rawtime", clock_get_rawtime, METH_NOARGS, DOC_CLOCKGETRAWTIME},
     {"tick_busy_loop", clock_tick_busy_loop, METH_VARARGS,
      DOC_CLOCKTICKBUSYLOOP},
     {NULL, NULL, 0, NULL}};
@@ -482,44 +480,43 @@ clock_str(PyObject *self)
 }
 
 static PyTypeObject PyClock_Type = {
-    PyVarObject_HEAD_INIT(NULL,0)
-    "Clock",                    /* name */
-    sizeof(PyClockObject),      /* basic size */
-    0,                          /* itemsize */
-    clock_dealloc,              /* dealloc */
-    0,                          /* print */
-    0,                          /* getattr */
-    0,                          /* setattr */
-    0,                          /* compare */
-    clock_str,                  /* repr */
-    0,                          /* as_number */
-    0,                          /* as_sequence */
-    0,                          /* as_mapping */
-    (hashfunc)0,                /* hash */
-    (ternaryfunc)0,             /* call */
-    clock_str,                  /* str */
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    0,                          /* tp_as_buffer */
-    0,                          /* flags */
-    DOC_PYGAMETIMECLOCK,        /* Documentation string */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
-    0,                          /* tp_weaklistoffset */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    clock_methods,              /* tp_methods */
-    0,                          /* tp_members */
-    0,                          /* tp_getset */
-    0,                          /* tp_base */
-    0,                          /* tp_dict */
-    0,                          /* tp_descr_get */
-    0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0) "Clock", /* name */
+    sizeof(PyClockObject),                  /* basic size */
+    0,                                      /* itemsize */
+    clock_dealloc,                          /* dealloc */
+    0,                                      /* print */
+    0,                                      /* getattr */
+    0,                                      /* setattr */
+    0,                                      /* compare */
+    clock_str,                              /* repr */
+    0,                                      /* as_number */
+    0,                                      /* as_sequence */
+    0,                                      /* as_mapping */
+    (hashfunc)0,                            /* hash */
+    (ternaryfunc)0,                         /* call */
+    clock_str,                              /* str */
+    0,                                      /* tp_getattro */
+    0,                                      /* tp_setattro */
+    0,                                      /* tp_as_buffer */
+    0,                                      /* flags */
+    DOC_PYGAMETIMECLOCK,                    /* Documentation string */
+    0,                                      /* tp_traverse */
+    0,                                      /* tp_clear */
+    0,                                      /* tp_richcompare */
+    0,                                      /* tp_weaklistoffset */
+    0,                                      /* tp_iter */
+    0,                                      /* tp_iternext */
+    clock_methods,                          /* tp_methods */
+    0,                                      /* tp_members */
+    0,                                      /* tp_getset */
+    0,                                      /* tp_base */
+    0,                                      /* tp_dict */
+    0,                                      /* tp_descr_get */
+    0,                                      /* tp_descr_set */
+    0,                                      /* tp_dictoffset */
+    0,                                      /* tp_init */
+    0,                                      /* tp_alloc */
+    0,                                      /* tp_new */
 };
 
 PyObject *
@@ -550,13 +547,15 @@ ClockInit(PyObject *self)
 
 static PyMethodDef _time_methods[] = {
     {"__PYGAMEinit__", (PyCFunction)pg_time_autoinit, METH_NOARGS,
-        "auto initialize function for time"},
+     "auto initialize function for time"},
+    {"__PYGAMEquit__", (PyCFunction)pg_time_autoquit, METH_NOARGS,
+     "auto quit function for time"},
     {"get_ticks", (PyCFunction)time_get_ticks, METH_NOARGS,
      DOC_PYGAMETIMEGETTICKS},
     {"delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY},
     {"wait", time_wait, METH_VARARGS, DOC_PYGAMETIMEWAIT},
-    {"set_timer", (PyCFunction)time_set_timer,
-        METH_VARARGS | METH_KEYWORDS, DOC_PYGAMETIMESETTIMER},
+    {"set_timer", (PyCFunction)time_set_timer, METH_VARARGS | METH_KEYWORDS,
+     DOC_PYGAMETIMESETTIMER},
 
     {"Clock", (PyCFunction)ClockInit, METH_NOARGS, DOC_PYGAMETIMECLOCK},
 

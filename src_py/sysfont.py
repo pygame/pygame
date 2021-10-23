@@ -27,10 +27,6 @@ from os.path import basename, dirname, exists, join, splitext
 from pygame.font import Font
 from pygame.compat import xrange_, PY_MAJOR_VERSION, unicode_
 
-if sys.platform == 'darwin':
-    import xml.etree.ElementTree as ET
-
-
 OpenType_extensions = frozenset(('.ttf', '.ttc', '.otf'))
 Sysfonts = {}
 Sysalias = {}
@@ -117,7 +113,10 @@ def initsysfonts_win32():
         if not dirname(font):
             font = join(fontdir, font)
 
-        _parse_font_entry_win(name, font, fonts)
+        # Some are named A & B, both names should be processed separately
+        # Ex: the main Cambria file is marked as "Cambria & Cambria Math"
+        for name in name.split("&"):
+            _parse_font_entry_win(name, font, fonts)
 
     return fonts
 
@@ -137,55 +136,76 @@ def _parse_font_entry_win(name, font, fonts):
     if name.endswith(true_type_suffix):
         name = name.rstrip(true_type_suffix).rstrip()
     name = name.lower().split()
-    bold = italic = 0
+    bold = italic = False
     for mod in mods:
         if mod in name:
             name.remove(mod)
     if 'bold' in name:
         name.remove('bold')
-        bold = 1
+        bold = True
     if 'italic' in name:
         name.remove('italic')
-        italic = 1
+        italic = True
     name = ''.join(name)
     name = _simplename(name)
 
     _addfont(name, bold, italic, font, fonts)
 
 
-def _add_font_paths(sub_elements, fonts):
-    """ Gets each element, checks its tag content,
-        if wanted fetches the next value in the iterable
+def _parse_font_entry_darwin(name, filepath, fonts):
     """
-    font_name = None
-    bold = False
-    italic = False
-    for tag in sub_elements:
-        if tag.text == "_name":
-            font_file_name = next(sub_elements).text
-            font_name = splitext(font_file_name)[0]
-            if splitext(font_file_name)[1] not in OpenType_extensions:
-                break
-            bold = "bold" in font_name
-            italic = "italic" in font_name
-        if tag.text == "path" and font_name is not None:
-            font_path = next(sub_elements).text
-            _addfont(_simplename(font_name), bold, italic, font_path, fonts)
-            break
+    Parses a font entry for macOS
+
+    :param name: The filepath without extensions or directories
+    :param filepath: The full path to the font
+    :param fonts: The pygame font dictionary to add the parsed font data to.
+    """
+
+    name = _simplename(name)
+
+    mods = ("regular",)
+
+    for mod in mods:
+        if mod in name:
+            name = name.replace(mod, "")
+
+    bold = italic = False
+    if "bold" in name:
+        name = name.replace("bold", "")
+        bold = True
+    if "italic" in name:
+        name = name.replace("italic", "")
+        italic = True
+
+    _addfont(name, bold, italic, filepath, fonts)
 
 
-def _system_profiler_darwin():
+def _font_finder_darwin():
+    locations = ["/Library/Fonts",
+                 "/Network/Library/Fonts",
+                 "/System/Library/Fonts"]
+
+    username = os.getenv("USER")
+    if username:
+        locations.append("/Users/" + username + "/Library/Fonts")
+
+    strange_root = "/System/Library/Assets/com_apple_MobileAsset_Font3"
+    if exists(strange_root):
+        strange_locations = os.listdir(strange_root)
+        for loc in strange_locations:
+            locations.append(strange_root + "/" + loc + "/AssetData")
+
     fonts = {}
-    flout, _ = subprocess.Popen(
-        ' '.join(['system_profiler', '-xml', 'SPFontsDataType']),
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        close_fds=True
-    ).communicate()
 
-    for font_node in ET.fromstring(flout).iterfind('./array/dict/array/dict'):
-        _add_font_paths(font_node.iter("*"), fonts)
+    for location in locations:
+        if not exists(location):
+            continue
+
+        files = os.listdir(location)
+        for file in files:
+            name, extension = splitext(file)
+            if extension in OpenType_extensions:
+                _parse_font_entry_darwin(name, join(location, file), fonts)
 
     return fonts
 
@@ -201,13 +221,9 @@ def initsysfonts_darwin():
     # disc
     elif exists('/usr/X11R6/bin/fc-list'):
         fonts = initsysfonts_unix('/usr/X11R6/bin/fc-list')
-    elif exists('/usr/sbin/system_profiler'):
-        try:
-            fonts = _system_profiler_darwin()
-        except (OSError, ValueError):
-            fonts = {}
     else:
-        fonts = {}
+        # eventually this should probably be the preferred solution
+        fonts = _font_finder_darwin()
 
     return fonts
 
@@ -218,6 +234,10 @@ def initsysfonts_unix(path="fc-list"):
     fonts = {}
 
     try:
+        # pylint: disable=consider-using-with
+        # subprocess.Popen is not a context manager in all of
+        # pygame's supported python versions.
+
         # note, we capture stderr so if fc-list isn't there to stop stderr
         # printing.
         flout, _ = subprocess.Popen('%s : file family style' % path,
@@ -286,6 +306,7 @@ def create_aliases():
          'georgia', 'cambria', 'constantia', 'dejavuserif',
          'liberationserif'),
         ('wingdings', 'wingbats'),
+        ('comicsansms', 'comicsans'),
     )
     for alias_set in alias_groups:
         for name in alias_set:
