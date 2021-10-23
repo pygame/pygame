@@ -1,5 +1,6 @@
 .. image:: docs/pygame_logo.svg
   :alt: pygame
+  :target: https://www.pygame.org/
 
 
 |AppVeyorBuild| |LaunchpadBuild| |PyPiVersion| |PyPiLicense| |Python2|
