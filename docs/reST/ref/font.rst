@@ -213,13 +213,15 @@ loaded instead.
 
       The text can only be a single line: newline characters are not rendered.
       Null characters ('\x00') raise a TypeError. Both Unicode and char (byte)
-      strings are accepted. For Unicode strings only UCS-2 characters ('\u0001'
-      to '\uFFFF') are recognized. Anything greater raises a UnicodeError. For
-      char strings a ``LATIN1`` encoding is assumed. The antialias argument is
-      a boolean: if true the characters will have smooth edges. The color
-      argument is the color of the text [e.g.: (0,0,255) for blue]. The
-      optional background argument is a color to use for the text background.
-      If no background is passed the area outside the text will be transparent.
+      strings are accepted. For Unicode strings only UCS-2 characters
+      ('\u0001' to '\uFFFF') were previously supported and any greater unicode
+      codepoint would raise a UnicodeError. Now, characters in the UCS-4 range
+      are supported. For char strings a ``LATIN1`` encoding is assumed. The
+      antialias argument is a boolean: if true the characters will have smooth
+      edges. The color argument is the color of the text
+      [e.g.: (0,0,255) for blue]. The optional background argument is a color
+      to use for the text background. If no background is passed the area
+      outside the text will be transparent.
 
       The Surface returned will be of the dimensions required to hold the text.
       (the same as those returned by Font.size()). If an empty string is passed
@@ -245,6 +247,11 @@ loaded instead.
 
       Font rendering is not thread safe: only a single thread can render text
       at any time.
+
+      .. versionchanged:: 2.0.3 Rendering UCS_4 unicode works and does not
+        raise an exception. Use `if hasattr(pygame.font, 'UCS_4'):` to see if
+        pygame supports rendering UCS_4 unicode including more languages and
+        emoji.
 
       .. ## Font.render ##
 
