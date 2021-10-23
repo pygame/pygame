@@ -311,6 +311,9 @@ _get_type_from_hint(char *namehint)
             namehint = dot + 1;
         }
     }
+    else {
+        return type;
+    }
 
     /* Copied almost directly from SDL_mixer. Originally meant to check file extensions
     * to get a hint of what music type it should be.
@@ -368,44 +371,32 @@ _get_type_from_hint(char *namehint)
 
 Mix_Music * 
 _load_music(PyObject *obj, char *namehint) {
-    PyObject *oencoded;
     Mix_Music *new_music = NULL;
-    const char *name;
+    char* ext = NULL;
+    SDL_RWops *rw = NULL;
+    PyObject* _type = NULL;
+    PyObject* error = NULL;
+    PyObject* _traceback = NULL;
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == Py_None) {
-        SDL_RWops *rw;
+    MIXER_INIT_CHECK();
 
-        Py_DECREF(oencoded);
-        if (!PG_CHECK_THREADS())
-            return NULL;
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            return NULL;
-        }
-        Py_BEGIN_ALLOW_THREADS
-#if IS_SDLv1
-            new_music = Mix_LoadMUS_RW(rw);
-#else  /* IS_SDLv2 */
-            if (namehint)
-                new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(namehint), SDL_TRUE);
-            else
-                new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
-#endif /* IS_SDLv2 */
-        Py_END_ALLOW_THREADS
-    }
-    else if (oencoded != NULL) {
-        name = Bytes_AS_STRING(oencoded);
-
-        Py_BEGIN_ALLOW_THREADS
-        new_music = Mix_LoadMUS(name);
-        Py_END_ALLOW_THREADS
-
-        Py_DECREF(oencoded);
-    }
-    else {
+    rw = pgRWops_FromObject(obj);
+    if (rw == NULL) { /* stop on NULL, error already set is what we SHOULD do */
+        PyErr_Fetch(&_type, &error, &_traceback);
+        PyErr_SetObject(pgExc_SDLError, error);
+        Py_XDECREF(_type);
+        Py_XDECREF(_traceback);
         return NULL;
+    } 
+    if (namehint) {
+        ext = namehint;
+    } else {
+        ext = pgRWops_GetFileExtension(rw);
     }
+
+    Py_BEGIN_ALLOW_THREADS
+    new_music = Mix_LoadMUSType_RW(rw, _get_type_from_hint(ext), SDL_TRUE);
+    Py_END_ALLOW_THREADS
 
     if (!new_music) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -432,7 +423,9 @@ music_load(PyObject *self, PyObject *args, PyObject *keywds)
     if (new_music == NULL) // meaning it has an error to return
         return NULL;
 
-    Py_BEGIN_ALLOW_THREADS if (current_music != NULL) {
+    Py_BEGIN_ALLOW_THREADS
+    if (current_music != NULL)
+    {
         Mix_FreeMusic(current_music);
         current_music = NULL;
     }
@@ -444,7 +437,6 @@ music_load(PyObject *self, PyObject *args, PyObject *keywds)
     Py_END_ALLOW_THREADS
 
     current_music = new_music;
-
     Py_RETURN_NONE;
 }
 
