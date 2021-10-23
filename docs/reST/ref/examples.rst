@@ -71,19 +71,6 @@ pygame much earlier.
 
    .. ## pygame.examples.aliens.main ##
 
-.. function:: oldalien.main
-
-   | :sl:`play the original aliens example`
-   | :sg:`oldalien.main() -> None`
-
-   This more closely resembles a port of the ``SDL`` Aliens demo. The code is a
-   lot simpler, so it makes a better starting point for people looking at code
-   for the first times. These blitting routines are not as optimized as they
-   should/could be, but the code is easier to follow, and it plays quick
-   enough.
-
-   .. ## pygame.examples.oldalien.main ##
-
 .. function:: stars.main
 
    | :sl:`run a simple starfield example`
@@ -333,21 +320,9 @@ pygame much earlier.
 
    .. ## pygame.examples.fastevents.main ##
 
-.. function:: overlay.main
-
-   | :sl:`play a .pgm video using overlays`
-   | :sg:`overlay.main(fname) -> None`
-
-   Play the .pgm video file given by a path fname.
-
-   If run as a program ``overlay.py`` takes the file name as a command line
-   argument.
-
-   .. ## pygame.examples.overlay.main ##
-
 .. function:: joystick.main
 
-   | :sl:`access the clipboard`
+   | :sl:`demonstrate joystick functionality`
    | :sg:`joystick.main() -> None`
 
    A demo showing full joystick support.

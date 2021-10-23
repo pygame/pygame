@@ -51,7 +51,7 @@ def main():
 
     images = {}
     images[pg.K_1] = im2
-    images[pg.K_2] = pg.image.load(os.path.join(data_dir, "chimp.bmp"))
+    images[pg.K_2] = pg.image.load(os.path.join(data_dir, "chimp.png"))
     images[pg.K_3] = pg.image.load(os.path.join(data_dir, "alien3.gif"))
     images[pg.K_4] = pg.image.load(os.path.join(data_dir, "liquid.bmp"))
     img_to_blit = im2.convert()
