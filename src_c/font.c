@@ -1054,6 +1054,14 @@ MODINIT_DEFINE(font)
         MODINIT_ERROR;
     }
 
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 15)
+    /* So people can check for UCS4 support. */
+    if (PyModule_AddIntConstant(module, "UCS4", 1)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+#endif
+
     /* export the c api */
     c_api[0] = &PyFont_Type;
     c_api[1] = PyFont_New;
