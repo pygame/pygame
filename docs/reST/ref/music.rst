@@ -15,8 +15,10 @@ The difference between the music playback and regular Sound playback is that
 the music is streamed, and never actually loaded all at once. The mixer system
 only supports a single music stream at once.
 
-Be aware that ``MP3`` support is limited. On some systems an unsupported format
-can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
+On older pygame versions, ``MP3`` support was limited under Mac and Linux. This
+changed in pygame ``v2.0.2`` which got improved MP3 support. Consider using
+``OGG`` file format for music as that can give slightly better compression than
+MP3 in most cases.
 
 .. function:: load
 
