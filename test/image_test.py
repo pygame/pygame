@@ -93,6 +93,18 @@ class ImageModuleTest(unittest.TestCase):
         #     surf = pygame.image.load(open(os.path.join("examples", "data",
         #         "alien1.jpg"), "rb"))
 
+    def testLoadBytesIO(self):
+        """ see if we can load a images with BytesIO.
+        """
+        files = ["data/alien1.png", "data/alien1.jpg", "data/alien1.gif", "data/fist.bmp"]
+
+        for fname in files:
+            with self.subTest(fname=fname):
+                with open(example_path(fname), "rb") as f:
+                    img_bytes = f.read()
+                    img_file = io.BytesIO(img_bytes)
+                    image = pygame.image.load(img_file)
+
     def testSaveJPG(self):
         """ JPG equivalent to issue #211 - color channel swapping
 
