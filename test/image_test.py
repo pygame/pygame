@@ -79,24 +79,23 @@ class ImageModuleTest(unittest.TestCase):
         os.remove(f_path)
 
     def testLoadJPG(self):
-        """ see if we can load a jpg.
+        """ to see if we can load a jpg.
         """
-
-        f = example_path("data/alien1.jpg")  # normalized
-        # f = os.path.join("examples", "data", "alien1.jpg")
+        f = example_path("data/alien1.jpg")
         surf = pygame.image.load(f)
 
         with open(f, "rb") as f:
             surf = pygame.image.load(f)
 
-        # with open(os.path.join("examples", "data", "alien1.jpg"), "rb") as f:
-        #     surf = pygame.image.load(open(os.path.join("examples", "data",
-        #         "alien1.jpg"), "rb"))
-
     def testLoadBytesIO(self):
-        """ see if we can load a images with BytesIO.
+        """ to see if we can load images with BytesIO.
         """
-        files = ["data/alien1.png", "data/alien1.jpg", "data/alien1.gif", "data/fist.bmp"]
+        files = [
+            "data/alien1.png",
+            "data/alien1.jpg",
+            "data/alien1.gif",
+            "data/asprite.bmp"
+        ]
 
         for fname in files:
             with self.subTest(fname=fname):
