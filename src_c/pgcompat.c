@@ -48,7 +48,7 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 int
 SDL_GameControllerRumble(SDL_GameController *gamecontroller,
                          Uint16 low_frequency_rumble, Uint16 high_frequency_rumble,
-                         Uint32 duration_ms);
+                         Uint32 duration_ms)
 {
     /*https://wiki.libsdl.org/SDL_GameControllerRumble*/
     return -1;
