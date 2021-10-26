@@ -11,7 +11,7 @@ sha512sum -c libmodplug.sha512
 tar -xf ${MODPLUG_NAME}.tar.gz
 cd ${MODPLUG_NAME}
 
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 

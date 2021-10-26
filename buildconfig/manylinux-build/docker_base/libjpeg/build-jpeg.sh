@@ -11,7 +11,7 @@ sha512sum -c jpeg.sha512
 tar xzf ${JPEG}.tar.gz
 cd jpeg-*
 
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 

@@ -19,7 +19,8 @@ fi
 tar xzf ${GETTEXT}.tar.gz
 cd $GETTEXT
 
-./configure $GETTEXT_CONFIGURE --disable-dependency-tracking \
+./configure $ARCHS_CONFIG_FLAG $GETTEXT_CONFIGURE  \
+--disable-dependency-tracking \
 --disable-silent-rules \
 --disable-debug \
 --with-included-glib \

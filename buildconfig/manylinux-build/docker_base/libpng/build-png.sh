@@ -11,7 +11,7 @@ sha512sum -c png.sha512
 tar xzf ${PNG}.tar.gz
 cd $PNG
 
-./configure --with-zlib-prefix=/usr/local/
+./configure --with-zlib-prefix=/usr/local/ $ARCHS_CONFIG_FLAG
 make
 make install
 

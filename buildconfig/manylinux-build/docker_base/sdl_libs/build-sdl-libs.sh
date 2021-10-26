@@ -18,7 +18,7 @@ sha512sum -c sdl.sha512
 # Build SDL
 tar xzf ${SDL}.tar.gz
 cd $SDL
-./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
+./configure $ARCHS_CONFIG_FLAG --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared 
 make
 make install
 
@@ -40,7 +40,8 @@ find release_0_4_5 -not -iwholename '*.svn*' -exec sha512sum {} + | awk '{print 
 
 cd release_0_4_5
 ./autogen.sh
-./configure --disable-dependency-tracking --disable-debug --disable-gtk-player --disable-gtktest --disable-opengl-player --disable-sdltest
+./configure $ARCHS_CONFIG_FLAG --disable-dependency-tracking --disable-debug --disable-gtk-player \
+    --disable-gtktest --disable-opengl-player --disable-sdltest
 make
 make install
 
@@ -57,7 +58,7 @@ cd $IMG
 # The --disable-x-shared flags make it use standard dynamic linking rather than
 # dlopen-ing the library itself. This is important for when auditwheel moves
 # libraries into the wheel.
-./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared \
+./configure $ARCHS_CONFIG_FLAG --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared \
         --enable-tif --disable-tif-shared --enable-webp --disable-webp-shared
 make
 make install
@@ -72,7 +73,7 @@ cd ..
 # Build SDL_ttf
 tar xzf ${TTF}.tar.gz
 cd $TTF
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 
@@ -93,7 +94,7 @@ cd $MIX
             --enable-music-fluidsynth --disable-music-fluidsynth-shared \
             --enable-music-ogg  --disable-music-ogg-shared \
             --enable-music-flac  --disable-music-flac-shared \
-            --enable-music-mp3  --disable-music-mp3-shared
+            --enable-music-mp3  --disable-music-mp3-shared $ARCHS_CONFIG_FLAG
 make
 make install
 

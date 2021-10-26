@@ -13,7 +13,7 @@ unxz ${FLAC}.tar.xz
 tar xf ${FLAC}.tar
 cd $FLAC
 
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 
