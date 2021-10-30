@@ -183,7 +183,7 @@ if consume_arg('-enable-arm-neon'):
     cflags += '-mfpu=neon'
     os.environ['CFLAGS'] = cflags
 
-if consume_arg('cython'):
+if consume_arg('cython') or True:
     # compile .pyx files
     # So you can `setup.py cython` or `setup.py cython install`
     try:
