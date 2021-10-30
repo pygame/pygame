@@ -169,12 +169,10 @@ install:
   - "%PYTHON% -m ensurepip"
   - "%PYTHON% -m pip install -U wheel pip twine requests"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
-  - "%WITH_COMPILER% %PYTHON% -m pip install . %USE_ANALYZE%"
-  - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
-  - ps: "ls dist"
+  - "%WITH_COMPILER% %PYTHON% -m pip wheel . %USE_ANALYZE%"
 
   # Install the wheel to test it
-  - "%PYTHON% -m pip install --ignore-installed --pre --no-index --find-links dist/ pygame"
+  - "%PYTHON% -m pip install --ignore-installed --pre --no-index --find-links . pygame"
 
 # Appveyor's build step is specific to .NET projects, so we build in the
 # install step instead.
@@ -192,7 +190,7 @@ test_script:
   - "cd .."
 
 artifacts:
-  - path: 'dist\*.whl'
+  - path: '*.whl'
     name: pypiartifacts
 
 # For uploading releases to github.
