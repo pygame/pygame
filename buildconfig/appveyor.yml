@@ -167,12 +167,14 @@ install:
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
   - "%PYTHON% -m ensurepip"
-  - "%PYTHON% -m pip install -U wheel pip twine requests"
+  - "%PYTHON% -m pip install -U wheel pip twine requests cython"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig %USE_SDL2%"
-  - "%WITH_COMPILER% %PYTHON% -m pip wheel . %USE_ANALYZE%"
+  - "%WITH_COMPILER% %PYTHON% -m setup.py build -j4 %USE_ANALYZE%"
+  - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
+  - ps: "ls dist"
 
   # Install the wheel to test it
-  - "%PYTHON% -m pip install --ignore-installed --pre --no-index --find-links . pygame"
+  - "%PYTHON% -m pip install --ignore-installed --pre --no-index --find-links dist/ pygame"
 
 # Appveyor's build step is specific to .NET projects, so we build in the
 # install step instead.
