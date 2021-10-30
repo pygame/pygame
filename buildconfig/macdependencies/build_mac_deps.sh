@@ -31,6 +31,9 @@ if [[ "$MAC_ARCH" == "arm64" ]]; then
     # we don't need mac 10.9 support while compiling for apple M1 macs
     export MACOSX_DEPLOYMENT_TARGET=11.0
 else
+    # install NASM to generate optimised x86_64 libjpegturbo builds
+    brew install nasm
+
     export MACOSX_DEPLOYMENT_TARGET=10.9
 fi
 
@@ -42,12 +45,21 @@ cd ../manylinux-build/docker_base
 # Now start installing dependencies
 # ---------------------------------
 
+sudo mkdir -p /usr/local/man/man1  # the install tries to put something in here
+sudo chmod 0777 /usr/local/man/man1  # so that install can put files here
+mkdir -p ${MACDEP_CACHE_PREFIX_PATH}/usr/local/man/man1
+
+# freetype dependencies
+bash brotli/build-brotli.sh
+bash bzip2/build-bzip2.sh
+
 # sdl_image deps
 bash zlib-ng/build-zlib-ng.sh
 bash libpng/build-png.sh # depends on zlib
 bash libjpegturbo/build-jpeg-turbo.sh
 bash libtiff/build-tiff.sh
 bash libwebp/build-webp.sh
+bash opus/build-opus.sh
 
 # sdl_ttf deps
 # export EXTRA_CONFIG_FREETYPE=--without-harfbuzz
@@ -67,11 +79,9 @@ bash gettext/build-gettext.sh
 bash glib/build-glib.sh # depends on gettext
 bash sndfile/build-sndfile.sh
 sudo mkdir -p /usr/local/lib64 # the install tries to put something in here
-sudo mkdir -p ${MACDEP_CACHE_PREFIX_PATH}/usr/local/lib64
-
-# sudo otherwise install doesn't work. Also pass ARCHS_CONFIG_CMAKE_FLAG as an
-# argument because commands that run with sudo do not inherit the env variables
-sudo bash fluidsynth/build-fluidsynth.sh "$ARCHS_CONFIG_CMAKE_FLAG"
+sudo chmod 0777 /usr/local/lib64
+mkdir -p ${MACDEP_CACHE_PREFIX_PATH}/usr/local/lib64
+bash fluidsynth/build-fluidsynth.sh
 
 bash sdl_libs/build-sdl2-libs.sh
 

@@ -12,7 +12,7 @@ RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 #RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
-RUN linux32 yum install -y zlib-devel libX11-devel \
+RUN linux32 yum install -y libX11-devel \
     mesa-libGLU-devel audiofile-devel \
     java-1.7.0-openjdk-devel jpackage-utils \
     giflib-devel
@@ -22,11 +22,17 @@ RUN linux32 yum install -y dbus-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
 RUN linux32 yum install -y libcap-devel libxkbcommon-devel
 
-#ADD zlib /zlib_build/
-#RUN ["linux32", "bash", "/zlib_build/build-zlib.sh"]
+ADD brotli /brotli_build/
+RUN ["linux32", "bash", "/brotli_build/build-brotli.sh"]
 
-ADD libjpeg /libjpeg_build/
-RUN ["linux32", "bash", "/libjpeg_build/build-jpeg.sh"]
+ADD bzip2 /bzip2_build/
+RUN ["linux32", "bash", "/bzip2_build/build-bzip2.sh"]
+
+ADD zlib-ng /zlib-ng_build/
+RUN ["linux32", "bash", "/zlib-ng_build/build-zlib-ng.sh"]
+
+ADD libjpegturbo /libjpegturbo_build/
+RUN ["linux32", "bash", "/libjpegturbo_build/build-libjpegturbo.sh"]
 
 ADD libpng /libpng_build/
 RUN ["linux32", "bash", "/libpng_build/build-png.sh"]
@@ -36,6 +42,9 @@ RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
 
 ADD libtiff /libtiff_build/
 RUN ["linux32", "bash", "/libtiff_build/build-tiff.sh"]
+
+ADD opus /opus_build/
+RUN ["linux32", "bash", "/opus_build/build-opus.sh"]
 
 #ADD harfbuzz /harfbuzz_build/
 #RUN ["linux32", "bash", "/harfbuzz_build/build-harfbuzz.sh"]
@@ -62,13 +71,13 @@ ADD sndfile /sndfile_build/
 RUN ["linux32", "bash", "/sndfile_build/build-sndfile.sh"]
 
 ADD pulseaudio /pulseaudio_build/
-RUN ["bash", "/pulseaudio_build/build-pulseaudio.sh"]
+RUN ["linux32", "bash", "/pulseaudio_build/build-pulseaudio.sh"]
 
 ADD libmodplug /libmodplug_build/
 RUN ["linux32", "bash", "/libmodplug_build/build-libmodplug.sh"]
 
 ADD cmake /cmake_build/
-RUN ["bash", "/cmake_build/build-cmake.sh"]
+RUN ["linux32", "bash", "/cmake_build/build-cmake.sh"]
 
 ADD fluidsynth /fluidsynth_build/
 RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]

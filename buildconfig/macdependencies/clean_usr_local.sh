@@ -30,6 +30,7 @@ rm -rf /usr/local/Cellar/libsndfile
 rm -rf /usr/local/Cellar/glib
 rm -rf /usr/local/Cellar/brotli
 rm -rf /usr/local/Cellar/pcre
+rm -rf /usr/local/Cellar/opusfile
 rm -rf /usr/local/Cellar/opus
 rm -rf /usr/local/Cellar/freetype
 
@@ -42,3 +43,4 @@ rm -rf /usr/local/share/gdb/auto-load
 
 rm -rf /usr/local/include/glib-2.0
 rm -rf /usr/local/include/gio-unix-2.0
+rm -rf /usr/local/include/brotli

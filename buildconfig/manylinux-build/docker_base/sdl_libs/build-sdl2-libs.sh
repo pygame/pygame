@@ -99,10 +99,12 @@ cd $MIX2
       --disable-music-mod-modplug-shared \
       --disable-music-mp3-mpg123-shared \
       --disable-music-ogg-shared \
+      --disable-music-opus-shared \
       --enable-music-midi-fluidsynth \
       --enable-music-mod-mikmod \
       --enable-music-mod-modplug \
       --enable-music-ogg \
+      --enable-music-opus \
       --enable-music-flac \
       --enable-music-mp3-mpg123 \
       --enable-music-mp3 \

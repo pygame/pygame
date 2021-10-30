@@ -34,8 +34,3 @@ It currently relies on GNU `readlink` to build, which is provided
 by the coreutils homebrew package. However, this could be fixed to be
 cross platform, since mac `readlink` does not support `-f`.
 
-### Future packages to add?
-
-- libopus
-- brotli
-- bzip2
