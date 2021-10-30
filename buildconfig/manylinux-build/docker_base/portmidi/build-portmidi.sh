@@ -30,7 +30,7 @@ patch -p1 < ../mac.patch
 mkdir buildportmidi
 cd buildportmidi
 
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release .. $ARCHS_CONFIG_CMAKE_FLAG
 make
 make install
 

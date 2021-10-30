@@ -14,7 +14,7 @@ cd $FSYNTH
 mkdir build
 cd build
 
-cmake .. -Denable-readline=OFF
+cmake .. -Denable-readline=OFF -DCMAKE_BUILD_TYPE=Release $1 # this is ARCHS_CONFIG_CMAKE_FLAG
 make
 make install
 

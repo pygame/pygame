@@ -14,7 +14,7 @@ if [ ! -d $FREETYPE ]; then
 fi
 cd $FREETYPE
 
-./configure $EXTRA_CONFIG_FREETYPE
+./configure $EXTRA_CONFIG_FREETYPE $ARCHS_CONFIG_FLAG
 make
 make install
 
