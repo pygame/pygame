@@ -96,7 +96,7 @@ jobs:
 
       CIBW_BEFORE_ALL_MACOS: cd buildconfig/macdependencies && bash ./install_mac_deps.sh
 
-      CIBW_BEFORE_BUILD: pip install requests numpy
+      CIBW_BEFORE_BUILD: pip install pip --upgrade
       CIBW_TEST_COMMAND: python -m pygame.tests -v --exclude opengl,timing --time_out 300
 
       # Increase pip debugging output
