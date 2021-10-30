@@ -14,7 +14,13 @@ cd $FSYNTH
 mkdir build
 cd build
 
-cmake .. -Denable-readline=OFF -DCMAKE_BUILD_TYPE=Release $1 # this is ARCHS_CONFIG_CMAKE_FLAG
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # We don't need fluidsynth framework on mac builds
+    export FLUIDSYNTH_EXTRA_MAC_FLAGS="-Denable-framework=NO"
+fi
+
+cmake .. -Denable-readline=OFF -DCMAKE_BUILD_TYPE=Release \
+    $ARCHS_CONFIG_CMAKE_FLAG $FLUIDSYNTH_EXTRA_MAC_FLAGS
 make
 make install
 
