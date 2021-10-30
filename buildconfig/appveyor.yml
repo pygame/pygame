@@ -123,7 +123,7 @@ install:
   - "%PYTHON% -m ensurepip"
   - "%PYTHON% -m pip install -U wheel pip twine requests"
   - "%WITH_COMPILER% %PYTHON% -m buildconfig"
-  - "%WITH_COMPILER% %PYTHON% setup.py build -j4 %USE_ANALYZE%"
+  - "%WITH_COMPILER% %PYTHON% pip install . %USE_ANALYZE%"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
 

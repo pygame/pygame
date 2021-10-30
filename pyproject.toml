@@ -1,2 +1,2 @@
 [build-system]
-requires = ["setuptools", "wheel", "Cython", "requests", "Sphinx >= 4.0"]
+requires = ["setuptools", "wheel", "Cython", "requests", "numpy"]
