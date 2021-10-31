@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=manylinux1_x86_64
 FROM quay.io/pypa/$BASE_IMAGE
-ENV MAKEFLAGS="-j 4"
+ENV MAKEFLAGS="-j 16"
 
 # Set up repoforge
 COPY RPM-GPG-KEY.dag.txt /tmp/
@@ -12,10 +12,10 @@ RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
 #RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
-RUN yum install -y libX11-devel\
+RUN yum install -y zlib-devel libX11-devel\
     mesa-libGLU-devel audiofile-devel \
-    java-1.7.0-openjdk-devel jpackage-utils \
-    mikmod-devel smpeg-devel giflib-devel dbus-devel \
+    jpackage-utils \
+    mikmod-devel giflib-devel dbus-devel \
     dejavu-sans-fonts fontconfig \
     libXcursor-devel libXi-devel libXxf86vm-devel \
     libXrandr-devel libXinerama-devel libXcomposite-devel mesa-libGLU-devel xz
@@ -24,14 +24,14 @@ RUN yum install -y libcap-devel libxkbcommon-devel
 ADD brotli /brotli_build/
 RUN ["bash", "/brotli_build/build-brotli.sh"]
 
-ADD bzip2 /bzip2_build/
-RUN ["bash", "/bzip2_build/build-bzip2.sh"]
+#ADD bzip2 /bzip2_build/
+#RUN ["bash", "/bzip2_build/build-bzip2.sh"]
 
-ADD zlib-ng /zlib-ng_build/
-RUN ["bash", "/zlib-ng_build/build-zlib-ng.sh"]
+#ADD zlib-ng /zlib-ng_build/
+#RUN ["bash", "/zlib-ng_build/build-zlib-ng.sh"]
 
 ADD libjpegturbo /libjpegturbo_build/
-RUN ["bash", "/libjpegturbo_build/build-libjpegturbo.sh"]
+RUN ["bash", "/libjpegturbo_build/build-jpeg-turbo.sh"]
 
 ADD libpng /libpng_build/
 RUN ["bash", "/libpng_build/build-png.sh"]
@@ -51,11 +51,10 @@ RUN ["bash", "/opus_build/build-opus.sh"]
 ADD freetype /freetype_build/
 RUN ["bash", "/freetype_build/build-freetype.sh"]
 
+RUN ["rm", "-f", "/lib64/libasound*"]
+RUN ["rm", "-f", "/lib/libasound*"]
 ADD alsa /alsa_build/
 RUN ["bash", "/alsa_build/build-alsa.sh"]
-# Replace yum-installed libasound with the one we just compiled.
-RUN ["rm", "/lib64/libasound.so.2.0.0"]
-RUN ["ln", "-s", "/usr/lib/libasound.so.2.0.0", "/lib64/"]
 
 ADD ogg /ogg_build/
 RUN ["bash", "/ogg_build/build-ogg.sh"]
@@ -98,4 +97,5 @@ RUN echo "$BASE_IMAGE"
 ADD pypy /pypy_build/
 ARG BASE_IMAGE2=manylinux1_x86_64
 RUN if [ "$BASE_IMAGE2" = "manylinux2010_x86_64" ] ; then bash /pypy_build/getpypy64.sh ; else echo "no pypy on manylinux1" ; fi
+RUN if [ "$BASE_IMAGE2" = "manylinux2014_x86_64" ] ; then bash /pypy_build/getpypy64.sh ; else echo "no pypy on manylinux1" ; fi
 

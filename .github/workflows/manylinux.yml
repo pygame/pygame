@@ -33,12 +33,14 @@ jobs:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         arch: ['x64', 'x86', 'aarch64']
-        tag: ['-', '-manylinux-'] # one tag for CPython builds, and another for PyPy
+        tag: ['-manylinux1-', '-manylinux2010-', -manylinux2014-]
 
         exclude:
-          # no pypy builds on aarch64 for now
+          # aarch64 only with manylinux2014 for now
           - arch: 'aarch64'
-            tag: '-manylinux-'
+            tag: '-manylinux1-'
+          - arch: 'aarch64'
+            tag: '-manylinux2010-'
 
     steps:
     - uses: actions/checkout@v2.3.4
