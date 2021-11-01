@@ -14,7 +14,6 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/manylinux.yml'
-    - '.github/workflows/sdl1-sdist.yml'
 
   pull_request:
     branches: main
@@ -24,7 +23,6 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/manylinux.yml'
-    - '.github/workflows/sdl1-sdist.yml'
 
 jobs:
   deps:
@@ -78,14 +76,6 @@ jobs:
         # Split job into 5 matrix builds, because GH actions provides 5 concurrent
         # builds on macOS
         include:
-          - { 
-            name: "MacOS x86_64 (cp27-pp27)",
-            cibuildver: 1,
-            os: macos-10.15,
-            macarch: x86_64,
-            pyversions: cp27-* pp27-*
-          }
-
           - { 
             name: "MacOS x86_64 (cp35-pp36)",
             cibuildver: 1,
