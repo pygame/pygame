@@ -859,14 +859,7 @@ mask_from_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
     Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
 
-#if IS_SDLv1
-    if (surf->flags & SDL_SRCCOLORKEY) {
-        colorkey = surf->format->colorkey;
-        use_thresh = 0;
-    }
-#else  /* IS_SDLv2 */
     use_thresh = (SDL_GetColorKey(surf, &colorkey) == -1);
-#endif /* IS_SDLv2 */
 
     if (use_thresh) {
         set_from_threshold(surf, maskobj->mask, threshold);
@@ -2100,11 +2093,7 @@ check_surface_pixel_format(SDL_Surface *surf, SDL_Surface *check_surf)
 {
     if ((surf->format->BytesPerPixel != check_surf->format->BytesPerPixel) ||
         (surf->format->BitsPerPixel != check_surf->format->BitsPerPixel)
-#if IS_SDLv2
         || (surf->format->format != check_surf->format->format)
-#else
-        || ((surf->flags & SDL_SRCALPHA) != (check_surf->flags & SDL_SRCALPHA))
-#endif
     ) {
         return 0;
     }
@@ -2146,11 +2135,7 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
     if (Py_None == surfobj) {
         surfobj = PyObject_CallFunction((PyObject *)&pgSurface_Type, "(ii)ii",
                                         bitmask->w, bitmask->h,
-#if IS_SDLv1
-                                        SDL_SRCALPHA,
-#else
                                         PGS_SRCALPHA,
-#endif
                                         32);
 
         if (NULL == surfobj) {

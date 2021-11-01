@@ -175,11 +175,7 @@ timer_callback(Uint32 interval, void *param)
 
     if (SDL_WasInit(SDL_INIT_VIDEO)) {
         pgEvent_FillUserEvent(evtimer->event, &event);
-#if IS_SDLv1
-        if (SDL_PushEvent(&event) < 0)
-#else
         if (SDL_PushEvent(&event) <= 0)
-#endif
             Py_DECREF(evtimer->event->dict);
     }
     else

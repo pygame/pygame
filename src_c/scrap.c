@@ -62,7 +62,7 @@ static PyObject *
 _scrap_set_mode(PyObject *self, PyObject *args);
 
 /* Determine what type of clipboard we are using */
-#if IS_SDLv2 && !defined(__WIN32__)
+#if !defined(__WIN32__)
 #define SDL2_SCRAP
 #include "scrap_sdl2.c"
 
@@ -113,10 +113,6 @@ _scrap_init(PyObject *self, PyObject *args)
     /* In case we've got not video surface, we won't initialize
      * anything.
      */
-#if IS_SDLv1
-    if (!SDL_GetVideoSurface())
-        return RAISE(pgExc_SDLError, "No display mode is set");
-#endif
     if (!pygame_scrap_init())
         return RAISE(pgExc_SDLError, SDL_GetError());
 

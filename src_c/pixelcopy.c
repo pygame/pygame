@@ -23,19 +23,13 @@
 #include <stddef.h>
 #include "pygame.h"
 
-#if IS_SDLv2
 #include "palette.h"
-#endif /* IS_SDLv2 */
 
 #include "pgcompat.h"
 
 #include "doc/pixelcopy_doc.h"
 
-#if IS_SDLv1
-#include <SDL_byteorder.h>
-#else /* IS_SDLv2 */
 #include <SDL_endian.h>
-#endif /* IS_SDLv2 */
 
 typedef enum {
     VIEWKIND_RED,
@@ -259,11 +253,7 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
 {
     SDL_PixelFormat *format = surf->format;
     int pixelsize = surf->format->BytesPerPixel;
-#if IS_SDLv1
-    Uint32 flags = surf->flags;
-#else /* IS_SDLv2 */
     SDL_BlendMode mode;
-#endif /* IS_SDLv2 */
     int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
     char *dst = (char *)view_p->buf;
@@ -293,12 +283,10 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
                      intsize);
         return -1;
     }
-#if IS_SDLv2
     if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
-#endif
     /* Select appropriate color plane element within the pixel */
     switch (view_kind) {
         case VIEWKIND_RED:
@@ -329,13 +317,8 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
         dz_dst = -1;
     }
 #endif
-#if IS_SDLv1
-    if (view_kind == VIEWKIND_COLORKEY && flags & SDL_SRCCOLORKEY) {
-        colorkey = format->colorkey;
-#else  /* IS_SDLv2 */
     if (view_kind == VIEWKIND_COLORKEY &&
         SDL_GetColorKey(surf, &colorkey) == 0) {
-#endif /* IS_SDLv2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
                 for (z = 0; z < pixelsize; ++z) {
@@ -349,13 +332,8 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
             }
         }
     }
-#if IS_SDLv1
-    else if ((view_kind != VIEWKIND_COLORKEY) &&
-             (view_kind != VIEWKIND_ALPHA || flags & SDL_SRCALPHA)) {
-#else  /* IS_SDLv2 */
     else if ((view_kind != VIEWKIND_COLORKEY) &&
              (view_kind != VIEWKIND_ALPHA || mode != SDL_BLENDMODE_NONE)) {
-#endif /* IS_SDLv2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
                 for (z = 0; z < pixelsize; ++z) {
@@ -1164,15 +1142,9 @@ make_surface(PyObject *self, PyObject *arg)
 
     if (view_p->ndim == 2) {
         bitsperpixel = 8;
-#if IS_SDLv1
-        rmask = 0xFF >> 6 << 5;
-        gmask = 0xFF >> 5 << 2;
-        bmask = 0xFF >> 6;
-#else  /* IS_SDLv2 */
         rmask = 0;
         gmask = 0;
         bmask = 0;
-#endif /* IS_SDLv2 */
     }
     else {
         bitsperpixel = 32;
@@ -1189,7 +1161,6 @@ make_surface(PyObject *self, PyObject *arg)
         pgBuffer_Release(&pg_view);
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
-#if IS_SDLv2
     if (SDL_ISPIXELFORMAT_INDEXED(surf->format->format)) {
         /* Give the surface something other than an all white palette.
          *          */
@@ -1200,7 +1171,6 @@ make_surface(PyObject *self, PyObject *arg)
             return 0;
         }
     }
-#endif /* IS_SDLv2 */
     surfobj = pgSurface_New(surf);
     if (!surfobj) {
         pgBuffer_Release(&pg_view);
