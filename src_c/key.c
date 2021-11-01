@@ -116,12 +116,7 @@ static PyObject*
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
     PyObject *baserepr = PyTuple_Type.tp_repr((PyObject *)self);
-#if PY3
     PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
-#else /* PY2 */
-    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%s",
-                                    PyString_AsString(baserepr));
-#endif /* PY2 */
     Py_DECREF(baserepr);
     return ret;
 }
@@ -862,7 +857,6 @@ MODINIT_DEFINE(key)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "key",
                                          DOC_PYGAMEKEY,
@@ -872,7 +866,6 @@ MODINIT_DEFINE(key)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -898,11 +891,7 @@ MODINIT_DEFINE(key)
 #endif /* IS_SDLv2 */
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "key", _key_methods, DOC_PYGAMEKEY);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

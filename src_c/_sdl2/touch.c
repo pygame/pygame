@@ -129,7 +129,6 @@ static PyMethodDef _touch_methods[] = {
 MODINIT_DEFINE(touch)
 {
     PyObject *module;
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "touch",
                                          DOC_PYGAMESDL2TOUCH,
@@ -139,19 +138,13 @@ MODINIT_DEFINE(touch)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
     import_pygame_base();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "touch", _touch_methods,
-                            DOC_PYGAMESDL2TOUCH);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

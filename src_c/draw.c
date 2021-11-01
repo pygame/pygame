@@ -2344,7 +2344,6 @@ static PyMethodDef _draw_methods[] = {
 
 MODINIT_DEFINE(draw)
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "draw",
                                          DOC_PYGAMEDRAW,
@@ -2354,7 +2353,6 @@ MODINIT_DEFINE(draw)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2377,9 +2375,5 @@ MODINIT_DEFINE(draw)
     }
 
 /* create the module */
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3(MODPREFIX "draw", _draw_methods, DOC_PYGAMEDRAW);
-#endif
 }

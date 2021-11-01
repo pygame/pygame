@@ -1945,7 +1945,6 @@ MODINIT_DEFINE(_camera)
      * the module is not loaded.
      */
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "_camera",
                                          DOC_PYGAMECAMERA,
@@ -1955,7 +1954,6 @@ MODINIT_DEFINE(_camera)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     import_pygame_base();
     if (PyErr_Occurred()) {
@@ -1974,11 +1972,7 @@ MODINIT_DEFINE(_camera)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
-#endif
 
     Py_INCREF(&pgCamera_Type);
     PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type);

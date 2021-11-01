@@ -49,12 +49,7 @@ struct _module_state {
 
 #include <SDL_cpuinfo.h>
 
-#if PY3
 #define GETSTATE(m) PY3_GETSTATE(_module_state, m)
-#else
-static struct _module_state _state = {0, 0, 0, 0, 0};
-#define GETSTATE(m) PY2_GETSTATE(_state)
-#endif
 
 #else /* if defined(SCALE_MMX_SUPPORT) */
 
@@ -2800,7 +2795,6 @@ MODINIT_DEFINE(transform)
     PyObject *module;
     struct _module_state *st;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "transform",
                                          DOC_PYGAMETRANSFORM,
@@ -2810,7 +2804,6 @@ MODINIT_DEFINE(transform)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2833,12 +2826,7 @@ MODINIT_DEFINE(transform)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "transform", _transform_methods,
-                            DOC_PYGAMETRANSFORM);
-#endif
 
     if (module == 0) {
         MODINIT_ERROR;

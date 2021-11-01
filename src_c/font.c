@@ -51,18 +51,13 @@
     (SDL_TTF_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
 #endif
 
-#if PY3
 #define RAISE_TEXT_TYPE_ERROR() \
     RAISE(PyExc_TypeError, "text must be a unicode or bytes");
-#else
-#define RAISE_TEXT_TYPE_ERROR() \
-    RAISE(PyExc_TypeError, "text must be a string or unicode");
-#endif
 
 /* For filtering out UCS-4 and larger characters when Python is
  * built with Py_UNICODE_WIDE.
  */
-#if PY2 && !defined(Py_UNICODE_IS_SURROGATE) || defined(PYPY_VERSION)
+#if !defined(Py_UNICODE_IS_SURROGATE) || defined(PYPY_VERSION)
 #define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) && (ch) <= 0xDFFF)
 #endif
 
@@ -139,7 +134,6 @@ font_resource(const char *filename)
         return NULL;
     }
 
-#if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp != NULL) {
         PyObject *closeret;
@@ -155,24 +149,6 @@ font_resource(const char *filename)
     else if (!PyErr_ExceptionMatches(PyExc_MemoryError)) {
         PyErr_Clear();
     }
-#else
-    if (PyFile_Check(result)) {
-        PyObject *closeret;
-
-        tmp = PyFile_Name(result);
-        Py_INCREF(tmp);
-
-        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
-            Py_DECREF(result);
-            Py_DECREF(tmp);
-            return NULL;
-        }
-        Py_DECREF(closeret);
-
-        Py_DECREF(result);
-        result = tmp;
-    }
-#endif
 
     tmp = pg_EncodeString(result, "UTF-8", NULL, NULL);
     if (tmp == NULL) {
@@ -304,11 +280,7 @@ font_set_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     int val;
-#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
-#else
-    if (!PyArg_ParseTuple(args, "i", &val))
-#endif /* PY3 */
         return NULL;
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_BOLD, val);
@@ -355,11 +327,7 @@ font_set_italic(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int val;
 
-#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
-#else
-    if (!PyArg_ParseTuple(args, "i", &val))
-#endif /* PY3 */
         return NULL;
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_ITALIC, val);
@@ -406,11 +374,7 @@ font_set_underline(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int val;
 
-#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
-#else
-    if (!PyArg_ParseTuple(args, "i", &val))
-#endif /* PY3 */
         return NULL;
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_UNDERLINE, val);
@@ -430,17 +394,10 @@ font_render(PyObject *self, PyObject *args)
     SDL_Color foreg, backg;
     int just_return;
 
-#if PY3
     if (!PyArg_ParseTuple(args, "OpO|O", &text, &aa, &fg_rgba_obj,
                           &bg_rgba_obj)) {
         return NULL;
     }
-#else
-    if (!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj,
-                          &bg_rgba_obj)) {
-        return NULL;
-    }
-#endif /* PY3 */
 
     if (!pg_RGBAFromFuzzyColorObj(fg_rgba_obj, rgba)) {
         /* Exception already set for us */
@@ -1002,7 +959,6 @@ MODINIT_DEFINE(font)
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_FONT_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "font",
                                          DOC_PYGAMEFONT,
@@ -1012,7 +968,6 @@ MODINIT_DEFINE(font)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1040,11 +995,7 @@ MODINIT_DEFINE(font)
     }
     PyFont_Type.tp_new = PyType_GenericNew;
 
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "font", _font_methods, DOC_PYGAMEFONT);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

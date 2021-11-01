@@ -253,11 +253,7 @@ static PyNumberMethods _color_as_number = {
     NULL, /* nb_coerce */
 #endif
     (unaryfunc)_color_int, /* nb_int */
-#if PY3
     NULL, /* nb_reserved */
-#else
-    (unaryfunc)_color_long, /* nb_long */
-#endif
     (unaryfunc)_color_float, /* nb_float */
 #if !PY3
     (unaryfunc)_color_oct, /* nb_oct */
@@ -317,11 +313,7 @@ static PyBufferProcs _color_as_buffer = {
 
 #define COLOR_TPFLAGS_COMMON \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES)
-#if PY2
-#define COLOR_TPFLAGS (COLOR_TPFLAGS_COMMON | Py_TPFLAGS_HAVE_NEWBUFFER)
-#else
 #define COLOR_TPFLAGS COLOR_TPFLAGS_COMMON
-#endif
 
 #define DEFERRED_ADDRESS(ADDR) 0
 
@@ -552,16 +544,12 @@ _hexcolor(PyObject *color, Uint8 rgba[])
     size_t len;
     tristate rcode = TRISTATE_FAIL;
     char *name;
-#if PY3
     PyObject *ascii = PyUnicode_AsASCIIString(color);
     if (ascii == NULL) {
         rcode = TRISTATE_ERROR;
         goto Fail;
     }
     name = PyBytes_AsString(ascii);
-#else
-    name = PyString_AsString(color);
-#endif
     if (name == NULL) {
         goto Fail;
     }
@@ -612,9 +600,7 @@ _hexcolor(PyObject *color, Uint8 rgba[])
 Success:
     rcode = TRISTATE_SUCCESS;
 Fail:
-#if PY3
     Py_XDECREF(ascii);
-#endif
     return rcode;
 }
 
@@ -2029,11 +2015,6 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
             "Color object doesn't support item deletion");
         return -1;
     }
-#if PY2
-    if (PyInt_Check(idx)) {
-        return _color_ass_item(color, PyInt_AS_LONG(idx), val);
-    }
-#endif
     if (PyLong_Check(idx)) {
         return _color_ass_item(color, PyLong_AsLong(idx), val);
     }
@@ -2067,11 +2048,6 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
             if (PyLong_Check(obj)) {
                 c = PyLong_AsLong(obj);
             }
-#if PY2
-            else if (PyInt_Check(obj)) {
-                c = PyInt_AS_LONG(obj);
-            }
-#endif /* PY2 */
             else {
                 PyErr_SetString(PyExc_TypeError, "color components must be integers");
                 Py_DECREF(fastitems);
@@ -2227,7 +2203,6 @@ MODINIT_DEFINE(color)
     PyObject *apiobj;
     static void *c_api[PYGAMEAPI_COLOR_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "color",
                                          _color_doc,
@@ -2237,7 +2212,6 @@ MODINIT_DEFINE(color)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2266,11 +2240,7 @@ MODINIT_DEFINE(color)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "color", NULL, _color_doc);
-#endif
     if (module == NULL) {
         Py_DECREF(_COLORDICT);
         MODINIT_ERROR;

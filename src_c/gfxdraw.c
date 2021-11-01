@@ -1092,7 +1092,6 @@ MODINIT_DEFINE(gfxdraw)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          MODPREFIX "gfxdraw",
                                          DOC_PYGAMEGFXDRAW,
@@ -1102,7 +1101,6 @@ MODINIT_DEFINE(gfxdraw)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* import needed APIs; Do this first so if there is an error
        the module is not loaded.
@@ -1124,12 +1122,7 @@ MODINIT_DEFINE(gfxdraw)
         MODINIT_ERROR;
     }
 
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "gfxdraw", _gfxdraw_methods,
-                            DOC_PYGAMEGFXDRAW);
-#endif
 
     if (module == NULL) {
         MODINIT_ERROR;
