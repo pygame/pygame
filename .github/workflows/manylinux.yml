@@ -14,7 +14,6 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/build.yml'
-    - '.github/workflows/sdl1-sdist.yml'
 
   pull_request:
     branches: main
@@ -24,7 +23,6 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/build.yml'
-    - '.github/workflows/sdl1-sdist.yml'
 
 jobs:
   build-manylinux:
