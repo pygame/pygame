@@ -64,13 +64,6 @@ environment:
       USE_SDL2: "-sdl2"
       USE_ANALYZE: ""
 
-    - PYTHON: "C:\\Python27-x64\\python"
-      PYTHONPATH: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.13"
-      PYTHON_ARCH: "64"
-      USE_SDL2: "-sdl2"
-      USE_ANALYZE: ""
-
     - PYTHON: "C:\\Python35-x64\\python"
       PYTHONPATH: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.0"
