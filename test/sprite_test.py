@@ -7,6 +7,30 @@ import unittest
 import pygame
 from pygame import sprite
 
+if not hasattr(sprite, "NoSpriteLayer"):
+    class _NoSpriteLayer(object):
+        __slots__ = ()
+        __inst__ = None
+
+        def __new__(cls):
+            if cls.__inst__ is None:
+                cls.__inst__ = super().__new__(cls)
+            return cls.__inst__
+
+        def __del__(self):
+            type(self).__inst__ = None
+
+        def __str__(self):
+            return "NoSpriteLayer"
+
+        def __nonzero__(self):
+            return False
+
+        __bool__ = __nonzero__
+        __int__ = __long__ = lambda self: 0
+        __float__ = lambda self: 0.0
+    sprite.NoSpriteLayer=_NoSpriteLayer()
+
 
 ################################# MODULE LEVEL #################################
 
@@ -1095,6 +1119,20 @@ class LayeredUpdatesTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
 
     def setUp(self):
         self.LG = sprite.LayeredUpdates()
+
+
+class LayeredUpdatesTypeTest__NoSpriteLayer(LayeredGroupBase, unittest.TestCase):
+    NoSpriteLayer=sprite.NoSpriteLayer
+    sprite=sprite.Sprite
+
+    def setUp(self):
+        self.LG = sprite.LayeredUpdates()
+
+    def test_lu_bool_with_nsl(self):
+        # test for NoSpriteLayer
+        self.LG.add(self.sprite(), layer=self.NoSpriteLayer)
+        self.assertTrue(self.LG)
+        self.assertFalse(self.LG.sprites_to_draw())
 
 
 class LayeredDirtyTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
