@@ -152,3 +152,5 @@ def spritecollideany(
     group: AbstractGroup,
     collided: Optional[Callable[[Sprite, Sprite], bool]] = None,
 ) -> Sprite: ...
+
+NoSpriteLayer=None # WARNING ! Real value is _NoSpriteLayer(), cf. src_py/sprite.py
