@@ -691,7 +691,9 @@ class OrderedUpdates(RenderUpdates):
         self._spritelist.remove(sprite)
 
 
-class _NoSpriteLayer:
+class _NoSpriteLayer(object):
+    """A singleton used internally by LayeredUpdates and its subclasses to avoid rendering
+    unneeded sprites."""
     __slots__ = ()
     __inst__=None
     def __new__(cls):
@@ -702,6 +704,7 @@ class _NoSpriteLayer:
         type(self).__inst__=None
     def __str__(self):
         return "NoSpriteLayer"
+    __repr__=__str__
     def __nonzero__(self):
         return False
     __bool__=__nonzero__
@@ -774,12 +777,12 @@ class LayeredUpdates(AbstractGroup):
         high = leng - 1
         while low <= high:
             mid = low + (high - low) // 2
-            if sprites_layers[sprites[mid]] <= layer:
+            if int(sprites_layers[sprites[mid]]) <= int(layer):
                 low = mid + 1
             else:
                 high = mid - 1
         # linear search to find final position
-        while mid < leng and sprites_layers[sprites[mid]] <= layer:
+        while mid < leng and int(sprites_layers[sprites[mid]]) <= int(layer):
             mid += 1
         sprites.insert(mid, sprite)
 
@@ -863,7 +866,7 @@ class LayeredUpdates(AbstractGroup):
                 not_to_render.append(sprite)
         for sprite in not_to_render:
             spritelist.remove(sprite)
-        del not_to_render #namespace cleanup
+        del not_to_render  # namespace cleanup
         return spritelist
 
 
@@ -936,11 +939,8 @@ class LayeredUpdates(AbstractGroup):
 
         """
         layerset=set(self._spritelayers.values())
-        try:
-            layerset.remove(NoSpriteLayer)
-        except LookupError:
-            pass
-        #we don't count NoSpriteLayer since its integer value is 0 and it would make
+        layerset.remove(NoSpriteLayer)
+        #we don't count NoSpriteLayer since it counts as 0 and it would make
         #it harder to understand or debug
         return sorted(layerset)
 
@@ -955,7 +955,7 @@ class LayeredUpdates(AbstractGroup):
         It is not recommended to use NoSpriteLayer with this method.
 
         """
-        #...since it could lead to some bugs that I may haven't found yet
+        #...since it could lead to some bugs that I might not have found yet
         sprites = self._spritelist  # speedup
         sprites_layers = self._spritelayers  # speedup
 
@@ -969,12 +969,12 @@ class LayeredUpdates(AbstractGroup):
         high = leng - 1
         while low <= high:
             mid = low + (high - low) // 2
-            if sprites_layers[sprites[mid]] <= new_layer:
+            if int(sprites_layers[sprites[mid]]) <= int(new_layer):
                 low = mid + 1
             else:
                 high = mid - 1
         # linear search to find final position
-        while mid < leng and sprites_layers[sprites[mid]] <= new_layer:
+        while mid < leng and int(sprites_layers[sprites[mid]]) <= int(new_layer):
             mid += 1
         sprites.insert(mid, sprite)
         if hasattr(sprite, '_layer'):
@@ -1037,7 +1037,7 @@ class LayeredUpdates(AbstractGroup):
         the current bottom layer.
 
         """
-        self.change_layer(sprite, self.get_bottom_layer() - 1)
+        self.change_layer(sprite, self.get_bottom_layer() - 1 if isinstance(self.get_bottom_layer(), int) else self.get_bottom_layer())
 
     def get_top_sprite(self):
         """return the topmost sprite
@@ -1175,7 +1175,9 @@ class LayeredDirty(LayeredUpdates):
         if latest_clip is None:
             latest_clip = orig_clip
 
-        local_sprites = self._spritelist
+        local_sprites = self._spritelist.copy()
+        for sprite in filter(lambda spr:self.get_layer_of_sprite(spr) is NoSpriteLayer, local_sprites[:]):
+            local_sprites.remove(sprite)
         local_old_rect = self.spritedict
         local_update = self.lostsprites
         rect_type = Rect
