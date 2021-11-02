@@ -12,7 +12,13 @@ unxz ${GLIB}.tar.xz
 tar xzf ${GLIB}.tar
 cd $GLIB
 
-./configure --with-pcre=internal
+if [[ "$MAC_ARCH" == "arm64" ]]; then
+    # pass a 'cache' file while cross compiling to arm64 for glib. This is
+    # needed for glib to determine some info about the target architecture
+    export GLIB_COMPILE_EXTRA_FLAGS="--cache-file=../macos_arm64.cache"
+fi
+
+./configure $ARCHS_CONFIG_FLAG --with-pcre=internal $GLIB_COMPILE_EXTRA_FLAGS
 make
 make install
 

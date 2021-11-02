@@ -10,6 +10,6 @@ unxz ${PULSEFILE}.tar.xz
 tar xf ${PULSEFILE}.tar
 
 cd ${PULSEFILE}
-./configure --disable-manpages --disable-gsettings
+./configure $ARCHS_CONFIG_FLAG --disable-manpages --disable-gsettings
 make
 make install

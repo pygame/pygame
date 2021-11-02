@@ -11,7 +11,7 @@ sha512sum -c webp.sha512
 tar xzf ${WEBP}.tar.gz
 cd $WEBP
 
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 

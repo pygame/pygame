@@ -11,7 +11,7 @@ sha512sum -c zlib.sha512
 tar -xf ${ZLIB_NAME}.tar.gz
 cd ${ZLIB_NAME}
 
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 

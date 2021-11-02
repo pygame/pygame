@@ -172,8 +172,6 @@ TODO
 
 Maybe these need adding?
 
-- opusfile, http://opus-codec.org/
-- modplug, http://modplug-xmms.sourceforge.net/
 - wayland, https://wayland.freedesktop.org/building.html http://www.linuxfromscratch.org/blfs/view/svn/general/wayland-protocols.html
 - vulkan, via mesa?
 - xinput,

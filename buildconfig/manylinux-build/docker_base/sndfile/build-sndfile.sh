@@ -13,7 +13,7 @@ tar xf ${SNDFILE}
 cd $SNDNAME
 # autoreconf -fvi
 
-./configure
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
 

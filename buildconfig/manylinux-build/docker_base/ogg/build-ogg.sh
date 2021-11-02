@@ -13,7 +13,13 @@ sha512sum -c ogg.sha512
 tar xzf ${OGG}.tar.gz
 cd $OGG
 
-./configure
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    ./configure $ARCHS_CONFIG_FLAG
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Use CMake on MacOS because ./configure doesn't generate dylib
+    cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1
+fi
+
 make
 make install
 
@@ -26,7 +32,12 @@ cd ..
 tar xzf ${VORBIS}.tar.gz
 cd $VORBIS
 
-./configure
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    ./configure $ARCHS_CONFIG_FLAG
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Use CMake on MacOS because ./configure doesn't generate dylib
+    cmake . $ARCHS_CONFIG_CMAKE_FLAG -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1
+fi
 make
 make install
 

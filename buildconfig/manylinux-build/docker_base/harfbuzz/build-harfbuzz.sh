@@ -13,7 +13,7 @@ tar -xf ${HARFBUZZ_NAME}.tar
 cd ${HARFBUZZ_NAME}
 
 # To avoid a circular dependency on freetype
-./configure --with-freetype=no --with-fontconfig=no
+./configure $ARCHS_CONFIG_FLAG --with-freetype=no --with-fontconfig=no
 make
 make install
 
