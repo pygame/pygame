@@ -81,8 +81,8 @@ Sprites are not thread safe. So lock them yourself if using threads.
         
               # Fetch the rectangle object that has the dimensions of the image
               # Update the position of this object by setting the values of rect.x and rect.y
-              self.rect = self.image.get_rect()   
-      
+              self.rect = self.image.get_rect()
+
    .. method:: update
 
       | :sl:`method to control sprite behavior`
@@ -383,10 +383,10 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
    .. ## pygame.sprite.RenderUpdates ##
 
-.. function:: OrderedUpdates
+.. class:: OrderedUpdates
 
    | :sl:`RenderUpdates sub-class that draws Sprites in order of addition.`
-   | :sg:`OrderedUpdates(*spites) -> OrderedUpdates`
+   | :sg:`OrderedUpdates(*sprites) -> OrderedUpdates`
 
    This class derives from ``pygame.sprite.RenderUpdates()``. It maintains the
    order in which the Sprites were added to the Group for rendering. This makes
@@ -394,6 +394,12 @@ Sprites are not thread safe. So lock them yourself if using threads.
    Groups.
 
    .. ## pygame.sprite.OrderedUpdates ##
+
+.. class:: NoSpriteLayer
+
+   | :sl:`Singleton used to prevent certain sprites from being rendered. It's a special layer that can be considered as null.`
+
+   This singleton is designed for use with pygame.sprite.LayeredUpdates
 
 .. class:: LayeredUpdates
 
@@ -410,6 +416,12 @@ Sprites are not thread safe. So lock them yourself if using threads.
    that layer (overriding the ``sprite.layer`` attribute). If neither sprite
    has attribute layer nor \**kwarg then the default layer is used to add the
    sprites.
+
+   You can also use a special singleton, ``pygame.sprite.NoSpriteLayer``,
+   to make certain kinds of sprites unrendered even though instances of these types
+   are stored in a group. You can use this to prevent your player from moving during
+   cutscenes, for example.
+
 
    .. versionadded:: 1.8
 
