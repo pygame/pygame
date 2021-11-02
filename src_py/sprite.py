@@ -939,7 +939,10 @@ class LayeredUpdates(AbstractGroup):
 
         """
         layerset=set(self._spritelayers.values())
-        layerset.remove(NoSpriteLayer)
+        try:
+            layerset.remove(NoSpriteLayer)
+        except KeyError:
+            pass
         #we don't count NoSpriteLayer since it counts as 0 and it would make
         #it harder to understand or debug
         return sorted(layerset)
