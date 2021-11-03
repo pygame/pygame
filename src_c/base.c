@@ -222,6 +222,15 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      compiled.major, compiled.minor, compiled.patch,
                      linked.major, linked.minor, linked.patch);
         return 0;
+    } else if ((linked.major == compiled.major && linked.minor == compiled.minor  && linked.patch < compiled.patch) || (linked.major == compiled.major && linked.minor < compiled.minor)) {
+        /* We do some ifdefs to support different SDL versions at compile time.
+           We use newer API only when available.
+           Downgrading via dynamic API probably breaks this.*/
+        PyErr_Format(PyExc_RuntimeError,
+                     "Danamic linking causes SDL downgrade! (compiled with version %d.%d.%d, linked to %d.%d.%d)",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked.major, linked.minor, linked.patch);
+        return 0;
     }
 #endif /* IS_SDLv2 */
 
