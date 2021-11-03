@@ -167,8 +167,8 @@ def main(auto=False):
     if '-sdl2' in sys.argv:
         sys.argv.remove('-sdl2')
     if '-sdl1' in sys.argv:
-        raise SystemExit("Building PyGame with SDL1.2 is no longer supported.
-Only SDL2 is supported now.")
+        raise SystemExit("""Building PyGame with SDL1.2 is no longer supported.
+Only SDL2 is supported now.""")
 
     kwds = {}
     if sdl2:
