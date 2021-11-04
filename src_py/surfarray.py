@@ -52,6 +52,7 @@ numpy_floats = []
 for type_name in "float32 float64 float96".split():
     if hasattr(numpy, type_name):
         numpy_floats.append(getattr(numpy, type_name))
+# Added below due to deprecation of numpy.float. See issue #2814
 numpy_floats.append(float)
 
 # Pixel sizes corresponding to NumPy supported integer sizes, and therefore
