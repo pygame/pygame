@@ -25,6 +25,11 @@
 #define NO_PYGAME_C_API
 #include "_surface.h"
 
+#if !defined(PG_ENABLE_ARM_NEON) && defined(__aarch64__)
+// arm64 has neon optimisations enabled by default, even when fpu=neon is not passed 
+#define PG_ENABLE_ARM_NEON 1
+#endif
+
 /* See if we are compiled 64 bit on GCC or MSVC */
 #if _WIN32 || _WIN64
    #if _WIN64
