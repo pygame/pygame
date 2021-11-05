@@ -474,7 +474,11 @@ _pg_quit(void)
 
     pg_is_init = 0;
 
+    /* Release the GIL here, because the timer thread cleanups should happen
+     * without deadlocking. */
+    Py_BEGIN_ALLOW_THREADS; 
     pg_atexit_quit();
+    Py_END_ALLOW_THREADS;
 }
 
 static PyObject *
