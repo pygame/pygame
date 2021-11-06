@@ -49,9 +49,11 @@ import warnings     # will be removed in the future
 
 # float96 not available on all numpy versions.
 numpy_floats = []
-for type_name in "float float32 float64 float96".split():
+for type_name in "float32 float64 float96".split():
     if hasattr(numpy, type_name):
         numpy_floats.append(getattr(numpy, type_name))
+# Added below due to deprecation of numpy.float. See issue #2814
+numpy_floats.append(float)
 
 # Pixel sizes corresponding to NumPy supported integer sizes, and therefore
 # permissible for 2D reference arrays.
