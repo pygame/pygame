@@ -83,7 +83,6 @@ RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
 # Build and install SDL
 ADD sdl_libs /sdl_build/
-#RUN ["linux32", "bash", "/sdl_build/build-sdl-libs.sh"]
 RUN ["linux32", "bash", "/sdl_build/build-sdl2-libs.sh"]
 
 

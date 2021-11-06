@@ -97,10 +97,8 @@ def prepdep(dep, basepath):
     else:
         dep.line = dep.name+' =' + ''.join(incs) + ''.join(lids) + ' ' + dep.cflags + libs
 
-def writesetupfile(deps, basepath, additional_lines, sdl2=False):
+def writesetupfile(deps, basepath, additional_lines):
     """create a modified copy of Setup.SDLx.in"""
-    assert sdl2
-    
     sdl_setup_filename = os.path.join(BASE_PATH, 'buildconfig',
                                           'Setup.SDL2.in')
     
@@ -161,7 +159,6 @@ def writesetupfile(deps, basepath, additional_lines, sdl2=False):
 
 def main(auto=False):
     additional_platform_setup = []
-    sdl2 = True
     conan = "-conan" in sys.argv
 
     if '-sdl2' in sys.argv:
@@ -171,8 +168,6 @@ def main(auto=False):
 Only SDL2 is supported now.""")
 
     kwds = {}
-    if sdl2:
-        kwds['sdl2'] = True
     if conan:
         print_('Using CONAN configuration...\n')
         try:
