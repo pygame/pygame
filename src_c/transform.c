@@ -78,7 +78,6 @@ extern SDL_Surface *
 rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
 
-#if IS_SDLv2
 static int
 _PgSurface_SrcAlpha(SDL_Surface *surf)
 {
@@ -100,7 +99,6 @@ _PgSurface_SrcAlpha(SDL_Surface *surf)
     }
     return 0;
 }
-#endif /* IS_SDLv2 */
 
 
 
@@ -108,11 +106,9 @@ static SDL_Surface *
 newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 {
     SDL_Surface *newsurf;
-#if IS_SDLv2
     Uint32 colorkey;
     Uint8 alpha;
     int isalpha;
-#endif /* IS_SDLv2 */
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
@@ -126,21 +122,6 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         return (SDL_Surface *)(RAISE(pgExc_SDLError, SDL_GetError()));
 
         /* Copy palette, colorkey, etc info */
-#if IS_SDLv1
-    if (surf->format->BytesPerPixel == 1 && surf->format->palette)
-        SDL_SetColors(newsurf, surf->format->palette->colors, 0,
-                      surf->format->palette->ncolors);
-    if (surf->flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey(newsurf,
-                        (surf->flags & SDL_RLEACCEL) | SDL_SRCCOLORKEY,
-                        surf->format->colorkey);
-
-    if (surf->flags & SDL_SRCALPHA) {
-        int result = SDL_SetAlpha(newsurf, surf->flags, surf->format->alpha);
-        if (result == -1)
-            return (SDL_Surface *)(RAISE(pgExc_SDLError, SDL_GetError()));
-    }
-#else  /* IS_SDLv2 */
     if (SDL_ISPIXELFORMAT_INDEXED(surf->format->format)) {
         if (SDL_SetPaletteColors(newsurf->format->palette,
                                  surf->format->palette->colors, 0,
@@ -192,7 +173,6 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
         }
     }
 
-#endif /* IS_SDLv2 */
     return newsurf;
 }
 
@@ -703,13 +683,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
         /* get the background color */
-#if IS_SDLv1
-    if (surf->flags & SDL_SRCCOLORKEY)
-        bgcolor = surf->format->colorkey;
-    else
-#else  /* IS_SDLv2 */
     if (SDL_GetColorKey(surf, &bgcolor) != 0)
-#endif /* IS_SDLv2 */
     {
         SDL_LockSurface(surf);
         switch (surf->format->BytesPerPixel) {

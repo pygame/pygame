@@ -50,7 +50,6 @@ static pgRectObject *pg_rect_freelist[PG_RECT_NUM];
 int pg_rect_freelist_num = -1;
 #endif
 
-#if IS_SDLv2
 /* Helper method to extract 4 ints from an object.
  *
  * This sequence extraction supports the following formats:
@@ -158,7 +157,6 @@ four_ints_from_obj(PyObject *obj, int *val1, int *val2, int *val3, int *val4)
 
     return 1;
 }
-#endif /* IS_SDLv2 */
 
 static PyObject *
 _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
@@ -851,7 +849,6 @@ nointersect:
     return _pg_rect_subtype_new4(Py_TYPE(self), A->x, A->y, 0, 0);
 }
 
-#if IS_SDLv2
 /* clipline() - crops the given line within the rect
  *
  * Supported argument formats:
@@ -958,7 +955,6 @@ pg_rect_clipline(pgRectObject *self, PyObject *args)
     Py_XDECREF(rect_copy);
     return Py_BuildValue("((ii)(ii))", x1, y1, x2, y2);
 }
-#endif /* IS_SDLv2 */
 
 static PyObject *
 pg_rect_contains(pgRectObject *self, PyObject *args)
@@ -1091,10 +1087,8 @@ static struct PyMethodDef pg_rect_methods[] = {
     {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
      DOC_RECTNORMALIZE},
     {"clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
-#if IS_SDLv2
     {"clipline", (PyCFunction)pg_rect_clipline, METH_VARARGS,
      DOC_RECTCLIPLINE},
-#endif /* IS_SDLv2 */
     {"clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
     {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
     {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
