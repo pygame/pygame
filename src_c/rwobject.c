@@ -83,9 +83,7 @@ _pg_is_exception_class(PyObject *obj, void **optr)
 {
     PyObject **rval = (PyObject **)optr;
     PyObject *oname;
-#if PY3
     PyObject *tmp;
-#endif
 
     if (!PyType_Check(obj) || /* conditional or */
         !PyObject_IsSubclass(obj, PyExc_BaseException)) {
@@ -95,7 +93,6 @@ _pg_is_exception_class(PyObject *obj, void **optr)
                             "invalid exception class argument");
             return 0;
         }
-#if PY3
         tmp = PyUnicode_AsEncodedString(oname, "ascii", "replace");
         Py_DECREF(oname);
 
@@ -106,7 +103,6 @@ _pg_is_exception_class(PyObject *obj, void **optr)
         }
 
         oname = tmp;
-#endif
         PyErr_Format(PyExc_TypeError,
                      "Expected an exception class: got %.1024s",
                      Bytes_AS_STRING(oname));
@@ -417,13 +413,8 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
     if (!helper->write)
         return -1;
 
-#if PY3
     result = PyObject_CallFunction(helper->write, "y#", (const char *)ptr,
                                     (Py_ssize_t)size * num);
-#else  /* PY2 */
-    result = PyObject_CallFunction(helper->write, "s#", (const char *)ptr,
-                                    (Py_ssize_t)size * num);
-#endif  /* PY2 */
     if (!result)
         return -1;
 
@@ -439,13 +430,8 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
         return -1;
     state = PyGILState_Ensure();
 
-#if PY3
     result = PyObject_CallFunction(helper->write, "y#", (const char *)ptr,
                                     (Py_ssize_t)size * num);
-#else  /* PY2 */
-    result = PyObject_CallFunction(helper->write, "s#", (const char *)ptr,
-                                    (Py_ssize_t)size * num);
-#endif  /* PY2 */
     if (!result) {
         PyErr_Print();
         retval = -1;
@@ -785,7 +771,6 @@ _rwops_from_pystr(PyObject *obj)
             rw->hidden.unknown.data1 = (void *)extension;
             return rw;
         } else {
-#if PY3
             if (PyUnicode_Check(obj)) {
                 SDL_ClearError();
 
@@ -832,11 +817,6 @@ _rwops_from_pystr(PyObject *obj)
                     PyErr_Format(PyExc_FileNotFoundError, 
                                  "No such file or directory: '%S'.", obj);
                 }
-#else
-            if (PyUnicode_Check(obj) || PyString_Check(obj)) {
-                SDL_ClearError();
-                PyErr_SetString(PyExc_IOError, "No such file or directory.");
-#endif
                 return NULL;
             }
         }
@@ -913,7 +893,6 @@ MODINIT_DEFINE(rwobject)
     int ecode;
     static void *c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "rwobject",
                                          _pg_module_doc,
@@ -923,15 +902,9 @@ MODINIT_DEFINE(rwobject)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* Create the module and add the functions */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "rwobject", _pg_module_methods,
-                            _pg_module_doc);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

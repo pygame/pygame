@@ -640,14 +640,8 @@ static PyBufferProcs proxy_bufferprocs = {
 #define PROXY_BUFFERPROCS 0
 #endif
 
-#if PY2
-#define PROXY_TPFLAGS                                                \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
-     Py_TPFLAGS_HAVE_NEWBUFFER)
-#else
 #define PROXY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
-#endif
 
 static PyTypeObject pgBufproxy_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) PROXY_TYPE_FULLNAME, /* tp_name */
@@ -836,7 +830,6 @@ MODINIT_DEFINE(bufferproxy)
     PyObject *apiobj;
     static void *c_api[PYGAMEAPI_BUFPROXY_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          PROXY_MODNAME,
                                          bufferproxy_doc,
@@ -846,7 +839,6 @@ MODINIT_DEFINE(bufferproxy)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis */
     import_pygame_base();
@@ -862,12 +854,7 @@ MODINIT_DEFINE(bufferproxy)
 #define bufferproxy_docs ""
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX PROXY_MODNAME, bufferproxy_methods,
-                            bufferproxy_doc);
-#endif
 
     Py_INCREF(&pgBufproxy_Type);
     if (PyModule_AddObject(module, PROXY_TYPE_NAME,

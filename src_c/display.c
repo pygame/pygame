@@ -73,7 +73,6 @@ typedef struct _display_state_s {
 static int
 pg_flip_internal(_DisplayState *state);
 
-#if PY3
 #ifndef PYPY_VERSION
 static struct PyModuleDef _module;
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState *)PyModule_GetState(mod))
@@ -84,11 +83,6 @@ static _DisplayState _modstate = {0};
 #define DISPLAY_MOD_STATE(mod) (&_modstate)
 #define DISPLAY_STATE DISPLAY_MOD_STATE(0)
 #endif /* PYPY_VERSION */
-#else  /* PY2 */
-static _DisplayState _modstate = {0};
-#define DISPLAY_MOD_STATE(mod) (&_modstate)
-#define DISPLAY_STATE DISPLAY_MOD_STATE(0)
-#endif /* PY2 */
 
 static void
 _display_state_cleanup(_DisplayState *state)
@@ -140,9 +134,7 @@ pg_display_resource(char *filename)
     PyObject *resourcefunc = NULL;
     PyObject *fresult = NULL;
     PyObject *result = NULL;
-#if PY3
     PyObject *name = NULL;
-#endif
 
     pkgdatamodule = PyImport_ImportModule(pkgdatamodule_name);
     if (!pkgdatamodule)
@@ -164,7 +156,6 @@ pg_display_resource(char *filename)
     if (!fresult)
         goto display_resource_end;
 
-#if PY3
     name = PyObject_GetAttrString(fresult, "name");
     if (name != NULL) {
         if (Text_Check(name)) {
@@ -177,15 +168,6 @@ pg_display_resource(char *filename)
     else {
         PyErr_Clear();
     }
-#else
-    if (PyFile_Check(fresult)) {
-        PyObject *tmp = PyFile_Name(fresult);
-        Py_INCREF(tmp);
-        pg_close_file(fresult);
-        Py_DECREF(fresult);
-        fresult = tmp;
-    }
-#endif
 
     result = PyObject_CallFunction(load_basicfunc, "O", fresult);
     if (!result)
@@ -197,9 +179,7 @@ display_resource_end:
     Py_XDECREF(imagemodule);
     Py_XDECREF(load_basicfunc);
     Py_XDECREF(fresult);
-#if PY3
     Py_XDECREF(name);
-#endif
     return result;
 }
 
@@ -948,13 +928,8 @@ pg_display_set_autoresize(PyObject *self, PyObject *args)
     SDL_bool do_resize;
     _DisplayState *state = DISPLAY_MOD_STATE(self);
 
-#if PY3
     if (!PyArg_ParseTuple(args, "p",  &do_resize))
         return NULL;
-#else
-    if (!PyArg_ParseTuple(args, "i", &do_resize))
-        return NULL;
-#endif
 
     state->auto_resize=do_resize;
     SDL_DelEventWatch(pg_ResizeEventWatch, self);
@@ -3189,7 +3164,6 @@ static PyMethodDef _pg_display_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 #if IS_SDLv2
-#if PY3
 #ifndef PYPY_VERSION
 static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                      "display",
@@ -3213,7 +3187,6 @@ static struct PyModuleDef _module = {
     NULL,
     NULL};
 #endif /* PYPY_VERSION */
-#endif /* PY3 */
 
 MODINIT_DEFINE(display)
 {
@@ -3242,12 +3215,7 @@ MODINIT_DEFINE(display)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "display", _pg_display_methods,
-                            DOC_PYGAMEDISPLAY);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
@@ -3267,7 +3235,6 @@ MODINIT_DEFINE(display)
     PyObject *module, *dict, *apiobj;
     int ecode;
     static void *c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "display",
                                          DOC_PYGAMEDISPLAY,
@@ -3277,7 +3244,6 @@ MODINIT_DEFINE(display)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif /* PY3 */
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -3301,12 +3267,7 @@ MODINIT_DEFINE(display)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "display", _pg_display_methods,
-                            DOC_PYGAMEDISPLAY);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

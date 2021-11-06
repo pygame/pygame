@@ -219,7 +219,6 @@ MODINIT_DEFINE(overlay)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "overlay",
                                          NULL,
@@ -229,7 +228,6 @@ MODINIT_DEFINE(overlay)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -248,11 +246,7 @@ MODINIT_DEFINE(overlay)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule(MODPREFIX "overlay", _overlay_methods);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

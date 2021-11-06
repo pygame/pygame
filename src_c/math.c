@@ -454,11 +454,7 @@ get_double_from_unicode_slice(PyObject *unicode_obj, Py_ssize_t idx1,
                         "internal error while converting str slice to float");
         return -1;
     }
-#if PY3
     float_obj = PyFloat_FromString(slice);
-#else
-    float_obj = PyFloat_FromString(slice, NULL);
-#endif
     Py_DECREF(slice);
     if (float_obj == NULL)
         return 0;
@@ -1629,11 +1625,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
     double *coords;
     Py_ssize_t i, idx, len;
     PyObject *attr_unicode = NULL;
-#if PY2
-    Py_UNICODE *attr = NULL;
-#else
     const char *attr = NULL;
-#endif
     PyObject *res = NULL;
 
     len = PySequence_Length(attr_name);
@@ -1648,11 +1640,7 @@ vector_getAttr_swizzle(pgVector *self, PyObject *attr_name)
     attr_unicode = PyUnicode_FromObject(attr_name);
     if (attr_unicode == NULL)
         goto swizzle_failed;
-#if PY2
-    attr = PyUnicode_AsUnicode(attr_unicode);
-#else
     attr = PyUnicode_AsUTF8AndSize(attr_unicode, &len);
-#endif
     if (attr == NULL)
         goto internal_error;
     /* If we are not a swizzle, go straight to GenericGetAttr. */
@@ -1722,11 +1710,7 @@ internal_error:
 static int
 vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
 {
-#if PY2
-    Py_UNICODE *attr = NULL;
-#else
     const char *attr = NULL;
-#endif
     PyObject *attr_unicode;
     Py_ssize_t len = PySequence_Length(attr_name);
     double entry[VECTOR_MAX_SIZE];
@@ -1746,11 +1730,7 @@ vector_setAttr_swizzle(pgVector *self, PyObject *attr_name, PyObject *val)
     attr_unicode = PyUnicode_FromObject(attr_name);
     if (attr_unicode == NULL)
         return -1;
-#if PY2
-    attr = PyUnicode_AsUnicode(attr_unicode);
-#else
     attr = PyUnicode_AsUTF8AndSize(attr_unicode, &len);
-#endif
 
     if (attr == NULL) {
         Py_DECREF(attr_unicode);
@@ -1921,11 +1901,7 @@ _vector2_set(pgVector *self, PyObject *xOrSequence, PyObject *y)
             else
                 return 0;
         }
-#if PY3
         else if (PyUnicode_Check(xOrSequence)) {
-#else
-        else if (PyUnicode_Check(xOrSequence) || PyString_Check(xOrSequence)) {
-#endif
             char *delimiter[3] = {"<Vector2(", ", ", ")>"};
             Py_ssize_t error_code;
             error_code = _vector_coords_from_string(xOrSequence, delimiter,
@@ -2292,12 +2268,7 @@ static PyTypeObject pgVector2_Type = {
     /* Functions to access object as input/output buffer */
     0, /* tp_as_buffer */
 /* Flags to define presence of optional/expanded features */
-#if PY3
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
-        Py_TPFLAGS_CHECKTYPES, /* tp_flags */
-#endif
     /* Documentation string */
     DOC_PYGAMEMATHVECTOR2, /* tp_doc */
 
@@ -2379,11 +2350,7 @@ _vector3_set(pgVector *self, PyObject *xOrSequence, PyObject *y, PyObject *z)
             else
                 return 0;
         }
-#if PY3
         else if (PyUnicode_Check(xOrSequence)) {
-#else
-        else if (PyUnicode_Check(xOrSequence) || PyString_Check(xOrSequence)) {
-#endif
             char *delimiter[4] = {"<Vector3(", ", ", ", ", ")>"};
             Py_ssize_t error_code;
             error_code = _vector_coords_from_string(xOrSequence, delimiter,
@@ -3179,12 +3146,7 @@ static PyTypeObject pgVector3_Type = {
     /* Functions to access object as input/output buffer */
     0, /* tp_as_buffer */
 /* Flags to define presence of optional/expanded features */
-#if PY3
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |
-        Py_TPFLAGS_CHECKTYPES, /* tp_flags */
-#endif
     /* Documentation string */
     DOC_PYGAMEMATHVECTOR3, /* tp_doc */
 
@@ -3947,11 +3909,7 @@ static PyTypeObject pgVectorElementwiseProxy_Type = {
     /* Functions to access object as input/output buffer */
     0, /* tp_as_buffer */
 /* Flags to define presence of optional/expanded features */
-#if PY3
     Py_TPFLAGS_DEFAULT,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES, /* tp_flags */
-#endif
     /* Documentation string */
     0, /* tp_doc */
 
@@ -4040,7 +3998,6 @@ MODINIT_DEFINE(math)
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_MATH_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "math",
                                          DOC_PYGAMEMATH,
@@ -4050,7 +4007,6 @@ MODINIT_DEFINE(math)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* initialize the extension types */
     if ((PyType_Ready(&pgVector2_Type) < 0) ||
@@ -4062,11 +4018,7 @@ MODINIT_DEFINE(math)
     }
 
     /* initialize the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "math", _math_methods, DOC_PYGAMEMATH);
-#endif
 
     if (module == NULL) {
         MODINIT_ERROR;

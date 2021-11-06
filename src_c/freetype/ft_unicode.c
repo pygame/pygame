@@ -68,18 +68,11 @@ _encode_unicode_string(PyObject *obj, int ucs4)
     Py_ssize_t len, srclen;
     PGFT_char c;
     int i, j;
-#if PY3
     /* This Py_UCS4 src has to be freed later */
     Py_UCS4 *src = PyUnicode_AsUCS4Copy(obj);
     if (!src)
         return NULL;
     len = srclen = PyUnicode_GetLength(obj);
-#else /* PY2 */
-    /* This Py_UNICODE src should not be freed. This function never
-     * used to fail with NULL on python 2 */
-    const Py_UNICODE *src = PyUnicode_AS_UNICODE(obj);
-    len = srclen = PyUnicode_GET_SIZE(obj);
-#endif
 
     if (!ucs4) {
         /* Do UTF-16 surrogate pair decoding. Calculate character count
@@ -135,9 +128,7 @@ _encode_unicode_string(PyObject *obj, int ucs4)
     }
 
 end:
-#if PY3
     PyMem_Free(src);
-#endif
     if (utf32_buffer) {
         utf32_buffer->data[len] = 0;
         utf32_buffer->length = len;

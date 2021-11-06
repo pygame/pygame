@@ -651,7 +651,6 @@ MODINIT_DEFINE(joystick)
     int ecode;
     static void *c_api[PYGAMEAPI_JOYSTICK_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "joystick",
                                          DOC_PYGAMEJOYSTICK,
@@ -661,7 +660,6 @@ MODINIT_DEFINE(joystick)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -685,11 +683,7 @@ MODINIT_DEFINE(joystick)
     Py_DECREF(module);
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3("joystick", _joystick_methods, DOC_PYGAMEJOYSTICK);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
