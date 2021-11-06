@@ -14,6 +14,7 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/manylinux.yml'
+    - '.github/workflows/ubuntu-sdist.yml'
 
   pull_request:
     branches: main
@@ -23,6 +24,7 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/manylinux.yml'
+    - '.github/workflows/ubuntu-sdist.yml'
 
 jobs:
   deps:
@@ -77,32 +79,35 @@ jobs:
         # builds on macOS
         include:
           - { 
-            name: "MacOS x86_64 (cp36-pp36)",
-            cibuildver: 1,
+            name: "MacOS x86_64 (cp36-cp37)",
             os: macos-10.15,
             macarch: x86_64,
-            pyversions: cp36-* pp36-*
+            pyversions: cp36-* cp37-*
           }
 
           - { 
-            name: "MacOS x86_64 (cp37-pp37)",
-            cibuildver: 2,
+            name: "MacOS x86_64 (cp37-cp38)",
             os: macos-10.15,
             macarch: x86_64,
-            pyversions: cp37-* pp37-*
+            pyversions: cp37-* cp38-*
           }
 
           - { 
-            name: "MacOS x86_64 (cp38-cp39-cp310)",
-            cibuildver: 2,
+            name: "MacOS x86_64 (cp39-cp310)",
             os: macos-10.15,
             macarch: x86_64,
-            pyversions: cp38-* cp39-* cp310-*
+            pyversions: cp39-* cp310-*
+          }
+
+          - { 
+            name: "MacOS x86_64 (pp37)",
+            os: macos-10.15,
+            macarch: x86_64,
+            pyversions: pp37-*
           }
 
           - { 
             name: "MacOS arm64 (cp38-cp39-cp310)",
-            cibuildver: 2,
             os: macos-11,
             macarch: arm64,
             pyversions: cp38-* cp39-* cp310-*
@@ -155,15 +160,8 @@ jobs:
           path: ${{ github.workspace }}/pygame_mac_deps_${{ matrix.macarch }}
           key: macdep-${{ hashFiles('buildconfig/manylinux-build/**') }}-${{ hashFiles('buildconfig/macdependencies/*.sh') }}-${{ matrix.macarch }}
 
-      # use cibuildwheel v1 to build on older python versions
-      - name: Build wheels with CIBuildWheel v1
-        if: matrix.cibuildver == 1
-        uses: pypa/cibuildwheel@v1.12.0
-
-      # use latest cibuildwheel for newer python versions
-      - name: Build wheels with CIBuildWheel v2
-        if: matrix.cibuildver == 2
-        uses: pypa/cibuildwheel@v2.1.3
+      - name: Build and test wheels
+        uses: pypa/cibuildwheel@v2.2.2
         env:
           # Build arm64 and x86_64 wheels too on an Intel runner.
           # Note that the arm64 wheels cannot be tested on CI in this configuration
