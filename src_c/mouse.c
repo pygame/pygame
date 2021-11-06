@@ -40,10 +40,6 @@ mouse_set_pos(PyObject *self, PyObject *args)
 
     VIDEO_INIT_CHECK();
 
-#if IS_SDLv1
-    SDL_WarpMouse((Uint16)x, (Uint16)y);
-
-#else  /* IS_SDLv2 */
     {
         SDL_Window *sdlWindow = pg_GetDefaultWindow();
         SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
@@ -63,7 +59,6 @@ mouse_set_pos(PyObject *self, PyObject *args)
     }
 
     SDL_WarpMouseInWindow(NULL, (Uint16)x, (Uint16)y);
-#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
@@ -75,7 +70,6 @@ mouse_get_pos(PyObject *self)
     VIDEO_INIT_CHECK();
     SDL_GetMouseState(&x, &y);
 
-#if IS_SDLv2
     {
         SDL_Window *sdlWindow = pg_GetDefaultWindow();
         SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
@@ -102,7 +96,6 @@ mouse_get_pos(PyObject *self)
                 y=vprect.h-1;
         }
     }
-#endif
 
     return Py_BuildValue("(ii)", x, y);
 }
@@ -117,7 +110,6 @@ mouse_get_rel(PyObject *self)
     SDL_GetRelativeMouseState(&x, &y);
 
 /*
-#if IS_SDLv2
     SDL_Window *sdlWindow = pg_GetDefaultWindow();
     SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
     if (sdlRenderer!=NULL){
@@ -128,7 +120,6 @@ mouse_get_rel(PyObject *self)
         x/=scalex;
         y/=scaley;
     }
-#endif
 */
     return Py_BuildValue("(ii)", x, y);
 }
@@ -231,11 +222,7 @@ static PyObject *
 mouse_get_focused(PyObject *self)
 {
     VIDEO_INIT_CHECK();
-#if IS_SDLv1
-    return PyBool_FromLong((SDL_GetAppState() & SDL_APPMOUSEFOCUS) != 0);
-#else  /* IS_SDLv2 */
     return PyBool_FromLong(SDL_GetMouseFocus() != NULL);
-#endif /* IS_SDLv2 */
 }
 
 struct CursorData {
@@ -338,7 +325,6 @@ interror:
 
 static PyObject *
 _set_system_cursor(int constant) {
-#if IS_SDLv2
     SDL_Cursor *lastcursor, *cursor = NULL;
 
     cursor = SDL_CreateSystemCursor(constant);
@@ -354,13 +340,11 @@ _set_system_cursor(int constant) {
     cursor_data.type = SYSTEM_CURSOR;
     cursor_data.constant = constant;   
     Py_RETURN_NONE;
-#endif
 return RAISE(PyExc_TypeError, "System cursors from constant are unavailable in SDL1");
 }
 
 static PyObject *
 _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
-#if IS_SDLv2
     SDL_Cursor *lastcursor, *cursor = NULL;
     SDL_Surface *surf = NULL;
     surf = pgSurface_AsSurface(surfobj);
@@ -384,7 +368,6 @@ _set_color_cursor(int spotx, int spoty, pgSurfaceObject *surfobj) {
     cursor_data.surfobj = surfobj;
     Py_RETURN_NONE;
 
-#endif
 return RAISE(PyExc_TypeError, "Cursors from a surface are unavailable in SDL1");
 }
 
