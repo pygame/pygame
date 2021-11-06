@@ -44,15 +44,4 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 }
 
 #endif /*if !(SDL_VERSION_ATLEAST(2, 0, 5))*/
-#if !(SDL_VERSION_ATLEAST(2, 0, 9))
-int
-SDL_GameControllerRumble(SDL_GameController *gamecontroller,
-                         Uint16 low_frequency_rumble, Uint16 high_frequency_rumble,
-                         Uint32 duration_ms)
-{
-    /*https://wiki.libsdl.org/SDL_GameControllerRumble*/
-    return -1;
-}
-
-#endif
 #endif /*if defined(SDL_VERSION_ATLEAST)*/

@@ -46,7 +46,7 @@ jobs:
     - name: Make sdist and install it
       run: |
         python3 setup.py sdist
-        pip3 install dist/pygame-*.tar.gz
+        pip3 install dist/pygame-*.tar.gz -vv
 
     - name: Run tests
       env:
