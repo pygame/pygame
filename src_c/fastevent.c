@@ -200,7 +200,6 @@ MODINIT_DEFINE(fastevent)
     PyObject *module, *eventmodule, *dict;
     int ecode;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "fastevent",
                                          DOC_PYGAMEFASTEVENT,
@@ -210,7 +209,6 @@ MODINIT_DEFINE(fastevent)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -225,12 +223,7 @@ MODINIT_DEFINE(fastevent)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "fastevent", _fastevent_methods,
-                            DOC_PYGAMEFASTEVENT);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

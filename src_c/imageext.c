@@ -880,7 +880,6 @@ image_get_sdl_image_version(PyObject *self, PyObject *arg)
 }
 
 #ifdef WITH_THREAD
-#if PY3
 static void
 _imageext_free(void *ptr)
 {
@@ -889,16 +888,6 @@ _imageext_free(void *ptr)
         _pg_img_mutex = 0;
     }
 }
-#else /* PY2 */
-static void
-_imageext_free(void)
-{
-    if (_pg_img_mutex) {
-        SDL_DestroyMutex(_pg_img_mutex);
-        _pg_img_mutex = 0;
-    }
-}
-#endif /* PY2 */
 #endif /* WITH_THREAD */
 
 static PyMethodDef _imageext_methods[] = {
@@ -914,7 +903,6 @@ static PyMethodDef _imageext_methods[] = {
 
 MODINIT_DEFINE(imageext)
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "imageext",
                                          _imageext_doc,
@@ -928,7 +916,6 @@ MODINIT_DEFINE(imageext)
 #else /* ~WITH_THREAD */
                                          0};
 #endif /* ~WITH_THREAD */
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -948,11 +935,6 @@ MODINIT_DEFINE(imageext)
     }
 
 #ifdef WITH_THREAD
-#if PY2
-    if (Py_AtExit(_imageext_free)) {
-        MODINIT_ERROR;
-    }
-#endif /* PY2 */
     _pg_img_mutex = SDL_CreateMutex();
     if (!_pg_img_mutex) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -961,9 +943,5 @@ MODINIT_DEFINE(imageext)
 #endif /* WITH_THREAD */
 
     /* create the module */
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3(MODPREFIX "imageext", _imageext_methods, _imageext_doc);
-#endif
 }

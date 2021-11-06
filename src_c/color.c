@@ -146,14 +146,6 @@ static PyObject *
 _color_int(pgColorObject *);
 static PyObject *
 _color_float(pgColorObject *);
-#if !PY3
-static PyObject *
-_color_long(pgColorObject *);
-static PyObject *
-_color_oct(pgColorObject *);
-static PyObject *
-_color_hex(pgColorObject *);
-#endif
 
 /* Sequence protocol methods */
 static Py_ssize_t
@@ -233,9 +225,6 @@ static PyNumberMethods _color_as_number = {
     (binaryfunc)_color_add, /* nb_add */
     (binaryfunc)_color_sub, /* nb_subtract */
     (binaryfunc)_color_mul, /* nb_multiply */
-#if !PY3
-    (binaryfunc)_color_div, /* nb_divide */
-#endif
     (binaryfunc)_color_mod, /* nb_remainder */
     NULL,                   /* nb_divmod */
     NULL,                   /* nb_power */
@@ -249,26 +238,12 @@ static PyNumberMethods _color_as_number = {
     NULL,                   /* nb_and */
     NULL,                   /* nb_xor */
     NULL,                   /* nb_or */
-#if !PY3
-    NULL, /* nb_coerce */
-#endif
     (unaryfunc)_color_int, /* nb_int */
-#if PY3
     NULL, /* nb_reserved */
-#else
-    (unaryfunc)_color_long, /* nb_long */
-#endif
     (unaryfunc)_color_float, /* nb_float */
-#if !PY3
-    (unaryfunc)_color_oct, /* nb_oct */
-    (unaryfunc)_color_hex, /* nb_hex */
-#endif
     NULL, /* nb_inplace_add */
     NULL, /* nb_inplace_subtract */
     NULL, /* nb_inplace_multiply */
-#if !PY3
-    NULL, /* nb_inplace_divide */
-#endif
     NULL,                   /* nb_inplace_remainder */
     NULL,                   /* nb_inplace_power */
     NULL,                   /* nb_inplace_lshift */
@@ -317,11 +292,7 @@ static PyBufferProcs _color_as_buffer = {
 
 #define COLOR_TPFLAGS_COMMON \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES)
-#if PY2
-#define COLOR_TPFLAGS (COLOR_TPFLAGS_COMMON | Py_TPFLAGS_HAVE_NEWBUFFER)
-#else
 #define COLOR_TPFLAGS COLOR_TPFLAGS_COMMON
-#endif
 
 #define DEFERRED_ADDRESS(ADDR) 0
 
@@ -403,17 +374,6 @@ _get_color(PyObject *val, Uint32 *color)
         return 0;
     }
 
-#if !PY3
-    if (PyInt_Check(val)) {
-        long intval = PyInt_AsLong(val);
-        if ((intval == -1 && PyErr_Occurred()) || (intval > 0xFFFFFFFF)) {
-            PyErr_SetString(PyExc_ValueError, "invalid color argument");
-            return 0;
-        }
-        *color = (Uint32)intval;
-        return 1;
-    }
-#endif
     if (PyLong_Check(val)) {
         unsigned long longval = PyLong_AsUnsignedLong(val);
         if (PyErr_Occurred() || (longval > 0xFFFFFFFF)) {
@@ -552,16 +512,12 @@ _hexcolor(PyObject *color, Uint8 rgba[])
     size_t len;
     tristate rcode = TRISTATE_FAIL;
     char *name;
-#if PY3
     PyObject *ascii = PyUnicode_AsASCIIString(color);
     if (ascii == NULL) {
         rcode = TRISTATE_ERROR;
         goto Fail;
     }
     name = PyBytes_AsString(ascii);
-#else
-    name = PyString_AsString(color);
-#endif
     if (name == NULL) {
         goto Fail;
     }
@@ -612,9 +568,7 @@ _hexcolor(PyObject *color, Uint8 rgba[])
 Success:
     rcode = TRISTATE_SUCCESS;
 Fail:
-#if PY3
     Py_XDECREF(ascii);
-#endif
     return rcode;
 }
 
@@ -1750,13 +1704,6 @@ _color_int(pgColorObject *color)
 {
     Uint32 tmp = (color->data[0] << 24) + (color->data[1] << 16) +
                  (color->data[2] << 8) + color->data[3];
-#if !PY3
-#if LONG_MAX == 2147483647
-    if (tmp < LONG_MAX) {
-        return PyInt_FromLong((long)tmp);
-    }
-#endif
-#endif
     return PyLong_FromUnsignedLong(tmp);
 }
 
@@ -1770,66 +1717,6 @@ _color_float(pgColorObject *color)
                   (color->data[2] << 8) + color->data[3]);
     return PyFloat_FromDouble((double)tmp);
 }
-
-#if !PY3
-/**
- * long(color)
- */
-static PyObject *
-_color_long(pgColorObject *color)
-{
-    Uint32 tmp = ((color->data[0] << 24) + (color->data[1] << 16) +
-                  (color->data[2] << 8) + color->data[3]);
-    return PyLong_FromUnsignedLong(tmp);
-}
-
-/**
- * oct(color)
- */
-static PyObject *
-_color_oct(pgColorObject *color)
-{
-    char buf[100];
-    Uint32 tmp = ((color->data[0] << 24) + (color->data[1] << 16) +
-                  (color->data[2] << 8) + color->data[3]);
-#if !PY3
-#if LONG_MAX == 2147483647
-    if (tmp < LONG_MAX) {
-        PyOS_snprintf(buf, sizeof(buf), "0%lo", (unsigned long)tmp);
-    } else {
-        PyOS_snprintf(buf, sizeof(buf), "0%loL", (unsigned long)tmp);
-    }
-    return PyString_FromString(buf);
-#endif
-#endif
-    PyOS_snprintf(buf, sizeof(buf), "0%lo", (unsigned long)tmp);
-
-    return PyString_FromString(buf);
-}
-
-/**
- * hex(color)
- */
-static PyObject *
-_color_hex(pgColorObject *color)
-{
-    char buf[100];
-    Uint32 tmp = ((color->data[0] << 24) + (color->data[1] << 16) +
-                  (color->data[2] << 8) + color->data[3]);
-#if !PY3
-#if LONG_MAX == 2147483647
-    if (tmp < LONG_MAX) {
-        PyOS_snprintf(buf, sizeof(buf), "0x%lx", (unsigned long)tmp);
-    } else {
-        PyOS_snprintf(buf, sizeof(buf), "0x%lxL", (unsigned long)tmp);
-    }
-    return Text_FromUTF8(buf);
-#endif
-#endif
-    PyOS_snprintf(buf, sizeof(buf), "0x%lx", (unsigned long)tmp);
-    return Text_FromUTF8(buf);
-}
-#endif
 
 /* Sequence protocol methods */
 
@@ -2029,11 +1916,6 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
             "Color object doesn't support item deletion");
         return -1;
     }
-#if PY2
-    if (PyInt_Check(idx)) {
-        return _color_ass_item(color, PyInt_AS_LONG(idx), val);
-    }
-#endif
     if (PyLong_Check(idx)) {
         return _color_ass_item(color, PyLong_AsLong(idx), val);
     }
@@ -2067,11 +1949,6 @@ _color_set_slice(pgColorObject *color, PyObject *idx, PyObject *val)
             if (PyLong_Check(obj)) {
                 c = PyLong_AsLong(obj);
             }
-#if PY2
-            else if (PyInt_Check(obj)) {
-                c = PyInt_AS_LONG(obj);
-            }
-#endif /* PY2 */
             else {
                 PyErr_SetString(PyExc_TypeError, "color components must be integers");
                 Py_DECREF(fastitems);
@@ -2227,7 +2104,6 @@ MODINIT_DEFINE(color)
     PyObject *apiobj;
     static void *c_api[PYGAMEAPI_COLOR_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "color",
                                          _color_doc,
@@ -2237,7 +2113,6 @@ MODINIT_DEFINE(color)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2266,11 +2141,7 @@ MODINIT_DEFINE(color)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "color", NULL, _color_doc);
-#endif
     if (module == NULL) {
         Py_DECREF(_COLORDICT);
         MODINIT_ERROR;

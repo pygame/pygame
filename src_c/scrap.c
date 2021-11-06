@@ -233,7 +233,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
                 break;
         }
 
-#if PY3
         key = PyUnicode_FromString(scrap_type);
         if (NULL == key) {
             return PyErr_Format(PyExc_ValueError,
@@ -253,12 +252,6 @@ _scrap_get_scrap(PyObject *self, PyObject *args)
 
             Py_RETURN_NONE;
         }
-#else  /* !PY3 */
-        val = PyDict_GetItemString(scrap_dict, scrap_type);
-        if (NULL == val) {
-            Py_RETURN_NONE;
-        }
-#endif /* !PY3 */
 
         Py_INCREF(val);
         return val;
@@ -290,11 +283,7 @@ _scrap_put_scrap(PyObject *self, PyObject *args)
     char *scrap = NULL;
     char *scrap_type;
     PyObject *tmp;
-#if PY3
     static const char argfmt[] = "sy#";
-#else
-    static char argfmt[] = "st#";
-#endif
 
     PYGAME_SCRAP_INIT_CHECK();
 
@@ -390,7 +379,6 @@ static PyMethodDef scrap_builtins[] = {
 
 MODINIT_DEFINE(scrap)
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "scrap",
                                          "",
@@ -400,7 +388,6 @@ MODINIT_DEFINE(scrap)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -411,9 +398,5 @@ MODINIT_DEFINE(scrap)
     }
 
     /* create the module */
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3(MODPREFIX "scrap", scrap_builtins, NULL);
-#endif
 }

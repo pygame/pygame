@@ -35,12 +35,10 @@
  */
 static const Scale_t FACE_SIZE_NONE = {0, 0};
 
-#if PY3
 static int
 _ft_traverse(PyObject *, visitproc, void *);
 static int
 _ft_clear(PyObject *);
-#endif
 
 static PyObject *
 _ft_quit(PyObject *);
@@ -238,7 +236,6 @@ load_font_res(const char *filename)
         goto font_resource_end;
     }
 
-#if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp) {
         PyObject *closeret;
@@ -256,25 +253,6 @@ load_font_res(const char *filename)
     else {
         PyErr_Clear();
     }
-#else
-    if (PyFile_Check(result)) {
-        PyObject *closeret;
-
-        tmp = PyFile_Name(result);
-        Py_INCREF(tmp);
-
-        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
-            Py_DECREF(result);
-            Py_DECREF(tmp);
-            result = NULL;
-            goto font_resource_end;
-        }
-        Py_DECREF(closeret);
-
-        Py_DECREF(result);
-        result = tmp;
-    }
-#endif
 
 font_resource_end:
     Py_XDECREF(pkgdatamodule);
@@ -354,9 +332,6 @@ objs_to_scale(PyObject *x, PyObject *y, Scale_t *size)
 
     for (o = x, do_y = 1; o; o = (do_y--) ? y : 0) {
         if (!PyLong_Check(o) &&
-#if PY2
-            !PyInt_Check(o) &&
-#endif
             !PyFloat_Check(o)) {
             if (y) {
                 PyErr_Format(PyExc_TypeError,
@@ -475,11 +450,6 @@ obj_to_rotation(PyObject *o, void *p)
     if (PyLong_Check(o)) {
         ;
     }
-#if PY2
-    else if (PyInt_Check(o)) {
-        ;
-    }
-#endif
     else {
         PyErr_Format(PyExc_TypeError, "integer rotation expected, got %s",
                      Py_TYPE(o)->tp_name);
@@ -959,20 +929,7 @@ static PyObject *
 _ftfont_repr(pgFontObject *self)
 {
     if (pgFont_IS_ALIVE(self)) {
-#if PY3
         return PyUnicode_FromFormat("Font('%.1024U')", self->path);
-#else
-        PyObject *str = PyUnicode_AsEncodedString(
-            self->path, "raw_unicode_escape", "replace");
-        PyObject *rval = 0;
-
-        if (str) {
-            rval = PyString_FromFormat("Font('%.1024s')",
-                                       PyString_AS_STRING(str));
-            Py_DECREF(str);
-        }
-        return rval;
-#endif
     }
     return Text_FromFormat("<uninitialized Font object at %p>", (void *)self);
 }
@@ -2193,7 +2150,6 @@ _ft_get_default_font(PyObject *self, PyObject *args)
     return Text_FromUTF8(DEFAULT_FONT_NAME);
 }
 
-#if PY3
 static int
 _ft_traverse(PyObject *mod, visitproc visit, void *arg)
 {
@@ -2209,12 +2165,10 @@ _ft_clear(PyObject *mod)
     }
     return 0;
 }
-#endif
 
 /****************************************************
  * FREETYPE MODULE DECLARATION
  ****************************************************/
-#if PY3
 #ifndef PYPY_VERSION
 struct PyModuleDef _freetypemodule = {
     PyModuleDef_HEAD_INIT,  MODULE_NAME, DOC_PYGAMEFREETYPE,
@@ -2227,9 +2181,6 @@ struct PyModuleDef _freetypemodule = {
     -1 /* PyModule_GetState() not implemented */, _ft_methods, 0,
     _ft_traverse, _ft_clear, 0};
 #endif /* PYPY_VERSION */
-#else /* PY2 */
-_FreeTypeState _modstate;
-#endif /* PY2 */
 
 MODINIT_DEFINE(_freetype)
 {
@@ -2266,12 +2217,7 @@ MODINIT_DEFINE(_freetype)
         MODINIT_ERROR;
     }
 
-#if PY3
     module = PyModule_Create(&_freetypemodule);
-#else
-    /* TODO: DOC */
-    module = Py_InitModule3(MODULE_NAME, _ft_methods, DOC_PYGAMEFREETYPE);
-#endif
 
     if (!module) {
         MODINIT_ERROR;

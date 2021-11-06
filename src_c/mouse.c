@@ -482,7 +482,6 @@ MODINIT_DEFINE(mouse)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "mouse",
                                          DOC_PYGAMEMOUSE,
@@ -492,7 +491,6 @@ MODINIT_DEFINE(mouse)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -507,11 +505,7 @@ MODINIT_DEFINE(mouse)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3("mouse", _mouse_methods, DOC_PYGAMEMOUSE);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

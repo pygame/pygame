@@ -294,9 +294,7 @@ _set_targets(PyObject *data, Display *display, Window window, Atom property)
     int i;
     char *format;
     PyObject *list = PyDict_Keys(data);
-#if PY3
     PyObject *chars;
-#endif
     int amount = PyList_Size(list);
     /* All types plus the TARGETS and a TIMESTAMP atom. */
     Atom *targets = malloc((amount + 2) * sizeof(Atom));
@@ -306,19 +304,13 @@ _set_targets(PyObject *data, Display *display, Window window, Atom property)
     targets[0] = _atom_TARGETS;
     targets[1] = _atom_TIMESTAMP;
     for (i = 0; i < amount; i++) {
-#if PY3
         chars = PyUnicode_AsASCIIString(PyList_GetItem(list, i));
         if (!chars) {
             return;
         }
         format = PyBytes_AsString(chars);
-#else
-        format = PyString_AsString(PyList_GetItem(list, i));
-#endif
         targets[i + 2] = _convert_format(format);
-#if PY3
         Py_DECREF(chars);
-#endif
     }
     XChangeProperty(display, window, property, XA_ATOM, 32, PropModeReplace,
                     (unsigned char *)targets, amount + 2);
@@ -792,9 +784,7 @@ pygame_scrap_get_types(void)
 
     if (!pygame_scrap_lost()) {
         PyObject *key;
-#if PY3
         PyObject *chars;
-#endif
         Py_ssize_t pos = 0;
         int i = 0;
         PyObject *dict =
@@ -806,7 +796,6 @@ pygame_scrap_get_types(void)
 
         memset(types, 0, (size_t)(PyDict_Size(dict) + 1));
         while (PyDict_Next(dict, &pos, &key, NULL)) {
-#if PY3
             chars = PyUnicode_AsASCIIString(key);
             if (chars) {
                 types[i] = strdup(PyBytes_AsString(chars));
@@ -815,9 +804,6 @@ pygame_scrap_get_types(void)
             else {
                 types[i] = NULL;
             }
-#else
-            types[i] = strdup(PyString_AsString(key));
-#endif
             if (!types[i]) {
                 /* Could not allocate memory, free anything. */
                 int j = 0;

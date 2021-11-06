@@ -1783,11 +1783,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         rw = pgRWops_FromObject(file);
 
         if (rw == NULL) {
-#if PY3
             if (obj) {
-#else
-            if (obj && PyErr_ExceptionMatches(PyExc_TypeError)) {
-#endif
                 /* use 'buffer' as fallback for single arg */
                 PyErr_Clear();
                 goto LOAD_BUFFER;
@@ -1818,12 +1814,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
 LOAD_BUFFER:
 
-#if PY2
-    if (!chunk && buffer && /* conditional and */
-        PyObject_CheckBuffer(buffer)) {
-#else
     if (!chunk && buffer) {
-#endif
         Py_buffer view;
         int rcode;
 
@@ -1849,30 +1840,6 @@ LOAD_BUFFER:
         }
     }
 
-#if PY2
-    if (chunk == NULL && buffer != NULL) {
-        const void *buf = NULL;
-        Py_ssize_t buflen = 0;
-
-        if (PyObject_AsReadBuffer(buffer, &buf, &buflen)) {
-            if (obj != NULL) {
-                PyErr_Clear();
-            }
-            else {
-                PyErr_Format(PyExc_TypeError,
-                             "Expected object with buffer interface: got a %s",
-                             Py_TYPE(buffer)->tp_name);
-                return -1;
-            }
-        }
-        else {
-            if (_chunk_from_buf(buf, buflen, &chunk, &mem)) {
-                return -1;
-            }
-            ((pgSoundObject *)self)->mem = mem;
-        }
-    }
-#endif
 
     if (array != NULL) {
         pg_buffer pg_view;
@@ -1984,7 +1951,6 @@ MODINIT_DEFINE(mixer)
     int ecode;
     static void *c_api[PYGAMEAPI_MIXER_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "mixer",
                                          DOC_PYGAMEMIXER,
@@ -1994,7 +1960,6 @@ MODINIT_DEFINE(mixer)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2024,12 +1989,7 @@ MODINIT_DEFINE(mixer)
 
     /* create the module */
     pgSound_Type.tp_new = &PyType_GenericNew;
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "mixer", _mixer_methods, DOC_PYGAMEMIXER);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

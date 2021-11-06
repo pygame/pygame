@@ -148,10 +148,8 @@ static int
 _pg_as_arrayinter_flags(Py_buffer *);
 static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *);
-#if PY3
 static void
 _pg_capsule_PyMem_Free(PyObject *);
-#endif
 static PyObject *
 _pg_shape_as_tuple(PyArrayInterface *);
 static PyObject *
@@ -658,7 +656,7 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 static PyObject *
 pg_get_error(PyObject *self)
 {
-#if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
+#if IS_SDLv1 && !defined(PYPY_VERSION)
     /* SDL 1's encoding is ambiguous */
     PyObject *obj;
     if ((obj = PyUnicode_DecodeUTF8(SDL_GetError(),
@@ -666,27 +664,27 @@ pg_get_error(PyObject *self)
         return obj;
     PyErr_Clear();
     return PyUnicode_DecodeLocale(SDL_GetError(), "surrogateescape");
-#else /* IS_SDLv2 || !PY3 */
+#else /* IS_SDLv2 */
     return Text_FromUTF8(SDL_GetError());
-#endif /* IS_SDLv2 || !PY3 */
+#endif /* IS_SDLv2 */
 }
 
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
-#if PY2 || defined(PYPY_VERSION)
+#if defined(PYPY_VERSION)
     if (!PyArg_ParseTuple(args, "es", "UTF-8", &errstring))
         return NULL;
 
     SDL_SetError("%s", errstring);
     PyMem_Free(errstring);
-#else /* PY3 */
+#else
     if (!PyArg_ParseTuple(args, "s", &errstring)) {
         return NULL;
     }
     SDL_SetError("%s", errstring);
-#endif /* PY3 */
+#endif
     Py_RETURN_NONE;
 }
 
@@ -774,11 +772,7 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     if (!cinter_p) {
         return 0;
     }
-#if PY3
     capsule = PyCapsule_New(cinter_p, 0, _pg_capsule_PyMem_Free);
-#else
-    capsule = PyCObject_FromVoidPtr(cinter_p, PyMem_Free);
-#endif
     if (!capsule) {
         PyMem_Free(cinter_p);
         return 0;
@@ -823,13 +817,11 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     return cinter_p;
 }
 
-#if PY3
 static void
 _pg_capsule_PyMem_Free(PyObject *capsule)
 {
     PyMem_Free(PyCapsule_GetPointer(capsule, 0));
 }
-#endif
 
 static int
 _pg_as_arrayinter_flags(Py_buffer *view_p)
@@ -1545,11 +1537,7 @@ _pg_typestr_check(PyObject *op)
         return -1;
     }
     if (PyUnicode_Check(op)) {
-#if PY2
-        Py_ssize_t len = PyUnicode_GET_SIZE(op);
-#else
         Py_ssize_t len = PyUnicode_GET_LENGTH(op);
-#endif
         if (len != 3) {
             PyErr_SetString(PyExc_ValueError,
                             "expected 'typestr' to be length 3");
@@ -2132,7 +2120,6 @@ MODINIT_DEFINE(base)
     int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "base",
                                          "",
@@ -2142,7 +2129,6 @@ MODINIT_DEFINE(base)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     if (!is_loaded) {
         /* import need modules. Do this first so if there is an error
@@ -2161,11 +2147,7 @@ MODINIT_DEFINE(base)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "base", _base_methods, DOC_PYGAME);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
