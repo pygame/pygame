@@ -1473,15 +1473,12 @@ pg_event_str(PyObject *self)
     PyObject *pyobj;
     char *s;
     size_t size;
-#if PY3
     PyObject *encodedobj;
-#endif
 
     strobj = PyObject_Str(e->dict);
     if (strobj == NULL) {
         return NULL;
     }
-#if PY3
     encodedobj = PyUnicode_AsUTF8String(strobj);
     Py_DECREF(strobj);
     strobj = encodedobj;
@@ -1490,9 +1487,6 @@ pg_event_str(PyObject *self)
         return NULL;
     }
     s = PyBytes_AsString(strobj);
-#else
-    s = PyString_AsString(strobj);
-#endif
     size = (11 + strlen(_pg_name_from_eventtype(e->type)) + strlen(s) +
             sizeof(e->type) * 3 + 1);
 
@@ -1618,11 +1612,7 @@ static PyTypeObject pgEvent_Type = {
     PyObject_GenericSetAttr, /* tp_setattro */
 #endif
     0, /* tp_as_buffer */
-#if PY3
     0,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_RICHCOMPARE,
-#endif
     DOC_PYGAMEEVENTEVENT,          /* Documentation string */
     0,                             /* tp_traverse */
     0,                             /* tp_clear */
@@ -1747,13 +1737,8 @@ set_grab(PyObject *self, PyObject *arg)
     SDL_Window *win = NULL;
 #endif /* IS_SDLv2 */
 
-#if PY2
-    if (!PyArg_ParseTuple(arg, "i", &doit))
-        return NULL;
-#else
     if (!PyArg_ParseTuple(arg, "p", &doit))
         return NULL;
-#endif
     VIDEO_INIT_CHECK();
 
 #if IS_SDLv1
@@ -1956,15 +1941,9 @@ pg_event_clear(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
-#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &obj, &dopump))
         return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &obj, &dopump))
-        return NULL;
-#endif
 
     VIDEO_INIT_CHECK();
     _pg_event_pump(dopump);
@@ -2212,15 +2191,9 @@ pg_event_get(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
-#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OpO", kwids,
                                      &obj_evtype, &dopump, &obj_exclude))
         return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OiO", kwids,
-                                      &obj_evtype, &dopump, &obj_exclude))
-        return NULL;
-#endif
 
     VIDEO_INIT_CHECK();
 
@@ -2254,15 +2227,9 @@ pg_event_peek(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL
     };
 
-#if PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Op", kwids,
                                      &obj, &dopump))
         return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Oi", kwids,
-                                     &obj, &dopump))
-        return NULL;
-#endif
 
     VIDEO_INIT_CHECK();
 
@@ -2505,7 +2472,6 @@ MODINIT_DEFINE(event)
     int ecode;
     static void *c_api[PYGAMEAPI_EVENT_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "event",
                                          DOC_PYGAMEEVENT,
@@ -2515,7 +2481,6 @@ MODINIT_DEFINE(event)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2535,12 +2500,7 @@ MODINIT_DEFINE(event)
 #endif
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "event", _event_methods, DOC_PYGAMEEVENT);
-#endif
     dict = PyModule_GetDict(module);
 
     if (NULL == (joy_instance_map = PyDict_New())) {

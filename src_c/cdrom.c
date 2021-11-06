@@ -576,7 +576,6 @@ MODINIT_DEFINE(cdrom)
     int ecode;
     static void *c_api[PYGAMEAPI_CDROM_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "cdrom",
                                          DOC_PYGAMECDROM,
@@ -586,7 +585,6 @@ MODINIT_DEFINE(cdrom)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -602,12 +600,7 @@ MODINIT_DEFINE(cdrom)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "cdrom", _cdrom_methods, DOC_PYGAMECDROM);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

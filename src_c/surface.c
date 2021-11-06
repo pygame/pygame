@@ -3952,21 +3952,12 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
     SurfViewKind *view_kind_ptr = (SurfViewKind *)view_kind_vptr;
 
     if (PyUnicode_Check(obj)) {
-#if PY2
-        if (PyUnicode_GET_SIZE(obj) != 1) {
-            PyErr_SetString(PyExc_TypeError,
-                            "expected a length 1 string for argument 1");
-            return 0;
-        }
-        ch = *PyUnicode_AS_UNICODE(obj);
-#else
         if (PyUnicode_GET_LENGTH(obj) != 1) {
             PyErr_SetString(PyExc_TypeError,
                             "expected a length 1 string for argument 1");
             return 0;
         }
         ch = PyUnicode_READ_CHAR(obj, 0);
-#endif
     }
     else if (Bytes_Check(obj)) {
         if (Bytes_GET_SIZE(obj) != 1) {
@@ -4359,7 +4350,6 @@ MODINIT_DEFINE(surface)
     int ecode;
     static void *c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "surface",
                                          DOC_PYGAMESURFACE,
@@ -4369,7 +4359,6 @@ MODINIT_DEFINE(surface)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -4401,12 +4390,7 @@ MODINIT_DEFINE(surface)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "surface", _surface_methods,
-                            DOC_PYGAMESURFACE);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

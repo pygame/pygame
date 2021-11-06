@@ -95,7 +95,6 @@ MODINIT_DEFINE(constants)
     PyObject *module;
     PyObject *all_list;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "constants",
                                          _constants_doc,
@@ -105,14 +104,8 @@ MODINIT_DEFINE(constants)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "constants", _constant_methods,
-                            _constants_doc);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

@@ -1667,7 +1667,6 @@ MODINIT_DEFINE(image)
     PyObject *module;
     PyObject *extmodule;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "image",
                                          DOC_PYGAMEIMAGE,
@@ -1677,7 +1676,6 @@ MODINIT_DEFINE(image)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1696,12 +1694,7 @@ MODINIT_DEFINE(image)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "image", _image_methods, DOC_PYGAMEIMAGE);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

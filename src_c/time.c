@@ -569,7 +569,6 @@ initpygame_time(void)
 MODINIT_DEFINE(time)
 #endif
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "time",
                                          DOC_PYGAMETIME,
@@ -579,7 +578,6 @@ MODINIT_DEFINE(time)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* need to import base module, just so SDL is happy. Do this first so if
        the module is there is an error the module is not loaded.
@@ -600,9 +598,5 @@ MODINIT_DEFINE(time)
     }
 
     /* create the module */
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3(MODPREFIX "time", _time_methods, DOC_PYGAMETIME);
-#endif
 }

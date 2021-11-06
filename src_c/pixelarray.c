@@ -202,7 +202,6 @@ static PyMethodDef _pxarray_methods[] = {
      DOC_PIXELARRAYTRANSPOSE},
     {NULL, NULL, 0, NULL}};
 
-#if PY3
 static void
 Text_ConcatAndDel(PyObject **string, PyObject *newpart)
 {
@@ -218,9 +217,6 @@ Text_ConcatAndDel(PyObject **string, PyObject *newpart)
     }
     *string = result;
 }
-#else
-#define Text_ConcatAndDel PyString_ConcatAndDel
-#endif
 
 /**
  * Getters and setters for the pgPixelArrayObject.
@@ -278,14 +274,8 @@ static PyBufferProcs _pxarray_bufferprocs = {
 
 #define PXARRAY_BUFFERPROCS &_pxarray_bufferprocs
 
-#if PY2
-#define PXARRAY_TPFLAGS                                              \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
-     Py_TPFLAGS_HAVE_NEWBUFFER)
-#else
 #define PXARRAY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
-#endif
 
 static PyTypeObject pgPixelArray_Type = {
     PyVarObject_HEAD_INIT(NULL,0)
@@ -1942,7 +1932,6 @@ MODINIT_DEFINE(pixelarray)
     PyObject *apiobj;
     static void *c_api[PYGAMEAPI_PIXELARRAY_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "pixelarray",
                                          NULL,
@@ -1952,7 +1941,6 @@ MODINIT_DEFINE(pixelarray)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1976,11 +1964,7 @@ MODINIT_DEFINE(pixelarray)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "pixelarray", 0, 0);
-#endif
     if (!module) {
         MODINIT_ERROR;
     }
