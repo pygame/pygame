@@ -126,10 +126,10 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* CPython >= 2.7 or PyPy >= 6.0.0 (and pypy3)
-* SDL >= 1.2.15
-* SDL_mixer >= 1.2.13
-* SDL_image >= 1.2.12
+* CPython >= 3.6 or PyPy3
+* SDL >= 2.0.0
+* SDL_mixer >= 2.0.0
+* SDL_image >= 2.0.0
 * SDL_ttf >= 2.0.11
 * SDL_gfx (optional, vendored in)
 * NumPy >= 1.6.2 (optional)
