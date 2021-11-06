@@ -96,8 +96,6 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  # install.ps1 only needed for SDL1 stuff.
-  # - "powershell buildconfig\\ci\\appveyor\\install.ps1"
 
   # https://github.com/appveyor/build-images/blob/master/scripts/Windows/install_python.ps1#L88-L108
   - ps: |
