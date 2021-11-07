@@ -1392,19 +1392,23 @@ class LayeredFilter(LayeredUpdates):
     It refers to the class attribute __sprite_types__ to filter addition (if it is empty,
     then any instance will behave as a normal LayeredUpdates group and won't block sprite
     addition. Otherwise, only sprites which are instances of the types contained by
-    __sprite_types__ will be accepted by the game."""
+    __sprite_types__ will be accepted by the game.
+
+    LayeredFilter is not meant to be used directly, and is supposed to be subclassed.
+    If you use LayeredFilter instances directly, they will behave as normal LayeredUpdates groups."""
     __sprite_types__=()
     def _sprite_type_check(self, *sprites):
-        for sprite in sprites:
-            if __debug__:
-                try:
-                    assert isinstance(sprite, self.__sprite_types__)
-                except AssertionError as err:
-                    raise TypeError(f"unsupported sprite type for '{type(self).__name__}': '{type(sprite).__name__}'") from err
-            else:
-                if not isinstance(sprite, self.__sprite_types__):
-                    raise TypeError(
-                        f"unsupported sprite type for '{type(self).__name__}': '{type(sprite).__name__}'")
+        if self.__sprite_types__:
+            for sprite in sprites:
+                if __debug__:
+                    try:
+                        assert isinstance(sprite, self.__sprite_types__)
+                    except AssertionError as err:
+                        raise TypeError(f"unsupported sprite type for '{type(self).__name__}': '{type(sprite).__name__}'") from err
+                else:
+                    if not isinstance(sprite, self.__sprite_types__):
+                        raise TypeError(
+                            f"unsupported sprite type for '{type(self).__name__}': '{type(sprite).__name__}'")
     def __init__(self, *sprites, **kwargs):
         if self.__sprite_types__:
             self._sprite_type_check(*sprites)
@@ -1424,15 +1428,19 @@ class AutomatedLayered(LayeredUpdates):
     regular LayeredUpdates groups."""
     __sprite_table__={}
     def add(self, *sprites, **kwargs):
-        layer_=kwargs.get("layer", 0)
+        layer_=kwargs.get("layer", super()._default_layer)
         sprite_layers={}
         for sprite in sprites:
-            if type(sprite) in self.__sprite_table__:
-                sprite_layers[sprite]=self.__sprite_table__[type(sprite)]
-            else:
+            sprite_layered=False
+            for cls in self.__sprite_table__:
+                if isinstance(sprite, cls):
+                    sprite_layers[sprite]=self.__sprite_table__[cls]
+                    sprite_layered=True
+                    break
+            if not sprite_layered:
                 sprite_layers[sprite]=layer_
         try:
-            kwargs.pop(layer_)
+            kwargs.pop("layer")
         except LookupError:
             pass
         for sprite, layer in sprite_layers.items():
