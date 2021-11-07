@@ -412,31 +412,14 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
                                      FontColor *fgcolor, FontColor *bgcolor,
                                      SDL_Rect *r)
 {
-#if IS_SDLv1
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    FT_UInt32 rmask = 0xff000000;
-    FT_UInt32 gmask = 0x00ff0000;
-    FT_UInt32 bmask = 0x0000ff00;
-    FT_UInt32 amask = 0x000000ff;
-#else
-    FT_UInt32 rmask = 0x000000ff;
-    FT_UInt32 gmask = 0x0000ff00;
-    FT_UInt32 bmask = 0x00ff0000;
-    FT_UInt32 amask = 0xff000000;
-#endif
-#else /* IS_SDLv2 */
     FT_UInt32 rmask = 0;
     FT_UInt32 gmask = 0;
     FT_UInt32 bmask = 0;
     FT_UInt32 amask = 0;
-#endif /* IS_SDLv2 */
     int locked = 0;
     SDL_Surface *surface = 0;
     int bits_per_pixel =
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
-#if IS_SDLv1
-    FT_UInt32 surface_flags = SDL_SWSURFACE;
-#endif /* IS_SDLv1 */
 
     FontSurface font_surf;
     Layout *font_text;
@@ -465,11 +448,6 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
         offset.y = -font_text->min_y;
     }
 
-#if IS_SDLv1
-    surface = SDL_CreateRGBSurface(surface_flags, width, height,
-                   bits_per_pixel, rmask, gmask, bmask,
-                   bits_per_pixel == 32 ? amask : 0);
-#else /* IS_SDLv2 */
     if (bits_per_pixel == 32) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
         rmask = 0xff000000;
@@ -485,7 +463,6 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     }
     surface = SDL_CreateRGBSurface(0, width, height, bits_per_pixel,
                                    rmask, gmask, bmask, amask);
-#endif /* IS_SDLv2 */
     if (!surface) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return 0;
@@ -526,54 +503,33 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
         SDL_FillRect(surface, 0, fillcolor);
     }
     else {
-#if IS_SDLv2
         SDL_Palette* palette = surface->format->palette;
-#endif /* IS_SDLv2 */
         SDL_Color colors[2];
 
-#if IS_SDLv2
         if (!palette) {
             SDL_FreeSurface(surface);
             PyErr_NoMemory();
             return 0;
         }
-#endif /* IS_SDLv2 */
         colors[1].r = fgcolor->r;  /* Foreground */
         colors[1].g = fgcolor->g;
         colors[1].b = fgcolor->b;
-#if IS_SDLv2
         colors[1].a = SDL_ALPHA_OPAQUE;
-#endif /* IS_SDLv2 */
         colors[0].r = ~colors[1].r;  /* Background */
         colors[0].g = ~colors[1].g;
         colors[0].b = ~colors[1].b;
-#if IS_SDLv1
-        if (!SDL_SetColors(surface, colors, 0, 2)) {
-            PyErr_SetString(PyExc_SystemError,
-                            "Pygame bug in _PGFT_Render_NewSurface: "
-                            "SDL_SetColors failed");
-#else /* IS_SDLv2 */
         colors[0].a = SDL_ALPHA_OPAQUE;
         if (SDL_SetPaletteColors(palette, colors, 0, 2)) {
             PyErr_Format(PyExc_SystemError,
                          "Pygame bug in _PGFT_Render_NewSurface: %.200s",
                          SDL_GetError());
-#endif /* IS_SDLv2 */
             SDL_FreeSurface(surface);
             return 0;
         }
-#if IS_SDLv1
-        SDL_SetColorKey(surface, SDL_SRCCOLORKEY, (FT_UInt32)0);
-#else /* IS_SDLv2 */
         SDL_SetColorKey(surface, SDL_TRUE, (FT_UInt32)0);
-#endif /* IS_SDLv2 */
         if (fgcolor->a != SDL_ALPHA_OPAQUE) {
-#if IS_SDLv1
-            SDL_SetAlpha(surface, SDL_SRCALPHA, fgcolor->a);
-#else /* IS_SDLv2 */
             SDL_SetSurfaceAlphaMod(surface, fgcolor->a);
             SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
-#endif /* IS_SDLv2 */
         }
         fgcolor = &mono_fgcolor;
         bgcolor = &mono_bgcolor;

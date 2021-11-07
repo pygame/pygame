@@ -467,10 +467,7 @@ def setup_prebuilt_sdl2(prebuilt_dir):
     return list(DEPS)
 
 
-def main(sdl2=True):
-    if not sdl2:
-        raise Exception("Building SDL1.x on MSYS2 is not supported")
-
+def main():
     machine_type = get_machine_type()
 
     # config MSYS2 always requires prebuilt dependencies, in the

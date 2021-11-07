@@ -15,7 +15,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.1.0.dev1",
+    "version":          "2.1.1.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
@@ -121,14 +121,11 @@ def compilation_help():
 
 
 
-if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
+if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
     compilation_help()
-    raise SystemExit("Pygame requires Python version 2.7 or above.")
-if sys.version_info >= (3, 0) and sys.version_info < (3, 4):
-    compilation_help()
-    raise SystemExit("Pygame requires Python3 version 3.5 or above.")
+    raise SystemExit("Pygame requires Python3 version 3.6 or above.")
 if IS_PYPY and sys.pypy_version_info < (7,):
-    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython 2.7 or CPython 3.5+")
+    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython >= 3.6")
 
 def consume_arg(name):
     if name in sys.argv:
@@ -166,12 +163,6 @@ if consume_arg('-pygame-ci'):
               '-Werror=cast-align -Werror=int-conversion ' + \
               '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
-
-# For python 2 we remove the -j options.
-if sys.version_info[0] < 3:
-    # Used for parallel builds with setuptools. Not supported by py2.
-    [consume_arg('-j%s' % x) for x in range(32)]
-
 
 STRIPPED=False
 
@@ -405,9 +396,9 @@ if AUTO_CONFIG or not os.path.isfile('Setup'):
 
 try:
     s_mtime = os.stat("Setup")[stat.ST_MTIME]
-    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL1.in'))[stat.ST_MTIME]
+    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL2.in'))[stat.ST_MTIME]
     if sin_mtime > s_mtime:
-        print ('\n\nWARNING, "buildconfig/Setup.SDL1.in" newer than "Setup",'
+        print ('\n\nWARNING, "buildconfig/Setup.SDL2.in" newer than "Setup",'
                'you might need to modify "Setup".')
 except OSError:
     pass

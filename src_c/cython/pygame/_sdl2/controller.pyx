@@ -9,6 +9,7 @@ cdef extern from "pygame.h" nogil:
 
 cdef extern from "SDL.h" nogil:
     void SDL_free(void *mem)
+    int SDL_VERSION_ATLEAST(int major, int minor, int patch) 
 
 import_pygame_joystick()
 
@@ -245,6 +246,9 @@ cdef class Controller:
         False otherwise.
         """
         self._CLOSEDCHECK()
+        if not SDL_VERSION_ATLEAST(2, 0, 9):
+            return False
+
         duration = max(duration, 0)
         low = min(max(low_frequency, 0.0), 1.0)
         high = min(max(high_frequency, 0.0), 1.0)
@@ -257,4 +261,5 @@ cdef class Controller:
         Stop any rumble effect playing on the controller.
         """
         self._CLOSEDCHECK()
-        SDL_GameControllerRumble(self._controller, 0, 0, 1)
+        if SDL_VERSION_ATLEAST(2, 0, 9):
+            SDL_GameControllerRumble(self._controller, 0, 0, 1)

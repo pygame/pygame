@@ -61,11 +61,7 @@ _pg_push_music_event(int type)
     e = (pgEventObject *)pgEvent_New2(type, NULL);
     if (e) {
         pgEvent_FillUserEvent(e, &event);
-#if IS_SDLv1
-        if (SDL_PushEvent(&event) < 0)
-#else
         if (SDL_PushEvent(&event) <= 0)
-#endif
             Py_DECREF(e->dict);
         Py_DECREF(e);
     }

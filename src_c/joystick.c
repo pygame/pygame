@@ -135,7 +135,6 @@ joy_init(PyObject *self, PyObject *args)
 
 static int
 _joy_map_insert(pgJoystickObject *jstick) {
-#if IS_SDLv2
     SDL_JoystickID instance_id;
     PyObject *k, *v;
 
@@ -155,7 +154,6 @@ _joy_map_insert(pgJoystickObject *jstick) {
     }
     Py_XDECREF(k);
     Py_XDECREF(v);
-#endif
 
     return 0;
 }
@@ -187,7 +185,6 @@ joy_get_id(PyObject *self, PyObject *args)
     return PyInt_FromLong(joy_id);
 }
 
-#if IS_SDLv2
 
 static PyObject *
 joy_get_instance_id(PyObject *self, PyObject *args)
@@ -326,19 +323,12 @@ joy_stop_rumble(pgJoystickObject *self)
     Py_RETURN_NONE;
 }
 
-#endif /*if IS_SDLv2*/
 
 static PyObject *
 joy_get_name(PyObject *self, PyObject *args)
 {
-#if IS_SDLv1
-    int joy_id = pgJoystick_AsID(self);
-    JOYSTICK_INIT_CHECK();
-    return Text_FromLocale(SDL_JoystickName(joy_id));
-#else  /* IS_SDLv2 */
     SDL_Joystick *joy = pgJoystick_AsSDL(self);
     return Text_FromUTF8(SDL_JoystickName(joy));
-#endif /* IS_SDLv2 */
 }
 
 static PyObject *
@@ -521,13 +511,11 @@ static PyMethodDef joy_methods[] = {
     {"get_init", joy_get_init, METH_NOARGS, DOC_JOYSTICKGETINIT},
 
     {"get_id", joy_get_id, METH_NOARGS, DOC_JOYSTICKGETID},
-#if IS_SDLv2
     {"get_instance_id", joy_get_instance_id, METH_NOARGS, DOC_JOYSTICKGETINSTANCEID},
     {"get_guid", joy_get_guid, METH_NOARGS, DOC_JOYSTICKGETGUID},
     {"get_power_level", joy_get_power_level, METH_NOARGS, DOC_JOYSTICKGETPOWERLEVEL},
     {"rumble", (PyCFunction)joy_rumble, METH_VARARGS | METH_KEYWORDS, DOC_JOYSTICKRUMBLE},
     {"stop_rumble", (PyCFunction)joy_stop_rumble, METH_NOARGS, DOC_JOYSTICKSTOPRUMBLE},
-#endif
     {"get_name", joy_get_name, METH_NOARGS, DOC_JOYSTICKGETNAME},
 
     {"get_numaxes", joy_get_numaxes, METH_NOARGS,
