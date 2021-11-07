@@ -126,27 +126,14 @@ def find_freetype():
 
 
 
-def main(sdl2=False):
+def main():
 
-    if sdl2:
-        DEPS = [
-            [DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl'])],
-            [Dependency('FONT', ['SDL_ttf.h', 'SDL2/SDL_ttf.h'], 'libSDL2_ttf', ['SDL2_ttf'])],
-            [Dependency('IMAGE', ['SDL_image.h', 'SDL2/SDL_image.h'], 'libSDL2_image', ['SDL2_image'])],
-            [Dependency('MIXER', ['SDL_mixer.h', 'SDL2/SDL_mixer.h'], 'libSDL2_mixer', ['SDL2_mixer'])],
-        ]
-    else:
-        DEPS = [
-            [DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
-                 FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL')],
-            [Dependency('FONT', ['SDL_ttf.h', 'SDL/SDL_ttf.h'], 'libSDL_ttf', ['SDL_ttf']),
-                 FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf')],
-            [Dependency('IMAGE', ['SDL_image.h', 'SDL/SDL_image.h'], 'libSDL_image', ['SDL_image']),
-                 FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image')],
-            [Dependency('MIXER', ['SDL_mixer.h', 'SDL/SDL_mixer.h'], 'libSDL_mixer', ['SDL_mixer']),
-                 FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer')],
-        ]
-
+    DEPS = [
+        [DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl'])],
+        [Dependency('FONT', ['SDL_ttf.h', 'SDL2/SDL_ttf.h'], 'libSDL2_ttf', ['SDL2_ttf'])],
+        [Dependency('IMAGE', ['SDL_image.h', 'SDL2/SDL_image.h'], 'libSDL2_image', ['SDL2_image'])],
+        [Dependency('MIXER', ['SDL_mixer.h', 'SDL2/SDL_mixer.h'], 'libSDL2_mixer', ['SDL2_mixer'])],
+    ]
 
     DEPS.extend([
         Dependency('PNG', 'png.h', 'libpng', ['png']),
@@ -160,10 +147,7 @@ def main(sdl2=False):
 
     print ('Hunting dependencies...')
     incdirs = ['/usr/local/include', '/opt/homebrew/include']
-    if sdl2:
-        incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2', '/opt/local/include/SDL2'])
-    else:
-        incdirs.extend(['/usr/local/include/SDL', '/opt/homebrew/include/SDL', '/opt/local/include/SDL'])
+    incdirs.extend(['/usr/local/include/SDL2', '/opt/homebrew/include/SDL2', '/opt/local/include/SDL2'])
 
     incdirs.extend([
        #'/usr/X11/include',

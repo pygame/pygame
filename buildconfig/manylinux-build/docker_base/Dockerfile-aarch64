@@ -81,7 +81,6 @@ ADD fluidsynth /fluidsynth_build/
 RUN ["bash", "/fluidsynth_build/build-fluidsynth.sh"]
 
 ADD sdl_libs /sdl_build/
-#RUN ["bash", "/sdl_build/build-sdl-libs.sh"]
 RUN ["bash", "/sdl_build/build-sdl2-libs.sh"]
 
 

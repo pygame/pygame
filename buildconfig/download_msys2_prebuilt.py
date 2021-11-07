@@ -61,7 +61,7 @@ def install_prebuilts(x86=True, x64=True):
         raise Exception("Some dependencies could not be installed")
 
 
-def update(x86=True, x64=True, sdl2=True):
+def update(x86=True, x64=True):
     install_prebuilts(x86=x86, x64=x64)
 
 
