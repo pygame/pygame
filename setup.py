@@ -478,7 +478,7 @@ add_datafiles(data_files, 'pygame/examples',
               ['examples', ['README.rst', ['data', ['*']]]])
 
 # docs
-add_datafiles(data_files, 'pygame/docs',
+add_datafiles(data_files, 'pygame/docs/generated',
               ['docs/generated',
                   ['*.html',             # Navigation and help pages
                    '*.gif',              # pygame logos
