@@ -21,10 +21,7 @@ IS_PYPY = "PyPy" == platform.python_implementation()
 ################################### CONSTANTS ##################################
 
 FREQUENCIES = [11025, 22050, 44100, 48000]
-SIZES = [-16, -8, 8, 16]
-if pygame.get_sdl_version()[0] >= 2:
-    SIZES.append(32)
-
+SIZES = [-16, -8, 8, 16, 32]
 CHANNELS = [1, 2]
 BUFFERS = [3024]
 
@@ -39,10 +36,7 @@ CONFIGS = [
 # But using all CONFIGS is very slow (> 10 sec for example)
 # And probably, we don't need to be so exhaustive, hence:
 
-CONFIG = {"frequency": 22050, "size": -16, "channels": 2}  # base config
-if pygame.get_sdl_version()[0] >= 2:
-    # base config
-    CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}  
+CONFIG = {"frequency": 44100, "size": 32, "channels": 2, "allowedchanges": 0}
 
 
 class InvalidBool(object):
@@ -52,7 +46,7 @@ class InvalidBool(object):
     __bool__ = None
 
 
-############################## MODULE LEVEL TESTS ##############################
+############################## MODULE LEVEL TESTS #############################
 
 
 class MixerModuleTest(unittest.TestCase):

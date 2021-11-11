@@ -20,7 +20,7 @@ except NameError:
 import pygame
 from pygame.compat import xrange_
 
-PY3 = sys.version_info >= (3, 0, 0)
+
 IS_PYPY = "PyPy" == platform.python_implementation()
 
 

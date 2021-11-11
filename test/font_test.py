@@ -84,12 +84,7 @@ class FontModuleTest(unittest.TestCase):
 
         self.assertTrue(fnts, msg=repr(fnts))
 
-        if PY_MAJOR_VERSION >= 3:
-            # For Python 3.x, names will always be unicode strings.
-            name_types = (str,)
-        else:
-            # For Python 2.x, names may be either unicode or ascii strings.
-            name_types = (str, unicode)
+        name_types = (str,)
 
         for name in fnts:
             # note, on ubuntu 2.6 they are all unicode strings.

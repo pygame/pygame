@@ -7,9 +7,6 @@ from pygame.compat import as_bytes
 import pygame.sndarray
 
 
-SDL2 = pygame.get_sdl_version()[0] >= 2
-
-
 class SndarrayTest(unittest.TestCase):
     array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16, 32: float32}
 
@@ -91,9 +88,7 @@ class SndarrayTest(unittest.TestCase):
         check_sound(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xFF, 0]])
         check_sound(-16, 1, [0, 0x7FFF, -0x7FFF, -1])
         check_sound(-16, 2, [[0, -0x7FFF], [-0x7FFF, 0], [0x7FFF, 0], [0, 0x7FFF]])
-
-        if SDL2:
-            check_sound(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
+        check_sound(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
 
     def test_samples(self):
 
@@ -133,9 +128,7 @@ class SndarrayTest(unittest.TestCase):
         check_sample(-8, 2, [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xFF, 0]])
         check_sample(-16, 1, [0, 0x7FFF, -0x7FFF, -1])
         check_sample(-16, 2, [[0, -0x7FFF], [-0x7FFF, 0], [0x7FFF, 0], [0, 0x7FFF]])
-
-        if SDL2:
-            check_sample(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
+        check_sample(32, 2, [[0.0, -1.0], [-1.0, 0], [1.0, 0], [0, 1.0]])
 
     def test_use_arraytype(self):
         def do_use_arraytype(atype):
@@ -146,7 +139,6 @@ class SndarrayTest(unittest.TestCase):
 
         self.assertRaises(ValueError, do_use_arraytype, "not an option")
 
-    @unittest.skipIf(not SDL2, "requires SDL2")
     def test_float32(self):
         """ sized arrays work with Sounds and 32bit float arrays.
         """

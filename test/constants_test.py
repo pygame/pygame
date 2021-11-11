@@ -2,9 +2,6 @@ import unittest
 import pygame.constants
 
 
-SDL2 = pygame.get_sdl_version()[0] >= 2
-
-
 # K_* and KSCAN_* common names.
 K_AND_KSCAN_COMMON_NAMES = (
     "UNKNOWN",
@@ -99,51 +96,48 @@ K_AND_KSCAN_COMMON_NAMES = (
     "EURO",
 )
 
-if SDL2:
-    K_AND_KSCAN_COMMON_NAMES += (
-        "KP_0",
-        "KP_1",
-        "KP_2",
-        "KP_3",
-        "KP_4",
-        "KP_5",
-        "KP_6",
-        "KP_7",
-        "KP_8",
-        "KP_9",
-        "NUMLOCKCLEAR",
-        "SCROLLLOCK",
-        "RGUI",
-        "LGUI",
-        "PRINTSCREEN",
-        "CURRENCYUNIT",
-        "CURRENCYSUBUNIT",
-    )
-
+K_AND_KSCAN_COMMON_NAMES += (
+    "KP_0",
+    "KP_1",
+    "KP_2",
+    "KP_3",
+    "KP_4",
+    "KP_5",
+    "KP_6",
+    "KP_7",
+    "KP_8",
+    "KP_9",
+    "NUMLOCKCLEAR",
+    "SCROLLLOCK",
+    "RGUI",
+    "LGUI",
+    "PRINTSCREEN",
+    "CURRENCYUNIT",
+    "CURRENCYSUBUNIT",
+)
 
 # Constants that have the same value.
 K_AND_KSCAN_COMMON_OVERLAPS = ()
 
-if SDL2:
-    K_AND_KSCAN_COMMON_OVERLAPS += (
-        ("KP0", "KP_0"),
-        ("KP1", "KP_1"),
-        ("KP2", "KP_2"),
-        ("KP3", "KP_3"),
-        ("KP4", "KP_4"),
-        ("KP5", "KP_5"),
-        ("KP6", "KP_6"),
-        ("KP7", "KP_7"),
-        ("KP8", "KP_8"),
-        ("KP9", "KP_9"),
-        ("NUMLOCK", "NUMLOCKCLEAR"),
-        ("SCROLLOCK", "SCROLLLOCK"),
-        ("LSUPER", "LMETA", "LGUI"),
-        ("RSUPER", "RMETA", "RGUI"),
-        ("PRINT", "PRINTSCREEN"),
-        ("BREAK", "PAUSE"),
-        ("EURO", "CURRENCYUNIT"),
-    )
+K_AND_KSCAN_COMMON_OVERLAPS += (
+    ("KP0", "KP_0"),
+    ("KP1", "KP_1"),
+    ("KP2", "KP_2"),
+    ("KP3", "KP_3"),
+    ("KP4", "KP_4"),
+    ("KP5", "KP_5"),
+    ("KP6", "KP_6"),
+    ("KP7", "KP_7"),
+    ("KP8", "KP_8"),
+    ("KP9", "KP_9"),
+    ("NUMLOCK", "NUMLOCKCLEAR"),
+    ("SCROLLOCK", "SCROLLLOCK"),
+    ("LSUPER", "LMETA", "LGUI"),
+    ("RSUPER", "RMETA", "RGUI"),
+    ("PRINT", "PRINTSCREEN"),
+    ("BREAK", "PAUSE"),
+    ("EURO", "CURRENCYUNIT"),
+)
 
 
 def create_overlap_set(constant_names):
@@ -218,19 +212,19 @@ class KConstantsTests(unittest.TestCase):
         "AT",
         "CARET",
         "UNDERSCORE",
+        "PERCENT",
     )
 
-    if SDL2:
-        K_SPECIFIC_NAMES += ("PERCENT",)
-
     # Create a sequence of all the K_* constant names.
-    K_NAMES = tuple("K_" + n for n in K_AND_KSCAN_COMMON_NAMES + K_SPECIFIC_NAMES)
+    K_NAMES = tuple(
+        "K_" + n for n in K_AND_KSCAN_COMMON_NAMES + K_SPECIFIC_NAMES)
 
     def test_k__existence(self):
         """Ensures K constants exist."""
         for name in self.K_NAMES:
             self.assertTrue(
-                hasattr(pygame.constants, name), "missing constant {}".format(name)
+                hasattr(pygame.constants, name),
+                "missing constant {}".format(name)
             )
 
     def test_k__type(self):
@@ -254,7 +248,6 @@ class KConstantsTests(unittest.TestCase):
         self.assertSetEqual(overlaps, EXPECTED_OVERLAPS)
 
 
-@unittest.skipIf(not SDL2, "requires SDL2")
 class KscanConstantsTests(unittest.TestCase):
     """Test KSCAN_* (scancode) constants."""
 
@@ -319,7 +312,8 @@ class KscanConstantsTests(unittest.TestCase):
         """Ensures KSCAN constants exist."""
         for name in self.KSCAN_NAMES:
             self.assertTrue(
-                hasattr(pygame.constants, name), "missing constant {}".format(name)
+                hasattr(pygame.constants, name),
+                "missing constant {}".format(name)
             )
 
     def test_kscan__type(self):
@@ -364,16 +358,17 @@ class KmodConstantsTests(unittest.TestCase):
         "KMOD_NUM",
         "KMOD_CAPS",
         "KMOD_MODE",
+        "KMOD_LGUI",
+        "KMOD_RGUI",
+        "KMOD_GUI",
     )
-
-    if SDL2:
-        KMOD_CONSTANTS += ("KMOD_LGUI", "KMOD_RGUI", "KMOD_GUI")
 
     def test_kmod__existence(self):
         """Ensures KMOD constants exist."""
         for name in self.KMOD_CONSTANTS:
             self.assertTrue(
-                hasattr(pygame.constants, name), "missing constant {}".format(name)
+                hasattr(pygame.constants, name),
+                "missing constant {}".format(name)
             )
 
     def test_kmod__type(self):
@@ -386,16 +381,11 @@ class KmodConstantsTests(unittest.TestCase):
     def test_kmod__value_overlap(self):
         """Ensures no unexpected KMOD constant values overlap."""
         # KMODs that have the same values.
-        EXPECTED_OVERLAPS = set()
-
-        if SDL2:
-            EXPECTED_OVERLAPS.update(
-                [
-                    frozenset(["KMOD_LGUI", "KMOD_LMETA"]),
-                    frozenset(["KMOD_RGUI", "KMOD_RMETA"]),
-                    frozenset(["KMOD_GUI", "KMOD_META"]),
-                ]
-            )
+        EXPECTED_OVERLAPS = {
+            frozenset(["KMOD_LGUI", "KMOD_LMETA"]),
+            frozenset(["KMOD_RGUI", "KMOD_RMETA"]),
+            frozenset(["KMOD_GUI", "KMOD_META"]),
+        }
 
         overlaps = create_overlap_set(self.KMOD_CONSTANTS)
 
@@ -435,10 +425,8 @@ class KmodConstantsTests(unittest.TestCase):
             "KMOD_CTRL": ("KMOD_LCTRL", "KMOD_RCTRL"),
             "KMOD_ALT": ("KMOD_LALT", "KMOD_RALT"),
             "KMOD_META": ("KMOD_LMETA", "KMOD_RMETA"),
+            "KMOD_GUI": ("KMOD_LGUI", "KMOD_RGUI"),
         }
-
-        if SDL2:
-            KMOD_COMPRISED_DICT.update({"KMOD_GUI": ("KMOD_LGUI", "KMOD_RGUI")})
 
         for base_name, seq_names in KMOD_COMPRISED_DICT.items():
             expected_value = 0  # Reset.

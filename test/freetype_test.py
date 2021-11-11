@@ -1502,21 +1502,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertIsNone(metrics[0])
         self.assertIsInstance(metrics[1], tuple)
 
-    @unittest.skipIf(
-        pygame.get_sdl_version()[0] == 2, "SDL2 surfaces are only limited by memory"
-    )
-    def test_issue_144(self):
-        """Issue #144: unable to render text"""
-
-        # The bug came in two parts. The first was a convertion bug from
-        # FT_Fixed to integer in for an Intel x86_64 Pygame build. The second
-        # was to have the raised exception disappear before Font.render
-        # returned to Python level.
-        #
-        font = ft.Font(None, size=64)
-        s = "M" * 100000  # Way too long for an SDL surface
-        self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
-
     def test_issue_242(self):
         """Issue #242: get_rect() uses 0 as default style"""
 

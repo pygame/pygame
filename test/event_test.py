@@ -7,11 +7,6 @@ import pygame
 from pygame.compat import as_unicode
 
 
-PY3 = sys.version_info >= (3, 0, 0)
-SDL1 = pygame.get_sdl_version()[0] < 2
-
-################################################################################
-
 EVENT_TYPES = (
     #   pygame.NOEVENT,
     #   pygame.ACTIVEEVENT,
@@ -64,41 +59,36 @@ NAMES_AND_EVENTS = (
     ("MidiOut", pygame.MIDIOUT),
     ("UserEvent", pygame.USEREVENT),
     ("Unknown", 0xFFFF),
+    ("FingerMotion", pygame.FINGERMOTION),
+    ("FingerDown", pygame.FINGERDOWN),
+    ("FingerUp", pygame.FINGERUP),
+    ("MultiGesture", pygame.MULTIGESTURE),
+    ("MouseWheel", pygame.MOUSEWHEEL),
+    ("TextInput", pygame.TEXTINPUT),
+    ("TextEditing", pygame.TEXTEDITING),
+    ("ControllerAxisMotion", pygame.CONTROLLERAXISMOTION),
+    ("ControllerButtonDown", pygame.CONTROLLERBUTTONDOWN),
+    ("ControllerButtonUp", pygame.CONTROLLERBUTTONUP),
+    ("ControllerDeviceAdded", pygame.CONTROLLERDEVICEADDED),
+    ("ControllerDeviceRemoved", pygame.CONTROLLERDEVICEREMOVED),
+    ("ControllerDeviceMapped", pygame.CONTROLLERDEVICEREMAPPED),
+    ("DropFile", pygame.DROPFILE),
 )
 
-# Add in any SDL 2 specific events.
-if pygame.get_sdl_version()[0] >= 2:
+# Add in any SDL 2.0.4 specific events.
+if pygame.get_sdl_version() >= (2, 0, 4):
     NAMES_AND_EVENTS += (
-        ("FingerMotion", pygame.FINGERMOTION),
-        ("FingerDown", pygame.FINGERDOWN),
-        ("FingerUp", pygame.FINGERUP),
-        ("MultiGesture", pygame.MULTIGESTURE),
-        ("MouseWheel", pygame.MOUSEWHEEL),
-        ("TextInput", pygame.TEXTINPUT),
-        ("TextEditing", pygame.TEXTEDITING),
-        ("ControllerAxisMotion", pygame.CONTROLLERAXISMOTION),
-        ("ControllerButtonDown", pygame.CONTROLLERBUTTONDOWN),
-        ("ControllerButtonUp", pygame.CONTROLLERBUTTONUP),
-        ("ControllerDeviceAdded", pygame.CONTROLLERDEVICEADDED),
-        ("ControllerDeviceRemoved", pygame.CONTROLLERDEVICEREMOVED),
-        ("ControllerDeviceMapped", pygame.CONTROLLERDEVICEREMAPPED),
-        ("DropFile", pygame.DROPFILE),
+        ("AudioDeviceAdded", pygame.AUDIODEVICEADDED),
+        ("AudioDeviceRemoved", pygame.AUDIODEVICEREMOVED),
     )
 
-    # Add in any SDL 2.0.4 specific events.
-    if pygame.get_sdl_version() >= (2, 0, 4):
-        NAMES_AND_EVENTS += (
-            ("AudioDeviceAdded", pygame.AUDIODEVICEADDED),
-            ("AudioDeviceRemoved", pygame.AUDIODEVICEREMOVED),
-        )
-
-    # Add in any SDL 2.0.5 specific events.
-    if pygame.get_sdl_version() >= (2, 0, 5):
-        NAMES_AND_EVENTS += (
-            ("DropText", pygame.DROPTEXT),
-            ("DropBegin", pygame.DROPBEGIN),
-            ("DropComplete", pygame.DROPCOMPLETE),
-        )
+# Add in any SDL 2.0.5 specific events.
+if pygame.get_sdl_version() >= (2, 0, 5):
+    NAMES_AND_EVENTS += (
+        ("DropText", pygame.DROPTEXT),
+        ("DropBegin", pygame.DROPBEGIN),
+        ("DropComplete", pygame.DROPCOMPLETE),
+    )
 
 
 class EventTypeTest(unittest.TestCase):
@@ -245,10 +235,8 @@ class EventCustomTypeTest(unittest.TestCase):
 class EventModuleTest(unittest.TestCase):
     def _assertCountEqual(self, *args, **kwargs):
         # Handle method name differences between Python versions.
-        if PY3:
-            self.assertCountEqual(*args, **kwargs)
-        else:
-            self.assertItemsEqual(*args, **kwargs)
+        # Is this still needed?
+        self.assertCountEqual(*args, **kwargs)
 
     def _assertExpectedEvents(self, expected, got):
         """Find events like expected events, raise on unexpected or missing,
@@ -345,7 +333,7 @@ class EventModuleTest(unittest.TestCase):
     def test_post_and_get_keydown(self):
         """Ensure keydown events can be posted to the queue."""
         activemodkeys = pygame.key.get_mods()
-        
+
         events = [
             pygame.event.Event(pygame.KEYDOWN, key=pygame.K_p),
             pygame.event.Event(pygame.KEYDOWN, key=pygame.K_y, mod=activemodkeys),
@@ -354,7 +342,7 @@ class EventModuleTest(unittest.TestCase):
             pygame.event.Event(pygame.KEYDOWN, key=pygame.K_m, mod=None, window=None),
             pygame.event.Event(pygame.KEYDOWN, key=pygame.K_e, mod=activemodkeys, unicode="e")
         ]
-        
+
         for e in events:
             pygame.event.post(e)
             posted_event = pygame.event.poll()
@@ -801,7 +789,7 @@ class EventModuleTest(unittest.TestCase):
         ev = pygame.event.poll()
         # poll() on empty queue should return NOEVENT
         self.assertEqual(ev.type, pygame.NOEVENT)
-        
+
         # test poll returns stuff in same order
         e1 = pygame.event.Event(pygame.USEREVENT)
         e2 = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a)
@@ -809,7 +797,7 @@ class EventModuleTest(unittest.TestCase):
         pygame.event.post(e1)
         pygame.event.post(e2)
         pygame.event.post(e3)
-        
+
         self.assertEqual(pygame.event.poll().type, e1.type)
         self.assertEqual(pygame.event.poll().type, e2.type)
         self.assertEqual(pygame.event.poll().type, e3.type)

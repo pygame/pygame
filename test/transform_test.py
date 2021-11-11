@@ -67,8 +67,8 @@ def threshold(
         tr, tg, tb, ta = color
 
     similar = 0
-    for y in xrange(height):
-        for x in xrange(width):
+    for y in range(height):
+        for x in range(width):
             c1 = surf.get_at((x, y))
 
             if (abs(c1[0] - r) < tr) & (abs(c1[1] - g) < tg) & (abs(c1[2] - b) < tb):
@@ -968,7 +968,7 @@ class TransformModuleTest(unittest.TestCase):
 
             self.assertEqual(pygame.transform.average_color(s), (5, 75, 150, 0))
 
-            # Also validate keyword arguments   
+            # Also validate keyword arguments
             avg_color = pygame.transform.average_color(surface=s, rect=(16, 0, 16, 32))
             self.assertEqual(avg_color, (0, 100, 200, 0))
 

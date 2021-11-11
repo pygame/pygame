@@ -141,7 +141,7 @@ class ScrapModuleClipboardNotOwnedTest(unittest.TestCase):
         # Skip test if the pygame application owns the clipboard. Currently,
         # there is no way to give up ownership.
         if not scrap.lost():
-            self.skipTest("requires the pygame application to not own the " "clipboard")
+            self.skipTest("requires the pygame application to not own the clipboard")
 
     def test_get__not_owned(self):
         """Ensures get works when there is no data of the requested type
