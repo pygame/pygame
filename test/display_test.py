@@ -483,6 +483,10 @@ class DisplayModuleTest(unittest.TestCase):
 
         self.assertFalse(display.get_init())
 
+    @unittest.skipIf(
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        "Needs a not dummy videodriver"
+    )
     def test_set_gamma(self):
         pygame.display.set_mode((1, 1))
         gammas = [0.0,0.25,0.5,0.88,1.0]
