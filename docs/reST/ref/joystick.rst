@@ -81,7 +81,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
    | :sl:`Returns the number of joysticks.`
    | :sg:`get_count() -> count`
 
-   Return the number of joystick devices on the system. The count will be ``0`` 
+   Return the number of joystick devices on the system. The count will be ``0``
    if there are no joysticks on the system.
 
    When you create Joystick objects using ``Joystick(id)``, you pass an integer
@@ -101,22 +101,11 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
    Once the device is initialized the pygame event queue will start receiving
    events about its input.
 
-   .. versionchanged:: 2.0.0 Joystick objects are now opened immediately on creation.
+   .. versionchanged:: 2.0.0
+      Joystick objects are now opened immediately on creation.
 
-   .. method:: init
-
-      | :sl:`initialize the Joystick`
-      | :sg:`init() -> None`
-
-      Initialize the joystick, if it has been closed. It is safe to call this
-      even if the joystick is already initialized.
-
-      .. deprecated:: 2.0.0
-
-         In future it will not be possible to reinitialise a closed Joystick
-         object. Will be removed in Pygame 2.1.
-
-      .. ## Joystick.init ##
+   .. versionchanged:: 2.1.1
+      Removed the deprecated `get_id()` method. Use `get_instance_id()` instead.
 
    .. method:: quit
 
@@ -138,20 +127,6 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Return True if the Joystick object is currently initialised.
 
       .. ## Joystick.get_init ##
-
-   .. method:: get_id
-
-      | :sl:`get the device index (deprecated)`
-      | :sg:`get_id() -> int`
-
-      Returns the original device index for this device. This is the same
-      value that was passed to the ``Joystick()`` constructor. This method can
-      safely be called while the Joystick is not initialized.
-
-      .. deprecated:: 2.0.0
-
-         The original device index is not useful in pygame 2. Use
-         :meth:`.get_instance_id` instead. Will be removed in Pygame 2.1.
 
    .. method:: get_instance_id() -> int
 
@@ -208,13 +183,13 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       two for the position. Controls like rudders and throttles are treated as
       additional axes.
 
-      The ``pygame.JOYAXISMOTION`` events will be in the range from ``-1.0`` 
-      to ``1.0``. A value of ``0.0`` means the axis is centered. Gamepad devices 
-      will usually be ``-1``, ``0``, or ``1`` with no values in between. Older 
-      analog joystick axes will not always use the full ``-1`` to ``1`` range, 
-      and the centered value will be some area around ``0``. 
-      
-      Analog joysticks usually have a bit of noise in their axis, which will 
+      The ``pygame.JOYAXISMOTION`` events will be in the range from ``-1.0``
+      to ``1.0``. A value of ``0.0`` means the axis is centered. Gamepad devices
+      will usually be ``-1``, ``0``, or ``1`` with no values in between. Older
+      analog joystick axes will not always use the full ``-1`` to ``1`` range,
+      and the centered value will be some area around ``0``.
+
+      Analog joysticks usually have a bit of noise in their axis, which will
       generate a lot of rapid small motion events.
 
       .. ## Joystick.get_numaxes ##
@@ -225,9 +200,9 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       | :sg:`get_axis(axis_number) -> float`
 
       Returns the current position of a joystick axis. The value will range
-      from ``-1`` to ``1`` with a value of ``0`` being centered. You may want 
-      to take into account some tolerance to handle jitter, and joystick drift 
-      may keep the joystick from centering at ``0`` or using the full range of 
+      from ``-1`` to ``1`` with a value of ``0`` being centered. You may want
+      to take into account some tolerance to handle jitter, and joystick drift
+      may keep the joystick from centering at ``0`` or using the full range of
       position values.
 
       The axis number must be an integer from ``0`` to ``get_numaxes() - 1``.
@@ -295,8 +270,8 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       input.
 
       The ``pygame.JOYHATMOTION`` event is generated when the hat changes
-      position. The ``position`` attribute for the event contains a pair of 
-      values that are either ``-1``, ``0``, or ``1``. A position of ``(0, 0)`` 
+      position. The ``position`` attribute for the event contains a pair of
+      values that are either ``-1``, ``0``, or ``1``. A position of ``(0, 0)``
       means the hat is centered.
 
       .. ## Joystick.get_numhats ##
@@ -309,10 +284,10 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       Returns the current position of a position hat. The position is given as
       two values representing the ``x`` and ``y`` position for the hat. ``(0, 0)``
       means centered. A value of ``-1`` means left/down and a value of ``1`` means
-      right/up: so ``(-1, 0)`` means left; ``(1, 0)`` means right; ``(0, 1)`` means 
+      right/up: so ``(-1, 0)`` means left; ``(1, 0)`` means right; ``(0, 1)`` means
       up; ``(1, 1)`` means upper-right; etc.
 
-      This value is digital, ``i.e.``, each coordinate can be ``-1``, ``0`` or ``1`` 
+      This value is digital, ``i.e.``, each coordinate can be ``-1``, ``0`` or ``1``
       but never in-between.
 
       The hat number must be between ``0`` and ``get_numhats() - 1``.

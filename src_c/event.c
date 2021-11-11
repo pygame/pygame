@@ -55,9 +55,6 @@
 
 #define PG_GET_LIST_LEN 128
 
-// Map joystick instance IDs to device ids for partial backwards compatibility
-static PyObject *joy_instance_map = NULL;
-
 /* _custom_event stores the next custom user event type that will be
  * returned by pygame.event.custom_type() */
 #define _PGE_CUSTOM_EVENT_INIT PGE_USEREVENT + 1
@@ -928,50 +925,6 @@ get_joy_guid(int device_index) {
     return Text_FromUTF8(strguid);
 }
 
-/** Try to insert the instance ID for a new device into the joystick mapping. */
-void
-_joy_map_add(int device_index) {
-#if SDL_VERSION_ATLEAST(2, 0, 6)
-    int instance_id = (int) SDL_JoystickGetDeviceInstanceID(device_index);
-    PyObject *k, *v;
-    if (instance_id != -1) {
-        k = PyInt_FromLong(instance_id);
-        v = PyInt_FromLong(device_index);
-        if (k != NULL && v != NULL) {
-            PyDict_SetItem(joy_instance_map, k, v);
-        }
-        Py_XDECREF(k);
-        Py_XDECREF(v);
-    }
-#endif
-}
-
-/** Look up a device ID for an instance ID. */
-PyObject *
-_joy_map_instance(int instance_id) {
-    PyObject *v, *k = PyInt_FromLong(instance_id);
-    if (!k) {
-        Py_RETURN_NONE;
-    }
-    v = PyDict_GetItem(joy_instance_map, k);
-    if (v) {
-        Py_DECREF(k);
-        Py_INCREF(v);
-        return v;
-    }
-    return k;
-}
-
-/** Discard a joystick from the joystick instance -> device mapping. */
-void
-_joy_map_discard(int instance_id) {
-    PyObject *k = PyInt_FromLong(instance_id);
-
-    if (k) {
-        PyDict_DelItem(joy_instance_map, k);
-        Py_DECREF(k);
-    }
-}
 
 static PyObject *
 dict_from_event(SDL_Event *event)
@@ -1070,21 +1023,18 @@ dict_from_event(SDL_Event *event)
 #endif
             break;
         case SDL_JOYAXISMOTION:
-            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
             _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jaxis.which));
             _pg_insobj(dict, "axis", PyInt_FromLong(event->jaxis.axis));
             _pg_insobj(dict, "value",
                    PyFloat_FromDouble(event->jaxis.value / 32767.0));
             break;
         case SDL_JOYBALLMOTION:
-            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
             _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jball.which));
             _pg_insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
             obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
             _pg_insobj(dict, "rel", obj);
             break;
         case SDL_JOYHATMOTION:
-            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
             _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jhat.which));
             _pg_insobj(dict, "hat", PyInt_FromLong(event->jhat.hat));
             hx = hy = 0;
@@ -1100,7 +1050,6 @@ dict_from_event(SDL_Event *event)
             break;
         case SDL_JOYBUTTONUP:
         case SDL_JOYBUTTONDOWN:
-            _pg_insobj(dict, "joy", _joy_map_instance(event->jaxis.which));
             _pg_insobj(dict, "instance_id", PyInt_FromLong(event->jbutton.which));
             _pg_insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
             break;
@@ -1114,7 +1063,7 @@ dict_from_event(SDL_Event *event)
 #ifdef SDL2_AUDIODEVICE_SUPPORTED
         case SDL_AUDIODEVICEADDED:
         case SDL_AUDIODEVICEREMOVED:
-            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event 
+            _pg_insobj(dict, "which", PyInt_FromLong(event->adevice.which));  // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event
             _pg_insobj(dict, "iscapture", PyInt_FromLong(event->adevice.iscapture));
             break;
 #endif /* SDL2_AUDIODEVICE_SUPPORTED */
@@ -1194,7 +1143,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
             break;
         case SDL_JOYDEVICEADDED:
-            _joy_map_add(event->jdevice.which);
             _pg_insobj(dict, "device_index", PyLong_FromLong(event->jdevice.which));
             _pg_insobj(dict, "guid", get_joy_guid(event->jdevice.which));
             break;
@@ -1204,7 +1152,6 @@ dict_from_event(SDL_Event *event)
             _pg_insobj(dict, "instance_id", PyLong_FromLong(event->cdevice.which));
             break;
         case SDL_JOYDEVICEREMOVED:
-            _joy_map_discard(event->jdevice.which);
             _pg_insobj(dict, "instance_id", PyLong_FromLong(event->jdevice.which));
             break;
 #if SDL_VERSION_ATLEAST(2, 0, 14)
@@ -2328,16 +2275,6 @@ MODINIT_DEFINE(event)
     /* create the module */
     module = PyModule_Create(&_module);
     dict = PyModule_GetDict(module);
-
-    if (NULL == (joy_instance_map = PyDict_New())) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
-
-    if (-1 == PyDict_SetItemString(dict, "_joy_instance_map", joy_instance_map)) {
-        DECREF_MOD(module);
-        MODINIT_ERROR;
-    }
 
     if (PyDict_SetItemString(dict, "EventType", (PyObject *)&pgEvent_Type) ==
         -1) {

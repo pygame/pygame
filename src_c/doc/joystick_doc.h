@@ -1,6 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in docs/reST/ref/ . */
 #define DOC_PYGAMEJOYSTICK "Pygame module for interacting with joysticks, gamepads, and trackballs."
-#define DOC_PYGAMEJOYSTICKINIT "init() -> None\nInitialize the joystick module."
+#define DOC_PYGAMEJOYSTICKINIT "init() -> None\nNo-op, retained for backwards compatibility."
 #define DOC_PYGAMEJOYSTICKQUIT "quit() -> None\nUninitialize the joystick module."
 #define DOC_PYGAMEJOYSTICKGETINIT "get_init() -> bool\nReturns True if the joystick module is initialized."
 #define DOC_PYGAMEJOYSTICKGETCOUNT "get_count() -> count\nReturns the number of joysticks."
@@ -8,7 +8,6 @@
 #define DOC_JOYSTICKINIT "init() -> None\ninitialize the Joystick"
 #define DOC_JOYSTICKQUIT "quit() -> None\nuninitialize the Joystick"
 #define DOC_JOYSTICKGETINIT "get_init() -> bool\ncheck if the Joystick is initialized"
-#define DOC_JOYSTICKGETID "get_id() -> int\nget the device index (deprecated)"
 #define DOC_JOYSTICKGETINSTANCEID "get_instance_id() -> int\nget the joystick instance id"
 #define DOC_JOYSTICKGETGUID "get_guid() -> str\nget the joystick GUID"
 #define DOC_JOYSTICKGETPOWERLEVEL "get_power_level() -> str\nget the approximate power status of the device"
@@ -63,10 +62,6 @@ uninitialize the Joystick
 pygame.joystick.Joystick.get_init
  get_init() -> bool
 check if the Joystick is initialized
-
-pygame.joystick.Joystick.get_id
- get_id() -> int
-get the device index (deprecated)
 
 pygame.joystick.Joystick.get_instance_id
  get_instance_id() -> int

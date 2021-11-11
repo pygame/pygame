@@ -55,7 +55,7 @@ their own new events with the :func:`pygame.event.Event()` function.
 The event type identifier is in between the values of ``NOEVENT`` and
 ``NUMEVENTS``. User defined events should have a value in the inclusive range
 of ``USEREVENT`` to ``NUMEVENTS - 1``. User defined events can get a custom
-event number with :func:`pygame.event.custom_type()`. 
+event number with :func:`pygame.event.custom_type()`.
 It is recommended all user events follow this system.
 
 Events support equality and inequality comparisons. Two events are equal if
@@ -78,18 +78,23 @@ specific attributes.
     MOUSEMOTION       pos, rel, buttons, touch
     MOUSEBUTTONUP     pos, button, touch
     MOUSEBUTTONDOWN   pos, button, touch
-    JOYAXISMOTION     joy (deprecated), instance_id, axis, value
-    JOYBALLMOTION     joy (deprecated), instance_id, ball, rel
-    JOYHATMOTION      joy (deprecated), instance_id, hat, value
-    JOYBUTTONUP       joy (deprecated), instance_id, button
-    JOYBUTTONDOWN     joy (deprecated), instance_id, button
+    JOYAXISMOTION     instance_id, axis, value
+    JOYBALLMOTION     instance_id, ball, rel
+    JOYHATMOTION      instance_id, hat, value
+    JOYBUTTONUP       instance_id, button
+    JOYBUTTONDOWN     instance_id, button
     VIDEORESIZE       size, w, h
     VIDEOEXPOSE       none
     USEREVENT         code
 
-.. versionchanged:: 2.0.0 The ``joy`` attribute was deprecated, ``instance_id`` was added.
+.. versionchanged:: 2.0.0 Added ``instance_id`` to joystick events.
 
 .. versionchanged:: 2.0.1 The ``unicode`` attribute was added to ``KEYUP`` event.
+
+.. versionchanged:: 2.1.1
+   Removed the ``joy`` attribute from joystick events. Use `instance_id`
+   instead; it corresponds to the identifier returned by
+   :meth:`Joystick.get_instance_id()`.
 
 You can also find a list of constants for keyboard keys
 :ref:`here <key-constants-label>`.
@@ -270,7 +275,7 @@ Most these window events do not have any attributes, except ``WINDOWMOVED``,
 
    Returns a single event from the queue. If the queue is empty this function
    will wait until one is created. From pygame 2.0.0, if a ``timeout`` argument
-   is given, the function will return an event of type ``pygame.NOEVENT`` 
+   is given, the function will return an event of type ``pygame.NOEVENT``
    if no events enter the queue in ``timeout`` milliseconds. The event is removed
    from the queue once it has been returned. While the program is waiting it will
    sleep in an idle state. This is important for programs that want to share the
