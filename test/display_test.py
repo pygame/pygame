@@ -122,7 +122,7 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertEqual(display.get_caption()[1], TEST_CAPTION)
 
     def test_caption_unicode(self):
-        TEST_CAPTION = u"台"
+        TEST_CAPTION = "台"
         display.set_caption(TEST_CAPTION)
         self.assertEqual(display.get_caption()[0], TEST_CAPTION)
 
@@ -497,7 +497,7 @@ class DisplayModuleTest(unittest.TestCase):
             self.assertEqual(pygame.display.set_gamma(gammaTuple[0],gammaTuple[1],gammaTuple[2]),True)
 
     @unittest.skipIf(
-        not hasattr(pygame.display,"set_gamma_ramp"),
+        not hasattr(pygame.display, "set_gamma_ramp"),
         "Not all systems and hardware support gamma ramps"
     )
     def test_set_gamma_ramp(self):
