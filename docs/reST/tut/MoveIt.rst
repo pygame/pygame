@@ -11,6 +11,7 @@ Help! How Do I Move An Image?
 
 .. rst-class:: docinfo
 
+:Edited: Akim Sidorov
 :Author: Pete Shinners
 :Contact: pete@shinners.org
 
@@ -70,7 +71,7 @@ So let's begin by creating our screen list and fill it with a beautiful
 landscape of 1s and 2s. ::
 
   >>> screen = [1, 1, 2, 2, 2, 1]
-  >>> print screen
+  >>> print(screen)
   [1, 1, 2, 2, 2, 1]
 
 
@@ -99,7 +100,7 @@ an arbitrary position. Let's do it a little more officially this time. ::
 
   >>> playerpos = 3
   >>> screen[playerpos] = 8
-  >>> print screen
+  >>> print(screen)
   [1, 1, 2, 8, 2, 1]
 
 
@@ -108,7 +109,7 @@ the  value of playerpos, and draw him on the screen again. ::
 
   >>> playerpos = playerpos - 1
   >>> screen[playerpos] = 8
-  >>> print screen
+  >>> print(screen)
   [1, 1, 8, 8, 2, 1]
 
 
@@ -134,11 +135,11 @@ After that we can finally draw our hero back onto the screen. ::
   >>> screen = [0]*6                         #a new blank screen
   >>> for i in range(6):
   ...     screen[i] = background[i]
-  >>> print screen
+  >>> print(screen)
   [1, 1, 2, 2, 2, 1]
   >>> playerpos = 3
   >>> screen[playerpos] = 8
-  >>> print screen
+  >>> print(screen)
   [1, 1, 2, 8, 2, 1]
 
 
@@ -156,12 +157,12 @@ from the background onto the screen. Then we will draw the character in his
 new position on the screen
 
 
-  >>> print screen
+  >>> print(screen)
   [1, 1, 2, 8, 2, 1]
   >>> screen[playerpos] = background[playerpos]
   >>> playerpos = playerpos - 1
   >>> screen[playerpos] = 8
-  >>> print screen
+  >>> print(screen)
   [1, 1, 8, 2, 2, 1]
 
 
@@ -171,7 +172,7 @@ same  code to move him to the left again. ::
   >>> screen[playerpos] = background[playerpos]
   >>> playerpos = playerpos - 1
   >>> screen[playerpos] = 8
-  >>> print screen
+  >>> print(screen)
   [1, 8, 2, 2, 2, 1]
 
 
