@@ -27,14 +27,10 @@ class KeyModuleTest(unittest.TestCase):
         """does it import?"""
         import pygame.key
 
-    # fixme: test_get_focused always fails in linux
-    @unittest.skipIf(
-        sys.platform.startswith("linux"),
-        "This test fails in all tested GNU/Linux"
-    )
+    # fixme: test_get_focused failing systematically in some linux
     def test_get_focused(self):
-        # Note: this test fails in SDL2 and it was skipped in SDL1.
-        # There might be something wrong in this function
+        # This test fails in SDL2 in some linux
+        # This test was skipped in SDL1.
         focused = pygame.key.get_focused()
         self.assertFalse(focused)   # No window to focus
         self.assertIsInstance(focused, int)
@@ -46,7 +42,8 @@ class KeyModuleTest(unittest.TestCase):
                 display_sizes = [(500, 500)]
             pygame.display.set_mode(size=display_sizes[-1], flags=pygame.FULLSCREEN)
             pygame.event.set_grab(True)
-            pygame.event.pump() # Pump event queue to get window focus on macos
+            # Pump event queue to get window focus on macos
+            pygame.event.pump()
             focused = pygame.key.get_focused()
             self.assertIsInstance(focused, int)
             self.assertTrue(focused)
@@ -62,7 +59,7 @@ class KeyModuleTest(unittest.TestCase):
                     pygame.event.pump()
                 self.assertFalse(pygame.key.get_focused())
                 # Test if focus is returned when iconify is gone
-                pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
+                pygame.display.set_mode(size=display_sizes[-1], flags=pygame.FULLSCREEN)
                 for i in range(50):
                     time.sleep(0.01)
                     pygame.event.pump()
