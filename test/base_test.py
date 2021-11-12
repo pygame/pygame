@@ -585,8 +585,8 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(pygame.get_error(), "")
 
     def test_unicode_error(self):
-        pygame.set_error(u"你好")
-        self.assertEqual(u"你好", pygame.get_error())
+        pygame.set_error("你好")
+        self.assertEqual("你好", pygame.get_error())
 
     def test_init(self):
         """Ensures init() works properly."""
