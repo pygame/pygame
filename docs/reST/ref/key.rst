@@ -256,7 +256,7 @@ for ``KMOD_NONE``, which should be compared using equals ``==``). For example:
 
    Returns a sequence of boolean values representing the state of every key on
    the keyboard. Use the key constant values to index the array. A ``True``
-   value means the that button is pressed.
+   value means that the button is pressed.
 
    .. note::
       Getting the list of pushed buttons with this function is not the proper
