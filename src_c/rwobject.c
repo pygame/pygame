@@ -48,9 +48,6 @@ static const char pg_default_errors[] = "backslashreplace";
 
 static PyObject* os_module = NULL;
 
-#define PATHLIB "pathlib"
-#define PUREPATH "PurePath"
-
 static Sint64
 _pg_rw_size(SDL_RWops *);
 static Sint64
@@ -150,12 +147,10 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
     return 0;
 }
 
-/* This function is meant to decode a pathlib object into its str/bytes representation.
- * It is based on PyOS_FSPath, and defines this function on python 3.4, 3.5 */
+/* This function is meant to decode a pathlib object into its str/bytes representation. */
 static PyObject *
 _trydecode_pathlibobj(PyObject *obj)
 {
-#if PY_VERSION_HEX >= 0x03060000
     PyObject *ret = PyOS_FSPath(obj);
     if (!ret) {
         /* A valid object was not passed. But we do not consider it an error */
@@ -164,39 +159,6 @@ _trydecode_pathlibobj(PyObject *obj)
         return obj;
     }
     return ret;
-#elif PY_VERSION_HEX >= 0x03040000
-    /* Custom implementation for back-compat */
-    int ret;
-    PyObject *pathlib, *purepath;
-
-    pathlib = PyImport_ImportModule(PATHLIB);
-    if (!pathlib)
-        return NULL;
-
-    purepath = PyObject_GetAttrString(pathlib, PUREPATH);
-    if (!purepath) {
-        Py_DECREF(pathlib);
-        return NULL;
-    }
-
-    ret = PyObject_IsInstance(obj, purepath);
-
-    Py_DECREF(pathlib);
-    Py_DECREF(purepath);
-
-    if (ret == 1)
-        return PyObject_Str(obj);
-    else if (ret == 0) {
-        Py_INCREF(obj);
-        return obj;
-    }
-    else
-        return NULL;
-#else
-    /* Pathlib module does not exist, just incref and return */
-    Py_INCREF(obj);
-    return obj;
-#endif
 }
 
 static PyObject *
@@ -700,90 +662,83 @@ end:
 static SDL_RWops *
 _rwops_from_pystr(PyObject *obj)
 {
-    if (obj != NULL) {
-        SDL_RWops *rw = NULL;
-        PyObject *oencoded;
-        char* encoded = NULL;
-        char* ext = NULL;
-        char* extension = NULL;
-
-        oencoded = pg_EncodeString(obj, "UTF-8", NULL, NULL);
-        if (oencoded == NULL) {
-            return NULL;
-        }
-        if (oencoded != Py_None) {
-            encoded = Bytes_AS_STRING(oencoded);
-            rw = SDL_RWFromFile(encoded, "rb");
-            ext = strrchr(encoded, '.');        
-            if (ext && strlen(ext) > 1) {
-                ext++;
-                extension = malloc(strlen(ext)+1);
-                if (extension == NULL) {
-                    return (SDL_RWops*)PyErr_NoMemory();
-                }
-                strcpy(extension, ext);
-            }
-        }
-        Py_DECREF(oencoded);
-        if (rw) {
-            /* adding the extension to the hidden data for RWops from files */
-            /* this is necessary to support loading functions that rely on
-             * file extensions in a convenient way. File-like objects use this
-             * field for a helper object. */
-            rw->hidden.unknown.data1 = (void *)extension;
-            return rw;
-        } else {
-            if (PyUnicode_Check(obj)) {
-                SDL_ClearError();
-
-                if (os_module) {
-                    PyObject* cwd = PyObject_CallMethod(os_module, "getcwd",
-                                                        NULL);
-                    if (cwd == NULL) {
-                        PyErr_SetString(PyExc_FileNotFoundError, 
-                                        "No such file or directory.");
-                        return NULL;
-                    }
-
-                    PyObject* path = PyObject_GetAttrString(os_module, "path");
-                    if (path == NULL) {
-                        Py_DECREF(cwd);
-                        PyErr_SetString(PyExc_FileNotFoundError,
-                                        "No such file or directory.");
-                        return NULL;                        
-                    }
-
-                    PyObject* isabs = PyObject_CallMethod(path, "isabs", "O", obj);
-                    if (isabs == NULL) {
-                        Py_DECREF(cwd);
-                        Py_DECREF(path);
-                        PyErr_SetString(PyExc_FileNotFoundError,
-                                        "No such file or directory.");
-                        return NULL;
-                    }
-
-                    if (isabs == Py_False) {
-                        PyErr_Format(PyExc_FileNotFoundError,
-                                     "No file '%S' found in working directory"
-                                     " '%S'.", obj, cwd);                       
-                    }
-                    else {
-                        PyErr_Format(PyExc_FileNotFoundError, 
-                                     "No such file or directory: '%S'.", obj);
-                    }
-                    Py_DECREF(cwd);
-                    Py_DECREF(path);
-                    Py_DECREF(isabs);
-                }
-                else {
-                    PyErr_Format(PyExc_FileNotFoundError, 
-                                 "No such file or directory: '%S'.", obj);
-                }
-                return NULL;
-            }
-        }
-        SDL_ClearError();
+    SDL_RWops *rw = NULL;
+    PyObject *oencoded;
+    char* encoded = NULL;
+    if (!obj) {
+        // forward any errors
+        return NULL;
     }
+
+    oencoded = pg_EncodeString(obj, "UTF-8", NULL, NULL);
+    if (!oencoded || oencoded == Py_None) {
+        /* if oencoded is NULL, we are forwarding an error. If it is None, the
+         * object passed was not a bytes/string/pathlib object so handling of
+         * that is done after this function, exit early here */
+        Py_XDECREF(oencoded);
+        return NULL;
+    }
+
+    encoded = Bytes_AS_STRING(oencoded);
+    Py_DECREF(oencoded);
+
+    rw = SDL_RWFromFile(encoded, "rb");
+    if (rw) {
+        /* adding the extension to the hidden data for RWops from files */
+        /* this is necessary to support loading functions that rely on
+            * file extensions in a convenient way. File-like objects use this
+            * field for a helper object. */
+        char *extension = NULL;
+        char *ext = strrchr(encoded, '.');       
+        if (ext && strlen(ext) > 1) {
+            ext++;
+            extension = malloc(strlen(ext)+1);
+            if (!extension) {
+                return (SDL_RWops *)PyErr_NoMemory();
+            }
+            strcpy(extension, ext);
+        }
+        rw->hidden.unknown.data1 = (void *)extension;
+        return rw;
+    }
+
+    /* Clear SDL error and set our own error message for filenotfound errors
+     * TODO: Check SDL error here and forward any non filenotfound related 
+     * errors correctly here */
+    SDL_ClearError();
+
+    PyObject *cwd = NULL, *path = NULL, *isabs = NULL;
+    if (!os_module)
+        goto simple_case;
+
+    cwd = PyObject_CallMethod(os_module, "getcwd", NULL);
+    if (!cwd)
+        goto simple_case;
+
+    path = PyObject_GetAttrString(os_module, "path");
+    if (!path)
+        goto simple_case;
+
+    isabs = PyObject_CallMethod(path, "isabs", "O", obj);
+    Py_DECREF(path);
+    if (!isabs || isabs == Py_True) 
+        goto simple_case;
+
+    PyErr_Format(
+        PyExc_FileNotFoundError,
+        "No file '%S' found in working directory '%S'.", 
+        obj, 
+        cwd
+    );                       
+
+    Py_DECREF(cwd);
+    Py_DECREF(isabs);
+    return NULL;
+
+simple_case:
+    Py_XDECREF(cwd);
+    Py_XDECREF(isabs);
+    PyErr_Format(PyExc_FileNotFoundError, "No such file or directory: '%S'.", obj);
     return NULL;
 }
 
