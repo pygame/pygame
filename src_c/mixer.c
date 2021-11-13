@@ -518,8 +518,8 @@ quit(PyObject *self)
 
         Py_BEGIN_ALLOW_THREADS;
         Mix_CloseAudio();
-        Py_END_ALLOW_THREADS;
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        Py_END_ALLOW_THREADS;
     }
     Py_RETURN_NONE;
 }
