@@ -27,8 +27,13 @@ tar xzf ${SDL2}.tar.gz
 # this is for renaming the tip.tar.gz
 # mv SDL-* ${SDL2}
 
+if [[ "$MAC_ARCH" == "arm64" ]]; then
+    # Build SDL with ARM optimisations on M1 macs
+    export M1_MAC_EXTRA_FLAGS="--enable-arm-simd --enable-arm-neon"
+fi
+
 cd $SDL2
-./configure --disable-video-vulkan $ARCHS_CONFIG_FLAG
+./configure --disable-video-vulkan $ARCHS_CONFIG_FLAG $M1_MAC_EXTRA_FLAGS
 make
 make install
 

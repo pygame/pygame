@@ -254,35 +254,6 @@ if consume_arg('cython'):
         kwargs['progress'] = '[{}/{}] '.format(i + 1, count)
         cythonize_one(**kwargs)
 
-if consume_arg('docs'):
-    fullgeneration = consume_arg('--fullgeneration') or consume_arg('--f')
-
-    # No, we are not Sphinx 4 yet. It breaks the tutorial pages, at least.
-    docs_help = (
-        "Building docs requires Python version 3.6 or above, and Sphinx 2 or 3."
-    )
-    if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
-        raise SystemExit(docs_help)
-
-    import subprocess
-
-    try:
-        print("Using python:", sys.executable)
-        command_line = [
-            sys.executable, os.path.join('buildconfig', 'makeref.py')
-        ]
-        if fullgeneration:
-            command_line.append('full_generation')
-        subprocess.call(
-            command_line
-        )
-    except:
-        print(docs_help)
-        raise
-
-    # if there are no more arguments, stop execution so it doesn't get to the SETUP file reading parts
-    if len(sys.argv) == 1:
-        sys.exit()
 
 AUTO_CONFIG = False
 if consume_arg('-auto'):
@@ -788,6 +759,93 @@ class TestCommand(Command):
         '''
         import subprocess
         return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
+
+@add_command("lint")
+class LintCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """Check the existence and launch linters."""
+        import subprocess
+        import sys
+        import warnings
+
+        def check_linter_exists(linter):
+            if shutil.which(linter) is None:
+                msg = "Please install '%s' in your environment. (hint: 'pip install %s')"
+                warnings.warn(msg % (linter, linter))
+                sys.exit(1)
+
+        c_files_unfiltered = glob.glob("src_c/**/*.[ch]")
+        c_file_disallow = ["_sdl2", "pypm"]
+        c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
+        python_directories = ["src_py", "test"]
+        linters = {
+            "clang-format": ["-i"] + c_files,
+            # "isort": python_directories,
+            "black": python_directories,
+            # Test directory has too much pylint warning for now
+            "pylint": ["src_py"],
+        }
+        for linter, option in linters.items():
+            print(" ".join([linter] + option))
+            check_linter_exists(linter)
+            subprocess.run([linter] + option)
+
+
+@add_command('docs')
+class DocsCommand(Command):
+    """ For building the pygame documentation with `python setup.py docs`.
+
+    This generates html, and documentation .h header files.
+    """
+    user_options = [
+        (
+            'fullgeneration',
+            'f',
+            'Full generation. Do not use a saved environment, always read all files.'
+        )
+    ]
+    boolean_options = ['fullgeneration']
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+        self.fullgeneration = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs Sphinx to build the docs.
+        '''
+        docs_help = (
+            "Building docs requires Python version 3.6 or above, and Sphinx 3 or 4."
+        )
+        if not hasattr(sys, 'version_info') or sys.version_info < (3, 6):
+            raise SystemExit(docs_help)
+
+        import subprocess
+
+        try:
+            print("Using python:", sys.executable)
+            command_line = [
+                sys.executable, os.path.join('buildconfig', 'makeref.py')
+            ]
+            if self.fullgeneration:
+                command_line.append('full_generation')
+            subprocess.call(
+                command_line
+            )
+        except:
+            print(docs_help)
+            raise
 
 # Prune empty file lists.
 data_files = [(path, files) for path, files in data_files if files]
