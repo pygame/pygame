@@ -1,49 +1,19 @@
-#################################### IMPORTS ###################################
+import os
+import pygame
+import sys
+import tempfile
+import time
 
 is_pygame_pkg = __name__.startswith("pygame.tests.")
 
-import tempfile, sys, pygame, time, os
-
-################################################################################
-# Python 3.x compatibility
-try:
-    xrange_ = xrange
-except NameError:
-    xrange_ = range
-
-try:
-    raw_input_ = raw_input
-except NameError:
-    raw_input_ = input
+###############################################################################
 
 
-if sys.version_info[0] == 3:
-
-    def tostring(row):
-        """Convert row of bytes to string.  Expects `row` to be an
-        ``array``.
-        """
-        return row.tobytes()
-
-else:
-
-    def tostring(row):
-        """Convert row of bytes to string.  Expects `row` to be an
-        ``array``.
-        """
-        return row.tostring()
-
-    import unittest
-
-    if not hasattr(unittest.TestCase, "subTest"):
-        import contextlib
-
-        @contextlib.contextmanager
-        def subTest(self, msg=None, **params):
-            yield
-            return
-
-        unittest.TestCase.subTest = subTest
+def tostring(row):
+    """Convert row of bytes to string.  Expects `row` to be an
+    ``array``.
+    """
+    return row.tobytes()
 
 
 def geterror():
@@ -75,7 +45,7 @@ class AssertRaisesRegexMixin(object):
                 self.skipTest("No assertRaisesRegex/assertRaisesRegexp method")
 
 
-################################################################################
+###############################################################################
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 trunk_dir = os.path.split(os.path.split(this_dir)[0])[0]
@@ -100,25 +70,25 @@ def example_path(path):
 sys.path.insert(0, trunk_relative_path("."))
 
 
-################################## TEMP FILES ##################################
+################################## TEMP FILES #################################
 
 
 def get_tmp_dir():
     return tempfile.mkdtemp()
 
 
-################################################################################
+###############################################################################
 
 
 def question(q):
-    return raw_input_("\n%s (y/n): " % q.rstrip(" ")).lower().strip() == "y"
+    return input("\n%s (y/n): " % q.rstrip(" ")).lower().strip() == "y"
 
 
 def prompt(p):
-    return raw_input_("\n%s (press enter to continue): " % p.rstrip(" "))
+    return input("\n%s (press enter to continue): " % p.rstrip(" "))
 
 
-#################################### HELPERS ###################################
+#################################### HELPERS ##################################
 
 
 def rgba_between(value, minimum=0, maximum=255):
@@ -158,14 +128,14 @@ def gradient(width, height):
 
     """
 
-    for l in xrange_(width):
-        for t in xrange_(height):
+    for l in range(width):
+        for t in range(height):
             yield (l, t), tuple(map(rgba_between, (l, t, l, l + t)))
 
 
 def rect_area_pts(rect):
-    for l in xrange_(rect.left, rect.right):
-        for t in xrange_(rect.top, rect.bottom):
+    for l in range(rect.left, rect.right):
+        for t in range(rect.top, rect.bottom):
             yield l, t
 
 
@@ -185,10 +155,10 @@ def rect_perimeter_pts(rect):
 
     """
     clock_wise_from_top_left = (
-        [(l, rect.top) for l in xrange_(rect.left, rect.right)],
-        [(rect.right - 1, t) for t in xrange_(rect.top + 1, rect.bottom)],
-        [(l, rect.bottom - 1) for l in xrange_(rect.right - 2, rect.left - 1, -1)],
-        [(rect.left, t) for t in xrange_(rect.bottom - 2, rect.top, -1)],
+        [(l, rect.top) for l in range(rect.left, rect.right)],
+        [(rect.right - 1, t) for t in range(rect.top + 1, rect.bottom)],
+        [(l, rect.bottom - 1) for l in range(rect.right - 2, rect.left - 1, -1)],
+        [(rect.left, t) for t in range(rect.bottom - 2, rect.top, -1)],
     )
 
     for line in clock_wise_from_top_left:
@@ -238,7 +208,7 @@ def test():
     """
 
     r = pygame.Rect(0, 0, 10, 10)
-    assert rect_outer_bounds(r) == [(10, 0), (0, 10), (10, 10)]  # tr  # bl  # br
+    assert rect_outer_bounds(r) == [(10, 0), (0, 10), (10, 10)]  # tr # bl # br
 
     assert len(list(rect_area_pts(r))) == 100
 
@@ -255,6 +225,3 @@ def test():
     ]
 
     print("Tests: OK")
-
-
-################################################################################

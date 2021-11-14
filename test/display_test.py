@@ -12,9 +12,6 @@ from pygame.tests.test_utils import question
 from pygame import display
 
 
-SDL2 = pygame.get_sdl_version()[0] >= 2
-
-
 class DisplayModuleTest(unittest.TestCase):
     default_caption = "pygame window"
 
@@ -125,14 +122,9 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertEqual(display.get_caption()[1], TEST_CAPTION)
 
     def test_caption_unicode(self):
-        TEST_CAPTION = u"台"
+        TEST_CAPTION = "台"
         display.set_caption(TEST_CAPTION)
-        import sys
-
-        if sys.version_info.major >= 3:
-            self.assertEqual(display.get_caption()[0], TEST_CAPTION)
-        else:
-            self.assertEqual(unicode_(display.get_caption()[0], "utf8"), TEST_CAPTION)
+        self.assertEqual(display.get_caption()[0], TEST_CAPTION)
 
     def test_get_driver(self):
         drivers = [
@@ -178,9 +170,8 @@ class DisplayModuleTest(unittest.TestCase):
         # display.init() already called in setUp()
         self.assertTrue(display.get_init())
 
-    # This decorator can be removed (or test changed) when issues #991 and #993
-    # are resolved.
-    @unittest.skipIf(SDL2, "SDL2 issues")
+    # This test can be uncommented when issues #991 and #993 are resolved.
+    @unittest.skipIf(True, "SDL2 issues")
     def test_get_surface(self):
         """Ensures get_surface gets the current display surface."""
         lengths = (1, 5, 100)
@@ -275,28 +266,27 @@ class DisplayModuleTest(unittest.TestCase):
         )
         original_values.append(pygame.display.gl_get_attribute(pygame.GL_STEREO))
 
-        if SDL2:
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL)
-            )
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION)
-            )
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION)
-            )
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS)
-            )
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK)
-            )
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT)
-            )
-            original_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE)
-            )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL)
+        )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION)
+        )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION)
+        )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS)
+        )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK)
+        )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT)
+        )
+        original_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE)
+        )
 
         # Setting the flags with values supposedly different from the original values
 
@@ -311,16 +301,13 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 1)
         pygame.display.gl_set_attribute(pygame.GL_STEREO, 0)
-
-        # assign SDL2-supported values with gl_set_attribute (if applicable)
-        if SDL2:
-            pygame.display.gl_set_attribute(pygame.GL_ACCELERATED_VISUAL, 0)
-            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 1)
-            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 1)
-            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FLAGS, 0)
-            pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, 0)
-            pygame.display.gl_set_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT, 0)
-            pygame.display.gl_set_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE, 0)
+        pygame.display.gl_set_attribute(pygame.GL_ACCELERATED_VISUAL, 0)
+        pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION, 1)
+        pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION, 1)
+        pygame.display.gl_set_attribute(pygame.GL_CONTEXT_FLAGS, 0)
+        pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, 0)
+        pygame.display.gl_set_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT, 0)
+        pygame.display.gl_set_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE, 0)
 
         # We create a list where we store the values that we set each flag to
         set_values = [8, 24, 8, 16, 16, 16, 16, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0]
@@ -338,27 +325,25 @@ class DisplayModuleTest(unittest.TestCase):
         get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLEBUFFERS))
         get_values.append(pygame.display.gl_get_attribute(pygame.GL_MULTISAMPLESAMPLES))
         get_values.append(pygame.display.gl_get_attribute(pygame.GL_STEREO))
-
-        if SDL2:
-            get_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL)
-            )
-            get_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION)
-            )
-            get_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION)
-            )
-            get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS))
-            get_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK)
-            )
-            get_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT)
-            )
-            get_values.append(
-                pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE)
-            )
+        get_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_ACCELERATED_VISUAL)
+        )
+        get_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MAJOR_VERSION)
+        )
+        get_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_MINOR_VERSION)
+        )
+        get_values.append(pygame.display.gl_get_attribute(pygame.GL_CONTEXT_FLAGS))
+        get_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_CONTEXT_PROFILE_MASK)
+        )
+        get_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_SHARE_WITH_CURRENT_CONTEXT)
+        )
+        get_values.append(
+            pygame.display.gl_get_attribute(pygame.GL_FRAMEBUFFER_SRGB_CAPABLE)
+        )
 
         # We check to see if the values that we get correspond to the values that we set
         # them to or to the original values.
@@ -414,11 +399,10 @@ class DisplayModuleTest(unittest.TestCase):
                     if event.type == pygame.ACTIVEEVENT:
                         if not event.gain and event.state == pygame.APPACTIVE:
                             active_event = True
-                    if SDL2 and event.type == pygame.WINDOWMINIMIZED:
+                    if event.type == pygame.WINDOWMINIMIZED:
                         window_minimized_event = True
 
-            if SDL2:
-                self.assertTrue(window_minimized_event)
+            self.assertTrue(window_minimized_event)
             self.assertTrue(active_event)
             self.assertFalse(pygame.display.get_active())
 
@@ -499,12 +483,11 @@ class DisplayModuleTest(unittest.TestCase):
         self.assertFalse(display.get_init())
 
     @unittest.skipIf(
-    os.environ.get("SDL_VIDEODRIVER") == "dummy" and not SDL2,
-    "Can't set gamma on SDL 1 with the dummy video driver",
+        os.environ.get("SDL_VIDEODRIVER") == "dummy",
+        "Needs a not dummy videodriver"
     )
     def test_set_gamma(self):
-        if(not SDL2):
-            pygame.display.set_mode((1, 1))
+        pygame.display.set_mode((1, 1))
         gammas = [0.0,0.25,0.5,0.88,1.0]
         for gamma in gammas:
             self.assertEqual(pygame.display.set_gamma(gamma),True)
@@ -513,7 +496,7 @@ class DisplayModuleTest(unittest.TestCase):
             self.assertEqual(pygame.display.set_gamma(gammaTuple[0],gammaTuple[1],gammaTuple[2]),True)
 
     @unittest.skipIf(
-        not hasattr(pygame.display,"set_gamma_ramp"),
+        not hasattr(pygame.display, "set_gamma_ramp"),
         "Not all systems and hardware support gamma ramps"
     )
     def test_set_gamma_ramp(self):
@@ -584,7 +567,8 @@ class DisplayModuleTest(unittest.TestCase):
         pygame.display.set_allow_screensaver()
         self.assertTrue(pygame.display.get_allow_screensaver())
 
-    @unittest.skipIf(SDL2, "set_palette() not supported in SDL2")
+    # the following test fails always with SDL2
+    @unittest.skipIf(True, "set_palette() not supported in SDL2")
     def test_set_palette(self):
         with self.assertRaises(pygame.error):
             palette = [1, 2, 3]

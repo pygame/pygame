@@ -8,7 +8,6 @@ import pygame.math
 from pygame.math import Vector2, Vector3
 
 IS_PYPY = "PyPy" == platform.python_implementation()
-PY3 = sys.version_info.major == 3
 
 
 class Vector2TypeTest(unittest.TestCase):
@@ -274,10 +273,7 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        if PY3:
-            next_ = it.__next__
-        else:
-            next_ = it.next
+        next_ = it.__next__
         self.assertEqual(next_(), self.v1[0])
         self.assertEqual(next_(), self.v1[1])
         self.assertRaises(StopIteration, lambda: next_())
@@ -1363,10 +1359,7 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        if PY3:
-            next_ = it.__next__
-        else:
-            next_ = it.next
+        next_ = it.__next__
         self.assertEqual(next_(), self.v1[0])
         self.assertEqual(next_(), self.v1[1])
         self.assertEqual(next_(), self.v1[2])

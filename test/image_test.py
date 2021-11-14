@@ -850,23 +850,19 @@ class ImageModuleTest(unittest.TestCase):
 
         filename_expected_color = [
             ("asprite.bmp", (255, 255, 255, 255)),
-             ("laplacian.png", (10, 10, 70, 255)),
-             ("red.jpg", (254, 0, 0, 255)),
-             ("blue.gif", (0, 0, 255, 255)),
-             ("green.pcx", (0, 255, 0, 255)),
-             ("yellow.tga", (255, 255, 0, 255)),
-             ("turquoise.tif", (0, 255, 255, 255)),
-             ("purple.xpm", (255, 0, 255, 255)),
-             ("black.ppm", (0, 0, 0, 255)),
-             ("grey.pgm", (120, 120, 120, 255))
+            ("laplacian.png", (10, 10, 70, 255)),
+            ("red.jpg", (254, 0, 0, 255)),
+            ("blue.gif", (0, 0, 255, 255)),
+            ("green.pcx", (0, 255, 0, 255)),
+            ("yellow.tga", (255, 255, 0, 255)),
+            ("turquoise.tif", (0, 255, 255, 255)),
+            ("purple.xpm", (255, 0, 255, 255)),
+            ("black.ppm", (0, 0, 0, 255)),
+            ("grey.pgm", (120, 120, 120, 255)),
+            ("teal.svg", (0, 128, 128, 255)),
+            ("crimson.pnm", (220, 20, 60, 255)),
+            ("scarlet.webp", (	252, 14, 53, 255))
         ]
-
-        if pygame.get_sdl_version()[0] >= 2:
-            filename_expected_color += [
-                ("teal.svg", (0, 128, 128, 255)),
-                ("crimson.pnm", (220, 20, 60, 255)),
-                ("scarlet.webp", (	252, 14, 53, 255))
-            ]
 
         for filename, expected_color in filename_expected_color:
             with self.subTest(

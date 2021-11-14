@@ -1,10 +1,9 @@
 import os
+import sys
 import time
 import unittest
 import pygame
 import pygame.key
-
-SDL1 = pygame.get_sdl_version()[0] < 2
 
 
 class KeyModuleTest(unittest.TestCase):
@@ -25,15 +24,15 @@ class KeyModuleTest(unittest.TestCase):
             pygame.display.init()
 
     def test_import(self):
-        "does it import"
+        """does it import?"""
         import pygame.key
 
-    @unittest.skipIf(SDL1, "SDL1 always thinks it has keyboard focus.")
+    # fixme: test_get_focused failing systematically in some linux
     def test_get_focused(self):
+        # This test fails in SDL2 in some linux
+        # This test was skipped in SDL1.
         focused = pygame.key.get_focused()
-        # If using SDL1, these tests should fail, as SDL1 always returns true,
-        # Kept tests as is, as this is probably wrong.
-        self.assertFalse(focused) #No window to focus
+        self.assertFalse(focused)   # No window to focus
         self.assertIsInstance(focused, int)
         # Dummy video driver never gets keyboard focus.
         if os.environ.get("SDL_VIDEODRIVER") != 'dummy':
@@ -41,9 +40,10 @@ class KeyModuleTest(unittest.TestCase):
             display_sizes = pygame.display.list_modes()
             if display_sizes == -1:
                 display_sizes = [(500, 500)]
-            pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
+            pygame.display.set_mode(size=display_sizes[-1], flags=pygame.FULLSCREEN)
             pygame.event.set_grab(True)
-            pygame.event.pump() #Pump event queue to get window focus on macos
+            # Pump event queue to get window focus on macos
+            pygame.event.pump()
             focused = pygame.key.get_focused()
             self.assertIsInstance(focused, int)
             self.assertTrue(focused)
@@ -59,7 +59,7 @@ class KeyModuleTest(unittest.TestCase):
                     pygame.event.pump()
                 self.assertFalse(pygame.key.get_focused())
                 # Test if focus is returned when iconify is gone
-                pygame.display.set_mode(size = display_sizes[-1], flags = pygame.FULLSCREEN)
+                pygame.display.set_mode(size=display_sizes[-1], flags=pygame.FULLSCREEN)
                 for i in range(50):
                     time.sleep(0.01)
                     pygame.event.pump()
@@ -79,15 +79,11 @@ class KeyModuleTest(unittest.TestCase):
         self.assertEqual(pygame.key.name(pygame.K_SPACE), "space")
 
     def test_key_code(self):
-        if SDL1:
-            self.assertRaises(NotImplementedError, pygame.key.key_code,
-                              "return")
-        else:
-            self.assertEqual(pygame.key.key_code("return"), pygame.K_RETURN)
-            self.assertEqual(pygame.key.key_code("0"), pygame.K_0)
-            self.assertEqual(pygame.key.key_code("space"), pygame.K_SPACE)
+        self.assertEqual(pygame.key.key_code("return"), pygame.K_RETURN)
+        self.assertEqual(pygame.key.key_code("0"), pygame.K_0)
+        self.assertEqual(pygame.key.key_code("space"), pygame.K_SPACE)
 
-            self.assertRaises(ValueError, pygame.key.key_code, "fizzbuzz")
+        self.assertRaises(ValueError, pygame.key.key_code, "fizzbuzz")
 
     def test_set_and_get_mods(self):
         pygame.key.set_mods(pygame.KMOD_CTRL)

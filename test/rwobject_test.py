@@ -4,10 +4,7 @@ import unittest
 from pygame import encode_string, encode_file_path
 from pygame.compat import bytes_, as_bytes, as_unicode
 
-PY2 = sys.version_info[0] == 2
-
-if not PY2:
-    import pathlib
+import pathlib
 
 
 class RWopsEncodeStringTest(unittest.TestCase):
@@ -109,7 +106,6 @@ class RWopsEncodeStringTest(unittest.TestCase):
         ##b = encode_string(u, 'utf-8', 'strict', AssertionError)
         ##self.assertEqual(b, utf_8)
 
-    @unittest.skipIf(PY2, "pathlib module is not in python 2")
     def test_pathlib_obj(self):
         """Test loading string representation of pathlib object"""
         """
