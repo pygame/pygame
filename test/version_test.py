@@ -40,6 +40,7 @@ class VersionTest(unittest.TestCase):
 
     def test_sdl_version(self):
         from pygame import version
+
         self.assertEqual(len(version.SDL), 3)
 
 

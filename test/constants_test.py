@@ -216,15 +216,13 @@ class KConstantsTests(unittest.TestCase):
     )
 
     # Create a sequence of all the K_* constant names.
-    K_NAMES = tuple(
-        "K_" + n for n in K_AND_KSCAN_COMMON_NAMES + K_SPECIFIC_NAMES)
+    K_NAMES = tuple("K_" + n for n in K_AND_KSCAN_COMMON_NAMES + K_SPECIFIC_NAMES)
 
     def test_k__existence(self):
         """Ensures K constants exist."""
         for name in self.K_NAMES:
             self.assertTrue(
-                hasattr(pygame.constants, name),
-                "missing constant {}".format(name)
+                hasattr(pygame.constants, name), "missing constant {}".format(name)
             )
 
     def test_k__type(self):
@@ -312,8 +310,7 @@ class KscanConstantsTests(unittest.TestCase):
         """Ensures KSCAN constants exist."""
         for name in self.KSCAN_NAMES:
             self.assertTrue(
-                hasattr(pygame.constants, name),
-                "missing constant {}".format(name)
+                hasattr(pygame.constants, name), "missing constant {}".format(name)
             )
 
     def test_kscan__type(self):
@@ -367,8 +364,7 @@ class KmodConstantsTests(unittest.TestCase):
         """Ensures KMOD constants exist."""
         for name in self.KMOD_CONSTANTS:
             self.assertTrue(
-                hasattr(pygame.constants, name),
-                "missing constant {}".format(name)
+                hasattr(pygame.constants, name), "missing constant {}".format(name)
             )
 
     def test_kmod__type(self):

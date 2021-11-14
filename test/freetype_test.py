@@ -1637,7 +1637,7 @@ class FreeTypeFontTest(unittest.TestCase):
             o = font.get_metrics("AB")
             self.assertEqual(getrefcount(o), 2)
             for i in range(len(o)):
-                 self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
+                self.assertEqual(getrefcount(o[i]), 2, "refcount fail for item %d" % i)
             o = font.get_sizes()
             self.assertEqual(getrefcount(o), 2)
             for i in range(len(o)):

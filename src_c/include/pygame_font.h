@@ -26,12 +26,11 @@
 struct TTF_Font;
 
 typedef struct {
-  PyObject_HEAD
-  TTF_Font* font;
-  PyObject* weakreflist;
-  unsigned int ttf_init_generation;
+    PyObject_HEAD TTF_Font *font;
+    PyObject *weakreflist;
+    unsigned int ttf_init_generation;
 } PyFontObject;
-#define PyFont_AsFont(x) (((PyFontObject*)x)->font)
+#define PyFont_AsFont(x) (((PyFontObject *)x)->font)
 
 #ifndef PYGAMEAPI_FONT_INTERNAL
 
@@ -39,16 +38,13 @@ typedef struct {
 
 PYGAMEAPI_DEFINE_SLOTS(font);
 
-#define PyFont_Type (*(PyTypeObject*) \
-    PYGAMEAPI_GET_SLOT(font, 0))
+#define PyFont_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(font, 0))
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
-#define PyFont_New (*(PyObject*(*)(TTF_Font*))\
-    PYGAMEAPI_GET_SLOT(font, 1))
+#define PyFont_New (*(PyObject * (*)(TTF_Font *)) PYGAMEAPI_GET_SLOT(font, 1))
 
 /*slot 2 taken by FONT_INIT_CHECK*/
 
 #define import_pygame_font() _IMPORT_PYGAME_MODULE(font)
 
 #endif
-

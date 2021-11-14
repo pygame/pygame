@@ -140,8 +140,7 @@ class SndarrayTest(unittest.TestCase):
         self.assertRaises(ValueError, do_use_arraytype, "not an option")
 
     def test_float32(self):
-        """ sized arrays work with Sounds and 32bit float arrays.
-        """
+        """sized arrays work with Sounds and 32bit float arrays."""
         try:
             pygame.mixer.init(22050, 32, 2, allowedchanges=0)
         except pygame.error:

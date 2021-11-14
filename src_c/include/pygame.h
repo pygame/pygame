@@ -24,7 +24,7 @@
  * extension module built from multiple C files,  only include the pygame.h
  * header within the top level C file, the one which calls the
  * 'import_pygame_*' macros. All other C source files of the module should
- * include _pygame.h instead. 
+ * include _pygame.h instead.
  */
 #ifndef PYGAME_H
 #define PYGAME_H

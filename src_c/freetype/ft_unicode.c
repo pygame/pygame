@@ -40,17 +40,12 @@ static const PGFT_char UNICODE_SA_START = 0xD800;
 static const PGFT_char UNICODE_SA_END = 0xDFFF;
 
 static void
-raise_unicode_error(const char *codec, PyObject *unistr,
-                    Py_ssize_t start, Py_ssize_t end, const char *reason)
+raise_unicode_error(const char *codec, PyObject *unistr, Py_ssize_t start,
+                    Py_ssize_t end, const char *reason)
 {
-    PyObject *e = PyObject_CallFunction(
-        PyExc_UnicodeEncodeError,
-        "sSkks",
-        codec, unistr,
-        (unsigned long)start,
-        (unsigned long)end,
-        reason
-    );
+    PyObject *e = PyObject_CallFunction(PyExc_UnicodeEncodeError, "sSkks",
+                                        codec, unistr, (unsigned long)start,
+                                        (unsigned long)end, reason);
 
     if (!e)
         return;
@@ -82,22 +77,19 @@ _encode_unicode_string(PyObject *obj, int ucs4)
             c = (PGFT_char)src[i];
             if (c >= UNICODE_SA_START && c <= UNICODE_SA_END) {
                 if (c > UNICODE_HSA_END) {
-                    raise_unicode_error(
-                        "utf-32", obj, i, i + 1,
-                        "missing high-surrogate code point");
+                    raise_unicode_error("utf-32", obj, i, i + 1,
+                                        "missing high-surrogate code point");
                     goto end;
                 }
                 if (++i == srclen) {
-                    raise_unicode_error(
-                        "utf-32", obj, i - 1, i,
-                        "missing low-surrogate code point");
+                    raise_unicode_error("utf-32", obj, i - 1, i,
+                                        "missing low-surrogate code point");
                     goto end;
                 }
                 c = (PGFT_char)src[i];
                 if (c < UNICODE_LSA_START || c > UNICODE_LSA_END) {
-                    raise_unicode_error(
-                        "utf-32", obj, i, i + 1,
-                        "expected low-surrogate code point");
+                    raise_unicode_error("utf-32", obj, i, i + 1,
+                                        "expected low-surrogate code point");
                     goto end;
                 }
                 --len;
@@ -178,7 +170,7 @@ _PGFT_EncodePyString(PyObject *obj, int ucs4)
     else
         PyErr_Format(PyExc_TypeError,
                      "Expected a Unicode or LATIN1 (bytes) string for text:"
-                     " got type %.1024s", Py_TYPE(obj)->tp_name);
+                     " got type %.1024s",
+                     Py_TYPE(obj)->tp_name);
     return NULL;
 }
-

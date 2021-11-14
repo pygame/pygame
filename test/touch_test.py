@@ -48,18 +48,17 @@ class TouchInteractiveTest(unittest.TestCase):
         pygame.display.init()
         pygame.font.init()
 
-        os.environ['SDL_VIDEO_WINDOW_POS'] = '50,50'
+        os.environ["SDL_VIDEO_WINDOW_POS"] = "50,50"
         screen = pygame.display.set_mode((800, 600))
         screen.fill((255, 255, 255))
 
         font = pygame.font.Font(None, 32)
-        instructions_str_1 = 'Please place some fingers on your touch device'
-        instructions_str_2 = ('Close the window when finished, '
-                              'and answer the question')
-        inst_1_render = font.render(instructions_str_1,
-                                    True, pygame.Color('#000000'))
-        inst_2_render = font.render(instructions_str_2,
-                                    True, pygame.Color('#000000'))
+        instructions_str_1 = "Please place some fingers on your touch device"
+        instructions_str_2 = (
+            "Close the window when finished, " "and answer the question"
+        )
+        inst_1_render = font.render(instructions_str_1, True, pygame.Color("#000000"))
+        inst_2_render = font.render(instructions_str_2, True, pygame.Color("#000000"))
 
         running = True
         while running:
@@ -74,10 +73,10 @@ class TouchInteractiveTest(unittest.TestCase):
                 num_fingers = pygame._sdl2.touch.get_num_fingers(first_device)
                 if num_fingers > 0:
                     for finger_index in range(0, num_fingers):
-                        data = pygame._sdl2.touch.get_finger(first_device,
-                                                             finger_index)
-                        render = font.render('finger - ' + str(data),
-                                             True, pygame.Color('#000000'))
+                        data = pygame._sdl2.touch.get_finger(first_device, finger_index)
+                        render = font.render(
+                            "finger - " + str(data), True, pygame.Color("#000000")
+                        )
 
                         finger_data_renders.append(render)
 

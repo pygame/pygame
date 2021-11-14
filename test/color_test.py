@@ -400,8 +400,7 @@ class ColorTypeTest(unittest.TestCase):
             self.assertEqual(color.a, value & 0xFF)
 
     def test_color__int_arg_invalid(self):
-        """Ensures invalid int values are detected when creating Color objects.
-        """
+        """Ensures invalid int values are detected when creating Color objects."""
         with self.assertRaises(ValueError):
             color = pygame.Color(0x1FFFFFFFF)
 
@@ -430,8 +429,7 @@ class ColorTypeTest(unittest.TestCase):
             self.assertEqual(color.a, 255)
 
     def test_color__sequence_arg_invalid_value(self):
-        """Ensures invalid sequences are detected when creating Color objects.
-        """
+        """Ensures invalid sequences are detected when creating Color objects."""
         cls = pygame.Color
         for seq_type in (tuple, list):
             self.assertRaises(ValueError, cls, seq_type((256, 90, 80, 70)))
@@ -868,14 +866,14 @@ class ColorTypeTest(unittest.TestCase):
     def test_issue_269(self):
         """PyColor OverflowError on HSVA with hue value of 360
 
-           >>> c = pygame.Color(0)
-           >>> c.hsva = (360,0,0,0)
-           Traceback (most recent call last):
-             File "<stdin>", line 1, in <module>
-           OverflowError: this is not allowed to happen ever
-           >>> pygame.ver
-           '1.9.1release'
-           >>>
+        >>> c = pygame.Color(0)
+        >>> c.hsva = (360,0,0,0)
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in <module>
+        OverflowError: this is not allowed to happen ever
+        >>> pygame.ver
+        '1.9.1release'
+        >>>
 
         """
 
@@ -1153,20 +1151,34 @@ class ColorTypeTest(unittest.TestCase):
         self.assertEqual(alpha255.premul_alpha(), Color(128, 128, 128, 255))
 
         # full range of alpha auto sub-testing
-        test_colors = [(200, 30, 74), (76, 83, 24), (184, 21, 6),
-                       (74, 4, 74), (76, 83, 24), (184, 21, 234),
-                       (160, 30, 74), (96, 147, 204), (198, 201, 60),
-                       (132, 89, 74), (245, 9, 224), (184, 112, 6)]
+        test_colors = [
+            (200, 30, 74),
+            (76, 83, 24),
+            (184, 21, 6),
+            (74, 4, 74),
+            (76, 83, 24),
+            (184, 21, 234),
+            (160, 30, 74),
+            (96, 147, 204),
+            (198, 201, 60),
+            (132, 89, 74),
+            (245, 9, 224),
+            (184, 112, 6),
+        ]
 
         for r, g, b in test_colors:
             for a in range(255):
                 with self.subTest(r=r, g=g, b=b, a=a):
-                    alpha = a/255.0
-                    self.assertEqual(Color(r, g, b, a).premul_alpha(),
-                                     Color(((r + 1) * a) >> 8,
-                                           ((g + 1) * a) >> 8,
-                                           ((b + 1) * a) >> 8,
-                                           a))
+                    alpha = a / 255.0
+                    self.assertEqual(
+                        Color(r, g, b, a).premul_alpha(),
+                        Color(
+                            ((r + 1) * a) >> 8,
+                            ((g + 1) * a) >> 8,
+                            ((b + 1) * a) >> 8,
+                            a,
+                        ),
+                    )
 
     def test_update(self):
         c = pygame.color.Color(0, 0, 0)
@@ -1212,6 +1224,7 @@ class ColorTypeTest(unittest.TestCase):
         c.set_length(3)
         c.update(1, 2, 3, 4)
         self.assertEqual(len(c), 4)
+
 
 class SubclassTest(unittest.TestCase):
     class MyColor(pygame.Color):

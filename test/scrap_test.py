@@ -207,8 +207,8 @@ class X11InteractiveTest(unittest.TestCase):
     def test_issue_208(self):
         """PATCH: pygame.scrap on X11, fix copying into PRIMARY selection
 
-           Copying into theX11 PRIMARY selection (mouse copy/paste) would not
-           work due to a confusion between content type and clipboard type.
+        Copying into theX11 PRIMARY selection (mouse copy/paste) would not
+        work due to a confusion between content type and clipboard type.
 
         """
 
