@@ -84,10 +84,10 @@ from pygame.version import * # pylint: disable=wildcard-import; lgtm[py/pollutin
 from pygame.rect import Rect
 from pygame.compat import PY_MAJOR_VERSION
 from pygame.rwobject import encode_string, encode_file_path
-import pygame.surflock
-import pygame.color
+import pygame.surflock as surflock
+import pygame.color as color
 Color = color.Color
-import pygame.bufferproxy
+import pygame.bufferproxy as bufferproxy
 BufferProxy = bufferproxy.BufferProxy
 import pygame.math
 Vector2 = pygame.math.Vector2
@@ -309,7 +309,7 @@ except (ImportError, IOError):
 try:
     import pygame.imageext
     del pygame.imageext
-except (ImportError, IOError):
+except (ImportError, IOError, AttributeError):
     pass
 
 

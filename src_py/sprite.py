@@ -691,6 +691,32 @@ class OrderedUpdates(RenderUpdates):
         self._spritelist.remove(sprite)
 
 
+class _NoSpriteLayer(object):
+    """A singleton used internally by LayeredUpdates and its subclasses to avoid rendering
+    unneeded sprites."""
+    __slots__ = ()
+    __inst__=None
+    def __new__(cls):
+        if cls.__inst__ is None:
+            cls.__inst__=super().__new__(cls)
+        return cls.__inst__
+    def __del__(self):
+        type(self).__inst__=None
+    def __str__(self):
+        return "NoSpriteLayer"
+    __repr__=__str__
+    def __nonzero__(self):
+        return False
+    __bool__=__nonzero__
+    __int__=__long__=lambda self:0
+    __float__=lambda self:0.0
+
+
+NoSpriteLayer=_NoSpriteLayer()
+"""A singleton used internally by LayeredUpdates and its subclasses to avoid rendering
+unneeded sprites."""
+
+
 class LayeredUpdates(AbstractGroup):
     """LayeredUpdates Group handles layers, which are drawn like OrderedUpdates
 
@@ -719,7 +745,7 @@ class LayeredUpdates(AbstractGroup):
         self._spritelayers = {}
         self._spritelist = []
         AbstractGroup.__init__(self)
-        self._default_layer = kwargs.get('default_layer', 0)
+        self._default_layer = int(kwargs.get('default_layer', 0))
 
         self.add(*sprites, **kwargs)
 
@@ -751,12 +777,12 @@ class LayeredUpdates(AbstractGroup):
         high = leng - 1
         while low <= high:
             mid = low + (high - low) // 2
-            if sprites_layers[sprites[mid]] <= layer:
+            if int(sprites_layers[sprites[mid]]) <= int(layer):
                 low = mid + 1
             else:
                 high = mid - 1
         # linear search to find final position
-        while mid < leng and sprites_layers[sprites[mid]] <= layer:
+        while mid < leng and int(sprites_layers[sprites[mid]]) <= int(layer):
             mid += 1
         sprites.insert(mid, sprite)
 
@@ -828,6 +854,22 @@ class LayeredUpdates(AbstractGroup):
         """
         return list(self._spritelist)
 
+    def sprites_to_draw(self):
+        """return a ordered list of the group's sprites that will be rendered
+        (same order than sprites())
+
+        LayeredUpdates.sprites_to_draw(): return sprites_to_draw"""
+        spritelist=self.sprites()
+        not_to_render=[]
+        for sprite in spritelist:
+            if self.get_layer_of_sprite(sprite) is NoSpriteLayer:
+                not_to_render.append(sprite)
+        for sprite in not_to_render:
+            spritelist.remove(sprite)
+        del not_to_render  # namespace cleanup
+        return spritelist
+
+
     def draw(self, surface):
         """draw all sprites in the right order onto the passed surface
 
@@ -840,7 +882,7 @@ class LayeredUpdates(AbstractGroup):
         self.lostsprites = []
         dirty_append = dirty.append
         init_rect = self._init_rect
-        for spr in self.sprites():
+        for spr in self.sprites_to_draw():
             rec = spritedict[spr]
             newrect = surface_blit(spr.image, spr.rect)
             if rec is init_rect:
@@ -890,11 +932,20 @@ class LayeredUpdates(AbstractGroup):
     # layer methods
     def layers(self):
         """return a list of unique defined layers defined.
+        NoSpriteLayer is not included, even if some sprites in the group
+        have their layer set to that value.
 
         LayeredUpdates.layers(): return layers
 
         """
-        return sorted(set(self._spritelayers.values()))
+        layerset=set(self._spritelayers.values())
+        try:
+            layerset.remove(NoSpriteLayer)
+        except KeyError:
+            pass
+        #we don't count NoSpriteLayer since it counts as 0 and it would make
+        #it harder to understand or debug
+        return sorted(layerset)
 
     def change_layer(self, sprite, new_layer):
         """change the layer of the sprite
@@ -904,7 +955,10 @@ class LayeredUpdates(AbstractGroup):
         The sprite must have been added to the renderer already. This is not
         checked.
 
+        It is not recommended to use NoSpriteLayer with this method.
+
         """
+        #...since it could lead to some bugs that I might not have found yet
         sprites = self._spritelist  # speedup
         sprites_layers = self._spritelayers  # speedup
 
@@ -918,12 +972,12 @@ class LayeredUpdates(AbstractGroup):
         high = leng - 1
         while low <= high:
             mid = low + (high - low) // 2
-            if sprites_layers[sprites[mid]] <= new_layer:
+            if int(sprites_layers[sprites[mid]]) <= int(new_layer):
                 low = mid + 1
             else:
                 high = mid - 1
         # linear search to find final position
-        while mid < leng and sprites_layers[sprites[mid]] <= new_layer:
+        while mid < leng and int(sprites_layers[sprites[mid]]) <= int(new_layer):
             mid += 1
         sprites.insert(mid, sprite)
         if hasattr(sprite, '_layer'):
@@ -956,6 +1010,15 @@ class LayeredUpdates(AbstractGroup):
         """
         return self._spritelayers[self._spritelist[0]]
 
+    def contains_undrawable_sprites(self):
+        """check if any sprite inside the group has its layer set to NoSpriteLayer
+
+        LayeredUpdates.contains_undrawable_sprites(): return bool
+
+        Any sprite can be considered "undrawable" when the group references it on the
+        special layer NoSpriteLayer and is not blitted with other sprites."""
+        return self.sprites()!=self.sprites_to_draw()
+
     def move_to_front(self, sprite):
         """bring the sprite to front layer
 
@@ -977,7 +1040,7 @@ class LayeredUpdates(AbstractGroup):
         the current bottom layer.
 
         """
-        self.change_layer(sprite, self.get_bottom_layer() - 1)
+        self.change_layer(sprite, self.get_bottom_layer() - 1 if isinstance(self.get_bottom_layer(), int) else self.get_bottom_layer())
 
     def get_top_sprite(self):
         """return the topmost sprite
@@ -1115,7 +1178,9 @@ class LayeredDirty(LayeredUpdates):
         if latest_clip is None:
             latest_clip = orig_clip
 
-        local_sprites = self._spritelist
+        local_sprites = self._spritelist.copy()
+        for sprite in filter(lambda spr:self.get_layer_of_sprite(spr) is NoSpriteLayer, local_sprites[:]):
+            local_sprites.remove(sprite)
         local_old_rect = self.spritedict
         local_update = self.lostsprites
         rect_type = Rect
@@ -1320,6 +1385,66 @@ class LayeredDirty(LayeredUpdates):
         else:
             raise TypeError("Expected numeric value, got {} instead".
                             format(time_ms.__class__.__name__))
+
+
+class LayeredFilter(LayeredUpdates):
+    """LayeredFilter is a subclass of LayeredUpdates that can prevent sprite addition.
+    It refers to the class attribute __sprite_types__ to filter addition (if it is empty,
+    then any instance will behave as a normal LayeredUpdates group and won't block sprite
+    addition. Otherwise, only sprites which are instances of the types contained by
+    __sprite_types__ will be accepted by the game.
+
+    LayeredFilter is not meant to be used directly, and is supposed to be subclassed.
+    If you use LayeredFilter instances directly, they will behave as normal LayeredUpdates groups."""
+    __sprite_types__=()
+    def _sprite_type_check(self, *sprites):
+        if self.__sprite_types__:
+            for sprite in sprites:
+                if __debug__:
+                    try:
+                        assert isinstance(sprite, self.__sprite_types__)
+                    except AssertionError as err:
+                        raise TypeError(f"unsupported sprite type for '{type(self).__name__}': '{type(sprite).__name__}'") from err
+                else:
+                    if not isinstance(sprite, self.__sprite_types__):
+                        raise TypeError(
+                            f"unsupported sprite type for '{type(self).__name__}': '{type(sprite).__name__}'")
+    def __init__(self, *sprites, **kwargs):
+        if self.__sprite_types__:
+            self._sprite_type_check(*sprites)
+            super().__init__(*sprites, **kwargs)
+        else:
+            super().__init__(*sprites, **kwargs)
+    def add(self, *sprites, **kwargs):
+        self._sprite_type_check()
+        super().add(*sprites, **kwargs)
+
+
+class AutomatedLayered(LayeredUpdates):
+    """A group container that functions in the same way as LayeredUpdates,
+    but can also store multiple default layers depending on the kind of sprites you
+    put in it. Having an empty dictionary stored in a subclass's __sprite_table__
+    attribute will alter its instances' behaviour to work as if they were
+    regular LayeredUpdates groups."""
+    __sprite_table__={}
+    def add(self, *sprites, **kwargs):
+        layer_=kwargs.get("layer", super()._default_layer)
+        sprite_layers={}
+        for sprite in sprites:
+            sprite_layered=False
+            for cls in self.__sprite_table__:
+                if isinstance(sprite, cls):
+                    sprite_layers[sprite]=self.__sprite_table__[cls]
+                    sprite_layered=True
+                    break
+            if not sprite_layered:
+                sprite_layers[sprite]=layer_
+        try:
+            kwargs.pop("layer")
+        except LookupError:
+            pass
+        for sprite, layer in sprite_layers.items():
+            super().add(sprite, layer=layer, **kwargs)
 
 
 class GroupSingle(AbstractGroup):

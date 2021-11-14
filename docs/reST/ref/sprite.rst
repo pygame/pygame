@@ -81,8 +81,8 @@ Sprites are not thread safe. So lock them yourself if using threads.
         
               # Fetch the rectangle object that has the dimensions of the image
               # Update the position of this object by setting the values of rect.x and rect.y
-              self.rect = self.image.get_rect()   
-      
+              self.rect = self.image.get_rect()
+
    .. method:: update
 
       | :sl:`method to control sprite behavior`
@@ -383,10 +383,10 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
    .. ## pygame.sprite.RenderUpdates ##
 
-.. function:: OrderedUpdates
+.. class:: OrderedUpdates
 
    | :sl:`RenderUpdates sub-class that draws Sprites in order of addition.`
-   | :sg:`OrderedUpdates(*spites) -> OrderedUpdates`
+   | :sg:`OrderedUpdates(*sprites) -> OrderedUpdates`
 
    This class derives from ``pygame.sprite.RenderUpdates()``. It maintains the
    order in which the Sprites were added to the Group for rendering. This makes
@@ -394,6 +394,12 @@ Sprites are not thread safe. So lock them yourself if using threads.
    Groups.
 
    .. ## pygame.sprite.OrderedUpdates ##
+
+.. class:: NoSpriteLayer
+
+   | :sl:`Singleton used to prevent certain sprites from being rendered. It's a special layer that can be considered as null.`
+
+   This singleton is designed for use with pygame.sprite.LayeredUpdates
 
 .. class:: LayeredUpdates
 
@@ -410,6 +416,12 @@ Sprites are not thread safe. So lock them yourself if using threads.
    that layer (overriding the ``sprite.layer`` attribute). If neither sprite
    has attribute layer nor \**kwarg then the default layer is used to add the
    sprites.
+
+   You can also use a special singleton, ``pygame.sprite.NoSpriteLayer``,
+   to make certain kinds of sprites unrendered even though instances of these types
+   are stored in a group. You can use this to prevent your player from moving during
+   cutscenes, for example.
+
 
    .. versionadded:: 1.8
 
@@ -431,6 +443,20 @@ Sprites are not thread safe. So lock them yourself if using threads.
       | :sg:`sprites() -> sprites`
 
       .. ## LayeredUpdates.sprites ##
+
+   .. method:: sprites_to_draw
+
+      | :sl:`returns an ordered list of sprites (same order as LayeredUpdates.sprites), but excludes undrawable sprites (sprites whose layer is NoSpriteLayer)
+      | :sg:`sprites_to_draw() -> sprites_to_draw`
+
+      .. ## LayeredUpdates.sprites_to_draw ##
+
+   .. method:: contains_undrawable_sprites
+
+      |:sl:`Returns True if the current group contains 'undrawable' sprites (sprites whose layer is NoSpriteLayer), False otherwise.`
+      |:sg:`contains_undrawable_sprites() -> bool`
+
+      .. ## LayeredUpdates.contains_undrawable_sprites ##
 
    .. method:: draw
 
@@ -554,7 +580,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. class:: LayeredDirty
 
    | :sl:`LayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates.`
-   | :sg:`LayeredDirty(*spites, **kwargs) -> LayeredDirty`
+   | :sg:`LayeredDirty(*sprites, **kwargs) -> LayeredDirty`
 
    This group requires :class:`pygame.sprite.DirtySprite` or any sprite that
    has the following attributes:
@@ -642,6 +668,31 @@ Sprites are not thread safe. So lock them yourself if using threads.
       .. ## LayeredDirty.set_timing_treshold ##
 
    .. ## pygame.sprite.LayeredDirty ##
+
+.. class:: LayeredFilter
+
+   | :sl:`LayeredFilter works as LayeredUpdates but only accepts sprites contained in the class' attribute __sprite_types__.`
+   | :sg:`LayeredFilter(*sprites, **kwargs) -> LayeredFilter`
+
+   .. py:attribute:: __sprite_types
+
+      | :sl:`Contains the only sprite classes that will be accepted inside the group. Any sprite that is not an instance of one of those types will raise a TypeError.`
+      | :sg:`__sprite_types__ = tuple`
+
+   This class is best used as a base class. Using a regular LayeredFilter group will have no filter effect.
+   When subclassing, be sure to call the base initializer and override the __sprite_types__ attribute (if empty the class will behave as a regular LayeredUpdates group).
+
+   .. ## pygame.sprite.LayeredFilter ##
+
+.. class:: AutomatedLayered
+
+   | :sl:`Similar to LayeredUpdates but can have many default layers, one per sprite type.`
+   | :sg:`AutomatedLayered(*sprites, **kwargs) -> AutomatedLayered`
+
+   As for LayeredFilter, this class is better used as a base. In subclasses you need to override the
+   __sprite_table__ attribute which is a dictionary of type-int pairs.
+
+   .. ## pygame.sprite.AutomatedLayered ##
 
 .. function:: GroupSingle
 
