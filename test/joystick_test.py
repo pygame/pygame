@@ -47,28 +47,28 @@ class JoystickModuleTest(unittest.TestCase):
         self.assertEqual(pygame.joystick.get_init(), False)
 
         pygame.joystick.init()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # True
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # True
         pygame.joystick.quit()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # False
 
         pygame.joystick.init()
         pygame.joystick.init()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # True
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # True
         pygame.joystick.quit()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # False
 
         pygame.joystick.quit()
         self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # False
 
         for i in range(100):
             pygame.joystick.init()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # True
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # True
         pygame.joystick.quit()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # False
 
         for i in range(100):
             pygame.joystick.quit()
-        self.assertEqual(pygame.joystick.get_init(), error_check_get_init()) # False
+        self.assertEqual(pygame.joystick.get_init(), error_check_get_init())  # False
 
     def test_init(self):
         """
@@ -105,11 +105,11 @@ class JoystickModuleTest(unittest.TestCase):
 
         pygame.joystick.init()
 
-        self.assertIsNotNone(pygame.joystick.get_count()) #Is not None before quit
+        self.assertIsNotNone(pygame.joystick.get_count())  # Is not None before quit
 
         pygame.joystick.quit()
 
-        with self.assertRaises(pygame.error):  #Raises error if quit worked
+        with self.assertRaises(pygame.error):  # Raises error if quit worked
             pygame.joystick.get_count()
 
     def test_get_count(self):
@@ -118,10 +118,12 @@ class JoystickModuleTest(unittest.TestCase):
 
         try:
             count = pygame.joystick.get_count()
-            self.assertGreaterEqual(count, 0, ("joystick.get_count() must "
-                                                "return a value >= 0"))
+            self.assertGreaterEqual(
+                count, 0, ("joystick.get_count() must " "return a value >= 0")
+            )
         finally:
             pygame.joystick.quit()
+
 
 class JoystickInteractiveTest(unittest.TestCase):
 
@@ -129,8 +131,12 @@ class JoystickInteractiveTest(unittest.TestCase):
 
     def test_get_count_interactive(self):
         # Test get_count correctly identifies number of connected joysticks
-        prompt(("Please connect any joysticks/controllers now before starting the "
-                "joystick.get_count() test."))
+        prompt(
+            (
+                "Please connect any joysticks/controllers now before starting the "
+                "joystick.get_count() test."
+            )
+        )
 
         pygame.joystick.init()
         # pygame.joystick.get_count(): return count
@@ -138,11 +144,12 @@ class JoystickInteractiveTest(unittest.TestCase):
         count = pygame.joystick.get_count()
 
         response = question(
-            ("NOTE: Having Steam open may add an extra virtual controller for "
-             "each joystick/controller physically plugged in.\n"
-             "joystick.get_count() thinks there is [{}] joystick(s)/controller(s)"
-             "connected to this system. Is this correct?"
-             .format(count))
+            (
+                "NOTE: Having Steam open may add an extra virtual controller for "
+                "each joystick/controller physically plugged in.\n"
+                "joystick.get_count() thinks there is [{}] joystick(s)/controller(s)"
+                "connected to this system. Is this correct?".format(count)
+            )
         )
 
         self.assertTrue(response)

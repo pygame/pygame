@@ -56,13 +56,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_etype(self):
         u = as_unicode(r"a\x80b")
-        self.assertRaises(
-            SyntaxError,
-            encode_string,
-            u,
-            "ascii",
-            "strict",
-            SyntaxError)
+        self.assertRaises(SyntaxError, encode_string, u, "ascii", "strict", SyntaxError)
 
     def test_etype__invalid(self):
         """Ensures invalid etypes are properly handled."""

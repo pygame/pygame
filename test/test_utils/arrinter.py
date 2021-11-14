@@ -57,8 +57,11 @@ PAI_Ptr = POINTER(PyArrayInterface)
 try:
     PyCObject_AsVoidPtr = pythonapi.PyCObject_AsVoidPtr
 except AttributeError:
+
     def PyCObject_AsVoidPtr(o):
         raise TypeError("Not available")
+
+
 else:
     PyCObject_AsVoidPtr.restype = c_void_p
     PyCObject_AsVoidPtr.argtypes = [py_object]
@@ -69,8 +72,11 @@ else:
 try:
     PyCapsule_IsValid = pythonapi.PyCapsule_IsValid
 except AttributeError:
+
     def PyCapsule_IsValid(capsule, name):
         return 0
+
+
 else:
     PyCapsule_IsValid.restype = c_int
     PyCapsule_IsValid.argtypes = [py_object, c_char_p]

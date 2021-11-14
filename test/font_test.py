@@ -138,9 +138,7 @@ class FontModuleTest(unittest.TestCase):
             [font, not_a_font, font_b, not_a_font_b],
         ]
         for font_name in good_font_names:
-            self.assertEqual(
-                pygame_font.match_font(font_name), font_path, font_name
-            )
+            self.assertEqual(pygame_font.match_font(font_name), font_path, font_name)
 
     def test_not_match_font_name(self):
         """match_font return None when names of various types do not exist"""
@@ -174,24 +172,22 @@ class FontModuleTest(unittest.TestCase):
         )
 
     def test_issue_742(self):
-        """ that the font background does not crash.
-        """
+        """that the font background does not crash."""
         surf = pygame.Surface((320, 240))
         font = pygame_font.Font(None, 24)
         image = font.render("Test", 0, (255, 255, 255), (0, 0, 0))
         self.assertIsNone(image.get_colorkey())
         image.set_alpha(255)
-        surf.blit(image, (0,0))
+        surf.blit(image, (0, 0))
 
     def test_issue_font_alphablit(self):
-        """ Check that blitting anti-aliased text doesn't
-            change the background blue"""
+        """Check that blitting anti-aliased text doesn't
+        change the background blue"""
         pygame.display.set_mode((600, 400))
 
         font = pygame_font.Font(None, 24)
 
-        (color, text, center, pos) = ((160, 200, 250), 'Music',
-                                      (190, 170), 'midright')
+        (color, text, center, pos) = ((160, 200, 250), "Music", (190, 170), "midright")
         img1 = font.render(text, True, color)
 
         img = pygame.Surface(img1.get_size(), depth=32)
@@ -202,9 +198,10 @@ class FontModuleTest(unittest.TestCase):
         self.assertEqual(pre_blit_corner_pixel, post_blit_corner_pixel)
 
     def test_segfault_after_reinit(self):
-        """ Reinitialization of font module should not cause
-            segmentation fault """
+        """Reinitialization of font module should not cause
+        segmentation fault"""
         import gc
+
         font = pygame_font.Font(None, 20)
         pygame_font.quit()
         pygame_font.init()
@@ -398,8 +395,7 @@ class FontTypeTest(unittest.TestCase):
         self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
 
     def test_render_ucs2_ucs4(self):
-        """ that it renders without raising if there is a new enough SDL_ttf.
-        """
+        """that it renders without raising if there is a new enough SDL_ttf."""
         f = pygame_font.Font(None, 20)
         # If the font module is SDL_ttf < 2.0.15 based, then it only supports UCS-2
         # it will raise an exception for an out-of-range UCS-4 code point.

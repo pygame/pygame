@@ -3,9 +3,20 @@
 
 import sys
 
-__all__ = ['geterror', 'long_', 'xrange_', 'ord_', 'unichr_',
-           'unicode_', 'raw_input_', 'as_bytes', 'as_unicode',
-           'bytes_', 'imap_', 'PY_MAJOR_VERSION']
+__all__ = [
+    "geterror",
+    "long_",
+    "xrange_",
+    "ord_",
+    "unichr_",
+    "unicode_",
+    "raw_input_",
+    "as_bytes",
+    "as_unicode",
+    "bytes_",
+    "imap_",
+    "PY_MAJOR_VERSION",
+]
 
 PY_MAJOR_VERSION = sys.version_info[0]
 
@@ -13,12 +24,14 @@ PY_MAJOR_VERSION = sys.version_info[0]
 def geterror():
     return sys.exc_info()[1]
 
+
 # Python 3
 if PY_MAJOR_VERSION >= 3:
     long_ = int
     xrange_ = range
     from io import StringIO
     from io import BytesIO
+
     unichr_ = chr
     unicode_ = str
     bytes_ = bytes
@@ -34,19 +47,20 @@ if PY_MAJOR_VERSION >= 3:
     #   e.g.: as_unicode(r"Bo\u00F6tes") == u"Bo\u00F6tes" # Python 2.x
     #         as_unicode(r"Bo\u00F6tes") == "Bo\u00F6tes"  # Python 3.x
     def as_bytes(string):
-        """ '<binary literal>' => b'<binary literal>' """
-        return string.encode('latin-1', 'strict')
+        """'<binary literal>' => b'<binary literal>'"""
+        return string.encode("latin-1", "strict")
 
     def as_unicode(rstring):
-        """ r'<Unicode literal>' => '<Unicode literal>' """
-        return rstring.encode('ascii', 'strict').decode('unicode_escape',
-                                                        'strict')
+        """r'<Unicode literal>' => '<Unicode literal>'"""
+        return rstring.encode("ascii", "strict").decode("unicode_escape", "strict")
+
 
 # Python 2
 else:
     long_ = long
     xrange_ = xrange
     from cStringIO import StringIO
+
     BytesIO = StringIO
     unichr_ = unichr
     unicode_ = unicode
@@ -63,12 +77,12 @@ else:
     #   e.g.: as_unicode(r"Bo\u00F6tes") == u"Bo\u00F6tes" # Python 2.x
     #         as_unicode(r"Bo\u00F6tes") == "Bo\u00F6tes"  # Python 3.x
     def as_bytes(string):
-        """ '<binary literal>' => '<binary literal>' """
+        """'<binary literal>' => '<binary literal>'"""
         return string
 
     def as_unicode(rstring):
-        """ r'<Unicode literal>' => u'<Unicode literal>' """
-        return rstring.decode('unicode_escape', 'strict')
+        """r'<Unicode literal>' => u'<Unicode literal>'"""
+        return rstring.decode("unicode_escape", "strict")
 
 
 def get_BytesIO():
@@ -85,7 +99,8 @@ def ord_(o):
     except TypeError:
         return o
 
-if sys.platform == 'win32':
+
+if sys.platform == "win32":
     filesystem_errors = "replace"
 elif PY_MAJOR_VERSION >= 3:
     filesystem_errors = "surrogateescape"
@@ -95,8 +110,10 @@ else:
 
 def filesystem_encode(u):
     fsencoding = sys.getfilesystemencoding()
-    if fsencoding.lower() in ['ascii', 'ansi_x3.4-1968'] and sys.platform.startswith('linux'):
+    if fsencoding.lower() in ["ascii", "ansi_x3.4-1968"] and sys.platform.startswith(
+        "linux"
+    ):
         # Don't believe Linux systems claiming ASCII-only filesystems. In
         # practice, arbitrary bytes are allowed, and most things expect UTF-8.
-        fsencoding = 'utf-8'
+        fsencoding = "utf-8"
     return u.encode(fsencoding, filesystem_errors)

@@ -588,7 +588,7 @@ class Vector2TypeTest(unittest.TestCase):
             -3.5 // self.v1.elementwise(), (-3.5 // self.v1.x, -3.5 // self.v1.y)
         )
         self.assertEqual(
-            -3.5 ** self.v1.elementwise(), (-3.5 ** self.v1.x, -3.5 ** self.v1.y)
+            -(3.5 ** self.v1.elementwise()), (-(3.5 ** self.v1.x), -(3.5 ** self.v1.y))
         )
         self.assertEqual(3 % self.v1.elementwise(), (3 % self.v1.x, 3 % self.v1.y))
         self.assertEqual(2 < self.v1.elementwise(), 2 < self.v1.x and 2 < self.v1.y)
@@ -1004,7 +1004,7 @@ class Vector2TypeTest(unittest.TestCase):
         other = Vector2(0, 0)
 
         # act / assert
-        self.assertRaises(ValueError,  v.project, other)
+        self.assertRaises(ValueError, v.project, other)
 
     def test_project_v2_onto_other_as_tuple(self):
         """Project onto other tuple as vector."""
@@ -1041,7 +1041,7 @@ class Vector2TypeTest(unittest.TestCase):
         other = Vector2(0, 0)
 
         # act / assert
-        self.assertRaises(ValueError,  v.project, other)
+        self.assertRaises(ValueError, v.project, other)
 
     def test_project_v2_raises_if_other_is_not_iterable(self):
         """Check if exception is raise when projected on vector is not iterable."""
@@ -1050,7 +1050,7 @@ class Vector2TypeTest(unittest.TestCase):
         other = 10
 
         # act / assert
-        self.assertRaises(TypeError,  v.project, other)
+        self.assertRaises(TypeError, v.project, other)
 
 
 class Vector3TypeTest(unittest.TestCase):
@@ -1877,8 +1877,8 @@ class Vector3TypeTest(unittest.TestCase):
             (-3.5 // self.v1.x, -3.5 // self.v1.y, -3.5 // self.v1.z),
         )
         self.assertEqual(
-            -3.5 ** self.v1.elementwise(),
-            (-3.5 ** self.v1.x, -3.5 ** self.v1.y, -3.5 ** self.v1.z),
+            -(3.5 ** self.v1.elementwise()),
+            (-(3.5 ** self.v1.x), -(3.5 ** self.v1.y), -(3.5 ** self.v1.z)),
         )
         self.assertEqual(
             3 % self.v1.elementwise(), (3 % self.v1.x, 3 % self.v1.y, 3 % self.v1.z)
@@ -2322,7 +2322,7 @@ class Vector3TypeTest(unittest.TestCase):
         other = Vector3(0, 0, 0)
 
         # act / assert
-        self.assertRaises(ValueError,  v.project, other)
+        self.assertRaises(ValueError, v.project, other)
 
     def test_project_v3_raises_if_other_is_not_iterable(self):
         """Check if exception is raise when projected on vector is not iterable."""
@@ -2331,7 +2331,7 @@ class Vector3TypeTest(unittest.TestCase):
         other = 10
 
         # act / assert
-        self.assertRaises(TypeError,  v.project, other)
+        self.assertRaises(TypeError, v.project, other)
 
 
 if __name__ == "__main__":

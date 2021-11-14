@@ -136,8 +136,7 @@ DOTS = re.compile("^([FE.sux]*)$", re.MULTILINE)
 
 
 def extract_tracebacks(output):
-    """ from test runner output return the tracebacks.
-    """
+    """from test runner output return the tracebacks."""
     verbose_mode = " ..." in output
 
     if verbose_mode:
@@ -151,8 +150,7 @@ def extract_tracebacks(output):
 
 
 def output_into_dots(output):
-    """ convert the test runner output into dots.
-    """
+    """convert the test runner output into dots."""
     # verbose_mode = ") ..." in output
     verbose_mode = " ..." in output
 
@@ -269,8 +267,7 @@ def run_test(
     unbuffered=None,
     verbosity=1,
 ):
-    """Run a unit test module
-    """
+    """Run a unit test module"""
     suite = unittest.TestSuite()
 
     if verbosity is None:
