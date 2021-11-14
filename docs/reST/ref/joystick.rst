@@ -319,6 +319,36 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
       .. ## Joystick.get_hat ##
 
+   .. method:: rumble
+
+      | :sl:`Start a rumbling effect`
+      | :sg:`rumble(low_frequency, high_frequency, duration) -> bool`
+
+      Start a rumble effect on the joystick, with the specified strength ranging
+      from 0 to 1. Duration is length of the effect, in ms. Setting the duration
+      to 0 will play the effect until another one overwrites it or
+      :meth:`Joystick.stop_rumble` is called. If an effect is already
+      playing, then it will be overwritten.
+
+      Returns True if the rumble was played successfully or False if the
+      joystick does not support it or :meth:`pygame.version.SDL` is below 2.0.9.
+
+      .. versionadded:: 2.0.2
+
+      .. ## Joystick.rumble ##
+
+   .. method:: stop_rumble
+
+      | :sl:`Stop any rumble effect playing`
+      | :sg:`stop_rumble() -> None`
+
+      Stops any rumble effect playing on the joystick. See
+      :meth:`Joystick.rumble` for more information.
+
+      .. versionadded:: 2.0.2
+
+      .. ## Joystick.stop_rumble ##
+
    .. ## pygame.joystick.Joystick ##
 
 .. ## pygame.joystick ##

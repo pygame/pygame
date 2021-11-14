@@ -79,11 +79,9 @@ static PyObject *pgExc_BufferError = NULL;
 static PyObject *pg_quit_functions = NULL;
 static int pg_is_init = 0;
 static int pg_sdl_was_init = 0;
-#if IS_SDLv2
 SDL_Window *pg_default_window = NULL;
 pgSurfaceObject *pg_default_screen = NULL;
 static char * pg_env_blend_alpha_SDL2 = NULL;
-#endif /* IS_SDLv2 */
 
 static void
 pg_install_parachute(void);
@@ -148,10 +146,8 @@ static int
 _pg_as_arrayinter_flags(Py_buffer *);
 static pgCapsuleInterface *
 _pg_new_capsuleinterface(Py_buffer *);
-#if PY3
 static void
 _pg_capsule_PyMem_Free(PyObject *);
-#endif
 static PyObject *
 _pg_shape_as_tuple(PyArrayInterface *);
 static PyObject *
@@ -166,7 +162,6 @@ static void
 _pg_release_buffer_array(Py_buffer *);
 static void
 _pg_release_buffer_generic(Py_buffer *);
-#if IS_SDLv2
 static SDL_Window *
 pg_GetDefaultWindow(void);
 static void
@@ -177,29 +172,10 @@ static void
 pg_SetDefaultWindowSurface(pgSurfaceObject *);
 static char *
 pg_EnvShouldBlendAlphaSDL2(void);
-#endif /* IS_SDLv2 */
 
 static int
 pg_CheckSDLVersions(void) /*compare compiled to linked*/
 {
-#if IS_SDLv1
-    SDL_version compiled;
-    const SDL_version *linked;
-
-    SDL_VERSION(&compiled);
-    linked = SDL_Linked_Version();
-
-    /*only check the major and minor version numbers.
-      we will relax any differences in 'patch' version.*/
-
-    if (compiled.major != linked->major || compiled.minor != linked->minor) {
-        PyErr_Format(PyExc_RuntimeError,
-                     "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
-                     compiled.major, compiled.minor, compiled.patch,
-                     linked->major, linked->minor, linked->patch);
-        return 0;
-    }
-#else  /* IS_SDLv2 */
     SDL_version compiled;
     SDL_version linked;
 
@@ -216,7 +192,6 @@ pg_CheckSDLVersions(void) /*compare compiled to linked*/
                      linked.major, linked.minor, linked.patch);
         return 0;
     }
-#endif /* IS_SDLv2 */
 
     return 1;
 }
@@ -337,11 +312,7 @@ pg_init(PyObject *self)
         IMPPREFIX "font",
         IMPPREFIX "freetype",
         IMPPREFIX "mixer",
-#if IS_SDLv2
         /* IMPPREFIX "_sdl2.controller", Is this required? Comment for now*/
-#else
-        IMPPREFIX "cdrom",
-#endif
         NULL
     };
 
@@ -357,9 +328,7 @@ pg_init(PyObject *self)
     pg_sdl_was_init = SDL_Init(SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == 0;
 #endif
 
-#if IS_SDLv2
     pg_env_blend_alpha_SDL2 = SDL_getenv("PYGAME_BLEND_ALPHA_SDL2");
-#endif /* IS_SDLv2 */
 
     /* initialize all pygame modules */
     for (i = 0; modnames[i]; i++) {
@@ -393,17 +362,10 @@ pg_atexit_quit(void)
 static PyObject *
 pg_get_sdl_version(PyObject *self)
 {
-#if IS_SDLv1
-    const SDL_version *v;
-
-    v = SDL_Linked_Version();
-    return Py_BuildValue("iii", v->major, v->minor, v->patch);
-#else  /* IS_SDLv2 */
     SDL_version v;
 
     SDL_GetVersion(&v);
     return Py_BuildValue("iii", v.major, v.minor, v.patch);
-#endif /* IS_SDLv2 */
 }
 
 static PyObject *
@@ -420,11 +382,7 @@ _pg_quit(void)
 
     /* Put all the module names we want to quit in this array */
     const char *modnames[] = {
-#if IS_SDLv2
         /* IMPPREFIX "_sdl2.controller", Is this required?, comment for now */
-#else
-        IMPPREFIX "cdrom"
-#endif
         IMPPREFIX "mixer",
         IMPPREFIX "freetype",
         IMPPREFIX "font",
@@ -474,7 +432,11 @@ _pg_quit(void)
 
     pg_is_init = 0;
 
+    /* Release the GIL here, because the timer thread cleanups should happen
+     * without deadlocking. */
+    Py_BEGIN_ALLOW_THREADS; 
     pg_atexit_quit();
+    Py_END_ALLOW_THREADS;
 }
 
 static PyObject *
@@ -658,35 +620,25 @@ pg_RGBAFromObj(PyObject *obj, Uint8 *RGBA)
 static PyObject *
 pg_get_error(PyObject *self)
 {
-#if IS_SDLv1 && PY3 && !defined(PYPY_VERSION)
-    /* SDL 1's encoding is ambiguous */
-    PyObject *obj;
-    if ((obj = PyUnicode_DecodeUTF8(SDL_GetError(),
-                                   strlen(SDL_GetError()), "strict")))
-        return obj;
-    PyErr_Clear();
-    return PyUnicode_DecodeLocale(SDL_GetError(), "surrogateescape");
-#else /* IS_SDLv2 || !PY3 */
     return Text_FromUTF8(SDL_GetError());
-#endif /* IS_SDLv2 || !PY3 */
 }
 
 static PyObject *
 pg_set_error(PyObject *s, PyObject *args)
 {
     char *errstring = NULL;
-#if PY2 || defined(PYPY_VERSION)
+#if defined(PYPY_VERSION)
     if (!PyArg_ParseTuple(args, "es", "UTF-8", &errstring))
         return NULL;
 
     SDL_SetError("%s", errstring);
     PyMem_Free(errstring);
-#else /* PY3 */
+#else
     if (!PyArg_ParseTuple(args, "s", &errstring)) {
         return NULL;
     }
     SDL_SetError("%s", errstring);
-#endif /* PY3 */
+#endif
     Py_RETURN_NONE;
 }
 
@@ -774,11 +726,7 @@ pgBuffer_AsArrayStruct(Py_buffer *view_p)
     if (!cinter_p) {
         return 0;
     }
-#if PY3
     capsule = PyCapsule_New(cinter_p, 0, _pg_capsule_PyMem_Free);
-#else
-    capsule = PyCObject_FromVoidPtr(cinter_p, PyMem_Free);
-#endif
     if (!capsule) {
         PyMem_Free(cinter_p);
         return 0;
@@ -823,13 +771,11 @@ _pg_new_capsuleinterface(Py_buffer *view_p)
     return cinter_p;
 }
 
-#if PY3
 static void
 _pg_capsule_PyMem_Free(PyObject *capsule)
 {
     PyMem_Free(PyCapsule_GetPointer(capsule, 0));
 }
-#endif
 
 static int
 _pg_as_arrayinter_flags(Py_buffer *view_p)
@@ -1545,11 +1491,7 @@ _pg_typestr_check(PyObject *op)
         return -1;
     }
     if (PyUnicode_Check(op)) {
-#if PY2
-        Py_ssize_t len = PyUnicode_GET_SIZE(op);
-#else
         Py_ssize_t len = PyUnicode_GET_LENGTH(op);
-#endif
         if (len != 3) {
             PyErr_SetString(PyExc_ValueError,
                             "expected 'typestr' to be length 3");
@@ -1933,7 +1875,6 @@ _pg_typestr_as_format(PyObject *sp, char *format, Py_ssize_t *itemsize_p)
     return 0;
 }
 
-#if IS_SDLv2
 /*Default window(display)*/
 static SDL_Window *
 pg_GetDefaultWindow(void)
@@ -1978,7 +1919,6 @@ pg_EnvShouldBlendAlphaSDL2(void)
 {
     return pg_env_blend_alpha_SDL2;
 }
-#endif /* IS_SDLv2 */
 
 /*error signal handlers(replacing SDL parachute)*/
 static void
@@ -2132,7 +2072,6 @@ MODINIT_DEFINE(base)
     int ecode;
     static void *c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "base",
                                          "",
@@ -2142,7 +2081,6 @@ MODINIT_DEFINE(base)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     if (!is_loaded) {
         /* import need modules. Do this first so if there is an error
@@ -2161,11 +2099,7 @@ MODINIT_DEFINE(base)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "base", _base_methods, DOC_PYGAME);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
@@ -2223,16 +2157,12 @@ MODINIT_DEFINE(base)
     c_api[16] = pgBuffer_Release;
     c_api[17] = pgDict_AsBuffer;
     c_api[18] = pgExc_BufferError;
-#if IS_SDLv1
-#define FILLED_SLOTS 19
-#else /* IS_SDLv2 */
     c_api[19] = pg_GetDefaultWindow;
     c_api[20] = pg_SetDefaultWindow;
     c_api[21] = pg_GetDefaultWindowSurface;
     c_api[22] = pg_SetDefaultWindowSurface;
     c_api[23] = pg_EnvShouldBlendAlphaSDL2;
 #define FILLED_SLOTS 24
-#endif /* IS_SDLv2 */
 
 #if PYGAMEAPI_BASE_NUMSLOTS != FILLED_SLOTS
 #error export slot count mismatch

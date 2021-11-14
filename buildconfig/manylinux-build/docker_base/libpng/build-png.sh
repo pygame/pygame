@@ -10,6 +10,12 @@ sha512sum -c png.sha512
 
 tar xzf ${PNG}.tar.gz
 cd $PNG
-./configure
+
+./configure --with-zlib-prefix=/usr/local/ $ARCHS_CONFIG_FLAG
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

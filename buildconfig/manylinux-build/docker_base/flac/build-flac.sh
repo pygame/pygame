@@ -12,6 +12,12 @@ sha512sum -c flac.sha512
 unxz ${FLAC}.tar.xz
 tar xf ${FLAC}.tar
 cd $FLAC
-./configure
+
+./configure $ARCHS_CONFIG_FLAG
 make
 make install
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Install to mac deps cache dir as well
+    make install DESTDIR=${MACDEP_CACHE_PREFIX_PATH}
+fi

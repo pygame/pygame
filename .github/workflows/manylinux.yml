@@ -14,7 +14,7 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/build.yml'
-    - '.github/workflows/sdl1-sdist.yml'
+    - '.github/workflows/ubuntu-sdist.yml'
 
   pull_request:
     branches: main
@@ -24,7 +24,7 @@ on:
     - '.gitignore'
     - 'README.rst'
     - '.github/workflows/build.yml'
-    - '.github/workflows/sdl1-sdist.yml'
+    - '.github/workflows/ubuntu-sdist.yml'
 
 jobs:
   build-manylinux:
@@ -33,12 +33,14 @@ jobs:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         arch: ['x64', 'x86', 'aarch64']
-        tag: ['-', '-manylinux-'] # one tag for CPython builds, and another for PyPy
+        tag: ['manylinux1', 'manylinux2010', 'manylinux2014']
 
         exclude:
-          # no pypy builds on aarch64 for now
+          # aarch64 only with manylinux2014 for now
           - arch: 'aarch64'
-            tag: '-manylinux-'
+            tag: 'manylinux1'
+          - arch: 'aarch64'
+            tag: 'manylinux2010'
 
     steps:
     - uses: actions/checkout@v2.3.4
@@ -52,7 +54,7 @@ jobs:
     - name: Build manylinux wheels
       run: |
         cd buildconfig/manylinux-build
-        make pull${{ matrix.tag }}${{ matrix.arch }} wheels${{ matrix.tag }}${{ matrix.arch }}
+        make pull-${{ matrix.tag }}-${{ matrix.arch }} wheels-${{ matrix.tag }}-${{ matrix.arch }}
         cd ../..
         mkdir -p dist/
         cp buildconfig/manylinux-build/wheelhouse/*.whl dist/

@@ -1253,7 +1253,7 @@ class TransformDisplayModuleTest(unittest.TestCase):
     def test_flip(self):
         """ honors the set_color key on the returned surface from flip.
         """
-        image_loaded = pygame.image.load(example_path("data/chimp.bmp"))
+        image_loaded = pygame.image.load(example_path("data/chimp.png"))
 
         image = pygame.Surface(image_loaded.get_size(), 0, 32)
         image.blit(image_loaded, (0, 0))
@@ -1298,7 +1298,7 @@ class TransformDisplayModuleTest(unittest.TestCase):
     def test_flip_alpha(self):
         """ returns a surface with the same properties as the input.
         """
-        image_loaded = pygame.image.load(example_path("data/chimp.bmp"))
+        image_loaded = pygame.image.load(example_path("data/chimp.png"))
 
         image_alpha = pygame.Surface(image_loaded.get_size(), pygame.SRCALPHA, 32)
         image_alpha.blit(image_loaded, (0, 0))

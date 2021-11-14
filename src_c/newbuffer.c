@@ -19,7 +19,6 @@
 */
 
 #include "pygame.h"
-#include <Python.h>
 
 #include "pgcompat.h"
 
@@ -982,7 +981,6 @@ MODINIT_DEFINE(newbuffer)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "newbuffer",
                                          newbuffer_doc,
@@ -992,7 +990,6 @@ MODINIT_DEFINE(newbuffer)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* prepare exported types */
     if (PyType_Ready(&Py_buffer_Type) < 0) {
@@ -1005,11 +1002,7 @@ MODINIT_DEFINE(newbuffer)
 #define bufferproxy_docs ""
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3("newbuffer", 0, newbuffer_doc);
-#endif
 
     Py_INCREF(&BufferMixin_Type);
     if (PyModule_AddObject(module, "BufferMixin",

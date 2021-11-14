@@ -135,8 +135,6 @@ def main(*args):
     print("Press any key to quit")
     pg.init()
     screen = pg.display.set_mode((640, 480))
-    if any("fist.bmp" in x for x in args):
-        pg.display.set_caption("Punch Nazis")
     images = []
     masks = []
     for impath in args:
@@ -206,7 +204,7 @@ if __name__ == "__main__":
         print("Let many copies of IMAGE(s) bounce against each other")
         print("Press any key to quit")
         main_dir = os.path.split(os.path.abspath(__file__))[0]
-        imagename = os.path.join(main_dir, "data", "fist.bmp")
+        imagename = os.path.join(main_dir, "data", "chimp.png")
         main(imagename)
 
     else:

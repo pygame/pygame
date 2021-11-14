@@ -44,18 +44,20 @@
 #define FONT_HAVE_RWOPS 0
 #endif
 
-#if PY3
+#ifndef SDL_TTF_VERSION_ATLEAST
+#define SDL_TTF_COMPILEDVERSION \
+    SDL_VERSIONNUM(SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL)
+#define SDL_TTF_VERSION_ATLEAST(X, Y, Z) \
+    (SDL_TTF_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
+#endif
+
 #define RAISE_TEXT_TYPE_ERROR() \
     RAISE(PyExc_TypeError, "text must be a unicode or bytes");
-#else
-#define RAISE_TEXT_TYPE_ERROR() \
-    RAISE(PyExc_TypeError, "text must be a string or unicode");
-#endif
 
 /* For filtering out UCS-4 and larger characters when Python is
  * built with Py_UNICODE_WIDE.
  */
-#if PY2 && !defined(Py_UNICODE_IS_SURROGATE) || defined(PYPY_VERSION)
+#if defined(PYPY_VERSION)
 #define Py_UNICODE_IS_SURROGATE(ch) (0xD800 <= (ch) && (ch) <= 0xDFFF)
 #endif
 
@@ -65,6 +67,7 @@ PyFont_New(TTF_Font *);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
+static unsigned int current_ttf_generation = 0;
 static const char font_defaultname[] = "freesansbold.ttf";
 static const char pkgdatamodule_name[] = "pygame.pkgdata";
 static const char resourcefunc_name[] = "getResource";
@@ -131,7 +134,6 @@ font_resource(const char *filename)
         return NULL;
     }
 
-#if PY3
     tmp = PyObject_GetAttrString(result, "name");
     if (tmp != NULL) {
         PyObject *closeret;
@@ -147,24 +149,6 @@ font_resource(const char *filename)
     else if (!PyErr_ExceptionMatches(PyExc_MemoryError)) {
         PyErr_Clear();
     }
-#else
-    if (PyFile_Check(result)) {
-        PyObject *closeret;
-
-        tmp = PyFile_Name(result);
-        Py_INCREF(tmp);
-
-        if (!(closeret = PyObject_CallMethod(result, "close", NULL))) {
-            Py_DECREF(result);
-            Py_DECREF(tmp);
-            return NULL;
-        }
-        Py_DECREF(closeret);
-
-        Py_DECREF(result);
-        result = tmp;
-    }
-#endif
 
     tmp = pg_EncodeString(result, "UTF-8", NULL, NULL);
     if (tmp == NULL) {
@@ -200,6 +184,7 @@ fontmodule_quit(PyObject *self)
     if (font_initialized) {
         TTF_Quit();
         font_initialized = 0;
+        current_ttf_generation++;
     }
     Py_RETURN_NONE;
 }
@@ -295,11 +280,7 @@ font_set_bold(PyObject *self, PyObject *args)
 {
     TTF_Font *font = PyFont_AsFont(self);
     int val;
-#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
-#else
-    if (!PyArg_ParseTuple(args, "i", &val))
-#endif /* PY3 */
         return NULL;
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_BOLD, val);
@@ -346,11 +327,7 @@ font_set_italic(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int val;
 
-#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
-#else
-    if (!PyArg_ParseTuple(args, "i", &val))
-#endif /* PY3 */
         return NULL;
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_ITALIC, val);
@@ -397,11 +374,7 @@ font_set_underline(PyObject *self, PyObject *args)
     TTF_Font *font = PyFont_AsFont(self);
     int val;
 
-#if PY3
     if (!PyArg_ParseTuple(args, "p", &val))
-#else
-    if (!PyArg_ParseTuple(args, "i", &val))
-#endif /* PY3 */
         return NULL;
 
     _font_set_or_clear_style_flag(font, TTF_STYLE_UNDERLINE, val);
@@ -421,17 +394,10 @@ font_render(PyObject *self, PyObject *args)
     SDL_Color foreg, backg;
     int just_return;
 
-#if PY3
     if (!PyArg_ParseTuple(args, "OpO|O", &text, &aa, &fg_rgba_obj,
                           &bg_rgba_obj)) {
         return NULL;
     }
-#else
-    if (!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj,
-                          &bg_rgba_obj)) {
-        return NULL;
-    }
-#endif /* PY3 */
 
     if (!pg_RGBAFromFuzzyColorObj(fg_rgba_obj, rgba)) {
         /* Exception already set for us */
@@ -440,11 +406,7 @@ font_render(PyObject *self, PyObject *args)
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
-#if IS_SDLv1
-    foreg.unused = 0;
-#else  /* IS_SDLv2 */
     foreg.a = SDL_ALPHA_OPAQUE;
-#endif /* IS_SDLv2 */
     if (bg_rgba_obj == Py_None) {
         /* Explicit None is the same as not passing a color for us */
         bg_rgba_obj = NULL;
@@ -458,22 +420,14 @@ font_render(PyObject *self, PyObject *args)
             backg.r = rgba[0];
             backg.g = rgba[1];
             backg.b = rgba[2];
-#if IS_SDLv1
-            backg.unused = 0;
-#else  /* IS_SDLv2 */
             backg.a = SDL_ALPHA_OPAQUE;
-#endif /* IS_SDLv2 */
         }
     }
     else {
         backg.r = 0;
         backg.g = 0;
         backg.b = 0;
-#if IS_SDLv1
-        backg.unused = 0;
-#else  /* IS_SDLv2 */
         backg.a = SDL_ALPHA_OPAQUE;
-#endif /* IS_SDLv2 */
     }
 
     just_return = PyObject_Not(text);
@@ -511,12 +465,14 @@ font_render(PyObject *self, PyObject *args)
             return RAISE(PyExc_ValueError,
                          "A null character was found in the text");
         }
+#if !SDL_TTF_VERSION_ATLEAST(2, 0, 15)
         if (utf_8_needs_UCS_4(astring)) {
             Py_DECREF(bytes);
             return RAISE(PyExc_UnicodeError,
                          "A Unicode character above '\\uFFFF' was found;"
-                         " not supported");
+                         " not supported with SDL_ttf version below 2.0.15");
         }
+#endif
         if (aa) {
             if (bg_rgba_obj == NULL) {
                 surf = TTF_RenderUTF8_Blended(font, astring, foreg);
@@ -730,9 +686,16 @@ static void
 font_dealloc(PyFontObject *self)
 {
     TTF_Font *font = PyFont_AsFont(self);
-
-    if (font && font_initialized)
+    if (font && font_initialized) {
+        if (self->ttf_init_generation != current_ttf_generation) {
+            // Since TTF_Font is a private structure
+            // it's impossible to access face field in a common way.
+            int** face_pp = font;
+            *face_pp = NULL;
+        }
         TTF_CloseFont(font);
+        self->font = NULL;
+    }
 
     if (self->weakreflist)
         PyObject_ClearWeakRefs((PyObject *)self);
@@ -898,6 +861,7 @@ success:
     Py_XDECREF(oencoded);
     Py_DECREF(obj);
     self->font = font;
+    self->ttf_init_generation = current_ttf_generation;
     return 0;
 
 error:
@@ -983,7 +947,6 @@ MODINIT_DEFINE(font)
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_FONT_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "font",
                                          DOC_PYGAMEFONT,
@@ -993,7 +956,6 @@ MODINIT_DEFINE(font)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1021,11 +983,7 @@ MODINIT_DEFINE(font)
     }
     PyFont_Type.tp_new = PyType_GenericNew;
 
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "font", _font_methods, DOC_PYGAMEFONT);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
@@ -1044,6 +1002,14 @@ MODINIT_DEFINE(font)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 15)
+    /* So people can check for UCS4 support. */
+    if (PyModule_AddIntConstant(module, "UCS4", 1)) {
+        DECREF_MOD(module);
+        MODINIT_ERROR;
+    }
+#endif
 
     /* export the c api */
     c_api[0] = &PyFont_Type;

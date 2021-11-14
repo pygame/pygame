@@ -206,6 +206,16 @@ class FontModuleTest(unittest.TestCase):
 
         self.assertEqual(pre_blit_corner_pixel, post_blit_corner_pixel)
 
+    def test_segfault_after_reinit(self):
+        """ Reinitialization of font module should not cause
+            segmentation fault """
+        import gc
+        font = pygame_font.Font(None, 20)
+        pygame_font.quit()
+        pygame_font.init()
+        del font
+        gc.collect()
+
     def test_quit(self):
         pygame_font.quit()
 
@@ -387,20 +397,22 @@ class FontTypeTest(unittest.TestCase):
         else:
             self.assertFalse(equal_images(su, sb))
 
-        # If the font module is SDL_ttf based, then it can only supports  UCS-2;
-        # it will raise an exception for an out-of-range UCS-4 code point.
-        if UCS_4 and not hasattr(f, "ucs4"):
-            ucs_2 = as_unicode(r"\uFFEE")
-            s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
-            ucs_4 = as_unicode(r"\U00010000")
-            self.assertRaises(
-                UnicodeError, f.render, ucs_4, False, [0, 0, 0], [255, 255, 255]
-            )
-
         b = as_bytes("ab\x00cd")
         self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
         u = as_unicode("ab\x00cd")
         self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
+
+    def test_render_ucs2_ucs4(self):
+        """ that it renders without raising if there is a new enough SDL_ttf.
+        """
+        f = pygame_font.Font(None, 20)
+        # If the font module is SDL_ttf < 2.0.15 based, then it only supports UCS-2
+        # it will raise an exception for an out-of-range UCS-4 code point.
+        if UCS_4 and hasattr(pygame_font, "UCS_4"):
+            ucs_2 = as_unicode(r"\uFFEE")
+            s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
+            ucs_4 = as_unicode(r"\U00010000")
+            s = f.render(ucs_4, False, [0, 0, 0], [255, 255, 255])
 
     def test_set_bold(self):
         f = pygame_font.Font(None, 20)

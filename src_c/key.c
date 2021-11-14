@@ -43,13 +43,8 @@ key_set_repeat(PyObject *self, PyObject *args)
     if (delay && !interval)
         interval = delay;
 
-#if IS_SDLv1
-    if (SDL_EnableKeyRepeat(delay, interval) == -1)
-        return RAISE(pgExc_SDLError, SDL_GetError());
-#else  /* IS_SDLv2 */
     if (pg_EnableKeyRepeat(delay, interval) == -1)
         return NULL;
-#endif /* IS_SDLv2 */
 
     Py_RETURN_NONE;
 }
@@ -61,11 +56,7 @@ key_get_repeat(PyObject *self, PyObject *args)
     int delay = 0, interval = 0;
 
     VIDEO_INIT_CHECK();
-#if IS_SDLv1
-    SDL_GetKeyRepeat(&delay, &interval);
-#else  /* IS_SDLv2 */
     pg_GetKeyRepeat(&delay, &interval);
-#endif /* IS_SDLv2 */
     return Py_BuildValue("(ii)", delay, interval);
 }
 #else  /* not SDL_VERSION_ATLEAST(1, 2, 10) */
@@ -77,7 +68,6 @@ key_get_repeat(PyObject *self, PyObject *args)
 #endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
 
 
-#if IS_SDLv2
 /*
 * pgScancodeWrapper is for key_get_pressed in SDL2.
 * It converts key symbol indices to scan codes, as suggested in
@@ -116,12 +106,7 @@ static PyObject*
 pg_scancodewrapper_repr(pgScancodeWrapper *self)
 {
     PyObject *baserepr = PyTuple_Type.tp_repr((PyObject *)self);
-#if PY3
     PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%S", baserepr);
-#else /* PY2 */
-    PyObject *ret = Text_FromFormat(_PG_SCANCODEWRAPPER_TYPE_FULLNAME "%s",
-                                    PyString_AsString(baserepr));
-#endif /* PY2 */
     Py_DECREF(baserepr);
     return ret;
 }
@@ -167,28 +152,19 @@ static PyTypeObject pgScancodeWrapper_Type = {
     0,                                        /* tp_alloc */
     0                                         /* tp_new */
 };
-#endif /* IS_SDLv2 */
 
 static PyObject *
 key_get_pressed(PyObject *self, PyObject *args)
 {
     int num_keys;
-#if IS_SDLv1
-    Uint8 *key_state;
-#else
     const Uint8 *key_state;
     PyObject *ret_obj = NULL;
-#endif
     PyObject *key_tuple;
     int i;
 
     VIDEO_INIT_CHECK();
 
-#if IS_SDLv1
-    key_state = SDL_GetKeyState(&num_keys);
-#else  /* IS_SDLv2 */
     key_state = SDL_GetKeyboardState(&num_keys);
-#endif /* IS_SDLv2 */
 
     if (!key_state || !num_keys)
         Py_RETURN_NONE;
@@ -206,17 +182,12 @@ key_get_pressed(PyObject *self, PyObject *args)
         PyTuple_SET_ITEM(key_tuple, i, key_elem);
     }
 
-#if IS_SDLv1
-    return key_tuple;
-#else
     ret_obj = PyObject_CallFunctionObjArgs((PyObject *)&pgScancodeWrapper_Type,
                                            key_tuple, NULL);
     Py_DECREF(key_tuple);
     return ret_obj;
-#endif
 }
 
-#if IS_SDLv2
 /* keep our own table for backward compatibility */
 static const char *SDL1_scancode_names[SDL_NUM_SCANCODES] = {
     NULL, NULL, NULL, NULL,
@@ -693,7 +664,6 @@ _get_keycode_name(SDL_Keycode key)
     }
 }
 
-#endif /* IS_SDLv2 */
 
 static PyObject *
 key_name(PyObject *self, PyObject *args)
@@ -703,20 +673,14 @@ key_name(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &key))
         return NULL;
 
-#if IS_SDLv2
     return Text_FromUTF8(_get_keycode_name(key));
-#else
-    return Text_FromUTF8(SDL_GetKeyName(key));
-#endif
 }
 
 static PyObject *
 key_code(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     const char * name;
-#if IS_SDLv2
     SDL_Keycode code;
-#endif
 
     static char *kwids[] = {
         "name",
@@ -726,10 +690,6 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", kwids, &name))
         return NULL;
 
-#if IS_SDLv1
-    PyErr_SetString(PyExc_NotImplementedError, "not supported with SDL 1");
-    return 0;
-#else
     code = SDL_GetKeyFromName(name);
     if (code != SDLK_UNKNOWN){
         return PyInt_FromLong(code);
@@ -740,7 +700,6 @@ key_code(PyObject *self, PyObject *args, PyObject *kwargs)
         return 0;
     }
 
-#endif
 
 }
 
@@ -771,30 +730,22 @@ key_get_focused(PyObject *self, PyObject *args)
 {
     VIDEO_INIT_CHECK();
 
-#if IS_SDLv1
-    return PyBool_FromLong((SDL_GetAppState() & SDL_APPINPUTFOCUS) != 0);
-#else  /* IS_SDLv2 */
     return PyBool_FromLong(SDL_GetKeyboardFocus() != NULL);
-#endif /* IS_SDLv2 */
 }
 
 static PyObject *
 key_start_text_input(PyObject *self, PyObject *args)
 {
-#if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StartTextInput */
     SDL_StartTextInput();
-#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
 static PyObject *
 key_stop_text_input(PyObject *self, PyObject *args)
 {
-#if IS_SDLv2
     /* https://wiki.libsdl.org/SDL_StopTextInput */
     SDL_StopTextInput();
-#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
@@ -802,7 +753,6 @@ static PyObject *
 key_set_text_input_rect(PyObject *self, PyObject *obj)
 {
     /* https://wiki.libsdl.org/SDL_SetTextInputRect */
-#if IS_SDLv2
     SDL_Rect *rect, temp;
     SDL_Window *sdlWindow = pg_GetDefaultWindow();
     SDL_Renderer *sdlRenderer = SDL_GetRenderer(sdlWindow);
@@ -833,7 +783,6 @@ key_set_text_input_rect(PyObject *self, PyObject *obj)
 
     SDL_SetTextInputRect(rect);
 
-#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
@@ -862,7 +811,6 @@ MODINIT_DEFINE(key)
 {
     PyObject *module;
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "key",
                                          DOC_PYGAMEKEY,
@@ -872,7 +820,6 @@ MODINIT_DEFINE(key)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -881,7 +828,6 @@ MODINIT_DEFINE(key)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-#if IS_SDLv2
     import_pygame_rect();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
@@ -895,19 +841,13 @@ MODINIT_DEFINE(key)
     if (PyType_Ready(&pgScancodeWrapper_Type) < 0) {
         MODINIT_ERROR;
     }
-#endif /* IS_SDLv2 */
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "key", _key_methods, DOC_PYGAMEKEY);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
 
-#if IS_SDLv2
     Py_INCREF((PyObject*)&pgScancodeWrapper_Type);
     if (PyModule_AddObject(module, _PG_SCANCODEWRAPPER_TYPE_NAME,
                            (PyObject*)&pgScancodeWrapper_Type) == -1) {
@@ -917,7 +857,6 @@ MODINIT_DEFINE(key)
     }
 
     _use_sdl1_key_names();
-#endif /* IS_SDLv2 */
 
     MODINIT_RETURN(module);
 }

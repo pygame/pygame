@@ -1,0 +1,80 @@
+name: Ubuntu sdist
+
+# Run CI only when a release is created, on changes to main branch, or any PR 
+# to main. Do not run CI on any other branch. Also, skip any non-source changes 
+# from running on CI
+on:
+  release:
+    types: [created]
+  push:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/build.yml'
+    - '.github/workflows/manylinux.yml'
+
+  pull_request:
+    branches: main
+    paths-ignore:
+    - 'docs/**'
+    - 'examples/**'
+    - '.gitignore'
+    - 'README.rst'
+    - '.github/workflows/build.yml'
+    - '.github/workflows/manylinux.yml'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}  
+    strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04]
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Install deps
+      run: |
+        sudo apt-get update --fix-missing
+        sudo apt-get upgrade
+        sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev libjpeg8-dev python3-setuptools python3-dev python3-numpy
+
+    - name: Make sdist and install it
+      run: |
+        python3 setup.py sdist
+        pip3 install dist/pygame-*.tar.gz -vv
+
+    - name: Run tests
+      env:
+        SDL_VIDEODRIVER: "dummy"
+        SDL_AUDIODRIVER: "disk"
+      run: python3 -m pygame.tests -v --exclude opengl,timing --time_out 300
+
+    # We upload the generated files under github actions assets
+    - name: Upload sdist
+      if: matrix.os == 'ubuntu-18.04' # upload sdist only once
+      uses: actions/upload-artifact@v2
+      with:
+        name: pygame-sdist
+        path: dist/*.tar.gz
+
+#   - name: Upload binaries to Github Releases
+#     if: github.event_name == 'release' && matrix.os == 'ubuntu-18.04' # upload sdist only once
+#     uses: svenstaro/upload-release-action@v2
+#     with:
+#       repo_token: ${{ secrets.GITHUB_TOKEN }}
+#       file: dist/*.tar.gz
+#       tag: ${{ github.ref }}
+#
+#   - name: Upload binaries to PyPI
+#     if: github.event_name == 'release' && matrix.os == 'ubuntu-18.04' # upload sdist only once
+#     env:
+#      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#     run: |
+#       python3 -m pip install twine
+#       twine upload dist/*.tar.gz

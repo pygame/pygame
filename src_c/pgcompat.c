@@ -43,5 +43,5 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
     return NULL;
 }
 
-#endif
-#endif
+#endif /*if !(SDL_VERSION_ATLEAST(2, 0, 5))*/
+#endif /*if defined(SDL_VERSION_ATLEAST)*/

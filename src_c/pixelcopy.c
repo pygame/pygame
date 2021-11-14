@@ -23,19 +23,13 @@
 #include <stddef.h>
 #include "pygame.h"
 
-#if IS_SDLv2
 #include "palette.h"
-#endif /* IS_SDLv2 */
 
 #include "pgcompat.h"
 
 #include "doc/pixelcopy_doc.h"
 
-#if IS_SDLv1
-#include <SDL_byteorder.h>
-#else /* IS_SDLv2 */
 #include <SDL_endian.h>
-#endif /* IS_SDLv2 */
 
 typedef enum {
     VIEWKIND_RED,
@@ -134,21 +128,12 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
     _pc_view_kind_t *view_kind_ptr = (_pc_view_kind_t *)view_kind_vptr;
 
     if (PyUnicode_Check(obj)) {
-#if PY2
-        if (PyUnicode_GET_SIZE(obj) != 1) {
-            PyErr_SetString(PyExc_TypeError,
-                            "expected a length 1 string for argument 3");
-            return 0;
-        }
-        ch = *PyUnicode_AS_UNICODE(obj);
-#else
         if (PyUnicode_GET_LENGTH(obj) != 1) {
             PyErr_SetString(PyExc_TypeError,
                             "expected a length 1 string for argument 3");
             return 0;
         }
         ch = PyUnicode_READ_CHAR(obj, 0);
-#endif
     }
     else if (Bytes_Check(obj)) {
         if (Bytes_GET_SIZE(obj) != 1) {
@@ -268,11 +253,7 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
 {
     SDL_PixelFormat *format = surf->format;
     int pixelsize = surf->format->BytesPerPixel;
-#if IS_SDLv1
-    Uint32 flags = surf->flags;
-#else /* IS_SDLv2 */
     SDL_BlendMode mode;
-#endif /* IS_SDLv2 */
     int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
     char *dst = (char *)view_p->buf;
@@ -302,12 +283,10 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
                      intsize);
         return -1;
     }
-#if IS_SDLv2
     if (SDL_GetSurfaceBlendMode(surf, &mode) < 0) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
         return -1;
     }
-#endif
     /* Select appropriate color plane element within the pixel */
     switch (view_kind) {
         case VIEWKIND_RED:
@@ -338,13 +317,8 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
         dz_dst = -1;
     }
 #endif
-#if IS_SDLv1
-    if (view_kind == VIEWKIND_COLORKEY && flags & SDL_SRCCOLORKEY) {
-        colorkey = format->colorkey;
-#else  /* IS_SDLv2 */
     if (view_kind == VIEWKIND_COLORKEY &&
         SDL_GetColorKey(surf, &colorkey) == 0) {
-#endif /* IS_SDLv2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
                 for (z = 0; z < pixelsize; ++z) {
@@ -358,13 +332,8 @@ _copy_colorplane(Py_buffer *view_p, SDL_Surface *surf,
             }
         }
     }
-#if IS_SDLv1
-    else if ((view_kind != VIEWKIND_COLORKEY) &&
-             (view_kind != VIEWKIND_ALPHA || flags & SDL_SRCALPHA)) {
-#else  /* IS_SDLv2 */
     else if ((view_kind != VIEWKIND_COLORKEY) &&
              (view_kind != VIEWKIND_ALPHA || mode != SDL_BLENDMODE_NONE)) {
-#endif /* IS_SDLv2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
                 for (z = 0; z < pixelsize; ++z) {
@@ -1173,15 +1142,9 @@ make_surface(PyObject *self, PyObject *arg)
 
     if (view_p->ndim == 2) {
         bitsperpixel = 8;
-#if IS_SDLv1
-        rmask = 0xFF >> 6 << 5;
-        gmask = 0xFF >> 5 << 2;
-        bmask = 0xFF >> 6;
-#else  /* IS_SDLv2 */
         rmask = 0;
         gmask = 0;
         bmask = 0;
-#endif /* IS_SDLv2 */
     }
     else {
         bitsperpixel = 32;
@@ -1198,7 +1161,6 @@ make_surface(PyObject *self, PyObject *arg)
         pgBuffer_Release(&pg_view);
         return RAISE(pgExc_SDLError, SDL_GetError());
     }
-#if IS_SDLv2
     if (SDL_ISPIXELFORMAT_INDEXED(surf->format->format)) {
         /* Give the surface something other than an all white palette.
          *          */
@@ -1209,7 +1171,6 @@ make_surface(PyObject *self, PyObject *arg)
             return 0;
         }
     }
-#endif /* IS_SDLv2 */
     surfobj = pgSurface_New(surf);
     if (!surfobj) {
         pgBuffer_Release(&pg_view);
@@ -1247,7 +1208,6 @@ static PyMethodDef _pixelcopy_methods[] = {
 
 MODINIT_DEFINE(pixelcopy)
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "pixelcopy",
                                          DOC_PYGAMEPIXELCOPY,
@@ -1257,7 +1217,6 @@ MODINIT_DEFINE(pixelcopy)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1271,9 +1230,5 @@ MODINIT_DEFINE(pixelcopy)
         MODINIT_ERROR;
     }
 
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3("pixelcopy", _pixelcopy_methods, DOC_PYGAMEPIXELCOPY);
-#endif
 }

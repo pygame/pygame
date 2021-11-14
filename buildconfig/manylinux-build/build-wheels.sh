@@ -1,14 +1,15 @@
 #!/bin/bash
 set -e -x
 
-if [ `uname -m` == "aarch64" ]; then
-   export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39" 
-else
-   export SUPPORTED_PYTHONS="cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39" 
-fi
 
 if [[ "$1" == "buildpypy" ]]; then
-	export SUPPORTED_PYTHONS="pp27-pypy_75 pp37-pypy37_pp75"
+    export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 pp37-pypy37_pp75"
+else
+    if [ `uname -m` == "aarch64" ]; then
+       export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
+    else
+       export SUPPORTED_PYTHONS="cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
+    fi
 fi
 
 

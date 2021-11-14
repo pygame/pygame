@@ -65,12 +65,8 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PYGAME_MIXER_DEFAULT_SIZE -16
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
 #define PYGAME_MIXER_DEFAULT_CHUNKSIZE 512
-#if IS_SDLv2
 #define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | \
                                             SDL_AUDIO_ALLOW_CHANNELS_CHANGE
-#else
-#define PYGAME_MIXER_DEFAULT_ALLOWEDCHANGES -1
-#endif
 
 static int
 sound_init(PyObject *, PyObject *, PyObject *);
@@ -123,14 +119,12 @@ _format_itemsize(Uint16 format)
         case AUDIO_S16MSB:
             size = 2;
             break;
-#if IS_SDLv2
         case AUDIO_S32LSB:
         case AUDIO_S32MSB:
         case AUDIO_F32LSB:
         case AUDIO_F32MSB:
             size = 4;
             break;
-#endif
         default:
             PyErr_Format(PyExc_SystemError,
                          "Pygame bug (mixer.Sound): unknown mixer format %d",
@@ -281,11 +275,7 @@ _pg_push_mixer_event(int type, int code)
 
         if (e) {
             pgEvent_FillUserEvent(e, &event);
-#if IS_SDLv1
-            if (SDL_PushEvent(&event) < 0)
-#else
             if (SDL_PushEvent(&event) <= 0)
-#endif
                 Py_DECREF(dict);
             Py_DECREF(e);
         }
@@ -355,9 +345,6 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
     if (!channels) {
         channels = request_channels;
     }
-#if IS_SDLv1
-    channels = channels <= 1 ? 1 : 2;
-#else /* IS_SDLv2 */
     if (allowedchanges & SDL_AUDIO_ALLOW_CHANNELS_CHANGE) {
         if (channels <= 1)
             channels = 1;
@@ -378,7 +365,6 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
                 return RAISE(PyExc_ValueError, "'channels' must be 1, 2, 4, or 6");
         }
     }
-#endif /* IS_SDLv2 */
 
     if (!chunk) {
         chunk = request_chunksize;
@@ -403,11 +389,9 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         case -16:
             fmt = AUDIO_S16SYS;
             break;
-#if IS_SDLv2
         case 32:
             fmt = AUDIO_F32SYS;
             break;
-#endif
         default:
             PyErr_Format(PyExc_ValueError, "unsupported size %i", size);
             return NULL;
@@ -435,7 +419,6 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
             }
         }
 
-#if IS_SDLv2
         /* Compatibility:
             pulse and dsound audio drivers were renamed in SDL2,
             and we don't want it to fail.
@@ -447,7 +430,6 @@ _init(int freq, int size, int channels, int chunk, char *devicename, int allowed
         else if (drivername && SDL_strncasecmp("dsound", drivername, SDL_strlen(drivername)) == 0) {
             SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
         }
-#endif
 
         if (SDL_InitSubSystem(SDL_INIT_AUDIO))
             return RAISE(pgExc_SDLError, SDL_GetError());
@@ -536,8 +518,8 @@ quit(PyObject *self)
 
         Py_BEGIN_ALLOW_THREADS;
         Mix_CloseAudio();
-        Py_END_ALLOW_THREADS;
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        Py_END_ALLOW_THREADS;
     }
     Py_RETURN_NONE;
 }
@@ -732,11 +714,9 @@ snd_get_length(PyObject *self, PyObject *args)
     Mix_QuerySpec(&freq, &format, &channels);
     if (format == AUDIO_S8 || format == AUDIO_U8)
         mixerbytes = 1;
-#if IS_SDLv2
     else if (format == AUDIO_F32 || format == AUDIO_F32LSB || format == AUDIO_F32MSB){
         mixerbytes = 4;
     }
-#endif
     else
         mixerbytes = 2;
     numsamples = chunk->alen / mixerbytes / channels;
@@ -842,12 +822,10 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
     static char fmt_AUDIO_U16SYS[] = "=H";
     static char fmt_AUDIO_S16SYS[] = "=h";
 
-#if IS_SDLv2
     static char fmt_AUDIO_S32LSB[] = "<i";
     static char fmt_AUDIO_S32MSB[] = ">i";
     static char fmt_AUDIO_F32LSB[] = "<f";
     static char fmt_AUDIO_F32MSB[] = ">f";
-#endif
 
     int freq = 0;
     Uint16 mixer_format = 0;
@@ -875,7 +853,6 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
             *itemsize = 2;
             return 0;
 
-#if IS_SDLv2
         case AUDIO_S32LSB:
             *format = fmt_AUDIO_S32LSB;
             *itemsize = 4;
@@ -895,7 +872,6 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
             *format = fmt_AUDIO_F32MSB;
             *itemsize = 4;
             return 0;
-#endif
     }
 
     PyErr_Format(PyExc_SystemError,
@@ -1783,11 +1759,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         rw = pgRWops_FromObject(file);
 
         if (rw == NULL) {
-#if PY3
             if (obj) {
-#else
-            if (obj && PyErr_ExceptionMatches(PyExc_TypeError)) {
-#endif
                 /* use 'buffer' as fallback for single arg */
                 PyErr_Clear();
                 goto LOAD_BUFFER;
@@ -1818,12 +1790,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
 LOAD_BUFFER:
 
-#if PY2
-    if (!chunk && buffer && /* conditional and */
-        PyObject_CheckBuffer(buffer)) {
-#else
     if (!chunk && buffer) {
-#endif
         Py_buffer view;
         int rcode;
 
@@ -1849,30 +1816,6 @@ LOAD_BUFFER:
         }
     }
 
-#if PY2
-    if (chunk == NULL && buffer != NULL) {
-        const void *buf = NULL;
-        Py_ssize_t buflen = 0;
-
-        if (PyObject_AsReadBuffer(buffer, &buf, &buflen)) {
-            if (obj != NULL) {
-                PyErr_Clear();
-            }
-            else {
-                PyErr_Format(PyExc_TypeError,
-                             "Expected object with buffer interface: got a %s",
-                             Py_TYPE(buffer)->tp_name);
-                return -1;
-            }
-        }
-        else {
-            if (_chunk_from_buf(buf, buflen, &chunk, &mem)) {
-                return -1;
-            }
-            ((pgSoundObject *)self)->mem = mem;
-        }
-    }
-#endif
 
     if (array != NULL) {
         pg_buffer pg_view;
@@ -1984,7 +1927,6 @@ MODINIT_DEFINE(mixer)
     int ecode;
     static void *c_api[PYGAMEAPI_MIXER_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "mixer",
                                          DOC_PYGAMEMIXER,
@@ -1994,7 +1936,6 @@ MODINIT_DEFINE(mixer)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2024,12 +1965,7 @@ MODINIT_DEFINE(mixer)
 
     /* create the module */
     pgSound_Type.tp_new = &PyType_GenericNew;
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "mixer", _mixer_methods, DOC_PYGAMEMIXER);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

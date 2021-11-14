@@ -72,19 +72,11 @@ static SDL_mutex *_pg_img_mutex = 0;
 #endif /* WITH_THREAD */
 
 #ifdef WIN32
-
 #include <windows.h>
-
-#if IS_SDLv1
-#define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.win32io.h) ? 0 : -1)
-#else /* IS_SDLv2 */
 #define pg_RWflush(rwops) (FlushFileBuffers((HANDLE)(rwops)->hidden.windowsio.h) ? 0 : -1)
-#endif /* IS_SDLv2 */
 
 #else /* ~WIN32 */
-
 #define pg_RWflush(rwops) (fflush((rwops)->hidden.stdio.fp) ? -1 : 0)
-
 #endif /* ~WIN32 */
 
 static const char *
@@ -108,127 +100,44 @@ image_load_ext(PyObject *self, PyObject *arg)
 {
     PyObject *obj;
     PyObject *final;
-    PyObject *oencoded;
-    PyObject *oname;
-    size_t namelen;
     const char *name = NULL;
-    const char *cext;
     char *ext = NULL;
     SDL_Surface *surf;
-    SDL_RWops *rw;
+    SDL_RWops *rw = NULL;
+    int lock_mutex = 0;
 
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
     }
 
-    oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
-    if (oencoded == NULL) {
+    rw = pgRWops_FromObject(obj);
+    if (rw == NULL) /* stop on NULL, error already set */
         return NULL;
-    }
-    if (oencoded != Py_None) {
-        name = Bytes_AS_STRING(oencoded);
+    ext = pgRWops_GetFileExtension(rw);
+    if (name) /* override extension with namehint if given */
+        ext = find_extension(name);
+
 #ifdef WITH_THREAD
-        namelen = Bytes_GET_SIZE(oencoded);
-        Py_BEGIN_ALLOW_THREADS;
-        if (namelen > 4 && !strcasecmp(name + namelen - 4, ".gif")) {
-            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
-            SDL_LockMutex(_pg_img_mutex);
-            surf = IMG_Load(name);
-            SDL_UnlockMutex(_pg_img_mutex);
-        }
-        else {
-            surf = IMG_Load(name);
-        }
-        Py_END_ALLOW_THREADS;
-#else /* ~WITH_THREAD */
-        surf = IMG_Load(name);
-#endif /* WITH_THREAD */
-        Py_DECREF(oencoded);
+    if (ext)
+        lock_mutex = !strcasecmp(ext, "gif");
+    Py_BEGIN_ALLOW_THREADS;
+    if (0) {
+        /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
+        SDL_LockMutex(_pg_img_mutex);
+        surf = IMG_LoadTyped_RW(rw, 1, ext);
+        SDL_UnlockMutex(_pg_img_mutex);
     }
     else {
-#ifdef WITH_THREAD
-        int lock_mutex = 0;
-#endif /* WITH_THREAD */
-        Py_DECREF(oencoded);
-        oencoded = NULL;
-#if PY2
-        if (name == NULL && PyFile_Check(obj)) {
-            oencoded = PyFile_Name(obj);
-            if (oencoded == NULL) {
-                /* This should never happen */
-                return NULL;
-            }
-            Py_INCREF(oencoded);
-            name = Bytes_AS_STRING(oencoded);
-        }
-#endif
-        if (name == NULL) {
-            oname = PyObject_GetAttrString(obj, "name");
-            if (oname != NULL) {
-                oencoded = pg_EncodeString(oname, "UTF-8", NULL, NULL);
-                Py_DECREF(oname);
-                if (oencoded == NULL) {
-                    return NULL;
-                }
-                if (oencoded != Py_None) {
-                    name = Bytes_AS_STRING(oencoded);
-                }
-            }
-            else {
-                PyErr_Clear();
-            }
-        }
-        rw = pgRWops_FromFileObject(obj);
-        if (rw == NULL) {
-            Py_XDECREF(oencoded);
-            return NULL;
-        }
-
-        cext = find_extension(name);
-        if (cext != NULL) {
-            ext = (char *)PyMem_Malloc(strlen(cext) + 1);
-            if (ext == NULL) {
-                Py_XDECREF(oencoded);
-                return PyErr_NoMemory();
-            }
-            strcpy(ext, cext);
-#ifdef WITH_THREAD
-            lock_mutex = !strcasecmp(ext, "gif");
-#endif /* WITH_THREAD */
-        }
-        Py_XDECREF(oencoded);
-#ifdef WITH_THREAD
-        Py_BEGIN_ALLOW_THREADS;
-        if (lock_mutex) {
-            /* using multiple threads does not work for (at least) SDL_image <= 2.0.4 */
-            SDL_LockMutex(_pg_img_mutex);
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
-            SDL_UnlockMutex(_pg_img_mutex);
-        }
-        else {
-            surf = IMG_LoadTyped_RW(rw, 1, ext);
-        }
-        Py_END_ALLOW_THREADS;
-#else /* ~WITH_THREAD */
         surf = IMG_LoadTyped_RW(rw, 1, ext);
+    }
+    Py_END_ALLOW_THREADS;
+#else /* ~WITH_THREAD */
+    surf = IMG_LoadTyped_RW(rw, 1, ext);
 #endif /* ~WITH_THREAD */
-        PyMem_Free(ext);
-    }
 
-    if (surf == NULL){
-        if (!strncmp(IMG_GetError(), "Couldn't open", 12)){
-            SDL_ClearError();
-#if PY3
-            PyErr_SetString(PyExc_FileNotFoundError, "No such file or directory.");
-#else
-            PyErr_SetString(PyExc_IOError, "No such file or directory.");
-#endif
-            return NULL;
-        }
-        else{
-            return RAISE(pgExc_SDLError, IMG_GetError());
-        }
-    }
+    if (surf == NULL)
+        return RAISE(pgExc_SDLError, IMG_GetError());
+
     final = (PyObject *)pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
@@ -338,16 +247,10 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     int r, i;
     int alpha = 0;
 
-#if IS_SDLv1
-    unsigned surf_flags;
-    unsigned surf_alpha;
-    unsigned surf_colorkey;
-#else  /* IS_SDLv2 */
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
     int has_colorkey = 0;
     SDL_BlendMode surf_mode;
-#endif /* IS_SDLv2 */
 
     ss_rows = 0;
     ss_size = 0;
@@ -356,28 +259,6 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
     ss_w = surface->w;
     ss_h = surface->h;
 
-#if IS_SDLv1
-    if (surface->format->Amask) {
-        alpha = 1;
-        ss_surface =
-            SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, ss_w, ss_h, 32,
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                 0xff000000, 0xff0000, 0xff00, 0xff
-#else
-                                 0xff, 0xff00, 0xff0000, 0xff000000
-#endif
-            );
-    }
-    else {
-        ss_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ss_w, ss_h, 24,
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                          0xff0000, 0xff00, 0xff, 0
-#else
-                                          0xff, 0xff00, 0xff0000, 0
-#endif
-        );
-    }
-#else /* IS_SDLv2 */
     if (surface->format->Amask) {
         alpha = 1;
         ss_surface = SDL_CreateRGBSurface(0, ss_w, ss_h, 32,
@@ -397,21 +278,10 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
 #endif
         );
     }
-#endif /* IS_SDLv2 */
 
     if (ss_surface == NULL)
         return -1;
 
-#if IS_SDLv1
-    surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
-    surf_alpha = surface->format->alpha;
-    surf_colorkey = surface->format->colorkey;
-
-    if (surf_flags & SDL_SRCALPHA)
-        SDL_SetAlpha(surface, 0, 255);
-    if (surf_flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey(surface, 0, surface->format->colorkey);
-#else /* IS_SDLv2 */
     SDL_GetSurfaceAlphaMod(surface, &surf_alpha);
     SDL_SetSurfaceAlphaMod(surface, 255);
     SDL_GetSurfaceBlendMode(surface, &surf_mode);
@@ -421,7 +291,6 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
         has_colorkey = 1;
         SDL_SetColorKey(surface, SDL_FALSE, surf_colorkey);
     }
-#endif /* IS_SDLv2 */
 
     ss_rect.x = 0;
     ss_rect.y = 0;
@@ -435,17 +304,10 @@ SavePNG(SDL_Surface *surface, const char *file, SDL_RWops *rw)
         if (ss_rows == NULL)
             return -1;
     }
-#if IS_SDLv1
-    if (surf_flags & SDL_SRCALPHA)
-        SDL_SetAlpha(surface, SDL_SRCALPHA, (Uint8)surf_alpha);
-    if (surf_flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey(surface, SDL_SRCCOLORKEY, surf_colorkey);
-#else  /* IS_SDLv2 */
     if (has_colorkey)
         SDL_SetColorKey(surface, SDL_TRUE, surf_colorkey);
     SDL_SetSurfaceAlphaMod(surface, surf_alpha);
     SDL_SetSurfaceBlendMode(surface, surf_mode);
-#endif /* IS_SDLv2 */
 
     for (i = 0; i < ss_h; i++) {
         ss_rows[i] =
@@ -653,18 +515,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
        So no conversion is needed.  24bit, RGB
     */
 
-#if IS_SDLv1
-    if ((surface->format->BytesPerPixel == 3) &&
-        !(surface->flags & SDL_SRCALPHA) &&
-        (surface->format->Rmask == RED_MASK)) {
-        /*
-           printf("not creating...\n");
-        */
-        ss_surface = surface;
-
-        free_ss_surface = 0;
-    }
-#else  /* IS_SDLv2 */
     if (surface->format->format == SDL_PIXELFORMAT_RGB24) {
         /*
            printf("not creating...\n");
@@ -673,7 +523,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
 
         free_ss_surface = 0;
     }
-#endif /* IS_SDLv2 */
     else {
         /*
         printf("creating...\n");
@@ -682,14 +531,8 @@ SaveJPEG(SDL_Surface *surface, const char *file)
         /* If it is not, then we need to make a new surface.
          */
 
-#if IS_SDLv1
-        ss_surface =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, ss_w, ss_h, pixel_bits,
-                                 RED_MASK, GREEN_MASK, BLUE_MASK, 0);
-#else  /* IS_SDLv2 */
         ss_surface = SDL_CreateRGBSurface(0, ss_w, ss_h, pixel_bits, RED_MASK,
                                           GREEN_MASK, BLUE_MASK, 0);
-#endif /* IS_SDLv2 */
         if (ss_surface == NULL) {
             return -1;
         }
@@ -732,76 +575,6 @@ SaveJPEG(SDL_Surface *surface, const char *file)
 
 #endif /* end if JPEGLIB_H */
 
-#if IS_SDLv1
-/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
-   need to share it between both.
-*/
-
-static SDL_Surface *
-opengltosdl(void)
-{
-    /*we need to get ahold of the pyopengl glReadPixels function*/
-    /*we use pyopengl's so we don't need to link with opengl at compiletime*/
-    SDL_Surface *surf = NULL;
-    Uint32 rmask, gmask, bmask;
-    int i;
-    unsigned char *pixels = NULL;
-
-    GL_glReadPixels_Func p_glReadPixels = NULL;
-
-    p_glReadPixels =
-        (GL_glReadPixels_Func)SDL_GL_GetProcAddress("glReadPixels");
-
-    surf = SDL_GetVideoSurface();
-
-    if (!surf) {
-        return (SDL_Surface *)RAISE(PyExc_RuntimeError,
-                                    "Cannot get video surface.");
-    }
-    if (!p_glReadPixels) {
-        return (SDL_Surface *)RAISE(PyExc_RuntimeError,
-                                    "Cannot find glReadPixels function.");
-
-    }
-
-    pixels = (unsigned char *)malloc(surf->w * surf->h * 3);
-
-    if (!pixels) {
-        return (SDL_Surface *)RAISE(
-                                  PyExc_MemoryError,
-                                  "Cannot allocate enough memory for pixels.");
-    }
-
-    /* GL_RGB, GL_UNSIGNED_BYTE */
-    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
-
-    if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
-        rmask = 0x000000FF;
-        gmask = 0x0000FF00;
-        bmask = 0x00FF0000;
-    }
-    else {
-        rmask = 0x00FF0000;
-        gmask = 0x0000FF00;
-        bmask = 0x000000FF;
-    }
-    surf = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 24, rmask,
-                                gmask, bmask, 0);
-    if (!surf) {
-        free(pixels);
-        return (SDL_Surface *)RAISE(pgExc_SDLError, SDL_GetError());
-    }
-
-    for (i = 0; i < surf->h; ++i) {
-        memcpy(((char *)surf->pixels) + surf->pitch * i,
-               pixels + 3 * surf->w * (surf->h - i - 1), surf->w * 3);
-    }
-
-    free(pixels);
-    return surf;
-}
-
-#endif /* IS_SDLv1 */
 
 static PyObject *
 image_save_ext(PyObject *self, PyObject *arg)
@@ -814,9 +587,6 @@ image_save_ext(PyObject *self, PyObject *arg)
     int result = 1;
     const char *name = NULL;
     SDL_RWops *rw = NULL;
-#if IS_SDLv1
-    SDL_Surface *temp = NULL;
-#endif /* IS_SDLv1 */
 
     if (!PyArg_ParseTuple(arg, "O!O|s", &pgSurface_Type, &surfobj,
                 &obj, &namehint)) {
@@ -824,19 +594,7 @@ image_save_ext(PyObject *self, PyObject *arg)
     }
 
     surf = pgSurface_AsSurface(surfobj);
-#if IS_SDLv1
-    if (surf->flags & SDL_OPENGL) {
-        temp = surf = opengltosdl();
-        if (surf == NULL) {
-            return NULL;
-        }
-    }
-    else {
-        pgSurface_Prep(surfobj);
-    }
-#else  /* IS_SDLv2 */
     pgSurface_Prep(surfobj);
-#endif /* IS_SDLv2 */
 
     oencoded = pg_EncodeString(obj, "UTF-8", NULL, pgExc_SDLError);
     if (oencoded == NULL) {
@@ -928,16 +686,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         }
     }
 
-#if IS_SDLv1
-    if (temp != NULL) {
-        SDL_FreeSurface(temp);
-    }
-    else {
-        pgSurface_Unprep(surfobj);
-    }
-#else  /* IS_SDLv2 */
     pgSurface_Unprep(surfobj);
-#endif /* IS_SDLv2 */
 
     Py_XDECREF(oencoded);
     if (result == -2) {
@@ -963,7 +712,6 @@ image_get_sdl_image_version(PyObject *self, PyObject *arg)
 }
 
 #ifdef WITH_THREAD
-#if PY3
 static void
 _imageext_free(void *ptr)
 {
@@ -972,16 +720,6 @@ _imageext_free(void *ptr)
         _pg_img_mutex = 0;
     }
 }
-#else /* PY2 */
-static void
-_imageext_free(void)
-{
-    if (_pg_img_mutex) {
-        SDL_DestroyMutex(_pg_img_mutex);
-        _pg_img_mutex = 0;
-    }
-}
-#endif /* PY2 */
 #endif /* WITH_THREAD */
 
 static PyMethodDef _imageext_methods[] = {
@@ -997,7 +735,6 @@ static PyMethodDef _imageext_methods[] = {
 
 MODINIT_DEFINE(imageext)
 {
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "imageext",
                                          _imageext_doc,
@@ -1011,7 +748,6 @@ MODINIT_DEFINE(imageext)
 #else /* ~WITH_THREAD */
                                          0};
 #endif /* ~WITH_THREAD */
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1031,11 +767,6 @@ MODINIT_DEFINE(imageext)
     }
 
 #ifdef WITH_THREAD
-#if PY2
-    if (Py_AtExit(_imageext_free)) {
-        MODINIT_ERROR;
-    }
-#endif /* PY2 */
     _pg_img_mutex = SDL_CreateMutex();
     if (!_pg_img_mutex) {
         PyErr_SetString(pgExc_SDLError, SDL_GetError());
@@ -1044,9 +775,5 @@ MODINIT_DEFINE(imageext)
 #endif /* WITH_THREAD */
 
     /* create the module */
-#if PY3
     return PyModule_Create(&_module);
-#else
-    Py_InitModule3(MODPREFIX "imageext", _imageext_methods, _imageext_doc);
-#endif
 }

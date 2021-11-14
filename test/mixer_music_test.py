@@ -26,9 +26,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         if pygame.mixer.get_init() is None:
             pygame.mixer.init()
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer not loading mp3 on travisci"
-    )
     def test_load_mp3(self):
         "|tags:music|"
         self.music_load("mp3")
@@ -66,6 +63,29 @@ class MixerMusicModuleTest(unittest.TestCase):
             with open(bmusfn, "rb") as musf:
                 pygame.mixer.music.load(musf)
 
+    def test_object_namehint(self):
+        """test loading & queuing music from file-like objects with namehint argument."""
+        formats = ["wav", "ogg"]
+        data_fname = example_path("data")
+        for f in formats:
+            path = os.path.join(data_fname, "house_lo.%s" % f)
+            if os.sep == "\\":
+                path = path.replace("\\", "\\\\")
+            bmusfn = filesystem_encode(path)
+
+            # these two "with open" blocks need to be separate, which is kinda weird
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.load(musf, f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.queue(musf, f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.load(musf, namehint=f)
+
+            with open(bmusfn, "rb") as musf:
+                pygame.mixer.music.queue(musf, namehint=f)
+
     def test_load_unicode(self):
         """test non-ASCII unicode path"""
         import shutil
@@ -101,9 +121,6 @@ class MixerMusicModuleTest(unittest.TestCase):
         finally:
             os.remove(tmppath)
 
-    @unittest.skipIf(
-        "Darwin" in platform.system(), "SDL2_mixer issue with mp3 files on Travis CI"
-    )
     def test_queue_mp3(self):
         """Ensures queue() accepts mp3 files.
 
@@ -135,6 +152,15 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         pygame.mixer.music.queue(ogg_file)
         pygame.mixer.music.queue(wav_file)
+
+    def test_queue__arguments(self):
+        """Ensures queue() can be called with proper arguments."""
+        wav_file = example_path(os.path.join("data", "house_lo.wav"))
+
+        pygame.mixer.music.queue(wav_file, loops=2)
+        pygame.mixer.music.queue(wav_file, namehint="")
+        pygame.mixer.music.queue(wav_file, "")
+        pygame.mixer.music.queue(wav_file, "", 2)
 
     def test_queue__no_file(self):
         """Ensures queue() correctly handles missing the file argument."""
@@ -192,8 +218,10 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         self.fail()
 
-    @unittest.skipIf(os.environ.get("SDL_AUDIODRIVER")  == 'disk',
-                     'disk audio driver "playback" writing to disk is slow')
+    @unittest.skipIf(
+        os.environ.get("SDL_AUDIODRIVER") == "disk",
+        'disk audio driver "playback" writing to disk is slow',
+    )
     def test_play__start_time(self):
 
         pygame.display.init()

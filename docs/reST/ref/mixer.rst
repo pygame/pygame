@@ -24,7 +24,9 @@ Sound object, it will return immediately while the sound continues to play. A
 single Sound object can also be actively played back multiple times.
 
 The mixer also has a special streaming channel. This is for music playback and
-is accessed through the :mod:`pygame.mixer.music` module.
+is accessed through the :mod:`pygame.mixer.music` module. Consider using this
+module for playing long running music. Unlike mixer module, the music module
+streams the music from the files without loading music at once into memory.
 
 The mixer module must be initialized like other pygame modules, but it has some
 extra conditions. The ``pygame.mixer.init()`` function takes several optional

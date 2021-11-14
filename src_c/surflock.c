@@ -266,7 +266,6 @@ MODINIT_DEFINE(surflock)
     int ecode;
     static void *c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "surflock",
                                          _surflock_doc,
@@ -276,19 +275,13 @@ MODINIT_DEFINE(surflock)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     if (PyType_Ready(&pgLifetimeLock_Type) < 0) {
         MODINIT_ERROR;
     }
 
     /* Create the module and add the functions */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module =
-        Py_InitModule3(MODPREFIX "surflock", _surflock_methods, _surflock_doc);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

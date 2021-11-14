@@ -1,5 +1,6 @@
-.. image:: docs/pygame_logo.svg
+.. image:: https://raw.githubusercontent.com/pygame/pygame/main/docs/pygame_logo.svg
   :alt: pygame
+  :target: https://www.pygame.org/
 
 
 |AppVeyorBuild| |LaunchpadBuild| |PyPiVersion| |PyPiLicense| |Python2|
@@ -125,10 +126,10 @@ own rotozoom function.  The surfarray module requires the Python
 NumPy package for its multidimensional numeric arrays.
 Dependency versions:
 
-* CPython >= 2.7 or PyPy >= 6.0.0 (and pypy3)
-* SDL >= 1.2.15
-* SDL_mixer >= 1.2.13
-* SDL_image >= 1.2.12
+* CPython >= 3.6 or PyPy3
+* SDL >= 2.0.0
+* SDL_mixer >= 2.0.0
+* SDL_image >= 2.0.0
 * SDL_ttf >= 2.0.11
 * SDL_gfx (optional, vendored in)
 * NumPy >= 1.6.2 (optional)
@@ -166,8 +167,8 @@ See docs/licenses for licenses of dependencies.
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
-.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.1.svg
-   :target: https://github.com/pygame/pygame/compare/2.0.1...main
+.. |GithubCommits| image:: https://img.shields.io/github/commits-since/pygame/pygame/2.0.2.svg
+   :target: https://github.com/pygame/pygame/compare/2.0.2...main
 
 .. |LGTMAlerts| image:: https://img.shields.io/lgtm/alerts/g/pygame/pygame.svg?logo=lgtm&logoWidth=18
    :target: https://lgtm.com/projects/g/pygame/pygame/alerts/

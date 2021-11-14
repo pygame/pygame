@@ -859,14 +859,7 @@ mask_from_surface(PyObject *self, PyObject *args, PyObject *kwargs)
 
     Py_BEGIN_ALLOW_THREADS; /* Release the GIL. */
 
-#if IS_SDLv1
-    if (surf->flags & SDL_SRCCOLORKEY) {
-        colorkey = surf->format->colorkey;
-        use_thresh = 0;
-    }
-#else  /* IS_SDLv2 */
     use_thresh = (SDL_GetColorKey(surf, &colorkey) == -1);
-#endif /* IS_SDLv2 */
 
     if (use_thresh) {
         set_from_threshold(surf, maskobj->mask, threshold);
@@ -2100,11 +2093,7 @@ check_surface_pixel_format(SDL_Surface *surf, SDL_Surface *check_surf)
 {
     if ((surf->format->BytesPerPixel != check_surf->format->BytesPerPixel) ||
         (surf->format->BitsPerPixel != check_surf->format->BitsPerPixel)
-#if IS_SDLv2
         || (surf->format->format != check_surf->format->format)
-#else
-        || ((surf->flags & SDL_SRCALPHA) != (check_surf->flags & SDL_SRCALPHA))
-#endif
     ) {
         return 0;
     }
@@ -2146,11 +2135,7 @@ mask_to_surface(PyObject *self, PyObject *args, PyObject *kwargs)
     if (Py_None == surfobj) {
         surfobj = PyObject_CallFunction((PyObject *)&pgSurface_Type, "(ii)ii",
                                         bitmask->w, bitmask->h,
-#if IS_SDLv1
-                                        SDL_SRCALPHA,
-#else
                                         PGS_SRCALPHA,
-#endif
                                         32);
 
         if (NULL == surfobj) {
@@ -2450,11 +2435,7 @@ mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
     int w, h;
     int fill = 0; /* Default is false. */
     char *keywords[] = {"size", "fill", NULL};
-#if PY3
     const char *format = "O|p";
-#else
-    const char *format = "O|i";
-#endif
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, format, keywords, &size,
                                      &fill)) {
@@ -2488,7 +2469,6 @@ mask_init(PyObject *self, PyObject *args, PyObject *kwargs)
     return 0;
 }
 
-#if PY3
 typedef struct {
     int numbufs;
     Py_ssize_t shape[2];
@@ -2560,7 +2540,6 @@ static PyBufferProcs pgMask_BufferProcs = {
     (releasebufferproc)pgMask_ReleaseBuffer
 };
 
-#endif /* PY3 */
 
 static PyTypeObject pgMask_Type = {
     PyVarObject_HEAD_INIT(NULL,0)
@@ -2581,13 +2560,8 @@ static PyTypeObject pgMask_Type = {
     (reprfunc)NULL,       /* tp_str */
     0L,                   /* tp_getattro */
     0L,                   /* tp_setattro */
-#if PY3
     &pgMask_BufferProcs,  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-#else /* PY2 */
-    0L,                   /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-#endif /* PY2 */
     DOC_PYGAMEMASKMASK, /* Documentation string */
     0,                  /* tp_traverse */
     0,                  /* tp_clear */
@@ -2621,7 +2595,6 @@ MODINIT_DEFINE(mask)
     PyObject *module, *dict, *apiobj;
     static void *c_api[PYGAMEAPI_MASK_NUMSLOTS];
 
-#if PY3
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "mask",
                                          DOC_PYGAMEMASK,
@@ -2631,7 +2604,6 @@ MODINIT_DEFINE(mask)
                                          NULL,
                                          NULL,
                                          NULL};
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -2659,11 +2631,7 @@ MODINIT_DEFINE(mask)
     }
 
     /* create the module */
-#if PY3
     module = PyModule_Create(&_module);
-#else
-    module = Py_InitModule3(MODPREFIX "mask", _mask_methods, DOC_PYGAMEMASK);
-#endif
     if (module == NULL) {
         MODINIT_ERROR;
     }

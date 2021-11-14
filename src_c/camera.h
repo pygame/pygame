@@ -20,6 +20,7 @@
 */
 
 #include "pygame.h"
+#include "pgcompat.h"
 #include "doc/camera_doc.h"
 
 #if defined(__unix__)
@@ -44,18 +45,17 @@
     #endif
 
     #include <linux/videodev2.h>
-#elif defined(__APPLE__)
-    #include <AvailabilityMacros.h>
-    /* We support OSX 10.6 and below. */
-    #if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
-        #define PYGAME_MAC_CAMERA_OLD 1
-    #endif
 #endif
 
-#if defined(PYGAME_MAC_CAMERA_OLD)
-        #include <QuickTime/QuickTime.h>
-        #include <QuickTime/Movies.h>
-        #include <QuickTime/ImageCompression.h>
+#if defined(__WIN32__)
+    #define PYGAME_WINDOWS_CAMERA 1
+
+    #include <mfapi.h>
+    #include <mfobjects.h>
+    #include <mfidl.h>
+    #include <mfreadwrite.h>
+    #include <combaseapi.h>
+    #include <mftransform.h>
 #endif
 
 /* some constants used which are not defined on non-v4l machines. */
@@ -67,6 +67,9 @@
 #endif
 #ifndef V4L2_PIX_FMT_YUYV
     #define V4L2_PIX_FMT_YUYV 'YUYV'
+#endif
+#ifndef V4L2_PIX_FMT_XBGR32
+    #define V4L2_PIX_FMT_XBGR32 'XR24'
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -102,22 +105,27 @@ typedef struct pgCameraObject {
     int brightness;
     int fd;
 } pgCameraObject;
-#elif defined(PYGAME_MAC_CAMERA_OLD)
+#elif defined(PYGAME_WINDOWS_CAMERA)
 typedef struct pgCameraObject {
     PyObject_HEAD
-    char* device_name;              /* unique name of the device */
-    OSType pixelformat;
-    unsigned int color_out;
-    SeqGrabComponent component;     /* A type used by the Sequence Grabber API */
-    SGChannel channel;              /* Channel of the Sequence Grabber */
-    GWorldPtr gworld;               /* Pointer to the struct that holds the data of the captured image */
-    Rect boundsRect;                /* bounds of the image frame */
-    long size;                      /* size of the image in our buffer to draw */
+    WCHAR* device_name;
+    IMFSourceReader* reader;
+    IMFTransform* transform;
+    IMFVideoProcessorControl* control;
+    IMFMediaBuffer* buf;
+    IMFMediaBuffer* raw_buf;
+    int buffer_ready;
+    short open; /* used to signal the update_function to exit */
+    HANDLE t_handle;
+    HRESULT t_error;
+    int t_error_line;
+    int width;
+    int height;
     int hflip;
     int vflip;
-    short depth;
-    struct buffer pixels;
-    //struct buffer tmp_pixels        /* place where the flipped image in temporarily stored if hflip or vflip is true.*/
+    int last_vflip;
+    int color_out;
+    unsigned long pixelformat;
 } pgCameraObject;
 
 #else
@@ -145,6 +153,7 @@ typedef struct pgCameraObject {
 /* internal functions for colorspace conversion */
 void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace);
 void rgb24_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
+void bgr32_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void rgb_to_yuv (const void* src, void* dst, int length,
                  unsigned long source, SDL_PixelFormat* format);
@@ -180,25 +189,20 @@ int v4l2_init_device (pgCameraObject* self);
 int v4l2_close_device (pgCameraObject* self);
 int v4l2_open_device (pgCameraObject* self);
 
-#elif defined(PYGAME_MAC_CAMERA_OLD)
-/* internal functions specific to mac */
-char** mac_list_cameras(int* num_devices);
-int mac_open_device (pgCameraObject* self);
-int mac_init_device(pgCameraObject* self);
-int mac_close_device (pgCameraObject* self);
-int mac_start_capturing(pgCameraObject* self);
-int mac_stop_capturing (pgCameraObject* self);
-
-int mac_get_control(pgCameraObject* self, int id, int* value);
-int mac_set_control(pgCameraObject* self, int id, int value);
-
-PyObject* mac_read_raw(pgCameraObject *self);
-int mac_read_frame(pgCameraObject* self, SDL_Surface* surf);
-int mac_camera_idle(pgCameraObject* self);
-int mac_copy_gworld_to_surface(pgCameraObject* self, SDL_Surface* surf);
-
-void flip_image(const void* image, void* flipped_image, int width, int height,
-                short depth, int hflip, int vflip);
+#elif defined(PYGAME_WINDOWS_CAMERA)
+/* internal functions specific to WINDOWS */
+WCHAR** windows_list_cameras(int* num_devices);
+int windows_init_device(pgCameraObject* self);
+int windows_open_device(pgCameraObject* self);
+IMFActivate* windows_device_from_name(WCHAR* device_name);
+int windows_close_device(pgCameraObject* self);
+int windows_read_frame(pgCameraObject* self, SDL_Surface* surf);
+int windows_frame_ready(pgCameraObject* self, int* result);
+PyObject* windows_read_raw(pgCameraObject* self);
+int windows_process_image(pgCameraObject *self, BYTE* data, DWORD buffer_size,
+                          SDL_Surface *surf);
+void windows_dealloc_device(pgCameraObject* self);
+int windows_init_device(pgCameraObject* self);
 
 #endif
 

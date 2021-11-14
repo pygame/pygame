@@ -15,13 +15,51 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "2.0.2.dev3",
+    "version":          "2.1.1.dev1",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "A community project.",
     "author_email":     "pygame@pygame.org",
     "description":      "Python Game Development",
     "long_description": LONG_DESCRIPTION,
+    "long_description_content_type": "text/x-rst",
+    "project_urls": {
+        "Documentation": "https://pygame.org/docs",
+        "Bug Tracker": "https://github.com/pygame/pygame/issues",
+        "Source": "https://github.com/pygame/pygame",
+        "Twitter": "https://twitter.com/pygame_org",
+    },
+    "classifiers": [
+        "Development Status :: 6 - Mature",
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        "Programming Language :: Assembly",
+        "Programming Language :: C",
+        "Programming Language :: Cython",
+        "Programming Language :: Objective C",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Games/Entertainment",
+        "Topic :: Multimedia :: Sound/Audio",
+        "Topic :: Multimedia :: Sound/Audio :: MIDI",
+        "Topic :: Multimedia :: Sound/Audio :: Players",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Multimedia :: Graphics :: Capture :: Digital Camera",
+        "Topic :: Multimedia :: Graphics :: Capture :: Screen Capture",
+        "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+        "Topic :: Multimedia :: Graphics :: Viewers",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+    ],
+    "python_requires": '>=3.6',
 }
 
 import re
@@ -31,6 +69,14 @@ import os
 # just import these always and fail early if not present
 import distutils
 from setuptools import setup
+
+
+# A (bit hacky) fix for https://github.com/pygame/pygame/issues/2613
+# This is due to the fact that distutils uses command line args to 
+# export PyInit_* functions on windows, but those functions are already exported
+# and that is why compiler gives warnings
+from distutils.command.build_ext import build_ext
+build_ext.get_export_symbols = lambda self, ext: []
 
 IS_PYPY = '__pypy__' in sys.builtin_module_names
 
@@ -75,14 +121,11 @@ def compilation_help():
 
 
 
-if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
+if not hasattr(sys, 'version_info') or sys.version_info < (3, 5):
     compilation_help()
-    raise SystemExit("Pygame requires Python version 2.7 or above.")
-if sys.version_info >= (3, 0) and sys.version_info < (3, 4):
-    compilation_help()
-    raise SystemExit("Pygame requires Python3 version 3.5 or above.")
+    raise SystemExit("Pygame requires Python3 version 3.6 or above.")
 if IS_PYPY and sys.pypy_version_info < (7,):
-    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython 2.7 or CPython 3.5+")
+    raise SystemExit("Pygame requires PyPy version 7.0.0 above, compatible with CPython >= 3.6")
 
 def consume_arg(name):
     if name in sys.argv:
@@ -120,12 +163,6 @@ if consume_arg('-pygame-ci'):
               '-Werror=cast-align -Werror=int-conversion ' + \
               '-Werror=incompatible-pointer-types'
     os.environ['CFLAGS'] = cflags
-
-# For python 2 we remove the -j options.
-if sys.version_info[0] < 3:
-    # Used for parallel builds with setuptools. Not supported by py2.
-    [consume_arg('-j%s' % x) for x in range(32)]
-
 
 STRIPPED=False
 
@@ -359,9 +396,9 @@ if AUTO_CONFIG or not os.path.isfile('Setup'):
 
 try:
     s_mtime = os.stat("Setup")[stat.ST_MTIME]
-    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL1.in'))[stat.ST_MTIME]
+    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL2.in'))[stat.ST_MTIME]
     if sin_mtime > s_mtime:
-        print ('\n\nWARNING, "buildconfig/Setup.SDL1.in" newer than "Setup",'
+        print ('\n\nWARNING, "buildconfig/Setup.SDL2.in" newer than "Setup",'
                'you might need to modify "Setup".')
 except OSError:
     pass
@@ -530,7 +567,7 @@ def add_command(name):
     return decorator
 
 # try to find DLLs and copy them too  (only on windows)
-if sys.platform == 'win32':
+if sys.platform == 'win32' and not 'WIN32_DO_NOT_INCLUDE_DEPS' in os.environ:
 
     from distutils.command.build_ext import build_ext
 
@@ -629,41 +666,43 @@ if sys.platform == 'win32':
     def flag_filter(compiler, *flags):
         return [flag for flag in flags if has_flag(compiler, flag)]
 
-    @add_command('build_ext')
-    class WinBuildExt(build_ext):
-        """This build_ext sets necessary environment variables for MinGW"""
+    # Only on win32, not MSYS2
+    if 'MSYSTEM' not in os.environ:
+        @add_command('build_ext')
+        class WinBuildExt(build_ext):
+            """This build_ext sets necessary environment variables for MinGW"""
 
-        # __sdl_lib_dir is possible location of msvcrt replacement import
-        # libraries, if they exist. Pygame module base only links to SDL so
-        # should have the SDL library directory as its only -L option.
-        for e in extensions:
-            if e.name == 'base':
-                __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
-                break
+            # __sdl_lib_dir is possible location of msvcrt replacement import
+            # libraries, if they exist. Pygame module base only links to SDL so
+            # should have the SDL library directory as its only -L option.
+            for e in extensions:
+                if e.name == 'base':
+                    __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
+                    break
 
-        def build_extensions(self):
-            # Add supported optimisations flags to reduce code size with MSVC
-            opts = flag_filter(self.compiler, "/GF", "/Gy")
-            for extension in extensions:
-                extension.extra_compile_args += opts
+            def build_extensions(self):
+                # Add supported optimisations flags to reduce code size with MSVC
+                opts = flag_filter(self.compiler, "/GF", "/Gy")
+                for extension in extensions:
+                    extension.extra_compile_args += opts
 
-            build_ext.build_extensions(self)
+                build_ext.build_extensions(self)
 
-    # Add the precompiled smooth scale MMX functions to transform.
-    def replace_scale_mmx():
-        for e in extensions:
-            if e.name == 'transform':
-                if '64 bit' in sys.version:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
-                else:
-                    e.extra_objects.append(
-                        os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
-                for i in range(len(e.sources)):
-                    if e.sources[i].endswith('scale_mmx.c'):
-                        del e.sources[i]
-                        return
-    replace_scale_mmx()
+        # Add the precompiled smooth scale MMX functions to transform.
+        def replace_scale_mmx():
+            for e in extensions:
+                if e.name == 'transform':
+                    if '64 bit' in sys.version:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
+                    else:
+                        e.extra_objects.append(
+                            os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
+                    for i in range(len(e.sources)):
+                        if e.sources[i].endswith('scale_mmx.c'):
+                            del e.sources[i]
+                            return
+        replace_scale_mmx()
 
 
 # clean up the list of extensions

@@ -175,11 +175,7 @@ _make_surface(pgPixelArrayObject *array, PyObject *args)
     temp_surf = SDL_CreateRGBSurface(surf->flags,
                                      (int)dim0,
                                      (int)dim1,
-#if IS_SDLv1
-                                     bpp,
-#else /* IS_SDLv2 */
                                      surf->format->BitsPerPixel,
-#endif /* IS_SDLv2 */
                                      surf->format->Rmask,
                                      surf->format->Gmask,
                                      surf->format->Bmask,
