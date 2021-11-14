@@ -17,7 +17,6 @@
 #define DOC_PYGAMEEXAMPLESMASKMAIN "mask.main(*args) -> None\ndisplay multiple images bounce off each other using collision detection"
 #define DOC_PYGAMEEXAMPLESTESTSPRITEMAIN "testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0) -> None\nshow lots of sprites moving around"
 #define DOC_PYGAMEEXAMPLESHEADLESSNOWINDOWSNEEDEDMAIN "headless_no_windows_needed.main(fin, fout, w, h) -> None\nwrite an image file that is smoothscaled copy of an input file"
-#define DOC_PYGAMEEXAMPLESFASTEVENTSMAIN "fastevents.main() -> None\nstress test the fastevents module"
 #define DOC_PYGAMEEXAMPLESJOYSTICKMAIN "joystick.main() -> None\ndemonstrate joystick functionality"
 #define DOC_PYGAMEEXAMPLESBLENDFILLMAIN "blend_fill.main() -> None\ndemonstrate the various surface.fill method blend options"
 #define DOC_PYGAMEEXAMPLESBLITBLENDSMAIN "blit_blends.main() -> None\nuses alternative additive fill to that of surface.fill"
@@ -104,10 +103,6 @@ show lots of sprites moving around
 pygame.examples.headless_no_windows_needed.main
  headless_no_windows_needed.main(fin, fout, w, h) -> None
 write an image file that is smoothscaled copy of an input file
-
-pygame.examples.fastevents.main
- fastevents.main() -> None
-stress test the fastevents module
 
 pygame.examples.joystick.main
  joystick.main() -> None
