@@ -783,7 +783,7 @@ class LintCommand(Command):
                 sys.exit(1)
 
         c_files_unfiltered = glob.glob("src_c/**/*.[ch]")
-        c_file_disallow = ["_sdl2", "pypm"]
+        c_file_disallow = ["_sdl2", "pypm", "SDL_gfx", "sse2neon.h", "src_c/doc/"]
         c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
         python_directories = ["src_py", "test"]
         linters = {
