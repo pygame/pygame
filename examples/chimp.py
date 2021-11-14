@@ -162,7 +162,7 @@ def main():
     punch_sound = load_sound("punch.wav")
     chimp = Chimp()
     fist = Fist()
-    allsprites = pg.sprite.RenderPlain((fist, chimp))
+    allsprites = pg.sprite.RenderPlain((chimp, fist))
     clock = pg.time.Clock()
 
     # Main Loop
