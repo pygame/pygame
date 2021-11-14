@@ -300,26 +300,6 @@ pygame much earlier.
 
    .. ## pygame.examples.headless_no_windows_needed.main ##
 
-.. function:: fastevents.main
-
-   | :sl:`stress test the fastevents module`
-   | :sg:`fastevents.main() -> None`
-
-   This is a stress test for the fastevents module.
-
-      * Fast events does not appear faster!
-
-      * 
-
-   So far it looks like normal :mod:`pygame.event` is faster by up to two
-   times. So maybe fastevent isn't fast at all.
-
-   Tested on Windows XP SP2 Athlon, and FreeBSD.
-
-   However... on my Debian Duron 850 machine fastevents is faster.
-
-   .. ## pygame.examples.fastevents.main ##
-
 .. function:: joystick.main
 
    | :sl:`demonstrate joystick functionality`
