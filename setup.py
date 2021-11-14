@@ -782,16 +782,19 @@ class LintCommand(Command):
                 warnings.warn(msg % (linter, linter))
                 sys.exit(1)
 
-        c_directories = ["src_c"]
+        c_files_unfiltered = glob.glob("src_c/**/*.[ch]")
+        c_file_disallow = ["_sdl2", "pypm"]
+        c_files = [x for x in c_files_unfiltered if not any([d for d in c_file_disallow if d in x])]
         python_directories = ["src_py", "test"]
         linters = {
-            "clang-format": c_directories,
-            "isort": python_directories,
+            "clang-format": ["-i"] + c_files,
+            # "isort": python_directories,
             "black": python_directories,
             # Test directory has too much pylint warning for now
             "pylint": ["src_py"],
         }
         for linter, option in linters.items():
+            print(" ".join([linter] + option))
             check_linter_exists(linter)
             subprocess.run([linter] + option)
 
