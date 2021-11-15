@@ -38,13 +38,21 @@ blue.
 """
 
 
-from pygame.pixelcopy import array_to_surface, surface_to_array, \
-    map_array as pix_map_array, make_surface as pix_make_surface
+from pygame.pixelcopy import (
+    array_to_surface,
+    surface_to_array,
+    map_array as pix_map_array,
+    make_surface as pix_make_surface,
+)
 import numpy
-from numpy import array as numpy_array, empty as numpy_empty, \
-    uint32 as numpy_uint32, ndarray as numpy_ndarray
+from numpy import (
+    array as numpy_array,
+    empty as numpy_empty,
+    uint32 as numpy_uint32,
+    ndarray as numpy_ndarray,
+)
 
-import warnings     # will be removed in the future
+import warnings  # will be removed in the future
 
 
 # float96 not available on all numpy versions.
@@ -61,11 +69,27 @@ _pixel2d_bitdepths = {8, 16, 32}
 
 
 __all__ = [
-    "array2d", "array3d", "array_alpha", "array_blue", "array_colorkey",
-    "array_green", "array_red", "array_to_surface", "blit_array",
-    "get_arraytype", "get_arraytypes", "make_surface", "map_array", "pixels2d",
-    "pixels3d", "pixels_alpha", "pixels_blue", "pixels_green", "pixels_red",
-    "surface_to_array", "use_arraytype"
+    "array2d",
+    "array3d",
+    "array_alpha",
+    "array_blue",
+    "array_colorkey",
+    "array_green",
+    "array_red",
+    "array_to_surface",
+    "blit_array",
+    "get_arraytype",
+    "get_arraytypes",
+    "make_surface",
+    "map_array",
+    "pixels2d",
+    "pixels3d",
+    "pixels_alpha",
+    "pixels_blue",
+    "pixels_green",
+    "pixels_red",
+    "surface_to_array",
+    "use_arraytype",
 ]
 
 
@@ -143,10 +167,11 @@ def pixels2d(surface):
     if surface.get_bitsize() not in _pixel2d_bitdepths:
         raise ValueError("unsupport bit depth for 2D reference array")
     try:
-        return numpy_array(surface.get_view('2'), copy=False)
+        return numpy_array(surface.get_view("2"), copy=False)
     except (ValueError, TypeError):
-        raise ValueError("bit depth %i unsupported for 2D reference array" %
-                         (surface.get_bitsize(),))
+        raise ValueError(
+            "bit depth %i unsupported for 2D reference array" % (surface.get_bitsize(),)
+        )
 
 
 def array3d(surface):
@@ -184,7 +209,7 @@ def pixels3d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    return numpy_array(surface.get_view('3'), copy=False)
+    return numpy_array(surface.get_view("3"), copy=False)
 
 
 def array_alpha(surface):
@@ -203,7 +228,7 @@ def array_alpha(surface):
     """
     size = surface.get_size()
     array = numpy.empty(size, numpy.uint8)
-    surface_to_array(array, surface, 'A')
+    surface_to_array(array, surface, "A")
     return array
 
 
@@ -222,7 +247,7 @@ def pixels_alpha(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('A'), copy=False)
+    return numpy.array(surface.get_view("A"), copy=False)
 
 
 def pixels_red(surface):
@@ -239,7 +264,7 @@ def pixels_red(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('R'), copy=False)
+    return numpy.array(surface.get_view("R"), copy=False)
 
 
 def array_red(surface):
@@ -256,7 +281,7 @@ def array_red(surface):
     """
     size = surface.get_size()
     array = numpy.empty(size, numpy.uint8)
-    surface_to_array(array, surface, 'R')
+    surface_to_array(array, surface, "R")
     return array
 
 
@@ -274,7 +299,7 @@ def pixels_green(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('G'), copy=False)
+    return numpy.array(surface.get_view("G"), copy=False)
 
 
 def array_green(surface):
@@ -291,7 +316,7 @@ def array_green(surface):
     """
     size = surface.get_size()
     array = numpy.empty(size, numpy.uint8)
-    surface_to_array(array, surface, 'G')
+    surface_to_array(array, surface, "G")
     return array
 
 
@@ -309,7 +334,7 @@ def pixels_blue(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('B'), copy=False)
+    return numpy.array(surface.get_view("B"), copy=False)
 
 
 def array_blue(surface):
@@ -326,7 +351,7 @@ def array_blue(surface):
     """
     size = surface.get_size()
     array = numpy.empty(size, numpy.uint8)
-    surface_to_array(array, surface, 'B')
+    surface_to_array(array, surface, "B")
     return array
 
 
@@ -347,7 +372,7 @@ def array_colorkey(surface):
     """
     size = surface.get_size()
     array = numpy.empty(size, numpy.uint8)
-    surface_to_array(array, surface, 'C')
+    surface_to_array(array, surface, "C")
     return array
 
 
@@ -380,9 +405,13 @@ def use_arraytype(arraytype):
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
-                                     "this function will be removed in a "
-                                     "future version of the module"))
+    warnings.warn(
+        DeprecationWarning(
+            "only numpy arrays are now supported, "
+            "this function will be removed in a "
+            "future version of the module"
+        )
+    )
     arraytype = arraytype.lower()
     if arraytype != "numpy":
         raise ValueError("invalid array type")
@@ -393,9 +422,13 @@ def get_arraytype():
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
-                                     "this function will be removed in a "
-                                     "future version of the module"))
+    warnings.warn(
+        DeprecationWarning(
+            "only numpy arrays are now supported, "
+            "this function will be removed in a "
+            "future version of the module"
+        )
+    )
     return "numpy"
 
 
@@ -404,7 +437,11 @@ def get_arraytypes():
 
     DEPRECATED - only numpy arrays are now supported.
     """
-    warnings.warn(DeprecationWarning("only numpy arrays are now supported, "
-                                     "this function will be removed in a "
-                                     "future version of the module"))
-    return "numpy",
+    warnings.warn(
+        DeprecationWarning(
+            "only numpy arrays are now supported, "
+            "this function will be removed in a "
+            "future version of the module"
+        )
+    )
+    return ("numpy",)
